@@ -10,7 +10,6 @@ how can i package this directories with its permissions?
 
 
 
-
 sophomorix-repair 
    - use function create_userlist to specify users
    - update man page
@@ -59,7 +58,7 @@ sophomorix-check
 sophomorix-add
    - create new users with quota
    - add call sophomorix-quota --noninteractive
-
+   - add user to cyrus (dont't know how to do)
 
 sophomorix-move
    - remove option --klassenintern ()
@@ -165,6 +164,38 @@ sophomorix-vampire:
    - invent k option, used as in sophomorix-check(necessary?)
 
 
+sophomorix-webmin
+   - totally configure webmin
+   - do something, only when /etc/webmin exists
+   - option --noninteractive
+   - update this script for sophomorix2
+   - when adding users, they must be added to webmin groups 
+     student,teacher,admin
+     file: webmin.group
+       problem group student would need 1 entrys for every student 
+       (this will be a verrrrry long line)
+   - make webmin accessable for every workstation
+     (or better limit it to some workstations, specified in workstation_db)
+     /etc/webmin/miniserv.conf
+   --> option --all-hosts     ->  allow= - Zeile entfernen     
+
+17c17
+< libwrap=1
+---
+> libwrap=
+19d18
+< allow=127.0.0.1
+
+   - when adding teachers, add modules that they can use 
+   - usermin-module will be converted to webmin by thomas
+       -> usermin is not running on the ml-server
+       -> postinstall-script muss sich in gruppe student, teacher eintragen
+   - 
+
+sophomorix-mail
+   - Eintrag der lehrer in /etc/aliases mit vorname.nachname@...
+     wenn das in sophomorix.conf so steht.
+     (... wird sich noch ändern (SQL))
 
 sophomorix-tuition??
    - write new script to distribute data, collect data, ...
@@ -175,7 +206,18 @@ Functions in SophomorixBase:
    - Put Quota-functions in SophomorixQuota.pm 
 
 
+SophomorixAPI: Dringend!!!!!!!!!!!!!!!
+
+   - funktion zum schreiben der eingetragenen klassen
+   - dito zum lesen, ascibetisch
+   - funktion get_all_admin_classes (liest class_db aus)
+   - mail an musterloesung@lihas.de (tho@lihas.de)
+
+
 All Scripts:
+   - read the config-files from thomas
+     (file:  debconf datenbank, perl-lib zum auslesen benutzen ist dabei)
+      debconf-show linuxmuster-base
    - creating database file from sophomorix-setup-files??
        removing it from sophomorix-check??
    - remove old stuff: ${schueler_oder_user}.protokoll";
