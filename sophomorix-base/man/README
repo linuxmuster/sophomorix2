@@ -39,3 +39,23 @@ of sophomorix to another language.
    To view the formatted manpages use:
 
     man -l manpage.de.8
+
+6. Manpages are handled like this in the sophomorix-packages
+   - they are NOT installed with the makefile
+   - they are installed with debian/rules:
+
+        1. create a manmage  command.de.8  (replace de with en,...)
+           in the subpackage in which the documented command is
+
+        2. the .TH-line of the manpage should look like this:
+
+           .TH COMMAND 8
+
+           the section in .TH and the sectionnumber in the filename 
+           have to be identical.
+
+        3. put the following line in debian/rules:
+
+           dh_installman -ppackage package/path/to/man/sophomorix-project.de.8
+
+        4. debian installs it in the correct location           

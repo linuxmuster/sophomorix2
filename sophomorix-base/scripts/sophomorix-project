@@ -23,6 +23,7 @@ use Sophomorix::SophomorixFiles;
 $Conf::log_level=1;
 my $help=0;
 my $info=0;
+my $create=0;
 $Conf::log_level=1;
 
 my $project="";
@@ -45,6 +46,7 @@ my @options=();
 my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
+           "create" => \$create,
            "verbose|v+" => \$Conf::log_level,
            "Name|project|p=s" => \$project,
            "LongName=s" => \$long_name,
@@ -92,7 +94,7 @@ if ($info==1){
 
 
 if ($project eq ""){
-    print "Sie müssen ein Projekt angeben!\n";
+    &show_project_list();
     exit;
 }
 
@@ -105,6 +107,7 @@ if (defined $p_members){push @options, "Members=$p_members"}
 if (defined $p_groups){push @options, "MemberGroups=$p_groups"}
 if (defined $p_add_quota){push @options, "AddQuota=$p_add_quota"}
 if (defined $p_max_members){push @options, "MaxMembers=$p_max_members"}
+if ($create==1){push @options, "Create=yes"}
 
 
 
@@ -120,7 +123,7 @@ if (defined $p_max_members){push @options, "MaxMembers=$p_max_members"}
 # step 2
 # Read the database  
 # and change the system accordingly
-&create_project($project);
+   &create_project($project);
 
 
 
@@ -129,10 +132,27 @@ if (defined $p_max_members){push @options, "MaxMembers=$p_max_members"}
 # Sub
 ###########################################################################
 
+sub show_project_list {
+   open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects.db");
+   print "The following projects exist already:\n";
+   printf "   %-16s %-16s %-60s\n","Name:", "Teachers", "LongName:";
+
+   print "=======================================",
+         "=======================================\n";
+   while(<PROJECT>){
+       chomp();
+       my @line=split(/;/);
+       if (not defined $line[1]){$line[1]="---"}
+       if (not defined $line[2]){$line[2]="---"}
+       printf "   %-16s %-16s %-60s\n",$line[0], $line[2], $line[1];
+   }
+   close(PROJECT);
+}
 
 sub create_project {
     # reads from projects.db and creates the project in the system
     my ($project) = @_;
+    my $found=0;
     my %project_data=();
     my %users_to_add=();
     my @users_to_add=();
@@ -142,11 +162,11 @@ sub create_project {
     my @new_teachers=();
     my @new_groups=();
     my %seen=();
-    print "\nCreating/Updating Project $project: \n";
     open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects.db");
     while(<PROJECT>){
        my @line=split(/;/);
        if ($line[0] eq $project){
+           $found=1;
 	   $project_data{"Name"} = $line[0];
 	   $project_data{"LongName"} = $line[1];
 	   $project_data{"Teachers"} = $line[2];
@@ -157,6 +177,11 @@ sub create_project {
        }
     }
     close(PROJECT);
+    # exit, if not found
+    if ($found==0){
+	exit;
+    }
+    print "\nCreating/Updating Project $project: \n";
     #make sure that group exists
     system("groupadd $project");
     # create the userlist

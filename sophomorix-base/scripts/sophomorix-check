@@ -1408,7 +1408,7 @@ sub semicolon_number_ok {
 	    print " ... $number Strichpunkte gefunden (UNID) ... OK in $filename\n";
         }
         return 1;
-   } elsif ($strichpunkt_anzahl==5 && $schuelerdatei eq $schueler_to_check_dateien[1] ){
+   } elsif ($strichpunkt_anzahl==5 && $filename eq $schueler_to_check_dateien[1] ){
             # 5 Strichpunkte erlaubt in extraschueler.txt
             if($Conf::log_level>=3){
                print " ... $number Strichpunkte gefunden in $filename ... OK\n";
@@ -2615,11 +2615,11 @@ sub generate_kill_file {
               $epoche_deaktivierung_ab = &get_action_date($identifier, "deactivation");
               if ($epoche_deaktivierung_ab != 0) {
                   $user_deaktivierungsbeginn{$identifier}="$heute";
-                  if($Conf::log_level>=2){
+#                  if($Conf::log_level>=2){
                       print "$identifier wurde am $heute deaktiviert\n";
                       push @admin_list_deactivation, 
                            "$identifier wurde am $heute deaktiviert\n";
-                  }
+#                  }
               # Alle zum deaktivieren notwendigen Schritte durchführen
               my $login=$schueler_im_system_loginname{$identifier};
               &update_user_db_entry($login, 
