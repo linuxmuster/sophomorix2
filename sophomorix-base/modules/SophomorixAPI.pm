@@ -248,21 +248,26 @@ sub get_workstations_room {
     my ($a,$b,$gid) = getgrnam $room; 
     #print"Info: Group-ID der Gruppe $room ist $gid<p>\n";
 
-    # alle Workstations in diesem Raum heraussuchen
-    setpwent();
-    while (@pwliste=getpwent()) {
-    #print"$pwliste[7]\n";  # Das 8. Element ist das Home-Verzeichnis
-#     if ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/workstations\//) {
-     if ($pwliste[3] eq $gid && $pwliste[7]=~/^$DevelConf::homedir_ws/) {
-         push(@workstations, $pwliste[0]);
-         #print "$pwliste[3]";
-      }
+    
+    if (not defined $gid){
+        return @workstations;
+    } else {
+       # alle Workstations in diesem Raum heraussuchen
+       setpwent();
+       while (@pwliste=getpwent()) {
+       #print"$pwliste[7]\n";  # Das 8. Element ist das Home-Verzeichnis
+#        if ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/workstations\//) {
+         if ($pwliste[3] eq $gid && $pwliste[7]=~/^$DevelConf::homedir_ws/) {
+             push(@workstations, $pwliste[0]);
+             #print "$pwliste[3]";
+         }
+       }
+       endpwent();
+    
+       # Alphabetisch ordnen
+       @workstations=sort @workstations;
+       return @workstations;
     }
-    endpwent();
-
-    # Alphabetisch ordnen
-    @workstations=sort @workstations;
-    return @workstations;
 }
 
 

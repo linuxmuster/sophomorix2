@@ -22,6 +22,7 @@ use Time::localtime;
 @EXPORT = qw( linie 
               titel
               print_list 
+              print_list_column 
               formatiere_liste
               get_alle_verzeichnis_rechte
               get_v_rechte
@@ -45,6 +46,7 @@ use Time::localtime;
               get_user_history
               get_group_list
               print_forward
+              set_sophomorix_passwd
               create_share_link
               remove_share_link
               zeit
@@ -103,6 +105,11 @@ use Time::localtime;
 
 use Sophomorix::SophomorixSYSFiles qw ( 
                                     get_user_auth_data
+                                  );
+
+
+use Sophomorix::SophomorixAPI qw ( 
+                                    get_user_adminclass
                                   );
 
 
@@ -217,6 +224,64 @@ sub print_list {
 
    }
 }
+
+=pod
+
+=item I<print_list(name,@liste)>
+
+prints every element of a list on a single line, if loglevel is 3
+(option -vv) and shows the header name.
+
+=cut
+
+
+sub print_list_column {
+   # number of rows
+   my $number=shift();
+   # the title
+   my $title=shift();
+   # the list to print
+   my @list=@_;
+
+   my %allowed = qw ( 2 2 4 4 6 6 );
+   if (not exists $allowed{$number}){
+      # do nothing
+       print "print_list_column: Cant display $number columns\n";
+   } else {
+      my $index_number=$number-1;
+      my @linelist=();
+      my $all=$#list+1;
+      my $left=$all % $number;
+      my $to_add=$number-$left;
+      my $i;
+      #print "$all divided by $number is $left left, add $to_add\n";
+
+      # add the missing elements
+      for ($i = 1; $i <= $to_add; $i++) {  # count from 1 to 10
+         push @list, "";
+      }
+      print "$title ($all) ...\n";
+      foreach my $user (@list){
+          push @linelist, $user;
+          if ($#linelist==$index_number){
+              if ($number==2){
+                 
+    	         printf "%-36s %-36s\n", 
+                  @linelist;
+	     } elsif ($number==4){
+	      printf "%-18s %-18s %-18s %-18s\n", 
+                  @linelist;
+	  } elsif ($number==6){
+	      printf "%-12s %-12s %-12s %-12s %-12s %-12s\n", 
+                  @linelist;
+          }
+          @linelist=();
+          } 
+      }
+      print "... $title ($all)\n";
+   }
+}
+
 
 
 # ===========================================================================
@@ -1893,6 +1958,31 @@ sub print_forward {
 
 =pod
 
+=item I<set_sophomorix_passwd(login,string)>
+
+Setzt das Passwort string in linux, samba, ...
+
+=cut
+
+sub set_sophomorix_passwd {
+    my ($login,$pass) = @_;
+    if ($DevelConf::testen==0) {
+       # Passwort verschlüsseln
+       open(PASSWD,"| /usr/sbin/chpasswd");
+          print PASSWD "$login:$pass\n";     
+       close(PASSWD);
+       # Passwort in smbpasswd setzen
+       open(SMBPASSWD,"| /usr/bin/smbpasswd -s -a $login");
+          print SMBPASSWD "$pass\n$pass\n"; 
+       close(SMBPASSWD);
+  } else {
+     print "Test: Passwort setzten\n";
+  }
+}
+
+
+=pod
+
 =item I<create_share_link(login,project)>
 
 Legt ein Link an in das Tauschverzeichnis des Projekts an.
@@ -2464,7 +2554,8 @@ sub make_hash_lehrer_in_klassen {
       $lehrer_in_klassen{$key} = [""];
    }
 
-   my @lehrerliste=&get_lehrer_in_schule();
+#   my @lehrerliste=&get_lehrer_in_schule();
+   my @lehrerliste=&get_user_adminclass("lehrer");
    #   print "@lehrerliste";
 
    my $lehrer="";
