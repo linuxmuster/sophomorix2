@@ -196,11 +196,11 @@ if ($fetch_files==1){
 # add the users
 ############################################################
 
-system("cp /root/sophomorix-vampire/schueler.txt ${DevelConf::users_pfad}/schueler.txt");
-system("cp /root/sophomorix-vampire/lehrer.txt ${DevelConf::users_pfad}/lehrer.txt");
-system("sophomorix-check --get-info-from-old-files /root/sophomorix-vampire");
 
 if ($sync_user==1){
+   system("cp /root/sophomorix-vampire/schueler.txt ${DevelConf::users_pfad}/schueler.txt");
+   system("cp /root/sophomorix-vampire/lehrer.txt ${DevelConf::users_pfad}/lehrer.txt");
+   system("sophomorix-check --get-info-from-old-files /root/sophomorix-vampire");
 # alles
 #   system("sophomorix-add");
    system("sophomorix-add -c m1kb2t");
@@ -257,22 +257,24 @@ foreach my $user (@userlist){
     setpwent();
     while (my @list=getpwent()) {
         if ($list[0] eq $user){
-            print "$list[7]\n";
+            #print "$list[7]\n";
             $new_home=$list[7]."/";
         }
     }
     endpwent();
 
     # rsync all homes
-    print "Synchronizig home of user $user:\n";
+    print "\n";
+    &titel("Synchronizig home of user $user:");
     print "   $old_home --> $new_home\n";
 
-    $command="/usr/bin/rsync -e ssh '-i $key_dsa' -avz --delete  root\@${server}:$old_home $new_home";
-    print "$command\n";
-#    system($command); 
+    $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avz --delete  root\@${server}:$old_home $new_home";
+    #print "$command\n";
+    system($command); 
 
 
    # repair directories
+   # needed to correct permissions owner www-run becomes www-data, ...
 
    # sync mail (the dir in /var/spool/mail) 
    
