@@ -73,7 +73,7 @@ Installation je nach verwendeter Kernelversion:
 .B Kernel 2.4.x:
 .TP
 1. Installieren Sie das Paket quota.
-Dies ist schon erledigt, wenn sie das paket sophomorix-base
+Dies ist schon erledigt, wenn sie das paket sophomorix2
 installiert haben.
 .TP
 2. Editieren Sie /etc/fstab 
@@ -139,6 +139,12 @@ sophomorix-quota läuft möglichst normal ab, ohne Quota tatsächlich zu
 verändern. Es kann zu unsinnigen Fehlermeldungen kommen, da einige
 Schritte beim setzten von Quota auf anderen aufbauen.
 .TP
+.B --force
+prüft nicht, ob die übergebenen loginnamen sinnvoll sind. 
+.TP
+.B --sum
+zeigt am Ende die Gesamtsumme der vergebenen Quota an.
+.TP
 .B -s, --system
 sophomorix-quota benutzt anstelle des Perl-Moduls Quota::
 den Systembefehl des Betriebssystems Linux, Kernel 2.4.x (2.6.x ????):
@@ -147,6 +153,25 @@ den Systembefehl des Betriebssystems Linux, Kernel 2.4.x (2.6.x ????):
 
 um Quota zu setzten. Dies wird nicht empfohlen, da es länger dauert
 und vom Betriebsystem bzw. Kernel-Version abhängig ist.
+.TP
+.B Optionen, die angeben für welche User Quota gesetzt werden sollen.
+.TP
+Die Auswahl erfolgt anhäufend. Das bedeutet, dass durch Angabe mehrerer Optionen eine Userliste erzeugt wird, in der kein User doppelt vorkommt, aber jeder enthalten ist.
+.TP
+.B -l name1,name2, ... , --login name1, ... -u name1, ... , --user name1, ... 
+setzt Quota der  User name1,name2, ... . Der user kann auch eine Workstation sein.
+.TP
+.B -c class1,class2, ... , --class class1,class2, ...
+setzt Quota für jeden User in der Klasse class. Class kann auch die Gruppe der Lehrer sein (lehrer im Moment).
+.TP
+.B --pupils 
+setzt Quota für alle Schüler der Schule.
+.TP
+.B -r raum1,raum2, ... , --room raum1,raum2,...
+setzt Quota für jede Workstation im raum raum1,raum2 ...
+.TP
+.B  --workstations 
+setzt Quota für alle Workstations der Schule.
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
