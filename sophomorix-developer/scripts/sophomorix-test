@@ -116,11 +116,9 @@ foreach $user (@users_to_add){
 &check_emptyness("sophomorix.kill");
 
 
-
 ###########################################################################
 # user anlegen
 &run_command("sophomorix-add",$verbose);
-
 
 
 ###########################################################################
@@ -307,7 +305,7 @@ $login=&get_login_name("7a;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.198
   "7c;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982;[A-Za-z0-9]*;[A-D]?;E;;;",
   "$DevelConf::protokoll_pfad/user.protokoll");
 
-$login=&get_login_name("7a;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982.*");
+$login=&get_login_name("7c;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982.*");
 print "$login\n";
 &check_account($login,"enabled");
 
@@ -330,7 +328,7 @@ print '
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.kill");
 
-$login=&get_login_name("2c;larry wall;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1972");
+$login=&get_login_name("2c;larry wall;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1972*");
 &check_line_in_file(
   "${login}::2c::dachboden",
   "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.move");

@@ -223,7 +223,6 @@ close(FILE);
 
 &create_project_db("chemie",
                    "File=/root/sophomorix-test/projects-test",
-                   "Name=chemie",
                    "LongName=Chemie fuer Anfaenger",
                    "Teachers=gv",
                    "Members=thuraudi,kueblefe",
@@ -232,4 +231,16 @@ close(FILE);
                    "MaxMembers=8");
 &check_line_in_file(
   "chemie;Chemie fuer Anfaenger;gv;thuraudi,kueblefe;;100;8;",
+  "/root/sophomorix-test/projects-test");
+
+&create_project_db("chemie",
+                   "File=/root/sophomorix-test/projects-test",
+                   "LongName=Chemie im Alltag",
+                   "Teachers=gallilga",
+                   "Members=thuraudi,merckxed",
+                   "MemberGroups=",
+                   "AddQuota=300",
+                   "MaxMembers=14");
+&check_line_in_file(
+  "chemie;Chemie im Alltag;gallilga;thuraudi,merckxed;;300;14;",
   "/root/sophomorix-test/projects-test");
