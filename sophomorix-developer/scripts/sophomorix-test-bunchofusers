@@ -106,6 +106,11 @@ if ($add==1 and not -e "/root/sophomorix-test/bunchofusers"){
        &append_line("$txt","${DevelConf::users_pfad}/schueler.txt");
     }
 
+    print "Anlegen von Schülern\n";
+    &run_command("sophomorix-check",$verbose);
+    &run_command("sophomorix-add",$verbose);
+
+
     foreach $teacher (@teacherlist){
        my ($txt,$proto)=split(/==/, $teacher);
        print "TXT       :  $txt \n";
@@ -113,7 +118,7 @@ if ($add==1 and not -e "/root/sophomorix-test/bunchofusers"){
        &append_line("$txt","${DevelConf::users_pfad}/lehrer.txt");
     }
 
-
+    print "Anlegen von Lehrern\n";
     &run_command("sophomorix-check",$verbose);
     &run_command("sophomorix-add",$verbose);
 

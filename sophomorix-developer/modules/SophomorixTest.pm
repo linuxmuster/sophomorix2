@@ -239,8 +239,8 @@ sub check_account {
        my($name,$passwd,$uid,$gid,$quota,$comment,
           $gcos,$dir,$shell) = getpwnam($login);
        my $pri_grp = getgrgid($gid);
-       &check_dir($dir,$login,"lehrer","2751");
-       &check_dir("${dir}/windows",$login,"lehrer","2750");
+       &check_dir($dir,$login,"lehrer","0700");
+       &check_dir("${dir}/windows",$login,"lehrer","0700");
        &check_dir("${dir}/Tauschverzeichnisse","admin","lehrer","1755");
        my $link_dir="${dir}/Tauschverzeichnisse";
        &check_links("${link_dir}",$login);
@@ -304,10 +304,14 @@ sub check_links {
         if (-e $link){
           $exists=1;
           my $link_target = readlink $link;
-          print "Target: $link_target \n";    
-          &is($link_target,"/home/tausch/klassen/${group}" ,
-              "Checking if  target is of link is OK");
-
+          print "Target: $link_target \n";
+          if ($group eq "lehrer"){    
+            &is($link_target,"/home/tausch/${group}" ,
+               "Checking if  target of link is /home/tausch/klassen/${group}");
+	  } else {
+            &is($link_target,"/home/tausch/klassen/${group}" ,
+               "Checking if  target of link is /home/tausch/klassen/${group}");
+          }
           # Does Target exist??????ßß
         }
         # show result of existance check
