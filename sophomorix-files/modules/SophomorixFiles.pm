@@ -1,8 +1,14 @@
 #!/usr/bin/perl -w
+# Dieses Modul (SophomorixFiles) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
 package Sophomorix::SophomorixFiles;
 require Exporter;
 @ISA =qw(Exporter);
-@EXPORT = qw(move_user_from_to
+@EXPORT = qw(show_modulename
+             move_user_from_to
 	     create_user_db_entry
 	     delete_user_db_entry
 	     update_user_db_entry
@@ -11,14 +17,11 @@ require Exporter;
              get_sys_users
 );
 
+use Sophomorix::SophomorixBase qw ( titel );
 
-use Sophomorix::SophomorixBase;
-
-# Dieses Modul (SophomorixFiles) wurde von Rüdiger Beck erstellt
-# Es ist freie Software
-# Bei Fehlern wenden Sie sich bitte an mich.
-# jeffbeck@web.de  oder  jeffbeck@gmx.de
-
+sub show_modulename {
+    &titel("DB-Backend-Module: SophomorixFiles.pm");
+}
 
 sub move_user_from_to {
     # Parameter 1: user_login
@@ -412,7 +415,6 @@ sub update_user_db_entry {
 	   ($name,$lastname)=split(/ /,$gecos);
 	    $count++;
            # Check of Parameters
- #          print "Updating Data of $login \n";
            foreach $param (@_){
               ($attr,$value) = split(/=/,$param);
  #             printf "   %-18s : %-20s\n",$attr ,$value;
@@ -433,8 +435,8 @@ sub update_user_db_entry {
           $new_line=$admin_class.";".$name." ".$lastname.";".$login.";".
           $first_pass.";".$birthday.";".$unid.";".$subclass.";".
           $status.";".$toleration_date.";".$deactivation_date.";"."\n";
- #         print "OLD Line:   $old_line";
- #         print "NEW Line:   $new_line";
+          #print "OLD Line:   $old_line";
+          #print "NEW Line:   $new_line";
           print TMP "$new_line";         
         } else {
             print TMP "$old_line";
@@ -443,6 +445,8 @@ sub update_user_db_entry {
 
     # new file is in *.tmp
     if ($count==1){
+	close(TMP);
+	close(FILE);
        system("mv $file.tmp $file");  
     }
 
