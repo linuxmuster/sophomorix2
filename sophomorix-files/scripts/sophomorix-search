@@ -102,7 +102,8 @@ my ($class,
 my $group_string="";
 my @group_list=();
 my $pri_group_string="";
-
+my $grp_string="";
+my $home_ex="---";
 ############################################################
 # Start
 ############################################################
@@ -131,67 +132,71 @@ open(PROTOKOLL,"<$DevelConf::protokoll_datei");
           $pri_group_string=`id -gn $login`;
           $group_string=`id -Gn $login`;
           chomp($group_string);
+          chomp($pri_group_string);
           @group_list=split(/ /, $group_string);
-	  print "User : ($login)   ";
-
+	  print "User                :  $login  ";
        if (defined $loginname_passwd){
 	     print "($loginname_passwd exists in the system) \n";
        } else {
 	     print "(ERROR: $login is not in the system) \n";
        }
+          print "=======================================";
+          print "=======================================\n";
 
-       print "       ($login)   AdminClass       :  $class \n";
+       printf "   AdminClass       : %-47s %-11s\n",$class,$login;
 
-       print "       ($login)   PrimaryGroup     :  $pri_group_string";
-
-       print "       ($login)   SystemGroups     :  ";
-       foreach my $gr (@group_list){ 
-	  print $gr," ";
+       printf "   PrimaryGroup     : %-47s %-11s\n",$pri_group_string,$login;
+       foreach my $gr (@group_list){
+	   $grp_string= $grp_string." ".$gr;
+	  #print $gr," ";
        }
+       printf "   SecondaryGroups  :%-48s %-11s\n",$grp_string,$login;
 
-	  print "\n";
-	  print "       ($login)   FirstGecos       :  $gec_user \n";
+       printf "   FirstGecos       : %-47s %-11s\n", $gec_user,$login;
   
           if (defined $loginname_passwd){
-             print "       ($login)   RealGecos        :  $gcos_passwd \n";
+             printf "   RealGecos        : %-47s %-11s\n",$gcos_passwd, $login;
 	  }
 
+          if (-e $home){
+              $home_ex=$home."  (existing)";
+	      #print "(existing) \n";
+          } else {
+	      #print "(ERROR: non-existing!) \n";
+              $home_ex=$home."  (ERROR: non-existing)";
+	      
+          }
           if (defined $home){
-             print "       ($login)   Home             :  $home ";
+             printf "   Home             : %-47s %-11s\n",$home_ex,$login;
 	  }
         
-          if (-e $home){
-	      print "(existing) \n";
-          } else {
-	      print "(ERROR: non-existing!) \n";
-          }
 
           if (defined $shell){
-             print "       ($login)   LoginShell       :  $shell \n";
+             printf "   LoginShell       : %-47s %-11s\n",$shell,$login;
 	  }
 
 
-	  print "       ($login)   FirstPassword    :  $first_pass \n";
-	  print "       ($login)   Birthday         :  $birth \n";
+	  printf "   FirstPassword    : %-47s %-11s\n",$first_pass,$login;
+	  printf "   Birthday         : %-47s %-11s\n",$birth,$login;
 
           if (defined $unid){
-	     print "       ($login)   Unid             :  $login \n";
+	     printf "   Unid             : %-47s %-11s\n",$unid,$login;
           }
 
           if (defined $subclass){
-	     print "       ($login)   SubClass         :  $subclass \n";
+	     printf "   SubClass         : %-47s %-11s\n",$subclass,$login;
           }
 
           if (defined $status){
-	     print "       ($login)   Status           :  $status \n";
+	     printf "   Status           : %-47s %-11s\n",$status,$login;
           }
 
           if (defined $tol){
-	     print "       ($login)   TolerationDate   :  $tol \n";
+	     printf "   TolerationDate   : %-47s %-11s\n",$tol,$login;
           }
 
           if (defined $deact){
-	     print "       ($login)   DeactivationDate :  $deact \n";
+	     printf "   DeactivationDate : %-47s %-11s\n",$deact,$login;
           }
 
           print "Samba-Information:\n";
