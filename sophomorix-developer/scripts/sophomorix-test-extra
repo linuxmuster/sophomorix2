@@ -1,0 +1,412 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-test) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+
+# weiter:
+
+#Auswertung .add, .move, .kill
+
+
+# Bibliotheken
+
+use strict;
+use Getopt::Long;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixFiles;
+use Sophomorix::SophomorixTest;
+use Test::More "no_plan";
+Getopt::Long::Configure ("bundling");
+
+# Einlesen der Konfigurationsdatei für Entwickler
+{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+
+
+system("install -d /root/sophomorix-test");
+
+############################################################
+# Start
+############################################################
+
+my $today=`date +%d.%m.%Y`;
+print "\nToday is $today\n";
+chomp($today);
+my $verbose=0;
+
+&run_command("sophomorix-check",$verbose);
+
+print "\nDie Tests können beginnen\n\n";
+
+
+print '
+###########################################################################
+#                                                                         #
+#                       ANLEGEN VON EXTRA-SCHÜLERN                        #
+#                                                                         #
+###########################################################################
+';
+
+###########################################################################
+
+
+
+# user in extraschueler.txt hinzufügen
+my $user="";
+my $login="";
+
+my @users_to_add=(
+     "vhs;Müller;Jürgen;02.11.1983;",
+     "vhs;Neumüller;Siegfried;05.02.1984;sigi;",
+   );
+
+
+foreach $user (@users_to_add){
+   &append_line("$user","${DevelConf::users_pfad}/extraschueler.txt");
+}
+
+
+
+###########################################################################
+# Check
+&run_command("sophomorix-check",$verbose);
+
+
+
+
+###########################################################################
+# Ergebnisdateien pruefen
+# Test
+&check_line_in_file(
+  "vhs::mueller;juergen;02.11.1983::[a-z]{2,}::[a-z]{3,}",
+  "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.add");
+# Test
+&check_line_in_file(
+  "vhs::neumueller;siegfried;05.02.1984::sigi::[a-z]{3,}",
+  "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.add");
+# Test
+&check_emptyness("sophomorix.move");
+# Test
+&check_emptyness("sophomorix.kill");
+
+
+
+###########################################################################
+# user anlegen
+&run_command("sophomorix-add",$verbose);
+
+
+###########################################################################
+# Ergebnisdateien prüfen
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+&check_emptyness("sophomorix.kill");
+
+
+
+###########################################################################
+# Druckdaten prüfen
+# hinzu.tex
+&check_existence("${DevelConf::var_lib_pfad}/drucken/hinzu.tex");
+&check_line_in_file("juergen mueller",
+                    "${DevelConf::var_lib_pfad}/drucken/hinzu.tex");
+&check_line_in_file("siegfried neumueller",
+                    "${DevelConf::var_lib_pfad}/drucken/hinzu.tex");
+# andere
+&check_existence("${DevelConf::var_lib_pfad}/drucken/hinzu.dvi");
+&check_existence("${DevelConf::var_lib_pfad}/drucken/hinzu.ps");
+&check_existence("${DevelConf::var_lib_pfad}/drucken/hinzu.pdf");
+
+
+
+###########################################################################
+# Datenbank prüfen
+&check_line_in_file(":juergen mueller:","/etc/passwd");
+&check_line_in_file(
+  "vhs;juergen mueller;[a-z0-9]{2,};[a-z0-9]{3,};02.11.1983",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+&check_line_in_file("sigi:x:[0-9]*:[0-9]*:siegfried neumueller:","/etc/passwd");
+&check_line_in_file(
+  "vhs;siegfried neumueller;sigi;[a-z0-9]{3,};05.02.1984",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+
+print '
+###########################################################################
+#                                                                         #
+#                SCHÜLER DULDEN, DEAKTIVIEREN, LOESCHEN                   #
+#                                                                         #
+###########################################################################
+';
+
+# schueler 1
+
+&remove_line(
+  "vhs;Müller;Jürgen;02.11.1983;",
+  "${DevelConf::users_pfad}/extraschueler.txt");
+
+&run_command("sophomorix-check",$verbose);
+
+# Test
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+&check_emptyness("sophomorix.kill");
+
+# Is toleration set
+&check_line_in_file(":juergen mueller:","/etc/passwd");
+&check_line_in_file(
+  "vhs;juergen mueller;[a-z0-9]{2,};[a-z0-9]{3,};02.11.1983;[A-Za-z0-9]*;[A-D]?;T;$today;[\.0-9]*;",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+
+$login=&get_login_name("vhs;juergen mueller;[a-z0-9]{2,};[a-z0-9]{3,};02.11.1983");
+
+# make user tolerated for a looooong time
+&update_user_db_entry($login,"TolerationDate=01.01.1970");
+
+# check if this was succesful
+&check_line_in_file(
+  "vhs;juergen mueller;[a-z0-9]{2,};[a-z0-9]{3,};02.11.1983;[A-Za-z0-9]*;[A-D]?;T;01.01.1970;[\.0-9]*;",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+&run_command("sophomorix-check",$verbose);
+
+# Test if user is moveable to dachboden
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.kill");
+
+&check_line_in_file(
+  "${login}::vhs::dachboden",
+  "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.move");
+
+&run_command("sophomorix-move",$verbose);
+
+# check if user has deactivated settings in user.protokoll
+&check_line_in_file(
+  "dachboden;juergen mueller;[a-z0-9]{2,};[a-z0-9]{3,};02.11.1983;[A-Za-z0-9]*;[A-D]?;D;01.01.1970;$today;",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+&check_account($login,"disabled");
+
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.kill");
+&check_emptyness("sophomorix.move");
+
+
+# make user deactivated for a looooong time
+&update_user_db_entry($login,"DeactivationDate=01.01.1971");
+
+# check if this was succesful
+&check_line_in_file(
+  "dachboden;juergen mueller;[a-z0-9]{2,};[a-z0-9]{3,};02.11.1983;[A-Za-z0-9]*;[A-D]?;D;01.01.1970;01.01.1971;",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+
+&run_command("sophomorix-check",$verbose);
+
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+
+&check_line_in_file(
+  "mueller;juergen;02.11.1983::${login}",
+  "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.kill");
+
+
+&run_command("sophomorix-kill",$verbose);
+
+
+
+&no_line_in_file(
+  "[a-z0-9]{2,};juergen mueller;[a-z0-9]{2,};[a-z0-9]{3,};02.11.1983;",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+# Test: Wird Datenbank upgedated?
+
+
+
+
+# schueler 2
+
+&remove_line(
+  "vhs;Neumüller;Siegfried;05.02.1984;sigi;",
+  "${DevelConf::users_pfad}/extraschueler.txt");
+
+&run_command("sophomorix-check",$verbose);
+
+# Test
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+&check_emptyness("sophomorix.kill");
+
+# Is toleration set
+&check_line_in_file("sigi:x:[0-9]*:[0-9]*:siegfried neumueller:","/etc/passwd");
+&check_line_in_file(
+  "vhs;siegfried neumueller;sigi;[a-z0-9]{3,};05.02.1984;[A-Za-z0-9]*;[A-D]?;T;$today;[\.0-9]*;",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+
+$login="sigi";
+
+# make user tolerated for a looooong time
+&update_user_db_entry($login,"TolerationDate=01.01.1970");
+
+&run_command("sophomorix-check",$verbose);
+
+# Test if user is moveable to dachboden
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.kill");
+
+&check_line_in_file(
+  "${login}::vhs::dachboden",
+  "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.move");
+
+&run_command("sophomorix-move",$verbose);
+
+# check if user has deactivated settings in user.protokoll
+&check_line_in_file(
+  "dachboden;siegfried neumueller;[a-z0-9]{2,};[a-z0-9]{3,};05.02.1984;[A-Za-z0-9]*;[A-D]?;D;01.01.1970;$today;",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+&check_account($login,"disabled");
+
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.kill");
+&check_emptyness("sophomorix.move");
+
+
+# make user deactivated for a looooong time
+&update_user_db_entry($login,"DeactivationDate=01.01.1971");
+
+&run_command("sophomorix-check",$verbose);
+
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+
+&check_line_in_file(
+  "neumueller;siegfried;05.02.1984::${login}",
+  "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.kill");
+
+
+&run_command("sophomorix-kill",$verbose);
+
+
+
+&no_line_in_file(
+  "[a-z0-9]{2,};siegfried neumueller;sigi;[a-z0-9]{3,};05.02.1984;",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+
+
+
+
+
+
+
+print '
+###########################################################################
+#                                                                         #
+#                              EXTRAKURSE TESTEN                          #
+#                                                                         #
+###########################################################################
+';
+
+# extrakurs anlegen
+my $max_users=40;
+my @numbers=("01", "02", "03", "04", "05", "06", "07", "08", "09", "10",
+             "11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
+             "21", "22", "23", "24", "25", "26", "27", "28", "29", "30",
+             "31", "32", "33", "34", "35", "36", "37", "38", "39", "40",);
+
+&append_line("aklinux;linuxer;${max_users};17.11.2004;linak;netz;10.01.2007;",
+             "${DevelConf::users_pfad}/extrakurse.txt");
+
+&run_command("sophomorix-check",$verbose);
+
+
+foreach my $num (@numbers) {
+   &check_line_in_file(
+     "aklinux::${num};linak;17.11.2004::linuxer${num}::netz",
+     "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.add");
+
+}
+
+&run_command("sophomorix-add",$verbose);
+
+
+foreach my $num (@numbers) {
+   &check_line_in_file(
+     "aklinux;linak ${num};linuxer${num};[a-z0-9]{3,};17.11.2004",
+     "$DevelConf::protokoll_pfad/user.protokoll");
+   &check_account("linuxer${num}","enabled");
+}
+
+# Zeile ändern
+# 1. alte weg
+&remove_line(
+  "aklinux;linuxer;${max_users};17.11.2004;linak;netz;10.01.2007;",
+  "${DevelConf::users_pfad}/extrakurse.txt");
+
+
+# 2. veränderte dazu
+&append_line("aklinux;linuxer;${max_users};17.11.2004;linak;netz;10.01.2001;",
+             "${DevelConf::users_pfad}/extrakurse.txt");
+
+&run_command("sophomorix-check",$verbose);
+
+foreach my $num (@numbers) {
+   &check_line_in_file(
+     "linuxer${num}::aklinux::dachboden",
+     "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.move");
+}
+
+
+&run_command("sophomorix-move",$verbose);
+
+
+foreach my $num (@numbers) {
+   &check_line_in_file(
+     "dachboden;linak ${num};linuxer${num};[a-z0-9]{3,};17.11.2004",
+     "$DevelConf::protokoll_pfad/user.protokoll");
+}
+
+
+# make user tolerated for a looooong time
+foreach my $num (@numbers) {
+   &update_user_db_entry("linuxer${num}","TolerationDate=01.01.1970");
+}
+
+
+&run_command("sophomorix-check",$verbose);
+
+# make user deactivated for a looooong time
+foreach my $num (@numbers) {
+   &update_user_db_entry("linuxer${num}","DeactivationDate=01.01.1971");
+}
+
+&run_command("sophomorix-check",$verbose);
+
+
+foreach my $num (@numbers) {
+   &check_line_in_file(
+     "${num};linak;17.11.2004::linuxer${num}",
+     "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.kill");
+   &check_account("linuxer${num}","disabled");
+}
+
+
+&run_command("sophomorix-kill",$verbose);
+
+
+# clean up
+&remove_line(
+  "aklinux;linuxer;${max_users};17.11.2004;linak;netz;10.01.2001",
+  "${DevelConf::users_pfad}/extrakurse.txt");
+
+
+exit;
+
+###########################################################################
+# END OF TESTS
+###########################################################################
+
