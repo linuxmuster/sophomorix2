@@ -2,7 +2,7 @@ Source: sophomorix
 Section: admin
 Priority: optional
 Maintainer: Rüdiger Beck <jeffbeck@web.de>
-Build-Depends: debhelper (>> 3.0.0)
+Build-Depends: debhelper (>> 3.0.0), perl-base (>=5.8.4), man2html (>=1.5), docbook-utils (>=0.6.13)
 Standards-Version: 3.5.2
 
 Package: sophomorix-base
@@ -26,7 +26,7 @@ Description: Database (plain files) for sophomorix
 Package: sophomorix-sys-files
 Architecture: any
 Suggests: sophomorix-doc-html
-Depends:  passwd (>= 4.03)
+Depends:
 Provides: sophomorix-sysdb
 Description: Module to write to plain linux files
  This module contains functions to propagate the sophomorix database

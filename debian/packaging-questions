@@ -23,7 +23,7 @@ sophomorix-sql
 
    debconf-communicate -p critical samba
 
-*****   -- geht nicht
+*****   -- geht nicht!!!
 
 5. virtuelles paket sophomorix-db (database)
      wird erfüllt durch sophomorix-files
@@ -36,6 +36,9 @@ sophomorix-sql
 6. Kann die eingepackten Abhängigkeiten ansehen
 
 ***** lesspipe , output wieder fallenlassen, dann less *.deb
+      oder    lesspipe (ohne pager)
+      oder    lesspipe |less
+
 
 7. wie prüft man in einem script, ob webmin installiert ist
    Debian-Paketmanagement fragen?
@@ -63,18 +66,17 @@ sophomorix-sql
    700 löst das Problem. Nachteile?
 
 
-****** emacs-Zeile rein
+****** emacs-Zeile rein, noch testen im installierten system,
+       ebenso devel-conf
 
 10. Zum Packen von sophomorix-doc-html ist erforderlich:
     - perl für sophomorix-man2html
     - man2html
     - docbook2html
 
-    Kommt das zu build-depends. Auswirkungen?
+    Kommt das zu build-depends. 
 
-    - ist das sinnvoll?
-    - kann man ein Mehrfaches Paket auch ohne das Unterpaket sophomorix-doc 
-      packen
+***** ja, noch testen
 
 
 **** evtl die doku in ein eigenes Paket auslagern
@@ -92,7 +94,7 @@ sophomorix-sql
        indizieren?
 
 ***** mandb:  wird von cron gemacht 
-
+      deutsche manpages werden von apropos nicht gefunden
 
 
 13. Wie kann man lange Zeile in control/Depends:  umbrechen/kürzen?
@@ -108,13 +110,15 @@ sophomorix-sql
 
     ,selbst aber keine Dateien mitbringt.
     später soll update auf ldap,sql möglich sein, d.h.
-    zusätzlich paket sophomorix-sql dazu, und als postinst add die Datembank 
+    zusätzlich paket sophomorix-sql dazu, und als postinst add die Datenbank 
     verschieben
 
 **** eintagen wie die anderen Pakete auch, als erstes
 
 
-15 lintian-Fehler mit Fehlender man page für sophomorix-reactivate:
+15 lintian-Fehler mit fehlender man page für sophomorix-reactivate:
 
-   Fehler ignorieren oder was?
+****   Fehler ignorieren oder man page
 
+
+16. postinst in perl (nochmal nachfragen), predependencies zu perl??

@@ -103,10 +103,9 @@ binary-arch: build install
 	dh_installman -psophomorix-developer sophomorix-developer/man/de/sophomorix-test-functions.de.8
 #	dh_installinfo
 #	dh_undocumented
-# Ist das die richtige Stelle ?????
 	dh_install --sourcedir=debian/sophomorix
-	dh_link
-	dh_strip
+#	dh_link
+#	dh_strip
 	dh_compress
 	dh_fixperms
 #	dh_makeshlibs
