@@ -12,6 +12,7 @@ require Exporter;
              update_gecos
              delete_user_from_sys
              add_class_to_sys
+             get_user_auth_data
 );
 
 use Sophomorix::SophomorixBase qw ( titel 
@@ -91,6 +92,25 @@ sub add_class_to_sys {
     );
 
 }
+
+
+
+=pod
+
+=item  I<get_user_auth_data(login)>
+
+Retrieves data as in getpwnam Does getpwnam also work with ldap, sql? 
+
+
+=cut
+sub get_user_auth_data {
+    my ($login) = @_;
+    # Abfragen der /etc/passwd
+    my @data = getpwnam("$login");
+    return @data;
+}
+
+
 
 
 # OK

@@ -34,6 +34,7 @@ use Time::localtime;
               check_config_template
               check_datei_touch
               check_verzeichnis_mkdir
+              get_user_history
               zeit
               get_klasse_von_login
               get_schueler_in_klasse
@@ -1478,6 +1479,86 @@ sub check_verzeichnis_mkdir {
      system("mkdir ${verzeichnis}");
   } 
 }
+
+
+
+=pod
+
+=item I<print_user_samba_data(login)>
+
+Druckt wichtige Samba Daten des users login
+
+=cut
+sub print_user_samba_data {
+    my ($login) = @_;
+    my $samba="";
+    my @samba_lines="";
+
+          # samba
+          # database independent
+          print "Samba:\n";
+          $samba=`pdbedit -v -u $login`;
+          @samba_lines=split(/\n/,$samba);
+	  foreach (@samba_lines){
+#            s/\s//g;
+            # ??? nur am ersten auftreten von : splitten
+            my ($attr,$value)=split(/: /);
+            $value=~s/\s//g;
+
+	    if (/^Account Flags/){
+              printf "   Account Flags    : %-47s %-11s\n",$value,$login;    
+            }
+	    if (/^Home Directory/){
+              printf "   Home Directory   : %-47s %-11s\n",$value,$login;    
+            }
+	    if (/^Password last set/){
+              printf "   Pwd last set     : %-47s %-11s\n",$value,$login;    
+            }
+	    if (/^Password can change/){
+              printf "   Pwd can change   : %-47s %-11s\n",$value,$login;    
+            }
+	    if (/^Password must change/){
+              printf "   Pwd must change  : %-47s %-11s\n",$value,$login;    
+            }
+	  }
+
+}
+
+
+=pod
+
+=item I<get_user_history(login)>
+
+Druckt die sophomorix Logfiles des users login aus 
+
+=cut
+sub get_user_history {
+   my ($login) = @_;
+   my @line=();
+   my $count=0;
+   &check_datei_touch("${DevelConf::log_files}/user-modify.log");
+   open(HISTORY, 
+       "<${DevelConf::log_files}/user-modify.log") 
+        || die "Fehler: $!";
+
+   while (<HISTORY>){
+      chomp();
+      @line=split(/::/);
+      if (not defined $line[6]){$line[6]=""}
+      if ($line[2] eq $login){
+	 $count++;
+         my $info=$line[0]."(".$line[1]."): ";
+         printf "   %-27s %-55s \n",$info,$line[3];
+         printf "      Unid: %-18s %-55s \n",$line[6],$line[5];
+          
+      }
+   }
+   close(HISTORY);
+   if ($count==0){
+       print "   No History exists.\n";
+   }
+}
+
 
 
 
