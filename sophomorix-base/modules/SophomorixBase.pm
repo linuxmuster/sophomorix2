@@ -46,6 +46,7 @@ use Time::localtime;
               get_group_list
               print_forward
               get_passwd_charlist
+              get_random_password
               get_plain_password
               set_sophomorix_passwd
               create_share_link
@@ -1619,11 +1620,31 @@ sub get_passwd_charlist {
 
 =pod
 
-=item I<get_passwd_charlist()>
+=item I<get_random_password(num,group,@charlist)>
 
-Gibt eine Liste aller für Zufalls-Passwörter zulässiger Zeichen zurück
+Gibt ein Zufallspasswort, zusammengesetzt aus den übergebenen Zeichen,
+zurück. Ist die Länge num=0, so wird die in sophomorix.conf angegebene
+Länge für die entsprechende Gruppe group benutzt.
 
 =cut
+sub get_random_password {
+   my $num=shift;
+   my $group=shift;
+   my @chars=@_;
+   my $password="";
+   my $i;
+
+   if ($group eq "lehrer" and $num==0){
+       $num=${Conf::zufall_passwort_anzahl_lehrer};
+   } elsif ($num==0){
+       $num=${Conf::zufall_passwort_anzahl_schueler};
+   }
+   # Zufallspasswort erzeugen
+   for ($i=1;$i<=$num;$i++){
+      $password=$password.$chars[int (rand $#chars)];
+   }
+   return $password;
+}
 
 sub get_plain_password {
    my $gruppe=shift;
@@ -1815,10 +1836,12 @@ sub get_klasse_von_login {
   my $gid=0;
   my $grname="";
   ($a,$a,$a,$gid) = getpwnam($loginname);
-  ($grname) = getgrgid($gid); 
+  if (defined $gid){
+     ($grname) = getgrgid($gid); 
+  }
   # Klasse ermiteln
   #print "$gid ist in $grname\n";
-  return $grname;
+   return $grname;
 }
 
 

@@ -20,6 +20,7 @@ use if ${DevelConf::db_backend} eq 'files' ,
     'Sophomorix::SophomorixFiles' => qw(show_modulename
                                         get_first_password
                                         update_user_db_entry
+                                        check_sophomorix_user
                                        );
 
 # list of functions to load if db is 'ldap'
@@ -67,12 +68,21 @@ my $ws=0;
 
 my $password="";
 my $reset=0;
-my $crandom=0;
+my $common=0;
 my $random=0;
 
-# flag, if (1) user has specified ONE password for all (-p or --crandom)  , 
+my $char_num=0;
+
+my $hide=0;
+my $force=0;
+# flag, if (1) user has specified ONE password for all (-p or --common)  , 
 #    or if (2) password must be calculated for each user
 my $password_given=0;
+
+my $password_lehrer="";
+my $password_other="";
+
+my $info_line="";
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -83,9 +93,12 @@ my $testopt=GetOptions(
            "workstations|workstation|ws" => \$ws,
            "password|p=s" => \$password,
            "reset" => \$reset,
-           "crandom|grandom" => \$crandom,
+           "common" => \$common,
            "random" => \$random,
+           "plength=i" => \$char_num,
            "verbose|v+" => \$Conf::log_level,
+           "hide" => \$hide,
+           "force" => \$force,
            "info|i" => \$info,
            "help|h" => \$help
           );
@@ -107,6 +120,12 @@ Options
   -v  / --verbose
   -vv / --verbose --verbose
   -i  / --info
+  --hide
+  -p password, --password password
+  --common
+  --reset
+  --random
+  --plength number
   -l  login1, ... / --login login1, .../ -u login1, ... / --user login1, ...
   -c class / --class class 
   --pupils
@@ -186,11 +205,10 @@ foreach my $item (@userlist) {
 }
 
 
-# --info, show only the users
-if ($info==1) {
-   &print_list_column(6,"Passwörter setzen für user ",@unique_userlist);
-   exit;
-}
+
+################################################################################
+# Exit
+################################################################################
 
 
 # exit if no users specified
@@ -199,74 +217,109 @@ if ($#userlist+1==0){
     exit;
 }
 
+
+# limit plength to 1 to 25
+if ($char_num >=26 or $char_num < 0){
+    print "Error: $char_num characters is too long/short for a password\n";
+    exit;
+}
+
+if ($password ne "" and $char_num!=0){
+    print "Error: What do you need --plength for? \n";  
+    exit;
+}
+
+if ($char_num!=0 and($common==0 and $random==0)){
+    print "Error: Options make no sense: add  --random or --common\n";  
+    exit;
+}
+
 ################################################################################
 # Start
 ################################################################################
 
+
+
+# use the charlist of SophomorixBase
+my @chars=&get_passwd_charlist();
+
 if ($password ne ""){
+   $info_line="Password will be '$password'";
    $password_given=1;
 }
 
-if ($crandom==1){
-    # ???????
-    $password="crandom";
-    $password_given=1;
+if ($common==1){
+   if ($char_num==0){
+      $password_lehrer=&get_plain_password("lehrer",@chars);
+      $password_other=&get_plain_password("",@chars);
+   } else {
+      $password_lehrer=&get_random_password($char_num,"lehrer",@chars);
+      $password_other=&get_random_password($char_num,"",@chars);
+   }
+   $info_line="Passwords will be :\n".
+              "   '$password_lehrer'  (for teachers) \n".
+              "   '$password_other'  (for others) ";
+
 }
 
 
-my $random_teacher=0;
-my $random_pupil=0;
+if ($reset==1){
+   $info_line="Passwords will be looked up in the sophomorix database";
+}
+
+if ($random==1){
+   $info_line="Every user will have its own a random password";
+}
 
 
-print $password_given, "---\n";
+# --info, show only the users
+if ($info==1) {
+   &print_list_column(6,"Passwörter setzen für user ",@unique_userlist);
+   print "INFO: $info_line  \n";
+   exit;
+}
+
 
 foreach my $user (@unique_userlist){
-
     # gruppe ermitteln
-
     my $group=&get_klasse_von_login($user);
-
     # which password to set
     if ($password_given==1){
          # use $password, do nothing
     } elsif ($reset==1){
          # lookup old password
         $password=&get_first_password($user);
+    } elsif ($common==1){
+       # set password
+       if ($group eq "lehrer"){ 
+	   $password=$password_lehrer;
+       } else {
+	   $password=$password_other;
+       }
     } elsif ($random==1){
        # set password randomly
-       
-	$password="random";
-     
+       $password=&get_random_password($char_num,$group,@chars);
     } else {
-       print "No password option specified\n";
+       print "No password option specified: using sophomorix.conf\n";
        # nothing specified: use sophomorix.conf
-       if ($group eq "lehrer"){
-          # teacher
-          if ($Conf::lehrer_zufall_passwort eq "ja"){
-	      $password="random";
-          } else {
-              $password="linux";
-          }
-       } else {
-          # pupil
-          if ($Conf::schueler_zufall_passwort eq "ja"){
-	      $password="random";
-          } else {
-              $password="linux";
-          }
-
-       }
+       $password=&get_plain_password($group,@chars)
+    }
+    if ($hide==1){
+       print "Setting password for user $user in $group to xxxxxxxx ...\n";
+    } else {
+       print "Setting password for user $user in $group to $password ...\n";
     }
 
-    print "Setting password for user $user in $group to $password ...\n";
-
-    # Passwort für user setzten
-    &set_sophomorix_passwd($user,$password)
-    # updating the database
-    &update_user_db_entry($user,"FirstPass=$password");
-    
-
-
+    # chech if user is a sophomorix user 
+    my $doit=&check_sophomorix_user($user);
+    if ($doit==1 or $force==1){
+       # Passwort für user setzten
+       &set_sophomorix_passwd($user,$password);
+       # updating the database
+       &update_user_db_entry($user,"FirstPass=$password");
+   } else {
+       print "INFO: $user is not a sophomorix user: Won't do anything, ...\n";
+   }
 }
 
 

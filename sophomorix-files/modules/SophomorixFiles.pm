@@ -20,6 +20,7 @@ require Exporter;
              search_user
              backup_user_database
              get_first_password
+             check_sophomorix_user
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
@@ -914,6 +915,33 @@ sub get_first_password {
       }
   }
   close(PASSPROT);
+}
+
+
+
+
+=pod
+
+=item  I<check_sophomorix_user(login)>
+
+Returns 1, if  login is in the sophomorix database.
+
+=cut
+sub check_sophomorix_user {
+  my ($username) = @_;
+  my $result=0;
+  open(PASSPROT, "$DevelConf::dyn_config_pfad/user.protokoll");
+  while(<PASSPROT>) {
+      chomp(); # Returnzeichen abschneiden
+      s/\s//g; # Spezialzeichen raus
+      if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+      my ($gruppe, $nax, $login, $pass) = split(/;/);
+      if ($username eq $login) {
+        $result=1;
+      }
+  }
+  close(PASSPROT);
+  return $result;
 }
 
 
