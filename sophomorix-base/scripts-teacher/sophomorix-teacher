@@ -17,6 +17,7 @@ use Sophomorix::SophomorixFiles;
 Getopt::Long::Configure ("bundling");
 
 
+
 ############################################################
 # Start
 ############################################################
@@ -25,6 +26,8 @@ my $help=0;
 my $add="";
 my $remove="";
 my $teacher="";
+my $handout=0;
+my $collect=0;
 my $info=0;
 
 # Parsen der Optionen
@@ -34,6 +37,8 @@ my $testopt=GetOptions(
            "add=s" => \$add,
            "remove=s" => \$remove,
            "teacher=s" => \$teacher,
+           "handout" => \$handout,
+           "collect" => \$collect,
            "info|i" => \$info,
           );
 
@@ -90,8 +95,24 @@ if ($login eq "root"){
 
 
 
+
+
+
+
+
+
+
+############################################################
+# Managing MyAdminClasses
+############################################################
+
+
 # show info if nothing has to be changed
-if ($add eq "" and $remove eq ""){
+if ($add eq "" and 
+    $remove eq "" and
+    $handout eq "" and
+    $collect eq ""
+   ){
     $info=1;
 }
 
@@ -101,8 +122,11 @@ if ($add ne ""){
    my $result = &add_my_adminclass($login,$add);
    if ($result==0){
        print "ERROR: $add is not a valid AdminClass\n";
+   } else {
+       # add links
    }
    $info=1;
+   exit;
 }
 
 
@@ -113,18 +137,51 @@ if ($remove ne ""){
    my $result = &remove_my_adminclass($login,$remove);
    if ($result==0){
        print "ERROR: $remove is not existing in MyAdminClasses\n";
+   } else {
+       # remove links
    }
    $info=1;
+   exit;
 }
 
 
 
 
-
-if ($info==1){
+# --info (without --handout/--collect)
+if ($info==1 and $collect==0 and $handout==0){
    my @list=&get_my_adminclasses($login);
    print "AdminClasses of $login:\n";
    foreach my $item (@list){
       print "   $item \n";
    }
+   exit;
 }
+
+
+
+############################################################
+# Handout/
+############################################################
+
+
+# --info (with --collect)
+if ($info==1 and $collect==1 and $handout==0){
+    
+   exit;
+}
+
+
+
+# --info (with --handout)
+if ($info==1 and $collect==0 and $handout==1){
+
+
+   my $home="${DevelConf::homedir_teacher}/$login/${Language::task_dir}"; 
+    print "$home\n";
+
+   system("ls -l $home");
+
+   exit;
+}
+
+

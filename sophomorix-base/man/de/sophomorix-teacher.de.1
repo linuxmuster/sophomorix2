@@ -42,6 +42,8 @@ Sagt, was das Programm gerade macht (verbose)
 .B -vv, --verbose --verbose
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
+.B Optionen zum ein- oder austragen einer Klasse in MyAdminClasses
+.TP
 .B -i , --info
 Zeigt an, in welchen Klassen sich ein Lehrer eingetragen hat.
 .TP
@@ -50,6 +52,26 @@ nimmt eine Klasse in die Liste von MyAdminClasses auf.
 .TP
 .B --remove Klasse
 Entfernt Klassen aus MyAdminClasses.
+.TP
+.B Optionen zum Austeilen/Einsammeln von Daten
+.TP
+.B --handout 
+teilt Daten aus.
+.TP
+.B --collect
+sammelt Daten ein.
+.TP
+.B [--handout|--collect] -i , [--handout|--collect] --info
+zeigt an welche Dateien Eingesammelt/ausgeteilt werden würden
+.TP
+.B --class AdminClass
+Einsammeln/Austeilen an die Klasse AdminClass 
+.TP
+.B --subclass SubClass
+Einsammeln/Austeilen an die Gruppe SubClass
+.TP
+.B --project Project
+Einsammeln/Austeilen an das Projekt Project
 .TP
 .B Optionen, die nur als root angegeben werden können.
 .TP

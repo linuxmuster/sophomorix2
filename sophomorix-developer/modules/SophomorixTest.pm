@@ -241,8 +241,10 @@ sub check_account {
        my $pri_grp = getgrgid($gid);
        &check_dir($dir,$login,"lehrer","0700");
        &check_dir("${dir}/windows",$login,"lehrer","0700");
-       &check_dir("${dir}/Tauschverzeichnisse","admin","lehrer","1755");
-       my $link_dir="${dir}/Tauschverzeichnisse";
+#       &check_dir("${dir}/Tauschverzeichnisse","admin","lehrer","1755");
+#       my $link_dir="${dir}/Tauschverzeichnisse";
+       &check_dir("${dir}/${Language::share_dir}","root","root","1755");
+       my $link_dir="${dir}/${Language::share_dir}";
        &check_links("${link_dir}",$login);
 
     }
@@ -299,7 +301,8 @@ sub check_links {
 
     foreach $group (@group_list){
 	$exists=0;
-        $link=$link_dir."/Tausch-".$group;
+#        $link=$link_dir."/Tausch-".$group;
+        $link=$link_dir."/${Language::share_string}"."-".$group;
         push @checked_links, $links;
         if (-e $link){
           $exists=1;
