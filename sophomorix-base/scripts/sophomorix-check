@@ -78,6 +78,7 @@ my $file_to_check="";
 my $old_info_dir="";
 my $no_kclass=0;
 my $use_uid=0;
+my $use_gid=0;
 my $no_auto_teach_in=0;
 
 # Parsen der Optionen
@@ -86,6 +87,7 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "get-info-from-old-files=s" => \$old_info_dir,
            "use-uid" => \$use_uid,
+           "use-gid" => \$use_gid,
            "no-kclass" => \$no_kclass,
            "no-auto-teach-in|no-sync" => \$no_auto_teach_in,
            "file=s" => \$file_to_check,
@@ -122,6 +124,8 @@ Options
   -vv / --verbose --verbose
   --no-auto-teach-in / --no-sync
   --get-info-from-old-files directory
+  --use-uid
+  --use-gid
   --file filename
 
 Please see the sophomorix-check(8) man pages for full documentation
@@ -2803,7 +2807,7 @@ sub generate_add_file {
                 $id="---";
             }
 
-	    if (exists $old_gname_gid{$admin_class}){
+	    if (exists $old_gname_gid{$admin_class} and $use_gid==1){
 		$gid=$old_gname_gid{$admin_class};
             } else {
                 $gid="---";
