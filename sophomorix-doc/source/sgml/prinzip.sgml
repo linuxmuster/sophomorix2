@@ -1,5 +1,5 @@
 <chapter>
-  <title>Anleitung zum Anlegen/Versetzten/Löschen der Schüler(HOW-TO) (noch nicht aktuell)</title>
+  <title>Anleitung zum Anlegen/Versetzten/Löschen der Schüler(HOW-TO) (teilweise aktuell)</title>
   <para>Wie sie Lehrer anlegen sollten, finden Sie  <xref
 	linkend="lehreranlegen" endterm="lehreranlegen"></para>
   <sect1>
@@ -160,12 +160,12 @@
             </warning>
 	</listitem>
 	<listitem>
-	  <para>Sie prüfen die Daten mit:</para>
-	  <para><screen>sophomorix-check</screen></para>
-	  <para>Dadurch werden folgende Dateien mit Schülerdatensätzen
-	      analysiert und die syntaktisch korrekten Datensätze in der Datei
-	      <userinput>sophomorix.ok</userinput> zusammengefasst: </para>
-	  <para><itemizedlist>
+	  <para>Sie prüfen die Daten mit: <ulink
+      url="./man/man8/sophomorix-check.8.html"><userinput>sophomorix-check</userinput></ulink></para>
+      <para>Dadurch werden folgende Dateien mit Schülerdatensätzen
+      analysiert und die syntaktisch korrekten Datensätze in der Datei
+      <userinput>sophomorix.ok</userinput> zusammengefasst: </para>
+      <para><itemizedlist>
 	      <listitem>
 		<para>Die zu untersuchende Datei des Schulverwaltungsprogramms,
 		  also <userinput>schueler.txt</userinput>.</para>
@@ -313,19 +313,19 @@
  </sect2>
   </sect1>
   <sect1>
-  <title>Schritt 2: Teach-in durchführen</title>
+  <title>Schritt 2: Manueller teach-in durchführen</title>
     <sect2>
       <title>Kurzer Überblick über Schritt 2 (ändert sich)</title> 
 
       <para>Der folgende, manuelle teach-in ist nur erforderlich, wenn
-      die das 5.Feld in schueler.txt <emphasis>nicht</emphasis>
+      sie das 5.Feld in schueler.txt <emphasis>nicht</emphasis>
       verwenden, wenn also das Schulverwaltungprogramm keinen Unid
       (Unique Identifier) ausgibt.
       </para>
 
-      <para>Auch wenn der automatische teach-in von sophomorix-check
-      genügend intelligent geworden ist kann auf den manuellen
-      teach-in verzichtet werden.
+      <para>Auch wenn der automatische teach-in von
+      <userinput>sophomorix-check</userinput> genügend intelligent
+      geworden ist, kann auf den manuellen teach-in verzichtet werden.
       </para>
 
       <sect3>
@@ -335,18 +335,17 @@
 <para></para>
 
 
-	<para><userinput>sophomorix-teach-in</userinput> vergleicht die
-	  Schüler, die hinzukommen WÜRDEN mit den Schülern, die entfernt werden
-	  WÜRDEN und analysiert, ob evtl. Namen oder Geburtsangaben ÄHNLICH
-	  sind. Tritt eine solche Ähnlichkeit auf, vermutet
+	<para><userinput>sophomorix-teach-in</userinput> vergleicht
+	  die Schüler, die hinzukommen WÜRDEN mit den Schülern, die
+	  nicht mehr vorhanden sind und analysiert, ob evtl. Namen
+	  oder Geburtsangaben ÄHNLICH sind. Tritt eine solche
+	  Ähnlichkeit auf, vermutet
 	  <userinput>sophomorix-teach-in</userinput> eine Namens- oder
-	  Geburtstagskorrektur. Da <userinput>sophomorix-teach-in</userinput>
-	  kein AI-Programm (Artificial Intelligence) ist, fragt es den
-	  Administrator um Rat: Sind Schüler A und B gleich?
+	  Geburtstagskorrektur. Um das zu bestätigen oder zu verneinen
+	  fragt es den Administrator um Rat: Sind Schüler A und B
+	  gleich?
 	</para>
-	<para>Wenn eine solche Namens- oder Geburtstagskorrektur von
-	  <userinput>sophomorix-teach-in</userinput> vermutet und vom
-	  Netzwerkadministrator bestätigt wird, fügt
+	<para>Wenn dies bestätigt wird, fügt
 	  <userinput>sophomorix-teach-in</userinput> die Änderungen in
 	  die sophomorix Datembank und das Authentifizierungssystem
 	  ein.</para>
@@ -398,18 +397,16 @@
     </sect2>
     <sect2>
       <title>Ablauf einer teach-in Sitzung (Schritt 2)</title>
-      <para>Im folgenden wird erläutert, wie eine teach-in Datei mit dem Script
-	<userinput>sophomorix-teach-in</userinput> erstellt wird:</para>
-      <para><orderedlist>
+      <para>Im folgenden wird erläutert, wie eine teach-in Datei mit
+      dem Script <ulink
+      url="./man/man8/sophomorix-teach-in.8.html"><userinput>sophomorix-teach-in</userinput></ulink> (man
+      page fehlt ???) erstellt wird:</para> <para><orderedlist>
 	  <listitem>
 	    <para><emphasis>Nachdem</emphasis> Sie <userinput>sophomorix-check
 	      </userinput>aufgerufen haben, können sie das Script
 	      <userinput>sophomorix-tech-in</userinput> aufrufen. </para>
 	    <para>Dies ist allerdings nur dann sinnvoll, wenn Schüler entfernt
-	      <emphasis>und</emphasis> Schüler gelöscht werden sollen. (Ob es
-	      Sinn macht <userinput>sophomorix-tech-in</userinput> aufzurufen,
-	      wird am Ende der Datei <userinput>report.admin</userinput>
-	      angezeigt.)</para>
+	      <emphasis>und</emphasis> Schüler gelöscht werden sollen.</para>
 	  </listitem>
 	  <listitem>
 	    <para>Das Sript sucht nun in den zu entfernenden Schülern
@@ -423,96 +420,58 @@
 	      handelt, dessen Name oder Geburtsdatum korrigiert worden ist,
 	      oder ob eine zufällige Ähnlichkeit vorliegt.</para>
 	    <para>
-	      Handelt es sich um denselben Schüler, geben Sie die entsprechende
-	      Nummer (1) bis (n) ein, und Drücken Sie auf RETURN. Damit wird
-	      ein Eintrag in der Form</para>
-	    <para><screen>schueler-im-system:::korrigierter-name-dieses-schuelers</screen> 
-	      in die Datei
-	      <userinput>/etc/sophomorix/user/teach-in.txt</userinput>
-	      geschrieben (allerdings erst, wenn
-	      <userinput>sophomorix-teach-in</userinput> ordnungsgemäß beendet
-	      wird).
+	      Handelt es sich um denselben Schüler, geben Sie die
+	      entsprechende Nummer (1) bis (n) ein, und Drücken Sie
+	      auf RETURN. Damit werden die korrigierten Daten in die
+	      sophomorix Datenbank und das Authentifizierungssystem
+	      eingetragen.
 	    </para>
-	    <para>Damit wird
-	      <userinput>korrigierter-name-dieses-schuelers</userinput> bei jedem
-	      zukünftigen Aufruf von &so-check;
-	      durch den Eintrag <userinput>schueler-im-system</userinput>
-	      ersetzt. Der Schüler wird deshalb nicht mehr entfernt, obwohl
-	      sein Name korrigiert wurde!</para>
-	    <para>Geben Sie die (0) an, so wird keinerlei Eintrag geschrieben.
-	      Der abgefragte Schüler wird deshalb entfernt werden. </para>
+	    <para>Geben Sie die (0) an, so wird keinerlei Veränderung
+	      vorgenommen.  Der abgefragte Schüler wird deshalb den
+	      Status toleriert bekommen. </para>
 	  </listitem>
 	  <listitem>
 	    <para>Nun müssen sie nochmals &so-check; aufrufen! Dabei wird die
-	      im vorigen Schritt angelegte/modifizierte Datei
-	      <userinput>teach-in.txt</userinput> berücksichtigt. Die Einträge
-	      in <userinput>schueler.weg</userinput> und
-	      <userinput>schueler.hinzu</userinput> sind dann um die
-	      Ähnlichkeitsübereinstimmungen reduziert.</para>
+	      veränderte sophomorix Datenbank berücksichtigt.</para>
 	  </listitem>
 	</orderedlist>
       </para>
-      <para><userinput>sophomorix-teach-in</userinput> besitzt einen Parameter,
-	der angibt wie genau nach ähnlichen Schülern gesucht wird. Der
-	Parameter kann von <userinput>5</userinput> bis
-	<userinput>60</userinput> gewählt werden. Angenommen ein Schülereintrag
-	der einen Schüler identifiziert (Nachname,Vorname,Gegurtsdatum) besteht
-	aus 100 Zeichen. Dann bedeutet der Parameter <userinput>60</userinput>
-	, eine Editierschrittanzahl  60% dieser Zeichenanzahl -- also 60. Wenn
-	2 zu vergleichende Schülereinträge durch 60 Editierschritte ineinander
-	überführt werden können, dann sind sie ähnlich, und werden beim
-	teach-in gefunden.</para>
-	  <para>Wenn ihnen das kompliziert erscheint, dann merken sie sich
-	    einfach:</para>
-	  <para>Bei kleinem Parameter werden nur sehr ähnliche Einträge
-	gefunden.Bei großem Parameter werden werden auch Einträge gefunden, die
-	sich kaum mehr gleichen (z.B. Vorname und Nachname vertauscht).</para>
+      <para>??? siehe manpage
+	(später)<userinput>sophomorix-teach-in</userinput> besitzt
+	einen Parameter, der angibt wie genau nach ähnlichen Schülern
+	gesucht wird. Der Parameter kann von <userinput>5</userinput>
+	bis <userinput>60</userinput> gewählt werden. Angenommen ein
+	Schülereintrag der einen Schüler identifiziert
+	(Nachname,Vorname,Gegurtsdatum) besteht aus 100 Zeichen. Dann
+	bedeutet der Parameter <userinput>60</userinput> , eine
+	Editierschrittanzahl 60% dieser Zeichenanzahl -- also 60. Wenn
+	2 zu vergleichende Schülereinträge durch 60 Editierschritte
+	ineinander überführt werden können, dann sind sie ähnlich, und
+	werden beim teach-in gefunden.</para> <para>Wenn ihnen das
+	kompliziert erscheint, dann merken sie sich einfach:</para>
+	<para>Bei kleinem Parameter werden nur sehr ähnliche Einträge
+	gefunden.Bei großem Parameter werden werden auch Einträge
+	gefunden, die sich kaum mehr gleichen (z.B. Vorname und
+	Nachname vertauscht).</para>
     </sect2>
   </sect1>
   <sect1>
     <title>Schritt 3: Benutzer anlegen</title>
  <sect2>
-      <title>Kurzer Überblick über Schritt 3</title> <para>Die
-      folgende Abbildung zeigt, was beim Anlegen von Benutzern
-      passiert .</para> <para><figure> <title>Schritt 3: mit
-      <userinput>sophomorix-add</userinput> werden die User ins System
-      gebracht</title>
-	  <mediaobject>
-	    <imageobject>
-	      <imagedata fileref="workflow.png" format="png">
-	    </imageobject>
-	    <imageobject>
-	      <imagedata fileref="workflow.eps" format="eps">
-	    </imageobject>
-	    <textobject>
-	      <phrase>Grafischer Ablaufplan von
-		<userinput>teach-in.pl</userinput></phrase>
-	    </textobject>
-	  </mediaobject>
-      </figure>
-      </para>
-     </sect2>
-    <sect2>
-      <title>Prinzip von Schritt 3</title>
-      <para>Alle User in <userinput>sophomorix.add</userinput> können mit dem
-	Script <userinput>sophomorix-add</userinput> angelegt werden.</para>
-    <para>Welche User angelegt werden KÖNNEN, sehen Sie mit:</para>
-	  <para><screen>sophomorix-add --info</screen></para>
-      <para>Es erscheint dann eine Liste mit Usern, die neu angelegt werden
-	KÖNNEN. Mit dem Befehl:</para>
-      <para><screen>sophomorix-add</screen></para>
-      <para>weden alle angezeigten User angelegt. Mit Parametern von
-	<userinput>sophomorix-add</userinput> kann auch nur ein Teil dieser
-	User angelegt werden. Mehr über diese Parameter erfahren Sie durch
-	Aufruf von:</para>
-      <para><screen>sophomorix-add --help</screen></para>
-    <para>Das Anlegen von Usern hat folgende Auswirkungen:</para>
-    <para><orderedlist>
+      <title>Prinzip von Schritt 3</title> <para>Alle User in
+      <userinput>sophomorix.add</userinput> können mit dem Script
+      <ulink
+      url="./man/man8/sophomorix-add.8.html"><userinput>sophomorix-add</userinput></ulink>
+      angelegt werden.</para>
+
+      <para>Das anlegen von Usern hat folgende Auswirkungen:</para>
+
+      <para><orderedlist>
 	  <listitem>
-	    <para>Es werden alle benötigten Verzeichnisse angelegt und der User
-	      in die Systemdateien (??? ldap) eingetragen. Alle zusätzlichen
-	      Daten (insbesondere Erstpasswort) werden in
-	      <userinput>user.protokoll</userinput> abgelegt.</para>
+	    <para>Es werden alle benötigten Verzeichnisse angelegt und
+	      der User wird in die sophomorix Datenbank und das
+	      Authentifizierungssystem eingetragen. in die
+	      Systemdateien eingetragen</para>
 	  </listitem>
 	<listitem>
           <para>Es wird von <userinput>sophomorix-add</userinput> das Script
@@ -576,7 +535,8 @@
      </sect2>
   </sect1>
   <sect1>
-    <title id="quota" xreflabel="Quota setzen">Schritt 4: Quota aller User setzen</title>
+    <title id="quota" xreflabel="Quota setzen">Schritt 4: Quota aller
+    User setzen (Noch nicht aktuell)</title>
     <sect2>
       <title>Kurzer Überlick über Schritt 4</title>
       <para>Mit dem Script <userinput>sophomorix-quota</userinput> ist es
@@ -736,69 +696,51 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>Schritt 5: User entfernen (Entfernungs-Sequenz)</title>
+    <title>Schritt 5: User entfernen (Entfernungs-Sequenz(Noch nicht aktuell))</title>
     <para>Ein User wird nicht einfach automatisch gelöscht. </para>
     <para>Vielmehr durchläuft er folgende Zustände, bis er schliesslich entfernt
       werden kann:</para>
     <para><orderedlist>
 	<listitem>
-	  <para><emphasis>Duldung:</emphasis> Ein User wird aus einer der
-	    Userdateien entfernt.</para>
-	  <para>Wird ein Schüler bzw. Lehrer nicht mehr vom
-	    Schulverwaltungsprogramm geführt oder von ihnen aus einer
-	    Konfigurationsdatei gelöscht, so fehlt er in
-	    der Soll-Liste der User.</para>
-	  <para>Dies hat Folgen, wenn <userinput>sophomorix-check</userinput>
-	    aufgerufen wird:</para>
-	  <para><itemizedlist>
+	  <para><emphasis>Status T(Tolerierung):</emphasis> Ein User wird aus einer der Konfiguratuionsdateien
+          entfernt.</para> 
+
+          <para>Wird ein Schüler bzw. Lehrer nicht mehr vom
+          Schulverwaltungsprogramm geführt oder von ihnen aus einer
+          Konfigurationsdatei gelöscht, so fehlt er in der Soll-Liste
+          der User.</para> 
+
+          <para>Dies hat Folgen, wenn
+          <userinput>sophomorix-check</userinput> aufgerufen
+          wird:</para> <para><itemizedlist>
 	      <listitem>
-		<para>Der User wird in die Datei
-		  <userinput>user-duldungsbeginn</userinput> eingetragen
-		  (??ldap), zusammen mit dem aktuellen Datum. Der User wird ab
-		  diesem Datum nur noch geduldet (Er darf weiterhin alles
-		  bisherige tun).</para>
+		<para>Der User bekommt den Status T.</para>
 	      </listitem>
 	      <listitem>
 	  <para>Beim Schuljahreswechsel, würden die Schüler einer
 		  Abschlussklasse nicht versetzt werden, sondern mit den
 		  nachrückenden Schülern eine Klasse mit doppelt so vielen
 		  Schülern bilden.</para>
-		<para>Um dies zu verhindern können alle geduldeten Schüler in
+		<para>Um dies zu verhindern können alle Schüler mit dem Status T in
 		  die <userinput>dachboden</userinput>-klasse versetzt werden.
 		  Geduldete Lehrer hingegen können in die Klasse
 		  <userinput>speicher</userinput> versetzt werden.
 		</para>
-		<para>Obwohl durch diesen Versetzungsvorgang nicht mehr
-		  nachvollziebar ist (ausser in den Logdateien), in welcher
-		  Gruppe ein geduldeter User WAR, bleibt die Information ob der
-		  User ein Lehrer war erhalten (User in der Klasse
-		  <userinput>dachboden</userinput> waren Schüler, User in der
-		  Klasse <userinput>speicher</userinput> waren Lehrer.)</para>
-		<para>
-		Mit dem Befehl</para>
-		<para><screen>sophomorix-move --info</screen></para>
-		<para>lassen sich alle User anzeigen, die versetzt werden
-		  können</para>
-		<para>Mit</para>
-		<para><screen>sophomorix-move --neugruppe dachboden</screen></para>
-		<para>lassen sich nur diejenigen User versetzen, die in den
-		  <userinput>dachboden</userinput> versetzt werden müssen, also
-		  alle Schüler die geduldet werden.</para>
-		<para>Ebenso lassen sich alle geduldeten Lehrer mit dem Befehl</para>
-		<para><screen>sophomorix-move --neugruppe speicher</screen></para>
-		<para>
-		  in den <userinput>speicher</userinput> versetzen. </para>
+
+          <para>Mit dem Befehl<ulink
+url="./man/man8/sophomorix-move.8.html"><userinput>sophomorix-move -n
+dachboden</userinput></ulink> lassen sich die tolerierten Schüler
+(Status T) in den <userinput>dachboden</userinput> versetzen. </para>
 	      </listitem>
 	    </itemizedlist>
          </para>
 	</listitem>
 	<listitem>
-	  <para><emphasis>Deaktivierung:</emphasis> In diesem Duldungszustand
-	    verbleibt der User solange, bis die Duldungsdauer (konfigurierbar)
-	    überschritten ist. Wird dann
-	    <userinput>sophomorix-check</userinput> aufgerufen, passiert
-	    folgendes:</para>
-	  <para><itemizedlist>
+	  <para><emphasis>Status D (Deaktivierung):</emphasis> In
+	    diesem Status verbleibt der User solange, bis die
+	    Deaktivierungsdauer?????? (konfigurierbar) überschritten ist. Wird
+	    dann <userinput>sophomorix-check</userinput> aufgerufen,
+	    passiert folgendes:</para> <para><itemizedlist>
 	      <listitem>
 		<para>Der User wird deaktiviert. Es kann sich dann nicht mehr
 		  einloggen, ... Seine Daten, Passwort, Empfang von Email,
