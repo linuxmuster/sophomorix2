@@ -78,7 +78,8 @@ install-base:
 	install -oroot -groot --mode=0744 sophomorix-base/scripts/sophomorix-*[a-z1-9] $(DESTDIR)/usr/sbin
 	##### teacher scripts
 	install -d $(DESTDIR)/usr/bin
-	install -oroot -glehrer --mode=4750 sophomorix-base/scripts-teacher/sophomorix-*[a-z1-9] $(DESTDIR)/usr/bin
+	# group owner is changed in postinst-script to lehrer
+	install -oroot -groot --mode=4750 sophomorix-base/scripts-teacher/sophomorix-*[a-z1-9] $(DESTDIR)/usr/bin
 	##### configs for admin
 	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/user
 	install -oroot -groot --mode=0600 sophomorix-base/config/sophomorix.conf $(DESTDIR)/etc/sophomorix/user
