@@ -22,6 +22,10 @@ system("groupadd admin");
 #system("groupadd -g 1002 lehrer");
 system("groupadd lehrer");
 
+# make some sccripts owned by leherer
+system("chown root.lehrer /usr/bin/sophomorix-teacher");
+
+
 # admin anlegen
 #system("useradd -u 500 -g admin -G lehrer -d /home/admin -s /bin/bash -c Windows_Systemverwalter -p admin!  admin");
 system("useradd -g admin -d /home/admin -s /bin/bash -c Windows_Systemverwalter -p admin!  admin");
