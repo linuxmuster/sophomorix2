@@ -20,39 +20,27 @@ use Term::ANSIColor qw(:constants); # farbiger Text RED, BLUE, ...
 # nach jedem Printbefehl wieder auf Standardfarbe zurücksetzen
 $Term::ANSIColor::AUTORESET = 1;
 
-# loading the Module for the Database-Backend 
-if (${DevelConf::db_backend} eq 'files'){
-    #print "Using ${DevelConf::db_backend} \n";
-    require Sophomorix::SophomorixFiles;
-    import Sophomorix::SophomorixFiles;
-#    use Sophomorix::SophomorixFiles;   # tut nicht
-} elsif (${DevelConf::db_backend} eq 'ldap'){
-    #print "Using $DevelConf::db_backend \n";
-    require Sophomorix::SophomorixLDAP;
-    import Sophomorix::SophomorixLDAP;
-#    use Sophomorix::SophomorixLDAP;   # tut nicht
-} elsif (${DevelConf::db_backend} eq 'postgresql'){
-    #print "Using $DevelConf::db_backend \n";
-    require Sophomorix::SophomorixPostgreSQL;
-    import Sophomorix::SophomorixLPostgreSQL;
-#    use Sophomorix::SophomorixPostgreSQL;   # tut nicht
-}
 
-# Einlesen der Konfigurationsdatei für Entwickler
-#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
 
-# Nur als Dummy(Warnings verhindern)
-if($Conf::drei_strichpunkt){};
-if($Conf::geburts_jahreszahl_start){};
-if($DevelConf::ersetze_slash_mit){};
-if($Conf::geburts_jahreszahl_stop){};
-if($DevelConf::var_lib_pfad){};
-if($DevelConf::library_pfad){};
-if($DevelConf::druck_pfad){};
-if($DevelConf::debian){};
+# ===========================================================================
+# Loading the db-Module and its list of functions
+# ===========================================================================
+# list of functions to load if db is 'files'
+use if ${DevelConf::db_backend} eq 'files' , 
+    'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                        get_sys_users
+                                       );
+
+# list of functions to load if db is 'ldap'
+use if ${DevelConf::db_backend} eq 'ldap' ,
+    'Sophomorix::SophomorixLDAP' => qw(show_modulename);;
+
 
 # show the Database Module that is loaded
 &show_modulename();
+
+
+
 
 # Es wird eine Datei sophomorix.ok (schueler+lehrer) erzeugt 
 # Welche Dateien mit Userdaten sollen verarbeitet werden
@@ -1191,8 +1179,9 @@ sub u_t_check {
    # Usable(U) -> Tolerated(T)  .move (alte klasse -> dachboden) 
    # Step 1: Tolerate the user
    while ( my ($identifier, $status) = each %sophomorix_status ){
-     if ($status eq "U" or $status eq "E"){
-       while (my ($identifier, $admin_class) = each %schueler_im_system_hash ){
+     if ($status eq "U" or $status eq "E" or $status eq ""){
+	 print "Ident: $identifier   Status: $status\n";
+#       while (my ($identifier, $admin_class) = each %schueler_im_system_hash ){
          unless (exists $schueler_ok_hash{$identifier}) {
            # User is not anymore in Files
            if (not exists $user_duldungsbeginn{$identifier}){
@@ -1206,18 +1195,18 @@ sub u_t_check {
                     "$identifier wird ab $heute nur noch geduldet\n";
 	      
               print "u_t_check: entry in sophomorix.move\n";
- 
               &append_move_entry($identifier,
-                                 $schueler_im_system_hash{$identifier},
-                                 "dachboden");
+                                $schueler_im_system_hash{$identifier},
+                                "dachboden");
   
               next;
            }
-        }
+        #}
       }
-     &titel("u_t_check: Insgesamt KÖNNEN $schueler_duldungs_beginn_anzahl User in den dachboden/speicher versetzt werden.");
      }
    }
+     &titel("u_t_check: Es KÖNNEN $schueler_duldungs_beginn_anzahl User in den dachboden/speicher versetzt werden.");
+
 }
 
 
@@ -2700,6 +2689,7 @@ sub generate_move_file {
            # Admin-Report
            push @admin_list_move, "%-30s %40s\n","$identifier","$string_kurz";
            # File
+	      print "generate_move-file -> $string_move\n";
            print SOPHOMORIXMOVE ("$string_move\n");
          }
       }
