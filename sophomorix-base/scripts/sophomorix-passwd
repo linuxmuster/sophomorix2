@@ -192,10 +192,10 @@ if ($password ne ""){
 
 if ($common==1){
    if ($char_num==0){
-      $password_lehrer=&get_plain_password("lehrer",@chars);
+      $password_lehrer=&get_plain_password(${DevelConf::teacher},@chars);
       $password_other=&get_plain_password("",@chars);
    } else {
-      $password_lehrer=&get_random_password($char_num,"lehrer",@chars);
+      $password_lehrer=&get_random_password($char_num,${DevelConf::teacher},@chars);
       $password_other=&get_random_password($char_num,"",@chars);
    }
    $info_line="Passwords will be :\n".
@@ -233,7 +233,7 @@ foreach my $user (@users){
         $password=&get_first_password($user);
     } elsif ($common==1){
        # set password
-       if ($group eq "lehrer"){ 
+       if ($group eq ${DevelConf::teacher}){ 
 	   $password=$password_lehrer;
        } else {
 	   $password=$password_other;

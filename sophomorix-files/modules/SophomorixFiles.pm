@@ -173,7 +173,7 @@ sub get_sys_users {
 
 # user_db   einlesen
 open(USERIMSYSTEM, 
-     ">${DevelConf::ergebnis_pfad}/user.imsystem")
+     ">${DevelConf::ergebnis_pfad}/sophomorix.system")
      || die "Fehler: $!";
 open(USERPROTOKOLL,
      "<${DevelConf::protokoll_datei}") 

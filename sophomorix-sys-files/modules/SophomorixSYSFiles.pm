@@ -130,7 +130,7 @@ sub add_user_to_sys {
 
     my $gec = "$vorname"." "."$nachname";
     my $home ="";
-    if ($class eq "lehrer"){
+    if ($class eq ${DevelConf::teacher}){
        $home = "${DevelConf::homedir_teacher}/$login";
     } else {
        $home = "${DevelConf::homedir_pupil}/$class/$login";

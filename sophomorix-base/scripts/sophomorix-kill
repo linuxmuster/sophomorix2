@@ -216,7 +216,7 @@ while(<KILL>){
       # webmin
       &remove_webmin_account($login_name_to_kill);
 
-      if ($linux_gruppe_to_kill ne "lehrer") {
+      if ($linux_gruppe_to_kill ne ${DevelConf::teacher}) {
          # Es ist ein Schüler
          # Klassenverzeichnis in denen die Homes sind löschen, falls leer
          &do_falls_nicht_testen(

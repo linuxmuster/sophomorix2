@@ -680,7 +680,7 @@ sub save_tausch_klasse {
    my $dirpath="$homedir"."/"."${Language::share_string}"."-"."$dirname"."/";
 
    my $tausch_klasse_path = "";
-   if ($klasse eq "lehrer") {
+   if ($klasse eq ${DevelConf::teacher}) {
      $tausch_klasse_path = "${DevelConf::share_teacher}";
    } else {
      $tausch_klasse_path = "${DevelConf::share_classes}/"."$klasse";
@@ -736,7 +736,7 @@ Creates all files and directories for a class (exchange/share/... directories).
 
 sub provide_class_files {
     my ($class) = @_;
-    if ($class eq "lehrer"){
+    if ($class eq ${DevelConf::teacher}){
       &setup_verzeichnis("\$share_teacher",
                     "${DevelConf::share_teacher}");
     } else {
@@ -815,7 +815,7 @@ sub provide_user_files {
     my $home_class="";
     my $share_class = "";
     my $dev_null="1>/dev/null 2>/dev/null";
-    if ($class eq "lehrer"){
+    if ($class eq ${DevelConf::teacher}){
         # lehrer
         $home = "${DevelConf::homedir_teacher}/$login";
         $www_home = "${DevelConf::homedir_teacher}/$login/www";
@@ -863,7 +863,7 @@ sub provide_user_files {
         # Eigentümer von ${DevelConf::homedir_pupil}/klasse/name REKURSIV 
         # aendern in:   user:lehrer
         &do_falls_nicht_testen(
-             "chown -R $login:lehrer $home"
+             "chown -R $login:teacher $home"
         );
 
         if ($DevelConf::testen==0) {
@@ -934,7 +934,7 @@ sub user_links {
   my $user_home = "";
 
 
-  if ($gruppe ne "lehrer"){
+  if ($gruppe ne ${DevelConf::teacher}){
     # pupil
     $tausch_klasse="${DevelConf::share_classes}/$gruppe";
     $user_home = "${DevelConf::homedir_pupil}/$gruppe/$login";
@@ -954,7 +954,7 @@ sub user_links {
       $alt_gruppe="";
   }
   
-  if ($gruppe eq "lehrer" && $alt_gruppe eq "speicher") {
+  if ($gruppe eq ${DevelConf::teacher} && $alt_gruppe eq "speicher") {
       # nichts tun
   }
   else {
@@ -1013,13 +1013,13 @@ sub protokoll_linien {
 
 
 # ===========================================================================
-# Datei extrakurse.schueler erzeugen aus extrakurse.txt 
+# Datei extrakurse.students erzeugen aus extrakurse.txt 
 # ===========================================================================
 =pod
 
 =item I<extra_kurs_schueler(tag, monat, jahr)>
 
-Datei extrakurse.schueler erzeugen aus extrakurse.txt. tag, monat,
+Datei extrakurse.students erzeugen aus extrakurse.txt. tag, monat,
 jahr soll das aktuelle Datum sein. Es werden nur Schüler derjenigen
 Kurse erzeugt, deren Kusr-Ende-Datum noch nicht erreicht ist.
 
@@ -1044,7 +1044,7 @@ sub extra_kurs_schueler {
   my $identifier; 
   my %generated_identifiers=();
   my %generated_kurs=();
-  open(EXTRAKURSESCHUELER, ">${DevelConf::ergebnis_pfad}/extrakurse.schueler") 
+  open(EXTRAKURSESCHUELER, ">${DevelConf::ergebnis_pfad}/extrakurse.students") 
        || die "Fehler: $!";
 
   open(EXTRAKURSE, "<${DevelConf::config_pfad}/extrakurse.txt") 
@@ -1705,7 +1705,7 @@ sub get_random_password {
    my $password="";
    my $i;
 
-   if ($group eq "lehrer" and $num==0){
+   if ($group eq ${DevelConf::teacher} and $num==0){
        $num=${Conf::zufall_passwort_anzahl_lehrer};
    } elsif ($num==0){
        $num=${Conf::zufall_passwort_anzahl_schueler};
@@ -1722,7 +1722,7 @@ sub get_plain_password {
    my @passwort_zeichen=@_;
    my $passwort="";
    my $i;
-   if ($gruppe eq "lehrer") {
+   if ($gruppe eq ${DevelConf::teacher}) {
       # Es ist ein Lehrer
       if ($Conf::lehrer_zufall_passwort eq "ja") {
          # Zufallspasswort erzeugen
@@ -2179,7 +2179,7 @@ sub check_raum {
 sub check_lehrer {
   my $ergebnis=0;
   my ($name_to_check)=@_;
-  if (&get_klasse_von_login($name_to_check) eq "lehrer") {  
+  if (&get_klasse_von_login($name_to_check) eq ${DevelConf::teacher}) {  
         if($Conf::log_level>=3){
            print "$name_to_check ist ein Lehrer\n";
 	 }
@@ -2207,7 +2207,7 @@ sub make_hash_lehrer_in_klassen {
    }
 
 #   my @lehrerliste=&get_lehrer_in_schule();
-   my @lehrerliste=&get_user_adminclass("lehrer");
+   my @lehrerliste=&get_user_adminclass(${DevelConf::teacher});
    #   print "@lehrerliste";
 
    my $lehrer="";
@@ -3205,7 +3205,7 @@ sub get_erst_passwd {
       my ($gruppe, $nax, $login, $pass) = split(/;/);
       if ($username eq $login) {
           $rainer=1;
-          if ($gruppe eq "lehrer" or $gruppe eq "speicher") {
+          if ($gruppe eq ${DevelConf::teacher} or $gruppe eq "speicher") {
               #print "Fehler: $login ist ein Lehrer";
               #return-STRING NICHT AENDERN !!! (wegen klassenmanager/passwd_change.cgi)
               return "$login ist ein Lehrer";
@@ -3261,7 +3261,7 @@ sub austeilen_manager{
   }
 
   &check_verzeichnis_mkdir("$aufgaben_grp");
-  system ("chown $loginname.lehrer $aufgaben_grp");
+  system ("chown $loginname.teacher $aufgaben_grp");
   &check_verzeichnis_mkdir("$tausch_ka");
 #  system ("chown $loginname.lehrer $aufgaben_grp");
 
@@ -3423,7 +3423,7 @@ sub collect {
   # create a list of user to collect data from
   my @users=();
   if ($type eq "class"){
-      if ($name ne "${Language::teacher}"){
+      if ($name ne "${DevelConf::teacher}"){
          @users=&get_user_adminclass($name);
          $tasks_dir="${DevelConf::tasks_classes}/${name}/";
      } else {
@@ -3537,7 +3537,7 @@ sub collect {
 
 
   # make collected data readable
-#  system("/bin/chown -R $login.${Language::teacher} $dir");
+#  system("/bin/chown -R $login.${DevelConf::teacher} $dir");
   system("/bin/chown -R $login. $to_dir");
 
 }
@@ -3623,7 +3623,7 @@ sub ka_einsammeln {
    system("rsync -tor --delete $aufgaben $lehrer_verzeichnis");
    system("rsync -tr $aufgaben $log_verzeichnis");
    # Alles soll lehrer gehören
-   system("chown -R ${loginname}:lehrer $lehrer_verzeichnis");
+   system("chown -R ${loginname}:teacher $lehrer_verzeichnis");
    # Alles soll root gehören
    system("chown -R root:root $log_verzeichnis");
    # Daten auf der Workstation löschen
@@ -3696,7 +3696,7 @@ sub unterricht_einsammeln {
       system("rsync -tor --delete $aufgaben $lehrer_verzeichnis");
    }
    # Alles soll lehrer gehören
-   system("chown -R ${loginname}:lehrer $lehrer_verzeichnis");
+   system("chown -R ${loginname}:teacher $lehrer_verzeichnis");
    print "Aufgaben Einsammeln ... fertig.</b><p> ";
 }
 

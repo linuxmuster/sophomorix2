@@ -213,7 +213,7 @@ while(<USERVERSETZEN>){
    ($login_versetzen, $alte_klasse, $neue_klasse)=split(/::/);
 
    # Home ermitteln
-   if ($neue_klasse eq "lehrer") {
+   if ($neue_klasse eq ${DevelConf::teacher}) {
       # in klasse lehrer versetzten
       $neues_home="${DevelConf::homedir_teacher}/${login_versetzen}";
    } else {
@@ -264,7 +264,7 @@ while(<USERVERSETZEN>){
 #      print("Protokollzeile (Neu):  $neue_zeile\n");
     }
 
-   if ($neue_klasse eq "lehrer" && not $alte_klasse eq "speicher") {
+   if ($neue_klasse eq ${DevelConf::teacher} && not $alte_klasse eq "speicher") {
       # Es ist die Gruppe lehrer beteiligt
       print("##### User kann nicht vesetzt werden!\n");
       print("In die Gruppe lehrer kann man nur aus dem speicher versetzt werden\n");
@@ -276,7 +276,7 @@ while(<USERVERSETZEN>){
    &save_tausch_klasse($login_versetzen, $alte_klasse);
 
    # Sicherstellen dass neue Klasse (Linux-Gruppe) existiert
-   if ($neue_klasse ne "lehrer") {
+   if ($neue_klasse ne ${DevelConf::teacher}) {
      &provide_class_files($neue_klasse);
      &create_class_db_entry($neue_klasse);
      &add_class_to_sys($neue_klasse);
@@ -294,7 +294,7 @@ while(<USERVERSETZEN>){
    # Dateien im neuen home gehoeren nun der Klassengruppe.
    # Muss angepasst werden an Eigentümer lehrer
    &do_falls_nicht_testen(
-        "chown -R .lehrer $neues_home",
+        "chown -R .teacher $neues_home",
         "chown .root $neues_home/www"
    );
 

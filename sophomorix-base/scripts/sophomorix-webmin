@@ -230,7 +230,7 @@ if ($groups==1){
 
         if ($group eq "teacher"){
             @modules_teacher=@modules;
-            @users=&get_user_adminclass("lehrer");
+            @users=&get_user_adminclass(${DevelConf::teacher});
             # create string
             my $string="";
             foreach my $item (@users){$string=$string." "."$item"}
@@ -244,7 +244,7 @@ if ($groups==1){
         } elsif ($group eq "student"){
             @modules_student=@modules;
             my @users_pupil=&get_pupils_school();
-            my @users_teacher=&get_user_adminclass("lehrer");
+            my @users_teacher=&get_user_adminclass(${DevelConf::teacher});
             @users = (@users_teacher, @users_pupil);
             # create string
             my $string="";

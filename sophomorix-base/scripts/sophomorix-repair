@@ -182,7 +182,7 @@ my @schueler=&get_pupils_school();
 # lehrer
 &titel("Creating list of every teacher ...");
 #my @lehrer=&get_lehrer_in_schule();
-my @lehrer=&get_user_adminclass("lehrer");
+my @lehrer=&get_user_adminclass(${DevelConf::teacher});
 
 &print_list("The list of every teacher:",@lehrer);
 
@@ -204,7 +204,7 @@ if ($dateirechte==1) {
 # --www
 if ($www==1) {
   if ($lehrer==1) {
-      @www_userliste=&get_user_adminclass("lehrer");
+      @www_userliste=&get_user_adminclass(${DevelConf::teacher});
    } elsif ($schueler==1){
       @www_userliste=&get_pupils_school();
    } elsif ($login ne "") {
@@ -583,7 +583,7 @@ sub move_public_html {
    &titel("$loginname ist in der Klasse $klasse"); 
    my $mode=0;
 
-   if ($klasse eq "lehrer") {
+   if ($klasse eq ${DevelConf::teacher}) {
       # lehrer ALT
       $string_link="${DevelConf::homedir_teacher}/${loginname}/windows/public_html";
       # lehrer NEU
@@ -753,7 +753,7 @@ sub move_public_html {
 #  my %lehrer_hash=get_lehrer_in_schule_hash();
 #
 #  while (my ($schueler) = each %lehrer_hash){
-#      &add_public_html_link("$schueler","lehrer");
+#      &add_public_html_link("$schueler",${DevelConf::teacher});
 #    }
 #
 #}

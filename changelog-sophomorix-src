@@ -310,13 +310,6 @@ All Scripts:
 
      (Status C = can be cleared, sophomorix-clear, ...)
 
-   * rename:
-     user.imsystem         --> sophomorix.system
-     report.sekretariat    --> report.office
-     report.gesperrt    --> report.filter
-     klasse.schuelerzahl --> AdminClass.students
-
-   ** create global variable $teacher_grpname="lehrer" and use it in all scripts
    - read the config-files from thomas
      (file:  debconf datenbank, perl-lib zum auslesen benutzen ist dabei)
       debconf-show linuxmuster-base
@@ -407,13 +400,21 @@ RELEASES:
 
 ????? next: create links in Tausch, when user is put in subclass
 
-????? next: use international name for lehrer
-
-????? next: change pupil to student
-
-
 
 1.2.1 (2005-03-?)
+   - renamed "lehrer" to $DevelConf::teacher (50 times!)
+     (seems to work so far)
+   - created new file in tmp to pre-filter lehrer.txt:
+      /var/lib/sophomorix/tmp/lehrer.txt.tmp
+     in wich the grpname lehrer of lehrer.txt is converted to teacher     
+   - renamed some files in checkresult:
+      user.imsystem        --> sophomorix.system
+      report.sekretariat   --> report.office
+      report.gesperrt      --> report.filter
+      klasse.schuelerzahl  --> AdminClass.students
+      extrakurse.schueler  --> extrakurse.students
+      schueler.txt.tausch  --> schueler.txt.tmp
+
    - sophomorix-teacher: --collect added (it worked once)
    - sophomorix-teacher: --handout added (still alpha)
    - no-restart option in sophomorix-webmin added

@@ -250,8 +250,8 @@ while(<USERHINZU>){
    # Gruppennamen ermitteln, max 8 Zeichen, k als 1. Buchstaben vorsetzen
    # problematisch, da sich klassen erst nach 8 zeichen unterscheiden können????????????
    # Auf 14 hochgesetzt (groupadd erlaubt 16 Zeichen, 2 für Subklassen reserviert)
-#   if ($schueler_ok_hash{$identifier} eq "lehrer") {
-#      $new_admin_group="lehrer";
+#   if ($schueler_ok_hash{$identifier} eq ${DevelConf::teacher}) {
+#      $new_admin_group=${DevelConf::teacher};
 #   } else {
 #       $new_admin_group=substr("k"."$schueler_ok_hash{$identifier}",0,14);
 #   }
@@ -343,7 +343,7 @@ while(<USERHINZU>){
       print("Login (OK):       $login_name_ok\n");
       print("Passwort:         $klartext_passwort\n");
       print("Unix-id:          $wunsch_id\n");
-      if ($new_admin_group eq "lehrer") {
+      if ($new_admin_group eq ${DevelConf::teacher}) {
          # Es ist ein Lehrer
          print("Shell (Lehrer):  $shell\n"); 
       } else {
@@ -492,7 +492,10 @@ sub create_webmin_account {
    my $webminacl="/etc/webmin/webmin.acl";
 
    # miniserv.users entry
-   if (not -e $wmsu){system ("install $wmsu")}
+   if (not -e $wmsu){
+       system ("install -d /etc/webmin");
+       system ("touch $wmsu");
+   }
    # append entry
    open (MINISERVUSERS, ">>$wmsu") ||   die "Cannot open $wmsu \n";
    if ($DevelConf::testen==0) {
@@ -506,8 +509,10 @@ sub create_webmin_account {
 
 
    # webmin.acl entry
-   if (not -e $webminacl){system ("install $webminacl")}
-
+   if (not -e $webminacl){
+       system ("install -d /etc/webmin");
+       system ("touch $webminacl");
+   }
    # append entry
    open (WEBMINACL, ">>$webminacl") ||   die "Cannot open $webminacl \n";
    if ($DevelConf::testen==0) {
@@ -528,7 +533,7 @@ sub shell_ermitteln {
    my ($gruppe)=@_;
    my $login_shell;
    # Shell ermitteln (Lehrer <> Schüler)
-      if ($gruppe eq "lehrer") {
+      if ($gruppe eq ${DevelConf::teacher}) {
          # Es ist ein Lehrer
          if ($Conf::lehrer_per_ssh eq "ja") {
              $login_shell="/bin/bash";

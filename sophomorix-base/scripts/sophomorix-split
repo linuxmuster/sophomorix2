@@ -114,9 +114,9 @@ if ($info==1){
 
 
 # Abbruch wenn als klasse lehrer abgegeben
-if ($class eq "" or $class eq "lehrer"){
+if ($class eq "" or $class eq ${DevelConf::teacher}){
     print "Sie müssen die zu teilende Klasse angeben!\n";
-    if ($class eq "lehrer"){
+    if ($class eq ${DevelConf::teacher}){
 	print "Die Gruppe lehrer ist keine Klasse!\n";
     }
     exit;

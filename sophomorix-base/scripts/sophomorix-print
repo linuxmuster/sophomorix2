@@ -229,7 +229,7 @@ my $klasse_filename_part="";
 if ($alle==1){
    $klasse_filename_part="alle";
 } elsif ($lehrer==1){
-   $klasse_filename_part="lehrer";
+   $klasse_filename_part=${DevelConf::teacher};
 }elsif ($gruppe ne ""){
    $klasse_filename_part="$gruppe";
 } else {
@@ -498,7 +498,7 @@ if ($gruppe eq "" && $alle==0 && $lehrer==0) {
    }
 
 } elsif ($lehrer==1) {
-    $argument="lehrer";
+    $argument=${DevelConf::teacher};
     my $klasse="";
     if($Conf::log_level>=2){
        print("\nArgument ist:  $argument\n");
@@ -515,7 +515,7 @@ if ($gruppe eq "" && $alle==0 && $lehrer==0) {
 } elsif ($gruppe ne "") {
    # Argument muss "klasse" sein -> filtern
    my $argument;
-   if ($gruppe eq "lehrer"){
+   if ($gruppe eq ${DevelConf::teacher}){
         print "Mit der Option --klasse können keine Lehrer angezeigt werden!\n\n";
         exit;
       } else {

@@ -54,11 +54,11 @@ install: build
 
 	# Add here commands to install the package into debian/sophomorix.
 	$(MAKE) install-base DESTDIR=$(CURDIR)/debian/sophomorix
-	$(MAKE) install-ldap DESTDIR=$(CURDIR)/debian/sophomorix
+#	$(MAKE) install-ldap DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-files DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-sys-files DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-developer DESTDIR=$(CURDIR)/debian/sophomorix
-	$(MAKE) install-webmin-classmanager DESTDIR=$(CURDIR)/debian/sophomorix
+#	$(MAKE) install-webmin-classmanager DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) doc DESTDIR=$(CURDIR)/debian/sophomorix
 
 
@@ -102,6 +102,7 @@ binary-arch: build install
 	dh_installman -psophomorix-base sophomorix-base/man/de/sophomorix-teach-in.de.8
 	dh_installman -psophomorix-base sophomorix-base/man/de/sophomorix-passwd.de.8
 	dh_installman -psophomorix-base sophomorix-base/man/de/sophomorix-teacher.de.1
+	dh_installman -psophomorix-base sophomorix-base/man/de/sophomorix-webmin.de.8
 # Install manpages for sophomorix-files
 	dh_installman -psophomorix-files sophomorix-files/man/de/sophomorix-search.de.8
 # Install manpages for sophomorix-developer
