@@ -42,19 +42,30 @@ $homedir_teacher::admin::admin::0775
 $homedir_pupil::admin::admin::1775
 $homedir_ws::admin::admin::0775
 
-$share_share::admin::admin::1775
-
 ### SHARES
 
+$share_share::admin::admin::1775
+
 $share_classes::admin::lehrer::0751
+$share_subclasses::admin::lehrer::0751
 $share_exams::admin::admin::0775
 $share_projects::admin::lehrer::0751
 $share_school::admin::lehrer::3777
-$share_tasks::admin::admin::0775
+#$share_tasks::admin::admin::0775
 $share_teacher::admin::lehrer::3770
 
-$share_tasks/$klassen::admin::lehrer::3755
 $share_classes/$klassen::admin::lehrer::3777
+
+
+### TASKS
+
+$tasks_tasks::admin::lehrer::1755
+
+$tasks_classes::admin::lehrer::0751
+$tasks_subclasses::admin::lehrer::3755
+$tasks_projects::admin::lehrer::3755
+
+$tasks_classes/$klassen::admin::lehrer::3755
 
 # Todo
 #$share_projects/$klassen::admin::lehrer::3777

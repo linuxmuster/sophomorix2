@@ -94,6 +94,7 @@ use Time::localtime;
               ka_einsammeln
               unterricht_einsammeln
               provide_class_files
+              provide_subclass_files
               provide_user_files
               );
 
@@ -739,14 +740,48 @@ sub provide_class_files {
     } else {
       my $klassen_homes="${DevelConf::homedir_pupil}/$class";
       my $klassen_tausch="${DevelConf::share_classes}/$class";
-      my $klassen_aufgaben="${DevelConf::share_tasks}/$class";
+      my $klassen_aufgaben="${DevelConf::tasks_classes}/$class";
       &setup_verzeichnis("\$homedir_pupil/\$klassen",
                     "$klassen_homes");
       &setup_verzeichnis("\$share_classes/\$klassen",
                     "$klassen_tausch");
-      &setup_verzeichnis("\$share_tasks/\$klassen",
+      &setup_verzeichnis("\$tasks_classes/\$klassen",
                     "$klassen_aufgaben");
     }
+}
+
+
+=pod
+
+=item I<provide_subclass_files(subclass)>
+
+Creates all files and directories for a subclass (exchange directories).
+
+=cut
+
+
+sub provide_subclass_files {
+    my ($class) = @_;
+    print "Class: $class \n";
+    my @appendix=("-A","-B","-C","-D");
+# ?????????? create A,B,C,D (if users exist?)
+    foreach my $app (@appendix){
+       my $klassen_tausch="${DevelConf::share_subclasses}/$subclass";
+       my $klassen_aufgaben="${DevelConf::tasks_tasks}/$class";
+ 
+    
+
+    }
+#    my $klassen_homes="${DevelConf::homedir_pupil}/$class";
+#    my $klassen_tausch="${DevelConf::share_classes}/$class";
+#    my $klassen_aufgaben="${DevelConf::tasks_tasks}/$class";
+#    &setup_verzeichnis("\$homedir_pupil/\$klassen",
+#                  "$klassen_homes");
+#    &setup_verzeichnis("\$share_classes/\$klassen",
+#                  "$klassen_tausch");
+#    &setup_verzeichnis("\$tasks_tasks/\$klassen",
+#                  "$klassen_aufgaben");
+
 }
 
 
@@ -3141,7 +3176,7 @@ sub austeilen_manager{
   my $tausch_ka="${DevelConf::share_exams}/${gruppe}/aufgaben/${loginname}";
   # bei Unterricht
   #my $tausch_unt="${DevelConf::share_classes}/${gruppe}/${loginname}";
-  my $tausch_unt="${DevelConf::share_tasks}/${gruppe}/${loginname}";
+  my $tausch_unt="${DevelConf::tasks_tasks}/${gruppe}/${loginname}";
 
 
   # Quelle beim austeilen (ka UND unterricht)
@@ -3268,8 +3303,8 @@ sub unterricht_austeilen {
   # Parameter 3: delete oder undelete bei rsync
   my ($loginname, $klasse, $type) = @_;
   my $lehrer_pfad ="${DevelConf::homedir_teacher}/${loginname}/windows/aufgaben/${klasse}/";
-  # Achung: share aufgabe (ohne n) ist in ${DevelConf::share_tasks}
-  my $klasse_pfad = "${DevelConf::share_tasks}/${klasse}/${loginname}/";
+  # Achung: share aufgabe (ohne n) ist in ${DevelConf::tasks_tasks}
+  my $klasse_pfad = "${DevelConf::tasks_tasks}/${klasse}/${loginname}/";
 #  my $klasse_pfad = "${DevelConf::share_classes}/${klasse}/${loginname}/";
   #print "Teile aus von $lehrer_pfad nach $klasse_pfad<p>";
   # -t Datum belassen
@@ -3390,7 +3425,7 @@ sub unterricht_einsammeln {
   my $sammelordner="";
   my $lehrer_pfad ="";
   my $lehrer_verzeichnis="${DevelConf::homedir_teacher}/${loginname}/windows/sammelordner/U-${klasse}_${date}";
-  my $aufgaben="${DevelConf::share_tasks}/${klasse}/${loginname}";
+  my $aufgaben="${DevelConf::tasks_tasks}/${klasse}/${loginname}";
 #  my @klasse = &get_schueler_in_klasse($klasse);
   my @klasse = &get_user_in_adminclass($klasse);
 

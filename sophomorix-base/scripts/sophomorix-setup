@@ -46,9 +46,15 @@ print "##### sophomorix-setup is configuring the system for sophomorix-base ...\
 &setup_verzeichnis("\$share_share","$DevelConf::share_share");
 &setup_verzeichnis("\$share_exams","$DevelConf::share_exams");
 &setup_verzeichnis("\$share_classes","$DevelConf::share_classes");
+&setup_verzeichnis("\$share_subclasses","$DevelConf::share_subclasses");
 &setup_verzeichnis("\$share_projects","$DevelConf::share_projects");
-&setup_verzeichnis("\$share_tasks","$DevelConf::share_tasks");
 &setup_verzeichnis("\$share_school","$DevelConf::share_school");
+
+# tasks
+&setup_verzeichnis("\$tasks_tasks","$DevelConf::tasks_tasks");
+&setup_verzeichnis("\$tasks_classes","$DevelConf::tasks_classes");
+&setup_verzeichnis("\$tasks_subclasses","$DevelConf::tasks_subclasses");
+&setup_verzeichnis("\$tasks_projects","$DevelConf::tasks_projects");
 
 
 #this is old stuff, only for reference:
