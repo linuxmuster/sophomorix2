@@ -8,7 +8,7 @@
       <title>Kurzer Überblick über Schritt 1</title>
     <para>Die folgende Abbildung zeigt grafisch den Aufbau von sophomorix.</para>
     <para><figure>
-	<title>Schritt 1: <userinput>sophomorix-check</userinput> prüft die Schülerdateien</title>
+	<title>Schritt 1: <userinput>sophomorix-check</userinput> prüft die Schülerdateien (Grafik nicht aktuell)</title>
 	<mediaobject>
 	  <imageobject>
 	    <imagedata fileref="workflow.png" format="png">
@@ -30,17 +30,16 @@
 	  <userinput>lehrer.txt</userinput> ein, und schreibt die syntaktisch
 	  richtigen Schülereinträge nach <userinput>sophomorix.ok</userinput>.
 	  Syntaktisch falsche Einträge landen in
-	  <userinput>report.sekretariat</userinput>. Außerdem wird ein Report
+	  <userinput>report.office</userinput>. Außerdem wird ein Report
 	  für den Netzwerkbetreuer erzeugt
 	  (<userinput>report.admin</userinput>)
     </para>
-    <para>Außerdem liest &so-check; aus dem Authentifizierungssystem
-	  (im Moment files) und aus der sophomorix Datenbank die
+    <para>Außerdem liest &so-check; aus der sophomorix Datenbank die
 	  Datensätze der User, die bereits angelegt sind.
     </para>
     <para>Anschließend wird ermittelt, welche User angelegt werden
 	  <emphasis>können</emphasis>
-	  <userinput>sophomorix.add</userinput> und welche User
+	  (<userinput>sophomorix.add</userinput>) und welche User
 	  endgültig entfernt werden <emphasis>können</emphasis>
 	  (<userinput>sophomorix.kill</userinput>), sowie Schüler,
 	  deren Klasse sich ändert, die also versetzt werden
@@ -88,13 +87,20 @@
 	      <userinput>(Klasse;Nachname;Vorname;Geburtsdatum;)</userinput>
 	      darf leer sein</para>
 	  </listitem>
+          <listitem>
+	    <para>Die letzten beiden Felder
+	      <userinput>unid</userinput> und
+	      <userinput>department</userinput> sind optional:
+	      <userinput>(Klasse;Nachname;Vorname;Geburtsdatum;unid;department)</userinput>
+	     </para>
+	  </listitem>
 	  <listitem>
 	    <para>Leerzeichen werden in allen Feldern entfernt. Umlaute
 	      (ä,ö,ü,ß) werden umgewandelt (ae,oe,ue,ss). e mit Akzent wird in
 	      e umgewandelt.</para>
 	  </listitem>
 	  <listitem>
-	    <para>Ein Datensatz muss 4 ; (Strichpunkte) enthalten, ein Datum 2
+	    <para>Ein Datensatz kann 4 bis 6 ; (Strichpunkte) enthalten, ein Datum 2
 	      . (Punkte)</para>
 	  </listitem>
 	  <listitem>
@@ -128,36 +134,17 @@
 	  </para>
 	<para>Wenn sie unbrauchbar sind, sieht man sie in
 	  <userinput>report.admin</userinput>. Enthalten sie Syntaxfehler, so
-	  findet man sie in <userinput>report.sekretariat</userinput>.</para>
+	  findet man sie in <userinput>report.office</userinput>.</para>
       </warning>
     </sect2>
     <sect2>
       <title>Ablauf der Benutzerüberprüfung (Schritt 1)</title>
      <para><orderedlist>
 	<listitem>
-	  <para>Sie holen sich eine neue Ausgabedatei (im folgenden
-	    Beispielhaft <userinput>schueler.txt</userinput>) ihres
-	    Schulverwaltungsprogramms auf Diskette.</para>
-	  </listitem>
-	  <listitem>
-	    <para>Sie melden sich als <userinput>root</userinput> am Server an.
-	      Alle weiteren Schritte erledigen Sie als
-	      <userinput>root</userinput>.</para>
-	</listitem>
-	<listitem>
-	  <para> Sie mounten die Diskette am Server mit</para>
-	  <para><screen>mount /floppy</screen></para>
-	</listitem>
-	<listitem>
-	  <para>Sie kopieren die neue Schülerdatei ins System mit:</para>
-	  <para><screen>cp /floppy/schueler.txt /etc/sophomorix/user/schueler.txt</screen></para>
-	    <warning>
-	    <para>Die Datei
-	      <userinput>schueler.txt</userinput><emphasis> muss
-	      </emphasis> genausoso heißen, und im Verzeichnis
-	      <userinput>/etc/sophomorix/user/</userinput>
-	      liegen!</para>
-            </warning>
+	  <para>Sie kopieren eie neue Schülerdatei
+	  <userinput>schueler.txt</userinput> in das Verzeichnis
+	  <userinput>/etc/sophomorix/user/</userinput> des
+	  Servers.</para>
 	</listitem>
 	<listitem>
 	  <para>Sie prüfen die Daten mit: <ulink
@@ -187,25 +174,13 @@
 		<para>...
 		</para>
 	      </listitem>
-
 	    </itemizedlist>
-</para>
+      </para>
 	</listitem>
 	<listitem>
 	  <para>Nachdem das Script die neue Schülerdatei analysiert hat, finden
-	    Sie im Pfad <userinput>/var/lib/sophomorix/ergebnis</userinput> 
-	  das Ergebnis dieser Analyse. Um diese Dateien anzuzeigen gehen Sie
-	    zuerst in dieses Verzeichnis mit:</para>
-	  <para><screen>cd /var/lib/sophomorix/ergebnis</screen></para>
-	  <para>(Tipp: Hierbei sollten Sie mit der Tab-Taste(-Tab-) arbeiten,
-	      also: <userinput>/u-Tab-loc-Tab-sa-Tab-u-Tab-
-	      </userinput>...)</para>
-	  <para>Mit dem Kommando <userinput>less</userinput> können sie den
-	    Inhalt dieser Dateien anzeigen lassen, z.B. mit:</para>
-	    <para><screen>less sophomorix.ok</screen></para>
-	  <para>den Inhalt der Datei <userinput>sophomorix.ok</userinput>. Durch
-	      Drücken der Taste <userinput>q</userinput> verlassen Sie den
-	      Viewer <userinput>less</userinput>.</para>
+	    Sie im Pfad <userinput>/var/lib/sophomorix/check-result</userinput> 
+	  das Ergebnis dieser Analyse.</para>
 	  <para>Folgende Ergebnisdateien gibt es:</para>
 	  <para><itemizedlist>
 		<listitem>
@@ -215,17 +190,14 @@
 		    korrekt sind. </para>
 		</listitem>
                 <listitem>
-		  <para><userinput>user.imsystem???</userinput> enthält alle
+		  <para><userinput>sophomorix.system</userinput> enthält alle
 		    Schüler, die sich schon im System befinden.</para>
 		</listitem>
 		<listitem>
 		  <para><userinput>sophomorix.kill</userinput> und
 		    <userinput>sophomorix.add</userinput> enthalten die User,
 		    die beim Benutzeranlegen entfernt werden bzw. hinzukommen
-		    <emphasis>WÜRDEN</emphasis>. Diese beiden Dateien dürfen
-		    sie nicht editieren. Überlassen Sie deren Auswertung einem
-		    weiteren Script
-		    (<userinput>sophomorix-teach-in</userinput>)</para>
+		    <emphasis>WÜRDEN</emphasis>.</para>
 		</listitem>
 		<listitem>
 		  <para><userinput>sophomorix.move</userinput> enthält alle
@@ -240,8 +212,9 @@
 			<para>Start-Zeitpunkt des Scriptes</para>
 		      </listitem>
 		      <listitem>
-			<para>Falls aufgetreten: Korrupte Datensätze (keine 4 ;
-			  oder im Datum keine 2 .)</para>
+			<para>Falls aufgetreten: Korrupte Datensätze
+			  (keine 4 bis 6 ; oder im Datum keine 2
+			  .)</para>
 		      </listitem>
 		      <listitem>
 			<para>Ob Vor- und Nachnamen getauscht werden mussten um
@@ -263,7 +236,7 @@
 		  </para>
 		</listitem>
 		<listitem>
-		  <para><userinput>report.sekretariat</userinput> enthält alle
+		  <para><userinput>report.office</userinput> enthält alle
 		    fehlerhaften Datensätze die in den 3 Dateien vorkommen, in
 		    denen die Schüler stehen. Diese Fehler sollten von der
 		    Sekretärin (Schülerdatei
@@ -285,7 +258,7 @@
 		
 
                 <listitem>
-	          <para>Die Datei <userinput>klasse.schuelerzahl???</userinput>
+	          <para>Die Datei <userinput>AdminClass.students</userinput>
 		    enthält alle Klassen und wieviele Schüler in dieser Klasse
 		    sind.</para>
 		</listitem>
@@ -301,9 +274,9 @@
 	</listitem>
 	<listitem>
 	  <para>Diese Ergebnis-Dateien, die &so-check;  geliefert hat, können
-	      Sie sich genau durchsehen. Nacch
-	      <userinput>report.sekretariat</userinput> aussortierte
-	      Datensätze(Schüler) sollten Sie nicht selber korrigieren, sondern
+	      Sie sich genau durchsehen. Nach
+	      <userinput>report.office</userinput> aussortierte
+	      Datensätze (Schüler) sollten Sie nicht selber korrigieren, sondern
 	      durch das Sekretariat/Schulverwaltung durchführen lassen. Somit
 	      ist sichergestellt, dass die Daten das nächstemal korrekt
 	      sind.</para>
@@ -397,10 +370,10 @@
     </sect2>
     <sect2>
       <title>Ablauf einer teach-in Sitzung (Schritt 2)</title>
-      <para>Im folgenden wird erläutert, wie eine teach-in Datei mit
-      dem Script <ulink
-      url="./man/man8/sophomorix-teach-in.8.html"><userinput>sophomorix-teach-in</userinput></ulink> (man
-      page fehlt ???) erstellt wird:</para> <para><orderedlist>
+      <para>Im folgenden wird erläutert, wie mit dem Script <ulink
+      url="./man/man8/sophomorix-teach-in.8.html"><userinput>sophomorix-teach-in</userinput></ulink>
+      Userdaten manuell in die sophomorix Datenbank eingetragen
+      werden:</para> <para><orderedlist>
 	  <listitem>
 	    <para><emphasis>Nachdem</emphasis> Sie <userinput>sophomorix-check
 	      </userinput>aufgerufen haben, können sie das Script
@@ -409,7 +382,7 @@
 	      <emphasis>und</emphasis> Schüler gelöscht werden sollen.</para>
 	  </listitem>
 	  <listitem>
-	    <para>Das Sript sucht nun in den zu entfernenden Schülern
+	    <para>Das Script sucht nun in den zu entfernenden Schülern
 	      (<userinput>sophomorix.kill</userinput>) und neu hinzukommenden
 	      Schülern (<userinput>sophomorix.add</userinput>) nach
 	      Ähnlichkeitsübereinstimmungen. Diese gefundenen
@@ -436,23 +409,10 @@
 	  </listitem>
 	</orderedlist>
       </para>
-      <para>??? siehe manpage
-	(später)<userinput>sophomorix-teach-in</userinput> besitzt
-	einen Parameter, der angibt wie genau nach ähnlichen Schülern
-	gesucht wird. Der Parameter kann von <userinput>5</userinput>
-	bis <userinput>60</userinput> gewählt werden. Angenommen ein
-	Schülereintrag der einen Schüler identifiziert
-	(Nachname,Vorname,Gegurtsdatum) besteht aus 100 Zeichen. Dann
-	bedeutet der Parameter <userinput>60</userinput> , eine
-	Editierschrittanzahl 60% dieser Zeichenanzahl -- also 60. Wenn
-	2 zu vergleichende Schülereinträge durch 60 Editierschritte
-	ineinander überführt werden können, dann sind sie ähnlich, und
-	werden beim teach-in gefunden.</para> <para>Wenn ihnen das
-	kompliziert erscheint, dann merken sie sich einfach:</para>
-	<para>Bei kleinem Parameter werden nur sehr ähnliche Einträge
-	gefunden.Bei großem Parameter werden werden auch Einträge
-	gefunden, die sich kaum mehr gleichen (z.B. Vorname und
-	Nachname vertauscht).</para>
+      <para>Siehe auch die manpage von
+
+  <ulink
+      url="./man/man8/sophomorix-teach-in.8.html"><userinput>sophomorix-teach-in</userinput></ulink> für weitere Optionen.</para>
     </sect2>
   </sect1>
   <sect1>
@@ -470,8 +430,7 @@
 	  <listitem>
 	    <para>Es werden alle benötigten Verzeichnisse angelegt und
 	      der User wird in die sophomorix Datenbank und das
-	      Authentifizierungssystem eingetragen. in die
-	      Systemdateien eingetragen</para>
+	      Authentifizierungssystem eingetragen.</para>
 	  </listitem>
 	<listitem>
           <para>Es wird von <userinput>sophomorix-add</userinput> das Script
@@ -479,7 +438,7 @@
 	      Login-Kärtchen für alle Schüler erzeugt, die
 	      <emphasis>neu</emphasis> hinzugekommen sind (Datei
 	      <userinput>add.pdf</userinput>).</para>
-	  <para>Diese Datei ist folgendermaßen aufgebaut:</para>
+	  <para>Diese PDF-Datei ist folgendermaßen aufgebaut:</para>
 	  <para>
           <itemizedlist>
 		<listitem>
@@ -516,7 +475,7 @@
 	      findet man in <userinput>/var/log/sophomorix</userinput>. Die
 	      Dateinamen enthalten das Datum und die sekundengenaue Uhrzeit.
 	      Die an den Dateinamen angehängten Worte
-	      <userinput>vor</userinput> und <userinput>nach</userinput>
+	      <userinput>before</userinput> und <userinput>after</userinput>
 	      beziehen sich auf den Aufruf von
 	      <userinput>sophomorix-add</userinput>. </para>
 	  </listitem>
@@ -536,30 +495,47 @@
   </sect1>
   <sect1>
     <title id="quota" xreflabel="Quota setzen">Schritt 4: Quota aller
-    User setzen (Noch nicht aktuell)</title>
+    User setzen</title>
     <sect2>
-      <title>Kurzer Überlick über Schritt 4</title>
-      <para>Mit dem Script <userinput>sophomorix-quota</userinput> ist es
-	möglich, fein angepasste Quota für die Benutzer der Musterlösung
-	einzustellen. Dabei können auch klassenweise die Quotas verändert
-	werden. Auch die Quotaanpassung einzelner User (z.B. einzelner Lehrer,
-	oder des Schülers, der die Schul-Home-Page betreut)
-	ist möglich. </para>
+      <title>Kurzer Überlick über Schritt 4</title> 
+
+      <para>Mit dem Script <userinput>sophomorix-quota</userinput> ist
+      es möglich, fein angepasste Quota für die Benutzer
+      einzustellen. Dabei können auch klassenweise die Quotas
+      verändert werden. Auch die Quotaanpassung einzelner User
+      (z.B. einzelner Lehrer, oder des Schülers, der die
+      Schul-Home-Page betreut) ist möglich. </para>
+
       <para>Die Standard-Quota werden prinzipiell in der Datei
-	<userinput>quota.txt</userinput> mit einem Editor eingetragen. Für die
-	Lehrer sowie Klassen werden die Quota in der Datei
-	<userinput>lehrer.txt</userinput>
-	bzw. <userinput>schulinfo.txt</userinput> eingetragen, da hier schon
-	alle Lehrer im System und alle Klassen im System Konfiguriert werden
-	können. </para>
+      <userinput>quota.txt</userinput> mit einem Editor
+      eingetragen.</para>
+
+      <para>Für die Lehrer werden die Quota in der Datei
+	<userinput>lehrer.txt</userinput> eingetragen. </para>
+
+      <para>Für EINZELNE Schüler werden die Quota in der Datei
+	<userinput>quota.txt</userinput> eingetragen (Bespiel: admin). </para>
+
+      <para>Für die Klassen werden die Quota mit dem Befehl <ulink
+      url="./man/man8/sophomorix-class.8.html"><userinput>sophomorix-class</userinput></ulink> in
+      die sophomorix Datenbank eingetragen, in der automatisch alle
+      vorkommenden Klassen verwaltet werden. </para>
+
+      <para>Für Projekte werden die zusätzlichen Quota (AddQuota) mit
+      dem Befehl <ulink
+      url="./man/man8/sophomorix-project.8.html"><userinput>sophomorix-project</userinput></ulink>
+      in die sophomorix Datenbank eingetragen, in der alle Projekte
+      verwaltet werden. </para>
+
+
     </sect2>
     <sect2>
       <title>Ausführliches Prinzip von Schritt 4</title>
       <para>Um mit <userinput>sophomorix-quota</userinput> Quota zu bearbeiten
-	ist es erforderlich, dass Quota eingeschaltet sind. Dies geschieht mit
-	<userinput>quotacheck -av</userinput> und nachfolgendem <userinput>Enable
-	  Quotas</userinput> in <userinput>webmin</userinput>. (siehe auch im
-	Handbuch zur Linux-Musterlösung)</para>
+	ist es erforderlich, dass Quota eingeschaltet sind. Siehe dazu  
+<ulink
+      url="./man/man8/sophomorix-quota.8.html"><userinput>sophomorix-quota</userinput></ulink>
+</para>
       <para>Desweiteren sollte man sich unbedingt klar werden, auf wievielen
 	Dateisystemen (Windows: Partitionen) Quota eingeschaltet sind.
 	Informationen dazu kann man mit <userinput>sophomorix-quota
@@ -567,215 +543,87 @@
 	  --info</userinput> nach gemounteten Filesystemen mit dem Parameter
 	<userinput>usrquota</userinput> gesucht hat, gibt das Programm aus, wie
 	die Quotaangaben in den Konfigurationsdateien zu erfolgen haben</para>
-      <para>Das Anpassen der Quota nach den Angaben in den
+      <para>Das Anpassen der Quota im System nach den Angaben in den
 	Konfigurationsdateien geschieht mit dem Aufruf des Befehls 
 	<userinput>sophomorix-quota</userinput>.</para>
       <para>Dabei spielt sich folgendes ab:</para>
       <para><orderedlist>
 	  <listitem>
-		<para><userinput>sophomorix-quota</userinput> liest
-		  <emphasis>alle</emphasis> User des Systems in den
-		  Speicher (Hash). Alle diese User bekomen vorerst unbegrenzte
-		  Quota.</para>
+		<para><userinput>sophomorix-quota</userinput>
+		berechnet die Quota aller User.</para>
 	  </listitem>
 	  <listitem>
-	    <para>Nun wird ermittelt, welche dieser User Schüler sind und
-		  danach das Standard-Schülerquota für diese User gesetzt (aus
-		  <userinput>quota.txt</userinput>).</para>
+	    <para>Der berechnete Quotawert (Sollquota) wird in die
+	    sophomorix Datenbank eingetragen.</para>
 	  </listitem>
 	  <listitem>
-	    <para>Dasselbe mit den Lehrern
-	      (aus <userinput>quota.txt</userinput>).</para>
-	  </listitem>
-	  <listitem>
-	    <para>Dasselbe mit den Workstations
-	      (aus <userinput>quota.txt</userinput>).</para>
-	  </listitem>
-	  <listitem>
-	    <para>Dasselbe mit den Klassen
-	      (aus <userinput>schulinfo.txt</userinput>)</para>
-	  </listitem>
-	  <listitem>
-	    <para>Nun werden noch die Quota einzelner Lehrer
-	      (aus <userinput>lehrer.txt</userinput>) und einzelner
-	      User (aus <userinput>quota.txt</userinput>)
-	      angepasst.</para>
-	  </listitem>
-	  <listitem>
-	    <para>Als letztes werden diese im Speicher befindlichen Daten für
-	      jeden einzelnen User auf das System angewendet.</para>
+	    <para>Für jeden User wird das Quota in der sophomorix
+	    Datenbank (Sollquota) mit dem tatsächlichen Quotawert
+	    verglichen und ,falls notwendig, im System angepasst. Das
+	    Quota des users <userinput>admin</userinput> wird immer
+	    gesetzt.</para>
 	  </listitem>
 	</orderedlist>
       </para>
-      <para>Zum Einstellen der Quotawerte dienen folgende Konfigurationsdateien:
-	<itemizedlist>
-	  <listitem>
-	    <para><userinput>quota.txt</userinput> (Beginn der Datei) enthält
-	      die Standard-Quota-Einträge von Schülern, Lehreren und
-	      Workstations</para>
-	  </listitem>
-	  <listitem>
-	    <para><userinput>schulinfo.txt</userinput> für die Quota-Einträge
-	      <emphasis>einzelner</emphasis> Klassen. Ersetzen sie das Wort
-	      <userinput>quota</userinput> mit den gewünschten Angaben.</para>
-	  </listitem>
-	  <listitem>
-	    <para><userinput>lehrer.txt</userinput> für die Quota-Einträge
-	      <emphasis>einzelner</emphasis> Lehrer.</para>
-	  </listitem>
-	  <listitem>
-	    <para><userinput>quota.txt</userinput> (Ende der Datei) die
-	      Quota-Einträge von einzelnen Benutzer, die nicht-Lehrer sind
-	      (Z.B. die Schüler, die die Home-Page der Schule betreuen, und
-	      deshalb mehr Platz brauchen).</para>
-	  </listitem>
-	</itemizedlist> 
-      <para>Editieren Sie diese Dateien nur mit einem Unix-Texteditor
-	(Webmin-Datei-Manager, xemacs)!</para>
     <sect3>
-	<title>Quota-Angaben bei EINEM Dateisystem</title>
-      <para>Die Syntax eines Quota-Eintrages für <emphasis>ein</emphasis>
-	Dateisystem (Windows: Partition) ist wie folgt:</para>
-      <para><screen>20-30-2000-3500</screen></para>
-      <para>Die ersten beiden Zahlen sind das Softlimit (hier 20 Megabyte), das
-	    kurzzeitig überschritten werden darf und das Hardlimit (hier 30
-	    Megabyte), das auf keinen Fall überschritten werden darf. Beide
-	    Angaben sind in <userinput>Mega</userinput>byte. </para>
-      <para>Das zweite Zahlenpaar sind die maximal abspeicherbaren
-	    Dateien/Verzeichnisse/Links. Die erste Zahl ist das softlimit (hier
-	    2000 Dateien/Verzeichnisse/Links), die zweite Zahl ist das
-	    Hardlimit (hier 3500 Dateien/Verzeichnisse/Links). </para>
-      <para>Eine einfachere Möglichkeit ist, nur den wichtigsten dieser Werte
-	-- das Hardlimit -- anzugeben, und die restlichen drei Werte von
-	<userinput>sophomorix-quota</userinput> mit sinnvollen Angaben versehen
-	zu lassen. Dazu tragen sie ein <userinput>x</userinput> an den Stellen
-	ein, an denen <userinput>sophomorix-quota</userinput> ihnen die Arbeit
-	abnehmen soll. Das Hardlimit <emphasis>muss</emphasis> unbedingt
-	gesetzt werden.</para>
-      <para>Beispiel:</para>
-      <para><screen>x-200-x-x</screen></para>
-      <para>oder auch ganz kurz</para>
-      <para><screen>200</screen></para>
-      <para>Diese Angabe begrenzt den zur Verfügung stehenden Festplattenplatz
-	auf 200 Megabyte, und wählt die anderen Werte sinnvoll (Was sinnvoll
-	ist schreibe ich hier nicht, da dies sich mit zunehmender Erfahrung
-	ändern könnte.)</para>
-	  <para>Da sie aber ziemlich neugierig sind, wenn sie bis hierher
-	    gelesen haben, deute ich doch kurz an, was ich für sinnvoll
-	    erachte: </para>
-	  <para>Das Softlimit wird auf 70 bis 100% des Hardlimits eingestellt.
-	    Die Anzahl Dateien/Verzeichnisse/Links, (genauer: die inode-Anzahl)
-	    wird so gesetzt, dass nur dann die inode-Anzahl ein Abspeichern
-	    verhindert, wenn die durchschnittliche Dateigröße ca. 10kB
-	    unterschreitet.</para>
+	<title>Quota-Angaben bei EINEM Dateisystem</title> 
+
+      <para>Die Syntax eines Quota-Eintrages für
+      <emphasis>ein</emphasis> Dateisystem (Windows: Partition) ist
+      wie folgt:</para> <para><screen>30</screen></para> <para>Dieser
+      Wert ist das Hardlimit (hier 30 Megabyte), das auf keinen Fall
+      überschritten werden darf.  Die auf Unix-Systemen üblichen
+      Angaben (Softlimit, Inode-Softlimit, Inode-Hardlimit) werden
+      automatisch sinnvoll gewählt.</para>
+
+      <para>Das Softlimit wird auf 70 bis 100% des Hardlimits
+      eingestellt.  Die Anzahl Dateien/Verzeichnisse/Links, (genauer:
+      die inode-Anzahl) wird so gesetzt, dass nur dann die
+      inode-Anzahl ein Abspeichern verhindert, wenn die
+      durchschnittliche Dateigröße ca. 10kB unterschreitet.</para>
     </sect3>
     <sect3>
 	<title>Quota-Angaben bei MEHREREN Dateisystem</title>
-      <para>Sollten sie <emphasis>mehrere</emphasis> quotierte Dateisysteme in
-	  ihrem Server haben (z. B. <userinput>/dev/sda3</userinput>,
+ 
+     <para>Sollten sie <emphasis>mehrere</emphasis> quotierte
+	  Dateisysteme in ihrem Server haben
+	  (z. B. <userinput>/dev/sda3</userinput>,
 	  <userinput>/dev/hda2</userinput> und
-	  <userinput>/dev/hda7</userinput>), so müssen ebenfalls 3 mit einem
-	  Pluszeichen verbundene Quota-Einträge angegeben werden.</para>
+	  <userinput>/dev/hda7</userinput>), so müssen die Quotaangaben mit einem
+	  Pluszeichen verbunden werden.</para>
+
       <para>Welche Dateisysteme <userinput>sophomorix-quota</userinput> auf
 	ihrem System erkannt hat erfahren Sie mit dem Befehl:</para>
       <para><screen>sophomorix-quota --info</screen></para>
+
       <para>Wenn sie -- mehrere Dateisysteme vorausgesetzt -- bei einem
 	Benutzer folgenden Quotaeintrag machen:</para>
-      <para><screen>20-30-300-400+25-35-300-400+40-60-300-400</screen></para>
-      <para>so gilt der erste Teil vor dem <userinput>+</userinput> für
-	<userinput>/dev/sda3</userinput>, der Teil zwischen den
-	<userinput>+</userinput>-Zeichen für <userinput>/dev/hda2</userinput>,
-	und so weiter.</para>
-      <para>Wenn sie nur das Hardlimit angeben wollen reicht auch:</para>
-      <para><screen>x-30-x-x+x-35-x-x+x-60-x-x</screen></para>
-      <para>oder noch einfacher:</para>
-      <para><screen>30+35+60</screen></para>
-      <para>Der Einfachheit halber sollte die letzte Version bevorzugt
-	  werden.</para>
+      <para><screen>400+40+100</screen></para>
+      <para>so gilt (für das Beispiel in diesem Abschnitt) 400 für
+	<userinput>/dev/sda3</userinput>, 40 für <userinput>/dev/hda2</userinput>,
+	und 100 für <userinput>/dev/hda7</userinput>.</para>
       </sect3>
     </sect2>
   </sect1>
   <sect1>
-    <title>Schritt 5: User entfernen (Entfernungs-Sequenz(Noch nicht aktuell))</title>
-    <para>Ein User wird nicht einfach automatisch gelöscht. </para>
-    <para>Vielmehr durchläuft er folgende Zustände, bis er schliesslich entfernt
-      werden kann:</para>
-    <para><orderedlist>
-	<listitem>
-	  <para><emphasis>Status T(Tolerierung):</emphasis> Ein User wird aus einer der Konfiguratuionsdateien
-          entfernt.</para> 
+    <title>Schritt 5: User entfernen (Entfernungs-Sequenz)</title>
+       <para>Mit dem Befehl</para>
 
-          <para>Wird ein Schüler bzw. Lehrer nicht mehr vom
-          Schulverwaltungsprogramm geführt oder von ihnen aus einer
-          Konfigurationsdatei gelöscht, so fehlt er in der Soll-Liste
-          der User.</para> 
+       <para><screen>sophomorix-kill --info</screen></para>
 
-          <para>Dies hat Folgen, wenn
-          <userinput>sophomorix-check</userinput> aufgerufen
-          wird:</para> <para><itemizedlist>
-	      <listitem>
-		<para>Der User bekommt den Status T.</para>
-	      </listitem>
-	      <listitem>
-	  <para>Beim Schuljahreswechsel, würden die Schüler einer
-		  Abschlussklasse nicht versetzt werden, sondern mit den
-		  nachrückenden Schülern eine Klasse mit doppelt so vielen
-		  Schülern bilden.</para>
-		<para>Um dies zu verhindern können alle Schüler mit dem Status T in
-		  die <userinput>dachboden</userinput>-klasse versetzt werden.
-		  Geduldete Lehrer hingegen können in die Klasse
-		  <userinput>speicher</userinput> versetzt werden.
-		</para>
+       <para>können die User angezeigt werden, die endgültig gelöscht
+       werden können. Das sind alles User, die schon einige Zeit nicht
+       mehr in den Konigurationsdateien
+       <userinput>schueler.txt</userinput>
+       <userinput>lehrer.txt</userinput> vorkommen und deren
+       Nutzungsmöglichkeiten schon lange sehr eingeschränkt sind (kein
+       Login).</para>
 
-          <para>Mit dem Befehl<ulink
-url="./man/man8/sophomorix-move.8.html"><userinput>sophomorix-move -n
-dachboden</userinput></ulink> lassen sich die tolerierten Schüler
-(Status T) in den <userinput>dachboden</userinput> versetzen. </para>
-	      </listitem>
-	    </itemizedlist>
-         </para>
-	</listitem>
-	<listitem>
-	  <para><emphasis>Status D (Deaktivierung):</emphasis> In
-	    diesem Status verbleibt der User solange, bis die
-	    Deaktivierungsdauer?????? (konfigurierbar) überschritten ist. Wird
-	    dann <userinput>sophomorix-check</userinput> aufgerufen,
-	    passiert folgendes:</para> <para><itemizedlist>
-	      <listitem>
-		<para>Der User wird deaktiviert. Es kann sich dann nicht mehr
-		  einloggen, ... Seine Daten, Passwort, Empfang von Email,
-		  ... bleiben aber weiterhin existent.</para>
-	      </listitem>
-	      <listitem>
-		<para>Der User wird mit dem Deaktivierungsdatum zusammen in die
-		  Datei <userinput>user-deaktivierungsbeginn</userinput>
-		  geschrieben.</para>
-	      </listitem>
-	    </itemizedlist>
-</para>
-	</listitem>
-	<listitem>
-	  <para><emphasis>Löschbarkeit:</emphasis> Im Deaktivierungszustand
-	    verbleibt der User bis die Deaktivierungsdauer (konfigurierbar)
-	    überschritten ist. Wird dann
-	    <userinput>sophomorix-check</userinput> aufgerufen, passiert
-	    folgendes:</para>
-	  <para>
-          <itemizedlist>
-	      <listitem>
-		<para>Der User erscheint als löschbar, und kann
-		  mit <userinput>sophomorix-kill</userinput> endgültig aus dem
-		  System gelöscht werden.</para>
-                <para>Mit dem Befehl</para>
-		<para><screen>sophomorix-kill --info</screen></para>
-		<para>können die User angezeigt werden, die endgültig gelöscht
-		  werden können.</para>
-	      </listitem>
-	    </itemizedlist>
-</para>
-	</listitem>
-      </orderedlist>
-</para>
+       <para>Mit dem Befehl</para>
+       <para><screen>sophomorix-kill</screen></para>
+
+       <para>werden sie endgültig (Ohne Backup) mit ihren Daten aus
+       dem System entfernt</para>
   </sect1>
 </chapter>
 

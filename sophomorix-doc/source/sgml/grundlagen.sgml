@@ -57,6 +57,20 @@
 	Unid hochgeladen, dann wird sie verwendet. Alle sich ändernden
 	Schülerdaten werden dann automatisch abgeglichen.</para>
       </listitem>
+      <listitem>
+	<para>Quotaangaben: Die Angabe von Quota wurde auf einen
+	einfachen Zahlenwert pro Dateisystem reduziert. Dies macht die
+	Ermittelung des Quota eines Users schneller und die
+	Konfiguration einfacher. Insbesondere trifft dies für die
+	zusätzlichen Quota (AddQuota) für Projekte zu, die zum
+	vorhandenen Quota eines Users hinzuaddiert werden.</para>
+      </listitem>
+      <listitem>
+	<para>Internationalisierung: Um möglichst viele
+	Netzwekadministratoren, bzw. Schulen zu erreichen, wurden
+	viele Dateinamen usw. auf internationale (d.h. in den meisten
+	Fällen englische) Namen umgestellt.
+      </listitem>
     </itemizedlist>
   </sect1>
   <sect1>
@@ -71,11 +85,26 @@
         <listitem>
 
            <para>
+           <userinput>sophomorix2</userinput>: Dieses Paket enthält
+           alle für eine sinvolle Nutzung von sophomorix notwendigen
+           Pakete (d.h. alle Pakete, die in dieser Aufzählung
+           sind).</para> 
+        
+           <para>Wenn sie <userinput>sophomorix</userinput>
+           installieren wollen, rufen sie auf (Beachten Sie die 2 am Ende):</para>
+           <para><screen>apt-get install sophomorix2</screen> </para>
+
+        </listitem>
+        <listitem>
+
+           <para>
            <userinput>sophomorix-base</userinput>: beinhaltet alle
-           grundlegenden Scripte von sophomorix, wie z.b
+           grundlegenden Scripte von sophomorix, die von der
+           Verwendeten Benutzerdatenbank bzw. Authentifizierungssystem
+           unabhängig sind, wie z.b
            <userinput>sophomorix-check</userinput>,
-           <userinput>sophomorix-add</userinput>, ....
-            sowie deren <ulink url="./man/man8">man pages</ulink>.</para>
+           <userinput>sophomorix-add</userinput>, ....  sowie deren
+           <ulink url="./man/man8">man pages</ulink>.</para>
 
         </listitem>
         <listitem>
@@ -94,7 +123,7 @@
            Debian-Paket, d.h. es gibt gar kein Paket, das so
            heisst. Allerdings können mehrere andere Pakete die
            Abhängigkeit von <userinput>sophomorix-db</userinput>
-           erfüllen. Im Moment ist dies allerdings nur das Paket
+           erfüllen. Im Moment ist dies nur das Paket
            <userinput>sophomorix-files</userinput>, das erlaubt die
            Sophomorix Datenbank in normalen Textdateien abzuspeichern
            bzw. zu modifizieren.
@@ -116,9 +145,10 @@
            <userinput>sophomorix-sysdb</userinput> ist ein virtuelles
            Debian-Paket, d.h. mehrere andere Pakete können die
            Abhängigkeit von <userinput>sophomorix-sysdb</userinput>
-           erfüllen. Im Moment ist dies allerding nur
+           erfüllen. Im Moment ist dies nur
            <userinput>sophomorix-sys-files</userinput>, das erlaubt
-           das Authentifizierungssystem in <userinput>passwd</userinput>,
+           das Authentifizierungssystem in
+           <userinput>passwd</userinput>,
            <userinput>groups</userinput>, ... einzutragen, zu löschen
            oder zu modifizieren.
            </para>
@@ -169,6 +199,19 @@
            </para>
 
         </listitem>
+        <listitem>
+
+           <para>
+           <userinput>sophomorix-vampire</userinput>: Dieses Paket
+           stellt ein Skript bereit, das es erlaubt alle wichtigen
+           Daten aus einem alten Linux-Musterlösungsserver über das
+           Netzwerk abzusaugen, und mit diesen Daten ein neues System
+           mit denselben Eigenschaften wie das ausgesaugte
+           aufzubauen. Dieses Paket ist bis auf weiteres noch im
+           Alpha-Status.
+           </para>
+
+        </listitem>
 
           </itemizedlist></para>
 
@@ -185,7 +228,7 @@
 <sect2>
     <title>Webmin-Module</title>
 
-<para>Todo</para> 
+<para>The webmin/usermin modules are in early developement stage.</para> 
 </sect2>
 
 
@@ -597,9 +640,9 @@
 
     </sect2>
     <sect2>
-      <title>Halbautomatisches Löschen eines Projekts</title>
-      <para>Ein Projekt hat folgende Eigenschaften:</para>
-      <para><itemizedlist>
+      <title>Halbautomatisches Löschen eines Projekts (noch nicht
+      implementiert)</title> <para>Ein Projekt hat folgende
+      Eigenschaften:</para> <para><itemizedlist>
 	  <listitem>
 	    <para><userinput>Name</userinput>: Kurzer Projektname, der
 	    dem Linux-Gruppennamen entspricht</para> 
