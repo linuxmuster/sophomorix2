@@ -211,22 +211,39 @@
                  </para>
 		</listitem>
 		<listitem>
-		  <para><userinput>T, A</userinput>: Tolerated, Activated
-		  (Tolerierter, Benutzbarer Account). </para>
+		  <para><userinput>T, A, S</userinput>: Tolerated,
+		  Activated, Selfactivated (Tolerierter, Benutzbarer
+		  Account). </para>
                  <para>
                       <itemizedlist>
 		      <listitem>
 			<para><userinput>T</userinput>: Der User ist
 		  nicht mehr in den Konfigurationsdateien
-		  (<userinput>schueler.txt, ...</userinput>)
-		  enthalten.</para>
+		  (<userinput>schueler.txt, ...</userinput>) enthalten. Er kann
+		  dann  mit <userinput>sophomorix-move</userinput>
+		  in den Dachboden versetzt werden.</para>
 		      </listitem>
 		      <listitem>
 			<para><userinput>A</userinput>: User ist aus
 			den Konfigurationsdateien verschwunden, wurde
 			aber vom Systemadministrator
-			reaktiviert.</para>
+			reaktiviert. </para> <para>Er kann allerdings
+			<emphasis>nicht</emphasis> in den Dachboden
+			versetzt werden (Er wurde ja auch nicht
+			aktiviert, um im Dachboden zu landen). </para>
 		      </listitem>
+		<listitem>
+		  <para><userinput>S</userinput>: Selfactivated
+		  (benutzbarer, tolerierter, selbsterzeugter
+		  Account). </para> <para>Der Account wurde von einem
+		  Lehrer bzw. Schüler selbst erzeugt und ist noch
+		  nicht durch Auftauchen der Benutzerdaten in
+		  <userinput>schueler.txt</userinput> in einen
+		  Normalen Account (U) überführt worden. </para>
+		  <para>Er kann allerdings <emphasis>nicht</emphasis>
+		  in den Dachboden versetzt werden (Er wurde ja auch
+		  nicht selbst-aktiviert, um im Dachboden zu landen).</para>
+		</listitem>
 	              </itemizedlist>
                  </para>
 		</listitem>
@@ -244,16 +261,6 @@
 		  <para>Der User kann beim nachsten Aufruf von
 		  <userinput>sophomorix-kill</userinput> mit all
 		  seinen Daten entfernt werden.</para>
-		</listitem>
-		<listitem>
-		  <para><userinput>S</userinput>: Selfactivated
-		  (benutzbarer, tolerierter, selbsterzeugter
-		  Account). </para>
-		  <para>Der Account wurde von einem Lehrer
-		  bzw. Schüler selbst erzeugt und ist noch nicht durch
-		  Auftauchen der Benutzerdaten in
-		  <userinput>schueler.txt</userinput> in einen
-		  Normalen Account (U) überführt worden.</para>
 		</listitem>
 		<listitem>
 		  <para><userinput>F</userinput>: Frozen
