@@ -103,6 +103,7 @@ sophomorix-user
    - option --reactivatable (or -i -D -T shows info about Disabled snd Tolerated)
    - when reactivating a user, set a date in the future to keep her longer acctive 
      (optional parameter)
+   - add information about webmin-account when displaying info
 
 sophomorix-split
    - interrupt if class to split is nonexistent
@@ -178,30 +179,73 @@ sophomorix-vampire:
    - option for k necessary?
    - generate a log file what went wrong
    - detect if a non-teacher user has a webmin-login (write to log-file)
+   - /usr/local/samba/progs  -> /home/samba/progs
+   - /usr/local/samba/cds    -> /home/samba/cds
+   - /usr/local/httpdocs     -> /var/www
+
+   - read passwords from /etc/shadow and /etc/smbpasswd
+     - push them into the new accounts
+       password-encrypting
+       suse:   ?
+       debian: md5
+
+   - strategie for rembo:
+     
+     
+
+     garbage that should not be taken to a new system
+
+
+
+     images:
+     /var/lib/myshn  /usr/local/rembo/files/global/myshn/groups
+                                                         hosts
+                                                         users
+                                                         hdimages
+                                                         nicht die patch.*
+                                                         Konfigurationsdateien
+                                                         Nicht: bin
+     rembo beenden
+     /var/lib/rembo  /usr/local/rembo/files/shared
+
+
+
+     rembo -chkshared zeigt die zu entfernenden an     
+     
+     konfigurationsdaten:
+     rembo.conf
+     /etc/myshn ist link
+
+    Projektgruppen nach Anletung T.Schnitt übernehmen
+
 
 sophomorix-webmin
    - totally configure webmin
-   - do something, only when /etc/webmin exists -> check this
-   - option --noninteractive
-   - when adding users, they must be added to webmin groups 
-     student,teacher,admin
+   - option --noninteractive 
 
-     wenn user angelegt wird kommt er in /etc/webmin.acl 
-
-      incgroups: groups that are memners in this group
-
-      teacher:incgroups:modul1 modul2 modul3::
-
-
-     file: webmin.group
-       problem group student would need 1 entrys for every student 
+   -  Be aware: problem group student would need 1 entrys for every student 
        (this will be a very loooooooooong line)
 
+     problem: when a module is added to webmin.users only (own script)
+              then this module is NOT added to webmin.acl 
+                 -> the user doesnt see this module
+           better: create webmin.acl from some configuration files
+                   in /usr/sbin (webmin-teacher-modules, ...-admin-, -student-)
+                   whih can be overwritten by files in /etc/sophomorix/webmin
+
+
+             
+
+
    - when adding teachers, add modules that they can use 
-   - usermin-module will be converted to webmin by thomas
+   - usermin-modules will be converted to webmin by thomas
        -> usermin is not running on the ml-server
        -> postinstall-script muss sich in gruppe student, teacher eintragen
-   - 
+   -abfrage in sophomorix-webmin, ob paket webmin installiert ist
+ 
+   
+
+
 
 sophomorix-mail
    - Eintrag der lehrer in /etc/aliases mit vorname.nachname@...
@@ -215,6 +259,7 @@ sophomorix-teacher
       options --sync --copy when handing out data
       options --collect-original, --collect-copy when collecting
    - read perlsec
+   - distribute _Collect to one pupil
 
 sophomorix-endofyear (new script)
    - remove content of share-directories
@@ -233,6 +278,7 @@ SophomorixAPI:
 
 
 All Scripts:
+   - convert pupil stuff to student
    - how can a setuid script read a file only readable by root
    - if a class is to be added an the groupname is given to a project already
      make something correct
@@ -286,6 +332,11 @@ All Scripts:
 ============================================================
 Think about:
 ============================================================
+   - restart of nscd (will nscd be running? is restart necessary)
+   - use logrotate (debian/logrotate, dh_logrotate)
+   - log password changes securely
+   - create loginnames initial.name.birthday
+     (what about changes to this data)
    - sophomorix-info for ALL users (show my account data)
    - make standard-passwort linux configurable
    - mail: experienced admins should be able to make entrys to
@@ -351,6 +402,11 @@ RELEASES:
 
 
 1.2.1 (2005-03-?)
+   - no-restart option in sophomorix-webmin added
+   - add a user to miniserv.user, when she is added/deleted
+   - add/remove a user to webmin.acl when she is added/deleted
+   - add a user to webmin.groups when she is created 
+     (students and teachers) or when she was created long ago
    - create new users with quota(checked)
    - made sophomorix.conf and sophomorix-devel.conf readable
      for script sophomorix-teacher
