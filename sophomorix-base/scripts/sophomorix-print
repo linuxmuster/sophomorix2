@@ -679,7 +679,13 @@ $klasse_protokoll_alt="";
 foreach $eintrag (@drucken_reihenfolge) {
    my $identifier="";
 
+
+# dirty fix
+   if ($eintrag=~m/::/){
    ($a,$identifier)=split(/::/, $eintrag);
+   } else {
+      $identifier=$eintrag;
+   }
       $schueler_protokoll_zeile=$schueler_im_system_hash{$identifier};
 
    if($Conf::log_level>=3){
@@ -933,6 +939,7 @@ close(LATEX);
 # LATEXEN des Dokuments
 # ===========================================================================
 
+
 # hoehere Qualitaet
 #&latexen;
 #&latexen;
@@ -989,5 +996,6 @@ sub latexen {
    # Zugriff von admin von windows aus erlauben
    system("chown admin.admin ${DevelConf::druck_pfad}/$output_file_basename.* $dev_null");
 }
+
 
 
