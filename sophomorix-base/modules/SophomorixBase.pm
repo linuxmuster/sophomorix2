@@ -77,7 +77,6 @@ use Time::localtime;
               td_ausgeben
               liste_ausgeben
               get_mail_alias_from
-              check_quotastring
               get_quotastring
               setze_quota
               addup_quota

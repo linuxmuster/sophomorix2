@@ -26,6 +26,7 @@ use Time::localtime;
              get_workstations_room
              get_workstations_school
              get_rooms_school
+             get_user_project
              create_userlist
              get_ml_users
             );
@@ -309,7 +310,6 @@ sub get_rooms_school {
 }
 
 
-
 =pod
 
 =item I<get_workstations_school()>
@@ -338,6 +338,97 @@ sub get_workstations_school {
     @workstationliste = sort @workstationliste;
     return @workstationliste;
 }
+
+
+
+=pod
+
+=item I<get_user_project(Teachers,Members,MemberGroups)>
+
+Teachers,Members,MemberGroups are the fields in projects.db. A
+function to get this fields will follow.
+
+=cut
+
+
+sub get_user_project {
+    my %users=();
+    my @group_users=();
+    my @users_pri=();
+    my @users_sec=();
+    my %seen=();
+    my ($project,$teachers,$members,$member_groups) = @_;
+    # the new teachers
+    my @new_teachers=split(/,/, $teachers);
+    # the new users (without groups)
+    my @new_users=split(/,/, $members);
+    # the new groups
+    my @new_groups=split(/,/, $member_groups);    
+    if($Conf::log_level>=2){
+       print "Project $project \n";
+       print "   New Teachers      : @new_teachers\n";
+       print "   New Members       : @new_users\n";
+       print "   New MemberGroups  : @new_groups\n";
+
+    }
+
+    # Add the teachers
+    foreach my $teacher (@new_teachers){
+       if (not exists $users{$teacher}){
+	  $users{$teacher}="Teachers";
+       }
+    }
+
+    # Add the users
+    foreach my $user (@new_users){
+       if (not exists $users{$user}){
+          $users{$user}="Members";
+       }
+    }
+
+    # Add the users in the groups
+    foreach my $group (@new_groups){
+        my $group_users="";
+        if (exists $seen{$group}){
+	    print "Aaaargh, I have seen group $group! \n",
+                  "Are you using recursive/multiple groups ...?\n";
+            next;
+        }
+        # remember the group
+        $seen{$group}="seen";
+        if ($group eq $project){
+            print "It's nonsense to have a group as its GroupMembers\n",
+	          "... skipping $group as GroupMembers in $project\n";
+	    next;
+        }
+        # fetching the user-string of the group
+        ($a,$a,$a,$group_users)=getgrnam("$group");
+        if (not defined $group_users){
+            # group nonexisting
+	    print "Coldn't find $group, ... skipping $group\n";
+            next;
+        } else {
+            # group exists
+            @users_pri=&get_user_adminclass($group);
+            @users_sec=split(/ /, $group_users);
+        }
+
+        @group_users = (@users_pri,@users_sec);
+        if($Conf::log_level>=2){
+            print "       Primary Users in group $group: @users_pri\n";
+            print "       Secondary Users in group $group: @users_sec\n";
+            print "     All users in group $group: @group_users\n";
+        }
+        foreach my $user (@group_users){        
+           if (not exists $users{$user}){
+       	      $users{$user}=$group;
+           } else {
+           }
+        }
+    }
+    return %users;
+}
+
 
 
 
