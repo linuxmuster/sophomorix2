@@ -134,6 +134,7 @@ if ($create==1){push @options, "Create=yes"}
 
 
 
+
 ###########################################################################
 # Sub
 ###########################################################################
@@ -177,9 +178,10 @@ sub create_project {
     # make sure that the share die exists
 #    &check_verzeichnis_mkdir("/home/tausch/projects");
 #    &check_verzeichnis_mkdir("/home/tausch/projects/${project}");
-    &setup_verzeichnis("\$share_projects","${DevelConf::share_projects}");
+    &provide_project_files($project);
+#    &setup_verzeichnis("\$share_projects","${DevelConf::share_projects}");
     # Todo ?????? muss mit rechten aus repair.directories angelegt werden
-    &check_verzeichnis_mkdir("${DevelConf::share_projects}/${project}");
+#    &check_verzeichnis_mkdir("${DevelConf::share_projects}/${project}");
  
     # the old users
     ($a,$a,$a,$old_users)=getgrnam("$project");

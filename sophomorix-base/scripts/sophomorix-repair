@@ -243,13 +243,22 @@ sub repair_directories {
        s/\$homedir_samba/$DevelConf::homedir_samba/;     
 
        s/\$share_exams/$DevelConf::share_exams/;     
-       s/\$tasks_tasks/$DevelConf::tasks_tasks/;     
-       s/\$share_share/$DevelConf::share_share/;     
-       s/\$share_classes/$DevelConf::share_classes/;     
-       s/\$share_projects/$DevelConf::share_projects/;     
        s/\$share_teacher/$DevelConf::share_teacher/;     
        s/\$share_school/$DevelConf::share_school/;     
+
+
        s/\$share_share/$DevelConf::share_share/;     
+       s/\$share_classes/$DevelConf::share_classes/;     
+       s/\$share_subclasses/$DevelConf::share_subclasses/;     
+       s/\$share_projects/$DevelConf::share_projects/;     
+
+       s/\$tasks_tasks/$DevelConf::tasks_tasks/;     
+       s/\$tasks_classes/$DevelConf::tasks_classes/;     
+       s/\$tasks_subclasses/$DevelConf::tasks_subclasses/;     
+       s/\$tasks_projects/$DevelConf::tasks_projects/;     
+
+
+#       s/\$share_share/$DevelConf::share_share/;     
 
 
 

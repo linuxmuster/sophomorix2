@@ -988,7 +988,6 @@ sub show_project_list {
          "=======================================\n";
    while(<PROJECT>){
        chomp();
-       print "Line: $_ \n";
        my @line=split(/;/);
        if (not defined $line[1]){$line[1]="---"}
        if (not defined $line[2]){$line[2]="---"}

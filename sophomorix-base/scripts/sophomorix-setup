@@ -15,7 +15,7 @@ use Sophomorix::SophomorixBase;
 print "##### sophomorix-setup is configuring the system for sophomorix-base ...\n";
 
 # repair.directories einlesen
-&get_alle_verzeichnis_rechte();
+my %permissions=&get_alle_verzeichnis_rechte();
 
 
 # adding existing user root to samba

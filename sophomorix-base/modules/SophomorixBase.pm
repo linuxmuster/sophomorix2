@@ -95,6 +95,7 @@ use Time::localtime;
               unterricht_einsammeln
               provide_class_files
               provide_subclass_files
+              provide_project_files
               provide_user_files
               );
 
@@ -356,7 +357,7 @@ sub get_alle_verzeichnis_rechte {
 #         printf "%-40s %40s\n","$key","-$value-";
 #      }
 #    }
-
+   return %alle_verzeichnis_rechte;
 }
 
 
@@ -727,7 +728,7 @@ sub save_tausch_klasse {
 
 =item I<provide_class_files(class)>
 
-Creates all files and directories for a class (exchange directories).
+Creates all files and directories for a class (exchange/share/... directories).
 
 =cut
 
@@ -755,7 +756,7 @@ sub provide_class_files {
 
 =item I<provide_subclass_files(subclass)>
 
-Creates all files and directories for a subclass (exchange directories).
+Creates all files and directories for a subclass (exchange/share/... directories).
 
 =cut
 
@@ -766,22 +767,37 @@ sub provide_subclass_files {
     my @appendix=("-A","-B","-C","-D");
 # ?????????? create A,B,C,D (if users exist?)
     foreach my $app (@appendix){
-       my $klassen_tausch="${DevelConf::share_subclasses}/$subclass";
-       my $klassen_aufgaben="${DevelConf::tasks_tasks}/$class";
- 
-    
-
+	my $subclass="$class"."$app";
+       my $subklassen_tausch="${DevelConf::share_subclasses}/$subclass";
+       my $subklassen_aufgaben="${DevelConf::tasks_subclasses}/$subclass";
+       print "$subklassen_tausch\n";
+       print "$subklassen_aufgaben\n";
+       &setup_verzeichnis("\$share_subclasses/\$klassen",
+                          "$subklassen_tausch");
+       &setup_verzeichnis("\$tasks_subclasses/\$klassen",
+                          "$subklassen_aufgaben");
     }
-#    my $klassen_homes="${DevelConf::homedir_pupil}/$class";
-#    my $klassen_tausch="${DevelConf::share_classes}/$class";
-#    my $klassen_aufgaben="${DevelConf::tasks_tasks}/$class";
-#    &setup_verzeichnis("\$homedir_pupil/\$klassen",
-#                  "$klassen_homes");
-#    &setup_verzeichnis("\$share_classes/\$klassen",
-#                  "$klassen_tausch");
-#    &setup_verzeichnis("\$tasks_tasks/\$klassen",
-#                  "$klassen_aufgaben");
+}
 
+=pod
+
+=item I<provide_project_files(project)>
+
+Creates all files and directories for a project (exchange/share/... directories).
+
+=cut
+
+
+sub provide_project_files {
+    my ($project) = @_;
+    my $project_tausch="${DevelConf::share_projects}/$project";
+    my $project_aufgaben="${DevelConf::tasks_projects}/$project";
+    print "$project_tausch\n";
+    print "$project_aufgaben\n";
+    &setup_verzeichnis("\$share_projects/\$klassen",
+                       "$project_tausch");
+    &setup_verzeichnis("\$tasks_projects/\$klassen",
+                       "$project_aufgaben");
 }
 
 
