@@ -85,7 +85,7 @@ sub delete_user_from_sys {
 
 =pod
 
-=item  I<add_class_to_sys(class)>
+=item  I<add_class_to_sys(class, gid)>
 
 Adds the group I<class> to the system database.
 
@@ -93,11 +93,16 @@ Adds the group I<class> to the system database.
 =cut
 
 sub add_class_to_sys {
-    ($class)=@_;
-    &Sophomorix::SophomorixBase::do_falls_nicht_testen(
-       "groupadd $class",
-    );
-
+    ($class,$gid)=@_;
+    if ($gid eq "---" or not defined $gid or $gid eq ""){
+       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
+          "groupadd $class",
+       );
+   } else {
+       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
+          "groupadd -g $gid $class",
+       );
+   }
 }
 
 
@@ -117,7 +122,8 @@ sub add_user_to_sys {
        $class,
        $login,
        $pass,
-       $sh) = @_;
+       $sh,
+       $wunsch_id) = @_;
 
     my $gec = "$vorname"." "."$nachname";
     my $home ="";
@@ -126,10 +132,16 @@ sub add_user_to_sys {
     } else {
        $home = "${DevelConf::homedir_pupil}/$class/$login";
     }
-    &Sophomorix::SophomorixBase::do_falls_nicht_testen(
-       "useradd -c '$gec' -d $home -m -g $class -p $pass -s $sh $login"
-#       "useradd -c '$gec' -m -g $class -p $pass -s $sh $login"
+    if ($wunsch_id eq "---"){
+       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
+          "useradd -c '$gec' -d $home -m -g $class -p $pass -s $sh $login"
+       );
+    } else {
+       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
+          "useradd -c '$gec' -d $home -m -g $class -p $pass -s $sh $login -u $wunsch_id"
+#         "useradd -c '$gec' -m -g $class -p $pass -s $sh $login"
     );
+    }
 }
 
 
