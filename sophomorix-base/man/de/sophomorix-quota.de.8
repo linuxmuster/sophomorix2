@@ -114,15 +114,12 @@ Schritte beim setzten von Quota auf anderen aufbauen.
 .TP
 .B -s, --system
 sophomorix-quota benutzt anstelle des Perl-Moduls Quota::
-den Systembefehl des Betriebssystems:
+den Systembefehl des Betriebssystems Linux, Kernel 2.4.x (2.6.x ????):
 
 .B   setquota -u username 
 
 um Quota zu setzten. Dies wird nicht empfohlen, da es länger dauert
-und von der Kernel-Version abhängig ist.  Diese Option wird in Zukunft
-verschwinden.
-
-.B Die Option ist im Moment noch völlig ungetestet!!!
+und vom Betriebsystem bzw. Kernel-Version abhängig ist.
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
