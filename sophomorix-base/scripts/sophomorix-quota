@@ -12,13 +12,6 @@ use Sophomorix::SophomorixBase;
 Getopt::Long::Configure ("bundling");
 #use Schedule::at;
 
-# Einlesen der Konfigurationsdatei für Entwickler
-#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
-
-# jeffbecks Bibliothek und
-# Einlesen der Konfigurationsdatei
-#require "${DevelConf::library_pfad}/sophomorix-lib";
-
 if($Conf::use_quota ne "yes"){
     print "sophomorix.conf says:  You don't want to use quota.\n";
     exit;
@@ -88,18 +81,16 @@ $quota_filesystems_anzahl=$#quota_filesystems+1;
 # ==========================================================================
 
 # Variablen für Optionen
-my $testen=0;
 $Conf::log_level=1;
 my $help=0;
 my $info=0;
-my $system=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
-           "test|t" => \$testen,
+           "test|t" => \$DevelConf::testen,
            "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
-           "system|s" => \$system,
+           "system|s" => \$DevelConf::system,
            "info|i" => \$info
           );
 
@@ -309,7 +300,7 @@ if($Conf::log_level>=2){
  }
 
 # Die Liste der zu Quotierenden Filesysteme ausgeben
-print("Liste der zu quotierenden Dateisysteme :  ","@quota_filesystems\n");
+&titel("Filesystems with quota:  @quota_filesystems");
 
 # Die Liste für die Filesystems ohne Quotabegrenzung ausgeben
 if($Conf::log_level>=2){
@@ -335,7 +326,7 @@ $login_typ_hash{"admin"}="admin";
 # ===========================================================================
 # Typ aller anderer User setzen (ausser admin)
 # ===========================================================================
-&titel("Ermittle alle user des Systems ...");
+# ????????????? db independent
 
 setpwent();
 while(my ($login,$feld2,$feld3,$gid,$feld5,$feld6,$feld7,$home)=getpwent()) {
@@ -378,7 +369,7 @@ if($Conf::log_level>=3){
 if($Conf::log_level>=3){
    &titel("Setze Quota im Hash auf folgende (unbegrenzten) Werte::");
    for my $users ( keys %login_quota_hash ) {
-     printf "%-10s %3s\n","$users:","@{ $login_quota_hash{$users} }";
+     printf "%-14s %3s\n","$users:","@{ $login_quota_hash{$users} }";
    }
  }
 
@@ -397,9 +388,8 @@ while ( my ($k, $v) = each(%standard_quota)) {
 # ===========================================================================
 # schulinfo.txt einlesen in Soll-Quota
 # ===========================================================================
-if($Conf::log_level>=3){
-  &titel("schulinfo.txt nach Klassen-Sonderquota durchsuchen ...");
-}
+&titel("Reading schulinfo.txt ...");
+
 open(SCHULINFO,"${DevelConf::config_pfad}/schulinfo.txt") || die "Fehler: $!";
 while(<SCHULINFO>){
  chomp();
@@ -434,8 +424,6 @@ while(<SCHULINFO>){
 }
 close(SCHULINFO);
 
-&titel("Ende schulinfo.txt einlesen");
-
 
 # ===========================================================================
 # lehrer.txt lesen und in Soll-Quota-Hash (Key: User, Value: Liste mit quota)
@@ -446,19 +434,6 @@ my %lehrer_quota=&get_lehrer_quota();
 while ( my ($k, $v) = each(%lehrer_quota)) {
   $soll_quota_hash{$k}=$v;
 }
-
-
-# TEST ??????????????????????ß
-# Für jeden User die Quota auf allen Filesystemen ausgeben
-#if($Conf::log_level>=1){
-#   &titel("Soll-Quota_hash :");
-#   for my $users ( keys %soll_quota_hash ) {
-#      printf "%-40s  %8s\n","$users","@{ $soll_quota_hash{$users} }";
-#    }
-#   &minititel("Ende quota.txt einlesen");
-#}
-#?????????????????????????????
-#exit;
 
 # ===========================================================================
 # Standardwerte im Soll-Quota-Hash setzen
@@ -521,15 +496,12 @@ if($Conf::log_level>=3){
 # ===========================================================================
 # Quota für alle user setzen
 # ===========================================================================
-&titel("Quota werden nun gesetzt:");
-if($Conf::log_level==1){
-     print("Setze Quota ...\n"); 
-     print("Bitte etwas Geduld ...\n"); 
-   }
+&titel("Setting Quota ... (this can take some time)");
+
 # Jeden user im Hash aufrufen und Quota setzen
 foreach  $userkey ( keys %login_quota_hash ) {
    if($Conf::log_level>=2){
-      print("\n\nSetting quota for  user:  ","$userkey","\n");
+      print("\nSetting quota for  user:  ","$userkey","\n");
     }
    # Subroutine aufrufen mit Parametern
    # $userkey:                             username
@@ -542,17 +514,18 @@ foreach  $userkey ( keys %login_quota_hash ) {
    &update_user_db_entry($userkey, 
                          "Quota=$string");
 
-   &setze_quota($userkey , \@quota_filesystems, \@{ $login_quota_hash{$userkey} } );
+   &setze_quota($DevelConf::system, 
+                $userkey , 
+                \@quota_filesystems, 
+                \@{ $login_quota_hash{$userkey} } );
  }
-
-
 
 
 # ===========================================================================
 # Summe des Hard-Limits aller Begrenzten Quota aufsummieren
 # ===========================================================================
 for (my $k=1; $k <= $quota_filesystems_anzahl; $k++){
-   print "\n\n";
+   print "\n";
    print "Filesystem (Partition) ","$quota_filesystems[$k-1]",":\n";
    print "Total amount of hardlimit quota:       ", 
           $DevelConf::q_summe[$k-1], 
@@ -562,11 +535,4 @@ for (my $k=1; $k <= $quota_filesystems_anzahl; $k++){
    }
 
 
-# ===========================================================================
-# ENDE
-# ===========================================================================
-
-
-# ===========================================================================
-# Subroutinen
-# ===========================================================================
+# EOF
