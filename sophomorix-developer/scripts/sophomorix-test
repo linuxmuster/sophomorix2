@@ -245,7 +245,18 @@ print '
 
 # Test
 &check_emptyness("sophomorix.add");
-&check_emptyness("sophomorix.move");
+
+# ??? weshalb sollt move leer sein, kommt doch in den dachboden
+# Warum ist der Test trotzdem OK???
+#&check_emptyness("sophomorix.move");
+
+$login=&get_login_name("7a;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982.*");
+
+&check_line_in_file(
+  "${login}::7a::dachboden",
+  "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.move");
+
+
 &check_emptyness("sophomorix.kill");
 
 # Is toleration set
@@ -283,7 +294,7 @@ $login=&get_login_name("7a;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.198
   "$DevelConf::protokoll_pfad/user.protokoll");
 
 $login=&get_login_name("7c;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982.*");
-print "$login\n";
+
 &check_account($login,"enabled");
 
 
