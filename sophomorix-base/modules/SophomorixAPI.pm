@@ -613,15 +613,25 @@ sub get_ml_users {
 =item I<get_my_adminclasses(Login)>
 
 Returns an ascibetical list of adminclasses in which the user Login
-has added herself
+has added herself. If a class exists multiple times, it is retured once.
 
 =cut
 
 sub get_my_adminclasses {
     my ($login) = @_;
     my @classes=();
-
-
+    my %classes=();
+    my $file=&provide_my_class_file($login);
+    open(MYCLASS, "<$file");
+    while(<MYCLASS>){
+        chomp();
+        $classes{$_}="";
+    }
+    while (my ($key) = each %classes){
+        push @classes, $key;
+    }
+    close(MYCLASS);
+    @classes = sort @classes;
     return @classes;
 }
 
@@ -637,6 +647,49 @@ Adds AdminClass to the classes of the user Login.
 
 sub add_my_adminclass {
     my ($login,$class) = @_;
+    my $file=&provide_my_class_file($login);
+    my @list=&get_my_adminclasses($login);
+    my $seen=0;
+    my $valid=0;
+
+    # check if $class is really a class
+    my @valid_classes=get_adminclasses_school();
+    foreach my $item (@valid_classes){
+	if ($item eq $class){
+	    $valid=1;
+        }
+    }
+    if ($valid==0){
+        print "$class is not a valid AdminClass\n";
+	return 0;
+    }
+
+    # add class to the list of classes if not already there
+    foreach my $item (@list){
+	if ($item eq $class){
+	    $seen=1;
+        }
+    }
+    if ($seen==0){
+	push @list, $class;
+    }
+    @list = sort @list;
+
+    # write the list to the file
+    open(MYCLASS, ">$file");
+    foreach my $item (@list){
+	print MYCLASS "$item"."\n";
+    }
+    close(MYCLASS);
+    #system("$file.tmp $file");
+    return @list;
+}
+
+
+
+# zurückgeben, und falls inexistent anlegen
+sub provide_my_class_file {
+    my ($login) = @_;
     my ($home)=${DevelConf::homedir_teacher}."/".$login;
     my ($dotdir)=$home."/.sophomorix";
     my ($file)=$dotdir."/MyAdminClasses";
@@ -651,16 +704,11 @@ sub add_my_adminclass {
         defined(my $uid = getpwnam $login) or die "bad user";
         chown $uid, 0, $file;
     }
-    # ??????????????????????????????????
-    # put this into a sub create_myclasses
-
-
-
-    print $dotdir."\n";
-    print $file."\n";
+    if($Conf::log_level>=3){
+       print "Extracting data from $file\n";
+   }
+    return $file;
 }
-
-
 
 =pod
 
@@ -672,7 +720,21 @@ Removes AdminClass from the classes of the user Login.
 
 sub remove_my_adminclass {
     my ($login,$class) = @_;
-
+    my $file=&provide_my_class_file($login);
+    my @list=&get_my_adminclasses($login);
+    my @new_list=();
+    foreach my $item (@list){
+	if ($item ne $class){
+	    push @new_list, $item;
+        }
+    }
+    # write new list to file
+    open(MYCLASS, ">$file");
+    foreach my $item (@new_list){
+	print MYCLASS "$item"."\n";
+    }
+    close(MYCLASS);
+    return @new_list;
 }
 
 
