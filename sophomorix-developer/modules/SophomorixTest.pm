@@ -205,6 +205,12 @@ sub check_account {
     my $linux_lock=2;
     my $samba_lock=2;
     my $homedir_exists=0;
+
+    # permissions
+    my $homedir_perm="2751";
+    my $windir_perm="2750";
+    my $share_link_perm="2750";
+
     # linux
     open(SHADOW, "/etc/shadow");
     while (<SHADOW>){
@@ -237,15 +243,46 @@ sub check_account {
        # fetching account Data
        my($name,$passwd,$uid,$gid,$quota,$comment,
           $gcos,$dir,$shell) = getpwnam($login);
-       # existence
-       if (-e $dir){
-	   $homedir_exists=1;
-       }
-       # permissions
+       &check_dir($dir,$login,"lehrer","2751");
+       &check_dir("${dir}/windows",$login,"lehrer","2750");
+       &check_dir("${dir}/Tauschverzeichnisse","admin","lehrer","1755");
 
-       is($homedir_exists, 1 ,"Checking if Homedir $dir exists");
     }
 
+}
+
+
+sub check_dir {
+    # erweiterbar mit acls
+    my ($abs_path, $owner, $group, $permissions) = @_;
+    my $exists=0;
+    # check existence    
+    print "Checking: $abs_path \n";
+    if (-e $abs_path){
+	   $exists=1;
+       # reading the permissions
+       my($dev, $ino, $mode, $nlink, $uid, $gid, $rdev,
+          $size, $atime, $mtime, $ctime, $blksize, $blocks)
+          = stat($abs_path);
+       # Umwandeln in übliche Schreibweise
+       $mode &=07777;
+       $mode=sprintf "%04o",$mode;
+
+       &is($mode,$permissions,
+           "Checking permissions of $abs_path to be $permissions");
+
+       # owner name ermitteln
+       my ($owner_name)=getpwuid($uid);
+       &is($owner,$owner_name,
+           "Checking owner of $abs_path to be $owner");
+       # group 
+       my ($gowner_name)=getgrgid($gid);
+       &is($group,$gowner_name,
+           "Checking group owner of $abs_path to be $group");
+    }
+
+    # show result of existance check
+    &is($exists, 1 ,"Checking if  $abs_path exists");
 }
 
 
