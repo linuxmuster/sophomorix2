@@ -60,6 +60,7 @@ sophomorix-add
    - create new users with quota
    - add call sophomorix-quota --noninteractive
    - add user to cyrus (dont't know how to do)
+   - dont add group lehrer to class_db
 
 sophomorix-move
    - remove option --klassenintern ()
@@ -162,17 +163,6 @@ sophomorix-webmin
      file: webmin.group
        problem group student would need 1 entrys for every student 
        (this will be a verrrrry long line)
-   - make webmin accessable for every workstation
-     (or better limit it to some workstations, specified in workstation_db)
-     /etc/webmin/miniserv.conf
-   --> option --all-hosts     ->  allow= - Zeile entfernen     
-
-17c17
-< libwrap=1
----
-> libwrap=
-19d18
-< allow=127.0.0.1
 
    - when adding teachers, add modules that they can use 
    - usermin-module will be converted to webmin by thomas
@@ -185,9 +175,9 @@ sophomorix-mail
      wenn das in sophomorix.conf so steht.
      (... wird sich noch ändern (SQL))
 
-sophomorix-tuition??
+sophomorix-teacher
    - write new script to distribute data, collect data, ...
-
+   - read perlsec
 
 Functions in SophomorixBase:
    - rename: append_auto_teach_in_log --> append_teach_in_log
@@ -278,6 +268,14 @@ RELEASES:
 
 
 1.2.0 (2005-02-?)
+   - sophomorix-teacher: first release
+     adding, removing class from MyAdminClasses
+
+   - sophomorix-webmin: make webmin accessable for every workstation
+     /etc/webmin/miniserv.conf
+       --all-hosts     
+       --localhost     
+
    - sophomorix-vampire
      - workaround with numerical group id not needed anymore:
         every user and every group gets a new numerical id
