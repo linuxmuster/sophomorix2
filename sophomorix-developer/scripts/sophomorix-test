@@ -13,6 +13,8 @@
 # Bibliotheken
 use strict;
 use Getopt::Long;
+use Test::More "no_plan";
+
 Getopt::Long::Configure ("bundling");
 
 # Einlesen der Konfigurationsdatei für Entwickler
@@ -25,45 +27,221 @@ Getopt::Long::Configure ("bundling");
 my $test_number=0;
 system("install -d /root/sophomorix-test");
 
-#&next_test("Adding some users");
-
-my $users_1="m4kb;Maier;Jörg;12.10.1982;\n";
-&append("schueler.txt","$users_1");
-
-system("sophomorix-check");
-
-&check_results();
-
-#&next_test("Moving some users");
-
 ############################################################
 # Start
 ############################################################
 
-sub check_results {
-  # sophomorix.add
-  open(ADD,"<${DevelConf::var_lib_pfad}");
-  close(ADD);
-  # sophomorix.move
-  # sophomorix.kill
+if (3==5){
+if (-z "${DevelConf::ergebnis_pfad}/sophomorix.add") {
+    print "sophomorix.add ist leer oder nonexistent: OK\n";
+} else {
+    print "sophomorix.add enthält Daten: ABBRUCH\n\n";
+    exit;
 }
 
-sub append {
-    my ($file,$string) = @_;
+
+if (-z "${DevelConf::ergebnis_pfad}/sophomorix.move") {
+    print "sophomorix.move ist leer oder nonexistent: OK\n";
+} else {
+    print "sophomorix.move enthält Daten: ABBRUCH\n\n";
+    exit;
+}
+
+
+if (-z "${DevelConf::ergebnis_pfad}/sophomorix.kill") {
+    print "sophomorix.kill ist leer oder nonexistent: OK\n";
+} else {
+    print "sophomorix.kill enthält Daten: ABBRUCH\n\n";
+    exit;
+}
+
+}
+print "\nDie Tests können beginnen\n\n";
+
+my $line="";
+my $user="";
+my $login="";
+my @users_to_add=(
+     "m4kb;Maier;Jörg;12.10.1982;",
+     "7A;Öztürk;Mohammed;2.4.82;",
+     "m1kb;M\203hn;\223liver;12.10.1982;",
+   );
+
+
+foreach $user (@users_to_add){
+   &append_line("$user","$DevelConf::users_pfad::schueler.txt");
+}
+
+#system("sophomorix-check > /dev/null");
+
+# Test
+$line=&get_line_in_file("m4kb::maier;joerg;12.10.1982","sophomorix.add");
+chomp($line);
+&like($line,
+   qr/m4kb::maier;joerg;12.10.1982::[a-z]{2,}::[a-z]{3,}/,
+   "Is  $line  added to sophomorix.add");
+
+# Test
+$line=&get_line_in_file("7a::oeztuerk;mohammed;02.04.1982","sophomorix.add");
+chomp($line);
+&like($line,
+   qr/7a::oeztuerk;mohammed;02.04.1982::[a-z]{2,}::[a-z]{3,}/,
+   "Is  $line  added to sophomorix.add");
+
+
+# Test
+$line=&get_line_in_file("m1kb::mahn;oliver","sophomorix.add");
+chomp($line);
+&like($line,
+   qr/m1kb::mahn;oliver;12.10.1982::[a-z]{2,}::[a-z]{3,}/,
+   "Is  $line  added to sophomorix.add");
+
+
+#system("sophomorix-add > /dev/null");
+
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+&check_emptyness("sophomorix.kill");
+
+&check_line_in_file("joerg maier","/etc/passwd"),
+&check_line_in_file(
+  "m4kb;joerg maier;[a-z1-9]{2,};[a-z1-9]{3,};12.10.1982",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+&check_line_in_file("mohammed oeztuerk","/etc/passwd"),
+&check_line_in_file(
+  "7a;mohammed oeztuerk;[a-z1-9]{2,};[a-z1-9]{3,};02.04.1982",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+&check_line_in_file("oliver mahn","/etc/passwd"),
+&check_line_in_file(
+  "m1kb;oliver mahn;[a-z1-9]{2,};[a-z1-9]{3,};12.10.1982",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+$login=&remove_line(
+  "m4kb;joerg maier;[a-z1-9]{2,};[a-z1-9]{3,};12.10.1982",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+&kill_user("$login");
+
+$login=&remove_line(
+  "7a;mohammed oeztuerk;[a-z1-9]{2,};[a-z1-9]{3,};02.04.1982",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+&kill_user("$login");
+
+&check_line_in_file(
+  "m1kb;oliver mahn;[a-z1-9]{2,};[a-z1-9]{3,};12.10.1982",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+&kill_user("$login");
+
+
+
+############################################################
+# Subs
+############################################################
+sub get_line_in_file {
+    my ($regex) = @_;
+    my %lines=();
+    my $count=0;
+    my $result="not found";
+    open (ADD,"<${DevelConf::var_lib_pfad}/ergebnis/sophomorix.add");
+    while (<ADD>){
+      #print $_;
+      if (/$regex/){
+	  $result=$_;
+          $count++;
+          $lines{$result}
+      }
+    }
+    close(ADD);
+    if ($count==1){
+       return $result;
+   } else {
+       return "$count lines";
+   }
+}
+
+
+
+
+
+sub check_line_in_file {
+    my ($regex,$file) = @_;
+    my %lines=();
+    my $count=0;
+    my $result="not found";
+    open (ADD,"<$file");
+    while (<ADD>){
+      #print $_;
+      if (/$regex/){
+	  $result=$_;
+	  #print $result;
+          $count++;
+          $lines{$result}
+      }
+    }
+    close(ADD);
+    if (not $count==1){
+       $result="I found $count lines";
+    }
+    chomp($result);
+    &like($result,
+      qr/$regex/,
+      "Line is exactly once in $file");
+
+    return $result;
+}
+
+
+sub append_line {
+    my ($string,$file) = @_;
     open(SCH,">>${DevelConf::config_pfad}/$file");
-    print "Appending to $file: \n $string \n\n";
-    print SCH $string;
+    #print "Appending to $file: \n $string \n\n";
+    print SCH "$string\n";
     close(SCH);
 }
 
-sub next_test {
-    my ($titel) = @_;
-    system("clear");
-    $test_number++;
-    print "Test $test_number : $titel\n";
-    sleep 2;
+
+sub remove_line {
+    my $login="";
+    my @fields=();
+    my ($regex,$file) = @_;
+    open(SCH,"<$file");
+    open(TMP,">$file.tmp");
+    while (<SCH>){
+      chomp();
+      if (/$regex/){
+          # remember the login
+          @fields=split(/;/);
+	  $login=$fields[2];
+      } else {
+	  print TMP "$_\n";
+      }
+    }
+    close(SCH);
+    close(TMP);
+    system("mv $file.tmp $file");
+    return $login;
 }
 
+
+
+sub check_emptyness{
+    my ($file) = @_;
+    ok('-z "${DevelConf::ergebnis_pfad}/$file"',
+       "$file ist leer/nonexistent");
+}
+
+
+sub kill_user {
+    my ($login) = @_;
+    system("userdel  -r $login");
+         # aus smbpasswd entfernen
+         #"/usr/bin/smbpasswd  -x $login",
+         # and lots of other stuff
+}
 
 
 
