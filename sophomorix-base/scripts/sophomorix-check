@@ -46,12 +46,6 @@ use if ${DevelConf::sys_db} eq 'files' ,
                                           );
 
 
-# show the Database Modules that are loaded
-&show_modulename();
-&show_sys_modulename();
-
-
-
 # Es wird eine Datei sophomorix.ok (schueler+lehrer) erzeugt 
 # Welche Dateien mit Userdaten sollen verarbeitet werden
 my  @schueler_to_check_dateien=(
@@ -554,11 +548,6 @@ my ($ref_login,
 %schueler_im_system_account_type = %$ref_account_type;
 
 
-#my $neu = $ref_unid_identifier->{"werner;ruediger;17.11.1986"};
-#my $neu = $ref_unid_identifier->{"torvalds;linus;01.02.1983"};
-#my $neu = $unid_ok_system{"gfgtrr"};
-
-
 # ===========================================================================
 # Einlesen der Entfern-Klassen in eine Hash-Tabelle
 # ===========================================================================
@@ -1013,20 +1002,10 @@ print RED "Sie sollten sophomorix-teach-in aufrufen!\n";
 #}
 
 # ===========================================================================
-# Tolerierte User in den dachboden/speicher versetzten
-# ===========================================================================
-# Folgender Schritt würde lange dauern ...
-#&titel("Versetze tolerierte Schüler in die Klasse dachboden");
-#&titel("Versetze tolerierte Lehrer in die Klasse speicher");
-
-#system("sophomorix-move --neugruppe dachboden > /dev/null");
-#system("sophomorix-move --neugruppe speicher > /dev/null");
-
-
-# ===========================================================================
 # Ende des Scripts
 # ===========================================================================
 &titel("... sophomorix-check terminated regularly");
+
 
 
 

@@ -41,19 +41,6 @@ use if ${DevelConf::sys_db} eq 'files' ,
 &show_modulename();
 &show_sys_modulename();
 
-
-# Nur als Dummy(Warnings verhindern)
-if($Conf::lehrer_zufall_passwort){};
-if($Conf::schueler_zufall_passwort){};
-if($Conf::schueler_login_nachname_zeichen){};
-if($Conf::lehrer_per_ssh){};
-if($Conf::zufall_passwort_anzahl_lehrer){};
-if($Conf::schueler_per_ssh){};
-if($Conf::zufall_passwort_anzahl_schueler){};
-if($Conf::schueler_login_vorname_zeichen){};
-if($DevelConf::library_pfad){};
-if($DevelConf::executable_pfad){};
-
 my $zeit=&zeit_stempel;
 my $user_nummer=0;
 
@@ -186,19 +173,6 @@ if ($gruppe ne "") {
 ################################################################################
 
 my $datei="";
-
-
-# Dateien und Verzeichnisse aus / einlesen
-#opendir(SYSROOT, "/");
-#   foreach $datei (readdir SYSROOT){
-#     next unless $datei =~/.kernel_update.*/;
-#     print("/","$datei"," gefunden !\n");
-#     print("Benutze setquota-Befehl für kernel 2.4.18\n\n");
-#     $DevelConf::kernel_update="ja";
-#    }
-#closedir(SYSROOT);
-
-print ("sophomorix-add  startet ...\n");
 
 ################################################################################
 # Soll-Quota ermitteln
@@ -468,6 +442,7 @@ $shell=&shell_ermitteln($new_admin_group);
 
   # Nun wird der User angelegt  
   # Lehrer und Schueler
+  # Todo
   &create_user_db_entry(
        $nachname,
        $vorname,
@@ -483,6 +458,7 @@ $shell=&shell_ermitteln($new_admin_group);
      # Es ist ein Lehrer
      &neuer_linux_user_lehrer();
    } else {
+
      &neuer_schueler($login_name_ok, $new_admin_group, $gecos, $klartext_passwort, $shell);
 
    }
@@ -629,15 +605,10 @@ if ($DevelConf::testen==0) {
               "cd /home/lehrer/$login_name_ok; ln -s www/public_html public_html"
 );
 
-
-# ??????? Anpassen, abfragen ob paket webmin vorhanden
 &webmin_eintrag($login_name_ok);
-
 # passwort verschlüsseln, samba
 &passwort_setzen();
-
 &protokolldatei_modifizieren();
-
 }
 
 
@@ -687,32 +658,16 @@ sub protokolldatei_modifizieren {
 # ===========================================================================
 # Schüler anlegen
 # ===========================================================================
-sub neuer_schueler
-{
+sub neuer_schueler {
 my ($login, $gruppe, $gec, $passwort, $sh)=@_;
 my $schueler_home = "/home/schueler/$gruppe/$login";
 my $tausch_klasse = "/home/tausch/klassen/$gruppe";
 my $www_home = "/home/schueler/$gruppe/$login/www";
 
-# -c : Kommentar (GECOS-Feld)
-# -d : Home-Verzeichnis
-# -m : Home-Verzeichnis anlegen und /etc/skel benutzen
-# -g : Gruppe (primär)
-# -p : Passwort (Klartext)
-# -s : Shell ???? /bin/false
-
-# LDAP
-# user wird angelegt mit /home/schueler/klasse/name
-#&do_falls_nicht_testen(
-#     "useradd -c '$gec' -d $schueler_home -m -g $new_admin_group -p $passwort -s $sh $login"
-#);
-
-
 # Eigentümer von /home/schueler/klasse/name REKURSIV ändern in:   user:lehrer
 &do_falls_nicht_testen(
      "chown -R $login:lehrer $schueler_home"
 );
-
 
 if ($DevelConf::testen==0) {
    &setup_verzeichnis("/home/schueler/\$klassen/\$schueler",
@@ -729,8 +684,6 @@ if ($DevelConf::testen==0) {
    &setup_verzeichnis("/home/schueler/\$klassen/\$schueler/www/public_html",
                       "$www_home/public_html",
                       "$login");
-
-
 }
 
 
@@ -854,39 +807,39 @@ sub klartext_passwort_ermitteln {
 # ===========================================================================
 sub webmin_eintrag {
    my ($user)=@_;
-   my $webmin_miniserv_users="/etc/webmin/miniserv.users";
+   my $wmsu="/etc/webmin/miniserv.users";
    my $webminacl="/etc/webmin/webmin.acl";
-   if (-e $webmin_miniserv_users){
+   if (-e $wmsu){
 
-   # ===========================================================================
-   #  miniserv.users mitloggen
-   # ===========================================================================
-&do_falls_nicht_testen(
-   "cp  $webmin_miniserv_users ${DevelConf::log_pfad}/${zeit}.miniserv.users-vor",
-   "chmod 600 ${DevelConf::log_pfad}/${zeit}.miniserv.users-vor"
-);
+      # ======================================================================
+      #  miniserv.users mitloggen
+      # ======================================================================
+      &do_falls_nicht_testen(
+         "cp  $wmsu ${DevelConf::log_pfad}/${zeit}.miniserv.users-vor",
+         "chmod 600 ${DevelConf::log_pfad}/${zeit}.miniserv.users-vor"
+      );
 
-   open (MINISERVUSERS, ">>$webmin_miniserv_users") 
-         ||   die "Kann $webmin_miniserv_users nicht öffnen\n";
-      if ($DevelConf::testen==0) {
-         # Ausführen: Lehrer anhängen
-         print MINISERVUSERS "$user:x:0::\n";
-      } else {
-         # Ausgeben
-         print "Schreibe (Test) $webmin_miniserv_users:   $user:x:0::\n";
-      }
-   close(MINISERVUSERS);
+      open (MINISERVUSERS, ">>$wmsu") 
+         ||   die "Kann $wmsu nicht öffnen\n";
+        if ($DevelConf::testen==0) {
+           # Ausführen: Lehrer anhängen
+           print MINISERVUSERS "$user:x:0::\n";
+        } else {
+           # Ausgeben
+           print "Schreibe (Test) $wmsu:   $user:x:0::\n";
+        }
+      close(MINISERVUSERS);
 
-   # ===========================================================================
-   #  miniserv.users mitloggen
-   # ===========================================================================
-   &do_falls_nicht_testen(
-       "cp  $webmin_miniserv_users ${DevelConf::log_pfad}/${zeit}.miniserv.users-after",
-       "chmod 600 ${DevelConf::log_pfad}/${zeit}.miniserv.users-after",
+      # ======================================================================
+      #  miniserv.users mitloggen
+      # ======================================================================
+      &do_falls_nicht_testen(
+        "cp  $wmsu ${DevelConf::log_pfad}/${zeit}.miniserv.users-after",
+        "chmod 600 ${DevelConf::log_pfad}/${zeit}.miniserv.users-after",
        # Webmin acl für den Lehrer erstellen
 # ???????
 #       "cp -f /etc/webmin/muster.acl /etc/webmin/$user.acl"
-   );
+      );
 
 #   &do_falls_nicht_testen(
 #       "cp $webminacl  ${DevelConf::log_pfad}/${zeit}.webmin.acl-after",
@@ -895,24 +848,24 @@ sub webmin_eintrag {
 #       "cp -f /etc/webmin/acl/muster.acl /etc/webmin/acl/$user.acl"
 #   );
 
-   # Bei Debian bessere Lösung anstreben wie custom-Befehle
-   if (${DevelConf::debian} ne "yes") {
-      &do_falls_nicht_testen(
-          # Angeben, welche Befehle der Lehrer in custom ausführen darf
-          # Besser: Lehrer darf alle Befehle in der Rubrik Lehrer ausführen
-          "cp -f /etc/webmin/custom/muster.acl /etc/webmin/custom/$user.acl"
-      );
+      # Bei Debian bessere Lösung anstreben wie custom-Befehle
+      if (${DevelConf::debian} ne "yes") {
+         &do_falls_nicht_testen(
+             # Angeben, welche Befehle der Lehrer in custom ausführen darf
+             # Besser: Lehrer darf alle Befehle in der Rubrik Lehrer ausführen
+             "cp -f /etc/webmin/custom/muster.acl /etc/webmin/custom/$user.acl"
+         );
+      }
+      # Alle notwendigen Module den neuen Lehrern freigeben
+      if (-e "/usr/sbin/sophomorix-webmin") {
+         system("sophomorix-webmin");
+      }
+      # Mail-alias
+      if (-e "/usr/sbin/sophomorix-mail") {
+         system("sophomorix-mail");
+      }
+      # Webmin muss neu gestartet werden
+      $webmin_neustart=1;
    }
-   # Alle notwendigen Module den neuen Lehrern freigeben
-   if (-e "/usr/sbin/sophomorix-webmin") {
-      system("sophomorix-webmin");
-   }
-   # Mail-alias
-   if (-e "/usr/sbin/sophomorix-mail") {
-      system("sophomorix-mail");
-   }
-   # Webmin muss neu gestartet werden
-   $webmin_neustart=1;
- }
 }
 

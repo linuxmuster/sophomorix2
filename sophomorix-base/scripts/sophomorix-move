@@ -39,12 +39,6 @@ use if ${DevelConf::sys_db} eq 'files' ,
 &show_modulename();
 &show_sys_modulename();
 
-
-# Nur als Dummy(Warnings verhindern)
-if(${DevelConf::library_pfad}){};
-if(${DevelConf::protokoll_datei}){};
-#if($){};
-
 my $zeit=&zeit_stempel;
 my $user_nummer=0;
 
@@ -354,14 +348,6 @@ while(<USERVERSETZEN>){
           &update_user_db_entry($login_versetzen,
                       "AdminClass=$neue_klasse");
        }
-
-#       &move_user_db_entry($login_versetzen,$neue_klasse, $alte_klasse);
-#      open(PROTOKOLL,">$DevelConf::protokoll_datei");
-#
-#           while (($key) = each %protokoll_hash){
-#              print PROTOKOLL "$key\n"; 
-#   	 }
-#      close(PROTOKOLL);
    } else {
       print "Nur Test: Daten in $DevelConf::protokoll_datei schreiben\n";
    }

@@ -26,6 +26,8 @@ $Term::ANSIColor::AUTORESET = 1;
 use if ${DevelConf::db_backend} eq 'files' , 
     'Sophomorix::SophomorixFiles' => qw(show_modulename
                                         search_user
+                                        update_user_db_entry
+                                        user_deaktivieren     
                                        );
 
 # list of functions to load if db is 'ldap'
@@ -130,6 +132,7 @@ if ($freeze ne""){
                           "TolerationDate=",
                           "DeactivationDate=");
     &user_deaktivieren($freeze);
+    exit;
 }
 
 
@@ -150,6 +153,7 @@ if ($permanent ne""){
                           "TolerationDate=",
                           "DeactivationDate=");
     &user_reaktivieren($permanent);
+    exit;
 }
 
 
@@ -171,6 +175,7 @@ if ($removable ne""){
                           "TolerationDate=01.01.1970",
                           "DeactivationDate=01.01.1970");
     &user_deaktivieren($removable);
+    exit;
 }
 
 
@@ -192,6 +197,7 @@ if ($killable ne""){
                           "TolerationDate=01.01.1970",
                           "DeactivationDate=01.01.1970");
     &user_deaktivieren($killable);
+    exit;
 }
 
 
@@ -213,6 +219,7 @@ if ($activate ne""){
                           "TolerationDate=$today",
                           "DeactivationDate=");
     &user_reaktivieren($activate);
+    exit;
 }
 
 

@@ -12,6 +12,7 @@ require Exporter;
              user_deaktivieren
              user_reaktivieren
 	     update_user_db_entry
+	     remove_user_db_entry
              create_project_db
              get_sys_users
              search_user
@@ -490,6 +491,26 @@ sub update_user_db_entry {
 }
 
 
+
+
+sub remove_user_db_entry {
+    my ($login) = @_;
+    my $login_file="";
+    my $file="${DevelConf::protokoll_pfad}/user.protokoll";
+    open(TMP, ">$file.tmp");
+    open(FILE, "<$file");
+    while(<FILE>){
+        ($a,$a,$login_file)=split(/;/);
+        if ($login eq $login_file){
+           # found the line, dont use it
+        } else {
+	   print TMP $_;
+        }
+    }
+    close(TMP);
+    close(FILE);
+    system("mv $file.tmp $file");  
+}
 
 
 
