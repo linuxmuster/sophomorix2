@@ -137,7 +137,7 @@ if ($info==1) {
    # Ausgabe der Anlegbaren user
     print "\nThe following users can be added:\n";
    print "(Fields with --- are automatically created by sophomorix-add):\n\n";
-   printf "%-10s %-6s %-10s %-4s %-10s %-40s\n",
+   printf "%-10s %-6s %-10s %-4s %-10s %-35s\n",
           "login",
           "id",
           "AdminClass",
@@ -155,7 +155,7 @@ if ($info==1) {
          $wunsch_passwort,
          $wunsch_id,
          $wunsch_gid)=split("::");
-        printf "%-10s %-6s %-10s %-4s %-10s %-40s\n",
+        printf "%-10s %-6s %-10s %-4s %-10s %-35s\n",
                "$wunsch_login",
                "$wunsch_id", 
                "$new_admin_group",
@@ -492,7 +492,7 @@ if($Conf::use_quota eq "yes"){
                    $klartext_passwort,
                    $shell,
                    $wunsch_id);
-  &set_password($login_name_ok,$klartext_passwort);
+  &set_sophomorix_passwd($login_name_ok,$klartext_passwort);
 
   # 4. Add teacher to webmin
   if ($new_admin_group eq "lehrer"){
@@ -723,26 +723,6 @@ sub shell_ermitteln {
        }
  return $login_shell;
 }
-
-# ===========================================================================
-# Passwort setzen Linux und Samba
-# ===========================================================================
-sub set_password {
-    my ($login,$pass) = @_;
-    if ($DevelConf::testen==0) {
-       # Passwort verschlüsseln
-       open(PASSWD,"| /usr/sbin/chpasswd");
-          print PASSWD "$login:$pass\n";     
-       close(PASSWD);
-       # Passwort in smbpasswd setzen
-       open(SMBPASSWD,"| /usr/bin/smbpasswd -s -a $login");
-          print SMBPASSWD "$pass\n$pass\n"; 
-       close(SMBPASSWD);
-  } else {
-     print "Test: Passwort setzten\n";
-  }
-}
-
 
 
 
