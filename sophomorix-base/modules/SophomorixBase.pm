@@ -1484,19 +1484,19 @@ sub print_user_samba_data {
             $value=~s/\s//g;
 
 	    if (/^Account Flags/){
-              printf "   Account Flags    : %-47s %-11s\n",$value,$login;    
+              printf "  Account Flags    : %-47s %-11s\n",$value,$login;    
             }
 	    if (/^Home Directory/){
-              printf "   Home Directory   : %-47s %-11s\n",$value,$login;    
+              printf "  Home Directory   : %-47s %-11s\n",$value,$login;    
             }
 	    if (/^Password last set/){
-              printf "   Pwd last set     : %-47s %-11s\n",$value,$login;    
+              printf "  Pwd last set     : %-47s %-11s\n",$value,$login;    
             }
 	    if (/^Password can change/){
-              printf "   Pwd can change   : %-47s %-11s\n",$value,$login;    
+              printf "  Pwd can change   : %-47s %-11s\n",$value,$login;    
             }
 	    if (/^Password must change/){
-              printf "   Pwd must change  : %-47s %-11s\n",$value,$login;    
+              printf "  Pwd must change  : %-47s %-11s\n",$value,$login;    
             }
 	  }
 
@@ -1526,14 +1526,14 @@ sub get_user_history {
       if ($line[2] eq $login){
 	 $count++;
          my $info=$line[0]."(".$line[1]."): ";
-         printf "   %-27s %-55s \n",$info,$line[3];
-         printf "      Unid: %-18s %-55s \n",$line[6],$line[5];
+         printf "  %-27s %-55s \n",$info,$line[3];
+         printf "     Unid: %-18s %-55s \n",$line[6],$line[5];
           
       }
    }
    close(HISTORY);
    if ($count==0){
-       print "   No History exists.\n";
+       print "  No History exists.\n";
    }
 }
 
@@ -1574,10 +1574,10 @@ sub print_forward {
        open(FORWARD,"$home/.forward");
        while (<FORWARD>){
            chomp();
-	   print "   "."$_ \n";
+	   print "  "."$_ \n";
        }
    } else {
-       print "   User $login has no mail forwarding.\n";
+       print "  User $login has no mail forwarding.\n";
    }
 }
 
