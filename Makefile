@@ -138,6 +138,7 @@ doc:
 	cp ./sophomorix-doc/source/pictures/pics/splan-*.jpg ./sophomorix-doc/html
 	cp ./sophomorix-doc/source/pictures/pics/workflow.png ./sophomorix-doc/html
 	cp ./sophomorix-doc/source/pictures/pics/user-status.png ./sophomorix-doc/html
+	cp ./sophomorix-doc/source/pictures/pics/project-status.png ./sophomorix-doc/html
 
 # sophomorix-usermin
 install-usermin:
