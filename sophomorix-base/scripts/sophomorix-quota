@@ -9,6 +9,7 @@ use strict;
 use Quota;
 use Getopt::Long;
 use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
 Getopt::Long::Configure ("bundling");
 #use Schedule::at;
 
@@ -85,10 +86,24 @@ $quota_filesystems_anzahl=$#quota_filesystems+1;
 $Conf::log_level=1;
 my $help=0;
 my $info=0;
+my $loginname="";
+my $classes="";
+my $pupil=0;
+my $rooms="";
+my $ws=0;
+my $force=0;
+my $sum=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
+           "login|user|u|l=s" => \$loginname,
+           "class|klasse|c|k=s" => \$classes,
+           "pupil|pupils" => \$pupil,
+           "room|=s" => \$rooms,
+           "workstations|workstation|ws" => \$ws,
+           "force" => \$force,
            "test|t" => \$DevelConf::testen,
+           "sum" => \$sum,
            "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
            "system|s" => \$DevelConf::system,
@@ -99,6 +114,21 @@ my $testopt=GetOptions(
 &check_options($testopt);
 
 
+# create the list of users
+my @userlist=();
+if ($force==1){
+   @userlist=&create_userlist($loginname,$classes,$pupil,$rooms,$ws,0);
+} else {
+   # check the users
+   @userlist=&create_userlist($loginname,$classes,$pupil,$rooms,$ws,1);
+}
+
+if ($#userlist+1==0 and $sum==0){
+    print "INFO: No users given\n";
+    $help=1;
+}
+
+
 # --help
 if ($help==1) {
    # Scriptname ermitteln
@@ -106,7 +136,7 @@ if ($help==1) {
    my $scriptname = pop @list;
    # Befehlsbeschreibung
    print('
-sophomorix-quota sets quota for all users
+sophomorix-quota sets quota for users
 
 Options
   -h  / --help
@@ -114,6 +144,12 @@ Options
   -vv / --verbose --verbose
   -i  / --info
   -t  / --test
+  --sum
+  -l  login1, ... / --login login1, .../ -u login1, ... / --user login1, ...
+  -c class / --class class 
+  --pupils
+  -r room / --room room
+  --workstations
   -s  / --system (untested, on your own risk!)
 
 Please see the sophomorix-quota(8) man page for full documentation
@@ -258,10 +294,7 @@ my $quota_fs_aus_fstab="";
 my $usrquota_gefunden=0;
 
 # Quotabefehl als string erzeugen
-my $kernel_update="nein";
 my $quota_befehl="";
-my @system_root_inhalt=();
-my $datei="";
 
 
 # Quota-Summe in MB
@@ -269,23 +302,6 @@ my $quota_summe=0;
 #my @q_summe=(0,0,0,0,0,0,0,0,0,0); # funktioniert
 #my @q_summe=(); # liefert use of uninitialized value
 my @quota_summen=();
-
-# ===========================================================================
-# Kernelupdate auf 2.4.18 prüfen (existiert /.kernelupdate-xxyyzz)
-# ==========================================================================
-
-##???? Kann evtl wegfallen wenn die Befehle des Quta-Moduls benutzt werden
-
-# Dateien und Verzeichnisse aus / einlesen
-opendir(SYSROOT, "/");
-   foreach $datei (readdir SYSROOT){
-     next unless $datei =~/.kernel_update.*/;
-     print("/","$datei"," gefunden !\n");
-     print("Benutze setquota-Befehl für kernel 2.4.18\n\n");
-     $kernel_update="ja";
-    }
-closedir(SYSROOT);
-
 
 # Liste mit Anfangsquota erstellen
 for (my $i=1; $i <= $quota_filesystems_anzahl; $i++){
@@ -318,17 +334,13 @@ if($Conf::log_level>=2){
 
 
 # ===========================================================================
-# Typ des Administrators setzen
+# Typ aller User setzen
 # ===========================================================================
+
 # admin ist auch in der Schüler-Gruppe, muss aber nach admin
 $login_typ_hash{"admin"}="admin";
 
-
-# ===========================================================================
-# Typ aller anderer User setzen (ausser admin)
-# ===========================================================================
-# ????????????? db independent
-
+# others
 setpwent();
 while(my ($login,$feld2,$feld3,$gid,$feld5,$feld6,$feld7,$home)=getpwent()) {
    # Gruppenname ermitteln
@@ -337,23 +349,21 @@ while(my ($login,$feld2,$feld3,$gid,$feld5,$feld6,$feld7,$home)=getpwent()) {
           # Value ist Liste:
           $login_quota_hash{$login}=[@null_quota_liste];
           
-           if($home=~/^\/home\/schueler\//){
-             # Typ-Hash anpassen, bei schuelern /home/schueler/
-             $login_typ_hash{$login}="schueler";
-           } elsif($home=~/^\/home\/workstations\//){
-             # Typ-Hash anpassen, bei workstation /home/workstations/
+           if($home=~/^$DevelConf::homedir_pupil/){
+             # Typ-Hash anpassen
+             $login_typ_hash{$login}="pupil";
+           } elsif($home=~/^$DevelConf::homedir_ws/){
+             # Typ-Hash anpassen
              $login_typ_hash{$login}="workstation";
-           } elsif($home=~/^\/home\/lehrer\// and $grname eq "lehrer"){
-             # Typ-Hash anpassen, bei lehrer /home/lehrer/
+           } elsif($home=~/^$DevelConf::homedir_teacher/ and $grname eq "lehrer"){
+             # Typ-Hash anpassen
              # und Gruppe=lehrer
-             $login_typ_hash{$login}="lehrer";
+             $login_typ_hash{$login}="teacher";
            }
           # User-gid-Hash
           # key=user   value=gid
           $user_gid_hash{$login}="$gid";
  }
-
-
 endpwent();
 
 
@@ -461,13 +471,13 @@ if($Conf::log_level>=2){
 
 foreach (keys %login_quota_hash){
   if (exists($login_typ_hash{$_})){
-     if($login_typ_hash{$_} eq "schueler"){
+     if($login_typ_hash{$_} eq "pupil"){
         $login_quota_hash{$_}=$schueler_standard;
       }
      if($login_typ_hash{$_} eq "workstation"){
         $login_quota_hash{$_}=$workstation_standard;
       }
-     if($login_typ_hash{$_} eq "lehrer"){
+     if($login_typ_hash{$_} eq "teacher"){
         $login_quota_hash{$_}=$lehrer_standard;
       }
   }
@@ -497,10 +507,10 @@ if($Conf::log_level>=3){
 # ===========================================================================
 # Quota für alle user setzen
 # ===========================================================================
+if (not $#userlist+1==0){
 &titel("Setting Quota ... (this can take some time)");
 
-# Jeden user im Hash aufrufen und Quota setzen
-foreach  $userkey ( keys %login_quota_hash ) {
+foreach my $userkey (@userlist){
    if($Conf::log_level>=2){
       print("\nSetting quota for  user:  ","$userkey","\n");
     }
@@ -519,21 +529,45 @@ foreach  $userkey ( keys %login_quota_hash ) {
                 $userkey , 
                 \@quota_filesystems, 
                 \@{ $login_quota_hash{$userkey} } );
- }
-
+}
+}
 
 # ===========================================================================
 # Summe des Hard-Limits aller Begrenzten Quota aufsummieren
 # ===========================================================================
-for (my $k=1; $k <= $quota_filesystems_anzahl; $k++){
-   print "\n";
-   print "Filesystem (Partition) ","$quota_filesystems[$k-1]",":\n";
-   print "Total amount of hardlimit quota:       ", 
-          $DevelConf::q_summe[$k-1], 
-         " Blöcke\n";
-   print "Total amount of hardlimit quota:   ca. ", 
-          $DevelConf::q_summe[$k-1]/1024 , " GB\n";
+
+
+
+if ($sum==1){
+   &show_sum();
+} else {
+   print "To see total amount of Quota do 'sophomorix-quota --sum'\n",
+}
+
+
+
+
+
+
+
+sub show_sum  {
+   print "Adding up quota ...\n";
+   foreach my $userkey (keys %login_quota_hash){
+      &addup_quota($DevelConf::system, 
+                   $userkey , 
+                   \@quota_filesystems, 
+                   \@{ $login_quota_hash{$userkey} } );
    }
 
+   print "\nTotal quota: admin, teacher, pupil and workstations:\n";
+   for (my $k=1; $k <= $quota_filesystems_anzahl; $k++){
+      print "\nFilesystem (Partition) ","$quota_filesystems[$k-1]",":\n";
+      print "  Total amount of hardlimit quota:       ", 
+             $DevelConf::q_summe[$k-1], 
+            " Blocks\n";
+      print "  Total amount of hardlimit quota:   ca. ", 
+             $DevelConf::q_summe[$k-1]/1024 , " GB\n";
+      }
+}
 
 # EOF

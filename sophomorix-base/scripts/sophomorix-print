@@ -372,16 +372,10 @@ print LATEX ('
 # VALUE = Zeile in user.protokoll
 # ===========================================================================
 
+# @print_data containes the lines of the database
 my @print_data = &get_print_data();
 
 foreach (@print_data){
-#open(USERPROTOKOLL,
-#     "/root/bin/${DevelConf::schueler_oder_user}.protokoll") 
-#     "$DevelConf::protokoll_datei") 
-#
-#     || die "Fehler:  $DevelConf::protokoll_datei nicht gefunden!  $!";
-
-#while(<USERPROTOKOLL>){
     my $feld1;
     my $feld2;
     my $feld3;
@@ -413,9 +407,6 @@ foreach (@print_data){
     $geburtsdatum_protokoll
    )=split(/;/);
 
-
-
-
    # Name aufsplitten
    ($vorname_protokoll,$nachname_protokoll)=split(/ /,$name_protokoll);
    # Zusammenhängen zu identifier
@@ -428,11 +419,11 @@ foreach (@print_data){
 
    # In einem Hash ablegen
    my $value="$klasse_protokoll".";"."$name_protokoll".";".
-          "$loginname_protokoll".";"."$passwort_protokoll".";"."$geburtsdatum_protokoll";
+          "$loginname_protokoll".";"."$passwort_protokoll".";".
+          "$geburtsdatum_protokoll";
    # key=identifier value=Zeile in user.protokoll
    $schueler_im_system_hash{$identifier_protokoll}="$value";
   }
-
 
 if($Conf::log_level>=3){
    # Nur zum debuggen
@@ -441,11 +432,6 @@ if($Conf::log_level>=3){
       printf "%-40s %3s\n","$k","$v";
     }
 }
-
-# ===========================================================================
-# user.protokoll ist eingelesen
-# ===========================================================================
-
 
 
 
@@ -463,8 +449,8 @@ if ($gruppe eq "" && $alle==0 && $lehrer==0) {
        || die "Fehler: ${DevelConf::ergebnis_pfad}/sophomorix.add    $!";
     while(<SCHUELERPDF>){
       chomp();
-      my ($klasse,$identifier)=split(/::/); # in sophomorix.add gibts Zusatzangaben nach ::
-
+      # in sophomorix.add gibts Zusatzangaben nach ::
+      my ($klasse,$identifier)=split(/::/); 
       # passende Zeile aus user.protokoll holen
       if (exists($schueler_im_system_hash{$identifier})){
          print ("   Creating login card for $identifier \n"); 
@@ -497,7 +483,6 @@ if ($gruppe eq "" && $alle==0 && $lehrer==0) {
     }
   close(SCHUELERPDF);
 
-
 } elsif ($alle==1) {
    # Argument "alle" -> nichts ausfiltern
    if($Conf::log_level>=2){
@@ -510,7 +495,6 @@ if ($gruppe eq "" && $alle==0 && $lehrer==0) {
       # Value = Klasse
       $sortier_hash{$_}="$klasse";
    }
-
 
 } elsif ($lehrer==1) {
     $argument="lehrer";
@@ -526,7 +510,6 @@ if ($gruppe eq "" && $alle==0 && $lehrer==0) {
          $sortier_hash{$_}="$klasse";
        }
     }    
-
 
 } elsif ($gruppe ne "") {
    # Argument muss "klasse" sein -> filtern
@@ -561,8 +544,6 @@ if ($gruppe eq "" && $alle==0 && $lehrer==0) {
  }
 
 
-
-
 if($Conf::log_level>=3){
    # Nur zum ausgeben 
    print("Für diese Schüler werden Druckkärtchen erzeugt\n\n"); 
@@ -570,9 +551,6 @@ if($Conf::log_level>=3){
       printf "%-40s %3s\n","$key","-$value-";
    }
 }
-
- #print("\n\n"); 
-
 
 # ===========================================================================
 # Im sortier-Hash stehen nun alle auszudruckenden Schüler
@@ -703,7 +681,8 @@ foreach $eintrag (@drucken_reihenfolge) {
    )=split(/;/,$schueler_protokoll_zeile);
     # Ausgabe
     if($Conf::log_level>=2){
-       print("Erstelle Login-Karte für  $loginname_protokoll  in   $klasse_protokoll\n");
+       print "Erstelle Login-Karte für  $loginname_protokoll  ",
+             "in   $klasse_protokoll \n";
      }
    # Vorheriger Eintrag speichern
    $eintrag_typ_alt=$eintrag_typ;

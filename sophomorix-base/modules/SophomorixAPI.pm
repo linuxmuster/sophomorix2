@@ -26,6 +26,8 @@ use Time::localtime;
              get_workstations_room
              get_workstations_school
              get_rooms_school
+             create_userlist
+             get_ml_users
             );
 
 
@@ -307,6 +309,16 @@ sub get_rooms_school {
 }
 
 
+
+=pod
+
+=item I<get_workstations_school()>
+
+Returns an asciibetical list of all Workstations in the school. 
+
+=cut
+
+
 sub get_workstations_school {
     my @pwliste=();
     my @workstationliste=();
@@ -325,6 +337,175 @@ sub get_workstations_school {
     # Alphabetisch ordnen
     @workstationliste = sort @workstationliste;
     return @workstationliste;
+}
+
+
+
+
+
+=pod
+
+=item I<create_userlist(logins,classes,pupil,rooms,workstations,check)>
+
+Creates a ascibetical list of users, that are specified with the
+parameters. The parameters are:
+
+logins:       commaseperated list of logins
+
+classes:      commaseperated list of AdminClasses, (can also be lehrer)
+
+pupil:        add the list of all pupils (1), or not (0)
+
+rooms:        commaseperated list of rooms
+
+workstations: add the list of all workstations (1), or not (0)
+
+check:        check (1) every loginname if it is a valid pupil,teacher 
+
+              or workstation or not (0)
+
+Option check makes this function very slow!
+
+=cut
+
+
+
+sub create_userlist {
+    my @userlist=();
+    my %logins=();
+    my @unique_userlist=();
+    my ($login, $classes, $pupil, $rooms, $ws,$check) = @_;
+    if (not defined $login){$login=""}   
+    if (not defined $classes){$classes=""}   
+    if (not defined $pupil){$pupil=0}   
+    if (not defined $rooms){$rooms=""}   
+    if (not defined $ws){$ws=0}   
+    if (not defined $check){$check=0}   
+
+    # loginnames
+    if ($login ne "") {
+       my (@loginlist)=split(/,/,$login);
+       push @userlist, @loginlist;
+    }
+
+    if ($classes ne "") {
+       my @users=();
+       my (@classlist)=split(/,/,$classes);
+       foreach my $class (@classlist){
+          @users=&get_user_adminclass($class);
+          push @userlist, @users;
+       }
+     }
+
+     if ($pupil==1) {
+        my @users=();
+        @users=&get_pupils_school();
+        push @userlist, @users;
+     }
+
+     if ($rooms ne "") {
+        my @users=();
+        my (@roomlist)=split(/,/,$rooms);
+        foreach my $room (@roomlist){
+           @users=&get_workstations_room($room);
+           push @userlist, @users;
+        }
+      }
+
+      if ($ws==1) {
+        my @users=();
+        @users=&get_workstations_school();
+        push @userlist, @users;
+      }
+
+
+      # create userlist
+      if ($check==1 and not $#userlist+1==0){
+       %logins=&get_ml_users();
+      }
+
+
+      # remove doules/check
+      foreach my $item (@userlist) {
+         unless ($seen{$item}) {
+            # if we get here, we have not seen it before
+            $seen{$item} = 1;
+            if ($check==0){
+                  # dont check
+                  push(@unique_userlist, $item);
+	    } else {
+               # check
+               if (exists $logins{$item}){
+                  push(@unique_userlist, $item);
+	       } else {
+                  print "INFO: $item is not a ml user, skipping $item ...\n";
+               }
+            }
+         } else {
+            if($Conf::log_level>=3){
+               print "User $item is already in the list\n";
+            }
+         }
+     }
+
+     # order asciibetical
+     @unique_userlist = sort @unique_userlist;
+    return @unique_userlist;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=pod
+
+=item I<get_ml_users()>
+
+Returns an hash with ALL ml login names. This includes:
+  - pupil, teachers (sophomorix database)
+  - workstations
+
+The value is one of teacher, pupil or workstation
+
+=cut
+
+sub get_ml_users {
+    my @pwliste=();
+    my %ml_hash=();
+    setpwent();
+    while (@pwliste=getpwent()) {
+    #print"$pwliste[7]\n";  # Das 8. Element ist das Home-Verzeichnis
+       if ($pwliste[7]=~/^$DevelConf::homedir_pupil/) {
+	   $ml_hash{$pwliste[0]}="pupil";
+         #print "$pwliste[0]\n";
+       }
+       if ($pwliste[7]=~/^$DevelConf::homedir_teacher/) {
+	   $ml_hash{$pwliste[0]}="teacher";
+         #print "$pwliste[0]\n";
+      }
+       if ($pwliste[7]=~/^$DevelConf::homedir_ws/) {
+	   $ml_hash{$pwliste[0]}="workstation";
+         #print "$pwliste[0]<p>";
+      }
+    }
+    endpwent();
+    return %ml_hash;
 }
 
 

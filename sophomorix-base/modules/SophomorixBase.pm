@@ -80,6 +80,7 @@ use Time::localtime;
               check_quotastring
               get_quotastring
               setze_quota
+              addup_quota
               quota_addition
               get_standard_quota
               get_lehrer_quota
@@ -2814,9 +2815,74 @@ sub setze_quota {
          print("   Quota command: ${quota_befehl}","\n");
       } 
    # Quota aufsummieren
-   $DevelConf::q_summe[$j]=$DevelConf::q_summe[$j]+$q_opt2;
+#   $DevelConf::q_summe[$j]=$DevelConf::q_summe[$j]+$q_opt2;
    }
 }
+
+
+
+
+# vgl. setze quota, unnötiges weggelassen
+sub addup_quota {
+   my $quotastring="";
+   # Optionen für den setquota-Befehl
+   my $q_opt1="";
+   my $q_opt2="";
+   my $q_opt3="";
+   my $q_opt4="";
+   my $fs; 
+   my $j=0;
+   my $uid=-1;
+
+   # Parameter 
+   # $user:        username
+   # $fsliste      Referenz auf Liste mit Filesystemen (für alle user gleich)
+   # $quotastring  Referenz auf Liste mit Quota (für übergebenen user)
+   my ($system,$user,$fsliste, $quotaliste)=@_;
+   # Nun die Elemente der Dateisystem-Liste durchgehen von 1 bis j
+   for ($j=0; $j < @$fsliste; $j++){
+
+      # Aus der Listenreferenz das j-te Element herausnehmen
+      $quotastring = $quotaliste->[$j];
+      $fs = $fsliste->[$j];
+
+      # Leerzeichen aus quotastring entfernen und return abschneiden
+      chomp($quotastring);
+      $quotastring=~s/ //g;
+
+      # falls Minus-Zeichen vorhanden, aufsplitten
+      if ($quotastring=~/-/) {
+         # quotastring aufsplitten
+         ($q_opt1,$q_opt2,$q_opt3,$q_opt4)=split(/-/,$quotastring);
+      } else {
+         # sonst ist nur Ziffer vorhanden, also Werte setzen
+         $q_opt2=$quotastring;
+      }
+      # x im zweiten Parameter
+      if ($q_opt2 eq "x"){
+        # Fehler und Abbruch
+        print ("\n\nHardlimit darf nicht mit x angegeben werden!\n\n");
+        die;
+      }
+
+      # Quota-Befehlsparameter ausgeben
+      # user-ID ermitteln
+      ($a,$a,$uid)=getpwnam("$user");
+#      if (not defined $uid) {
+#        $uid=999999;
+#        print("UserID:   n.A., da Testlauf (UID=$uid, show must go on.)\n");
+#      }
+     # Quota aufsummieren
+     $DevelConf::q_summe[$j]=$DevelConf::q_summe[$j]+$q_opt2;
+   }
+   return @sum;
+}
+
+
+
+
+
+
 
 
 

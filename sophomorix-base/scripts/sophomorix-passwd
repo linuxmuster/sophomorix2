@@ -43,12 +43,10 @@ use if ${DevelConf::sys_db} eq 'files' ,
 &show_sys_modulename();
 
 # ===========================================================================
-# Variables
+# Variablen
 # ==========================================================================
 
-my %seen=();
-my @userlist=();
-my @unique_userlist=();
+my @users=();
 
 # ===========================================================================
 # Optionen verarbeiten
@@ -61,7 +59,7 @@ $Conf::log_level=1;
 my $help=0;
 my $info=0;
 my $loginname="";
-my $groups="";
+my $classes="";
 my $pupil=0;
 my $rooms="";
 my $ws=0;
@@ -87,7 +85,7 @@ my $info_line="";
 # Parsen der Optionen
 my $testopt=GetOptions(
            "login|user|u|l=s" => \$loginname,
-           "group|class|klasse|g|c|k=s" => \$groups,
+           "class|klasse|c|k=s" => \$classes,
            "pupil|pupils" => \$pupil,
            "room|=s" => \$rooms,
            "workstations|workstation|ws" => \$ws,
@@ -139,72 +137,15 @@ Please see the sophomorix-passwd(8) man pages for full documentation
 }
 
 
-# --user
-if ($loginname ne "") {
-  my (@loginlist)=split(/,/,$loginname);
 
-
-##?????ß prüfen auf gültigkeit
-
-  push @userlist, @loginlist;
+# create the list of users
+if ($force==1){
+   @users=&create_userlist($loginname,$classes,$pupil,$rooms,$ws,0);
+} else {
+   # check the users
+   &titel("Checking login names ...");
+   @users=&create_userlist($loginname,$classes,$pupil,$rooms,$ws,1);
 }
-
-
-# --group
-if ($groups ne "") {
-  my @users=();
-  my (@classlist)=split(/,/,$groups);
-  foreach my $class (@classlist){
-     @users=&get_user_adminclass($class);
-     push @userlist, @users;
-  }
-}
-
-
-# --pupil
-if ($pupil==1) {
-  my @users=();
-     @users=&get_pupils_school();
-     push @userlist, @users;
-}
-
-
-# --room
-if ($rooms ne "") {
-  my @users=();
-  my (@roomlist)=split(/,/,$rooms);
-  foreach my $room (@roomlist){
-     @users=&get_workstations_room($room);
-     push @userlist, @users;
-  }
-}
-
-
-# --workstations
-if ($ws==1) {
-  my @users=();
-     @users=&get_workstations_school();
-     push @userlist, @users;
-}
-
-
-
-# remove doules/order alphabetical
-foreach my $item (@userlist) {
-    unless ($seen{$item}) {
-        # if we get here, we have not seen it before
-        $seen{$item} = 1;
-        push(@unique_userlist, $item);
-    } else {
-        if($Conf::log_level>=3){
-           print "User $item is already in the list\n";
-        }
-    }
-    @unique_userlist = sort @unique_userlist;
-
-}
-
-
 
 ################################################################################
 # Exit
@@ -212,7 +153,7 @@ foreach my $item (@userlist) {
 
 
 # exit if no users specified
-if ($#userlist+1==0){
+if ($#users+1==0){
     print "ERROR: No users specified. \n";
     exit;
 }
@@ -274,13 +215,13 @@ if ($random==1){
 
 # --info, show only the users
 if ($info==1) {
-   &print_list_column(6,"Passwörter setzen für user ",@unique_userlist);
+   &print_list_column(6,"Passwörter setzen für user ",@users);
    print "INFO: $info_line  \n";
    exit;
 }
 
-
-foreach my $user (@unique_userlist){
+# Setting the passwords
+foreach my $user (@users){
     # gruppe ermitteln
     my $group=&get_klasse_von_login($user);
     # which password to set
@@ -300,29 +241,20 @@ foreach my $user (@unique_userlist){
        # set password randomly
        $password=&get_random_password($char_num,$group,@chars);
     } else {
-       print "No password option specified: using sophomorix.conf\n";
+       #print "No password option specified: using sophomorix.conf\n";
        # nothing specified: use sophomorix.conf
        $password=&get_plain_password($group,@chars)
     }
     if ($hide==1){
-       print "Setting password for user $user in $group to xxxxxxxx ...\n";
+       print "  Setting password for user $user in $group to xxxxxxxx ...\n";
     } else {
-       print "Setting password for user $user in $group to $password ...\n";
+       print "  Setting password for user $user in $group to $password ...\n";
     }
-
-    # chech if user is a sophomorix user 
-    my $doit=&check_sophomorix_user($user);
-    if ($doit==1 or $force==1){
        # Passwort für user setzten
        &set_sophomorix_passwd($user,$password);
        # updating the database
        &update_user_db_entry($user,"FirstPass=$password");
-   } else {
-       print "INFO: $user is not a sophomorix user: Won't do anything, ...\n";
-   }
 }
-
-
 
 
 
