@@ -18,6 +18,8 @@ use Sophomorix::SophomorixAPI;
 # list of functions to load if db is 'files'
 use if ${DevelConf::db_backend} eq 'files' , 
     'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                        get_first_password
+                                        update_user_db_entry
                                        );
 
 # list of functions to load if db is 'ldap'
@@ -63,6 +65,15 @@ my $pupil=0;
 my $rooms="";
 my $ws=0;
 
+my $password="";
+my $reset=0;
+my $crandom=0;
+my $random=0;
+
+# flag, if (1) user has specified ONE password for all (-p or --crandom)  , 
+#    or if (2) password must be calculated for each user
+my $password_given=0;
+
 # Parsen der Optionen
 my $testopt=GetOptions(
            "login|user|u|l=s" => \$loginname,
@@ -70,6 +81,10 @@ my $testopt=GetOptions(
            "pupil|pupils" => \$pupil,
            "room|=s" => \$rooms,
            "workstations|workstation|ws" => \$ws,
+           "password|p=s" => \$password,
+           "reset" => \$reset,
+           "crandom|grandom" => \$crandom,
+           "random" => \$random,
            "verbose|v+" => \$Conf::log_level,
            "info|i" => \$info,
            "help|h" => \$help
@@ -184,41 +199,72 @@ if ($#userlist+1==0){
     exit;
 }
 
-
-
-# passwords
-
-
-
-
-
-
 ################################################################################
 # Start
 ################################################################################
 
+if ($password ne ""){
+   $password_given=1;
+}
+
+if ($crandom==1){
+    # ???????
+    $password="crandom";
+    $password_given=1;
+}
 
 
+my $random_teacher=0;
+my $random_pupil=0;
 
-# wenn gemeinsames Zufallspasswort, dann hier ermitteln
 
+print $password_given, "---\n";
 
 foreach my $user (@unique_userlist){
-    print "Setting password for user $user ... \n";
 
     # gruppe ermitteln
 
-    # vorgaben in sophomorix.conf per optionen anpassen
-    $Conf::schueler_zufall_passwort="ja";
+    my $group=&get_klasse_von_login($user);
 
+    # which password to set
+    if ($password_given==1){
+         # use $password, do nothing
+    } elsif ($reset==1){
+         # lookup old password
+        $password=&get_first_password($user);
+    } elsif ($random==1){
+       # set password randomly
+       
+	$password="random";
+     
+    } else {
+       print "No password option specified\n";
+       # nothing specified: use sophomorix.conf
+       if ($group eq "lehrer"){
+          # teacher
+          if ($Conf::lehrer_zufall_passwort eq "ja"){
+	      $password="random";
+          } else {
+              $password="linux";
+          }
+       } else {
+          # pupil
+          if ($Conf::schueler_zufall_passwort eq "ja"){
+	      $password="random";
+          } else {
+              $password="linux";
+          }
 
-    # zufallspasswort ermitteln lassen (nach veränderten vorgaben)
-    # oder gemeinsames benutzen
+       }
+    }
 
-
-    print "Vorgabe: $Conf::schueler_zufall_passwort\n";
+    print "Setting password for user $user in $group to $password ...\n";
 
     # Passwort für user setzten
+    &set_sophomorix_passwd($user,$password)
+    # updating the database
+    &update_user_db_entry($user,"FirstPass=$password");
+    
 
 
 }

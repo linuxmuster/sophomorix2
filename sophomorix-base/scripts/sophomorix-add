@@ -259,25 +259,15 @@ if (${DevelConf::debian} ne "yes") {
 }
 
 
-# Zeichen, die in den verschlüsselten Passwörtern vorkommen dürfen
-# auslassen: 1,i,l,I,L,j
-# auslassen: 0,o,O
-# auslassen: Grossbuchstaben, die mit Kleinbuchstaben 
-#            verwechselbar: C,I,J,K,L,O,P,S,U,V,W,X,Y,Z 
-my @passwort_zeichen=('a','b','c','d','e','f','g','h','i','j','k',
-                      'm','n','o','p','q','r','s','t','u','v',
-                      'w','x','y','z',
-                      'A','B','D','E','F','G','H','L','M','N','Q','R','T',
-                      '2','3','4','5','6','7','8','9');
+my @passwort_zeichen=&get_passwd_charlist();
 
-
-srand;
-my $anzahl_zeichen=0;
-my $chars="";
-foreach $chars(@passwort_zeichen)              # Wieviele Zeichen gewaehlt?
-{
-  $anzahl_zeichen++;
-};
+#srand;
+#my $anzahl_zeichen=0;
+#my $chars="";
+#foreach $chars(@passwort_zeichen)              # Wieviele Zeichen gewaehlt?
+#{
+#  $anzahl_zeichen++;
+#};
 
 
 # ===========================================================================
@@ -366,7 +356,7 @@ while(<USERHINZU>){
 
 # Klartext-Passwort
 if ($wunsch_passwort eq "---") {
-    $klartext_passwort=&klartext_passwort_ermitteln($new_admin_group);
+    $klartext_passwort=&get_plain_password($new_admin_group,@passwort_zeichen);
  } else {
     $klartext_passwort=$wunsch_passwort
  }
@@ -661,42 +651,6 @@ sub webmin_eintrag {
       # Webmin muss neu gestartet werden
       $webmin_neustart=1;
    }
-}
-
-# ===========================================================================
-# Klartext-Passwort erzeugen
-# ===========================================================================
-sub klartext_passwort_ermitteln {
-   my ($gruppe)=@_;
-   my $passwort="";
-
-     if ($gruppe eq "lehrer") {
-         # Es ist ein Lehrer
-            if ($Conf::lehrer_zufall_passwort eq "ja") {
-            # Zufallspasswort erzeugen
-            for ($i=1;$i<=${Conf::zufall_passwort_anzahl_lehrer};$i++)
-              {
-                 $passwort=$passwort.$passwort_zeichen[int (rand $anzahl_zeichen)];
-              }
-         } else {
-            # Standard-Passwort verwenden
-            $passwort="linux";
-	  }
-
-       } else {
-         # Es ist ein Schüler
-         if ($Conf::schueler_zufall_passwort eq "ja") {
-             # Zufallspasswort erzeugen
-             for ($i=1;$i<=${Conf::zufall_passwort_anzahl_schueler};$i++)
-               {
-                  $passwort=$passwort.$passwort_zeichen[int (rand $anzahl_zeichen)];
-               }
-           } else {
-             # Standard-Passwort verwenden
-             $passwort="linux";
-           }
-       }
-    return $passwort;
 }
 
 # ===========================================================================

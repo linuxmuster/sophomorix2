@@ -44,17 +44,19 @@ setzt die Passwörter ohne nachzufragen.
 .TP
 .B Optionen, die angeben, wie das Passwort lauten soll:
 .TP
+Wenn keine dieser Option angegeben wird, dann werden die Einstellungen aus sophomorix.conf verwendet.
+.TP
 .B -p geheim
-setzt das Passwort auf den Wert geheim. Wenn diese Option nicht angegeben wird, dann werden die Einstellungen aus sophomorix.conf verwendet.
+setzt das Passwort auf den Wert geheim. 
+.TP
+.B --crandom, --grandom
+setzt das Passwort auf einen gemeinsamen Zufallswert. Alle user bekommen dasselbe Zufallspasswort. 
 .TP
 .B --reset
 setzt das Passwort auf den Wert, der beim ersten Anlegen des users gültig war. Dieser Wert wird aus der sophomorix Datenbank geholt. 
 .TP
 .B --random
-setzt das Passwort bei Lehrern und Schülern auf einen individuellen Zufallswert. Jeder User hat ein eigenes Zufallspasswort. 
-.TP
-.B --crandom, --grandom
-setzt das Passwort auf einen gemeinsamen Zufallswert. Alle user bekommen dasselbe Zufallspasswort. 
+setzt das Passwort bei Lehrern und Schülern auf einen neuen, individuellen Zufallswert. Jeder User hat ein eigenes Zufallspasswort. 
 .TP
 .B Optionen die angeben welchen Usern das Passwort geändert wird:
 .TP
