@@ -55,10 +55,13 @@ my $removable="";
 my $killable="";
 my $activate="";
 
+my $search="";
+
 # Parsen der Optionen
 my $testopt=GetOptions(
        "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
+       "s|search=s" => \$search,
        "F|freeze=s" => \$freeze,
        "P|permanent=s" => \$permanent,
        "R|removable=s" => \$removable,
@@ -85,6 +88,7 @@ Options
   -h  / --help
   -v  / --verbose
   -vv / --verbose --verbose
+  -s string / --search string
   -F loginname   /   --freeze loginname
   -P loginname   /   --permanent loginname
   -R loginname   /   --removable loginname
@@ -207,5 +211,250 @@ if ($activate ne""){
                           "DeactivationDate=");
     &user_reaktivieren($activate);
 }
+
+
+
+
+######################################################################
+# Standard: suchen nach string
+######################################################################
+
+if ($search eq ""){
+   print "I don't know what to search for! (searchstring is empty)\n";
+   exit;  
+}
+
+
+# suche, falls $search nicht leer
+
+
+
+############################################################
+# Start
+############################################################
+&search_user($search);
+
+
+
+
+
+sub search_user {
+    # database dependent
+    my ($string) = @_;
+my ($class,
+    $gec_user,
+    $login,
+    $first_pass,
+    $birth,
+    $unid,
+    $subclass,
+    $status,
+    $tol,
+    $deact,
+    $ex_admin,
+    $acc_type)=();
+
+ my ($loginname_passwd,
+     $passwort,
+     $uid_passwd,
+     $gid_passwd,
+     $quota_passwd,
+     $name_passwd,
+     $gcos_passwd,
+     $home,
+     $shell)=();
+
+my $group_string="";
+my @group_list=();
+my $pri_group_string="";
+my $grp_string="";
+my $home_ex="---";
+my $samba="";
+my @samba_lines="";
+
+&titel("I'm looking for $string in $DevelConf::protokoll_datei ...");
+
+open(PROTOKOLL,"<$DevelConf::protokoll_datei");
+   while (<PROTOKOLL>){
+       if (/$string/){
+          chomp();
+
+          ($class,$gec_user,$login,$first_pass,$birth,
+           $unid,$subclass,$status,$tol,$deact,$ex_admin,$acc_type)=split(/;/);
+          # Abfragen der /etc/passwd
+          ($loginname_passwd,
+          $passwort,
+          $uid_passwd,
+          $gid_passwd,
+          $quota_passwd,
+          $name_passwd,
+          $gcos_passwd, 
+          $home,
+          $shell
+          )=getpwnam("$login");
+          # GCOS-Feld aufsplitten
+
+          # Gruppen-Zugehoerigkeit
+          @group_list=();
+          $grp_string="";
+          $pri_group_string=`id -gn $login`;
+          $group_string=`id -Gn $login`;
+          chomp($group_string);
+          chomp($pri_group_string);
+          @group_list=split(/ /, $group_string);
+	  print "User                :  $login  ";
+       if (defined $loginname_passwd){
+	     print "($loginname_passwd exists in the system) \n";
+       } else {
+	     print "(ERROR: $login is not in the system) \n";
+       }
+          print "=======================================";
+          print "=======================================\n";
+
+       printf "   AdminClass       : %-47s %-11s\n",$class,$login;
+
+       printf "   PrimaryGroup     : %-47s %-11s\n",$pri_group_string,$login;
+       foreach my $gr (@group_list){
+	   $grp_string= $grp_string." ".$gr;
+	  #print $gr," ";
+       }
+       printf "   SecondaryGroups  :%-48s %-11s\n",$grp_string,$login;
+
+       printf "   Gecos            : %-47s %-11s\n", $gec_user,$login;
+  
+          if (defined $loginname_passwd){
+             printf "   SystemGecos      : %-47s %-11s\n",$gcos_passwd, $login;
+	  }
+
+          if (-e $home){
+              $home_ex=$home."  (existing)";
+	      #print "(existing) \n";
+          } else {
+	      #print "(ERROR: non-existing!) \n";
+              $home_ex=$home."  (ERROR: non-existing)";
+	      
+          }
+          if (defined $home){
+             printf "   Home             : %-47s %-11s\n",$home_ex,$login;
+	  }
+        
+
+          if (defined $shell){
+             printf "   LoginShell       : %-47s %-11s\n",$shell,$login;
+	  }
+
+
+	  printf "   FirstPassword    : %-47s %-11s\n",$first_pass,$login;
+	  printf "   Birthday         : %-47s %-11s\n",$birth,$login;
+
+          if (defined $unid){
+	     printf "   Unid             : %-47s %-11s\n",$unid,$login;
+          }
+
+          if (defined $subclass){
+	     printf "   SubClass         : %-47s %-11s\n",$subclass,$login;
+          }
+
+          if (defined $status){
+	     printf "   Status           : %-47s %-11s\n",$status,$login;
+          }
+
+          if (defined $tol){
+	     printf "   TolerationDate   : %-47s %-11s\n",$tol,$login;
+          }
+
+          if (defined $deact){
+	     printf "   DeactivationDate : %-47s %-11s\n",$deact,$login;
+          }
+
+          if (defined $ex_admin){
+	     printf "   ExitAdminClass   : %-47s %-11s\n",$ex_admin,$login;
+          }
+
+          if (defined $acc_type){
+	     printf "   AccountType      : %-47s %-11s\n",$acc_type,$login;
+          }
+
+          # samba
+          # database independent
+          print "Samba:\n";
+          $samba=`pdbedit -v -u $login`;
+          @samba_lines=split(/\n/,$samba);
+	  foreach (@samba_lines){
+#            s/\s//g;
+            # ??? nur am ersten auftreten von : splitten
+            my ($attr,$value)=split(/: /);
+            $value=~s/\s//g;
+
+	    if (/^Account Flags/){
+              printf "   Account Flags    : %-47s %-11s\n",$value,$login;    
+            }
+	    if (/^Home Directory/){
+              printf "   Home Directory   : %-47s %-11s\n",$value,$login;    
+            }
+	    if (/^Password last set/){
+              printf "   Pwd last set     : %-47s %-11s\n",$value,$login;    
+            }
+	    if (/^Password can change/){
+              printf "   Pwd can change   : %-47s %-11s\n",$value,$login;    
+            }
+	    if (/^Password must change/){
+              printf "   Pwd must change  : %-47s %-11s\n",$value,$login;    
+            }
+	  }
+
+          # history
+          # database independent
+          print "History of $login:\n";
+          &get_history($login);
+
+          ($class,$gec_user,$login,$first_pass,$birth,$unid,
+           $subclass,$status,$tol,$deact,$ex_admin,$acc_type)=(
+           "","","","","","","","","","","","");
+       }
+   }
+close(PROTOKOLL);
+}
+
+
+
+
+
+
+
+
+sub get_history {
+   my ($login) = @_;
+   my @line=();
+   my $count=0;
+   &check_datei_touch("${DevelConf::log_files}/user-modify.log");
+   open(HISTORY, 
+       "<${DevelConf::log_files}/user-modify.log") 
+        || die "Fehler: $!";
+
+   while (<HISTORY>){
+      chomp();
+      @line=split(/::/);
+      if (not defined $line[6]){$line[6]=""}
+      if ($line[2] eq $login){
+	 $count++;
+         my $info=$line[0]."(".$line[1]."): ";
+         printf "   %-27s %-55s \n",$info,$line[3];
+         printf "      Unid: %-18s %-55s \n",$line[6],$line[5];
+          
+      }
+   }
+   close(HISTORY);
+   if ($count==0){
+       print "   No History exists.\n";
+   }
+}
+
+
+# ToDo
+
+
+# history zu sophomorix-base modul
+
 
 
