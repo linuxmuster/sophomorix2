@@ -8,7 +8,7 @@ Todo
 - = do that when time comes
 
 packaging:
-   - Makefile create directories in correct permissions, 
+   - Makefile creates directories with correct permissions, 
      how can I package this directories with its permissions?
    - run sophomorix-samba when installing
      (how to get the servername into sophomoeix.conf (netbios-name)??)
@@ -174,15 +174,25 @@ sophomorix-test
   
 
 sophomorix-vampire:
-   - backup /etc to /etc/sophomorix-vampire
-   - move mail
+   * create config-files (perl-syntax):
+       - list of files with abs-path to get them from old server
+       - file with /path/on/old/server::/path/on/new/server
+         sync them automatically
+
+       - /usr/local/samba/progs  -> /home/samba/progs
+       - /usr/local/samba/cds    -> /home/samba/cds
+       - /usr/local/httpdocs     -> /var/www
+
+   * backup /etc to /etc/sophomorix-vampire
+   * backup old login scripts
+
+   * move mail (where to?)
    - move shares
    - option for k necessary?
+
    - generate a log file what went wrong
+
    - detect if a non-teacher user has a webmin-login (write to log-file)
-   - /usr/local/samba/progs  -> /home/samba/progs
-   - /usr/local/samba/cds    -> /home/samba/cds
-   - /usr/local/httpdocs     -> /var/www
 
    - read passwords from /etc/shadow and /etc/smbpasswd
      - push them into the new accounts
@@ -191,12 +201,8 @@ sophomorix-vampire:
        debian: md5
 
    - strategie for rembo:
-     
-     
 
      garbage that should not be taken to a new system
-
-
 
      images:
      /var/lib/myshn  /usr/local/rembo/files/global/myshn/groups
@@ -209,15 +215,16 @@ sophomorix-vampire:
      rembo beenden
      /var/lib/rembo  /usr/local/rembo/files/shared
 
-
-
      rembo -chkshared zeigt die zu entfernenden an     
      
      konfigurationsdaten:
      rembo.conf
      /etc/myshn ist link
 
-    Projektgruppen nach Anletung T.Schnitt übernehmen
+    Projektgruppen nach Anleitung T.Schnitt übernehmen
+
+
+
 
 
 sophomorix-webmin
