@@ -14,20 +14,125 @@
     ca. Herbst 2005 als Debian-Paket in die Linux-Musterlösung ab 3.x
     integriert werden.</para>
   </sect1>
+
   <sect1>
-    <title>Was ist neu?</title> <para>&so; wurde als 
+    <title>Was ist neu?</title>
 
 <para>Folgende Neuerungen wird es geben:</para>
     <itemizedlist>
       <listitem>
+	<para>Datenbankabhängiger Code wurde in Funktionen
+	ausgelagert. Ebenso Authentifizierungssystemabhängiger
+	Code. Damit ist es möglich, recht einfach die Datenbank
+	(files, sql, ldap, ...) bzw. das Authentifitierungssystem
+	(files, ldap, sql, ...) zu wechseln, ohne große Änderungen in
+	witen Teilen des  Sophomorix Quellcodes.</para>
+      </listitem>
+      <listitem>
 	<para>Projekte, an denen Schüler aus verschiedenen Klassen
 	Mitglieder sein können, sowie Beliebige Lehrer.</para>
       </listitem>
+      <listitem>
+	<para>auto-teach-in: Falls möglich werden die Schülerdaten,
+	wenn sie sich verändrrn selbs in die Datenbank von sophomorix
+	hochgeladen. </para>
+      </listitem>
+      <listitem>
+	<para>Unid: als 5. Feld wird eine eindeutige ID des
+	Schulverwaltungsprogramms benutzt, falls vorhanden. Ist die
+	Unid hochgeladen, dann wird sie verwendet. Alle sich ändernden
+	Schülerdaten werden dann automatisch abgeglichen.</para>
+      </listitem>
     </itemizedlist>
   </sect1>
-
   <sect1>
-    <title>Bestandteile (noch nicht aktuell)</title>
+    <title>Bestandteile (noch nicht aktuell)</title> 
+
+          <para>&so; besteht aus folgenden
+    <emphasis>obligatorischen</emphasis> Debian-Paketen:</para>
+    <para><itemizedlist>
+        <listitem>
+
+           <para>
+           <userinput>sophomorix-base</userinput>: beinhaltet alle
+           grundlegenden Scripte von sophomorix, wie z.b
+           <userinput>sophomorix-check</userinput>,
+           <userinput>sophomorix-add</userinput>, ....
+            sowie deren man pages.</para>
+
+        </listitem>
+        <listitem>
+
+           <para>
+           <userinput>sophomorix-db</userinput>: beinhaltet ein Perl
+           Modul, das den Sophomorix-Scripen erlaubt seine Daten
+           (Vormame, Nachname, Benutzerstatus, ...) in einer Datenbank
+           abzulegen. Da <userinput>sophomorix-base</userinput> auf
+           diese Funktion angewiesen ist, ist es von
+           <userinput>sophomorix-db</userinput> abhängig.
+           </para>
+
+           <para>
+           <userinput>sophomorix-db</userinput> ist ein virtuelles
+           Debian-Paket, d.h. es gibt gar kein Paket, das so
+           heisst. Allerdings können mehrere andere Pakete die
+           Abhängigkeit von <userinput>sophomorix-db</userinput>
+           erfüllen. Im Moment ist dies allerdings nur das Paket
+           <userinput>sophomorix-files</userinput>, das erlaubt die
+           Sophomorix Datenbank in normalen Textdateien abzuspeichern
+           bzw. zu modifizieren.
+           </para>
+
+        </listitem>
+        <listitem>
+
+           <para>
+           <userinput>sophomorix-sysdb</userinput>: beinhaltet ein
+           Perl Modul, das es den Sophomorix-Scripten erlaubt, das
+           Authentifizierungssytem zu modifizieren.
+           </para>
+           <para>Da <userinput>sophomorix-base</userinput> auf
+           diese Funktion angewiesen ist, ist es von
+           <userinput>sophomorix-sysdb</userinput> abhängig.
+
+           <para>
+           <userinput>sophomorix-sysdb</userinput> ist ein virtuelles
+           Debian-Paket, d.h. mehrere andere Pakete können die
+           Abhängigkeit von <userinput>sophomorix-sysdb</userinput>
+           erfüllen. Im Moment ist dies allerding nur
+           <userinput>sophomorix-sys-files</userinput>, das erlaubt
+           das Authentifizierungssystem in <userinput>passwd</userinput>,
+           <userinput>groups</userinput>, ... einzutragen, zu löschen
+           oder zu modifizieren.
+           </para>
+
+        </listitem>
+
+          </itemizedlist></para>
+
+<para>Zusätzlich können mit &so;  noch folgende
+    <emphasis>optionale</emphasis> Debian-Pakete benutzt werden:</para>
+    <para><itemizedlist>
+        <listitem>
+
+           <para>
+           <userinput>sophomorix-developer</userinput>: beinhaltet ein
+           paar Test-Scripte, die &so auf Herz und Nieren prüfen.
+           </para>
+
+        </listitem>
+        <listitem>
+
+           <para>
+           <userinput>sophomorix-doc-html</userinput>: beinhaltet die
+           Dokumentation, die sie gerade lesen.
+           </para>
+
+        </listitem>
+
+          </itemizedlist></para>
+
+
     <para>&so; besteht aus mehreren
       Perl-Scripten: </para>
     <para><itemizedlist>
