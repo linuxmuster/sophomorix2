@@ -1,0 +1,94 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH SOPHOMORIX-PASSWD 8 "January 23, 2005"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+sophomorix-passwd \- Setzen von Passwörtern anderer user durch root
+.SH SYNOPSIS
+.B sophomorix-passwd
+.RI [ options ]
+.br
+.SH DESCRIPTION
+.B sophomorix-passwd  
+setzt Passwörter einzelner User oder auch Gruppen von Usern auf vorgegebene bzw. auch zufällige Werte. Es ist nur für den Systemadministrator gedacht.
+.PP
+.SH OPTIONS
+.B sophomorix-passwd
+benützt die GNU command line syntax, mit langen Optionen, die mit zwei
+Bindestrichen (`-') beginnen:
+.TP
+.B \-h, \-\-help
+Kurzübersicht über Optionen, sowie eine Liste der eingelesenen Dateien.
+.TP
+.B \-v, \-\-verbose
+Sagt, was das Programm gerade macht (verbose)
+.TP
+.B \-vv, \-\-verbose \-\-verbose
+Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
+.TP
+.B \--force
+setzt die Passwörter ohne nachzufragen. 
+.TP
+.B Optionen, die angeben, wie das Passwort lauten soll:
+.TP
+.B -p geheim
+setzt das Passwort auf den Wert geheim. Wenn diese Option nicht angegeben wird, dann werden die Einstellungen aus sophomorix.conf verwendet.
+.TP
+.B --reset
+setzt das Passwort auf den Wert, der beim ersten Anlegen des users gültig war. Dieser Wert wird aus der sophomorix Datenbank geholt. 
+.TP
+.B --random
+setzt das Passwort bei Lehrern und Schülern auf einen individuellen Zufallswert. Jeder User hat ein eigenes Zufallspasswort. 
+.TP
+.B --crandom, --grandom
+setzt das Passwort auf einen gemeinsamen Zufallswert. Alle user bekommen dasselbe Zufallspasswort. 
+.TP
+.B Optionen die angeben welchen Usern das Passwort geändert wird:
+.TP
+Die Auswahl erfolgt anhäufend. Das bedeutet, dass durch Angabe mehrerer Optionen eine Userliste erzeugt wird, in der kein User doppelt vorkommt, aber jeder enthalten ist.
+.TP
+.B -l name1,name2, ... , --login name1, ... -u name1, ... , --user name1, ... 
+setzt das Passwort der  User name1,name2, ... . Der user kann auch eine Workstation sein.
+.TP
+.B -c class1,class2, ... , --class class1,class2, ...
+setzt das Passwort für jeden User in der Klasse class. Class kann auch die Gruppe der Lehrer sein (lehrer im Moment).
+.TP
+.B --pupils 
+setzt das Passwort für alle Schüler der Schule.
+.TP
+.B -r raum1,raum2, ... , --room raum1,raum2,...
+setzt das Passwort für jede Workstation im raum raum1,raum2 ...
+.TP
+.B --workstations 
+setzt das Passwort für alle Workstations der Schule.
+.TP
+.SH SEE ALSO
+.BR sophomorix (8),
+.BR sophomorix-teach-in (8),
+.BR sophomorix-add (8),
+.BR sophomorix-move (8),
+.BR sophomorix-print (8),
+.BR sophomorix-kill (8),
+.BR sophomorix-split (8),
+.BR sophomorix-project (8),
+
+.\".BR baz (1).
+.\".br
+.\"You can see the full options of the Programs by calling for example 
+.\".IR "sophomrix-passwd -h" ,
+.
+.SH AUTHOR
+This manual page was written by <jeffbeck@web.de>.

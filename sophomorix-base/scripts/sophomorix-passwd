@@ -1,0 +1,233 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-passwd) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+# Bibliotheken
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
+
+
+# ===========================================================================
+# Loading the db-Module, list of functions
+# ===========================================================================
+# list of functions to load if db is 'files'
+use if ${DevelConf::db_backend} eq 'files' , 
+    'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                       );
+
+# list of functions to load if db is 'ldap'
+use if ${DevelConf::db_backend} eq 'ldap' ,
+    'Sophomorix::SophomorixLDAP' => qw(show_modulename);;
+
+
+
+# ===========================================================================
+# Loading the sys-db-Module, list of functions
+# ===========================================================================
+# list of functions to load if db is 'files'
+use if ${DevelConf::sys_db} eq 'files' , 
+    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
+                                          );
+
+
+# show the Database Modules that are loaded
+&show_modulename();
+&show_sys_modulename();
+
+# ===========================================================================
+# Variables
+# ==========================================================================
+
+my %seen=();
+my @userlist=();
+my @unique_userlist=();
+
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+
+# Variablen für Optionen
+$DevelConf::testen=0;
+$DevelConf::system=0;
+$Conf::log_level=1;
+my $help=0;
+my $info=0;
+my $loginname="";
+my $groups="";
+my $pupil=0;
+my $rooms="";
+my $ws=0;
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "login|user|u|l=s" => \$loginname,
+           "group|class|klasse|g|c|k=s" => \$groups,
+           "pupil|pupils" => \$pupil,
+           "room|=s" => \$rooms,
+           "workstations|workstation|ws" => \$ws,
+           "verbose|v+" => \$Conf::log_level,
+           "info|i" => \$info,
+           "help|h" => \$help
+          );
+
+# Prüfen, ob Optionen erkannt wurden, sonst Abbruch
+&check_options($testopt);
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlsbeschreibung
+   print('
+sophomorix-passwd adds users to the sophomorix database and the authentification system
+
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -i  / --info
+  -l  login1, ... / --login login1, .../ -u login1, ... / --user login1, ...
+  -c class / --class class 
+  --pupils
+  -r room / --room room
+  --workstations
+
+Please see the sophomorix-passwd(8) man pages for full documentation
+');
+   print "\n";
+   exit;
+}
+
+
+# --user
+if ($loginname ne "") {
+  my (@loginlist)=split(/,/,$loginname);
+
+
+##?????ß prüfen auf gültigkeit
+
+  push @userlist, @loginlist;
+}
+
+
+# --group
+if ($groups ne "") {
+  my @users=();
+  my (@classlist)=split(/,/,$groups);
+  foreach my $class (@classlist){
+     @users=&get_user_adminclass($class);
+     push @userlist, @users;
+  }
+}
+
+
+# --pupil
+if ($pupil==1) {
+  my @users=();
+     @users=&get_pupils_school();
+     push @userlist, @users;
+}
+
+
+# --room
+if ($rooms ne "") {
+  my @users=();
+  my (@roomlist)=split(/,/,$rooms);
+  foreach my $room (@roomlist){
+     @users=&get_workstations_room($room);
+     push @userlist, @users;
+  }
+}
+
+
+# --workstations
+if ($ws==1) {
+  my @users=();
+     @users=&get_workstations_school();
+     push @userlist, @users;
+}
+
+
+
+# remove doules/order alphabetical
+foreach my $item (@userlist) {
+    unless ($seen{$item}) {
+        # if we get here, we have not seen it before
+        $seen{$item} = 1;
+        push(@unique_userlist, $item);
+    } else {
+        if($Conf::log_level>=3){
+           print "User $item is already in the list\n";
+        }
+    }
+    @unique_userlist = sort @unique_userlist;
+
+}
+
+
+# --info, show only the users
+if ($info==1) {
+   &print_list_column(6,"Passwörter setzen für user ",@unique_userlist);
+   exit;
+}
+
+
+# exit if no users specified
+if ($#userlist+1==0){
+    print "ERROR: No users specified. \n";
+    exit;
+}
+
+
+
+# passwords
+
+
+
+
+
+
+################################################################################
+# Start
+################################################################################
+
+
+
+
+# wenn gemeinsames Zufallspasswort, dann hier ermitteln
+
+
+foreach my $user (@unique_userlist){
+    print "Setting password for user $user ... \n";
+
+    # gruppe ermitteln
+
+    # vorgaben in sophomorix.conf per optionen anpassen
+    $Conf::schueler_zufall_passwort="ja";
+
+
+    # zufallspasswort ermitteln lassen (nach veränderten vorgaben)
+    # oder gemeinsames benutzen
+
+
+    print "Vorgabe: $Conf::schueler_zufall_passwort\n";
+
+    # Passwort für user setzten
+
+
+}
+
+
+
+
+
+
+
+
+
