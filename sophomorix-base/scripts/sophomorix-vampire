@@ -1,0 +1,127 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-vampire) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+# Bibliotheken
+use strict;
+use Quota;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+use Sophomorix::SophomorixBase;
+
+
+# ===========================================================================
+# Loading the db-Module, list of functions
+# ===========================================================================
+# list of functions to load if db is 'files'
+use if ${DevelConf::db_backend} eq 'files' , 
+    'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                       );
+
+# list of functions to load if db is 'ldap'
+use if ${DevelConf::db_backend} eq 'ldap' ,
+    'Sophomorix::SophomorixLDAP' => qw(show_modulename);;
+
+
+
+# ===========================================================================
+# Loading the sys-db-Module, list of functions
+# ===========================================================================
+# list of functions to load if db is 'files'
+use if ${DevelConf::sys_db} eq 'files' , 
+    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
+                                          );
+
+
+
+# show the Database Modules that are loaded
+&show_modulename();
+&show_sys_modulename();
+
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "sync-only" => \$DevelConf::sync_only,
+          );
+
+# Prüfen, ob Optionen erkannt wurden, sonst Abbruch
+&check_options($testopt);
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlsbeschreibung
+   print('
+sophomorix-vampire sucks all data from an old linux-ml-server and uses it
+
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -i  / --info
+  --sync-only
+
+Please see the sophomorix-add(8) man pages for full documentation
+');
+   print "\n";
+   exit;
+}
+
+
+
+
+
+############################################################
+# put a key on the server to be sucked out
+############################################################
+
+
+
+############################################################
+# get some files to add the users
+############################################################
+
+
+
+############################################################
+# add the users
+############################################################
+
+# check the id of the group teacher
+# is it the same as in ml 2.2?
+
+# add teachers first
+
+
+# add pupil next
+
+
+
+
+
+############################################################
+# synchronize the user data
+############################################################
+
+############################################################
+# synchronize the shares
+############################################################
+
+
+############################################################
+# synchronize the mail
+############################################################
+
+
+
+
+
+
+
+
+
+
