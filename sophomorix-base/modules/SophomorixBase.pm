@@ -146,9 +146,15 @@ of B<SophomorixBase> and youre off.
 =over 4
 
 =cut
+    my $develconf="/usr/share/sophomorix/devel/sophomorix-devel.conf";
+if (not -e $develconf){
+    print "ERROR: $develconf not found!\n";
+    exit;
+}
 
 # Einlesen der Konfigurationsdatei für Entwickler
-{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+{ package DevelConf ; do "$develconf"}
 
 # Einlesen der Konfigurationsdatei
 { package Conf ; do "${DevelConf::config_pfad}/sophomorix.conf"}
