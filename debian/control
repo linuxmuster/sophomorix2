@@ -5,6 +5,15 @@ Maintainer: Rüdiger Beck <jeffbeck@web.de>
 Build-Depends: debhelper (>> 3.0.0), perl-base (>=5.8.4), man2html (>=1.5), docbook-utils (>=0.6.13)
 Standards-Version: 3.5.2
 
+Package: sophomorix2
+Architecture: any
+Suggests: sophomorix-doc-html
+Depends:  sophomorix-base (>=1.1.5-6), sophomorix-sys-files (>=1.1.5-6), sophomorix-files (>=1.1.5-6)
+Description: sophomorix user adminitration meta package
+ This package contains all the components necessary to add to your
+ Debian GNU/Linux box a powerful user administration
+
+
 Package: sophomorix-base
 Architecture: any
 Suggests: sophomorix-doc-html
@@ -14,6 +23,7 @@ Description: Scripts for sophomorix
  on the console. You additionally need a perl-module(virtual package 
  sophomorix-db) to access the database (i.e. one of sophomorix-files, 
  sophomorix-ldap, sophomorix-sql)
+
 
 Package: sophomorix-files
 Architecture: any
