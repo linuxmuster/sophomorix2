@@ -378,8 +378,8 @@ mkdir("${DevelConf::ergebnis_pfad}",0700)
 &check_verzeichnis_mkdir("${DevelConf::druck_pfad}");
 
 &check_datei_touch("${DevelConf::pruef_pfad}/user.reaktiviert");
-#&check_datei_touch("${DevelConf::config_pfad}/teach-in.txt");
-#&check_datei_touch("${DevelConf::users_pfad}/lehrer.txt");
+#&check_datei_touch("${DevelConf::ergebnis_pfad}/sophomorix.add");
+#&check_datei_touch("${DevelConf::ergebnis_pfad}/sophomorix.kill");
 &check_datei_touch("${DevelConf::dyn_config_pfad}/user.protokoll");
 
 # ===========================================================================
@@ -883,8 +883,6 @@ close(SOPHOMORIXOK);
 
 &generate_class_user_count_file();
 
-##close(SOPHOMORIXADD);
-close(SOPHOMORIXMOVE);
 
 close(REPORTSEKRETARIAT);
 close(REPORTGESPERRT);
@@ -1159,6 +1157,7 @@ sub append_move_entry {
     $move_message="$identifier (Login: $login)  ---> $new_class\n";
 
     #print REPORTADMIN "$move_message";
+    print "$move_message";
     open(SOPHOMORIXMOVE, 
        ">>${DevelConf::ergebnis_pfad}/sophomorix.move") 
         || die "Fehler: $!";
@@ -1178,6 +1177,8 @@ sub append_kill_entry {
     open(SOPHOMORIXKILL, 
        ">>${DevelConf::ergebnis_pfad}/sophomorix.kill") 
         || die "Fehler: $!";
+    #print REPORTADMIN "$kill_message";
+    print "$kill_message";
     print SOPHOMORIXKILL "$kill_line";
     close(SOPHOMORIXKILL);
 }
@@ -1189,55 +1190,34 @@ sub append_kill_entry {
 sub u_t_check {
    # Usable(U) -> Tolerated(T)  .move (alte klasse -> dachboden) 
    # Step 1: Tolerate the user
-   while ( my ($identifier, $admin_class) = each %schueler_im_system_hash ){
-      unless (exists $schueler_ok_hash{$identifier}) {
-        # User is not anymore in Files
-        if (not exists $user_duldungsbeginn{$identifier}){
-           print "INFO: $identifier wird ab $heute nur noch geduldet\n";
-           my $login=$schueler_im_system_loginname{$identifier};
-           &update_user_db_entry($login, 
-                                 "Status=T",
-                                 "TolerationDate=$heute");
-           # report.admin
-           push @admin_list_toleration, 
-                 "$identifier wird ab $heute nur noch geduldet\n";
-	   
-           print "u_t_check: entry in sophomorix.move\n";
-
-           &append_move_entry($identifier,
-                              $schueler_im_system_hash{$identifier},
-                              "dachboden");
-
-           next;
+   while ( my ($identifier, $status) = each %sophomorix_status ){
+     if ($status eq "U" or $status eq "E"){
+       while (my ($identifier, $admin_class) = each %schueler_im_system_hash ){
+         unless (exists $schueler_ok_hash{$identifier}) {
+           # User is not anymore in Files
+           if (not exists $user_duldungsbeginn{$identifier}){
+              print "INFO: $identifier wird ab $heute nur noch geduldet\n";
+              my $login=$schueler_im_system_loginname{$identifier};
+              &update_user_db_entry($login, 
+                                   "Status=T",
+                                    "TolerationDate=$heute");
+              # report.admin
+              push @admin_list_toleration, 
+                    "$identifier wird ab $heute nur noch geduldet\n";
+	      
+              print "u_t_check: entry in sophomorix.move\n";
+ 
+              &append_move_entry($identifier,
+                                 $schueler_im_system_hash{$identifier},
+                                 "dachboden");
+  
+              next;
+           }
         }
       }
+     &titel("u_t_check: Insgesamt KÖNNEN $schueler_duldungs_beginn_anzahl User in den dachboden/speicher versetzt werden.");
+     }
    }
-   # Step 2: generate sophomorix.move entry
-#   my $toleration_date = "";
-#   &titel("Versetzten in den Dachboden/Speicher moeglich:");
-#   while(my ($identifier,$toleration_date) = each %user_duldungsbeginn){
-#       if (not exists $schueler_ok_hash{$identifier}) {
-#          # Check if user is in the toleration-class (dachboden/speicher)
-#          if ($schueler_im_system_hash{$identifier} ne "dachboden" 
-#              && $schueler_im_system_hash{$identifier} ne "speicher") {
-#             # User is not in the toleration-class (dachboden/speicher)
-#             # Count him and put him in sophomorix.move
-#             $schueler_duldungs_beginn_anzahl++;
-#
-#             &append_move_entry($identifier,
-#                         $schueler_im_system_hash{$identifier},
-#                         "dachboden");
-#
-#             # set the toleration_date and Status in the user_database
-#	     $login=$schueler_im_system_loginname{$identifier};
-# nicht notwendig, da schon toleriert
-#             &update_user_db_entry($login, 
-#                                   "Status=T",
-#                                   "TolerationDate=$toleration_date");
-#          }
-#      }
-#    }# end while
-    &titel("u_t_check: Insgesamt KÖNNEN $schueler_duldungs_beginn_anzahl User in den dachboden/speicher versetzt werden.");
 }
 
 
@@ -1248,6 +1228,7 @@ sub u_t_check {
 
 sub e_t_check {
    # Enabled(E) -> Tolerated(T) .move (alte klasse -> dachboden)
+   # wird mit ut gemacht??? 
 }
 
 
@@ -1382,19 +1363,11 @@ sub d_r_check {
               # Check if user has to be made removeable
               $epoche_loeschen_ab = &get_action_date($identifier, "kill");
 	      if ($epoche_loeschen_ab !=0) {
-                  # prepare a line for sophomorix.kill
                   &update_user_db_entry($login, 
                                        "Status=R");
                   # report.admin
                   push @admin_list_kill, "Loeschbar:     $identifier $login\n";
                   &append_kill_entry($identifier);
-#                  my $string="$identifier"."::"."$login"."\n";
-#                  printf "Removeable:  %-12s %-50s\n","$login","$identifier";
-#                  open(SOPHOMORIKILL, 
-#                       ">${DevelConf::ergebnis_pfad}/sophomorix.kill") 
-#                       || die "Fehler: $!";
-#                  print SOPHOMORIKILL ("$string");
-#                  close(SOPHOMORIKILL);
                   $schueler_weg_anzahl++;
               } else {
                   if($Conf::log_level>=2){
@@ -1519,15 +1492,6 @@ sub open_report_files {
 # sophomorix.ok      --> All syntactically, not filtered users
 open(SOPHOMORIXOK, ">${DevelConf::ergebnis_pfad}/sophomorix.ok") 
      || die "Fehler: $!";
-
-# sophomorix.add      --> Users to be added
-#open(SOPHOMORIXADD, ">${DevelConf::ergebnis_pfad}/sophomorix.add") 
-#     || die "Fehler: $!";
-
-# sophomorix.move      --> Users where the class is to be changed
-open(SOPHOMORIXMOVE, ">${DevelConf::ergebnis_pfad}/sophomorix.move") 
-     || die "Fehler: $!";
-
 
 # report.sekretariat   --> Infos für das Sekretariat über zu korrigierende Datensätze
 open(REPORTSEKRETARIAT, ">${DevelConf::ergebnis_pfad}/report.sekretariat")
