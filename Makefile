@@ -50,10 +50,10 @@ install-base:
 	install -oroot -groot --mode=0744 sophomorix-base/scripts/sophomorix* $(DESTDIR)/usr/sbin
 	##### configs for admin
 	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/user
-	install -oroot -groot --mode=0600 sophomorix-base/config/* $(DESTDIR)/etc/sophomorix/user
+	install -oroot -groot --mode=0600 sophomorix-base/config/*[!CVS] $(DESTDIR)/etc/sophomorix/user
 	##### configs for developers
 	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/devel/user
-	install -oroot -groot --mode=0700 sophomorix-base/config-devel/* $(DESTDIR)/etc/sophomorix/devel/user
+	install -oroot -groot --mode=0700 sophomorix-base/config-devel/*[!CVS] $(DESTDIR)/etc/sophomorix/devel/user
 	##### Copy the DB-independant libs
 	install -oroot -groot --mode=0744 sophomorix-base/lib/sophomorix* $(DESTDIR)/usr/sbin
 

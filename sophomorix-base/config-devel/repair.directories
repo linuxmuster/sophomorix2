@@ -1,0 +1,94 @@
+# Diese Liste wird von sophomorix-repair ausgelesen
+#
+# Platzhalter:
+#
+# Gruppen:
+# $klassen                          alle Klassen in denen Schüler sind (OHNE lehrer)
+# $raeume                           alle Räume, in denen sich Workstations befinden
+#
+# User:
+# $schueler                         alle Schüler der Schule
+# $schueler oder $workstation 
+# rechts von $klassen               alle Schüler dieser Klasse
+# $lehrer                           alle Lehrer der Schule
+# $workstation                      alle Workstation der Schule
+# $schueler oder $workstation 
+# rechts von $raeume                alle Workstation dieses Raumes
+#
+#
+# $webserver                        Pfad zum Webserver-doc-Verzeichnis
+# $webuser                          Der Apache_user
+#
+#  ! Es darf nur max. 1 Gruppenplatzhalter der obigen vorkommen (auch mehrmals)
+#  ! Es darf nur max. 1 Userplatzhalter der obigen vorkommen (auch mehrmals)
+#
+# Mehrere zulässige Verzeichnisrechte angeben:
+# Beispiel: 2750/2751   
+#    - korrigirt NICHT wenn Dateirechte 2750 ODER 2751 sind   
+#    - wenn Verzeichnis ANGELEGT wird, wird 2750 verwendet (der erste Wert)
+#
+#Pfad::owner::groupowner::hex-permission
+#/home/testen/$klassen/$schueler::$schueler::admin::0707
+#
+#
+###   /home/*
+/home/admin::admin::admin::0700
+/home/klassenarbeit::admin::admin::0775
+/home/lehrer::admin::admin::0775
+/home/schueler::admin::lehrer::2751
+/home/tausch::admin::admin::1775
+/home/workstations::admin::admin::0775
+/home/aufgaben::admin::admin::0775
+#
+### /home/aufgaben/*
+/home/aufgaben/$klassen::admin::lehrer::3755
+#
+### /home/klassenarbeit/*
+/home/klassenarbeit/$raeume/aufgaben::admin::$raeume::3770
+###   /home/tausch/* 
+/home/tausch/klassen::admin::lehrer::0751
+/home/tausch/lehrer::admin::lehrer::3770
+/home/tausch/schueler::admin::lehrer::3777
+/home/tausch/klassen/$klassen::admin::lehrer::3777
+#
+###  User-Verzeichnisse
+#
+# Schüler
+/home/schueler/$klassen::admin::lehrer::2751 
+/home/schueler/$klassen/$schueler::$schueler::lehrer::2751
+/home/schueler/$klassen/$schueler/windows::$schueler::lehrer::2750 
+/home/schueler/$klassen/$schueler/windows/sammelordner::$schueler::lehrer::2750
+/home/schueler/$klassen/$schueler/Tauschverzeichnisse::admin::lehrer::1755
+/home/schueler/$klassen/$schueler/www::$webuser::root::0001/0501
+/home/schueler/$klassen/$schueler/www/public_html::$schueler::lehrer::2755
+#
+# Lehrer
+/home/lehrer/$lehrer::$lehrer::lehrer::0700/0701
+/home/lehrer/$lehrer/windows::$lehrer::lehrer::0700
+/home/lehrer/$lehrer/windows/sammelordner::$lehrer::lehrer::0755
+/home/lehrer/$lehrer/windows/aufgaben::admin::lehrer::0775
+/home/lehrer/$lehrer/www::$webuser::root::0001/0501
+/home/lehrer/$lehrer/www/public_html::$lehrer::lehrer::2755
+#
+# admin
+/home/admin/windows::admin::admin::0700
+/home/admin/www::$webuser::root::0001/0501
+/home/admin/www/public_html::admin::admin::2755
+#
+# Workstation
+/home/workstations/$raeume::admin::lehrer::2751
+/home/workstations/$raeume/$workstation::$workstation::lehrer::2750 
+/home/workstations/$raeume/$workstation/windows::$workstation::lehrer::2750 
+/home/workstations/$raeume/$workstation/windows/sammelordner::$workstation::lehrer::2750
+/home/workstations/$raeume/$workstation/Tauschverzeichnisse::admin::lehrer::1755
+#/home/workstations/$raeume/$workstation/www::$webuser::root::0001/0501
+#/home/workstations/$raeume/$workstation/www/public_html::$workstation::lehrer::2755
+#
+### SAMBA
+/$samba::root::root::0755
+/$samba/cds::admin::admin::0755
+/$samba/netlogon::admin::admin::0755
+/$samba/progs::admin::admin::0755
+/$samba/users::admin::admin::0755
+/$samba/workstations::admin::admin::0755
+# Sicherheit
