@@ -391,7 +391,7 @@ if($Conf::use_quota eq "yes"){
    # Abbruch, wenn nicht die richtige klasse angelegt wird
    if ($gruppe ne "") {
      if ($new_admin_group ne $gruppe) {
-        print "$login_name_to_check (k$gruppe) wird nicht angelegt!\n";
+        print "$login_name_to_check ($new_admin_group) wird nicht angelegt!\n";
         print NOCHANLEGEN "$_\n";
         next;
      }

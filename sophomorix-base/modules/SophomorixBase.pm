@@ -4,6 +4,12 @@
 # Bei Fehlern wenden Sie sich bitte an mich.
 # jeffbeck@web.de  oder  jeffbeck@gmx.de
 
+# aufspalten in:  
+#    SophomorixBase
+#    SophomorixQuota
+#    SophomorixSamba
+#    SophomorixAPI
+
 package Sophomorix::SophomorixBase;
 require Exporter;
 use Time::Local;
@@ -180,11 +186,11 @@ sub titel {
    if($Conf::log_level>=2){
    print  "\n#########################################", 
                             "#######################################\n";
-   printf "%-3s %-73s %-2s"," #","$a","#";
+   printf "%-3s %-67s %-2s"," #","$a","#";
    print  "\n########################################",
                             "########################################\n";
    } else {
-         printf "%-3s %-73s %-3s\n", "#####", "$a", "#####";
+         printf "%-3s %-67s %-3s\n", "#####", "$a", "#####";
    }
 }
 

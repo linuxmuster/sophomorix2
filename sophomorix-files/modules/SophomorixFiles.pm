@@ -189,7 +189,8 @@ system ("chmod 600 $DevelConf::protokoll_datei");
     $gcos_passwd, # Hier steht "Vorname Nachname"
    )=getpwnam("$login");
    # GCOS-Feld aufsplitten
-   ($vorname_passwd,$nachname_passwd)=split(/ /,$gcos_passwd);
+   if (defined $gcos_passwd){
+       ($vorname_passwd,$nachname_passwd)=split(/ /,$gcos_passwd);
    # Zusammenhängen zu identifier
    $identifier_passwd=join("",
                              ($nachname_passwd,
@@ -197,7 +198,9 @@ system ("chmod 600 $DevelConf::protokoll_datei");
                               $vorname_passwd,
                               ";",
                               $geburtsdatum_protokoll));
-
+   } else {
+       $identifier_passwd="not found";
+   }
    # In Hash schreiben: mit Klasse als Wert (um Versetzen herauszufinden)
    $schueler_im_system_hash{$identifier}="$admin_class";
    # In Hash schreiben: mit loginnamen als Wert (um Löschen herauszufinden)
@@ -217,10 +220,8 @@ system ("chmod 600 $DevelConf::protokoll_datei");
        } else {
           print "\n\n\n\n PROGRAMMABBRUCH: ",
                 "$DevelConf::protokoll_datei inkonsistent:\n";
-          printf "%-16s%-50s\n",
-                 "Aus passwd:","$identifier_passwd\n\n";
-          printf "%-16s%-50s\n",
-                 "Aus protokoll:","$identifier\n\n";
+          print "Aus passwd:     $identifier_passwd\n";
+          print "Aus protokoll:  $identifier\n";
           print  "Beheben Sie diesen Fehler manuell durch editieren von \n";
           print  "   $DevelConf::protokoll_datei\n";
           exit;
