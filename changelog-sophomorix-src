@@ -6,7 +6,7 @@ Todo
 
 packaging:
 Makefile create directories in correct permissions, 
-how can i package this directories with its permissions?
+how can I package this directories with its permissions?
 
 dokumentation:
    grafik workflow aktualisieren
@@ -156,7 +156,8 @@ sophomorix-vampire:
    - move mail
    - move shares
    - option for k necessary?
-   - add manpage to html-doc 
+   - generate a log file what went wrong 
+   - detect if a non-teacher user has a webmin-login (write to log-file)
 
 sophomorix-webmin
    - totally configure webmin
@@ -165,6 +166,16 @@ sophomorix-webmin
    - update this script for sophomorix2
    - when adding users, they must be added to webmin groups 
      student,teacher,admin
+
+     wenn user angelegt wird kommt er in /etc/webmin.acl 
+
+
+
+      incgroups: groups that are memners in this group
+
+      teacher:incgroups:modul1 modul2 modul3::
+
+
      file: webmin.group
        problem group student would need 1 entrys for every student 
        (this will be a very loooooooooong line)
@@ -199,6 +210,19 @@ SophomorixAPI: Dringend!!!!!!!!!!!!!!!
 
 
 All Scripts:
+   - clear a user: 
+           - keep his login, passwd, homedir
+           - keep entry in database
+           - restore directories (sammelordner, ...)
+           - restore permissions 
+        but:
+           - empty its home (with options)
+           - delete all mail (with option)
+           - delete all files in share dir (with options)
+           - linux-dotfiles only (with options)
+
+     (Status C = can be cleared, sophomorix-clear, ...)
+
    - rename:
      user.imsystem         --> sophomorix.system
      report.sekretariat    --> report.office
@@ -279,6 +303,13 @@ RELEASES:
 
 
 1.2.0 (2005-02-?)
+
+   - sophomorix-webmin: added option --auto-logout
+
+   - fixed sopho-man2html: 
+         - use man pages of sophomorix-vampire
+         - use manpages of scripts with multiple - in their names
+
    - SophomorixAPI
      - funktion zum schreiben der eingetragenen klassen
      - dito zum lesen, ascibetisch
