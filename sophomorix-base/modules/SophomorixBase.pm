@@ -3364,12 +3364,26 @@ sub handout {
   my $from_dir = "${homedir}/${Language::task_dir}/${name}/";
   my $to_dir="";
 
+  # ???? make more secure
+  if ($from_dir =~ /(.*)/) {
+     $from_dir=$1;
+  }  else {
+     die "Bad data in $from_dir"; # Log this somewhere.
+  }
+
   if ($type eq "class"){
       $to_dir="${DevelConf::tasks_classes}/$name";
   } elsif ($type eq "subclass"){
       $to_dir="${DevelConf::tasks_subclasses}/$name";
   } elsif ($type eq "project"){
       $to_dir="${DevelConf::tasks_projects}/$name";
+  }
+
+  # ???? make more secure
+  if ($to_dir =~ /(.*)/) {
+     $to_dir=$1;
+  }  else {
+     die "Bad data in $to_dir"; # Log this somewhere.
   }
 
   print "   From:  $from_dir \n";
@@ -3391,21 +3405,27 @@ sub collect {
   # Parameter 1: User that collects data
   # Parameter 2: Name of class/subclass/project
   # Parameter 3: Typ (class,subclass,project,room, ...)
-  # Parameter 4: options
-  my ($login, $name, $type, $rsync) = @_;
+  # Parameter 4: options for rsync
+  # Parameter 5: exam(0,1) 
+
+  # rsync
+  # -t Datum belassen
+  # -r Rekursiv
+  # -o Owner beibehalten, -g 
+  # TODO: if name is locked for an exam, exit with message
+
+  my ($login,$name,$type,$rsync,$exam,$delete) = @_;
   my $date=&zeit_stempel;
 
-  my @entry_col = getpwnam($login);
-  my $homedir_col = "$entry_col[7]";
-
-
+  # where to get _Task data
+  my $tasks_dir = "";
 
   # create a list of user to collect data from
   my @users=();
-
   if ($type eq "class"){
       if ($name ne "${Language::teacher}"){
          @users=&get_user_adminclass($name);
+         $tasks_dir="${DevelConf::tasks_classes}/${name}/";
      } else {
          # nix
      }
@@ -3413,20 +3433,46 @@ sub collect {
       # gruppenmitglieder 
       my ($name,$passwd,$gid,$members)=getgrname($name);
       @users=split(/,/, $members);
-
-
+      $tasks_dir="${DevelConf::tasks_subclasses}/${name}/";
   } elsif ($type eq "project"){
       my ($name,$passwd,$gid,$members)=getgrname($name);
       @users=split(/,/, $members);
+      $tasks_dir="${DevelConf::tasks_projects}/${name}/";
   }
 
+  # where to save the collected data
+  my @entry_col = getpwnam($login);
+  my $homedir_col = "$entry_col[7]";
+  my $to_dir="";
+  if ($exam==1){
+      $to_dir = "${homedir_col}/${Language::collect_dir}/EXAM_${name}_${date}";
+  } else {
+      $to_dir = "${homedir_col}/${Language::collect_dir}/${name}_${date}";
+  }
+  # ???? make more secure
+  if ($to_dir =~ /(.*)/) {
+      $to_dir=$1;
+  }  else {
+      die "Bad data in $to_dir";   # Log this somewhere.
+  }
+
+  # for exams
+  my $log_dir = "${DevelConf::log_pfad_ka}/EXAM_${name}_${date}_${login}";
+  # ???? make more secure
+  if ($log_dir =~ /(.*)/) {
+     $log_dir=$1;
+  }  else {
+     die "Bad data in $log_dir"; # Log this somewhere.
+  }
+ 
+
+
+  # collect data from all users
   foreach my $user (@users){
       my @entry = getpwnam($user);
       my $homedir = "$entry[7]";
+
       my $from_dir="$homedir/${Language::collect_dir}/";
-
-      my $to_dir = "${homedir_col}/${Language::collect_dir}/$name/$date/$user/";
-
       # ???? make more secure
       if ($from_dir =~ /(.*)/) {
          $from_dir=$1;
@@ -3442,35 +3488,57 @@ sub collect {
          die "Bad data in $to_dir";   # Log this somewhere.
       }
 
-
       print "$user   From: $from_dir\n";
-      print "          To: $to_dir\n";
+      print "          To: ${to_dir}/${user}\n";
       &linie();
-      print "\n";
 
       system("ls $from_dir");
 
-      if ($rsync eq "delete") { 
-         my $dir="${homedir_col}/${Language::collect_dir}/${name}";
-
-         # ???? make more secure
-         if ($dir =~ /(.*)/) {
-            $dir=$1;
-         }  else {
-            die "Bad data in $dir";   # Log this somewhere.
-         }
-
+      if ($rsync eq "delete") {
+         # sync to user 
          system("/usr/bin/install -d $to_dir");  
-         system("/usr/bin/rsync -tor --delete $from_dir $to_dir");
-#         system("/bin/chown -R $login.${Language::teacher} $dir");
-         system("/bin/chown -R $login. $dir");
+         system("/usr/bin/rsync -tor --delete $from_dir ${to_dir}/${user}");
+         # exam
+         if ($exam==1){
+            system("/usr/bin/install -d $log_dir");  
+            system("/usr/bin/rsync -tr --delete $from_dir ${log_dir}/${user}");
+         }
       } elsif ($rsync eq "copy"){
-         system("/usr/bin/rsync -tor $from_dir $to_dir");
+         system("/usr/bin/install -d $to_dir");  
+         system("/usr/bin/rsync -tor $from_dir ${to_dir}/${user}");
       } else {
          print "unknown Parameter $rsync";
       }
   }
-# ??????????
+  
+
+  # collect tasks
+  # ???? make more secure
+  if ($tasks_dir =~ /(.*)/) {
+     $tasks_dir=$1;
+  }  else {
+     die "Bad data in $tasks_dir";   # Log this somewhere.
+  }
+
+  print "TASKS:\n";
+  print "  From: $tasks_dir\n";
+  print "  To:   ${to_dir}/${Language::task_dir}\n";
+  &linie();
+
+  system("ls $tasks_dir");
+  system("/usr/bin/rsync -tor $tasks_dir ${to_dir}/${Language::task_dir}");
+
+  # exam
+  if ($exam==1){
+     system("/usr/bin/install -d $log_dir");  
+     system("/usr/bin/rsync -tr $tasks_dir ${log_dir}/${Language::task_dir}");
+     system("/bin/chown -R root.root ${log_dir}");
+  }
+
+
+  # make collected data readable
+#  system("/bin/chown -R $login.${Language::teacher} $dir");
+  system("/bin/chown -R $login. $to_dir");
 
 }
 

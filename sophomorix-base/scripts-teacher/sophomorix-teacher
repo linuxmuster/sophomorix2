@@ -36,6 +36,8 @@ my $class="";
 my $subclass="";
 my $project="";
 my $copy=0;
+my $delete=0;
+my $exam=0;
 my $info=0;
 
 # Parsen der Optionen
@@ -51,6 +53,8 @@ my $testopt=GetOptions(
            "subclass=s" => \$subclass,
            "project=s" => \$project,
            "copy" => \$copy,
+           "delete" => \$delete,
+           "exam" => \$exam,
            "info|i" => \$info,
           );
 
@@ -290,18 +294,15 @@ if ($collect==1 and ($class ne "" or $subclass ne "" or $project ne "")){
         $rsync="copy";
     }
 
-
     if ($class ne ""){
-           &collect($login, $class,"class",$rsync);
+           &collect($login, $class,"class",$rsync,$exam,$delete);
     }
     if ($subclass ne ""){
-           &collect($login, $subclass,"subclass",$rsync);
+           &collect($login, $subclass,"subclass",$rsync,$exam,$delete);
     }
     if ($project ne ""){
-           &colect($login, $project,"project",$rsync);
+           &colect($login, $project,"project",$rsync,$exam,$delete);
     }
-
-
     exit;
 }
 
