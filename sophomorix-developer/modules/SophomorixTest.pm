@@ -167,13 +167,13 @@ sub check_existence{
 }
 
 sub get_login_name{
-    # parse user.protokoll with $regex
+    # parse user_db with $regex
     # return username
     my ($regex) = @_;
     my $login="";
     my @fields=();
     $count=0;
-    open(SCH,"<$DevelConf::protokoll_pfad/user.protokoll");
+    open(SCH,"<$DevelConf::protokoll_pfad/user_db");
     while (<SCH>){
       chomp();
       if (/$regex/){

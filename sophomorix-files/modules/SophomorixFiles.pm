@@ -171,9 +171,9 @@ sub get_sys_users {
    my %identifier_exit_adminclass=();
    my %identifier_account_type=();
 
-# user.protokoll   einlesen
+# user_db   einlesen
 open(USERIMSYSTEM, 
-     ">${DevelConf::ergebnis_pfad}/${DevelConf::schueler_oder_user}.imsystem")
+     ">${DevelConf::ergebnis_pfad}/user.imsystem")
      || die "Fehler: $!";
 open(USERPROTOKOLL,
      "<${DevelConf::protokoll_datei}") 
@@ -273,7 +273,7 @@ system ("chmod 600 $DevelConf::protokoll_datei");
 
    if($Conf::log_level>=3){
       print "\n";
-      print "Line $number(user.protokoll):  ",$_,"\n";
+      print "Line $number(user_db):  ",$_,"\n";
       print "User $number  Attributes (MUST): \n";
       print "  Login       :   $login \n"; 
 #      print "  Erstpass    :   $password_pro \n"; 
@@ -401,7 +401,7 @@ system ("chmod 600 $DevelConf::protokoll_datei");
 # returns users in the system that are not in schueler.txt/lehrer.txt
 # i.e. the users for  teach-in
 sub get_teach_in_sys_users{
-   open(TOLERATION,"<${DevelConf::dyn_config_pfad}/user.protokoll");
+   open(TOLERATION,"<${DevelConf::dyn_config_pfad}/user_db");
    while(<TOLERATION>){
      my @line=split(/;/);
      if(defined $line[7] and ($line[7] eq "D" or 
@@ -467,7 +467,7 @@ sub update_user_db_entry {
     my $exit_admin_class="";
     my $account_type="";
     my $quota="";
-    my $file="${DevelConf::protokoll_pfad}/user.protokoll";
+    my $file="${DevelConf::protokoll_pfad}/user_db";
 
     # Which file?
     foreach $param (@_){
@@ -547,7 +547,7 @@ sub update_user_db_entry {
 sub remove_user_db_entry {
     my ($login) = @_;
     my $login_file="";
-    my $file="${DevelConf::protokoll_pfad}/user.protokoll";
+    my $file="${DevelConf::protokoll_pfad}/user_db";
     open(TMP, ">$file.tmp");
     open(FILE, "<$file");
     while(<FILE>){
@@ -647,7 +647,7 @@ sub create_project_db {
         $p_add_quota,$p_max_members)=(),
 
     my $project=shift;
-    my $file="${DevelConf::protokoll_pfad}/projects.db";
+    my $file="${DevelConf::protokoll_pfad}/projects_db";
 
     # Which file?
     foreach $param (@_){
@@ -914,8 +914,8 @@ Makes a backup of the sophomorix user database
 sub backup_user_database {
     my ($time, $string) = @_;
     &do_falls_nicht_testen(
-      "cp ${DevelConf::protokoll_pfad}/user.protokoll ${DevelConf::log_pfad}/${time}.user.protokoll-${string}",
-      "chmod 600 ${DevelConf::log_pfad}/${time}.user.protokoll-${string}"
+      "cp ${DevelConf::protokoll_pfad}/user_db ${DevelConf::log_pfad}/${time}.user_db-${string}",
+      "chmod 600 ${DevelConf::log_pfad}/${time}.user_db-${string}"
     );
 }
 
@@ -929,7 +929,7 @@ Returns the FirstPassword of the user login
 =cut
 sub get_first_password {
   my ($username) = @_;
-  open(PASSPROT, "$DevelConf::dyn_config_pfad/user.protokoll");
+  open(PASSPROT, "$DevelConf::dyn_config_pfad/user_db");
   while(<PASSPROT>) {
       chomp(); # Returnzeichen abschneiden
       s/\s//g; # Spezialzeichen raus
@@ -955,7 +955,7 @@ Returns 1, if  login is in the sophomorix database.
 sub check_sophomorix_user {
   my ($username) = @_;
   my $result=0;
-  open(PASSPROT, "$DevelConf::dyn_config_pfad/user.protokoll");
+  open(PASSPROT, "$DevelConf::dyn_config_pfad/user_db");
   while(<PASSPROT>) {
       chomp(); # Returnzeichen abschneiden
       s/\s//g; # Spezialzeichen raus
@@ -974,7 +974,7 @@ sub check_sophomorix_user {
 
 
 sub show_project_list {
-   open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects.db");
+   open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects_db") || die "Fehler: $!";
    print "The following projects exist already:\n\n";
    printf "%-16s %-16s %-9s %-40s\n","Name:", "Teachers", "AddQuota", "LongName:";
 
@@ -982,6 +982,7 @@ sub show_project_list {
          "=======================================\n";
    while(<PROJECT>){
        chomp();
+       print "Line: $_ \n";
        my @line=split(/;/);
        if (not defined $line[1]){$line[1]="---"}
        if (not defined $line[2]){$line[2]="---"}
@@ -995,7 +996,7 @@ sub show_project_list {
 
 
 sub show_class_list {
-   open(CLASS,"<${DevelConf::dyn_config_pfad}/class_db");
+   open(CLASS,"<${DevelConf::dyn_config_pfad}/class_db") || die "Fehler: $!";
    print "The following AdminClasses exist:\n\n";
    printf "%-14s %-14s %-5s %-10s %-12s %-14s \n",
           "AdminClass:", "Dept.:", "Typ" , "Mail:", "Quota", "AdminClass";

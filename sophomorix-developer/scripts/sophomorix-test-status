@@ -77,7 +77,7 @@ $login=&get_login_name("6a;lou reed;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1978");
 
 &check_line_in_file(
   "6a;lou reed;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1978;[A-Za-z0-9]*;[A-D]?;F;;;;;",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 
 &check_account($login,"disabled");
@@ -109,7 +109,7 @@ $login=&get_login_name("6a;lou reed;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1978");
 # unverändert ?
 &check_line_in_file(
   "6a;lou reed;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1978;[A-Za-z0-9]*;[A-D]?;F;;;;;",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 # Test
 &check_emptyness("sophomorix.add");
@@ -151,7 +151,7 @@ $login=&get_login_name("7a;iggy pop;[a-z0-9]{2,};[a-z0-9]{3,};10.02.1984");
 
 &check_line_in_file(
   "7a;iggy pop;[a-z0-9]{2,};[a-z0-9]{3,};10.02.1984;[A-Za-z0-9]*;[A-D]?;P;;;;;",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 
 &check_account($login,"enabled");
@@ -183,7 +183,7 @@ $login=&get_login_name("7a;iggy pop;[a-z0-9]{2,};[a-z0-9]{3,};10.02.1984");
 # unverändert ?
 &check_line_in_file(
   "7a;iggy pop;[a-z0-9]{2,};[a-z0-9]{3,};10.02.1984;[A-Za-z0-9]*;[A-D]?;P;;;;;",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 # Test
 &check_emptyness("sophomorix.add");
@@ -199,7 +199,7 @@ $login=&get_login_name("7a;iggy pop;[a-z0-9]{2,};[a-z0-9]{3,};10.02.1984");
 
 &check_line_in_file(
   "7a;iggy pop;[a-z0-9]{2,};[a-z0-9]{3,};10.02.1984;[A-Za-z0-9]*;[A-D]?;R;01.01.1970;01.01.1970;;;",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 
 &run_command("sophomorix-check",$verbose);

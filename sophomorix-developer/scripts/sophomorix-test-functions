@@ -36,7 +36,7 @@ print '
 ';
 
 
-open(FILE,">/root/sophomorix-test/user.protokoll-test");
+open(FILE,">/root/sophomorix-test/user_db-test");
 
 print FILE "dachboden;one joop;joopma;linux;03.12.1977\n";
 print FILE "g12kb;another joop;joopma;dbddhkp;04.10.1974\n";
@@ -46,17 +46,17 @@ print FILE "12b;juergen stiller;stilleju;linux;10.12.1978\n";
 close(FILE);
 
 &update_user_db_entry("meiekl",
-                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "File=/root/sophomorix-test/user_db-test",
                       "TolerationDate=25.04.2004",
                       "ExitAdminClass=13a");
 
 &check_line_in_file(
   "7a;klaus meier;meiekl;linux;10.10.1988;;;;25.04.2004;;13a;",
-  "/root/sophomorix-test/user.protokoll-test");
+  "/root/sophomorix-test/user_db-test");
 
 
 &update_user_db_entry("stilleju",
-                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "File=/root/sophomorix-test/user_db-test",
                       "AdminClass=astro",
                       "Birthday=10.12.1979",
                       "FirstPass=dsf45rhR",
@@ -71,148 +71,148 @@ close(FILE);
                       "ExitAdminClass=oldastro");
 &check_line_in_file(
   "astro;linus torvalds;stilleju;dsf45rhR;10.12.1979;123654789;B;E;30.03.2003;25.04.2004;oldastro;;;",
-  "/root/sophomorix-test/user.protokoll-test");
+  "/root/sophomorix-test/user_db-test");
 
 
 # Unid entfernen
 &update_user_db_entry("stilleju",
-                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "File=/root/sophomorix-test/user_db-test",
                       "Unid=");
 &check_line_in_file(
   "astro;linus torvalds;stilleju;dsf45rhR;10.12.1979;;B;E;30.03.2003;25.04.2004;oldastro;;;",
-  "/root/sophomorix-test/user.protokoll-test");
+  "/root/sophomorix-test/user_db-test");
 
 
 # Versetzen
 &update_user_db_entry("stilleju",
-                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "File=/root/sophomorix-test/user_db-test",
                       "AdminClass=m2kb");
 &check_line_in_file(
   "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;;B;E;30.03.2003;25.04.2004;oldastro;;;",
-  "/root/sophomorix-test/user.protokoll-test");
+  "/root/sophomorix-test/user_db-test");
 
 
 # Unid hochladen
 &update_user_db_entry("stilleju",
-                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "File=/root/sophomorix-test/user_db-test",
                       "Unid=AgooseSLoos");
 &check_line_in_file(
   "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;B;E;30.03.2003;25.04.2004;oldastro;;;",
-  "/root/sophomorix-test/user.protokoll-test");
+  "/root/sophomorix-test/user_db-test");
 
 
 # Subklasse wechseln
 &update_user_db_entry("stilleju",
-                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "File=/root/sophomorix-test/user_db-test",
                       "SubClass=C");
 &check_line_in_file(
   "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;E;30.03.2003;25.04.2004;oldastro;;;",
-  "/root/sophomorix-test/user.protokoll-test");
+  "/root/sophomorix-test/user_db-test");
 
 
 # Deact
 &update_user_db_entry("stilleju",
-                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "File=/root/sophomorix-test/user_db-test",
                       "DeactivationDate=12.03.2005",
                       "Status=D");
 &check_line_in_file(
   "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;D;30.03.2003;12.03.2005;oldastro;;;",
-  "/root/sophomorix-test/user.protokoll-test");
+  "/root/sophomorix-test/user_db-test");
 
 
 # Tol
 &update_user_db_entry("stilleju",
-                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "File=/root/sophomorix-test/user_db-test",
                       "TolerationDate=12.07.2002",
                       "Status=T");
 &check_line_in_file(
   "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;T;12.07.2002;12.03.2005;oldastro;;;",
-  "/root/sophomorix-test/user.protokoll-test");
+  "/root/sophomorix-test/user_db-test");
 
 
 # Activate
 &update_user_db_entry("stilleju",
-                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "File=/root/sophomorix-test/user_db-test",
                       "Status=R");
 &check_line_in_file(
   "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;R;12.07.2002;12.03.2005;",
-  "/root/sophomorix-test/user.protokoll-test");
+  "/root/sophomorix-test/user_db-test");
 
 
 # Name
 &update_user_db_entry("stilleju",
-                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "File=/root/sophomorix-test/user_db-test",
                       "Name=linux");
 &check_line_in_file(
   "m2kb;linux torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;R;12.07.2002;12.03.2005;oldastro;;;",
-  "/root/sophomorix-test/user.protokoll-test");
+  "/root/sophomorix-test/user_db-test");
 
 
 # Nachname
 &update_user_db_entry("stilleju",
-                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "File=/root/sophomorix-test/user_db-test",
                       "LastName=presley");
 &check_line_in_file(
   "m2kb;linux presley;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;R;12.07.2002;12.03.2005;oldastro;;;",
-  "/root/sophomorix-test/user.protokoll-test");
+  "/root/sophomorix-test/user_db-test");
 
 
 # Birthday
 &update_user_db_entry("stilleju",
-                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "File=/root/sophomorix-test/user_db-test",
                       "Birthday=14.01.1966");
 
 &check_line_in_file(
   "m2kb;linux presley;stilleju;dsf45rhR;14.01.1966;AgooseSLoos;C;R;12.07.2002;12.03.2005;oldastro;;;",
-  "/root/sophomorix-test/user.protokoll-test");
+  "/root/sophomorix-test/user_db-test");
 
 # AccountType
 &update_user_db_entry("stilleju",
-                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "File=/root/sophomorix-test/user_db-test",
                       "AccountType=A");
 
 &check_line_in_file(
   "m2kb;linux presley;stilleju;dsf45rhR;14.01.1966;AgooseSLoos;C;R;12.07.2002;12.03.2005;oldastro;A;;",
-  "/root/sophomorix-test/user.protokoll-test");
+  "/root/sophomorix-test/user_db-test");
 
 # AccountType
 &update_user_db_entry("stilleju",
-                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "File=/root/sophomorix-test/user_db-test",
                       "AccountType=X");
 
 &check_line_in_file(
   "m2kb;linux presley;stilleju;dsf45rhR;14.01.1966;AgooseSLoos;C;R;12.07.2002;12.03.2005;oldastro;X;;",
-  "/root/sophomorix-test/user.protokoll-test");
+  "/root/sophomorix-test/user_db-test");
 
 # Quotastring
 &update_user_db_entry("stilleju",
-                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "File=/root/sophomorix-test/user_db-test",
                       "Quota=1600");
 
 &check_line_in_file(
   "m2kb;linux presley;stilleju;dsf45rhR;14.01.1966;AgooseSLoos;C;R;12.07.2002;12.03.2005;oldastro;X;1600;",
-  "/root/sophomorix-test/user.protokoll-test");
+  "/root/sophomorix-test/user_db-test");
 
 
 # No match
 &is( &update_user_db_entry("stil",
-        "File=/root/sophomorix-test/user.protokoll-test",
+        "File=/root/sophomorix-test/user_db-test",
 	"Birthday=14.01.1966") , 0 , "Testing for Zero Match");
 &check_line_in_file(
   "m2kb;linux presley;stilleju;dsf45rhR;14.01.1966;AgooseSLoos;C;R;12.07.2002;12.03.2005;oldastro;X;1600;",
-  "/root/sophomorix-test/user.protokoll-test");
+  "/root/sophomorix-test/user_db-test");
 
 
 # Double match
 &is( &update_user_db_entry("joopma",
-        "File=/root/sophomorix-test/user.protokoll-test",
+        "File=/root/sophomorix-test/user_db-test",
 	"Birthday=14.01.1966") , 2 , "Testing for Double Match");
 &check_line_in_file(
   "dachboden;one joop;joopma;linux;03.12.1977",
-  "/root/sophomorix-test/user.protokoll-test");
+  "/root/sophomorix-test/user_db-test");
 &check_line_in_file(
   "g12kb;another joop;joopma;dbddhkp;04.10.1974",
-  "/root/sophomorix-test/user.protokoll-test");
+  "/root/sophomorix-test/user_db-test");
 
 
 

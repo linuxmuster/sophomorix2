@@ -78,20 +78,20 @@ print "Adding $#users_to_add users to schueler.txt\n";
 # Ergebnisdateien pruefen
 # Test
 &check_line_in_file(
-  "m4kb::maier;joerg;12.10.1982::[a-z]{2,}::[a-z]{3,}",
-  "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.add");
+  "m4kb::maier;joerg;12.10.1982::[-a-z]{2,}::[-a-z]{3,}",
+  "${DevelConf::ergebnis_pfad}/sophomorix.add");
 # Test
 &check_line_in_file(
-  "7a::oeztuerk;mohammed;02.04.1982::[a-z]{2,}::[a-z]{3,}",
-  "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.add");
+  "7a::oeztuerk;mohammed;02.04.1982::[-a-z]{2,}::[-a-z]{3,}",
+  "${DevelConf::ergebnis_pfad}/sophomorix.add");
 # Test
 &check_line_in_file(
-  "2c::wall;larry;02.04.1972::[a-z]{2,}::[a-z]{3,}",
-  "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.add");
+  "2c::wall;larry;02.04.1972::[-a-z]{2,}::[-a-z]{3,}",
+  "${DevelConf::ergebnis_pfad}/sophomorix.add");
 # Test
 &check_line_in_file(
-  "m1kb::mahn;oliver;12.10.1982::[a-z]{2,}::[a-z]{3,}",
-  "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.add");
+  "m1kb::mahn;oliver;12.10.1982::[-a-z]{2,}::[-a-z]{3,}",
+  "${DevelConf::ergebnis_pfad}/sophomorix.add");
 
 
 # Test
@@ -115,20 +115,20 @@ print "Adding $#users_to_add users to schueler.txt\n";
 
 ###########################################################################
 # Druckdaten prüfen
-# hinzu.tex
-&check_existence("${DevelConf::var_lib_pfad}/drucken/hinzu.tex");
+# add.tex
+&check_existence("${DevelConf::druck_pfad}/add.tex");
 &check_line_in_file("joerg maier",
-                    "${DevelConf::var_lib_pfad}/drucken/hinzu.tex");
+                    "${DevelConf::druck_pfad}/add.tex");
 &check_line_in_file("mohammed oeztuerk",
-                    "${DevelConf::var_lib_pfad}/drucken/hinzu.tex");
+                    "${DevelConf::druck_pfad}/add.tex");
 &check_line_in_file("larry wall",
-                    "${DevelConf::var_lib_pfad}/drucken/hinzu.tex");
+                    "${DevelConf::druck_pfad}/add.tex");
 &check_line_in_file("oliver mahn",
-                    "${DevelConf::var_lib_pfad}/drucken/hinzu.tex");
+                    "${DevelConf::druck_pfad}/add.tex");
 # andere
-&check_existence("${DevelConf::var_lib_pfad}/drucken/hinzu.dvi");
-&check_existence("${DevelConf::var_lib_pfad}/drucken/hinzu.ps");
-&check_existence("${DevelConf::var_lib_pfad}/drucken/hinzu.pdf");
+&check_existence("${DevelConf::druck_pfad}/add.dvi");
+&check_existence("${DevelConf::druck_pfad}/add.ps");
+&check_existence("${DevelConf::druck_pfad}/add.pdf");
 
 
 
@@ -137,22 +137,22 @@ print "Adding $#users_to_add users to schueler.txt\n";
 &check_line_in_file(":joerg maier:","/etc/passwd");
 &check_line_in_file(
   "m4kb;joerg maier;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 &check_line_in_file(":mohammed oeztuerk:","/etc/passwd");
 &check_line_in_file(
   "7a;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 &check_line_in_file(":larry wall:","/etc/passwd");
 &check_line_in_file(
   "2c;larry wall;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1972",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 &check_line_in_file(":oliver mahn:","/etc/passwd");
 &check_line_in_file(
   "m1kb;oliver mahn;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 
 
@@ -179,7 +179,7 @@ print '
 &check_line_in_file(":joerg maier:","/etc/passwd");
 &check_line_in_file(
   "m4kb;joerg maier;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982;[A-Za-z0-9]*;[A-D]?;T;$today;[\.0-9]*;[a-z0-9]*;[A-Z]*;",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 
 $login=&get_login_name("m4kb;joerg maier;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982");
@@ -189,7 +189,7 @@ $login=&get_login_name("m4kb;joerg maier;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982");
 # check if this was succesful
 &check_line_in_file(
   "m4kb;joerg maier;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982;[A-Za-z0-9]*;[A-D]?;T;01.01.1970;[\.0-9]*;[a-z0-9]*;[A-Z]*;",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 &run_command("sophomorix-check",$verbose);
 
@@ -199,15 +199,15 @@ $login=&get_login_name("m4kb;joerg maier;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982");
 $login=&get_login_name("m4kb;joerg maier;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982");
 &check_line_in_file(
   "${login}::m4kb::dachboden",
-  "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.move");
+  "${DevelConf::ergebnis_pfad}/sophomorix.move");
 
 &run_command("sophomorix-move",$verbose);
 
-# check if user has deactivated settings in user.protokoll
+# check if user has deactivated settings in user_db
 # and ExitAdminClass is correct
 &check_line_in_file(
   "dachboden;joerg maier;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982;[A-Za-z0-9]*;[A-D]?;D;01.01.1970;$today;m4kb;[A-Z]*;",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 
 $login=&get_login_name("dachboden;joerg maier;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982");
@@ -223,7 +223,7 @@ $login=&get_login_name("dachboden;joerg maier;[a-z0-9]{2,};[a-z0-9]{3,};12.10.19
 # check if this was succesful
 &check_line_in_file(
   "dachboden;joerg maier;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982;[A-Za-z0-9]*;[A-D]?;D;01.01.1970;01.01.1971;m4kb;[A-Z]*;",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 $login=&get_login_name("dachboden;joerg maier;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982");
 
@@ -234,7 +234,7 @@ $login=&get_login_name("dachboden;joerg maier;[a-z0-9]{2,};[a-z0-9]{3,};12.10.19
 
 &check_line_in_file(
   "maier;joerg;12.10.1982::${login}",
-  "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.kill");
+  "${DevelConf::ergebnis_pfad}/sophomorix.kill");
 
 
 &run_command("sophomorix-kill",$verbose);
@@ -269,7 +269,7 @@ $login=&get_login_name("7a;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.198
 
 &check_line_in_file(
   "${login}::7a::dachboden",
-  "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.move");
+  "${DevelConf::ergebnis_pfad}/sophomorix.move");
 
 
 &check_emptyness("sophomorix.kill");
@@ -278,7 +278,7 @@ $login=&get_login_name("7a;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.198
 &check_line_in_file(":mohammed oeztuerk:","/etc/passwd");
 &check_line_in_file(
   "7a;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982;[A-Za-z0-9]*;[A-D]?;T;$today;[\.0-9]*;[a-z0-9]*;[A-Z]*;",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 # The users shows up again in schueler.txt in a different class
 &append_line("7C;Öztürk;Mohammed;2.4.82;","${DevelConf::users_pfad}/schueler.txt");
@@ -294,19 +294,19 @@ $login=&get_login_name("7a;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.198
 
 &check_line_in_file(
   "${login}::7a::7c",
-  "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.move");
+  "${DevelConf::ergebnis_pfad}/sophomorix.move");
 
 
 &check_line_in_file(
   "7a;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982;[A-Za-z0-9]*;[A-D]?;E;;;",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 &run_command("sophomorix-move",$verbose);
 
 
 &check_line_in_file(
   "7c;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982;[A-Za-z0-9]*;[A-D]?;E;;;[a-z0-9]*;[A-Z]*;",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 $login=&get_login_name("7c;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982.*");
 
@@ -335,7 +335,7 @@ print '
 $login=&get_login_name("2c;larry wall;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1972*");
 &check_line_in_file(
   "${login}::2c::dachboden",
-  "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.move");
+  "${DevelConf::ergebnis_pfad}/sophomorix.move");
 
 &run_command("sophomorix-move",$verbose);
 
@@ -366,7 +366,7 @@ $login=&get_login_name("dachboden;larry wall;[a-z0-9]{2,};[a-z0-9]{3,};02.04.197
 
 &check_line_in_file(
   "${login}::dachboden::3c",
-  "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.move");
+  "${DevelConf::ergebnis_pfad}/sophomorix.move");
 
 &run_command("sophomorix-move",$verbose);
 
@@ -374,7 +374,7 @@ $login=&get_login_name("dachboden;larry wall;[a-z0-9]{2,};[a-z0-9]{3,};02.04.197
 
 &check_line_in_file(
   "3c;larry wall;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1972;[A-Za-z0-9]*;[A-D]?;E;;;2c;[A-Z]*;",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 $login=&get_login_name("3c;larry wall;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1972.*");
 &check_account($login,"enabled");
@@ -403,7 +403,7 @@ print '
 
 &check_line_in_file(
   "7c;mohammed oetztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982;[A-Za-z0-9]*;[A-D]?;E;;;[a-z0-9]*;[A-Z]*;",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 # updating the first Mohhammed -> Mohammad
 &exchange_line_in_file("7C;Ötztürk;Mohammed;2.4.82;*",
@@ -420,7 +420,7 @@ print '
 
 &check_line_in_file(
   "7c;mohammad oetztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982;[A-Za-z0-9]*;[A-D]?;E;;;[a-z0-9]*;[A-Z]*;",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 
 # updating birth 82 -> 83
@@ -438,7 +438,7 @@ print '
 
 &check_line_in_file(
   "7c;mohammad oetztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1983;[A-Za-z0-9]*;[A-D]?;E;;;[a-z0-9]*;[A-Z]*;",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 
 
@@ -466,7 +466,7 @@ print '
 
 &check_line_in_file(
   "3c;larry wall;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1972;123456789;[A-D]?;E;;;[a-z0-9]*;[A-Z]*;",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 
 # new name, first, birth
 &exchange_line_in_file("3C;Wall;Larry;2.4.72;*",
@@ -563,7 +563,7 @@ exit;
 
 $login=&remove_line(
   "m4kb;joerg maier;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 &remove_line(
   "m4kb;Maier;Jörg;12.10.1982;",
   "${DevelConf::users_pfad}/schueler.txt");
@@ -571,7 +571,7 @@ $login=&remove_line(
 
 $login=&remove_line(
   "7a;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 &remove_line(
   "7A;Öztürk;Mohammed;2.4.82;",
   "${DevelConf::users_pfad}/schueler.txt");
@@ -579,7 +579,7 @@ $login=&remove_line(
 
 $login=&remove_line(
   "m1kb;oliver mahn;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982",
-  "$DevelConf::protokoll_pfad/user.protokoll");
+  "$DevelConf::protokoll_pfad/user_db");
 &remove_line(
   "m1kb;M\203hn;\223liver;12.10.1982;",
   "${DevelConf::users_pfad}/schueler.txt");
