@@ -12,6 +12,10 @@ use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 #use Schedule::at;
 use String::Approx 'amatch';
+use String::Approx 'adistr';
+use String::Approx 'adist';
+use String::Approx 'aslice';
+
 use Sophomorix::SophomorixBase;
 #use Sophomorix::SophomorixFiles;
 use Time::Local;
@@ -38,9 +42,6 @@ use if ${DevelConf::db_backend} eq 'files' ,
 use if ${DevelConf::db_backend} eq 'ldap' ,
     'Sophomorix::SophomorixLDAP' => qw(show_modulename);;
 
-
-# show the Database Module that is loaded
-&show_modulename();
 
 
 
@@ -70,19 +71,15 @@ my  @schueler_to_check_dateien=(
 # ===========================================================================
 # Optionen verarbeiten
 # ==========================================================================
-my $testen=0;
 $Conf::log_level=1;
 my $help=0;
-my $info=0;
 my $file_to_check="";
 
 # Parsen der Optionen
 my $testopt=GetOptions(
-           "test|t" => \$testen,
        "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
              "file=s" => \$file_to_check,
-           "info|i" => \$info
           );
 
 
@@ -100,21 +97,31 @@ if ($help==1) {
    my @list = split(/\//,$0);
    my $scriptname = pop @list;
    # Befehlbeschreibung
-   print "$scriptname prüft und korrigiert folgende Dateien:\n\n";
+   print "\n$scriptname examines and synchronises the following files\n",
+         "with the system:\n\n";
 
    foreach my $datei (@schueler_to_check_dateien){
        print "   $datei\n";
    }
-   print"\nDabei sind\n\n";
-   print"   schueler.txt.tausch ist aus schueler.txt entstanden\n";
-   print"   extrakurse.schueler ist aus extrakurse.txt entstanden\n";
-#   print "\n\n";
+   print"\nWhere \n\n";
+   print"   schueler.txt.tausch   is created from   schueler.txt   \n";
+   print"   extrakurse.schueler   is created from   extrakurse.txt \n";
+   print('
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  --file filename
 
-   # gemeinsamer Hilfetext
-   &help_text_all;
+Please see the sophomorix-check(8) man pages for full documentation
+');
+   print "\n";
    exit;
 }
 
+
+# show the Database Module that is loaded
+&show_modulename();
 
 
 
@@ -1025,6 +1032,226 @@ if($Conf::log_level>=3){
 
 # auto teach-in
 
+print "Starting AUTO-Teach-in\n\n";
+
+my %will_come=();
+my %will_go=();
+
+
+# will go:
+foreach (keys %schueler_im_system_hash) {
+    # will go
+    if (not exists $schueler_ok_hash{$_}){
+	print "will_go  :  $_  $schueler_im_system_hash{$_}\n";
+        $will_go{$_}=$schueler_im_system_hash{$_};
+
+    }
+}
+
+
+print "\n";
+
+# will come:
+foreach (keys %schueler_ok_hash) {
+    # will come
+    if (not exists $schueler_im_system_hash{$_}){
+	print "will_come:  $_  $schueler_ok_hash{$_}\n";
+        $will_come{$_}=$schueler_ok_hash{$_};
+
+    }
+}
+
+
+my %go_come=();
+my %come_points=();
+
+
+foreach my $go (keys %will_go) {
+    my $go_class=$will_go{$go};
+    my @go = split(/;/, $go);
+    if ($go_class eq "dachboden" or $go_class eq "speicher"){
+        $go_class=$schueler_im_system_exit_admin_class{$go}
+    }
+    push @go, $go_class;
+
+    foreach my $come (keys %will_come) {
+        my $come_class=$will_come{$come};
+#        my ($come_name,$come_first,$come_birth)=split(/;/, $come);
+        my @come=split(/;/, $come);
+        push @come, $come_class;
+#	print "   Checking $go ($go_class)     $come ($come_class)   \n";
+  
+
+	#print "@go \n";
+        printf "%-25s %-25s %-11s %-11s \n",$go[0],$go[1],$go[2],$go[3];
+
+        #print "@come \n";
+        printf "%-25s %-25s %-11s %-11s \n",$come[0],$come[1],$come[2],$come[3];
+        # immer das langen im kurzen suchen
+        # adist(kurz, lang)
+
+        my $dist_name;
+        my $dist_first;
+
+        my $name_long;
+        my $name_short;
+        my $first_long;
+        my $first_short;
+
+        if (length($come[0]) < length($go[0])){
+	    $name_long=$go[0];
+            $name_short=$come[0];
+            $dist_name = adist($go[0], $come[0]);
+        } else {
+            $dist_name = adist($come[0], $go[0]);
+	    $name_long=$come[0];
+            $name_short=$go[0];
+        }
+        if (length($come[1]) < length($go[1])){
+	    $first_long=$go[1];
+            $first_short=$come[1];
+            $dist_first = abs( adist($go[1], $come[1]) );
+        } else {
+            $dist_first = abs( adist($come[1], $go[1]) );
+	    $first_long=$come[1];
+            $first_short=$go[1];
+        }
+        # creating param_list
+        my @param=($go,
+                   $come,
+                   $name_long,
+                   $name_short,
+                   $first_long,
+                   $first_short,
+                   $come[2],
+                   $go[2],
+                   $come[3],
+                   $go[3]);
+
+        my $dist_birth = adist($come[2], $go[2]);
+#        printf "%-25s %-25s %-11s \n",
+#               $dist_name,$dist_first,$dist_birth;
+        # 1-Zeichen-Substitution in klasse
+        if ($go[3] eq $come[3]) {
+            print "   Class is identical:\n ";
+            &single_change_match(@param, "30%", "30%","30%");
+            &multi_change_match(@param, "15%", "15%","15%");
+
+        } elsif (amatch($go[3], ["S1"], $come[3])){
+           print "   ApproxMatchClass   :\n";    
+            &single_change_match(@param, "15%", "15%", "15%");
+            &multi_change_match(@param, "30%", "30%","30%");
+
+        } else {
+           print "   No ApproxMatchClass:\n";
+            &single_change_match(@param, "0%","0%","0%");
+            &multi_change_match(@param, "30%", "30%","30%");
+
+        }
+
+        print "\n\n",
+
+    }
+}
+
+sub multi_change_match {
+    # identifiy small changes in EACH of name,first,birth
+    my $go=shift @_;
+    my $come=shift@_;
+    my $points=90;
+    if (amatch($_[0], ["$_[8]"], $_[1])
+       and amatch($_[2], ["$_[9]"], $_[3])
+       and amatch($_[4], ["$_[10]"], $_[5])
+       ){
+       print "  MATCH multi_change_match: \n",
+             "Name  $_[0] and $_[1] have less than $_[8] distance\n",
+             "First $_[2] and $_[3] have less than $_[9] distance\n",
+             "Birth $_[4] and $_[5] have less than $_[10] distance\n";
+       &better_match($go,$come,$points);
+       $go_come{$go}=$come;
+    }
+
+}
+
+sub single_change_match {
+    # identifiy small changes in ONE of name,first,birth
+    my $go=shift @_;
+    my $come=shift@_;
+    my $points=100;
+    # 0,1 name
+    # 2,3 first
+    # 4,5 birth
+    # 6,7 class
+    # 8,9,10 %match_name,%match_first,%match_birth
+    print "Checking $_[0] and $_[1] ($_[8])\n"; 
+    print "Checking $_[2] and $_[3] ($_[9])\n"; 
+    print "Checking $_[4] and $_[5] ($_[10])\n"; 
+
+    if (amatch($_[0], ["$_[8]"], $_[1])
+       and $_[2] eq $_[3]
+       and $_[4] eq $_[5]
+       ){
+       print "  MATCH single_change_match: Name $_[0] and Name $_[1]",
+             " have less than $_[8] distance\n";
+       &better_match($go,$come,$points);
+       $go_come{$go}=$come;
+    }
+    if ($_[0] eq $_[1]
+       and amatch($_[2], ["$_[9]"], $_[3])
+       and $_[4] eq $_[5]
+       ){
+       print "  MATCH single_change_match: First $_[2] and First $_[3]",
+             " have less than $_[9] distance\n";
+       &better_match($go,$come,$points);
+    }
+    if ($_[0] eq $_[1]
+       and $_[2] eq $_[3]
+       and amatch($_[4], ["$_[10]"], $_[5])
+       ){
+       print "  MATCH single_change_match: Birth $_[4] and Birth $_[5]",
+             " have less than $_[10] distance\n";
+       $go_come{$go}=$come;
+       &better_match($go,$come,$points);
+    }
+}
+
+
+sub better_match {
+    my ($go, $come, $points)=@_;
+    my $old_points=0;
+    # hat $come schon Punkte
+    if (exists $come_points{$come}){
+	$old_points=$come_points{$come}
+    }
+    print "$come  has $old_points points, can get $points points.\n"; 
+    if ($points > $old_points){
+        print "Updating: $come replaces $go ($points points) \n";
+	$go_come{$go}=$come;
+        $come_points{$come}=$points;
+    } else {
+        print "Not updating: Not enough points.\n";
+    }
+}
+
+
+
+
+print "Go   --- Come \n";
+while (($k,$v) = each %go_come){
+    print $k , "    ", $v, "\n";
+}
+
+print "Come   --- Points \n";
+while (($k,$v) = each %come_points){
+    print $k , "    ", $v, "\n";
+}
+
+
+
+
+
+print "\n\nEnding AUTO-Teach-in\n";
+
 
 # ===========================================================================
 # Was waere wenn ...
@@ -1110,7 +1337,7 @@ if($Conf::log_level>=3){
 
 
 # ===========================================================================
-# Datei rezeugen, in die die neuen User geschrieben werden
+# Datei erzeugen, in die die neuen User geschrieben werden
 # ===========================================================================
 &generate_add_file();
 
@@ -2203,6 +2430,7 @@ sub update_ids {
                                            "Name=$first",
                                            "Birthday=$birthday");
 ### DB-DEpendant????????
+             # update the gecos-filed
              $gecos="$first"." "."$last";
              system("usermod -c '$gecos' $login");
              # update the identifier in the hashes 
@@ -2249,7 +2477,7 @@ sub update_ids {
 
          } else {
              # too different, promt the user, secretary, ... ???
-             print "Looks like diffrent persons";
+             print "Looks like different persons to me!";
          }
 
      } else {
