@@ -1,0 +1,130 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-class-dbi) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+
+# ===========================================================================
+# Bibliotheken
+# ===========================================================================
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
+use Sophomorix::SophomorixFiles;
+use DBI;
+#use Schedule::at;
+
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+# Variablen für Optionen
+$Conf::log_level=1;
+my $help=0;
+my $info=0;
+my $class="";
+my $quota="";
+$Conf::log_level=1;
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "help|h" => \$help,
+           "info|i" => \$info,
+           "class|c=s" => \$class,
+           "quota|q=s" => \$quota,
+           "verbose|v+" => \$Conf::log_level,
+          );
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlbeschreibung
+   print('
+sophomorix-class-dbi adds projects to the sophomorix database and adds users
+   or groups as members to the project
+
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -i  / --info
+  -c AdminClass, / --class AdminClass 
+  -q value / --quota value
+Please see the sophomorix-class-dbi(8) man pages for full documentation
+');
+   print "\n";
+   exit;
+}
+
+############################################################
+# config values
+############################################################
+
+my $filedir="/var/lib/sophomorix/dynconfig";
+
+my $dbh = DBI->connect("DBI:CSV:f_dir=$filedir;csv_eol=\n;"
+                      . "csv_sep_char=\\;csv_quote_char=;"
+                      . "csv_escape_char=;skip_first_row");
+
+$dbh->{'csv_tables'}->{'class_db'} = {
+        'col_names' => ["AdminClass", "Department", "Type", "Mail", "Quota"]
+           };
+
+
+my $sth;
+
+
+# select something
+
+#$sth = $dbh->prepare("SELECT * FROM class_db WHERE AdminClass LIKE 'wg1%' ");
+
+
+
+# --info
+if ($info==1){
+
+   $sth = $dbh->prepare("SELECT * FROM class_db");
+   
+   $sth->execute();
+
+   print "\n";
+   printf "%-14s %-14s %-6s %-10s %-12s \n",
+          "AdminClass:", "Quota:", "Type:" , "Mail:", "Department:";
+
+   print "=======================================",
+         "=======================================\n";
+   while (my $row = $sth->fetchrow_hashref) {
+ 
+       printf "%-14s %-14s %-5s %-10s %-12s\n",
+              $row->{'AdminClass'}, 
+              $row->{'Quota'},
+              $row->{'Type'},
+              $row->{'Mail'},
+              $row->{'Department'}; 
+    }
+    $sth->finish();
+    print "\n";
+}
+
+
+
+
+
+
+
+# --info
+if ($quota ne "" and $class ne ""){
+    print "Updating quota of $class to $quota ...";
+    $dbh->do("UPDATE class_db SET Quota = '$quota' WHERE AdminClass = '$class' ");
+    print "    done.\n";
+}
+
+
+
