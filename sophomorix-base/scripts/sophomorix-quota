@@ -113,28 +113,20 @@ if ($help==1) {
    my @list = split(/\//,$0);
    my $scriptname = pop @list;
    # Befehlsbeschreibung
-   print "$scriptname setzt die Quota für alle Sophomorix-User\n\n";
-   # gemeinsamer Hilfetext aller Scripten
-   &help_text_all;
-   
-   print "Testen:\n\n";
-   # testen
-   print "  -t, --test\n";
-   print "     Die Quota werden im System nicht gesetzt. \n";
-   print "     Ansonsten läuft $scriptname möglichst normal.\n\n";
-   # Infos
-   print "  -i, --info\n";
-   print "     $scriptname gibt die erkannten Partitionen (Filesystems) aus,\n";
-   print "     auf denen es Quota setzten würde.\n"; 
-   print "     $scriptname beendet sich ohne Quota zu setzten\n\n";
-   # Systembefehl
-   print "  -s, --system\n";
-   print "     $scriptname benutzt anstelle des Perl-Moduls Quota:: \n";
-   print "     den Systembefehl des Betriebssystems:\n\n";
-   print "       setquota -u username ...\n\n"; 
-   print "     um  Quota zu setzten. Dies wird nicht empfohlen, da es länger \n";
-   print "     dauert und von der Kernel-Version abhängig ist. \n";
-   print "     Diese Option wird in Zukunft verschwinden. \n\n";
+   print('
+sophomorix-quota sets quota for all users
+
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -i  / --info
+  -t  / --test
+  -s  / --system (untested, on your own risk!)
+
+Please see the sophomorix-quota(8) man page for full documentation
+');
+   print "\n";
    exit;
 }
 
