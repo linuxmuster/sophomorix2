@@ -1,0 +1,580 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-quota) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+# Bibliotheken
+use strict;
+use Quota;
+use Getopt::Long;
+use Sophomorix::SophomorixBase;
+Getopt::Long::Configure ("bundling");
+#use Schedule::at;
+
+# Einlesen der Konfigurationsdatei für Entwickler
+#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+
+# jeffbecks Bibliothek und
+# Einlesen der Konfigurationsdatei
+#require "${DevelConf::library_pfad}/sophomorix-lib";
+
+if($Conf::use_quota ne "yes"){
+    print "sophomorix.conf says:  You don't want to use quota.\n";
+    exit;
+}
+
+# ===========================================================================
+# Loading the db-Module, list of functions
+# ===========================================================================
+# list of functions to load if db is 'files'
+use if ${DevelConf::db_backend} eq 'files' , 
+    'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                        get_sys_users
+                                        update_user_db_entry
+                                        user_reaktivieren
+                                        user_deaktivieren
+                                       );
+
+# list of functions to load if db is 'ldap'
+use if ${DevelConf::db_backend} eq 'ldap' ,
+    'Sophomorix::SophomorixLDAP' => qw(show_modulename);;
+
+
+# ===========================================================================
+# Loading the sys-db-Module, list of functions
+# ===========================================================================
+# list of functions to load if sys_db is 'files'
+use if ${DevelConf::sys_db} eq 'files' , 
+    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
+                                           update_gecos
+                                          );
+
+# show the Database Modules that are loaded
+&show_modulename();
+&show_sys_modulename();
+
+
+
+# Liste der Filesysteme auf denen Quota gesetzt werden
+my @quota_filesystems=();
+
+# Anzahl der Filesysteme, für die Quota gesetzt werden soll
+my $quota_filesystems_anzahl=0;
+
+# Liste für unbegrenzte quota
+my @null_quota_liste=();
+
+# ===========================================================================
+# Quotierte Dateisysteme ermitteln
+# ==========================================================================
+
+if ($Conf::quota_filesystems[0] eq "auto" && 
+   not $Conf::quota_filesystems[2] ) {
+   # AUTOMATISCH bei String "auto" in sophomorix.conf
+   @quota_filesystems=&get_quota_fs_liste();
+} else {# NICHT AUTOMATISCH falls Vorgabe in sophomorix.conf
+   @quota_filesystems=@Conf::quota_filesystems;
+}
+ # In @quota_filesystems stehen nun die zu quotierenden Dateisysteme
+
+# Anzahl der zu quotierenden Dateisysteme ermitteln
+$quota_filesystems_anzahl=$#quota_filesystems+1;
+
+
+
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+
+# Variablen für Optionen
+my $testen=0;
+$Conf::log_level=1;
+my $help=0;
+my $info=0;
+my $system=0;
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "test|t" => \$testen,
+           "verbose|v+" => \$Conf::log_level,
+           "help|h" => \$help,
+           "system|s" => \$system,
+           "info|i" => \$info
+          );
+
+# Prüfen, ob Optionen erkannt wurden, sonst Abbruch
+&check_options($testopt);
+
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlsbeschreibung
+   print "$scriptname setzt die Quota für alle Sophomorix-User\n\n";
+   # gemeinsamer Hilfetext aller Scripten
+   &help_text_all;
+   
+   print "Testen:\n\n";
+   # testen
+   print "  -t, --test\n";
+   print "     Die Quota werden im System nicht gesetzt. \n";
+   print "     Ansonsten läuft $scriptname möglichst normal.\n\n";
+   # Infos
+   print "  -i, --info\n";
+   print "     $scriptname gibt die erkannten Partitionen (Filesystems) aus,\n";
+   print "     auf denen es Quota setzten würde.\n"; 
+   print "     $scriptname beendet sich ohne Quota zu setzten\n\n";
+   # Systembefehl
+   print "  -s, --system\n";
+   print "     $scriptname benutzt anstelle des Perl-Moduls Quota:: \n";
+   print "     den Systembefehl des Betriebssystems:\n\n";
+   print "       setquota -u username ...\n\n"; 
+   print "     um  Quota zu setzten. Dies wird nicht empfohlen, da es länger \n";
+   print "     dauert und von der Kernel-Version abhängig ist. \n";
+   print "     Diese Option wird in Zukunft verschwinden. \n\n";
+   exit;
+}
+
+
+# --info
+if ($info==1) {
+   my $fs="";
+   my $i=0;
+   my $j=0;
+   my $l=0;
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   my @mb_liste=();
+
+   # automatisch oder Liste in sophomorix.conf
+   if ($Conf::quota_filesystems[0] eq "auto" && 
+      not $Conf::quota_filesystems[2] ) {
+      # "auto" in sophomorix.conf
+      print "Folgende Quota-Dateisysteme (usrquota) wurden von $scriptname\n";
+      print "auf diesem System gefunden:\n\n";
+    } else {
+      # Liste in sophomorix.conf angegeben
+      print "ACHTUNG: Sie haben folgende Quota-Dateisysteme manuell\n"; 
+      print "in sophomorix.conf angegeben. \n\nSie müssen wissen, was sie tun!\n\n";
+    }
+
+   # Tatsächlich benutzte Liste ausgeben
+   foreach $fs (@quota_filesystems) {
+     $i=$i+1;
+     print"  Filesystem $i:    $fs\n";
+   }
+
+   print "\n";
+   if ($quota_filesystems_anzahl>1) {
+       print "Die Reihenfolge der $quota_filesystems_anzahl Filesysteme "; 
+       print "ist wichtig für die Quotaangabe!\n\n";
+   }
+   print "Um z.B. das Standard-Quota für die Schüler auf ihrem System zu setzten,\n";
+   print "muss in ${DevelConf::config_pfad}/quota.txt folgendes stehen:\n\n";
+   print "   standard-schueler:";
+   
+   # Beispiel angeben
+   foreach $fs (@quota_filesystems) {
+     $j=$j+1;
+     my $mb=30;
+     if (not $j==1){
+         print "+";
+     }
+     $mb=$mb*$j;
+     print"$mb";
+     push (@mb_liste, $mb);
+   }
+
+   print "\n\nDieser Eintrag in quota.txt würde folgende Quota setzten:\n\n";
+   
+   # Ergebnis angeben
+   foreach $fs (@quota_filesystems) {
+     $l=$l+1;
+     print"  Filesystem ${l}:    $fs     auf $mb_liste[${l}-1] MB\n";
+   }
+
+   print "\n\n";
+   exit;
+}
+
+
+
+
+# Variable für Schlüssel im Hash
+my $userkey;
+
+# Allgemeine Ausgabevariablen
+my $key="";
+my $value="";
+
+# Felder in /etc/group
+my $klasse="";
+my $feld2="";
+my $gid_etc_group="";
+my $feld4="";
+my @schueler=();
+my $schueler="";
+
+# Hash: key: login   value: typ
+my %schueler=();
+my %login_typ_hash=();
+my $typ="";
+
+# Hash: key: klasse   value: Gruppen-ID
+my $gid="";
+
+# Hash: key: login/user   value: Gruppen-ID
+my %user_gid_hash=();
+
+# Hash: key: login   value: quota
+my %login_quota_hash=();
+
+my $klassen_quota="";
+my @klassen_quota_liste=();
+
+# Felder für /etc/passwd
+my $login="";
+my $feld3="";
+my $feld5="";
+my $feld6="";
+my $feld7="";
+
+# Variablen für die Standardwerte
+my $workstation_standard="";
+my $schueler_standard="";
+my $lehrer_standard="";
+
+# Felder für die lehrer.txt
+my $gruppe="";
+my $nachname="";
+my $vorname="";
+my $datum="";
+my $login_lehrer="";
+my $passwort="";
+my $kuerzel="";
+my $lehrer_quota="";
+my $email_sender="";
+my $email_alias="";
+
+my @lehrer_quota_liste=();
+
+# Felder für die quota.txt
+my $user="";
+my $soll_quota="";
+my @soll_quota_liste=();
+my %soll_quota_hash=();
+
+# String für das Wurzel-Dateisystem
+my $quota_fs_aus_fstab="";
+# Anzahl der Zeilen die den String usrquota enthalten
+my $usrquota_gefunden=0;
+
+# Quotabefehl als string erzeugen
+my $kernel_update="nein";
+my $quota_befehl="";
+my @system_root_inhalt=();
+my $datei="";
+
+
+# Quota-Summe in MB
+my $quota_summe=0;
+#my @q_summe=(0,0,0,0,0,0,0,0,0,0); # funktioniert
+#my @q_summe=(); # liefert use of uninitialized value
+my @quota_summen=();
+
+# ===========================================================================
+# Kernelupdate auf 2.4.18 prüfen (existiert /.kernelupdate-xxyyzz)
+# ==========================================================================
+
+##???? Kann evtl wegfallen wenn die Befehle des Quta-Moduls benutzt werden
+
+# Dateien und Verzeichnisse aus / einlesen
+opendir(SYSROOT, "/");
+   foreach $datei (readdir SYSROOT){
+     next unless $datei =~/.kernel_update.*/;
+     print("/","$datei"," gefunden !\n");
+     print("Benutze setquota-Befehl für kernel 2.4.18\n\n");
+     $kernel_update="ja";
+    }
+closedir(SYSROOT);
+
+
+# Liste mit Anfangsquota erstellen
+for (my $i=1; $i <= $quota_filesystems_anzahl; $i++){
+push (@null_quota_liste, "0-0-0-0");
+}
+
+
+# Ermittelte Werte ausgeben
+
+# Anzahl zu quotierender Dateisysteme:
+if($Conf::log_level>=2){
+    print("Anzahl zu quotierender Dateisysteme:  ","$quota_filesystems_anzahl\n");
+ }
+
+# Die Liste der zu Quotierenden Filesysteme ausgeben
+print("Liste der zu quotierenden Dateisysteme :  ","@quota_filesystems\n");
+
+# Die Liste für die Filesystems ohne Quotabegrenzung ausgeben
+if($Conf::log_level>=2){
+    print("Liste der unbegrenzten Quota      :  ","@null_quota_liste\n");
+ }
+
+
+# ===========================================================================
+# Alle user aus System in Hash 
+# und mit unbegrenzten Quota versehen
+# ===========================================================================
+# Key:    username
+# Value:  liste mit 0-0-0-0 0-0-0-0 ...    (quota ohne limit)
+
+
+# ===========================================================================
+# Typ des Administrators setzen
+# ===========================================================================
+# admin ist auch in der Schüler-Gruppe, muss aber nach admin
+$login_typ_hash{"admin"}="admin";
+
+
+# ===========================================================================
+# Typ aller anderer User setzen (ausser admin)
+# ===========================================================================
+&titel("Ermittle alle user des Systems ...");
+
+setpwent();
+while(my ($login,$feld2,$feld3,$gid,$feld5,$feld6,$feld7,$home)=getpwent()) {
+   # Gruppenname ermitteln
+   my ($grname) = getgrgid($gid);
+          # Zum Login-Quota-Hash dazunehmen
+          # Value ist Liste:
+          $login_quota_hash{$login}=[@null_quota_liste];
+          
+           if($home=~/^\/home\/schueler\//){
+             # Typ-Hash anpassen, bei schuelern /home/schueler/
+             $login_typ_hash{$login}="schueler";
+           } elsif($home=~/^\/home\/workstations\//){
+             # Typ-Hash anpassen, bei workstation /home/workstations/
+             $login_typ_hash{$login}="workstation";
+           } elsif($home=~/^\/home\/lehrer\// and $grname eq "lehrer"){
+             # Typ-Hash anpassen, bei lehrer /home/lehrer/
+             # und Gruppe=lehrer
+             $login_typ_hash{$login}="lehrer";
+           }
+          # User-gid-Hash
+          # key=user   value=gid
+          $user_gid_hash{$login}="$gid";
+ }
+
+
+endpwent();
+
+
+if($Conf::log_level>=3){
+   # Login-Typ ausgeben
+   &titel("Gebe Login-Typ (lehrer, schueler workstation, ...) jedes Users aus:");
+   while (($key,$value) = each %login_typ_hash){
+     printf "%-10s %3s\n","$key","$value";
+   }
+}
+
+
+# Für jeden User die Quota auf allen Filesystemen ausgeben
+if($Conf::log_level>=3){
+   &titel("Setze Quota im Hash auf folgende (unbegrenzten) Werte::");
+   for my $users ( keys %login_quota_hash ) {
+     printf "%-10s %3s\n","$users:","@{ $login_quota_hash{$users} }";
+   }
+ }
+
+
+# ===========================================================================
+# quota.txt lesen:  Soll-Quota-Hash (Key: User, Value: Liste mit quota)
+# ===========================================================================
+my %standard_quota = &get_standard_quota();
+
+# %standard_quota hinzunehmen in %soll_quota_hash
+while ( my ($k, $v) = each(%standard_quota)) {
+  $soll_quota_hash{$k}=$v;
+}
+
+
+# ===========================================================================
+# schulinfo.txt einlesen in Soll-Quota
+# ===========================================================================
+if($Conf::log_level>=3){
+  &titel("schulinfo.txt nach Klassen-Sonderquota durchsuchen ...");
+}
+open(SCHULINFO,"${DevelConf::config_pfad}/schulinfo.txt") || die "Fehler: $!";
+while(<SCHULINFO>){
+ chomp();
+   s/\s//g; # Whitespace Entfernen
+   if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+   if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+   ($klasse,$feld2,$typ,$feld4,$klassen_quota)=split(/;/);
+   # Group-ID der Klasse ermitteln
+   my ($a,$b,$gid) = getgrnam $klasse; 
+   if($klassen_quota ne "quota"){
+     # wenn Klassen-Quota angegeben dann nutzen
+     # k vor Klasse setzen, um mit Systemdatei zu vergleichen
+     $klasse="k".$klasse;
+     # Gruppen-ID der Klasse ermitteln
+     ($a,$b,$gid) = getgrnam $klasse; 
+
+     # Quotawert prüfen
+     @klassen_quota_liste = &checked_quotastring($klassen_quota, "schulinfo.txt", $_);
+
+     if($Conf::log_level>=3){
+        printf "%-40s %3s\n","$klasse (Sollwert)","@klassen_quota_liste";
+     }
+
+     # Alle user durchgehen, ob sie in der Gruppe mit der GID sind
+     foreach (keys %user_gid_hash){
+       if($user_gid_hash{$_} eq $gid){
+          # Eintrag in Soll-Hash
+          $soll_quota_hash{$_}=[@klassen_quota_liste];
+        }
+     }
+   }
+}
+close(SCHULINFO);
+
+&titel("Ende schulinfo.txt einlesen");
+
+
+# ===========================================================================
+# lehrer.txt lesen und in Soll-Quota-Hash (Key: User, Value: Liste mit quota)
+# ===========================================================================
+my %lehrer_quota=&get_lehrer_quota();
+
+# %lehrer_quota hinzunehmen in %soll_quota_hash
+while ( my ($k, $v) = each(%lehrer_quota)) {
+  $soll_quota_hash{$k}=$v;
+}
+
+
+# TEST ??????????????????????ß
+# Für jeden User die Quota auf allen Filesystemen ausgeben
+#if($Conf::log_level>=1){
+#   &titel("Soll-Quota_hash :");
+#   for my $users ( keys %soll_quota_hash ) {
+#      printf "%-40s  %8s\n","$users","@{ $soll_quota_hash{$users} }";
+#    }
+#   &minititel("Ende quota.txt einlesen");
+#}
+#?????????????????????????????
+#exit;
+
+# ===========================================================================
+# Standardwerte im Soll-Quota-Hash setzen
+# ===========================================================================
+# Standartwert aller Workstations anpassen
+$workstation_standard=$soll_quota_hash{"standard-workstations"};
+# Standartwert aller Schüler anpassen
+$schueler_standard=$soll_quota_hash{"standard-schueler"};
+# Standartwert aller Lehrer anpassen
+$lehrer_standard=$soll_quota_hash{"standard-lehrer"};
+
+# Schlüssel löschen
+# Wert aus dem Hash entfernen (Entfernt=benutzt)
+               delete($soll_quota_hash{"standard-workstations"});
+               delete($soll_quota_hash{"standard-schueler"});
+               delete($soll_quota_hash{"standard-lehrer"});
+
+if($Conf::log_level>=2){
+   &titel("Soll-Quota ausgeben (nach dem löschen von Nicht-User-Einträgen)");
+   for my $users ( keys %soll_quota_hash ) {
+      printf "%-40s %3s\n","$users (Sollwert)","@{ $soll_quota_hash{$users} }";
+   }
+}
+
+foreach (keys %login_quota_hash){
+  if (exists($login_typ_hash{$_})){
+     if($login_typ_hash{$_} eq "schueler"){
+        $login_quota_hash{$_}=$schueler_standard;
+      }
+     if($login_typ_hash{$_} eq "workstation"){
+        $login_quota_hash{$_}=$workstation_standard;
+      }
+     if($login_typ_hash{$_} eq "lehrer"){
+        $login_quota_hash{$_}=$lehrer_standard;
+      }
+  }
+}
+
+
+
+
+
+# ===========================================================================
+# Soll-Quota in Login-Quota-Hash einarbeiten und setzen
+# ===========================================================================
+foreach (keys %soll_quota_hash){
+$login_quota_hash{$_}=$soll_quota_hash{$_};
+}
+if($Conf::log_level>=3){
+   &titel("Login-Quota aller user");
+   # Für jeden User die Quota auf allen Filesystemen ausgeben
+   for my $users ( keys %login_quota_hash ) {
+     printf "%-10s %3s\n","$users:","@{ $login_quota_hash{$users} }";
+   }
+}
+
+
+
+
+# ===========================================================================
+# Quota für alle user setzen
+# ===========================================================================
+&titel("Quota werden nun gesetzt:");
+if($Conf::log_level==1){
+     print("Setze Quota ...\n"); 
+     print("Bitte etwas Geduld ...\n"); 
+   }
+# Jeden user im Hash aufrufen und Quota setzen
+foreach  $userkey ( keys %login_quota_hash ) {
+   if($Conf::log_level>=2){
+      print("\n\nSetting quota for  user:  ","$userkey","\n");
+    }
+   # Subroutine aufrufen mit Parametern
+   # $userkey:                             username
+   # \@quota_filesystems                   Referenz auf Liste mit filesystemen
+   # \@{ $login_quota_hash{$userkey} }     Referenz auf den Key $userkey im 
+   # Hash %login_quota_hash, der eine Referenz auf die Liste mit den Quota enthält
+   my $string=&get_quotastring($userkey , 
+                               \@quota_filesystems, 
+                               \@{ $login_quota_hash{$userkey} } );
+   &update_user_db_entry($userkey, 
+                         "Quota=$string");
+
+   &setze_quota($userkey , \@quota_filesystems, \@{ $login_quota_hash{$userkey} } );
+ }
+
+
+
+
+# ===========================================================================
+# Summe des Hard-Limits aller Begrenzten Quota aufsummieren
+# ===========================================================================
+for (my $k=1; $k <= $quota_filesystems_anzahl; $k++){
+   print "\n\n";
+   print "Filesystem (Partition) ","$quota_filesystems[$k-1]",":\n";
+   print "Total amount of hardlimit quota:       ", 
+          $DevelConf::q_summe[$k-1], 
+         " Blöcke\n";
+   print "Total amount of hardlimit quota:   ca. ", 
+          $DevelConf::q_summe[$k-1]/1024 , " GB\n";
+   }
+
+
+# ===========================================================================
+# ENDE
+# ===========================================================================
+
+
+# ===========================================================================
+# Subroutinen
+# ===========================================================================
