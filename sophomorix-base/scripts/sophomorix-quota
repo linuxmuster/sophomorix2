@@ -105,13 +105,15 @@ my $testopt=GetOptions(
 &check_options($testopt);
 
 
-# check if I have to abort
+# check if I have to ...
 if($Conf::use_quota ne "yes" and $noninteractive==0){
+  # ... abort
   print "\nsophomorix.conf says:  You don't want to use quota.\n\n";
   print "Set  \$use_quota=\"yes\"  in sophomorix.conf to use quota.\n\n";
   print "For more information:  man sophomorix-quota \n\n";
   exit;
 } elsif ($Conf::use_quota ne "yes" and $noninteractive==1){
+  # ... or do nothing
   &titel("sphomorix-quota: Not Setting quota ... \$use_quota=\"no\"");
   exit; 
 }
