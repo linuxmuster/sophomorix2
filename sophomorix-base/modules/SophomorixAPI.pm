@@ -80,6 +80,33 @@ A very good example, when you should use SophomorixAPI.pm is writing
 webmin modules for sophomorix.
 
 
+=head2 SYNOPSIS
+
+   # This is for configuration variables
+   use Sophomorix::SophomorixConfig;
+
+   # This is for functions in SophomorixAPI
+   use Sophomorix::SophomorixAPI;
+   
+   # access variables in sophomorix.conf    
+   my $school = $Conf::school_name;
+ 
+   # access variables in sophomorix-devel.conf    
+   my $smb_home = $DevelConf::homedir_samba_netlogon;
+
+   # access variables in sophomorix-lang.NAME
+   # where NAME is one of de, en, ...    
+   my $directory = $Language::collect_dir;
+
+   # Use function get_user_adminclass 
+   my @list_of_users  = &get_user_adminclass("7a"); 
+
+Note: If you want to use funcions you have to use BOTH packages
+(SophomorixConfig AND SophomorixAPI, in this order)
+
+
+
+
 =head2 FUNCTIONS
 
 =head2 Query users or groups of users 

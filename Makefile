@@ -40,6 +40,9 @@ WEBMINDEBDIR=$(DESTDIR)/usr/share/webmin
 DOCDEBDIR=$(DESTDIR)/usr/share/doc
 
 # Developer
+CONF=$(DESTDIR)/etc/sophomorix
+
+# Developer
 DEVELCONF=$(DESTDIR)/usr/share/sophomorix
 
 # Developer
@@ -84,21 +87,20 @@ install-base:
 	# group owner is changed in postinst-script to lehrer
 	install -oroot -groot --mode=4750 sophomorix-base/scripts-teacher/sophomorix-*[a-z1-9] $(DESTDIR)/usr/bin
 	##### configs for admin
-	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/user
-	install -oroot -groot --mode=0600 sophomorix-base/config/sophomorix.conf $(DESTDIR)/etc/sophomorix/user
-	install -oroot -groot --mode=0600 sophomorix-base/config/quota.txt $(DESTDIR)/etc/sophomorix/user
+	install -d -m755 -oroot -groot $(CONF)/user
+	install -oroot -groot --mode=0644 sophomorix-base/config/sophomorix.conf $(CONF)/user
+	install -oroot -groot --mode=0600 sophomorix-base/config/quota.txt $(CONF)/user
 	##### config-templates
 	install -oroot -groot --mode=0600 sophomorix-base/config-templates/*[!CVS] $(CTEMPDIR)
 	##### configs for developers
-	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/devel/user
-	install -d -m700 -oroot -groot $(DEVELCONF)/devel
+	install -d -m755 -oroot -groot $(DEVELCONF)/devel
 
-	install -oroot -groot --mode=0600 sophomorix-base/config-devel/sophomorix-devel.conf $(DEVELCONF)/devel
+	install -oroot -groot --mode=0644 sophomorix-base/config-devel/sophomorix-devel.conf $(DEVELCONF)/devel
 	install -oroot -groot --mode=0600 sophomorix-base/config-devel/repair.directories $(DEVELCONF)/devel
 	##### languages
-	install -d -m700 -oroot -groot $(LANGUAGE)
+	install -d -m755 -oroot -groot $(LANGUAGE)
 
-	install -oroot -groot --mode=0600 sophomorix-base/lang/sophomorix-lang.*[a-z] $(LANGUAGE)
+	install -oroot -groot --mode=0644 sophomorix-base/lang/sophomorix-lang.*[a-z] $(LANGUAGE)
 	##### Copy the module
 	install -d -m755 -oroot -groot $(PERLMOD)
 	install -oroot -groot --mode=0644 sophomorix-base/modules/Sophomorix*[a-z1-9] $(PERLMOD)
@@ -140,19 +142,19 @@ install-developer:
 
 
 install-webmin:
-	install -d $(DESTDIR)/usr/sbin
+#	install -d $(DESTDIR)/usr/sbin
 # moved to sophomorix-base
 #	install -oroot -groot --mode=0744 sophomorix-webmin/scripts/sophomorix-*[a-z1-9] $(DESTDIR)/usr/sbin
 	##### configs for admin
-	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/user
-	install -oroot -groot --mode=0600 sophomorix-webmin/config/*[!CVS] $(DESTDIR)/etc/sophomorix/user
+#	install -d -m700 -oroot -groot $(CONF)/user
+	install -oroot -groot --mode=0600 sophomorix-webmin/config/*[!CVS] $(CONF)/user
 	##### configs for developers
-	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/devel/user
-	install -oroot -groot --mode=0700 sophomorix-webmin/config-devel/*.txt $(DESTDIR)/etc/sophomorix/devel/user
+#	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/devel/user
+#	install -oroot -groot --mode=0700 sophomorix-webmin/config-devel/*.txt $(DESTDIR)/etc/sophomorix/devel/user
 	# webmin base-configuration
 	# Webmin-Kategorien
-	install -d -m755 -oroot -groot $(WEBMINCONFDIR)
-	install -oroot -groot --mode=0644 sophomorix-webmin/config-webmin/*[a-z] $(WEBMINCONFDIR)
+#	install -d -m755 -oroot -groot $(WEBMINCONFDIR)
+#	install -oroot -groot --mode=0644 sophomorix-webmin/config-webmin/*[a-z] $(WEBMINCONFDIR)
 #	install -oroot -groot --mode=0644 webmin/webmin.cats $(WEBMINCONFDIR)
 
 

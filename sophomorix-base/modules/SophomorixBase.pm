@@ -676,7 +676,8 @@ sub save_tausch_klasse {
    my $dirname=&zeit_stempel;
    my @entry = getpwnam($login);
    my $homedir = "$entry[7]";
-   my $dirpath="$homedir"."/windows/"."Klassen-Tausch-"."$dirname"."/";
+#   my $dirpath="$homedir"."/windows/"."Klassen-Tausch-"."$dirname"."/";
+   my $dirpath="$homedir"."/"."${Language::share_string}"."-"."$dirname"."/";
 
    my $tausch_klasse_path = "";
    if ($klasse eq "lehrer") {
@@ -821,12 +822,23 @@ sub provide_user_files {
         $share_class = "${DevelConf::share_teacher}";
         if ($DevelConf::testen==0) {
            &setup_verzeichnis("\$homedir_teacher/\$lehrer",
-                      "${DevelConf::homedir_teacher}/$login",
+                      "$home",
                       "$login");
            &setup_verzeichnis("\$homedir_teacher/\$lehrer/windows",
-                      "${DevelConf::homedir_teacher}/$login/windows",
+                      "$home/windows",
                       "$login");
-
+           &setup_verzeichnis(
+                  "\$homedir_teacher/\$lehrer/\$task_dir",
+                  "$home/${Language::task_dir}",
+                  "$login");
+           &setup_verzeichnis(
+                  "\$homedir_teacher/\$lehrer/\$collect_dir",
+                  "$home/${Language::collect_dir}",
+                  "$login");
+           &setup_verzeichnis(
+                  "\$homedir_teacher/\$lehrer/\$share_dir",
+                  "$home/${Language::share_dir}",
+                  "$login");
            &setup_verzeichnis("\$homedir_teacher/\$lehrer/www",
                       "$www_home");
 
@@ -863,9 +875,21 @@ sub provide_user_files {
            &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/windows",
                               "$home/windows",
                               "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_pupil/\$klassen/\$schueler/windows/sammelordner",
+#                  "$home/windows/sammelordner",
+#                  "$login");
            &setup_verzeichnis(
-                  "\$homedir_pupil/\$klassen/\$schueler/windows/sammelordner",
-                  "$home/windows/sammelordner",
+                  "\$homedir_pupil/\$klassen/\$schueler/\$task_dir",
+                  "$home/${Language::task_dir}",
+                  "$login");
+           &setup_verzeichnis(
+                  "\$homedir_pupil/\$klassen/\$schueler/\$collect_dir",
+                  "$home/${Language::collect_dir}",
+                  "$login");
+           &setup_verzeichnis(
+                  "\$homedir_pupil/\$klassen/\$schueler/\$share_dir",
+                  "$home/${Language::share_dir}",
                   "$login");
            &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/www",
                               "$www_home");
@@ -923,8 +947,8 @@ sub user_links {
   # Verzeichnis Tauschverzeichnisse löschen
   if (defined $alt_gruppe) {
      &do_falls_nicht_testen(
-          "rm -rf $user_home/Tauschverzeichnisse"
-
+          "rm -rf $user_home/${Language::share_dir}"
+#          "rm -rf $user_home/Tauschverzeichnisse"
      );
   } else {
       $alt_gruppe="";
@@ -936,16 +960,23 @@ sub user_links {
   else {
      # normales Versetzten (auch lehrer -> speicher)
      # sicherstellen dass Verzeichnis Tauschverzeichnisse existiert
-     &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/Tauschverzeichnisse",
-                      "$user_home/Tauschverzeichnisse");
+#     &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/Tauschverzeichnisse",
+#                      "$user_home/Tauschverzeichnisse");
+     &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/\$share_dir",
+                      "$user_home/${Language::share_dir}");
 
      # Links zu Tauschverzeichnissen anlegen
      &do_falls_nicht_testen(
          # Link auf Klassentausch anlegen
-          "ln -sf  $tausch_klasse $user_home/Tauschverzeichnisse/Tausch-$gruppe",
+#          "ln -sf  $tausch_klasse $user_home/Tauschverzeichnisse/Tausch-$gruppe",
+#          "ln -sf  $tausch_klasse $user_home/${Language::share_dir}/Tausch-$gruppe",
+          "ln -sf  $tausch_klasse $user_home/${Language::share_dir}/${Language::share_string}-$gruppe",
           # Link auf Schülertausch anlegen
 #          "ln -sf /home/tausch/schueler $user_home/Tauschverzeichnisse/Tausch-Schule"
-          "ln -sf $DevelConf::share_school $user_home/Tauschverzeichnisse/Tausch-Schule"
+#          "ln -sf $DevelConf::share_school $user_home/Tauschverzeichnisse/Tausch-Schule"
+#          "ln -sf $DevelConf::share_school $user_home/${Language::share_dir}/Tausch-Schule"
+#          "ln -sf $DevelConf::share_school $user_home/${Language::share_dir}/${Language::share_string}-Schule"
+          "ln -sf $DevelConf::share_school $user_home/${Language::share_dir}/${Language::share_string}-${Language::school}"
      );
 
   }
@@ -1764,7 +1795,8 @@ sub create_share_link {
     }
     my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
        $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
-    my $link_name=$home."/Tauschverzeichnisse/Tausch-${share_name}";   
+#    my $link_name=$home."/${Language::share_dir}/Tausch-${share_name}";   
+    my $link_name=$home."/${Language::share_dir}/${Language::share_string}-${share_name}";   
     print "Creating a link for user $login to project $share_name.\n";
 
 
@@ -1801,7 +1833,9 @@ sub remove_share_link {
     my ($login,$project) = @_;
     my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
        $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
-    my $link_name=$home."/Tauschverzeichnisse/Tausch-${project}";   
+#    my $link_name=$home."/${Language::share_dir}/Tausch-${project}";   
+#    my $link_name=$home."/${Language::share_dir}/${Language::share_string}-${project}";   
+    my $link_name=$home."/${Language::share_dir}/${Language::share_string}-${project}";   
     print "Removing link: $link_name\n";
     # remove the link
     unlink $link_name;
