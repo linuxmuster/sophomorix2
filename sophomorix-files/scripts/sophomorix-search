@@ -104,6 +104,8 @@ my @group_list=();
 my $pri_group_string="";
 my $grp_string="";
 my $home_ex="---";
+my $samba="";
+my @samba_lines="";
 ############################################################
 # Start
 ############################################################
@@ -199,9 +201,32 @@ open(PROTOKOLL,"<$DevelConf::protokoll_datei");
 	     printf "   DeactivationDate : %-47s %-11s\n",$deact,$login;
           }
 
-          print "Samba-Information:\n";
-          print "==================\n";
-          system "pdbedit -v -u $login";
+          print "Samba:\n";
+          $samba=`pdbedit -v -u $login`;
+          @samba_lines=split(/\n/,$samba);
+	  foreach (@samba_lines){
+#            s/\s//g;
+            # ??? nur am ersten auftreten von : splitten
+            my ($attr,$value)=split(/: /);
+            $value=~s/\s//g;
+
+	    if (/^Account Flags/){
+              printf "   Account Flags    : %-47s %-11s\n",$value,$login;    
+            }
+	    if (/^Home Directory/){
+              printf "   Home Directory   : %-47s %-11s\n",$value,$login;    
+            }
+	    if (/^Password last set/){
+              printf "   Pwd last set     : %-47s %-11s\n",$value,$login;    
+            }
+	    if (/^Password can change/){
+              printf "   Pwd can change   : %-47s %-11s\n",$value,$login;    
+            }
+	    if (/^Password must change/){
+              printf "   Pwd must change  : %-47s %-11s\n",$value,$login;    
+            }
+	  }
+#          system "pdbedit -v -u $login";
           print "\n";
       ($class,$gec_user,$login,$first_pass,$birth,$unid,$subclass,$status,$tol,$deact)=("","","","","","","","","","");
 
