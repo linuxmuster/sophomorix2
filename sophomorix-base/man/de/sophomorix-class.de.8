@@ -1,0 +1,80 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH SOPHOMORIX-CLASS 8 "February 24, 2005"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+sophomorix-class \- Klassen verwalten
+.SH SYNOPSIS
+.B sophomorix-class
+.RI [ options ]
+.br
+.SH DESCRIPTION
+.B Ein von 
+.B sophomorix-class
+verwaltete Klasse hat folgende Eigenschaften:
+.br
+     AdminClass:    Der Name des Klasse, wie er im Schulverwaltungsprogramm steht. 
+.br
+                       z.B.:  7a 
+.br
+     Department:    Abteilung der Klasse (Feld 6, schueler.txt, nicht genutzt)
+.br
+                       z.B. Grundschule
+.br
+     Type:          Typ der Klasse (nicht genutzt)
+.br
+     Mail:          Maileinstallungen der Klasse (nicht genutzt)
+.br
+     Quota:         Quotaeinstellungen, die alle user diese Klasse haben sollen
+.br
+.PP
+.SH OPTIONS
+.B sophomorix-class
+benützt die GNU command line syntax, mit langen Optionen, die mit zwei Bindestrichen (`-') beginnen:
+.TP
+.B \-h, \-\-help
+Kurzübersicht über Optionen, sowie eine Liste der eingelesenen Dateien.
+.TP
+.B \-v, \-\-verbose
+Sagt, was das Programm gerade macht (verbose)
+.TP
+.B \-vv, \-\-verbose \-\-verbose
+Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
+.TP
+.B \-c AdminClass, --class AdminClass
+Bearbeitet die Klasse AdminClass
+.TP
+.B -q quota, --quota quota 
+setzt das Quotafeld für die Klasse auf quota. Um im System diesen Quotawert zu setzen, muss sophomorix-quota aufgerufen werden.
+.TP
+.SH SEE ALSO
+.BR sophomorix (8),
+.BR sophomorix-teach-in (8),
+.BR sophomorix-search (8),
+.BR sophomorix-add (8),
+.BR sophomorix-move (8),
+.BR sophomorix-print (8),
+.BR sophomorix-kill (8),
+.BR sophomorix-split (8),
+.BR sophomorix-class (8),
+
+.\".BR baz (1).
+.\".br
+.\"You can see the full options of the Programs by calling for example 
+.\".IR "sophomrix-project -h" ,
+.
+.SH AUTHOR
+This manual page was written by <jeffbeck@web.de>.
