@@ -40,6 +40,7 @@
       <title>Vorarbeit</title>
 
     <para>Sie sollten auf jeden Fall zuerst das aktuelle <ulink
+      url="http://cvs.bszleo.de/cgi-bin/viewcvs.cgi/sophomorix2/changelog-sophomorix-src"><userinput>changelog-sophomorix-src</userinput></ulink><ulink
       url="http://cvs.bszleo.de/cgi-bin/viewcvs.cgi/sophomorix2/changelog-sophomorix-src"><userinput>changelog-sophomorix-src</userinput></ulink>
       lesen, um zu sehen, ob sich etwas Wichtiges verändert hat!</para>
 
@@ -164,6 +165,61 @@ und lesen sie das für die zu installierende Version passende Stelle.
       </orderedlist>
 </para>    
 </sect2>
+  </sect1>
+  <sect1>
+    <title>Testen von sophomorix</title> <para>Um die Funktion zu
+    überprüfen, können sie ein paar Test-Scripte ablaufen
+    lassen.</para>
+    <para>Die Test-Scripte installieren Sie mit</para>
+    <para><screen> apt-get install sophomorix-developer</screen></para> 
+
+    <para>Folgende Test sind von Bedeutung:</para>
+    <itemizedlist>
+      <listitem>
+         <para>Der Standard-test, der auch in einem produktiven System
+    funktionieren sollte ist <ulink
+    url="./man/man8/sophomorix-test.8.html"><userinput>sophomorix-test</userinput></ulink></para>
+      </listitem>
+      <listitem>
+	<para>Desweiteren kann die Funktion der Datei
+    <userinput>extrakurse.txt</userinput> mit <ulink
+    url="./man/man8/sophomorix-test-extra.8.html"><userinput>sophomorix-test-extra</userinput></ulink> getestet
+    werden (Nicht auf einem produktiven System).</para>
+      </listitem>
+      <listitem>
+	<para>Mit
+    <ulink
+    url="./man/man8/sophomorix-test-bunchofusers.8.html"><userinput>sophomorix-test-bunchofusers</userinput></ulink>
+    kann eine Testumgebung mit einigen Lehrern und 2 Klassen leicht
+    eingerichtet werden (Nicht auf einem produktiven System).</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title>Übernahme von Daten einer bisherigen Installation</title>
+    <para>Dies ist noch im Entstehen. Ziel ist, einen neuen Server zu
+    installieren, und dann nur diejenigen Dateien zu holen, die zu
+    einer Neuinstallation erforderlich sind, und dann Userdaten zu
+    synchronisieren. </para>
+    <para>Siehe dazu <ulink
+    url="./man/man8/sophomorix-vampire.8.html"><userinput>sophomorix-vampire</userinput></ulink>.</para>
+    <para>In folgenden Schritten wird <ulink
+    url="./man/man8/sophomorix-vampire.8.html"><userinput>sophomorix-vampire</userinput></ulink>
+    weiterentwickelt:</para> <para><orderedlist>
+	<listitem>
+	  <para>Holen der Daten von einem laufenden
+	  Musterlösungsserver über eine Netzwerkverbindung auf einen
+	  neuen Rechner, der dann den alten ablöst. Sie brauchen also
+	  2 Rechner!</para>
+	</listitem>
+	<listitem>
+	  <para>Holen der Daten von einer Backup-Festplatte, auf der
+	  sich eine Komplett-Kopie des alten Servers befindet. Dazu brauchen Sie nur
+	  1 Rechner und eine Backupplatte auf die sie von diesem
+	  Rechner aus zugreifen können.</para>
+	</listitem>
+      </orderedlist>
+</para>
   </sect1>
 </appendix>
 <!-- Dieser Kommentar bleibt am Ende des Teil-Dokuments

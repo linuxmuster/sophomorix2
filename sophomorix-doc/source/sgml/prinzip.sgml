@@ -607,16 +607,17 @@
   </sect1>
   <sect1>
     <title>Schritt 5: User entfernen (Entfernungs-Sequenz)</title>
-       <para>Mit dem Befehl</para>
+    <para>Ist eine User nicht mehr in den Konfigurationsdateien, wird
+    er nicht sofort entfern, sondern in den
+    <userinput>dachboden</userinput> versetzt. Mit dem Befehl</para>
 
        <para><screen>sophomorix-kill --info</screen></para>
 
        <para>können die User angezeigt werden, die endgültig gelöscht
-       werden können. Das sind alles User, die schon einige Zeit nicht
-       mehr in den Konigurationsdateien
-       <userinput>schueler.txt</userinput>
-       <userinput>lehrer.txt</userinput> vorkommen und deren
-       Nutzungsmöglichkeiten schon lange sehr eingeschränkt sind (kein
+       werden können. Diese User sind schon einige Zeit nicht mehr in
+       den Konigurationsdateien <userinput>schueler.txt</userinput>
+       <userinput>lehrer.txt</userinput> und deren
+       Nutzungsmöglichkeiten sind schon lange sehr eingeschränkt (kein
        Login).</para>
 
        <para>Mit dem Befehl</para>

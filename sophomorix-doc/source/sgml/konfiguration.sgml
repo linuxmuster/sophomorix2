@@ -1,9 +1,10 @@
 <chapter>
-  <title>Konfiguration (noch nicht aktuell)</title>
+  <title>Konfiguration</title>
   <titleabbrev id="konf">Konfiguration</titleabbrev>
   <sect1>
     <title id="konfigurationsdateien"
-      xreflabel="Konfigurationsdateien">Konfigurationsdateien</title>
+      xreflabel="Konfigurationsdateien">Konfiguration durch den
+      Netzwerkbetreuer</title>
     <sect2>
     <title>Allgemeines</title> 
 
@@ -42,29 +43,30 @@
 	      (<userinput>@</userinput>) Werte zugewiesen werden.</para>
 	  </listitem>
 	<listitem>
-	  <para>Im Moment (Version 1.2) wird empfohlen diese Dateien nicht zu benutzen!</para>
-	  <para>Die Dateien <userinput>sperrklassen.txt</userinput> und
-	      <userinput>entfernen.txt</userinput> ermöglichen das verzögerte
-	      Anlegen von Klassen. Damit kann erreicht werden, dass z. B.
-	      Blockklassen ausgefiltert werden, solange ihre Datensätze noch
-	      nicht in korrigierter Form vorliegen (Weil das Sekretariat zur
-	      Korrektur einige Tage braucht).</para>
+	  <para>Im Moment (Version 1.2) wird empfohlen folgende
+	  Dateien nicht zu benutzen!</para> 
+
+          <para>Die Dateien <userinput>sperrklassen.txt</userinput>
+	  und <userinput>entfernen.txt</userinput> ermöglichen das
+	  verzögerte Anlegen von Klassen. Damit kann erreicht werden,
+	  dass z. B.  Blockklassen ausgefiltert werden, solange ihre
+	  Datensätze noch nicht in korrigierter Form vorliegen (Weil
+	  das Sekretariat zur Korrektur einige Tage braucht).</para>
 	  <para>Die Dateien haben folgendes Format:</para>
 	  <para><screen>klassenname;anlegedatum;</screen></para>
-	  <para>Das Anlegedatum muss innerhalb der von Unix erkannten Zeit
-	    liegen (1970-2038), da es mit dem Systemdatum verglichen
-	    wird. Liegt die Systemzeit <emphasis>vor</emphasis> dem
-	    Anlegedatum, so werden die Schüler diese Klasse ausgefiltert.</para>
-	  <para>Damit das funktioniert  muss die <xref
-	linkend="systemzeit"> richtig gestellt sein. </para>	
-	  <para>Kommentarzeilen sind erlaubt, wenn sie mit #
-	    <emphasis>beginnen</emphasis>. </para>
+	  <para>Das Anlegedatum muss innerhalb der von Unix erkannten
+	  Zeit liegen (1970-2038), da es mit dem Systemdatum
+	  verglichen wird. Liegt die Systemzeit
+	  <emphasis>vor</emphasis> dem Anlegedatum, so werden die
+	  Schüler diese Klasse ausgefiltert.</para> <para>Damit das
+	  funktioniert muss die <xref linkend="systemzeit"> richtig
+	  gestellt sein. </para> <para>Kommentarzeilen sind erlaubt,
+	  wenn sie mit # <emphasis>beginnen</emphasis>. </para>
 	  <para>Der Unterschied zwischen
-	      <userinput>sperrklassen.txt</userinput> und
-	      <userinput>entfernen.txt</userinput> ist die Vorgehensweise,
-	      wenn es bereits Schüler in den zu sperrenden/entfernenden Klasssen
-	      im System gibt:</para>
-	  <para><itemizedlist>
+	  <userinput>sperrklassen.txt</userinput> und
+	  <userinput>entfernen.txt</userinput> ist die Vorgehensweise,
+	  wenn es bereits Schüler in den zu sperrenden/entfernenden
+	  Klasssen im System gibt:</para> <para><itemizedlist>
 	      <listitem>
 		<para>Ein Eintrag in <userinput>sperrklassen.txt</userinput>
 		  lässt schon vorhandene Schüler im System. </para>
@@ -139,48 +141,34 @@
     </sect2>
 
 <sect2>
-    <title>Klassenweite Einstellungen</title>
-      <para>Um Klassenweise Angaben machen zu können existiert die
-	Konfigurationsdatei <userinput>schulinfo.txt</userinput></para>
-	  <para>Sie hat den Aufbau</para>
-	  <para><screen>klasse;abteilung;klassentyp;mail;quota;</screen></para>
-	  <para>Damit wird Angegeben zu welcher Abteilung (falls ihre Schule in
-	      Abteilungen aufgeteilt ist) eine Klasse gehört. Um welchen
-	      Klassentyp es sich handelt (noch ungenutzt) , ob die Schüler
-	      dieser Klasse Mail-Aliase bekommen sollen oder auch eine
-	      gemeinsame Mail-Empfangsadresse Klasse@domain.de, sowie nur für
-	      eine Klasse gültige quota-Einstellungen.</para>
-	  <para>Syntax:</para>
-	  <para><itemizedlist>
-	      <listitem>
-		<para>Sie dürfen/brauchen keine Klassen selber eintragen. Bei
-	      jedem Aufruf von <userinput>sophomorix-check</userinput> wird
-	      eine neue Klassenliste aller in
-	      <userinput>schueler.txt</userinput> (und in den
-	      extra-Dateien) befindlichen Klassen erstellt, ohne dass bisherige
-	      Eintragungen verloren gehen.</para>
-	      </listitem>
-	      <listitem>
-		<para>Für die Abteilung können sie einen beliebigen String
-		  wählen. Dieser String muss jedoch exakt gleich sein bei
-		  Klassen, die in die gleiche Abteilung kommen sollen. </para>
-		<para>Mein Vorschlag: Möglichst kurz und nur Kleinbuchstaben
-		  (Bei uns in der Schule sind das z. B. g1, g2, g3, ...).</para>
-		<para>Von Hand angelegte Klassen (extraschueler.txt bzw.
-	      extrakurse.txt) erscheinen auch. Diese können z.B. der Abteilung
-	      <userinput>admin</userinput> zugeordnet werden.</para>
-	      </listitem>
-	      <listitem>
-		<para>Sollten sie keine Abteilungen an der Schule haben, lassen
-		sie das Feld unverändert (=leer).</para>
-	      </listitem>
-	      <listitem>
-		<para>Das Feld Klassen-typ ist bisher ohne Funktion. Lassen sie
-		    es auf <userinput>typ</userinput>.</para>
-	      </listitem>
-	      <listitem>
-	    <para>Für <userinput>mail</userinput> gibt es folgende
-	      Funktionen:</para>
+    <title>Einstellungen für Klassen</title> 
+
+    <para>Um Klassenweise Angaben machen zu können existiert der
+      Befehl <ulink
+      url="./man/man8/sophomorix-class.8.html"><userinput>sophomorix-class</userinput></ulink>. Damit
+      können in der sophomorix Datenbank Veränderungen vorgenommen
+      werden.</para> 
+
+    <para>Sie dürfen keine Klassen selbst eintragen, da sophomorix das
+      für sie übernimmt. Bei jedem Aufruf von
+      <userinput>sophomorix-check</userinput> wird eine neue
+      Klassenliste aller in <userinput>schueler.txt</userinput> (und
+      in den extra-Dateien) befindlichen Klassen erstellt, ohne dass
+      bisherige Eintragungen verloren gehen.</para>
+
+      <para>Folgende Informationen können (in Zukunft) abgespeichert
+      werden:</para>
+      <itemizedlist>
+          <listitem> 
+ 
+          <para>Für die Abteilung soll später das Feld 6 von
+	  <userinput>schueler.txt</userinput> automatisch benutzt
+	  werden.</para>
+
+	  </listitem>
+          <listitem>
+	    <para>Für <userinput>mail</userinput> soll später folgende
+	      Funktionen geben:</para>
 	    <para><itemizedlist>
 		<listitem>
 		  <para><userinput>mail:</userinput> </para>
@@ -214,38 +202,55 @@
 </para>
 		</listitem>
 		<listitem>
-		  <para>Das Feld für Klassenquotas</para>
-	    <para>Wollen Sie für diese Klasse keine vom Standardwert in
-	      <userinput>quota.txt</userinput> abweichende Quota vergeben,
-	      lassen Sie dieses Feld auf <userinput>quota</userinput>.</para>
-		  <para>Wollen Sie abweichende Quota für diese Klasse, so geben
-		    Sie zum Beispiel <userinput>x-30-x-x</userinput> ein, um 30
-		    MB Festplattenplatz zu vergeben. Siehe auch 
-                  <xref linkend="quota">.</para>
+		  <para>Das Feld für Klassenquotas ist mit <ulink
+      url="./man/man8/sophomorix-class.8.html"><userinput>sophomorix-class</userinput></ulink> nutzbar</para>
 	      </listitem>
 	    </itemizedlist>
-          <para>Ein Neuaufruf von <userinput>sophomorix-check</userinput> ordned
-	    die Daten in dieser Datei neu nach Abteilungen. Klassen, zu der
-	    noch keine Angaben gemacht wurden, erscheinen am Anfang der
-	    Datei. Somit sind einfacher Eintragungen zu machen.
-	  </para>
     </sect2>
-<sect2>
-    <title>Zuordnung Lehrer zu seinen Klassen</title>
-    <para>Viele Netzwerkbetreuer an großen Schulen kennen ihre Lehrerkollegen
-	nicht nicht persönlich und wissen erst recht nicht, in welchen Klassen
-	welcher Lehrer unterrichtet. </para>
-      <para>Um einen Überblick zu bekommen, welche Lehrer in welchen Klassen
-	unterrichten, werden sie ermuntert sich per <userinput>webmin-Modul
-	  Klassenmanager</userinput> in den Klassen einzutragen, in denen sie
-	unterrichten. Damit können die Lehrer in diesen Klassen erweiterte
+  </sect1>
+  <sect1>
+    <title>Konfiguration durch den Lehrer</title> 
+
+    <para>Der Lehrer kann mit Hilfe einiger Befehle eine Konfiguration
+    vornehmen.</para>
+
+    <sect2>
+    <title>Zuordnung Lehrer zu seinen Klassen (MyAdminClasses)</title>
+    <para>Viele Netzwerkbetreuer an großen Schulen kennen ihre
+    Lehrerkollegen nicht nicht persönlich und wissen erst recht nicht,
+    in welchen Klassen welcher Lehrer unterrichtet. </para> 
+
+    <para>Um einen Überblick zu bekommen, welche Lehrer in welchen
+    Klassen unterrichten, werden sie ermuntert sich mit dem Befehl
+    <ulink
+    url="./man/man1/sophomorix-teacher.1.html"><userinput>sophomorix-teacher</userinput></ulink>
+    oder einem <userinput>webmin-Modul</userinput> in den Klassen
+    einzutragen, in denen sie unterrichten. </para>
+
+      <para>Mit <ulink
+    url="./man/man1/sophomorix-teacher.1.html"><userinput>sophomorix-teacher</userinput></ulink>
+    können die Lehrer im Moment:</para> <para><itemizedlist>
+	  <listitem>
+	    <para>Eintragen und Austragen in/aus der Liste meiner
+	    Klasse (MyAdminClasses)</para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+
+      <para>Später können die Lehrer in diesen Klassen erweiterte
 	Aufgaben erledigen, wie z.B. Klassentauschverzeichnis löschen,
-	public_html-Verzeichnisse freischalten, Passwortliste ausdrucken,
-	Quotainformationen der Klasse einsehen, ...</para>
-      <para>Trägt sich ein Lehrer per webmin in eine Klasse ein, so wird dies
-	in <userinput>$HOME/.sophomorix/_Meine-Klassen</userinput>
-	gespeichert.</para>
-    <para>Diese Informationen werden an mehreren Stellen sichtbar:</para>
+	public_html-Verzeichnisse freischalten, Passwortliste
+	ausdrucken, Quotainformationen der Klasse einsehen, ...</para>
+
+	<para>Trägt sich ein Lehrer per webmin in eine Klasse ein, so
+	wird dies im Moment in
+	<userinput>$HOME/.sophomorix/MyAdmiClasses</userinput>
+	gespeichert (Später sollen diese Daten in einer SQL-Datenbank
+	gespeichert werden).</para> 
+
+      <para>Diese Informationen werden an mehreren Stellen
+      sichtbar:</para>
+
       <para>
 	<itemizedlist>
 	  <listitem>
@@ -253,13 +258,7 @@
 	      einer Klasse angelegt, so ist/sind die Loginnamen der Lehrer die
 	      sich in dieser Klasse eingetragen haben auf dem Ausdruck
 	      sichtbar. Der Netzwerkbetreuer weiss welcher Lehrer informiert
-	      werden muss. (In einer späteren Version von sophomorix ist eine
-	      automatische Informationsmail geplant)</para>
-	  </listitem>
-	  <listitem>
-	    <para>Mit dem <userinput>webmin-Modul
-	Klassenmanager</userinput> kann jeder Lehrer sich anzeigen lassen,
-	      welche Lehrer sich in welcher Klasse eingetragen hat.</para>
+	      werden muss.</para>
 	  </listitem>
 	</itemizedlist>
       </para>
