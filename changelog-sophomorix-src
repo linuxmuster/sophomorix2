@@ -20,7 +20,8 @@ dokumentation:
       - sophomorix-doc-html
       - perldoc Sophomorix::SophpmorixAPI
 
-sophomorix-repair 
+sophomorix-repair
+   - repair permissions of subclasses and projects 
    - use function create_userlist to specify users
      Call with option -l loginname should be fast (= do only this)
    - update man page
@@ -105,8 +106,9 @@ sophomorix-user
      (optional parameter)
 
 sophomorix-split
+   - interrupt if class to split is nonexistent
    - check if exchange dir is created
-   -check if links are created to exchange dir
+   - check if links are created to exchange dir
    - create commands with only the changes of users to apply. 
      ( like in sophomorix-project, use the same code?)
    - sophomorix-split options: 
@@ -116,6 +118,7 @@ sophomorix-split
    - rename database subclasses to subclass_db
    - add some show info stuff
    - add change long name of subclass
+   - make sophomorix-split files-independant
 
 
 sophomorix-passwd
@@ -227,6 +230,7 @@ SophomorixAPI:
 
 
 All Scripts:
+   - /home/share/tasks/dachboden is of no use?
    - remove compatibility-mode to ml 1.1.1
    - log teacher actions (sophomorix-teacher, ... to find out if a teacher 
      account is missused)
@@ -336,6 +340,9 @@ RELEASES:
 
 
 1.2.1 (2005-03-?)
+   - moved /home/share/tasks stuff to /home/tasks
+     (consistent directory naming)
+   - make sophomorix-setup-files create subclass_db
    - updated html-Documentation (some stuff is still missing)
    - sopho-man2html:
        - moved manpages of section 1 to a different directory 
