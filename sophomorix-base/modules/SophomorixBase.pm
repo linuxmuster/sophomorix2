@@ -75,6 +75,7 @@ use Time::localtime;
               check_quotastring
               get_quotastring
               setze_quota
+              quota_addition
               get_standard_quota
               get_lehrer_quota
               get_klassen_quota
@@ -2736,6 +2737,46 @@ sub get_mail_alias_from {
 ################################################################################
 # QUOTA
 ################################################################################
+=pod
+
+=item I<quota_addition(qutastring1, quotastring2, quotastring3, ...)>
+
+Zählt quota zusammen. Nicht alle formate weden unterstützt
+
+=cut
+sub quota_addition {
+    my @quotalist = @_;
+    my $fs_quotalist=();
+    my $sum="";
+    my @resultlist=();
+    my $count;
+    foreach $quotastring (@quotalist) {
+        # aufsplitten einer einzelnen Angabe
+	@fs_quotalist=split ((/\+/,$quotastring));
+        $count=0;
+	foreach my $fs_quota (@fs_quotalist) {
+           if (not defined $resultlist[$count]) {
+	      $resultlist[$count]=0;
+	   }
+           $resultlist[$count]=$resultlist[$count]+$fs_quota;
+           $count++;
+        }
+        print $sum;
+    }
+    foreach my $fsq (@resultlist){
+       if ($sum eq ""){
+	 $sum=$fsq;
+       } else {
+         $sum=$sum."+".$fsq;
+       }
+    }
+    return $sum;
+}
+
+
+
+
+
 sub checked_quotastring {
    # input 1: string, der in Quotaangaben stehen kann:
    # Bsp.     156      1332+132  x-12-x-x+23
@@ -2823,7 +2864,7 @@ sub get_quotastring {
          $user_db_quota_entry=$user_db_quota_entry."+".$quotastring;
      }
   }
-  print("  User $user has $user_db_quota_entry as quota\n");
+  print("Quota of user $user: $user_db_quota_entry\n");
    return $user_db_quota_entry;
 }
 
@@ -2841,7 +2882,6 @@ sub get_quotastring {
 sub setze_quota {
    # neue, private Variablen für diesen Block anlegen
    my $quotastring="";
-#   my $user_db_quota_entry="";
    my $minus_anzahl=0;
    # Optionen für den setquota-Befehl
    my $q_opt1="";
@@ -2852,18 +2892,13 @@ sub setze_quota {
    my $j=0;
    my $uid=-1;
    # Parameter 
-   # $user:                 username
-   # $fsliste               Referenz auf Liste mit Filesystemen (für alle user gleich)
-   # $quotastring           Referenz auf Liste mit Quota (für übergebenen user)
-   my ($user,$fsliste, $quotaliste)=@_;
+   # $user:        username
+   # $fsliste      Referenz auf Liste mit Filesystemen (für alle user gleich)
+   # $quotastring  Referenz auf Liste mit Quota (für übergebenen user)
+   my ($system,$user,$fsliste, $quotaliste)=@_;
    # Nun die Elemente der Dateisystem-Liste durchgehen von 1 bis j
    for ($j=0; $j < @$fsliste; $j++){
-   
-      # sagen, was ich mache 
-      if($Conf::log_level>=3){
-         print ("Setze Quota:\n");
-         #print ("Setze Quota ","$fsliste->[$j]", " auf ","$quotaliste->[$j]","\n");
-      }
+
       # Aus der Listenreferenz das j-te Element herausnehmen
       $quotastring = $quotaliste->[$j];
       $fs = $fsliste->[$j];
@@ -2871,11 +2906,7 @@ sub setze_quota {
       # Leerzeichen aus quotastring entfernen und return abschneiden
       chomp($quotastring);
       $quotastring=~s/ //g;
-#      if ($user_db_quota_entry eq "") {
-#         $user_db_quota_entry=$quotastring;
-#      } else {
-#         $user_db_quota_entry=$user_db_quota_entry."+".$quotastring;
-#      }
+
       # falls Minus-Zeichen vorhanden, aufsplitten
       if ($quotastring=~/-/) {
          # quotastring aufsplitten
@@ -2910,62 +2941,49 @@ sub setze_quota {
         $q_opt4=100*$q_opt2;
       }
 
-      # Quotabefehl als string erzeugen (abhängig von Kernelupdate)
-      if ($DevelConf::kernel_update eq "ja") {
-         #print ("kernel 2.4\n");
-         # ML-Kernelupdate auf 2.4.18
-         $quota_befehl="setquota -u ${user} ${q_opt1}000 ${q_opt2}000 ${q_opt3} ${q_opt4} ${fs}";
-
-      } else {
-         # print ("kernel 2.2\n");
-         # ML-Kernel 2.2.16
-         $quota_befehl="setquota -u ${user} ${fs} ${q_opt1}000 ${q_opt2}000 ${q_opt3} ${q_opt4}";
+      # Quota-Befehlsparameter ausgeben
+      # user-ID ermitteln
+      ($a,$a,$uid)=getpwnam("$user");
+#      if (not defined $uid) {
+#        $uid=999999;
+#        print("UserID:   n.A., da Testlauf (UID=$uid, show must go on.)\n");
+#      }
+      if($Conf::log_level>=3){
+         # Ausgeben der ermittelten werte
+         print("  Device:            ${fs}\n");
+         print("  User:              ${user}\n");
+         print("  UserID:            $uid\n");
+         print("  Block-Softlimit:   ${q_opt1}000  \n");
+         print("  Block-Hardlimit:   ${q_opt2}000  \n");
+         print("  Inode-Softlimit:   ${q_opt3}     \n");
+         print("  Inode-Hardlimit:   ${q_opt4}     \n");
       }
-
-      # Quota-Befehle an der Konsole ausgeben
-	if (not $DevelConf::system==1){
-           # Quota-Modul benutzen
-           # user-ID ermitteln
-           ($a,$a,$uid)=getpwnam("$user");
-	   if (not defined $uid) {
-              $uid=999999;
-              print("UserID:            n.A., da Testlauf (UID=$uid, show must go on.)\n");
-           }
-           if($Conf::log_level>=3){
-              # Ausgeben der ermittelten werte
-              print("Device:            ${fs}\n");
-              print("User:              ${user}\n");
-              print("UserID:            $uid\n");
-              print("Block-Softlimit:   ${q_opt1}000  \n");
-              print("Block-Hardlimit:   ${q_opt2}000  \n");
-              print("Inode-Softlimit:   ${q_opt3}     \n");
-              print("Inode-Hardlimit:   ${q_opt4}     \n");
-	 }
-	} else {
-
-           print("${quota_befehl}","\n");
-         
-        }
 
       # Mit setquota die Quota der user tatsächlich anpassen
-
-      if(not $DevelConf::testen==1) {
-        #Es ist ernst
-        
-	if (not $DevelConf::system==1){
-          # Quota-Modul benutzen
-          Quota::setqlim($fs,$uid,"${q_opt1}000","${q_opt2}000",$q_opt3,$q_opt4);
-          print "Setting quota on $fs for user $uid \n"; 
-          print "to: ${q_opt1}000 ${q_opt2}000 $q_opt3 $q_opt4 \n";
-	} else {
-          # Systembefehl benutzten
-          system("${quota_befehl}")
-        } 
-
+      if (not $DevelConf::system==1){
+         # Quota-Modul benutzen
+         if(not $DevelConf::testen==1) {
+            # do it
+            Quota::setqlim($fs,$uid,"${q_opt1}000","${q_opt2}000",$q_opt3,$q_opt4);
+	 } else {
+            # test
+            print "  Test (quota are not set!): \n";
+         }
+         print "   Setting quota ($fs, uid $uid): "; 
+         print "${q_opt1}000 ${q_opt2}000 $q_opt3 $q_opt4 \n";
       } else {
-          print "Test: Setze Quota auf $fs für User $uid \n"; 
-          print "auf: ${q_opt1}000 ${q_opt2}000 $q_opt3 $q_opt4 \n";
-      }
+         # Systembefehl benutzten
+         $quota_befehl="setquota -u ${user} ${q_opt1}000 ".
+                       "${q_opt2}000 ${q_opt3} ${q_opt4} ${fs}";
+         if(not $DevelConf::testen==1) {
+            # do it
+            system("${quota_befehl}")
+         } else {
+            # test
+            print "  Test (quota are not set!): \n";
+         }
+         print("   Quota command: ${quota_befehl}","\n");
+      } 
    # Quota aufsummieren
    $DevelConf::q_summe[$j]=$DevelConf::q_summe[$j]+$q_opt2;
    }
