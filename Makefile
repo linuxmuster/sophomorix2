@@ -44,7 +44,7 @@ install-base:
 
 	##### scripts
 	install -d $(DESTDIR)/usr/sbin
-	install -oroot -groot --mode=0744 sophomorix-base/scripts/sophomorix* $(DESTDIR)/usr/sbin
+	install -oroot -groot --mode=0744 sophomorix-base/scripts/sophomorix-*[a-z1-9] $(DESTDIR)/usr/sbin
 	##### configs for admin
 	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/user
 	install -oroot -groot --mode=0600 sophomorix-base/config/*[!CVS] $(DESTDIR)/etc/sophomorix/user
@@ -52,18 +52,21 @@ install-base:
 	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/devel/user
 	install -oroot -groot --mode=0700 sophomorix-base/config-devel/*[!CVS] $(DESTDIR)/etc/sophomorix/devel/user
 	##### Copy the DB-independant libs
-	install -oroot -groot --mode=0744 sophomorix-base/lib/sophomorix* $(DESTDIR)/usr/sbin
+#	install -oroot -groot --mode=0744 sophomorix-base/lib/sophomorix-*[a-z1-9] $(DESTDIR)/usr/sbin
+	##### Copy the module
+	install -d -m755 -oroot -groot $(DESTDIR)/usr/lib/perl5/Sophomorix
+	install -oroot -groot --mode=0644 sophomorix-base/modules/Sophomorix*[a-z1-9] $(DESTDIR)/usr/lib/perl5/Sophomorix
 
 
 install-files:
 	##### lib for managing users in files (passwd, group, user.protokoll)
-	install -oroot -groot --mode=0744 sophomorix-files/lib/sophomorix* $(DESTDIR)/usr/sbin
-	install -oroot -groot --mode=0744 sophomorix-files/scripts/sophomorix* $(DESTDIR)/usr/sbin
+	install -oroot -groot --mode=0744 sophomorix-files/lib/sophomorix*[a-z1-9] $(DESTDIR)/usr/sbin
+	install -oroot -groot --mode=0744 sophomorix-files/scripts/sophomorix*[a-z1-9] $(DESTDIR)/usr/sbin
 
 
 install-developer:
 	##### tset and developement tools
-	install -oroot -groot --mode=0744 sophomorix-developer/scripts/sophomorix* $(DESTDIR)/usr/sbin
+	install -oroot -groot --mode=0744 sophomorix-developer/scripts/sophomorix*[a-z1-9] $(DESTDIR)/usr/sbin
 
 
 # sophomorix-webmin
