@@ -19,6 +19,7 @@ require Exporter;
              get_print_data
              search_user
              backup_user_database
+             get_first_password
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
@@ -768,6 +769,8 @@ sub search_user {
        $name_passwd,$gcos_passwd,$home,$shell)=&Sophomorix::SophomorixBase::get_user_auth_data($login);
 
        # Gruppen-Zugehoerigkeit
+       $pri_group_string="";
+       $grp_string="";
        @group_list=&Sophomorix::SophomorixBase::get_group_list($login);
        $pri_group_string=$group_list[0];
 
@@ -888,6 +891,29 @@ sub backup_user_database {
       "cp ${DevelConf::protokoll_pfad}/user.protokoll ${DevelConf::log_pfad}/${time}.user.protokoll-${string}",
       "chmod 600 ${DevelConf::log_pfad}/${time}.user.protokoll-${string}"
     );
+}
+
+
+=pod
+
+=item  I<get_first-password(login)>
+
+Returns the FirstPassword of the user login
+
+=cut
+sub get_first_password {
+  my ($username) = @_;
+  open(PASSPROT, "$DevelConf::dyn_config_pfad/user.protokoll");
+  while(<PASSPROT>) {
+      chomp(); # Returnzeichen abschneiden
+      s/\s//g; # Spezialzeichen raus
+      if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+      my ($gruppe, $nax, $login, $pass) = split(/;/);
+      if ($username eq $login) {
+        return $pass;
+      }
+  }
+  close(PASSPROT);
 }
 
 
