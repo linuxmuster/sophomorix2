@@ -79,11 +79,11 @@ foreach $user (@users_to_add){
 # Ergebnisdateien pruefen
 # Test
 &check_line_in_file(
-  "vhs::mueller;juergen;02.11.1983::[a-z]{2,}::[a-z]{3,}",
+  "vhs::mueller;juergen;02.11.1983::[-a-z]{2,}::[-a-z]{3,}",
   "${DevelConf::ergebnis_pfad}/sophomorix.add");
 # Test
 &check_line_in_file(
-  "vhs::neumueller;siegfried;05.02.1984::sigi::[a-z]{3,}",
+  "vhs::neumueller;siegfried;05.02.1984::sigi::[-a-z]{3,}",
   "${DevelConf::ergebnis_pfad}/sophomorix.add");
 # Test
 &check_emptyness("sophomorix.move");
@@ -108,15 +108,15 @@ foreach $user (@users_to_add){
 ###########################################################################
 # Druckdaten prüfen
 # hinzu.tex
-&check_existence("${DevelConf::druck_pfad}/hinzu.tex");
+&check_existence("${DevelConf::druck_pfad}/add.tex");
 &check_line_in_file("juergen mueller",
-                    "${DevelConf::druck_pfad}/hinzu.tex");
+                    "${DevelConf::druck_pfad}/add.tex");
 &check_line_in_file("siegfried neumueller",
-                    "${DevelConf::druck_pfad}/hinzu.tex");
+                    "${DevelConf::druck_pfad}/add.tex");
 # andere
-&check_existence("${DevelConf::druck_pfad}/hinzu.dvi");
-&check_existence("${DevelConf::druck_pfad}/hinzu.ps");
-&check_existence("${DevelConf::druck_pfad}/hinzu.pdf");
+&check_existence("${DevelConf::druck_pfad}/add.dvi");
+&check_existence("${DevelConf::druck_pfad}/add.ps");
+&check_existence("${DevelConf::druck_pfad}/add.pdf");
 
 
 
