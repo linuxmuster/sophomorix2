@@ -24,8 +24,9 @@ system("groupadd admin");
 #system("groupadd -g 1002 lehrer");
 system("groupadd lehrer");
 
-# make some sccripts owned by leherer
+# make some scripts owned by leherer
 system("chown root.lehrer /usr/bin/sophomorix-teacher");
+system("chmod 4750 /usr/bin/sophomorix-teacher");
 
 
 # admin anlegen
