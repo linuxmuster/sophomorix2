@@ -66,7 +66,7 @@ install-base:
 	install -oroot -groot --mode=0744 sophomorix-base/scripts/sophomorix-*[a-z1-9] $(DESTDIR)/usr/sbin
 	##### configs for admin
 	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/user
-	install -oroot -groot --mode=0700 sophomorix-base/config/sophomorix.conf $(DESTDIR)/etc/sophomorix/user
+	install -oroot -groot --mode=0600 sophomorix-base/config/sophomorix.conf $(DESTDIR)/etc/sophomorix/user
 	install -oroot -groot --mode=0600 sophomorix-base/config/quota.txt $(DESTDIR)/etc/sophomorix/user
 	##### config-templates
 	install -oroot -groot --mode=0600 sophomorix-base/config-templates/*[!CVS] $(CTEMPDIR)
