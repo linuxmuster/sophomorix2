@@ -136,10 +136,10 @@ my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
            "show|s" => \$show,
            "all|alle|a" => \$alle,
-           "gruppe|klasse|g|k=s" => \$gruppe,
+           "klasse|class|c|g|k=s" => \$gruppe,
            "help|h" => \$help,
-           "lehrer|l" => \$lehrer,
-           "caller|c=s" => \$caller,
+           "lehrer|teacher|l|t" => \$lehrer,
+           "caller=s" => \$caller,
            "info|i" => \$info
           );
 
@@ -160,35 +160,24 @@ if ($help==1) {
    my @list = split(/\//,$0);
    my $scriptname = pop @list;
    # Befehlsbeschreibung
-   print "$scriptname erzeugt Schülerlisten aus angelegten Usern ";
-   print "${DevelConf::ergebnis_pfad}/sophomorix.add an\n\n";
+   print('
+sophomorix-print prints user account data of recently added users to 
+  /var/lib/sophomorix/drucken (later: /var/lib/sophomorix/print)
 
-   # gemeinsamer Hilfetext aller Scripten
-   &help_text_all;
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -a  / --all / --alle
+  -l  / -t / --lehrer / --teacher
+  -k class / -c class / -g class / --klasse class / --class class
+  -s  / --show
+  --caller
+  -i / --info
 
-   # optionen
-   print "Optionen:\n\n";
-
-   print "  --alle, --all, -a\n";
-   print "     Es werden die Kärtchen von allen Lehrern und allen Schülern gedruckt. \n\n";
-
-   print "  --lehrer\n";
-   print "     Es wird nur die Kärtchen der Lehrer gedruckt. \n\n";
-
-   print "  --gruppe klasse, --klasse klasse, -k  klasse, -g klasse\n";
-   print "     Es werden nur Schüler-Kärtchen gedruckt, die in der angegebenen \n";
-   print "     Klasse sind. (Die Klassenangabe muss mit vorangestelltem k erfolgen)\n\n";
-
-   print "  --show, -s\n";
-   print "     Nachdem die Ausruckdateien erzeugt wurden, wird die ensprechende \n";
-   print "     PDF-Datei (liste.pdf oder hinzu.pdf) mit Acrobat Reader angezeigt. \n";
-   print "     Dazu muss allerdings X-Window laufen.\n\n";
-
-   print "  --caller, -c\n";
-   print "     Der Aufrufende (caller) wird $scriptname übergeben, damit dessen \n";
-   print "     Name mit in die PDF-Datei integriert und der Dateiname \n"; 
-   print "     entsprechend modifiziert wird. \n\n";
-
+Please see the sophomorix-print(8) man pages for full documentation
+');
+   print "\n";
    exit;
 }
 

@@ -82,13 +82,16 @@ my $neu_gruppe="";
 my $klassenintern="";
 my $loginname="";
 
+
+## klassenintern muss raus ??????????????????
+
 # Parsen der Optionen
 my $testopt=GetOptions(
            "test|t" => \$DevelConf::testen,
            "verbose|v+" => \$Conf::log_level,
-           "login|loginname|user|u|l=s" => \$loginname,
-           "altgruppe|altklasse|a=s" => \$alt_gruppe,
-           "neugruppe|neuklasse|n=s" => \$neu_gruppe,
+           "login|user|u|l=s" => \$loginname,
+           "oldclass|altklasse|a|o=s" => \$alt_gruppe,
+           "newclass|neuklasse|n=s" => \$neu_gruppe,
            "klassenintern=s" => \$klassenintern,
            "info|i" => \$info,           
            "help|h" => \$help
@@ -104,44 +107,22 @@ if ($help==1) {
    my @list = split(/\//,$0);
    my $scriptname = pop @list;
    # Befehlsbeschreibung
-   print "$scriptname versetzt Schüler aus der Datei \n";
-   print "   ${DevelConf::ergebnis_pfad}/sophomorix.move \n";
-   print "in eine andere Klasse\n\n";
+   print('
+sophomorix-move moves a user to a different AdminClass
 
-   # optionen
-   print "Optionen:\n\n";
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -i  / --info
+  -l  loginname /   --loginame loginname / -u loginname --user loginname
+  -a klasse / --altklasse klasse / -o class / --oldclass class
+  -n klasse / --neuklasse klasse / --newclass class
+  -t  / --test
 
-   print "  --info, -i\n";
-   print "     Listet die User auf, die versetzt werden können. \n\n";
-
-   print "  --login user, -- loginname user, --user user, -u user, -l user\n";
-   print "     Es wird nur die Schülerin/der Schüler versetzt, \n";
-   print "     die/der den Benutzernamen user hat.\n\n";
-
-   print "  --altgruppe klasse, --altklasse klasse, -a  klasse\n";
-   print "     Es werden nur Schüler versetzt, die AUS der angegebenen Klasse \n";
-   print "     in eine andere, beliebiege Klasse versetzt werden sollen.\n";
-   print "     (Die Klassenangabe muss mit vorangestelltem k erfolgen)\n\n";
-
-   print "  --neugruppe klasse, --neuklasse klasse, -n  klasse\n";
-   print "     Es werden nur Schüler versetzt, die aus einer beliebigen Klasse \n";
-   print "     IN die angegeben Klasse versetzt werden sollen.\n";
-   print "     (Die Klassenangabe muss mit vorangestelltem k erfolgen)\n\n";
-
-   print "  --klassenintern klasse\n";
-   print "     Es werden nur Schüler inerhalb der angegebenen Klasse versetzt.\n";
-   print "     z.B. von km1kb2t-a nach km1kb2t-b.\n";
-   print "     (Die Klassenangabe muss mit vorangestelltem k erfolgen)\n\n";
-
-   # gemeinsamer Hilfetext aller Scripten
-   &help_text_all;
-   
-   print "Testen:\n\n";
-   # testen
-   print "  -t, --test\n";
-   print "     Schüler werden nicht wirklich versetzt. \n";
-   print "     Ansonsten läuft $scriptname möglichst normal.\n\n";
-
+Please see the sophomorix-move(8) man pages for full documentation
+');
+   print "\n";
    exit;
 }
 
