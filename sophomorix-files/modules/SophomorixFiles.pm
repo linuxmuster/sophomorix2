@@ -167,6 +167,8 @@ sub get_sys_users {
    my $status="";
    my $toleration_date="";
    my $deactivation_date="";
+   my $exit_admin_class="";
+   my $account_type="",
    my $name_pro="";
    my $vorname_pro="";
    my $nachname_pro="";
@@ -179,6 +181,8 @@ sub get_sys_users {
    my %identifier_toleration_date=();
    my %identifier_deactivation_date=();
    my %unid_identifier=();
+   my %identifier_exit_adminclass=();
+   my %identifier_account_type=();
 
 # user.protokoll   einlesen
 open(USERIMSYSTEM, 
@@ -203,7 +207,9 @@ system ("chmod 600 $DevelConf::protokoll_datei");
     $subclass,
     $status,
     $toleration_date,
-    $deactivation_date
+    $deactivation_date,
+    $exit_admin_class,
+    $account_type
    )=split(/;/);
 
    # Name aufsplitten
@@ -274,6 +280,8 @@ system ("chmod 600 $DevelConf::protokoll_datei");
    if (not defined $status){$status=""}
    if (not defined $toleration_date){$toleration_date=""}
    if (not defined $deactivation_date){$deactivation_date=""}
+   if (not defined $exit_admin_class){$exit_admin_class=""}
+   if (not defined $account_type){$account_type=""}
 
    if($Conf::log_level>=3){
       print "\n";
@@ -322,6 +330,20 @@ system ("chmod 600 $DevelConf::protokoll_datei");
          print "  DeactivationDate  :   --- \n" ;
       }
 
+      # ExitAdminClass is optional
+      if ($exit_admin_class ne "") {
+         print "  ExitAdminClass    :   $exit_admin_class \n" ;
+      } else {
+         print "  ExitAdminClass    :   --- \n" ;
+      }
+
+      # AccountType is optional
+      if ($account_type ne "") {
+         print "  AccountType       :   $account_type \n" ;
+      } else {
+         print "  AccountType       :   --- \n" ;
+      }
+
           print "\n";
    }# end loglevel
  
@@ -329,6 +351,16 @@ system ("chmod 600 $DevelConf::protokoll_datei");
    $identifier_adminclass{$identifier} = "$admin_class";
    $identifier_login{$identifier} = "$login";
    $identifier_status{$identifier} = "$status";
+
+   # unid is optional
+   if ($unid ne "") {        
+      $unid_identifier{$unid} = "$identifier";
+   }
+
+   # subclass is optional
+   if ($subclass ne "") {        
+      $identifier_subclass{$identifier} = "$subclass";
+   }
 
    # TolerationDate is optional
    if ($toleration_date ne "") {        
@@ -340,14 +372,14 @@ system ("chmod 600 $DevelConf::protokoll_datei");
       $identifier_deactivation_date{$identifier} = "$deactivation_date";
    }
 
-   # subclass is optional
-   if ($subclass ne "") {        
-      $identifier_subclass{$identifier} = "$subclass";
+   # ExitAdminClass is optional
+   if ($exit_admin_class ne "") {        
+      $identifier_exit_adminclass{$identifier} = "$exit_admin_class";
    }
 
-   # unid is optional
-   if ($unid ne "") {        
-      $unid_identifier{$unid} = "$identifier";
+   # AccountType is optional
+   if ($account_type ne "") {        
+      $identifier_account_type{$identifier} = "$account_type";
    }
 
    # increase counter for users
@@ -371,6 +403,8 @@ system ("chmod 600 $DevelConf::protokoll_datei");
           \%identifier_toleration_date,
           \%identifier_deactivation_date,
           \%unid_identifier,
+          \%identifier_exit_adminclass,
+          \%identifier_account_type
          );
 }
 
