@@ -58,8 +58,6 @@ my $www_link="";
 
 my %protokoll_hash;
 
-my %klassen_intern=();
-
 my $k;
 my $v;
 my $key;
@@ -75,11 +73,8 @@ my $help=0;
 my $info=0;
 my $alt_gruppe="";
 my $neu_gruppe="";
-my $klassenintern="";
 my $loginname="";
 
-
-## klassenintern muss raus ??????????????????
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -88,7 +83,6 @@ my $testopt=GetOptions(
            "login|user|u|l=s" => \$loginname,
            "oldclass|altklasse|a|o=s" => \$alt_gruppe,
            "newclass|neuklasse|n=s" => \$neu_gruppe,
-           "klassenintern=s" => \$klassenintern,
            "info|i" => \$info,           
            "help|h" => \$help
           );
@@ -145,21 +139,18 @@ if ($neu_gruppe ne "") {
 
 
 
-# --klassenintern
-if ($klassenintern ne "") {
-  #
-  print "Interne Versetzung in Klasse $klassenintern angegeben.\n";
-  # Hash mit zulässigen Klassenbezeichnungen erstellen
-  $klassen_intern{$klassenintern}="leer";
-  $klassen_intern{"$klassenintern"."-a"}="leer";
-  $klassen_intern{"$klassenintern"."-b"}="leer";
-  $klassen_intern{"$klassenintern"."-c"}="leer";
-  $klassen_intern{"$klassenintern"."-d"}="leer";
+# ===========================================================================
+# Abbruch, wenn sophomorix.move fehlt oder leer
+# ===========================================================================
+if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.move")) {
+  print "\n  Die Datei\n\n";
+  print "    ${DevelConf::ergebnis_pfad}/sophomorix.move\n\n";
+  print "  ist leer oder wurde nicht gefunden.\n\n";
+  print "  Es sind keine User zu versetzen\n\n";
+  print "  sophomorix-move beendet sich deshalb!\n\n";
+  exit; 
 }
 
-while (($k,$v) = each %klassen_intern){
-    print $k , " ", $v, "\n";
-}
 
 # --info
 if ($info==1) {
@@ -189,17 +180,6 @@ print ("sophomorix-move startet ...\n");
 # repair.directories einlesen
 &get_alle_verzeichnis_rechte();
 
-# ===========================================================================
-# Abbruch, wenn sophomorix.move fehlt oder leer
-# ===========================================================================
-if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.move")) {
-  print "\n  Die Datei\n\n";
-  print "    ${DevelConf::ergebnis_pfad}/sophomorix.move\n\n";
-  print "  ist leer oder wurde nicht gefunden.\n\n";
-  print "  Es sind keine User zu versetzen\n\n";
-  print "  sophomorix-move beendet sich deshalb!\n\n";
-  exit; 
-}
 
 # sophomorix database sichern
 &backup_user_database($zeit, "before.move");
@@ -267,17 +247,6 @@ while(<USERVERSETZEN>){
         next;
      }
    }
-   # Abbruch, wenn nicht INNERHALB der richtigen Klasse versetzt wird
-   if ($klassenintern ne "") {
-     
-     if (not exists $klassen_intern{$alte_klasse}
-         or not exists $klassen_intern{$neue_klasse}) {
-        print "##### $login_versetzen wird NICHT nach $klassenintern vesetzt!\n";
-        print NOCHVERSETZEN "$_\n";
-        next;
-     }
-   }
-
 
 
    #####################################
