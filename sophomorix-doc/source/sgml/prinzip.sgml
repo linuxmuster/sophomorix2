@@ -4,12 +4,6 @@
 	linkend="lehreranlegen" endterm="lehreranlegen"></para>
   <sect1>
     <title>Schritt 1: Analyse der Schülerdatei durchführen</title>
-    <para>Dies ist die Anleitung für den Fall, dass sie noch keine Benutzer
-      angelegt haben. </para>
-    <para>Sollten sie schon viele Benutzer auf dem Musterlösungsserver angelegt
-      haben, machen am besten erst mal weiter und schauen sich
-      danach die Vorgehensweise bei vorhandenem <xref
-	linkend="benutzerstamm"> an.</para>
  <sect2>
       <title>Kurzer Überblick über Schritt 1</title>
     <para>Die folgende Abbildung zeigt grafisch den Aufbau von sophomorix.</para>
@@ -34,27 +28,30 @@
     <para>&so-check; liest die Datei <userinput>schueler.txt</userinput> des
 	  Schulverwaltungsprogramms und die Datei
 	  <userinput>lehrer.txt</userinput> ein, und schreibt die syntaktisch
-	  richtigen Schülereinträge nach <userinput>user.ok</userinput>.
+	  richtigen Schülereinträge nach <userinput>sophomorix.ok</userinput>.
 	  Syntaktisch falsche Einträge landen in
 	  <userinput>report.sekretariat</userinput>. Außerdem wird ein Report
 	  für den Netzwerkbetreuer erzeugt
 	  (<userinput>report.admin</userinput>)
     </para>
-    <para>Außerdem rekonstruiert &so-check; aus der
-	  System-Benutzerdatenbank (files bzw. in Zukunft ldap) und aus der
-	  Protokolldatei der Musterlösung
-	  <userinput>user.protokoll</userinput> die Datensätze der User,
-	  die momentan im System vorhanden sind
-	  (<userinput>user.imsystem</userinput>).
+    <para>Außerdem liest &so-check; aus dem Authentifizierungssystem
+	  (im Moment files) und aus der sophomorix Datenbank die
+	  Datensätze der User, die bereits angelegt sind.
     </para>
-    <para>Aus korrekt angegebenen Usern (<userinput>user.ok</userinput>)
-	  und den schon im System befindlichen Usern
-	  (<userinput>user.imsystem</userinput>) wird nun ermittelt, welche
-	  User hinzukommen <emphasis>würden</emphasis>
-	  <userinput>user.hinzu</userinput> und welche User entfernt
-	  <emphasis>würden</emphasis>
-	  (<userinput>user.weg</userinput>), sowie Schüler, deren Klasse sich
-	  ändert (<userinput>user.versetzen</userinput>).</para>
+    <para>Anschließend wird ermittelt, welche User angelegt werden
+	  <emphasis>können</emphasis>
+	  <userinput>sophomorix.add</userinput> und welche User
+	  endgültig entfernt werden <emphasis>können</emphasis>
+	  (<userinput>sophomorix.kill</userinput>), sowie Schüler,
+	  deren Klasse sich ändert, die also versetzt werden
+	  <emphasis>können</emphasis>
+	  (<userinput>sophomorix.move</userinput>).</para>
+
+    <para>Wenn <userinput>sophomorix-check</userinput> erkennt, dass
+    bei einem User eine Namensänderung oder eine Geburtstagsänderung
+    vorgenommen wurde, dann werden die aktualisierten Userdaten
+    automatisch in die sophomorix Datenbank und das
+    Authentifizierungssystem hochgeladen (auto-tech-in).</para>
  </sect3>
 <sect3>
       <title>Die Konfigurationsdateien (grün)</title>
@@ -76,14 +73,6 @@
 	  anzugebenden Klasse sind bis zu einem bestimmten Datum ausgefiltert
 	  werden (z. B. Blockklassen, die erst lange nach Schuljahresbeginn
 	  eingeschult werden).</para>
-	<para>Mit der Datei <userinput>teach-in.txt</userinput> können Einträge
-	  in <userinput>schueler.txt</userinput> durch andere ersetzt werden.
-	  <userinput>teach-in.txt</userinput> sollte nicht von Hand editiert
-	  werden, sondern durch ein Script erzeugt werden. Siehe auch Schritt
-	  2.</para>
-	<para>Mit <userinput>schueler.subklassen</userinput> kann ein Anhang an
-	die Klassenbezeichnung angefügt werden (-a, -b, -c, -d). Dies dient (in
-	  Zukunft) zum Aufteilen einer Klassen durch einen Lehrer.</para>
 </sect3>
     </sect2>
     <sect2>
@@ -175,7 +164,7 @@
 	  <para><screen>sophomorix-check</screen></para>
 	  <para>Dadurch werden folgende Dateien mit Schülerdatensätzen
 	      analysiert und die syntaktisch korrekten Datensätze in der Datei
-	      <userinput>user.ok</userinput> zusammengefasst: </para>
+	      <userinput>sophomorix.ok</userinput> zusammengefasst: </para>
 	  <para><itemizedlist>
 	      <listitem>
 		<para>Die zu untersuchende Datei des Schulverwaltungsprogramms,
@@ -213,25 +202,25 @@
 	      </userinput>...)</para>
 	  <para>Mit dem Kommando <userinput>less</userinput> können sie den
 	    Inhalt dieser Dateien anzeigen lassen, z.B. mit:</para>
-	    <para><screen>less user.ok</screen></para>
-	  <para>den Inhalt der Datei <userinput>user.ok</userinput>. Durch
+	    <para><screen>less sophomorix.ok</screen></para>
+	  <para>den Inhalt der Datei <userinput>sophomorix.ok</userinput>. Durch
 	      Drücken der Taste <userinput>q</userinput> verlassen Sie den
 	      Viewer <userinput>less</userinput>.</para>
 	  <para>Folgende Ergebnisdateien gibt es:</para>
 	  <para><itemizedlist>
 		<listitem>
-		  <para><userinput>user.ok</userinput> enthält alle
+		  <para><userinput>sophomorix.ok</userinput> enthält alle
 		    Schülereinträge ihrer Schülerdatei
 		    (<userinput>schuelerneu.txt</userinput>), die syntaktisch
 		    korrekt sind. </para>
 		</listitem>
                 <listitem>
-		  <para><userinput>user.imsystem</userinput> enthält alle
+		  <para><userinput>user.imsystem???</userinput> enthält alle
 		    Schüler, die sich schon im System befinden.</para>
 		</listitem>
 		<listitem>
-		  <para><userinput>user.weg</userinput> und
-		    <userinput>user.hinzu</userinput> enthalten die User,
+		  <para><userinput>sophomorix.kill</userinput> und
+		    <userinput>sophomorix.add</userinput> enthalten die User,
 		    die beim Benutzeranlegen entfernt werden bzw. hinzukommen
 		    <emphasis>WÜRDEN</emphasis>. Diese beiden Dateien dürfen
 		    sie nicht editieren. Überlassen Sie deren Auswertung einem
@@ -239,7 +228,7 @@
 		    (<userinput>sophomorix-teach-in</userinput>)</para>
 		</listitem>
 		<listitem>
-		  <para><userinput>user.versetzen</userinput> enthält alle
+		  <para><userinput>sophomorix.move</userinput> enthält alle
 		    User, die versetzt werden <emphasis>WÜRDEN</emphasis>. 
                   </para>
 		</listitem>
@@ -296,7 +285,7 @@
 		
 
                 <listitem>
-	          <para>Die Datei <userinput>klasse.schuelerzahl</userinput>
+	          <para>Die Datei <userinput>klasse.schuelerzahl???</userinput>
 		    enthält alle Klassen und wieviele Schüler in dieser Klasse
 		    sind.</para>
 		</listitem>
@@ -326,27 +315,26 @@
   <sect1>
   <title>Schritt 2: Teach-in durchführen</title>
     <sect2>
-      <title>Kurzer Überblick über Schritt 2</title> <para>Die
-      folgende Abbildung zeigt, was bei einem Teach-in passiert
-      (Rot).</para> <para><figure> <title>Schritt 2:
-      <userinput>sophomorix-teach-in</userinput> erzeugt
-      <userinput>teach-in.txt</userinput></title>
-	  <mediaobject>
-	    <imageobject>
-	      <imagedata fileref="workflow.png" format="png">
-	    </imageobject>
-	    <imageobject>
-	      <imagedata fileref="workflow.eps" format="eps">
-	    </imageobject>
-	    <textobject>
-	      <phrase>Grafischer Ablaufplan von
-		<userinput>sophomorix-teach-in</userinput></phrase>
-	    </textobject>
-	  </mediaobject>
-      </figure>
+      <title>Kurzer Überblick über Schritt 2 (ändert sich)</title> 
+
+      <para>Der folgende, manuelle teach-in ist nur erforderlich, wenn
+      die das 5.Feld in schueler.txt <emphasis>nicht</emphasis>
+      verwenden, wenn also das Schulverwaltungprogramm keinen Unid
+      (Unique Identifier) ausgibt.
       </para>
+
+      <para>Auch wenn der automatische teach-in von sophomorix-check
+      genügend intelligent geworden ist kann auf den manuellen
+      teach-in verzichtet werden.
+      </para>
+
       <sect3>
 	<title>Erläuterung</title>
+
+
+<para></para>
+
+
 	<para><userinput>sophomorix-teach-in</userinput> vergleicht die
 	  Schüler, die hinzukommen WÜRDEN mit den Schülern, die entfernt werden
 	  WÜRDEN und analysiert, ob evtl. Namen oder Geburtsangaben ÄHNLICH
@@ -359,11 +347,9 @@
 	<para>Wenn eine solche Namens- oder Geburtstagskorrektur von
 	  <userinput>sophomorix-teach-in</userinput> vermutet und vom
 	  Netzwerkadministrator bestätigt wird, fügt
-	  <userinput>sophomorix-teach-in</userinput> einen Eintrag in
-	  <userinput>teach-in.txt</userinput> hinzu, der diesen
-	  Schüler in Zukunft weiterhin unter seinem alten Namen bzw.
-	  Geburtsdatum in der Datei <userinput>user.ok</userinput>
-	  erscheinen lässt.</para>
+	  <userinput>sophomorix-teach-in</userinput> die Änderungen in
+	  die sophomorix Datembank und das Authentifizierungssystem
+	  ein.</para>
       </sect3>
      </sect2>
      <sect2>
@@ -427,8 +413,8 @@
 	  </listitem>
 	  <listitem>
 	    <para>Das Sript sucht nun in den zu entfernenden Schülern
-	      (<userinput>user.weg</userinput>) und neu hinzukommenden
-	      Schülern (<userinput>user.hinzu</userinput>) nach
+	      (<userinput>sophomorix.kill</userinput>) und neu hinzukommenden
+	      Schülern (<userinput>sophomorix.add</userinput>) nach
 	      Ähnlichkeitsübereinstimmungen. Diese gefundenen
 	      Ähnlichkeitsübereinstimmungen werden ihnen mit den Ziffern (1)
 	      bis (n) angezeigt. </para>
@@ -508,7 +494,7 @@
      </sect2>
     <sect2>
       <title>Prinzip von Schritt 3</title>
-      <para>Alle User in <userinput>user.hinzu</userinput> können mit dem
+      <para>Alle User in <userinput>sophomorix.add</userinput> können mit dem
 	Script <userinput>sophomorix-add</userinput> angelegt werden.</para>
     <para>Welche User angelegt werden KÖNNEN, sehen Sie mit:</para>
 	  <para><screen>sophomorix-add --info</screen></para>
