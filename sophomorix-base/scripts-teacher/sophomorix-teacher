@@ -1,4 +1,5 @@
 #!/usr/bin/suidperl -w
+#     Hey, EMACS: -*- perl -*-
 # Dieses Script (sophomorix-teacher) wurde von Rüdiger Beck erstellt
 # Es ist freie Software
 # Bei Fehlern wenden Sie sich bitte an mich.
@@ -96,7 +97,10 @@ if ($add eq "" and $remove eq ""){
 
 # --add class
 if ($add ne ""){
-   my @liste=&add_my_adminclass($login,$add);
+   my $result = &add_my_adminclass($login,$add);
+   if ($result==0){
+       print "ERROR: $add is not a valid AdminClass\n";
+   }
    $info=1;
 }
 
@@ -105,7 +109,10 @@ if ($add ne ""){
 
 # --remove class
 if ($remove ne ""){
-   &remove_my_adminclass($login,$remove);
+   my $result = &remove_my_adminclass($login,$remove);
+   if ($result==0){
+       print "ERROR: $remove is not existing in MyAdminClasses\n";
+   }
    $info=1;
 }
 
