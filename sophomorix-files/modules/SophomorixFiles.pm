@@ -3,14 +3,11 @@ package Sophomorix::SophomorixFiles;
 require Exporter;
 @ISA =qw(Exporter);
 @EXPORT = qw(move_user_from_to
-             real_2_linux_class
-             real_2_linux_class
-             linux_2_real_classw
 	     create_user_db_entry
+	     delete_user_db_entry
 	     update_user_db_entry
              provide_class
              move_user_db_entry
-             set_toleration_date
              get_sys_users
 );
 
@@ -34,31 +31,31 @@ sub move_user_from_to {
 
 
 
-sub real_2_linux_class {
-    # converts a real groupname to a
-    # linux groupname
-    my ($real) = @_;
-    my $linux = "k"."$real";
-    return $linux;
-}
+#sub real_2_linux_class {
+#    # converts a real groupname to a
+#    # linux groupname
+#    my ($real) = @_;
+#    my $linux = "k"."$real";
+#    return $linux;
+#}
 
 
 
-sub linux_2_real_classw {
-    # converts a linux groupname to a
-    # real groupname
-    my ($linux) = @_;
-    my $first_letter=substr($linux,0,1);
-    if ($first_letter ne "k"){
-      print "\nError converting linux_group $linux to real_group\n"; 
-      print "first letter must be a 'k'\n\n";
-      exit;
-    }
-    my $real = substr($linux,1,200);
-    #print "Erster buchstabe : $first_letter \n";
-    #print "Realer Name: $real \n";
-    return $real;
-}
+#sub linux_2_real_classw {
+#    # converts a linux groupname to a
+#    # real groupname
+#    my ($linux) = @_;
+#    my $first_letter=substr($linux,0,1);
+#    if ($first_letter ne "k"){
+#      print "\nError converting linux_group $linux to real_group\n"; 
+#      print "first letter must be a 'k'\n\n";
+#      exit;
+#    }
+#    my $real = substr($linux,1,200);
+#    #print "Erster buchstabe : $first_letter \n";
+#    #print "Realer Name: $real \n";
+#    return $real;
+#}
 
 
 
@@ -82,6 +79,17 @@ sub create_user_db_entry {
     &provide_class($class);
     &do_falls_nicht_testen(
        "useradd -c '$gec' -d $home -m -g $class -p $pass -s $sh $login"
+    );
+}
+
+
+sub delete_user_db_entry {
+    ($login)=@_;
+    &do_falls_nicht_testen(
+       # aus smbpasswd entfernen
+       "/usr/bin/smbpasswd  -x $login",
+       # Aus Benutzerdatenbank entfernen (-r: Home löschen)
+       "userdel  -r $login",
     );
 }
 
@@ -124,9 +132,9 @@ sub move_user_db_entry {
 
 
 
-sub set_toleration_date {
-
-}
+#sub set_toleration_date {
+#
+#}
 
 ###########################################################################
 # CHECKED, NEW
@@ -377,7 +385,7 @@ sub update_user_db_entry {
     my $status="";
     my $toleration_date="",
     my $deactivation_date="";
-    my $file="";
+    my $file="${DevelConf::protokoll_pfad}/user.protokoll";
 
     # Which file?
     foreach $param (@_){

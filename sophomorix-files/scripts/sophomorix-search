@@ -50,7 +50,7 @@ if ($help==1) {
    my @list = split(/\//,$0);
    my $scriptname = pop @list;
    # Befehlsbeschreibung
-   print "\n$scriptname starts a search for Users in openldap\n\n";
+   print "\n$scriptname gathers information about users and displays it\n\n";
 
    # gemeinsamer Hilfetext aller Scripten
    &help_text_all;
@@ -89,7 +89,6 @@ my ($class,
     $tol,
     $deact)=();
 
-
  my ($loginname_passwd,
      $passwort,
      $uid_passwd,
@@ -107,19 +106,13 @@ my $pri_group_string="";
 ############################################################
 # Start
 ############################################################
-
-
-
-
-
-
 print "I'm looking for $string ... \n\n";
 
 open(PROTOKOLL,"<$DevelConf::protokoll_datei");
    while (<PROTOKOLL>){
        if (/$string/){
-          ($class,$gec_user,$login,$first_pass,$birth,$unid,$subclass,$status,$tol,$deact)=split(/;/);
-
+          ($class,$gec_user,$login,$first_pass,$birth,
+           $unid,$subclass,$status,$tol,$deact)=split(/;/);
 
           # Abfragen der /etc/passwd
           ($loginname_passwd,
@@ -186,26 +179,25 @@ open(PROTOKOLL,"<$DevelConf::protokoll_datei");
           }
 
           if (defined $subclass){
-	     print "       ($login)SubClass         :  $subclass \n";
+	     print "       ($login)   SubClass         :  $subclass \n";
           }
 
           if (defined $status){
-	     print "       ($login)Status           :  $status \n";
+	     print "       ($login)   Status           :  $status \n";
           }
 
           if (defined $tol){
-	     print "  ($login)   TolerationDate   :  $tol \n";
+	     print "       ($login)   TolerationDate   :  $tol \n";
           }
 
           if (defined $deact){
-	     print "  ($login)   DeactivationDate :  $deact \n";
+	     print "       ($login)   DeactivationDate :  $deact \n";
           }
 
-
-
+          print "Samba-Information:\n";
+          print "==================\n";
+          system "pdbedit -v -u $login";
           print "\n";
-
-
       ($class,$gec_user,$login,$first_pass,$birth,$unid,$subclass,$status,$tol,$deact)=("","","","","","","","","","");
 
        }

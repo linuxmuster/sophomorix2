@@ -1435,15 +1435,17 @@ sub user_deaktivieren {
    my ($loginname) = @_;
    my $klasse=&get_klasse_von_login($loginname);
 #   my $www_home="$DevelConf::apache_root/userdata/$klasse/$loginname";
-   # samba-login disabeln
-   my $string="smbpasswd -d $loginname >/dev/null";
+   # samba
+   my $samba_string="smbpasswd -d $loginname >/dev/null";
+   system("$samba_string");
+   # linux
+   my $linux_string="usermod -L $loginname >/dev/null";
+   system("$linux_string");
    if($Conf::log_level>=2){
       print "User $loginname wird deaktiviert:\n";
-      print "  $string\n";
-      print "\n";
+      print "  Samba:  $samba_string\n";
+      print "  Linux:  $linux_string\n";
     }
-   system("smbpasswd -d $loginname > /dev/null");
-   # linux-login
    # ToDo
    # mailabruf
    # ToDo

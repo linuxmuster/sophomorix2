@@ -1034,7 +1034,7 @@ if($Conf::log_level>=3){
 # ===========================================================================
 # Datei öffnen, in die zu deaktivierende Schüler geschrieben werden
 # ===========================================================================
-#&update_deactivation_data();
+&update_deactivation_data();
 
 # ===========================================================================
 # Datei rezeugen, in die die neuen User geschrieben werden
@@ -2334,9 +2334,9 @@ sub update_deactivation_data {
            print "$identifier ist wieder da\n";
        } else {
            # taucht nicht auf -> drinlassen
-           $login= "schueler_im_system_hash{$identifier}";
+           $login=$schueler_im_system_loginname{$identifier};
            # Alle zum deaktivieren notwendigen Schritte durchführen
-           &set_deactivation_date($identifier,$date);
+           &update_user_db_entry($login, "DeactivationDate=$date");
            &user_deaktivieren($login);
        }
     }
@@ -2348,6 +2348,7 @@ sub update_deactivation_data {
 
 sub generate_toleration_move_file {
     my $identifier_sys = "";
+    my $login="";
     my $toleration_date = "";
 #    my @toleration_list = ();
     my $move_line = ();
@@ -2382,7 +2383,8 @@ sub generate_toleration_move_file {
             # Count him and put him in sophomorix.move
             $schueler_duldungs_beginn_anzahl++;
             # set the toleration_date and Status in the user_database
-            &set_toleration_date($identifier_sys,$toleration_date);
+	    $login=$schueler_im_system_loginname{$identifier_sys};
+            &update_user_db_entry($login, "TolerationDate=$toleration_date");
 	    if ($schueler_im_system_hash{$identifier_sys} eq "lehrer") {
                 $move_line="$schueler_im_system_loginname{$identifier_sys}".
                      "::"."lehrer".
@@ -2614,12 +2616,12 @@ sub generate_kill_file {
               $epoche_loeschen_ab = &get_action_date($identifier, "kill");
 	      if ($epoche_loeschen_ab !=0) {
                   # prepare a line for sophomorix.kill
-                  my $login="$schueler_im_system_loginname{$identifier}"."\n";
+                  my $login="$schueler_im_system_loginname{$identifier}";
                   my $string="$identifier"."::".
 		     "$schueler_im_system_loginname{$identifier}"."\n";
                   printf "Loeschbar: %-40s Login: %-10s\n","$identifier","$login";
                   # report.admin
-                  push @admin_list_kill, "Loeschbar:     $identifier $login";
+                  push @admin_list_kill, "Loeschbar:     $identifier $login\n";
                   print SOPHOMORIKILL ("$string");
                   $schueler_weg_anzahl++;
               } else {
