@@ -886,15 +886,16 @@ sub webmin_eintrag {
        "cp  $webmin_miniserv_users ${DevelConf::log_pfad}/${zeit}.miniserv.users-after",
        "chmod 600 ${DevelConf::log_pfad}/${zeit}.miniserv.users-after",
        # Webmin acl für den Lehrer erstellen
-       "cp -f /etc/webmin/muster.acl /etc/webmin/$user.acl"
+# ???????
+#       "cp -f /etc/webmin/muster.acl /etc/webmin/$user.acl"
    );
 
-   &do_falls_nicht_testen(
-       "cp $webminacl  ${DevelConf::log_pfad}/${zeit}.webmin.acl-after",
-       "chmod 600 ${DevelConf::log_pfad}/${zeit}.webmin.acl-after",
-       # set webmin acl 
-       "cp -f /etc/webmin/acl/muster.acl /etc/webmin/acl/$user.acl"
-   );
+#   &do_falls_nicht_testen(
+#       "cp $webminacl  ${DevelConf::log_pfad}/${zeit}.webmin.acl-after",
+#       "chmod 600 ${DevelConf::log_pfad}/${zeit}.webmin.acl-after",
+#       # set webmin acl 
+#       "cp -f /etc/webmin/acl/muster.acl /etc/webmin/acl/$user.acl"
+#   );
 
    # Bei Debian bessere Lösung anstreben wie custom-Befehle
    if (${DevelConf::debian} ne "yes") {
