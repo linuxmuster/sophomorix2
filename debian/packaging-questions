@@ -18,7 +18,7 @@ sophomorix-sql
   -> Fehlermeldung beim Packen: make clean fehlt: was sollte das bei 
      nichtcompilierten Paketen enthalten
 
-4. Abhängigkeit von samba -> samb installieren ohne jegliche Nachfragen
+4. Abhängigkeit von samba -> samba installieren ohne jegliche Nachfragen
    (da sophomorix sowiese samba konfiguriert)
 
    debconf-communicate -p critical samba
@@ -33,7 +33,7 @@ sophomorix-sql
   dann erst wird sophomorix-base installiert 
     (legt verzeichnisse an, die admin gehören)
 
-6. Kann die eingepackten Abhängigkeiten ansehen
+6. Kann man die eingepackten Abhängigkeiten ansehen
 
 ***** lesspipe , output wieder fallenlassen, dann less *.deb
       oder    lesspipe (ohne pager)
@@ -59,6 +59,7 @@ sophomorix-sql
 
 
 ***** /usr/share/paketname
+***** FERTIG!
 
 
 9. sophomorix.conf hat #!/usr/bin/perl drin
@@ -68,6 +69,8 @@ sophomorix-sql
 
 ****** emacs-Zeile rein, noch testen im installierten system,
        ebenso devel-conf
+****** FERTIG!
+
 
 10. Zum Packen von sophomorix-doc-html ist erforderlich:
     - perl für sophomorix-man2html
@@ -126,5 +129,4 @@ sophomorix-sql
 
 
 Todo 
-   - templates, devel-conf nach /usr/share
    - adduser statt useradd (keine id, evtl. system)
