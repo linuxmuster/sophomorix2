@@ -36,7 +36,6 @@ use Time::localtime;
               lehrer_ordnen
               zeit_stempel
               do_falls_nicht_testen
-              help_text_all
               check_options
               check_datei_exit
               check_config_template
@@ -52,19 +51,13 @@ use Time::localtime;
               append_auto_teach_in_log
               backup_amk_file
               get_klasse_von_login
-              get_schueler_in_schule
-              get_schueler_in_schule_hash
-              get_lehrer_in_schule
-              get_lehrer_in_schule_hash
-              get_workstations_in_schule
-              get_workstations_in_schule_hash
-              get_workstations_in_raum
-              get_klassen_in_schule              
-              get_klassen_in_schule_hash
+                get_schueler_in_schule_hash
+                get_lehrer_in_schule_hash
+                get_workstations_in_schule_hash
+                get_klassen_in_schule_hash
               check_klasse
-              get_raeume_in_schule              
               get_ka_raeume_in_schule              
-              get_raeume_in_schule_hash              
+                get_raeume_in_schule_hash              
               check_raum
               check_lehrer
               make_hash_lehrer_in_klassen
@@ -1634,33 +1627,33 @@ sub do_falls_nicht_testen {
 # ===========================================================================
 # Hilfe für ALLE Scripte
 # ===========================================================================
-=pod
+#=pod
 
-=item I<help_text_all()>
+#=item I<help_text_all()>
 
-will be deprecated when man pages are finished
+#will be deprecated when man pages are finished
 
-=cut
-sub help_text_all {
-   my @list = split(/\//,$0);
-   my $scriptname = pop @list;
-   print "NAME:   $scriptname [OPTION]\n\n";
-
-   print "Hilfe zu $scriptname:\n\n";
-   #help
-   print "  -h, --help\n";
-   print "     Diese Hilfe anzeigen.\n\n";
-
-
-   print "Menge an Ausgabe-Informationen während des Programmablaufs:\n\n";
-   # verbose
-   print "  -v, --verbose\n";
-   print "     mehr Informationen ausgeben.\n\n";
-
-   print "  -vv, --verbose --verbose\n";
-   print "     noch mehr Informationen ausgeben.\n\n";
-}
-
+#=cut
+#sub help_text_all {
+#   my @list = split(/\//,$0);
+#   my $scriptname = pop @list;
+#   print "NAME:   $scriptname [OPTION]\n\n";
+#
+#   print "Hilfe zu $scriptname:\n\n";
+#   #help
+#   print "  -h, --help\n";
+#   print "     Diese Hilfe anzeigen.\n\n";
+#
+#
+#   print "Menge an Ausgabe-Informationen während des Programmablaufs:\n\n";
+#   # verbose
+#   print "  -v, --verbose\n";
+#   print "     mehr Informationen ausgeben.\n\n";
+#
+#   print "  -vv, --verbose --verbose\n";
+#   print "     noch mehr Informationen ausgeben.\n\n";
+#}
+#
 
 
 # ===========================================================================
@@ -2045,31 +2038,31 @@ sub get_klasse_von_login {
 ##############################################################################
 
 
-
+# under get_pupils_school in API
 
 # ===========================================================================
 # Liste aller Schüler der Schule ermitteln, alphabetisch
 # ===========================================================================
 # Diese Funktion liefert eine Liste aller Schüler der Schule zurück
-sub get_schueler_in_schule {
-    my @pwliste=();
-    my @schuelerliste=();
-    
-    setpwent();
-    while (@pwliste=getpwent()) {
-    #print"$pwliste[7]";  # Das 8. Element ist das Home-Verzeichnis
- #     if ($pwliste[7]=~/^\/home\/pupil\//) {
-       if ($pwliste[7]=~/^$DevelConf::homedir_pupil/) {
-       push(@schuelerliste, $pwliste[0]);
-         #print "$pwliste[0]<p>";
-      }
-    }
-    endpwent();
-
-    # Alphabetisch ordnen
-    @schuelerliste = sort @schuelerliste;
-    return @schuelerliste;
-}
+#sub get_schueler_in_schule {
+#    my @pwliste=();
+#    my @schuelerliste=();
+#    
+#    setpwent();
+#    while (@pwliste=getpwent()) {
+#    #print"$pwliste[7]";  # Das 8. Element ist das Home-Verzeichnis
+# #     if ($pwliste[7]=~/^\/home\/pupil\//) {
+#       if ($pwliste[7]=~/^$DevelConf::homedir_pupil/) {
+#       push(@schuelerliste, $pwliste[0]);
+#         #print "$pwliste[0]<p>";
+#      }
+#    }
+#    endpwent();
+#
+#    # Alphabetisch ordnen
+#    @schuelerliste = sort @schuelerliste;
+#    return @schuelerliste;
+#}
 
 # ===========================================================================
 # dito, aber im hash, Value ist primäre Gruppe
@@ -2097,29 +2090,32 @@ sub get_schueler_in_schule_hash {
 # Liste aller Lehrer der Schule ermitteln, alphabetisch
 # ===========================================================================
 # Die Funktion liefert eine Liste aller Lehrer der Schule zurück
-sub get_lehrer_in_schule {
-    my @lehrerliste=();
-    my @pwliste=();
-    # Group-ID der Gruppe Lehrer ermitteln
-    my @gruppenzeile=getgrnam "lehrer";
-    my $gid=$gruppenzeile[2];
-    #print"Info: Group-ID der Lehrer ist $gid<p>";
 
-    setpwent();
-    while (@pwliste=getpwent()) {
-      #print "Prüfe user: $pwliste[0]<p>";
-#     if ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/teacher\//) {
-     if ($pwliste[3] eq $gid && $pwliste[7]=~/^$DevelConf::homedir_teacher/) {
-         push(@lehrerliste, $pwliste[0]);
-      }
-    }
-    endpwent();
+# replaced in API by get_user_in_adminclass
 
-    # Alphabetisch ordnen
-    @lehrerliste=sort @lehrerliste;
-    #print"Lehrer sind: @lehrerliste <p>";
-    return @lehrerliste;
-}
+#sub get_lehrer_in_schule {
+#    my @lehrerliste=();
+#    my @pwliste=();
+#    # Group-ID der Gruppe Lehrer ermitteln
+#    my @gruppenzeile=getgrnam "lehrer";
+#    my $gid=$gruppenzeile[2];
+#    #print"Info: Group-ID der Lehrer ist $gid<p>";
+#
+#    setpwent();
+#    while (@pwliste=getpwent()) {
+#      #print "Prüfe user: $pwliste[0]<p>";
+##     if ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/teacher\//) {
+#     if ($pwliste[3] eq $gid && $pwliste[7]=~/^$DevelConf::homedir_teacher/) {
+#         push(@lehrerliste, $pwliste[0]);
+#      }
+#    }
+#    endpwent();#
+#
+#    # Alphabetisch ordnen
+#    @lehrerliste=sort @lehrerliste;
+#    #print"Lehrer sind: @lehrerliste <p>";
+#    return @lehrerliste;
+#}
 
 # ===========================================================================
 # dito, aber im hash
@@ -2143,25 +2139,28 @@ sub get_lehrer_in_schule_hash {
 # Liste aller Workstations der Schule ermitteln, alphabetisch
 # ===========================================================================
 # Diese Funktion liefert eine Liste aller Schüler der Schule zurück
-sub get_workstations_in_schule {
-    my @pwliste=();
-    my @workstationliste=();
-    
-    setpwent();
-    while (@pwliste=getpwent()) {
-    #print"$pwliste[7]";  # Das 8. Element ist das Home-Verzeichnis
-#      if ($pwliste[7]=~/^\/home\/workstations\//) {
-      if ($pwliste[7]=~/^$DevelConf::homedir_ws/) {
-         push(@workstationliste, $pwliste[0]);
-         #print "$pwliste[0]<p>";
-      }
-    }
-    endpwent();
 
-    # Alphabetisch ordnen
-    @workstationliste = sort @workstationliste;
-    return @workstationliste;
-}
+# moved to API with name get_workstations_school
+
+#sub get_workstations_in_schule {
+#    my @pwliste=();
+#    my @workstationliste=();
+#    
+#    setpwent();
+#    while (@pwliste=getpwent()) {
+#    #print"$pwliste[7]";  # Das 8. Element ist das Home-Verzeichnis
+##      if ($pwliste[7]=~/^\/home\/workstations\//) {
+#      if ($pwliste[7]=~/^$DevelConf::homedir_ws/) {
+#         push(@workstationliste, $pwliste[0]);
+#         #print "$pwliste[0]<p>";
+#      }
+#    }
+#    endpwent();#
+#
+#    # Alphabetisch ordnen
+#    @workstationliste = sort @workstationliste;
+#    return @workstationliste;
+#}
 
 # ===========================================================================
 # dito, aber im hash
@@ -2179,37 +2178,33 @@ sub get_workstations_in_schule_hash {
 
 
 
-# ===========================================================================
-# Liste der Workstations eines Raumes ermitteln, alphabetisch
-# ===========================================================================
-# Diese Funktion hat als Argument einen Raumnamen
-# Sie liefert alle Workstations dieses Raumes zurück
-# Wenn keine Workstations in diesem Raum sind wird eine leere Liste zurückgegeben
-sub get_workstations_in_raum {
-    my ($workstation)=@_;
-    #print "$workstation<p>";
-    my @pwliste=();
-    my @workstations=();
-    # Group-ID ermitteln
-    my ($a,$b,$gid) = getgrnam $workstation; 
-    #print"Info: Group-ID der Gruppe $workstation ist $gid<p>\n";
+# moved to API with name get_workstations_room
 
-    # alle Workstations in diesem Raum heraussuchen
-    setpwent();
-    while (@pwliste=getpwent()) {
-    #print"$pwliste[7]\n";  # Das 8. Element ist das Home-Verzeichnis
-#     if ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/workstations\//) {
-     if ($pwliste[3] eq $gid && $pwliste[7]=~/^$DevelConf::homedir_ws/) {
-         push(@workstations, $pwliste[0]);
-         #print "$pwliste[3]";
-      }
-    }
-    endpwent();
-
-    # Alphabetisch ordnen
-    @workstations=sort @workstations;
-    return @workstations;
-}
+#sub get_workstations_in_raum {
+#    my ($workstation)=@_;
+#    #print "$workstation<p>";
+#    my @pwliste=();
+#    my @workstations=();
+#    # Group-ID ermitteln
+#    my ($a,$b,$gid) = getgrnam $workstation; 
+#    #print"Info: Group-ID der Gruppe $workstation ist $gid<p>\n";#
+#
+#    # alle Workstations in diesem Raum heraussuchen
+#    setpwent();
+#    while (@pwliste=getpwent()) {
+#    #print"$pwliste[7]\n";  # Das 8. Element ist das Home-Verzeichnis
+##     if ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/workstations\//) {
+#     if ($pwliste[3] eq $gid && $pwliste[7]=~/^$DevelConf::homedir_ws/) {
+#         push(@workstations, $pwliste[0]);
+#         #print "$pwliste[3]";
+#      }
+#    }
+#    endpwent();
+#
+#    # Alphabetisch ordnen
+#    @workstations=sort @workstations;
+#    return @workstations;
+#}
 
 
 
@@ -2224,30 +2219,33 @@ sub get_workstations_in_raum {
 # ===========================================================================
 # Liste aller Klassen der Schule ermitteln, alphabetisch
 # ===========================================================================
+
+# is with name get_adminclasses_school in API
+
 # Diese Funktion liefert eine Liste aller Klassen der Schule zurück
-sub get_klassen_in_schule {
-    my @pwliste;
-    my %klassen_hash=();
-    my @liste;
-    # Alle Klassen-namen in einen Hash
-
-    setpwent();
-    while (@pwliste=getpwent()) {
+#sub get_klassen_in_schule {
+#    my @pwliste;
+#    my %klassen_hash=();
+#    my @liste;
+#    # Alle Klassen-namen in einen Hash
+#
+#    setpwent();
+#    while (@pwliste=getpwent()) {
 #       if ($pwliste[7]=~/^\/home\/pupil\//) {
-       if ($pwliste[7]=~/^$DevelConf::homedir_pupil/) {
-          $klassen_hash{getgrgid($pwliste[3])}=""; 
-       }
-    }
-    endpwent();
-
-    while (my ($k) = each %klassen_hash){
-       # Liste füllen
-       push (@liste, $k);
-    }
-    
-    @liste = sort @liste;
-    return @liste;
-}
+#       if ($pwliste[7]=~/^$DevelConf::homedir_pupil/) {
+#          $klassen_hash{getgrgid($pwliste[3])}=""; 
+#       }
+#    }
+#    endpwent();
+#
+#    while (my ($k) = each %klassen_hash){
+#       # Liste füllen
+#       push (@liste, $k);
+#    }
+#    
+#    @liste = sort @liste;
+#    return @liste;
+#}
 
 # ===========================================================================
 # dito, aber im hash
@@ -2316,29 +2314,32 @@ sub check_klasse {
 # Liste aller Raeume der Schule ermitteln, alphabetisch
 # ===========================================================================
 # Diese Funktion liefert eine Liste aller Raeume der Schule zurück
-sub get_raeume_in_schule {
-    my @pwliste;
-    my %raeume_hash=();
-    my @liste;
-    # Alle Raeume-namen in einen Hash
 
-    setpwent();
-    while (@pwliste=getpwent()) {
-#       if ($pwliste[7]=~/^\/home\/workstations\//) {
-       if ($pwliste[7]=~/^$DevelConf::homedir_ws/) {
-          $raeume_hash{getgrgid($pwliste[3])}=""; 
-       }
-    }
-    endpwent();
+# moved as get_rooms_school to API
 
-    while (my ($k) = each %raeume_hash){
-       # Liste füllen
-       push (@liste, $k);
-    }
-    
-    @liste = sort @liste;
-    return @liste;
-}
+#sub get_raeume_in_schule {
+#    my @pwliste;
+#    my %raeume_hash=();
+#    my @liste;
+#    # Alle Raeume-namen in einen Hash
+#
+#    setpwent();
+#    while (@pwliste=getpwent()) {
+##       if ($pwliste[7]=~/^\/home\/workstations\//) {
+#       if ($pwliste[7]=~/^$DevelConf::homedir_ws/) {
+#          $raeume_hash{getgrgid($pwliste[3])}=""; 
+#       }
+#    }
+#    endpwent();
+#
+#    while (my ($k) = each %raeume_hash){
+#       # Liste füllen
+#       push (@liste, $k);
+#    }
+#    
+#    @liste = sort @liste;
+#    return @liste;
+#}
 
 
 

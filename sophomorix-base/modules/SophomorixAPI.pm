@@ -20,7 +20,12 @@ use Time::localtime;
 
 @EXPORT_OK = qw( check_datei_touch );
 @EXPORT = qw( 
-             get_user_in_adminclass
+             get_user_adminclass
+             get_pupils_school
+             get_adminclasses_school
+             get_workstations_room
+             get_workstations_school
+             get_rooms_school
             );
 
 
@@ -69,7 +74,7 @@ webmin modules for sophomorix.
 
 =head2 FUNCTIONS
 
-=head2 Querys
+=head2 Query users or groups of users 
 
 =over 4
 
@@ -100,17 +105,21 @@ if (not -e $develconf){
 
 =pod
 
-=item I<get_user_in_adminclass(class)>
+=item I<get_user_adminclass(AdminClass)>
 
-Returns a list of all users in this AdminClass. The AdminClass is the
-class of a pupil in the school administration software. 
+Returns an asciibetical list of all users in this AdminClass. The
+AdminClass is the class of a pupil in the school administration
+software.
 
-If no pupil is in this class an empty list will be returned.
+If you need a list of teachers then use their primary group
+(i.e. lehrer) as AdminClass
+
+If no pupil is in this class, an empty list will be returned.
 
 =cut
 
 
-sub get_user_in_adminclass {
+sub get_user_adminclass {
     my ($klasse) = @_;
     my @pwliste=();
     my @userliste=();
@@ -129,8 +138,10 @@ sub get_user_in_adminclass {
         while (@pwliste=getpwent()) {
         #print"$pwliste[7]\n";  # Das 8. Element ist das Home-Verzeichnis
 
-         if (($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/pupil\// ) or
-             ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/teacher\// )) {
+#         if (($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/pupil\// ) or
+#             ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/teacher\// )) {
+         if (($pwliste[3] eq $gid && $pwliste[7]=~/^$DevelConf::homedir_pupil/) or
+             ($pwliste[3] eq $gid && $pwliste[7]=~/^$DevelConf::homedir_teacher/)) {
              push(@userliste, $pwliste[0]);
              #print "$pwliste[3]";
          }
@@ -143,6 +154,178 @@ sub get_user_in_adminclass {
       } 
   }
 }
+
+
+
+=pod
+
+=item I<get_pupils_school()>
+
+Returns an asciibetical list of all pupils in the school. No teachers
+are returned
+
+=cut
+
+sub get_pupils_school {
+    my @pwliste=();
+    my @schuelerliste=();
+    
+    setpwent();
+    while (@pwliste=getpwent()) {
+    #print"$pwliste[7]";  # Das 8. Element ist das Home-Verzeichnis
+ #     if ($pwliste[7]=~/^\/home\/pupil\//) {
+       if ($pwliste[7]=~/^$DevelConf::homedir_pupil/) {
+       push(@schuelerliste, $pwliste[0]);
+         #print "$pwliste[0]<p>";
+      }
+    }
+    endpwent();
+
+    # Alphabetisch ordnen
+    @schuelerliste = sort @schuelerliste;
+    return @schuelerliste;
+}
+
+
+
+
+
+
+
+
+=pod
+
+=item I<get_adminclasses_school()>
+
+Returns an asciibetical list of all AdminClasses in the school. 
+The group of all teachers is NOT included in this list
+
+=cut
+
+# Diese Funktion liefert eine Liste aller Klassen der Schule zurück
+sub get_adminclasses_school {
+    my @pwliste;
+    my %klassen_hash=();
+    my @liste;
+    # Alle Klassen-namen in einen Hash
+
+    setpwent();
+    while (@pwliste=getpwent()) {
+#       if ($pwliste[7]=~/^\/home\/pupil\//) {
+       if ($pwliste[7]=~/^$DevelConf::homedir_pupil/) {
+          $klassen_hash{getgrgid($pwliste[3])}=""; 
+       }
+    }
+    endpwent();
+
+    while (my ($k) = each %klassen_hash){
+       # Liste füllen
+       push (@liste, $k);
+    }
+    
+    @liste = sort @liste;
+    return @liste;
+}
+
+=pod
+
+=head2 Query workstations  or rooms (group of workstations) 
+
+=over 4
+
+=item I<get_workstations_room(Room)>
+
+Returns an asciibetical list of all workstations in the Room. 
+
+=cut
+
+sub get_workstations_room {
+    my ($room)=@_;
+    #print "$room<p>";
+    my @pwliste=();
+    my @workstations=();
+    # Group-ID ermitteln
+    my ($a,$b,$gid) = getgrnam $room; 
+    #print"Info: Group-ID der Gruppe $room ist $gid<p>\n";
+
+    # alle Workstations in diesem Raum heraussuchen
+    setpwent();
+    while (@pwliste=getpwent()) {
+    #print"$pwliste[7]\n";  # Das 8. Element ist das Home-Verzeichnis
+#     if ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/workstations\//) {
+     if ($pwliste[3] eq $gid && $pwliste[7]=~/^$DevelConf::homedir_ws/) {
+         push(@workstations, $pwliste[0]);
+         #print "$pwliste[3]";
+      }
+    }
+    endpwent();
+
+    # Alphabetisch ordnen
+    @workstations=sort @workstations;
+    return @workstations;
+}
+
+
+=pod
+
+=item I<get_adminclasses_school()>
+
+Returns an asciibetical list of all AdminClasses in the school. 
+The group of all teachers is NOT included in this list
+
+=cut
+
+
+
+sub get_rooms_school {
+    my @pwliste;
+    my %raeume_hash=();
+    my @liste;
+    # Alle Raeume-namen in einen Hash
+
+    setpwent();
+    while (@pwliste=getpwent()) {
+#       if ($pwliste[7]=~/^\/home\/workstations\//) {
+       if ($pwliste[7]=~/^$DevelConf::homedir_ws/) {
+          $raeume_hash{getgrgid($pwliste[3])}=""; 
+       }
+    }
+    endpwent();
+
+    while (my ($k) = each %raeume_hash){
+       # Liste füllen
+       push (@liste, $k);
+    }
+    
+    @liste = sort @liste;
+    return @liste;
+}
+
+
+sub get_workstations_school {
+    my @pwliste=();
+    my @workstationliste=();
+    
+    setpwent();
+    while (@pwliste=getpwent()) {
+    #print"$pwliste[7]";  # Das 8. Element ist das Home-Verzeichnis
+#      if ($pwliste[7]=~/^\/home\/workstations\//) {
+      if ($pwliste[7]=~/^$DevelConf::homedir_ws/) {
+         push(@workstationliste, $pwliste[0]);
+         #print "$pwliste[0]<p>";
+      }
+    }
+    endpwent();
+
+    # Alphabetisch ordnen
+    @workstationliste = sort @workstationliste;
+    return @workstationliste;
+}
+
+
+
+
+
 
 
 
