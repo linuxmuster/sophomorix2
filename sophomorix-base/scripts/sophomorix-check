@@ -2184,7 +2184,7 @@ sub auto_teach_in {
                             "LastName=$last",
                             "Birthday=$birth");
       # log
-      &append_auto_teach_in_log("auto-teach-in",
+      &append_teach_in_log("auto-teach-in",
                                 $login,
                                 $identifier_sys,
                                 $identifier_file,
@@ -2251,7 +2251,7 @@ sub update_ids {
                                            "Name=$first",
                                            "Birthday=$birthday");
              # log
-             &append_auto_teach_in_log("update_ids",
+             &append_teach_in_log("update_ids",
                                        $login,
                                        $identifier_sys,
                                        $identifier_file,
@@ -2284,7 +2284,7 @@ sub update_ids {
             my $id_sys=$identifier_file;
 	    print "  Uploading Unid $unid_file to user $login \n";
 	    &update_user_db_entry($login, "Unid=$unid_file");
-            &append_auto_teach_in_log("new-unid",
+            &append_teach_in_log("new-unid",
                                       $login,
                                       $id_sys,
                                       $identifier_file,

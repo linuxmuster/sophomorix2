@@ -86,11 +86,6 @@ sophomorix-move
      way, when calling sophomorix-move)
 
 sophomorix-kill
-   * when a user is deleted, move its line(s) from user-modify.log to 
-     user-modify-archive (speed up lookups in user-modify.log)
-   * add a kill-entry to the archive to know when a user was killed.
-   - history in archive is not sorted according date, it is sorted according users
-     (is this fine?)
 
 
 sophomorix-user 
@@ -106,7 +101,7 @@ sophomorix-user
    - option --reactivatable (or -i -D -T shows info about Disabled snd Tolerated)
    - when reactivating a user, set a date in the future to keep her longer acctive 
      (optional parameter)
-   * add information about webmin-account when displaying info
+   - nicely format (looong) modulelist, when displaying webmin info
 
 sophomorix-split
    - interrupt if class to split is nonexistent
@@ -286,7 +281,6 @@ sophomorix-cron (new script) (runs at night)
 
 
 Functions in SophomorixBase:
-   - rename: append_auto_teach_in_log --> append_teach_in_log
    - Put Quota-functions in SophomorixQuota.pm 
 
 
@@ -411,6 +405,15 @@ RELEASES:
 
 
 1.2.1 (2005-03-?)
+   - when a user is deleted, move its line(s) from user-modify.log to 
+     user-modify-archive (speed up lookups in user-modify.log)
+   - add a kill-entry to the archive to know when a user was killed.
+   - history in archive is not sorted according date, it is sorted according users
+     (is this fine?)
+   - SophomorixBase.pm renamed: append_auto_teach_in_log --> append_teach_in_log
+   - sophomorix-user -s string:
+     information about webmin-account is displayed 
+     (miniserv.users and webmin.acl)
    - sophomorix-add/-kill  call sophomorix-webmin to rewrite the webmin 
      user database (webmin.acl, miniserv.users) 
    - sophomorix-webmin --modules 

@@ -208,6 +208,7 @@ while(<KILL>){
       # Zeile aus user_db entfernen
       if ($DevelConf::testen==0) {
          &remove_user_db_entry($login_name_to_kill);
+         &archive_log_entry($login_name_to_kill);
       } else {
         print "Test:        Removing $login_name_to_kill from the",
               " sophomorix database.\n"
