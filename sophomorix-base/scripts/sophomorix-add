@@ -102,8 +102,8 @@ my $gruppe="";
 # Parsen der Optionen
 my $testopt=GetOptions(
            "test|t" => \$DevelConf::testen,
-           "login|loginname|user|u|l=s" => \$loginname,
-           "gruppe|klasse|g|k=s" => \$gruppe,
+           "login|user|u|l=s" => \$loginname,
+           "group|class|klasse|g|c|k=s" => \$gruppe,
            "verbose|v+" => \$Conf::log_level,
            "system|s" => \$DevelConf::system,
            "info|i" => \$info,
@@ -119,34 +119,21 @@ if ($help==1) {
    my @list = split(/\//,$0);
    my $scriptname = pop @list;
    # Befehlsbeschreibung
-   print "\n$scriptname legt lehrer und Schüler aus \n";
-   print "   ${DevelConf::ergebnis_pfad}/sophomorix.add \nan.\n\n";
+   print('
+sophomorix-add adds users to the sophomorix database and the authentification system
 
-   # gemeinsamer Hilfetext aller Scripten
-   &help_text_all;
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -i  / --info
+  -l  loginname /   --loginame loginname / -u loginname --user loginname
+  -g class / --group class / -c class / --class class / -k class / --klasse class
+  -t  / --test
 
-   # optionen
-   print "Optionen:\n\n";
-
-   print "  --info, -i\n";
-   print "     Listet die User auf, die angelegt werden können. \n\n";
-
-   print "  --login user, -- loginname user, --user user, -u user, -l user\n";
-   print "     Es wird nur die Schülerin/der Schüler angelegt, für die/der\n";
-   print "     zukünfzige Benutzernamen user ermittelt wird .\n\n";
-
-   print "  --gruppe klasse, --klasse klasse, -k  klasse, -g klasse\n";
-   print "     Es werden nur Schüler angelegt, die in die angegebene Klasse \n";
-   print "     kommen. (Die Klassenangabe muss mit vorangestelltem k erfolgen)\n\n";
-
-
-
-   print "Testen:\n\n";
-   # testen
-   print "  -t, --test\n";
-   print "     Lehrer und Schüler werden im System nicht wirklich angelegt. \n";
-   print "     Ansonsten läuft $scriptname möglichst normal.\n\n";
-
+Please see the sophomorix-add(8) man pages for full documentation
+');
+   print "\n";
    exit;
 }
 
