@@ -11,7 +11,11 @@ use Getopt::Long;
 # use log names of perl variables, i.e. $UID
 use English;
 use Sophomorix::SophomorixConfig;
-use Sophomorix::SophomorixBase qw( check_options );
+use Sophomorix::SophomorixBase qw( check_options 
+                                   linie
+                                   handout
+                                   collect
+                                 );
 use Sophomorix::SophomorixAPI;
 use Sophomorix::SophomorixFiles;
 Getopt::Long::Configure ("bundling");
@@ -28,6 +32,10 @@ my $remove="";
 my $teacher="";
 my $handout=0;
 my $collect=0;
+my $class="";
+my $subclass="";
+my $project="";
+my $copy=0;
 my $info=0;
 
 # Parsen der Optionen
@@ -39,6 +47,10 @@ my $testopt=GetOptions(
            "teacher=s" => \$teacher,
            "handout" => \$handout,
            "collect" => \$collect,
+           "class=s" => \$class,
+           "subclass=s" => \$subclass,
+           "project=s" => \$project,
+           "copy" => \$copy,
            "info|i" => \$info,
           );
 
@@ -46,13 +58,22 @@ my $testopt=GetOptions(
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
 
-#print "UID: $UID, EUID: $EUID, GID: $GID, EGID: $EGID \n";
+my $UID_name=getpwuid($UID);
+my $EUID_name=getpwuid($EUID);
+my ($GID_name)=getgrgid($GID);
+my ($EGID_name)=getgrgid($EGID);
+
+
+
+print "UID:  $UID ($UID_name)\n",
+      "EUID: $EUID ($EUID_name)\n",
+      "GID:  $GID ($GID_name)\n", 
+      "EGID: $EGID ($EGID_name)\n\n";
 
 
 
 # make calls including path not tainted
 $ENV{'PATH'} = '/bin:/usr/bin';
-
 
 
 
@@ -110,8 +131,8 @@ if ($login eq "root"){
 # show info if nothing has to be changed
 if ($add eq "" and 
     $remove eq "" and
-    $handout eq "" and
-    $collect eq ""
+    $handout==0 and
+    $collect==0
    ){
     $info=1;
 }
@@ -145,43 +166,143 @@ if ($remove ne ""){
 }
 
 
+############################################################
+# Info
+############################################################
 
-
-# --info (without --handout/--collect)
+# --info
+#
+# Display info and exit
+ 
 if ($info==1 and $collect==0 and $handout==0){
    my @list=&get_my_adminclasses($login);
-   print "AdminClasses of $login:\n";
-   foreach my $item (@list){
-      print "   $item \n";
+   if ($#list==-1){
+      print "\nTeacher $login has no AdminClasses in his list\n";
+      print "Add a class with:   --add classname\n";
+   } else {
+      print "AdminClasses of $login:\n";
+      foreach my $item (@list){
+         print "   $item \n";
+      }
    }
    exit;
-}
+} elsif ($info==1 and $collect==1 and $handout==0){
+    # collect-info
+    # ????? todo
+   exit;
+} elsif ($info==1 and $collect==0 and $handout==1){
+   # handout-info
+   #if ()
 
 
 
-############################################################
-# Handout/
-############################################################
 
+    my $ha_basedir = "${DevelConf::homedir_teacher}/$login/${Language::task_dir}";
+    my $handout_dir = ""; 
 
-# --info (with --collect)
-if ($info==1 and $collect==1 and $handout==0){
-    
+    if ($class ne ""){
+       $handout_dir = "${ha_basedir}/$class"; 
+       my @list=&get_my_adminclasses($login);
+       my $seen=0;
+       foreach my $item (@list){
+	   if ($item eq $class){$seen=1}
+       }
+       if ($seen==1){
+          print "\nINFO: I would hand out $handout_dir to class $class:\n";
+          &linie();
+          system("ls $handout_dir");
+          print "\n";
+      } else {
+          print "$class is not in MyAdmiClasses (add a class with:  --add class)\n";
+      }
+    }
+    if ($subclass ne ""){
+       $handout_dir = "${ha_basedir}/$subclass"; 
+       print "\nINFO: I would hand out $handout_dir to subclass $subclass:\n";
+       &linie();
+       system("ls $handout_dir");
+       print "\n";
+    }
+    if ($project ne ""){
+       $handout_dir = "${ha_basedir}/$project"; 
+       print "\nINFO: I would hand out $handout_dir to project $project:\n";
+       &linie();
+       system("ls $handout_dir");
+       print "\n";
+    }
+
    exit;
 }
 
 
-
-# --info (with --handout)
-if ($info==1 and $collect==0 and $handout==1){
+ 
 
 
-   my $home="${DevelConf::homedir_teacher}/$login/${Language::task_dir}"; 
-    print "$home\n";
 
-   system("ls -l $home");
+############################################################
+# Handout
+############################################################
 
-   exit;
+
+
+# --handout
+if ($handout==1 and ($class ne "" or $subclass ne "" or $project ne "")){
+    my $group_type="";
+    my $rsync="";
+
+    if ($copy==0){
+        $rsync="delete";
+    } else {
+        $rsync="copy";
+    }
+
+
+    if ($class ne ""){
+           &handout($login, $class,"class",$rsync);
+    }
+    if ($subclass ne ""){
+           &handout($login, $subclass,"subclass",$rsync);
+    }
+    if ($project ne ""){
+           &handout($login, $project,"project",$rsync);
+    }
+
+
+    exit;
+}
+
+
+
+
+############################################################
+# Collect
+############################################################
+
+
+# --collect
+if ($collect==1 and ($class ne "" or $subclass ne "" or $project ne "")){
+    my $group_type="";
+    my $rsync="";
+
+    if ($copy==0){
+        $rsync="delete";
+    } else {
+        $rsync="copy";
+    }
+
+
+    if ($class ne ""){
+           &collect($login, $class,"class",$rsync);
+    }
+    if ($subclass ne ""){
+           &collect($login, $subclass,"subclass",$rsync);
+    }
+    if ($project ne ""){
+           &colect($login, $project,"project",$rsync);
+    }
+
+
+    exit;
 }
 
 
