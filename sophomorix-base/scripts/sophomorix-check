@@ -403,7 +403,7 @@ chomp($heute);
 &titel("Date: $heute     Time: $hours Uhr $min Minuten $sec Sekunden");
 
 # ===========================================================================
-# Duldungsdatum und Deaktivierungsdatum ermitteln
+# TolerationDate und DeactivationDate ermitteln
 # ===========================================================================
 
 # Duldung bis zu welcher Epochenzeit
@@ -975,6 +975,20 @@ if($Conf::log_level>=3){
 
 
 
+# Ausgabe aller Stati
+# mit identifier
+if($Conf::log_level>=3){
+   &titel("Status in Files");
+   print("Identifier:",
+         "                          Status:\n");
+   print("=======================================",
+         "========================================\n");
+   while (($k,$v) = each %sophomorix_status){
+     printf "%-30s %3s\n","$k","$v";
+   }
+}
+
+
 
 # ===========================================================================
 # Load UNIDS into the SYSTEM
@@ -986,8 +1000,9 @@ if($Conf::log_level>=3){
 # Was waere wenn ...
 # ===========================================================================
 
+
 # ===========================================================================
-# changing the status af users
+# 1. changing the status af users
 # ===========================================================================
 
 
@@ -1019,10 +1034,15 @@ if($Conf::log_level>=3){
 &s_d_check();
 
 
-# D) D to R
+# D) D to E
 #==================================================
-# 1. Disabled(D) -> R(Removeable) .kill .move (alte klasse -> dachboden)
+# 1. Disabled(D) -> E(Enable)  .kill .move (alte klasse -> dachboden)
+&d_e_check();
+
+# 2. Disabled(D) -> R(Removeable) .kill .move (alte klasse -> dachboden)
 &d_r_check();
+
+
 
 
 # E) R
@@ -1037,28 +1057,19 @@ if($Conf::log_level>=3){
 # ===========================================================================
 # Datei öffnen, in die die zu löschenden Schüler geschrieben werden
 # ===========================================================================
-&generate_kill_file();
+#&generate_kill_file();
 
 
-
-
-# ===========================================================================
-# creating sophomorix.add
-# ===========================================================================
-
-# 1. move users from class to dachboden (generate new sophomorix.add)
-&generate_toleration_move_file();
-
-# 2. Move users from class to class (appended to sophomorix.add)
+# Move users from class to class (appended to sophomorix.add)
 &generate_move_file();
 
 
 # ===========================================================================
 # Datei öffnen, in die zu deaktivierende Schüler geschrieben werden
 # ===========================================================================
-&update_deactivation_data();
+# ist in d_re_check
+#&update_deactivation_data();
 
-#&generate_kill_file();
 
 # ===========================================================================
 # Datei rezeugen, in die die neuen User geschrieben werden
@@ -1133,16 +1144,110 @@ print RED "Sie sollten sophomorix-teach-in aufrufen!\n";
 # ===========================================================================
 
 
+sub append_move_entry {
+    # appends a line to sophomorix.move
+    my ($identifier, $old_class, $new_class)=@_;
+    my $login=$schueler_im_system_loginname{$identifier};
+    my $move_line = ();
+    my $move_message = "";
+
+    if ($new_class eq "dachboden" and $old_class eq "lehrer") {
+        $new_class="speicher";
+    } 
+
+    $move_line="$login"."::".$old_class."::"."$new_class"."\n";
+    $move_message="$identifier (Login: $login)  ---> $new_class\n";
+
+    #print REPORTADMIN "$move_message";
+    open(SOPHOMORIXMOVE, 
+       ">>${DevelConf::ergebnis_pfad}/sophomorix.move") 
+        || die "Fehler: $!";
+    print SOPHOMORIXMOVE "$move_line";
+    close(SOPHOMORIXMOVE);
+}
+
+
+sub append_kill_entry {
+    # appends a line to sophomorix.kill
+    my ($identifier)=@_;
+    my $login=$schueler_im_system_loginname{$identifier};
+    my $kill_line="$identifier"."::"."$login"."\n";
+    my $kill_message="$identifier (Login: $login)  ---> Removable\n";
+
+    #print REPORTADMIN "$kill_message";
+    open(SOPHOMORIXKILL, 
+       ">>${DevelConf::ergebnis_pfad}/sophomorix.kill") 
+        || die "Fehler: $!";
+    print SOPHOMORIXKILL "$kill_line";
+    close(SOPHOMORIXKILL);
+}
+
+
+
+
 
 sub u_t_check {
    # Usable(U) -> Tolerated(T)  .move (alte klasse -> dachboden) 
+   # Step 1: Tolerate the user
+   while ( my ($identifier, $admin_class) = each %schueler_im_system_hash ){
+      unless (exists $schueler_ok_hash{$identifier}) {
+        # User is not anymore in Files
+        if (not exists $user_duldungsbeginn{$identifier}){
+           print "INFO: $identifier wird ab $heute nur noch geduldet\n";
+           my $login=$schueler_im_system_loginname{$identifier};
+           &update_user_db_entry($login, 
+                                 "Status=T",
+                                 "TolerationDate=$heute");
+           # report.admin
+           push @admin_list_toleration, 
+                 "$identifier wird ab $heute nur noch geduldet\n";
+	   
+           print "u_t_check: entry in sophomorix.move\n";
+
+           &append_move_entry($identifier,
+                              $schueler_im_system_hash{$identifier},
+                              "dachboden");
+
+           next;
+        }
+      }
+   }
+   # Step 2: generate sophomorix.move entry
+#   my $toleration_date = "";
+#   &titel("Versetzten in den Dachboden/Speicher moeglich:");
+#   while(my ($identifier,$toleration_date) = each %user_duldungsbeginn){
+#       if (not exists $schueler_ok_hash{$identifier}) {
+#          # Check if user is in the toleration-class (dachboden/speicher)
+#          if ($schueler_im_system_hash{$identifier} ne "dachboden" 
+#              && $schueler_im_system_hash{$identifier} ne "speicher") {
+#             # User is not in the toleration-class (dachboden/speicher)
+#             # Count him and put him in sophomorix.move
+#             $schueler_duldungs_beginn_anzahl++;
+#
+#             &append_move_entry($identifier,
+#                         $schueler_im_system_hash{$identifier},
+#                         "dachboden");
+#
+#             # set the toleration_date and Status in the user_database
+#	     $login=$schueler_im_system_loginname{$identifier};
+# nicht notwendig, da schon toleriert
+#             &update_user_db_entry($login, 
+#                                   "Status=T",
+#                                   "TolerationDate=$toleration_date");
+#          }
+#      }
+#    }# end while
+    &titel("u_t_check: Insgesamt KÖNNEN $schueler_duldungs_beginn_anzahl User in den dachboden/speicher versetzt werden.");
 }
+
+
+
+
 
 
 
 sub e_t_check {
    # Enabled(E) -> Tolerated(T) .move (alte klasse -> dachboden)
-
 }
 
 
@@ -1180,7 +1285,42 @@ sub s_u_check {
 
 sub t_d_check {
    # Tolerated(T) -> Disabled(D)   .move (alte klasse -> dachboden)
+   while ( my ($identifier, $status) = each %sophomorix_status ){
+       if ($status eq "T"){
+	  print "   t_d_check working on $identifier, Status $status\n";
+          my $login=$schueler_im_system_loginname{$identifier};
+          my $sys_class=$schueler_im_system_hash{$identifier};
+          # check if tolerated user is not in dachboden/speicher
+          if ($sys_class ne "dachboden" and $sys_class ne "speicher") {
+	     print "t_d_check: entry in sophomorix.move\n";
+             &append_move_entry($identifier,$sys_class,"dachboden");
+          }
+          # checking for deactivation
+          if (not exists $user_deaktivierungsbeginn{$identifier}){
+             $epoche_deaktivierung_ab = &get_action_date($identifier, 
+                                                         "deactivation");
+             if ($epoche_deaktivierung_ab != 0) {
+#               $user_deaktivierungsbeginn{$identifier}="$heute";
+                print "$identifier wurde am $heute deaktiviert\n";
+                push @admin_list_deactivation, "$identifier wurde am $heute deaktiviert\n";
+                # Alle zum deaktivieren notwendigen Schritte durchführen
+                &update_user_db_entry($login, 
+                                      "Status=D", 
+                                      "DeactivationDate=$heute");
+                &user_deaktivieren($login);
+             } else {
+                if($Conf::log_level>=2){
+                   print "### User $identifier ist im Tolerierungs-Zeitraum\n"; 
+                }
+	     }
+
+	  }
+       }
+   }
 }
+
+
+
 
 
 
@@ -1197,14 +1337,84 @@ sub s_d_check {
 
 
 
-sub d_r_check {
-   # Disabled(D) -> R(Removeable) .kill .move (alte klasse -> dachboden)
+sub d_e_check {
+   # Disabled(D) -> Enabled(E)  .kill .move (alte klasse -> dachboden)
+   while ( my ($identifier, $status) = each %sophomorix_status ){
+       if ($status eq "D"){
+	  my $date=$user_deaktivierungsbeginn{$identifier};
+          my $login=$schueler_im_system_loginname{$identifier};
+          # Check if user reappears in files
+          if (exists $schueler_ok_hash{$identifier}) {
+             # taucht wieder auf -> d
+             print "$identifier ist wieder da\n";
+             &update_user_db_entry($login, 
+                                   "Status=E",
+                                   "TolerationDate=",
+                                   "DeactivationDate=",);
+             &user_reaktivieren("$login");
+          } else {
+ 
+
+
+            # taucht nicht auf -> drinlassen
+             # Alle zum deaktivieren notwendigen Schritte durchführen
+             #&update_user_db_entry($login, 
+             #                      "Status=D", 
+             #                      "DeactivationDate=$date");
+             #&user_deaktivieren($login);
+
+
+          }
+       }
+   }
 }
 
 
 
+sub d_r_check {
+   # Disabled(D) -> R(Removeable) .kill 
+   &titel("Entfernt werden KÖNNEN folgende User:");
+   while ( my ($identifier, $status) = each %sophomorix_status ){
+       if ($status eq "D"){
+         my $login="$schueler_im_system_loginname{$identifier}";
+         if (not exists $schueler_ok_hash{$identifier}) {
+           if (exists $user_deaktivierungsbeginn{$identifier}){
+              # Check if user has to be made removeable
+              $epoche_loeschen_ab = &get_action_date($identifier, "kill");
+	      if ($epoche_loeschen_ab !=0) {
+                  # prepare a line for sophomorix.kill
+                  &update_user_db_entry($login, 
+                                       "Status=R");
+                  # report.admin
+                  push @admin_list_kill, "Loeschbar:     $identifier $login\n";
+                  &append_kill_entry($identifier);
+#                  my $string="$identifier"."::"."$login"."\n";
+#                  printf "Removeable:  %-12s %-50s\n","$login","$identifier";
+#                  open(SOPHOMORIKILL, 
+#                       ">${DevelConf::ergebnis_pfad}/sophomorix.kill") 
+#                       || die "Fehler: $!";
+#                  print SOPHOMORIKILL ("$string");
+#                  close(SOPHOMORIKILL);
+                  $schueler_weg_anzahl++;
+              } else {
+                  if($Conf::log_level>=2){
+                     print "### User $identifier nicht Removeable\n"; 
+	          }
+              }
+	   }
+         }
+       }
+   }
+}
+
+
 sub r_r_check {
    # Removeable(R) bleibt   .kill
+   while ( my ($identifier, $status) = each %sophomorix_status ){
+       if ($status eq "R"){
+           &append_kill_entry($identifier);
+       }
+   }
 }
 
 
@@ -2400,7 +2610,7 @@ while ($geburts_jahreszahl_lauf<=$Conf::geburts_jahreszahl_stop){
 
 
 
-
+# deprecated
 sub update_deactivation_data {
     my $login="";
     while(my ($identifier,$date) = each %user_deaktivierungsbeginn){
@@ -2430,7 +2640,7 @@ sub update_deactivation_data {
 
 
 
-
+# this is deprecated!!!!!!!!!!!!!!!!!!!!!!!
 sub generate_toleration_move_file {
     my $identifier = "";
     my $login="";
@@ -2651,7 +2861,7 @@ sub get_action_date {
 
 
 
-
+# deprecated
 sub generate_kill_file {
     my $identifier = "";
     my $admin_class = "";
@@ -2662,47 +2872,12 @@ sub generate_kill_file {
     &titel("Entfernt werden KÖNNEN folgende User:");
 
     while ( ($identifier, $admin_class) = each %schueler_im_system_hash ){
-       unless (exists $schueler_ok_hash{$identifier}) {
-         # User is not anymore in Files -> Tolereation hash
-          if (not exists $user_duldungsbeginn{$identifier}){
-              $user_duldungsbeginn{$identifier}="$heute";
+	unless (exists $schueler_ok_hash{$identifier}) {
+          # user ist schon deaktiviert
 
-              print "INFO: $identifier wird ab $heute nur noch geduldet\n";
 
-              my $login=$schueler_im_system_loginname{$identifier};
-              &update_user_db_entry($login, 
-                              "Status=T",
-                               "TolerationDate=$heute");
 
-              # report.admin
-              push @admin_list_toleration, 
-                   "$identifier wird ab $heute nur noch geduldet\n";
-              next;
-          }
-
-          # Check if user must be deactivated
-          if (not exists $user_deaktivierungsbeginn{$identifier}){
-              $epoche_deaktivierung_ab = &get_action_date($identifier, "deactivation");
-              if ($epoche_deaktivierung_ab != 0) {
-                  $user_deaktivierungsbeginn{$identifier}="$heute";
-#                  if($Conf::log_level>=2){
-                      print "$identifier wurde am $heute deaktiviert\n";
-                      push @admin_list_deactivation, 
-                           "$identifier wurde am $heute deaktiviert\n";
-#                  }
-              # Alle zum deaktivieren notwendigen Schritte durchführen
-              my $login=$schueler_im_system_loginname{$identifier};
-              &update_user_db_entry($login, 
-                                 "Status=D", 
-                                 "DeactivationDate=$heute");
-              &user_deaktivieren($login);
-              } else {
-                 if($Conf::log_level>=2){
-                    print "### User $identifier ist im Duldungszeitraum\n"; 
-	         }
-	      }
-
-          } else {
+          if (exists $user_deaktivierungsbeginn{$identifier}){
               # Check if user has to be made removeable
               $epoche_loeschen_ab = &get_action_date($identifier, "kill");
 	      if ($epoche_loeschen_ab !=0) {
@@ -2721,6 +2896,9 @@ sub generate_kill_file {
                   if($Conf::log_level>=2){
                      print "### User $identifier ist im Deaktivierungszeitraum\n"; 
 	          }
+
+
+
               }
 
           }
