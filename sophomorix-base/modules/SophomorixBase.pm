@@ -524,9 +524,9 @@ sub save_tausch_klasse {
 
    my $tausch_klasse_path = "";
    if ($klasse eq "lehrer") {
-     $tausch_klasse_path = "/home/tausch/lehrer";
+     $tausch_klasse_path = "${DevelConf::share_teacher}";
    } else {
-     $tausch_klasse_path = "/home/tausch/klassen/"."$klasse";
+     $tausch_klasse_path = "${DevelConf::share_classes}/"."$klasse";
    }
    # abs. Pfade der zu movenden Verzeichnisse im Tauschverzeichnis 
    # in eine Liste schreiben
@@ -579,10 +579,10 @@ Unterschied zu provide_class_files und add_class_to_sys ????
 sub neue_linux_gruppe_schueler {
     # legt Klasse und Verzeichnisse an
     my ($gruppe) = @_;
-    my $klassen_homes = "/home/schueler/${gruppe}";
-    #my $schueler_homes = "/home/schueler/${gruppe}";
-    my $klassen_tausch = "/home/tausch/klassen/${gruppe}";
-    my $klassen_aufgaben = "/home/aufgaben/${gruppe}";
+    my $klassen_homes = "${DevelConf::homedir_pupil}/${gruppe}";
+    #my $schueler_homes = "${DevelConf::homedir_pupil}/${gruppe}";
+    my $klassen_tausch = "${DevelConf::share_classes}/${gruppe}";
+    my $klassen_aufgaben = "${DevelConf::share_tasks}/${gruppe}";
     my $smb_musterklasse = "${DevelConf::samba_dir}/netlogon/klasse.bat";
     my $smb_klasse = "${DevelConf::samba_dir}/netlogon/${gruppe}.bat";
 #    my $web_klasse = "${DevelConf::apache_root}/userdata/${gruppe}";
@@ -598,12 +598,12 @@ sub neue_linux_gruppe_schueler {
     #--------------------------------------------------
     # Klassen-Verzeichnis für die homes erstellen
     if ($DevelConf::testen==0) {
-    &setup_verzeichnis("/home/schueler/\$klassen",
+    &setup_verzeichnis("\$homedir_pupil/\$klassen",
                        "$klassen_homes");
-    &setup_verzeichnis("/home/tausch/klassen/\$klassen",
+    &setup_verzeichnis("\$share_classes/\$klassen",
                        "$klassen_tausch");
     # Aufgaben-Verzeichnis anlegen
-    &setup_verzeichnis("/home/aufgaben/\$klassen",
+    &setup_verzeichnis("\$share_tasks/\$klassen",
                        "$klassen_aufgaben");
 
     }
@@ -629,17 +629,17 @@ sub provide_class_files {
 #?????? lehrer?
     my ($class) = @_;
     if ($class eq "lehrer"){
-      &setup_verzeichnis("/home/tausch/lehrer",
-                    "/home/tausch/lehrer");
+      &setup_verzeichnis("\$share_teacher",
+                    "${DevelConf::share_teacher}");
     } else {
-      my $klassen_homes="/home/schueler/$class";
-      my $klassen_tausch="/home/tausch/klassen/$class";
-      my $klassen_aufgaben="/home/aufgaben/$class";
-      &setup_verzeichnis("/home/schueler/\$klassen",
+      my $klassen_homes="${DevelConf::homedir_pupil}/$class";
+      my $klassen_tausch="${DevelConf::share_classes}/$class";
+      my $klassen_aufgaben="${DevelConf::share_tasks}/$class";
+      &setup_verzeichnis("\$homedir_pupil/\$klassen",
                     "$klassen_homes");
-      &setup_verzeichnis("/home/tausch/klassen/\$klassen",
+      &setup_verzeichnis("\$share_classes/\$klassen",
                     "$klassen_tausch");
-      &setup_verzeichnis("/home/aufgaben/\$klassen",
+      &setup_verzeichnis("\$share_tasks/\$klassen",
                     "$klassen_aufgaben");
     }
 }
@@ -660,61 +660,61 @@ sub provide_user_files {
     my $dev_null="1>/dev/null 2>/dev/null";
     if ($class eq "lehrer"){
         # lehrer
-        $home = "/home/lehrer/$login";
-        $www_home = "/home/lehrer/$login/www";
-        $share_class = "/home/tausch/lehrer";
+        $home = "${DevelConf::homedir_teacher}/$login";
+        $www_home = "${DevelConf::homedir_teacher}/$login/www";
+        $share_class = "${DevelConf::share_teacher}";
         if ($DevelConf::testen==0) {
-           &setup_verzeichnis("/home/lehrer/\$lehrer",
-                      "/home/lehrer/$login",
+           &setup_verzeichnis("\$homedir_teacher/\$lehrer",
+                      "${DevelConf::homedir_teacher}/$login",
                       "$login");
-           &setup_verzeichnis("/home/lehrer/\$lehrer/windows",
-                      "/home/lehrer/$login/windows",
+           &setup_verzeichnis("\$homedir_teacher/\$lehrer/windows",
+                      "${DevelConf::homedir_teacher}/$login/windows",
                       "$login");
 
-           &setup_verzeichnis("/home/lehrer/\$lehrer/www",
+           &setup_verzeichnis("\$homedir_teacher/\$lehrer/www",
                       "$www_home");
 
-           &setup_verzeichnis("/home/lehrer/\$lehrer/www/public_html",
+           &setup_verzeichnis("\$homedir_teacher/\$lehrer/www/public_html",
                       "$www_home/public_html",
                       "$login");
         }
         &do_falls_nicht_testen(
            # Link von windows aus
-           "rm -rf /home/lehrer/$login/windows/public_html",
-           "cd /home/lehrer/$login/windows; ln -s ../www/public_html public_html",
+           "rm -rf ${DevelConf::homedir_teacher}/$login/windows/public_html",
+           "cd ${DevelConf::homedir_teacher}/$login/windows; ln -s ../www/public_html public_html",
            # Link von Linux aus
-           "cd /home/lehrer/$login; ln -s www/public_html public_html"
+           "cd ${DevelConf::homedir_teacher}/$login; ln -s www/public_html public_html"
         );
     } else { 
         # schueler
-        $home_class = "/home/schueler/$class";
-        $home = "/home/schueler/$class/$login";
-        $www_home = "/home/schueler/$class/$login/www";
-        $share_class = "/home/tausch/klassen/$class";
+        $home_class = "${DevelConf::homedir_pupil}/$class";
+        $home = "${DevelConf::homedir_pupil}/$class/$login";
+        $www_home = "${DevelConf::homedir_pupil}/$class/$login/www";
+        $share_class = "${DevelConf::share_classes}/$class";
 
-        # Eigentümer von /home/schueler/klasse/name REKURSIV 
+        # Eigentümer von ${DevelConf::homedir_pupil}/klasse/name REKURSIV 
         # aendern in:   user:lehrer
         &do_falls_nicht_testen(
              "chown -R $login:lehrer $home"
         );
 
         if ($DevelConf::testen==0) {
-           &setup_verzeichnis("/home/schueler/\$klassen",
+           &setup_verzeichnis("\$homedir_pupil/\$klassen",
                               "$home_class");
-           &setup_verzeichnis("/home/schueler/\$klassen/\$schueler",
+           &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler",
                               "$home",
                               "$login");
-           &setup_verzeichnis("/home/schueler/\$klassen/\$schueler/windows",
+           &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/windows",
                               "$home/windows",
                               "$login");
            &setup_verzeichnis(
-                  "/home/schueler/\$klassen/\$schueler/windows/sammelordner",
+                  "\$homedir_pupil/\$klassen/\$schueler/windows/sammelordner",
                   "$home/windows/sammelordner",
                   "$login");
-           &setup_verzeichnis("/home/schueler/\$klassen/\$schueler/www",
+           &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/www",
                               "$www_home");
            &setup_verzeichnis(
-                  "/home/schueler/\$klassen/\$schueler/www/public_html",
+                  "\$homedir_pupil/\$klassen/\$schueler/www/public_html",
                   "$www_home/public_html",
                   "$login");
            #www
@@ -778,11 +778,11 @@ sub user_links {
 
 
   if ($gruppe ne "lehrer"){
-    $tausch_klasse="/home/tausch/klassen/$gruppe";
-    $user_home = "/home/schueler/$gruppe/$login";
+    $tausch_klasse="${DevelConf::share_classes}/$gruppe";
+    $user_home = "${DevelConf::homedir_pupil}/$gruppe/$login";
   } else {
-    $tausch_klasse="/home/tausch/lehrer";
-    $user_home = "/home/lehrer/$login";
+    $tausch_klasse="${DevelConf::share_teacher}";
+    $user_home = "${DevelConf::homedir_teacher}/$login";
   }
 
   # Verzeichnis Tauschverzeichnisse löschen
@@ -801,7 +801,7 @@ sub user_links {
   else {
      # normales Versetzten (auch lehrer -> speicher)
      # sicherstellen dass Verzeichnis Tauschverzeichnisse existiert
-     &setup_verzeichnis("/home/schueler/\$klassen/\$schueler/Tauschverzeichnisse",
+     &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/Tauschverzeichnisse",
                       "$user_home/Tauschverzeichnisse");
 
      # Links zu Tauschverzeichnissen anlegen
@@ -809,7 +809,8 @@ sub user_links {
          # Link auf Klassentausch anlegen
           "ln -sf  $tausch_klasse $user_home/Tauschverzeichnisse/Tausch-$gruppe",
           # Link auf Schülertausch anlegen
-          "ln -sf /home/tausch/schueler $user_home/Tauschverzeichnisse/Tausch-Schule"
+#          "ln -sf /home/tausch/schueler $user_home/Tauschverzeichnisse/Tausch-Schule"
+          "ln -sf $DevelConf::share_school $user_home/Tauschverzeichnisse/Tausch-Schule"
      );
 
   }
@@ -1731,13 +1732,13 @@ Legt ein Link an in das Tauschverzeichnis des Projekts an.
 sub create_share_link {
     my ($login,$project) = @_;
     print "Creating a link for user $login to project $project.\n";
-    my $link_dir="/home/tausch/projects/${project}/";
+    my $link_dir="${DevelConf::share_projects}/${project}/";
 
     my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
        $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
 
     my $link_name=$home."/Tauschverzeichnisse/Tausch-${project}";   
-    my $link_target="/home/tausch/projects/${project}/";
+    my $link_target="${DevelConf::share_projects}/${project}/";
 
     print "   Link name : $link_name\n";
     print "   Target    : $link_target\n";
@@ -2293,8 +2294,8 @@ sub make_hash_lehrer_in_klassen {
    if($Conf::log_level>=3){
       print "### Suche bei: $lehrer\n";
    }
-   if (-e "/home/lehrer/$lehrer/.sophomorix/_Meine-Klassen") {
-      open(DOTFILE,"/home/lehrer/$lehrer/.sophomorix/_Meine-Klassen") || die "Fehler: $!";
+   if (-e "${DevelConf::homedir_teacher}/$lehrer/.sophomorix/_Meine-Klassen") {
+      open(DOTFILE,"${DevelConf::homedir_teacher}/$lehrer/.sophomorix/_Meine-Klassen") || die "Fehler: $!";
          while(<DOTFILE>){
             chomp();
            s/\s//g; # Whitespace Entfernen
@@ -2409,9 +2410,9 @@ sub get_config_datei_meine_klassen {
      if ($loginname eq "" || not defined $loginname) {
          print "Loginname konnte nicht ermittelt werden";
      } elsif ($loginname eq "admin") {
-         $config_pfad="/home/admin/.sophomorix";
+         $config_pfad="${DevelConf::homedir_admin}/.sophomorix";
      } else {
-         $config_pfad="/home/lehrer/${loginname}/.sophomorix";
+         $config_pfad="${DevelConf::homedir_teacher}/${loginname}/.sophomorix";
      }
      $config_datei="${config_pfad}"."/_Meine-Klassen";
 
@@ -2447,9 +2448,9 @@ sub get_link_pfad {
      if ($loginname eq "" || not defined $loginname) {
          print "Loginname konnte nicht ermittelt werden";
      } elsif ($loginname eq "admin") {
-         $link_pfad="/home/admin/windows/_Meine-Klassen";
+         $link_pfad="${DevelConf::homedir_admin}/windows/_Meine-Klassen";
      } else {
-         $link_pfad="/home/lehrer/${loginname}/windows/_Meine-Klassen";
+         $link_pfad="${DevelConf::homedir_teacher}/${loginname}/windows/_Meine-Klassen";
      }
 
      # Anlegen, falls nicht vorhanden
@@ -2463,7 +2464,7 @@ sub get_link_pfad {
      #print "$link_pfad<p>";
      # Linux-Seite: Link auf Windows-Linkverzeichnis
      my $string;
-     $string="/home/lehrer/${loginname}/_Meine-Klassen";
+     $string="${DevelConf::homedir_teacher}/${loginname}/_Meine-Klassen";
      #print "$string";
      if (! -e $string){
         system("ln -s ${link_pfad} $string");
@@ -2556,7 +2557,7 @@ sub daten_loeschen {
    my $owner= getpwuid $statliste[4];
    my $deletestring="$File::Find::name";
    # nur zum testen ob löschen verhindert wird.
-   #$deletestring="/home/tausch/klassen/km1kb2t"; 
+   #$deletestring="${DevelConf::share_classes}/km1kb2t"; 
    if (exists $user_loesch_hash_id{$statliste[4]}) {
       # Nochmal checken, ob wirklich löschen
       if ($deletestring=~/^\/home\/tausch\/klassen\/${klasse}\//) {
@@ -3265,21 +3266,21 @@ sub austeilen_manager{
   # Parameter 2: In welche gruppe wird ausgeteilt 
   # Parameter 3: Modus(ka, kachange, unt, untchange) 
   my ($loginname, $gruppe, $aendern_modus) = @_;
-  my $aufgaben="/home/lehrer/${loginname}/windows/aufgaben";
+  my $aufgaben="${DevelConf::homedir_teacher}/${loginname}/windows/aufgaben";
 
   # Ziel beim austeilen(Rechts) 
   # bei KA
-  my $tausch_ka="/home/klassenarbeit/${gruppe}/aufgaben/${loginname}";
+  my $tausch_ka="${DevelConf::share_exams}/${gruppe}/aufgaben/${loginname}";
   # bei Unterricht
-  #my $tausch_unt="/home/tausch/klassen/${gruppe}/${loginname}";
-  my $tausch_unt="/home/aufgaben/${gruppe}/${loginname}";
+  #my $tausch_unt="${DevelConf::share_classes}/${gruppe}/${loginname}";
+  my $tausch_unt="${DevelConf::share_tasks}/${gruppe}/${loginname}";
 
 
   # Quelle beim austeilen (ka UND unterricht)
-  my $aufgaben_grp="/home/lehrer/${loginname}/windows/aufgaben/${gruppe}";
+  my $aufgaben_grp="${DevelConf::homedir_teacher}/${loginname}/windows/aufgaben/${gruppe}";
 
   if (not -e $aufgaben) {
-  setup_verzeichnis("/home/lehrer/\$lehrer/windows/aufgaben",
+  setup_verzeichnis("\$homedir_teacher/\$lehrer/windows/aufgaben",
                     "$aufgaben","$loginname");
   }
 
@@ -3378,8 +3379,8 @@ sub ka_austeilen {
   # Parameter 2: In welchen Raum wird ausgeteilt
   # Parameter 3: delete oder undelete bei rsync
   my ($loginname, $raum, $type) = @_;
-  my $lehrer_pfad ="/home/lehrer/${loginname}/windows/aufgaben/$raum/";
-  my $raum_pfad = "/home/klassenarbeit/${raum}/aufgaben/${loginname}";
+  my $lehrer_pfad ="${DevelConf::homedir_teacher}/${loginname}/windows/aufgaben/$raum/";
+  my $raum_pfad = "${DevelConf::share_exams}/${raum}/aufgaben/${loginname}";
   #print "Teile aus von $lehrer_pfad nach $raum_pfad<p>";
   # -t Datum belassen
   # -n Nur so tun, als ob
@@ -3398,10 +3399,10 @@ sub unterricht_austeilen {
   # Parameter 2: In welche Klasse wird ausgeteilt
   # Parameter 3: delete oder undelete bei rsync
   my ($loginname, $klasse, $type) = @_;
-  my $lehrer_pfad ="/home/lehrer/${loginname}/windows/aufgaben/${klasse}/";
-  # Achung: share aufgabe (ohne n) ist in /home/aufgaben
-  my $klasse_pfad = "/home/aufgaben/${klasse}/${loginname}/";
-#  my $klasse_pfad = "/home/tausch/klassen/${klasse}/${loginname}/";
+  my $lehrer_pfad ="${DevelConf::homedir_teacher}/${loginname}/windows/aufgaben/${klasse}/";
+  # Achung: share aufgabe (ohne n) ist in ${DevelConf::share_tasks}
+  my $klasse_pfad = "${DevelConf::share_tasks}/${klasse}/${loginname}/";
+#  my $klasse_pfad = "${DevelConf::share_classes}/${klasse}/${loginname}/";
   #print "Teile aus von $lehrer_pfad nach $klasse_pfad<p>";
   # -t Datum belassen
   # -n Nur so tun, als ob
@@ -3440,9 +3441,9 @@ sub ka_einsammeln {
 
   my $sammelordner="";
   my $lehrer_pfad ="";
-  my $lehrer_verzeichnis="/home/lehrer/${loginname}/windows/sammelordner/KA-${raum}_${date}";
+  my $lehrer_verzeichnis="${DevelConf::homedir_teacher}/${loginname}/windows/sammelordner/KA-${raum}_${date}";
   my $log_verzeichnis="${DevelConf::log_pfad_ka}/KA-${raum}_${date}_${loginname}";
-  my $aufgaben="/home/klassenarbeit/${raum}/aufgaben/${loginname}";
+  my $aufgaben="${DevelConf::share_exams}/${raum}/aufgaben/${loginname}";
   my $user="";
   my @raum = &get_workstations_in_raum($raum);
   &check_verzeichnis_mkdir("${log_pfad_ka}");
@@ -3451,8 +3452,8 @@ sub ka_einsammeln {
   # repair.directories einlesen
   &get_alle_verzeichnis_rechte();
   # Sicherstellen, dass der sammelordner beim Lehrer existiert
-  &setup_verzeichnis("/home/lehrer/\$lehrer/windows/sammelordner",
-                       "/home/lehrer/$loginname/windows/sammelordner",
+  &setup_verzeichnis("\$homedir_teacher/\$lehrer/windows/sammelordner",
+                       "${DevelConf::homedir_teacher}/$loginname/windows/sammelordner",
                      "$loginname");
   &check_verzeichnis_mkdir("${lehrer_verzeichnis}");
   &check_verzeichnis_mkdir("${DevelConf::log_pfad_ka}");
@@ -3467,7 +3468,7 @@ sub ka_einsammeln {
       &check_verzeichnis_mkdir("${lehrer_pfad}");
       &check_verzeichnis_mkdir("${log_pfad_ka}");
 
-      $sammelordner = "/home/workstations/${raum}/${ws}/windows/sammelordner/";
+      $sammelordner = "${DevelConf::homedir_ws}/${raum}/${ws}/windows/sammelordner/";
 
       # rsync und rmtree
       # -t Datum belassen
@@ -3477,12 +3478,12 @@ sub ka_einsammeln {
       system("rsync -tr $sammelordner $log_pfad_ka");
       print "<b>  ... Räume Computer $ws auf ...  </b>";
       # Daten auf der Workstation löschen
-      rmtree("/home/workstations/${raum}/${ws}/windows"); 
-      &setup_verzeichnis("/home/workstations/\$raeume/\$workstation/windows",
-                         "/home/workstations/$raum/$ws/windows",
+      rmtree("${DevelConf::homedir_ws}/${raum}/${ws}/windows"); 
+      &setup_verzeichnis("\$homedir_ws/\$raeume/\$workstation/windows",
+                         "${DevelConf::homedir_ws}/$raum/$ws/windows",
                          "$ws");
-      &setup_verzeichnis("/home/workstations/\$raeume/\$workstation/windows/sammelordner",
-                         "/home/workstations/$raum/$ws/windows/sammelordner",
+      &setup_verzeichnis("\$homedir_ws/\$raeume/\$workstation/windows/sammelordner",
+                         "${DevelConf::homedir_ws}/$raum/$ws/windows/sammelordner",
                          "$ws");
 
 
@@ -3500,9 +3501,9 @@ sub ka_einsammeln {
    # Alles soll root gehören
    system("chown -R root:root $log_verzeichnis");
    # Daten auf der Workstation löschen
-   rmtree("/home/klassenarbeit/${raum}/aufgaben");       
-   &setup_verzeichnis("/home/klassenarbeit/\$raeume/aufgaben",
-                      "/home/klassenarbeit/$raum/aufgaben",
+   rmtree("${DevelConf::share_exams}/${raum}/aufgaben");       
+   &setup_verzeichnis("\$share_exams/\$raeume/aufgaben",
+                      "${DevelConf::share_exams}/$raum/aufgaben",
                       "admin",
                       "$raum");
    print "... fertig.</b><p> ";
@@ -3520,16 +3521,16 @@ sub unterricht_einsammeln {
   # Dateinamen ermitteln
   my $sammelordner="";
   my $lehrer_pfad ="";
-  my $lehrer_verzeichnis="/home/lehrer/${loginname}/windows/sammelordner/U-${klasse}_${date}";
-  my $aufgaben="/home/aufgaben/${klasse}/${loginname}";
+  my $lehrer_verzeichnis="${DevelConf::homedir_teacher}/${loginname}/windows/sammelordner/U-${klasse}_${date}";
+  my $aufgaben="${DevelConf::share_tasks}/${klasse}/${loginname}";
   my @klasse = &get_schueler_in_klasse($klasse);
 
   # Verzeichnis Anlegen
   # repair.directories einlesen
   &get_alle_verzeichnis_rechte();
   # Sicherstellen, dass der sammelordner beim Lehrer existiert
-  &setup_verzeichnis("/home/lehrer/\$lehrer/windows/sammelordner",
-                     "/home/lehrer/$loginname/windows/sammelordner",
+  &setup_verzeichnis("\$homedir_teacher/\$lehrer/windows/sammelordner",
+                     "${DevelConf::homedir_teacher}/$loginname/windows/sammelordner",
                      "$loginname");
   # gehört erstmal root
   &check_verzeichnis_mkdir("${lehrer_verzeichnis}");
@@ -3540,7 +3541,7 @@ sub unterricht_einsammeln {
  
       &check_verzeichnis_mkdir("${lehrer_pfad}");
 
-      $sammelordner = "/home/schueler/${klasse}/${schueler}/windows/sammelordner/";
+      $sammelordner = "${DevelConf::homedir_pupil}/${klasse}/${schueler}/windows/sammelordner/";
 
       # rsync und rmtree
       # -t Datum belassen
@@ -3548,8 +3549,8 @@ sub unterricht_einsammeln {
       # -o Owner beibehalten
       if ($orig eq "yes") {
          system("mv $sammelordner/* $lehrer_pfad");
-         &setup_verzeichnis("/home/schueler/\$klassen/\$schueler/windows/sammelordner",
-                            "/home/schueler/$klasse/$schueler/windows/sammelordner",
+         &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/windows/sammelordner",
+                            "${DevelConf::homedir_pupil}/$klasse/$schueler/windows/sammelordner",
                             "$schueler");
       } else {
          system("rsync -tor --delete $sammelordner $lehrer_pfad");

@@ -306,11 +306,11 @@ sub check_links {
           my $link_target = readlink $link;
           print "Target: $link_target \n";
           if ($group eq "lehrer"){    
-            &is($link_target,"/home/tausch/${group}" ,
-               "Checking if  target of link is /home/tausch/klassen/${group}");
+            &is($link_target,"/home/share/teacher" ,
+               "Checking if  target of link is /home/share/classes/${group}");
 	  } else {
-            &is($link_target,"/home/tausch/klassen/${group}" ,
-               "Checking if  target of link is /home/tausch/klassen/${group}");
+            &is($link_target,"/home/share/classes/${group}" ,
+               "Checking if  target of link is /home/share/classes/${group}");
           }
           # Does Target exist??????ßß
         }

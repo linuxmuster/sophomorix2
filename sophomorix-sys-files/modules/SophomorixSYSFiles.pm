@@ -122,9 +122,9 @@ sub add_user_to_sys {
     my $gec = "$vorname"." "."$nachname";
     my $home ="";
     if ($class eq "lehrer"){
-       $home = "/home/lehrer/$login";
+       $home = "${DevelConf::homedir_teacher}/$login";
     } else {
-       $home = "/home/schueler/$class/$login";
+       $home = "${DevelConf::homedir_pupil}/$class/$login";
     }
     &Sophomorix::SophomorixBase::do_falls_nicht_testen(
        "useradd -c '$gec' -d $home -m -g $class -p $pass -s $sh $login"
