@@ -50,6 +50,9 @@ WEBMINCONFDIR=$(DESTDIR)/etc/webmin
 
 all: install-base install-files install-sys-files install-developer install-webmin install-webmin-classmanager
 
+clean: clean-doc
+
+
 
 # sophomorix-base
 install-base:
@@ -157,6 +160,9 @@ install-webmin-classmanager:
 
 
 
+
+clean-doc:
+	rm -rf sophomorix-doc/html
 
 # you need to: 
 #       apt-get install docbook-utils
