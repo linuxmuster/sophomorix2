@@ -645,6 +645,7 @@ Creates all files and directories for a user.
 sub provide_user_files {
     my ($login,$class) = @_;
     my $home="";
+    my $home_class="";
     my $share_class = "";
     my $dev_null="1>/dev/null 2>/dev/null";
     if ($class eq "lehrer"){
@@ -656,7 +657,6 @@ sub provide_user_files {
            &setup_verzeichnis("/home/lehrer/\$lehrer",
                       "/home/lehrer/$login",
                       "$login");
-
            &setup_verzeichnis("/home/lehrer/\$lehrer/windows",
                       "/home/lehrer/$login/windows",
                       "$login");
@@ -677,6 +677,7 @@ sub provide_user_files {
         );
     } else { 
         # schueler
+        $home_class = "/home/schueler/$class";
         $home = "/home/schueler/$class/$login";
         $www_home = "/home/schueler/$class/$login/www";
         $share_class = "/home/tausch/klassen/$class";
@@ -688,6 +689,8 @@ sub provide_user_files {
         );
 
         if ($DevelConf::testen==0) {
+           &setup_verzeichnis("/home/schueler/\$klassen",
+                              "$home_class");
            &setup_verzeichnis("/home/schueler/\$klassen/\$schueler",
                               "$home",
                               "$login");

@@ -127,7 +127,8 @@ sub add_user_to_sys {
        $home = "/home/schueler/$class/$login";
     }
     &Sophomorix::SophomorixBase::do_falls_nicht_testen(
-       "useradd -c '$gec' -d $home -m -g $class -p $pass -s $sh $login"
+#       "useradd -c '$gec' -d $home -m -g $class -p $pass -s $sh $login"
+       "useradd -c '$gec' -m -g $class -p $pass -s $sh $login"
     );
 }
 
