@@ -93,29 +93,32 @@
   </sect1>
   <sect1>
     <title>Grundprinzipien (noch nicht aktuell)</title>
-    <para>Um die Benutzerverwaltung zu vereinfachen habe ich versucht folgende
-      grundlegende Prinzipien umzusetzen:</para>
-    <para><itemizedlist>
-	<listitem>
-	  <para>Die Schülerdaten werden auf ein einheitliches Format gebracht.
+    <para>Um die Benutzerverwaltung zu vereinfachen habe ich nachfolgende
+      Prinzipien eingesetzt</para>
+    <sect2>
+      <title>Einheitliches Datenformat für User</title>
+      <para>Die Schüler- und Lehrerdaten werden auf ein einheitliches Format gebracht.
 	    Unabhängig vom verwendeten Schulverwaltungsprogramm. Somit ist ein
 	    Wechsel/Upgrade desselben ohne Gefahr möglich.</para>
-	</listitem>
-	<listitem>
+    </sect2>
+    <sect2>
+      <title>Verwendung korrigierter Daten</title>
 	  <para>Daten aus dem Sekretariat sollen erst verwendet werden, wenn
 	    sie in korrigierter Form (=endgültiger) Form vorliegen. Zuvor
 	    können die Daten ausgefiltert werden, oder es werden Schüler
 	    Klassenweise angelegt.</para>
-	</listitem>
-	<listitem>
+    </sect2>
+    <sect2>
+      <title>Feststehender Loginname eines Users</title>
 	  <para>Ist ein Schüler einmal angelegt, so soll er während seiner
 	    ganzen Schulkarriere mit demselben Login-Namen, Paswort und
 	    Home-Verzeichnis angemeldet bleiben. Auch wenn sich an seinen
 	    Schulverwaltungs-Daten noch etwas ändern sollte. Dies hat die
 	    erfreuliche Konsequenz, dass alle Login-Informationen an jeden
 	    Schüler nur einmal ausgegeben werden müssen.</para>
-	</listitem>
-	<listitem>
+    </sect2>
+    <sect2>
+      <title>Halbautomatisches Löschen eines Users</title>
 	  <para>Schüler werden nicht sofort gelöscht, wenn sie in der
 	    Schulverwaltungsdatei nicht mehr auftauchen. Sie werden erst in die
 	    Klasse <userinput>dachboden</userinput> verschoben. Dort werden sie
@@ -123,8 +126,185 @@
 	    deaktiviert, sie können sich nicht mehr per Windows einloggen.
 	    Wiederum nach einer Zeitspanne werden sie dann endgültig gelöscht.
 	    Dabei wird kein Daten-Backup gemacht.</para>
+      <para>Ein User hat folgende Eigenschaften:</para>
+      <para><itemizedlist>
+	  <listitem>
+	    <para><userinput>AdminClass</userinput>: Gruppe der
+	    Schulverwaltungssoftware, in der sich der User
+	    befindet. Bei Schülern ist das die Klasse, bei Lehrern die
+	    Gruppe <userinput>lehrer</userinput></para>
+	    <para>Beispiel: <userinput>m2kb1t</userinput>
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para><userinput>Gecos</userinput>: Vor und Nachnamen des
+	    Users, so wie er auch im Gecos-Feld erscheint.</para>
+	    <para>Beispiel:
+	    <userinput>dietrich thurau</userinput></para>
+	  </listitem>
+	  <listitem>
+	    <para><userinput>Username</userinput>: Name des Users im
+	    System, bzw. Loginname oder auch Benutzername
+	    genannt.</para> 
+            <para>Beispiel:
+	    <userinput>thuraudi</userinput></para>
+	  </listitem>
+	  <listitem>
+	    <para><userinput>FirstPasswort</userinput>: Erstpasswort
+	    des Users beim anlegen des Accounts</para> 
+            <para>Beispiel:
+	    <userinput>TcsD3R4</userinput></para> 
+          </listitem>
+	  <listitem>
+	    <para><userinput>Birthday</userinput>: Geburtstag des
+	    Users. Wird nur zur weiteren Unterscheidung der User
+	    genutzt.</para> 
+            <para>Beispiel:
+	    <userinput>12.11.1984</userinput></para>
+          </listitem>
+	  <listitem>
+	    <para><userinput>Unid</userinput>: Eindeutiger
+	    Identifikationsstring (Unique Identifier) des
+	    Schulverwaltungsprogramms.</para> 
+            <para>Beispiel:
+	    <userinput>10345273833</userinput></para>
+          </listitem>
+	  <listitem>
+	    <para><userinput>Subclass</userinput>: Unterklasse
+	    (Subclass) des Schülers </para>
+	    <para>(Für Lehrer macht die Subclass
+	    keinen sinn, oder ?). </para>
+	    <para>Mögliche Werte: A,B,C,D oder leer
+	    (keine Subclass). Die Subclass sorgt dafür, dass innerhalb
+	    einer Klasse eine weitere Einteilung vorgenommen werden
+	    kann, um z.B. beim Unterrichten, Austeilen, ... nur einen
+	    Teil der Schüler in einer Klasse anzusprechen.</para>
+	    <para>Beispiel: <userinput>A</userinput></para>
+          </listitem>
+	  <listitem>
+	    <para><userinput>Status</userinput>: Status eines
+                 Users.</para> <para>Folgende Zustände (Stati ???)
+                 eines User(account)s sind möglich:</para>
+                 <para>
+               <itemizedlist>
+		<listitem>
+		  <para><userinput>U, E</userinput>: Usable, Enabled
+		  (Benutzbarer Account).</para>
+                 <para>
+                 <itemizedlist>
+		      <listitem>
+			<para><userinput>U</userinput>: User ist und
+			war schon immer in den
+			Konfigurationsdateien. Oder der Account wurde
+			durch selbstanlegen erzeugt, und die
+			Benutzerdaten sind nun in den
+			Konfigutationdateien erschienen.</para>
+		      </listitem>
+		      <listitem>
+			<para><userinput>E</userinput>: User ist in
+			den Konfigurationsdateien, war aber
+			zwischenzeitlich wieder verschwunden.</para>
+		      </listitem>
+	       </itemizedlist>
+                 </para>
+		</listitem>
+		<listitem>
+		  <para><userinput>T, A</userinput>: Tolerated, Activated
+		  (Tolerierter, Benutzbarer Account). </para>
+                 <para>
+                      <itemizedlist>
+		      <listitem>
+			<para><userinput>T</userinput>: Der User ist
+		  nicht mehr in den Konfigurationsdateien
+		  (<userinput>schueler.txt, ...</userinput>)
+		  enthalten.</para>
+		      </listitem>
+		      <listitem>
+			<para><userinput>A</userinput>: User ist aus
+			den Konfigurationsdateien verschwunden, wurde
+			aber vom Systemadministrator
+			reaktiviert.</para>
+		      </listitem>
+	              </itemizedlist>
+                 </para>
+		</listitem>
+		<listitem>
+		  <para><userinput>D</userinput>: Disabled
+		  (Ausgeschalteter Account). </para> 
+
+                  <para>Der User kann sich nicht mehr einloggen, Email
+		  wird abgewiesen, ...</para>
+		</listitem>
+		<listitem>
+		  <para><userinput>R</userinput>: Removeable
+		  (Ausgeschalteter, Löschbarer Account). </para>
+
+		  <para>Der User kann beim nachsten Aufruf von
+		  <userinput>sophomorix-kill</userinput> mit all
+		  seinen Daten entfernt werden.</para>
+		</listitem>
+		<listitem>
+		  <para><userinput>S</userinput>: Selfactivated
+		  (benutzbarer, tolerierter, selbsterzeugter
+		  Account). </para>
+		  <para>Der Account wurde von einem Lehrer
+		  bzw. Schüler selbst erzeugt und ist noch nicht durch
+		  Auftauchen der Benutzerdaten in
+		  <userinput>schueler.txt</userinput> in einen
+		  Normalen Account (U) überführt worden.</para>
+		</listitem>
+		<listitem>
+		  <para><userinput>F</userinput>: Frozen
+		  (Dauerhaft ausgeschalteter Account)</para>
+		  <para>
+		  Der Account ist auf dem Zustand D (Disabled)
+		  eingefroren. Der Account bleibt dauerhaft
+		  ausgeschaltet und kann von
+		  <userinput>sophomorix-kill</userinput>
+		  <emphasis>nicht</emphasis> entfernt werden.</para>
+		</listitem>
+		<listitem>
+		  <para><userinput>P</userinput>: Permanent
+		  (Dauerhafter benutzbarer Account)</para>
+		  <para>
+		  Der Account ist dauerhaft im Zustand U bzw. E
+		  (Benutzbarer Account). Der Account bleibt dauerhaft
+		  benutzbar und kann von
+		  <userinput>sophomorix-kill</userinput>
+		  <emphasis>nicht</emphasis> entfernt werden.</para>
+		</listitem>
+	      </itemizedlist>
+              </para>
+          </listitem>
+	  <listitem>
+	    <para><userinput>TolerationDate</userinput>: Datum seit
+	    dem der User toleriert wird/wurde.  <para>Beispiel:
+	    <userinput>10.12.2005</userinput></para>
+          </listitem>
+	  <listitem>
+	    <para><userinput>DeactivationDate</userinput>: Datum seit
+	    dem der User deaktiviert ist.  <para>Beispiel:
+	    <userinput>11.02.2006</userinput></para>
+          </listitem>
+	  <listitem>
+	    <para><userinput>ExitAdminClass</userinput>: Die
+	    <emphasis>Abgangsklasse</emphasis> eines Users.</para>
+	    <para>
+	    Das ist diejenige <userinput>AdminClass</userinput> in der
+	    der User war, bevor er in die Sonderklasse
+	    <userinput>dachboden</userinput>,
+	    bzw. <userinput>speicher</userinput> versetzt wurde, weil
+	    er aus den Konfigurationsdateien entfernt wurde. </para>
+
+	    <para>Diese Information ist u.a. erforderlich um
+	    z.B. einen User wieder zu reaktivieren, oder per teach-in
+	    einem neu anzulegenden zuzuordnen.  <para>Beispiel:
+	    <userinput>12c</userinput></para>
+          </listitem>
+	    </itemizedlist>
+</para>
     <para><figure>
-	<title>Weg eines Users durch das System (Userstatus)</title>
+	<title>Weg eines Users durch das System (User-status)</title>
 	<mediaobject>
 	  <imageobject>
 	    <imagedata fileref="user-status.png" format="png">
@@ -133,13 +313,101 @@
 	    <imagedata fileref="user-status.eps" format="eps">
 	  </imageobject>
 	  <textobject>
-	    <phrase>Grafische Darstellung der Userzustände</phrase>
+	    <phrase>Grafische Darstellung der User-zustände</phrase>
 	  </textobject>
 	</mediaobject>
       </figure>
 </para>
-	</listitem>
-	<listitem>
+    </sect2>
+    <sect2>
+      <title>Halbautomatisches Löschen eines Projekts</title>
+      <para>Ein Projekt hat folgende Eigenschaften:</para>
+      <para><itemizedlist>
+	  <listitem>
+	    <para><userinput>Name</userinput>: Kurzer Projektname, der
+	    dem Linux-Gruppennamen entspricht</para> 
+	    <para>Beispiel: <userinput>astro</userinput>
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para><userinput>LongName</userinput>: Langer Projektname,
+	    der als Linkname verwendet wird. Sinnvollerweise sollte er
+	    den <userinput>Name</userinput> enthalten.</para>
+	    <para>Beispiel:
+	    <userinput>Astronomie-AG-2004</userinput></para>
+	  </listitem>
+	  <listitem>
+	    <para><userinput>Teachers</userinput>: Loginnamen der
+	    Lehrer, die die Mitglieder des Projekts verwalten. Mehrere
+	    Lehrer werden kommasepariert angegeben.</para>
+
+            <para>Beispiel: <userinput>maier,mueller</userinput></para>
+	  </listitem>
+	  <listitem>
+	    <para><userinput>Members</userinput>: Loginnamen der
+	    User, die Mitglieder des Projekts sind Mehrere
+	    User werden kommasepariert angegeben.</para>
+
+            <para>Beispiel: <userinput>pmaier,hmuelle</userinput></para>
+	  </listitem>
+	  <listitem>
+	    <para><userinput>MemberGroups</userinput>:
+	    Linux-Gruppennamen der Gruppen, deren Mitglieder
+	    Mitglieder des projekts sind. Mehrere Gruppen werden
+	    kommasepariert angegeben.</para> <para>Gruppen können
+	    Klassen, Subklassen oder auch andere Projekte sein.</para>
+
+            <para>Beispiel: <userinput>12a,12b,12c</userinput></para>
+	  </listitem>
+	  <listitem>
+	    <para><userinput>AddQuota</userinput>: Zusätzliches Quota,
+	    das ein User erhält, wenn er in diesem Projekt Mitglied
+	    ist. Die Angabe erfolgt wie bei den sonstigen Quotaangaben
+	    ist aber <emphasis>additiv</emphasis>.</para>
+
+            <para>Dieses Feld kann nur von <userinput>admin/root</userinput>
+	    verändert werden.</para>
+	    <para>Beispliel bei 2 quotierten Partitionen:
+	    <userinput>5+80</userinput></para>
+	  </listitem>
+	  <listitem>
+	    <para><userinput>MaxMembers</userinput>: Maximale Anzahl
+	    von Mitglidern, die ein betreuender Lehrer, der in
+	    <userinput>Teachers</userinput> genannt ist aufnehmen
+	    kann.</para> 
+
+	    <para>Dieses Feld kann nur von
+	    <userinput>admin/root</userinput> verändert werden.</para>
+
+            <para>Beispliel bei 2 quotierten Partitionen:
+	    <userinput>5+80</userinput></para>
+	  </listitem>
+	  <listitem>
+	    <para><userinput>DeactivationDate</userinput>:
+            Datum, ab dem das Projekt nicht mehr gebraucht wird.
+            <para>Beispiel: <userinput>12.10.2006</userinput></para>
+	  </listitem>
+	</itemizedlist>
+</para>
+	  <para>Projekte werden nicht sofort gelöscht.</para>
+    <para><figure>
+	<title>Weg eines Projekts durch das System (Projekt-status)</title>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="project-status.png" format="png">
+	  </imageobject>
+	  <imageobject>
+	    <imagedata fileref="project-status.eps" format="eps">
+	  </imageobject>
+	  <textobject>
+	    <phrase>Grafische Darstellung der Projekt-zustände (Status)</phrase>
+	  </textobject>
+	</mediaobject>
+      </figure>
+</para>
+    </sect2>
+     <sect2>
+      <title>Vorraussagemöglichkeit</title>
 	  <para>Es soll genau ersichtlich sein, was passieren wird.</para>
 	  <para>Aus diesem Grund prüft man zuerst mit
 	    <userinput>sophomorix-check</userinput> alle vorhandenen
@@ -147,10 +415,7 @@
 	  <para>Dann wird sichtbar, welche Schüler/Lehrer angelegt, versetzt,
 	    ... werden KÖNNEN. Erst dann führt man die entsprechende Aktion
 	    durch.</para>
-	</listitem>
-
-      </itemizedlist>
-</para>
+    </sect2>
   </sect1>
 </chapter>
 
