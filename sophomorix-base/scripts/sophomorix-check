@@ -1081,12 +1081,11 @@ foreach my $go (keys %will_go) {
         push @come, $come_class;
 #	print "   Checking $go ($go_class)     $come ($come_class)   \n";
   
-
-	#print "@go \n";
+        print "\n### Checking vanising  $go   for matches:\n";
+        &linie();
         printf "%-25s %-25s %-11s %-11s \n",$go[0],$go[1],$go[2],$go[3];
-
-        #print "@come \n";
         printf "%-25s %-25s %-11s %-11s \n",$come[0],$come[1],$come[2],$come[3];
+        &linie();
         # immer das langen im kurzen suchen
         # adist(kurz, lang)
 
@@ -1133,85 +1132,122 @@ foreach my $go (keys %will_go) {
 #               $dist_name,$dist_first,$dist_birth;
         # 1-Zeichen-Substitution in klasse
         if ($go[3] eq $come[3]) {
-            print "   Class is identical:\n ";
+            print "### Identical Class:         Yes!\n";
             &single_change_match(@param, "30%", "30%","30%");
             &multi_change_match(@param, "15%", "15%","15%");
+            &add_first_match(@param, "15%", "10%","15%");
+            # marriage
+            &single_change_match(@param, "100%", "0%","0%");
 
         } elsif (amatch($go[3], ["S1"], $come[3])){
-           print "   ApproxMatchClass   :\n";    
+           print "### ApproxMatchClass:        Yes!\n";    
             &single_change_match(@param, "15%", "15%", "15%");
             &multi_change_match(@param, "30%", "30%","30%");
+            &add_first_match(@param, "15%", "10%","15%");
 
         } else {
-           print "   No ApproxMatchClass:\n";
+           print "### ApproxMatchClass:        No!\n";
             &single_change_match(@param, "0%","0%","0%");
             &multi_change_match(@param, "30%", "30%","30%");
+            &add_first_match(@param, "15%", "10%","15%");
 
         }
-
-        print "\n\n",
-
+        print "\n",
     }
 }
+
+
+sub add_first_match {
+    # identifiy additional Firstname in first (peter hanspeter)
+    my $go=shift @_;
+    my $come=shift@_;
+    my $max_points=90;
+    # small First is amatch in the large
+    if (amatch($_[0], ["$_[8]"], $_[1])
+       and amatch($_[3], ["$_[9]"], $_[2])
+       and ( $_[2]=~/^$_[3]/ or $_[2]=~/$_[3]$/ ) 
+       and amatch($_[4], ["$_[10]"], $_[5])
+       ){
+       my $ed_dist_points=$max_points-15*abs( adist($_[0],$_[1]))-15*abs( adist($_[4],$_[5])) ;
+       print "### add_first_match: \n",
+             "    Name  $_[0] and $_[1] have less than $_[8] distance\n",
+             "    First $_[3] is found in the beginning/end of $_[2]\n",
+             "    Birth $_[4] and $_[5] have less than $_[10] distance\n";
+       &better_match($go,$come,$ed_dist_points);
+    } else {
+       print "### add_first_match:         No match!\n",
+    }
+
+}
+
+
 
 sub multi_change_match {
     # identifiy small changes in EACH of name,first,birth
     my $go=shift @_;
     my $come=shift@_;
-    my $points=90;
+    my $max_points=100;
     if (amatch($_[0], ["$_[8]"], $_[1])
        and amatch($_[2], ["$_[9]"], $_[3])
        and amatch($_[4], ["$_[10]"], $_[5])
        ){
-       print "  MATCH multi_change_match: \n",
-             "Name  $_[0] and $_[1] have less than $_[8] distance\n",
-             "First $_[2] and $_[3] have less than $_[9] distance\n",
-             "Birth $_[4] and $_[5] have less than $_[10] distance\n";
-       &better_match($go,$come,$points);
-       $go_come{$go}=$come;
+       my $ed_dist_points=$max_points-10*abs( adist($_[0],$_[1]))-10*abs( adist($_[2],$_[3]))-10*abs( adist($_[4],$_[5])) ;
+       print "### multi_change_match: \n",
+             "   $_[0] and $_[1] are similar! (Limit: $_[8])\n",
+             "   $_[2] and $_[3] are similar! (Limit: $_[9])\n",
+             "   $_[4] and $_[5] are similar! (Limit: $_[10])\n",
+             "   ( => $ed_dist_points Points)\n";
+       &better_match($go,$come,$ed_dist_points);
+    } else {
+       print "### multi_change_match:      No match!\n",
     }
-
 }
+
+
 
 sub single_change_match {
     # identifiy small changes in ONE of name,first,birth
     my $go=shift @_;
     my $come=shift@_;
-    my $points=100;
+    my $max_points=101;
     # 0,1 name
     # 2,3 first
     # 4,5 birth
     # 6,7 class
     # 8,9,10 %match_name,%match_first,%match_birth
-    print "Checking $_[0] and $_[1] ($_[8])\n"; 
-    print "Checking $_[2] and $_[3] ($_[9])\n"; 
-    print "Checking $_[4] and $_[5] ($_[10])\n"; 
-
     if (amatch($_[0], ["$_[8]"], $_[1])
        and $_[2] eq $_[3]
        and $_[4] eq $_[5]
        ){
-       print "  MATCH single_change_match: Name $_[0] and Name $_[1]",
-             " have less than $_[8] distance\n";
-       &better_match($go,$come,$points);
-       $go_come{$go}=$come;
-    }
-    if ($_[0] eq $_[1]
+       my $ed_dist_points=$max_points-abs( adist($_[0],$_[1])*10 );
+       print "###  single_change_match:    $_[0] and $_[1] are similar!\n",
+             "     ( => $ed_dist_points Points)\n";
+       &better_match($go,$come,$ed_dist_points);
+    }elsif ($_[0] eq $_[1]
        and amatch($_[2], ["$_[9]"], $_[3])
        and $_[4] eq $_[5]
        ){
-       print "  MATCH single_change_match: First $_[2] and First $_[3]",
-             " have less than $_[9] distance\n";
-       &better_match($go,$come,$points);
-    }
-    if ($_[0] eq $_[1]
+       my $ed_dist_points=adist($_[2],$_[3]);
+       print "###  single_change_match:    $_[2] and $_[3] are similar!\n",
+             "     ( => $ed_dist_points Points)\n";
+       &better_match($go,$come,$ed_dist_points);
+    } elsif ($_[0] eq $_[1]
        and $_[2] eq $_[3]
        and amatch($_[4], ["$_[10]"], $_[5])
        ){
-       print "  MATCH single_change_match: Birth $_[4] and Birth $_[5]",
-             " have less than $_[10] distance\n";
-       $go_come{$go}=$come;
-       &better_match($go,$come,$points);
+       my $ed_dist_points=adist($_[4],$_[5]);
+       print "###  single_change_match:    $_[4] and $_[5] are similar!\n",
+             "     ( => $ed_dist_points Points)\n";
+       &better_match($go,$come,$ed_dist_points);
+    } elsif ($_[2] eq $_[3]
+       and $_[4] eq  $_[5]
+       ){
+       my $ed_dist_points=77; # marriage
+       print "###  single_change_match(marriage): $_[0] / $_[1] has married\n",
+             "     ( => $ed_dist_points Points)\n";
+       &better_match($go,$come,$ed_dist_points);
+    } else {
+       print "### single_change_match:     No match!\n",
     }
 }
 
@@ -1220,28 +1256,37 @@ sub better_match {
     my ($go, $come, $points)=@_;
     my $old_points=0;
     # hat $come schon Punkte
-    if (exists $come_points{$come}){
-	$old_points=$come_points{$come}
+    if (exists $go_come{$go}){
+        # get user that matches
+        my $user=$go_come{$go};
+	$old_points=$come_points{$user}
     }
-    print "$come  has $old_points points, can get $points points.\n"; 
+#    if (exists $come_points{$come}){
+#	$old_points=$come_points{$come}
+#    }
+    print "### $come  has $old_points points, can get $points points.\n"; 
     if ($points > $old_points){
-        print "Updating: $come replaces $go ($points points) \n";
+        print "### Updating: $come -> $go ($points pts) \n";
 	$go_come{$go}=$come;
         $come_points{$come}=$points;
     } else {
-        print "Not updating: Not enough points.\n";
+        print "### Not updating: Not enough points.\n";
     }
 }
 
 
 
 
-print "Go   --- Come \n";
+print "\nGo   --- Come \n";
+&linie();
 while (($k,$v) = each %go_come){
     print $k , "    ", $v, "\n";
 }
 
-print "Come   --- Points \n";
+print "\n";
+
+print "\nCome   --- Points \n";
+&linie();
 while (($k,$v) = each %come_points){
     print $k , "    ", $v, "\n";
 }
