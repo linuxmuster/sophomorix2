@@ -26,7 +26,8 @@ set -e
 case "$1" in
     configure)
     # calling the setup-script of sophomorix
-#    sophomorix-setup
+    sophomorix-setup
+    sophomorix-samba
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
