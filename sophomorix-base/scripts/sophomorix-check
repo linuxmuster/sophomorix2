@@ -12,10 +12,7 @@ use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 #use Schedule::at;
 use String::Approx 'amatch';
-use String::Approx 'adistr';
 use String::Approx 'adist';
-use String::Approx 'aslice';
-
 use Sophomorix::SophomorixBase;
 #use Sophomorix::SophomorixFiles;
 use Time::Local;
@@ -141,7 +138,7 @@ my $heute="";
 # in Unix-Zeit
 my $epoche_jetzt=0;
 
-# Dulden und Deaktivieren
+# Tolerieren und Deaktivieren
 my $epoche_duldung_bis_schueler=0;
 my $epoche_duldung_bis_lehrer=0;
 
@@ -266,6 +263,8 @@ my $schueler_entfernt_anzahl=0;
 # 0 unbedingt lassen bei Sternchenklassen (SPLAN):
 my $schueler_sternchenklasse_anzahl=0;
 
+my $auto_teach_in_count=0;
+
 my $move=0;
 
 
@@ -325,7 +324,7 @@ my %schueler_subklassen=();
 
 # Listen fuer report.admin
 my @admin_list_toleration;
-#   push @admin_list_toleration, "User, die nur noch geduldet werden:\n";
+#   push @admin_list_toleration, "User, die nur noch toleriert werden:\n";
 
 my @admin_list_corrupt;
 my @admin_list_deactivation;
@@ -408,7 +407,7 @@ chomp($heute);
 # TolerationDate und DeactivationDate ermitteln
 # ===========================================================================
 
-# Duldung bis zu welcher Epochenzeit
+# Tolerierung bis zu welcher Epochenzeit
 $epoche_duldung_bis_schueler=$epoche_jetzt+86400*$Conf::schueler_duldung_tage;
 
 $epoche_duldung_bis_lehrer=$epoche_jetzt+86400*$Conf::lehrer_duldung_tage;
@@ -438,7 +437,7 @@ if($Conf::log_level>=3){
    print "Deactivation(D) for Teachers(Lehrer) ends:   ",
          "$epoche_deaktivierung_bis_lehrer ",
       &zeit($epoche_deaktivierung_bis_lehrer),
-            " (in $Conf::lehrer_deaktivierung_tage Tage)\n";
+            " (in $Conf::lehrer_deaktivierung_tage Days)\n";
 }
 
 # ===========================================================================
@@ -913,169 +912,15 @@ if ($Conf::splan_sternchenlkassen_filtern eq "ja") {
 my %go_come=();
 my %come_points=();
 
-sub auto_teach_in {
-   my $count=0;
-   my %will_come=();
-   my %will_go=();
-
-   &titel("auto_teach-in: Modyfying the following accounts:");
-
-   # will go:
-   foreach (keys %schueler_im_system_hash) {
-       # will go
-       if (not exists $schueler_ok_hash{$_}){
-          if($Conf::log_level>=3){
-             print "will_go  :  $_  $schueler_im_system_hash{$_}\n";
-          }
-          $will_go{$_}=$schueler_im_system_hash{$_};
-       }
-   }
-
-   # will come:
-   foreach (keys %schueler_ok_hash) {
-      # will come
-      if (not exists $schueler_im_system_hash{$_}){
-         if($Conf::log_level>=3){
-            print "will_come:  $_  $schueler_ok_hash{$_}\n";
-         }
-         $will_come{$_}=$schueler_ok_hash{$_};
-
-      }
-   }
-
-
-
-foreach my $go (keys %will_go) {
-    my $go_class=$will_go{$go};
-    my @go = split(/;/, $go);
-    if ($go_class eq "dachboden" or $go_class eq "speicher"){
-        $go_class=$schueler_im_system_exit_admin_class{$go}
-    }
-    push @go, $go_class;
-
-    foreach my $come (keys %will_come) {
-        my $come_class=$will_come{$come};
-        my @come=split(/;/, $come);
-        push @come, $come_class;
-  
-        if($Conf::log_level>=3){
-           print "\n### Checking vanising  $go   for matches:\n";
-           &linie();
-           printf "%-25s %-25s %-11s %-11s \n",$go[0],$go[1],$go[2],$go[3];
-           printf "%-25s %-25s %-11s %-11s \n",$come[0],$come[1],$come[2],$come[3];
-           &linie();
-        }
-        # immer das lange im kurzen suchen
-        my $dist_name;
-        my $dist_first;
-
-        my $name_long;
-        my $name_short;
-        my $first_long;
-        my $first_short;
-
-        if (length($come[0]) < length($go[0])){
-	    $name_long=$go[0];
-            $name_short=$come[0];
-            $dist_name = adist($go[0], $come[0]);
-        } else {
-            $dist_name = adist($come[0], $go[0]);
-	    $name_long=$come[0];
-            $name_short=$go[0];
-        }
-        if (length($come[1]) < length($go[1])){
-	    $first_long=$go[1];
-            $first_short=$come[1];
-            $dist_first = abs( adist($go[1], $come[1]) );
-        } else {
-            $dist_first = abs( adist($come[1], $go[1]) );
-	    $first_long=$come[1];
-            $first_short=$go[1];
-        }
-        # creating param_list
-        my @param=($go,
-                   $come,
-                   $name_long,
-                   $name_short,
-                   $first_long,
-                   $first_short,
-                   $come[2],
-                   $go[2],
-                   $come[3],
-                   $go[3]);
-
-        my $dist_birth = adist($come[2], $go[2]);
-
-        # 1-Zeichen-Substitution in klasse
-        if ($go[3] eq $come[3]) {
-            if($Conf::log_level>=3){
-               print "### Identical Class:         Yes!\n";
-	    }
-            &single_change_match(@param, "30%", "30%","30%");
-            &multi_change_match(@param, "15%", "15%","15%");
-            &add_first_match(@param, "15%", "10%","15%");
-            # marriage
-            &single_change_match(@param, "100%", "0%","0%");
-        } elsif (amatch($go[3], ["S1"], $come[3])){
-            if($Conf::log_level>=3){
-              print "### ApproxMatchClass:        Yes!\n";    
-            }
-            &single_change_match(@param, "15%", "15%", "15%");
-            &multi_change_match(@param, "30%", "30%","30%");
-            &add_first_match(@param, "15%", "10%","15%");
-        } else {
-            if($Conf::log_level>=3){
-               print "### ApproxMatchClass:        No!\n";
-            }
-            &single_change_match(@param, "0%","0%","0%");
-            &multi_change_match(@param, "30%", "30%","30%");
-            &add_first_match(@param, "15%", "10%","15%");
-
-        }
-    }
-}
-
-
-while (my ($identifier_sys,$identifier_file) = each %go_come){
-    my $points = $come_points{$identifier_file};
-
-    printf "  %-37s %-37s %-3sPts\n",
-           $identifier_sys,
-           $identifier_file,
-           $points;
-    # updating the hashes that sophomorix uses internally
-    &update_all_hashes($identifier_sys,$identifier_file);
-
-    # update the database
-    my $login=$schueler_im_system_loginname{$identifier_file};
-    my ($last,$first,$birth)=split(/;/, $identifier_file);
-    &update_user_db_entry($login, 
-                          "Name=$first",
-                          "LastName=$last",
-                          "Birthday=$birth");
-    # update the system
-    &update_gecos($login,$first,$last);
-}
-
-    &titel("auto_teach-in: ... $count accounts modified");
-}
-
 
 
 
 # ===========================================================================
-# Was waere wenn ...
+# Updating Data in the user-Database, create sophomorix.add .move .kill
 # ===========================================================================
-
-
-# ===========================================================================
-# 1. changing the status af users
-# ===========================================================================
-
 
 # versetzen
 &u_u_check();
-
 
 # A) U,E --->>> T
 #================================================== 
@@ -1083,8 +928,6 @@ while (my ($identifier_sys,$identifier_file) = each %go_come){
 &u_t_check();
 # 2. Enabled(E) -> Tolerated(T) .move (alte klasse -> dachboden)
 &e_t_check();
-
-
 
 
 # B) T, A, S --->>> E,U
@@ -1116,18 +959,10 @@ while (my ($identifier_sys,$identifier_file) = each %go_come){
 &d_r_check();
 
 
-
-
-
-
 # E) R
 #==================================================
 # 1. Removeable(R) und Killable(K) bleibt   .kill
 &r_r_check();
-
-
-# Problem bisher kill muss vor move kommen
-
 
 
 
@@ -1135,31 +970,9 @@ while (my ($identifier_sys,$identifier_file) = each %go_come){
 
 
 # ===========================================================================
-# Datei öffnen, in die die zu löschenden Schüler geschrieben werden
-# ===========================================================================
-#&generate_kill_file();
-
-
-# Move users from class to class (appended to sophomorix.add)
-#&generate_move_file();
-
-
-# ===========================================================================
-# Datei öffnen, in die zu deaktivierende Schüler geschrieben werden
-# ===========================================================================
-# ist in d_re_check
-#&update_deactivation_data();
-
-
-# ===========================================================================
 # Datei erzeugen, in die die neuen User geschrieben werden
 # ===========================================================================
 &generate_add_file();
-
-# ===========================================================================
-# Append users to be moved to sophomorix.move
-# ===========================================================================
-#&generate_move_file();
 
 
 # ===========================================================================
@@ -1190,11 +1003,11 @@ print RED "Sie sollten sophomorix-teach-in aufrufen!\n";
 #}
 
 # ===========================================================================
-# Geduldete User in den dachboden/speicher versetzten
+# Tolerierte User in den dachboden/speicher versetzten
 # ===========================================================================
 # Folgender Schritt würde lange dauern ...
-#&titel("Versetze geduldete Schüler in die Klasse dachboden");
-#&titel("Versetze geduldete Lehrer in die Klasse speicher");
+#&titel("Versetze tolerierte Schüler in die Klasse dachboden");
+#&titel("Versetze tolerierte Lehrer in die Klasse speicher");
 
 #system("sophomorix-move --neugruppe dachboden > /dev/null");
 #system("sophomorix-move --neugruppe speicher > /dev/null");
@@ -1210,20 +1023,15 @@ print RED "Sie sollten sophomorix-teach-in aufrufen!\n";
 
 
 
-
-
-
-
-
 # ===========================================================================
 # Subroutinen
 # ===========================================================================
 
 # ===========================================================================
-# Status-Check subs
+# status check subs
 # ===========================================================================
 
-
+# subs for status check subs
 sub append_move_entry {
     
     # appends a line to sophomorix.move
@@ -1237,7 +1045,8 @@ sub append_move_entry {
     } 
 
     $move_line="$login"."::".$old_class."::"."$new_class"."\n";
-    $move_message="   $identifier (Login: $login)  $old_class ---> $new_class\n";
+    $move_message="   $identifier (Login: $login)  $old_class ".
+                  "---> $new_class\n";
 
     #print REPORTADMIN "$move_message";
     print "$move_message";
@@ -1250,12 +1059,14 @@ sub append_move_entry {
 }
 
 
+
 sub append_kill_entry {
     # appends a line to sophomorix.kill
     my ($identifier)=@_;
     my $login=$schueler_im_system_loginname{$identifier};
     my $kill_line="$identifier"."::"."$login"."\n";
-    my $kill_message="   $identifier (Login: $login)  ---> Removable/Killable\n";
+    my $kill_message="   $identifier (Login: $login)".
+                     " ---> Removable/Killable\n";
 
     #print REPORTADMIN "$kill_message";
     open(SOPHOMORIXKILL, 
@@ -1268,14 +1079,15 @@ sub append_kill_entry {
 }
 
 
+
 sub u_u_check {
-    my $count=0;
+   my $count=0;
+   &titel("u_u_check: Suche User zum versetzen ...");
     while ( my ($identifier, $new_class) = each %schueler_ok_hash ){
       if (exists $schueler_im_system_hash{$identifier}) {
          # schueler, die im System sind 
          # und in sophomorix.ok weitervergleichen
 	  my $old_class=$schueler_im_system_hash{$identifier};
-#	  my $new_class=$schueler_ok_hash{$identifier};
 	  my $login=$schueler_im_system_loginname{$identifier};
          if ("$new_class" ne "$old_class"){
            $schueler_zuversetzen_anzahl++;
@@ -1284,20 +1096,21 @@ sub u_u_check {
            # Admin-Report
            push @admin_list_move, "$login  $old_class ---> $new_class";
            # File
-#	   print "u_u-check:  $string_move\n";
            &append_move_entry($identifier,
                               $old_class,
                               $new_class);
 
          }
       }
-    }
-
+   }
+   &titel("u_u_check: $count User KÖNNEN versetzt werden ...");
 }
+
 
 
 sub u_t_check {
    my $count=0;
+   &titel("u_t_check: Suche User zum tolerieren/-> dachboden/speicher ...");
    # Usable(U) -> Tolerated(T)  .move (alte klasse -> dachboden) 
    # Step 1: Tolerate the user
    while ( my ($identifier, $status) = each %sophomorix_status ){
@@ -1305,14 +1118,14 @@ sub u_t_check {
          unless (exists $schueler_ok_hash{$identifier}) {
            # User is not anymore in Files
            if (not exists $user_duldungsbeginn{$identifier}){
-              print "INFO: $identifier wird ab $heute nur noch geduldet\n";
+              print "INFO: $identifier wird ab $heute nur noch toleriert\n";
               my $login=$schueler_im_system_loginname{$identifier};
               &update_user_db_entry($login, 
                                    "Status=T",
                                     "TolerationDate=$heute");
               # report.admin
               push @admin_list_toleration, 
-                    "$identifier wird ab $heute nur noch geduldet\n";
+                    "$identifier wird ab $heute nur noch toleriert\n";
 	      
               &append_move_entry($identifier,
                                 $schueler_im_system_hash{$identifier},
@@ -1325,10 +1138,9 @@ sub u_t_check {
       }
      }
    }
+   &titel("u_t_check:  ... $count User wurden toleriert/-> dachboden/speicher");
+
 }
-
-
-
 
 
 
@@ -1340,25 +1152,7 @@ sub e_t_check {
 
 
 sub t_e_check {
-# doppelt mit d_e_check
-#
-#   my $count=0;
-#   &titel("t_e_check: Suche wieder aufgetauchte User ...");
-#   # Tolerated(T) -> Enabled(E) .move (dachboden -> neue klasse) 
-#    while(my ($identifier,$toleration_date) = each %user_duldungsbeginn){
-#      # Check if user reappears in the files
-#      if (exists $schueler_ok_hash{$identifier}) {
-#          print "   $identifier taucht wieder in schueler.txt auf\n";
-#          my $login=$schueler_im_system_loginname{$identifier};
-#          &update_user_db_entry($login, 
-#                                "Status=E",
-#                                "TolerationDate=",
-#                                "DeactivationDate=");
-#          &user_reaktivieren("$login");
-#          $count++;
-#      }
-#    }
-#    &titel("t_e_check: ... es sind $count User wieder aufgetaucht.");
+   # doppelt mit d_e_check
 }
 
 
@@ -1381,44 +1175,41 @@ sub t_d_check {
    &titel("t_d_check: Suche Tolerierte User zum versetzen/deaktivieren ...");
    # Tolerated(T) -> Disabled(D)   .move (alte klasse -> dachboden)
    while ( my ($identifier, $status) = each %sophomorix_status ){
-       # wenn status T und NICHT wieder auftaucht
-       if ($status eq "T" and not exists $schueler_ok_hash{$identifier}){
-          my $login=$schueler_im_system_loginname{$identifier};
-          my $sys_class=$schueler_im_system_hash{$identifier};
-          # check if tolerated user is not in dachboden/speicher
-          if ($sys_class ne "dachboden" and $sys_class ne "speicher") {
-             &append_move_entry($identifier,$sys_class,"dachboden");
-             $count_move++;
-          }
-          # checking for deactivation
-          if (not exists $user_deaktivierungsbeginn{$identifier}){
-             $epoche_deaktivierung_ab = &get_action_date($identifier, 
+      # wenn status T und NICHT wieder auftaucht
+      if ($status eq "T" and not exists $schueler_ok_hash{$identifier}){
+         my $login=$schueler_im_system_loginname{$identifier};
+         my $sys_class=$schueler_im_system_hash{$identifier};
+         # check if tolerated user is not in dachboden/speicher
+         if ($sys_class ne "dachboden" and $sys_class ne "speicher") {
+            &append_move_entry($identifier,$sys_class,"dachboden");
+            $count_move++;
+         }
+         # checking for deactivation
+         if (not exists $user_deaktivierungsbeginn{$identifier}){
+            $epoche_deaktivierung_ab = &get_action_date($identifier, 
                                                          "deactivation");
-             if ($epoche_deaktivierung_ab != 0) {
-                print "   $identifier wurde am $heute deaktiviert\n";
-                push @admin_list_deactivation, 
-                    "$identifier wurde am $heute deaktiviert\n";
-                # Alle zum deaktivieren notwendigen Schritte durchführen
-                &update_user_db_entry($login, 
-                                      "Status=D", 
-                                      "DeactivationDate=$heute");
-                &user_deaktivieren($login);
-                $count_disabled++;
-             } else {
-                if($Conf::log_level>=2){
-                   print "### User $identifier ist im Tolerierungs-Zeitraum\n"; 
-                }
-	     }
+            if ($epoche_deaktivierung_ab != 0) {
+               print "   $identifier wurde am $heute deaktiviert\n";
+               push @admin_list_deactivation, 
+                   "$identifier wurde am $heute deaktiviert\n";
+               # Alle zum deaktivieren notwendigen Schritte durchführen
+               &update_user_db_entry($login, 
+                                     "Status=D", 
+                                     "DeactivationDate=$heute");
+               &user_deaktivieren($login);
+               $count_disabled++;
+            } else {
+               if($Conf::log_level>=2){
+                  print "### User $identifier ist im Tolerierungs-Zeitraum\n"; 
+               }
+	    }
 
-	  }
-       }
+	 }
+      }
    }
    &titel("t_d_check:  ... $count_move tolerierte User -> dachboden/speicher");
    &titel("t_d_check:  ... $count_disabled  User wurden disabled");
 }
-
-
-
 
 
 
@@ -1440,29 +1231,21 @@ sub d_e_check {
    &titel("d_e_check: Suche User die wieder auftauchen ...");
    # Disabled(D) -> Enabled(E)  .kill .move (alte klasse -> dachboden)
    while ( my ($identifier, $status) = each %sophomorix_status ){
-       if ($status eq "D" or $status eq "T" or $status eq "R"){
-	  my $date=$user_deaktivierungsbeginn{$identifier};
-          my $login=$schueler_im_system_loginname{$identifier};
-          # Check if user reappears in files
-          if (exists $schueler_ok_hash{$identifier}) {
-             # taucht wieder auf -> d
-             print "   $identifier ist wieder da\n";
-             &update_user_db_entry($login, 
-                                   "Status=E",
-                                   "TolerationDate=",
-                                   "DeactivationDate=",);
-             &user_reaktivieren("$login");
-             $count++;
-          } else {
-
-            # taucht nicht auf -> drinlassen
-             # Alle zum deaktivieren notwendigen Schritte durchführen
-             #&update_user_db_entry($login, 
-             #                      "Status=D", 
-             #                      "DeactivationDate=$date");
-             #&user_deaktivieren($login);
-          }
-       }
+      if ($status eq "D" or $status eq "T" or $status eq "R"){
+         my $date=$user_deaktivierungsbeginn{$identifier};
+         my $login=$schueler_im_system_loginname{$identifier};
+         # Check if user reappears in files
+         if (exists $schueler_ok_hash{$identifier}) {
+            # taucht wieder auf -> d
+            print "   $identifier ist wieder da\n";
+            &update_user_db_entry($login, 
+                                  "Status=E",
+                                  "TolerationDate=",
+                                  "DeactivationDate=",);
+            &user_reaktivieren("$login");
+            $count++;
+         }
+      }
    }
    &titel("d_e_check: ... $count User sind wieder aufgetaucht");
 }
@@ -1475,24 +1258,20 @@ sub d_r_check {
    my $count_move=0; 
    &titel("d_r_check: Suche disabled User zum versetzen/loeschen...");
    while ( my ($identifier, $status) = each %sophomorix_status ){
-       if ($status eq "D"){
+      if ($status eq "D"){
          my $login="$schueler_im_system_loginname{$identifier}";
 
-
-          my $sys_class=$schueler_im_system_hash{$identifier};
-          # check if disabled user is not in dachboden/speicher
-          if ($sys_class ne "dachboden" and $sys_class ne "speicher") {
-             &append_move_entry($identifier,$sys_class,"dachboden");
-             $count_move++;
-          }
-
-
-
+         my $sys_class=$schueler_im_system_hash{$identifier};
+         # check if disabled user is not in dachboden/speicher
+         if ($sys_class ne "dachboden" and $sys_class ne "speicher") {
+            &append_move_entry($identifier,$sys_class,"dachboden");
+            $count_move++;
+         }
          if (not exists $schueler_ok_hash{$identifier}) {
-           if (exists $user_deaktivierungsbeginn{$identifier}){
-              # Check if user has to be made removeable
-              $epoche_loeschen_ab = &get_action_date($identifier, "kill");
-	      if ($epoche_loeschen_ab !=0) {
+            if (exists $user_deaktivierungsbeginn{$identifier}){
+               # Check if user has to be made removeable
+               $epoche_loeschen_ab = &get_action_date($identifier, "kill");
+	       if ($epoche_loeschen_ab !=0) {
                   &update_user_db_entry($login, 
                                        "Status=R");
                   # report.admin
@@ -1500,18 +1279,19 @@ sub d_r_check {
                   &append_kill_entry($identifier);
                   $count_removable++;
                   $schueler_weg_anzahl++;
-              } else {
+               } else {
                   if($Conf::log_level>=2){
                      print "### User $identifier nicht Removable\n"; 
 	          }
-              }
-	   }
+               }
+	    }
          }
-       }
+      }
    }
    &titel("d_r_check: ... $count_move disabled User -> dachboden/speicher");
    &titel("d_r_check: ... $count_removable User sind löschbar.");
 }
+
 
 
 sub r_r_check {
@@ -1519,10 +1299,10 @@ sub r_r_check {
    my $count=0;
    &titel("r_r_check: Suche Removable/Killable User zum loeschen...");
    while ( my ($identifier, $status) = each %sophomorix_status ){
-       if ($status eq "R" or $status eq "K"){
-           &append_kill_entry($identifier);
-           $count++;
-       }
+      if ($status eq "R" or $status eq "K"){
+         &append_kill_entry($identifier);
+         $count++;
+      }
    }
    &titel("r_r_check: ... $count User sind Removable/Killable");
 }
@@ -1620,6 +1400,7 @@ close(SCHUELERNEUANZULEGENTAUSCH);
 # In ergebnis/schueler.txt.tausch ist Reihenfolge nun korrekt
 # ===========================================================================
 }
+
 
 
 # ===========================================================================
@@ -2207,6 +1988,152 @@ if (not exists $schueler_ok_hash{$identifier}){
 }
 
 
+
+
+sub auto_teach_in {
+   my %will_come=();
+   my %will_go=();
+
+   &titel("auto_teach-in: Modyfying the following accounts:");
+
+   # will go:
+   foreach (keys %schueler_im_system_hash) {
+      # will go
+      if (not exists $schueler_ok_hash{$_}){
+         if($Conf::log_level>=3){
+             print "will_go  :  $_  $schueler_im_system_hash{$_}\n";
+         }
+         $will_go{$_}=$schueler_im_system_hash{$_};
+      }
+   }
+
+   # will come:
+   foreach (keys %schueler_ok_hash) {
+      # will come
+      if (not exists $schueler_im_system_hash{$_}){
+         if($Conf::log_level>=3){
+            print "will_come:  $_  $schueler_ok_hash{$_}\n";
+         }
+         $will_come{$_}=$schueler_ok_hash{$_};
+
+      }
+   }
+
+   foreach my $go (keys %will_go) {
+      my $go_class=$will_go{$go};
+      # Attribute eines users
+      my @go = split(/;/, $go);
+      if ($go_class eq "dachboden" or $go_class eq "speicher"){
+          $go_class=$schueler_im_system_exit_admin_class{$go}
+      }
+      push @go, $go_class;
+
+      foreach my $come (keys %will_come) {
+         my $come_class=$will_come{$come};
+         my @come=split(/;/, $come);
+         push @come, $come_class;
+  
+         if($Conf::log_level>=3){
+            print "\n### Checking vanising  $go  for matches:\n";
+            &linie();
+            printf "%-25s %-25s %-11s %-11s \n",
+                   $go[0],$go[1],$go[2],$go[3];
+            printf "%-25s %-25s %-11s %-11s \n",
+                   $come[0],$come[1],$come[2],$come[3];
+            &linie();
+         }
+         # string-approx: immer das lange im kurzen suchen
+         # da substring-match
+         my $name_long;
+         my $name_short;
+         my $first_long;
+         my $first_short;
+
+         if (length($come[0]) < length($go[0])){
+	     $name_long=$go[0];
+             $name_short=$come[0];
+         } else {
+	     $name_long=$come[0];
+             $name_short=$go[0];
+         }
+         if (length($come[1]) < length($go[1])){
+	     $first_long=$go[1];
+             $first_short=$come[1];
+         } else {
+	     $first_long=$come[1];
+             $first_short=$go[1];
+         }
+         # creating param_list
+         my @param=($go,
+                    $come,
+                    $name_long,
+                    $name_short,
+                    $first_long,
+                    $first_short,
+                    $come[2],
+                    $go[2],
+                    $come[3],
+                    $go[3]);
+         # varying the parameters of the matcheswith difference
+         # of class-names (old class - new class) 
+         if ($go[3] eq $come[3]) {
+            # class names are identical
+            if($Conf::log_level>=3){
+               print "### Identical Class:         Yes!\n";
+	    }
+            &single_change_match(@param, "30%", "30%","30%");
+            &multi_change_match(@param, "15%", "15%","15%");
+            &add_first_match(@param, "15%", "10%","15%");
+            # marriage
+            &single_change_match(@param, "100%", "0%","0%");
+        } elsif (amatch($go[3], ["S1"], $come[3])){
+            # one single character diff. (Substitution)
+            if($Conf::log_level>=3){
+              print "### ApproxMatchClass:        Yes!\n";    
+            }
+            &single_change_match(@param, "15%", "15%", "15%");
+            &multi_change_match(@param, "30%", "30%","30%");
+            &add_first_match(@param, "15%", "10%","15%");
+        } else { 
+            # completely different classes
+            if($Conf::log_level>=3){
+               print "### ApproxMatchClass:        No!\n";
+            }
+            &single_change_match(@param, "0%","0%","0%");
+            &multi_change_match(@param, "30%", "30%","30%");
+            &add_first_match(@param, "15%", "10%","15%");
+        }
+     }
+   }
+   while (my ($identifier_sys,$identifier_file) = each %go_come){
+      my $points = $come_points{$identifier_file};
+      # go through all users that have to be changed 
+      printf "  %-37s %-37s %-3sPts\n",
+             $identifier_sys,
+             $identifier_file,
+             $points;
+      $auto_teach_in_count++;
+      # updating the hashes that sophomorix uses internally
+      &update_all_hashes($identifier_sys,$identifier_file);
+
+      # update the database
+      my $login=$schueler_im_system_loginname{$identifier_file};
+      my ($last,$first,$birth)=split(/;/, $identifier_file);
+      &update_user_db_entry($login, 
+                            "Name=$first",
+                            "LastName=$last",
+                            "Birthday=$birth");
+      # update the system
+      &update_gecos($login,$first,$last);
+   }
+   &titel("auto_teach-in: ... $auto_teach_in_count accounts modified");
+}
+
+
+
+
+
+
 sub update_ids {
    my $count=0;
    my $identifier_file = "";
@@ -2636,8 +2563,8 @@ sub generate_admin_report {
 
     print REPORTADMIN "----------------------------------------", 
                       "----------------------------------------\n";
-    print REPORTADMIN "Insgesamt WÜRDEN ", "$schueler_hinzu_anzahl", 
-                      " User angelegt.\n";
+    print REPORTADMIN "Insgesamt KÖNNEN ", "$schueler_hinzu_anzahl", 
+                      " User angelegt werden.\n";
 
     print REPORTADMIN "\n\nVersetzt würden:\n";
     print REPORTADMIN "----------------------------------------",
@@ -2649,8 +2576,8 @@ sub generate_admin_report {
 
     print REPORTADMIN "----------------------------------------", 
                       "----------------------------------------\n";
-    print REPORTADMIN "Insgesamt WÜRDEN ", "$schueler_zuversetzen_anzahl", 
-                      " Schüler versetzt.\n";
+    print REPORTADMIN "Insgesamt KÖNNEN ", "$schueler_zuversetzen_anzahl", 
+                      " Schüler versetzt werden.\n";
 
     print REPORTADMIN "\n\n";
     print REPORTADMIN "########################################",
@@ -2751,148 +2678,6 @@ while ($geburts_jahreszahl_lauf<=$Conf::geburts_jahreszahl_stop){
 
 
 
-
-# deprecated
-sub update_deactivation_data {
-    my $login="";
-    while(my ($identifier,$date) = each %user_deaktivierungsbeginn){
-       my $string = "$identifier"."::"."$date\n";
-       # Check if user reappears in files
-       if (exists $schueler_ok_hash{$identifier}) {
-           # taucht wieder auf -> d
-          print "$identifier ist wieder da\n";
-          $login=$schueler_im_system_loginname{$identifier};
-          &update_user_db_entry($login, 
-                               "Status=E",
-                               "TolerationDate=",
-                               "DeactivationDate=",);
-         &user_reaktivieren("$login");
-       } else {
-           # taucht nicht auf -> drinlassen
-           $login=$schueler_im_system_loginname{$identifier};
-           # Alle zum deaktivieren notwendigen Schritte durchführen
-           &update_user_db_entry($login, 
-                                 "Status=D", 
-                                 "DeactivationDate=$date");
-           &user_deaktivieren($login);
-       }
-    }
-}
-
-
-
-
-# this is deprecated!!!!!!!!!!!!!!!!!!!!!!!
-sub generate_toleration_move_file {
-    my $identifier = "";
-    my $login="";
-    my $toleration_date = "";
-    my $move_line = ();
-    my $move_message = "";
-    open(SOPHOMORIXMOVE, 
-        ">${DevelConf::ergebnis_pfad}/sophomorix.move") 
-        || die "Fehler: $!";
-    &titel("Versetzten in den Dachboden/Speicher moeglich:");
- 
-    while(($identifier,$toleration_date) = each %user_duldungsbeginn){
-      # Check all tolerated users
-      # Check if user reappears in the files
-#      if (exists $schueler_ok_hash{$identifier}) {
-#          # User reappears -> don't put him on the new tolerationlist
-#          print "$identifier taucht wieder in schueler.txt auf\n";
-#          $login=$schueler_im_system_loginname{$identifier};
-#          &update_user_db_entry($login, 
-#                                "Status=E",
-#                                "TolerationDate=",
-#                                "DeactivationDate=");
-#          &user_reaktivieren("$login");
-#      } else {
-       if (not exists $schueler_ok_hash{$identifier}) {
-          # Check if user is in the toleration-class (dachboden/speicher)
-          if ($schueler_im_system_hash{$identifier} ne "dachboden" 
-              && $schueler_im_system_hash{$identifier} ne "speicher") {
-             # User is not in the toleration-class (dachboden/speicher)
-             # Count him and put him in sophomorix.move
-             $schueler_duldungs_beginn_anzahl++;
-             # set the toleration_date and Status in the user_database
-	     $login=$schueler_im_system_loginname{$identifier};
-             &update_user_db_entry($login, 
-                                   "Status=T",
-                                   "TolerationDate=$toleration_date");
-             if ($schueler_im_system_hash{$identifier} eq "lehrer") {
-                 $move_line="$schueler_im_system_loginname{$identifier}".
-                      "::"."lehrer".
-                      "::"."speicher\n";
-                 $move_message="$identifier".
-                      " (Login: $schueler_im_system_hash{$identifier})".
-                      " ---> speicher\n";
-             } else {
-                 $move_line="$schueler_im_system_loginname{$identifier}".
-                      "::"."$schueler_im_system_hash{$identifier}".
-                      "::"."dachboden\n";
-                 $move_message="$identifier".
-                      " (Login: $schueler_im_system_hash{$identifier})".
-                      " ---> dachboden\n";
-	     }
-             #print REPORTADMIN "$move_message";
-             print SOPHOMORIXMOVE "$move_line";
-          }
-      }
-   }# end while
-   &titel("Insgesamt KÖNNEN $schueler_duldungs_beginn_anzahl ",
-          "User in den dachboden/speicher versetzt werden.");
-   close(SOPHOMORIXMOVE);
-}
-
-
-
-
-
-# deprecated
-sub generate_move_file {
-    my $identifier = "";
-    my $login = "";
-    # ADD this lines
-    open(SOPHOMORIXMOVE, 
-         ">>${DevelConf::ergebnis_pfad}/sophomorix.move") 
-         || die "Fehler: $!";
-
-    &titel("Versetzt würden folgende Schüler:");
-
-    while ( ($identifier, $login) = each %schueler_ok_hash ){
-      if (exists $schueler_im_system_hash{$identifier}) {
-         # schueler, die im System sind 
-         # und in sophomorix.ok weitervergleichen
-         if ("$schueler_ok_hash{$identifier}" ne 
-          "$schueler_im_system_hash{$identifier}"){
-              $schueler_zuversetzen_anzahl++;
-              # Alle zum versetzen erforderlichen Daten zusammensetzen
-              my $string_kurz="$schueler_im_system_loginname{$identifier}".
-                              " aus $schueler_im_system_hash{$identifier}".
-                              " nach Klasse $schueler_ok_hash{$identifier}";
-              my $string_move="$schueler_im_system_loginname{$identifier}".
-                              "::"."$schueler_im_system_hash{$identifier}".
-                              "::"."$schueler_ok_hash{$identifier}";
-           # Konsole
-           printf "%-30s %40s\n","$identifier","$string_kurz";
-           # Admin-Report
-           push @admin_list_move, "%-30s %40s\n","$identifier","$string_kurz";
-           # File
-	      print "generate_move-file -> $string_move\n";
-           print SOPHOMORIXMOVE ("$string_move\n");
-         }
-      }
-    }
-
-    &titel("Insgesamt WÜRDEN $schueler_zuversetzen_anzahl Schüler versetzt.");
-    close(SOPHOMORIXMOVE);
-}
-
-
-
-
-
-
 sub generate_add_file {
     my $identifier = "";
     my $admin_class = "";
@@ -2915,7 +2700,7 @@ sub generate_add_file {
       }
     }
 
-    &titel("generate_add_file: Insgesamt WÜRDEN $schueler_hinzu_anzahl User angelegt.");
+    &titel("generate_add_file: Insgesamt KÖNNEN $schueler_hinzu_anzahl User angelegt werden.");
     close(SOPHOMORIXADD);
 }
 
@@ -2998,64 +2783,6 @@ sub get_action_date {
         return 0;
     }
 }
-
-
-
-
-
-
-# deprecated
-sub generate_kill_file {
-    my $identifier = "";
-    my $admin_class = "";
-    open(SOPHOMORIKILL, 
-         ">${DevelConf::ergebnis_pfad}/sophomorix.kill") 
-         || die "Fehler: $!";
-
-    &titel("Entfernt werden KÖNNEN folgende User:");
-
-    while ( ($identifier, $admin_class) = each %schueler_im_system_hash ){
-	unless (exists $schueler_ok_hash{$identifier}) {
-          # user ist schon deaktiviert
-
-
-
-          if (exists $user_deaktivierungsbeginn{$identifier}){
-              # Check if user has to be made removeable
-              $epoche_loeschen_ab = &get_action_date($identifier, "kill");
-	      if ($epoche_loeschen_ab !=0) {
-                  # prepare a line for sophomorix.kill
-                  my $login="$schueler_im_system_loginname{$identifier}";
-                  &update_user_db_entry($login, 
-                                       "Status=R");
-                  my $string="$identifier"."::".
-		     "$schueler_im_system_loginname{$identifier}"."\n";
-                  printf "Loeschbar:    %-12s %-50s\n","$login","$identifier";
-                  # report.admin
-                  push @admin_list_kill, "Loeschbar:     $identifier $login\n";
-                  print SOPHOMORIKILL ("$string");
-                  $schueler_weg_anzahl++;
-              } else {
-                  if($Conf::log_level>=2){
-                     print "### User $identifier ist im Deaktivierungszeitraum\n"; 
-	          }
-
-
-
-              }
-
-          }
-      }# END unless
-
-    }# END while
-    &titel("Insgesamt KÖNNEN $schueler_weg_anzahl User entfernt werden.");
-    close(SOPHOMORIKILL);
-}
- 
-
-
-
-
 
 
 
