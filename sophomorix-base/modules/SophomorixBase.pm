@@ -1212,7 +1212,7 @@ sub lehrer_ordnen {
 
      # Füllen der Felder
      if ($erst_passwort eq "") {
-         $erst_passwort="erstpw";
+         $erst_passwort="---";
      }
 
 
