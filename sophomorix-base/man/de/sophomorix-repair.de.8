@@ -1,0 +1,84 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH SOPHOMORIX-REPAIR 8 "January 23, 2005"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+sophomorix-repair \- Reparieren eines sophomorix-servers
+.SH SYNOPSIS
+.B sophomorix-repair
+.RI [ options ]
+.br
+.SH DESCRIPTION
+.B sophomorix-repair  
+liest Konfigurationdateien ein, nach denen es dann Dateirechte, Besitzer, Gruppenbesitzer usw. von Verzeichnissen repariert, bzw. neu setzt (z.B bei einem update).
+.PP
+.SH OPTIONS
+.B sophomorix-repair
+benützt die GNU command line syntax, mit langen Optionen, die mit zwei
+Bindestrichen (`-') beginnen:
+.TP
+.B \-h, \-\-help
+Kurzübersicht über Optionen, sowie eine Liste der eingelesenen Dateien.
+.TP
+.B \-v, \-\-verbose
+Sagt, was das Programm gerade macht (verbose)
+.TP
+.B \-vv, \-\-verbose \-\-verbose
+Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
+.TP
+.B \-f dateiname, \--file dateiname
+liest die Datei dateiname ein, und legt die darin enthaltenen Verzeichnisse an.???? Stimmt das so???
+.TP
+.B Optionen, die angeben, was repariert werden soll:
+.TP
+.B \--permissions
+repariert die Dateirechte und legt verlorengegangene Verzeichnisse wieder an. Dieser Befehl dauert lange (~1 Stunde je 1000 User).
+.TP
+.B \--acl
+repariert acl (noch nicht mal begonnen, in der Zukunft soll das tun)
+
+.TP
+.B \--www, \--public_html
+verschiebt die public_html Verzeichnisse aus dem home/windows nach home/www und verlinkt sie (??? nicht mehr notwendig, daher ausgeschaltet).
+.TP
+.B Optionen, die angeben, bei welchen Usern etwas repariert werden soll:
+.TP
+.B \--login
+verschiebt nur die public_html Verzeichnisse des users username.??? ausgeschaltet. Sollte auf --permissons umgebaut werden.
+.TP
+.B \--schueler
+verschiebt nur die public_html Verzeichnisse aller schueler.??? ausgeschaltet. Sollte auf --permissons umgebaut werden.
+.TP
+.B \--lehrer
+verschiebt nur die public_html Verzeichnisse der lehrer??? ausgeschaltet. Sollte auf --permissons umgebaut werden.
+.TP
+.SH SEE ALSO
+.BR sophomorix (8),
+.BR sophomorix-teach-in (8),
+.BR sophomorix-add (8),
+.BR sophomorix-move (8),
+.BR sophomorix-print (8),
+.BR sophomorix-kill (8),
+.BR sophomorix-split (8),
+.BR sophomorix-project (8),
+
+.\".BR baz (1).
+.\".br
+.\"You can see the full options of the Programs by calling for example 
+.\".IR "sophomrix-repair -h" ,
+.
+.SH AUTHOR
+This manual page was written by <jeffbeck@web.de>.
