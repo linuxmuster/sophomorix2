@@ -42,12 +42,8 @@ my $testopt=GetOptions(
 # Start
 ############################################################
 
+# the schueler
 my @userlist=(
-  "lehrer;Galilei;Galileo;12.10.1982;==.*;galileo galilei;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982",
-  "lehrer;Bruno;Giordano;12.10.1981;==.*;giordano bruno;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1981",
-  "lehrer;Kepler;Johannes;12.10.1970;==.*;kepler johannes;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1970",
-  "lehrer;Kopernikus;Nikolaus;12.10.1976;==.*;kopernikus nikolaus;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1976",
-  "lehrer;Brahe;Tycho;12.10.1986;==.*;tycho brahe;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1986",
   "12C;Thurau;Dietrich;12.10.1982;==.*;dietrich thurau;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982",
   "12C;Altig;Rudi;12.10.1981;==.*;rudi altig;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1981",
   "12C;Bartali;Gino;14.12.1972;==.*;gino bartali;[a-z0-9]{2,};[a-z0-9]{3,};14.12.1972",
@@ -68,8 +64,22 @@ my @userlist=(
   "11A;Bonham;John;02.04.1974;==.*;john bonham;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1974",
 );
 
+# the lehrer
+my @teacherlist=(
+  "lehrer;Galilei;Galileo;12.10.1982;galli;==.*;galileo galilei;galli;[a-z0-9]{3,};12.10.1982",
+  "lehrer;Bruno;Giordano;12.10.1981;bruno;==.*;giordano bruno;bruno;[a-z0-9]{3,};12.10.1981",
+  "lehrer;Kepler;Johannes;12.10.1970;hannes;==.*;johannes kepler;hannes;[a-z0-9]{3,};12.10.1970",
+  "lehrer;Kopernikus;Nikolaus;12.10.1976;niko;==.*;nikolaus kopernikus;niko;[a-z0-9]{3,};12.10.1976",
+  "lehrer;Brahe;Tycho;12.10.1986;tycho;==.*;tycho brahe;tycho;[a-z0-9]{3,};12.10.1986",
+);
+
+# the loginnames of the lehrer
+my @loginlist=("tycho", "hannes", "bruno", "galli", "niko" );
+
 
 my $user="";
+my $teacher="";
+my $login="";
 my $today=`date +%d.%m.%Y`;
 print "\nToday is $today";
 chomp($today);
@@ -96,6 +106,13 @@ if ($add==1 and not -e "/root/sophomorix-test/bunchofusers"){
        &append_line("$txt","${DevelConf::users_pfad}/schueler.txt");
     }
 
+    foreach $teacher (@teacherlist){
+       my ($txt,$proto)=split(/==/, $teacher);
+       print "TXT       :  $txt \n";
+       print "PROTOKOLL :  $proto \n";
+       &append_line("$txt","${DevelConf::users_pfad}/lehrer.txt");
+    }
+
 
     &run_command("sophomorix-check",$verbose);
     &run_command("sophomorix-add",$verbose);
@@ -103,6 +120,14 @@ if ($add==1 and not -e "/root/sophomorix-test/bunchofusers"){
 
     foreach $user (@userlist){
        my ($txt,$proto)=split(/==/, $user);
+       print "TXT       :  $txt \n";
+       print "PROTOKOLL :  $proto \n";
+       my $login=&get_login_name("$proto");
+       &check_account($login,"enabled");
+    }
+
+    foreach $teacher (@teacherlist){
+       my ($txt,$proto)=split(/==/, $teacher);
        print "TXT       :  $txt \n";
        print "PROTOKOLL :  $proto \n";
        my $login=&get_login_name("$proto");
@@ -138,10 +163,26 @@ if ($remove==1 and -e "/root/sophomorix-test/bunchofusers"){
                 "${DevelConf::users_pfad}/schueler.txt");
     }
 
+
+
+
+    foreach $login (@loginlist){
+        #my ($txt,$proto)=split(/==/, $teacher);
+        &remove_line(
+                ";$login",
+                "${DevelConf::users_pfad}/lehrer.txt");
+    }
+
     &run_command("sophomorix-check",$verbose);
 
     foreach $user (@userlist){
         my ($txt,$proto)=split(/==/, $user);
+        my $login=&get_login_name("$proto");
+        &update_user_db_entry($login,"TolerationDate=01.01.1970");
+    }
+
+    foreach $teacher (@teacherlist){
+        my ($txt,$proto)=split(/==/, $teacher);
         my $login=&get_login_name("$proto");
         &update_user_db_entry($login,"TolerationDate=01.01.1970");
     }
@@ -152,6 +193,12 @@ if ($remove==1 and -e "/root/sophomorix-test/bunchofusers"){
 
     foreach $user (@userlist){
         my ($txt,$proto)=split(/==/, $user);
+        my $login=&get_login_name("$proto");
+        &update_user_db_entry($login,"DeactivationDate=01.01.1971");
+    }
+
+    foreach $teacher (@teacherlist){
+        my ($txt,$proto)=split(/==/, $teacher);
         my $login=&get_login_name("$proto");
         &update_user_db_entry($login,"DeactivationDate=01.01.1971");
     }
