@@ -1,0 +1,90 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH SOPHOMORIX-SPLIT 8 "November 30, 2004"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+sophomorix-split \- Aufteilen einer Klasse in Gruppen A, B, C, D.
+.SH SYNOPSIS
+.B sophomorix-split
+.RI [ options ] 
+.br
+.SH DESCRIPTION
+.B sophomorix-split
+.br
+splittet eine Klasse in mehrere Subklassen (SubClass). Dadurch
+erhalten die Schüler eine zusätzliche Tauschmöglichkeit für Daten. Die
+Lehrer können in die Klasse austeilen, aber auch nur in die Subklasse.
+.br
+Standardmäßig arbeitet sophomorix-split interaktiv, d. h. nach dem
+Aufruf von sophomorix-split wird root der Reihe nach abgefragt in
+welche Subklasse ein Schüler kommt. 
+.br
+Für den Aufruf per Webmin können die Subklassenzugehörigkeiten auch
+nicht interaktiv (--noninteractive) als Parameterliste angegeben
+werden.
+.br
+Ebenfalls für webmin sinnvoll ist die Option --lastchange mit der der
+Aufrufende Lehrer in die Datenbank der Subklassen eingetragen wird.
+.PP
+.SH OPTIONS
+.B sophomorix-split
+benützt die GNU command line syntax, mit langen Optionen, die mit zwei
+Bindestrichen (`-') beginnen:
+.TP
+.B -h, --help
+Kurzübersicht über Optionen
+.TP
+.B -v, --verbose
+Sagt, was das Programm gerade macht (verbose)
+.TP
+.B -vv, --verbose --verbose
+Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
+.TP
+.B --klasse klasse, -k klasse
+Splittet die Klasse klasse
+.TP
+.B --lastchange login, -l login
+Information, dass der User login als letztes die Subklassenzuteilung
+verändert hat.
+.TP
+.B -A Kommentar, -B Kommentar, -C Kommentar, -D Kommentar
+Hängt den Kommentar an den langen Namen der SubClass an.
+.TP
+.B--noninteractive
+Frägt nicht nach Gruppenzugekörigkeiten der User ab, sondern erwartet
+--Amembers, --Bmembers, ...
+.TP
+.B --Amemebers user1,user2, ... --Dmemebers user1,user2,user,...
+Userzugehörigkeiten zu den Subclassen A,B,C,D per Option (wird nur bei
+--noninteractive ausgewertet)
+.TP
+.SH SEE ALSO
+.BR sophomorix (8),
+.BR sophomorix-teach-in (8),
+.BR sophomorix-add (8),
+.BR sophomorix-move (8),
+.BR sophomorix-kill (8),
+.BR sophomorix-print (8),
+.BR sophomorix-user (8),
+.BR sophomorix-split (8),
+.BR sophomorix-project (8),
+.\".BR baz (1).
+.\".br
+.\"You can see the full options of the Programs by calling for example 
+.\".IR "sophomrix-split -h" ,
+.
+.SH AUTHOR
+This manual page was written by <jeffbeck@web.de>.
