@@ -118,7 +118,7 @@ print "Working on project $project\n";
 # step 2
 # Read the database  
 # and change the system accordingly
-#&create_project($project);
+&create_project($project);
 
 
 
@@ -127,25 +127,109 @@ print "Working on project $project\n";
 # Sub
 ###########################################################################
 
-sub get_project_db {
-    my $project = @_;
+
+sub create_project {
+    my ($project) = @_;
     my %project_data=();
-    open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects");
+    my %users_to_add=();
+    my @users_to_add=();
+    my $old_users="";
+    my @old_users=();
+    my @new_users=();
+    my @new_groups=();
+    my %seen=();
+    open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects.db");
     while(<PROJECT>){
-	print $_,"\n";
+        print "\nCreating/Updating Project $project: \n";
        my @line=split(/;/);
        if ($line[0] eq $project){
-	   $project_data{"ProjectName"} = $line[0];
-	   $project_data{"ProjectNameLong"} = $line[1];
-	   $project_data{"ProjectTeachers"} = $line[2];
-	   $project_data{"ProjectUsers"} = $line[3];
-	   $project_data{"ProjectAdminClasses"} = $line[4];
-	   $project_data{"ProjectQuota"} = $line[5];
-	   $project_data{"ProjectMaxUserNumber"} = $line[5];
+	   $project_data{"Name"} = $line[0];
+	   $project_data{"NameLong"} = $line[1];
+	   $project_data{"Teachers"} = $line[2];
+	   $project_data{"Members"} = $line[3];
+	   $project_data{"MemberGroups"} = $line[4];
+	   $project_data{"AddQuota"} = $line[5];
+	   $project_data{"MaxMembers"} = $line[6];
        }
     }
     close(PROJECT);
-    return %project_data;
+    #make sure that group exists
+    system("groupadd $project");
+    # create the userlist
+    # the new users (without groups)
+    @new_users=split(/,/, $project_data{"Members"});
+    print "   New users: @new_users\n";
+    # the new groups
+    @new_groups=split(/,/, $project_data{"MemberGroups"});
+    print "   New groups: @new_groups\n";
+    # the old users
+    ($a,$a,$a,$old_users)=getgrnam("$project");
+    @old_users=split(/ /, $old_users);
+    print "   Old users: @old_users\n";
+    # Adding all users from project.db into a hash
+    # Add the users
+    foreach my $user (@new_users){
+	$users_to_add{$user}="new";
+    }
+    # Add the users in the groups
+    foreach my $group (@new_groups){
+        my $group_users="";
+        if (exists $seen{$group}){
+	    print "Aaaargh, I have seen group $group! \n",
+                  "Are you using recursive/multiple groups ...?\n";
+            next,
+        }
+        # remember the group
+        $seen{$group}="seen";
+        if ($group eq $project){
+            print "It's nonsense to have a group as its GroupMembers\n",
+	          "... skipping $group as GroupMembers in $project\n";
+	    next;
+        }
+        # fetching the user-string of the group
+        ($a,$a,$a,$group_users)=getgrnam("$group");
+        if (not defined $group_users){
+	    print "Coldn't find $group, ... skipping $group\n";
+            next;
+        }
+        print "     Users in group $group: $group_users\n";
+        # saving the users in a list
+        my @group_users=split(/ /, $group_users);
+        foreach my $user (@group_users){        
+           if (not exists $users_to_add{$user}){
+              print "       + User $user from group $group must be added\n";
+       	      $users_to_add{$user}=$group;
+           } else {
+	      print "       - User $user is already in the Hash\n";
+           }
+        }
+    }
+
+    # calculating which users to add
+    foreach my $user (@old_users){
+       if (exists $users_to_add{$user}){
+          # remove user from users_to_add
+          print "     User $user does not need to be added\n";
+          delete $users_to_add{$user}; 
+       } elsif (not exists $users_to_add{$user}) {
+         # remove user
+         print "     User $user has left $project, removing $user\n";
+         system("gpasswd -d $user $project");
+       } 
+    }    
+    
+    while (my ($user) = each %users_to_add){
+       #print "$user must be added\n";
+       push @users_to_add, $user;
+    }
+    # sorting
+    @users_to_add = sort @users_to_add;
+    print "     Users to add: @users_to_add\n";
+    # adding the users
+    foreach my $user (@users_to_add) {
+       system("adduser $user $project");
+    }
+
 }
 
 
