@@ -162,10 +162,10 @@ if ($noninteractive==1){
 
 
 
-my @list=&get_users_admin_class("12c");
+#my @list=&get_users_admin_class("12c");
 
 
-print @list,"\n";
+#print @list,"\n";
 
 ###########################################################################
 # Sub
@@ -202,13 +202,15 @@ sub create_subclass{
     my @sub_d=();
 
     # get the users and push them in they subclass
-    open(SUBCLASS,"<${DevelConf::dyn_config_pfad}/user.protokoll");
-    while (<SUBCLASS>){
+    open(USERDB,"<${DevelConf::dyn_config_pfad}/user.protokoll");
+    while (<USERDB>){
         if (/^$class/){
             my @line = split(/;/);
-            my $login=$line[2],
-            my $sub=$line[6];
-            if ($sub eq ""){$sub="---"}
+            my $login=$line[2];
+            my $sub="";
+            $sub=$line[6];
+            if (not defined $sub or $sub eq ""){$sub="---"}
+            #if ($sub eq ""){$sub="---"}
             #print "$login is in subclass $sub\n";
             # push the user in the list
             if ($sub eq "A"){
@@ -222,7 +224,7 @@ sub create_subclass{
             }
         }
     }
-
+    close(USERDB);
     print "A: @sub_a \n";
     print "B: @sub_b \n";
     print "C: @sub_c \n";
@@ -341,11 +343,15 @@ sub interactive_change_subclass {
        my $gecos=$line[1];
        my $login=$line[2];
        my $old_subclass=$line[6];
-       if (defined $old_subclass){
-           print "Editing SubClass of $login:\n";
-           print "=======================================",
-	         "=======================================\n";
+       print "\nEditing SubClass of $login:\n";
+       print "=======================================",
+	     "=======================================\n";
+       if (not defined $old_subclass){$old_subclass=""}
+       if ($old_subclass eq ""){
+	   print "$gecos is no subclass (choose a, b, c, d ,0)\n";
+       } else {
 	   print "$gecos is in subclass $old_subclass\n";
+       }
            while(){# Endlosschleife für die Eingabe
                $user_antwort= <STDIN>; # Lesen von Tastatur
                chomp($user_antwort); # Newline abschneiden
@@ -365,11 +371,10 @@ sub interactive_change_subclass {
                } else {
                   # Endlosschleife, Eingabe wiederholen
                   print "Fehlerhafte Eingabe. Bitte wiederholen!".
-                        " Zuerst die a,b,c,d oder 0 (keine subclass) dann <RETURN>\n";
-               }
+                        " Zuerst die a,b,c,d oder 0 ",
+                        "(keine subclass) dann <RETURN>\n";
+	       }
            }
-       }
-
      }	    
    }
    close(PROTO);

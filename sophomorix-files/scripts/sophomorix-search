@@ -114,9 +114,10 @@ print "I'm looking for $string ... \n\n";
 open(PROTOKOLL,"<$DevelConf::protokoll_datei");
    while (<PROTOKOLL>){
        if (/$string/){
+          chomp();
+
           ($class,$gec_user,$login,$first_pass,$birth,
            $unid,$subclass,$status,$tol,$deact)=split(/;/);
-
           # Abfragen der /etc/passwd
           ($loginname_passwd,
           $passwort,
@@ -131,6 +132,8 @@ open(PROTOKOLL,"<$DevelConf::protokoll_datei");
           # GCOS-Feld aufsplitten
 
           # Gruppen-Zugehoerigkeit
+          @group_list=();
+          $grp_string="";
           $pri_group_string=`id -gn $login`;
           $group_string=`id -Gn $login`;
           chomp($group_string);

@@ -23,8 +23,12 @@ use Sophomorix::SophomorixFiles;
 $Conf::log_level=1;
 my $help=0;
 my $info=0;
+$Conf::log_level=1;
 
 my $project="";
+
+my $k;
+my $v;
 
 my $long_name;
 my $p_teachers;
@@ -41,33 +45,18 @@ my @options=();
 my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
+           "verbose|v+" => \$Conf::log_level,
            "Name|project|p=s" => \$project,
            "LongName=s" => \$long_name,
-           "Teachers|pteachers=s" => \$p_teachers,
-           "Members|pmembers=s" => \$p_members,
-           "MemberGroups|pgroups|Groups=s" => \$p_groups,
-           "AddQuota|pquota|quota=s" => \$p_add_quota,
+           "Teachers=s" => \$p_teachers,
+           "Members=s" => \$p_members,
+           "MemberGroups=s" => \$p_groups,
+           "AddQuota=s" => \$p_add_quota,
            "MaxMembers=s" => \$p_max_members,
           );
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
-
-if ($project eq ""){
-    print "Sie müssen ein Projekt angeben!\n";
-    exit;
-}
-
-
-# Options-Liste Füllen, falls angegeben
-push @options, $project;
-if (defined $long_name){push @options, "LongName=$long_name"}
-if (defined $p_teachers){push @options, "Teachers=$p_teachers"}
-if (defined $p_members){push @options, "Members=$p_members"}
-if (defined $p_groups){push @options, "MemberGroups=$p_groups"}
-if (defined $p_add_quota){push @options, "AddQuota=$p_add_quota"}
-if (defined $p_max_members){push @options, "MaxMembers=$p_max_members"}
-
 
 # --help
 if ($help==1) {
@@ -82,9 +71,6 @@ if ($help==1) {
 
    # optionen
    print "Optionen:\n\n";
-
-   print "  --info, -i\n";
-   print "     Gibt die Klassen an, die gesplittet werden können.\n\n";
 
    print "  --project projekt, -p projekt\n";
    print "     Erstellt das Projekt projekt\n\n";
@@ -105,11 +91,27 @@ if ($info==1){
 }
 
 
+if ($project eq ""){
+    print "Sie müssen ein Projekt angeben!\n";
+    exit;
+}
+
+
+# Options-Liste Füllen, falls angegeben
+push @options, $project;
+if (defined $long_name){push @options, "LongName=$long_name"}
+if (defined $p_teachers){push @options, "Teachers=$p_teachers"}
+if (defined $p_members){push @options, "Members=$p_members"}
+if (defined $p_groups){push @options, "MemberGroups=$p_groups"}
+if (defined $p_add_quota){push @options, "AddQuota=$p_add_quota"}
+if (defined $p_max_members){push @options, "MaxMembers=$p_max_members"}
+
+
+
+
 # ===========================================================================
 # Programmbeginn
 # ===========================================================================
-
-print "Working on project $project\n";
 
 # Step 1
 # write the projects-line
@@ -129,6 +131,7 @@ print "Working on project $project\n";
 
 
 sub create_project {
+    # reads from projects.db and creates the project in the system
     my ($project) = @_;
     my %project_data=();
     my %users_to_add=();
@@ -136,15 +139,16 @@ sub create_project {
     my $old_users="";
     my @old_users=();
     my @new_users=();
+    my @new_teachers=();
     my @new_groups=();
     my %seen=();
+    print "\nCreating/Updating Project $project: \n";
     open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects.db");
     while(<PROJECT>){
-        print "\nCreating/Updating Project $project: \n";
        my @line=split(/;/);
        if ($line[0] eq $project){
 	   $project_data{"Name"} = $line[0];
-	   $project_data{"NameLong"} = $line[1];
+	   $project_data{"LongName"} = $line[1];
 	   $project_data{"Teachers"} = $line[2];
 	   $project_data{"Members"} = $line[3];
 	   $project_data{"MemberGroups"} = $line[4];
@@ -156,21 +160,35 @@ sub create_project {
     #make sure that group exists
     system("groupadd $project");
     # create the userlist
+    # the new teachers
+    @new_teachers=split(/,/, $project_data{"Teachers"});
+    print "   New Teachers      : @new_teachers\n";
     # the new users (without groups)
     @new_users=split(/,/, $project_data{"Members"});
-    print "   New users: @new_users\n";
+    print "   New Members       : @new_users\n";
     # the new groups
     @new_groups=split(/,/, $project_data{"MemberGroups"});
-    print "   New groups: @new_groups\n";
+    print "   New MemberGroups  : @new_groups\n";
     # the old users
     ($a,$a,$a,$old_users)=getgrnam("$project");
     @old_users=split(/ /, $old_users);
     print "   Old users: @old_users\n";
     # Adding all users from project.db into a hash
+
+    # Add the teachers
+    foreach my $teacher (@new_teachers){
+       if (not exists $users_to_add{$teacher}){
+	  $users_to_add{$teacher}="Teachers";
+       }
+    }
+
     # Add the users
     foreach my $user (@new_users){
-	$users_to_add{$user}="new";
+       if (not exists $users_to_add{$user}){
+          $users_to_add{$user}="Members";
+       }
     }
+
     # Add the users in the groups
     foreach my $group (@new_groups){
         my $group_users="";
@@ -205,15 +223,31 @@ sub create_project {
         }
     }
 
+    # show the hash
+    if($Conf::log_level>=3){
+       print "\n\nAll Users which will be members in project $project:\n";
+       print "Login:          Listed in:\n";
+       print "=======================================",
+             "=======================================\n";
+       while (($k,$v) = each %users_to_add){
+          printf "%-14s %-40s\n","$k","$v";
+       }
+    }
+
     # calculating which users to add
     foreach my $user (@old_users){
        if (exists $users_to_add{$user}){
           # remove user from users_to_add
-          print "     User $user does not need to be added\n";
+          if($Conf::log_level>=3){
+             print "     User $user does not need to be added\n";
+	  }
           delete $users_to_add{$user}; 
        } elsif (not exists $users_to_add{$user}) {
          # remove user
-         print "     User $user has left $project, removing $user\n";
+          if($Conf::log_level>=3){
+            print "     User $user has left Project $project,",
+                  " removing $user\n";
+         }
          system("gpasswd -d $user $project");
        } 
     }    

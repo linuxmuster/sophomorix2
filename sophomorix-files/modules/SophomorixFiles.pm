@@ -503,7 +503,7 @@ sub create_project_db {
         if ($project eq $project_name_file){
            # found the line
 	    chomp();
-	    print "Project $project found\n";
+	    print "Project $project is an existing project -> UPDATING\n";
             printf "   %-18s : %-20s\n","Name" ,$project;
            ($p_name,$p_long_name,$p_teachers,$p_members,$p_member_groups,
             $p_add_quota,$p_max_members)=split(/;/);
@@ -530,7 +530,7 @@ sub create_project_db {
               else {print "Attribute $attr unknown\n"}
 	  }
           # change the Line
-       $new_line=$p_name.";".$p_long_name.";".$p_teachers.";".
+          $new_line=$p_name.";".$p_long_name.";".$p_teachers.";".
                     $p_members.";".$p_member_groups.";".$p_add_quota.";".
                     $p_max_members.";\n";
           print "OLD Line:   $old_line";
@@ -548,7 +548,7 @@ sub create_project_db {
        system("mv $file.tmp $file");  
     } elsif ($count==0){ 
         # 0 lines found -> creating the project
-        print "$count OLD projects found, creating the project \n\n";
+        print "Project $project is nonexisting -> CREATING\n";
         $p_name=$project;
         printf "   %-18s : %-20s\n","Name" ,$project;
         foreach $param (@_){
@@ -563,6 +563,13 @@ sub create_project_db {
            elsif ($attr eq "File"){$file="$value"}
            else {print "Attribute $attr unknown\n"}
         }
+        # Enough Information to create the Project?
+        if (not defined $p_long_name){$p_long_name=$project}
+        if (not defined $p_teachers){$p_teachers="root"}
+        if (not defined $p_members){$p_members=""}
+        if (not defined $p_member_groups){$p_member_groups=""}
+        if (not defined $p_add_quota){$p_add_quota=""}
+        if (not defined $p_max_members){$p_max_members=""}
         $new_line=$p_name.";".$p_long_name.";".$p_teachers.";".
                   $p_members.";".$p_member_groups.";".$p_add_quota.";".
                   $p_max_members.";\n";
