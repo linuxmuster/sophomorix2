@@ -255,9 +255,30 @@
 		  wird abgewiesen, ...</para>
 		</listitem>
 		<listitem>
-		  <para><userinput>R</userinput>: Removeable
+		  <para><userinput>R, K</userinput>: Removable/Killable
 		  (Ausgeschalteter, Löschbarer Account). </para>
 
+                  <para>
+                      <itemizedlist>
+		      <listitem>
+			<para><userinput>R</userinput>: Der User kann
+			  mit <userinput>sophomorix-kill</userinput>
+			  endgültig aus dem System entfernt
+			  werden. Der Account wird automatisch wieder
+			  eingeschaltet (E), wenn der user wieder
+			  auftaucht.</para>
+		      </listitem>
+		      <listitem>
+			  <para><userinput>K</userinput>: Der User
+			  kann mit
+			  <userinput>sophomorix-kill</userinput>
+			  endgültig aus dem System entfernt
+			  werden. Der Account bleibt im Zustand
+			  Killable, auch wenn der User wieder
+			  auftaucht.</para>
+		      </listitem>
+	              </itemizedlist>
+                  </para>
 		  <para>Der User kann beim nachsten Aufruf von
 		  <userinput>sophomorix-kill</userinput> mit all
 		  seinen Daten entfernt werden.</para>
@@ -333,52 +354,140 @@
 	</mediaobject>
       </figure>
 </para>
-	<para>Normalerweise taucht ein User in den
-	Konfigurationsdateien auf (lehrer.txt, schueler.txt, ...) und
-	wird von beim Aufruf von
-	<userinput>sophomorix-check</userinput> als neu erkannt, und
-	von <userinput>sophomorix-add</userinput> als benutzbarer
-	Account (Status U) angelegt</para>
-      </sect3>
-      <sect3>
-	<title>Weg eines users durch das System</title> <para>Alle
-        möglichen Zustände, die ein User-Account annehmen kann sind in
-        der Abbildung dargestellt.
-	</para>
-    <para><figure>
-	<title>Weg eines Users durch das System (User-status)</title>
-	<mediaobject>
-	  <imageobject>
-	    <imagedata fileref="user-status.png" format="png">
-	  </imageobject>
-	  <imageobject>
-	    <imagedata fileref="user-status.eps" format="eps">
-	  </imageobject>
-	  <textobject>
-	    <phrase>Grafische Darstellung der User-zustände</phrase>
-	  </textobject>
-	</mediaobject>
-      </figure>
-</para>
+
+	<sect4>
+	  <title>Normaler Weg eines Users</title>
 	<para>Normalerweise taucht ein User in den
 	Konfigurationsdateien auf (lehrer.txt, schueler.txt, ...) und
 	wird von beim Aufruf von
 	<userinput>sophomorix-check</userinput> als neu erkannt, und
 	von <userinput>sophomorix-add</userinput> als benutzbarer Account (Status
-	U) angelegt. </para> <para>Irgendwann verlässt
-	der User die Schule, der Eintag in den Konfigurationsdateien
-	fehlt. Aufgrund dessen wird der bleibt der Account zwar noch
-	benutzbar, wird aber mit dem Status T(Toleriert) versehen, und
-	das Datum(TolerationDate) abgespeichert.</para> <para>Ist eine
-	Konfigurierbare Zeit vergangen, so wird der User(account)
-	unbenutzbar gemacht(Status D) und das Datum(DeactivationDate)
-	abgespeichert. Der Account und seine Daten sind noch
-	vorhanden, jedoch kann der User sich nicht mehr
-	einloggen.</para> <para>Nach einer weiteren konfigurierbaren
-	Zeit wird der Account als Löschbar (Status R, Removeable)
-	markiert. Nun ist der Account durch Aufruf von
+	U oder leeres Statusfeld) angelegt. </para> 
+
+        <para>Irgendwann verlässt der User die Schule, der Eintrag in
+	den Konfigurationsdateien fehlt. Aufgrund dessen bleibt der
+	Account zwar noch benutzbar, wird aber mit dem Status T
+	(Toleriert) versehen, und das aktuelle Datum als
+	TolerationDate abgespeichert. Der User erscheint bei den zu
+	versetztenden Usern und kann in den 'dachboden' (Schüler) oder
+	auf den Speicher (Lehrer) versetzt werden.</para>
+
+        <para>Ist eine konfigurierbare Zeit vergangen, so wird der
+	User(account) unbenutzbar gemacht (Status D) und das aktuelle
+	Datum als DeactivationDate abgespeichert. Der Account und
+	seine Daten sind noch vorhanden, jedoch kann der User sich
+	nicht mehr einloggen.</para>
+
+        <para>Nach einer weiteren konfigurierbaren Zeit wird der
+	Account als Löschbar (Status R, Removable) markiert. Nun ist
+	der Account durch Aufruf von
 	<userinput>sophomorix-kill</userinput> löschbar. Dabei wird
 	kein Backup der Userdaten gemacht.</para>
+	</sect4>
+	<sect4>
+	  <title>Wiederauftauchende User</title> <para>Wenn ein User
+	  in den Konfigurationsdateien fehlt, wir er toleriert (T),
+	  deaktiviert (D) oder als Löschbar gekennzeichnet (R). Taucht
+	  der User allerding wieder in den Konfigurationsdateien auf,
+	  so erscheint er wieder mit dem Status Enabled (E). Falls er
+	  in den 'dachboden' versetzt wurde, kann er wieder in die
+	  neue Klasse versetzt werden. </para>
+
+	  <para>Status U, E, bzw. leerer Status unterscheiden sich
+	  prakisch nicht. Man kann allerdings ablesen, ob der User
+	  zwischenzeitlich in den Konfigurationsdateien gefehlt
+	  hat. </para>
+	</sect4>
+	<sect4>
+	  <title>Aktivieren eines Users von Hand mit
+	  <userinput>sophomorix-user</userinput></title>
+
+          <para>Wenn ein User in den Konfigurationsdateien fehlt kann
+	  er in den 'dachboden' versetzt werden. Ist dies geschehen,
+	  kann der user nicht mehr auf die Klassentauschverzeichnisse
+	  zugreifen.</para> 
+
+          <para>Anstatt auf das Auftauchen in den
+	  Konfigurationsdateien zu warten, kann der
+	  Netzwerkadministrator den User in seine alte Klasse
+	  zurückaktivieren, oder sogar eine neu Klasse angeben. Der
+	  User wird Aktiviert (A) und wird, falls er wiederin den
+	  Konfigurationsdateien auftaucht, in den Normalen Weg eines
+	  Users eingegliedert.</para>
+
+	  <para>Erscheint er nicht mehr, wird er - wie jeder User -
+	  nach verstreichen des des Tolerierungs-Zeitraums
+	  deaktiviert.</para>
+
+	  <para>Status T, A, S bzw. leerer Status unterscheiden sich
+	  kaum . </para>
+
+          <para>Bei einem toleriertem User (T) wird angeboten, ihn in
+          die Klasse 'dachboden' zu versetzen, bei A und S nicht, da
+          der Systemadministrator den Schüler gezielt in eine Klasse
+          hinein aktiviert hat.</para>
+
+          <para>Außerdem kann man zur Fehlersuche auf den Weg des
+	  Users im System schliessen. </para>
+	</sect4>
+	<sect4>
+	  <title>Permanente User und gefrorene User erstellen mit
+	  <userinput>sophomorix-user</userinput></title> 
+
+        <para>In Ausnahmefällen möchte man einen Benutzer dauerhaft
+        unlöschbar machen. Dazu dient der Staus F (Frozen, gefroren)
+        und P (Permanent, dauerhaft). Beidesmal wird der user nicht
+        mehr versetzt(???) und erscheint auch nie bei den mit
+        <userinput>sophomorix-kill</userinput> zu löschenden
+        Schülern</para> 
+
+        <para>Einziger Unterschied ist, dass ein gefrorener User(account)
+        unbenutzbar ist, ein permanenter User(account) hngegen voll
+        benutzbar. </para>
+
+	 <para>Offene Frage: Sollen diese User alle erstmal in eine
+	 Sonderklasse (frozen, permanent) und nur noch manuell
+	 versetzt werden können???</para>
+
+	</sect4>
+	<sect4>
+	  <title>User von Hand löschen mit
+	  <userinput>sophomorix-user</userinput></title> 
+         
+          <para>Um einen User möglichst einfach und schnell zu löschen
+	  (kein Backup der Userdaten) macht man ihn zuerst Löschbar
+	  (K, Killable). Dann erscheint der user bei den mit
+	  <userinput>sophomorix-kill</userinput> löschbaren usern und
+	  kann gelöscht werden.</para>
+
+	  <para>User im Status P(Permanent) und F(Frozen) können nur
+	  auf diese Weise gelöscht werden.</para>
+
+	</sect4>
+	<sect4>
+	  <title>User selbst anlegen
+	  <userinput>sophomorix-user</userinput></title> 
+
+          <para>Um einen User, von dem zu erwarten ist, dass er in den
+          Konfigurationdateien auftauchen wird sofort anzulegen kann
+          er als Selbsaktivierter Account (S) angelegt werden.</para>
+
+	  <para>Dazu müüsen alle seine Daten bekannt sei, die in den
+	  Konfiguratinsdateien stehen werden
+	  (Klasse,Nachname,Vorname,Geburtsdatum).</para>
+
+	  <para>Taucht der User dann in den Konfigurationsdateien auf,
+	  so wird er in einen ganz Normalen Account (U)
+	  überführt. Taucht er nicht auf wird er ganz normal
+	  deaktiviert und schließlich Löschbar gemacht (R).</para>
+
+	  <para>Dieser Status heisst
+	  <emphasis>Selbst</emphasis>-aktiviert, weil evtl. mit einem
+	  Webmin/Usermin-Modul dieser Vorgang von einem Lehrer
+	  bzw. Schüler selbst ohne zutun des Administrators ausgeführt
+	  werden kann.</para>
+
+	</sect4>
       </sect3>
 
     </sect2>
