@@ -14,6 +14,10 @@ package Sophomorix::SophomorixAPI;
 require Exporter;
 use Time::Local;
 use Time::localtime;
+use Sophomorix::SophomorixBase qw ( 
+                                    create_share_link
+                                    remove_share_link
+                                  );
 
 
 @ISA = qw(Exporter);
@@ -761,6 +765,8 @@ sub add_my_adminclass {
     my @list=&get_my_adminclasses($login);
     my $seen=0;
     my $valid=0;
+    my @entry = getpwnam($login);
+    my $homedir = "$entry[7]";
 
     # check if $class is really a class
     my @valid_classes=get_adminclasses_school();
@@ -792,6 +798,17 @@ sub add_my_adminclass {
     }
     close(MYCLASS);
     system("mv $file.tmp $file");
+
+    # create link
+    &Sophomorix::SophomorixBase::create_share_link($login,$class,"class");
+
+    # create dirs in tasks and collect
+    my $task_dir=$homedir."/".${Language::task_dir}."/".$class;
+    #print "Task:    $task_dir\n";
+    system("mkdir $task_dir");
+    my $collect_dir=$homedir."/".${Language::collect_dir}."/".$class;
+    #print "Collect: $collect_dir\n";
+    system("mkdir $collect_dir");
     return 1;
 }
 
@@ -837,6 +854,8 @@ sub remove_my_adminclass {
     my @list=&get_my_adminclasses($login);
     my @new_list=();
     my $removed=0;
+    my @entry = getpwnam($login);
+    my $homedir = "$entry[7]";
     foreach my $item (@list){
 	if ($item ne $class){
 	    push @new_list, $item;
@@ -851,6 +870,21 @@ sub remove_my_adminclass {
     }
     close(MYCLASS);
     system("mv $file.tmp $file");
+
+    # remove link
+    &Sophomorix::SophomorixBase::remove_share_link($login,$class,"class");
+
+    # remove dirs in tasks and collect
+    my $task_dir=$homedir."/".${Language::task_dir}."/".$class;
+    #print "Task:    $task_dir\n";
+    if (-e $task_dir){
+       system("rmdir $task_dir");
+    }
+    my $collect_dir=$homedir."/".${Language::collect_dir}."/".$class;
+    #print "Collect: $collect_dir\n";
+    if (-e $collect_dir){
+       system("rmdir $collect_dir");
+    }
     return $removed;
 }
 

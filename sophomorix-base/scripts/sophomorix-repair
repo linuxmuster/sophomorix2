@@ -270,6 +270,10 @@ sub repair_directories {
        s/\$tasks_subclasses/$DevelConf::tasks_subclasses/;     
        s/\$tasks_projects/$DevelConf::tasks_projects/;     
 
+       s/\$share_dir/$Language::share_dir/;     
+       s/\$task_dir/$Language::task_dir/;     
+       s/\$collect_dir/$Language::collect_dir/;     
+
 
 #       s/\$share_share/$DevelConf::share_share/;     
 

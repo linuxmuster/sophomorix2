@@ -1797,14 +1797,17 @@ sub create_share_link {
        $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
 #    my $link_name=$home."/${Language::share_dir}/Tausch-${share_name}";   
     my $link_name=$home."/${Language::share_dir}/${Language::share_string}-${share_name}";   
-    print "Creating a link for user $login to project $share_name.\n";
+    print "Creating a link for user $login to $type $share_name.\n";
 
 
     if ($type eq "project"){
         # project
         # my $link_dir="${DevelConf::share_projects}/${share_name}/";
         $link_target="${DevelConf::share_projects}/${share_name}/";
-   } elsif ($type eq "subclass"){
+   } elsif ($type eq "class"){
+        # subclass
+        $link_target="${DevelConf::share_classes}/${share_name}/";
+    }elsif ($type eq "subclass"){
         # subclass
         $link_target="${DevelConf::share_subclasses}/${share_name}/";
     } else {
@@ -1830,12 +1833,15 @@ Löscht den Link an in das Tauschverzeichnis des Projekts.
 =cut
 # this should be true for all db and auth-systems
 sub remove_share_link {
-    my ($login,$project) = @_;
+    my ($login,$share_name,$type) = @_;
+    if (not defined $type or $type eq ""){
+	$type="project";
+    }
     my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
        $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
 #    my $link_name=$home."/${Language::share_dir}/Tausch-${project}";   
 #    my $link_name=$home."/${Language::share_dir}/${Language::share_string}-${project}";   
-    my $link_name=$home."/${Language::share_dir}/${Language::share_string}-${project}";   
+    my $link_name=$home."/${Language::share_dir}/${Language::share_string}-${share_name}";   
     print "Removing link: $link_name\n";
     # remove the link
     unlink $link_name;

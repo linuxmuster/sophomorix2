@@ -71,8 +71,8 @@ my $quotastring="";
 #my %schueler_ok_hash=();
 my %user_login_hash=();
 
-my %login_quota=();
-my $login_quota_typ="";
+###my %login_quota=();
+###my $login_quota_typ="";
 
 my $webmin_neustart=0;
 
@@ -199,28 +199,28 @@ my $datei="";
 
 
 #if($Conf::log_level>=3){
-      &titel("Calculating quota for new users ...");
+#      &titel("Calculating quota for new users ...");
 #}
 
-my %standard_quota=();
-my %lehrer_quota=();
-my %klassen_quota=();
-my @quota_fs_liste=();
+#my %standard_quota=();
+#my %lehrer_quota=();
+#my %klassen_quota=();
+#my @quota_fs_liste=();
 
 
-if ($Conf::use_quota eq "yes") {
-   # quota.txt auslesen
-   %standard_quota=&get_standard_quota();
-
-   # lehrer.txt auslesen
-   %lehrer_quota=&get_lehrer_quota();
-
-   # schulinfo.txt auslesen
-   %klassen_quota=&get_klassen_quota();
-
-   # Quotierte Dateisysteme ermitteln
-   @quota_fs_liste=&get_quota_fs_liste();
-}
+#if ($Conf::use_quota eq "yes") {
+#   # quota.txt auslesen
+#   %standard_quota=&get_standard_quota();
+#
+#   # lehrer.txt auslesen
+#   %lehrer_quota=&get_lehrer_quota();
+#
+#   # schulinfo.txt auslesen
+#   %klassen_quota=&get_klassen_quota();
+#
+#   # Quotierte Dateisysteme ermitteln
+#   @quota_fs_liste=&get_quota_fs_liste();
+#}
 
 
 #  project database auslesen
@@ -289,7 +289,7 @@ open(NOCHANLEGEN,">${DevelConf::ergebnis_pfad}/sophomorix.add.new") || die "Fehl
 
 open(USERHINZU,"${DevelConf::ergebnis_pfad}/sophomorix.add") || die "Fehler: $!";
 while(<USERHINZU>){
-   $login_quota_typ="";
+###   $login_quota_typ="";
    $user_nummer++;
    chomp();
    # absplitten von Wunschlogin und Wunschpasswort
@@ -366,37 +366,37 @@ if ($wunsch_passwort eq "---") {
 # Shell
 $shell=&shell_ermitteln($new_admin_group);
 
-if($Conf::use_quota eq "yes"){
-  # Quota
-   if ($new_admin_group eq "lehrer") {
-      # Es ist ein Lehrer
-      if (exists $lehrer_quota{$login_name_ok}) {
-         # Es gibt lehrerquota
-         $login_quota{$login_name_ok}=$lehrer_quota{"$login_name_ok"};
-         $login_quota_typ="Einzel-Lehrer-Quota";
-      } else {
-         $login_quota{$login_name_ok}=$standard_quota{"standard-lehrer"};
-         $login_quota_typ="Standard-Lehrer-Quota";
-      }
-   } else {
-      # Es ist ein Schüler
-      if (exists $klassen_quota{$new_admin_group}) {
-         # Es gibt klassenquota
-         $login_quota_typ="Klassen-Quota";
-         $login_quota{$login_name_ok}=$klassen_quota{"$new_admin_group"};
-      } else {
-         # standart-wert setzten
-         # 1) im Hash %standard_quota
-         # 2) den key standard-schueler suchen
-         # 3) auf dessen Value (Referenz auf liste)
-         # 4) eine neue Referenz setzten
-         #$login_quota{$login_name_ok}=[@null_quota_liste];
-         $login_quota{$login_name_ok}=$standard_quota{"standard-schueler"};
-         $login_quota_typ="Standard-Schüler-Quota";
-         # $login_quota{$login_name_ok}=$standard_quota{"standard-lehrer"};
-       }
-   }
-}
+#if($Conf::use_quota eq "yes"){
+#  # Quota
+#   if ($new_admin_group eq "lehrer") {
+#      # Es ist ein Lehrer
+#      if (exists $lehrer_quota{$login_name_ok}) {
+#         # Es gibt lehrerquota
+#         $login_quota{$login_name_ok}=$lehrer_quota{"$login_name_ok"};
+#         $login_quota_typ="Einzel-Lehrer-Quota";
+#      } else {
+#         $login_quota{$login_name_ok}=$standard_quota{"standard-lehrer"};
+#         $login_quota_typ="Standard-Lehrer-Quota";
+#      }
+#   } else {
+#      # Es ist ein Schüler
+#      if (exists $klassen_quota{$new_admin_group}) {
+#         # Es gibt klassenquota
+#         $login_quota_typ="Klassen-Quota";
+#         $login_quota{$login_name_ok}=$klassen_quota{"$new_admin_group"};
+#      } else {
+#         # standart-wert setzten
+#         # 1) im Hash %standard_quota
+#         # 2) den key standard-schueler suchen
+#         # 3) auf dessen Value (Referenz auf liste)
+#         # 4) eine neue Referenz setzten
+#         #$login_quota{$login_name_ok}=[@null_quota_liste];
+#         $login_quota{$login_name_ok}=$standard_quota{"standard-schueler"};
+#         $login_quota_typ="Standard-Schüler-Quota";
+#         # $login_quota{$login_name_ok}=$standard_quota{"standard-lehrer"};
+#       }
+#   }
+#}
 # Test
 #my @test_array=("0-0-0-0","test","test2");
 #$login_quota{"michelgr"}=\@test_array;
@@ -443,20 +443,21 @@ if($Conf::use_quota eq "yes"){
          # Es ist ein Schüler
          print("Shell (Schüler):  $shell\n"); 
        }
-       { # Klammern um $j lokal zu halten, Beginn
-       my $j; 
-       $quotastring="";
-          for ($j=0; $j < @quota_fs_liste; $j++){
-             print ("Quota:       ${ $login_quota{$login_name_ok} }[$j]");
-             print ("  on $quota_fs_liste[$j]  ($login_quota_typ)\n");
-             if ($quotastring eq ""){
-                $quotastring=${ $login_quota{$login_name_ok} }[$j];
-             } else {
-                $quotastring=$quotastring."+".${ $login_quota{$login_name_ok} }[$j];
-	     }
-          }
-       } # Klammern um $j lokal zu halten, Ende
-       print "Quotastring: $quotastring \n";
+       
+#       { # Klammern um $j lokal zu halten, Beginn
+#       my $j; 
+#       $quotastring="";
+#          for ($j=0; $j < @quota_fs_liste; $j++){
+#             print ("Quota:       ${ $login_quota{$login_name_ok} }[$j]");
+#             print ("  on $quota_fs_liste[$j]  ($login_quota_typ)\n");
+#             if ($quotastring eq ""){
+#                $quotastring=${ $login_quota{$login_name_ok} }[$j];
+#             } else {
+#                $quotastring=$quotastring."+".${ $login_quota{$login_name_ok} }[$j];
+#	     }
+#          }
+#       } # Klammern um $j lokal zu halten, Ende
+#       print "Quotastring: $quotastring \n";
   }
 
   # Nun wird der User angelegt
@@ -496,10 +497,11 @@ if($Conf::use_quota eq "yes"){
   &provide_user_files($login_name_ok,$new_admin_group);
 
   # 6. Setting quota 
-  &setze_quota($DevelConf::system,
-               $login_name_ok, 
-               \@quota_fs_liste, 
-               \@{ $login_quota{$login_name_ok} });
+# this is done at the end
+#  &setze_quota($DevelConf::system,
+#               $login_name_ok, 
+#               \@quota_fs_liste, 
+#               \@{ $login_quota{$login_name_ok} });
 }
 
 close(USERHINZU);
@@ -558,6 +560,16 @@ if ($DevelConf::testen==0) {
 # Nur root darf lesen
 #system ("chown root:root $DevelConf::protokoll_datei");
 #system ("chmod 600 $DevelConf::protokoll_datei");
+
+
+
+if ($Conf::use_quota eq "yes") {
+    system("sophomorix-quota --noninteractive");
+} else {
+    &titel("NOT setting quota\n");
+}
+
+
 
 &titel("sophomorix-add terminated regularly");
 
