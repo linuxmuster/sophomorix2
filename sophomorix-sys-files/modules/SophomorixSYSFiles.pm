@@ -4,6 +4,7 @@
 # Bei Fehlern wenden Sie sich bitte an mich.
 # jeffbeck@web.de  oder  jeffbeck@gmx.de
 
+
 package Sophomorix::SophomorixSYSFiles;
 require Exporter;
 
@@ -15,9 +16,10 @@ require Exporter;
              get_user_auth_data
 );
 
-use Sophomorix::SophomorixBase qw ( titel 
+use Sophomorix::SophomorixBase qw ( titel
                                     do_falls_nicht_testen
                                   );
+
 
 
 =head1 Documentation of SophomorixSYSFiles.pm
@@ -36,7 +38,9 @@ Shows the name of the actually loaded module
 =cut
 
 sub show_sys_modulename {
-    &titel("SYS-DB-Module:       SophomorixSYSFiles.pm");
+#    if($Conf::log_level>=2){
+#       &titel("SYS-DB-Module:       SophomorixSYSFiles.pm");
+#   }
 }
 
 
