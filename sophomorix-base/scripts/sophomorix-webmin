@@ -56,11 +56,15 @@ my $webmin_modules_neu="/etc/webmin/webmin.acl.neu";
 $Conf::log_level=1;
 my $help=0;
 #my $info=0;
+my $all_hosts=0;
+my $localhost=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
            "help|h" => \$help,
-           "verbose|v+" => \$Conf::log_level
+           "verbose|v+" => \$Conf::log_level,
+           "all-hosts" => \$all_hosts,
+           "--localhost" => \$localhost
           );
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
@@ -74,9 +78,6 @@ if(not -e "/etc/webmin"){
 } else {
   &titel("sphomorix-webmin: Configuring webmin ... ");
 }
-
-
-exit;
 
 
 # --help
@@ -93,6 +94,8 @@ Options
   -v  / --verbose
   -vv / --verbose --verbose
   -i  / --info
+  --all-hosts
+  --localhost
 
 Please see the sophomorix-webmin(8) man page for full documentation
 ');
@@ -109,6 +112,51 @@ Please see the sophomorix-webmin(8) man page for full documentation
    exit;
 }
 
+
+
+# --all-hosts
+if ($all_hosts==1){
+    my $file="/etc/webmin/miniserv.conf";
+    open(FILE, "<$file");
+    open(TMP, ">$file.tmp");
+    while (<FILE>){
+        if (/^allow=/){
+           # do nothing
+        } else {
+	   print TMP $_;
+        }
+    }
+    close(FILE);
+    close(TMP);
+    system("mv $file.tmp $file");
+    system("/etc/init.d/webmin restart");
+}
+
+# --localhoat
+if ($localhost==1){
+    my $file="/etc/webmin/miniserv.conf";
+    my $done=0;
+    open(FILE, "<$file");
+    open(TMP, ">$file.tmp");
+    while (<FILE>){
+        if (/^allow=/){
+	    print TMP "allow=127.0.0.1\n";
+            $done=1;
+        } else {
+	   print TMP $_;
+        }
+    }
+    if ($done==0){
+     	print TMP "allow=127.0.0.1\n";
+    }
+    close(FILE);
+    close(TMP);
+    system("mv $file.tmp $file");
+    system("/etc/init.d/webmin restart");
+}
+
+
+exit;
 
 open(ADMINMODULENEU, ">$webmin_modules_neu");
 
