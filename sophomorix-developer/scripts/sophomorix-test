@@ -37,29 +37,6 @@ my $verbose=0;
 
 &run_command("sophomorix-check",$verbose);
 
-if (3==5){
-if (-z "${DevelConf::ergebnis_pfad}/sophomorix.add") {
-    print "sophomorix.add ist leer oder nonexistent: OK\n";
-} else {
-    print "sophomorix.add enthält Daten: ABBRUCH\n\n";
-    exit;
-}
-
-
-if (-z "${DevelConf::ergebnis_pfad}/sophomorix.move") {
-    print "sophomorix.move ist leer oder nonexistent: OK\n";
-} else {
-    print "sophomorix.move enthält Daten: ABBRUCH\n\n";
-    exit;
-}
-if (-z "${DevelConf::ergebnis_pfad}/sophomorix.kill") {
-    print "sophomorix.kill ist leer oder nonexistent: OK\n";
-} else {
-    print "sophomorix.kill enthält Daten: ABBRUCH\n\n";
-    exit;
-}
-
-}
 print "\nDie Tests können beginnen\n\n";
 
 
