@@ -23,10 +23,6 @@ use Sophomorix::SophomorixBase;
 Getopt::Long::Configure ("bundling");
 #use Schedule::at;
 
-# Einlesen der Konfigurationsdatei für Entwickler
-#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
-
-
 # ===========================================================================
 # Loading the db-Module, list of functions
 # ===========================================================================
@@ -50,12 +46,10 @@ use if ${DevelConf::sys_db} eq 'files' ,
 
                                           );
 
-
+&titel("sophomorix-print is creating output ...");
 # show the Database Modules that are loaded
 &show_modulename();
 &show_sys_modulename();
-
-
 
 # jeffbecks Bibliothek und
 # Einlesen der Konfigurationsdatei
@@ -461,7 +455,9 @@ if($Conf::log_level>=3){
 
 if ($gruppe eq "" && $alle==0 && $lehrer==0) {
   # ohne Argument -> sophomorix.add einlesen und nur die übernehmen
-  print "\nLese sophomorix.add ein\n\n";
+  if($Conf::log_level>=2){
+      &titel("Reading sophomorix.add ...");
+  }
   open (SCHUELERPDF,
        "<${DevelConf::ergebnis_pfad}/sophomorix.add") 
        || die "Fehler: ${DevelConf::ergebnis_pfad}/sophomorix.add    $!";
@@ -471,14 +467,13 @@ if ($gruppe eq "" && $alle==0 && $lehrer==0) {
 
       # passende Zeile aus user.protokoll holen
       if (exists($schueler_im_system_hash{$identifier})){
-         print ("Login-Karte für   $identifier   wird erstellt.\n"); 
+         print ("   Creating login card for $identifier \n"); 
          $schueler_protokoll_zeile=$schueler_im_system_hash{$identifier};
        } else {
          # keine Protokoll-Zeile gefunden, Schüler ist noch nicht im System
          # also nicht drucken
-         print ("Eintrag für   $identifier   in user.protokoll fehlt!\n"); 
-         print ("Es kann keine Login-Karte erstellt werden (User nicht angelegt?!)\n\n"); 
-#         print ("Der User wurde wahrscheinlich nicht angelegt!\n\n"); 
+         print ("Entry for $identifier in the sophomarix database is missing!\n"); 
+         print ("Could not create login card (user not in the system?!)\n\n"); 
 
          next;
        }
@@ -576,7 +571,7 @@ if($Conf::log_level>=3){
    }
 }
 
- print("\n\n"); 
+ #print("\n\n"); 
 
 
 # ===========================================================================
