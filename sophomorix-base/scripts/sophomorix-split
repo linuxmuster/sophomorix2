@@ -147,35 +147,13 @@ if ($noninteractive==1){
     foreach $login (@d_members){&update_user_db_entry($login,"SubClass=D")}
 } else {
    # interaktiv
-   open(PROTO,"<${DevelConf::dyn_config_pfad}/user.protokoll");
-   while(<PROTO>){
-     my @line=split(/;/);
-     if ($line[0] eq $class){
-       my $gecos=$line[1];
-       my $login=$line[2];
-       my $old_subclass=$line[6];
-       if (defined $old_subclass){
-           print "Editing SubClass of $login:\n";
-           print "=======================================",
-	         "=======================================\n";
-	   print "$gecos is in subclass $old_subclass\n";
-           &interactive_change_subclass($login);
-       }
-
-     }	    
-   }
-   close(PROTO);
+   &interactive_change_subclass($class);
 }
-
-
-
 
 
 # Step 2
 # write the subclass-projects-line
 &create_subclass_db($class);
-
-
 
 # step 3
 # Read the database (users and subclasses) 
@@ -185,13 +163,16 @@ if ($noninteractive==1){
 
 
 
-#my @list=&get_users_admin_class("12c");
+my @list=&get_users_admin_class("12c");
 
+
+print @list,"\n";
 
 ###########################################################################
 # Sub
 ###########################################################################
 
+# returns an ascibetical list of users in an AdminClass
 sub get_users_admin_class {
     my ($class)=@_;
     my @admin_class_list=();
@@ -247,7 +228,6 @@ sub create_subclass{
     print "B: @sub_b \n";
     print "C: @sub_c \n";
     print "D: @sub_d \n";
-
 
     # Adding the 4 groups without users
     foreach $suffix (@suffix){
@@ -349,31 +329,50 @@ sub create_subclass_db {
 
 
 
-sub interactive_change_subclass {
-    my ($login)=@_;
-    my $user_antwort="";
-    my %auswahl=qw( a a A A b b B B c c C C d d D D o o 0 0);
-    while(){# Endlosschleife für die Eingabe
-       $user_antwort= <STDIN>; # Lesen von Tastatur
-       chomp($user_antwort); # Newline abschneiden
-       if ($user_antwort eq ""){
-          last;
-       } elsif (exists($auswahl{$user_antwort})){
-          # Wenn Eingabewert im Auswahl-Hash vorkommt, aussteigen
-	  if ($user_antwort eq "0" or $user_antwort eq "o"){
-             $user_antwort="";
-             print "Removing $login from all subclasses\n";
-	  } else {
-             $user_antwort=~tr/a-z/A-Z/;
-             print "Adding $login in $user_antwort\n";
-          }
-	   &update_user_db_entry($login,"SubClass=$user_antwort");
-          last; # Ausstieg aus Endlosschleife
-       } else {
-          # Endlosschleife, Eingabe wiederholen
-          print "Fehlerhafte Eingabe. Bitte wiederholen!".
-                " Zuerst die a,b,c,d oder 0 (keine subclass) dann <RETURN>\n";
-       }
-    }
 
+sub interactive_change_subclass {
+   my ($class)=@_;
+   my $user_antwort="";
+   my %auswahl=qw( a a A A b b B B c c C C d d D D o o 0 0);
+   open(PROTO,"<${DevelConf::dyn_config_pfad}/user.protokoll");
+   while(<PROTO>){
+     my @line=split(/;/);
+     if ($line[0] eq $class){
+       my $gecos=$line[1];
+       my $login=$line[2];
+       my $old_subclass=$line[6];
+       if (defined $old_subclass){
+           print "Editing SubClass of $login:\n";
+           print "=======================================",
+	         "=======================================\n";
+	   print "$gecos is in subclass $old_subclass\n";
+           while(){# Endlosschleife für die Eingabe
+               $user_antwort= <STDIN>; # Lesen von Tastatur
+               chomp($user_antwort); # Newline abschneiden
+               if ($user_antwort eq ""){
+                  last;
+               } elsif (exists($auswahl{$user_antwort})){
+                  # Wenn Eingabewert im Auswahl-Hash vorkommt, aussteigen
+	          if ($user_antwort eq "0" or $user_antwort eq "o"){
+                     $user_antwort="";
+                     print "Removing $login from all subclasses\n";
+	          } else {
+                     $user_antwort=~tr/a-z/A-Z/;
+                     print "Adding $login in $user_antwort\n";
+                  }
+	          &update_user_db_entry($login,"SubClass=$user_antwort");
+                  last; # Ausstieg aus Endlosschleife
+               } else {
+                  # Endlosschleife, Eingabe wiederholen
+                  print "Fehlerhafte Eingabe. Bitte wiederholen!".
+                        " Zuerst die a,b,c,d oder 0 (keine subclass) dann <RETURN>\n";
+               }
+           }
+       }
+
+     }	    
+   }
+   close(PROTO);
 }
+
+
