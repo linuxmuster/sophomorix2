@@ -809,17 +809,17 @@ sub search_user {
        print "=======================================";
        print "=======================================\n";
 
-       printf "   AdminClass       : %-47s %-11s\n",$class,$login;
-       printf "   PrimaryGroup     : %-47s %-11s\n",$pri_group_string,$login;
+       printf "  AdminClass       : %-47s %-11s\n",$class,$login;
+       printf "  PrimaryGroup     : %-47s %-11s\n",$pri_group_string,$login;
        foreach my $gr (@group_list){
 	   $grp_string= $grp_string." ".$gr;
 	  #print $gr," ";
        }
-       printf "   SecondaryGroups  :%-48s %-11s\n",$grp_string,$login;
-       printf "   Gecos            : %-47s %-11s\n", $gec_user,$login;
+       printf "  SecondaryGroups  :%-48s %-11s\n",$grp_string,$login;
+       printf "  Gecos            : %-47s %-11s\n", $gec_user,$login;
   
        if (defined $loginname_passwd){
-          printf "   SystemGecos      : %-47s %-11s\n",$gcos_passwd, $login;
+          printf "  SystemGecos      : %-47s %-11s\n",$gcos_passwd, $login;
        }
 
        if (-e $home){
@@ -830,54 +830,59 @@ sub search_user {
           $home_ex=$home."  (ERROR: non-existing)";
        }
        if (defined $home){
-          printf "   Home             : %-47s %-11s\n",$home_ex,$login;
+          printf "  Home             : %-47s %-11s\n",$home_ex,$login;
        }
 
        if (defined $shell){
-          printf "   LoginShell       : %-47s %-11s\n",$shell,$login;
+          printf "  LoginShell       : %-47s %-11s\n",$shell,$login;
        }
 
-       printf "   FirstPassword    : %-47s %-11s\n",$first_pass,$login;
-       printf "   Birthday         : %-47s %-11s\n",$birth,$login;
+       printf "  FirstPassword    : %-47s %-11s\n",$first_pass,$login;
+       printf "  Birthday         : %-47s %-11s\n",$birth,$login;
 
        if (defined $unid){
-          printf "   Unid             : %-47s %-11s\n",$unid,$login;
+          printf "  Unid             : %-47s %-11s\n",$unid,$login;
        }
 
        if (defined $subclass){
-	  printf "   SubClass         : %-47s %-11s\n",$subclass,$login;
+	  printf "  SubClass         : %-47s %-11s\n",$subclass,$login;
        }
 
        if (defined $status){
-	  printf "   Status           : %-47s %-11s\n",$status,$login;
+	  printf "  Status           : %-47s %-11s\n",$status,$login;
        }
 
        if (defined $tol){
-          printf "   TolerationDate   : %-47s %-11s\n",$tol,$login;
+          printf "  TolerationDate   : %-47s %-11s\n",$tol,$login;
        }
 
        if (defined $deact){
-          printf "   DeactivationDate : %-47s %-11s\n",$deact,$login;
+          printf "  DeactivationDate : %-47s %-11s\n",$deact,$login;
        }
 
        if (defined $ex_admin){
-	  printf "   ExitAdminClass   : %-47s %-11s\n",$ex_admin,$login;
+	  printf "  ExitAdminClass   : %-47s %-11s\n",$ex_admin,$login;
        }
 
        if (defined $acc_type){
-	  printf "   AccountType      : %-47s %-11s\n",$acc_type,$login;
+	  printf "  AccountType      : %-47s %-11s\n",$acc_type,$login;
        }
 
        if($Conf::use_quota eq "yes"){
           if (defined $quota){
-	     printf "   Quota (MB)       : %-47s %-11s\n",$quota,$login;
+	     printf "  Quota (MB)       : %-47s %-11s\n",$quota,$login;
           } else {
-	     print  "   Quota (MB)       : --- \n";
+	     print  "  Quota (MB)       : --- \n";
           }
           if (-e "/usr/bin/quota"){
-	     print "   "; # indent output of following command
-             # -l show only local quota, no nfs          
-             system("quota -l $login");
+#	     print "  "; # indent output of following command
+             # -l show only local quota, no nfs
+             # -v show quota on unused filesystems          
+#             system("quota -l -v $login");
+             my $show=`quota -l -v $login`;
+	     print "  "; # indent output of following command
+             $show =~ s/\n  /\n/g; # remove indent partially
+             print $show;
           }
        }
        # samba, database independent
