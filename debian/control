@@ -8,13 +8,16 @@ Standards-Version: 3.5.2
 Package: sophomorix-base
 Architecture: any
 Depends:  quota (>=3.12), perl-base (>=5.8.4), libquota-perl (>= 1.4.9), samba (>= 3.0.7), libstring-approx-perl (>=3.23), tetex-base (>=2.0.2), tetex-bin (>=2.0.2), tetex-extra (>=2.0.2), gs-common (>=0.3.6)
-Description: Base for sophomorix
-
+Description: Scripts for sophomorix
+ sophomorix-base contains all database independent scripts to run sophomorix
+ on the console. You additionally need perl-module to access the database 
+ (i.e. one of sophomorix-files, sophomorix-ldap, sophomorix-sql)
 
 Package: sophomorix-files
 Architecture: any
 Depends:  sophomorix-base (>=1.1.0)
 Description: Files-Database for sophomorix
+ Database module to store the Sophomorix database in files
 
 Package: sophomorix-developer
 Architecture: any
@@ -25,14 +28,16 @@ Package: sophomorix-ldap
 Architecture: any
 Depends:  slapd (>=2.1.22), ldap-utils (>=2.1.22),libnet-ldap-perl (>=0.30)
 Description: ldap direcory for sophomorix
+ Database module to store the Sophomorix database in openldap
 
 Package: sophomorix-webmin
 Architecture: any
 Depends:  webmin (>= 1.100)
 Description: webmin-module for sophomorix
+ webmin-modules to administrate sophomorix with webmin/usermin
 
 Package: sophomorix-webmin-classmanager
 Architecture: any
 Depends:  webmin (>= 1.100)
 Description: classmanager module
-
+ webmin-module for teachers

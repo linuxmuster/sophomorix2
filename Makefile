@@ -17,7 +17,7 @@ USERROOT=$(DESTDIR)/root
 LIBDIR=$(DESTDIR)/var/lib/sophomorix
 
 # Perl modules
-PERLMOD=$(DESTDIR)/usr/lib/perl5/Sophomorix
+PERLMOD=$(DESTDIR)/usr/share/perl5/Sophomorix
 
 # Debian
 WEBMINDEBDIR=$(DESTDIR)/usr/share/webmin
@@ -55,12 +55,13 @@ install-base:
 	install -oroot -groot --mode=0744 sophomorix-base/scripts/sophomorix-*[a-z1-9] $(DESTDIR)/usr/sbin
 	##### configs for admin
 	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/user
-	install -oroot -groot --mode=0600 sophomorix-base/config/*[!CVS] $(DESTDIR)/etc/sophomorix/user
+	install -oroot -groot --mode=0700 sophomorix-base/config/*[!CVS] $(DESTDIR)/etc/sophomorix/user
 	##### config-templates
 	install -oroot -groot --mode=0700 sophomorix-base/config-templates/*[!CVS] $(CTEMPDIR)
 	##### configs for developers
 	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/devel/user
-	install -oroot -groot --mode=0700 sophomorix-base/config-devel/*[!CVS] $(DESTDIR)/etc/sophomorix/devel/user
+	install -oroot -groot --mode=0700 sophomorix-base/config-devel/sophomorix-devel.conf $(DESTDIR)/etc/sophomorix/devel/user
+	install -oroot -groot --mode=0600 sophomorix-base/config-devel/repair.directories $(DESTDIR)/etc/sophomorix/devel/user
 	##### Copy the module
 	install -d -m755 -oroot -groot $(PERLMOD)
 	install -oroot -groot --mode=0644 sophomorix-base/modules/Sophomorix*[a-z1-9] $(PERLMOD)
