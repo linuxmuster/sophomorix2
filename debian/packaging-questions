@@ -1,0 +1,32 @@
+control:
+
+1. leerzeichen hinter >=, danach mit apt-cache depends sophomrix-base testen
+
+2. welches postinst script soll sophomorix-setup aufrufen?
+
+sophomorix-files  
+sophomorix-ldap    
+sophomorix-sql
+
+
+3. make clean im Makefile bzw. rules
+   - was macht make clean im Makefile,
+      wenn nichts compiliert wird?
+   - was macht make clean in rules?
+     sieht im Moment komisch aus
+
+
+4. Abhängigkeit von samba -> samb installieren ohne jegliche Nachfragen
+   (da sophomorix sowiese samba konfiguriert)
+
+   debconf-communicate -p critical samba
+
+5. virtuelles paket sophomorix-db (database)
+     wird erfüllt durch sophomorix-files
+                                  -ldap
+                                  -sql
+  zuerst muss datenbank laufen (admin angelegt als gruppe, ...)
+  dann erst wird sophomorix-base installiert 
+    (legt verzeichnisse an, die admin gehören)
+
+6. Kann die eingepackten Abhängigkeiten ansehen
