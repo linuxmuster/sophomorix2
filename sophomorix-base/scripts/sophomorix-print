@@ -13,6 +13,9 @@
 # Dafür Kommentarzeichen vor *In Wirklichkeit* setzen.
 # Nun wird auf Dateien in /development zurückgegriffen atatt auf System-Dateien
 
+
+# 1. Buchstabe vom Nachnamen groß
+
 # Bibliotheken
 use strict;
 use Getopt::Long;
@@ -21,15 +24,42 @@ Getopt::Long::Configure ("bundling");
 #use Schedule::at;
 
 # Einlesen der Konfigurationsdatei für Entwickler
-{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+
+
+# ===========================================================================
+# Loading the db-Module, list of functions
+# ===========================================================================
+# list of functions to load if db is 'files'
+use if ${DevelConf::db_backend} eq 'files' , 
+    'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                        get_print_data
+                                       );
+
+# list of functions to load if db is 'ldap'
+use if ${DevelConf::db_backend} eq 'ldap' ,
+    'Sophomorix::SophomorixLDAP' => qw(show_modulename);;
+
+
+# ===========================================================================
+# Loading the sys-db-Module, list of functions
+# ===========================================================================
+# list of functions to load if sys_db is 'files'
+use if ${DevelConf::sys_db} eq 'files' , 
+    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
+
+                                          );
+
+
+# show the Database Modules that are loaded
+&show_modulename();
+&show_sys_modulename();
+
+
 
 # jeffbecks Bibliothek und
 # Einlesen der Konfigurationsdatei
 #require "${DevelConf::library_pfad}/sophomorix-lib-base";
-
-# Nur als Dummy(Warnings verhindern)
-if($Conf::schul_name){};
-if($DevelConf::library_pfad){};
 
 my $schul_name="---";
 
@@ -348,13 +378,16 @@ print LATEX ('
 # VALUE = Zeile in user.protokoll
 # ===========================================================================
 
-open(USERPROTOKOLL,
+my @print_data = &get_print_data();
+
+foreach (@print_data){
+#open(USERPROTOKOLL,
 #     "/root/bin/${DevelConf::schueler_oder_user}.protokoll") 
-     "$DevelConf::protokoll_datei") 
+#     "$DevelConf::protokoll_datei") 
+#
+#     || die "Fehler:  $DevelConf::protokoll_datei nicht gefunden!  $!";
 
-     || die "Fehler:  $DevelConf::protokoll_datei nicht gefunden!  $!";
-
-while(<USERPROTOKOLL>){
+#while(<USERPROTOKOLL>){
     my $feld1;
     my $feld2;
     my $feld3;
@@ -385,6 +418,9 @@ while(<USERPROTOKOLL>){
     $feld4,                    # nicht verwenden
     $geburtsdatum_protokoll
    )=split(/;/);
+
+
+
 
    # Name aufsplitten
    ($vorname_protokoll,$nachname_protokoll)=split(/ /,$name_protokoll);
@@ -956,3 +992,5 @@ sub latexen {
    # Zugriff von admin von windows aus erlauben
    system("chown admin.admin ${DevelConf::druck_pfad}/$output_file_basename.* $dev_null");
 }
+
+

@@ -15,6 +15,7 @@ require Exporter;
 	     remove_user_db_entry
              create_project_db
              get_sys_users
+             get_print_data
              search_user
 );
 # deprecated:             move_user_db_entry
@@ -386,6 +387,20 @@ system ("chmod 600 $DevelConf::protokoll_datei");
           \%identifier_account_type
          );
 }
+
+
+
+
+sub get_print_data {
+    my @lines=();
+    open(USERPROTOKOLL,"$DevelConf::protokoll_datei") 
+        || die "Fehler:  $DevelConf::protokoll_datei nicht gefunden!  $!";
+    while(<USERPROTOKOLL>){
+	push @lines, $_;
+    }
+    return @lines;
+}
+
 
 =head1 update_user_db_entry
 
