@@ -1,0 +1,321 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-webmin) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+# Bibliotheken
+use strict;
+use Getopt::Long;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
+Getopt::Long::Configure ("bundling");
+
+#use Schedule::at;
+
+# Einlesen der Konfigurationsdatei für Entwickler
+{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+
+# ===========================================================================
+# Loading the db-Module, list of functions
+# ===========================================================================
+# list of functions to load if db is 'files'
+use if ${DevelConf::db_backend} eq 'files' , 
+    'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                       );
+
+# list of functions to load if db is 'ldap'
+use if ${DevelConf::db_backend} eq 'ldap' ,
+    'Sophomorix::SophomorixLDAP' => qw(show_modulename);;
+
+
+# ===========================================================================
+# Loading the sys-db-Module, list of functions
+# ===========================================================================
+# list of functions to load if sys_db is 'files'
+use if ${DevelConf::sys_db} eq 'files' , 
+    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
+                                          );
+
+# show the Database Modules that are loaded
+&show_modulename();
+&show_sys_modulename();
+
+
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+
+my $webmin_lehrer_modules_config="${DevelConf::devel_pfad}/webmin-lehrermodule.txt";
+my $webmin_admin_modules_config="${DevelConf::devel_pfad}/webmin-adminmodule.txt";
+my $webmin_testing_modules_config="${DevelConf::config_pfad}/webmin-testmodule.txt";
+my $webmin_modules_neu="/etc/webmin/webmin.acl.neu";
+
+# Variablen für Optionen
+#$DevelConf::testen=0;
+$Conf::log_level=1;
+my $help=0;
+#my $info=0;
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "help|h" => \$help,
+           "verbose|v+" => \$Conf::log_level
+          );
+
+# Prüfen, ob Optionen erkannt wurden, sonst Abbruch
+&check_options($testopt);
+
+
+# check if I have to do nothing
+if(not -e "/etc/webmin"){
+  &titel("sphomorix-webmin: Not configuring webmin ... is not installed");
+  exit; 
+} else {
+  &titel("sphomorix-webmin: Configuring webmin ... ");
+}
+
+
+exit;
+
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlsbeschreibung
+   print('
+sophomorix-webmin configures webmin
+
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -i  / --info
+
+Please see the sophomorix-webmin(8) man page for full documentation
+');
+   print "\n";
+   exit;
+
+   print "\nBeim Aufruf von $scriptname geschieht folgendes:\n\n";
+   print " - Eine neue /etc/webmin/webmin.acl wird erzeugt.\n\n";
+   print " - Module in $webmin_lehrer_modules_config\n";
+   print "   werden allen usern in der Gruppe lehrer zugänglich.\n\n";
+   print " - Module in $webmin_admin_modules_config\n";
+   print "   werden admin zugänglich.\n\n";
+
+   exit;
+}
+
+
+open(ADMINMODULENEU, ">$webmin_modules_neu");
+
+ 
+
+# ===========================================================================
+# alte webmin.acl sichern
+# ===========================================================================
+system("cp /etc/webmin/webmin.acl /etc/webmin/webmin.acl.old");
+
+
+
+# ===========================================================================
+# admin bearbeiten
+# ===========================================================================
+
+&titel("$webmin_admin_modules_config");
+
+open(ADMINMODULE, 
+    "$webmin_admin_modules_config") 
+    || die "Fehler: $!";
+
+   print ADMINMODULENEU "admin: ";
+   while(<ADMINMODULE>){
+      chomp(); # Returnzeichen abschneiden
+      s/\s//g; # Spezialzeichen raus
+      if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+      if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+      if($Conf::log_level>=3){
+         print "Admin-Modul $_ gefunden\n";
+       }
+      # Eintragen
+      print ADMINMODULENEU "$_ ";
+    }
+    # Ende der Datei
+    print ADMINMODULENEU "\n";
+    print "\n";
+    
+close(ADMINMODULE);
+
+
+
+
+# ===========================================================================
+# lehrer
+# ===========================================================================
+
+# String mit Lehrer-Modulen
+my $modulstring="";
+
+&titel("Lese $webmin_lehrer_modules_config ein ...");
+
+open(LEHRERMODULE, 
+    "$webmin_lehrer_modules_config") 
+    || die "Fehler: $!";
+   while(<LEHRERMODULE>){
+      chomp(); # Returnzeichen abschneiden
+      s/\s//g; # Spezialzeichen raus
+      if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+      if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+      $modulstring="$modulstring"." $_";
+      if($Conf::log_level>=3){
+         print "Lehrer-Modul $_ gefunden\n";
+         print "Modulstring:  $modulstring\n";
+      }
+   }
+   print "\n";
+
+close(LEHRERMODULE);
+
+
+
+
+# ===========================================================================
+# lehrer-testing-module
+# ===========================================================================
+my %testing_hash=();
+
+&titel("Lese $webmin_testing_modules_config ein ...");
+
+open(TESTINGMODULE, 
+    "<$webmin_testing_modules_config") 
+    || die "Fehler: $!";
+   while(<TESTINGMODULE>){
+      my @testing_lehrer=();
+      my $lehrer_string="";
+      my $modul="";
+      chomp(); # Returnzeichen abschneiden
+      s/\s//g; # Spezialzeichen raus
+      if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+      if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+      if($Conf::log_level>=2){
+         print "Testing-Modul-Zeile:  $_ \n";
+
+      }
+      # Zeile Verarbeiten
+      ($modul, $lehrer_string) = split(/=/);
+      @testing_lehrer=split(/,/,$lehrer_string);
+      if($Conf::log_level>=2){
+         print "\nModul: $modul\n";
+         print "Lehrer: @testing_lehrer\n";
+      }
+      # Hash beladen
+      foreach my $test_lehrer (@testing_lehrer) {
+        # Prüfen. ob tatsächlich lehrer
+        if(&check_lehrer("$test_lehrer")==0){exit};
+
+        # falls vorhanden DAZUNEHMEN
+        my $modul_neu="";
+        if (exists ($testing_hash{$test_lehrer})) {
+           $modul_neu=$testing_hash{$test_lehrer}." $modul";
+           # Eintragen
+           $testing_hash{$test_lehrer}="$modul_neu";
+        } else {
+           # Eintragen
+           $testing_hash{$test_lehrer}="$modul";
+        }
+
+      }
+   }
+   print "\n";
+
+close(TESTINGMODULE);
+
+
+
+
+if($Conf::log_level>=3){
+  # Ausgabe des testing zusatzstrings
+  while (my ($key,$value) = each %testing_hash){
+     printf "%-40s %3s\n","$key","---$value---";
+  }
+}
+
+
+
+my $modulstring_plus="";
+my @lehrer=&get_lehrer_in_schule();
+
+foreach my $lehrer (@lehrer) {
+   # Gibt es für diesen Lehrer noch in testing-module?
+  if (exists $testing_hash{$lehrer}) {
+     # testing-string anhängen
+     $modulstring_plus="$modulstring"." $testing_hash{$lehrer}";
+     # Eintragen
+     print ADMINMODULENEU "$lehrer: "."$modulstring_plus"."\n";
+  } else {
+     # Eintragen
+     print ADMINMODULENEU "$lehrer: "."$modulstring"."\n";
+
+  }
+
+}
+
+
+close(ADMINMODULENEU);
+
+
+
+
+
+
+# ===========================================================================
+# webmin.acl ersetzten
+# ===========================================================================
+system("cp /etc/webmin/webmin.acl.neu /etc/webmin/webmin.acl");
+
+
+# ===========================================================================
+# generierte webmin.acl.neu löschen
+# ===========================================================================
+system("rm /etc/webmin/webmin.acl.neu");
+
+ 
+# ===========================================================================
+# config-Datei von Webmin erzeugen
+# ===========================================================================
+
+
+# Vorgaenger loeschen
+unlink "/etc/webmin/config";
+
+# slapd.conf-Datei oeffnen
+open(WEBMINCONFIG,
+     ">/etc/webmin/config") || die "Fehler: $!";
+
+
+
+
+print WEBMINCONFIG ('os_version=7.0
+lang_root=de
+path=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin
+passwd_pindex=1
+lang=de
+find_pid_command=ps auwwwx | grep NAME | grep -v grep | awk \'{ print $2 }\'
+passwd_file=/etc/shadow
+real_os_version=2.0/2.1
+by_view=0
+real_os_type=Schwabenlinux
+ld_env=LD_LIBRARY_PATH
+os_type=suse-linux
+passwd_uindex=0
+logtime=168
+theme=
+logusers=
+logclear=
+logfiles=1
+log=1
+logmodules=
+');
