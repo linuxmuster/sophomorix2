@@ -12,11 +12,12 @@ how can i package this directories with its permissions?
 
 sophomorix-repair 
    - use function create_userlist to specify users
+     Call with option -l loginname should be fast (= do only this)
    - update man page
+   - group owner in the home directory is lehrer (is this really good?)
 
 
 sophomorix-quota
-   --check option --noninteractive 
    - option --auto-setup
        makes a usable quota-system
        does what it needs to have quota enabled and working
@@ -146,23 +147,10 @@ sophomorix-test
   
 
 sophomorix-vampire:
-
-     problem: id of lehrer on debian is 105 ml 2.x is 1002
-       -- workaround
-          0. install sophomorix2
-          1. groupdel lehrer (removes 105), works only when no teacher exists
-             - group lehrer should be added with the correct value, because when 
-             pupil is added, chown
-             (or: add lehrer first, then pupils)
-              expects group lehrer to exist.
-          2. sophomorix-setup (repairs directories with groupowner lehrer)
-          3. update (lehrer with old id will be created automatically)
    - backup /etc to /etc/sophomorix-vampire
-   - move homes
    - move mail
    - move shares
-   - invent k option, used as in sophomorix-check(necessary?)
-
+   - option for k necessary? 
 
 sophomorix-webmin
    - totally configure webmin
@@ -215,6 +203,7 @@ SophomorixAPI: Dringend!!!!!!!!!!!!!!!
 
 
 All Scripts:
+   - create global variable $teacher_grpname="lehrer" and use it in all scripts
    - read the config-files from thomas
      (file:  debconf datenbank, perl-lib zum auslesen benutzen ist dabei)
       debconf-show linuxmuster-base
@@ -289,6 +278,23 @@ RELEASES:
 
 
 1.2.0 (2005-02-?)
+   - sophomorix-vampire
+     - workaround with numerical group id not needed anymore:
+        every user and every group gets a new numerical id
+     - pushing a vampire key to tho old server works
+     - fetching a list of files works
+     - adding users works
+     - rsync homes works
+
+   - sophomorix-check
+     added option --use-uid
+     added option --use-gid
+     if you want to use the same numerical ids together with 
+     --get-info-from-old-files
+
+   - sophomorix-quota
+     option --noninteractive added
+
    - first uncomplete sophomorix-vampire verion
      - distributed in package sophomorix-vampire
      - pushing a key and fetching files
