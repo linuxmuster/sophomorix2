@@ -29,6 +29,9 @@ use Time::localtime;
              get_user_project
              create_userlist
              get_ml_users
+             get_my_adminclasses
+             add_my_adminclass
+             remove_my_adminclass
             );
 
 
@@ -597,6 +600,79 @@ sub get_ml_users {
     }
     endpwent();
     return %ml_hash;
+}
+
+
+
+=pod
+
+=head2 Working with MyClasses (querying, adding, removing, ...)
+
+=over 4
+
+=item I<get_my_adminclasses(Login)>
+
+Returns an ascibetical list of adminclasses in which the user Login
+has added herself
+
+=cut
+
+sub get_my_adminclasses {
+    my ($login) = @_;
+    my @classes=();
+
+
+    return @classes;
+}
+
+
+
+=pod
+
+=item I<add_my_adminclass(Login,AdminClass)>
+
+Adds AdminClass to the classes of the user Login.
+
+=cut
+
+sub add_my_adminclass {
+    my ($login,$class) = @_;
+    my ($home)=${DevelConf::homedir_teacher}."/".$login;
+    my ($dotdir)=$home."/.sophomorix";
+    my ($file)=$dotdir."/MyAdminClasses";
+    # create the dotfile-stuff
+    if (not -e $dotdir){
+	mkdir $dotdir;
+        defined(my $uid = getpwnam $login) or die "bad user";
+        chown $uid, 0, $dotdir;
+    }
+    if (not -e $file){
+	system("touch $file");
+        defined(my $uid = getpwnam $login) or die "bad user";
+        chown $uid, 0, $file;
+    }
+    # ??????????????????????????????????
+    # put this into a sub create_myclasses
+
+
+
+    print $dotdir."\n";
+    print $file."\n";
+}
+
+
+
+=pod
+
+=item I<remove_my_adminclass(Login,AdminClass)>
+
+Removes AdminClass from the classes of the user Login.
+
+=cut
+
+sub remove_my_adminclass {
+    my ($login,$class) = @_;
+
 }
 
 
