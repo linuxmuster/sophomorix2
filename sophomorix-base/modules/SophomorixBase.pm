@@ -42,6 +42,7 @@ use Time::localtime;
               check_datei_touch
               check_verzeichnis_mkdir
               print_user_samba_data
+              print_user_webmin_data
               get_user_history
               get_group_list
               print_forward
@@ -52,7 +53,8 @@ use Time::localtime;
               create_share_link
               remove_share_link
               zeit
-              append_auto_teach_in_log
+              append_teach_in_log
+              archive_log_entry
               backup_amk_file
               get_klasse_von_login
                 get_schueler_in_schule_hash
@@ -1571,16 +1573,56 @@ sub print_user_samba_data {
 	    if (/^Home Directory/){
               printf "  Home Directory   : %-47s %-11s\n",$value,$login;    
             }
-	    if (/^Password last set/){
-              printf "  Pwd last set     : %-47s %-11s\n",$value,$login;    
-            }
-	    if (/^Password can change/){
-              printf "  Pwd can change   : %-47s %-11s\n",$value,$login;    
-            }
-	    if (/^Password must change/){
-              printf "  Pwd must change  : %-47s %-11s\n",$value,$login;    
-            }
+            if($Conf::log_level>=3){
+               if (/^Password last set/){
+                  printf "  Pwd last set     : %-47s %-11s\n",$value,$login;    
+               }
+	       if (/^Password can change/){
+                  printf "  Pwd can change   : %-47s %-11s\n",$value,$login;    
+               }
+	       if (/^Password must change/){
+                  printf "  Pwd must change  : %-47s %-11s\n",$value,$login;    
+               }
+	    }
 	  }
+
+}
+=pod
+
+=item I<print_user_samba_data(login)>
+
+Druckt wichtige Webmin Daten des users login
+
+=cut
+sub print_user_webmin_data {
+    my ($login) = @_;
+    my $miniserv="/etc/webmin/miniserv.users";
+    my $miniserv_line="No line with $login found!";
+    my $webacl="/etc/webmin/webmin.acl";
+    my $webacl_line="No line with $login found!";
+    open(MINISERV, $miniserv);
+    while (<MINISERV>){
+        if (/^$login:/){
+            chomp();
+            $miniserv_line=$_;
+        } 
+    }
+    close(MINISERV);
+
+
+    open(WEBACL, $webacl);
+    while (<WEBACL>){
+        if (/^$login:/){
+            chomp();
+            $webacl_line=$_;
+        } 
+    }
+    close(WEBACL);
+
+    # output
+    print "Webmin:\n";
+    printf "  miniserv.users   : %-47s \n", $miniserv_line;    
+    printf "  webmin.acl       : %-47s \n", $webacl_line;    
 
 }
 
@@ -1875,7 +1917,7 @@ sub zeit {
 
 
 
-sub append_auto_teach_in_log {
+sub append_teach_in_log {
    # appends a line to auto-teach-in.log
    my ($type,$login,$old,$new, $unid)=@_;
    my $heute=`date +%d.%m.%Y`;
@@ -1888,6 +1930,40 @@ sub append_auto_teach_in_log {
                  $old."::->::".$new."::".$unid."\n";
    close(ATLOG);
 
+}
+
+
+sub archive_log_entry {
+    my ($login) = @_;
+    my $file="${DevelConf::log_files}/user-modify.log";
+    my $archive="${DevelConf::log_files}/user-modify-archive.log";
+    my $today=`date +%d.%m.%Y`;
+    chomp($today);
+
+    print $today;
+    &check_datei_touch($archive);
+
+    open(LOG,"<$file");
+    open(TMPLOG,">$file.tmp");
+    open(ARCHIVE,">>$archive");
+    while (<LOG>){
+        chomp();
+        my @line=split(/::/);
+        if ($line[2] eq $login){
+	   print "  Archiving log of user $line[2]\n";
+    	   print ARCHIVE "$_\n";
+        } else {
+	   print "  $line[2] not ready for archive.\n";
+    	   print TMPLOG "$_\n";
+        }
+
+    }
+
+    print ARCHIVE "user archived::".$today."::".$login."::\n";
+    system("mv $file.tmp $file");
+    close(LOG);
+    close(TMPLOG);
+    close(ARCHIVE);
 }
 
 

@@ -887,7 +887,8 @@ sub search_user {
        }
        # samba, database independent
        &Sophomorix::SophomorixBase::print_user_samba_data($login);
-
+       # webmin, database independent
+       &Sophomorix::SophomorixBase::print_user_webmin_data($login);
 
        if($Conf::log_level>=2){
           # history, database independent

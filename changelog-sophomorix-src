@@ -405,9 +405,10 @@ RELEASES:
 
 
 1.2.1 (2005-03-?)
-   - when a user is deleted, move its line(s) from user-modify.log to 
-     user-modify-archive (speed up lookups in user-modify.log)
-   - add a kill-entry to the archive to know when a user was killed.
+   - when a user is killed, 
+       - move its line(s) from user-modify.log to user-modify-archive.log
+          (speed up lookups in user-modify.log)
+       - add a kill-entry to the archive to know when a user was killed.
    - history in archive is not sorted according date, it is sorted according users
      (is this fine?)
    - SophomorixBase.pm renamed: append_auto_teach_in_log --> append_teach_in_log

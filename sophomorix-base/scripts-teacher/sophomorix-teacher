@@ -260,7 +260,6 @@ if ($handout==1 and ($class ne "" or $subclass ne "" or $project ne "")){
         $rsync="copy";
     }
 
-
     if ($class ne ""){
            &handout($login, $class,"class",$rsync);
     }
