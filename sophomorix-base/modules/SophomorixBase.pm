@@ -1,21 +1,24 @@
 #!/usr/bin/perl -w
+# Dieses Modul (SophomorixBase.pm) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
 package Sophomorix::SophomorixBase;
 require Exporter;
 use Time::Local;
 use Time::localtime;
+
 
 @ISA = qw(Exporter);
 
 @EXPORT_OK = qw( check_datei_touch );
 @EXPORT = qw( linie 
               titel 
-              minititel 
               formatiere_liste
               get_alle_verzeichnis_rechte
               get_v_rechte
               setup_verzeichnis
-              ausgabe
-              schueler_ok_hash
               user_login_hash
               save_tausch_klasse
               neue_linux_gruppe_schueler
@@ -23,9 +26,6 @@ use Time::localtime;
               protokoll_linien
               extra_kurs_schueler
               lehrer_ordnen
-              user_login_ident
-              user_ident_login
-              lehrer_ident_login
               zeit_stempel
               do_falls_nicht_testen
               help_text_all
@@ -79,16 +79,14 @@ use Time::localtime;
               unterricht_austeilen
               ka_einsammeln
               unterricht_einsammeln
+              provide_class_files
               );
 
-# Dieses Modul (SophomorixBase.pm) wurde von Rüdiger Beck erstellt
-# Es ist freie Software
-# Bei Fehlern wenden Sie sich bitte an mich.
-# jeffbeck@web.de  oder  jeffbeck@gmx.de
 
-=head1 NAME
 
-=head1 DESCRIPTION
+
+=head1 Documentation of SophomorixBase.pm
+
 
 B<sophomorix> is a user administration tool for a school server. It
 lets you administrate a huge amount of users by exporting all pupils of
@@ -102,12 +100,14 @@ backend changes.
 
 A better way is to use only the functions of B<SophomorixBase>. So if
 the data organisation changes you only have to get a current version
-of B<SophomorixBase> and you're off.
+of B<SophomorixBase> and youre off.
 
 
-=head1 FUNCTIONS
+=head2 FUNCTIONS
 
-=head2 Formatting
+=head3 Formatting
+
+=over 4
 
 =cut
 
@@ -123,23 +123,27 @@ of B<SophomorixBase> and you're off.
 ################################################################################
 # FORMATIERUNGEN
 ################################################################################
+=pod
 
-=head3 Titel
+=item I<linie()>
 
-Test
+Creates a line.
 
 =cut
-
-# ===========================================================================
-# Titelleiste erzeugen
-# ===========================================================================
 sub linie {
    print "========================================",
          "========================================\n";
 }
-# ===========================================================================
-# Titelleiste erzeugen
-# ===========================================================================
+
+
+=pod
+
+=item I<titel(text)>
+
+Creates a framed titel with the text I<text>. The frame is thinner,
+when --verbose is not used.
+
+=cut
 sub titel {
    my ($a) = @_;
 
@@ -158,14 +162,17 @@ sub titel {
 # ===========================================================================
 # Mini-Titelleiste erzeugen
 # ===========================================================================
-sub minititel {
-   my ($a) = @_;
-    printf "%-3s %-73s %-3s\n", "#", "$a", "#";
- }
+#sub minititel {
+#   my ($a) = @_;
+#    printf "%-3s %-73s %-3s\n", "#", "$a", "#";
+# }
 
 # ===========================================================================
 # Beliebige Liste mit beliebigem Trennzeichen in einen String schreiben
 # ===========================================================================
+
+# ????????????????????
+
 sub formatiere_liste {
    my ($trenner,@liste) = @_;
    # print "Trenner $trenner  Liste: -@liste-\n\n";
@@ -195,6 +202,14 @@ sub formatiere_liste {
 ################################################################################
 # Zentrale Dateirechte
 ################################################################################
+=pod
+
+=item I<get_alle_verzeichnis_rechte()>
+
+Reads all directory permissions from repair.directories and displays
+puts them in a hash.
+
+=cut
 sub get_alle_verzeichnis_rechte {
    # Diese Datei liest repair-directories ein in einen Hash
    # Key: Verzeichnis, exakt so, wie es in repair.directories steht
@@ -230,12 +245,20 @@ sub get_alle_verzeichnis_rechte {
 
 
 
+=pod
 
+=item I<get_alle_v_rechte()>
+
+Liest die Rechte aus dem Hash von get_alle_verzeichnis_rechte aus
+Parameter ist das Verzeichnis, so wie es in repair.directories steht
+Wenn ein $-Zeichen im Parameter steht, muss das Escape-Zeichen verwendet werden
+
+Beispiel:  
+
+my ($owner,$gowner,$perm)=get_v_rechte("/home/lehrer/\$lehrer");
+
+=cut
 sub get_v_rechte {
-   # liest die Rechte aus dem Hash von get_alle_verzeichnis_rechte aus
-   # Parameter ist das Verzeichnis, so wie es in repair.directories steht
-   # Wenn ein $-Zeichen im Parameter steht, muss das Escape-Zeichen verwendet werden
-   # Beispiel:  my ($owner,$gowner,$perm)=get_v_rechte("/home/lehrer/\$lehrer");
    my ($key)=@_;
    if (not exists($alle_verzeichnis_rechte{$key})) {
       print "ABBRUCH: Dateirechte von $key konnten nicht ermittelt werden!\n\n";
@@ -255,7 +278,13 @@ sub get_v_rechte {
 
 
 
+=pod
 
+=item I<setup_verzeichnis(...)>
+
+Todo
+
+=cut
 sub setup_verzeichnis {
    my ($key,$pfad,$user,$gruppe)=@_;
    # key: woher in repair.directories soll ich Rechte und owner holen
@@ -346,31 +375,33 @@ sub setup_verzeichnis {
 # ausgabe vom loglevel abhängig machen
 # ===========================================================================
 
-sub ausgabe{
-    my ($level,$art,$ausgabe)=@_;
-      # 1. Argument numerisch: ab welchem loglevel erfolgt Augabe
-      # 2. Argument string   : string der ausgegeben wird
-      # 3. Art:       test   : Nur als Text
-      #              titel   : Als großer Titel
-      #          minititel   : Als kleiner Titel
-      #
-      # Zum debuggen
-      # print "Ab Level $level ausgeben\n";
-      # print "log_level:","$Conf::log_level\n";
-    if ($level<=$Conf::log_level){
-       if ($art eq "text")       {print "$ausgabe\n"}
-       if ($art eq "minititel")  {&minititel("$ausgabe")}
-       if ($art eq "titel")      {&titel("$ausgabe")}
-       if ($art eq "befehl")      {$ausgabe}
-  
-       # befehle
-    }
-}
+#sub ausgabe{
+#    my ($level,$art,$ausgabe)=@_;
+#      # 1. Argument numerisch: ab welchem loglevel erfolgt Augabe
+#      # 2. Argument string   : string der ausgegeben wird
+#      # 3. Art:       test   : Nur als Text
+#      #              titel   : Als großer Titel
+#      #          minititel   : Als kleiner Titel
+#      #
+#      # Zum debuggen
+#      # print "Ab Level $level ausgeben\n";
+#      # print "log_level:","$Conf::log_level\n";
+#    if ($level<=$Conf::log_level){
+#       if ($art eq "text")       {print "$ausgabe\n"}
+#       if ($art eq "minititel")  {&titel("$ausgabe")}
+#       if ($art eq "titel")      {&titel("$ausgabe")}
+#       if ($art eq "befehl")      {$ausgabe}
+#  
+#       # befehle
+#    }
+#}
 
 
 # ===========================================================================
 # Hash mit allen Schülern in schueler.ok/user.ok (identifier) und deren Klasse
 # ===========================================================================
+
+# ????????????? deprecated
 sub schueler_ok_hash {
   my $k;
   my $v;
@@ -404,6 +435,13 @@ sub schueler_ok_hash {
 # ===========================================================================
 # Hash mit ALLEN Loginnamen 
 # ===========================================================================
+=pod
+
+=item I<%hash = user_login_hash()>
+
+Returns a hash with all user loginnames.
+
+=cut
 sub  user_login_hash{
   while(($login_name_im_system)=getpwent) {    
      # Alle bisher vorhandnen Loginnamen in passwort-Hash
@@ -427,6 +465,13 @@ return %user_login_hash;
 # ===========================================================================
 # Daten aus Klassen-Tauschverzeichnis ins home des Schülers kopieren
 # ===========================================================================
+=pod
+
+=item I<%hash = save_tausch_klasse(login, klasse)>
+
+Daten aus Klassen-Tauschverzeichnis ins home des Schülers kopieren
+
+=cut
 
 sub save_tausch_klasse {
    my ($login, $klasse) = @_;
@@ -482,9 +527,14 @@ sub save_tausch_klasse {
 # ===========================================================================
 # Schülergruppe anlegen und Verzeichnisse erstellen
 # ===========================================================================
+=pod
 
-sub neue_linux_gruppe_schueler
-{
+=item I<%hash = neue_linux_gruppe_schueler(klasse)>
+
+Unterschied zu provide_class_files und add_class_to_sys ????
+
+=cut
+sub neue_linux_gruppe_schueler {
     # legt Klasse und Verzeichnisse an
     my ($gruppe) = @_;
     my $klassen_homes = "/home/schueler/${gruppe}";
@@ -498,9 +548,10 @@ sub neue_linux_gruppe_schueler
     #--------------------------------------------------
     # die Gruppe anlegen
     # LDAP
-    &do_falls_nicht_testen(
-         "groupadd $gruppe"
-    ); 
+    &add_class_to_sys($gruppe);
+#    &do_falls_nicht_testen(
+#         "groupadd $gruppe"
+#    ); 
 
     #--------------------------------------------------
     # Klassen-Verzeichnis für die homes erstellen
@@ -518,7 +569,57 @@ sub neue_linux_gruppe_schueler
     &do_falls_nicht_testen(
 #         "cp -af  $smb_musterklasse $smb_klasse"
     );
-};
+}
+
+
+
+
+=pod
+
+=item I<provide_class_files(class)>
+
+Creates all files and directories for a class (exchange directories).
+
+=cut
+
+
+sub provide_class_files {
+    my ($class) = @_;
+    my $klassen_homes="/home/schueler/$class";
+    my $klassen_tausch="/home/tausch/klassen/$class";
+    my $klassen_aufgaben="/home/aufgaben/$class";
+    &setup_verzeichnis("/home/schueler/\$klassen",
+                    "$klassen_homes");
+    &setup_verzeichnis("/home/tausch/klassen/\$klassen",
+                    "$klassen_tausch");
+    &setup_verzeichnis("/home/aufgaben/\$klassen",
+                    "$klassen_aufgaben");
+}
+
+
+#sub provide_class {
+#    my ($class) = @_;
+#    my $klassen_homes="/home/schueler/$class";
+#    my $klassen_tausch="/home/tausch/klassen/$class";
+#    my $klassen_aufgaben="/home/aufgaben/$class";
+#    &setup_verzeichnis("/home/schueler/\$klassen",
+#                    "$klassen_homes");
+#    &setup_verzeichnis("/home/tausch/klassen/\$klassen",
+#                    "$klassen_tausch");
+#    &setup_verzeichnis("/home/aufgaben/\$klassen",
+#                    "$klassen_aufgaben");
+#
+#    &add_class_to_sys($class);
+#    #&do_falls_nicht_testen(
+#    #   "groupadd $class",
+#    #);
+#}
+
+
+
+
+
+
 
 
 
@@ -548,6 +649,13 @@ sub neue_linux_gruppe_schueler
 # ===========================================================================
 # Links für neuen schueler anlegen
 # ===========================================================================
+=pod
+
+=item I<%hash = user_links(login, klasse, klasse-alt)>
+
+Legt links an für den Schüler.
+
+=cut
 sub user_links {
   my($login, $gruppe, $alt_gruppe) = @_;
   # $alt_gruppe beim Versetzen
@@ -596,7 +704,13 @@ sub user_links {
 # ===========================================================================
 # Protokoll-Datei lesen
 # ===========================================================================
+=pod
 
+=item I<%hash = protokoll_linien()>
+
+liest die Linien aus user.protokoll in einen Hash.
+
+=cut
 sub protokoll_linien {
    # Protokoll-Datei Zeilenweise in einen Hash einlesen
    my %protokoll_linien=();
@@ -616,6 +730,15 @@ sub protokoll_linien {
 # ===========================================================================
 # Datei extrakurse.schueler erzeugen aus extrakurse.txt 
 # ===========================================================================
+=pod
+
+=item I<extra_kurs_schueler(tag, monat, jahr)>
+
+Datei extrakurse.schueler erzeugen aus extrakurse.txt. tag, monat,
+jahr soll das aktuelle Datum sein. Es werden nur Schüler derjenigen
+Kurse erzeugt, deren Kusr-Ende-Datum noch nicht erreicht ist.
+
+=cut
 sub extra_kurs_schueler {
   my ($tag, $monat, $jahr) = @_;
   my $kursname;
@@ -763,6 +886,13 @@ close(EXTRAKURSESCHUELER);
 # ===========================================================================
 # lehrer.txt ordnen
 # ===========================================================================
+=pod
+
+=item I<lehrer_ordnen()>
+
+Liest lehrer.txt und schreibt sie tabuliert wieder.
+
+=cut
 sub lehrer_ordnen {
    my $typ="";
    my $nachname="";
@@ -954,6 +1084,8 @@ sub lehrer_ordnen {
 # Hash mit User-Loginname und Identifier erzeugen
 # ===========================================================================
 
+# deprected
+
 sub user_login_ident {
      my $klasse_protokoll="";
      my $name_protokoll="";
@@ -1019,6 +1151,8 @@ sub user_login_ident {
 # Hash mit Identifier und User-Loginname erzeugen
 # ===========================================================================
 
+# deprecated
+
 sub user_ident_login {
 # fuer ldap nicht mehr noetig
      my $klasse_protokoll="";
@@ -1083,7 +1217,7 @@ sub user_ident_login {
 # Hash mit Lehrer-Identifier und Loginname erzeugen
 # ===========================================================================
 
-# Nicht mehr NÖTIG
+# deprecated
 
 sub lehrer_ident_login {
      my $klasse_protokoll="";
@@ -1146,6 +1280,13 @@ sub lehrer_ident_login {
 # ===========================================================================
 # Zeitstempel erzeugen
 # ===========================================================================
+=pod
+
+=item I<zeit_stempel()>
+
+Gibt die Zeit zurück. Geht mit `` einfacher ToDo
+
+=cut
 sub zeit_stempel {
    # Startdatum in eine temporäre Datei schreiben
    system("date +%Y-%m-%d_%H-%M-%S > /tmp/starttime");
@@ -1170,9 +1311,15 @@ sub zeit_stempel {
 # ===========================================================================
 # System-Befehl ausführen
 # ===========================================================================
-# wenn $testen=0 ist, soll Systembefehl ausgeführt werden
-# ansonsten wird der Systembefehl nur als String ausgegeben werden 
+=pod
 
+=item I<do_falls_nicht_testen(systembefehl)>
+
+Wenn $testen=0 ist, soll systembefehl ausgeführt werden ansonsten wird
+systembefehl nur als String ausgegeben
+
+
+=cut
 sub do_falls_nicht_testen {
    my ($systembefehl) = "";
    my @liste = @_;
@@ -1193,7 +1340,13 @@ sub do_falls_nicht_testen {
 # ===========================================================================
 # Hilfe für ALLE Scripte
 # ===========================================================================
+=pod
 
+=item I<help_text_all()>
+
+will be deprecated when man pages are finished
+
+=cut
 sub help_text_all {
    my @list = split(/\//,$0);
    my $scriptname = pop @list;
@@ -1219,9 +1372,15 @@ sub help_text_all {
 # ===========================================================================
 # Abbruchmeldung bei Fehlerhafter Optionsangabe
 # ===========================================================================
+=pod
 
-# Diese Subroutine bekommt als Argment den Parsewert der Funktion GetOptions.
-# Ist dieser nicht 1, so wurde eine Fehlerhafte Option vergeben
+=item I<check_options()>
+
+Diese Subroutine bekommt als Argment den Parsewert der Funktion
+GetOptions.  Ist dieser nicht 1, so wurde eine Fehlerhafte Option
+vergeben
+
+=cut
 sub  check_options{
    my ($parse_ergebnis) = @_;
    if (not $parse_ergebnis==1){
@@ -1241,7 +1400,14 @@ sub  check_options{
 
 
 
-# Bricht mit Fehlermeldung ab, wenn die übergebene Datei nicht existiert
+=pod
+
+=item I<check_datei_exit(file)>
+
+Bricht mit Fehlermeldung ab, wenn die übergebene Datei nicht existiert
+
+
+=cut
 sub check_datei_exit {
   my ($datei) = @_;
   # Name der aufrufenden Datei ermitteln
@@ -1258,7 +1424,14 @@ sub check_datei_exit {
 }
 
 
-# Legt leere Datei an, wenn die übergebene Datei nicht existiert
+
+=pod
+
+=item I<check_datei_touch(file)>
+
+Legt leere Datei an, wenn die übergebene Datei nicht existiert
+
+=cut
 sub check_datei_touch {
   my ($datei) = @_;
   if (not (-e "$datei")) {
@@ -1267,7 +1440,15 @@ sub check_datei_touch {
   } 
 }
 
-# Kopiert leere Datei, wenn die übergebene Datei nicht existiert
+
+
+=pod
+
+=item I<check_config_template(file)>
+
+Kopiert template datei nach file, wenn file nicht existiert
+
+=cut
 sub check_config_template {
   my ($datei) = @_;
   my $etc_file=${DevelConf::config_pfad}."/".$datei;
@@ -1279,7 +1460,15 @@ sub check_config_template {
   } 
 }
 
-# Legt leere Datei an, wenn die übergebene Datei nicht existiert
+
+
+=pod
+
+=item I<check_verzeichnis_mkdir(dir)>
+
+Legt Verzeichnis an, wenn nicht existiert
+
+=cut
 sub check_verzeichnis_mkdir {
   my ($verzeichnis) = @_;
   if (not (-e "$verzeichnis")) {
@@ -1291,13 +1480,15 @@ sub check_verzeichnis_mkdir {
 }
 
 
-# Hash in eine Datei schreiben
-#sub hash_in_datei {
-#   my ($dateiname,$trenner) = @_;
-#}
 
 
-# Datum aus epochenzeit
+=pod
+
+=item I<zeit(epoche)>
+
+Erzeugt Datum aus epochenzeit
+
+=cut
 sub zeit {
   my ($epoche)=@_;
   my $time=localtime($epoche);
@@ -1313,11 +1504,13 @@ sub zeit {
 }
 
 
+=pod
 
+=item I<get_klasse_von_login(login)>
 
-# ===========================================================================
-# 
-# ===========================================================================
+liefert die primäre Gruppe des übergebenen loginnamens (Ändert sich)
+
+=cut
 sub get_klasse_von_login {
   my ($loginname) = @_;
   my $gid=0;
@@ -1332,30 +1525,22 @@ sub get_klasse_von_login {
 
 
 
+# Ende der Dokumentation
 
 
-
-################################################################################
+##############################################################################
 # Ab hier bisher in sophomorix-libfür klassenmanager
-################################################################################
+##############################################################################
 
-################################################################################
+##############################################################################
 # SCHÜLER
-################################################################################
+##############################################################################
 # ===========================================================================
 # Liste der Schüler einer Klasse ermitteln, alphabetisch
 # ===========================================================================
 # Diese Funktion hat als Argument einen Gruppennamen
 # Sie liefert alle Schüler dieser Klasse zurück
 # Wenn keine Schüler in dieser Gruppe sind wird eine leere Liste zurückgegeben
-
-=head1 Fetching all pupils in a class
-
-=item get_schueler_in_klasse
-
-This function returns an ascibetical list of the members in a class
-
-=cut
 
 sub get_schueler_in_klasse {
     my ($klasse)=@_;
@@ -2493,7 +2678,7 @@ sub get_standard_quota {
 
    # Für jeden User in quota.txt die Quota auf allen Filesystemen ausgeben
    if($Conf::log_level>=3){
-      &minititel("Extrahierte Werte aus quota.txt :");
+      &titel("Extrahierte Werte aus quota.txt :");
       for my $users ( keys %standard_quota_hash ) {
          printf "%-40s %8s MB\n","$users (Sollwert)","@{ $standard_quota_hash{$users} }";
        }
@@ -2549,7 +2734,7 @@ sub get_lehrer_quota {
 
    # Für Lehrer mit Sonderquota die Quota auf allen Filesystemen ausgeben
    if($Conf::log_level>=3){
-      &minititel("Extrahierte Werte aus lehrer.txt :");
+      &titel("Extrahierte Werte aus lehrer.txt :");
       for my $users ( keys %lehrer_quota_hash ) {
          printf "%-40s %8s MB\n","$users (Sollwert)","@{ $lehrer_quota_hash{$users} }";
        }
@@ -2599,7 +2784,7 @@ sub get_klassen_quota {
 
    # Für Klassen mit Sonderquota die Quota auf allen Filesystemen ausgeben
    if($Conf::log_level>=3){
-      &minititel("Extrahierte Werte aus schulinfo.txt :");
+      &titel("Extrahierte Werte aus schulinfo.txt :");
       for my $klassen ( keys %klassen_quota_hash ) {
          printf "%-40s %8s MB\n","$klassen (Sollwert)","@{ $klassen_quota_hash{$klassen} }";
        }

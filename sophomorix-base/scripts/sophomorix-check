@@ -10,18 +10,14 @@
 use strict;
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
-#use Schedule::at;
 use String::Approx 'amatch';
 use String::Approx 'adist';
 use Sophomorix::SophomorixBase;
-#use Sophomorix::SophomorixFiles;
 use Time::Local;
 use Time::localtime;
 use Term::ANSIColor qw(:constants); # farbiger Text RED, BLUE, ...
 # nach jedem Printbefehl wieder auf Standardfarbe zurücksetzen
 $Term::ANSIColor::AUTORESET = 1;
-
-
 
 # ===========================================================================
 # Loading the db-Module, list of functions
@@ -33,7 +29,6 @@ use if ${DevelConf::db_backend} eq 'files' ,
                                         update_user_db_entry
                                         user_reaktivieren
                                         user_deaktivieren
-                                        update_gecos
                                        );
 
 # list of functions to load if db is 'ldap'
@@ -41,6 +36,18 @@ use if ${DevelConf::db_backend} eq 'ldap' ,
     'Sophomorix::SophomorixLDAP' => qw(show_modulename);;
 
 
+# ===========================================================================
+# Loading the sys-db-Module, list of functions
+# ===========================================================================
+# list of functions to load if sys_db is 'files'
+use if ${DevelConf::sys_db} eq 'files' , 
+    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
+                                          );
+
+
+# show the Database Modules that are loaded
+&show_modulename();
+&show_sys_modulename();
 
 
 
@@ -118,8 +125,9 @@ Please see the sophomorix-check(8) man pages for full documentation
 }
 
 
-# show the Database Module that is loaded
+# show the Database Modules that are loaded
 &show_modulename();
+&show_sys_modulename();
 
 
 
@@ -401,7 +409,7 @@ $jahr=$jetzt->year+1900;
 $heute=`date +%d.%m.%Y`;
 chomp($heute);
 
-&titel("Date: $heute     Time: $hours Uhr $min Minuten $sec Sekunden");
+&titel("Date: $heute     Time: $hours Hours $min Minutes $sec Seconds");
 
 # ===========================================================================
 # TolerationDate und DeactivationDate ermitteln
@@ -888,8 +896,7 @@ if ($Conf::splan_sternchenlkassen_filtern eq "ja") {
    close(REPORTSPLAN);
 }
 
-
-&ausgabe(3, "titel", "Die Datei sophomorix.ok liegt nun vor");
+&titel("Die Datei sophomorix.ok liegt nun vor");
 
 #my $date= &get_action_date("beck;ruediger;04.09.1972","kill");
 

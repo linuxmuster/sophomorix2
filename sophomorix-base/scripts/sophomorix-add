@@ -4,27 +4,43 @@
 # Bei Fehlern wenden Sie sich bitte an mich.
 # jeffbeck@web.de  oder  jeffbeck@gmx.de
 
-
 # Bibliotheken
 use strict;
-
-#???nur vorübergehend
 use Quota;
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 use Sophomorix::SophomorixBase;
-use Sophomorix::SophomorixFiles;
-#use Net::LDAP;
-#use Schedule::at;
 
-# Einlesen der Konfigurationsdatei für Entwickler
-{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
-#{ package LDAPConf ; do "/etc/sophomorix/devel/user/sophomorix-ldap.conf"}
 
-# jeffbecks Bibliothek und
-# Einlesen der Konfigurationsdatei
-#require "${DevelConf::library_pfad}/sophomorix-lib-base";
-#require "${DevelConf::library_pfad}/sophomorix-lib-files";
+# ===========================================================================
+# Loading the db-Module, list of functions
+# ===========================================================================
+# list of functions to load if db is 'files'
+use if ${DevelConf::db_backend} eq 'files' , 
+    'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                        create_user_db_entry
+                                       );
+
+# list of functions to load if db is 'ldap'
+use if ${DevelConf::db_backend} eq 'ldap' ,
+    'Sophomorix::SophomorixLDAP' => qw(show_modulename);;
+
+
+
+# ===========================================================================
+# Loading the sys-db-Module, list of functions
+# ===========================================================================
+# list of functions to load if db is 'files'
+use if ${DevelConf::sys_db} eq 'files' , 
+    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
+                                          );
+
+
+
+# show the Database Modules that are loaded
+&show_modulename();
+&show_sys_modulename();
+
 
 # Nur als Dummy(Warnings verhindern)
 if($Conf::lehrer_zufall_passwort){};

@@ -8,17 +8,37 @@
 use strict;
 use Getopt::Long;
 use Sophomorix::SophomorixBase;
-use Sophomorix::SophomorixFiles;
+#use Sophomorix::SophomorixFiles;
 Getopt::Long::Configure ("bundling");
-#use Schedule::at;
 
-# Einlesen der Konfigurationsdatei für Entwickler
-{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+# ===========================================================================
+# Loading the db-Module, list of functions
+# ===========================================================================
+# list of functions to load if db is 'files'
+use if ${DevelConf::db_backend} eq 'files' , 
+    'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                        update_user_db_entry
+                                       );
 
-# jeffbecks Bibliothek und
-# Einlesen der Konfigurationsdatei
-#require "${DevelConf::library_pfad}/sophomorix-lib-base";
-#require "${DevelConf::library_pfad}/sophomorix-lib-files";
+# list of functions to load if db is 'ldap'
+use if ${DevelConf::db_backend} eq 'ldap' ,
+    'Sophomorix::SophomorixLDAP' => qw(show_modulename);;
+
+
+
+# ===========================================================================
+# Loading the sys-db-Module, list of functions
+# ===========================================================================
+# list of functions to load if db is 'files'
+use if ${DevelConf::sys_db} eq 'files' , 
+    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
+                                           add_class_to_sys
+                                          );
+
+# show the Database Modules that are loaded
+&show_modulename();
+&show_sys_modulename();
+
 
 # Nur als Dummy(Warnings verhindern)
 if(${DevelConf::library_pfad}){};
@@ -223,6 +243,10 @@ if($Conf::log_level>=3){
    }
 }
 
+
+
+
+
 # Datei mit den Schülern, die nicht versetzt wurden
 open(NOCHVERSETZEN,">${DevelConf::ergebnis_pfad}/sophomorix.move.neu") 
      || die "Fehler: $!";
@@ -233,8 +257,6 @@ while(<USERVERSETZEN>){
    chomp();
    $user_nummer++;
    ($login_versetzen, $alte_klasse, $neue_klasse)=split(/::/);
-   # alte Klasse ermitteln
-   #($alte_klasse)=split(/;/, $alte_zeile );
 
    # Home ermitteln
    if ($neue_klasse eq "lehrer") {
@@ -244,10 +266,9 @@ while(<USERVERSETZEN>){
       # in andere Klasse versetzten (auch dachboden/speicher)
       $neues_home="/home/schueler/${neue_klasse}/${login_versetzen}";
    } 
-#   # Neue Zeile ermitteln
-#   # nur erstes vorkommen (///g g weglassen) der alten Klasse mit der neuen ersetzen
-#   $neue_zeile=$alte_zeile;
-#   $neue_zeile=~s/$alte_klasse/$neue_klasse/;
+
+
+
 
    # Abbruch, wenn nicht der richtige loginname versetzt wird
    if ($loginname ne "") {
@@ -257,7 +278,6 @@ while(<USERVERSETZEN>){
         next;
      }
    }
-
    # Abbruch, wenn nicht aus der richtigen Alt-Klasse versetzt wird
    if ($alt_gruppe ne "") {
      if ($alte_klasse ne $alt_gruppe) {
@@ -266,7 +286,6 @@ while(<USERVERSETZEN>){
         next;
      }
    }
-
    # Abbruch, wenn nicht in die richtige Neu-Klasse versetzt wird
    if ($neu_gruppe ne "") {
      if ($neue_klasse ne $neu_gruppe) {
@@ -275,8 +294,6 @@ while(<USERVERSETZEN>){
         next;
      }
    }
-
-
    # Abbruch, wenn nicht INNERHALB der richtigen Klasse versetzt wird
    if ($klassenintern ne "") {
      
@@ -287,6 +304,8 @@ while(<USERVERSETZEN>){
         next;
      }
    }
+
+
 
    #####################################
    # Ermittelte Daten ausgeben
@@ -309,12 +328,18 @@ while(<USERVERSETZEN>){
       next; # Nächster User
    } 
 
+
    # die Daten aus dem Tausch-Verzeichnis dem Schüler in sein home moven
    &save_tausch_klasse($login_versetzen, $alte_klasse);
 
    # Sicherstellen dass neue Klasse (Linux-Gruppe) existiert
    if ($neue_klasse ne "lehrer") {
-      &neue_linux_gruppe_schueler($neue_klasse);
+
+     &provide_class_files($neue_klasse)
+     &add_class_to_sys($neue_klasse);
+
+     # veraltet
+     #&neue_linux_gruppe_schueler($neue_klasse);
    }
    # Benutzerdatenbank ändern
    # LDAP
@@ -366,6 +391,10 @@ while(<USERVERSETZEN>){
 
 close(USERVERSETZEN);
 close(NOCHVERSETZEN);
+
+
+
+
 
 
 # Verarbeitete Datei mit Zeitstempel versehen

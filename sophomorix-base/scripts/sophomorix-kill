@@ -14,11 +14,41 @@ use Sophomorix::SophomorixFiles;
 #use Schedule::at;
 
 # Einlesen der Konfigurationsdatei für Entwickler
-{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
 
 # jeffbecks Bibliothek und
 # Einlesen der Konfigurationsdatei
 #require "${DevelConf::library_pfad}/sophomorix-lib";
+
+
+
+# ===========================================================================
+# Loading the db-Module, list of functions
+# ===========================================================================
+# list of functions to load if db is 'files'
+use if ${DevelConf::db_backend} eq 'files' , 
+    'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                       );
+
+# list of functions to load if db is 'ldap'
+use if ${DevelConf::db_backend} eq 'ldap' ,
+    'Sophomorix::SophomorixLDAP' => qw(show_modulename);;
+
+
+
+# ===========================================================================
+# Loading the sys-db-Module, list of functions
+# ===========================================================================
+# list of functions to load if db is 'files'
+use if ${DevelConf::sys_db} eq 'files' , 
+    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
+                                           delete_user_from_sys
+                                          );
+
+
+
+
+
 
 # Nur als Dummy(Warnings verhindern)
 if($DevelConf::library_pfad){};
@@ -122,8 +152,9 @@ if ($loginname ne "") {
   print "Loginname $loginname angegeben.\n";
 }
 
-
-print ("\nsophomorix-kill startet ...\n");
+# show the Database Modules that are loaded
+&show_modulename();
+&show_sys_modulename();
 
 # ===========================================================================
 # Abbruch, wenn sophomorix.kill fehlt oder leer
@@ -210,7 +241,7 @@ while(<KILL>){
       #####################################
       # Jetzt wird gelöscht
       #####################################   
-      &delete_user_db_entry($login_name_to_kill);
+      &delete_user_from_sys($login_name_to_kill);
       
       #####################################
       # Zeile aus user.protokoll entfernen

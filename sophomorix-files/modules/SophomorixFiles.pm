@@ -8,78 +8,38 @@ package Sophomorix::SophomorixFiles;
 require Exporter;
 @ISA =qw(Exporter);
 @EXPORT = qw(show_modulename
-             update_gecos
-             move_user_from_to
 	     create_user_db_entry
-	     delete_user_db_entry
              user_deaktivieren
              user_reaktivieren
 	     update_user_db_entry
              create_project_db
-             provide_class
              get_sys_users
 );
 # deprecated:             move_user_db_entry
+#                         move_user_from_to
 
 
 
 
 use Sophomorix::SophomorixBase qw ( titel 
-                                    setup_verzeichnis 
-                                    do_falls_nicht_testen);
+                                    do_falls_nicht_testen
+                                    provide_class_files
+                                  );
+
+
+# ===========================================================================
+# Loading the sys-db-Module, list of functions
+# ===========================================================================
+# list of functions to load if sys_db is 'files'
+use if ${DevelConf::sys_db} eq 'files' , 
+    'Sophomorix::SophomorixSYSFiles' => qw(add_class_to_sys
+                                          );
+
+
 
 sub show_modulename {
-    &titel("DB-Backend-Module: SophomorixFiles.pm");
+    &titel("DB-Backend-Module:   SophomorixFiles.pm");
 }
-
-
-
-sub update_gecos {
-   # update the gocos-fiels in /etc/passwd
-   my ($login,$first,$last) = @_;
-   my $gecos="$first"." "."$last";
-   system("usermod -c '$gecos' $login");
-}
-
-
-
-sub move_user_from_to {
-    # Parameter 1: user_login
-    # Parameter 2: linux_group in which the user is
-    # Parameter 3: new linux_group 
-    my ($user, $old_linux_group, $new_linux_group) = @_;
-    &add_user_to_group($user, $new_linux_group);
-    &remove_user_from_group($user, $old_linux_group);
-}
-
-
-
-#sub real_2_linux_class {
-#    # converts a real groupname to a
-#    # linux groupname
-#    my ($real) = @_;
-#    my $linux = "k"."$real";
-#    return $linux;
-#}
-
-
-
-#sub linux_2_real_classw {
-#    # converts a linux groupname to a
-#    # real groupname
-#    my ($linux) = @_;
-#    my $first_letter=substr($linux,0,1);
-#    if ($first_letter ne "k"){
-#      print "\nError converting linux_group $linux to real_group\n"; 
-#      print "first letter must be a 'k'\n\n";
-#      exit;
-#    }
-#    my $real = substr($linux,1,200);
-#    #print "Erster buchstabe : $first_letter \n";
-#    #print "Realer Name: $real \n";
-#    return $real;
-#}
-
 
 
 sub create_user_db_entry {
@@ -99,40 +59,30 @@ sub create_user_db_entry {
     } else {
        $home = "/home/schueler/$class/$login";
     }
-    &provide_class($class);
+    #&provide_class($class);
+    &provide_class_files($class);
+    &add_class_to_sys($class);
+
     &do_falls_nicht_testen(
        "useradd -c '$gec' -d $home -m -g $class -p $pass -s $sh $login"
     );
 }
 
 
-sub delete_user_db_entry {
-    ($login)=@_;
-    &do_falls_nicht_testen(
-       # aus smbpasswd entfernen
-       "/usr/bin/smbpasswd  -x $login",
-       # Aus Benutzerdatenbank entfernen (-r: Home löschen)
-       "userdel  -r $login",
-    );
-}
+#sub delete_user_db_entry {
+#    ($login)=@_;
+#    &do_falls_nicht_testen(
+#       # aus smbpasswd entfernen
+#       "/usr/bin/smbpasswd  -x $login",
+#       # Aus Benutzerdatenbank entfernen (-r: Home löschen)
+#       "userdel  -r $login",
+#    );
+#}
 
 
 
-sub provide_class {
-    my ($class) = @_;
-    my $klassen_homes="/home/schueler/$class";
-    my $klassen_tausch="/home/tausch/klassen/$class";
-    my $klassen_aufgaben="/home/aufgaben/$class";
-    &setup_verzeichnis("/home/schueler/\$klassen",
-                    "$klassen_homes");
-    &setup_verzeichnis("/home/tausch/klassen/\$klassen",
-                    "$klassen_tausch");
-    &setup_verzeichnis("/home/aufgaben/\$klassen",
-                    "$klassen_aufgaben");
-    &do_falls_nicht_testen(
-       "groupadd $class",
-    );
-}
+
+
 
 
 
