@@ -89,7 +89,6 @@ my $info=0;
 my $loginname="";
 my $gruppe="";
 
-
 # Parsen der Optionen
 my $testopt=GetOptions(
            "test|t" => \$DevelConf::testen,
@@ -468,7 +467,8 @@ if($Conf::use_quota eq "yes"){
   &provide_user_files($login_name_ok,$new_admin_group);
 
   # 4. Setting quota 
-  &setze_quota($login_name_ok, 
+  &setze_quota($DevelConf::system,
+               $login_name_ok, 
                \@quota_fs_liste, 
                \@{ $login_quota{$login_name_ok} });
 }
