@@ -1,0 +1,134 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH SOPHOMORIX-PROJECT 8 "November 16, 2004"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+sophomorix-project \- Projekte anlegen und verwalten
+.SH SYNOPSIS
+.B sophomorix-project
+.RI [ options ]
+.br
+.SH DESCRIPTION
+.B Ein von 
+.B sophomorix-project
+verwaltetes Projekt hat folgende Eigenschaften:
+.br
+     Name:          Der Name des Projekts, 
+.br
+                       z.B.:  astro 
+.br
+     LongName:      Der ausführliche Name des Projekts,  
+.br
+                       z.B.:  Astronomie-AG-2004
+.br
+     Teachers:      User mit Verwaltungsaufgaben im Projekt
+.br
+                       z.B.:  bz,kj,roes
+.br
+     Members:       User, die dem Projekt angehören
+.br
+                       z.B.:  muellepe,maierjo
+.br
+     MemberGroups:  Gruppen, deren Mitglieder dem Projekt angehören.
+.br
+                       z.B.:  12c,7a
+.br
+     AddQuota:      Zuätzliches Quota in MB, das Mitglieder des Projekts
+                    bekommen.
+.br
+                       z.B.:  40
+.br
+     MaxMembers:    Maximale Anzahl von Mitgliedern, die ein User mit
+                    Verwaltungsaufgaben (siehe Teachers) einem Projekt 
+                    hinzufügen kann. 
+                    Diese Grenze gilt nur, wenn AddQuota gesetzt ist.
+.br
+                       z.B.:  16
+.PP
+.SH OPTIONS
+.B sophomorix-project
+benützt die GNU command line syntax, mit langen Optionen, die mit zwei Bindestrichen (`-') beginnen:
+.TP
+.B \-h, \-\-help
+Kurzübersicht über Optionen, sowie eine Liste der eingelesenen Dateien.
+.TP
+.B \-v, \-\-verbose
+Sagt, was das Programm gerade macht (verbose)
+.TP
+.B \-vv, \-\-verbose \-\-verbose
+Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
+.TP
+.B \-p, \-\-project projektname 
+Bearbeitet das Projekt projektname bzw. legt es an, falls es nicht
+existiert.
+.TP
+.B \-\-LongName Projektname
+Aktualiesiert, bzw. legt das Projekt mit dem LongName Projektname
+an. Wird bei einem neuen Projekt kein LongName angegeben, so wird Name
+als LongName eingetragen.
+.TP
+.B \-\-Teachers user1,user2,user3, ... 
+Trägt die übergebenen User als Verwalter in das Projekt ein. Bisher
+vorhandene User werden wieder entfernt. Werden bei einem neuen Projekt
+keine Teachers angegeben, so wird root eingetragen.
+.TP
+.B \-\-Members user1,user2,user3, ... 
+Trägt die übergebenen User als Mitglieder in das Projekt ein. Bisher
+vorhandene User werden wieder entfernt. Werden bei einem neuen Projekt
+keine Members angegeben, so wird nichts eingetragen.
+.TP
+.B \-\-MemberGroups group1,group2,group3, ... 
+Trägt die Mitglieder der übergebenen Gruppen als Mitglieder in das
+Projekt ein. Bisher vorhandene Gruppen werden wieder entfernt. Werden
+bei einem neuen Projekt keine MemberGroups angegeben, so wird nichts
+eingetragen.
+.TP
+.B \-\-AddQuota quotastring
+Trägt den übergebenen quotastring als Zusatzquota in das Projekt
+ein. Der bisher vorhandene quotastring wird wieder entfernt. Wird bei einem
+neuen Projekt kein AddQuota angegeben, so wird nichts eingetragen.
+.br
+Wie der quotastring aussehen kann siehe:  
+.B man sophomorix-quota
+.TP
+.B \-\-MaxMembers anzahl
+Trägt anzahl als MaxMembers in das Projekt ein. Die bisher vorhandene
+anzahl wird wieder entfernt. Wird bei einem neuen Projekt keine
+MaxMembers angegeben, so wird nichts eingetragen.
+.br
+Die MaxMembers dienen zur Begrenzung der vergebenen AddQuota, und ist
+nur wirksam, wenn ein AddQuota angegeben ist. Projekte, die mit denen
+kein AddQuota gekoppelt ist sind in ihrer Mitgliederanzahl praktisch
+unbeschränkt (nur durch eine im Betriebsystem vohandene maximale
+Gruppenmitgliedschaft)
+.TP
+.SH SEE ALSO
+.BR sophomorix (8),
+.BR sophomorix-teach-in (8),
+.BR sophomorix-add (8),
+.BR sophomorix-move (8),
+.BR sophomorix-print (8),
+.BR sophomorix-kill (8),
+.BR sophomorix-split (8),
+.BR sophomorix-project (8),
+
+.\".BR baz (1).
+.\".br
+.\"You can see the full options of the Programs by calling for example 
+.\".IR "sophomrix-check -h" ,
+.
+.SH AUTHOR
+This manual page was written by <jeffbeck@web.de>.
