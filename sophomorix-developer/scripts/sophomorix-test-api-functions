@@ -1,0 +1,130 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-test-api-functions) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+# Bibliotheken
+
+use strict;
+use Getopt::Long;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
+use Sophomorix::SophomorixFiles;
+use Sophomorix::SophomorixTest;
+use Test::More "no_plan";
+Getopt::Long::Configure ("bundling");
+
+# Einlesen der Konfigurationsdatei für Entwickler
+{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+
+
+system("install -d /root/sophomorix-test");
+
+
+
+############################################################
+# Start
+############################################################
+my $today=`date +%d.%m.%Y`;
+print "\nToday is $today";
+chomp($today);
+my $verbose=0;
+my @users=();
+my @list_1=();
+my @list_2=();
+my @list_3=();
+my $class="";
+
+if (-e "/root/sophomorix-test/bunchofusers"){
+    print '
+###########################################################################
+#                                                                         #
+#                    TESTING SOME FUNCTIONS OF THE API                    #
+#                                                                         #
+###########################################################################
+';
+} else {
+    print '
+Cannot start the tests! 
+
+Please first add some users with:
+   sophomorix-test-bunchofusers --add
+
+';
+}
+
+
+
+print '
+###########################################################################
+#                                                                         #
+#                      TEST:  get_user_in_adminclass                      #
+#                                                                         #
+###########################################################################
+';
+
+# 11a
+$class="11a";
+@list_1=("blackmri","bonhamjo","gillania","gloverro","jonesjo",
+            "lordjo","pageji","paiceia","plantro");
+&check_userlist($class,@list_1);
+
+# 12c
+$class="12c";
+@list_1=("altigru","bartalgi","coppifa","devlamro","hinaulbe",
+            "kueblefe","merckxed","raasja","thuraudi");
+&check_userlist($class,@list_1);
+
+# lehrer
+$class="lehrer";
+@list_1=("bruno","galli","hannes","niko","tycho");
+&check_userlist($class,@list_1);
+
+# leere Klasse
+$class="";
+@list_1=("");
+&check_userlist($class,@list_1);
+
+# nicht existierende Klasse
+$class="gdhtzrht";
+@list_1=("");
+&check_userlist($class,@list_1);
+
+
+
+
+
+
+
+
+
+
+
+
+
+sub check_userlist {
+    my $class=shift;
+    my @list = @_;
+    print "\n### Class $class\n";
+    if ($#list==0){
+       # Leere liste vorgegeben
+       print "Leere Liste, Klasse ohne user erwartet!\n";
+       &is($users[0],undef,"Leere Liste");
+   } else {
+      my @users=&get_user_in_adminclass("$class");
+      print "Users of $class are: \n@users \n";
+      print "Expected users are: \n@list \n";
+      foreach my $user (@users){
+         &is($user,$list[0],"Checking user $user of $class");
+         shift(@list);
+      }
+   }
+}
+
+
+
+
+# weiter: 
+# get_user_in_adminclass (tut für lehrer auch)
+#Beispieltest für get_schueler_in_klasse
