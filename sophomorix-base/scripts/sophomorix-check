@@ -854,7 +854,9 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
             # In sophomorix.ok sind nun die korrigierten Datensätze 
             # aus schueler.txt, ....   
             # Korrekter Datensatz in Hashtabelle %schueler_ok_hash speichern
-            if ( &add_user_to_queue($datensatz_ok,$wunsch_login,$wunsch_passwort) ==0 ){
+            if ( &add_user_to_queue($datensatz_ok,
+                                    $wunsch_login,
+                                    $wunsch_passwort) ==0 ){
                 next;
             }
 
@@ -1893,7 +1895,6 @@ sub is_in_remove_class {
 
 
 sub add_user_to_queue {
-#    my $unid="";
     my ($user, $wunsch_login, $wunsch_passwort) = @_;
     # Zeile zerlegen
     my ($admin_class,$okfeld2,$okfeld3,$okfeld4,$unid)=split(/;/, $user);
@@ -1916,7 +1917,6 @@ if (not exists $schueler_ok_hash{$identifier}){
 }
 
     # Unid in hash-table einordnen, falls moeglich
-#    if (not exists $schueler_ok_hash{$identifier} and $unid ne ""){
     if ($unid ne ""){
        # Eintrag in die Hash-Tabelle, falls identifier noch nicht vorhanden
        $unid_ok_file{$unid}="$identifier";
@@ -2123,6 +2123,13 @@ sub auto_teach_in {
                             "Name=$first",
                             "LastName=$last",
                             "Birthday=$birth");
+      # log
+      &append_auto_teach_in_log("auto-teach-in",
+                                $login,
+                                $identifier_sys,
+                                $identifier_file,
+                               );
+
       # update the system
       &update_gecos($login,$first,$last);
    }
@@ -2130,7 +2137,18 @@ sub auto_teach_in {
 }
 
 
+sub append_auto_teach_in_log {
+   # appends a line to auto-teach-in.log
+   my ($type,$login,$old,$new, $unid)=@_;
+   if (not defined $unid){$unid=""} 
+  open(ATLOG, 
+       ">>${DevelConf::log_files}/user-modify.log") 
+        || die "Fehler: $!";
+    print ATLOG  $type."::".$heute."::".$login."::".
+                 $old."::->::".$new."::".$unid."\n";
+    close(ATLOG);
 
+}
 
 
 
@@ -2156,24 +2174,42 @@ sub update_ids {
          # UNID exists in system, trying to update identifier
          # are they the same Person?
          if ($identifier_file eq $identifier_sys) {
-             # identical, do nothing
+             # identifiers are identical, do nothing
              if($Conf::log_level>=3){
                 print "Identical identifiers, I'm doing nothing\n";
 	    }
              next;
-         } elsif (amatch("$identifier_sys", ["i 50%"], $identifier_file) ) {
-             # similar
+         } else {
+             if (amatch("$identifier_sys", ["i 35%"], $identifier_file) ) {
+                # OK
+             } else {
+                # very different, show warning
+                print "  Warning: Unid $unid_file:\n";
+                print "  $identifier_sys / $identifier_file\n";
+                print "  Looks like different persons to me!\n";
+                print "  I'm updating because of identical UNID!\n";
+	     }
+
+
+             # identifiers are similar
              $login=$schueler_im_system_loginname{$identifier_sys};
              if($Conf::log_level>=3){
                 print "Looks like the same person --> ";
 	     }
-             print "$login (Unid: $unid_file) ",
+             print "  $login (Unid $unid_file) ",
                    "$identifier_sys -> $identifier_file\n";
              # push the new identifier to the system
              ($last,$first,$birthday)=split(/;/, $identifier_file);
              &update_user_db_entry($login, "LastName=$last",
                                            "Name=$first",
                                            "Birthday=$birthday");
+             # log
+             &append_auto_teach_in_log("update_ids",
+                                       $login,
+                                       $identifier_sys,
+                                       $identifier_file,
+                                       $unid_file);
+
              # update the system
              &update_gecos($login,$first,$last);
 
@@ -2183,24 +2219,32 @@ sub update_ids {
                                 $unid_file,
                                );
              $count++;
-         } else {
-             # too different, promt the user, secretary, ... ???
-             print "Looks like different persons to me!";
          }
-
      } else {
-         # UNID doesn't exist
-         print "UNID  $unid_file  doesn't exist in the System\n";
-         # ermittle den identifier zu diese unid
-         print "UNID    has identifier  $identifier_file  \n";
+         if($Conf::log_level>=3){
+           # UNID doesn't exist
+           print "   UNID  $unid_file  doesn't exist in the System\n";
+           # ermittle den identifier zu diese unid
+           print "   UNID  $unid_file  has identifier ",
+                 " $identifier_file (file)\n";
+         }
          if (exists $schueler_im_system_hash{$identifier_file} ) {
-            print "Identifier  $identifier_file  exists in the system\n";
-             # login des identifier holen
+            if($Conf::log_level>=3){
+               print "   Identifier  $identifier_file  exists in the system\n";
+	    }
+            # login des identifier holen
 	    my $login=$schueler_im_system_loginname{$identifier_file};
-	    print "Updating $login\n";
+            my $id_sys=$identifier_file;
+	    print "  Uploading Unid $unid_file to user $login \n";
 	    &update_user_db_entry($login, "Unid=$unid_file");
-             # unid updaten
-#            &upload_unid($identifier_file,$unid_file);
+            &append_auto_teach_in_log("new-unid",
+                                      $login,
+                                      $id_sys,
+                                      $identifier_file,
+                                      $unid_file);
+            # updating the unid, identifier-hash
+           $unid_ok_system{$unid_file} = "$id_sys";
+
 	}
      }
    }
@@ -2269,14 +2313,14 @@ sub update_all_hashes {
        $schueler_im_system_account_type{$identifier_file} = "$old_at";
     }
 
-
     # only if unid has to be updated
     if (defined $unid_file) {
-       # unid -identifier
        if (exists $unid_ok_system{$unid_file} ) {
           delete $unid_ok_system{$unid_file};
           $unid_ok_system{$unid_file} = "$identifier_file";
-       }
+      } elsif (not exists $unid_ok_system{$unid_file} ) {
+          $unid_ok_system{$unid_file} = "$identifier_file";
+      }
     }
 
 

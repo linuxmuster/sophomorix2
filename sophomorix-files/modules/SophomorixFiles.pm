@@ -8,6 +8,7 @@ package Sophomorix::SophomorixFiles;
 require Exporter;
 @ISA =qw(Exporter);
 @EXPORT = qw(show_modulename
+             update_gecos
              move_user_from_to
 	     create_user_db_entry
 	     delete_user_db_entry
@@ -30,6 +31,17 @@ use Sophomorix::SophomorixBase qw ( titel
 sub show_modulename {
     &titel("DB-Backend-Module: SophomorixFiles.pm");
 }
+
+
+
+sub update_gecos {
+   # update the gocos-fiels in /etc/passwd
+   my ($login,$first,$last) = @_;
+   my $gecos="$first"." "."$last";
+   system("usermod -c '$gecos' $login");
+}
+
+
 
 sub move_user_from_to {
     # Parameter 1: user_login
@@ -489,8 +501,8 @@ sub update_user_db_entry {
           $first_pass.";".$birthday.";".$unid.";".$subclass.";".
           $status.";".$toleration_date.";".$deactivation_date.";".
           $exit_admin_class.";".$account_type.";"."\n";
-          print " OLD: $old_line";
-          print " NEW: $new_line";
+#          print " OLD: $old_line";
+#          print " NEW: $new_line";
           print TMP "$new_line";         
         } else {
             print TMP "$old_line";

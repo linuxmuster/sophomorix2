@@ -239,13 +239,39 @@ open(PROTOKOLL,"<$DevelConf::protokoll_datei");
               printf "   Pwd must change  : %-47s %-11s\n",$value,$login;    
             }
 	  }
-#          system "pdbedit -v -u $login";
-          print "\n";
-      ($class,$gec_user,$login,$first_pass,$birth,$unid,$subclass,$status,$tol,$deact,$ex_admin,$acc_type)=("","","","","","","","","","","","");
+          # history
+          print "History of $login:\n";
+          &get_history($login);
 
+          ($class,$gec_user,$login,$first_pass,$birth,$unid,
+           $subclass,$status,$tol,$deact,$ex_admin,$acc_type)=(
+           "","","","","","","","","","","","");
        }
    }
 close(PROTOKOLL);
+
+
+sub get_history {
+   my ($login) = @_;
+   my @line=();
+
+   open(HISTORY, 
+       "<${DevelConf::log_files}/user-modify.log") 
+        || die "Fehler: $!";
+
+   while (<HISTORY>){
+      chomp();
+      @line=split(/::/);
+      if (not defined $line[6]){$line[6]=""}
+      if ($line[2] eq $login){
+         $info=$line[0]."(".$line[1]."): ";
+         printf "   %-27s %-55s \n",$info,$line[3];
+         printf "      Unid: %-18s %-55s \n",$line[6],$line[5];
+          
+      }
+   }
+   close(HISTORY);
+}
 
 
 # ToDo
