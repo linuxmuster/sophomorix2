@@ -352,8 +352,12 @@ my $value="";
 # ===========================================================================
 &check_datei_exit("${DevelConf::users_pfad}/schueler.txt");
 #&check_datei_exit("${DevelConf::users_pfad}/lehrer.txt");
-&check_datei_exit("${DevelConf::config_pfad}/entfernen.txt");
-&check_datei_exit("${DevelConf::config_pfad}/sperrklassen.txt");
+#&check_datei_exit("${DevelConf::config_pfad}/entfernen.txt");
+#&check_datei_exit("${DevelConf::config_pfad}/sperrklassen.txt");
+&check_config_template("entfernen.txt");
+&check_config_template("sperrklassen.txt");
+&check_config_template("extrakurse.txt");
+&check_config_template("extraschueler.txt");
 
 # ===========================================================================
 # Verzeichnisse und Dateien anlegen
