@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-CHECK 8 "November 16, 2004"
+.TH SOPHOMORIX-KILL 8 "November 27, 2004"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -16,33 +16,39 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for manpage-specific macros, see man(7)
 .SH NAME
-sophomorix-check \- Prüfen von Schulverwaltungsprogramm-Dateien auf anzulegende, versetztende, ... User
+sophomorix-kill \- Entfernt Benutzer und ihre Daten vom Schulserver
 .SH SYNOPSIS
-.B sophomorix-check
-.RI [ options ]
+.B sophomorix-kill
+.RI [ options ] loginname
 .br
 .SH DESCRIPTION
-.B sophomorix-check  
-liest mehrere Konfigurationsdateien ein und und informiert sich über
-die schon angelegten Benutzer, um dann zu entscheiden, welche Benutzer
-angelegt, versetzt, toleriert, deaktiviert oder sonstwas werden
-müssen.
-.br
-Korrigierte Benutzerdaten werden automagisch im aktualisiert.
+.B sophomorix-kill
+entfernt Benutzer aus der sophomorix Benutzerdatenbank, entfernt die
+Benutzer aus dem Authentifizierungssystem und entfernt alle ihre Daten
+(im Moment Homeverzeichnis, später auch Mail, Tauschverzeichnisdaten...)
 .PP
 .SH OPTIONS
-.B sophomorix-check
-benützt die GNU command line syntax, mit langen Optionen, die mit zwei
-Bindestrichen (`-') beginnen:
+.B sophomorix-kill
+benützt die GNU command line syntax, mit langen Optionen, die mit zwei Bindestrichen (`-') beginnen:
 .TP
-.B \-h, \-\-help
-Kurzübersicht über Optionen, sowie eine Liste der eingelesenen Dateien.
+.B -h, --help
+Kurzübersicht über Optionen
 .TP
-.B \-v, \-\-verbose
+.B -i, --info
+Listet die Benutzer auf, die entfernt werden können.
+.TP
+.B -v, --verbose
 Sagt, was das Programm gerade macht (verbose)
 .TP
-.B \-vv, \-\-verbose \-\-verbose
+.B -vv, --verbose --verbose
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
+.TP
+.B -t, --test
+Tut nur so, als ob die Benutzer entfernt werden würden und zeigt die
+Befehle, die sophomorix-kill ausführen würde.
+.TP
+.B -l loginname,
+Entfernt nur den Benutzer mit dem loginnamen loginname.
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
@@ -56,8 +62,8 @@ Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 
 .\".BR baz (1).
 .\".br
-.\"You can see the full options of the Programs by calling for example 
-.\".IR "sophomrix-check -h" ,
+.\"You can see the full options of the Program by calling for example 
+.\".IR "sophomrix-kill -h" ,
 .
 .SH AUTHOR
 This manual page was written by <jeffbeck@web.de>.
