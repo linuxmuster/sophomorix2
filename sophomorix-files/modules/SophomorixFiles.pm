@@ -11,6 +11,8 @@ require Exporter;
              move_user_from_to
 	     create_user_db_entry
 	     delete_user_db_entry
+             user_deaktivieren
+             user_reaktivieren
 	     update_user_db_entry
              create_project_db
              provide_class
@@ -474,6 +476,71 @@ sub update_user_db_entry {
 
 
 
+
+
+
+
+# ===========================================================================
+# User DE-aktivieren
+# ===========================================================================
+sub user_deaktivieren {
+   my ($loginname) = @_;
+#   my $klasse=&get_klasse_von_login($loginname);
+#   my $www_home="$DevelConf::apache_root/userdata/$klasse/$loginname";
+   # samba
+   my $samba_string="smbpasswd -d $loginname >/dev/null";
+   system("$samba_string");
+   # linux
+   my $linux_string="usermod -L $loginname >/dev/null";
+   system("$linux_string");
+   if($Conf::log_level>=2){
+      print "User $loginname wird deaktiviert:\n";
+      print "  Samba:  $samba_string\n";
+      print "  Linux:  $linux_string\n";
+    }
+   # ToDo
+   # mailabruf
+   # ToDo
+   # public:html : sperren
+#   system  "chmod 0001 $www_home";  # gesperrt
+   # Ende des Eintrags
+   if($Conf::log_level>=2){
+      print "\n";
+    }
+}
+
+
+
+
+
+# ===========================================================================
+# User RE-aktivieren
+# ===========================================================================
+sub user_reaktivieren {
+   my ($loginname) = @_;
+   # samba
+   my $samba_string="smbpasswd -e $loginname >/dev/null";
+   system("$samba_string");
+   # linux
+   my $linux_string="usermod -U $loginname >/dev/null";
+   system("$linux_string");
+   if($Conf::log_level>=2){
+      print "User $loginname wird reaktiviert:\n";
+      print "  Samba:  $samba_string\n";
+      print "  Linux:  $linux_string\n";
+   }
+   system("smbpasswd -e $loginname >/dev/null");
+   # linux-login
+   # ToDo
+   # mailabruf
+   # ToDo
+   # public:html:
+      # NICHT entsperren
+   # Ende des Eintrags
+   if($Conf::log_level>=2){
+      print "\n";
+   }
+}
 
 
 
