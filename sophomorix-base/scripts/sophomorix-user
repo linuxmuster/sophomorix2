@@ -1,0 +1,187 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-user) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+# ===========================================================================
+# Bibliotheken
+# ===========================================================================
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+#use Schedule::at;
+use String::Approx 'amatch';
+use Sophomorix::SophomorixBase;
+#use Sophomorix::SophomorixFiles;
+use Time::Local;
+use Time::localtime;
+use Term::ANSIColor qw(:constants); # farbiger Text RED, BLUE, ...
+# nach jedem Printbefehl wieder auf Standardfarbe zurücksetzen
+$Term::ANSIColor::AUTORESET = 1;
+
+# loading the Module for the Database-Backend 
+if (${DevelConf::db_backend} eq 'files'){
+    #print "Using ${DevelConf::db_backend} \n";
+    require Sophomorix::SophomorixFiles;
+    import Sophomorix::SophomorixFiles;
+#    use Sophomorix::SophomorixFiles;   # tut nicht
+} elsif (${DevelConf::db_backend} eq 'ldap'){
+    #print "Using $DevelConf::db_backend \n";
+    require Sophomorix::SophomorixLDAP;
+    import Sophomorix::SophomorixLDAP;
+#    use Sophomorix::SophomorixLDAP;   # tut nicht
+} elsif (${DevelConf::db_backend} eq 'postgresql'){
+    #print "Using $DevelConf::db_backend \n";
+    require Sophomorix::SophomorixPostgreSQL;
+    import Sophomorix::SophomorixLPostgreSQL;
+#    use Sophomorix::SophomorixPostgreSQL;   # tut nicht
+}
+
+
+
+my $today=`date +%d.%m.%Y`;
+chomp($today);
+
+
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+$Conf::log_level=1;
+my $help=0;
+my $freeze="";
+my $permanent="";
+my $removeable="";
+my $activate="";
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+       "verbose|v+" => \$Conf::log_level,
+           "help|h" => \$help,
+       "F|freeze=s" => \$freeze,
+       "P|permanent=s" => \$permanent,
+       "R|removeable=s" => \$removeable,
+       "A|activate=s" => \$activate,
+          );
+
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
+
+
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlbeschreibung
+   print('
+sophomorix-user edits the sophomorix user database.
+
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -F loginname   /   --freeze loginname
+  -P loginname   /   --permanent loginname
+  -R loginname   /   --removeable loginname
+  -A loginname   /   --activate loginname
+
+Please see the sophomorix-user(8) man pages for full documentation
+');
+   print "\n";
+
+   exit;
+}
+
+
+
+
+
+# show the Database Module that is loaded
+&show_modulename();
+
+
+
+# --freeze
+if ($freeze ne""){
+    print "Freezing the account of $freeze:\n";
+    # check if it is really an account
+    if (getpwnam("$freeze")){
+	print "   - $freeze is a valid username.\n";
+    } else {
+	print "   - $freeze is not a valid username.\n";
+        exit;
+    }
+    # doing the freeze
+    &update_user_db_entry($freeze, 
+                          "Status=F",
+                          "TolerationDate=",
+                          "DeactivationDate=");
+    &user_deaktivieren($freeze);
+}
+
+
+
+# --permanent
+if ($permanent ne""){
+    print "Making the account of $permanent permanent:\n";
+    # check if it is really an account
+    if (getpwnam("$permanent")){
+	print "   - $permanent is a valid username.\n";
+    } else {
+	print "   - $permanent is not a valid username.\n";
+        exit;
+    }
+    # making the account permanent
+    &update_user_db_entry($permanent, 
+                          "Status=P",
+                          "TolerationDate=",
+                          "DeactivationDate=");
+    &user_reaktivieren($permanent);
+}
+
+
+
+
+# --removeable
+if ($removeable ne""){
+    print "Making the account of $removeable removeable by sophomorix-kill:\n";
+    # check if it is really an account
+    if (getpwnam("$removeable")){
+	print "   - $removeable is a valid username.\n";
+    } else {
+	print "   - $removeable is not a valid username.\n";
+        exit;
+    }
+    # doing the removeable
+    &update_user_db_entry($removeable, 
+                          "Status=R",
+                          "TolerationDate=01.01.1970",
+                          "DeactivationDate=01.01.1970");
+    &user_deaktivieren($removeable);
+}
+
+
+
+
+# --activate
+if ($activate ne""){
+    print "Actvating the account of $activate:\n";
+    # check if it is really an account
+    if (getpwnam("$activate")){
+	print "   - $activate is a valid username.\n";
+    } else {
+	print "   - $activate is not a valid username.\n";
+        exit;
+    }
+    # activating the account
+    &update_user_db_entry($activate, 
+                          "Status=A",
+                          "TolerationDate=$today",
+                          "DeactivationDate=");
+    &user_reaktivieren($activate);
+}
+
+
