@@ -84,7 +84,7 @@ binary-arch: build install
 #	dh_installinit
 #	dh_installcron
 # Install manpages for sophomorix-base
-	dh_installman debian/sophomorix.1
+	dh_installman -psophomorix2 sophomorix2/man/de/sophomorix.de.8
 	dh_installman -psophomorix-base sophomorix-base/man/en/sophomorix-check.8
 	dh_installman -psophomorix-base sophomorix-base/man/de/sophomorix-check.de.8
 	dh_installman -psophomorix-base sophomorix-base/man/de/sophomorix-add.de.8
@@ -105,7 +105,7 @@ binary-arch: build install
 #	dh_installinfo
 #	dh_undocumented
 	dh_install --sourcedir=debian/sophomorix
-#	dh_link
+	dh_link
 #	dh_strip
 	dh_compress
 	dh_fixperms
