@@ -16,7 +16,7 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for manpage-specific macros, see man(7)
 .SH NAME
-sophomorix-user
+sophomorix-user \- Modifying the user database of a school-server
 .SH SYNOPSIS
 .B sophomorix-user
 .RI [ options ] loginname
@@ -29,33 +29,33 @@ sophomorix-user
 .B sophomorix-user
 benützt die GNU command line syntax, mit langen Optionen, die mit zwei Bindestrichen (`-') beginnen:
 .TP
-.B \-h, \-\-help
+.B -h, --help
 Kurzübersicht über Optionen
 .TP
-.B \-v, \-\-verbose
+.B -v, --verbose
 Sagt, was das Programm gerade macht (verbose)
 .TP
-.B \-vv, \-\-verbose \-\-verbose
+.B -vv, --verbose --verbose
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
-.B \-F loginname, \-\-freeze loginame
+.B -F loginname, --freeze loginame
 Friert den Account unbenutzbar ein. Der Account kann nicht mehr von
 sophomorix-kill entfernt werden.
 .TP
-.B \-P loginname, \-\-permanent loginame
+.B -P loginname, --permanent loginame
 Macht den Account dauerhaft benutzbar. Der Account kann nicht mehr von
 sophomorix-kill entfernt werden.
 .TP
-.B \-R loginname, \-\-removeable loginame
+.B -R loginname, --removeable loginame
 Macht den Account ab sofort mit sophomorix-kill löschbar. Beim
 Entfernen mit sophomorix-kill werden die Userdaten endgültig gelöscht.
 .TP
-.B \-K loginname, \-\-removeable loginame
+.B -K loginname, --removeable loginame
 Macht den Account ab sofort mit sophomorix-kill löschbar, ohne dass
 loginname bei wiederauftauchen seinen Status ändern wird. Beim Entfernen
 mit sophomorix-kill werden die Userdaten endgültig gelöscht.
 .TP
-.B \-A loginname, \-\-activate loginame
+.B -A loginname, --activate loginame
 Aktiviert den Account vorübergehend. Nach der Aktivierung wird der
 Account toleriert (TolerationDate ist der heutige Tag). 
 .br
