@@ -39,7 +39,7 @@ Shows the name of the actually loaded module
 
 sub show_sys_modulename {
 #    if($Conf::log_level>=2){
-#       &titel("SYS-DB-Module:       SophomorixSYSFiles.pm");
+       &Sophomorix::SophomorixBase::titel("SYS-DB-Module:       SophomorixSYSFiles.pm");
 #   }
 }
 
@@ -72,7 +72,7 @@ directory for good.
 
 sub delete_user_from_sys {
     ($login)=@_;
-    &do_falls_nicht_testen(
+    &Sophomorix::SophomorixBase::do_falls_nicht_testen(
        # aus smbpasswd entfernen
        "/usr/bin/smbpasswd  -x $login",
        # Aus Benutzerdatenbank entfernen (-r: Home löschen)
@@ -91,7 +91,7 @@ Adds the group I<class> to the system database.
 
 sub add_class_to_sys {
     ($class)=@_;
-    &do_falls_nicht_testen(
+    &Sophomorix::SophomorixBase::do_falls_nicht_testen(
        "groupadd $class",
     );
 
