@@ -1,0 +1,44 @@
+#!/usr/bin/perl -w
+# Dieses Script (sopho-man2html) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+
+# Bibliotheken
+use strict;
+
+print "sopho-man2html: Creating html man pages\n";
+
+my @mandirs=("sophomorix-base");
+my $file="";
+
+my $lang="de";
+my $mandir="man8";
+
+my $out_path="sophomorix-doc/html/man/$mandir";
+   system("install -d $out_path");
+
+
+foreach my $name (@mandirs) {
+
+   my $dirname=$name."/man/"."$lang";
+   opendir(DIR, $dirname) or die "can't opendir $dirname: $!";
+   print "Procesing manpages in $dirname ... \n";
+   while (defined($file = readdir(DIR))) {
+       if ($file=~/^sophomorix-[a-z]*\.de\.[0-9]?$/){
+          my ($name,$language,$section) = split(/\./, $file);
+          my $html_file = $name.".".$section.".html";
+          my $man_file=$dirname."/".$file;
+
+          print "   Converting   $man_file to $out_path/$html_file\n";
+
+
+          #system("man2html $file");
+          system("man2html -r $man_file > $out_path/$html_file");
+       }
+   }
+closedir(DIR);
+
+
+}
