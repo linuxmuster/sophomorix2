@@ -7,19 +7,22 @@
 
 # Bibliotheken
 use strict;
+
+#???nur vorübergehend
 use Quota;
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
+#use Net::LDAP;
 #use Schedule::at;
 
 # Einlesen der Konfigurationsdatei für Entwickler
 { package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
-
+#{ package LDAPConf ; do "/etc/sophomorix/devel/user/sophomorix-ldap.conf"}
 
 # jeffbecks Bibliothek und
 # Einlesen der Konfigurationsdatei
-
 require "${DevelConf::library_pfad}/sophomorix-lib-base";
+require "${DevelConf::library_pfad}/sophomorix-lib-files";
 
 # Nur als Dummy(Warnings verhindern)
 if($Conf::lehrer_zufall_passwort){};
@@ -32,7 +35,6 @@ if($Conf::zufall_passwort_anzahl_schueler){};
 if($Conf::schueler_login_vorname_zeichen){};
 if($DevelConf::library_pfad){};
 if($DevelConf::executable_pfad){};
-if($DevelConf::kernel_update){};
 
 my $zeit=&zeit_stempel;
 my $user_nummer=0;
@@ -50,10 +52,10 @@ my $login_name_to_check="";
 my $login_name_to_check_mod="";
 my $login_name_ok="";
 my $klartext_passwort="";
-my $neue_linux_gruppe="";
+my $new_admin_group="";
 my $shell="";
 
-my %schueler_ok_hash=();
+#my %schueler_ok_hash=();
 my %user_login_hash=();
 
 my %login_quota=();
@@ -93,7 +95,6 @@ my $testopt=GetOptions(
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
 
-
 # --help
 if ($help==1) {
    # Scriptname ermitteln
@@ -101,7 +102,7 @@ if ($help==1) {
    my $scriptname = pop @list;
    # Befehlsbeschreibung
    print "\n$scriptname legt lehrer und Schüler aus \n";
-   print "   ${DevelConf::ergebnis_pfad}/user.hinzu \nan.\n\n";
+   print "   ${DevelConf::ergebnis_pfad}/sophomorix.add \nan.\n\n";
 
    # gemeinsamer Hilfetext aller Scripten
    &help_text_all;
@@ -135,25 +136,25 @@ if ($help==1) {
 # --info
 if ($info==1) {
    # Hash mit identifier--klasse
-   %schueler_ok_hash=&schueler_ok_hash();
+#   %schueler_ok_hash=&schueler_ok_hash();
    # Ausgabe der Anlegbaren user
    print "\nFolgende user können angelegt werden:\n\n";
    print "Wunsch-Login   Klasse           Identifier\n";
    &linie;
 
-   open(USERHINZU,"${DevelConf::ergebnis_pfad}/user.hinzu") || die "Fehler: $!";
+   open(USERHINZU,"${DevelConf::ergebnis_pfad}/sophomorix.add") || die "Fehler: $!";
       while(<USERHINZU>){
         chomp();
-        ($identifier,$wunsch_login,$wunsch_passwort)=split("::");
+        ($new_admin_group,$identifier,$wunsch_login,$wunsch_passwort)=split("::");
 
-       my $string="$schueler_ok_hash{$identifier}";
-	if ($string ne "lehrer"){
-          $string="k"."$string";
-        } else {
-          # nix tun
-        }
+#       my $string="$schueler_ok_hash{$identifier}";
+#	if ($string ne "lehrer"){
+#          $string="k"."$string";
+#        } else {
+#          # nix tun
+#        }
        printf "%-14s %-16s %-40s\n",
-              "$wunsch_login","$string","$identifier";
+              "$wunsch_login","$new_admin_group","$identifier";
      }
    close(USERHINZU);
    print "\n";
@@ -179,21 +180,18 @@ if ($gruppe ne "") {
 # Start
 ################################################################################
 
-# ===========================================================================
-# Kernelupdate auf 2.4.18 prüfen (existiert /.kernelupdate-xxyyzz)
-# ==========================================================================
 my $datei="";
 
 
 # Dateien und Verzeichnisse aus / einlesen
-opendir(SYSROOT, "/");
-   foreach $datei (readdir SYSROOT){
-     next unless $datei =~/.kernel_update.*/;
-     print("/","$datei"," gefunden !\n");
-     print("Benutze setquota-Befehl für kernel 2.4.18\n\n");
-     $DevelConf::kernel_update="ja";
-    }
-closedir(SYSROOT);
+#opendir(SYSROOT, "/");
+#   foreach $datei (readdir SYSROOT){
+#     next unless $datei =~/.kernel_update.*/;
+#     print("/","$datei"," gefunden !\n");
+#     print("Benutze setquota-Befehl für kernel 2.4.18\n\n");
+#     $DevelConf::kernel_update="ja";
+#    }
+#closedir(SYSROOT);
 
 print ("sophomorix-add  startet ...\n");
 
@@ -201,35 +199,38 @@ print ("sophomorix-add  startet ...\n");
 # Soll-Quota ermitteln
 ################################################################################
 
-if($Conf::log_level>=3){
-      &titel("Ermittelte Soll-Quota:");
-}
+# später mit ldap
+
+
+#if($Conf::log_level>=3){
+#      &titel("Ermittelte Soll-Quota:");
+#}
 # quota.txt auslesen
-my %standard_quota=&get_standard_quota();
+#my %standard_quota=&get_standard_quota();
 
 # lehrer.txt auslesen
-my %lehrer_quota=&get_lehrer_quota();
+#my %lehrer_quota=&get_lehrer_quota();
 
 # schulinfo.txt auslesen
-my %klassen_quota=&get_klassen_quota();
+#my %klassen_quota=&get_klassen_quota();
+
 
 # Quotierte Dateisysteme ermitteln
-my @quota_fs_liste=&get_quota_fs_liste();
+#my @quota_fs_liste=&get_quota_fs_liste();
 
 ################################################################################
-# User (Schüler und Lehrer) anlegen aus user.hinzu
+# User (Schüler und Lehrer) anlegen aus sophomorix.add
 ################################################################################
-
 
 # repair.directories einlesen
 &get_alle_verzeichnis_rechte();
 
 # ===========================================================================
-# Abbruch, wenn user.hinzu fehlt oder leer
+# Abbruch, wenn sophomorix.add fehlt oder leer
 # ===========================================================================
-if (not (-s "${DevelConf::ergebnis_pfad}/user.hinzu")) {
+if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.add")) {
   print "\n  Die Datei\n\n";
-  print "    ${DevelConf::ergebnis_pfad}/user.hinzu\n\n";
+  print "    ${DevelConf::ergebnis_pfad}/sophomorix.add\n\n";
   print "  ist leer oder wurde nicht gefunden.\n\n";
   print "  Es sind keine User anzulegen\n\n";
   print "   sophomorix-add beendet sich deshalb!\n\n";
@@ -246,18 +247,18 @@ if (not (-s "${DevelConf::ergebnis_pfad}/user.hinzu")) {
 );
 
 # ===========================================================================
-# user.hinzu mitloggen
+# sophomorix.add mitloggen
 # ===========================================================================
 &do_falls_nicht_testen(
 # Verarbeitete Datei mit Zeitstempel versehen
-  "cp ${DevelConf::ergebnis_pfad}/user.hinzu ${DevelConf::log_pfad}/${zeit}.user.hinzu-vor",
+  "cp ${DevelConf::ergebnis_pfad}/sophomorix.add ${DevelConf::log_pfad}/${zeit}.sophomorix.add-before",
   # Nur für root lesbar machen
-  "chown root:root ${DevelConf::log_pfad}/${zeit}.user.hinzu-vor",
-  "chmod 600 ${DevelConf::log_pfad}/${zeit}.user.hinzu-vor"
+  "chown root:root ${DevelConf::log_pfad}/${zeit}.sophomorix.add-before",
+  "chmod 600 ${DevelConf::log_pfad}/${zeit}.sophomorix.add-before"
 );
 
 
-
+# Verbessern, siehe idealx
 if (${DevelConf::debian} ne "yes") {
    &do_falls_nicht_testen("rcnscd stop"); # Wozu?
 }
@@ -287,34 +288,38 @@ foreach $chars(@passwort_zeichen)              # Wieviele Zeichen gewaehlt?
 # ===========================================================================
 # Alle identifier von Schülern in schueler.ok in eine Hash-Tabelle
 # ===========================================================================
-%schueler_ok_hash=&schueler_ok_hash();
+#%schueler_ok_hash=&schueler_ok_hash();
 
 # ===========================================================================
 # Alle vorhandenen Loginnamen einlesen 
 # ===========================================================================
 %user_login_hash=&user_login_hash();
 
+
 # Datei mit den Schülern, die nicht angelegt wurden
-open(NOCHANLEGEN,">${DevelConf::ergebnis_pfad}/user.hinzu.neu") || die "Fehler: $!";
+open(NOCHANLEGEN,">${DevelConf::ergebnis_pfad}/sophomorix.add.new") || die "Fehler: $!";
 
 
-open(USERHINZU,"${DevelConf::ergebnis_pfad}/user.hinzu") || die "Fehler: $!";
+open(USERHINZU,"${DevelConf::ergebnis_pfad}/sophomorix.add") || die "Fehler: $!";
 while(<USERHINZU>){
    $login_quota_typ="";
    $user_nummer++;
    chomp();
    # absplitten von Wunschlogin und Wunschpasswort
-   ($identifier,$wunsch_login,$wunsch_passwort)=split("::");
+# alt   ($identifier,$wunsch_login,$wunsch_passwort)=split("::");
+   # absplitten von Wunschlogin und Wunschpasswort
+   ($new_admin_group,$identifier,$wunsch_login,$wunsch_passwort)=split("::");
+
 
    ($nachname,$vorname,$gebdat)=split(";", $identifier);
    # Gruppennamen ermitteln, max 8 Zeichen, k als 1. Buchstaben vorsetzen
    # problematisch, da sich klassen erst nach 8 zeichen unterscheiden können????????????
    # Auf 14 hochgesetzt (groupadd erlaubt 16 Zeichen, 2 für Subklassen reserviert)
-   if ($schueler_ok_hash{$identifier} eq "lehrer") {
-      $neue_linux_gruppe="lehrer";
-   } else {
-       $neue_linux_gruppe=substr("k"."$schueler_ok_hash{$identifier}",0,14);
-   }
+#   if ($schueler_ok_hash{$identifier} eq "lehrer") {
+#      $new_admin_group="lehrer";
+#   } else {
+#       $new_admin_group=substr("k"."$schueler_ok_hash{$identifier}",0,14);
+#   }
    # GECOS-Feld:
    $gecos=$vorname." ".$nachname; 
 
@@ -329,7 +334,7 @@ while(<USERHINZU>){
     $login_name_to_check="$login_teil_1"."$login_teil_2";
    }
 
-   # Existenz prüfen
+   # Existenz prüfen ???ldap
    if (not exists($user_login_hash{$login_name_to_check})){
        # Wenn der zu prüfende Login-Name nicht schon vorhanden
        # Kann er benutzt werden 
@@ -362,49 +367,49 @@ while(<USERHINZU>){
 
 # Klartext-Passwort
 if ($wunsch_passwort eq "erstpw") {
-    $klartext_passwort=&klartext_passwort_ermitteln($neue_linux_gruppe);
+    $klartext_passwort=&klartext_passwort_ermitteln($new_admin_group);
  } else {
     $klartext_passwort=$wunsch_passwort
  }
 
 # Shell
-$shell=&shell_ermitteln($neue_linux_gruppe);
+$shell=&shell_ermitteln($new_admin_group);
 
 
-   # Quota
-   if ($neue_linux_gruppe eq "lehrer") {
-      # Es ist ein Lehrer
-      if (exists $lehrer_quota{$login_name_ok}) {
-         # Es gibt lehrerquota
-         $login_quota{$login_name_ok}=$lehrer_quota{"$login_name_ok"};
-         $login_quota_typ="Einzel-Lehrer-Quota";
-      } else {
-         $login_quota{$login_name_ok}=$standard_quota{"standard-lehrer"};
-         $login_quota_typ="Standard-Lehrer-Quota";
-      }
-   } else {
-      # Es ist ein Schüler
-      if (exists $klassen_quota{$neue_linux_gruppe}) {
-         # Es gibt klassenquota
-         $login_quota_typ="Klassen-Quota";
-         $login_quota{$login_name_ok}=$klassen_quota{"$neue_linux_gruppe"};
-      } else {
-         # standart-wert setzten
-         # 1) im Hash %standard_quota
-         # 2) den key standard-schueler suchen
-         # 3) auf dessen Value (Referenz auf liste)
-         # 4) eine neue Referenz setzten
-         #$login_quota{$login_name_ok}=[@null_quota_liste];
-         $login_quota{$login_name_ok}=$standard_quota{"standard-schueler"};
-         $login_quota_typ="Standard-Schüler-Quota";
-         # $login_quota{$login_name_ok}=$standard_quota{"standard-lehrer"};
-       }
-   }
+#   # Quota
+#   if ($new_admin_group eq "lehrer") {
+#      # Es ist ein Lehrer
+#      if (exists $lehrer_quota{$login_name_ok}) {
+#         # Es gibt lehrerquota
+#         $login_quota{$login_name_ok}=$lehrer_quota{"$login_name_ok"};
+#         $login_quota_typ="Einzel-Lehrer-Quota";
+#      } else {
+#         $login_quota{$login_name_ok}=$standard_quota{"standard-lehrer"};
+#         $login_quota_typ="Standard-Lehrer-Quota";
+#      }
+#   } else {
+#      # Es ist ein Schüler
+#      if (exists $klassen_quota{$new_admin_group}) {
+#         # Es gibt klassenquota
+#         $login_quota_typ="Klassen-Quota";
+#         $login_quota{$login_name_ok}=$klassen_quota{"$new_admin_group"};
+#      } else {
+#         # standart-wert setzten
+#         # 1) im Hash %standard_quota
+#         # 2) den key standard-schueler suchen
+#         # 3) auf dessen Value (Referenz auf liste)
+#         # 4) eine neue Referenz setzten
+#         #$login_quota{$login_name_ok}=[@null_quota_liste];
+#         $login_quota{$login_name_ok}=$standard_quota{"standard-schueler"};
+#         $login_quota_typ="Standard-Schüler-Quota";
+#         # $login_quota{$login_name_ok}=$standard_quota{"standard-lehrer"};
+#       }
+#   }
+#
 
 # Test
 #my @test_array=("0-0-0-0","test","test2");
 #$login_quota{"michelgr"}=\@test_array;
-
 
    # Abbruch, wenn nicht der richtige loginname angelegt wird
    if ($loginname ne "") {
@@ -418,7 +423,7 @@ $shell=&shell_ermitteln($neue_linux_gruppe);
 
    # Abbruch, wenn nicht die richtige klasse angelegt wird
    if ($gruppe ne "") {
-     if ($neue_linux_gruppe ne $gruppe) {
+     if ($new_admin_group ne $gruppe) {
         print "$login_name_to_check (k$gruppe) wird nicht angelegt!\n";
         print NOCHANLEGEN "$_\n";
         next;
@@ -433,44 +438,53 @@ $shell=&shell_ermitteln($neue_linux_gruppe);
       print("Vorname:          $vorname\n");
       print("Geburtsdatum:     $gebdat\n");
       print("Identifier:       $identifier\n");
-      print("Linux-Gruppe:     $neue_linux_gruppe\n"); # lehrer oder klasse
+      print("Admin-Gruppe:     $new_admin_group\n"); # lehrer oder klasse
       print("GECOS:            $gecos\n");
       print("Login (prüfen):   $login_name_to_check\n");
       print("Login (OK):       $login_name_ok\n");
       print("Passwort:         $klartext_passwort\n");
-      if ($neue_linux_gruppe eq "lehrer") {
+      if ($new_admin_group eq "lehrer") {
          # Es ist ein Lehrer
          print("Shell (Lehrer):  $shell\n"); 
        } else {
          # Es ist ein Schüler
          print("Shell (Schüler):  $shell\n"); 
        }
-       { # Klammern um $j lokal zu halten, Beginn
-       my $j; 
-          for ($j=0; $j < @quota_fs_liste; $j++){
-             print ("Soll-Quota:       ${ $login_quota{$login_name_ok} }[$j]");
-             print ("  auf $quota_fs_liste[$j]  ($login_quota_typ)\n");
-          }
-       } # Klammern um $j lokal zu halten, Ende
+#       { # Klammern um $j lokal zu halten, Beginn
+#       my $j; 
+#          for ($j=0; $j < @quota_fs_liste; $j++){
+#             print ("Soll-Quota:       ${ $login_quota{$login_name_ok} }[$j]");
+#             print ("  auf $quota_fs_liste[$j]  ($login_quota_typ)\n");
+#          }
+#       } # Klammern um $j lokal zu halten, Ende
   }
 
   # Ist Schüler schon im System, aber deaktiviert -> dann reaktivieren
 
   # Nun wird der User angelegt  
-  if ($neue_linux_gruppe eq "lehrer") {
+  # Lehrer und Schueler
+  &create_user_db_entry(
+       $nachname,
+       $vorname,
+       $gebdat,
+       $new_admin_group,
+       $login_name_ok,
+       $klartext_passwort,
+       $shell,
+       "200",
+   );
+
+  if ($new_admin_group eq "lehrer") {
      # Es ist ein Lehrer
-#     &neue_linux_gruppe_lehrer();
      &neuer_linux_user_lehrer();
-     
    } else {
-     # Es ist ein Schüler
-     &neue_linux_gruppe_schueler($neue_linux_gruppe);
-     &neuer_schueler($login_name_ok, $neue_linux_gruppe, $gecos, $klartext_passwort, $shell);
+     &neuer_schueler($login_name_ok, $new_admin_group, $gecos, $klartext_passwort, $shell);
 
    }
 
+  # Lehrer und Schueler
   # Nun werden die Quota des user gesetzt
-  &setze_quota($login_name_ok, \@quota_fs_liste, \@{ $login_quota{$login_name_ok} });
+#  &setze_quota($login_name_ok, \@quota_fs_liste, \@{ $login_quota{$login_name_ok} });
 
 
 }
@@ -480,8 +494,7 @@ close(NOCHANLEGEN);
 
 
 # Alle User sind angelegt
-
-
+&titel("Dateien wegsichern:");
 
 
 if ($webmin_neustart==1){
@@ -506,18 +519,18 @@ if (${DevelConf::debian} ne "yes") {
    &do_falls_nicht_testen("rcnscd start");
 }
 
-
+# später ???
 &drucken();
 
 # ===========================================================================
-# user.hinzu moven, damit sie nicht nochmal eingelesen werden kann
+# sophomorix.add moven, damit sie nicht nochmal eingelesen werden kann
 # ===========================================================================
 &do_falls_nicht_testen(
    # Verarbeitete Datei mit Zeitstempel versehen
-   "mv ${DevelConf::ergebnis_pfad}/user.hinzu ${DevelConf::log_pfad}/${zeit}.user.hinzu-nach",
+   "mv ${DevelConf::ergebnis_pfad}/sophomorix.add ${DevelConf::log_pfad}/${zeit}.sophomorix.add-after",
    # Nur für root lesbar machen
-   "chown root:root ${DevelConf::log_pfad}/${zeit}.user.hinzu-nach",
-   "chmod 600 ${DevelConf::log_pfad}/${zeit}.user.hinzu-nach"
+   "chown root:root ${DevelConf::log_pfad}/${zeit}.sophomorix.add-after",
+   "chmod 600 ${DevelConf::log_pfad}/${zeit}.sophomorix.add-after"
 		     );
 
 
@@ -548,11 +561,11 @@ if (${DevelConf::debian} ne "yes") {
 # Falls nur getestet wird, darf die Datei nicht ersetzt werden
 if ($DevelConf::testen==0) {
    # Kein Test
-   rename("${DevelConf::ergebnis_pfad}/user.hinzu.neu",
-          "${DevelConf::ergebnis_pfad}/user.hinzu" );
+   rename("${DevelConf::ergebnis_pfad}/sophomorix.add.new",
+          "${DevelConf::ergebnis_pfad}/sophomorix.add" );
  } else {
    # Test
-   system("rm -f ${DevelConf::ergebnis_pfad}/user.hinzu.neu > /dev/null");
+   system("rm -f ${DevelConf::ergebnis_pfad}/sophomorix.add.new > /dev/null");
  }
 
    &titel("Soll-Quota:");
@@ -589,13 +602,6 @@ sub neuer_linux_user_lehrer
 my $lehrer_home = "/home/lehrer/$login_name_ok";
 my $www_home = "/home/lehrer/$login_name_ok/www";
 
-# LDAP
-# user wird angelegt mit /home/lehrer/name
-
-&do_falls_nicht_testen(
-             "useradd -c '$gecos' -d /home/lehrer/$login_name_ok -m -g $neue_linux_gruppe -p $klartext_passwort -s $shell $login_name_ok"
-);
-
 # Zugriff auf zentrale Rechte
 if ($DevelConf::testen==0) {
    &setup_verzeichnis("/home/lehrer/\$lehrer",
@@ -623,7 +629,9 @@ if ($DevelConf::testen==0) {
               "cd /home/lehrer/$login_name_ok; ln -s www/public_html public_html"
 );
 
-&webmin_eintrag($login_name_ok);
+
+# ??????? Anpassen, abfragen ob paket webmin vorhanden
+#&webmin_eintrag($login_name_ok);
 
 # passwort verschlüsseln, samba
 &passwort_setzen();
@@ -663,7 +671,7 @@ sub protokolldatei_modifizieren {
      open(PROTOKOLL,">>$DevelConf::protokoll_datei");
      
        # zeile anhängen
-       print PROTOKOLL "$neue_linux_gruppe;$gecos;$login_name_ok;$klartext_passwort;$gebdat\n";
+       print PROTOKOLL "$new_admin_group;$gecos;$login_name_ok;$klartext_passwort;$gebdat\n";
        # Datei Schließen, damit Schreiben erzwingen (Falls Programmabsturz)
      close(PROTOKOLL);
   } else {
@@ -695,9 +703,9 @@ my $www_home = "/home/schueler/$gruppe/$login/www";
 
 # LDAP
 # user wird angelegt mit /home/schueler/klasse/name
-&do_falls_nicht_testen(
-     "useradd -c '$gec' -d $schueler_home -m -g $neue_linux_gruppe -p $passwort -s $sh $login"
-);
+#&do_falls_nicht_testen(
+#     "useradd -c '$gec' -d $schueler_home -m -g $new_admin_group -p $passwort -s $sh $login"
+#);
 
 
 # Eigentümer von /home/schueler/klasse/name REKURSIV ändern in:   user:lehrer
@@ -873,15 +881,15 @@ sub webmin_eintrag {
    #  miniserv.users mitloggen
    # ===========================================================================
    &do_falls_nicht_testen(
-       "cp  $webmin_miniserv_users ${DevelConf::log_pfad}/${zeit}.miniserv.users-nach",
-       "chmod 600 ${DevelConf::log_pfad}/${zeit}.miniserv.users-nach",
+       "cp  $webmin_miniserv_users ${DevelConf::log_pfad}/${zeit}.miniserv.users-after",
+       "chmod 600 ${DevelConf::log_pfad}/${zeit}.miniserv.users-after",
        # Webmin acl für den Lehrer erstellen
        "cp -f /etc/webmin/muster.acl /etc/webmin/$user.acl"
    );
 
    &do_falls_nicht_testen(
-       "cp $webminacl  ${DevelConf::log_pfad}/${zeit}.webmin.acl-nach",
-       "chmod 600 ${DevelConf::log_pfad}/${zeit}.webmin.acl-nach",
+       "cp $webminacl  ${DevelConf::log_pfad}/${zeit}.webmin.acl-after",
+       "chmod 600 ${DevelConf::log_pfad}/${zeit}.webmin.acl-after",
        # set webmin acl 
        "cp -f /etc/webmin/acl/muster.acl /etc/webmin/acl/$user.acl"
    );
