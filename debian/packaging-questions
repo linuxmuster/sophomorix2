@@ -15,6 +15,8 @@ sophomorix-sql
    - was macht make clean in rules?
      sieht im Moment komisch aus
 
+  -> Fehlermeldung beim Packen: make clean fehlt: was sollte das bei 
+     nichtcompilierten Paketen enthalten
 
 4. Abhängigkeit von samba -> samb installieren ohne jegliche Nachfragen
    (da sophomorix sowiese samba konfiguriert)
@@ -34,3 +36,33 @@ sophomorix-sql
 
 7. wie prüft man in einem script, ob webmin installiert ist
    Debian-Paketmanagement fragen?
+
+
+8. welche Dateien sollen in conffiles?   
+   was ist mit sopphomorix.conf in der zum programmlauf erforderliche Parameter
+   dazukommen werden
+
+   dh sammelt schon alles in /etc als conffiles ein
+
+   repair.directories und sophomorix-devel.conf sollen übergebügelt werden.
+   -> anderer Platz suchen? config-templates?
+
+9. sophomorix.conf hat #!/usr/bin/perl drin
+   lintian-Fehler:  executable with not executable permissions.
+   700 löst das Problem. Nachteile?
+
+
+10. Zum Packen von sophomorix-doc-html ist erforderlich:
+    - perl für sophomorix-man2html
+    - man2html
+    - docbook2html
+
+    Kommt das zu build-depends. Auswirkungen?
+
+    - ist das sinnvoll?
+    - kann man ein Mehrfaches Paket auch ohne das Unterpaket sophomorix-doc 
+      packen
+
+
+11. wohin kommt ein script, das nur zum packen gebraucht wird, aber
+nicht mit ausgeliefert werden soll

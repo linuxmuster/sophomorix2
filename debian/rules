@@ -58,6 +58,7 @@ install: build
 	$(MAKE) install-files DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-developer DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-webmin-classmanager DESTDIR=$(CURDIR)/debian/sophomorix
+	$(MAKE) doc DESTDIR=$(CURDIR)/debian/sophomorix
 
 
 # Build architecture-independent files here.
@@ -70,7 +71,7 @@ binary-arch: build install
 	dh_testroot
 #	dh_installdebconf	
 	dh_installchangelogs 
-	dh_installdocs
+	dh_installdocs -psophomorix-doc-html sophomorix-doc/html
 #	dh_installexamples
 #	dh_installmenu
 #	dh_installlogrotate
@@ -84,6 +85,7 @@ binary-arch: build install
 	dh_installman -psophomorix-base sophomorix-base/man/en/sophomorix-check.8
 	dh_installman -psophomorix-base sophomorix-base/man/de/sophomorix-check.de.8
 	dh_installman -psophomorix-base sophomorix-base/man/de/sophomorix-project.de.8
+	dh_installman -psophomorix-base sophomorix-base/man/de/sophomorix-user.de.8
 # Install manpages for sophomorix-files
 	dh_installman -psophomorix-files sophomorix-files/man/de/sophomorix-search.de.8
 #	dh_installinfo
