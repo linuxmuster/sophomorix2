@@ -1,0 +1,122 @@
+#!/usr/bin/suidperl -w
+# Dieses Script (sophomorix-teacher) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+# Bibliotheken
+use strict;
+use Getopt::Long;
+# use log names of perl variables, i.e. $UID
+use English;
+use Sophomorix::SophomorixBase qw( check_options );
+use Sophomorix::SophomorixAPI;
+use Sophomorix::SophomorixFiles;
+Getopt::Long::Configure ("bundling");
+
+
+############################################################
+# Start
+############################################################
+$Conf::log_level=1;
+my $help=0;
+my $add="";
+my $remove="";
+my $teacher="";
+my $info=0;
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "verbose|v+" => \$Conf::log_level,
+           "help|h" => \$help,
+           "add=s" => \$add,
+           "remove=s" => \$remove,
+           "teacher=s" => \$teacher,
+           "info|i" => \$info,
+          );
+
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
+
+#print "UID: $UID, EUID: $EUID, GID: $GID, EGID: $EGID \n";
+
+
+
+# make calls including path not tainted
+$ENV{'PATH'} = '/bin:/usr/bin';
+
+
+
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlbeschreibung
+   print "\n$scriptname manages your MyAdminClasses and distributes, collects and archives Data used during lessons or exams.\n";
+   print('
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  --add AdminClass
+  --remove AdminClass
+
+Options for the user root
+  --teacher login
+
+Please see the sophomorix-teacher(1) man pages for full documentation
+');
+   print "\n";
+   exit;
+}
+
+
+# get login name of the user that calls the script
+my $login=getpwuid($UID);
+if ($login eq "root"){
+    # if caller is root
+    if ($teacher ne ""){
+       $login=$teacher;
+   } else {
+       print "As root, you must specify a teacher with --teacher login \n";
+       exit;
+   }
+}
+
+
+
+# show info if nothing has to be changed
+if ($add eq "" and $remove eq ""){
+    $info=1;
+}
+
+
+# --add class
+if ($add ne ""){
+   my @liste=&add_my_adminclass($login,$add);
+   $info=1;
+}
+
+
+
+
+# --remove class
+if ($remove ne ""){
+   &remove_my_adminclass($login,$remove);
+   $info=1;
+}
+
+
+
+
+
+if ($info==1){
+   my @list=&get_my_adminclasses($login);
+   print "AdminClasses of $login:\n";
+   foreach my $item (@list){
+      print "   $item \n";
+   }
+}
