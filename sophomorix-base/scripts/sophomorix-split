@@ -7,7 +7,6 @@
 
 # To do:
 # 1. &get_users_admin_class("12c") checken und evtl in *pm;
-# 2. interaktiv komplett in sub?
 # 3. ungenutzte funktion ???
 
 
@@ -234,6 +233,7 @@ sub create_subclass{
        print "Working on Group $class-$suffix \n";
        ($a,$a,$gid,$old_members)=getgrnam("$class-$suffix");
        if (defined $gid){
+          # gpasswd -d/-a user group
           print "groupdel  $class-$suffix\n";
           system("groupdel $class-$suffix");
           # add the group if it has users
