@@ -66,34 +66,32 @@ if ($help==1) {
    my @list = split(/\//,$0);
    my $scriptname = pop @list;
    # Befehlbeschreibung
-   print "$scriptname erzeugt Projekte.\n"; 
+   print('
+sophomorix-project adds projects to the sophomorix database and adds users
+   or groups as members to the project
 
-   # gemeinsamer Hilfetext
-   &help_text_all;
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -i  / --info
+  -p projectname, / --project projectname 
+  -- create 
+  --LongName projectname(long)
+  --Teachers user1,user2,user3, ... 
+  --Members user1,user2,user3, ... 
+  --MemberGroups group1,group2,group3, ... 
+  --AddQuota quotastring
+  --MaxMembers number
 
-   # optionen
-   print "Optionen:\n\n";
-
-   print "  --project projekt, -p projekt\n";
-   print "     Erstellt das Projekt projekt\n\n";
-
-   print "  --lastchange login, -l login\n";
-   print "     Loginname des users der als letztes gesplittet hat.\n\n";
-
-   print "  --pmemebers user1,user2,... \n";
-   print "     User, die zum Projekt gehören  sollen.\n\n";
-
+Please see the sophomorix-project(8) man pages for full documentation
+');
+   print "\n";
    exit;
 }
 
 # --info
-if ($info==1){
-    print "Option info\n";
-    exit;
-}
-
-
-if ($project eq ""){
+if ($project eq "" or $info==1){
     &show_project_list();
     exit;
 }
@@ -123,7 +121,7 @@ if ($create==1){push @options, "Create=yes"}
 # step 2
 # Read the database  
 # and change the system accordingly
-   &create_project($project);
+&create_project($project);
 
 
 
@@ -179,11 +177,16 @@ sub create_project {
     close(PROJECT);
     # exit, if not found
     if ($found==0){
+        print "Could not find project $project.\n";
 	exit;
     }
     print "\nCreating/Updating Project $project: \n";
     #make sure that group exists
     system("groupadd $project");
+    # make sure that the share die exists
+# ??????? Dateirechte aus repair.directories
+    &check_verzeichnis_mkdir("/home/tausch/projects");
+    &check_verzeichnis_mkdir("/home/tausch/projects/${project}");
     # create the userlist
     # the new teachers
     @new_teachers=split(/,/, $project_data{"Teachers"});
@@ -274,6 +277,7 @@ sub create_project {
                   " removing $user\n";
          }
          system("gpasswd -d $user $project");
+         &remove_share_link($user,$project);
        } 
     }    
     
@@ -287,6 +291,8 @@ sub create_project {
     # adding the users
     foreach my $user (@users_to_add) {
        system("adduser $user $project");
+       # create a link
+       &create_share_link($user,$project);
     }
 
 }
