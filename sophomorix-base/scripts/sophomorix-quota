@@ -13,12 +13,6 @@ use Sophomorix::SophomorixAPI;
 Getopt::Long::Configure ("bundling");
 #use Schedule::at;
 
-if($Conf::use_quota ne "yes"){
-  print "\nsophomorix.conf says:  You don't want to use quota.\n\n";
-  print "Set  use_quota=\"yes\"  in sophomorix.conf, if you want to use quota.\n\n";
-    exit;
-}
-
 # ===========================================================================
 # Loading the db-Module, list of functions
 # ===========================================================================
@@ -79,6 +73,7 @@ my $quota_fs_num=$#quota_fs+1;
 # Variablen für Optionen
 $Conf::log_level=1;
 my $help=0;
+my $noninteractive=0;
 my $info=0;
 my $loginname="";
 my $classes="";
@@ -101,12 +96,25 @@ my $testopt=GetOptions(
            "sum" => \$sum,
            "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
+           "noninteractive" => \$noninteractive,
            "system|s" => \$DevelConf::system,
            "info|i" => \$info
           );
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
+
+
+# check if I have to abort
+if($Conf::use_quota ne "yes" and $noninteractive==0){
+  print "\nsophomorix.conf says:  You don't want to use quota.\n\n";
+  print "Set  \$use_quota=\"yes\"  in sophomorix.conf to use quota.\n\n";
+  print "For more information:  man sophomorix-quota \n\n";
+  exit;
+} elsif ($Conf::use_quota ne "yes" and $noninteractive==1){
+  &titel("sphomorix-quota: Not Setting quota ... \$use_quota=\"no\"");
+  exit; 
+}
 
 
 # --help
