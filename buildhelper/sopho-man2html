@@ -14,10 +14,13 @@ my @mandirs=("sophomorix-base","sophomorix-vampire");
 my $file="";
 
 my $lang="de";
-my $mandir="man8";
+#my $mandir="man8";
+my $mandir="";
 
-my $out_path="sophomorix-doc/html/man/$mandir";
-   system("install -d $out_path");
+my $out_path="";
+
+#my $out_path="sophomorix-doc/html/man/$mandir";
+#   system("install -d $out_path");
 
 
 foreach my $name (@mandirs) {
@@ -28,6 +31,13 @@ foreach my $name (@mandirs) {
    while (defined($file = readdir(DIR))) {
        if ($file=~/^sophomorix-[-a-z]*\.de\.[0-9]?$/){
           my ($name,$language,$section) = split(/\./, $file);
+
+          $mandir="man"."$section";
+
+          $out_path="sophomorix-doc/html/man/$mandir";
+          system("install -d $out_path");
+
+
           my $html_file = $name.".".$section.".html";
           my $man_file=$dirname."/".$file;
 
