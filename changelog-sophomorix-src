@@ -11,7 +11,14 @@ sophomorix-quota
        - class(-c), 
        - project(-p), 
        - school(schoolname), ...
-
+       - see sophomorix-passwd for a flexible userlist
+       - new function: 
+          create_userlist_from_options($login,$class,$room, ...)
+          function can be used in:
+               - sophomorix-passwd
+               - sophomorix-quota
+               - sophomorix-user ?
+               - sophomorix-move ?
 
 sophomorix-teach-in (seems ok so far)
 
@@ -36,11 +43,12 @@ sophomorix-passwd
        - new passwords for all
        - new password for classes
        - generate login-cards automatically
+       - new function (see sophomorix-passwd)
 
 
 sophomorix-print
 
-   - print subclass on login-card
+   - print subclass on login-card?
    - what about projects, show project membership?
    - make configurable which print-output sophomorix-print generates 
      to save time (ps, pdf,csv,...) 
@@ -61,6 +69,14 @@ sophomorix-update(sophomorix-vampire?):
           2. sophomorix-setup (repairs directories with groupowner lehrer)
           3. update (lehrer with old id will be created automatically)
 
+sophomorix-tuition??
+   - write new script to distribute data, collect data, ...
+
+
+Functions in SophomorixBase:
+   - zeit_stempel: rename make easier(ticks)
+   - rename: append_auto_teach_in_log --> append_teach_in_log
+   - Put Quota-functions in SophomorixQuota.pm 
 
 
 All Scripts:
