@@ -204,6 +204,7 @@ sub check_account {
 
 sub run_command {
     my ($command,$verbose)=@_;
+    print "Running $command \n";
     if ($verbose==1){
 	system("$command");
     } else {

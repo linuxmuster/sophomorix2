@@ -18,7 +18,9 @@ require Exporter;
              get_sys_users
 );
 
-use Sophomorix::SophomorixBase qw ( titel );
+use Sophomorix::SophomorixBase qw ( titel 
+                                    setup_verzeichnis 
+                                    do_falls_nicht_testen);
 
 sub show_modulename {
     &titel("DB-Backend-Module: SophomorixFiles.pm");
