@@ -10,6 +10,7 @@ use Test::More;
 @EXPORT_OK = qw( );
 @EXPORT = qw( exchange_line_in_file
               check_line_in_file
+              no_line_in_file
               append_line
               remove_line
               check_emptyness
@@ -91,6 +92,25 @@ sub check_line_in_file {
       "Line is exactly ONCE in $file");
 
     return $result;
+}
+
+sub no_line_in_file {
+    my ($regex,$file) = @_;
+    my %lines=();
+    my $count=0;
+    my $result="not found";
+    open (READ,"<$file");
+    while (<READ>){
+      #print $_;
+      if (/$regex/){
+	  $result=$_;
+	  #print $result;
+          $count++;
+          $lines{$result}="";
+      }
+    }
+    close(READ);
+    is($count, 0 ,"Line deletion succesful");
 }
 
 
