@@ -1,0 +1,49 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH SOPHOMORIX-TEST 8 "November 29, 2004"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+sophomorix-test \- Testen von sophomorix
+.SH SYNOPSIS
+.B sophomorix-test
+.br
+.SH DESCRIPTION
+.B sophomorix-test
+.br
+sophomorix-test legt ein paar User an und testet, ob dies erfolgreich
+war. Außerdem werden die User versetzt, fehlen zwischendurch in den
+Konfigurationsdateien, tauchen wieder auf, ... . 
+.br
+Am Ende werden diese user wieder vollständig entfernt (wenn die tests
+fehlerfrei anlaufen).
+.br
+Prinzipiell sollte dieser Test auch bei schon vorhandenen Usern
+funktionieren. Er ist unabhängig davon, welcher loginname für die User
+generiert wird.
+.PP
+.TP
+.SH SEE ALSO
+.BR sophomorix (8),
+.BR sophomorix-teach-in (8),
+.BR sophomorix-add (8),
+.BR sophomorix-move (8),
+.BR sophomorix-kill (8),
+.BR sophomorix-print (8),
+.BR sophomorix-user (8),
+.BR sophomorix-split (8),
+.BR sophomorix-project (8),
+.SH AUTHOR
+This manual page was written by <jeffbeck@web.de>.
