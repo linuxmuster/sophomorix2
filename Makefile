@@ -126,6 +126,18 @@ install-webmin-classmanager:
 
 
 
+
+
+# you need to: 
+#       apt-get install docbook-utils
+# on debian to create documentation
+doc:
+	# Creating html-documentation
+	cd ./sophomorix-doc/source/sgml; docbook2html --nochunks --output ../../html  sophomorix.sgml
+	# Copying the pictures
+	cp ./sophomorix-doc/source/pictures/pics/splan-*.jpg ./sophomorix-doc/html
+	cp ./sophomorix-doc/source/pictures/pics/workflow.png ./sophomorix-doc/html
+
 # sophomorix-usermin
 install-usermin:
 	# nothing to do
