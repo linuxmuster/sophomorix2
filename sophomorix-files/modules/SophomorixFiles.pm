@@ -9,6 +9,7 @@ require Exporter;
 @ISA =qw(Exporter);
 @EXPORT = qw(show_modulename
 	     create_user_db_entry
+             create_class_db_entry
              user_deaktivieren
              user_reaktivieren
 	     update_user_db_entry
@@ -21,6 +22,8 @@ require Exporter;
              backup_user_database
              get_first_password
              check_sophomorix_user
+             show_project_list
+             show_class_list
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
@@ -86,6 +89,28 @@ sub create_user_db_entry {
 
 }
 
+
+
+sub create_class_db_entry {
+    my ($class_to_add) = @_;
+    my %classes=();
+    my ($class,$dept,$type,$mail,$quota) = ("","","","","");
+    # which classes exist
+    open(CLASS,"<${DevelConf::protokoll_pfad}/class_db");
+#    open(CLASS,"/var/lib/sophomorix/dynconfig/class_db");
+    while (<CLASS>) {
+       ($class,$dept,$type,$mail,$quota)=split(/;/);
+       $classes{$class}="some info";
+    }
+    close(CLASS);
+    
+    # append if nonexistent
+    if (not exists $classes{$class_to_add}){
+    open(CLASS,">>${DevelConf::protokoll_pfad}/class_db");
+    print CLASS "$class_to_add".";;;;quota;\n";
+    close(CLASS);
+    }
+}
 
 
 # deprecated
@@ -943,6 +968,56 @@ sub check_sophomorix_user {
   close(PASSPROT);
   return $result;
 }
+
+
+
+
+
+sub show_project_list {
+   open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects.db");
+   print "The following projects exist already:\n\n";
+   printf "%-16s %-16s %-9s %-40s\n","Name:", "Teachers", "AddQuota", "LongName:";
+
+   print "=======================================",
+         "=======================================\n";
+   while(<PROJECT>){
+       chomp();
+       my @line=split(/;/);
+       if (not defined $line[1]){$line[1]="---"}
+       if (not defined $line[2]){$line[2]="---"}
+       if (not defined $line[5]){$line[5]="---"}
+       printf "%-16s %-16s %-9s %-40s\n",$line[0], $line[2], $line[5], $line[1];
+   }
+   close(PROJECT);
+   print "\n";
+}
+
+
+
+sub show_class_list {
+   open(CLASS,"<${DevelConf::dyn_config_pfad}/class_db");
+   print "The following AdminClasses exist:\n\n";
+   printf "%-14s %-14s %-5s %-10s %-12s %-14s \n",
+          "AdminClass:", "Dept.:", "Typ" , "Mail:", "Quota", "AdminClass";
+
+   print "=======================================",
+         "=======================================\n";
+   while(<CLASS>){
+       chomp();
+       my @line=split(/;/);
+       if (not defined $line[1]){$line[1]="---"}
+       if (not defined $line[2]){$line[2]="---"}
+       if (not defined $line[3]){$line[3]="---"}
+       if (not defined $line[4]){$line[4]="---"}
+       printf "%-14s %-14s %-5s %-10s %-12s %-14s\n",
+              $line[0], $line[1],$line[2], $line[3], $line[4], $line[0];
+   }
+   close(CLASS);
+   print "\n";
+}
+
+
+
 
 
 

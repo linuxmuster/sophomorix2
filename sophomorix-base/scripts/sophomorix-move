@@ -19,6 +19,7 @@ use if ${DevelConf::db_backend} eq 'files' ,
     'Sophomorix::SophomorixFiles' => qw(show_modulename
                                         update_user_db_entry
                                         backup_user_database
+                                        create_class_db_entry
                                        );
 
 # list of functions to load if db is 'ldap'
@@ -307,6 +308,7 @@ while(<USERVERSETZEN>){
    # Sicherstellen dass neue Klasse (Linux-Gruppe) existiert
    if ($neue_klasse ne "lehrer") {
      &provide_class_files($neue_klasse);
+     &create_class_db_entry($neue_klasse);
      &add_class_to_sys($neue_klasse);
      # veraltet
      #&neue_linux_gruppe_schueler($neue_klasse);

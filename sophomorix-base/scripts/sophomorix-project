@@ -138,25 +138,6 @@ if ($create==1){push @options, "Create=yes"}
 # Sub
 ###########################################################################
 
-sub show_project_list {
-   open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects.db");
-   print "The following projects exist already:\n\n";
-   printf "%-16s %-16s %-9s %-40s\n","Name:", "Teachers", "AddQuota", "LongName:";
-
-   print "=======================================",
-         "=======================================\n";
-   while(<PROJECT>){
-       chomp();
-       my @line=split(/;/);
-       if (not defined $line[1]){$line[1]="---"}
-       if (not defined $line[2]){$line[2]="---"}
-       if (not defined $line[5]){$line[5]="---"}
-       printf "%-16s %-16s %-9s %-40s\n",$line[0], $line[2], $line[5], $line[1];
-   }
-   close(PROJECT);
-   print "\n";
-}
-
 sub create_project {
     # reads from projects.db and creates the project in the system
     my ($project) = @_;

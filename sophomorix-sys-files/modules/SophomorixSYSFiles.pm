@@ -94,7 +94,10 @@ Adds the group I<class> to the system database.
 
 sub add_class_to_sys {
     ($class,$gid)=@_;
-    if ($gid eq "---" or not defined $gid or $gid eq ""){
+    if (not defined $gid){
+        $gid="---";
+    }
+    if ($gid eq "---" or $gid eq ""){
        &Sophomorix::SophomorixBase::do_falls_nicht_testen(
           "groupadd $class",
        );

@@ -521,8 +521,8 @@ sub get_class_quota {
     my $class="";
     my $quotastring="";
     my %class_quota=();
-    open(SCHULINFO,"${DevelConf::config_pfad}/schulinfo.txt") || die "Fehler: $!";
-    while(<SCHULINFO>){
+    open(CLASS,"<${DevelConf::protokoll_pfad}/class_db") || die "Fehler: $!";
+    while(<CLASS>){
        chomp();
        s/\s//g; # Whitespace Entfernen
        if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
@@ -534,7 +534,7 @@ sub get_class_quota {
           $class_quota{$class}=$quotastring;  
        }
     }
-    close(SCHULINFO);
+    close(CLASS);
     return %class_quota;
 }
 

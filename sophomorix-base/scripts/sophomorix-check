@@ -66,7 +66,7 @@ my  @schueler_to_check_dateien=(
 # =========================================================================
 
 &check_datei_touch("${DevelConf::users_pfad}/lehrer.txt");
-&check_datei_touch("${DevelConf::users_pfad}/schulinfo.txt");
+#&check_datei_touch("${DevelConf::users_pfad}/schulinfo.txt");
 &lehrer_ordnen();
 
 # ===========================================================================
@@ -401,6 +401,7 @@ mkdir("${DevelConf::ergebnis_pfad}",0700)
 #&check_datei_touch("${DevelConf::ergebnis_pfad}/sophomorix.add");
 #&check_datei_touch("${DevelConf::ergebnis_pfad}/sophomorix.kill");
 &check_datei_touch("${DevelConf::dyn_config_pfad}/user.protokoll");
+&check_datei_touch("${DevelConf::dyn_config_pfad}/class_db");
 
 # ===========================================================================
 # Heutiges Datum ermitteln
@@ -598,7 +599,6 @@ if ($old_info_dir ne ""){
 # Einlesen der Sperr-Klassen in eine Hash-Tabelle
 # ===========================================================================
 %sperrklassen = &get_sperrklassen(); 
-
 
 
 # ===========================================================================
@@ -3160,7 +3160,6 @@ sub better_match {
         }
     }
 }
-
 
 
 
