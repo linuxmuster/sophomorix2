@@ -31,6 +31,7 @@ use Time::localtime;
               help_text_all
               check_options
               check_datei_exit
+              check_config_template
               check_datei_touch
               check_verzeichnis_mkdir
               zeit
@@ -521,7 +522,7 @@ sub neue_linux_gruppe_schueler
     }
 
     &do_falls_nicht_testen(
-         "cp -af  $smb_musterklasse $smb_klasse"
+#         "cp -af  $smb_musterklasse $smb_klasse"
     );
 };
 
@@ -1261,6 +1262,18 @@ sub check_datei_touch {
   if (not (-e "$datei")) {
      print "\n  Die Datei ${datei} wird angelegt \n\n";
      system("touch ${datei}");
+  } 
+}
+
+# Kopiert leere Datei, wenn die übergebene Datei nicht existiert
+sub check_config_template {
+  my ($datei) = @_;
+  my $etc_file=${DevelConf::config_pfad}."/".$datei;
+  my $config_datei=${DevelConf::config_template_pfad}."/".$datei;
+  if (not (-e "$etc_file")) {
+      my $command="cp $config_datei $etc_file";
+      print "   ### Creating file: \n   $command \n";
+     system("$command");
   } 
 }
 

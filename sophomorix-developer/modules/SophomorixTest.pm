@@ -174,11 +174,15 @@ sub kill_user {
 
 sub check_account {
     my ($login,$type) = @_;
-    my $linux_lock=0;
-    my $samba_lock=0;
+    # 2: no account
+    # 1: locked account
+    # 0: unlocked account
+    my $linux_lock=2;
+    my $samba_lock=2;
     # linux
     open(SHADOW, "/etc/shadow");
     while (<SHADOW>){
+	if (/$login:/){$linux_lock=0}
 	if (/$login:!/){$linux_lock=1}}
     close(SHADOW);
     # samba
@@ -188,15 +192,19 @@ sub check_account {
         if (/Account Flags/){
 	    my @item=split(/\s+/);
             #print "Its here:  $item[2]";
+            $samba_lock=0;
             if($item[2]=~/D/){$samba_lock=1}
         }
     }
     if ($type eq "disabled"){
-       is($linux_lock, 1 ,"Linux-Account of $login is disabled");
-       is($samba_lock, 1 ,"Samba-Account of $login is disabled");
-    } else {
-       is($linux_lock, 0 ,"Linux-Account of $login is enabled");
-       is($samba_lock, 0 ,"Samba-Account of $login is enabled");
+       is($linux_lock, 1 ,"Checking if Linux-Account of $login is disabled");
+       is($samba_lock, 1 ,"Checking if Samba-Account of $login is disabled");
+    } elsif ($type eq "enabled"){
+       is($linux_lock, 0 ,"Checking if Linux-Account of $login is enabled");
+       is($samba_lock, 0 ,"Checking if Samba-Account of $login is enabled");
+   } elsif ($type eq "nonexisting"){
+       is($linux_lock, 2 ,"Checking if Linux-Account of $login doesnt exist");
+       is($samba_lock, 2 ,"Checking if Samba-Account of $login doesnt exist");
     }
 }
 
