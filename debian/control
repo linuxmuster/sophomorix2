@@ -8,7 +8,7 @@ Standards-Version: 3.5.2
 Package: sophomorix2
 Architecture: any
 Suggests: sophomorix-doc-html
-Depends:  sophomorix-base (>=1.1.6-5), sophomorix-sys-files (>=1.1.6-5), sophomorix-files (>=1.1.6-5)
+Depends:  sophomorix-base (>=1.2.0-1), sophomorix-sys-files (>=1.2.0-1), sophomorix-files (>=1.2.0-1)
 Description: sophomorix user adminitration meta package
  This package contains all the components necessary to add to your
  Debian GNU/Linux box a powerful user administration
@@ -17,7 +17,7 @@ Description: sophomorix user adminitration meta package
 Package: sophomorix-base
 Architecture: any
 Suggests: sophomorix-doc-html
-Depends:  sophomorix-db, sophomorix-sysdb, quota (>=3.12), perl-base (>=5.8.4), libquota-perl (>= 1.4.9), samba (>= 3.0.7), libstring-approx-perl (>=3.23), tetex-base (>=2.0.2), tetex-bin (>=2.0.2), tetex-extra (>=2.0.2), gs-common (>=0.3.6)
+Depends:  sophomorix-db, sophomorix-sysdb, libdbd-csv-perl (>=0.21), quota (>=3.12), perl-base (>=5.8.4), libquota-perl (>= 1.4.9), samba (>= 3.0.7), libstring-approx-perl (>=3.23), tetex-base (>=2.0.2), tetex-bin (>=2.0.2), tetex-extra (>=2.0.2), gs-common (>=0.3.6)
 Description: Scripts for sophomorix
  sophomorix-base contains all database independent scripts to run sophomorix
  on the console. You additionally need a perl-module(virtual package 

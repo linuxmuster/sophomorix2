@@ -19,6 +19,19 @@ sophomorix-check
    - what about the quota  when updating from old files?
    - add more auto-teach-in
 
+sophomorix-add
+   - create new users with quota
+
+
+sophomorix-move
+   - remove option --klassenintern
+
+
+sophomorix-kill
+   - when a user is deleted, move its line(s) from user-modify.log to 
+     user-modify-archive (speed up lookups in user-modify.log)
+   - add a kill-entry to the archive.
+
 
 sophomorix-split
 
@@ -42,9 +55,15 @@ sophomorix-print
    
 
 sophomorix-project
+   - option -p astro -i should display info about group astro (6users in a row, ...)
    - add status stuff to projects
    - check if loginname is valid before adding user to a project   
 
+
+sophomorix-class
+   - --class classname --quota 200+20  sets the quota
+   
+  
 
 sophomorix-vampire:
 
@@ -71,6 +90,8 @@ Functions in SophomorixBase:
 
 
 All Scripts:
+   
+   - remove old stuff: ${schueler_oder_user}.protokoll";
    - remove database/sys dependant code
    - set/check file-permissions at the and of each sophomorix-* run. 
    - shorter verbosity when no verbosity option is given
@@ -95,6 +116,11 @@ RELEASES:
 
 
 1.1.7 (2005-01-?)
+   - added new script sophomorix-class: 
+      - -i shows all classes with info
+
+   - renamed schulinfo.txt to class.db and moved it to the database files
+
    - Bugfixes to sophomorix-project: Dont create links to root or dont add 
      root to unix-group of project
 
