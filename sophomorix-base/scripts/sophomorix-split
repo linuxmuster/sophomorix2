@@ -119,6 +119,14 @@ if ($class eq "" or $class eq "lehrer"){
 # Programmbeginn
 # ===========================================================================
 
+# repair.directories einlesen
+my %alle_verzeichnis_rechte = &get_alle_verzeichnis_rechte();
+
+while (my ($k,$v) = each %alle_verzeichnis_rechte){
+    print $k , " ", $v, "\n";
+}
+
+
 # Step 1
 # Updating the user-Database
 if ($noninteractive==1){
@@ -144,6 +152,9 @@ if ($noninteractive==1){
 &create_subclass_db($class);
 
 # step 3
+&provide_subclass_files($class);
+
+# step 4
 # Read the database (users and subclasses) 
 # and change the system accordingly
 &create_subclass($class);
