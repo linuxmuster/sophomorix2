@@ -3,6 +3,9 @@ This is the todo/changelog for the sophomorix sourcecode
 ############################################################
 Todo
 ############################################################
+**= this is next
+* = high priority
+- = do that when time comes
 
 packaging:
    - Makefile create directories in correct permissions, 
@@ -14,17 +17,17 @@ packaging:
 
 
 dokumentation:
-   grafik workflow aktualisieren
-   write how to test sophomorix
+   * grafik workflow aktualisieren
+   * write how to test sophomorix
       - sophomorix2
       - sophomorix-doc-html
       - perldoc Sophomorix::SophpmorixAPI
 
 sophomorix-repair
-   - repair permissions of subclasses and projects 
+   * repair permissions of subclasses and projects 
    - use function create_userlist to specify users
      Call with option -l loginname should be fast (= do only this)
-   - update man page
+   * update man page
    - group owner in the home directory is lehrer (is this really good?)
 
 
@@ -32,7 +35,7 @@ sophomorix-quota
    - option --auto-setup
        makes a usable quota-system
        does what it needs to have quota enabled and working
-   - option --sum still missing
+   * option --sum still missing
    - option --school(=pupil, teacher, workstation)
      Use this option in sophomorix-passwd also?
        -> include in function create_userlist
@@ -44,7 +47,7 @@ sophomorix-teach-in (seems ok so far)
 
 
 sophomorix-check
-   - check what happens when a wish-login in lehrer.txt is given twice
+   * check what happens when a wish-login in lehrer.txt is given twice
      - > generate proper error message
    - what about the shell (/bin/bash) when updating from old files?
    - what about the quota  when updating from old files?
@@ -55,7 +58,7 @@ sophomorix-check
              --> check this
    - add more auto-teach-in
       - exchange of firstname and lastname should be detected automatically
-   - filter out users in schueler.txt that have groupname "lehrer" or "teacher"
+   * filter out users in schueler.txt that have groupname "lehrer" or "teacher"
      for security reasons
    - add use of field 6, upload Field 6 Data automatically into database
       - add entry for every user in user_db: "Department"
@@ -74,19 +77,20 @@ sophomorix-check
 sophomorix-add
    - add call sophomorix-quota --noninteractive
    - add user to cyrus (dont't know how to do)
-   - dont add group lehrer to class_db
+   * dont add group lehrer to class_db
+   - add standard linux GUI (kde3 (configurable))
+   * call sophomorix-webmin  
 
 sophomorix-move
-   - remove option --klassenintern () done, check this
    - move Data from share into home, even if 'hidden' in another owners directory
    - quick-move of a user(move user with a command, and keep him somehow out of 
      way, when calling sophomorix-move)
 
 sophomorix-kill
-   - when a user is deleted, move its line(s) from user-modify.log to 
+   * when a user is deleted, move its line(s) from user-modify.log to 
      user-modify-archive (speed up lookups in user-modify.log)
-   - add a kill-entry to the archive to know when a user was killed.
-   - history in archive is not dorted according date, is sorted accordin users
+   * add a kill-entry to the archive to know when a user was killed.
+   - history in archive is not sorted according date, it is sorted according users
      (is this fine?)
 
 
@@ -103,7 +107,7 @@ sophomorix-user
    - option --reactivatable (or -i -D -T shows info about Disabled snd Tolerated)
    - when reactivating a user, set a date in the future to keep her longer acctive 
      (optional parameter)
-   - add information about webmin-account when displaying info
+   * add information about webmin-account when displaying info
 
 sophomorix-split
    - interrupt if class to split is nonexistent
@@ -115,7 +119,6 @@ sophomorix-split
         split randomly in 2,3 halves
         split half-half
         split a class into projects(is this necessary?)
-   - rename database subclasses to subclass_db
    - add some show info stuff
    - add change long name of subclass
    - make sophomorix-split files-independant
@@ -126,13 +129,12 @@ sophomorix-passwd
      (passwd_change.pdf)
 
 sophomorix-print
-
    - print subclass on login-card?
    - what about projects, show project membership?
-   - make configurable which print-output sophomorix-print generates 
+   * make configurable which print-output sophomorix-print generates 
      to save time (ps, pdf,csv,...)
    - put school-logo on login-card, watermark, ...
-   - generate a onepage-printaout for teachers (help, mail, webmin-login, ...)
+   - generate a onepage-printout for teachers (help, mail, webmin-login, ...)
    
 
 sophomorix-project
@@ -223,6 +225,8 @@ sophomorix-webmin
    - totally configure webmin
    - option --noninteractive 
 
+   ** option --modules
+
    -  Be aware: problem group student would need 1 entrys for every student 
        (this will be a very loooooooooong line)
 
@@ -231,11 +235,7 @@ sophomorix-webmin
                  -> the user doesnt see this module
            better: create webmin.acl from some configuration files
                    in /usr/sbin (webmin-teacher-modules, ...-admin-, -student-)
-                   whih can be overwritten by files in /etc/sophomorix/webmin
-
-
-             
-
+                   which can be overwritten by files in /etc/sophomorix/webmin
 
    - when adding teachers, add modules that they can use 
    - usermin-modules will be converted to webmin by thomas
@@ -244,29 +244,36 @@ sophomorix-webmin
    -abfrage in sophomorix-webmin, ob paket webmin installiert ist
  
    
-
-
-
 sophomorix-mail
    - Eintrag der lehrer in /etc/aliases mit vorname.nachname@...
      wenn das in sophomorix.conf so steht.
      (... wird sich noch ändern (SQL))
 
 sophomorix-teacher
-   - write new script to distribute data, collect data, ...
+  ** write new script to distribute data, collect data, ...
       --handout -i shows what to hand out
       --collect -i shows what to collect
       options --sync --copy when handing out data
       options --collect-original, --collect-copy when collecting
+      --exam
    - read perlsec
    - distribute _Collect to one pupil
+   - backups after rsync are temporarily owned by group 'lehrer', 
+      because sophomorix does not run setgid root
+     (this could cause problems, when using grpquotas (No problem now!))
+   - think about copy/delete for rsync
+   - how should it be managed to clear a  _Collect directory?
+     (dont do this at all?)
+   ** update man page
 
 sophomorix-endofyear (new script)
    - remove content of share-directories
    - exclude classes of type extra
 
-
-
+sophomorix-cron (new script) (runs at night)
+   - zip files in /var/log/sophomorix/exam
+   - update timestamps
+   - run sophomorix-check ??
 
 
 Functions in SophomorixBase:
@@ -278,9 +285,8 @@ SophomorixAPI:
 
 
 All Scripts:
-   - convert pupil stuff to student
-   - how can a setuid script read a file only readable by root
-   - if a class is to be added an the groupname is given to a project already
+   * convert pupil stuff to student
+   - if a class is to be added and the groupname is given to a project already
      make something correct
    - remove global variable alle_verzeichnis_rechte
      (sophomorix-split needs return value, sophomorix-add not ???)
@@ -291,7 +297,7 @@ All Scripts:
    - replace sperrklassen.txt and entfernklassen.txt with filter.txt
    - use lehrer.txt (Field: kurz RealShortName )
    - test csv-output on windows and linux
-   - clear a user: 
+   - clear a user: (The same as clearing a workstation after the exam)
            - keep his login, passwd, homedir
            - keep entry in database
            - restore directories (sammelordner, ...)
@@ -304,23 +310,24 @@ All Scripts:
 
      (Status C = can be cleared, sophomorix-clear, ...)
 
-   - rename:
+   * rename:
      user.imsystem         --> sophomorix.system
      report.sekretariat    --> report.office
+     report.gesperrt    --> report.filter
      klasse.schuelerzahl --> AdminClass.students
 
-   - create global variable $teacher_grpname="lehrer" and use it in all scripts
+   ** create global variable $teacher_grpname="lehrer" and use it in all scripts
    - read the config-files from thomas
      (file:  debconf datenbank, perl-lib zum auslesen benutzen ist dabei)
       debconf-show linuxmuster-base
-   - creating database file from sophomorix-setup-files??
+   * creating database file from sophomorix-setup-files??
        removing it from sophomorix-check??
-   - remove old stuff: ${schueler_oder_user}.protokoll";
+   * remove old stuff: ${schueler_oder_user}.protokoll";
    - remove database/sys dependant code
-   - set/check file-permissions at the and of each sophomorix-* run. 
+   * set/check file-permissions at the and of each sophomorix-* run. 
    - shorter verbosity when no verbosity option is given
-   - remove old subclass stuff (extrafile to specify subclass)
-   - get_xxx functions of sophomorix-repair: give a international name 
+   * remove old subclass stuff (extrafile to specify subclass)
+   * get_xxx functions of sophomorix-repair: give a international name 
      and put it to SophomorixAPI, document it with perldoc 
    - unify the options for all scripts (create rfc), where a common
      naming system is used, i.e what options are used to refer to a AdminClass:
@@ -402,12 +409,15 @@ RELEASES:
 
 ????? next: use international name for lehrer
 
-????? add ka_einsammeln features to sophomorix-teacher --collect
+????? next: change pupil to student
+
+
 
 1.2.1 (2005-03-?)
    - sophomorix-teacher: --collect added (it worked once)
    - sophomorix-teacher: --handout added (still alpha)
    - no-restart option in sophomorix-webmin added
+   - removed option --klassenintern in sophomorix-move 
    - add a user to miniserv.user, when she is added/deleted
    - add/remove a user to webmin.acl when she is added/deleted
    - add a user to webmin.groups when she is created 
