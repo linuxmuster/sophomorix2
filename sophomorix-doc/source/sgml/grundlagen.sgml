@@ -126,6 +126,8 @@
 	    deaktiviert, sie können sich nicht mehr per Windows einloggen.
 	    Wiederum nach einer Zeitspanne werden sie dann endgültig gelöscht.
 	    Dabei wird kein Daten-Backup gemacht.</para>
+      <sect3>
+	<title>Eigenschaften eines Users</title>
       <para>Ein User hat folgende Eigenschaften:</para>
       <para><itemizedlist>
 	  <listitem>
@@ -303,6 +305,12 @@
           </listitem>
 	    </itemizedlist>
 </para>
+      </sect3>
+      <sect3>
+	<title>Weg eines users durch das System</title> <para>Alle
+        möglichen Zustände, die ein User-Account annehmen kann sind in
+        der Abbildung dargestellt.
+	</para>
     <para><figure>
 	<title>Weg eines Users durch das System (User-status)</title>
 	<mediaobject>
@@ -318,6 +326,54 @@
 	</mediaobject>
       </figure>
 </para>
+	<para>Normalerweise taucht ein User in den
+	Konfigurationsdateien auf (lehrer.txt, schueler.txt, ...) und
+	wird von beim Aufruf von
+	<userinput>sophomorix-check</userinput> als neu erkannt, und
+	von <userinput>sophomorix-add</userinput> als benutzbarer
+	Account (Status U) angelegt</para>
+      </sect3>
+      <sect3>
+	<title>Weg eines users durch das System</title> <para>Alle
+        möglichen Zustände, die ein User-Account annehmen kann sind in
+        der Abbildung dargestellt.
+	</para>
+    <para><figure>
+	<title>Weg eines Users durch das System (User-status)</title>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="user-status.png" format="png">
+	  </imageobject>
+	  <imageobject>
+	    <imagedata fileref="user-status.eps" format="eps">
+	  </imageobject>
+	  <textobject>
+	    <phrase>Grafische Darstellung der User-zustände</phrase>
+	  </textobject>
+	</mediaobject>
+      </figure>
+</para>
+	<para>Normalerweise taucht ein User in den
+	Konfigurationsdateien auf (lehrer.txt, schueler.txt, ...) und
+	wird von beim Aufruf von
+	<userinput>sophomorix-check</userinput> als neu erkannt, und
+	von <userinput>sophomorix-add</userinput> als benutzbarer Account (Status
+	U) angelegt. </para> <para>Irgendwann verlässt
+	der User die Schule, der Eintag in den Konfigurationsdateien
+	fehlt. Aufgrund dessen wird der bleibt der Account zwar noch
+	benutzbar, wird aber mit dem Status T(Toleriert) versehen, und
+	das Datum(TolerationDate) abgespeichert.</para> <para>Ist eine
+	Konfigurierbare Zeit vergangen, so wird der User(account)
+	unbenutzbar gemacht(Status D) und das Datum(DeactivationDate)
+	abgespeichert. Der Account und seine Daten sind noch
+	vorhanden, jedoch kann der User sich nicht mehr
+	einloggen.</para> <para>Nach einer weiteren konfigurierbaren
+	Zeit wird der Account als Löschbar (Status R, Removeable)
+	markiert. Nun ist der Account durch Aufruf von
+	<userinput>sophomorix-kill</userinput> löschbar. Dabei wird
+	kein Backup der Userdaten gemacht.</para>
+      </sect3>
+
     </sect2>
     <sect2>
       <title>Halbautomatisches Löschen eines Projekts</title>
