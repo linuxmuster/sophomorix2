@@ -47,9 +47,11 @@ close(FILE);
 
 &update_user_db_entry("meiekl",
                       "File=/root/sophomorix-test/user.protokoll-test",
-                      "TolerationDate=25.04.2004");
+                      "TolerationDate=25.04.2004",
+                      "ExitAdminClass=13a");
+
 &check_line_in_file(
-  "7a;klaus meier;meiekl;linux;10.10.1988;;;;25.04.2004;;",
+  "7a;klaus meier;meiekl;linux;10.10.1988;;;;25.04.2004;;13a;",
   "/root/sophomorix-test/user.protokoll-test");
 
 
@@ -65,9 +67,10 @@ close(FILE);
                       "SubClass=B",
                       "Status=E",
                       "DeactivationDate=25.04.2004",
-                      "TolerationDate=30.03.2003");
+                      "TolerationDate=30.03.2003",
+                      "ExitAdminClass=oldastro");
 &check_line_in_file(
-  "astro;linus torvalds;stilleju;dsf45rhR;10.12.1979;123654789;B;E;30.03.2003;25.04.2004;",
+  "astro;linus torvalds;stilleju;dsf45rhR;10.12.1979;123654789;B;E;30.03.2003;25.04.2004;oldastro;;",
   "/root/sophomorix-test/user.protokoll-test");
 
 
@@ -76,7 +79,7 @@ close(FILE);
                       "File=/root/sophomorix-test/user.protokoll-test",
                       "Unid=");
 &check_line_in_file(
-  "astro;linus torvalds;stilleju;dsf45rhR;10.12.1979;;B;E;30.03.2003;25.04.2004;",
+  "astro;linus torvalds;stilleju;dsf45rhR;10.12.1979;;B;E;30.03.2003;25.04.2004;oldastro;;",
   "/root/sophomorix-test/user.protokoll-test");
 
 
@@ -85,7 +88,7 @@ close(FILE);
                       "File=/root/sophomorix-test/user.protokoll-test",
                       "AdminClass=m2kb");
 &check_line_in_file(
-  "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;;B;E;30.03.2003;25.04.2004;",
+  "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;;B;E;30.03.2003;25.04.2004;oldastro;;",
   "/root/sophomorix-test/user.protokoll-test");
 
 
@@ -94,7 +97,7 @@ close(FILE);
                       "File=/root/sophomorix-test/user.protokoll-test",
                       "Unid=AgooseSLoos");
 &check_line_in_file(
-  "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;B;E;30.03.2003;25.04.2004;",
+  "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;B;E;30.03.2003;25.04.2004;oldastro;;",
   "/root/sophomorix-test/user.protokoll-test");
 
 
@@ -103,7 +106,7 @@ close(FILE);
                       "File=/root/sophomorix-test/user.protokoll-test",
                       "SubClass=C");
 &check_line_in_file(
-  "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;E;30.03.2003;25.04.2004;",
+  "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;E;30.03.2003;25.04.2004;oldastro;;",
   "/root/sophomorix-test/user.protokoll-test");
 
 
@@ -113,7 +116,7 @@ close(FILE);
                       "DeactivationDate=12.03.2005",
                       "Status=D");
 &check_line_in_file(
-  "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;D;30.03.2003;12.03.2005;",
+  "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;D;30.03.2003;12.03.2005;oldastro;;",
   "/root/sophomorix-test/user.protokoll-test");
 
 
@@ -123,7 +126,7 @@ close(FILE);
                       "TolerationDate=12.07.2002",
                       "Status=T");
 &check_line_in_file(
-  "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;T;12.07.2002;12.03.2005;",
+  "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;T;12.07.2002;12.03.2005;oldastro;;",
   "/root/sophomorix-test/user.protokoll-test");
 
 
@@ -141,7 +144,7 @@ close(FILE);
                       "File=/root/sophomorix-test/user.protokoll-test",
                       "Name=linux");
 &check_line_in_file(
-  "m2kb;linux torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;R;12.07.2002;12.03.2005;",
+  "m2kb;linux torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;R;12.07.2002;12.03.2005;oldastro;;",
   "/root/sophomorix-test/user.protokoll-test");
 
 
@@ -150,7 +153,7 @@ close(FILE);
                       "File=/root/sophomorix-test/user.protokoll-test",
                       "LastName=presley");
 &check_line_in_file(
-  "m2kb;linux presley;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;R;12.07.2002;12.03.2005;",
+  "m2kb;linux presley;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;R;12.07.2002;12.03.2005;oldastro;;",
   "/root/sophomorix-test/user.protokoll-test");
 
 
@@ -160,7 +163,25 @@ close(FILE);
                       "Birthday=14.01.1966");
 
 &check_line_in_file(
-  "m2kb;linux presley;stilleju;dsf45rhR;14.01.1966;AgooseSLoos;C;R;12.07.2002;12.03.2005;",
+  "m2kb;linux presley;stilleju;dsf45rhR;14.01.1966;AgooseSLoos;C;R;12.07.2002;12.03.2005;oldastro;;",
+  "/root/sophomorix-test/user.protokoll-test");
+
+# AccountType
+&update_user_db_entry("stilleju",
+                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "AccountType=A");
+
+&check_line_in_file(
+  "m2kb;linux presley;stilleju;dsf45rhR;14.01.1966;AgooseSLoos;C;R;12.07.2002;12.03.2005;oldastro;A;",
+  "/root/sophomorix-test/user.protokoll-test");
+
+# AccountType
+&update_user_db_entry("stilleju",
+                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "AccountType=X");
+
+&check_line_in_file(
+  "m2kb;linux presley;stilleju;dsf45rhR;14.01.1966;AgooseSLoos;C;R;12.07.2002;12.03.2005;oldastro;X;",
   "/root/sophomorix-test/user.protokoll-test");
 
 
@@ -169,7 +190,7 @@ close(FILE);
         "File=/root/sophomorix-test/user.protokoll-test",
 	"Birthday=14.01.1966") , 0 , "Testing for Zero Match");
 &check_line_in_file(
-  "m2kb;linux presley;stilleju;dsf45rhR;14.01.1966;AgooseSLoos;C;R;12.07.2002;12.03.2005;",
+  "m2kb;linux presley;stilleju;dsf45rhR;14.01.1966;AgooseSLoos;C;R;12.07.2002;12.03.2005;oldastro;X;",
   "/root/sophomorix-test/user.protokoll-test");
 
 
@@ -203,7 +224,8 @@ close(FILE);
 
 &create_project_db("astro",
                       "File=/root/sophomorix-test/projects-test",
-                      "LongName=Astronomie fuer Eltern");
+                      "LongName=Astronomie fuer Eltern",
+                      "Create=yes");
 
 &check_line_in_file(
   "astro;Astronomie fuer Eltern;gallilga;peter,werner;12c;1000;16;",
@@ -216,7 +238,8 @@ close(FILE);
                    "Members=thuraudi,bartalgi",
                    "MemberGroups=11a",
                    "AddQuota=400",
-                   "MaxMembers=19");
+                   "MaxMembers=19",
+                   "Create=yes");
 &check_line_in_file(
   "astro;Astrokurs;bz,kj;thuraudi,bartalgi;11a;400;19;",
   "/root/sophomorix-test/projects-test");
@@ -228,7 +251,8 @@ close(FILE);
                    "Members=thuraudi,kueblefe",
                    "MemberGroups=",
                    "AddQuota=100",
-                   "MaxMembers=8");
+                   "MaxMembers=8",
+                   "Create=yes");
 &check_line_in_file(
   "chemie;Chemie fuer Anfaenger;gv;thuraudi,kueblefe;;100;8;",
   "/root/sophomorix-test/projects-test");
@@ -240,7 +264,8 @@ close(FILE);
                    "Members=thuraudi,merckxed",
                    "MemberGroups=",
                    "AddQuota=300",
-                   "MaxMembers=14");
+                   "MaxMembers=14",
+                   "Create=yes");
 &check_line_in_file(
   "chemie;Chemie im Alltag;gallilga;thuraudi,merckxed;;300;14;",
   "/root/sophomorix-test/projects-test");

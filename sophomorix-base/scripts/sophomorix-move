@@ -342,7 +342,16 @@ while(<USERVERSETZEN>){
    # user in db updaten
 #   $protokoll_hash{$neue_zeile}="";
    if ($DevelConf::testen==0) {
-       &move_user_db_entry($login_versetzen,$neue_klasse, $alte_klasse);
+       if ($neue_klasse eq "dachboden"){
+          &update_user_db_entry($login_versetzen,
+                      "AdminClass=$neue_klasse",
+                      "ExitAdminClass=$alte_klasse");
+       } else {
+          &update_user_db_entry($login_versetzen,
+                      "AdminClass=$neue_klasse");
+       }
+
+#       &move_user_db_entry($login_versetzen,$neue_klasse, $alte_klasse);
 #      open(PROTOKOLL,">$DevelConf::protokoll_datei");
 #
 #           while (($key) = each %protokoll_hash){

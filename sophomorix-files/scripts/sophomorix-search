@@ -87,7 +87,9 @@ my ($class,
     $subclass,
     $status,
     $tol,
-    $deact)=();
+    $deact,
+    $ex_admin,
+    $acc_type)=();
 
  my ($loginname_passwd,
      $passwort,
@@ -117,7 +119,7 @@ open(PROTOKOLL,"<$DevelConf::protokoll_datei");
           chomp();
 
           ($class,$gec_user,$login,$first_pass,$birth,
-           $unid,$subclass,$status,$tol,$deact)=split(/;/);
+           $unid,$subclass,$status,$tol,$deact,$ex_admin,$acc_type)=split(/;/);
           # Abfragen der /etc/passwd
           ($loginname_passwd,
           $passwort,
@@ -204,6 +206,14 @@ open(PROTOKOLL,"<$DevelConf::protokoll_datei");
 	     printf "   DeactivationDate : %-47s %-11s\n",$deact,$login;
           }
 
+          if (defined $ex_admin){
+	     printf "   ExitAdminClass   : %-47s %-11s\n",$ex_admin,$login;
+          }
+
+          if (defined $acc_type){
+	     printf "   AccountType      : %-47s %-11s\n",$acc_type,$login;
+          }
+
           print "Samba:\n";
           $samba=`pdbedit -v -u $login`;
           @samba_lines=split(/\n/,$samba);
@@ -231,7 +241,7 @@ open(PROTOKOLL,"<$DevelConf::protokoll_datei");
 	  }
 #          system "pdbedit -v -u $login";
           print "\n";
-      ($class,$gec_user,$login,$first_pass,$birth,$unid,$subclass,$status,$tol,$deact)=("","","","","","","","","","");
+      ($class,$gec_user,$login,$first_pass,$birth,$unid,$subclass,$status,$tol,$deact,$ex_admin,$acc_type)=("","","","","","","","","","","","");
 
        }
    }

@@ -14,9 +14,12 @@ require Exporter;
 	     update_user_db_entry
              create_project_db
              provide_class
-             move_user_db_entry
              get_sys_users
 );
+# deprecated:             move_user_db_entry
+
+
+
 
 use Sophomorix::SophomorixBase qw ( titel 
                                     setup_verzeichnis 
@@ -118,6 +121,10 @@ sub provide_class {
 }
 
 
+
+
+
+# deprecated
 sub move_user_db_entry {
    #user in db versetzen
     print "Moving user in files \n";
@@ -391,6 +398,8 @@ sub update_user_db_entry {
     my $status="";
     my $toleration_date="",
     my $deactivation_date="";
+    my $exit_admin_class="";
+    my $account_type="";
     my $file="${DevelConf::protokoll_pfad}/user.protokoll";
 
     # Which file?
@@ -408,13 +417,16 @@ sub update_user_db_entry {
            # found the line
 	    chomp();
            ($admin_class,$gecos,$login_file,$first_pass,$birthday,$unid,
-            $subclass,$status,$toleration_date,$deactivation_date)=split(/;/);
+            $subclass,$status,$toleration_date,$deactivation_date,
+            $exit_admin_class,$account_type)=split(/;/);
             # filling undefined attr with empty string
 	    if (not defined $unid){$unid=""}
 	    if (not defined $subclass){$subclass=""}
 	    if (not defined $status){$status=""}
 	    if (not defined $toleration_date){$toleration_date=""}
 	    if (not defined $deactivation_date){$deactivation_date=""}
+	    if (not defined $exit_admin_class){$exit_admin_class=""}
+	    if (not defined $account_type){$account_type=""}
 	   ($name,$lastname)=split(/ /,$gecos);
 	    $count++;
            # Check of Parameters
@@ -432,14 +444,17 @@ sub update_user_db_entry {
               elsif ($attr eq "TolerationDate"){$toleration_date="$value"}
               elsif ($attr eq "DeactivationDate"){$deactivation_date="$value"}
               elsif ($attr eq "File"){$file="$value"}
+              elsif ($attr eq "ExitAdminClass"){$exit_admin_class="$value"}
+              elsif ($attr eq "AccountType"){$account_type="$value"}
               else {print "Attribute $attr unknown\n"}
 	  }
           # change the Line
           $new_line=$admin_class.";".$name." ".$lastname.";".$login.";".
           $first_pass.";".$birthday.";".$unid.";".$subclass.";".
-          $status.";".$toleration_date.";".$deactivation_date.";"."\n";
-          #print "OLD Line:   $old_line";
-          #print "NEW Line:   $new_line";
+          $status.";".$toleration_date.";".$deactivation_date.";".
+          $exit_admin_class.";".$account_type.";"."\n";
+          print " OLD: $old_line";
+          print " NEW: $new_line";
           print TMP "$new_line";         
         } else {
             print TMP "$old_line";
@@ -529,6 +544,7 @@ sub create_project_db {
               elsif ($attr eq "AddQuota"){$p_add_quota="$value"}
               elsif ($attr eq "MaxMembers"){$p_max_members="$value"}
               elsif ($attr eq "File"){$file="$value"}
+              elsif ($attr eq "Create"){$create=1}
               else {print "Attribute $attr unknown\n"}
 	  }
           # change the Line
