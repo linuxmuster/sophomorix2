@@ -58,13 +58,15 @@ my $help=0;
 #my $info=0;
 my $all_hosts=0;
 my $localhost=0;
+my $auto_logout=5;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
            "help|h" => \$help,
            "verbose|v+" => \$Conf::log_level,
            "all-hosts" => \$all_hosts,
-           "--localhost" => \$localhost
+           "localhost" => \$localhost,
+           "auto-logout=i" => \$auto_logout
           );
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
@@ -96,6 +98,7 @@ Options
   -i  / --info
   --all-hosts
   --localhost
+  --auto-logout number_in_minutes
 
 Please see the sophomorix-webmin(8) man page for full documentation
 ');
@@ -154,6 +157,33 @@ if ($localhost==1){
     system("mv $file.tmp $file");
     system("/etc/init.d/webmin restart");
 }
+
+
+# --auto-logout
+if ($auto_logout!=5){
+    my $file="/etc/webmin/miniserv.conf";
+    my $done=0;
+    open(FILE, "<$file");
+    open(TMP, ">$file.tmp");
+    while (<FILE>){
+        if (/^logouttime=/){
+	    print TMP "logouttime=$auto_logout\n";
+            $done=1;
+        } else {
+	   print TMP $_;
+        }
+    }
+    if ($done==0){
+     	print TMP "logouttime=$auto_logout\n";
+    }
+    close(FILE);
+    close(TMP);
+    system("mv $file.tmp $file");
+    system("/etc/init.d/webmin restart");
+}
+
+
+
 
 
 exit;

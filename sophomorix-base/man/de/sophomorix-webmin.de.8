@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-WEBMIN 8 "March 3, 2005"
+.TH SOPHOMORIX-WEBMIN 8 "March 8, 2005"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -53,10 +53,13 @@ sind. Auf diesen Dateisystemen kann sophomorix-webmin die Quota
 verändern.
 .TP
 .B --all-hosts
-grant access to webmin from all hosts in the network
+erlaubt Einloggen in webmin von allen Reachnern aus
 .TP
 .B --localhost
-grant access to webmin only from localhost
+erlaubt Einloggen in webmin nur von localhost aus
+.TP
+.B --auto_logout n
+setzt die Zeitdauer der Inaktivität, nach der man sich wieder neu einloggen muss auf n Minuten, 
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
