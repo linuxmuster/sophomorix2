@@ -935,12 +935,12 @@ close(LATEX);
 
 # hoehere Qualitaet
 #&latexen;
-&latexen;
+#&latexen;
 &latexen;
 
 # einfacher
 &pdflatexen;
-&pdflatexen;
+#&pdflatexen;
 #&pdflatexen;
 
 
@@ -964,18 +964,20 @@ if ($show==1) {
 # ===========================================================================
 
 sub pdflatexen {
+    &titel("pdflatex is creating output ...");
    system("cd ${DevelConf::druck_pfad}; pdflatex $output_file_basename.tex $dev_null");
 
 }
 
 sub latexen {
-  # PS aus $output_file_basename.tex erzeugen
+   &titel("latex is creating output ...");
+   # PS aus $output_file_basename.tex erzeugen
    system("latex ${DevelConf::druck_pfad}/$output_file_basename.tex $dev_null");
    # 2x, wegen Inhaltsverzeichnis
    system("latex ${DevelConf::druck_pfad}/$output_file_basename.tex $dev_null");
-
+   &titel("dvips is creating output ...");
    system("dvips ${DevelConf::druck_pfad}/$output_file_basename.dvi $dev_null");
-
+   &titel("ps2pdf is creating output ...");
    system("ps2pdf ${DevelConf::druck_pfad}/$output_file_basename.ps $dev_null");
    system("rm $output_file_basename.log $dev_null");
    system("rm $output_file_basename.toc $dev_null");

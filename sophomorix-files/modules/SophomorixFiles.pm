@@ -666,6 +666,7 @@ sub create_project_db {
            elsif ($attr eq "AddQuota"){$p_add_quota="$value"}
            elsif ($attr eq "MaxMembers"){$p_max_members="$value"}
            elsif ($attr eq "File"){$file="$value"}
+           elsif ($attr eq "Create"){$create=1}
            else {print "Attribute $attr unknown\n"}
         }
         # Enough Information to create the Project?
