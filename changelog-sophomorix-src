@@ -152,7 +152,7 @@ sophomorix-project
        - delete links from users to exchange dir
        - move data back to homedir of user?
    - check if loginname is valid before adding user to a project
-   - allo teachers to add a project (if no AddQuota is involved)
+   - allow teachers to add a project (if no AddQuota is involved)
 
 
 sophomorix-class
@@ -211,6 +211,10 @@ sophomorix-mail
 
 sophomorix-teacher
    - write new script to distribute data, collect data, ...
+      --handout -i shows what to hand out
+      --collect -i shows what to collect
+      options --sync --copy when handing out data
+      options --collect-original, --collect-copy when collecting
    - read perlsec
 
 sophomorix-endofyear (new script)
@@ -230,6 +234,9 @@ SophomorixAPI:
 
 
 All Scripts:
+   - make Tauschverzeichnisse configurable (Language)
+   - if a class is to be added an the groupname is given to a project already
+     make something correct
    - remove global variable alle_verzeichnis_rechte
      (sophomorix-split needs return value, sophomorix-add not ???)
    - /home/share/tasks/dachboden is of no use?
@@ -280,6 +287,7 @@ All Scripts:
 ============================================================
 Think about:
 ============================================================
+   - sophomorix-info for ALL users (show my account data)
    - make standard-passwort linux configurable
    - mail: experienced admins should be able to make entrys to
      /etc/aliases without being overriden
@@ -340,8 +348,15 @@ Software Vendors:
 RELEASES:
 ############################################################
 
+????? next: create links in Tausch, when user is put in subclass
+
 
 1.2.1 (2005-03-?)
+
+   - created function in SophpmorixAPI that returns projects all 
+     projects
+   - created function in SophpmorixAPI that returns classes that 
+     have subclasses
    - sophomorix-split 
      (when classes are split, create tasks and share dirs)
    - moved /home/share/tasks stuff to /home/tasks
