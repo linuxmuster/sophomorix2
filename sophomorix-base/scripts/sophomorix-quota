@@ -54,6 +54,7 @@ use if ${DevelConf::sys_db} eq 'files' ,
 # Liste der Filesysteme auf denen Quota gesetzt werden
 my @quota_fs=();
 
+
 # ===========================================================================
 # Quotierte Dateisysteme ermitteln
 # ==========================================================================
@@ -65,7 +66,7 @@ if ($Conf::quota_filesystems[0] eq "auto" &&
 } else {# NICHT AUTOMATISCH falls Vorgabe in sophomorix.conf
    @quota_fs=@Conf::quota_filesystems;
 }
-# In @quota_filesystems stehen nun die zu quotierenden Dateisysteme
+
 
 # Anzahl der zu quotierenden Dateisysteme ermitteln
 my $quota_fs_num=$#quota_fs+1;
@@ -86,6 +87,7 @@ my $rooms="";
 my $ws=0;
 my $force=0;
 my $sum=0;
+my $system=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -105,22 +107,6 @@ my $testopt=GetOptions(
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
-
-# comm
-
-# create the list of users
-#my @userlist=();
-#if ($force==1){
-#   @userlist=&create_userlist($loginname,$classes,$pupil,$rooms,$ws,0);
-#} else {
-#   # check the users
-#   @userlist=&create_userlist($loginname,$classes,$pupil,$rooms,$ws,1);
-#}
-#
-#if ($#userlist+1==0 and $sum==0){
-#    print "INFO: No users given\n";
-#    $help=1;
-#}
 
 
 # --help
@@ -168,12 +154,12 @@ if ($info==1) {
    if ($Conf::quota_filesystems[0] eq "auto" && 
       not $Conf::quota_filesystems[2] ) {
       # "auto" in sophomorix.conf
-      print "Folgende Quota-Dateisysteme (usrquota) wurden von $scriptname\n";
-      print "auf diesem System gefunden:\n\n";
+      print "The following usrquota filesystems were found by $scriptname\n";
+      print "on this server:\n\n";
     } else {
       # Liste in sophomorix.conf angegeben
-      print "ACHTUNG: Sie haben folgende Quota-Dateisysteme manuell\n"; 
-      print "in sophomorix.conf angegeben. \n\nSie müssen wissen, was sie tun!\n\n";
+      print "WARNING: You have manually configured the usrquota filesystems\n"; 
+      print "in sophomorix.conf. \n\nYou should know what you are doing!\n\n";
     }
 
    # Tatsächlich benutzte Liste ausgeben
@@ -184,11 +170,11 @@ if ($info==1) {
 
    print "\n";
    if ($quota_fs_num>1) {
-       print "Die Reihenfolge der $quota_fs_num Filesysteme "; 
-       print "ist wichtig für die Quotaangabe!\n\n";
+       print "The order of the $quota_fs_num filesystems "; 
+       print "is important!\n\n";
    }
-   print "Um z.B. das Standard-Quota für die Schüler auf ihrem System zu setzten,\n";
-   print "muss in ${DevelConf::config_pfad}/quota.txt folgendes stehen:\n\n";
+   print "I.e.: To set the Standard-Quota for all pupils on your host,\n";
+   print "you must have a line like this in ${DevelConf::config_pfad}/quota.txt:\n\n";
    print "   standard-schueler:";
    
    # Beispiel angeben
@@ -203,12 +189,12 @@ if ($info==1) {
      push (@mb_liste, $mb);
    }
 
-   print "\n\nDieser Eintrag in quota.txt würde folgende Quota setzten:\n\n";
+   print "\n\nThis line in quota.txt would set the following usrquota:\n\n";
    
    # Ergebnis angeben
    foreach $fs (@quota_fs) {
      $l=$l+1;
-     print"  Filesystem ${l}:    $fs     auf $mb_liste[${l}-1] MB\n";
+     print"  Filesystem ${l}:    $fs     to $mb_liste[${l}-1] MB\n";
    }
 
    print "\n\n";
@@ -216,6 +202,9 @@ if ($info==1) {
 }
 
 
+
+
+&titel("Calculating usrquota ... (this may take a while)");
 
 my %login_type = &login_type();
 #while( my ($login, $type) = each(%login_type)) {
@@ -242,30 +231,50 @@ my %class_quota = &get_class_quota();
 #    print "$k:  $v \n";
 #}
 
-
 my %projects_add_quota = &get_projects_add_quota();
 #while ( my ($k, $v) = each(%projects_add_quota)) {
 #    print "$k:  $v \n";
 #}
 
 
-# ohne optionen
-&set_quota_if_needed();
-
-
+if ($loginname ne "" or $classes ne "" or $pupil!=0 or $rooms ne "" or $ws!=0){
+    # create the list of users
+    my @userlist=();
+    &titel("Creating a userlist from options ...");
+    if ($force==1){
+        @userlist=&create_userlist($loginname,$classes,$pupil,$rooms,$ws,0);
+    } else {
+        # check the users
+        @userlist=&create_userlist($loginname,$classes,$pupil,$rooms,$ws,1);
+    }
+    if ($#userlist+1==0 and $sum==0){
+         print "INFO: No valid users given\n";
+         $help=1;
+    }
+    &titel("Setting Quota for users in the userlist ...");
+    # setting quota for every user
+    foreach my $user (@userlist){
+        my $new_quota=&get_quota($user);
+        my @q_list = &check_quotastring($new_quota);
+        if (not $q_list[0]==0){
+            print "Setting quota of user $user to @q_list\n";
+	    &set_quota($system,$user,\@quota_fs,\@q_list);
+        } else {
+	    print "ERROR: $new_quota is not correct, skipping ...\n";
+        }
+    }
+} else {
+   # ohne optionen
+   &set_quota_if_needed();
+}
 
 
 # ===========================================================================
-# Quota setzten
+# subs
 # ===========================================================================
-   # $userkey:                             username
-   # \@quota_filesystems                   Referenz auf Liste mit filesystemen
-   # \@{ $login_quota_hash{$userkey} }     Referenz auf den Key $userkey im 
-   # Hash %login_quota_hash, der Referenz auf Liste mit Quota enthält   
-   # Beispiel: &setze_quota($userkey , 
-   #                        \@quota_filesystems, 
-   #                        \@{ $login_quota_hash{$userkey} } );
 
+# set the quota fot that user
+# system=0 -> use perl modul, system=1 -> use setquota 
 sub set_quota {
    my ($system,$user,$quota_fs, $q_list)=@_;
    my $quota="";
@@ -339,6 +348,8 @@ sub set_quota {
 
 
 
+
+# check if the given string is correct
 sub check_quotastring {
     my ($quotastring) = @_;
     my @list = split(/\+/, $quotastring);
@@ -357,28 +368,28 @@ sub check_quotastring {
 }
 
 
+
+
+# check for which users quota must be updated in the database. 
+# if yes: call set_quota for each user
 sub set_quota_if_needed {
     my $new_quota="";
     while ( my ($login, $type) = each(%login_type)) {
         $new_quota=&get_quota($login);
         if ($new_quota eq $db_quota{$login}){
            #do nothing
-        #   print "Nothing to do for user $login.\n",
         } else {
            print "User $login:\n";
            print "  New quota: $new_quota \n";
            print "  Database : $db_quota{$login}\n";
            # check the new quotastring
            my @q_list = &check_quotastring($new_quota);
-
-           #print "Liste: @q_list    Value: $st\n";
            if (not $q_list[0]==0){
                print "Setting quota of user $login to @q_list\n";
 		   &set_quota(0,$login,\@quota_fs,\@q_list);
            } else {
 	       print "ERROR: $new_quota is not correct, skipping ...\n";
            }
-
         }
     }
 }
@@ -387,6 +398,7 @@ sub set_quota_if_needed {
 
 
 
+# create hash with teacher_quota
 sub get_teacher_quota {
    my $login="";
    my $quotastring="";
@@ -408,6 +420,9 @@ sub get_teacher_quota {
 }
 
 
+
+
+# hash: login -> type(pupil,teacher,workstation)
 sub login_type {
     my %login_type=();
     my $login="";
@@ -417,19 +432,11 @@ sub login_type {
     # others
     setpwent();
     while(($login,$a,$a,$a,$a,$a,$a,$home)=getpwent()) {
-        # Gruppenname ermitteln
-#       my ($grname) = getgrgid($gid);
-        # Zum Login-Quota-Hash dazunehmen
-        # Value ist Liste:
         if($home=~/^$DevelConf::homedir_pupil/){
-           # Typ-Hash anpassen
            $login_type{$login}="pupil";
         } elsif($home=~/^$DevelConf::homedir_ws/){
-           # Typ-Hash anpassen
            $login_type{$login}="workstation";
-#        } elsif($home=~/^$DevelConf::homedir_teacher/ and $grname eq "lehrer"){
         } elsif($home=~/^$DevelConf::homedir_teacher/){
-           # Typ-Hash anpassen
            $login_type{$login}="teacher";
         }
     }
@@ -438,8 +445,13 @@ sub login_type {
 }
 
 
+
+
+# calculates the quota of the user login
 sub get_quota{
     my ($login) = @_;
+    my $grname = `id -n -g $login`;
+    chomp($grname);
     my $quotastring="";
     if (exists $quota_txt{$login}){
         # look in quota.txt
@@ -449,11 +461,12 @@ sub get_quota{
         # look in teacher.txt
         $quotastring=$teacher_quota{$login};
 	#print "Found lehrer.txt quota: $quotastring\n";
-    } elsif (exists $class_quota{$login}){
+    } elsif (exists $class_quota{$grname}){
         # look in class
-        $quotastring=$class_quota{$login};
-	#print "Found class quota: $quotastring\n";
+        $quotastring=$class_quota{$grname};
+	#print "Found quota for class $grname: $quotastring\n";
     } else {
+        # take standard values
         if ($login_type{$login} eq "pupil"){
 	    $quotastring=$quota_txt{"standard-schueler"};
         } elsif ($login_type{$login} eq "teacher"){
@@ -461,12 +474,9 @@ sub get_quota{
         } elsif ($login_type{$login} eq "workstation"){
 	    $quotastring=$quota_txt{"workstation-lehrer"};
         }
-        # else take standard
-	#print "Found standard quota: $quotastring\n";
     }
     
     if (exists $projects_add_quota{$login}){
-        # add the quotas
         #print "Adding $projects_add_quota{$login}\n";
 	$quotastring = &quota_addition($projects_add_quota{$login},$quotastring);
     }
@@ -475,6 +485,9 @@ sub get_quota{
 
 
 
+
+
+# hash login -> additional quota
 sub get_projects_add_quota {
     my %projects_add_quota=();
     my %users=();
@@ -503,10 +516,7 @@ sub get_projects_add_quota {
 
 
 
-
-
-
-
+# hash: class -> quota 
 sub get_class_quota {
     my $class="";
     my $quotastring="";
@@ -519,7 +529,6 @@ sub get_class_quota {
        if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
        ($class,$a,$a,$a,$quotastring)=split(/;/);
        # Group-ID der Klasse ermitteln
- #      my ($a,$b,$gid) = getgrnam $class; 
        if($quotastring ne "quota"){
           # wenn Klassen-Quota angegeben dann nutzen
           $class_quota{$class}=$quotastring;  
@@ -533,8 +542,7 @@ sub get_class_quota {
 
 
 
-
-
+# hash: login -> quota  (login can be also: standard-*) 
 sub get_quota_txt {
    my %quota_txt=();
    my $user="";
@@ -547,24 +555,17 @@ sub get_quota_txt {
       if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
       # user von sollquota splitten
       ($user,$quotastring)=split(/:/);
-
       $quota_txt{$user}=$quotastring;
    }
    close(QUOTATXT);
    # Rückgabe-Hash enthält standard-quota UND Einzel-Quota
    return %quota_txt;
-
 }
 
 
 
 
-
-
-
-
-
-
+# hash: login -> quotastring in the sophomorix database(user.protokoll)
 sub get_db_quota {
     my $login="";
     my $quotastring="";
@@ -573,13 +574,15 @@ sub get_db_quota {
     open(USERPROTOKOLL,"$DevelConf::protokoll_datei") 
         || die "Fehler:  $DevelConf::protokoll_datei nicht gefunden!  $!";
     while(<USERPROTOKOLL>){
-#      if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+      if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
       ($a,$a,$login,$a,$a,$a,$a,$a,$a,$a,$a,$a,$quotastring)=split(/;/);
       #print "$login:  $quotastring \n";
       $db_quota{$login}=$quotastring;
     }
     return %db_quota;
 }
+
+
 
 
 # EOF
