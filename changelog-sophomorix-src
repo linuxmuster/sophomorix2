@@ -15,7 +15,10 @@ packaging:
 
 dokumentation:
    grafik workflow aktualisieren
-
+   write how to test sophomorix
+      - sophomorix2
+      - sophomorix-doc-html
+      - perldoc Sophomorix::SophpmorixAPI
 
 sophomorix-repair 
    - use function create_userlist to specify users
@@ -71,7 +74,7 @@ sophomorix-add
    - dont add group lehrer to class_db
 
 sophomorix-move
-   - remove option --klassenintern ()
+   - remove option --klassenintern () done, check this
 
 
 sophomorix-kill
@@ -161,20 +164,17 @@ sophomorix-vampire:
    - move mail
    - move shares
    - option for k necessary?
-   - generate a log file what went wrong 
+   - generate a log file what went wrong
    - detect if a non-teacher user has a webmin-login (write to log-file)
 
 sophomorix-webmin
    - totally configure webmin
-   - do something, only when /etc/webmin exists
+   - do something, only when /etc/webmin exists -> check this
    - option --noninteractive
-   - update this script for sophomorix2
    - when adding users, they must be added to webmin groups 
      student,teacher,admin
 
      wenn user angelegt wird kommt er in /etc/webmin.acl 
-
-
 
       incgroups: groups that are memners in this group
 
@@ -201,8 +201,6 @@ sophomorix-teacher
    - read perlsec
 
 
-sopho-man2html
-   - create manpages in area 1 in directory man1 (create a teacher dokumentation)
 
 
 Functions in SophomorixBase:
@@ -210,8 +208,7 @@ Functions in SophomorixBase:
    - Put Quota-functions in SophomorixQuota.pm 
 
 
-SophomorixAPI: Dringend!!!!!!!!!!!!!!!
-   - mail an musterloesung@lihas.de (tho@lihas.de)
+SophomorixAPI: 
 
 
 All Scripts:
@@ -308,7 +305,10 @@ RELEASES:
 
 
 1.2.1 (2005-03-?)
-
+   - sopho-man2html:
+       - moved manpages of section 1 to a different directory 
+         in the html-documentation
+       - included man sophomorix-teacher in the package
 
 
 1.2.0 (2005-03-09)
