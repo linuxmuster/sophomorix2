@@ -111,7 +111,7 @@ if (not -e $develconf){
 
 =pod
 
-=item I<get_user_adminclass(AdminClass)>
+=item I<@list = get_user_adminclass(AdminClass)>
 
 Returns an asciibetical list of all users in this AdminClass. The
 AdminClass is the class of a pupil in the school administration
@@ -165,7 +165,7 @@ sub get_user_adminclass {
 
 =pod
 
-=item I<get_pupils_school()>
+=item I<@list = get_pupils_school()>
 
 Returns an asciibetical list of all pupils in the school. No teachers
 are returned
@@ -201,7 +201,7 @@ sub get_pupils_school {
 
 =pod
 
-=item I<get_adminclasses_school()>
+=item I<@list = get_adminclasses_school()>
 
 Returns an asciibetical list of all AdminClasses in the school. 
 The group of all teachers is NOT included in this list
@@ -239,9 +239,9 @@ sub get_adminclasses_school {
 
 =over 4
 
-=item I<get_workstations_room(Room)>
+=item I<@list = get_workstations_room(Room)>
 
-Returns an asciibetical list of all workstations in the Room. 
+Returns an asciibetical list of all workstations in the room Room. 
 
 =cut
 
@@ -279,7 +279,7 @@ sub get_workstations_room {
 
 =pod
 
-=item I<get_adminclasses_school()>
+=item I<@list = get_adminclasses_school()>
 
 Returns an asciibetical list of all AdminClasses in the school. 
 The group of all teachers is NOT included in this list
@@ -315,7 +315,7 @@ sub get_rooms_school {
 
 =pod
 
-=item I<get_workstations_school()>
+=item I<@list = get_workstations_school()>
 
 Returns an asciibetical list of all Workstations in the school. 
 
@@ -346,7 +346,9 @@ sub get_workstations_school {
 
 =pod
 
-=item I<get_user_project(Teachers,Members,MemberGroups)>
+=item I<@list = get_user_project(Project,Teachers,Members,MemberGroups)>
+
+This is not working yet!!!!!!!
 
 Teachers,Members,MemberGroups are the fields in projects_db. A
 function to get this fields will follow.
@@ -439,18 +441,18 @@ sub get_user_project {
 
 =pod
 
-=item I<create_userlist(logins,classes,pupil,rooms,workstations,check)>
+=item I<@list = create_userlist(logins,classes,pupil,rooms,workstations,check)>
 
 Creates a ascibetical list of users, that are specified with the
 parameters. The parameters are:
 
-logins:       commaseperated list of logins
+logins:       comma seperated list of logins
 
-classes:      commaseperated list of AdminClasses, (can also be lehrer)
+classes:      comma seperated list of AdminClasses, (can also be lehrer)
 
 pupil:        add the list of all pupils (1), or not (0)
 
-rooms:        commaseperated list of rooms
+rooms:        comma seperated list of rooms
 
 workstations: add the list of all workstations (1), or not (0)
 
@@ -569,7 +571,7 @@ sub create_userlist {
 
 =pod
 
-=item I<get_ml_users()>
+=item I<%hash = get_ml_users()>
 
 Returns an hash with ALL ml login names. This includes:
   - pupil, teachers (sophomorix database)
@@ -606,14 +608,14 @@ sub get_ml_users {
 
 =pod
 
-=head2 Working with MyClasses (querying, adding, removing, ...)
+=head2 Working with MyAdminClasses (querying, adding, removing, ...)
 
 =over 4
 
-=item I<get_my_adminclasses(Login)>
+=item I<@list = get_my_adminclasses(Teacher)>
 
-Returns an ascibetical list of adminclasses in which the user Login
-has added herself. If a class exists multiple times, it is retured once.
+Returns an ascibetical list of adminclasses in which the teacher Teacher
+has added herself. If a class exists multiple times, it is retured only once.
 
 =cut
 
@@ -639,9 +641,11 @@ sub get_my_adminclasses {
 
 =pod
 
-=item I<add_my_adminclass(Login,AdminClass)>
+=item I<$result = add_my_adminclass(Login,AdminClass)>
 
-Adds AdminClass to the classes of the user Login.
+Adds the valid AdminClass to MyAdminClasses of the user Login and returns 1.
+
+When AdminClass is not an AdminClass nothing is done and 0 returned.
 
 =cut
 
@@ -660,7 +664,7 @@ sub add_my_adminclass {
         }
     }
     if ($valid==0){
-        print "$class is not a valid AdminClass\n";
+        #print "$class is not a valid AdminClass\n";
 	return 0;
     }
 
@@ -676,13 +680,13 @@ sub add_my_adminclass {
     @list = sort @list;
 
     # write the list to the file
-    open(MYCLASS, ">$file");
+    open(MYCLASS, ">$file.tmp");
     foreach my $item (@list){
 	print MYCLASS "$item"."\n";
     }
     close(MYCLASS);
-    #system("$file.tmp $file");
-    return @list;
+    system("mv $file.tmp $file");
+    return 1;
 }
 
 
@@ -712,9 +716,12 @@ sub provide_my_class_file {
 
 =pod
 
-=item I<remove_my_adminclass(Login,AdminClass)>
+=item I<$result = remove_my_adminclass(Login,AdminClass)>
 
-Removes AdminClass from the classes of the user Login.
+Removes AdminClass from the classes of the user Login and returns 1;.
+
+If the class could not be removed (because it didn't exist in
+MyAdminClasses), 0 is returned.
 
 =cut
 
@@ -723,18 +730,22 @@ sub remove_my_adminclass {
     my $file=&provide_my_class_file($login);
     my @list=&get_my_adminclasses($login);
     my @new_list=();
+    my $removed=0;
     foreach my $item (@list){
 	if ($item ne $class){
 	    push @new_list, $item;
-        }
+        } else {
+            $removed=1;
+	}
     }
     # write new list to file
-    open(MYCLASS, ">$file");
+    open(MYCLASS, ">$file.tmp");
     foreach my $item (@new_list){
 	print MYCLASS "$item"."\n";
     }
     close(MYCLASS);
-    return @new_list;
+    system("mv $file.tmp $file");
+    return $removed;
 }
 
 
