@@ -622,15 +622,20 @@ Creates all files and directories for a class (exchange directories).
 sub provide_class_files {
 #?????? lehrer?
     my ($class) = @_;
-    my $klassen_homes="/home/schueler/$class";
-    my $klassen_tausch="/home/tausch/klassen/$class";
-    my $klassen_aufgaben="/home/aufgaben/$class";
-    &setup_verzeichnis("/home/schueler/\$klassen",
+    if ($class eq "lehrer"){
+      &setup_verzeichnis("/home/tausch/lehrer",
+                    "/home/tausch/lehrer");
+    } else {
+      my $klassen_homes="/home/schueler/$class";
+      my $klassen_tausch="/home/tausch/klassen/$class";
+      my $klassen_aufgaben="/home/aufgaben/$class";
+      &setup_verzeichnis("/home/schueler/\$klassen",
                     "$klassen_homes");
-    &setup_verzeichnis("/home/tausch/klassen/\$klassen",
+      &setup_verzeichnis("/home/tausch/klassen/\$klassen",
                     "$klassen_tausch");
-    &setup_verzeichnis("/home/aufgaben/\$klassen",
+      &setup_verzeichnis("/home/aufgaben/\$klassen",
                     "$klassen_aufgaben");
+    }
 }
 
 
@@ -780,6 +785,8 @@ sub user_links {
           "rm -rf $user_home/Tauschverzeichnisse"
 
      );
+  } else {
+      $alt_gruppe="";
   }
   
   if ($gruppe eq "lehrer" && $alt_gruppe eq "speicher") {
