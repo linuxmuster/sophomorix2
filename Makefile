@@ -4,6 +4,17 @@
 # Zur Erstellung des Debian-Pakets notwendig (make DESTDIR=/root/sophomorix)
 DESTDIR=
 
+# Installing from this Makefile
+#====================================
+# if you use this Makefile to install sophomorix (instead of 
+# installing the debian-Package) you will miss:
+#   1. html-documentation
+#   2. manpages
+# This is because debian has scripts to install 1. and 2. VERY easily
+# see debian/rules -> dh_installman, dh-installdocs
+
+
+
 # Debian
 #====================================
 
@@ -55,9 +66,10 @@ install-base:
 	install -oroot -groot --mode=0744 sophomorix-base/scripts/sophomorix-*[a-z1-9] $(DESTDIR)/usr/sbin
 	##### configs for admin
 	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/user
-	install -oroot -groot --mode=0700 sophomorix-base/config/*[!CVS] $(DESTDIR)/etc/sophomorix/user
+	install -oroot -groot --mode=0700 sophomorix-base/config/sophomorix.conf $(DESTDIR)/etc/sophomorix/user
+	install -oroot -groot --mode=0600 sophomorix-base/config/quota.txt $(DESTDIR)/etc/sophomorix/user
 	##### config-templates
-	install -oroot -groot --mode=0700 sophomorix-base/config-templates/*[!CVS] $(CTEMPDIR)
+	install -oroot -groot --mode=0600 sophomorix-base/config-templates/*[!CVS] $(CTEMPDIR)
 	##### configs for developers
 	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/devel/user
 	install -oroot -groot --mode=0700 sophomorix-base/config-devel/sophomorix-devel.conf $(DESTDIR)/etc/sophomorix/devel/user
@@ -67,7 +79,7 @@ install-base:
 	install -oroot -groot --mode=0644 sophomorix-base/modules/Sophomorix*[a-z1-9] $(PERLMOD)
 	# for samba
 	install -d -m700 -oroot -groot $(DESTDIR)/home/samba/netlogon
-	install -oroot -groot --mode=0700 sophomorix-base/samba/netlogon/login.bat $(CTEMPDIR)/samba/netlogon
+	install -oroot -groot --mode=0600 sophomorix-base/samba/netlogon/login.bat $(CTEMPDIR)/samba/netlogon
 
 install-files:
 	##### lib for managing users in files (passwd, group, user.protokoll)
@@ -151,6 +163,9 @@ doc:
 	cp ./sophomorix-doc/source/pictures/pics/workflow.png ./sophomorix-doc/html
 	cp ./sophomorix-doc/source/pictures/pics/user-status.png ./sophomorix-doc/html
 	cp ./sophomorix-doc/source/pictures/pics/project-status.png ./sophomorix-doc/html
+	# Creating html-manpages
+	buildhelper/sopho-man2html
+
 
 # sophomorix-usermin
 install-usermin:
