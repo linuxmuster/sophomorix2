@@ -53,6 +53,41 @@ Achtung: Bei diesen Quotaangaben handelt es sich um zusätzliche Quota
 .br
 Dieses Feature ist im Moment noch nicht enthalten!!!
 .PP
+.SH Vorbereitung/Installation
+Für ein Debian System mit Debian-Kernel unterscheidet sich die
+Installation je nach verwendeter Kernelversion:
+.TP
+.B Kernel 2.4.x:
+.TP
+1. Installieren Sie das Paket quota.
+Dies ist schon erledigt, wenn sie das paket sophomorix-base
+installiert haben.
+.TP
+2. Editieren Sie /etc/fstab 
+Tragen sie in /etc/fstab für diejenigen Filesysteme die mountoption
+usrquota ein, die sie quotieren wollen. Prüfen sie durch einen reboot,
+ob die Einstellung dauerhaft funktionieren.
+.TP
+3. Entfernen unpassender Quotadateien
+In jedem quotierten Filesystem entsteht beim mounten evtl. die Datei
+aquota.user. Diese Datei hat für den Kernel 2.4.x das falsche Format
+und muss gelöscht werden.
+.TP
+3. quotacheck
+Erzeugen sie nun die passende Quotadatei quota.user mit dem Befehl:
+   quotacheck -ucvm -F vfsold -a
+.TP
+4. Schalten sie Quota ein
+   quotaon -avu
+.PP
+.B Kernel 2.6.x:
+.TP
+1. Installieren Sie das Paket quota.
+Dies ist schon erledigt, wenn sie das paket sophomorix-base
+installiert haben.
+.TP
+2. ??????
+.PP
 .SH OPTIONS
 .B sophomorix-quota
 benützt die GNU command line syntax, mit langen Optionen, die mit zwei
@@ -76,6 +111,18 @@ verändern.
 sophomorix-quota läuft möglichst normal ab, ohne Quota tatsächlich zu
 verändern. Es kann zu unsinnigen Fehlermeldungen kommen, da einige
 Schritte beim setzten von Quota auf anderen aufbauen.
+.TP
+.B -s, --system
+sophomorix-quota benutzt anstelle des Perl-Moduls Quota::
+den Systembefehl des Betriebssystems:
+
+.B   setquota -u username 
+
+um Quota zu setzten. Dies wird nicht empfohlen, da es länger dauert
+und von der Kernel-Version abhängig ist.  Diese Option wird in Zukunft
+verschwinden.
+
+.B Die Option ist im Moment noch völlig ungetestet!!!
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
