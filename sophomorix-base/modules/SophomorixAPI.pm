@@ -275,7 +275,6 @@ The group of all teachers is NOT included in this list
 
 =cut
 
-# Diese Funktion liefert eine Liste aller Klassen der Schule zurück
 sub get_adminclasses_sub_school {
     # this is database-dependant ?????????????
     my $file="$DevelConf::protokoll_datei";

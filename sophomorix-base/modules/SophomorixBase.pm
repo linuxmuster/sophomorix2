@@ -89,10 +89,10 @@ use Time::localtime;
               get_erst_passwd
               check_internet_status
               austeilen_manager
-              ka_austeilen
-              unterricht_austeilen
-              ka_einsammeln
-              unterricht_einsammeln
+              handout
+              collect
+                 ka_einsammeln
+                 unterricht_einsammeln
               provide_class_files
               provide_subclass_files
               provide_project_files
@@ -3350,47 +3350,129 @@ print "<p>";
 
 
 
-sub ka_austeilen {
-  # Praumarameter 1: Wer Teilt aus
-  # Parameter 2: In welchen Raum wird ausgeteilt
-  # Parameter 3: delete oder undelete bei rsync
-  my ($loginname, $raum, $type) = @_;
-  my $lehrer_pfad ="${DevelConf::homedir_teacher}/${loginname}/windows/aufgaben/$raum/";
-  my $raum_pfad = "${DevelConf::share_exams}/${raum}/aufgaben/${loginname}";
-  #print "Teile aus von $lehrer_pfad nach $raum_pfad<p>";
-  # -t Datum belassen
-  # -n Nur so tun, als ob
-  # -r Rekursiv
-  # -o Owner beibehalten
-  if ($type eq "delete") {
-    system("rsync -tor --delete $lehrer_pfad $raum_pfad");
-  } else {
-    system("rsync -tor $lehrer_pfad $raum_pfad");
+sub handout {
+  # Parameter 1: User that hans out data
+  # Parameter 2: Name of class/subclass/project
+  # Parameter 3: Typ (class,subclass,project,room, ...)
+  # Parameter 4: option delete rsync
+  my ($login, $name, $type, $rsync) = @_;
+
+  # home ermitteln
+  my @entry = getpwnam($login);
+  my $homedir = "$entry[7]";
+
+  my $from_dir = "${homedir}/${Language::task_dir}/${name}/";
+  my $to_dir="";
+
+  if ($type eq "class"){
+      $to_dir="${DevelConf::tasks_classes}/$name";
+  } elsif ($type eq "subclass"){
+      $to_dir="${DevelConf::tasks_subclasses}/$name";
+  } elsif ($type eq "project"){
+      $to_dir="${DevelConf::tasks_projects}/$name";
   }
+
+  print "   From:  $from_dir \n";
+  print "   To:    $to_dir \n";
+
+  if ($rsync eq "delete") {
+     system("rsync -tor --delete $from_dir $to_dir");
+  } elsif ($rsync eq "copy"){
+     system("rsync -tor $from_dir $to_dir");
+  } else {
+      print "unknown Parameter $rsync";
+  }
+
+
 }
 
 
-sub unterricht_austeilen {
-  # Praumarameter 1: Wer Teilt aus
-  # Parameter 2: In welche Klasse wird ausgeteilt
-  # Parameter 3: delete oder undelete bei rsync
-  my ($loginname, $klasse, $type) = @_;
-  my $lehrer_pfad ="${DevelConf::homedir_teacher}/${loginname}/windows/aufgaben/${klasse}/";
-  # Achung: share aufgabe (ohne n) ist in ${DevelConf::tasks_tasks}
-  my $klasse_pfad = "${DevelConf::tasks_tasks}/${klasse}/${loginname}/";
-#  my $klasse_pfad = "${DevelConf::share_classes}/${klasse}/${loginname}/";
-  #print "Teile aus von $lehrer_pfad nach $klasse_pfad<p>";
-  # -t Datum belassen
-  # -n Nur so tun, als ob
-  # -r Rekursiv
-  # -o Owner beibehalten
-  if ($type eq "delete") {
-    system("rsync -tor --delete $lehrer_pfad $klasse_pfad");
-  } else {
-    system("rsync -tor $lehrer_pfad $klasse_pfad");
-  }
-}
+sub collect {
+  # Parameter 1: User that collects data
+  # Parameter 2: Name of class/subclass/project
+  # Parameter 3: Typ (class,subclass,project,room, ...)
+  # Parameter 4: options
+  my ($login, $name, $type, $rsync) = @_;
+  my $date=&zeit_stempel;
 
+  my @entry_col = getpwnam($login);
+  my $homedir_col = "$entry_col[7]";
+
+
+
+  # create a list of user to collect data from
+  my @users=();
+
+  if ($type eq "class"){
+      if ($name ne "${Language::teacher}"){
+         @users=&get_user_adminclass($name);
+     } else {
+         # nix
+     }
+  } elsif ($type eq "subclass"){
+      # gruppenmitglieder 
+      my ($name,$passwd,$gid,$members)=getgrname($name);
+      @users=split(/,/, $members);
+
+
+  } elsif ($type eq "project"){
+      my ($name,$passwd,$gid,$members)=getgrname($name);
+      @users=split(/,/, $members);
+  }
+
+  foreach my $user (@users){
+      my @entry = getpwnam($user);
+      my $homedir = "$entry[7]";
+      my $from_dir="$homedir/${Language::collect_dir}/";
+
+      my $to_dir = "${homedir_col}/${Language::collect_dir}/$name/$date/$user/";
+
+      # ???? make more secure
+      if ($from_dir =~ /(.*)/) {
+         $from_dir=$1;
+      }  else {
+         die "Bad data in $from_dir"; # Log this somewhere.
+      }
+
+
+      # ???? make more secure
+      if ($to_dir =~ /(.*)/) {
+         $to_dir=$1;
+      }  else {
+         die "Bad data in $to_dir";   # Log this somewhere.
+      }
+
+
+      print "$user   From: $from_dir\n";
+      print "          To: $to_dir\n";
+      &linie();
+      print "\n";
+
+      system("ls $from_dir");
+
+      if ($rsync eq "delete") { 
+         my $dir="${homedir_col}/${Language::collect_dir}/${name}";
+
+         # ???? make more secure
+         if ($dir =~ /(.*)/) {
+            $dir=$1;
+         }  else {
+            die "Bad data in $dir";   # Log this somewhere.
+         }
+
+         system("/usr/bin/install -d $to_dir");  
+         system("/usr/bin/rsync -tor --delete $from_dir $to_dir");
+#         system("/bin/chown -R $login.${Language::teacher} $dir");
+         system("/bin/chown -R $login. $dir");
+      } elsif ($rsync eq "copy"){
+         system("/usr/bin/rsync -tor $from_dir $to_dir");
+      } else {
+         print "unknown Parameter $rsync";
+      }
+  }
+# ??????????
+
+}
 
 
 sub ka_einsammeln {
