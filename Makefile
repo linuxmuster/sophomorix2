@@ -27,6 +27,9 @@ USERROOT=$(DESTDIR)/root
 # Data
 LIBDIR=$(DESTDIR)/var/lib/sophomorix
 
+# Data
+LOGDIR=$(DESTDIR)/var/log/sophomorix
+
 # Perl modules
 PERLMOD=$(DESTDIR)/usr/share/perl5/Sophomorix
 
@@ -61,10 +64,12 @@ clean: clean-doc
 # sophomorix-base
 install-base:
 	##### some dirs
-	install -d -m700 -oroot -groot $(DESTDIR)/var/lib/sophomorix
-	install -d -m700 -oroot -groot $(DESTDIR)/var/log/sophomorix
-	install -d -m700 -oroot -groot $(DESTDIR)/var/log/sophomorix/user
-	install -d -m700 -oroot -groot $(DESTDIR)/var/lib/sophomorix/print-data
+	install -d -m700 -oroot -groot $(LIBDIR)
+	install -d -m700 -oroot -groot $(LIBDIR)/tmp
+	install -d -m700 -oroot -groot $(LIBDIR)/print-data
+	install -d -m700 -oroot -groot $(LIBDIR)/database
+	install -d -m700 -oroot -groot $(LOGDIR)
+	install -d -m700 -oroot -groot $(LOGDIR)/user
 	install -d -m700 -oroot -groot $(CTEMPDIR)
 	install -d -m700 -oroot -groot $(CTEMPDIR)/samba/netlogon
 
