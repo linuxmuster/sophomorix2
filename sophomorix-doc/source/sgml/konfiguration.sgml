@@ -1,0 +1,301 @@
+<chapter>
+  <title>Konfiguration</title>
+  <titleabbrev id="konf">Konfiguration</titleabbrev>
+  <sect1>
+    <title id="konfigurationsdateien"
+      xreflabel="Konfigurationsdateien">Konfigurationsdateien</title>
+    <sect2>
+    <title>Allgemeine Konfiguration</title>
+    <para>Alle Dateien, die sie selber bearbeiten können/müssen, haben die
+	Endung <userinput>.txt</userinput> oder <userinput>.conf</userinput>.
+	Alle anderen Dateien dürfen nicht editiert werden! </para>
+    <para>Hundertprozentig sicher editieren können sie die Dateien mit dem
+	Editor <userinput>xemacs</userinput>, der auf dem Musterlösungs-Server
+	vorhanden ist. (Damit habe ich alles getesetet). Nicht zu empfehlen
+	ist, die Dateien über das Netzwerk von einer Windows-Arbeitsstation aus
+	zu editieren, da man immer daran denken muss unter einem bestimmten
+	Format abzuspeichern. Wenn man's irgendeinmal vergisst, .... gibts
+	Probleme.</para>
+      <para>Falls sie sich sehr gut mit Codiertabellen,
+      Zeilentrenner-umwandlungen, ... auskennen, und dies dennoch machen
+      wollen, teilen sie mir bitte die Ergebnisse mit.</para>
+      <para>Eine weiter, sicherere (allerdings noch nicht vollständig getestet)
+	Möglichkeit, ist das editieren der Dateien mit
+	<userinput>webmin</userinput>. Öffnen sie dazu einen Browser im
+	Intranet und geben sie folgende URL ein:</para>
+      <para><screen>https://server:999/file</screen></para>
+      <para>Nach dem Anmelden als admin sehen Sie einen Dateimanager, der
+	ahnlich zu bedienen ist, wie der Konqueror oder Windows-Explorer. Dazu
+	muss allerdings Java aktiviert sein (Menü: Edit - Preferences -
+	advanced - enable Java).</para>
+      <para>Gehen sie nun nach </para>
+      <para><screen>/etc/sophomorix/user</screen> und editieren
+	Sie dann die Konfigurationsdateien.</para>
+    <para>&check; enthält folgende Dateien im Verzeichnis
+      <userinput>/etc/sophomorix/user/</userinput>, 
+      in denen Sie für ihre Schule passende Einträge machen können:</para>
+    <para><itemizedlist>
+	<listitem>
+	    <para>Die Datei <userinput>sophomorix.conf</userinput> ist die
+	      zentale Konfigurationsdatei für die Benutzerverwaltung mit
+	      sophomorix. Diese Datei ist mit sinnvollen Standardvorgaben
+	      versehen, sollte aber an ihre Schule angepasst werden. Schauen
+	      Sie am besten einmal durch, was sie alles anpassen können.</para>
+	    <para>Diese Datei wird von verschiedenen Perl-Scripten gelesen, und
+	      muss daher in Perl-Syntax geschrieben sein.</para>
+	    <para>Sie finden in der Datei genügend Beispiele, wie in Perl
+	      Variablen (<userinput>$</userinput>) und Listen
+	      (<userinput>@</userinput>) Werte zugewiesen werden.</para>
+	  </listitem>
+	<listitem>
+	  <para>Die Dateien <userinput>sperrklassen.txt</userinput> und
+	      <userinput>entfernen.txt</userinput> ermöglichen das verzögerte
+	      Anlegen von Klassen. Damit kann erreicht werden, dass z. B.
+	      Blockklassen ausgefiltert werden, solange ihre Datensätze noch
+	      nicht in korrigierter Form vorliegen (Weil das Sekretariat zur
+	      Korrektur einige Tage braucht).</para>
+	  <para>Die Dateien haben folgendes Format:</para>
+	  <para><screen>klassenname;anlegedatum;</screen></para>
+	  <para>Das Anlegedatum muss innerhalb der von Unix erkannten Zeit
+	    liegen (1970-2038), da es mit dem Systemdatum verglichen
+	    wird. Liegt die Systemzeit <emphasis>vor</emphasis> dem
+	    Anlegedatum, so werden die Schüler diese Klasse ausgefiltert.</para>
+	  <para>Damit das funktioniert  muss die <xref
+	linkend="systemzeit"> richtig gestellt sein. </para>	
+	  <para>Kommentarzeilen sind erlaubt, wenn sie mit #
+	    <emphasis>beginnen</emphasis>. </para>
+	  <para>Der Unterschied zwischen
+	      <userinput>sperrklassen.txt</userinput> und
+	      <userinput>entfernen.txt</userinput> ist die Vorgehensweise,
+	      wenn es bereits Schüler in den zu sperrenden/entfernenden Klasssen
+	      im System gibt:</para>
+	  <para><itemizedlist>
+	      <listitem>
+		<para>Ein Eintrag in <userinput>sperrklassen.txt</userinput>
+		  lässt schon vorhandene Schüler im System. </para>
+		<para>Das ist das, was sie normalerweise wollen. Wenn z. B. in
+		    einer Blockklasse, in der die Schüler neu eingeschult
+		    werden, ein Schüler wiederholt (sitzenbleibt). Dann bleibt
+		    er im System, auch wenn alle neu hinzukommenden Schüler
+		    erst mal gesperrt werden.</para>
+	      </listitem>
+	      <listitem>
+		<para>Ein Eintrag in <userinput>entfernen.txt</userinput> führt
+		    bereits angelegte Schüler der Entfernungs-Sequenz
+		    zu.</para>
+		<para> Dies kann z.B. verwendet werden, um eine Klasse mit
+		    schon angelegten Schülern, die gar keinen EDV-Unterricht
+		    haben, aus dem System zu holen und auch in Zukunft
+		    auszufiltern. Das Sperrdatum muss dann entsprechend hoch
+		    gesetzt werden.</para>
+	      </listitem>
+	    </itemizedlist>
+</para>
+	</listitem>
+	<listitem>
+	  <para>Die Datei <userinput>extraschueler.txt</userinput> enthält die
+	    von Hand anzulegenden und zu pflegenden Schüler. Die Datei hat
+	    dasselbe Format wie <userinput>schueler.txt</userinput>. Zusätzlich
+	    darf der Name auch Ziffern enthalten. </para>
+	  <para>
+	  <warning>
+	  <para>Sie müssen jedoch darauf achten, dass kein loginname entsteht,
+	    der mit einer Ziffer beginnt!</para>
+          </warning>
+          </para>
+	  <para>Die Geburtsjahreszahl darf <emphasis>in dieser Datei</emphasis>
+	      Werte von 1900 bis 2100 enthalten Dies ist in
+	      <userinput>sophomorix.conf</userinput> einstellbar.
+	  </para>
+	  <para>Es empfiehlt sich, statt dem
+	    Geburtsdatum das Anlegedatum einzutragen.</para>
+	</listitem>
+	<listitem>
+	  <para>In der  Datei <userinput>extrakurse.txt</userinput> kann mit
+	      einer Zeile ein ganzer Kurs (=Manuell angelegte Klasse) angelegt
+	      werden. Die Syntax lesen Sie bitte in der Datei selber
+	      nach. Wichtiges Feature ist, dass sie schon beim anlegen angeben
+	      können, ab wann es diesen Kurs nicht mehr geben soll.</para>
+	</listitem>
+	<listitem>
+	  <para>Die Datei <userinput>schueler.teach-in.txt</userinput> kann
+	    zwar von Hand editiert werden. Besser ist es jedoch dazu das Script
+	    <userinput>teach-in.pl</userinput> zu benutzen. </para>
+	  <para>Von Hand getätigte, syntaktisch richtige Einträge, die einen
+	    <emphasis>tatsächlich existierenden</emphasis> Schüler betreffen,
+	    bleiben auch nach dem Aufruf von <userinput>teach-in.pl</userinput>
+	    erhalten, wenn nicht durch das teach-in der manuell eingetragene
+	    Wert überschrieben wird.</para>
+	  </listitem>
+	  <listitem>
+	    <para>Letztendlich gibt es noch besondere
+	      Konfigurationseinstellungen je nach verwendetem
+	      Schulverwaltungsprogramm</para>
+	    <para><itemizedlist>
+		<listitem>
+		  <para><xref linkend="splan" endterm="splan"></para>
+		</listitem>
+	      </itemizedlist>
+</para>
+	</listitem>
+     </itemizedlist>
+</para>
+    </sect2>
+    <sect2>
+      <title>Konfiguration von Quotas.</title>
+      <para>Dies ist bei  <xref linkend="quota"> erläutert.</para>
+    </sect2>
+
+<sect2>
+    <title>Klassenweite Einstellungen</title>
+      <para>Um Klassenweise Angaben machen zu können existiert die
+	Konfigurationsdatei <userinput>schulinfo.txt</userinput></para>
+	  <para>Sie hat den Aufbau</para>
+	  <para><screen>klasse;abteilung;klassentyp;mail;quota;</screen></para>
+	  <para>Damit wird Angegeben zu welcher Abteilung (falls ihre Schule in
+	      Abteilungen aufgeteilt ist) eine Klasse gehört. Um welchen
+	      Klassentyp es sich handelt (noch ungenutzt) , ob die Schüler
+	      dieser Klasse Mail-Aliase bekommen sollen oder auch eine
+	      gemeinsame Mail-Empfangsadresse Klasse@domain.de, sowie nur für
+	      eine Klasse gültige quota-Einstellungen.</para>
+	  <para>Syntax:</para>
+	  <para><itemizedlist>
+	      <listitem>
+		<para>Sie dürfen/brauchen keine Klassen selber eintragen. Bei
+	      jedem Aufruf von <userinput>sophomorix-check</userinput> wird
+	      eine neue Klassenliste aller in
+	      <userinput>schueler.txt</userinput> (und in den
+	      extra-Dateien) befindlichen Klassen erstellt, ohne dass bisherige
+	      Eintragungen verloren gehen.</para>
+	      </listitem>
+	      <listitem>
+		<para>Für die Abteilung können sie einen beliebigen String
+		  wählen. Dieser String muss jedoch exakt gleich sein bei
+		  Klassen, die in die gleiche Abteilung kommen sollen. </para>
+		<para>Mein Vorschlag: Möglichst kurz und nur Kleinbuchstaben
+		  (Bei uns in der Schule sind das z. B. g1, g2, g3, ...).</para>
+		<para>Von Hand angelegte Klassen (extraschueler.txt bzw.
+	      extrakurse.txt) erscheinen auch. Diese können z.B. der Abteilung
+	      <userinput>admin</userinput> zugeordnet werden.</para>
+	      </listitem>
+	      <listitem>
+		<para>Sollten sie keine Abteilungen an der Schule haben, lassen
+		sie das Feld unverändert (=leer).</para>
+	      </listitem>
+	      <listitem>
+		<para>Das Feld Klassen-typ ist bisher ohne Funktion. Lassen sie
+		    es auf <userinput>typ</userinput>.</para>
+	      </listitem>
+	      <listitem>
+	    <para>Für <userinput>mail</userinput> gibt es folgende
+	      Funktionen:</para>
+	    <para><itemizedlist>
+		<listitem>
+		  <para><userinput>mail:</userinput> </para>
+		  <para>ohne Funktion.</para>
+		  <para><userinput>mailalias:</userinput> </para>
+		  <para>für alle Schüler der Klasse wird ein Mail-alias
+		    erzeugt. Der Schüler ist somit unter
+		    <userinput>loginname@domain.de</userinput> erreichbar,
+		    sowie unter
+		    <userinput>vorname.nachname@domain.de</userinput>. Beachten
+		    Sie, dass es bei Schülern die denselben Vornamen und
+		    denselben Nachnamen haben unweigerlich zu Schwierigkeiten
+		    bei der Mailzustellung kommt! Deshalb ist dieser Eontrag
+		    nur spärlich zu benutzen. Bei uns wird er z.B. benutzt um
+		    allen Sekretären/Sekretärinnen an unserer Schule, die sich
+		    in der Klasse sekretariat bzw. ksekretariat befinden eine
+		    E-mail-Adresse mit vorname.nachname zu ermöglichen.
+		    Dasselbe ist z.B. für die Hausmeister denbar.</para>
+		</listitem>
+		<listitem>
+		  <para><userinput>mailalias+liste:</userinput> </para>
+		  <para>Dieser Eintrag erstellt zusätzlich eine gemeinsame
+		    Empfangsadresse für alle Schüler einer Klasse. Im obigen
+		    Beispiel würde eine Email-Adresse erstellt werden, unter
+		    der alle Schüler/Schülerinnen der Klasse sekretariat bzw.
+		    ksekretariat erreichbar wären:
+		    <userinput>ksekretariat@domain.de</userinput> und
+		    <userinput>sekretariat@domain.de</userinput></para>
+		</listitem>
+	      </itemizedlist>
+</para>
+		</listitem>
+		<listitem>
+		  <para>Das Feld für Klassenquotas</para>
+	    <para>Wollen Sie für diese Klasse keine vom Standardwert in
+	      <userinput>quota.txt</userinput> abweichende Quota vergeben,
+	      lassen Sie dieses Feld auf <userinput>quota</userinput>.</para>
+		  <para>Wollen Sie abweichende Quota für diese Klasse, so geben
+		    Sie zum Beispiel <userinput>x-30-x-x</userinput> ein, um 30
+		    MB Festplattenplatz zu vergeben. Siehe auch 
+                  <xref linkend="quota">.</para>
+	      </listitem>
+	    </itemizedlist>
+          <para>Ein Neuaufruf von <userinput>sophomorix-check</userinput> ordned
+	    die Daten in dieser Datei neu nach Abteilungen. Klassen, zu der
+	    noch keine Angaben gemacht wurden, erscheinen am Anfang der
+	    Datei. Somit sind einfacher Eintragungen zu machen.
+	  </para>
+    </sect2>
+<sect2>
+    <title>Zuordnung Lehrer zu seinen Klassen</title>
+    <para>Viele Netzwerkbetreuer an großen Schulen kennen ihre Lehrerkollegen
+	nicht nicht persönlich und wissen erst recht nicht, in welchen Klassen
+	welcher Lehrer unterrichtet. </para>
+      <para>Um einen Überblick zu bekommen, welche Lehrer in welchen Klassen
+	unterrichten, werden sie ermuntert sich per <userinput>webmin-Modul
+	  Klassenmanager</userinput> in den Klassen einzutragen, in denen sie
+	unterrichten. Damit können die Lehrer in diesen Klassen erweiterte
+	Aufgaben erledigen, wie z.B. Klassentauschverzeichnis löschen,
+	public_html-Verzeichnisse freischalten, Passwortliste ausdrucken,
+	Quotainformationen der Klasse einsehen, ...</para>
+      <para>Trägt sich ein Lehrer per webmin in eine Klasse ein, so wird dies
+	in <userinput>$HOME/.sophomorix/_Meine-Klassen</userinput>
+	gespeichert.</para>
+    <para>Diese Informationen werden an mehreren Stellen sichtbar:</para>
+      <para>
+	<itemizedlist>
+	  <listitem>
+	    <para>Werden z.B. während des laufenden Schuljahres neue Schüler in
+	      einer Klasse angelegt, so ist/sind die Loginnamen der Lehrer die
+	      sich in dieser Klasse eingetragen haben auf dem Ausdruck
+	      sichtbar. Der Netzwerkbetreuer weiss welcher Lehrer informiert
+	      werden muss. (In einer späteren Version von sophomorix ist eine
+	      automatische Informationsmail geplant)</para>
+	  </listitem>
+	  <listitem>
+	    <para>Mit dem <userinput>webmin-Modul
+	Klassenmanager</userinput> kann jeder Lehrer sich anzeigen lassen,
+	      welche Lehrer sich in welcher Klasse eingetragen hat.</para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+    </sect2>
+    <sect2>
+      <title>Schulinfo-Daten abfragen</title>
+      
+      <para>Mit dem Script <userinput>schulinfo.abfrage.pl</userinput> können
+      Blätter ausgedruckt werden, in die die Schulleitung, bzw. die
+	Abteilungsleiter die verantwortlichen Lehrer eintragen können. </para>
+      <para>Dies ist meines erachtens nicht mehr notwendig/sinnvoll und wird
+	vorraussichtlich nicht mehr weiterverfolgt.</para>
+      <para>Falls Bedarf besteht bitte melden!</para>
+    </sect2>
+  </sect1>
+</chapter>
+
+<!-- Dieser Kommentar bleibt am Ende des Teil-Dokuments
+Erster Eintrag  : Das Parent-Dokument, das die DTD enthält
+Zweiter Eintrag : Das TOP-Element des Parent-Dokuments
+Dritter Eintrag : Das TOP-Element dieses Child-Dokuments
+Local Variables:
+mode: sgml
+sgml-parent-document: ( "sophomorix.sgml" "book" "part" "chapter" )
+End:
+-->
+
+
+
+
+

@@ -1,0 +1,31 @@
+<appendix>
+  <title id="systemzeit" xreflabel="Systemzeit">Richtige Systemzeit
+    einstellen</title>
+  <sect1>
+    <title>Zeit übers Internet holen.</title>
+    <para>Die Anzeige der momentan eingestellten Systemzeit erfolgt mit dem
+      Befehl:</para>
+    <para><screen>date</screen></para>
+    <para>Die BIOS-Zeit-Anzeige erfolgt mit dem Befehl:</para>
+    <para><screen>hwclock</screen></para>
+    <para>Systemzeit einstellen mit Hilfe des Belwue-Servers mit:</para>
+    <para><screen>netdate tcp noc.belwue.de</screen></para>
+    <para>Die Systemzeit wird dann ins BIOS geschrieben mit dem Befehl:</para>
+    <para><screen>hwclock -systohc</screen></para>
+    <para>Es empfiehlt sich, auch die BIOS-Zeit zu stellen, da das
+      Betriebsystem beim Start die BIOS-Zeit ausliest. Beim Linux
+      Musterlösungsserver wird also die BIOS-Zeit nur alle paar Monate bis
+      Jahre ausgelesen;-)</para>
+   </sect1>
+</appendix>
+
+
+<!-- Dieser Kommentar bleibt am Ende des Teil-Dokuments
+Erster Eintrag  : Das Parent-Dokument, das die DTD enthält
+Zweiter Eintrag : Das TOP-Element des Parent-Dokuments
+Dritter Eintrag : Das TOP-Element dieses Child-Dokuments
+Local Variables:
+mode: sgml
+sgml-parent-document: ( "sophomorix.sgml" "book" "part" "appendix" )
+End:
+-->

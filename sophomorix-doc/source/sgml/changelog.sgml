@@ -1,0 +1,629 @@
+<appendix>
+  <title>Changelog (NICHT sophomorix-pre)</title>
+  <sect1>
+    <title>Ab Version <userinput>0.5.5</userinput></title>
+    <para><itemizedlist>
+        <listitem>
+	  <para>Das Format der Dateien <userinput>schulinfo.txt</userinput> und
+	    <userinput>lehrerinfo.txt</userinput> wurde verändert, um den
+	    zusätzlichen Parameter <userinput>quota</userinput> einzubringen.
+	    Diese Dateien müssen leider von Hand aktualisiert werden, wenn sie
+	    checkscript schon produktiv einsetzen</para>
+	  <para>Die Quotas werden in folgenden 3 Dateien angegeben:</para>
+	  <para><itemizedlist>
+	      <listitem>
+		<para><userinput>quota.txt</userinput> für allgemeine
+		  Quotas</para>
+	      </listitem>
+	      <listitem>
+		<para><userinput>schuelinfo.txt</userinput>, wenn einzelne
+		  Klasen abweichende quota haben sollen.</para>
+	      </listitem>
+	      <listitem>
+		<para><userinput>lehrerinfo.txt</userinput>, wenn einzelne
+		  Lehrer abweichende quota haben sollen.</para>
+	      </listitem>
+	    </itemizedlist>
+	  </para>
+	  <para><userinput>quota.pl</userinput> funktioniert nur, wenn quotas
+	    nur auf einem Dateisystem eingesetzt werden (also in /).</para>
+	</listitem>
+	<listitem>
+	  <para><userinput>teach-in.pl</userinput> kann mit einem Parameter
+	    aufgerufen werden. Erlaubt als Parameter sind 5 bis 60 in
+	    5er-Schritten.</para>
+	  <para>Der Parameter gibt an, wie genau es
+	    <userinput>teach-in.pl</userinput> bei der Suche nach gleichen
+	    Schülern nehmen soll. Der Parameter ist ein Prozentwert. Er gibt an,
+	    wie genau es <userinput>teach-in.pl</userinput> nehmen soll, wenn
+	    es ähnliche Schüler sucht. (5 = 5% Abweichung geduldet)</para>
+	</listitem>
+	<listitem>
+	  <para>Um Schüleranmeldedaten zu drucken, kann dem Script
+	    <userinput>drucken.pl</userinput> ein Parameter übergeben werden.
+	    Dies ermöglicht z.B. alle Userdaten zu drucken (Parameter:
+	    <userinput>alle</userinput>) oder auch die Anmeldedaten einer
+	    Klasse zu drucken (Parameter:
+	    <userinput>klassenname</userinput>). Der Klassenname muss ohne das
+	    dazugesetzte <userinput>k</userinput> eingegeben weden.</para>
+	</listitem>
+	<listitem>
+	  <para>Außer den <userinput>*.pdf</userinput>-Dateien werden von
+	    <userinput>drucken.pl</userinput> auch
+	    <userinput>*.csv</userinput>-Dateien erstellt. Diese beinhalten die
+	    Anmeldedaten als Strichpunkt-Separierte Werte. Sie sollten mit der
+	    Serienbrief-Funktion von OpenOffice und M$-Word verarbeitet werden
+	    können. Diese Dateien haben ein Unix-Zeilentrenner. Wer testet, ob
+	    es tut?</para>
+	</listitem>
+	<listitem>
+	  <para>Zentrale Konfigurationsdatei
+	    <userinput>ml-user.conf</userinput> eingeführt (Testweise). Die
+	    Variable <userinput>$quota_filesystem_conf</userinput> wird bisher
+	    als einzige Variable global definiert und von der Datei
+	    <userinput>quota.pl</userinput> aufgerufen. </para>
+	  <para>Nach und nach sollen ALLE Variablen, die bisher in den Scripten
+	    selbst gesetzt werden müssen, in dieser Datei erscheinen. Als
+	    Syntax für diese Datei wurde die PERL-Syntax gewählt, da einige
+	    diese Syntax schon kennen, und dies am flexibelsten ist (siehe auch
+	    Perl-Kochbuch, O'Reilly, Deutsche Ausgabe, S. 314 ff)
+	  </para>
+	  <para>Anregungen, was noch in dieser Datei zentral eingestellt werden
+	    sollte, bitte an mich.</para>
+	  <para>Mittelfristig wäre es auch schön, wenn Parameter, die in
+	    <userinput>versetzen.pl</userinput> benötigt werden (z.B. das
+	    Standardpasswort) in dieser Datei integriert werden könnte.</para>
+	</listitem>
+	<listitem>
+	  <para>Testweise wurden zwei Subroutinen, die von mehreren Scripte
+	    genutzt wurden, in die Datei
+	    <userinput>/root/bin/subroutines.pl</userinput> ausgelagert. Dies
+	    dient dazu den Code übersichtlicher und leichter Pflegbar zu
+	    gestalten. Sowie Codeverdoppelungen zu vermeiden.</para>
+	  <para>Um ein Umstieg auf LDAP zu erleichtern, möchte ich allen Code,
+	    der für LDAP angepasst werden müsste, ebenfalls in eine
+	    Subroutinen-Datei packen. Damit dürfte der Umstieg leichter
+	    fallen.</para>
+	</listitem>
+      </itemizedlist>
+</para>
+  </sect1>
+  <sect1>
+    <title>Stabile Version 0.5.18</title>
+    <itemizedlist>
+      <listitem>
+	<para>Fehler beim Anlegen von Klassenqotas (unberücksichtigte Quota)
+	  behoben</para>
+      </listitem>
+      <listitem>
+	<para>Die Syntax des <userinput>setquota</userinput>-Befehls wird
+	  Kernelabhängig (2.2.16-Kernel von ML 1.1.1 oder 2.4.18-Kernelupdate)
+	  angepasst.</para>
+      </listitem>
+      <listitem>
+	<para>Die Schriften, die zum erzeugen der Login-Kätchen mit Latex
+	  benötigt werden, werden nun bei jeder rpm-Installation automatisch
+	  erzeugt, falls noch nicht vorhanden. (siehe postinstall-scripten vom
+	  SPEC-file).
+	</para>
+      </listitem>
+      <listitem>
+	<para>Schulname ist in <userinput>ml-user.conf</userinput> eintragbar.
+	  Die Konfigurationsdatei <userinput>schule.txt</userinput> gibt es nun
+	  nicht mehr.</para>
+      </listitem>
+      <listitem>
+	<para>Nicht funktionierende Ausfilterung von Schülern mit einer
+	  Geburtsjahreszahl außerhalb des zulässigen Bereichs gefixt.</para>
+      </listitem>
+      <listitem>
+	<para>Vom Netzwerkbetreuer einzustellende Parameter der checkscripten
+	  stehen nun alle in <userinput>ml-user.conf</userinput>.</para>
+      </listitem>
+      <listitem>
+	<para>Alle Klassen, die mit <userinput>*</userinput> beginnen, können
+	  nun in die neue Datei <userinput>report.splan</userinput>
+	  ausgefiltert werden. Zuvor landeten diese Klassen wegen dem
+	  Sonderzeichen im <userinput>report.sekretariat</userinput> und haben
+	  dort viel Verwirrung erzeugt. (Bei Splan sind Sternchenklassen
+	  Klassen, die erst im kommenden Schuljahr verwendet werden, z. B.
+	  Voranmeldungen).</para>
+	<para>
+	  Dieses Feature kann man in <userinput>ml-user.conf</userinput> ein
+	  oder ausschalten</para>
+      </listitem>
+      <listitem>
+	<para><userinput>quota.pl</userinput> kann auf mehreren, in
+	  <userinput>ml-user.conf</userinput> angegebenen Dateisystemen
+	  Quota setzen.</para>
+      </listitem>
+      <listitem>
+	<para>Quotaangabe mit der Syntax <userinput>x-20-x-x</userinput> können
+	  vereinfacht mit <userinput>20</userinput> gemacht werden.</para>
+      </listitem>
+      <listitem>
+	  <para>Wenn nicht 4 Strichpunkte gefunden werden, sonden nur 3, dann
+	  kann -- in <userinput>ml-user.conf</userinput> einstellbar -- ein
+	  <userinput>;</userinput> angehängt werden, und weitergeprüft
+	  werden.</para>
+	</listitem>
+      <listitem>
+	<para>In <userinput>ml-user.conf</userinput> ist nun der Loglevel
+	  einstellbar. Insbesondere in <userinput>checkscript.pl</userinput>
+	  und <userinput>quota.pl</userinput> wurden die Informationen am
+	  Bildschirm reduziert, wenn der Loglevel=1 ist (Standardwert für den
+	  Netzwerker). </para>
+      </listitem>
+      <listitem>
+	<para>Die Konfigurationsdateien befinden sich nun in
+	  <userinput>/etc/linuxmuster/...</userinput>, da dann
+	  nicht von Windows aus mit Word, Wordpad, Notepad daran rumgepfuscht
+	  werden kann, sondern webmin oder xemacs erforderlich ist.</para>
+      </listitem>
+      <listitem>
+	<para>Eigenes Webmin-Modul ML-Schüler </para>
+      </listitem>
+      <listitem>
+	<para>Eigenes Webmin-Modul ML-Quota.</para>
+      </listitem>
+      <listitem>
+	<para>Zusätzliche Vorhersagefunktion, welche Schüler von welcher Klasse
+	  in welche Versetzt werden
+	  würden(<userinput>schueler.zuversetzen</userinput>).</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title>Ab Version 0.80 (Entwicklerversion 0.7.x)</title>
+    <itemizedlist>
+      <listitem>
+	<para><userinput>checkscript.pl</userinput> liest nun
+	  <userinput>schueler.txt</userinput> und
+	  <userinput>lehrer.txt</userinput> ein, um Vorgehensweise mit
+	  bisheriger Anleitung übereinstimmend zu halten. (Man kopierere die
+	  Schulverwaltungsdatei nach <userinput>schueler.txt</userinput>, ...).
+	  Änderung in <userinput>versetzen.pl</userinput> steht noch
+	  aus.</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title>Ab Version 0.9.3 (sophomorix)</title>
+    <itemizedlist>
+      <listitem>
+	<para>Sehr weitreichende Änderungen seit checkscript.pl. Nicht
+	  dokumentiert. Erstes rpm für ML 2.0.</para>
+	<para>aus <userinput>checkscript.pl</userinput> wird &so;</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title>Ab Version 0.9.4 (sophomorix)</title>
+    <itemizedlist>
+      <listitem>
+	<para>Erste Tests auf nackter Musterlösung 2.0 durchgeführt.</para>
+      </listitem>
+      <listitem>
+	<para><userinput>sophomorix-lib</userinput>: Abbruchsfehler behoben,
+	  wenn beim parsen von lehrer.txt Zeile leer ist</para>
+      </listitem>
+      <listitem>
+	<para><userinput>sophomorix-quota</userinput>: Parsen von /etc/passwd
+	  und /etc/group ersetzt mit systemcalls (sollte nun auch mit ldap
+	  tun)</para>
+      </listitem>
+      <listitem>
+	<para>Fehler behoben in <userinput>sophomorix-repair</userinput>, kann
+	  auch bei noch garkeinen vorhandenen Verzeichnissen (z.B. bei der
+	  Debian-Installation) eingesetzt werden. Zusammen mit
+	  repair.directories werden nun alle notwendigen Verzeichnisse
+	  angelegt.</para>
+      </listitem>
+      <listitem>
+	<para>Makefile angepasst. Es muss auf dem Build-Rechner kein User
+	  admin, oder die Gruppe lehrer vorhanden sein. Alle diesen
+	  Usern/Gruppen gehörenden Verzeichnisse werden nun von
+	  <userinput>sophomorix-repair</userinput> angelegt.</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title>Ab Version 0.9.5 (sophomorix)</title>
+    <itemizedlist>
+      <listitem>
+	<para>Verschidene Tests auf debian durchgeführt. Insbesondere das
+	  Makefile wurde so angepasst, dass webmin und samba an der bei Debian
+	  üblichen Stellen gesucht werden.</para>
+      </listitem>
+      <listitem>
+	<para>Fixed Bug: sophomorix-quota tut nicht wenn option -vv nicht
+	  angegeben</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title>Ab Version 0.9.7 (sophomorix)</title>
+    <itemizedlist>
+      <listitem>
+	<para>Verschidene Tests auf dem Schulserver durchgeführt.</para>
+      </listitem>
+      <listitem>
+	<para>public_html-Verzeichnis nach Linux-Home verlegt:
+	  <userinput>$home/www/public_html</userinput></para>
+      </listitem>
+      <listitem>
+	<para>Viele kleine Bugfixes.</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title>Ab Version 0.9.8 (sophomorix)</title>
+    <itemizedlist>
+      <listitem>
+	<para><userinput>webmin-klassenmanager</userinput> für admin
+	  angepasst.</para>
+      </listitem>
+      <listitem>
+	<para>Viele kleine Bugfixes.</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+
+    <title>Ab Version 0.9.9 (sophomorix)</title>
+    <itemizedlist>
+    <listitem>
+      <para>imp mail-aliasse(Empfang) und Sender-aliasing für vorname.nachname
+	eingerichtet. Dazu ist eine Änderung in conf.php von imp
+	notwendig.</para>
+    </Listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title>Ab Version 0.9.12 (sophomorix)</title>
+    <itemizedlist>
+      <listitem>
+	<para><userinput>webmin-privatinfo</userinput> hinzugenommen. Dieses
+	  Modul gibt informationen zum angemeldeten Lehrer aus</para>
+      </listitem>
+      <listitem>
+	<para>sophomorix-print nutzt nun die Daten, die die Lehrer beim
+	  Anmelden in einer Klasse
+	  anlegen (<userinput>.sophomorix/_Meine_Klassen</userinput>) zur
+	  Angabe des verantwortlichen Lehrers auf der Ausdruckseite.</para>
+      </listitem>
+      <listitem>
+	<para>Im Klassenmanager kann nun auch nachgeschaut werden, in welcher
+	  Klasse welche Lehrer sich eingetragen haben.</para>
+      </listitem>
+      <listitem>
+	<para>kleine Bugfixes.</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title>Ab Version 0.9.14 (sophomorix)</title>
+    <itemizedlist>
+      <listitem>
+	<para><userinput>webmin-klassenmanager</userinput> mit aktualisierten
+	  Hilfe-Dateien.
+	</para>
+      <listitem>
+	  <para>Version für Debian jetzt mit
+	    <userinput>sophomorix-ldapsetup</userinput> mit dem unter Debian
+	    ein einfacher openldap-server eingerichtet werden kann.</para>
+      </listitem>
+      <listitem>
+	<para>minimale Bugfixes gegenüber 0.9.12.</para>
+      </listitem>
+      <listitem>
+	<para>Für diese Version sind beide Pakete (*.rpm und *.deb
+	    gleich)</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title>Ab Version 0.9.15 (sophomorix)</title>
+    <itemizedlist>
+      <listitem>
+	<para>Bug beim Freischalten der Lehrer-Public_html's beseitgt.
+	</para>
+      <listitem>
+	<para><userinput>sophomorix.spec</userinput> angepasst, sodass
+	  Installation auf ML 2.1 nicht abbricht (ab Release 22)</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title>Ab Version 0.9.16 (sophomorix)</title>
+    <itemizedlist>
+      <listitem>
+	<para>Scripten zum update der ML 2.0/2.1 bei vorhandenen Benutzern
+	  hinzugenommen (Erster Test).
+	</para>
+      <listitem>
+	  <para>Buchstabe e mit Akzent wird nun richtig zu e umgesetzt.</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title>Ab Version 0.9.17 (sophomorix)</title>
+    <itemizedlist>
+      <listitem>
+	<para>Konfigurationsdatei <userinput>lehrerinfo.txt</userinput> wird
+	  nicht mehr gebraucht und ist entfernt. Die Informationen der Lehrer
+	  stehen nun alle in <userinput>lehrer.txt</userinput>.
+	</para>
+      <listitem>
+	<para>Neues Löschen-Modul im klassenmanager (Löschen in den
+	  Tauschverzeichnissen), das schneller arbeitet als das alte. Altes
+	  Modul fällt weg.</para>
+	<para>Im Klassenmanager die Zukünftigen Befehle in die Tabelle
+	  eingetragen. (Vermerk: ToDo)</para>
+      </listitem>
+      <listitem>
+	<para>Darstellungsfehler in den Webmin-Modulen behoben (html-code war
+	  schweinemäßig. weil ich die Tabellen kopiert habe, sind die Fehler
+	  in jeder Tabelle aufgetreten.)</para>
+      </listitem>
+      <listitem>
+	<para>Neues Modul sophomorix begonnen, nicht im rpm, aber im CVS mit
+	  0.9.17 getaggt.</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title>Ab Version 0.9.18 (sophomorix)</title>
+    <itemizedlist>
+      <listitem>
+	<para>Quota werden beim anlegen der User schon gesetzt. Dazu waren
+	  grössere Eingriffe in sophomorix-lib, sophomoix-quota und
+	  sophomorix-add erforderlich. Aufpassen beim Testen.</para>
+      </listitem>
+      <listitem>
+	<para>quota werden mit derselben funktion gesetzt (sophomorix-add.
+	  sophomorix-quota)</para>
+      </listitem>
+      <listitem>
+	<para>Die quotaangaben (z.B. 200 oder 20-234-1200-x+48) werden nun
+	  syntaktisch geprüft. sophomorix-add bricht VOR dem anlegen der
+	  Schüler ab, wenn es sytaktisch falsche quotaangaben findet.</para>
+      </listitem>
+      <listitem>
+	<para>Korrektur folgender Sonderzeichen in S-Plan:
+	<para>aus a mit Dach wird a.</para>
+	<para>aus o mit Dach wird o</para>
+      </listitem>
+      <listitem>
+	<para>sophomorix-move schaut vor dem versetzten, ob der Schüler Daten
+	  im Klassen-Tausch-Verzeichnis hat (oberste Ebene). Wenn ja werden sie
+	  in das Home des Schülers verschoben und dann 'mitversetzt'. In der
+	  neuen Klase kann der Schüler die Daten wieder ins
+	  Klasssen-Tausch-Verzeichnis stellen.</para>
+	<para>Dies behebt das Problem, wenn die Schüler noch auf ihrem alten
+	  Klassentausch gearbeitet haben, dann versetzt wurden, und nicht mehr
+	  an an das alte Klassen-tausch herankommen.</para>
+	<para>(Vorteile:Daten gehen nicht verloren, es kann auch während des
+	  Schuljahres versetzt werden, keine Quota-Änderung, da
+	  verschieben)</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title>Ab Version 0.9.20 (sophomorix)</title>
+    <itemizedlist>
+      <listitem>
+	<para>Achtung neuer CODE. Nur eine Test-Version für mich! Nicht
+	  installieren. Ein stable-update folgt bald.</para>
+      </listitem>
+      <listitem>
+	<para>Für die Quotierten Filesysteme kann in sophomorix.conf eine
+	  Kommentarliste angegeben werden. Falls ein nichtleerer Kommentar
+	  angegeben ist, erscheint dieser bei den Lehrern in Webmin anstelle
+	  der Device-Bezeichnung.</para>
+	<para>Bei admin erscheinen immer die Device-Bezeichnung UND der
+	  Kommentar, um zu sehen, obs zusammenpasst. Wenn der Kommentar leer
+	  ist erscheinen Spiegelstriche.</para>
+	<para>Achtung: beim update wird sophomorix.conf überschrieben. Die
+	  Einstellungen müssen wieder eingetragen werden.</para>
+      </listitem>
+      <listitem>
+	<para>README wurde um die für public_html Verzeichnisse notwendigen
+	  httpd.conf-Anpassungen ergänzt.</para>
+      </listitem>
+      <listitem>
+	<para>README ergänzt um die smb.conf Anpassungen (smb.conf im CVS von
+	  sophomorix gilt schon für Debian, für SuSE müssen die Pfade zu samba
+	  angepasst werden)</para>
+      </listitem>
+      <listitem>
+	<para>Neuer Befehl <userinput>sophomorix-passwd</userinput> mit dem
+	  User und Raumpasswörter geändert werden können. Dieser Befehl wird
+	  vom Klassenmanager und Raummanager aufgerufen werden.</para>
+	<para>Damit können Raumweise bzw. Userweise Passwörter geändert
+	  werden.</para>
+      </listitem>
+      <listitem>
+	<para>Neuer Befehl <userinput>sophomorix-internet</userinput> mit dem
+	  Raumweise das Internet abgeschaltet werden kann.</para>
+      </listitem>
+      <listitem>
+	<para>Neues Webmin-Modul <userinput>Raum-Manager</userinput> mit dem
+	  das Internet gesperrt und Klassenarbeiten (Raum-Sperrung, Internet
+	  sperren/frei, Austeilen, Workstation-Passwort, Einsammeln)
+	  durchgeführt werden können.
+	  </para>
+	<para>Dazu Notwendig ist ein zusätzliches Netzlaufwerk
+	  <userinput>V:</userinput> das die Aufgaben bei Klassnarbeiten sowie
+	  in der Unterrichtssituation (nur lesbar für die Schüler)
+	  aufnimmt. Bei den Klassenarbeiten bekommt das bisherige Share für die
+	  Aufgaben den Laufwerksbuchstaben <userinput>V:</userinput>.</para>
+      </listitem>
+      <listitem>
+	<para>Im Klassenmanager/Raummanager können nun Dateien an Klassen/Räume
+	ausgeteilt und eingesammelt werden. Bei Klassenarbeiten wird eine Kopie
+	  in <userinput>/var/log/sophomorix/Klassenarbeiten erstellt</userinput></para>
+      </listitem>
+      <listitem>
+	<para>Das Klassentauschverzeichnis einer Klasse kann im
+	  Webmin-Raummanager per Linux-Dateirechte in les- und schreibbar, nur
+	  lesbar, kein Zugriff eingestellt werden. Wenn kein Zugriff möglich,
+	  kann der Lehrer per Webmin in das Aufgaben-Laufwerk austeilen.</para>
+      </listitem>
+      <listitem>
+	<para>Zusätzliche Konfigurationsdatei <userinput>raeume.txt</userinput>
+	kann angelegt werden. Wenn diese Datei existiert, wird die Raum-Liste
+	  der Schule daraus erstellt. Es ergibt sich ein enormer
+	  Geschwindigkeitsvorteil und die Möglichkeit nicht unterrichtlich
+	  genutzte Räume zu verbergen (z. B. Lehrerzimmer). Die Datei muss nun
+	  allerdings von Hand gepflegt werden.</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title>Ab Version 0.9.21</title>
+    <itemizedlist>
+      <listitem>
+	<para><userinput>sophomorix-samba</userinput> und Konfigurationsdateien
+	sind dabei zum allersten Test (Proof of Concept)</para>
+      </listitem>
+      <listitem>
+	<para>Kleine Bugfixes, sollte stabil laufen</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title>Ab Version 0.9.22, noch nicht erschienen (sophomorix)</title>
+    <itemizedlist>
+      <listitem>
+	<para>Bugfix: Das Verzeichnis /home/aufgaben/klassenname wird beim
+	  Anlegen eines Schülers erstellt, falls nicht vorhanden.</para>
+      </listitem>
+      <listitem>
+	<para><userinput>sophomorix-samba</userinput> erstellt die Datei
+	  <userinput>/root/sophomorix-smb.conf</userinput></para>
+      </listitem>
+      <listitem>
+	<para>Eigene Verzeichnisse unter .../devel für die smb.conf-Teildateien
+	  und die Netlogon-Scripte</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title>Ab Version 0.9.22, noch nicht erschienen (sophomorix)</title>
+    <itemizedlist>
+      <listitem>
+	<para>Bugfix: Das Verzeichnis /home/aufgaben/klassenname wird beim
+	  Anlegen eines Schülers erstellt, falls nicht vorhanden.</para>
+      </listitem>
+      <listitem>
+	<para><userinput>sophomorix-samba</userinput> erstellt die Datei
+	  <userinput>/root/sophomorix-smb.conf</userinput></para>
+      </listitem>
+      <listitem>
+	<para>Eigene Verzeichnisse unter .../devel für die smb.conf-Teildateien
+	  und die Netlogon-Scripte</para>
+      </listitem>
+      <listitem>
+	<para>Bugfix: teach-in-Aufforderung bereits wenn schueler nicht mehr in
+	  schueler.txt (statt schueler in user.weg)</para>
+      </listitem>
+      <listitem>
+	<para>farbige teach-in Aufforderung</para>
+      </listitem>
+      <listitem>
+	<para>Anzahl der User, die in den Dachboden versetzt werden können ist
+	  nun korrekt.</para>
+      </listitem>
+      <listitem>
+	<para>Diese Version wird nicht mehr ausgeliefert werden. Sie
+	diente nur zu eigenen Testzwecken.</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title>sophomorix-pre (als Version 1.0.0 ausgegliedert in ein
+    anderes cvs modul)</title>
+    <itemizedlist>
+      <listitem>
+	<para>Diese Version ist mit der Linux ML 2.2 ausgeliefert
+	worden. Es wird getrennt weiterentwickelt (Nur
+	Bugfixes). Diese Bugfixes werden als Update zur ML 2.2 verteilt.</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+
+
+
+  <sect1>
+    <title>Ab Version 1.1.0, noch nicht erschienen (sophomorix)</title>
+    <para><warning>
+	<para>Grundlegende Änderungen:</para>
+      </warning>
+    </para>
+    <itemizedlist>
+      <listitem>
+	<para>Wird nur noch als updatefähiges Debian-Paket
+	ausgeliefert und als cvs-source. Wer sophomorix ab 1.1.0 unter
+	SuSE, Redhat, ... benutzen will muss das Makefile editieren
+	und/oder das spec-file anpassen, um ein rpm-Paket zu haben.</para>
+      </listitem>
+      <listitem>
+	<para>Es wird eine Datenbankunabhängige Schnittstelle
+	geschaffen, die es erlaubt sophomorix mit ldap, mysql, ... zu
+	verwenden. Ich selber entwickle und stelle ein
+	Funtionsbibliothek bereit, die die Userdaten in die files
+	speichert(passwd, smbpasswd,user.protokoll, ...).</para>
+      </listitem>
+      <listitem>
+	<para>Das Paket wird bis auf weiteres unkomplett bleiben. Zum
+	Beispiel werden keine Verzeichnisse angelegt beim anlegen von
+	Usern.</para>
+      </listitem>
+      <listitem>
+	<para>Die Klassenbezeichnungen ändern sich. Es ist kein vorangestelltes k mehr erforderlich. Es dürfen jedoch keine Gruppennamen nur aus Zifferen bestehend benutzt werden, da der Befehl udermod dies als numerische id auffassen würde.</para>
+      </listitem>
+      <listitem>
+	<para>Die Daten Duldungsbeginn, Deaktivierungsbeginn, Status, Subklasse und Unid (Unique Identifier) werden zentral in user.protokoll gesammelt.</para>
+      </listitem>
+      <listitem>
+	<para>Weitere Änderungen: siehe cvs-Modul sophomorix2 (ab ca. Dezember 2004)</para>
+      </listitem>
+      <listitem>
+	<para></para>
+      </listitem>
+      <listitem>
+	<para></para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1>
+    <title>ROADMAP</title>
+    <para><itemizedlist>
+	<listitem>
+	  <para>siehe cvs-Modul sophomorix2 (ab ca. Dezember
+	  2004). Bitte lesen sie dazu die Einleitung</para>
+	</listitem>
+      </itemizedlist>
+</para>
+  </sect1>
+</appendix>
+
+<!-- Dieser Kommentar bleibt am Ende des Teil-Dokuments
+Erster Eintrag  : Das Parent-Dokument, das die DTD enthält
+Zweiter Eintrag : Das TOP-Element des Parent-Dokuments
+Dritter Eintrag : Das TOP-Element dieses Child-Dokuments
+Local Variables:
+mode: sgml
+sgml-parent-document: ( "sophomorix.sgml" "book" "part" "appendix" )
+End:
+-->
+
+
+
+
+
+
+
+
+

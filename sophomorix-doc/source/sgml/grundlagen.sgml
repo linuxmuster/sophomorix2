@@ -1,0 +1,159 @@
+<chapter>
+  <title>Grundlagen</title>
+  <sect1>
+    <title>Versionen</title> <para>&so; wurde als
+    <userinput>sophomorix-pre</userinput> in die Linux-Musterlösung
+    des Landes Baden-Württemberg integriert. 
+    Diese Anleitung kann auch für <userinput>sophomorix-pre</userinput>
+    benutzt werden, wenn beim Aufruf aus Webmin heraus (Benutzer
+    anlegen,versetzen) beachtet wird, dass automatisch - falls Sie
+    wirklich "ja" in Webmin sagen - der Reihe nach
+    <userinput>sophomorix-check</userinput>,
+    <userinput>sophomorix-add</userinput> und
+    <userinput>sophomorix-move</userinput> ausgeführt werden und somit
+    einen großen Teil der Leistungsfähigkeit von sophomorix (z.B.
+    <userinput>sophomorix-teach-in</userinput>,
+    <userinput>sophomorix-kill</userinput>) verschenken!
+</para>
+<para>Das Script, das bei <userinput>sophomorix-pre</userinput> hinter dem 
+Webmin-Knopf steckt (<userinput>versetzen.pl</userinput>) stellt die 
+kompatibilität zu früheren Versionen
+der Musterlösung sicher. Dazu werden die Dateien mit den User-Passwörtern 
+(<userinput>alle.pdf</userinput> und <userinput>hinzu.pdf</userinput>) nach 
+<userinput>/usr/local/samba/users</userinput> kopiert, um vom user 
+<userinput>admin</userinput> der sich unter Windows angemeldet hat ausdruckbar 
+zu sein.
+</para>
+
+
+  </sect1>
+  <sect1>
+    <title>Bestandteile</title>
+    <para>&so; besteht aus mehreren
+      Perl-Scripten: </para>
+    <para><itemizedlist>
+	<listitem>
+	  <para><userinput>sophomorix-check</userinput> zum prüfen den
+	    Schülerdaten und Lehrerdaten ohne neue User anzulegen.</para>
+	</listitem>
+	<listitem>
+	  <para><userinput>sophomorix-add</userinput> zum anlegen der Schüler
+	    und Lehrer. Dieses Script ruft intern
+	    <userinput>sophomorix-print</userinput> zur Erzeugung der
+	    Druckdaten auf.
+	</listitem>
+	<listitem>
+	  <para><userinput>sophomorix-move</userinput> zum Versetzen der
+	    Schüler (und Lehrer).
+	</listitem>
+	<listitem>
+	  <para><userinput>sophomorix-kill</userinput> zum endgültigen
+            Entfernen von Schülern oder Lehrer.
+	</listitem>
+	<listitem>
+	  <para><userinput>sophomorix-teach-in</userinput> sucht nach
+	    Namenskorrekturen und erzeugt entsprechende Einträge, die dafür
+	    sorgen, dass ein Schüler nicht entfernt werden muss. </para>
+	</listitem>
+	<listitem>
+	  <para><userinput>sophomorix-quota</userinput> zum einstellen von
+	    Schüler-, Lehrer oder Klassenquota. </para>
+	</listitem>
+	<listitem>
+	  <para><userinput>sophomorix-reactivate</userinput> zum
+	    Wiederherstellen eines von &so; deaktivierten Schülers oder
+	    Lehrers. </para>
+	</listitem>
+	<listitem>
+	  <para><userinput>sophomorix-repair</userinput> zur Erstinstallation,
+	    wenn noch keine Verzeichnisse für sophomorix existieren, oder zum
+	    reparieren (anlegen falls nicht vorhanden, Dateirechte anpassen,
+	    Benutzer und Benutzergruppe anpassen)</para>
+	</listitem>
+      </itemizedlist>
+    </para>
+    <para>Alle diese Scripte werden nach <userinput>/usr/sbin</userinput>
+      installiert, und können jederzeit als <userinput>root</userinput> mit
+      ihrem Namen aufgerufen werden. Mit der Option 
+      <userinput>--help</userinput> erhalten Sie Hilfe. Die Option
+      <userinput>--info</userinput> gibt Informationen, welche Aktionen möglich
+      sind. Der Befehl <userinput>sophomorix-add --info</userinput> gibt zum
+      Beispiel aus, welche User angelegt werden können. 
+    <para>Eine weitere Aufrufmöglichkeit besteht über Webmin. Diese ist
+      momentan in Entwicklung.</para>
+    <para>Alle Konfigurationsdateien befinden sich in
+      <userinput>/etc/sophomorix/user</userinput></para>
+    <para>Alle von &so; erzeugten Daten finden sich unter
+      <userinput>/var/lib/sophomorix</userinput>.
+      Eine Ausnahme gibt es bei 
+      <userinput>sophomorix-pre</userinput>, wenn der Benutzerimport per Webmin 
+      durchgeführt wird. Dort werden die PDF-Dateien mit den Login-Kärtchen 
+      (<userinput>alle.pdf</userinput> und <userinput>hinzu.pdf</userinput>) nach 
+      <userinput>/usr/local/samba/users</userinput> kopiert, um kompatibel zu 
+      bisherigen Musterlösungs-Versionen zu bleiben.</para>
+  </sect1>
+  <sect1>
+    <title>Grundprinzipien</title>
+    <para>Um die Benutzerverwaltung zu vereinfachen habe ich versucht folgende
+      grundlegende Prinzipien umzusetzen:</para>
+    <para><itemizedlist>
+	<listitem>
+	  <para>Die Schülerdaten werden auf ein einheitliches Format gebracht.
+	    Unabhängig vom verwendeten Schulverwaltungsprogramm. Somit ist ein
+	    Wechsel/Upgrade desselben ohne Gefahr möglich.</para>
+	</listitem>
+	<listitem>
+	  <para>Daten aus dem Sekretariat sollen erst verwendet werden, wenn
+	    sie in korrigierter Form (=endgültiger) Form vorliegen. Zuvor
+	    können die Daten ausgefiltert werden, oder es werden Schüler
+	    Klassenweise angelegt.</para>
+	</listitem>
+	<listitem>
+	  <para>Ist ein Schüler einmal angelegt, so soll er während seiner
+	    ganzen Schulkarriere mit demselben Login-Namen, Paswort und
+	    Home-Verzeichnis angemeldet bleiben. Auch wenn sich an seinen
+	    Schulverwaltungs-Daten noch etwas ändern sollte. Dies hat die
+	    erfreuliche Konsequenz, dass alle Login-Informationen an jeden
+	    Schüler nur einmal ausgegeben werden müssen.</para>
+	</listitem>
+	<listitem>
+	  <para>Schüler werden nicht sofort gelöscht, wenn sie in der
+	    Schulverwaltungsdatei nicht mehr auftauchen. Sie werden erst in die
+	    Klasse <userinput>dachboden</userinput> verschoben. Dort werden sie
+	    eine Zeit lang geduldet. In einem weiteren Schritt werden sie
+	    deaktiviert, sie können sich nicht mehr per Windows einloggen.
+	    Wiederum nach einer Zeitspanne werden sie dann endgültig gelöscht.
+	    Dabei wird kein Daten-Backup gemacht.</para>
+	</listitem>
+	<listitem>
+	  <para>Es soll genau ersichtlich sein, was passieren wird.</para>
+	  <para>Aus diesem Grund prüft man zuerst mit
+	    <userinput>sophomorix-check</userinput> alle vorhandenen
+	    Daten.</para>
+	  <para>Dann wird sichtbar, welche Schüler/Lehrer angelegt, versetzt,
+	    ... werden KÖNNEN. Erst dann führt man die entsprechende Aktion
+	    durch.</para>
+	</listitem>
+
+      </itemizedlist>
+</para>
+  </sect1>
+</chapter>
+
+<!-- Dieser Kommentar bleibt am Ende des Teil-Dokuments
+Erster Eintrag  : Das Parent-Dokument, das die DTD enthält
+Zweiter Eintrag : Das TOP-Element des Parent-Dokuments
+Dritter Eintrag : Das TOP-Element dieses Child-Dokuments
+Local Variables:
+mode: sgml
+sgml-parent-document: ( "sophomorix.sgml" "book" "part" "chapter" )
+End:
+-->
+
+
+
+
+
+
+
+

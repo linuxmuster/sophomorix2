@@ -1,0 +1,130 @@
+<!DOCTYPE book
+  PUBLIC "-//OASIS//DTD DocBook V4.2//EN"
+[
+<!ENTITY limu "Linux-Musterlösung">
+<!ENTITY bsz "BSZ (Berufliches Schulzentrum Leonberg)">
+<!ENTITY check "sophomorix">
+<!ENTITY so "<userinput>sophomorix</userinput>">
+<!ENTITY so-check "<userinput>sophomorix-check</userinput>">
+<!-- Aus anderen Dateien eingefügt: -->
+<!ENTITY grundlagen SYSTEM "grundlagen.sgml">
+<!ENTITY prinzip SYSTEM "prinzip.sgml">
+<!ENTITY konfiguration SYSTEM "konfiguration.sgml">
+<!ENTITY tools SYSTEM "tools.sgml">
+<!ENTITY installation-anhang SYSTEM "installation-anhang.sgml">
+<!ENTITY lehreranlegen SYSTEM "lehreranlegen.sgml">
+<!ENTITY benutzerstamm SYSTEM "benutzerstamm.sgml">
+<!ENTITY schulverwaltung SYSTEM "schulverwaltung.sgml">
+<!ENTITY gesamtzusammenhang SYSTEM "anhang-gesamtzusammenhang.sgml">
+<!ENTITY systemzeit SYSTEM "anhang-systemzeit.sgml">
+<!ENTITY knownbugs SYSTEM "knownbugs.sgml">
+<!ENTITY todo SYSTEM "todo.sgml">
+<!ENTITY changelog SYSTEM "changelog.sgml">
+
+]>
+
+<book id="start" lang="de">
+  <title>Benutzerverwaltung mit der Linux-Musterlösung und &check; (Datum: $Date$
+    )</title>
+  <titleabbrev>Example</titleabbrev>
+  <bookinfo>
+    <legalnotice><para>Die Skripten, die mit &check; geliefert werden
+	unterliegen der GPL. Für Hinweise und Korrektur wenden Sie sich an
+	mich. (jeffbeck at web dot de oder jeffbeck at gmx dot de).</para>
+      <para> &so; nutzt das Perl-Modul String::Approx von Jarrko Hietaniemi
+	(jhi at iki dot fi) um Ähnlichkeitsübereinstimmungen zu finden.</para>
+      <para>Ebenso nutzt &so; das Perl-Modul Quota:: von Tom
+	Zoerner (tomzo@nefcom.net), um mit Quota umzugehen.</para>
+      <para>
+	An beide vielen Dank für ihre Arbeit!</para>
+      <para></para>
+    </legalnotice>
+
+    <author><firstname>Rüdiger</firstname><surname>Beck</surname></author>
+  </bookinfo>
+  <preface><title>Einleitung - Wichtig!!!</title> 
+    <warning>
+<para>Diese Dokumentation ist ab 11.11.2004 veraltet. Sie deckt NUR
+    die mit der Linux-Musterlösung 2.2 ausgelieferte Version von
+    sophomorix (d.h. sophomorix-pre) ab. </para> <para>Aktuell
+    Dokumentation zu sophomorix ab Version 1.1, wird ab 11.11.2004 im
+    zusammen mit dem sophomorix-Quellcode im CVS-Modul sophomorix2
+    enthalten sein.</para> <para>Das CVS-Modul sophomorix2 wird ab
+    Dezember 2004 auf cvs.bszleo.de für Nichtentwickler zugänglich
+    sein. Bis dahin wird die Dokumentation aktualisiert.</para>
+    </warning>
+<para>Die &limu; ist im Bereich der
+    Schüler-Benutzerverwaltung auf kleine Netze mit wenigen, sich
+    nicht so oft ändernden Usern(=Schüler) ausgelegt.  Dabei treten
+    folgende Probleme auf:</para> <para><itemizedlist>
+	<listitem>
+	  <para>Die Ausgabe der Schulverwaltungsprogramme ist nicht ordentlich.
+	    Dies erfordert Nachbearbeitung von Hand bzw. über den Umweg
+	    Excel.</para>
+	</listitem>
+	<listitem>
+	  <para>Wenn Schüler manuell angelegt werden (Volkshochschulkurse,
+	    Projekte, Lehrer mit zusätzlichem Schüleraccount, ...), müssen
+	    diese Änderungen jedesmal neu in die
+	    <userinput>schueler.txt</userinput> hineinkopiert werden.</para>
+	</listitem>
+	<listitem>
+	  <para>Macht man bei der manuellen Bearbeitung der
+	    <userinput>schueler.txt</userinput> Fehler, so bedeutet das oft,
+	    dass ein User gelöscht wird und ein neuer, anderer dafür angelegt
+	    wird. Der Administrator muss dann wieder alles
+	    zurechtbiegen.</para>
+	</listitem>
+	<listitem>
+	  <para>Korrigiert das Sekretariat einen Schülernamen oder
+	    Geburtsdatum, so wird der Schüler (alte Schreibweise) ebenfalls
+	    entfernt und ein neuer angelegt (neue Schreibweise).</para>
+	</listitem>
+	<listitem>
+	  <para>Wenn einzelne Schüler während dem Schuljahr angelegt werden,
+	    ist es mit viel Aufwand verbunden, diesen Schülern ihr
+	    Login-Name/Zufallspasswort auszudrucken.</para>
+	</listitem>
+      </itemizedlist>
+    <para>
+      Um die &limu; auch an großen Schulen mit komplexer Benutzerverwaltung
+      einsetzen zu können, wurde &so; geschrieben. </para>
+    <para>Ich selbst bin am Beruflichen Schulzentrum Leonberg Netzwerkbetreuer,
+      einer Schule mit ca. 3000 Schülern. Wir haben im EDV-Bereich
+      Volkshochschulkurse an der Schule und sehr viele Blockklassen in der
+      Berufsschule. Die Schüler dieser Klassen werden irgendwann zwischen
+      Sommerferien und Weihnachten in das Schulverwaltungsprogramm aufgenommen.
+      Deshalb muss in diesem Zeitraum jede Woche eine Aktualisierung der User
+      vorgenommen werden.</para>
+  </preface>
+
+
+&grundlagen;
+&prinzip;
+&konfiguration;
+&tools;
+&installation-anhang;
+&lehreranlegen;
+&benutzerstamm;
+&schulverwaltung;
+&gesamtzusammenhang;
+&systemzeit;
+&knownbugs;
+&todo;
+&changelog;
+</book>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,189 @@
+<appendix>
+  <title>Installation von &check; (NICHT sophomorix-pre)</title>
+  <sect1>
+    <title>Installation</title>
+    <para><orderedlist>
+	<listitem>
+	  <para>Melden sie sich als <userinput>root</userinput> an und öffnen
+	    Sie eine Konsole</para>
+	</listitem>
+
+	<listitem>
+	  <para>Besorgen sie sich das neueste RPM-Pakete zu sophomorix unter
+	    der URL:</para>
+	  <para><screen>http://cvs.bszleo.de/sophomorix/RPMS</screen></para>
+	  <para>Sie brauchen folgende Pakete:</para>
+	  <para><itemizedlist>
+	      <listitem>
+		<para>string-approx-perl-3.19.2-5.i386.rpm</para>
+	      </listitem>
+	      <listitem>
+		<para>quota-perl-1.4.6.2-3.i386.rpm</para>
+	      </listitem>
+	      <listitem>
+		<para>sophomorix-u.v.x-z.i386.rpm</para>
+	      </listitem>
+	    </itemizedlist>
+</para>
+	</listitem>
+	<listitem>
+	  <para>Kopieren Sie diese 3 Dateien in ihr System,
+	    zum Beispiel nach <userinput>/root</userinput>.</para>
+	</listitem>
+	<listitem>
+	  <para>Gehen Sie mit <userinput>cd /root</userinput> in dieses
+	    Verzeichnis, und installieren Sie die RPM-Pakete mit folgendem
+	    Befehl:</para><para>
+	    <screen>
+rpm -Uhv string-approx-perl-3.19.2-5.i386.rpm
+rpm -Uhv quota-perl-1.4.6.2-3.i386.rpm
+rpm -Uhv sophomorix-u.v.w-x.i386.rpm</screen>
+          </para>
+	  <para>Anstelle von <userinput>u.v.w</userinput> schreiben Sie die
+	    Versionsnummer, anstelle von <userinput>x</userinput> die
+	    Release-Nummer (Benutzen sie die Tabulatortaste!). </para>
+	  <para>Wenn sie mit obigem Befehl installieren, dann erlaubt
+	    <userinput>rpm</userinput> nur neuere Versionen wie die schon
+	    vorhandene zu installieren.</para>
+	</listitem>
+	<listitem>
+	  <para>Öffnen Sie die Datei
+	    <userinput>/etc/sophomorix/users/sophomorix.conf</userinput> und
+	    passen Sie die Einstellungen an ihre Schule  an.</para>
+	</listitem>
+      </orderedlist>
+    </para>
+  </sect1>
+  <sect1>
+    <title>Update</title>
+    <para>Ein update ist mit denselben Befehlen wie die Installation
+      möglich. Sie brauchen dazu nur eine neuere Version von
+      <userinput>sophomorix</userinput>. </para>
+    <para>Upgedatet wird mit:</para>
+    <para><screen>rpm -Uhv sophomorix-u.v.w-x.i386.rpm</screen></para>
+    <para>Evtl. müssen die Konfigurationsdatein angepasst werden: </para>
+    <para>Das erkennen sie daran, dass beim Update Konfigurationsdateien mit
+      dem Dataianhang der Endung <userinput>.rpmsave</userinput> angelegt
+      werden. Diese Dateien enthalten ihre Konfigurationsdateien (mit IHREN
+      speziellen Änderungen), wenn diese von der Konfigurationsdatei im NEUEN
+      rpm-Paket überschrieben wird.</para>
+    <para>Beispiel:</para>
+    <para>mit Version 0.9.18 kam die Konfigurationsdatei
+      <userinput>sophomorix.conf</userinput> mit.</para>
+    <para>Diese Datei haben sie verändert, um Einstellungen für ihre Schule
+      vorzunehmen (Richtig so!).</para>
+    <para>Das neue Paket Version 0.9.19 enthält in
+      <userinput>sophomorix.conf</userinput> einen zusätzliche Variable, die
+      Sie einstellen können. (sophomorix.conf wurde von mir angepasst) Ohne
+      diese zusätzliche Variable würde sophomorix evtl. nicht mehr
+      funktionieren, deshalb muss Ihre <userinput>sophomorix.conf</userinput>
+      mit derjenigen aus Version 0.9.19 ersetzt werden.</para>
+    <para>Ihre <userinput>sophomorix.conf</userinput> wird beim updaten als
+      <userinput>sophomorix.conf.rpmsave</userinput> gespeichert. Dies erkennen
+      sie beim update an der Meldung:</para>
+    <para><screen>warning: /etc/sophomorix/user/sophomorix.conf saved as /etc/sophomorix/user/sophomorix.conf.rpmsave</screen></para>
+    <para>Deshalb müssen sie nach dem Update die Veränderungen in
+      <userinput>sophomorix.conf</userinput> wieder neu eintragen.</para>
+    <para>Am einfachsten geht das mit dem <userinput>ediff-mode</userinput> im
+      Xemacs: ()</para>
+    <para><orderedlist>
+	<listitem>
+	  <para>Sichern Sie unbedingt BEIDE Dateien. Xemacs-ediff ist nicht
+	    gerade einfach zu bedienen. Wer zuerst üben will bekommt im
+	    ediff-mode mit <userinput>?</userinput> Hilfe. Beendet wird die
+	    Hilfe ebenfalls mit <userinput>?</userinput>.</para>
+	</listitem>
+	<listitem>
+	  <para>Starten sie xemacs (unter X wirds schön farbig, unter der
+	    konsole nicht)</para>
+	</listitem>
+	<listitem>
+	  <para>Starten sie den <userinput>ediff-mode</userinput> (M-x ediff).
+	    Dazu Drücken sie die Alt-Taste und dann zusätzlich auf x, und
+	    tippen dann ediff ein (Die Tabulatortaste ergänzt auch im Xemacs die
+	    Befehle). Zum Abschluss ein RETURN.</para>
+	</listitem>
+	<listitem>
+	  <para>Xemacs fragt nach <userinput>File A to compare</userinput>.
+	    Geben sie hier die neue Konfigurationsdatei an, die mit dem Paket
+	    mitkam, also
+	    <screen>File A to compare: /etc/sophomorix/user/sophomorix.conf</screen></para>
+	</listitem>
+	<listitem>
+	  <para>Dann fragt Xemacs nach der zweiten Datei zum vergleichen:</para>
+	  <para><screen>File B to compare: /etc/sophomorix/user/sophomorix.conf.rpmsave</screen></para>
+	</listitem>
+	<listitem>
+	  <para>Es öffnen sich 2 Buffer in Xemacs (Das Xemacs-Fenster teilt
+	    sich), die die beiden Dateien A und B enthalten.</para>
+	</listitem>
+	<listitem>
+	  <para>Drücken sie auf die Space-Taste(Leer-Taste). Xemacs springt zur
+	    ersten Stelle, an der sich die beiden Dateien unterscheiden.
+	    Schauen sie genau hin, evtl haben sie nur ein
+	    <userinput>#</userinput> auskommentiert.</para>
+	</listitem>
+	<listitem>
+	  <para>Entscheiden Sie sich, welchen Bereich sie nutzen wollen, und
+	    drücken Sie A, für den Bereich aus File A, bzw. B für den Bereich
+	    aus File B. Meistens werden sie die Einstellungen aus B (Also aus
+	    <userinput>sophomorix.conf.rpmsave</userinput> nutzen wollen, da
+	    dies ja ihre alte Datei ist, mit IHREN Einstallungen)</para>
+	</listitem>
+	<listitem>
+	  <para>Wenn sie A gedrückt haben, wird der Bereich aus Buffer A an die
+	    entsprechende Stelle im Buffer B geschrieben. </para>
+	  <para>Wenn sie B gedrückt haben wird A modifiziert.</para>
+	  <para>Gehen sie mit der Space-Taste zum nächsten, unterschiedlichen
+	    Bereich, ....</para>
+	</listitem>
+	<listitem>
+	  <para>Sind sie am Ende der Datei angelangt, so drücken sie
+	    <userinput>wa</userinput> (write-a) um die Datei A abzuspeichern, und
+	    <userinput>wb</userinput> um die Datei B abzuspeichern.</para>
+	</listitem>
+	<listitem>
+	  <para>Mit C-x C-c beenden sie Xemacs.</para>
+	</listitem>
+      </orderedlist>
+</para>
+    <sect2>
+      <title>Wichtig:</title>
+    <para>(Lesen sie auf jeden Fall die
+      Datei:</para>
+    <para><userinput>http://cvs.bszleo.de/sophomorix/RPMS/README.txt</userinput></para>
+    </sect2>
+  </sect1>
+</appendix>
+<!-- Dieser Kommentar bleibt am Ende des Teil-Dokuments
+Erster Eintrag  : Das Parent-Dokument, das die DTD enthält
+Zweiter Eintrag : Das TOP-Element des Parent-Dokuments
+Dritter Eintrag : Das TOP-Element dieses Child-Dokuments
+Local Variables:
+mode: sgml
+sgml-parent-document: ( "sophomorix.sgml" "book" "part" "appendix" )
+End:
+-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

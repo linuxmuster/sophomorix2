@@ -1,0 +1,319 @@
+<chapter>
+  <title>Zusätzliche Tools in sophomorix(NICHT sophomorix-pre)</title>
+  <sect1>
+    <title>Webmin-Konfiguration</title>
+    <sect2>
+      <title>Prinzipielles zu webmin</title>
+    <para>Die Benutzeroberfläche von Webmin ist in Kategorien und Module
+      unterteilt.</para>
+    <para>Unter einer Kategorie versteht man einen Karteikarten-Reiter, der
+      sich nach dem Einloggen in webmin präsentiert. Bei der Installation von
+      sophomorix wird z.B. die Kategorie <userinput>Lehrer</userinput> erzeugt.
+      Weitere Kategorien - deutsche Spracheinstellung vorausgesetzt -
+      sind: Webmin, System, Server, Netzwerk, Sonstiges, ...</para>
+    <para>Klickt man auf eine Kategorie, dann erscheinen die dieseser Kategorie
+    zugeordneten Module: farbige Bildchen, mit Unterschrift, die einen
+      bestimmten Bereich eines Linux-Servers konfigurieren. Zum Beispiel gibt
+      es in der Kategorie Webmin die Module Webmin Ereignisanzeige, Webmin
+      Hilfe, Webmin Benutzer, ...</para>
+    <para>Der Systembetreuer entscheidet welcher User welche Module zur
+      Verfügung bekommt. Um diese Konfiguration geht es im Folgenden.</para>
+    </sect2>
+    <sect2>
+      <title>Konfiguration</title>
+    <para>Sophomorix enthält den Befehl
+      <userinput>sophomorix-webmin</userinput>, der
+      <userinput>webmin</userinput> konfiguriert.</para>
+    <para>Eine Konfiguration mit webmin selber (Kategorie Webmin -> Webmin
+      Benutzer) sollte nicht gemacht werden, da diese Änderungen bei einem
+      Update von sophomorix verloren gehen!</para>
+    <para>Dabei werden folgende Konfigurationsdateien neu erzeugt.</para>
+    <para><itemizedlist>
+	<listitem>
+	  <para><userinput>/etc/webmin/webmin.acl</userinput>:</para>
+	  <para>Diese Datei enthält alle User (in unserem Fall admin und alle
+	    Lehrer), und gibt an welche Module diese User benutzten dürfen</para>
+	</listitem>
+	<listitem>
+	  <para><userinput>/etc/webmin/config</userinput>:</para>
+	  <para>Hier finden sich die Grundeinstellungen von webmin. Zum
+	    Beispiel steht hier, dass jede Aktion, die durchgeführt wird
+	    mitprotokolliert wird (falls es das jeweilige Modul unterstützt).
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </para>
+    <para>Welche User nun welche Module benutzen können, ist von folgende
+      Dateien abhängig, die von <userinput>sophomorix-webmin</userinput>
+      ausgelesen werden:</para>
+    <para><itemizedlist>
+	<listitem>
+	  <para><userinput>/etc/sophomorix/devel/user/webmin-adminmodule.txt</userinput>:</para>
+	  <para>Diese Datei ist im <userinput>*/devel/*</userinput>-Pfad.
+	    Deshalb sollte sie nur von den Entwicklern der Musterlösung
+	    verändert werden. Sie enthält alle Module, die admin
+	    sinnvollerweise benutzen sollte. Kommt zum Beispiel ein neues Modul
+	    für den admin hinzu, wird diese Datei überschrieben, mit einer
+	    neueren Version, die dieses Modul zusätzlich enthält. Ganz am Ende
+	    dieser Datei sieht man die Module, die speziell für
+	    <userinput>sophomorix</userinput> erstellt wurden.</para>
+	  <para>Diese Datei wird bei einem update evtl. überschrieben!</para>
+	</listitem>
+	<listitem>
+	  <para><userinput>/etc/sophomorix/devel/user/webmin-lehrermodule.txt</userinput>:</para>
+	  <para>Diese Datei ist ebenfalls im
+	    <userinput>*/devel/*</userinput>-Pfad. Deshalb sollte sie nur von
+	    den Entwicklern der Musterlösung verändert werden. Sie enthält alle
+	    Module, die die lehrer sinnvollerweise benutzen sollten. Kommt zum
+	    Beispiel ein neues Modul für die Lehrer hinzu, wird diese Datei
+	    überschrieben, mit einer neueren Version, die dieses Modul
+	    zusätzlich enthält.</para>
+	  <para>Diese Datei wird bei einem update evtl. überschrieben!</para>
+	</listitem>
+	<listitem>
+	  <para><userinput>/etc/sophomorix/devel/user/webmin-testmodule.txt</userinput>:</para>
+	  <para>In dieser Datei können Sie als Systembetreuer einzelne Module
+	    bestimmten Lehrern zugänglich machen. Sollen z.B die Lehrer Maier
+	    und Müller (loginname: maier bzw. mueller) per webmin in den
+	    Manpages des Servers suchen können sollen, so ist in
+	    <userinput>webmin-testmodule.txt</userinput> folgender Eintrag zu
+	    tätigen:</para>
+	  <para><screen>man=maier,mueller</screen></para>
+	</listitem>
+      </itemizedlist>
+</para>
+  </sect2>
+  </sect1>
+  <sect1>
+    <title>Webmin-Module</title>
+    <para>sophomorix enthält Webmin-Module, mit denen sich die wichtigsten
+      arbeiten ausführen lassen.</para>
+    <para>Für <userinput>admin</userinput> gibt es sie Module:</para>
+    <para><itemizedlist>
+	<listitem>
+	  <para>schuljahrende</para>
+	</listitem>
+	<listitem>
+	  <para>benutzerverwaltung (ToDo)</para>
+	</listitem>
+	<listitem>
+	  <para>klassenmanager(admin-Modus)</para>
+	</listitem>
+      </itemizedlist>
+</para>
+    <para>Für die Lehrer gibt es die Module:</para>
+    <para><itemizedlist>
+	<listitem>
+	  <para>privat</para>
+	</listitem>
+	<listitem>
+	  <para>klassenmanager</para>
+	</listitem>
+	<listitem>
+	  <para>raummanager (ToDo)</para>
+	</listitem>
+      </itemizedlist>
+</para>
+    <para>Die Dokumentation zu diesen Modulen kann man abrufen, sobald man in
+      webmin eingelogt ist und links oben auf die Hilfe klickt.</para>
+  </sect1>
+  <sect1>
+    <title>E-Mail</title>
+    <para>Jeder User kann in der Musterlösung per <userinput>imp</userinput>
+      E-Mail mit der Adresse <userinput>loginname@domain.de</userinput>
+      versenden.</para>
+    <para>Mit Mail-Aliasen kann auch unter anderem Namen E-Mail empfangen und
+      versendet werden.</para>
+    <sect2>
+      <title>Empfang von E-Mail unter einer anderen Adresse</title>
+      <para>Wird eine E-Mail an den Musterlösungsserver geschickt(z.B.
+	user@domain.de), so wird diese Mail dem User
+	<userinput>user</userinput> zugestellt, falls
+	<userinput>user</userinput> existiert. Gibt es den User
+	<userinput>user</userinput> nicht, so wird die Mail als unzustellbar
+	abgewiesen (rejected).</para>
+      <para>Zusätzliche usernamen unter denen Mail Empfangen werden kann
+	(=Mail-aliase) können in der Datei
+	<userinput>/etc/mail/aliases</userinput> definiert werden.</para>
+      <para>Um die Eintragung von Mail-aliasen zu automatisieren, gibt es den
+	Befehl <userinput>sophomorix-mail</userinput>. Er kann für jeden Lehrer
+	(und auch Schüler) einen Empfangs-Alias  in der Form
+	<userinput>vorname.nachname@domain.de</userinput> anlegen.</para>
+      <para> Dazu müssen Sie:</para>
+      <para><orderedlist>
+	  <listitem>
+	    <para>Setzen Sie in
+	      <userinput>/etc/sophomorix/user/sophomorix.conf</userinput>
+	      folgende Zeile:
+	      <screen>$mail_aliases="vorname.nachname";</screen></para>
+	    <para>(Dies ist die Standard-Einstellung)</para>
+	  </listitem>
+	  <listitem>
+	    <para>Rufen Sie auf</para>
+	    <para><screen>sophomorix-mail</screen></para>
+	    <para>Dies erzeugt <userinput>/etc/mail/aliases</userinput> neu,
+	      und lässt die Datei vom Mail-Servereinlesen.</para>
+	    <para>Damit sind alle Lehrer, wie z.B. Werner Müller unter seinem
+	      loginnamen UND unter
+	      <userinput>werner.mueller@domain.de</userinput> erreichbar.
+	      Zusätzlich sind alle Lehrer unter
+	      <userinput>lehrer@domain.de</userinput> erreichbar.</para>
+	    <para>Sollen die Schüler einer Klasse ebenfalls unter
+	      <userinput>vorname.nachname@domain.de</userinput> erreichbar
+	      sein, so ist dies in
+	      <userinput>/etc/sophomorix/user/schulinfo.txt</userinput>
+	      einzutragen (syntax ist in der Datei erläutert). </para>
+	    <para>Zusätzlich kann eine Mailingliste für diese Klasse
+	      eingerichtet werden (entsprechend den Lehrern). Mail an
+	      <userinput>klasse@domain.de</userinput> bzw.
+	      <userinput>kklasse@domain.de</userinput> wird dann an jedern
+	      Schüler in dieser Klasse zugestellt.</para>
+	  </listitem>
+	</orderedlist>
+      <para>Manuelle Einträge dürfen in
+	<userinput>/etc/mail/aliases</userinput> NICHT mehr gemacht werden, da
+	diese Datei automatisch erzeugt wird. </para>
+      <para>Manuelle Einträge sind in
+	<userinput>/etc/sophomorix/mail-aliases.txt</userinput> an der
+	folgenden Stelle vorzunehmen:</para>
+      <para><screen>#
+# Manuelle Einträge ab HIER:
+#
+werni:    muellwe
+#</screen></para>
+      <para>Dieser Eintag legt alle Mail an
+	<userinput>werni@domain.de</userinput> dem user
+	<userinput>muellwe</userinput> ins Fach.</para>
+      <para>Nach dem Eintragen ist
+	<userinput>sophomorix-mail</userinput> aufzurufen, um alle aliase zu
+	erzeugen.</para>
+      <para>Ebenfalls sollte in
+	<userinput>/etc/sophomorix/mail-aliases.txt</userinput> eingetragen
+	werden, welcher normalsterbliche User die Mail erhält, die an root
+	geschickt wird.</para>
+    </sect2>
+    <sect2>
+      <title>Versenden von E-Mail unter dem Alias-Namen</title>
+      <para>Hier liegen die Dinge etwas komplizierter.
+	<userinput>imp</userinput> schickt die Mail an den Mailserver, der sie
+	nur weiterleitet. Deshalb muss imp die E-Mail schon unter anderem
+	Namen an den Mailserver schicken.</para>
+      <para>Um den Sender-Namen zu ermitteln enthält sophomorix das Script
+	<userinput>sophomorix-imp-expand-fromaddress</userinput>. Dieses Script
+	wird mit dem Parameter <userinput>loginname</userinput> aufgerufen und
+	liefert den aliasnamen aus
+	<userinput>/etc/mail/aliases</userinput> zurück.</para>
+      <para>Bei obigem Beispiel (werni) liefert also der Befehl:</para>
+      <para><screen>sophomorix-imp-expand-fromaddress muellwe</screen></para>
+      <para>den Wert <userinput>werni</userinput> zurück.</para>
+      <para>Damit nun <userinput>imp</userinput> beim erstellen einer neuen
+	Email den alias-Namen ermitteln kann, muss <userinput>imp</userinput>
+	eben diesen Befehl
+	<userinput>sophomorix-imp-expand-fromaddress</userinput> aufrufen.</para>
+      <para>Um dies zu erreichen machen sie folgendes:</para>
+      <para><orderedlist>
+	  <listitem>
+	    <para>Öffnen Sie die Datei
+	      <userinput>/usr/local/httpd/htdocs/webmail/horde/imp/config/conf.php</userinput> (gilt für ML 2.0)</para>
+	  </listitem>
+	  <listitem>
+	    <para>Ersetzten Sie <screen>
+
+      $conf['hooks']['from'] = ;
+
+</screen></para>
+	    <para>mit</para>
+	    <para><screen>
+
+      $conf['hooks']['from'] = 'imp_expand_fromaddress';
+
+</screen></para>
+	  </listitem>
+	  <listitem>
+	    <para>Und weiter Unten teilen Sie mit, was sich hinter dieser
+	      Funktion verbirgt:</para>
+	    <para><screen>
+      if (!function_exists('imp_expand_fromaddress')) {
+          function imp_expand_fromaddress ($imp) {
+            $cmd = "/usr/sbin/sophomorix-imp-expand-fromaddress ".$imp['user'];
+            $name = `$cmd`;
+            return (empty($name) ? $imp['user'] : $name);
+          }
+      }
+
+</screen></para>
+	  </listitem>
+	</orderedlist>
+      </para>
+      <para>Wenn sie nun eine neue E-Mail verschicken, taucht als
+	      Absender derjenige Wert auf, den
+	      <userinput>sophomorix-imp-expand-fromaddress</userinput>
+	      ermittelt hat.</para>
+      <para>Jeder Lehrer kann über das Webmin-Modul
+	<userinput>privat</userinput> die momentan für ihn gültigen
+	Mail-Einstellungen abrufen.</para>
+    </sect2>
+    <sect2>
+      <title>Pobleme beim Mail-Aliasing</title>
+      <para>Bedenken Sie: loginnamen sind eindeutig (jeden loginnamen gibt es
+	nur 1x). Dagegen sind vorname.nachname NICHT eindeutig. </para>
+      <para> Wenn sie viele User haben und bei vielen Klassen zusätzliche
+	E-Mail-Adressen der Form <userinput>vorname.nachname</userinput>
+	erzeugen, dann werden Sie irgendwann das Problem haben, dass 2
+	unterschiedliche user denselben Mail-Alias haben. Dann krachts im
+	Gebälk. </para>
+      <para>Deshalb sollten sie nur für Lehrer die Mail-Aliase
+	verwenden. Evtl noch für die Hausmeister, die sie in einer Klasse
+	gesammelt haben.</para>
+      <para>Auf jeden Fall müssen Sie selbst den Überblick bewahren.</para>
+    </sect2>
+  </sect1>
+  <sect1>
+    <title>Klassen-Splitting (Test-Phase)</title>
+    <para>Klassensplitting bedeutet, dass ein Schüler zusätzlich zu seiner
+      Klasse in eine Untergruppe(subklasse) eingeteilt werden kann.</para>
+    <para>So können die Schüler, die sich im Schulverwaltungsprogramm in der
+      Klasse <userinput>km1kb2t</userinput> befinden in die Klassen
+      <userinput>m1kb2t-a</userinput> ,<userinput>m1kb2t-b</userinput>
+      ,<userinput>m1kb2t-c</userinput> sowie <userinput>m1kb2t-d</userinput>
+      versetzt werden. Dieses Splitten soll später per Webmin-Modul (ToDo) auch
+      durch die Lehrer vorgenommen werden können. Damit wird z.B. das Austeilen
+      von Dateien, das Verteilen der Lösung, das auflisten von Schülern, ...
+      nur auf eine Untergruppe begrenzt.</para>
+    <para>Neugierige können in der Datei
+      <userinput>/etc/sophomorix/user/schueler.subklassen</userinput>, Schüler
+      eintragen, die in eine Untergruppe kommen sollen.</para>
+    <para>Ein Eintrag hat folgende Syntax:</para>
+    <para><screen>mueller;peter;12.01.1983::a
+maier;heinz;10.04.1982::c
+</screen></para>
+    <para><userinput>sophomorix-check</userinput>hängt an die
+      Klassenbezeichnung dieser Schüler (aus <userinput>schueler.txt</userinput>)
+    die angegebene subklasse an (nach einem trennenden Bindestrich).</para>
+    <para>Versetzt werden können diese Schüler dann innerhalb ihrer Klasse und
+      den 4 Möglichen Subklassen (Anhängsel: -a, -b, -c, -d) mit dem Befehl:</para>
+    <para><screen>sophomotix-move --klassenintern kklasse</screen></para>
+    <sect2>
+      <title>Probleme beim Klassensplitting</title>
+      <para>Linux-Gruppennamen funktionieren evtl. nur bis zu einer Länge von 8
+	Zeichen vollkommen problemlos. </para>
+      <para>Bei den typischen Berufsschulbezeichnungen (z.B.
+	km1kb2t-a) können deshalb Gruppennamen über 8 Zeichen entstehen.</para>
+    </sect2>
+  </sect1>
+</chapter>
+
+<!-- Dieser Kommentar bleibt am Ende des Teil-Dokuments
+Erster Eintrag  : Das Parent-Dokument, das die DTD enthält
+Zweiter Eintrag : Das TOP-Element des Parent-Dokuments
+Dritter Eintrag : Das TOP-Element dieses Child-Dokuments
+Local Variables:
+mode: sgml
+sgml-parent-document: ( "sophomorix.sgml" "book" "part" "chapter" )
+End:
+-->
+
+
+
+
+
