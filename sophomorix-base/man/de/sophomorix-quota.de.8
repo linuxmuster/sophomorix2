@@ -1,0 +1,97 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH SOPHOMORIX-QUOTA 8 "November 29, 2004"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+sophomorix-quota \- Quota setzen (usrquota)
+.SH SYNOPSIS
+.B sophomorix-quota
+.RI [ options ] 
+.br
+.SH DESCRIPTION
+.B sophomorix-quota
+.br
+sophomorix-quota liest Quotaangaben aus Konfigurationsdateien ein und
+berechnet daraus die Quota jedes einzelnen users. Das ermittelte Quota
+wird in die sophomorix-Datenbank eingetragen und die Quota werden im
+System gesetzt.
+.TP
+Folgende Dateien dienen zur Konfiguration von Quotaangaben:
+.TP
+.B 1. Standard-Quotawerte für Lehrer, Schüler, Workstation
+Datei:  /etc/sophomorix/user/quota.txt
+.TP
+.B 2. Quota einzelner user AUSSER lehrer, z. B. admin
+Datei:  /etc/sophomorix/user/quota.txt
+.TP
+.B 3. Quota einzelner lehrer
+Datei:  /etc/sophomorix/user/lehrer.txt
+.TP
+.B 4. Quotaangaben für Klassen (AdminClass):
+Datei  /etc/sophomorix/user/schuleinfo.txt
+(Diese Datei wird wahrscheinlich in Kürze umbenannt)
+.TP
+.B 5. Quotaangaben für Projekte: 
+Diese Quotaangaben werden mit dem Befehl
+sophomorix-project direkt in die sophomorix-Datenbank eingetragen.
+.br
+Achtung: Bei diesen Quotaangaben handelt es sich um zusätzliche Quota
+(AddQuota), die zu den aus obigen Dateien ermittelten Quota DAZUKOMMEN.
+.br
+Dieses Feature ist im Moment noch nicht enthalten!!!
+.PP
+.SH OPTIONS
+.B sophomorix-quota
+benützt die GNU command line syntax, mit langen Optionen, die mit zwei
+Bindestrichen (`-') beginnen:
+.TP
+.B -h, --help
+Kurzübersicht über Optionen
+.TP
+.B -v, --verbose
+Sagt, was das Programm gerade macht (verbose)
+.TP
+.B -vv, --verbose --verbose
+Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
+.TP
+.B -i , --info
+Listet Dateisysteme auf, die aktuell mit der Option usrquota gemountet
+sind. Auf diesen Dateisystemen kann sophomorix-quota die Quota
+verändern.
+.TP
+.B -t, --test
+sophomorix-quota läuft möglichst normal ab, ohne Quota tatsächlich zu
+verändern. Es kann zu unsinnigen Fehlermeldungen kommen, da einige
+Schritte beim setzten von Quota auf anderen aufbauen.
+.TP
+.SH SEE ALSO
+.BR sophomorix (8),
+.BR sophomorix-teach-in (8),
+.BR sophomorix-add (8),
+.BR sophomorix-move (8),
+.BR sophomorix-kill (8),
+.BR sophomorix-print (8),
+.BR sophomorix-user (8),
+.BR sophomorix-split (8),
+.BR sophomorix-project (8),
+.BR sophomorix-quota (8),
+.\".BR baz (1).
+.\".br
+.\"You can see the full options of the Programs by calling for example 
+.\".IR "sophomrix-quota -h" ,
+.
+.SH AUTHOR
+This manual page was written by <jeffbeck@web.de>.
