@@ -25,6 +25,7 @@ $Term::ANSIColor::AUTORESET = 1;
 # list of functions to load if db is 'files'
 use if ${DevelConf::db_backend} eq 'files' , 
     'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                        search_user
                                        );
 
 # list of functions to load if db is 'ldap'
@@ -39,7 +40,6 @@ use if ${DevelConf::db_backend} eq 'ldap' ,
 # list of functions to load if db is 'files'
 use if ${DevelConf::sys_db} eq 'files' , 
     'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
-                                           get_user_auth_data
                                           );
 
 
@@ -241,158 +241,6 @@ if ($search eq ""){
 
 
 
-sub search_user {
-    # database dependent
-    my ($string) = @_;
-my ($class,
-    $gec_user,
-    $login,
-    $first_pass,
-    $birth,
-    $unid,
-    $subclass,
-    $status,
-    $tol,
-    $deact,
-    $ex_admin,
-    $acc_type)=();
-
- my ($loginname_passwd,
-     $passwort,
-     $uid_passwd,
-     $gid_passwd,
-     $quota_passwd,
-     $name_passwd,
-     $gcos_passwd,
-     $home,
-     $shell)=();
-
-my $group_string="";
-my @group_list=();
-my $pri_group_string="";
-my $grp_string="";
-my $home_ex="---";
-
-&titel("I'm looking for $string in $DevelConf::protokoll_datei ...");
-open(PROTOKOLL,"<$DevelConf::protokoll_datei");
-  while (<PROTOKOLL>){
-    if (/$string/){
-       chomp();
-
-       ($class,$gec_user,$login,$first_pass,$birth,
-       $unid,$subclass,$status,$tol,$deact,$ex_admin,$acc_type)=split(/;/);
-
-       ($loginname_passwd,
-       $passwort,
-       $uid_passwd,
-       $gid_passwd,
-       $quota_passwd,
-       $name_passwd,
-       $gcos_passwd, 
-       $home,
-       $shell
-       ) = &get_user_auth_data($login);
-
-       # Gruppen-Zugehoerigkeit
-       @group_list=&get_group_list($login);
-       $pri_group_string=$group_list[0];
-
-	  print "User                :  $login  ";
-       if (defined $loginname_passwd){
-	     print "($loginname_passwd exists in the system) \n";
-       } else {
-	     print "(ERROR: $login is not in the system) \n";
-       }
-       print "=======================================";
-       print "=======================================\n";
-
-       printf "   AdminClass       : %-47s %-11s\n",$class,$login;
-       printf "   PrimaryGroup     : %-47s %-11s\n",$pri_group_string,$login;
-       foreach my $gr (@group_list){
-	   $grp_string= $grp_string." ".$gr;
-	  #print $gr," ";
-       }
-       printf "   SecondaryGroups  :%-48s %-11s\n",$grp_string,$login;
-       printf "   Gecos            : %-47s %-11s\n", $gec_user,$login;
-  
-       if (defined $loginname_passwd){
-          printf "   SystemGecos      : %-47s %-11s\n",$gcos_passwd, $login;
-       }
-
-       if (-e $home){
-          $home_ex=$home."  (existing)";
-	  #print "(existing) \n";
-       } else {
-          #print "(ERROR: non-existing!) \n";
-          $home_ex=$home."  (ERROR: non-existing)";
-       }
-       if (defined $home){
-          printf "   Home             : %-47s %-11s\n",$home_ex,$login;
-       }
-
-       if (defined $shell){
-          printf "   LoginShell       : %-47s %-11s\n",$shell,$login;
-       }
-
-       printf "   FirstPassword    : %-47s %-11s\n",$first_pass,$login;
-       printf "   Birthday         : %-47s %-11s\n",$birth,$login;
-
-       if (defined $unid){
-          printf "   Unid             : %-47s %-11s\n",$unid,$login;
-       }
-
-       if (defined $subclass){
-	  printf "   SubClass         : %-47s %-11s\n",$subclass,$login;
-       }
-
-       if (defined $status){
-	  printf "   Status           : %-47s %-11s\n",$status,$login;
-       }
-
-       if (defined $tol){
-          printf "   TolerationDate   : %-47s %-11s\n",$tol,$login;
-       }
-
-       if (defined $deact){
-          printf "   DeactivationDate : %-47s %-11s\n",$deact,$login;
-       }
-
-       if (defined $ex_admin){
-	  printf "   ExitAdminClass   : %-47s %-11s\n",$ex_admin,$login;
-       }
-
-       if (defined $acc_type){
-	  printf "   AccountType      : %-47s %-11s\n",$acc_type,$login;
-       }
-
-       # samba, database independent
-       &print_user_samba_data($login);
-
-       # history, database independent
-       print "History of $login:\n";
-       &get_user_history($login);
-
-       print "Mail forwarding of $login:\n";
-       &print_forward($login, $home);
-
-       ($class,$gec_user,$login,$first_pass,$birth,$unid,
-        $subclass,$status,$tol,$deact,$ex_admin,$acc_type)=(
-        "","","","","","","","","","","","");
-     }
-  }
-close(PROTOKOLL);
-}
 
 
-sub print_forward {
-    my ($login, $home) = @_;
-    if (-e "$home/.forward"){
-       open(FORWARD,"$home/.forward");
-       while (<FORWARD>){
-           chomp();
-	   print "   "."$_ \n";
-       }
-   } else {
-       print "   User $login has no mail forwarding.\n";
-   }
-}
+
