@@ -1,0 +1,178 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-project) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+
+# ===========================================================================
+# Bibliotheken
+# ===========================================================================
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixFiles;
+#use Schedule::at;
+
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+
+# Variablen für Optionen
+$Conf::log_level=1;
+my $help=0;
+my $info=0;
+my $lch="admin";
+my $project="";
+
+my $login="";
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "project|p=s" => \$project,
+           "lastchange|l=s" => \$lch,
+           "help|h" => \$help,
+           "info|i" => \$info,
+           "pmembers=s" => \$p_members,
+          );
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlbeschreibung
+   print "$scriptname erzeugt Projekte.\n"; 
+
+   # gemeinsamer Hilfetext
+   &help_text_all;
+
+   # optionen
+   print "Optionen:\n\n";
+
+   print "  --info, -i\n";
+   print "     Gibt die Klassen an, die gesplittet werden können.\n\n";
+
+   print "  --project projekt, -p projekt\n";
+   print "     Erstellt das Projekt projekt\n\n";
+
+   print "  --lastchange login, -l login\n";
+   print "     Loginname des users der als letztes gesplittet hat.\n\n";
+
+   print "  --pmemebers user1,user2,... \n";
+   print "     User, die zum Projekt gehören  sollen.\n\n";
+
+   exit;
+}
+
+# --info
+if ($info==1){
+    print "Option info\n";
+    exit;
+}
+
+# Abbruch wenn als klasse lehrer abgegeben
+if ($class eq "" or $class eq "lehrer"){
+    print "Sie müssen die zu teilende Klasse angeben!\n";
+    if ($class eq "lehrer"){
+	print "Die Gruppe lehrer ist keine Klasse!\n";
+    }
+    exit;
+}
+
+
+# ===========================================================================
+# Programmbeginn
+# ===========================================================================
+
+# Step 1
+# Updating the user-Database
+   # splitten der option
+    @a_members=split(/,/,$a_members);
+    @b_members=split(/,/,$b_members);
+    @c_members=split(/,/,$c_members);
+    @d_members=split(/,/,$d_members);
+   # db aktualisieren 
+
+
+
+
+# Step 2
+# write the subclass-projects-line
+&create_project_db("astro","Astronomie-AG","bz,kj","mueller,maier","12c","1000","16");
+
+# step 3
+# Read the database (users and subclasses) 
+# and change the system accordingly
+&create_project($class);
+
+
+
+
+###########################################################################
+# Sub
+###########################################################################
+sub create_project_db {
+    # create entry in the database
+    my ($project, 
+        $project_long,
+        $project_teachers,
+        $project_users,
+        $project_admin_classes,
+        $project_quota,
+        $project_max_user_number) = @_;
+
+    my $line="";
+
+    $line=$project.";".
+          $project_long.";".
+          $project_teachers.";".
+          $project_users"\n";
+
+    # die mit Klasse- beginnen entfernen  
+    open(PROJECTTMP,">${DevelConf::dyn_config_pfad}/projects.tmp");
+    open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects");
+
+    while (<PROJECT>){
+        if (not /^$project-/){
+           # bisherige Zeilen anderer Klassen beibehalten
+	   print PROJECTTMP $_;
+        }
+    }
+
+    # bearbeitete Zeilen anhängen
+    print PROJECTTMP $line_a;
+
+    close(PROJECT);
+    close(PROJECTTMP);
+
+    system("mv ${DevelConf::dyn_config_pfad}/projects.tmp ${DevelConf::dyn_config_pfad}/projects");
+}# end sub
+
+
+sub get_project_db {
+    my $project = @_;
+    my %project_data=();
+    open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects");
+    while(<PROJECT>){
+	print $_,"\n";
+       my @line=split(/;/);
+       if ($line[0] eq $class){
+	   $project_data{"ProjectName"} = $line[0];
+	   $project_data{"ProjectNameLong"} = $line[1];
+	   $project_data{"ProjectTeachers"} = $line[2];
+	   $project_data{"ProjectUsers"} = $line[3];
+	   $project_data{"ProjectAdminClasses"} = $line[4];
+	   $project_data{"ProjectQuota"} = $line[5];
+	   $project_data{"ProjectMaxUserNumber"} = $line[5];
+       }
+    }
+    close(PROJECT);
+    return %project_data;
+}
+
+
