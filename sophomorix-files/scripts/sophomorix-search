@@ -138,7 +138,7 @@ open(PROTOKOLL,"<$DevelConf::protokoll_datei");
           $group_string=`id -Gn $login`;
           chomp($group_string);
           @group_list=split(/ /, $group_string);
-	  print "User :  $login ";
+	  print "User : ($login)   ";
 
        if (defined $loginname_passwd){
 	     print "($loginname_passwd exists in the system) \n";
@@ -146,24 +146,24 @@ open(PROTOKOLL,"<$DevelConf::protokoll_datei");
 	     print "(ERROR: $login is not in the system) \n";
        }
 
-       print "  AdminClass       :  $class \n";
+       print "       ($login)   AdminClass       :  $class \n";
 
-       print "  PrimaryGroup      : $pri_group_string";
+       print "       ($login)   PrimaryGroup     :  $pri_group_string";
 
-       print "  SystemGroups     :  ";
+       print "       ($login)   SystemGroups     :  ";
        foreach my $gr (@group_list){ 
 	  print $gr," ";
        }
 
 	  print "\n";
-	  print "  FirstGecos       :  $gec_user \n";
-
+	  print "       ($login)   FirstGecos       :  $gec_user \n";
+  
           if (defined $loginname_passwd){
-             print "  RealGecos        :  $gcos_passwd \n";
+             print "       ($login)   RealGecos        :  $gcos_passwd \n";
 	  }
 
           if (defined $home){
-             print "  Home             :  $home ";
+             print "       ($login)   Home             :  $home ";
 	  }
         
           if (-e $home){
@@ -173,31 +173,31 @@ open(PROTOKOLL,"<$DevelConf::protokoll_datei");
           }
 
           if (defined $shell){
-             print "  LoginShell       :  $shell \n";
+             print "       ($login)   LoginShell       :  $shell \n";
 	  }
 
 
-	  print "  FirstPassword    :  $first_pass \n";
-	  print "  Birthday         :  $birth \n";
+	  print "       ($login)   FirstPassword    :  $first_pass \n";
+	  print "       ($login)   Birthday         :  $birth \n";
 
           if (defined $unid){
-	     print "  Unid             :  $login \n";
+	     print "       ($login)   Unid             :  $login \n";
           }
 
           if (defined $subclass){
-	     print "  SubClass         :  $subclass \n";
+	     print "       ($login)SubClass         :  $subclass \n";
           }
 
           if (defined $status){
-	     print "  Status           :  $status \n";
+	     print "       ($login)Status           :  $status \n";
           }
 
           if (defined $tol){
-	     print "  TolerationDate   :  $tol \n";
+	     print "  ($login)   TolerationDate   :  $tol \n";
           }
 
           if (defined $deact){
-	     print "  DeactivationDate :  $deact \n";
+	     print "  ($login)   DeactivationDate :  $deact \n";
           }
 
 
