@@ -1,0 +1,156 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-reaktivate) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+
+# Bibliotheken
+use strict;
+use Getopt::Long;
+use Sophomorix::SophomorixBase;
+Getopt::Long::Configure ("bundling");
+#use Schedule::at;
+
+# Einlesen der Konfigurationsdatei für Entwickler
+{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+
+# jeffbecks Bibliothek und
+# Einlesen der Konfigurationsdatei
+#require "${DevelConf::library_pfad}/sophomorix-lib";
+
+# Nur als Dummy(Warnings verhindern)
+if($Conf::log_level){};
+if($DevelConf::library_pfad){};
+
+
+# Scriptname ermitteln
+my @list = split(/\//,$0);
+my $scriptname = pop @list;
+
+my $loginname="";
+my $gecos="";
+my %user=();
+my $gruppe="";
+
+my $k="";
+my $v="";
+my @liste=();
+
+my %user_duldungsbeginn=();
+my %user_deaktivierungsbeginn=();
+my %ident_login=();
+
+my $testen=0;
+my $help=0;
+my $info=0;
+
+
+my @display_users=();
+my @line=();
+my $user="";
+
+open(PROTO,"<${DevelConf::var_lib_pfad}/dynconfig/user.protokoll");
+  while (<PROTO>){
+     my @line=split(/;/);
+     if (defined $line[7]){
+	push @display_users, $_;
+     }
+  }
+close(PROTO);
+
+@display_users = sort @display_users;
+
+printf "%-10s %-28s %12s %1s %10s %10s\n",
+       "Login:","Gecos","Klasse","S","Toleration","Deactivation";
+print "=======================================",
+      "=======================================\n";
+
+    foreach $user (@display_users) {
+       my @line=split(/;/, $user);
+       printf "%-10s %-28s %12s %1s %10s %10s\n","$line[2]",
+              "$line[1]","$line[0]","$line[7]","$line[8]","$line[9]";
+    }
+
+# ===========================================================================
+# Parsen der Optionen
+# ===========================================================================
+my $testopt=GetOptions(
+           "login|loginname|user|u|l=s" => \$loginname,
+           "verbose|v+" => \$Conf::log_level,
+           "gruppe|klasse|g|k=s" => \$gruppe,
+           "help|h" => \$help,
+           "test|t" => \$testen,
+           "info|i" => \$info
+          );
+
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
+
+# --help
+if ($help==1) {
+   # Befehlbeschreibung
+   print "$scriptname reaktiviert geduldete oder deaktivierte user\n\n";
+   print "\n\n";
+
+   # optionen
+   print "Optionen:\n\n";
+
+   print "  --info, -i\n";
+   print "     Gibt eine Liste aus mit Schülerinnen/Schüler, die reaktiviert\n";
+   print "     werden können.\n\n";
+
+
+   print "  --login user, --loginname user, --user user, -u user, -l user\n";
+   print "     Es wird die Schülerin/der Schüler reaktiviert, \n";
+   print "     die/der den Benutzernamen user hat.\n\n";
+
+   print "  --gruppe klasse, --klasse klasse, -k klasse, -g gruppe\n";
+   print "     Die Schülerin/der Schüler wird in der Klasse reaktiviert, \n";
+   print "     die den Namen klasse hat.\n";
+   print "     (Die Klassenangabe muss mit vorangestelltem k erfolgen)\n\n";
+
+
+
+   # gemeinsamer Hilfetext
+   &help_text_all;
+   exit;
+}
+
+
+
+# --info
+if ($info==1) {
+
+   exit;
+}
+
+exit;
+# ===========================================================================
+# Abbruch bei fehlenden Parametern
+# ===========================================================================
+if ($loginname eq ""){
+   print "Eine Loginname MUSS angegeben werden!\n\n";
+   exit;
+}
+
+if ($gruppe eq ""){
+   print "Eine neue Klasse/Gruppe MUSS angegeben werden!\n\n";
+   exit;
+}
+
+
+# ===========================================================================
+# Abbruch bei nichtexistentem user
+# ===========================================================================
+# Gecos Ermitteln
+($a,$a,$a,$a,$a,$a,$gecos)=getpwnam("$loginname");
+# Abbruch, falls gecos undefined
+if (not $gecos){
+   print "Loginname $loginname existiert nicht im System!\n\n";
+   print "Mit dem Befehl:\n   $scriptname --info \n";
+   print "erhalten Sie eine Liste zu reaktivierender user.\n\n";
+   exit;
+}
+

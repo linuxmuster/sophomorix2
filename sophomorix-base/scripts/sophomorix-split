@@ -1,0 +1,379 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-teach-in) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+
+# To do:
+# 1. &get_users_admin_class("12c") checken und evtl in *pm;
+# 2. interaktiv komplett in sub?
+# 3. ungenutzte funktion ???
+
+
+
+
+# ===========================================================================
+# Bibliotheken
+# ===========================================================================
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixFiles;
+#use Schedule::at;
+
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+
+# Variablen für Optionen
+$Conf::log_level=1;
+my $help=0;
+my $info=0;
+my $lch="admin";
+my $class="";
+my $noninteractive=0;
+
+my $login="";
+
+my $a_append="";
+my $b_append="";
+my $c_append="";
+my $d_append="";
+
+# die Option, kommasepariert
+my $a_members="";
+my $b_members="";
+my $c_members="";
+my $d_members="";
+
+# die Liste
+my @a_members="";
+my @b_members="";
+my @c_members="";
+my @d_members="";
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "klasse|class|c|k=s" => \$class,
+           "lastchange|l=s" => \$lch,
+           "help|h" => \$help,
+           "info|i" => \$info,
+           "noninteractive|n" => \$noninteractive,
+           "A=s" => \$a_append,
+           "B=s" => \$b_append,
+           "C=s" => \$c_append,
+           "D=s" => \$d_append,
+           "Amembers=s" => \$a_members,
+           "Bmembers=s" => \$b_members,
+           "Cmembers=s" => \$c_members,
+           "Dmembers=s" => \$d_members,
+          );
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlbeschreibung
+   print "$scriptname splittet klassen in subklassen(Gruppe A,B,C oder D).\n"; 
+
+   # gemeinsamer Hilfetext
+   &help_text_all;
+
+   # optionen
+   print "Optionen:\n\n";
+
+   print "  --info, -i\n";
+   print "     Gibt die Klassen an, die gesplittet werden können.\n\n";
+
+   print "  --klasse klasse, -k klasse\n";
+   print "     Splittet die Klasse klasse\n\n";
+
+   print "  --lastchange login, -l login\n";
+   print "     Loginname des users der als letztes gesplittet hat.\n\n";
+
+   print "  -A Kommentar, -B Kommentar, -C Kommentar, -D Kommentar\n";
+   print "     Hängt den Kommentar an den Langen Namen der Subclasse an.\n\n";
+
+   print "  --noninteractive \n";
+   print "     Frägt nicht nach Gruppenzugekörigkeiten der User ab, sondern\n";
+   print "     erwartet --Amembers, --Bmembers, ... \n\n";
+
+   print "  --Amemebers user1,user2, ... --Dmemebers user1,user2,user,...\n";
+   print "     Userzugehörigkeiten zu den Subclassen A,B,C,D per Option\n";
+   print "     (wird nur bei --noninteractive ausgewertet)\n\n";
+
+   exit;
+}
+
+# --info
+if ($info==1){
+    print "Option info\n";
+    exit;
+}
+
+# Abbruch wenn als klasse lehrer abgegeben
+if ($class eq "" or $class eq "lehrer"){
+    print "Sie müssen die zu teilende Klasse angeben!\n";
+    if ($class eq "lehrer"){
+	print "Die Gruppe lehrer ist keine Klasse!\n";
+    }
+    exit;
+}
+
+
+# ===========================================================================
+# Programmbeginn
+# ===========================================================================
+
+# Step 1
+# Updating the user-Database
+if ($noninteractive==1){
+   # noninteractive
+   # splitten der option
+    @a_members=split(/,/,$a_members);
+    @b_members=split(/,/,$b_members);
+    @c_members=split(/,/,$c_members);
+    @d_members=split(/,/,$d_members);
+   # db aktualisieren 
+    foreach $login (@a_members){&update_user_db_entry($login,"SubClass=A")}
+    foreach $login (@b_members){&update_user_db_entry($login,"SubClass=B")}
+    foreach $login (@c_members){&update_user_db_entry($login,"SubClass=C")}
+    foreach $login (@d_members){&update_user_db_entry($login,"SubClass=D")}
+} else {
+   # interaktiv
+   open(PROTO,"<${DevelConf::dyn_config_pfad}/user.protokoll");
+   while(<PROTO>){
+     my @line=split(/;/);
+     if ($line[0] eq $class){
+       my $gecos=$line[1];
+       my $login=$line[2];
+       my $old_subclass=$line[6];
+       if (defined $old_subclass){
+           print "Editing SubClass of $login:\n";
+           print "=======================================",
+	         "=======================================\n";
+	   print "$gecos is in subclass $old_subclass\n";
+           &interactive_change_subclass($login);
+       }
+
+     }	    
+   }
+   close(PROTO);
+}
+
+
+
+
+
+# Step 2
+# write the subclass-projects-line
+&create_subclass_db($class);
+
+
+
+# step 3
+# Read the database (users and subclasses) 
+# and change the system accordingly
+&create_subclass($class);
+
+
+
+
+#my @list=&get_users_admin_class("12c");
+
+
+###########################################################################
+# Sub
+###########################################################################
+
+sub get_users_admin_class {
+    my ($class)=@_;
+    my @admin_class_list=();
+    open(PROTO,"<${DevelConf::dyn_config_pfad}/user.protokoll");
+    while(<PROTO>){
+       my @line=split(/;/);
+       if ($line[0] eq $class){
+         push @admin_class_list, $line[2] 
+       }
+    }
+    close(PROTO);
+    @admin_class_list = sort @admin_class_list;
+    return @admin_class_list;
+}
+
+
+sub create_subclass{
+    # creates from the db all subclasses of $class in the system
+    my ($class) = @_;
+    my $user="";
+    my $old_members="";
+    my $gid;
+    my $suffix="";
+    my @suffix=("A","B","C","D");
+    my @sub_a=();
+    my @sub_b=();
+    my @sub_c=();
+    my @sub_d=();
+
+    # get the users and push them in they subclass
+    open(SUBCLASS,"<${DevelConf::dyn_config_pfad}/user.protokoll");
+    while (<SUBCLASS>){
+        if (/^$class/){
+            my @line = split(/;/);
+            my $login=$line[2],
+            my $sub=$line[6];
+            if ($sub eq ""){$sub="---"}
+            #print "$login is in subclass $sub\n";
+            # push the user in the list
+            if ($sub eq "A"){
+		push @sub_a, $login;
+            } elsif ($sub eq "B"){
+		push @sub_b, $login;
+            } elsif ($sub eq "C"){
+		push @sub_c, $login;
+            } elsif ($sub eq "D"){
+		push @sub_d, $login;
+            }
+        }
+    }
+
+    print "A: @sub_a \n";
+    print "B: @sub_b \n";
+    print "C: @sub_c \n";
+    print "D: @sub_d \n";
+
+
+    # Adding the 4 groups without users
+    foreach $suffix (@suffix){
+       print "Working on Group $class-$suffix \n";
+       ($a,$a,$gid,$old_members)=getgrnam("$class-$suffix");
+       if (defined $gid){
+          print "groupdel  $class-$suffix\n";
+          system("groupdel $class-$suffix");
+          # add the group if it has users
+          system("groupadd -g $gid $class-$suffix");
+
+       } else { 
+          print "$class-$suffix does not exist, will be created.\n",
+          system("groupadd $class-$suffix");
+       }
+    }
+
+    # adding the users to their subclass
+    foreach $user (@sub_a) {
+       system("adduser $user $class-A");
+    }
+    foreach $user (@sub_b) {
+       system("adduser $user $class-B");
+    }
+    foreach $user (@sub_c) {
+       system("adduser $user $class-C");
+    }
+    foreach $user (@sub_d) {
+       system("adduser $user $class-D");
+    }
+}
+
+
+
+sub get_project_db {
+    my $project = @_;
+    my %project_data=();
+    open(PROTO,"<${DevelConf::dyn_config_pfad}/subclasses");
+    while(<PROTO>){
+	print $_,"\n";
+       my @line=split(/;/);
+       if ($line[0] eq $class){
+	   $project_data{"ProjectName"} = $line[0];
+	   $project_data{"ProjectNameLong"} = $line[1];
+	   $project_data{"ProjectTeachers"} = $line[2];
+	   $project_data{"ProjectUsers"} = $line[3];
+	   $project_data{"ProjectAdminClasses"} = $line[4];
+	   $project_data{"ProjectQuota"} = $line[5];
+       }
+    }
+    close(PROTO);
+    return %project_data;
+}
+
+
+
+sub create_subclass_db {
+    # create 4 entries in the database
+    my ($class) = @_;
+
+    my $line_a="";
+    my $line_b="";
+    my $line_c="";
+    my $line_d="";
+
+    if ($a_append ne ""){$a_append="-".$a_append}
+    if ($b_append ne ""){$b_append="-".$b_append}
+    if ($c_append ne ""){$c_append="-".$c_append}
+    if ($d_append ne ""){$d_append="-".$d_append}
+
+    $line_a="$class"."-A;".$class."-Gruppe-A".$a_append.";".$lch.";\n";
+    $line_b="$class"."-B;".$class."-Gruppe-B".$b_append.";".$lch.";\n";
+    $line_c="$class"."-C;".$class."-Gruppe-C".$c_append.";".$lch.";\n";
+    $line_d="$class"."-D;".$class."-Gruppe-D".$d_append.";".$lch.";\n";
+
+    # die mit Klasse- beginnen entfernen  
+    open(SUBCLASSTMP,">${DevelConf::dyn_config_pfad}/subclasses.tmp");
+    open(SUBCLASS,"<${DevelConf::dyn_config_pfad}/subclasses");
+
+    while (<SUBCLASS>){
+        if (not /^$class-/){
+           # bisherige Zeilen anderer Klassen beibehalten
+	   print SUBCLASSTMP $_;
+        }
+    }
+
+    # bearbeitete Zeilen anhängen
+    print SUBCLASSTMP $line_a;
+    print SUBCLASSTMP $line_b;
+    print SUBCLASSTMP $line_c;
+    print SUBCLASSTMP $line_d;
+
+    close(SUBCLASS);
+    close(SUBCLASSTMP);
+
+    system("mv ${DevelConf::dyn_config_pfad}/subclasses.tmp ${DevelConf::dyn_config_pfad}/subclasses");
+}# end sub
+
+
+
+
+sub interactive_change_subclass {
+    my ($login)=@_;
+    my $user_antwort="";
+    my %auswahl=qw( a a A A b b B B c c C C d d D D o o 0 0);
+    while(){# Endlosschleife für die Eingabe
+       $user_antwort= <STDIN>; # Lesen von Tastatur
+       chomp($user_antwort); # Newline abschneiden
+       if ($user_antwort eq ""){
+          last;
+       } elsif (exists($auswahl{$user_antwort})){
+          # Wenn Eingabewert im Auswahl-Hash vorkommt, aussteigen
+	  if ($user_antwort eq "0" or $user_antwort eq "o"){
+             $user_antwort="";
+             print "Removing $login from all subclasses\n";
+	  } else {
+             $user_antwort=~tr/a-z/A-Z/;
+             print "Adding $login in $user_antwort\n";
+          }
+	   &update_user_db_entry($login,"SubClass=$user_antwort");
+          last; # Ausstieg aus Endlosschleife
+       } else {
+          # Endlosschleife, Eingabe wiederholen
+          print "Fehlerhafte Eingabe. Bitte wiederholen!".
+                " Zuerst die a,b,c,d oder 0 (keine subclass) dann <RETURN>\n";
+       }
+    }
+
+}
