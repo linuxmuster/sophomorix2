@@ -12,6 +12,7 @@ use strict;
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
 use Sophomorix::SophomorixFiles;
 #use Schedule::at;
 
@@ -114,6 +115,9 @@ if ($create==1){push @options, "Create=yes"}
 # Programmbeginn
 # ===========================================================================
 
+&check_datei_touch("${DevelConf::dyn_config_pfad}/projects.db");
+
+
 # repair.directories einlesen
 &get_alle_verzeichnis_rechte();
 
@@ -194,69 +198,17 @@ sub create_project {
     # Todo ?????? muss mit rechten aus repair.directories angelegt werden
     &check_verzeichnis_mkdir("${DevelConf::share_projects}/${project}");
  
-    # create the userlist
-    # the new teachers
-    @new_teachers=split(/,/, $project_data{"Teachers"});
-    print "   New Teachers      : @new_teachers\n";
-    # the new users (without groups)
-    @new_users=split(/,/, $project_data{"Members"});
-    print "   New Members       : @new_users\n";
-    # the new groups
-    @new_groups=split(/,/, $project_data{"MemberGroups"});
-    print "   New MemberGroups  : @new_groups\n";
     # the old users
     ($a,$a,$a,$old_users)=getgrnam("$project");
     @old_users=split(/ /, $old_users);
     print "   Old users: @old_users\n";
+
     # Adding all users from project.db into a hash
-
-    # Add the teachers
-    foreach my $teacher (@new_teachers){
-       if (not exists $users_to_add{$teacher}){
-	  $users_to_add{$teacher}="Teachers";
-       }
-    }
-
-    # Add the users
-    foreach my $user (@new_users){
-       if (not exists $users_to_add{$user}){
-          $users_to_add{$user}="Members";
-       }
-    }
-
-    # Add the users in the groups
-    foreach my $group (@new_groups){
-        my $group_users="";
-        if (exists $seen{$group}){
-	    print "Aaaargh, I have seen group $group! \n",
-                  "Are you using recursive/multiple groups ...?\n";
-            next,
-        }
-        # remember the group
-        $seen{$group}="seen";
-        if ($group eq $project){
-            print "It's nonsense to have a group as its GroupMembers\n",
-	          "... skipping $group as GroupMembers in $project\n";
-	    next;
-        }
-        # fetching the user-string of the group
-        ($a,$a,$a,$group_users)=getgrnam("$group");
-        if (not defined $group_users){
-	    print "Coldn't find $group, ... skipping $group\n";
-            next;
-        }
-        print "     Users in group $group: $group_users\n";
-        # saving the users in a list
-        my @group_users=split(/ /, $group_users);
-        foreach my $user (@group_users){        
-           if (not exists $users_to_add{$user}){
-              print "       + User $user from group $group must be added\n";
-       	      $users_to_add{$user}=$group;
-           } else {
-	      print "       - User $user is already in the Hash\n";
-           }
-        }
-    }
+    %users_to_add=&get_user_project($project,
+                                    $project_data{"Teachers"},
+                                    $project_data{"Members"},
+                                    $project_data{"MemberGroups"}
+                                   );
 
     # show the hash
     if($Conf::log_level>=3){
