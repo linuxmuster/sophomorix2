@@ -380,8 +380,8 @@ while(<USERHINZU>){
                    $wunsch_id);
   &set_sophomorix_passwd($login_name_ok,$klartext_passwort);
 
-  # 4. Add user to webmin
-  &create_webmin_account($login_name_ok);
+#  # 4. Add user to webmin
+#  &create_webmin_account($login_name_ok);
 
   # 5. Creating dirs, links for the user
   &provide_user_files($login_name_ok,$new_admin_group);
@@ -390,10 +390,9 @@ while(<USERHINZU>){
 close(USERHINZU);
 close(NOCHANLEGEN);
 
-
-# add all students/teacher to the webmin group student/teacher
+# webmin
 # dont restart webmin (this is done later)
-&do_falls_nicht_testen("sophomorix-webmin --groups --no-restart");
+&do_falls_nicht_testen("sophomorix-webmin --modules --no-restart");
 
 
 # Webmin neu starten
@@ -482,6 +481,38 @@ sub print {
    }
 }
 
+
+# ===========================================================================
+# Shell ermitteln
+# ===========================================================================
+sub shell_ermitteln {
+   my ($gruppe)=@_;
+   my $login_shell;
+   # Shell ermitteln (Lehrer <> Schüler)
+      if ($gruppe eq ${DevelConf::teacher}) {
+         # Es ist ein Lehrer
+         if ($Conf::lehrer_per_ssh eq "ja") {
+             $login_shell="/bin/bash";
+           } else {
+             $login_shell="/bin/false";
+           }
+       } else {
+         # Es ist ein Schüler
+         if ($Conf::schueler_per_ssh eq "ja") {
+             $login_shell="/bin/bash";
+           } else {
+             $login_shell="/bin/false";
+	   }
+       }
+ return $login_shell;
+}
+
+
+
+
+
+# old, not used
+
 # ===========================================================================
 # Eintrag Users in webmin machen
 # ===========================================================================
@@ -525,28 +556,3 @@ sub create_webmin_account {
    close(WEBMINACL);
 }
 
-
-# ===========================================================================
-# Shell ermitteln
-# ===========================================================================
-sub shell_ermitteln {
-   my ($gruppe)=@_;
-   my $login_shell;
-   # Shell ermitteln (Lehrer <> Schüler)
-      if ($gruppe eq ${DevelConf::teacher}) {
-         # Es ist ein Lehrer
-         if ($Conf::lehrer_per_ssh eq "ja") {
-             $login_shell="/bin/bash";
-           } else {
-             $login_shell="/bin/false";
-           }
-       } else {
-         # Es ist ein Schüler
-         if ($Conf::schueler_per_ssh eq "ja") {
-             $login_shell="/bin/bash";
-           } else {
-             $login_shell="/bin/false";
-	   }
-       }
- return $login_shell;
-}

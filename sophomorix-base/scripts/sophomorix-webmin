@@ -64,8 +64,10 @@ my $help=0;
 #my $info=0;
 my $all_hosts=0;
 my $localhost=0;
+my $loghost=100;
 my $auto_logout=5;
 my $groups=0;
+my $modules=0;
 my $no_restart=0;
 
 # Parsen der Optionen
@@ -74,8 +76,10 @@ my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
            "all-hosts" => \$all_hosts,
            "localhost" => \$localhost,
+           "loghost=i" => \$loghost,
            "auto-logout=i" => \$auto_logout,
            "groups" => \$groups,
+           "modules" => \$modules,
            "no-restart" => \$no_restart
           );
 
@@ -131,6 +135,10 @@ Please see the sophomorix-webmin(8) man page for full documentation
 # --all-hosts
 if ($all_hosts==1){
     my $file="/etc/webmin/miniserv.conf";
+    if (not -e $file){
+	print "webmin is not installed, $file missing\n\n";
+        exit;
+    }
     open(FILE, "<$file");
     open(TMP, ">$file.tmp");
     while (<FILE>){
@@ -146,9 +154,13 @@ if ($all_hosts==1){
     &restart_webmin();
 }
 
-# --localhoat
+# --localhost
 if ($localhost==1){
     my $file="/etc/webmin/miniserv.conf";
+    if (not -e $file){
+	print "webmin is not installed, $file missing\n\n";
+        exit;
+    }
     my $done=0;
     open(FILE, "<$file");
     open(TMP, ">$file.tmp");
@@ -170,9 +182,41 @@ if ($localhost==1){
 }
 
 
+# --loghost
+if ($loghost!=100){
+    my $file="/etc/webmin/miniserv.conf";
+    if (not -e $file){
+	print "webmin is not installed, $file missing\n\n";
+        exit;
+    }
+    my $done=0;
+    open(FILE, "<$file");
+    open(TMP, ">$file.tmp");
+    while (<FILE>){
+        if (/^loghost=/){
+	    print TMP "loghost=$loghost\n";
+            $done=1;
+        } else {
+	   print TMP $_;
+        }
+    }
+    if ($done==0){
+     	print TMP "loghost=$loghost\n";
+    }
+    close(FILE);
+    close(TMP);
+    system("mv $file.tmp $file");
+    &restart_webmin();
+}
+
+
 # --auto-logout
 if ($auto_logout!=5){
     my $file="/etc/webmin/miniserv.conf";
+    if (not -e $file){
+	print "webmin is not installed, $file missing\n\n";
+        exit;
+    }
     my $done=0;
     open(FILE, "<$file");
     open(TMP, ">$file.tmp");
@@ -203,7 +247,7 @@ if ($groups==1){
     my $add_teacher=1;
     my $add_student=1;
     if (not -e $file){system("touch $file")}
-    
+
     # search file if line exists
     open(FILE, "<$file") || die "Error: $! not found";
     while (<FILE>){
@@ -267,6 +311,110 @@ if ($groups==1){
     # ??? notwendig ?????
     &restart_webmin();
 }
+
+
+
+
+
+
+
+# --modules
+if ($modules==1){
+    my $miniserv="/etc/webmin/miniserv.users";
+    my $webacl="/etc/webmin/webmin.acl";
+    my @modules_teacher=();
+    my @modules_student=();
+    my @users=();
+    my $line="";
+    if (not -e $miniserv){
+	print "webmin is not installed, $miniserv missing\n\n";
+        exit;
+    }
+    if (not -e $webacl){
+	print "webmin is not installed, $webacl missing\n\n";
+        exit;
+    }
+
+    # fill miniserv with root
+    open(MINISERV, "<$miniserv") || die "Error: $! not found";
+    open(MINISERVTMP, ">${miniserv}.tmp") || die "Error: $! not found";
+    open(WEBACL, "<$webacl") || die "Error: $! not found";
+    open(WEBACLTMP, ">${webacl}.tmp") || die "Error: $! not found";
+
+    while (<MINISERV>){
+        my ($login,$pass,$unknown,$donnow,$last)=split(/:/);
+        if ($login eq "root"){
+	    print MINISERVTMP $_;
+        }
+    }
+
+    while (<WEBACL>){
+        my ($login,$modules)=split(/:/);
+        if ($login eq "root"){
+	    print WEBACLTMP $_;
+        }
+    }
+
+
+    # admin
+    my $admin_modules = &get_webmin_modules("admin");
+    print MINISERVTMP "admin:x:0::\n";
+    print WEBACLTMP "admin: ".$admin_modules."\n";
+
+    # teachers
+    my @users_teacher=&get_user_adminclass(${DevelConf::teacher});
+    my $teacher_modules = &get_webmin_modules("teacher");
+    foreach my $teacher (@users_teacher){
+	my $miniserv_string=$teacher.":x:0::"."\n";
+        print MINISERVTMP $miniserv_string;
+	my $webacl_string=$teacher.": ".$teacher_modules."\n";
+        print WEBACLTMP $webacl_string;
+    }
+
+    # students
+    my @users_pupil=&get_pupils_school();
+    my $pupil_modules = &get_webmin_modules("student");
+    foreach my $pupil (@users_pupil){
+	my $miniserv_string=$pupil.":x:0::"."\n";
+        print MINISERVTMP $miniserv_string;
+	my $webacl_string=$pupil.": ".$pupil_modules."\n";
+        print WEBACLTMP $webacl_string;
+    }
+
+    close(MINISERV);
+    close(MINISERVTMP);
+    close(WEBACL);
+    close(WEBACLTMP);
+
+    system("mv $miniserv.tmp $miniserv");
+    system("mv $webacl.tmp $webacl");
+    # ??? notwendig ?????
+    &restart_webmin();
+}
+
+
+
+
+
+sub get_webmin_modules {
+    my ($group) = @_;
+    my $file="${DevelConf::devel_webmin_path}/webmin-${group}-modules.conf";
+    my $string="";
+
+    open(MOD, "<$file") || die "Error: $! not found";
+    while (<MOD>){
+       chomp();
+       if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+       if(not /:/){next}; # Ohne : keine Zeile
+       my ($mod,$option)=split(/:/);
+       #print "Module: $mod \n";
+       $string=$string." ".$mod;
+    }
+    print "---$string---\n";
+    return $string;
+    close(MOD);    
+}
+
 
 
 
