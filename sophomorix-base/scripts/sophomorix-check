@@ -230,8 +230,8 @@ my $vorname="";
 my $geburt="";
 my $unid="";
 my $field_five="";
-my $wunsch_login="wunschlogin";
-my $wunsch_passwort="erstpw";
+my $wunsch_login="---";
+my $wunsch_passwort="---";
 # Die 3 Unterfelder des Datums
 my $geburts_tag="";
 my $geburts_monat="";
@@ -616,8 +616,8 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
    }
    $zeilen_anzahl_datei=0; # Zähler innerhalb der Dateien
    # wunsch-login leeren, da er nicht von jedem Datensatz überschrieben wird
-   $wunsch_login="wunschlogin";
-   $wunsch_passwort="erstpw";
+   $wunsch_login="---";
+   $wunsch_passwort="---";
    &titel("Reading  ${schuelerdatei} ...");
 
    print REPORTSEKRETARIAT  "\n\n########################################", 
@@ -716,12 +716,12 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
  
        # Decide, what to do with field_five
        if($field_five eq ""){
-	   $wunsch_login= "wunschlogin";
+	   $wunsch_login= "---";
            $unid = "";
        } elsif ($field_five ne "" 
          && $schuelerdatei eq $schueler_to_check_dateien[0] ){
            $unid = $field_five;
-	   $wunsch_login = "wunschlogin";
+	   $wunsch_login = "---";
        } else {
            $unid = "";
            $field_five=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
@@ -730,10 +730,10 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
 
        if (not defined $wunsch_passwort){
           # $wunsch_passwort Kann evtl nicht mehr definiert sein
-          $wunsch_passwort="erstpw"
-        } elsif($wunsch_passwort eq ""){
-          # oder leer
-          $wunsch_passwort="erstpw"
+          $wunsch_passwort="---"
+        } elsif($wunsch_passwort eq "" or $wunsch_passwort eq "erstpw"){
+          # oder leer oder alt: erstpw
+          $wunsch_passwort="---"
         };
 
        # Datum pruefen
@@ -1817,7 +1817,7 @@ sub syntax_check_entry {
     
     # Wunschloginnamen checken
     # Zulassen: a-z  sowie 0-9
-    if ($wish_login eq "wunschlogin") {
+    if ($wish_login eq "---") {
         # nix tun, kein wunsch_login angegeben
     }  elsif ($wish_login=~/[^a-z0-9]/){
         # Fehlerhafter Wunsch-Login
@@ -2762,12 +2762,27 @@ sub generate_add_file {
       unless (exists $schueler_im_system_hash{$identifier}) {
 	 if ($old_info_dir eq ""){
             # Dont use old data
-            $string="$identifier"."::".
-#                    "$schueler_ok_wunsch_login_hash{$identifier}"."::".
-                    "---"."::".
-#                    "$schueler_ok_wunsch_passwort_hash{$identifier}"."::".
-                    "---"."::".
-                    "---"."::"."---"."\n";
+            $string="$identifier"."::";
+            if (exists $schueler_ok_wunsch_login_hash{$identifier}){
+              $string=$string."$schueler_ok_wunsch_login_hash{$identifier}"."::";
+            } else {
+              $string=$string."---"."::";
+            }
+
+            if (exists $schueler_ok_wunsch_passwort_hash{$identifier}){
+              $string=$string."$schueler_ok_wunsch_passwort_hash{$identifier}"."::";
+            } else {
+              $string=$string."---"."::";
+            }
+            $string=$string."---"."::"."---"."\n";
+
+#            $string="$identifier"."::".
+##                    "$schueler_ok_wunsch_login_hash{$identifier}"."::".
+#                    "---"."::".
+##                    "$schueler_ok_wunsch_passwort_hash{$identifier}"."::".
+#                    "---"."::".
+#                    "---"."::"."---"."\n";
+
 	 } else {
             # Use old data
 	    if (exists $old_id_login{$identifier}){
