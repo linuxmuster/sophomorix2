@@ -1,0 +1,221 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-test) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+
+# weiter:
+
+#Auswertung .add, .move, .kill
+
+
+# Bibliotheken
+
+use strict;
+use Getopt::Long;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixFiles;
+use Sophomorix::SophomorixTest;
+use Test::More "no_plan";
+Getopt::Long::Configure ("bundling");
+
+# Einlesen der Konfigurationsdatei für Entwickler
+{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+
+
+system("install -d /root/sophomorix-test");
+
+############################################################
+# Start
+############################################################
+
+my $today=`date +%d.%m.%Y`;
+print "\nToday is $today\n";
+chomp($today);
+my $verbose=0;
+
+&run_command("sophomorix-check",$verbose);
+
+print "\nDie Tests können beginnen\n\n";
+
+
+print '
+###########################################################################
+#                                                                         #
+#                      TESTING ACCOUNT FREEZING                           #
+#                                                                         #
+###########################################################################
+';
+
+###########################################################################
+# user in schueler.txt hinzufügen
+my $user="";
+my $login="";
+my @users_to_add=(
+     "7a;Pop;Iggy;10.02.1984;",
+     "6a;Reed;Lou;12.10.1978;",
+   );
+
+
+foreach $user (@users_to_add){
+   &append_line("$user","${DevelConf::users_pfad}/schueler.txt");
+}
+
+
+###########################################################################
+# Check
+&run_command("sophomorix-check",$verbose);
+
+&run_command("sophomorix-add",$verbose);
+
+
+$login=&get_login_name("6a;lou reed;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1978");
+
+### Test FROZEN ACCOUNT
+&run_command("sophomorix-user -F $login",$verbose);
+
+&check_line_in_file(
+  "6a;lou reed;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1978;[A-Za-z0-9]*;[A-D]?;F;;;;;",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+
+&check_account($login,"disabled");
+
+# run once
+&run_command("sophomorix-check",$verbose);
+
+&check_account($login,"disabled");
+
+# run twice, just in case
+&run_command("sophomorix-check",$verbose);
+
+&check_account($login,"disabled");
+
+# Test
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+&check_emptyness("sophomorix.kill");
+
+# removing the line
+&remove_line(
+  "6a;Reed;Lou;12.10.1978;",
+  "${DevelConf::users_pfad}/schueler.txt");
+
+
+&run_command("sophomorix-check",$verbose);
+&run_command("sophomorix-check",$verbose);
+
+# unverändert ?
+&check_line_in_file(
+  "6a;lou reed;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1978;[A-Za-z0-9]*;[A-D]?;F;;;;;",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+# Test
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+&check_emptyness("sophomorix.kill");
+
+
+&check_account($login,"disabled");
+
+### Test REMOVEABLE ACCOUNT
+&run_command("sophomorix-user -R $login",$verbose);
+
+
+&check_account($login,"disabled");
+
+
+&run_command("sophomorix-check",$verbose);
+
+&run_command("sophomorix-kill",$verbose);
+
+&check_account($login,"nonexisting");
+
+
+
+print '
+###########################################################################
+#                                                                         #
+#                      TESTING PERMANENT ACCOUNTS                         #
+#                                                                         #
+###########################################################################
+';
+
+
+
+$login=&get_login_name("7a;iggy pop;[a-z0-9]{2,};[a-z0-9]{3,};10.02.1984");
+
+### Test PERMANENT ACCOUNT
+&run_command("sophomorix-user -P $login",$verbose);
+
+&check_line_in_file(
+  "7a;iggy pop;[a-z0-9]{2,};[a-z0-9]{3,};10.02.1984;[A-Za-z0-9]*;[A-D]?;P;;;;;",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+
+&check_account($login,"enabled");
+
+# run once
+&run_command("sophomorix-check",$verbose);
+
+&check_account($login,"enabled");
+
+# run twice, just in case
+&run_command("sophomorix-check",$verbose);
+
+&check_account($login,"enabled");
+
+# Test
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+&check_emptyness("sophomorix.kill");
+
+# removing the line
+&remove_line(
+  "7a;Pop;Iggy;10.02.1984;",
+  "${DevelConf::users_pfad}/schueler.txt");
+
+
+&run_command("sophomorix-check",$verbose);
+&run_command("sophomorix-check",$verbose);
+
+# unverändert ?
+&check_line_in_file(
+  "7a;iggy pop;[a-z0-9]{2,};[a-z0-9]{3,};10.02.1984;[A-Za-z0-9]*;[A-D]?;P;;;;;",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+# Test
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+&check_emptyness("sophomorix.kill");
+
+
+&check_account($login,"enabled");
+
+
+### Test REMOVEABLE ACCOUNT
+&run_command("sophomorix-user -R $login",$verbose);
+
+&check_line_in_file(
+  "7a;iggy pop;[a-z0-9]{2,};[a-z0-9]{3,};10.02.1984;[A-Za-z0-9]*;[A-D]?;R;01.01.1970;01.01.1970;;;",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+
+&run_command("sophomorix-check",$verbose);
+
+&run_command("sophomorix-kill",$verbose);
+
+&check_account($login,"nonexisting");
+
+
+
+
+
+exit;
+
+###########################################################################
+# END OF TESTS
+###########################################################################
+
+
