@@ -37,6 +37,9 @@ use Time::localtime;
               print_user_samba_data
               get_user_history
               get_group_list
+              print_forward
+              create_share_link
+              remove_share_link
               zeit
               get_klasse_von_login
               get_schueler_in_klasse
@@ -84,6 +87,14 @@ use Time::localtime;
               unterricht_einsammeln
               provide_class_files
               );
+
+
+
+
+use Sophomorix::SophomorixSYSFiles qw ( 
+                                    get_user_auth_data
+                                  );
+
 
 
 
@@ -1581,6 +1592,74 @@ sub get_group_list {
     chomp($pri_group_string);
     @group_list=split(/ /, $group_string);
     return @group_list;
+}
+
+
+=pod
+
+=item I<print_forward(login,home)>
+
+Gibt den Inhalt von .forward aus
+
+=cut
+# this sjould be true for all db and auth-systems
+sub print_forward {
+    my ($login, $home) = @_;
+    if (-e "$home/.forward"){
+       open(FORWARD,"$home/.forward");
+       while (<FORWARD>){
+           chomp();
+	   print "   "."$_ \n";
+       }
+   } else {
+       print "   User $login has no mail forwarding.\n";
+   }
+}
+
+
+
+=pod
+
+=item I<create_share_link(login,project)>
+
+Legt ein Link an in das Tauschverzeichnis des Projekts an.
+
+=cut
+# this should be true for all db and auth-systems
+sub create_share_link {
+    my ($login,$project) = @_;
+    print "Creating a link for user $login to project $project.\n";
+    my $link_dir="/home/tausch/projects/${project}/";
+
+    my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
+       $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
+
+    my $link_name=$home."/Tauschverzeichnisse/Tausch-${project}";   
+    my $link_target="/home/tausch/projects/${project}/";
+
+    print "   Link name : $link_name\n";
+    print "   Target    : $link_target\n";
+    
+    # create the link
+    symlink $link_target, $link_name;
+}
+
+=pod
+
+=item I<remove_share_link(login,project)>
+
+Löscht den Link an in das Tauschverzeichnis des Projekts.
+
+=cut
+# this should be true for all db and auth-systems
+sub remove_share_link {
+    my ($login,$project) = @_;
+    my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
+       $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
+    my $link_name=$home."/Tauschverzeichnisse/Tausch-${project}";   
+    print "Removing link: $link_name\n";
+    # remove the link
+    unlink $link_name;
 }
 
 
