@@ -29,9 +29,12 @@ system("install -d /root/sophomorix-test");
 
 
 
-############################################################
-print "\nTesting update_user-db_entry \n\n";
-############################################################
+print '
+###########################################################################
+#                          Testing update_user-db_entry                   #
+###########################################################################
+';
+
 
 open(FILE,">/root/sophomorix-test/user.protokoll-test");
 
@@ -182,3 +185,51 @@ close(FILE);
   "/root/sophomorix-test/user.protokoll-test");
 
 
+
+
+print '
+###########################################################################
+#                          Testing create_project_db                      #
+###########################################################################
+';
+
+
+open(FILE,">/root/sophomorix-test/projects-test");
+
+print FILE "astro;Astronomie-AG;gallilga;peter,werner;12c;1000;16;\n";
+print FILE "homepage;Schul-Homepage;gallilga;thuraudi,werner;7c;1000;16;\n";
+
+close(FILE);
+
+&create_project_db("astro",
+                      "File=/root/sophomorix-test/projects-test",
+                      "LongName=Astronomie fuer Eltern");
+
+&check_line_in_file(
+  "astro;Astronomie fuer Eltern;gallilga;peter,werner;12c;1000;16;",
+  "/root/sophomorix-test/projects-test");
+&create_project_db("astro",
+                   "File=/root/sophomorix-test/projects-test",
+                   "Name=astro",
+                   "LongName=Astrokurs",
+                   "Teachers=bz,kj",
+                   "Members=thuraudi,bartalgi",
+                   "MemberGroups=11a",
+                   "AddQuota=400",
+                   "MaxMembers=19");
+&check_line_in_file(
+  "astro;Astrokurs;bz,kj;thuraudi,bartalgi;11a;400;19;",
+  "/root/sophomorix-test/projects-test");
+
+&create_project_db("chemie",
+                   "File=/root/sophomorix-test/projects-test",
+                   "Name=chemie",
+                   "LongName=Chemie fuer Anfaenger",
+                   "Teachers=gv",
+                   "Members=thuraudi,kueblefe",
+                   "MemberGroups=",
+                   "AddQuota=100",
+                   "MaxMembers=8");
+&check_line_in_file(
+  "chemie;Chemie fuer Anfaenger;gv;thuraudi,kueblefe;;100;8;",
+  "/root/sophomorix-test/projects-test");
