@@ -74,7 +74,9 @@ install-ldap:
 
 install-developer:
 	##### tset and developement tools
-	install -oroot -groot --mode=0744 sophomorix-developer/scripts/sophomorix*[a-z1-9] $(DESTDIR)/usr/sbin
+	install -d $(DESTDIR)/usr/sbin
+	install -oroot -groot --mode=0744 sophomorix-developer/scripts/sophomorix-test $(DESTDIR)/usr/sbin
+	install -oroot -groot --mode=0744 sophomorix-developer/scripts/sophomorix-test-*[a-z1-9] $(DESTDIR)/usr/sbin
 	##### Copy the module
 	install -d -m755 -oroot -groot $(PERLMOD)
 	install -oroot -groot --mode=0644 sophomorix-developer/modules/Sophomorix*[a-z1-9] $(PERLMOD)

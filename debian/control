@@ -7,15 +7,24 @@ Standards-Version: 3.5.2
 
 Package: sophomorix-base
 Architecture: any
-Depends: quota (>= 3.12), perl-base (>=5.8.4), libquota-perl (>= 1.4.9), libstring-approx-perl (>= 3.23), samba (>=3.0.7), tetex-base (2.0.2), tetex-bin (2.0.2)
-Description: User administration scripts for a Schoolserver
+Depends:  quota (>=3.12), perl-base (>=5.8.4), libquota-perl (>= 1.4.9), samba (>= 3.0.7), libstring-approx-perl (>=3.23), tetex-base (>=2.0.2), tetex-bin (>=2.0.2), tetex-extra (>=2.0.2), gs-common (>=0.3.6)
+Description: Base for sophomorix
 
+
+Package: sophomorix-files
+Architecture: any
+Depends:  sophomorix-base (>=1.1.0)
+Description: Files-Database for sophomorix
+
+Package: sophomorix-developer
+Architecture: any
+Depends:  sophomorix-base (>=1.1.0)
+Description: Test suite for sophomorix
 
 Package: sophomorix-ldap
 Architecture: any
 Depends:  slapd (>=2.1.22), ldap-utils (>=2.1.22),libnet-ldap-perl (>=0.30)
 Description: ldap direcory for sophomorix
-
 
 Package: sophomorix-webmin
 Architecture: any

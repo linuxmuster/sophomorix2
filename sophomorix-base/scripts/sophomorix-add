@@ -858,6 +858,7 @@ sub webmin_eintrag {
    my ($user)=@_;
    my $webmin_miniserv_users="/etc/webmin/miniserv.users";
    my $webminacl="/etc/webmin/webmin.acl";
+   if (-e $webmin_miniserv_users){
 
    # ===========================================================================
    #  miniserv.users mitloggen
@@ -866,7 +867,6 @@ sub webmin_eintrag {
    "cp  $webmin_miniserv_users ${DevelConf::log_pfad}/${zeit}.miniserv.users-vor",
    "chmod 600 ${DevelConf::log_pfad}/${zeit}.miniserv.users-vor"
 );
-
 
    open (MINISERVUSERS, ">>$webmin_miniserv_users") 
          ||   die "Kann $webmin_miniserv_users nicht öffnen\n";
@@ -911,4 +911,5 @@ sub webmin_eintrag {
    # Webmin muss neu gestartet werden
    $webmin_neustart=1;
  }
+}
 

@@ -55,6 +55,8 @@ install: build
 	# Add here commands to install the package into debian/sophomorix.
 	$(MAKE) install-base DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-ldap DESTDIR=$(CURDIR)/debian/sophomorix
+	$(MAKE) install-files DESTDIR=$(CURDIR)/debian/sophomorix
+	$(MAKE) install-developer DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-webmin-classmanager DESTDIR=$(CURDIR)/debian/sophomorix
 
 
