@@ -23,14 +23,13 @@ use Time::localtime;
               titel
               print_list 
               print_list_column 
-              formatiere_liste
+               formatiere_liste
               get_alle_verzeichnis_rechte
               get_v_rechte
               setup_verzeichnis
               get_old_info 
               user_login_hash
               save_tausch_klasse
-              neue_linux_gruppe_schueler
               user_links
               protokoll_linien
               extra_kurs_schueler
@@ -46,6 +45,8 @@ use Time::localtime;
               get_user_history
               get_group_list
               print_forward
+              get_passwd_charlist
+              get_plain_password
               set_sophomorix_passwd
               create_share_link
               remove_share_link
@@ -227,10 +228,9 @@ sub print_list {
 
 =pod
 
-=item I<print_list(name,@liste)>
+=item I<print_list_column(num,name,@liste)>
 
-prints every element of a list on a single line, if loglevel is 3
-(option -vv) and shows the header name.
+prints the elements of a list in num=2,4 or 6 columns, and shows the header name.
 
 =cut
 
@@ -285,18 +285,8 @@ sub print_list_column {
 
 
 # ===========================================================================
-# Mini-Titelleiste erzeugen
-# ===========================================================================
-#sub minititel {
-#   my ($a) = @_;
-#    printf "%-3s %-73s %-3s\n", "#", "$a", "#";
-# }
-
-# ===========================================================================
 # Beliebige Liste mit beliebigem Trennzeichen in einen String schreiben
 # ===========================================================================
-
-# ????????????????????
 
 sub formatiere_liste {
    my ($trenner,@liste) = @_;
@@ -437,8 +427,6 @@ sub setup_verzeichnis {
       $owner=~s/\$webuser/$DevelConf::apache_user/;
       # $webserver ersetzten
       $pfad=~s/\/\$webserver/$DevelConf::apache_root/;
-      # $samba ersetzten
- #     $pfad=~s/\/\$samba/$DevelConf::samba_dir/;
 
       # user einbinden
       if (defined $user) {
@@ -449,8 +437,6 @@ sub setup_verzeichnis {
       if (defined $gruppe) {
           $gowner=$gruppe;
       }
-
-
 
     if($Conf::log_level>=3){
       print "Benutze Rechte von          $verzeichnis\n";
@@ -489,17 +475,14 @@ sub setup_verzeichnis {
      system("chown ${owner}.${gowner} $pfad");
      system("chmod $permissions $pfad");
    }
-
-  
 }
 
 
 
 
-
-
-
-
+################################################################################
+#  Reading Data from old installations of sophomorix 
+################################################################################
 
 sub get_old_info {
    my ($dir, $no_kclass) = @_;
@@ -602,7 +585,6 @@ sub get_old_info {
    }
    close(PROTOCOL);
 
-
    # creating groupname -> unix-gid hash
    open(GROUP, "<$group") || die "Fehler: $!";
    &titel("Extracting data from old group ...");
@@ -634,7 +616,6 @@ sub get_old_info {
    }
    close(GROUP);
 
-
    # return references to the hashes
    return(\%old_id_login,
           \%old_id_password,
@@ -644,69 +625,6 @@ sub get_old_info {
 }
 
 
-
-
-
-
-# ===========================================================================
-# ausgabe vom loglevel abhängig machen
-# ===========================================================================
-
-#sub ausgabe{
-#    my ($level,$art,$ausgabe)=@_;
-#      # 1. Argument numerisch: ab welchem loglevel erfolgt Augabe
-#      # 2. Argument string   : string der ausgegeben wird
-#      # 3. Art:       test   : Nur als Text
-#      #              titel   : Als großer Titel
-#      #          minititel   : Als kleiner Titel
-#      #
-#      # Zum debuggen
-#      # print "Ab Level $level ausgeben\n";
-#      # print "log_level:","$Conf::log_level\n";
-#    if ($level<=$Conf::log_level){
-#       if ($art eq "text")       {print "$ausgabe\n"}
-#       if ($art eq "minititel")  {&titel("$ausgabe")}
-#       if ($art eq "titel")      {&titel("$ausgabe")}
-#       if ($art eq "befehl")      {$ausgabe}
-#  
-#       # befehle
-#    }
-#}
-
-
-# ===========================================================================
-# Hash mit allen Schülern in schueler.ok/user.ok (identifier) und deren Klasse
-# ===========================================================================
-
-# ????????????? deprecated
-sub schueler_ok_hash {
-  my $k;
-  my $v;
-  open(USEROK, 
-       "${DevelConf::ergebnis_pfad}/${DevelConf::schueler_oder_user}.ok") 
-       || die "Fehler: $!";
-  while(<USEROK>){
-    # identifier erzeugen aus schueler.ok
-    ($feld1,$feld2,$feld3,$feld4)=split(/;/);
-    $identifier_schueler_ok=join("",($feld2,";",$feld3,";",$feld4));
-    # Hash-Tabelle erzeugen 
-    $schueler_ok_hash{$identifier_schueler_ok}="$feld1";
-  }
-  close(USEROK);
-
-  # Ausgabe aller Schüler, die in Zukunft im System sein werden (schueler.ok/user.ok),
-  # mit ihrer Klasse
-  if($Conf::log_level>=3){
-     &titel("Gebe den Inhalt von  an ${DevelConf::schueler_oder_user}.ok... und die Klassen");
-     print("Schüler in ${DevelConf::schueler_oder_user}.ok:",
-           "                                      Klasse:\n");
-     print("===========================================================================\n");
-     while (($k,$v) = each %schueler_ok_hash){
-       printf "%-60s %3s\n","$k","$v";
-     }
-   }
-  return %schueler_ok_hash;
-}
 
 
 # ===========================================================================
@@ -801,54 +719,6 @@ sub save_tausch_klasse {
 }
 
 
-# ===========================================================================
-# Schülergruppe anlegen und Verzeichnisse erstellen
-# ===========================================================================
-=pod
-
-=item I<%hash = neue_linux_gruppe_schueler(klasse)>
-
-Unterschied zu provide_class_files und add_class_to_sys ????
-
-=cut
-sub neue_linux_gruppe_schueler {
-    # legt Klasse und Verzeichnisse an
-    my ($gruppe) = @_;
-    my $klassen_homes = "${DevelConf::homedir_pupil}/${gruppe}";
-    #my $schueler_homes = "${DevelConf::homedir_pupil}/${gruppe}";
-    my $klassen_tausch = "${DevelConf::share_classes}/${gruppe}";
-    my $klassen_aufgaben = "${DevelConf::share_tasks}/${gruppe}";
-#    my $smb_musterklasse = "${DevelConf::samba_dir}/netlogon/klasse.bat";
-#    my $smb_klasse = "${DevelConf::samba_dir}/netlogon/${gruppe}.bat";
-#    my $web_klasse = "${DevelConf::apache_root}/userdata/${gruppe}";
-
-    #--------------------------------------------------
-    # die Gruppe anlegen
-    # LDAP
-    &add_class_to_sys($gruppe);
-#    &do_falls_nicht_testen(
-#         "groupadd $gruppe"
-#    ); 
-
-    #--------------------------------------------------
-    # Klassen-Verzeichnis für die homes erstellen
-    if ($DevelConf::testen==0) {
-    &setup_verzeichnis("\$homedir_pupil/\$klassen",
-                       "$klassen_homes");
-    &setup_verzeichnis("\$share_classes/\$klassen",
-                       "$klassen_tausch");
-    # Aufgaben-Verzeichnis anlegen
-    &setup_verzeichnis("\$share_tasks/\$klassen",
-                       "$klassen_aufgaben");
-
-    }
-
-    &do_falls_nicht_testen(
-#         "cp -af  $smb_musterklasse $smb_klasse"
-    );
-}
-
-
 
 
 =pod
@@ -861,7 +731,6 @@ Creates all files and directories for a class (exchange directories).
 
 
 sub provide_class_files {
-#?????? lehrer?
     my ($class) = @_;
     if ($class eq "lehrer"){
       &setup_verzeichnis("\$share_teacher",
@@ -973,30 +842,7 @@ sub provide_user_files {
 
 
 # ===========================================================================
-# Verzeichnisse erstellen für lehrer
-# ===========================================================================
-
-# alle schon vorhanden
-
-#sub neue_linux_gruppe_lehrer {
-#    # Web-verzeichnis für die Lehrer anlegen
-#    my $web_lehrer = "${DevelConf::apache_root}/userdata/lehrer";
-#    if (not (-e "$web_lehrer")){
-#        &do_falls_nicht_testen(
-#             "mkdir $web_lehrer",
-#             "chown ${DevelConf::apache_user}.root $web_lehrer",
-#             "chmod 0501 $web_lehrer"
-#        );
-#      }
-
-
-#}
-
-
-
-
-# ===========================================================================
-# Links für neuen schueler anlegen
+# Links für neuen User anlegen
 # ===========================================================================
 =pod
 
@@ -1013,9 +859,11 @@ sub user_links {
 
 
   if ($gruppe ne "lehrer"){
+    # pupil
     $tausch_klasse="${DevelConf::share_classes}/$gruppe";
     $user_home = "${DevelConf::homedir_pupil}/$gruppe/$login";
   } else {
+    # teacher
     $tausch_klasse="${DevelConf::share_teacher}";
     $user_home = "${DevelConf::homedir_teacher}/$login";
   }
@@ -1063,6 +911,8 @@ sub user_links {
 liest die Linien aus user.protokoll in einen Hash.
 
 =cut
+
+# ???????????????????
 sub protokoll_linien {
    # Protokoll-Datei Zeilenweise in einen Hash einlesen
    my %protokoll_linien=();
@@ -1432,201 +1282,6 @@ sub lehrer_ordnen {
 }
 
 
-# ===========================================================================
-# Hash mit User-Loginname und Identifier erzeugen
-# ===========================================================================
-
-# deprected
-
-sub user_login_ident {
-     my $klasse_protokoll="";
-     my $name_protokoll="";
-     my $loginname_protokoll="";
-     my $passwort_protokoll="";
-     my $geburtsdatum_protokoll="";
-     my $vorname_protokoll="";
-     my $nachname_protokoll="";
-     my $identifier_protokoll="";
-     my %user_login_ident=();
-     my $k="";
-     my $v="";
-   # Einlesen der Protokolldatei
-   open(PROTOKOLL, "$DevelConf::protokoll_datei") || die "Fehler: $!";
-   while(<PROTOKOLL>){
-     chomp($_); # Newline abschneiden
-
-      # Protokolldateien bearbeiten
-     ($klasse_protokoll, 
-      $name_protokoll,
-      $loginname_protokoll,
-      $passwort_protokoll,
-      $geburtsdatum_protokoll
-     )=split(/;/);
-
-     # Name aufsplitten
-     ($vorname_protokoll,$nachname_protokoll)=split(/ /,$name_protokoll);
-     # Zusammenhängen zu identifier
-     $identifier_protokoll=join("",
-                               ($nachname_protokoll,
-                                ";",
-                                $vorname_protokoll,
-                                ";",
-                                $geburtsdatum_protokoll));
-
-     #print("$loginname_protokoll   $identifier_protokoll\n");
-  
-     # In einen Hash schreiben: mit loginnamen als Key 
-     #$user_login_ident{$identifier_protokoll}="$loginname_protokoll";
-     $user_login_ident{$loginname_protokoll}="$identifier_protokoll";
-
-   }
-
-   close(PROTOKOLL);
-
-   # Ausgabe aller Lehrer, die im System sind (schueler.protokoll/user.protokoll),
-   # mit ihrem Login
-   if($Conf::log_level>=3){
-      print("Loginname:           Identifier:\n");
-      print("===========================================================================\n");
-      while (($k,$v) = each %user_login_ident){
-        printf "%-20s %3s\n","$k","$v";
-      }
-    }
-  return %user_login_ident;
-}
-
-
-
-
-
-# ===========================================================================
-# Hash mit Identifier und User-Loginname erzeugen
-# ===========================================================================
-
-# deprecated
-
-sub user_ident_login {
-# fuer ldap nicht mehr noetig
-     my $klasse_protokoll="";
-     my $name_protokoll="";
-     my $loginname_protokoll="";
-     my $passwort_protokoll="";
-     my $geburtsdatum_protokoll="";
-     my $vorname_protokoll="";
-     my $nachname_protokoll="";
-     my $identifier_protokoll="";
-     my %user_login_ident=();
-     my $k="";
-     my $v="";
-   # Einlesen der Protokolldatei
-   open(PROTOKOLL, "$DevelConf::protokoll_datei") || die "Fehler: $!";
-   while(<PROTOKOLL>){
-     chomp($_); # Newline abschneiden
-
-      # Protokolldateien bearbeiten
-     ($klasse_protokoll, 
-      $name_protokoll,
-      $loginname_protokoll,
-      $passwort_protokoll,
-      $geburtsdatum_protokoll
-     )=split(/;/);
-
-     # Name aufsplitten
-     ($vorname_protokoll,$nachname_protokoll)=split(/ /,$name_protokoll);
-     # Zusammenhängen zu identifier
-     $identifier_protokoll=join("",
-                               ($nachname_protokoll,
-                                ";",
-                                $vorname_protokoll,
-                                ";",
-                                $geburtsdatum_protokoll));
-
-     #print("$loginname_protokoll   $identifier_protokoll\n");
-  
-     # In einen Hash schreiben: mit identifier als Key 
-     $user_login_ident{$identifier_protokoll}="$loginname_protokoll";
-     #$user_login_ident{$loginname_protokoll}="$identifier_protokoll";
-
-   }
-
-   close(PROTOKOLL);
-
-   # Ausgabe aller Lehrer, die im System sind (schueler.protokoll/user.protokoll),
-   # mit ihrem Login
-   if($Conf::log_level>=3){
-      print("Identifier:                              Loginname:\n");
-      print("===========================================================================\n");
-      while (($k,$v) = each %user_login_ident){
-        printf "%-40s %-12s\n","$k","$v";
-      }
-    }
-  return %user_login_ident;
-}
-
-
-
-# ===========================================================================
-# Hash mit Lehrer-Identifier und Loginname erzeugen
-# ===========================================================================
-
-# deprecated
-
-sub lehrer_ident_login {
-     my $klasse_protokoll="";
-     my $name_protokoll="";
-     my $loginname_protokoll="";
-     my $passwort_protokoll="";
-     my $geburtsdatum_protokoll="";
-     my $vorname_protokoll="";
-     my $nachname_protokoll="";
-     my $identifier_protokoll="";
-     my %lehrer_im_system_loginname=();
-     my $k="";
-     my $v="";
-   # Einlesen der Protokolldatei
-   open(PROTOKOLL, "$DevelConf::protokoll_datei") || die "Fehler: $!";
-   while(<PROTOKOLL>){
-     chomp($_); # Newline abschneiden
-
-      # Protokolldateien bearbeiten
-     ($klasse_protokoll, 
-      $name_protokoll,
-      $loginname_protokoll,
-      $passwort_protokoll,
-      $geburtsdatum_protokoll
-     )=split(/;/);
-
-     # Name aufsplitten
-     ($vorname_protokoll,$nachname_protokoll)=split(/ /,$name_protokoll);
-     # Zusammenhängen zu identifier
-     $identifier_protokoll=join("",
-                               ($nachname_protokoll,
-                                ";",
-                                $vorname_protokoll,
-                                ";",
-                                $geburtsdatum_protokoll));
-
-     print("$identifier_protokoll      $loginname_protokoll   \n");
-  
-     # In einen Hash schreiben: mit loginnamen als Wert (um Löschen herauszufinden)
-     $lehrer_im_system_loginname{$identifier_protokoll}="$loginname_protokoll";
-   }
-
-   close(PROTOKOLL);
-
-   # Ausgabe aller Lehrer, die im System sind (schueler.protokoll/user.protokoll),
-   # mit ihrem Login
-   if($Conf::log_level>=3){
-      print("Lehrer im System:                                           Login:\n");
-      print("===========================================================================\n");
-      while (($k,$v) = each %lehrer_im_system_loginname){
-        printf "%-60s %3s\n","$k","$v";
-      }
-    }
-  return %lehrer_im_system_loginname;
-}
-
-
 
 
 # ===========================================================================
@@ -1690,38 +1345,6 @@ sub do_falls_nicht_testen {
 
 
 # ===========================================================================
-# Hilfe für ALLE Scripte
-# ===========================================================================
-#=pod
-
-#=item I<help_text_all()>
-
-#will be deprecated when man pages are finished
-
-#=cut
-#sub help_text_all {
-#   my @list = split(/\//,$0);
-#   my $scriptname = pop @list;
-#   print "NAME:   $scriptname [OPTION]\n\n";
-#
-#   print "Hilfe zu $scriptname:\n\n";
-#   #help
-#   print "  -h, --help\n";
-#   print "     Diese Hilfe anzeigen.\n\n";
-#
-#
-#   print "Menge an Ausgabe-Informationen während des Programmablaufs:\n\n";
-#   # verbose
-#   print "  -v, --verbose\n";
-#   print "     mehr Informationen ausgeben.\n\n";
-#
-#   print "  -vv, --verbose --verbose\n";
-#   print "     noch mehr Informationen ausgeben.\n\n";
-#}
-#
-
-
-# ===========================================================================
 # Abbruchmeldung bei Fehlerhafter Optionsangabe
 # ===========================================================================
 =pod
@@ -1752,12 +1375,17 @@ sub  check_options{
 
 
 
+
+
+
+# ===========================================================================
+# Umgang mit Dateien: anlegen, abbrechen, kopieren, ...
+# ===========================================================================
 =pod
 
 =item I<check_datei_exit(file)>
 
 Bricht mit Fehlermeldung ab, wenn die übergebene Datei nicht existiert
-
 
 =cut
 sub check_datei_exit {
@@ -1833,6 +1461,15 @@ sub check_verzeichnis_mkdir {
 
 
 
+
+
+
+
+
+
+# ===========================================================================
+# User Account Information
+# ===========================================================================
 =pod
 
 =item I<print_user_samba_data(login)>
@@ -1952,6 +1589,73 @@ sub print_forward {
    } else {
        print "   User $login has no mail forwarding.\n";
    }
+}
+
+
+=pod
+
+=item I<get_passwd_charlist()>
+
+Gibt eine Liste aller für Zufalls-Passwörter zulässiger Zeichen zurück
+
+=cut
+
+sub get_passwd_charlist {
+   # Zeichen, die in den verschlüsselten Passwörtern vorkommen dürfen
+   # auslassen: 1,i,l,I,L,j
+   # auslassen: 0,o,O
+   # auslassen: Grossbuchstaben, die mit Kleinbuchstaben 
+   #            verwechselbar: C,I,J,K,L,O,P,S,U,V,W,X,Y,Z 
+   my @zeichen=('a','b','c','d','e','f','g','h','i','j','k',
+                'm','n','o','p','q','r','s','t','u','v',
+                'w','x','y','z',
+                'A','B','D','E','F','G','H','L','M','N','Q','R','T',
+                '2','3','4','5','6','7','8','9');
+   return @zeichen;
+}
+
+
+
+
+=pod
+
+=item I<get_passwd_charlist()>
+
+Gibt eine Liste aller für Zufalls-Passwörter zulässiger Zeichen zurück
+
+=cut
+
+sub get_plain_password {
+   my $gruppe=shift;
+   my @passwort_zeichen=@_;
+   my $passwort="";
+   my $i;
+   if ($gruppe eq "lehrer") {
+      # Es ist ein Lehrer
+      if ($Conf::lehrer_zufall_passwort eq "ja") {
+         # Zufallspasswort erzeugen
+         for ($i=1;$i<=${Conf::zufall_passwort_anzahl_lehrer};$i++)
+            {
+              $passwort=$passwort.$passwort_zeichen[int (rand $#passwort_zeichen)];
+            }
+         } else {
+            # Standard-Passwort verwenden
+            $passwort="linux";
+	  }
+      } else {
+         # Es ist ein Schüler
+         if ($Conf::schueler_zufall_passwort eq "ja") {
+            # Zufallspasswort erzeugen
+            for ($i=1;$i<=${Conf::zufall_passwort_anzahl_schueler};$i++)
+             {
+              $passwort=$passwort.$passwort_zeichen[int (rand $#passwort_zeichen)];
+             }
+         } else {
+            # Standard-Passwort verwenden
+            $passwort="linux";
+         }
+       }
+    return $passwort;
 }
 
 
@@ -2079,7 +1783,7 @@ sub append_auto_teach_in_log {
 
 =item I<zeit(epoche)>
 
-Erzeugt Datum aus epochenzeit
+Makes a Backup ...???
 
 =cut
 sub backup_amk_file {
@@ -2122,38 +1826,6 @@ sub get_klasse_von_login {
 
 # Ende der Dokumentation
 
-
-##############################################################################
-# Ab hier bisher in sophomorix-libfür klassenmanager
-##############################################################################
-
-
-# under get_pupils_school in API
-
-# ===========================================================================
-# Liste aller Schüler der Schule ermitteln, alphabetisch
-# ===========================================================================
-# Diese Funktion liefert eine Liste aller Schüler der Schule zurück
-#sub get_schueler_in_schule {
-#    my @pwliste=();
-#    my @schuelerliste=();
-#    
-#    setpwent();
-#    while (@pwliste=getpwent()) {
-#    #print"$pwliste[7]";  # Das 8. Element ist das Home-Verzeichnis
-# #     if ($pwliste[7]=~/^\/home\/pupil\//) {
-#       if ($pwliste[7]=~/^$DevelConf::homedir_pupil/) {
-#       push(@schuelerliste, $pwliste[0]);
-#         #print "$pwliste[0]<p>";
-#      }
-#    }
-#    endpwent();
-#
-#    # Alphabetisch ordnen
-#    @schuelerliste = sort @schuelerliste;
-#    return @schuelerliste;
-#}
-
 # ===========================================================================
 # dito, aber im hash, Value ist primäre Gruppe
 # ===========================================================================
@@ -2176,36 +1848,6 @@ sub get_schueler_in_schule_hash {
 ################################################################################
 # LEHRER
 ################################################################################
-# ===========================================================================
-# Liste aller Lehrer der Schule ermitteln, alphabetisch
-# ===========================================================================
-# Die Funktion liefert eine Liste aller Lehrer der Schule zurück
-
-# replaced in API by get_user_in_adminclass
-
-#sub get_lehrer_in_schule {
-#    my @lehrerliste=();
-#    my @pwliste=();
-#    # Group-ID der Gruppe Lehrer ermitteln
-#    my @gruppenzeile=getgrnam "lehrer";
-#    my $gid=$gruppenzeile[2];
-#    #print"Info: Group-ID der Lehrer ist $gid<p>";
-#
-#    setpwent();
-#    while (@pwliste=getpwent()) {
-#      #print "Prüfe user: $pwliste[0]<p>";
-##     if ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/teacher\//) {
-#     if ($pwliste[3] eq $gid && $pwliste[7]=~/^$DevelConf::homedir_teacher/) {
-#         push(@lehrerliste, $pwliste[0]);
-#      }
-#    }
-#    endpwent();#
-#
-#    # Alphabetisch ordnen
-#    @lehrerliste=sort @lehrerliste;
-#    #print"Lehrer sind: @lehrerliste <p>";
-#    return @lehrerliste;
-#}
 
 # ===========================================================================
 # dito, aber im hash
@@ -2225,32 +1867,6 @@ sub get_lehrer_in_schule_hash {
 ################################################################################
 # WORKSTATIONS
 ################################################################################
-# ===========================================================================
-# Liste aller Workstations der Schule ermitteln, alphabetisch
-# ===========================================================================
-# Diese Funktion liefert eine Liste aller Schüler der Schule zurück
-
-# moved to API with name get_workstations_school
-
-#sub get_workstations_in_schule {
-#    my @pwliste=();
-#    my @workstationliste=();
-#    
-#    setpwent();
-#    while (@pwliste=getpwent()) {
-#    #print"$pwliste[7]";  # Das 8. Element ist das Home-Verzeichnis
-##      if ($pwliste[7]=~/^\/home\/workstations\//) {
-#      if ($pwliste[7]=~/^$DevelConf::homedir_ws/) {
-#         push(@workstationliste, $pwliste[0]);
-#         #print "$pwliste[0]<p>";
-#      }
-#    }
-#    endpwent();#
-#
-#    # Alphabetisch ordnen
-#    @workstationliste = sort @workstationliste;
-#    return @workstationliste;
-#}
 
 # ===========================================================================
 # dito, aber im hash
@@ -2268,35 +1884,6 @@ sub get_workstations_in_schule_hash {
 
 
 
-# moved to API with name get_workstations_room
-
-#sub get_workstations_in_raum {
-#    my ($workstation)=@_;
-#    #print "$workstation<p>";
-#    my @pwliste=();
-#    my @workstations=();
-#    # Group-ID ermitteln
-#    my ($a,$b,$gid) = getgrnam $workstation; 
-#    #print"Info: Group-ID der Gruppe $workstation ist $gid<p>\n";#
-#
-#    # alle Workstations in diesem Raum heraussuchen
-#    setpwent();
-#    while (@pwliste=getpwent()) {
-#    #print"$pwliste[7]\n";  # Das 8. Element ist das Home-Verzeichnis
-##     if ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/workstations\//) {
-#     if ($pwliste[3] eq $gid && $pwliste[7]=~/^$DevelConf::homedir_ws/) {
-#         push(@workstations, $pwliste[0]);
-#         #print "$pwliste[3]";
-#      }
-#    }
-#    endpwent();
-#
-#    # Alphabetisch ordnen
-#    @workstations=sort @workstations;
-#    return @workstations;
-#}
-
-
 
 
 
@@ -2306,36 +1893,6 @@ sub get_workstations_in_schule_hash {
 ################################################################################
 # KLASSEN
 ################################################################################
-# ===========================================================================
-# Liste aller Klassen der Schule ermitteln, alphabetisch
-# ===========================================================================
-
-# is with name get_adminclasses_school in API
-
-# Diese Funktion liefert eine Liste aller Klassen der Schule zurück
-#sub get_klassen_in_schule {
-#    my @pwliste;
-#    my %klassen_hash=();
-#    my @liste;
-#    # Alle Klassen-namen in einen Hash
-#
-#    setpwent();
-#    while (@pwliste=getpwent()) {
-#       if ($pwliste[7]=~/^\/home\/pupil\//) {
-#       if ($pwliste[7]=~/^$DevelConf::homedir_pupil/) {
-#          $klassen_hash{getgrgid($pwliste[3])}=""; 
-#       }
-#    }
-#    endpwent();
-#
-#    while (my ($k) = each %klassen_hash){
-#       # Liste füllen
-#       push (@liste, $k);
-#    }
-#    
-#    @liste = sort @liste;
-#    return @liste;
-#}
 
 # ===========================================================================
 # dito, aber im hash
@@ -2400,41 +1957,13 @@ sub check_klasse {
 ################################################################################
 # RÄUME
 ################################################################################
-# ===========================================================================
-# Liste aller Raeume der Schule ermitteln, alphabetisch
-# ===========================================================================
-# Diese Funktion liefert eine Liste aller Raeume der Schule zurück
-
-# moved as get_rooms_school to API
-
-#sub get_raeume_in_schule {
-#    my @pwliste;
-#    my %raeume_hash=();
-#    my @liste;
-#    # Alle Raeume-namen in einen Hash
-#
-#    setpwent();
-#    while (@pwliste=getpwent()) {
-##       if ($pwliste[7]=~/^\/home\/workstations\//) {
-#       if ($pwliste[7]=~/^$DevelConf::homedir_ws/) {
-#          $raeume_hash{getgrgid($pwliste[3])}=""; 
-#       }
-#    }
-#    endpwent();
-#
-#    while (my ($k) = each %raeume_hash){
-#       # Liste füllen
-#       push (@liste, $k);
-#    }
-#    
-#    @liste = sort @liste;
-#    return @liste;
-#}
-
 
 
 # Liest eine Liste mit den Räumen aus, in denen KA's stattfinden 
 # können
+
+# wird mit neuer raum-datenbank anders
+
 sub get_ka_raeume_in_schule{
   my @ka_raum_liste=();
   if (-e "$DevelConf::config_pfad/ka-raeume.txt") {
@@ -2451,6 +1980,9 @@ sub get_ka_raeume_in_schule{
 
  return @ka_raum_liste;
 }
+
+
+
 
 # ===========================================================================
 # dito, aber im hash
@@ -2609,26 +2141,6 @@ sub get_lehrer_in_klasse {
  }
  return @liste; 
 }
-
-
-# ===========================================================================
-# 2. Link zu public_html erzeugen
-# ===========================================================================
-#sub add_public_html_link {
-#    # 2. Link zum public_html der User anlegen
-#    my ($login,$group) = @_;
-#    &do_falls_nicht_testen(
-#       "ln -s $DevelConf::apache_root/userdata/$group/$login/public_html $DevelConf::apache_root/users#/$login"
-#    );
-#}
-
-#sub remove_public_html_link {
-#    # 2. Link zum public_html der User entfernen
-#    my ($login,$group) = @_;
-#    &do_falls_nicht_testen(
-#       "rm $DevelConf::apache_root/users/$login"
-#    );
-#}
 
 
 
@@ -3488,6 +3000,9 @@ sub sophomorix_passwd {
 }
 
 
+
+#
+#deprecated
 
 
 sub get_erst_passwd {
