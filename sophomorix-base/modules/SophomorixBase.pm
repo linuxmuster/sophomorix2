@@ -200,6 +200,22 @@ sub titel {
    }
 }
 
+=pod
+
+=item I<titel(text)>
+
+Creates a framed titel with the text I<text>. The frame is thinner,
+when --verbose is not used.
+
+=cut
+sub print_list {
+   my @list= @_;
+
+   if($Conf::log_level>=3){
+
+   }
+}
+
 
 # ===========================================================================
 # Mini-Titelleiste erzeugen
@@ -275,12 +291,12 @@ sub get_alle_verzeichnis_rechte {
    }
    close(REPAIR);
    
-   if($Conf::log_level>=3){
-      # Hash ausgeben
-      while (($key,$value) = each %alle_verzeichnis_rechte){
-         printf "%-40s %40s\n","$key","-$value-";
-      }
-    }
+#   if($Conf::log_level>=3){
+#      # Hash ausgeben
+#     while (($key,$value) = each %alle_verzeichnis_rechte){
+#         printf "%-40s %40s\n","$key","-$value-";
+#      }
+#    }
 
 }
 
@@ -419,7 +435,7 @@ sub setup_verzeichnis {
 
 
 sub get_old_info {
-   my ($dir) = @_;
+   my ($dir, $no_kclass) = @_;
    # Files
    my $protocol="${dir}/user.protokoll";
    my $passwd="${dir}/passwd";
@@ -439,7 +455,9 @@ sub get_old_info {
    my %old_login_id=();
    my %old_id_password=();  
    my %old_id_id=();  
+   my %old_unix_ids=();
    my %old_group_gid=();  
+   my %old_unix_gids=();
    my %old_teach_in=();
    my ($admin_class, $gecos,$login, $pass,$birth)=();
    my ($name,$surname)=();
@@ -448,25 +466,46 @@ sub get_old_info {
    my ($identifier_sys,$identifier_admin);
 
    open(TEACHINDATEN,"$teach_in") || die "Fehler: $!";
+   &titel("Extracting data from old teach-in.txt ...");
    while(<TEACHINDATEN>){
       chomp();
       if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
-      ($identifier_sys,$identifier_admin)=split(/:::/); 
-      $old_teach_in{$identifier_sys}="$identifier_admin";
+      ($identifier_sys,$identifier_admin)=split(/:::/);
+      if (exists $old_teach_in{$identifier_sys}){ 
+	   print "   ERROR: Identifier  $identifier_sys exists ",
+                 "multiple times in old teach-in.txt.\n";
+      } else {
+         $old_teach_in{$identifier_sys}="$identifier_admin";
+      }
    }
    close(TEACHINDATEN);
 
    # creating login -> unix-id hash
    open(PASSWD, "<$passwd") || die "Fehler: $!";
+   &titel("Extracting data from old passwd ...");
    while(<PASSWD>){
        chomp($_);
        ($passwd_login,$spass,$id,$gid,$passwd_gecos,$home,$shell)=split(/:/);
-       $old_login_id{$passwd_login}="$id";
+       if (exists $old_unix_ids{$id}){
+	   print "   ERROR: Unix_id $id exists ",
+                 "multiple times in old passwd.\n";
+       } else {
+          $old_unix_ids{$id}="$passwd_login";
+       }
+ 
+
+       if (exists $old_login_id{$passwd_login}){
+	   print "   ERROR: Loginname $passwd_login exists ",
+                 "multiple times in old passwd.\n";
+       } else {
+          $old_login_id{$passwd_login}="$id";
+       }
    }
    close(PASSWD);
 
    # creating identifier -> ... hashes
    open(PROTOCOL, "<$protocol") || die "Fehler: $!";
+   &titel("Extracting data from old user.protokoll ...");
    while(<PROTOCOL>){
        chomp($_);
        ($admin_class, $gecos,$login, $pass,$birth)=split(/;/);
@@ -484,18 +523,47 @@ sub get_old_info {
        $old_id_password{$identifier}="$pass";
        # looking up id
        $id=$old_login_id{$login};
-       # identifier -> id hash
-       $old_id_id{$identifier}="$id";
+       if (not defined $id){
+	   $id="";
+           print "   ERROR: Account $login ($identifier) has no ",
+                 "entry in old passwd.\n"; 
+       } else {
+         # identifier -> id hash
+         $old_id_id{$identifier}="$id";
+       }
+
    }
    close(PROTOCOL);
 
 
    # creating groupname -> unix-gid hash
    open(GROUP, "<$group") || die "Fehler: $!";
+   &titel("Extracting data from old group ...");
    while(<GROUP>){
        chomp($_);
        ($gname,$gpass,$group_gid)=split(/:/);
-       $old_group_gid{$gname}="$group_gid";
+
+       if ($no_kclass==0){
+         # removing the leading k       
+         $gname=~s/^k//;
+       }
+
+       # create the returned hash
+       if (exists $old_group_gid{$gname}){
+	  print "   ERROR: Groupname $gname exists ",
+                "multiple times in old group.\n";
+       } else {
+          $old_group_gid{$gname}="$group_gid";
+       }
+
+       # just to check for double gids
+       if (exists $old_unix_gids{$group_gid}){
+	  print "   ERROR: Unix-gid $group_gid exists ",
+                "multiple times in old group.\n";
+       } else {
+          $old_unix_gids{$group_gid}="$gname";
+       }
+
    }
    close(GROUP);
 
@@ -1954,7 +2022,7 @@ sub get_schueler_in_schule {
     setpwent();
     while (@pwliste=getpwent()) {
     #print"$pwliste[7]";  # Das 8. Element ist das Home-Verzeichnis
-      if ($pwliste[7]=~/^\/home\/schueler\//) {
+      if ($pwliste[7]=~/^\/home\/pupil\//) {
          push(@schuelerliste, $pwliste[0]);
          #print "$pwliste[0]<p>";
       }
@@ -2003,7 +2071,7 @@ sub get_lehrer_in_schule {
     setpwent();
     while (@pwliste=getpwent()) {
       #print "Prüfe user: $pwliste[0]<p>";
-     if ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/lehrer\//) {
+     if ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/teacher\//) {
          push(@lehrerliste, $pwliste[0]);
       }
     }
@@ -2125,7 +2193,7 @@ sub get_klassen_in_schule {
 
     setpwent();
     while (@pwliste=getpwent()) {
-       if ($pwliste[7]=~/^\/home\/schueler\//) {
+       if ($pwliste[7]=~/^\/home\/pupil\//) {
           $klassen_hash{getgrgid($pwliste[3])}=""; 
        }
     }

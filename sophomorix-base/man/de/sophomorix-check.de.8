@@ -47,6 +47,11 @@ Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .B --get-info-from-old-files verzeichnis
 Holt Informationen aus user.protokoll, passwd, group, teach-in.txt im
 angegebnen Verzeichnis.
+.B --no-kclass
+Nur in Verbindung mit Option --get-info-from-old-files. Entfernt NICHT
+das führende k in Gruppennamen aus der alten group-Datei. Sollte
+angegeben werden, wenn eine alte group Datei eingelesen wird, bei
+deren Gruppennamen KEIN k vorangestellt wurde.
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),

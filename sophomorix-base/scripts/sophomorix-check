@@ -76,12 +76,14 @@ $Conf::log_level=1;
 my $help=0;
 my $file_to_check="";
 my $old_info_dir="";
+my $no_kclass=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
        "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
            "get-info-from-old-files=s" => \$old_info_dir,
+           "no-kclass" => \$no_kclass,
            "file=s" => \$file_to_check,
           );
 
@@ -568,7 +570,7 @@ if ($old_info_dir ne ""){
        $ref_old_id_password,
        $ref_old_id_id,
        $ref_old_group_gid
-      ) = &get_old_info($old_info_dir);
+      ) = &get_old_info($old_info_dir, $no_kclass);
    # old files: identifier - old_login 
    %old_id_login = %$ref_old_id_login;
    # old files: identifier - old_login 
