@@ -23,22 +23,51 @@ use Sophomorix::SophomorixFiles;
 $Conf::log_level=1;
 my $help=0;
 my $info=0;
-my $lch="admin";
+
 my $project="";
+
+my $long_name;
+my $p_teachers;
+my $p_members;
+my $p_groups;
+my $p_add_quota;
+my $p_max_members;
 
 my $login="";
 
+my @options=();
+
 # Parsen der Optionen
 my $testopt=GetOptions(
-           "project|p=s" => \$project,
-           "lastchange|l=s" => \$lch,
            "help|h" => \$help,
            "info|i" => \$info,
-           "pmembers=s" => \$p_members,
+           "Name|project|p=s" => \$project,
+           "LongName=s" => \$long_name,
+           "Teachers|pteachers=s" => \$p_teachers,
+           "Members|pmembers=s" => \$p_members,
+           "MemberGroups|pgroups|Groups=s" => \$p_groups,
+           "AddQuota|pquota|quota=s" => \$p_add_quota,
+           "MaxMembers=s" => \$p_max_members,
           );
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
+
+if ($project eq ""){
+    print "Sie müssen ein Projekt angeben!\n";
+    exit;
+}
+
+
+# Options-Liste Füllen, falls angegeben
+push @options, $project;
+if (defined $long_name){push @options, "LongName=$long_name"}
+if (defined $p_teachers){push @options, "Teachers=$p_teachers"}
+if (defined $p_members){push @options, "Members=$p_members"}
+if (defined $p_groups){push @options, "MemberGroups=$p_groups"}
+if (defined $p_add_quota){push @options, "AddQuota=$p_add_quota"}
+if (defined $p_max_members){push @options, "MaxMembers=$p_max_members"}
+
 
 # --help
 if ($help==1) {
@@ -75,40 +104,21 @@ if ($info==1){
     exit;
 }
 
-# Abbruch wenn als klasse lehrer abgegeben
-if ($class eq "" or $class eq "lehrer"){
-    print "Sie müssen die zu teilende Klasse angeben!\n";
-    if ($class eq "lehrer"){
-	print "Die Gruppe lehrer ist keine Klasse!\n";
-    }
-    exit;
-}
-
 
 # ===========================================================================
 # Programmbeginn
 # ===========================================================================
 
+print "Working on project $project\n";
+
 # Step 1
-# Updating the user-Database
-   # splitten der option
-    @a_members=split(/,/,$a_members);
-    @b_members=split(/,/,$b_members);
-    @c_members=split(/,/,$c_members);
-    @d_members=split(/,/,$d_members);
-   # db aktualisieren 
+# write the projects-line
+&create_project_db(@options);
 
-
-
-
-# Step 2
-# write the subclass-projects-line
-&create_project_db("astro","Astronomie-AG","bz,kj","mueller,maier","12c","1000","16");
-
-# step 3
-# Read the database (users and subclasses) 
+# step 2
+# Read the database  
 # and change the system accordingly
-&create_project($class);
+#&create_project($project);
 
 
 
@@ -116,43 +126,6 @@ if ($class eq "" or $class eq "lehrer"){
 ###########################################################################
 # Sub
 ###########################################################################
-sub create_project_db {
-    # create entry in the database
-    my ($project, 
-        $project_long,
-        $project_teachers,
-        $project_users,
-        $project_admin_classes,
-        $project_quota,
-        $project_max_user_number) = @_;
-
-    my $line="";
-
-    $line=$project.";".
-          $project_long.";".
-          $project_teachers.";".
-          $project_users"\n";
-
-    # die mit Klasse- beginnen entfernen  
-    open(PROJECTTMP,">${DevelConf::dyn_config_pfad}/projects.tmp");
-    open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects");
-
-    while (<PROJECT>){
-        if (not /^$project-/){
-           # bisherige Zeilen anderer Klassen beibehalten
-	   print PROJECTTMP $_;
-        }
-    }
-
-    # bearbeitete Zeilen anhängen
-    print PROJECTTMP $line_a;
-
-    close(PROJECT);
-    close(PROJECTTMP);
-
-    system("mv ${DevelConf::dyn_config_pfad}/projects.tmp ${DevelConf::dyn_config_pfad}/projects");
-}# end sub
-
 
 sub get_project_db {
     my $project = @_;
@@ -161,7 +134,7 @@ sub get_project_db {
     while(<PROJECT>){
 	print $_,"\n";
        my @line=split(/;/);
-       if ($line[0] eq $class){
+       if ($line[0] eq $project){
 	   $project_data{"ProjectName"} = $line[0];
 	   $project_data{"ProjectNameLong"} = $line[1];
 	   $project_data{"ProjectTeachers"} = $line[2];
