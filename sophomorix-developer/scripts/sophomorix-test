@@ -1,0 +1,70 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-test) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+
+# weiter:
+
+#Auswertung .add, .move, .kill
+
+
+# Bibliotheken
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+
+# Einlesen der Konfigurationsdatei für Entwickler
+{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+
+# jeffbecks Bibliothek und
+# Einlesen der Konfigurationsdatei
+
+
+my $test_number=0;
+system("install -d /root/sophomorix-test");
+
+#&next_test("Adding some users");
+
+my $users_1="m4kb;Maier;Jörg;12.10.1982;\n";
+&append("schueler.txt","$users_1");
+
+system("sophomorix-check");
+
+&check_results();
+
+#&next_test("Moving some users");
+
+############################################################
+# Start
+############################################################
+
+sub check_results {
+  # sophomorix.add
+  open(ADD,"<${DevelConf::var_lib_pfad}");
+  close(ADD);
+  # sophomorix.move
+  # sophomorix.kill
+}
+
+sub append {
+    my ($file,$string) = @_;
+    open(SCH,">>${DevelConf::config_pfad}/$file");
+    print "Appending to $file: \n $string \n\n";
+    print SCH $string;
+    close(SCH);
+}
+
+sub next_test {
+    my ($titel) = @_;
+    system("clear");
+    $test_number++;
+    print "Test $test_number : $titel\n";
+    sleep 2;
+}
+
+
+
+
+# EOF

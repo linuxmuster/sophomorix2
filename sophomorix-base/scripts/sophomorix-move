@@ -1,0 +1,391 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-move) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+# Bibliotheken
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+#use Schedule::at;
+
+# Einlesen der Konfigurationsdatei für Entwickler
+{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+
+# jeffbecks Bibliothek und
+# Einlesen der Konfigurationsdatei
+require "${DevelConf::library_pfad}/sophomorix-lib-base";
+require "${DevelConf::library_pfad}/sophomorix-lib-files";
+
+# Nur als Dummy(Warnings verhindern)
+if(${DevelConf::library_pfad}){};
+if(${DevelConf::protokoll_datei}){};
+#if($){};
+
+my $zeit=&zeit_stempel;
+my $user_nummer=0;
+
+my $alte_klasse;
+my $neue_klasse;
+my $login_versetzen;
+my $identifier;
+my $alte_zeile="";
+my $neue_zeile="";
+my $neues_home="";
+
+my $altes_www="";
+my $neues_www="";
+my $www_link="";
+
+my %protokoll_hash;
+
+my %klassen_intern=();
+
+my $k;
+my $v;
+my $key;
+
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+
+# Variablen für Optionen
+$DevelConf::testen=0;
+$Conf::log_level=1;
+my $help=0;
+my $info=0;
+my $alt_gruppe="";
+my $neu_gruppe="";
+my $klassenintern="";
+my $loginname="";
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "test|t" => \$DevelConf::testen,
+           "verbose|v+" => \$Conf::log_level,
+           "login|loginname|user|u|l=s" => \$loginname,
+           "altgruppe|altklasse|a=s" => \$alt_gruppe,
+           "neugruppe|neuklasse|n=s" => \$neu_gruppe,
+           "klassenintern=s" => \$klassenintern,
+           "info|i" => \$info,           
+           "help|h" => \$help
+          );
+
+# Prüfen, ob Optionen erkannt wurden, sonst Abbruch
+&check_options($testopt);
+
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlsbeschreibung
+   print "$scriptname versetzt Schüler aus der Datei \n";
+   print "   ${DevelConf::ergebnis_pfad}/sophomorix.move \n";
+   print "in eine andere Klasse\n\n";
+
+   # optionen
+   print "Optionen:\n\n";
+
+   print "  --info, -i\n";
+   print "     Listet die User auf, die versetzt werden können. \n\n";
+
+   print "  --login user, -- loginname user, --user user, -u user, -l user\n";
+   print "     Es wird nur die Schülerin/der Schüler versetzt, \n";
+   print "     die/der den Benutzernamen user hat.\n\n";
+
+   print "  --altgruppe klasse, --altklasse klasse, -a  klasse\n";
+   print "     Es werden nur Schüler versetzt, die AUS der angegebenen Klasse \n";
+   print "     in eine andere, beliebiege Klasse versetzt werden sollen.\n";
+   print "     (Die Klassenangabe muss mit vorangestelltem k erfolgen)\n\n";
+
+   print "  --neugruppe klasse, --neuklasse klasse, -n  klasse\n";
+   print "     Es werden nur Schüler versetzt, die aus einer beliebigen Klasse \n";
+   print "     IN die angegeben Klasse versetzt werden sollen.\n";
+   print "     (Die Klassenangabe muss mit vorangestelltem k erfolgen)\n\n";
+
+   print "  --klassenintern klasse\n";
+   print "     Es werden nur Schüler inerhalb der angegebenen Klasse versetzt.\n";
+   print "     z.B. von km1kb2t-a nach km1kb2t-b.\n";
+   print "     (Die Klassenangabe muss mit vorangestelltem k erfolgen)\n\n";
+
+   # gemeinsamer Hilfetext aller Scripten
+   &help_text_all;
+   
+   print "Testen:\n\n";
+   # testen
+   print "  -t, --test\n";
+   print "     Schüler werden nicht wirklich versetzt. \n";
+   print "     Ansonsten läuft $scriptname möglichst normal.\n\n";
+
+   exit;
+}
+
+
+# --loginname
+if ($loginname ne "") {
+  #
+  print "Loginname $loginname angegeben.\n";
+}
+
+
+# --altgruppe
+if ($alt_gruppe ne "") {
+  #
+  print "Alte Gruppe/Klasse $alt_gruppe angegeben.\n";
+}
+
+
+# --neugruppe
+if ($neu_gruppe ne "") {
+  #
+  print "Neue Gruppe/Klasse $neu_gruppe angegeben.\n";
+}
+
+
+
+# --klassenintern
+if ($klassenintern ne "") {
+  #
+  print "Interne Versetzung in Klasse $klassenintern angegeben.\n";
+  # Hash mit zulässigen Klassenbezeichnungen erstellen
+  $klassen_intern{$klassenintern}="leer";
+  $klassen_intern{"$klassenintern"."-a"}="leer";
+  $klassen_intern{"$klassenintern"."-b"}="leer";
+  $klassen_intern{"$klassenintern"."-c"}="leer";
+  $klassen_intern{"$klassenintern"."-d"}="leer";
+}
+
+while (($k,$v) = each %klassen_intern){
+    print $k , " ", $v, "\n";
+}
+
+# --info
+if ($info==1) {
+  open(USERVERSETZEN,"${DevelConf::ergebnis_pfad}/sophomorix.move") 
+     || die "Fehler: $!";
+
+      print "\nFolgende User können versetzt werden:\n\n";
+      printf "%-12s %-18s %-18s \n","Loginname","Alte Klasse","Neue Klasse";
+      &linie;
+    while(<USERVERSETZEN>){
+      chomp();
+      $user_nummer++;
+      ($login_versetzen, $alte_klasse, $neue_klasse)=split(/::/);
+      # Ausgabe
+      printf "%-12s %-18s %-18s \n",
+             "$login_versetzen","$alte_klasse","$neue_klasse";
+     }
+     print "\n";
+    exit;
+}
+
+
+# ===========================================================================
+print ("sophomorix-move startet ...\n");
+# ===========================================================================
+
+# repair.directories einlesen
+&get_alle_verzeichnis_rechte();
+
+# ===========================================================================
+# Abbruch, wenn sophomorix.move fehlt oder leer
+# ===========================================================================
+if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.move")) {
+  print "\n  Die Datei\n\n";
+  print "    ${DevelConf::ergebnis_pfad}/sophomorix.move\n\n";
+  print "  ist leer oder wurde nicht gefunden.\n\n";
+  print "  Es sind keine User zu versetzen\n\n";
+  print "  sophomorix-move beendet sich deshalb!\n\n";
+  exit; 
+}
+
+# ===========================================================================
+# user.protokoll mitloggen
+# ===========================================================================
+&do_falls_nicht_testen(
+  "cp ${DevelConf::protokoll_pfad}/user.protokoll ${DevelConf::log_pfad}/${zeit}.user.protokoll-vorher",
+  "chmod 600 ${DevelConf::log_pfad}/${zeit}.user.protokoll-vorher"
+);
+
+
+# Protokolldatei lesen
+%protokoll_hash=&protokoll_linien();
+
+if($Conf::log_level>=3){
+   # Nur zum ausgeben  
+   while (($key) = each %protokoll_hash){
+      printf "%-40s\n","$key";
+   }
+}
+
+# Datei mit den Schülern, die nicht versetzt wurden
+open(NOCHVERSETZEN,">${DevelConf::ergebnis_pfad}/sophomorix.move.neu") 
+     || die "Fehler: $!";
+
+open(USERVERSETZEN,"${DevelConf::ergebnis_pfad}/sophomorix.move") 
+     || die "Fehler: $!";
+while(<USERVERSETZEN>){
+   chomp();
+   $user_nummer++;
+   ($login_versetzen, $alte_klasse, $neue_klasse)=split(/::/);
+   # alte Klasse ermitteln
+   #($alte_klasse)=split(/;/, $alte_zeile );
+
+   # Home ermitteln
+   if ($neue_klasse eq "lehrer") {
+      # in klasse lehrer versetzten
+      $neues_home="/home/lehrer/${login_versetzen}";
+   } else {
+      # in andere Klasse versetzten (auch dachboden/speicher)
+      $neues_home="/home/schueler/${neue_klasse}/${login_versetzen}";
+   } 
+#   # Neue Zeile ermitteln
+#   # nur erstes vorkommen (///g g weglassen) der alten Klasse mit der neuen ersetzen
+#   $neue_zeile=$alte_zeile;
+#   $neue_zeile=~s/$alte_klasse/$neue_klasse/;
+
+   # Abbruch, wenn nicht der richtige loginname versetzt wird
+   if ($loginname ne "") {
+     if ($login_versetzen ne $loginname) {
+        print "##### $login_versetzen wird nicht versetzt\n";
+        print NOCHVERSETZEN "$_\n";
+        next;
+     }
+   }
+
+   # Abbruch, wenn nicht aus der richtigen Alt-Klasse versetzt wird
+   if ($alt_gruppe ne "") {
+     if ($alte_klasse ne $alt_gruppe) {
+        print "##### $login_versetzen wird NICHT aus $alt_gruppe versetzt!\n";
+        print NOCHVERSETZEN "$_\n";
+        next;
+     }
+   }
+
+   # Abbruch, wenn nicht in die richtige Neu-Klasse versetzt wird
+   if ($neu_gruppe ne "") {
+     if ($neue_klasse ne $neu_gruppe) {
+        print "##### $login_versetzen wird NICHT nach $neu_gruppe vesetzt!\n";
+        print NOCHVERSETZEN "$_\n";
+        next;
+     }
+   }
+
+
+   # Abbruch, wenn nicht INNERHALB der richtigen Klasse versetzt wird
+   if ($klassenintern ne "") {
+     
+     if (not exists $klassen_intern{$alte_klasse}
+         or not exists $klassen_intern{$neue_klasse}) {
+        print "##### $login_versetzen wird NICHT nach $klassenintern vesetzt!\n";
+        print NOCHVERSETZEN "$_\n";
+        next;
+     }
+   }
+
+   #####################################
+   # Ermittelte Daten ausgeben
+   #####################################
+   if($Conf::log_level>=1){
+      print("\n##### Versetze User $user_nummer: \n");
+#      print("Identifier:            $identifier\n");
+      print("Login:                 $login_versetzen\n");
+      print("Linux-Gruppe (Alt):    $alte_klasse\n");
+      print("Linux-Gruppe (Neu):    $neue_klasse\n");
+      print("Neues Home:            $neues_home\n");
+#      print("Protokollzeile (Alt):  $alte_zeile\n");
+#      print("Protokollzeile (Neu):  $neue_zeile\n");
+    }
+
+   if ($neue_klasse eq "lehrer" && not $alte_klasse eq "speicher") {
+      # Es ist die Gruppe lehrer beteiligt
+      print("##### User kann nicht vesetzt werden!\n");
+      print("In die Gruppe lehrer kann man nur aus dem speicher versetzt werden\n");
+      next; # Nächster User
+   } 
+
+   # die Daten aus dem Tausch-Verzeichnis dem Schüler in sein home moven
+   &save_tausch_klasse($login_versetzen, $alte_klasse);
+
+   # Sicherstellen dass neue Klasse (Linux-Gruppe) existiert
+   if ($neue_klasse ne "lehrer") {
+      &neue_linux_gruppe_schueler($neue_klasse);
+   }
+   # Benutzerdatenbank ändern
+   # LDAP
+   # usermod:
+   # -d -m: home verschieben
+   # -g : gruppe ändern
+   &do_falls_nicht_testen(
+        "usermod -d $neues_home -m -g $neue_klasse $login_versetzen"
+   );
+   # Dateien im neuen home gehoeren nun der Klassengruppe.
+   # Muss angepasst werden an Eigentümer lehrer
+   &do_falls_nicht_testen(
+        "chown -R .lehrer $neues_home",
+        "chown .root $neues_home/www"
+   );
+
+   # links 
+   &user_links($login_versetzen, $neue_klasse, $alte_klasse);
+
+   # Protokoll-Hash ändern
+   # Alte Linie aus dem Hash löschen
+#   delete($protokoll_hash{$alte_zeile});
+
+
+   # user in db updaten
+#   $protokoll_hash{$neue_zeile}="";
+   if ($DevelConf::testen==0) {
+       &move_user_db_entry($login_versetzen,$neue_klasse, $alte_klasse);
+#      open(PROTOKOLL,">$DevelConf::protokoll_datei");
+#
+#           while (($key) = each %protokoll_hash){
+#              print PROTOKOLL "$key\n"; 
+#   	 }
+#      close(PROTOKOLL);
+   } else {
+      print "Nur Test: Daten in $DevelConf::protokoll_datei schreiben\n";
+   }
+
+}
+
+close(USERVERSETZEN);
+close(NOCHVERSETZEN);
+
+
+# Verarbeitete Datei mit Zeitstempel versehen
+# Nur wenn nicht leer ?????
+&do_falls_nicht_testen(
+    "mv ${DevelConf::ergebnis_pfad}/sophomorix.move ${DevelConf::log_pfad}/${zeit}.sophomorix.move",
+# Nur für root lesbar machen
+    "chmod 600 ${DevelConf::log_pfad}/${zeit}.sophomorix.move"
+);
+
+# ===========================================================================
+# user.protokoll mitloggen
+# ===========================================================================
+&do_falls_nicht_testen(
+    "cp ${DevelConf::protokoll_pfad}/user.protokoll ${DevelConf::log_pfad}/${zeit}.user.protokoll-nachher",
+    "chmod 600 ${DevelConf::log_pfad}/${zeit}.user.protokoll-nachher"
+);
+
+
+# ===========================================================================
+# Nicht verarbeitete User nach sophomorix.move kopieren
+# ===========================================================================
+# Falls nur getestet wird, darf die Datei nicht ersetzt werden
+if ($DevelConf::testen==0) {
+   # Richtig
+   rename("${DevelConf::ergebnis_pfad}/sophomorix.move.neu",
+          "${DevelConf::ergebnis_pfad}/sophomorix.move" );
+ } else {
+   # Test
+   system("rm -f ${DevelConf::ergebnis_pfad}/sophomorix.move.neu > /dev/null");
+ }
+
+
+print ("\nsophomorix-move endet ...\n");

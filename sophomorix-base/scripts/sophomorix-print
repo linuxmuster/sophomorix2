@@ -1,0 +1,957 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-print) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+# Ziel: Dieses Script erzeugt aus der Liste mit
+# Hinzukommenden Schülern Latex-Code, der in PDF und
+# DVI umgewandelt wird.
+
+# Für Entwickler:
+# Nach open-Befehlen Suchen, Kommentarzeichen bei *Zum Testen* entfernen, 
+# Dafür Kommentarzeichen vor *In Wirklichkeit* setzen.
+# Nun wird auf Dateien in /development zurückgegriffen atatt auf System-Dateien
+
+# Bibliotheken
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+#use Schedule::at;
+
+# Einlesen der Konfigurationsdatei für Entwickler
+{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+
+# jeffbecks Bibliothek und
+# Einlesen der Konfigurationsdatei
+require "${DevelConf::library_pfad}/sophomorix-lib-base";
+
+# Nur als Dummy(Warnings verhindern)
+if($Conf::schul_name){};
+if($DevelConf::library_pfad){};
+
+my $schul_name="---";
+
+# Auslsen der Schulinfo-Datei
+my $info_klasse="";
+my $info_abteilung="";
+my $info_klassen_typ="";
+my $info_mail="";
+
+# Auslsen von lehrer.txt
+my $info_lehrer_gruppe="";
+my $info_lehrer_nachname="";
+my $info_lehrer_vorname="";
+my $info_lehrer_datum="";
+my $info_lehrer_login="";
+my $info_lehrer_erstpass="";
+my $info_lehrer_kuerzel="";
+my $info_lehrer_quota="";
+my $info_lehrer_mail_sender="";
+my $info_lehrer_mail_alias="";
+
+
+# Hashes, die aus Lehrerinfo-Datei erzeugt werden
+# Benannt nach dem Value, der gesucht wird
+
+# Nicht mehr gebraucht
+#my %nachname_edv_lehrer=();
+
+# Auslesen von user.protokoll
+my $klasse_protokoll="";
+my $name_protokoll="";
+my $vorname_protokoll="";
+my $nachname_protokoll="";
+my $loginname_protokoll="";
+my $passwort_protokoll="";
+my $geburtsdatum_protokoll="";
+
+# der aus user.protokoll geholte identifier
+my $identifier_protokoll="";
+
+my $argument="";
+
+my %schueler_im_system_hash=();
+my $schueler_protokoll_zeile=0;
+
+# Latex-Datei erstellen
+my $rand_bemerkung_lehrer=1; # 1=schon gesetzt
+my $anzahl_karten_pro_seite=0;
+my $anzahl_karten_pro_zeile=0;
+my $eintrag_typ=0; # 1=Einzelschüler, 2=Klasse, 0=Erstwert
+my $eintrag_typ_alt=0; # 1=Einzelschüler, 2=Klasse, 0=Erstwert
+my $klasse_head="";
+my $edv_lehrer_foot="";
+my $edv_lehrer_rand="";
+
+my %klasse_schueleranzahl=();
+my %klasse_edv_lehrer=();
+
+# Sortier-Hash und Sortierung
+my %sortier_hash=();
+my $key="";
+my $value="";
+my %sortier_klassen_hash=();
+my %sortier_einzelschueler_hash=();
+my @drucken_klasse_reihenfolge=();
+my @drucken_einzelschueler_reihenfolge=();
+my @drucken_reihenfolge=();
+my $eintrag="";
+my $klasse_protokoll_alt="";
+
+# Nur zur Ausgabe
+my $k="";
+my $v="";
+
+my $dev_null="1>/dev/null 2>/dev/null";
+
+if($Conf::log_level>=3){
+   # Alle systembefehle nicht mehr nach /dev/null
+   $dev_null="";
+}
+
+# ===========================================================================
+# Ende der Variablendeklaration
+# ===========================================================================
+
+
+
+
+# ===========================================================================
+# Programmbeginn
+# ===========================================================================
+
+$Conf::log_level=1;
+my $help=0;
+my $info=0;
+my $show=0;
+my $alle=0;
+my $lehrer=0;
+my $caller="";
+my $gruppe="";
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "verbose|v+" => \$Conf::log_level,
+           "show|s" => \$show,
+           "all|alle|a" => \$alle,
+           "gruppe|klasse|g|k=s" => \$gruppe,
+           "help|h" => \$help,
+           "lehrer|l" => \$lehrer,
+           "caller|c=s" => \$caller,
+           "info|i" => \$info
+          );
+
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
+
+
+# --info
+if ($info==1) {
+   print "\n  noch keine sinnvolle Anwendung für Parameter --info\n\n";
+   exit;
+}
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlsbeschreibung
+   print "$scriptname erzeugt Schülerlisten aus angelegten Usern ";
+   print "${DevelConf::ergebnis_pfad}/sophomorix.add an\n\n";
+
+   # gemeinsamer Hilfetext aller Scripten
+   &help_text_all;
+
+   # optionen
+   print "Optionen:\n\n";
+
+   print "  --alle, --all, -a\n";
+   print "     Es werden die Kärtchen von allen Lehrern und allen Schülern gedruckt. \n\n";
+
+   print "  --lehrer\n";
+   print "     Es wird nur die Kärtchen der Lehrer gedruckt. \n\n";
+
+   print "  --gruppe klasse, --klasse klasse, -k  klasse, -g klasse\n";
+   print "     Es werden nur Schüler-Kärtchen gedruckt, die in der angegebenen \n";
+   print "     Klasse sind. (Die Klassenangabe muss mit vorangestelltem k erfolgen)\n\n";
+
+   print "  --show, -s\n";
+   print "     Nachdem die Ausruckdateien erzeugt wurden, wird die ensprechende \n";
+   print "     PDF-Datei (liste.pdf oder hinzu.pdf) mit Acrobat Reader angezeigt. \n";
+   print "     Dazu muss allerdings X-Window laufen.\n\n";
+
+   print "  --caller, -c\n";
+   print "     Der Aufrufende (caller) wird $scriptname übergeben, damit dessen \n";
+   print "     Name mit in die PDF-Datei integriert und der Dateiname \n"; 
+   print "     entsprechend modifiziert wird. \n\n";
+
+   exit;
+}
+
+
+
+
+# ===========================================================================
+# Verantwortliche Lehrer ermitteln - NEU
+# ===========================================================================
+# Hash: 
+# Key=klasse  Value=Lehrer(Liste)
+
+&make_hash_lehrer_in_klassen(); 
+
+
+
+# ===========================================================================
+# Output-Dateinamen ermitteln
+# ===========================================================================
+
+my $output_file_basename="";
+
+my $klasse_filename_part="";
+if ($alle==1){
+   $klasse_filename_part="alle";
+} elsif ($lehrer==1){
+   $klasse_filename_part="lehrer";
+}elsif ($gruppe ne ""){
+   $klasse_filename_part="$gruppe";
+} else {
+   $klasse_filename_part="hinzu";
+}
+
+
+my $caller_filename_part="";
+if ($caller ne ""){
+   $caller_filename_part="-"."$caller";
+}
+
+
+$output_file_basename="$klasse_filename_part"."$caller_filename_part";
+
+if($Conf::log_level>=3){
+   print "Basisname der Druckdateien ist: $output_file_basename \n";
+}
+
+
+# ===========================================================================
+# LATEX-Vorspann schreiben
+# ===========================================================================
+
+# *.tex-Datei öffnen
+open(LATEX,
+     ">${DevelConf::druck_pfad}/${output_file_basename}.tex") || die "Fehler: $!";
+
+# *.csv-Datei öffnen
+open(CSV,
+        ">${DevelConf::druck_pfad}/${output_file_basename}.csv") || die "Fehler: $!";
+
+
+print LATEX ('
+%% Dieser Vorspann wurde Automatisch erzeugt von sophomorix-print
+\documentclass[11pt,fleqn,oneside]{article}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage{ngerman}
+\usepackage{fancyheadings}
+\usepackage{multicol}
+\usepackage{graphicx}
+
+\pagestyle{fancy}
+%% Erst mal auf Einzelschüler stellen
+\lhead{\bf \large \today}
+');
+
+
+print LATEX ('\rhead{\bf \large Seite \thepage}');
+
+if ($gruppe ne "") {
+   # Klassenangabe gemacht  
+  print LATEX ('
+      \chead{\LARGE \bf ',"$gruppe",'}
+   ');
+} else {
+  print LATEX ('
+      \chead{\LARGE \bf Einzelschüler}
+   ');
+}
+
+
+
+print LATEX ('\lfoot{',"$Conf::schul_name",'}',"\n");
+print LATEX ('\rfoot{'," ${output_file_basename}",'.pdf','}',"\n");
+
+print LATEX ('
+\setlength{\voffset}{0mm}
+\setlength{\hoffset}{0mm}
+\setlength{\oddsidemargin}{0mm}
+\setlength{\evensidemargin}{0mm}
+\setlength{\marginparsep}{1.5mm}
+\setlength{\marginparwidth}{60mm}
+\setlength{\marginparpush}{1mm}
+\setlength{\parindent}{0cm} %% Einrückungen am Absatzanfang verhindern
+\setlength{\paperwidth}{210mm} %% Papierbreite angeben
+\setlength{\paperheight}{297mm} %%Papierhöhe angeben
+%% linker Rand einstellen:
+\setlength{\oddsidemargin}{-17.9mm}
+\setlength{\headsep}{3mm}      
+\setlength{\headheight}{8mm}
+\setlength{\topskip}{0mm}      
+\setlength{\topmargin}{-18mm}
+\setlength{\footskip}{-1mm}
+
+\setlength{\headwidth}{189mm}
+%% Einstellungen fuer die Umrahmungen:
+\setlength{\textwidth}{189mm}
+\setlength{\textheight}{261.5mm}
+
+\renewcommand{\headrulewidth}{0.25mm}
+\renewcommand{\footrulewidth}{0.25mm}
+\setlength{\fboxrule}{0.1mm}
+\renewcommand{\baselinestretch}{1}
+
+%% Datensatz in ein Kärtchen umwandeln
+\newcommand{\daten}[5]{
+\fbox{
+\begin{minipage}[b][26mm][c]{41mm}
+\begin{center}
+#1 #2 \par #3 \par #4 \par #5
+\end{center}
+\end{minipage}
+}}
+
+%% Lehrereintrag am Seitenrand erzeugen
+\newcommand{\edvlehrer}[1]{
+\marginpar{%
+  %\begin{minipage}[t]{30mm}
+\rotatebox{90}{%
+\begin{minipage}[t]{26mm}
+\begin{center}
+\small #1
+\end{center}
+\end{minipage}
+}%
+ % \end{minipage}
+}%
+}
+
+\begin{document}
+
+\addtocontents{toc}{\textbf{Klasse \dotfill Seite} \par}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Hier beginnen die erzeugten Einträge
+
+');
+
+# ===========================================================================
+# LATEX-Vorspann geschrieben
+# ===========================================================================
+
+
+
+
+# ===========================================================================
+# user.protokoll in Hash einlesen
+# KEY = identifier wie im ersten Teil von schueler.hinzu
+# VALUE = Zeile in user.protokoll
+# ===========================================================================
+
+open(USERPROTOKOLL,
+#     "/root/bin/${DevelConf::schueler_oder_user}.protokoll") 
+     "$DevelConf::protokoll_datei") 
+
+     || die "Fehler:  $DevelConf::protokoll_datei nicht gefunden!  $!";
+
+while(<USERPROTOKOLL>){
+    my $feld1;
+    my $feld2;
+    my $feld3;
+    my $feld4;
+    my $feld5;
+    chomp($_); # Newline abschneiden
+    # Hier ist alles noch ohne Ersetzungen
+    # Protokolldateien bearbeiten
+   ($feld1,               # weg
+    $feld2,               # weg
+    $feld3,               # weg
+    $passwort_protokoll,  # weiterverwenden Case-Sensitives Original-Passwort
+    $feld5                # weg
+   )=split(/;/);
+
+    # Falls Umsteiger aus Vorversion
+    # Alles in Kleinschreibung
+    tr/A-ZÄÖÜ/a-zäöü/;
+    # Umlaute ersetzen
+    s/ä/ae/g;
+    s/ö/oe/g;
+    s/ü/ue/g;
+    s/ß/ss/g;
+    s/-//g;
+   ($klasse_protokoll, 
+    $name_protokoll,
+    $loginname_protokoll,
+    $feld4,                    # nicht verwenden
+    $geburtsdatum_protokoll
+   )=split(/;/);
+
+   # Name aufsplitten
+   ($vorname_protokoll,$nachname_protokoll)=split(/ /,$name_protokoll);
+   # Zusammenhängen zu identifier
+   $identifier_protokoll=join("",
+                             ($nachname_protokoll,
+                              ";",
+                              $vorname_protokoll,
+                              ";",
+                              $geburtsdatum_protokoll));
+
+   # In einem Hash ablegen
+   my $value="$klasse_protokoll".";"."$name_protokoll".";".
+          "$loginname_protokoll".";"."$passwort_protokoll".";"."$geburtsdatum_protokoll";
+   # key=identifier value=Zeile in user.protokoll
+   $schueler_im_system_hash{$identifier_protokoll}="$value";
+  }
+
+
+if($Conf::log_level>=3){
+   # Nur zum debuggen
+   print("\n\nUser im System:\n\n");
+   while (($k,$v) = each %schueler_im_system_hash){
+      printf "%-40s %3s\n","$k","$v";
+    }
+}
+
+# ===========================================================================
+# user.protokoll ist eingelesen
+# ===========================================================================
+
+
+
+
+# ===========================================================================
+# Schülerdaten aus sophomorix.add dem System in Hash einlesen
+# ===========================================================================
+
+if ($gruppe eq "" && $alle==0 && $lehrer==0) {
+  # ohne Argument -> sophomorix.add einlesen und nur die übernehmen
+  print "\nLese sophomorix.add ein\n\n";
+  open (SCHUELERPDF,
+       "<${DevelConf::ergebnis_pfad}/sophomorix.add") 
+       || die "Fehler: ${DevelConf::ergebnis_pfad}/sophomorix.add    $!";
+    while(<SCHUELERPDF>){
+      chomp();
+      my ($klasse,$identifier)=split(/::/); # in sophomorix.add gibts Zusatzangaben nach ::
+
+      # passende Zeile aus user.protokoll holen
+      if (exists($schueler_im_system_hash{$identifier})){
+         print ("Login-Karte für   $identifier   wird erstellt.\n"); 
+         $schueler_protokoll_zeile=$schueler_im_system_hash{$identifier};
+       } else {
+         # keine Protokoll-Zeile gefunden, Schüler ist noch nicht im System
+         # also nicht drucken
+         print ("Eintrag für   $identifier   in user.protokoll fehlt!\n"); 
+         print ("Es kann keine Login-Karte erstellt werden (User nicht angelegt?!)\n\n"); 
+#         print ("Der User wurde wahrscheinlich nicht angelegt!\n\n"); 
+
+         next;
+       }
+
+       if($Conf::log_level>=3){
+          print("\nIdentifier:               --$identifier--\n");
+          print("\nZeile in user.protokoll   --$schueler_protokoll_zeile--\n");
+        }
+
+     ($klasse_protokoll, 
+      $name_protokoll,
+      $loginname_protokoll,
+      $passwort_protokoll,
+      $geburtsdatum_protokoll
+     )=split(/;/,$schueler_protokoll_zeile);
+
+      # Hash erzeugen: alle auszudruckenden Schüler
+      # Key = identifier
+      # Value = Klasse
+      $sortier_hash{$_}="$klasse_protokoll";
+    }
+  close(SCHUELERPDF);
+
+
+} elsif ($alle==1) {
+   # Argument "alle" -> nichts ausfiltern
+   if($Conf::log_level>=2){
+      print("\nArgument ist:  alle\n");
+    }
+   foreach (keys %schueler_im_system_hash){
+     my $klasse="";
+     ($klasse)=split(/;/,$schueler_im_system_hash{$_});
+      # Key = identifier
+      # Value = Klasse
+      $sortier_hash{$_}="$klasse";
+   }
+
+
+} elsif ($lehrer==1) {
+    $argument="lehrer";
+    my $klasse="";
+    if($Conf::log_level>=2){
+       print("\nArgument ist:  $argument\n");
+     }
+    foreach (keys %schueler_im_system_hash){
+     ($klasse)=split(/;/,$schueler_im_system_hash{$_});
+      if ($argument eq $klasse){
+         # Key = identifier
+         # Value = Klasse
+         $sortier_hash{$_}="$klasse";
+       }
+    }    
+
+
+} elsif ($gruppe ne "") {
+   # Argument muss "klasse" sein -> filtern
+   my $argument;
+   if ($gruppe eq "lehrer"){
+        print "Mit der Option --klasse können keine Lehrer angezeigt werden!\n\n";
+        exit;
+      } else {
+        $argument="$gruppe";
+      }
+
+   # prüfen, ob tatsächlich klasse
+   my $check_ergebnis=&check_klasse($gruppe);
+   if (not $check_ergebnis==1) {
+     print "\n$gruppe ist keine Klasse\n\n";
+     exit;
+   };
+  
+
+   my $klasse="";
+   if($Conf::log_level>=2){
+      print("\nArgument ist:  $argument\n");
+   }
+   foreach (keys %schueler_im_system_hash){
+     ($klasse)=split(/;/,$schueler_im_system_hash{$_});
+      if ($argument eq $klasse){
+         # Key = identifier
+         # Value = Klasse
+         $sortier_hash{$_}="$klasse";
+      }
+   }
+ }
+
+
+
+
+if($Conf::log_level>=3){
+   # Nur zum ausgeben 
+   print("Für diese Schüler werden Druckkärtchen erzeugt\n\n"); 
+   while (($key,$value) = each %sortier_hash){
+      printf "%-40s %3s\n","$key","-$value-";
+   }
+}
+
+ print("\n\n"); 
+
+
+# ===========================================================================
+# Im sortier-Hash stehen nun alle auszudruckenden Schüler
+# ===========================================================================
+
+
+
+
+
+# ===========================================================================
+# Schülerdaten in Klassen (über 4 Schüler) und Einzelschüler (1-4) einteilen
+# ===========================================================================
+# Hash mit Klassenbezeichnung und Anzahl erzeugen aus allen Schülern
+foreach (values %sortier_hash){
+#print "$_\n\n"; # gibt den Wert zurück (hier die Klasse)
+   if (exists($klasse_schueleranzahl{$_})){
+               $klasse_schueleranzahl{$_}++; # 1 dazuzählen
+            } else {
+   	      $klasse_schueleranzahl{$_}=1;
+	    }
+}
+# Hash wurde erzeugt mit Klassenbezeichnung -- Schüleranzahl
+
+
+
+# ===========================================================================
+# Aufteilen aller Schülerdatensätze sortier_hash in 2 Hashes
+# sortier_klassen_hash  und  sortier_einzelschueler_hash
+# ===========================================================================
+
+while(($key, $value) = each(%sortier_hash)){
+# $key ist identifier, $value ist klasse
+  if ($klasse_schueleranzahl{$value} < 5) {
+     if($Conf::log_level>=3){
+         # Alle Klassen unter 4 Schüler ausdrucken
+         print "1 bis 4 $value\n";
+      }
+     $sortier_einzelschueler_hash{$key}="$value";
+  } else {
+     $sortier_klassen_hash{$key}="$value";
+  }
+}
+
+
+# ===========================================================================
+# Klassen Schülerdaten sortieren
+# ===========================================================================
+# Sortier-Hash sortieren
+@drucken_klasse_reihenfolge = sort { 
+   # sortieren nach Wert (Klassenbezeichnung) alphabetisch
+   $sortier_klassen_hash{$a} cmp $sortier_klassen_hash{$b}
+   or
+   # Innerhalb der Klassenbezeichnung alphabetisch
+   $a cmp $b 
+} keys %sortier_klassen_hash;
+# Alle anzulegenden Schüler befinden sich nun im sortier_hash
+
+if($Conf::log_level>=3){
+   # Nur zum Testen ausdrucken
+   print "\n\nsortier_klassen_hash: \n\n";
+   while (($k,$v) = each %sortier_klassen_hash){
+      printf "%-40s %3s\n","$k","$v";
+    }
+}
+
+
+# ===========================================================================
+# Einzelschüler Schülerdaten sortieren
+# ===========================================================================
+# Sortier-Hash sortieren
+@drucken_einzelschueler_reihenfolge = sort { 
+   # sortieren nach Wert (Klassenbezeichnung) alphabetisch
+   $sortier_einzelschueler_hash{$a} cmp $sortier_einzelschueler_hash{$b}
+   or
+   # Innerhalb der Klassenbezeichnung alphabetisch
+   $a cmp $b 
+} keys %sortier_einzelschueler_hash;
+# Alle anzulegenden Schüler befinden sich nun im sortier_hash
+
+
+if($Conf::log_level>=3){
+   # Nur zum Testen ausdrucken
+   print "\n\nEinzelschüler_hash\n\n";
+   while (($k,$v) = each %sortier_einzelschueler_hash){
+      printf "%-40s %3s\n","$k","$v";
+    }
+}
+
+# ===========================================================================
+# Liste Einzelschüler an Liste Klasse anhängen
+# ===========================================================================
+# Folgendes geht nicht mit push
+@drucken_reihenfolge = (@drucken_klasse_reihenfolge, 
+                         @drucken_einzelschueler_reihenfolge);
+
+
+
+# ===========================================================================
+# Sortierte Einträge in LATEX-Datei und CSV schreiben 
+# ===========================================================================
+$klasse_protokoll_alt="";
+
+# Sortierten Hash ausgeben lassen
+foreach $eintrag (@drucken_reihenfolge) {
+   my $identifier="";
+
+   ($a,$identifier)=split(/::/, $eintrag);
+      $schueler_protokoll_zeile=$schueler_im_system_hash{$identifier};
+
+   if($Conf::log_level>=3){
+      print ("\nDieser User wird gedruckt: $eintrag\n");
+      print("Identifier:               --$identifier--\n");
+      print("Zeile in user.protokoll   --$schueler_protokoll_zeile--\n\n");
+   }
+   
+
+   ($klasse_protokoll, 
+    $name_protokoll,
+    $loginname_protokoll,
+    $passwort_protokoll,
+    $geburtsdatum_protokoll
+   )=split(/;/,$schueler_protokoll_zeile);
+    # Ausgabe
+    if($Conf::log_level>=2){
+       print("Erstelle Login-Karte für  $loginname_protokoll  in   $klasse_protokoll\n");
+     }
+   # Vorheriger Eintrag speichern
+   $eintrag_typ_alt=$eintrag_typ;
+
+   # Handelt es sich beim Eintrag um eine Klasse(2) oder Einzelschüler(1)
+   if ($klasse_schueleranzahl{$klasse_protokoll} < 5) {
+     # Einzelschüler
+       $eintrag_typ=1;
+   } else {
+     # Klasse
+       $eintrag_typ=2;
+   }
+   ###################################################################
+   # Wenn neue Klasse begonnen wird
+   if ($klasse_protokoll_alt ne $klasse_protokoll){
+     # Wenn Klasse
+     if ($eintrag_typ==2){
+       $rand_bemerkung_lehrer=1; # Randbemerkung nicht mehr notwendig    
+       if ($klasse_protokoll_alt ne ""){
+          # Nicht der allererste Eintrag
+          # Auffüllen der Seite
+          while ($anzahl_karten_pro_seite < 36){
+             print LATEX ('\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}');
+             print LATEX ("\n");
+             $anzahl_karten_pro_seite++;
+          }
+          # Neue Seite beginnen
+          print LATEX ("\n",'\newpage',"\n\n");
+          # Katenzähler/Seite auf 0
+          $anzahl_karten_pro_seite=0;
+       }
+       # Klassenbezeichner anpassen
+       $klasse_head=$klasse_protokoll;
+       # Erstes k entfernen
+       $klasse_head=~s/k//;
+       # alles in Großbuchstaben
+       $klasse_head=~tr/a-z/A-Z/;
+       # Kopfzeileneintrag
+       print LATEX ('\chead{\LARGE \bf ',"$klasse_head",'}');
+       print LATEX "\n";
+       # Verantwortlicher Lehrer ermitteln
+
+       # $edv_lehrer_foot 
+       my @lehrerliste=&get_lehrer_in_klasse($klasse_protokoll);
+       $edv_lehrer_foot=&formatiere_liste(", ",@lehrerliste);
+
+       print LATEX ('\cfoot{\bf ',
+                         "$edv_lehrer_foot",
+                         '}');
+       print LATEX "\n";
+       # Eintrag in das Inhaltsverzeichnis
+       print LATEX ('\addtocontents{toc}{',
+                       "$klasse_head",
+                       ' \dotfill \thepage  \par}',"\n");
+       print LATEX "\n";
+     #######################################################################
+     } else {
+        # Wenn Einzelschüler
+        # Wenn Vorgänger zu Klasse gehörte, Seite füllen
+if($eintrag_typ_alt==0){
+   $rand_bemerkung_lehrer=0;
+}
+        if($eintrag_typ_alt==2){
+           # Vorgänger gehörte zur einer Klasse (über 4 Schüler)
+           $rand_bemerkung_lehrer=0; # Randbemerkung wurde nicht gemacht
+           # Auffüllen der Seite
+           while ($anzahl_karten_pro_seite < 36){
+              print LATEX ('\daten{\rule[1mm]{30mm}{0.5mm}}{}{}{}{}');
+              print LATEX ("\n");
+              $anzahl_karten_pro_seite++;
+           }
+           # Neue Seite beginnen
+           print LATEX ("\n",'\newpage',"\n\n");
+           # Kartenzähler/Seite auf 0
+           $anzahl_karten_pro_seite=0;
+           # Kartenzähler/Zeile auf 0
+           $anzahl_karten_pro_zeile=0;
+           # Kopfzeileneintrag
+           print LATEX ('\chead{\LARGE \bf ',"Einzelschüler",'}');
+           print LATEX "\n";
+           print LATEX ('\cfoot{}');
+           print LATEX "\n";
+           # Eintrag in das Inhaltsverzeichnis
+           print LATEX ('\addtocontents{toc}{\textbf{',
+                            "Einzelschüler",
+                            '} \dotfill \thepage  \par}');
+           print LATEX "\n";
+           # EDV-Lehrerangabe machen, Zähler auf 0 setzen
+           $rand_bemerkung_lehrer=0; # Randbemerkung wurde nicht gemacht
+	} elsif ($eintrag_typ_alt==1) {
+           # Wenn Einzelschüler
+           # Vorgänger war auch Einzelschüler
+           
+           # Auffüllen der Zeile
+	  if ($anzahl_karten_pro_zeile == 4) {$rand_bemerkung_lehrer=0};
+           while ($anzahl_karten_pro_zeile !=4) {
+               print LATEX ('\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}');
+               print LATEX ("\n");
+               $anzahl_karten_pro_seite++;
+               $anzahl_karten_pro_zeile++;
+               $rand_bemerkung_lehrer=0; # Randbemerkung wurde nicht gemacht
+           }
+           if($anzahl_karten_pro_seite ==36) {
+               print LATEX ("\n\n",'\newpage',"\n\n");
+               $anzahl_karten_pro_seite=0;
+	   }
+          $anzahl_karten_pro_zeile=0;
+        }
+     }
+   }
+
+
+   # alte Klassenbezeicnung für nächsten Vergleich speichern
+   $klasse_protokoll_alt=$klasse_protokoll;
+
+
+   # wenn Randbemerkung noch nicht angegeben wurde, jetzt tun
+   # Switch zur Randbemerkung schalten 
+   if ($rand_bemerkung_lehrer==0) {
+      # Verantwortlicher Lehrer ermitteln
+      # Nur zuweisen, wenn Eintrag im Hash sonst wirds undef ??
+
+
+      # $edv_lehrer_rand
+      my @lehrerliste=&get_lehrer_in_klasse($klasse_protokoll);
+      $edv_lehrer_rand=&formatiere_liste(",",@lehrerliste);
+
+      # Verantwortlichen Lehrer einsetzten
+      print LATEX ("\n",
+                        '\edvlehrer{',
+                        "$edv_lehrer_rand",
+                        '}',
+                        "\n");
+      $rand_bemerkung_lehrer=1; # Randbemerkung wurde gemacht
+   } # Ende der Randbemerkung
+
+
+   # Datensatz anhängen
+   print LATEX ('\daten');
+   # 1 Name
+   print LATEX ('{',"$name_protokoll",'}');
+   # 2 Nicht genutzt
+   print LATEX ('{}');
+   # 3 Klasse
+   print LATEX ('{',"Klasse: $klasse_protokoll",'}');
+   # 4 Login
+   print LATEX ('{',"Login: $loginname_protokoll",'}');
+   # 5 Passwort
+   print LATEX ('{',"Passwort: $passwort_protokoll",'}',"\n");
+   # Eintag ferig, Zähler erhöhen
+   $anzahl_karten_pro_seite++;
+   $anzahl_karten_pro_zeile++;
+   
+   # Zeile in hinzu.csv schreiben (unix)georg: linliste
+#   print CSV ("$name_protokoll",";","$klasse_protokoll",";","$loginname_protokoll",";","$passwort_protokoll",";","\n");
+
+   # Zeile in hinzu.csv schreiben (windows-versuch 1) georg: winliste
+   print CSV ("$name_protokoll",";","$klasse_protokoll",";","$loginname_protokoll",";","$passwort_protokoll",";","\l\r");
+
+
+
+
+
+} # Ende foreach
+# Nun sind alle Schüler in der LATEX-Datei eingelesen
+
+
+
+
+# Allerletzte Seite (vor Inhaltsverzeichnis noch auffüllen)
+while ($anzahl_karten_pro_seite < 36){
+   print LATEX ('\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}');
+   print LATEX ("\n");
+   $anzahl_karten_pro_seite++;
+}
+
+# ===========================================================================
+# Klassen LATEX-Nachspann schreiben
+# ===========================================================================
+# Letze Seite mit leeren Einträgen füllen
+while ($anzahl_karten_pro_seite < 36){
+        print LATEX ('\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}');
+        print LATEX ("\n");
+        $anzahl_karten_pro_seite++;
+}
+
+
+
+# ===========================================================================
+# Dokument beenden und Inhaltsverzeichnis schreiben
+if ($gruppe ne "") {
+   # Klassenangabe gemacht  
+   print LATEX ('
+      \end{document}
+   ');
+} else {
+   print LATEX ('
+
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   %% Hier enden die erzeugten Einträge
+
+   \newpage
+
+   \setlength{\columnsep}{15mm}
+   \setlength{\columnseprule}{0.4mm}
+
+   % Wenn sie bis 225 Klassen im Inhaltsverzeichnis wollen 
+   % dann erhöhen Sie folgenden Wert auf 5 erhöhen
+   \begin{multicols}{4}
+
+   \rhead{\bf \LARGE I}
+   \lhead{}
+   \chead{\bf \LARGE Inhaltsverzeichnis}
+   \cfoot{}
+
+   \tableofcontents
+
+   \end{multicols}
+
+   \end{document}
+
+   ');
+}
+
+
+# ===========================================================================
+# Latex-Dokument schließen
+close(LATEX);
+# CSV-Dokument schließen
+close(LATEX);
+
+# ===========================================================================
+# LATEXEN des Dokuments
+# ===========================================================================
+
+&latexen;
+&latexen;
+&latexen;
+
+
+# Datei öffnen und mit acrobat-reader anzeigen falls --show
+if ($show==1) {
+      print "\nacroread: Öffne ${DevelConf::druck_pfad}/$output_file_basename.pdf\n\n";
+      system("acroread ${DevelConf::druck_pfad}/$output_file_basename.pdf");
+}
+
+
+
+
+# ===========================================================================
+# Dateirechte anpassen
+# ===========================================================================
+
+
+
+# ===========================================================================
+# Subroutinen
+# ===========================================================================
+
+sub latexen {
+  # PS aus $output_file_basename.tex erzeugen
+   system("latex ${DevelConf::druck_pfad}/$output_file_basename.tex $dev_null");
+   # 2x, wegen Inhaltsverzeichnis
+   system("latex ${DevelConf::druck_pfad}/$output_file_basename.tex $dev_null");
+
+   system("dvips ${DevelConf::druck_pfad}/$output_file_basename.dvi $dev_null");
+
+   system("ps2pdf ${DevelConf::druck_pfad}/$output_file_basename.ps $dev_null");
+   system("rm $output_file_basename.log $dev_null");
+   system("rm $output_file_basename.toc $dev_null");
+   system("rm $output_file_basename.aux $dev_null");
+   system("mv $output_file_basename.* ${DevelConf::druck_pfad}/ $dev_null");
+
+   # Dateien für user unlesbar machen
+   system("chmod 400 ${DevelConf::druck_pfad}/$output_file_basename.* $dev_null");
+   # Zugriff von admin von windows aus erlauben
+   system("chown admin.admin ${DevelConf::druck_pfad}/$output_file_basename.* $dev_null");
+}

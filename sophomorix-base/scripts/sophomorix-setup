@@ -1,0 +1,45 @@
+#!/usr/bin/perl 
+# Dieses Script (sophomorix-setup) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+# This Script adds users and directories that are necessary to 
+# use sophomorix 
+# It should be run as postinst
+
+# Einlesen der Konfigurationsdatei für Entwickler
+{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+
+# jeffbecks Bibliothek und
+# Einlesen der Konfigurationsdatei
+require "${DevelConf::library_pfad}/sophomorix-lib-base";
+
+
+# gruppe admin anlegen
+system("groupadd -g 1000 admin");
+
+# gruppe lehrer anlegen
+system("groupadd -g 1002 lehrer");
+
+# admin anlegen
+system("useradd -u 500 -g admin -G lehrer -d /home/admin -s /bin/bash -c Windows_Systemverwalter -p admin!  admin");
+
+# admin muss in der Gruppe lehrer Mitglied sein
+# (primäre Gruppe bleibt admin)
+system("usermod -G lehrer admin");
+
+system("install -d -oadmin -gadmin -m0700 /home/admin");
+system("install -d -oadmin -gadmin -m0775 /home/klassenarbeit");
+system("install -d -oadmin -gadmin -m0775 /home/lehrer");
+system("install -d -oadmin -glehrer -m2751 /home/schueler");
+system("install -d -oadmin -gadmin -m1775 /home/tausch");
+system("install -d -oadmin -glehrer -m0751 /home/tausch/klassen");
+system("install -d -oadmin -gadmin -m0775 /home/workstations");
+system("install -d -oadmin -gadmin -m0775 /home/aufgaben");
+
+&check_datei_touch("${DevelConf::users_pfad}/schueler.txt");
+&check_datei_touch("${DevelConf::users_pfad}/entfernen.txt");
+&check_datei_touch("${DevelConf::users_pfad}/sperrklassen.txt");
+&check_datei_touch("${DevelConf::users_pfad}/extrakurse.txt");
+

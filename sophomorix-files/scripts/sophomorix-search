@@ -1,0 +1,216 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-search) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+
+# Bibliotheken
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+
+# Einlesen der Konfigurationsdatei für Entwickler
+{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+
+# jeffbecks Bibliothek und
+# Einlesen der Konfigurationsdatei
+require "${DevelConf::library_pfad}/sophomorix-lib-base";
+
+
+if($DevelConf::library_pfad){};
+
+
+# Variablen für Optionen
+$Conf::log_level=1;
+my $help=0;
+my $info=0;
+my $loginname="";
+my $identifier="";
+my $group="";
+my $string="";
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "string|s=s" => \$string,
+           "identifier|id=s" => \$identifier,
+           "group|class|g=s" => \$group,
+           "verbose|v+" => \$Conf::log_level,
+           "info|i" => \$info,
+           "help|h" => \$help
+          );
+
+# Prüfen, ob Optionen erkannt wurden, sonst Abbruch
+&check_options($testopt);
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlsbeschreibung
+   print "\n$scriptname starts a search for Users in openldap\n\n";
+
+   # gemeinsamer Hilfetext aller Scripten
+   &help_text_all;
+
+   # optionen
+   print "Optionen:\n\n";
+
+#   print "  --info, -i\n";
+#   print "     Shows the which $scriptname asks for data. \n\n";
+
+   print "  --string string\n";
+   print "     Searches in all Lines of $DevelConf::protokoll_datei ",
+         "     for string\n\n";
+
+   exit;
+}
+
+
+# --info
+if ($info==1) {
+   # test th connection
+   print "   This scrips uses files\n";
+   exit;
+
+}
+
+
+my ($class,
+    $gec_user,
+    $login,
+    $first_pass,
+    $birth,
+    $unid,
+    $subclass,
+    $status,
+    $tol,
+    $deact)=();
+
+
+ my ($loginname_passwd,
+     $passwort,
+     $uid_passwd,
+     $gid_passwd,
+     $quota_passwd,
+     $name_passwd,
+     $gcos_passwd,
+     $home,
+     $shell)=();
+
+my $group_string="";
+my @group_list=();
+my $pri_group_string="";
+
+############################################################
+# Start
+############################################################
+
+
+
+
+
+
+print "I'm looking for $string ... \n\n";
+
+open(PROTOKOLL,"<$DevelConf::protokoll_datei");
+   while (<PROTOKOLL>){
+       if (/$string/){
+          ($class,$gec_user,$login,$first_pass,$birth,$unid,$subclass,$status,$tol,$deact)=split(/;/);
+
+
+          # Abfragen der /etc/passwd
+          ($loginname_passwd,
+          $passwort,
+          $uid_passwd,
+          $gid_passwd,
+          $quota_passwd,
+          $name_passwd,
+          $gcos_passwd, 
+          $home,
+          $shell
+          )=getpwnam("$login");
+          # GCOS-Feld aufsplitten
+
+          # Gruppen-Zugehoerigkeit
+          $pri_group_string=`id -gn $login`;
+          $group_string=`id -Gn $login`;
+          chomp($group_string);
+          @group_list=split(/ /, $group_string);
+	  print "User :  $login ";
+
+       if (defined $loginname_passwd){
+	     print "($loginname_passwd exists in the system) \n";
+       } else {
+	     print "(ERROR: $login is not in the system) \n";
+       }
+
+       print "  AdminClass       :  $class \n";
+
+       print "  PrimaryGroup      : $pri_group_string";
+
+       print "  SystemGroups     :  ";
+       foreach my $gr (@group_list){ 
+	  print $gr," ";
+       }
+
+	  print "\n";
+	  print "  FirstGecos       :  $gec_user \n";
+
+          if (defined $loginname_passwd){
+             print "  RealGecos        :  $gcos_passwd \n";
+	  }
+
+          if (defined $home){
+             print "  Home             :  $home ";
+	  }
+        
+          if (-e $home){
+	      print "(existing) \n";
+          } else {
+	      print "(ERROR: non-existing!) \n";
+          }
+
+          if (defined $shell){
+             print "  LoginShell       :  $shell \n";
+	  }
+
+
+	  print "  FirstPassword    :  $first_pass \n";
+	  print "  Birthday         :  $birth \n";
+
+          if (defined $unid){
+	     print "  Unid             :  $login \n";
+          }
+
+          if (defined $subclass){
+	     print "  SubClass         :  $subclass \n";
+          }
+
+          if (defined $status){
+	     print "  Status           :  $status \n";
+          }
+
+          if (defined $tol){
+	     print "  TolerationDate   :  $tol \n";
+          }
+
+          if (defined $deact){
+	     print "  DeactivationDate :  $deact \n";
+          }
+
+
+
+          print "\n";
+
+
+      ($class,$gec_user,$login,$first_pass,$birth,$unid,$subclass,$status,$tol,$deact)=("","","","","","","","","","");
+
+       }
+   }
+close(PROTOKOLL);
+
+
+# ToDo
+# Combined searches
