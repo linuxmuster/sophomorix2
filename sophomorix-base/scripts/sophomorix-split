@@ -256,7 +256,7 @@ sub create_subclass{
 sub get_project_db {
     my $project = @_;
     my %project_data=();
-    open(PROTO,"<${DevelConf::dyn_config_pfad}/subclasses");
+    open(PROTO,"<${DevelConf::dyn_config_pfad}/subclass_db");
     while(<PROTO>){
 	print $_,"\n";
        my @line=split(/;/);
@@ -295,8 +295,8 @@ sub create_subclass_db {
     $line_d="$class"."-D;".$class."-Gruppe-D".$d_append.";".$lch.";\n";
 
     # die mit Klasse- beginnen entfernen  
-    open(SUBCLASSTMP,">${DevelConf::dyn_config_pfad}/subclasses.tmp");
-    open(SUBCLASS,"<${DevelConf::dyn_config_pfad}/subclasses");
+    open(SUBCLASSTMP,">${DevelConf::dyn_config_pfad}/subclass_db.tmp");
+    open(SUBCLASS,"<${DevelConf::dyn_config_pfad}/subclass_db");
 
     while (<SUBCLASS>){
         if (not /^$class-/){
@@ -314,7 +314,7 @@ sub create_subclass_db {
     close(SUBCLASS);
     close(SUBCLASSTMP);
 
-    system("mv ${DevelConf::dyn_config_pfad}/subclasses.tmp ${DevelConf::dyn_config_pfad}/subclasses");
+    system("mv ${DevelConf::dyn_config_pfad}/subclass_db.tmp ${DevelConf::dyn_config_pfad}/subclass_db");
 }# end sub
 
 
