@@ -133,7 +133,8 @@ install-developer:
 
 install-webmin:
 	install -d $(DESTDIR)/usr/sbin
-	install -oroot -groot --mode=0744 sophomorix-webmin/scripts/sophomorix-*[a-z1-9] $(DESTDIR)/usr/sbin
+# moved to sophomorix-base
+#	install -oroot -groot --mode=0744 sophomorix-webmin/scripts/sophomorix-*[a-z1-9] $(DESTDIR)/usr/sbin
 	##### configs for admin
 	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/user
 	install -oroot -groot --mode=0600 sophomorix-webmin/config/*[!CVS] $(DESTDIR)/etc/sophomorix/user
