@@ -1,7 +1,131 @@
 <appendix>
-  <title>To-do-Liste (NICHT sophomorix-pre)</title>
+  <title>To-do-Liste (noch nicht aktuell)</title>
+      <sect1>
+	<title>Neue Features:</title>
+	<itemizedlist>
+	  <listitem>
+	    <para>Tests</para>
+	    <para>Folgende Tests werden verwendet:</para>
+	    <para><itemizedlist>
+		<listitem>
+		  <para>Ein paar user anlegen, testen und wieder
+		  entfernen. (sollte auch aufveinem laufenden System
+		  gehen)</para>
+		</listitem>
+		<listitem>
+		  <para>Mehrere Klassen anlegen. Alle wieder
+		  löschen</para> <para>Wenn die Klassen angelegt sind,
+		  werden weitere Tests durchgeführt.</para>
+		</listitem>
+	      </itemizedlist>
+</para>
+	  </listitem>
+	</itemizedlist>
+	<itemizedlist>
+	  <listitem>
+	    <para>Datenbank-Unabhängigkeit:</para>
+	    <para><itemizedlist>
+		<listitem>
+		  <para>sophomorix soll tun egal ob files,ldap.sql</para>
+<para>Module sorgen dafür, dass die richtige Datenbank angesprocen
+wird.</para>
+		</listitem>
+		<listitem>
+		  <para>Im Moment: files als Datenbank. </para>
+		  <para>Die inträge in die files werden NUR per
+		  Perl-Befehle getätigt, nicht per editieren mit
+		  Editor!</para>
+		</listitem>
+		<listitem>
+		  <para><itemizedlist>
+		      <listitem>
+			<para>user.db (alt: user.protokoll)</para>
+		      </listitem>
+		      <listitem>
+			<para>class.db (alt: schulinfo.txt)</para>
+		      </listitem>
+		      <listitem>
+			<para>subclass.db</para>
+			<para>project.db</para>
+		      </listitem>
+		    </itemizedlist>
+</para>
+		</listitem>
+	      </itemizedlist>
+</para>
+	  </listitem>
+	</itemizedlist>
+	<itemizedlist>
+	  <listitem>
+	    <para>Neue schueler.txt:</para>
+	    <para><itemizedlist>
+		<listitem>
+		  <para>5. Feld: Unid</para>
+		  <para>6. Feld: Schulart (noch ungenutzt)</para>
+		</listitem>
+	      </itemizedlist>
+</para>
+	  </listitem>
+	</itemizedlist>
+	<itemizedlist>
+	  <listitem>
+	    <para>User-Status:</para>
+	    <para><itemizedlist>
+		<listitem>
+		  <para>User haben ein Status ("",T,D,R,A,E,F,P)</para>
+		</listitem>
+		<listitem>
+		  <para>Reaktivieren eins users ist
+		  vereinfacht:</para> <para>R entfernen, dann wird xxx
+		  Tage toleriert.</para> <para>Evtl. ein Datum in der
+		  Zukunft als Deaktivierung setzen.</para>
+		</listitem>
+	      </itemizedlist>
+</para>
+	  </listitem>
+	</itemizedlist>
+	<itemizedlist>
+	  <listitem>
+	    <para>Projekte:</para>
+	    <para><itemizedlist>
+		<listitem>
+		  <para>Ein Projekt ist eine Zusammenfassung aus
+		  Schüler, Lehrer, Klassen oder anderen
+		  Projekten.</para>
+		</listitem>
+		<listitem>
+		  <para>Projekte haben eine Lebensdauer. Sie werden
+		  nach Ablauf ihrer Lebensdauer sanft entfernt(Mail an
+		  Mitglieder, Tauschfunktion, etc sperren...)</para>
+		  <para>Evtl: Status eines Projektes</para>
+		</listitem>
+		<listitem>
+		  <para>Daten erden evtl. ins Homeverzeichnis der
+		  Mitglieder zurückkopiert.</para>
+		</listitem>
+		<listitem>
+		  <para>Projekte ohne Quota können von Lehrern angelegt werden.</para>
+		</listitem>
+		<listitem>
+		  <para>Projekte mit Quota werden von root mit
+		  Quota(pro Person) und Maximaler Mitgliederzahl
+		  angelegt. Danach vom Lehrer verwaltet.</para>
+		</listitem>
+		<listitem>
+		  <para>Das Projekt-Quota ist additiv zum User-Quota.</para>
+		</listitem>
+		<listitem>
+		  <para>Mit <userinput>sophomorix-project</userinput>
+		  werden alle Projekte gezeigt, mit -v auch die Daten/Attribute
+		  der Projekte.</para>
+		</listitem>
+	      </itemizedlist>
+</para>
+	  </listitem>
+	</itemizedlist>
+      </sect1>
   <sect1>
-    <title>Was gibt es noch zu tun</title>
+    <title>Fehlerbehebung</title>
     <para><itemizedlist>
 	<listitem>
 	  <para><userinput>*.csv</userinput>-Ausgabedateien testen</para>
@@ -168,211 +292,3 @@ mode: sgml
 sgml-parent-document: ( "sophomorix.sgml" "book" "part" "appendix" )
 End:
 -->
-
-
-
-
-
-
-
-
-
-
-<appendix>
-  <title>To-do-Liste (NICHT sophomorix-pre)</title>
-  <sect1>
-    <title>Was gibt es noch zu tun</title>
-    <para><itemizedlist>
-	<listitem>
-	  <para><userinput>*.csv</userinput>-Ausgabedateien testen</para>
-	</listitem>
-	<listitem>
-	  <para>Zeichenersetzung abhängig vom verwendeten
-	    Schulverwaltungsprogramm vorsehen</para>
-	</listitem>
-	<listitem>
-	  <para>Wenn 2 Lehrer denselben loginnamen bekommen sollen, kommt keine
-	  Warnung.</para>
-	</listitem>
-	<listitem>
-	  <para>smb.conf aus dem Paket sophomorix muss von Hand eingefügt
-	    werden, um die richtigen Dateirechte zu bekommen. Besser: ein
-	    Befehl sophomorix-samba erzeugt eine smb.conf incl. richtiger IP
-	    und Domäne.</para>
-	</listitem>
-	<listitem>
-	  <para>Doku für verschiedene Schulverwaltungsprogramme. Andere
-	    Schulverwaltungsprogramme testen.</para>
-	</listitem>
-	<listitem>
-	  <para>Quota: Prüfen, ob quotasetzten erfolgreich war(sophomorix-add).
-	    Wie?</para>
-	</listitem>
-	<listitem>
-	  <para>Quota: Suche nach Usern ohne Quota, oder Lehreren, die ihrem
-	    Quota schon sehr nahe kommen (in % oder in MB ) </para>
-	</listitem>
-	<listitem>
-	  <para>File-Locking durchgänging in allen Scripten einführen</para>
-	</listitem>
-	<listitem>
-	  <para>wenn user versetzt wird, werden seine Daten aus dem
-	    Tauschverzeichnis in sein home gelegt. Es wird allerdings nur die
-	    oberste ebene im Tauschverzeichnis betrachtet. wenn unterhalb eines
-	  Verzeichnisses noch andere owner auftreten, wird trotzdem
-	    verschoben. der Versetzte kann diese Dateien aber nicht
-	    entfernen. Das muss dann root machen. </para>
-	  <para>Das problem tritt nur auf, wenn ein user in Tausch ein
-	    Verzeichnis anlegt, und an den Dateirechten dreht. </para>
-	</listitem>
-	<listitem>
-	  <para>Feld kurz in lehrer.txt nutzen (besser erst ab ldap), um wahres
-	    lehrerkürzel anzugeben, bei lehrern, deren Echtes Kürzel nicht geht
-	  (at, bin, ...)</para>
-	</listitem>
-	<listitem>
-	  <para>Klassenfilterdatei: filtert bestimmte Klassen heraus, die dann
-	    nicht mehr als Klassen angesehen werden</para>
-	</listitem>
-	<listitem>
-	  <para>Die extrakurse-klassen aus extrakurse.txt sollen (zumindest
-	    beim löschen der Tauschverzeichnisse) NICHT berücksichtigt
-	    werden.</para>
-	</listitem>
-	<listitem>
-	  <para>Webmin-Module:</para>
-	  <para>Ausdrucken von Lehrer-Loginkarten einzeln, mit Zusatztext,
-	    Scheckkartengröße</para>
-	  <para>Mitloggen der Lehreraktionen: drucken der Passwortliste,
-	    ...</para>
-	  <para>Klassenmanager-schülerliste-Option: Passwort ändern auf:
-	    Leerfeld - OK</para>
-	  <para>Webmin-Modul: Klasse splitten: zum testen nur als admin, später
-	  auch als Lehrer (File-Locking)</para>
-	  <para>Gefährliche Module aus Webmin raus (adminmodule.txt)</para>
-	  <para>sophomorix-Modul (nur admin): wichtig:</para>
-	  <para>Daten hochladen</para>
-	  <para>Neu angelegte lehrer drucken</para>
-	</listitem>
-	<listitem>
-	  <para>Update von 2.0:</para>
-	  <para>lehrer.txt aus den angelegten Lehrern mit Phantasiedatum.</para>
-	</listitem>
-	<listitem>
-	  <para>Kompatibilitätsmodus mit 1.1.1. und 2.0
-	    entfernen. (schueler.protokoll statt user.protokoll)</para>
-	</listitem>
-	<listitem>
-	  <para>Doku: Vogehensweise beim Lehreranlegen. Daten holen,
-	    auskommentieren, evtl. Geburtsdatum ersetzten</para>
-	</listitem>
-	<listitem>
-	  <para>User-Login-Kärtchen: Datum, Pinguin, Farbe, Schullogo ...</para>
-	</listitem>
-	<listitem>
-	  <para>Script/Webmin-Modul: Schüler-Schnellanlegen: legt Schüler an,
-	    obwohl er NOCH nicht in schueler.txt erscheint. Könnte mit Eintrag
-	    in Schüler-reaktiviert gemacht werden). Wenn er dann mit
-	    exakt denselben Daten erscheint, dann wird dieser Schnellanlegen-
-	    Eintrag wider entfernt.</para>
-	  <para>Ebenso: Schüler-Schnellversetzten (aber das geht auch im
-	    sekretariat sehr schnell)</para>
-	</listitem>
-	<listitem>
-	  <para>neues Script/Option: sophomorix-print -l loginname. Erzeugt ein
-	    Din a4-Blatt mit allen informationen: Winanmeldung,
-	    linux-Anmeldung, ...Domänenname E-Mailadresse, ... Kann der Lehrer
-	    für sich selbst ausdrucken.</para>
-	</listitem>
-	<listitem>
-	  <para>neues Script/neue option sophomorix-www</para>
-	  <para>Erzeugt eine verlinkte html-Seite mit allen usern, deren
-	    public_html-Verzeichnis freigeschaltet ist. Wird neu erzeugt,
-	    sobald ein Lehrer das public_html freigeschaltet hat. </para>
-	</listitem>
-	<listitem>
-	  <para>ldap:</para>
-	  <para>scripte, die den ldap-Verzeichnisdiens modifizieren
-	    umschreiben</para>
-	  <para>admin in ldap oder files?</para>
-	</listitem>
-	<listitem>
-	  <para>user-Befehle: Befehle, die auch der user(Schüler,
-	  Lehrer) ausführen darf. (my-quota (sollquota, istquota,
-	  wieviel belegt, ...), my-mail(Absender-, Empfangsadresse,
-	  Weiterleitung, Mailinglisten, ...)). Alle diese Befehle mit
-	  der Option --html, die für usermin html ausgibt.</para>
-	</listitem>
-	<listitem>
-	  <para>Überlegen, ob Lehrermodule unter
-	  webmin(switch_to_remote_user verwenden) oder usermin(scripte
-	  aufrufen, die root-rechte oder admin-rechte haben) laufen
-	  sollen</para>
-	</listitem>
-	<listitem>
-	  <para>/etc/aliases: Der erfahrene root soll dort Einträge
-	  machen können, ohne dass diese verloren gehen, wenn
-	  sophomorix-mail aufgerufen wird.</para> <para>Also
-	  intelligentes vorgehen von sophomorix-mail:</para>
-	  <para>Lesen, welche Aliases definiert sind.Dann die
-	  generierten anhängen. Wenn es mehrdeutige Einträge gibt,
-	  dann korrigierend eingreifen und melden.</para>
-	</listitem>
-	<listitem>
-	  <para>anstatt postfix zu konfigurieren, dass es auf ldap,
-	  bzw. mysql zugreift, soll ein script files erzeugen, die
-	  postfix standardmässig nutzt. </para> <para>Vorteil: postfix
-	  funktioniert Datenbankunabhängig, schneller.</para>
-	  <para>Nachteil: Änderungen erst sichtbar, wenn script
-	  gelaufen ist.</para>
-	</listitem>
-	<listitem>
-	  <para>Fehlermeldung abfangen: Wenn Tauschverzeichnis der
-	  Klasse Dachboden nicht existiert kann Schüler nicht aus
-	  Dachboden zurückversetzt werden. Lösung:
-	  /home/tausch/klassen/dachboden anlegen(root.root 0700). Kann
-	  somit nicht benutzt werden. Dasselbe mit Speicher</para>
-	</listitem>
-	<listitem>
-	  <para>Problem. Wenn Schüler kein Geburtsdatum haben, dann
-	  werden sie nicht angelegt. Schnelle Anlegmöglichkeit
-	  schaffen: </para>
-	  <para>Webmin. Schüler ohne Geburtsdatum anlegen.</para>
-	</listitem>
-	<listitem>
-	  <para>Problem: S-Plan: *-klassen werden nicht angelegt
-	  </para> <para>Webmin. Liste mit Sternchenklassen Dann
-	  auswählen und zeigen, in welche Klassen sie
-	  dazukommen.</para>
-	</listitem>
-	<listitem>
-	  <para>Loginkärtchen:</para> <para>Schüler mit falschen
-	  Daten(Sonderzeichen, ...) auf die loginkärtchen Drucken,
-	  wenn per webmin Klassenweise generiert. Fehler wird auf
-	  kärtchen vermerkt, dann kann Lehrer im sekretariat
-	  nachhaken, dass z.B. das Geburtsdatum korrigiert wird</para>
-	</listitem>
-      </itemizedlist>
-</para>
-  </sect1>
-</appendix>
-
-<!-- Dieser Kommentar bleibt am Ende des Teil-Dokuments
-Erster Eintrag  : Das Parent-Dokument, das die DTD enthält
-Zweiter Eintrag : Das TOP-Element des Parent-Dokuments
-Dritter Eintrag : Das TOP-Element dieses Child-Dokuments
-Local Variables:
-mode: sgml
-sgml-parent-document: ( "sophomorix.sgml" "book" "part" "appendix" )
-End:
--->
-
-
-
-
-
-
-
-
-
-

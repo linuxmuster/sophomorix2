@@ -3,32 +3,31 @@
   <sect1>
     <title>Versionen</title> <para>&so; wurde als
     <userinput>sophomorix-pre</userinput> in die Linux-Musterlösung
-    des Landes Baden-Württemberg integriert. 
-    Diese Anleitung kann auch für <userinput>sophomorix-pre</userinput>
-    benutzt werden, wenn beim Aufruf aus Webmin heraus (Benutzer
-    anlegen,versetzen) beachtet wird, dass automatisch - falls Sie
-    wirklich "ja" in Webmin sagen - der Reihe nach
-    <userinput>sophomorix-check</userinput>,
-    <userinput>sophomorix-add</userinput> und
-    <userinput>sophomorix-move</userinput> ausgeführt werden und somit
-    einen großen Teil der Leistungsfähigkeit von sophomorix (z.B.
-    <userinput>sophomorix-teach-in</userinput>,
-    <userinput>sophomorix-kill</userinput>) verschenken!
-</para>
-<para>Das Script, das bei <userinput>sophomorix-pre</userinput> hinter dem 
-Webmin-Knopf steckt (<userinput>versetzen.pl</userinput>) stellt die 
-kompatibilität zu früheren Versionen
-der Musterlösung sicher. Dazu werden die Dateien mit den User-Passwörtern 
-(<userinput>alle.pdf</userinput> und <userinput>hinzu.pdf</userinput>) nach 
-<userinput>/usr/local/samba/users</userinput> kopiert, um vom user 
-<userinput>admin</userinput> der sich unter Windows angemeldet hat ausdruckbar 
-zu sein.
-</para>
-
-
+    des Landes Baden-Württemberg (Version 2.2) integriert. Dieses
+    Dokument ist jedoch KEINE Dokumentation von
+    <userinput>sophomorix-pre</userinput></para> <para>In der
+    Dokumentation, die sie gerade lesen geht es um
+    <userinput>sophomorix</userinput> Version 1.1 und höher. Das
+    CVS-Modul wird sophomorix2 genannt, da bei voller
+    Funktionsfähigkeit die Versionsnummer 2.0 erreicht sein
+    wird.</para> <para><userinput>sophomorix</userinput> 2.0 und später wird ab
+    ca. Herbst 2005 als Debian-Paket in die Linux-Musterlösung ab 3.x
+    integriert werden.</para>
   </sect1>
   <sect1>
-    <title>Bestandteile</title>
+    <title>Was ist neu?</title> <para>&so; wurde als 
+
+<para>Folgende Neuerungen wird es geben:</para>
+    <itemizedlist>
+      <listitem>
+	<para>Projekte, an denen Schüler aus verschiedenen Klassen
+	Mitglieder sein können, sowie Beliebige Lehrer.</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+
+  <sect1>
+    <title>Bestandteile (noch nicht aktuell)</title>
     <para>&so; besteht aus mehreren
       Perl-Scripten: </para>
     <para><itemizedlist>
@@ -93,7 +92,7 @@ zu sein.
       bisherigen Musterlösungs-Versionen zu bleiben.</para>
   </sect1>
   <sect1>
-    <title>Grundprinzipien</title>
+    <title>Grundprinzipien (noch nicht aktuell)</title>
     <para>Um die Benutzerverwaltung zu vereinfachen habe ich versucht folgende
       grundlegende Prinzipien umzusetzen:</para>
     <para><itemizedlist>
