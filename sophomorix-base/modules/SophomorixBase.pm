@@ -49,7 +49,6 @@ use Time::localtime;
               zeit
               backup_amk_file
               get_klasse_von_login
-              get_schueler_in_klasse
               get_schueler_in_schule
               get_schueler_in_schule_hash
               get_lehrer_in_schule
@@ -1839,42 +1838,6 @@ sub get_klasse_von_login {
 ##############################################################################
 # Ab hier bisher in sophomorix-libfür klassenmanager
 ##############################################################################
-
-##############################################################################
-# SCHÜLER
-##############################################################################
-# ===========================================================================
-# Liste der Schüler einer Klasse ermitteln, alphabetisch
-# ===========================================================================
-# Diese Funktion hat als Argument einen Gruppennamen
-# Sie liefert alle Schüler dieser Klasse zurück
-# Wenn keine Schüler in dieser Gruppe sind wird eine leere Liste zurückgegeben
-
-sub get_schueler_in_klasse {
-    my ($klasse)=@_;
-    #print "$klasse<p>";
-    my @pwliste=();
-    my @userliste=();
-    # Group-ID ermitteln
-    my ($a,$b,$gid) = getgrnam $klasse; 
-    #print"Info: Group-ID der Gruppe $klasse ist $gid<p>\n";
-
-    # alle Schüler in dieser Gruppe heraussuchen
-    setpwent();
-    while (@pwliste=getpwent()) {
-    #print"$pwliste[7]\n";  # Das 8. Element ist das Home-Verzeichnis
-     if ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/schueler\//) {
-         push(@userliste, $pwliste[0]);
-         #print "$pwliste[3]";
-      }
-    }
-    endpwent();
-
-    # Alphabetisch ordnen
-    @userliste=sort @userliste;
-    return @userliste;
-}
-
 
 
 
