@@ -7,10 +7,11 @@
 
 # This Script adds directories and files that are necessary for sophomorix-base 
 # It should be run as postinst
+use Sophomorix::SophomorixConfig; 
 use Sophomorix::SophomorixBase; 
 
 # Einlesen der Konfigurationsdatei für Entwickler
-{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
 
 print "##### sophomorix-setup is configuring the system for sophomorix-base ...\n";
 
@@ -72,6 +73,7 @@ my %permissions=&get_alle_verzeichnis_rechte();
 
 
 # make important data readable by root only
+# this does not probably not work
 &setup_verzeichnis("\$var_lib_pfad","$DevelConf::var_lib_pfad");
-
+#system ("chmod 700 /var/lib/sophomorix");
 

@@ -7,6 +7,7 @@
 # Bibliotheken
 use strict;
 use Getopt::Long;
+use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
 use Sophomorix::SophomorixAPI;
 Getopt::Long::Configure ("bundling");
@@ -14,7 +15,7 @@ Getopt::Long::Configure ("bundling");
 #use Schedule::at;
 
 # Einlesen der Konfigurationsdatei für Entwickler
-{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
 
 # ===========================================================================
 # Loading the db-Module, list of functions

@@ -14,6 +14,7 @@
 
 use strict;
 use Getopt::Long;
+use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
 use Sophomorix::SophomorixFiles;
 use Sophomorix::SophomorixTest;
@@ -22,7 +23,7 @@ use Test::More "no_plan";
 Getopt::Long::Configure ("bundling");
 
 # Einlesen der Konfigurationsdatei für Entwickler
-{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
 
 
 system("install -d /root/sophomorix-test");

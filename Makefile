@@ -39,8 +39,11 @@ WEBMINDEBDIR=$(DESTDIR)/usr/share/webmin
 # Dokumentation
 DOCDEBDIR=$(DESTDIR)/usr/share/doc
 
-# Dokumentation
+# Developer
 DEVELCONF=$(DESTDIR)/usr/share/sophomorix
+
+# Developer
+LANGUAGE=$(DESTDIR)/usr/share/sophomorix/lang
 
 # SAMBADEBCONFDIR für Debian 
 SAMBADEBCONFDIR=$(DESTDIR)/etc/samba
@@ -92,9 +95,10 @@ install-base:
 
 	install -oroot -groot --mode=0600 sophomorix-base/config-devel/sophomorix-devel.conf $(DEVELCONF)/devel
 	install -oroot -groot --mode=0600 sophomorix-base/config-devel/repair.directories $(DEVELCONF)/devel
+	##### languages
+	install -d -m700 -oroot -groot $(LANGUAGE)
 
-#	install -oroot -groot --mode=0700 sophomorix-base/config-devel/sophomorix-devel.conf $(DESTDIR)/etc/sophomorix/devel/user
-#	install -oroot -groot --mode=0600 sophomorix-base/config-devel/repair.directories $(DESTDIR)/etc/sophomorix/devel/user
+	install -oroot -groot --mode=0600 sophomorix-base/lang/sophomorix-lang.*[a-z] $(LANGUAGE)
 	##### Copy the module
 	install -d -m755 -oroot -groot $(PERLMOD)
 	install -oroot -groot --mode=0644 sophomorix-base/modules/Sophomorix*[a-z1-9] $(PERLMOD)
