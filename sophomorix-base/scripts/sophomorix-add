@@ -501,17 +501,12 @@ close(NOCHANLEGEN);
 
 if ($webmin_neustart==1){
    # Webmin neu starten, falls Lehrer angelegt wurden:
-  if (${DevelConf::debian} eq "yes"){
+  if (-e "/etc/init.d/webmin"){
     &do_falls_nicht_testen(
                            "/etc/init.d/webmin stop",
                            "/etc/init.d/webmin start"
                           );
 
-  } else {
-    &do_falls_nicht_testen(
-                           "/etc/webmin/stop",
-                           "/etc/webmin/start"
-                          );
   }
 }
 
@@ -906,9 +901,13 @@ sub webmin_eintrag {
       );
    }
    # Alle notwendigen Module den neuen Lehrern freigeben
-   system("sophomorix-webmin");
+   if (-e "/usr/sbin/sophomorix-webmin") {
+      system("sophomorix-webmin");
+   }
    # Mail-alias
-#   system("sophomorix-mail");
+   if (-e "/usr/sbin/sophomorix-mail") {
+      system("sophomorix-mail");
+   }
    # Webmin muss neu gestartet werden
    $webmin_neustart=1;
  }
