@@ -427,7 +427,7 @@ sub login_type {
     my %login_type=();
     my $login="";
     my $home="";
-    # add admin, because it is not in user.protokoll
+    # add admin, because it is not in user_db
     $login_type{"admin"}="admin";
     # others
     setpwent();
@@ -491,7 +491,7 @@ sub get_quota{
 sub get_projects_add_quota {
     my %projects_add_quota=();
     my %users=();
-    open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects.db");
+    open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects_db");
     while(<PROJECT>){
        chomp();
        my ($name,$lname,$teacher,$member,$member_group,$add_quota)=split(/;/);
@@ -565,7 +565,7 @@ sub get_quota_txt {
 
 
 
-# hash: login -> quotastring in the sophomorix database(user.protokoll)
+# hash: login -> quotastring in the sophomorix database(user_db)
 sub get_db_quota {
     my $login="";
     my $quotastring="";

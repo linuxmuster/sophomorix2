@@ -164,7 +164,7 @@ if ($noninteractive==1){
 sub get_users_admin_class {
     my ($class)=@_;
     my @admin_class_list=();
-    open(PROTO,"<${DevelConf::dyn_config_pfad}/user.protokoll");
+    open(PROTO,"<${DevelConf::dyn_config_pfad}/user_db");
     while(<PROTO>){
        my @line=split(/;/);
        if ($line[0] eq $class){
@@ -191,7 +191,7 @@ sub create_subclass{
     my @sub_d=();
 
     # get the users and push them in they subclass
-    open(USERDB,"<${DevelConf::dyn_config_pfad}/user.protokoll");
+    open(USERDB,"<${DevelConf::dyn_config_pfad}/user_db");
     while (<USERDB>){
         if (/^$class/){
             my @line = split(/;/);
@@ -325,7 +325,7 @@ sub interactive_change_subclass {
    my ($class)=@_;
    my $user_antwort="";
    my %auswahl=qw( a a A A b b B B c c C C d d D D o o 0 0);
-   open(PROTO,"<${DevelConf::dyn_config_pfad}/user.protokoll");
+   open(PROTO,"<${DevelConf::dyn_config_pfad}/user_db");
    while(<PROTO>){
      my @line=split(/;/);
      if ($line[0] eq $class){

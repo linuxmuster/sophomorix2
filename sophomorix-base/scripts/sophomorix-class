@@ -67,9 +67,7 @@ Please see the sophomorix-class-dbi(8) man pages for full documentation
 # config values
 ############################################################
 
-my $filedir="/var/lib/sophomorix/dynconfig";
-
-my $dbh = DBI->connect("DBI:CSV:f_dir=$filedir;csv_eol=\n;"
+my $dbh = DBI->connect("DBI:CSV:f_dir=${DevelConf::protokoll_pfad};csv_eol=\n;"
                       . "csv_sep_char=\\;csv_quote_char=;"
                       . "csv_escape_char=;skip_first_row");
 

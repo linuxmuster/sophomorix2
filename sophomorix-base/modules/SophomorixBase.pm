@@ -488,14 +488,14 @@ sub setup_verzeichnis {
 sub get_old_info {
    my ($dir, $no_kclass) = @_;
    # Files
-   my $protocol="${dir}/user.protokoll";
+   my $protocol="${dir}/user_db";
    my $passwd="${dir}/passwd";
    my $group="${dir}/group";
    my $teach_in="${dir}/teach-in.txt";
 
    if($Conf::log_level>=1){
       print "I use the following old files:\n";
-      print "   user.protokoll:   $protocol\n";
+      print "   user.db:          $protocol\n";
       print "   teach-in.txt:     $teach_in\n";
       print "   passwd:           $passwd\n";
       print "   group:            $group\n";
@@ -556,7 +556,7 @@ sub get_old_info {
 
    # creating identifier -> ... hashes
    open(PROTOCOL, "<$protocol") || die "Fehler: $!";
-   &titel("Extracting data from old user.protokoll ...");
+   &titel("Extracting data from old user_db ...");
    while(<PROTOCOL>){
        chomp($_);
        ($admin_class, $gecos,$login, $pass,$birth)=split(/;/);
@@ -909,7 +909,7 @@ sub user_links {
 
 =item I<%hash = protokoll_linien()>
 
-liest die Linien aus user.protokoll in einen Hash.
+liest die Linien aus user_db in einen Hash.
 
 =cut
 
@@ -1296,21 +1296,8 @@ Gibt die Zeit zurück. Geht mit `` einfacher ToDo
 
 =cut
 sub zeit_stempel {
-    my $zeit = `date +%Y-%m-%d_%H-%M-%S`;
-    chomp($zeit);
-   # Startdatum in eine temporäre Datei schreiben
-#   system("date +%Y-%m-%d_%H-%M-%S > /tmp/starttime");
-
-   # Startdatum wieder auslesen
-#   open(STARTTIME, "/tmp/starttime") || die "Fehler: $!";
-#   while(<STARTTIME>){
-#      chomp();
-#      $zeit=$_;
-#   }
-#
-#   # Temporäre Datei wieder löschen
-#   system("rm /tmp/starttime");
-
+   my $zeit = `date +%Y-%m-%d_%H-%M-%S`;
+   chomp($zeit);
    return $zeit;
 }
 
@@ -2995,7 +2982,11 @@ sub get_klassen_quota {
        $typ,
        $mail,
        $klassen_quota)=();
-   open(SCHULINFO,"${DevelConf::users_pfad}/schulinfo.txt") || die "Fehler: $!";
+
+
+
+   open(SCHULINFO,"${DevelConf::dyn_config_pfad}/class_db") || die "Fehler: $!";
+#   open(SCHULINFO,"${DevelConf::users_pfad}/schulinfo.txt") || die "Fehler: $!";
    while(<SCHULINFO>){
       chomp();
       s/\s//g; # Whitespace Entfernen
@@ -3098,7 +3089,7 @@ sub sophomorix_passwd {
 sub get_erst_passwd {
   my ($username) = @_;
   my $rainer=0; # Hilfsvariable
-  open(PASSPROT, "$DevelConf::dyn_config_pfad/user.protokoll");
+  open(PASSPROT, "$DevelConf::dyn_config_pfad/user_db");
   while(<PASSPROT>) {
       chomp(); # Returnzeichen abschneiden
       s/\s//g; # Spezialzeichen raus

@@ -531,15 +531,15 @@ if (${DevelConf::debian} ne "yes") {
 &backup_user_database($zeit, "after.add");
 
 # ===========================================================================
-# hinzu.pdf, hinzu.csv mitloggen
+# add.pdf, add.csv mitloggen
 # ===========================================================================
 &do_falls_nicht_testen(
-    "cp ${DevelConf::druck_pfad}/hinzu.pdf ${DevelConf::log_pfad}/${zeit}.hinzu.pdf",
-    "chmod 600 ${DevelConf::log_pfad}/${zeit}.hinzu.pdf",
-    "chown root:root ${DevelConf::log_pfad}/${zeit}.hinzu.pdf",
+    "cp ${DevelConf::druck_pfad}/add.pdf ${DevelConf::log_pfad}/${zeit}.add.pdf",
+    "chmod 600 ${DevelConf::log_pfad}/${zeit}.add.pdf",
+    "chown root:root ${DevelConf::log_pfad}/${zeit}.add.pdf",
 
-    "cp ${DevelConf::druck_pfad}/hinzu.csv ${DevelConf::log_pfad}/${zeit}.hinzu.csv",
-    "chown root:root ${DevelConf::log_pfad}/${zeit}.hinzu.pdf"
+    "cp ${DevelConf::druck_pfad}/add.csv ${DevelConf::log_pfad}/${zeit}.add.csv",
+    "chown root:root ${DevelConf::log_pfad}/${zeit}.add.pdf"
 		     );
 
 
@@ -741,7 +741,7 @@ if ($DevelConf::testen==0) {
 
 
 # ===========================================================================
-# Eintrag in user.protokoll
+# Eintrag in user_db
 # ===========================================================================
 # alt
 sub protokolldatei_modifizieren {

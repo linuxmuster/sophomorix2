@@ -115,7 +115,7 @@ if ($create==1){push @options, "Create=yes"}
 # Programmbeginn
 # ===========================================================================
 
-&check_datei_touch("${DevelConf::dyn_config_pfad}/projects.db");
+&check_datei_touch("${DevelConf::dyn_config_pfad}/projects_db");
 
 
 # repair.directories einlesen
@@ -139,7 +139,7 @@ if ($create==1){push @options, "Create=yes"}
 ###########################################################################
 
 sub create_project {
-    # reads from projects.db and creates the project in the system
+    # reads from projects_db and creates the project in the system
     my ($project) = @_;
     my $found=0;
     my %project_data=();
@@ -151,7 +151,7 @@ sub create_project {
     my @new_teachers=();
     my @new_groups=();
     my %seen=();
-    open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects.db");
+    open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects_db");
     while(<PROJECT>){
        my @line=split(/;/);
        if ($line[0] eq $project){

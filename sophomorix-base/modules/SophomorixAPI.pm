@@ -345,7 +345,7 @@ sub get_workstations_school {
 
 =item I<get_user_project(Teachers,Members,MemberGroups)>
 
-Teachers,Members,MemberGroups are the fields in projects.db. A
+Teachers,Members,MemberGroups are the fields in projects_db. A
 function to get this fields will follow.
 
 =cut

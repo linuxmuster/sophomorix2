@@ -64,7 +64,7 @@ install-base:
 	install -d -m700 -oroot -groot $(DESTDIR)/var/lib/sophomorix
 	install -d -m700 -oroot -groot $(DESTDIR)/var/log/sophomorix
 	install -d -m700 -oroot -groot $(DESTDIR)/var/log/sophomorix/user
-	install -d -m700 -oroot -groot $(DESTDIR)/var/lib/sophomorix/drucken
+	install -d -m700 -oroot -groot $(DESTDIR)/var/lib/sophomorix/print-data
 	install -d -m700 -oroot -groot $(CTEMPDIR)
 	install -d -m700 -oroot -groot $(CTEMPDIR)/samba/netlogon
 

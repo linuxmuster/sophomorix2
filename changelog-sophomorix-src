@@ -6,35 +6,42 @@ sophomorix-repair (seems ok so far)
 
 
 sophomorix-quota (seems ok so far)
-   - option --sum:
+   - option --sum still missing
    - option --school(=pupil, teacher, workstation)
      Use this option in sophomorix-passwd also?
+
 
 sophomorix-teach-in (seems ok so far)
 
 
 sophomorix-check
-
    - what about the shell (/bin/bash) when updating from old files?
    - what about the quota  when updating from old files?
+       lehrer.txt: automatically used, when copied
+       quota.txt:  automatically used, when copied
+       projects:   did not exist, ok
+       classes:    schulinfo.txt should be copied/used to class_db
+             --> check this
    - add more auto-teach-in
+
 
 sophomorix-add
    - create new users with quota
 
 
 sophomorix-move
-   - remove option --klassenintern
+   - remove option --klassenintern ()
 
 
 sophomorix-kill
    - when a user is deleted, move its line(s) from user-modify.log to 
      user-modify-archive (speed up lookups in user-modify.log)
-   - add a kill-entry to the archive.
+   - add a kill-entry to the archive to know when a user was killed.
+   - history in archive is not dorted according date, is sorted accordin users
+     (is this fine?)
 
 
 sophomorix-split
-
    - sophomorix-split options: 
         split randomly in 2,3 halves
         split half-half
@@ -42,8 +49,8 @@ sophomorix-split
 
 
 sophomorix-passwd
-   - generate login-cards automatically
-
+   - generate login-cards with changed passwords automatically
+     (passwd_change.pdf)
 
 sophomorix-print
 
@@ -51,7 +58,7 @@ sophomorix-print
    - what about projects, show project membership?
    - make configurable which print-output sophomorix-print generates 
      to save time (ps, pdf,csv,...) 
-   - whis is script interrupted when run in read-only directory
+   - why is is script interrupted when run in read-only directory
    
 
 sophomorix-project
@@ -61,8 +68,7 @@ sophomorix-project
 
 
 sophomorix-class
-   - --class classname --quota 200+20  sets the quota
-   
+   - show classes in alphabetical order (use list insted of hash, when fetching)   
   
 
 sophomorix-vampire:
@@ -79,18 +85,19 @@ sophomorix-vampire:
           2. sophomorix-setup (repairs directories with groupowner lehrer)
           3. update (lehrer with old id will be created automatically)
 
+
 sophomorix-tuition??
    - write new script to distribute data, collect data, ...
 
 
 Functions in SophomorixBase:
-   - zeit_stempel: rename make easier(ticks)
    - rename: append_auto_teach_in_log --> append_teach_in_log
    - Put Quota-functions in SophomorixQuota.pm 
 
 
 All Scripts:
-   
+   - creating database file from sophomorix-setup-files??
+       removing it from sophomorix-check??
    - remove old stuff: ${schueler_oder_user}.protokoll";
    - remove database/sys dependant code
    - set/check file-permissions at the and of each sophomorix-* run. 
@@ -115,19 +122,41 @@ RELEASES:
 
 
 
-1.1.7 (2005-01-?)
-   - added new script sophomorix-class: 
+1.2.0 (2005-02-?)
+   - rename print-data 
+        hinzu.*  -> add.* and others
+
+   - made the database names comply with DBI (sql database table names 
+     cannot have a point in them)
+     i.e.  user.protokoll -> user_db
+           projects.db    -> projects_db
+           class.db       -> class_db
+
+   - made the directories under /var/lib/sophomorix international (names)
+     i.e.:
+      drucken   -> print-data
+      pruefen   -> tmp  (because it is created on each run of sophomorix-check)
+      dynconfig -> database
+      ergebnis  -> check-result
+     
+   - added new script sophomorix-class and man page: 
       - -i shows all classes with info
+      - --class classname --quota 200+20  sets the quota in database
+
+   - function zeit_stempel: made easier(use ticks), instead of first 
+                            writing to a tmp-file and rereading
 
    - renamed schulinfo.txt to class.db and moved it to the database files
+     (renamed again later, see above)     
 
-   - Bugfixes to sophomorix-project: Dont create links to root or dont add 
-     root to unix-group of project
+   - Bugfixes to sophomorix-project: 
+         - Don't create links to root
+         - Don't add root to unix-group of project
 
    - complete rewrite of sophomorix-quota to acommodate AddQuota of projects
-     (option --sum missing)
+     (option --sum still missing)
      Quotastring syntax simplified to gain speed:  i.e. 23+45
-     (minus sign or x is NOT SUPPORTED anymore)
+     (minus sign (-) or x is NOT SUPPORTED ANYMORE)
 
    - limit sophomorix-quota to (option names as in sophomotix-add) 
        - class(-c), 
@@ -152,21 +181,20 @@ RELEASES:
 
    - added a switch (--no-sync) in sophomorix-check to do/do not an auto-teach-in
 
-   - replacement for sophomorix-teach-in finished as alpha version
+   - replacement for sophomorix-teach-in finished
 
    - show login, admin-class and exit-admin-class when teaching-in
 
-   - include/check sophomorix-repair
+   - include/check new script sophomorix-repair
 
-   - removed variable $samba_dir in repair.directories, ...
+   - removed variable $samba_dir in repair.directories, ...(not used anymore)
 
    - The Filesystem under /home is controlled by variables in sophomorix-devel.conf
-
-   - repair.directories uses this variable to identify permissions
+     repair.directories uses this variable to identify permissions
 
    - added a few directories under /home/samba
 
-   - sophomorix-setup uses repair.directories
+   - sophomorix-setup uses repair.directories to get permissions of directories
 
    - sophomorix-check with option get-info-from-old-files, that uses data from 
      a previous installation to add users with a former id, gid and login name.
