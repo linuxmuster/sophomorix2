@@ -1,0 +1,2706 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-check) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+
+# Todo: 
+# Subroutines open report files swap-order einruecken und Variablen 
+# sauber uebergeben
+# Vorcheck in subroutine packen
+# $DevelConf::ldap fällt weg
+
+# ===========================================================================
+# Bibliotheken
+# ===========================================================================
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+#use Schedule::at;
+use String::Approx 'amatch';
+use Time::Local;
+use Time::localtime;
+use Term::ANSIColor qw(:constants); # farbiger Text RED, BLUE, ...
+# nach jedem Printbefehl wieder auf Standardfarbe zurücksetzen
+$Term::ANSIColor::AUTORESET = 1;
+
+# Einlesen der Konfigurationsdatei für Entwickler
+{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+
+# jeffbecks Bibliothek und
+# Einlesen der Konfigurationsdatei
+require "${DevelConf::library_pfad}/sophomorix-lib-base";
+require "${DevelConf::library_pfad}/sophomorix-lib-files";
+#require "${DevelConf::library_pfad}/sophomorix-libldap";
+
+# Nur als Dummy(Warnings verhindern)
+if($Conf::drei_strichpunkt){};
+if($Conf::geburts_jahreszahl_start){};
+if($DevelConf::ersetze_slash_mit){};
+if($Conf::geburts_jahreszahl_stop){};
+if($DevelConf::var_lib_pfad){};
+if($DevelConf::library_pfad){};
+if($DevelConf::druck_pfad){};
+#if($DevelConf::subklassen){};
+#if($DevelConf::apache_root){};
+if($DevelConf::debian){};
+
+$DevelConf::ldap="no";
+
+# Es wird eine Datei sophomorix.ok (schueler+lehrer) erzeugt 
+# Welche Dateien mit Userdaten sollen verarbeitet werden
+my  @schueler_to_check_dateien=(
+    # 0: ergebnis/schueler.txt.tausch
+    "$DevelConf::schueler_datei",
+    # 1: konfiguration/extraschueler.txt
+    "${DevelConf::config_pfad}/extraschueler.txt",
+    # 2:konfiguration/extrakurse.txt
+    "${DevelConf::ergebnis_pfad}/extrakurse.schueler",
+    # 3:lehrer.txt
+    "${DevelConf::users_pfad}/lehrer.txt",
+    # 4: reaktivierte Schüler
+    "${DevelConf::pruef_pfad}/user.reaktiviert"
+   );
+
+# =========================================================================
+# lehrer.txt ordnen
+# =========================================================================
+
+# faellt weg/nur alphabetisch, da zusatzdaten in ldap
+&lehrer_ordnen();
+
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+my $testen=0;
+$Conf::log_level=1;
+my $help=0;
+my $info=0;
+my $file_to_check="";
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "test|t" => \$testen,
+       "verbose|v+" => \$Conf::log_level,
+           "help|h" => \$help,
+             "file=s" => \$file_to_check,
+           "info|i" => \$info
+          );
+
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
+
+if ($file_to_check ne "") {
+    @schueler_to_check_dateien=("$file_to_check","","","","","","");
+}
+
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlbeschreibung
+   print "$scriptname prüft und korrigiert folgende Dateien:\n\n";
+
+   foreach my $datei (@schueler_to_check_dateien){
+       print "   $datei\n";
+   }
+   print"\nDabei sind\n\n";
+   print"   schueler.txt.tausch ist aus schueler.txt entstanden\n";
+   print"   extrakurse.schueler ist aus extrakurse.txt entstanden\n";
+   print "\n\n";
+
+   # gemeinsamer Hilfetext
+   &help_text_all;
+   exit;
+}
+
+
+
+
+# Die Einzelnen Dateien werden unter folgenden Variable benutzt
+my $schuelerdatei="";
+
+# Variablen für momentanes Datum und Uhrzeit
+my $sec=0;
+my $min=0;
+my $hours=0;
+my $tag=0;
+my $monat=0;
+my $jahr=0;
+my $heute="";
+
+# in Unix-Zeit
+my $epoche_jetzt=0;
+
+# Dulden und Deaktivieren
+my $epoche_duldung_bis_schueler=0;
+my $epoche_duldung_bis_lehrer=0;
+
+my $epoche_deaktivierung_bis_schueler=0;
+my $epoche_deaktivierung_bis_lehrer=0;
+
+my $epoche_deaktivierung_ab=0;
+my $epoche_loeschen_ab=0;
+
+
+# Erlaubte Werte für das Geburtsdatum in folgenden Variablen ablegen
+my %tage_erlaubt=();
+my %monate_erlaubt=();
+my %geburts_jahreszahl_erlaubt=();
+my $geburts_jahreszahl_stop=0; 
+# Laufvariable für Geburtsjahreszahl
+my $geburts_jahreszahl_lauf=0;
+
+
+
+# Erste Analyse auf Vornamentausch
+# Die eingelesenen Felder
+my $feld1="";
+my $feld2="";
+my $feld3="";
+my $feld4="";
+my $feld5="";
+
+my $okfeld1="";
+my $okfeld2="";
+my $okfeld3="";
+my $okfeld4="";
+#my $feld6="";
+# Hash mit oft vorkommenden Vornamen
+my %vornamen_hash = qw(
+     Peter ok
+     Michael ok
+     Sascha ok
+     Sven ok
+     Manfred ok
+     Andreas ok
+     Julia ok
+     Sabine ok
+     Anja ok
+     Marion ok
+     Tanja ok
+     Sonja ok
+);
+# wie oft kommen bekannte Vornamen in Feld 2, Feld 3 vor
+my $feld2_ist_vorname=0;
+my $feld3_ist_vorname=0;
+my $datensatz_getauscht="";
+
+# Informationen aus sperrklassen.txt in eine Hash-Tabelle ablegen
+my %sperrklassen=();
+
+# Informationen aus entfernen.txt in eine Hash-Tabelle ablegen
+my %entfern_klassen=();
+
+my %sophomorix_status=();
+my %user_duldungsbeginn=();
+my %user_deaktivierungsbeginn=();
+
+# Daten aus user.reaktiviert einlesen in eine Hash-Tabelle
+my %user_reaktiviert=();
+
+# ??? wird direkt aus ldap ermittelt
+# Hash mit key=identifier value=login vorhandener User anlegen
+# das ist doch doppelt
+#my %ident_login=();
+
+# Fehlersuche 
+my $k="";
+my $v="";
+my @liste=();
+# Zeile zerlegen
+# Ganze Zeile
+my $zeile_orig="";
+# Die 4 Felder (+ 2 Extrafelder)
+my $klasse="";
+my $nachname="";
+my $vorname="";
+my $geburt="";
+my $unid="";
+my $field_five="";
+my $wunsch_login="wunschlogin";
+my $wunsch_passwort="erstpw";
+# Die 3 Unterfelder des Datums
+my $geburts_tag="";
+my $geburts_monat="";
+my $geburts_jahr="";
+
+# Zähler
+my $zeilen_anzahl=0;
+my $zeilen_anzahl_datei=0;
+my $leere_zeilen_anzahl=0;
+my $schueler_ok_anzahl=0;
+
+# Schalter für fehlerhafte Daten
+# Korrupter Datensatz
+my $datensatz_korrupt=0;
+my $datum_korrupt=0;
+# Leere Felder
+my $feld_klasse_leer=0;
+my $feld_nachname_leer=0;
+my $feld_vorname_leer=0;
+my $feld_geburt_leer=0;
+# Unerlaubte Zeichen
+my $klasse_unerlaubtes_zeichen=0;
+my $nachname_unerlaubtes_zeichen=0;
+my $vorname_unerlaubtes_zeichen=0;
+my $datum_unrealistisch=0;
+my $schueler_sternchenklasse=0;
+
+# Zähler für fehlerhafte Daten
+my $strichpunkt_anzahl=0;
+# my $punkte_anzahl=0;
+my $datensatz_korrupt_anzahl=0;
+my $datum_korrupt_anzahl=0;
+my $feld_klasse_leer_anzahl=0;
+my $feld_nachname_leer_anzahl=0;
+my $feld_vorname_leer_anzahl=0;
+my $feld_geburt_leer_anzahl=0;
+my $klasse_unerlaubtes_zeichen_anzahl=0;
+my $nachname_unerlaubtes_zeichen_anzahl=0;
+my $vorname_unerlaubtes_zeichen_anzahl=0;
+my $datum_unrealistisch_anzahl=0;
+my $schueler_gesperrt_anzahl=0;
+my $schueler_entfernt_anzahl=0;
+# 0 unbedingt lassen bei Sternchenklassen (SPLAN):
+my $schueler_sternchenklasse_anzahl=0;
+
+# Alles OK
+#my $identifier_to_check="";
+my $datensatz_ok=0;
+my $datum_ok="";
+
+# Zähler für korrekte Daten
+my $weiterverarbeitet_anzahl=0;
+my $ungesperrt_anzahl=0;
+
+# Hash-Tabelle für Klasse-Schüleranzahl
+my %klasse_schueleranzahl=();
+my $klass="";
+my $sch_zahl="";
+
+my $name="";
+my $passwort="";
+my $loginname_passwd="";
+my $passwort_passwd="";
+my $uid_passwd="";
+my $gid_passwd="";
+my $quota_passwd="";
+my $name_passwd="";
+my $gcos_passwd="";
+my $vorname_passwd="";
+my $nachname_passwd="";
+my $home_passwd="";
+my $shell_passwd="";
+
+#my $identifier_protokoll="";
+#my $identifier_passwd="";
+my $identifier_ok="";
+my $identifier_schueler_ok="";
+
+my %lehrer_im_system_loginname;
+
+my %schueler_im_system_hash=();
+my %schueler_im_system_loginname=();
+my %schueler_im_system_protokoll_linie=();
+my %schueler_ok_hash=();
+my %unid_ok_file=();
+my %unid_ok_system=();
+my %schueler_ok_wunsch_login_hash=();
+my %schueler_ok_wunsch_passwort_hash=();
+my $schueler_weg_anzahl=0;
+my $schueler_hinzu_anzahl=0;
+my $schueler_zuversetzen_anzahl=0;
+my $schueler_duldungs_beginn_anzahl=0;
+
+# Subklassen
+my %schueler_subklassen=();
+
+# Listen fuer report.admin
+my @admin_list_toleration;
+#   push @admin_list_toleration, "User, die nur noch geduldet werden:\n";
+
+my @admin_list_corrupt;
+my @admin_list_deactivation;
+my @admin_list_kill;
+my @admin_list_attic;
+my @admin_list_add;
+my @admin_list_move;
+
+
+
+# Allgemein
+my $key="";
+my $value="";
+
+# ===========================================================================
+# Ende der Variablendeklaration
+# ===========================================================================
+
+
+# ===========================================================================
+# Programmbeginn
+# ===========================================================================
+
+# ===========================================================================
+# Existenz wichtiger Dateien prüfen
+# ===========================================================================
+&check_datei_exit("${DevelConf::users_pfad}/schueler.txt");
+&check_datei_exit("${DevelConf::users_pfad}/lehrer.txt");
+&check_datei_exit("${DevelConf::config_pfad}/entfernen.txt");
+&check_datei_exit("${DevelConf::config_pfad}/sperrklassen.txt");
+
+# ===========================================================================
+# Verzeichnisse und Dateien anlegen
+# Alle vorher erzeugten Ergebnis-dateien löschen
+# ===========================================================================
+
+&check_verzeichnis_mkdir("${DevelConf::ergebnis_pfad}");
+
+system("rm -r ${DevelConf::ergebnis_pfad}");
+       #|| die "Kann Verzeichnis ergebnis nicht löschen: $!";
+mkdir("${DevelConf::ergebnis_pfad}",0700) 
+       || die "Kann Verzeichnis nicht anlegen: $!"; 
+
+&check_verzeichnis_mkdir("${DevelConf::var_lib_pfad}");
+&check_verzeichnis_mkdir("${DevelConf::pruef_pfad}");
+&check_verzeichnis_mkdir("${DevelConf::ergebnis_pfad}");
+&check_verzeichnis_mkdir("${DevelConf::dyn_config_pfad}");
+&check_verzeichnis_mkdir("${DevelConf::druck_pfad}");
+
+#&check_verzeichnis_mkdir("${DevelConf::apache_root}/userdata");
+
+
+&check_datei_touch("${DevelConf::pruef_pfad}/user.reaktiviert");
+&check_datei_touch("${DevelConf::config_pfad}/teach-in.txt");
+&check_datei_touch("${DevelConf::dyn_config_pfad}/user-duldungsbeginn");
+&check_datei_touch("${DevelConf::dyn_config_pfad}/user-deaktivierungsbeginn");
+
+# ===========================================================================
+# Start-Logo ausgeben
+# ===========================================================================
+print "\n";
+
+&titel("sophomorix-check startet ...");
+print "Debian: $DevelConf::debian\n";
+print "openldap: $DevelConf::ldap\n";
+
+# ===========================================================================
+# Heutiges Datum ermitteln
+# ===========================================================================
+
+## Epochenzeit in Sekunden seit 1.1.1970. 
+$epoche_jetzt=time;
+$heute=&zeit($epoche_jetzt);
+
+my $jetzt=localtime($epoche_jetzt);
+$sec=$jetzt->sec;
+$min=$jetzt->min;
+$hours=$jetzt->hour;
+$tag=$jetzt->mday;
+$monat=$jetzt->mon+1;
+$jahr=$jetzt->year+1900;
+
+$heute="$tag.$monat.$jahr";
+
+print "Heute: $heute \n";
+print "Zeit:  $hours Uhr $min Minuten $sec Sekunden\n\n";
+
+# ===========================================================================
+# Duldungsdatum und Deaktivierungsdatum ermitteln
+# ===========================================================================
+
+# Duldung bis zu welcher Epochenzeit
+$epoche_duldung_bis_schueler=$epoche_jetzt+86400*$Conf::schueler_duldung_tage;
+
+$epoche_duldung_bis_lehrer=$epoche_jetzt+86400*$Conf::lehrer_duldung_tage;
+
+# Deaktivierung bis zu welcher Epochenzeit
+$epoche_deaktivierung_bis_schueler=$epoche_jetzt+86400*$Conf::schueler_deaktivierung_tage;
+
+$epoche_deaktivierung_bis_lehrer=$epoche_jetzt+86400*$Conf::lehrer_deaktivierung_tage;
+
+
+if($Conf::log_level>=3){
+   print "Epochenzeit:                                  $epoche_jetzt (jetzt)\n";
+
+   print "Geduldete Schüler bleiben geduldet bis:       $epoche_duldung_bis_schueler ",
+      &zeit($epoche_duldung_bis_schueler) ," ($Conf::schueler_duldung_tage Tage)\n";
+
+   print "Geduldete Lehrer bleiben geduldet bis:        $epoche_duldung_bis_lehrer ",
+      &zeit($epoche_duldung_bis_lehrer)," ($Conf::lehrer_duldung_tage Tage)\n";
+
+   print "Deaktivierte Schüler bleiben deaktiviert bis: $epoche_deaktivierung_bis_schueler ",
+      &zeit($epoche_deaktivierung_bis_schueler)," ($Conf::schueler_deaktivierung_tage Tage)\n";
+
+   print "Deaktivierte Lehrer bleiben deaktiviert bis:  $epoche_deaktivierung_bis_lehrer ",
+      &zeit($epoche_deaktivierung_bis_lehrer)," ($Conf::lehrer_deaktivierung_tage Tage)\n";
+
+   print "\n";
+}
+
+
+# ===========================================================================
+# erlaubte Zeichen für Datum erzeugen
+# ===========================================================================
+&datum_erlaubt();
+
+# Datums Hash ausgeben, zum debuggen
+#print "\n\nDas ist der Jahreszahlenhash\n";
+#while (($k,$v) = each %geburts_jahreszahl_erlaubt){
+#    print $k , " ", $v, "\n";
+#}
+
+# ===========================================================================
+
+
+
+
+# ===========================================================================
+# Vorcheck: Erkennen, welches Feld der Vorname ist
+# Vorcheck wird nur mit der Datei des Schulverwaltungsprogrammes durchgeführt
+# ===========================================================================
+if ($file_to_check ne "") {
+   open(SCHUELERNEUANZULEGENVOR,
+        "$file_to_check") || die "Fehler: $! nicht gefunden.";
+} else {
+   open(SCHUELERNEUANZULEGENVOR,
+        "${DevelConf::users_pfad}/schueler.txt") || die "Fehler: $! nicht gefunden.";
+}
+
+while(<SCHUELERNEUANZULEGENVOR>){
+   chomp();
+   s/\s//g;
+   if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+   # Zerteilen der Zeile in vier Elemente, diese in Variablen abspeichern
+   ($feld1,$feld2,$feld3,$feld4)=split(/;/);
+       # Vorname-Nachname vertauscht prüfen
+   if (exists($vornamen_hash{$feld2})){
+      # Wenn feld 2 Vorname ist, dann Zähler hochsetzen
+      $feld2_ist_vorname++;
+   }
+   if (exists($vornamen_hash{$feld3})){
+      # Wenn feld 3 Vorname ist, dann Zähler hochsetzen
+      $feld3_ist_vorname++;
+   }
+}
+close(SCHUELERNEUANZULEGENVOR);
+# ===========================================================================
+# Ende Vorcheck
+# ===========================================================================
+
+# swap the order of the entries in schueler.txt
+# ??? todo  ask if you want to check swapping  (Performance)
+&swap_pupils_order();
+
+# ===========================================================================
+# user.reaktiviert einlesen in Hash
+# ===========================================================================
+# ??? ldap ????
+%user_reaktiviert=&get_user_reaktiviert;
+
+
+# ===========================================================================
+# Datei extrakurse.schueler erzeugen aus extrakurse.txt 
+# ===========================================================================
+&extra_kurs_schueler($tag, $monat, $jahr);
+
+# ===========================================================================
+# Open the output-files
+# ===========================================================================
+&open_report_files();
+
+# ===========================================================================
+# Get information of all ldap-users on the ldap-server
+# ===========================================================================
+&titel("Asking the system for users ...");
+print "This can take a minute ...\n";
+
+my ($ref_login, 
+    $ref_adminclass,
+    $ref_status,
+    $ref_subclass,
+    $ref_toleration_date,
+    $ref_deactivation_date,
+    $ref_unid_identifier
+   ) = &get_sys_users();
+
+# identifier - klasse (ohne k = sophomorixAdminClass)
+%schueler_im_system_hash = %$ref_adminclass;
+
+# identifier - uid  (uid ist loginname in ldap)
+%schueler_im_system_loginname = %$ref_login;
+
+# identifier - sophomorixStatus
+%sophomorix_status = %$ref_status;
+
+# identifier - sophomorixSubClass
+%schueler_subklassen = %$ref_subclass;
+
+# identifier - sophomorixTolerationDate
+%user_duldungsbeginn = %$ref_toleration_date;
+
+# identifier - sophomorixDeactivationDate
+%user_deaktivierungsbeginn = %$ref_deactivation_date;
+
+# unid - sophomorixIdentifier
+%unid_ok_system = %$ref_unid_identifier;
+
+
+
+#my $neu = $ref_unid_identifier->{"werner;ruediger;17.11.1986"};
+#my $neu = $ref_unid_identifier->{"torvalds;linus;01.02.1983"};
+#my $neu = $unid_ok_system{"gfgtrr"};
+
+#print $neu,"\n";
+
+
+# Print all users
+if($Conf::log_level>=3){
+   print("Schüler im System:                                           AdminClass:\n");
+   print("===========================================================================\n");
+   while (($k,$v) = each %schueler_im_system_hash){
+     printf "%-60s %3s\n","$k","$v";
+   }
+}
+
+
+# ldap: OK
+# ???????????????????? oder besser status-Feld in group-object?
+
+# ===========================================================================
+# Einlesen der Entfern-Klassen in eine Hash-Tabelle
+# ===========================================================================
+%entfern_klassen = &get_entfern_klassen();
+
+#ldap: OK
+# ===========================================================================
+# Einlesen der Sperr-Klassen in eine Hash-Tabelle
+# ===========================================================================
+%sperrklassen = &get_sperrklassen(); 
+
+
+
+# ===========================================================================
+# Einlesen der Schülerdateien
+# ===========================================================================
+$zeilen_anzahl=0; # Zähler erstreckt sich über alle Dateien
+foreach $schuelerdatei (@schueler_to_check_dateien){
+   # Abbruch, wenn Dateiname leer (option --file)
+   if ($schuelerdatei eq "") {
+      next;
+   }
+   $zeilen_anzahl_datei=0; # Zähler innerhalb der Dateien
+   # wunsch-login leeren, da er nicht von jedem Datensatz überschrieben wird
+   $wunsch_login="wunschlogin";
+   $wunsch_passwort="erstpw";
+   print "\n\n";
+   &titel("Bearbeite ${schuelerdatei} ...");
+
+
+   print REPORTSEKRETARIAT  "\n\n########################################", 
+                            "########################################\n";
+   printf REPORTSEKRETARIAT "%-10s %-60s %-10s\n",
+                            "########",
+                            "Bearbeite ${schuelerdatei} ...",
+                            "########";
+   print REPORTSEKRETARIAT  "########################################",
+                            "########################################\n\n";
+
+   open(USERDATEI, "${schuelerdatei}") || die "Fehler: $! ${schuelerdatei} nicht gefunden!"; 
+
+
+print("\n");
+    while(<USERDATEI>){
+       $wunsch_login="";
+       $unid="";
+       # Zeile abspeichern in $zeile_orig (für Fehlerreport)
+       chomp($_); # Returnzeichen abschneiden
+       $zeile_orig=$_;
+       $zeilen_anzahl++;
+       $zeilen_anzahl_datei++;
+
+       # wenn keine Kommentarzeile
+       if($Conf::log_level>=3){
+          print("\n","##### Lese neuen Datensatz:","  $zeile_orig","\n");
+       }
+
+       # ====================================================================
+       # Alle Fehlervariablen auf null stellen (0=kein Fehler, 1=Fehler)
+       $datensatz_korrupt=0;
+       $datum_korrupt=0;
+
+       $feld_klasse_leer=0;
+       $feld_nachname_leer=0;
+       $feld_vorname_leer=0;
+       $feld_geburt_leer=0;
+
+       $klasse_unerlaubtes_zeichen=0;
+       $nachname_unerlaubtes_zeichen=0;
+       $vorname_unerlaubtes_zeichen=0;
+       $datum_unrealistisch=0;
+
+       $schueler_sternchenklasse=0;
+
+       # =====================================================================
+       # Gesamze Zeile modifizieren:
+       # =====================================================================
+       # whitespace entfernen (mit nichts ersetzen) \s wäre [\r\t\n\f], 
+       # Hier: ohne Return zu entfernen
+       s/[\r\t\f]//g;
+       # Leerzeichen ersetzen
+       s/ //g;
+
+       # Sonderzeichen umwandeln
+       $_ = &filter_school_admin_software($_);
+
+       # ????? custom-filter aus Datei, in der netzadmin was eintraegt
+
+       # =====================================================================
+       # SYNTAX-PRÜFUNGEN, Teil 1
+       # =====================================================================
+       # Ist Datensatz überhaupt aufspaltbar/brauchbar?)
+
+       # Bei Kommentarzeilen abbrechen
+       if ( (/^\#/) && ($schuelerdatei ne $schueler_to_check_dateien[0]) ) {
+            # Kommentare zulassen, außer in der ersten Datei 
+            # (= Datei des Schulverwaltungsprogramms)
+            if($Conf::log_level>=3){
+               print "Kommentarzeile in $schuelerdatei\n";
+	    }
+            # Kommentarzeilen WERDEN NICHT mitgezählt ($zeilen_anzahl)-> abziehen
+            # Kommentarzeilen WERDEN mitgezählt ($zeilen_anzahl_datei)-> nix tun
+            # Gesamt-Zeilenzähler wurde schon erhöht, nun zurücksetzen 
+            $zeilen_anzahl--;
+            next; # Abbruch
+       }
+
+       # Strichpunktanzahl checken
+       $strichpunkt_anzahl=tr/;//;
+       if ( &semicolon_number_ok($strichpunkt_anzahl, $schuelerdatei) == 0 ) {
+	   next;
+       }
+
+       # Zerteilen der Zeile in 4 bis 6 Elemente, diese in Variablen abspeichern
+       ($klasse,$nachname,$vorname,$geburt,$field_five,$wunsch_passwort)=split(/;/);
+
+
+       # A-Z in Kleinbuchstaben umwandeln
+       $klasse=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
+       $nachname=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
+       $vorname=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
+ 
+       # Decide, what to do with field_five
+       if($field_five eq ""){
+	   $wunsch_login= "wunschlogin";
+           $unid = "";
+       } elsif ($field_five ne "" && $schuelerdatei eq $schueler_to_check_dateien[0] ){
+           $unid = $field_five;
+	   $wunsch_login = "wunschlogin";
+       } else {
+           $unid = "";
+           $field_five=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
+           $wunsch_login = $field_five;
+       }
+
+       if (not defined $wunsch_passwort){
+          # $wunsch_passwort Kann evtl nicht mehr definiert sein
+          $wunsch_passwort="erstpw"
+        } elsif($wunsch_passwort eq ""){
+          # oder leer
+          $wunsch_passwort="erstpw"
+        };
+
+       # Datum pruefen
+       ($geburts_tag, $geburts_monat, $geburts_jahr) = &birthdate_usable($geburt);
+       if ($geburts_tag eq "0" ) {
+          # return = 0 -> Fehler
+	  next;
+       } 
+
+
+       if($Conf::log_level>=3){	
+          print "Extrahierte Daten: ", $klasse," ", 
+                                       $nachname," ", 
+                                       $vorname," ",
+                                       $geburts_tag," ", 
+                                       $geburts_monat," ", 
+                                       $geburts_jahr," ",
+                                       $unid, 
+                                       "\n";
+       }
+
+       # Klassenbezeichnung in Kleinbuchstaben umwandeln
+       $klasse=~tr/A-Z/a-z/; 
+
+       # Falls Sternchenklassen ausgefiltert werden sollen:
+       if ($Conf::splan_sternchenlkassen_filtern eq "ja") {
+         if($klasse=~/^\*/){ # Bei * am Beginn des Klassennamens aussteigen
+                 # Splan-Sternchenklassen ausfiltern
+                 if($Conf::log_level>=2){	
+  	            print "##### $vorname"." "."$nachname", 
+                          " wird NICHT überprüft (Splan-Sternchenklasse)\n\n";
+	         }
+                 # Datensatz in report.splan schreiben
+	         print REPORTSPLAN "$_\n";
+                 $schueler_sternchenklasse=1;
+                 $schueler_sternchenklasse_anzahl++;
+	         next;
+	 }
+       }
+    
+       # =====================================================================
+       # SYNTAX-PRÜFUNGEN, Teil 2 (Haben sich kleinere Fehler eingeschlichen)
+       # Wenn ein Fehler vorkommt, dann die entsprechende Variable auf 1 setzen
+       # =====================================================================
+
+
+       # / durch das ersetzen was in der Variable 
+       # $DevelConf::ersetze_slash_mit steht (editieren in sophomorix.conf)
+       $klasse=~s/\//$DevelConf::ersetze_slash_mit/g;
+
+       # The unid is NOT syntax-checked
+       ($klasse,
+        $nachname, 
+        $vorname,
+        $geburts_tag, 
+        $geburts_monat, 
+        $geburts_jahr,
+        $geburt,
+        $wunsch_login,
+       ) = &syntax_check_entry($klasse,
+                               $nachname, 
+                               $vorname,
+                               $geburts_tag, 
+                               $geburts_monat, 
+                               $geburts_jahr,
+                               $geburt,
+                               $wunsch_login,
+                               $schuelerdatei
+                              );
+
+       # =====================================================================
+       # Einsortieren des Datensatzes --- NUR 1X EINSORTIEREN
+       # =====================================================================
+       # Alles OK(Fehlervariablen alle 0)     
+       #                  --> sophomorix.ok
+       #                      variable $schueler_ok_anzahl um eins erhöhen
+       # Syntaxfehler     
+       #                  --> report.sekretariat
+       #                      Fehlerangabe
+       # Prüfen, ob ein Sekretariats-Fehler aufgetreten ist
+       if($feld_klasse_leer
+         +$feld_nachname_leer
+         +$feld_vorname_leer
+         +$feld_geburt_leer
+         +$klasse_unerlaubtes_zeichen
+         +$nachname_unerlaubtes_zeichen
+         +$vorname_unerlaubtes_zeichen
+         +$datum_unrealistisch
+         +$vorname_unerlaubtes_zeichen
+         +$datensatz_korrupt
+         +$datum_korrupt
+         ==0){
+            # ============================================================
+            # Korrekter Datensatz
+            # ============================================================
+            if($Conf::log_level>=3){ 
+               print "Datensatz     OK\n";
+            }
+            # Datensatz zusammensetzen
+            $datum_ok = join(".",($geburts_tag,$geburts_monat,$geburts_jahr));
+            $datensatz_ok = join(";",($klasse,$nachname,$vorname,$datum_ok));
+            $datensatz_ok = $datensatz_ok.";";
+            if ($unid ne "" and (defined $unid) ) {
+               $datensatz_ok = $datensatz_ok.$unid.";";
+	    }
+            # identifier zusammensetzen
+            # identifier_ok 0 aus korrigierte schueler.txt
+            $identifier_ok = join(";", ($nachname,$vorname,$datum_ok));
+            if($Conf::log_level>=3){
+               print "Identifier ist:  ", "$identifier_ok", "\n";
+            }
+            if($Conf::log_level>=3){
+               print "Benutze UNID  :  $unid", "\n";
+            }
+
+            $klasse=~tr/A-Z/a-z/; # Klassenbezeichnung in Kleinbuchstaben umwandeln
+
+            # =====================================================================
+            # Schueler in Sperrklassen ausfiltern
+            if ( &is_in_inhibit_class($klasse)==1) {
+                next;
+            }
+
+            # =====================================================================
+            # Schueler in Entfernen-Klasse  ausfiltern
+            if ( &is_in_remove_class($klasse)==1) {
+	        next;
+            }
+
+            # Datensatz aus user.reaktiviert herausnehmen, falls dort vorhanden außer 
+            # falls user.reaktiviert gerade bearbeitet wird
+            if(exists $user_reaktiviert{$identifier_ok} 
+               and $schuelerdatei ne $schueler_to_check_dateien[4]) {
+               # Entfernen
+               print "$identifier_ok aus user.reaktiviert entfernen\n";
+               delete($user_reaktiviert{$identifier_ok});
+            }
+
+            # Subklassen bilden
+            if (exists $schueler_subklassen{$identifier_ok}) {
+              # Subklasse anhängen
+            }
+
+            # Ausgabe des Ergebnisses
+            if($Conf::log_level>=3){
+                print "### Ergebnis:\n";
+            }
+            if($Conf::log_level>=2){
+                #printf  "%-10s %-60s","Eingelesener Datensatz:","$zeile_orig\n";
+	        if ($schuelerdatei eq $schueler_to_check_dateien[3]) {
+                   # Lehrerdatei
+                   # Leerzeichen entfernen
+                   $zeile_orig=~s/ //g;
+                }
+                print "Eingelesener Datensatz:","  $zeile_orig","\n";
+                print "Korrigierter Datensatz:  $datensatz_ok","\n\n";
+            }
+
+            # ============================================================
+            # Kein Fehler aufgetreten, also in sophomorix.ok schreiben:
+            # ============================================================
+            $schueler_ok_anzahl++;
+            print SOPHOMORIXOK "$datensatz_ok\n"; # neu zusammengesetzt
+            # In sophomorix.ok sind nun die korrigierten Datensätze 
+            # aus schueler.txt, ....   
+            # Korrekter Datensatz in Hashtabelle %schueler_ok_hash speichern
+            if ( &add_user_to_queue($datensatz_ok,$wunsch_login,$wunsch_passwort) ==0 ){
+                next;
+            }
+
+       } else {
+            # ============================================================
+            # Fehler aufgetreten, also in report.sekretariat schreiben:
+            # ============================================================
+	    &report_error();
+       }
+   } # Nächste Zeile bearbeiten
+   close(USERDATEI);
+} # Ende foreach, Naechste Schuelerdatei bearbeiten
+
+
+# ===========================================================================
+# Closing some files
+# ===========================================================================
+close(SOPHOMORIXOK);
+
+
+
+
+
+
+&generate_class_user_count_file();
+
+##close(SOPHOMORIXADD);
+close(SOPHOMORIXMOVE);
+
+close(REPORTSEKRETARIAT);
+close(REPORTGESPERRT);
+
+# Falls Sternchenklassen ausgefiltert werden sollen, Datei schließen
+if ($Conf::splan_sternchenlkassen_filtern eq "ja") {
+   close(REPORTSPLAN);
+}
+
+
+&ausgabe(3, "titel", "Die Datei sophomorix.ok liegt nun vor");
+
+
+
+
+
+#my $date= &get_action_date("beck;ruediger;04.09.1972","kill");
+
+
+#exit;
+
+
+
+# ===========================================================================
+# Ausgabe von Hashes
+# ===========================================================================
+
+# Ausgabe aller User, die zukünftig im System sein werden (sophomorix.ok)
+# mit ihrer Klasse
+if($Conf::log_level>=3){
+   &titel("Gebe den Inhalt von sophomorix.ok aus ... und die Klassen");
+   print("User in sophomorix.ok:",
+         "                                       Linux-Gruppe:\n");
+   print("===============================================================================\n");
+   while (($k,$v) = each %schueler_ok_hash){
+
+     printf "%-60s %3s\n","$k","$v";
+   }
+ }
+
+# Ausgabe aller User, die in Zukunft im System sein werden sophomorix.ok, 
+# mit Wunsch-Login
+if($Conf::log_level>=3){
+   &titel("Gebe den Inhalt von sophomorix.ok aus ... und die Wunsch-Logins");
+   print("User in sophomorix.ok:",
+         "                                       Wunsch-Logins:\n");
+   print("===============================================================================\n");
+   while (($k,$v) = each %schueler_ok_wunsch_login_hash){
+     printf "%-60s %3s\n","$k","$v";
+   }
+ }
+
+
+# Ausgabe aller User, die in Zukunft im System sein werden sophomorix.ok
+# mit Wunsch-Passwort
+if($Conf::log_level>=3){
+   &titel("Gebe den Inhalt von sophomorix.ok aus ... und die Wunsch-Passwörter");
+   print("User in sophomorix.ok:",
+         "                                       Wunsch-Passwörter:\n");
+   print("===============================================================================\n");
+   while (($k,$v) = each %schueler_ok_wunsch_passwort_hash){
+     printf "%-60s %3s\n","$k","$v";
+   }
+ }
+
+
+# Ausgabe aller UNID, die schon im System sind
+# mit identifier
+if($Conf::log_level>=3){
+   &titel("UNIDs im System");
+   print("UNID:",
+         "                          Identifier:\n");
+   print("===============================================================================\n");
+   while (($k,$v) = each %unid_ok_system){
+     printf "%-30s %3s\n","$k","$v";
+   }
+ }
+
+
+# Ausgabe aller UNID, in den files
+# mit identifier
+if($Conf::log_level>=3){
+   &titel("UNIDs in Files");
+   print("UNID:",
+         "                          Identifier:\n");
+   print("===============================================================================\n");
+   while (($k,$v) = each %unid_ok_file){
+     printf "%-30s %3s\n","$k","$v";
+   }
+}
+
+
+
+
+# ===========================================================================
+# Load UNIDS into the SYSTEM
+# ===========================================================================
+&update_ids();
+
+
+# ===========================================================================
+# Was waere wenn ...
+# ===========================================================================
+
+# ===========================================================================
+# Datei öffnen, in die die zu löschenden Schüler geschrieben werden
+# ===========================================================================
+&generate_kill_file();
+
+# ===========================================================================
+# Tolerierte User ermitteln und Versetzen nach Dachboden/Speicher schreiben
+# ===========================================================================
+# ??? kombinieren mit generate_move_file ???
+&generate_toleration_move_file();
+# ??? check, if this works
+&generate_move_file();
+
+
+# ===========================================================================
+# Datei öffnen, in die zu deaktivierende Schüler geschrieben werden
+# ===========================================================================
+#&update_deactivation_data();
+
+# ===========================================================================
+# Datei rezeugen, in die die neuen User geschrieben werden
+# ===========================================================================
+&generate_add_file();
+
+# ===========================================================================
+# Append users to be moved to sophomorix.move
+# ===========================================================================
+#&generate_move_file();
+
+
+# ===========================================================================
+# Empfehlung in Admin-Report und Konsole zum Teach-in
+# ===========================================================================
+if($schueler_hinzu_anzahl!=0 && ($schueler_duldungs_beginn_anzahl!=0 or $schueler_weg_anzahl!=0)){
+
+print RED "\nSie sollten sophomorix-teach-in aufrufen!";
+
+}
+
+# ===========================================================================
+# user.reaktiviert neu schreiben
+# ===========================================================================
+  open(NEWREAKTIV, 
+       ">${DevelConf::pruef_pfad}/user.reaktiviert.new") 
+       || die "Kann ${DevelConf::pruef_pfad}/user.reaktiviert.new nicht öffnen";
+     # hash alphabetisch geordnet reinschreiben
+     @liste=();
+     while(($k,$v) = each %user_reaktiviert){
+        my $string = "$v".";"."$k;\n";
+        push (@liste, $string);
+      }
+     @liste = sort @liste;
+     foreach my $wert (@liste) {
+        print NEWREAKTIV $wert;
+     }
+     close(NEWREAKTIV);
+     # Ersetzen
+     rename("${DevelConf::pruef_pfad}/user.reaktiviert",
+            "${DevelConf::pruef_pfad}/user.reaktiviert.old" );
+     rename("${DevelConf::pruef_pfad}/user.reaktiviert.new",
+            "${DevelConf::pruef_pfad}/user.reaktiviert" );
+
+
+
+
+# ===========================================================================
+# Alle daten in report.admin ausgeben
+# ===========================================================================
+&generate_admin_report();
+
+
+# ===========================================================================
+# Alle Dateien admin zugänglich machen
+# ===========================================================================
+
+# Nur zum ausgeben  
+#while (($key,$value) = each %geburts_jahreszahl_erlaubt){
+#   printf "%-40s %3s\n","$key","-$value-";
+#}
+
+
+
+ if($Conf::log_level>=3){
+      print "Inhalt von user.reaktiviert am Programmende:\n";     
+      print "Identifier                          Klasse\n";
+      &linie;
+      while (($k,$v) = each %user_reaktiviert) {
+         printf "%-35s %3s\n","$k","$v";
+      }
+    }
+
+
+# ===========================================================================
+# Geduldete User in den dachboden/speicher versetzten
+# ===========================================================================
+# Folgender Schritt würde lange dauern ...
+#&titel("Versetze geduldete Schüler in die Klasse dachboden");
+#&titel("Versetze geduldete Lehrer in die Klasse speicher");
+
+#system("sophomorix-move --neugruppe dachboden > /dev/null");
+#system("sophomorix-move --neugruppe speicher > /dev/null");
+
+
+# ===========================================================================
+# Ende des Scripts
+# ===========================================================================
+print "\n\n";
+&titel("... sophomorix-check beendet sich jetzt.");
+
+
+
+
+
+
+
+
+
+
+
+# ===========================================================================
+# Subroutinen
+# ===========================================================================
+
+# ===========================================================================
+# Neue Datei schueler.txt.tausch erzeugen (evtl. Namen tauschen)
+# ===========================================================================
+sub swap_pupils_order {
+# Dateihandle öffnen zum schreiben
+open(SCHUELERNEUANZULEGENTAUSCH, 
+    ">${DevelConf::schueler_datei}") 
+    || die "Fehler: $!";
+
+# Dateihandle öffnen zum lesen
+open(SCHUELERNEUANZULEGENVOR,
+    "${DevelConf::users_pfad}/schueler.txt")
+    || die "Fehler: $! nicht gefunden.";
+
+# ===========================================================================
+# Tauschen oder nicht
+if($Conf::log_level>=1){
+   &titel("Tauschen von FELDERN");
+}
+if($Conf::log_level>=2){
+   print "Eingestellt in sophomorix.conf ist:\n";
+}
+# Ermitteln der Variablen
+if ($Conf::vorname_nachname_tausch==0){
+    # Manuelle Einstellung liegt vor
+    if($Conf::log_level>=2){
+       print "Feld 2 und Feld 3 werden nicht getauscht. ", 
+             "(Manuelle Einstellung)\n";
+     }
+} elsif ($Conf::vorname_nachname_tausch==1) {
+    if($Conf::log_level>=2){
+       print "Feld 2 und Feld 3 werden getauscht. ",
+             "(Manuelle Einstellung)\n";
+     }
+} elsif ($Conf::vorname_nachname_tausch==2) {
+    # Automatik
+    if($Conf::log_level>=2){
+       print "Feld 2 und Feld 3 werden evtl. getauscht. ",
+             "(Automatische Einstellung)\n";
+     }
+    if ($feld2_ist_vorname>$feld3_ist_vorname) {
+       # tauschen
+       if($Conf::log_level>=1){
+          print "\nAchtung: Feld-Reihenfolge in schueler.txt ist nicht OK!",
+	}
+       $Conf::vorname_nachname_tausch=1;
+    } else {
+       # kein Tausch durchführen
+       if($Conf::log_level>=2){
+          print "\nFeldreihenfolge in schueler.txt ist OK!\n\n";
+       }
+       $Conf::vorname_nachname_tausch=0;
+    }
+}
+
+
+if($Conf::vorname_nachname_tausch==1){
+    if($Conf::log_level>=1){
+       print "\n         Tausche Feld 2 mit Feld 3!\n";
+    }
+    if($Conf::log_level>=3){
+       print "\nErzeuge ergebnis/schueler.txt.tausch\n";
+       print "mit getauschtem Vor- und Nachnamen\n";
+     }
+    $Conf::vorname_nachname_tausch=1; # für den report merken
+    # Vor und Nachnamen tauschen:
+    # Dateihandle öffnen
+    while(<SCHUELERNEUANZULEGENVOR>){
+       chomp($_);
+       s/\s//g;
+       if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+       # Zerteilen der Zeile in vier Elemente, diese in Variablen abspeichern
+       ($feld1,$feld2,$feld3,$feld4)=split(/;/);
+       $datensatz_getauscht=join(";",($feld1,$feld3,$feld2,$feld4));
+       print SCHUELERNEUANZULEGENTAUSCH "$datensatz_getauscht;\n";
+    }
+} else {
+    # kein Tausch durchführen
+      print "\nErzeuge ergebnis/schueler.txt.tausch (Ohne Feldertausch)\n\n";
+
+    while(<SCHUELERNEUANZULEGENVOR>){
+       s/ //g;
+       chomp($_);
+       print SCHUELERNEUANZULEGENTAUSCH "$_\n";
+     }
+}
+
+close(SCHUELERNEUANZULEGENVOR);
+close(SCHUELERNEUANZULEGENTAUSCH);
+
+# ===========================================================================
+# In ergebnis/schueler.txt.tausch ist Reihenfolge nun korrekt
+# ===========================================================================
+}
+
+
+# ===========================================================================
+# Open the report-files an fill them with the current date, ...
+# ===========================================================================
+sub open_report_files {
+# sophomorix.ok      --> All syntactically, not filtered users
+open(SOPHOMORIXOK, ">${DevelConf::ergebnis_pfad}/sophomorix.ok") 
+     || die "Fehler: $!";
+
+# sophomorix.add      --> Users to be added
+#open(SOPHOMORIXADD, ">${DevelConf::ergebnis_pfad}/sophomorix.add") 
+#     || die "Fehler: $!";
+
+# sophomorix.move      --> Users where the class is to be changed
+open(SOPHOMORIXMOVE, ">${DevelConf::ergebnis_pfad}/sophomorix.move") 
+     || die "Fehler: $!";
+
+
+# report.sekretariat   --> Infos für das Sekretariat über zu korrigierende Datensätze
+open(REPORTSEKRETARIAT, ">${DevelConf::ergebnis_pfad}/report.sekretariat")
+                        || die "Fehler: $!";
+print REPORTSEKRETARIAT "Report für das Sekretariat \n";
+print REPORTSEKRETARIAT "Start-Zeitpunkt: ",
+                         $tag,".",
+                         $monat,".",
+                         $jahr,", Zeit: ",
+                         $hours,":",
+                         $min, "-",
+                         $sec;
+
+# report.gesperrt      --> Alle Schüler in Sperrklassen, die nicht angelegt werden sollen
+open(REPORTGESPERRT, ">${DevelConf::ergebnis_pfad}/report.gesperrt") 
+                     || die "Fehler: $!";
+print REPORTGESPERRT "Gesperrt-Report:\n\n";
+print REPORTGESPERRT "Schüler, die nicht angelegt werden,\n";
+print REPORTGESPERRT "weil sie in einer Sperrklasse sind, und\n";
+print REPORTGESPERRT "das Ende des Sperrdatums noch nicht erreicht ist:\n\n";
+
+
+# Falls Sternchenklassen ausgefiltert werden sollen, entsprechende Datei öffnen
+if ($Conf::splan_sternchenlkassen_filtern eq "ja") {
+  # report.splan      --> Alle Klassen, die mit * beginnen (Splan-Sternchenklassen)
+  open(REPORTSPLAN, ">${DevelConf::ergebnis_pfad}/report.splan") 
+                       || die "Fehler: $!";
+  print REPORTSPLAN "Splan-Sternchenklassen-Report:\n\n";
+  print REPORTSPLAN "Klassen, die ausgefiltert werden\n";
+  print REPORTSPLAN "weil sie mit * beginnen\n";
+  print REPORTSPLAN "(zukünftige Klassen):\n\n";
+}
+
+
+}
+
+
+
+
+sub get_entfern_klassen {
+    # ===========================================================================
+    # entfernklassen checken und in einen hash schreiben
+    # ===========================================================================
+    # Auslesen aus sperrklassen: alle Buchstaben klein machen
+    # Nur kleinbuchstaben ins Hash
+    # Vor dem Vergleich mit hash in Kleinbuchstaben umbauen
+    my $entfern_klasse="";
+    my $entfern_datum="";
+    my $entfern_tag=0;
+    my $entfern_monat=0;
+    my $entfern_jahr=0;
+    my $entfern_datum_epoche=0;
+    my %hash=();
+
+    &titel("Lese die Datei entfernen.txt ein ...");
+
+    open(DELCLASSES,"${DevelConf::config_pfad}/entfernen.txt") || die "Fehler: $!";
+    while(<DELCLASSES>){
+       chomp($_); # Returnzeichen abschneiden
+       # Wenn ein # vorkommt, Zeile nicht beachten, da Kommentarzeile
+       s/^ //g; # Leerzeichen am Zeilenangfang entfernen
+       if(/^\#/){ # # am Anfang bedeutet Kommentarzeile
+           # Inhalt der Kommentarzeile ausgeben
+           if($Conf::log_level>=3){
+              print "$_\n";
+	    }
+	   next;
+       }
+       if($_ eq ""){ # 
+           # print "Leere Zeile in sperrklassen.txt\n";
+	   next;
+       }
+       ($entfern_klasse,$entfern_datum)=split(/;/);
+       # Alle Großbuchstaben im Klassennamen in Kleinbuchstaben umwandeln
+       $entfern_klasse=~tr/A-Z/a-z/; 
+       ($entfern_tag,$entfern_monat,$entfern_jahr)=split(/\./,$entfern_datum);
+       print "$entfern_klasse wird aus dem System entfernt bis $entfern_datum";
+       ## Achtung, Januar=0
+       $entfern_monat=$entfern_monat-1;
+       $entfern_jahr=$entfern_jahr-1900;
+       # 0,0,0 = 0:00 Uhr am sperrtag
+       $entfern_datum_epoche=timelocal(0, 0, 0, $entfern_tag , $entfern_monat, $entfern_jahr);
+       if($Conf::log_level>=3){
+          print "    Epochenzeit $entfern_datum_epoche";
+        }
+       print "\n";
+       ## Werte in hash-Tabelle schreiben
+       $hash{"$entfern_klasse"}="$entfern_datum_epoche";
+   }
+    print "\n";
+   close(DELCLASSES);
+   return %hash;
+}
+
+
+
+
+
+
+sub get_sperrklassen {
+    # ===========================================================================
+    # sperrklassen checken und in einen hash schreiben
+    # ===========================================================================
+    # Auslesen aus sperrklassen: alle Buchstaben klein machen
+    # Nur kleinbuchstaben ins Hash
+    # Vor dem Vergleich mit hash in Kleinbuchstaben umbauen
+    my $sperrklasse="";
+    my $sperrdatum="";
+    my $sperr_tag=0;
+    my $sperr_monat=0;
+    my $sperr_jahr=0;
+    my $sperrdatum_epoche=0;
+    my %hash=();
+
+    &titel("Lese die Datei sperrklassen.txt ein ...");
+
+    open(SPERRKLASSEN,"${DevelConf::config_pfad}/sperrklassen.txt") || die "Fehler: $!";;
+    while(<SPERRKLASSEN>){
+       chomp($_); # Returnzeichen abschneiden
+       # Wenn ein # vorkommt, Zeile nicht beachten, da Kommentarzeile
+       s/^ //g; # Leerzeichen am Zeilenangfang entfernen
+       if(/^\#/){ # # am Anfang bedeutet Kommentarzeile
+           # Inhalt der Kommentarzeile ausgeben
+           if($Conf::log_level>=3){
+              print "$_\n";
+	   }
+	   next;
+       }
+       if($_ eq ""){ # # am Anfang bedeutet Kommentarzeile
+           # print "Leere Zeile in sperrklassen.txt\n";
+	   next;
+       }
+       ($sperrklasse,$sperrdatum)=split(/;/);
+       # Alle Großbuchstaben im Klassennamen in Kleinbuchstaben umwandeln
+       $sperrklasse=~tr/A-Z/a-z/; 
+       ($sperr_tag,$sperr_monat,$sperr_jahr)=split(/\./,$sperrdatum);
+       print "Neuzugänge in $sperrklasse werden gesperrt bis $sperrdatum";
+       ## Achtung, Januar=0
+       $sperr_monat=$sperr_monat-1;
+       $sperr_jahr=$sperr_jahr-1900;
+       # 0,0,0 = 0:00 Uhr am sperrtag
+       $sperrdatum_epoche=timelocal(0, 0, 0, $sperr_tag , $sperr_monat, $sperr_jahr);
+       if($Conf::log_level>=3){
+          print "    Epochenzeit $sperrdatum_epoche";
+       }
+       print "\n";
+       ## Werte in hash-Tabelle schreiben
+       $hash{"$sperrklasse"}="$sperrdatum_epoche";
+    }
+    ## Abfragen der Hashtabelle, Beispiel
+    print "\n";
+    close(SPERRKLASSEN);
+    return %hash;
+}
+
+
+
+
+sub semicolon_number_ok {
+   my ($number, $filename) = @_;
+   if ($number==4){
+        # 4 Strichpunkte: In Ordnung -> weiter
+        if($Conf::log_level>=3){
+           print " ... $number Strichpunkte gefunden ...... OK\n";
+        }
+        return 1;
+   } elsif ($number==5 && $filename eq $schueler_to_check_dateien[0] ){
+        if($Conf::log_level>=3){
+	    print " ... $number Strichpunkte gefunden (UNID) ... OK in $filename\n";
+        }
+        return 1;
+   } elsif ($strichpunkt_anzahl==5 && $schuelerdatei eq $schueler_to_check_dateien[1] ){
+            # 5 Strichpunkte erlaubt in extraschueler.txt
+            if($Conf::log_level>=3){
+               print " ... $number Strichpunkte gefunden in $filename ... OK\n";
+	     }
+	return 1;
+   } elsif ($_ eq "") {
+        # Leere Zeile -> abbrechen
+        if($Conf::log_level>=2){
+           print "Leere Zeile in  $filename\n";
+        }
+        $leere_zeilen_anzahl++; 
+        # Zeilenzähler wurde schon erhöht, nun zurücksetzen 
+        # Abbruch
+        return 0;  
+   } elsif ($number==3 && $Conf::drei_strichpunkt eq "ja"){
+        # 3 Strichpunkte: evtl. Korrekturversuch
+        # Den letzten Strichpunkt zu vergessen  
+        # ist ein häufiger Fehler von Schulverwaltungsprogrammen
+        $_="$_;"; # Strichpunkt anhängen
+        if($Conf::log_level>=3){
+           print " ... $number Strichpunkte gefunden ...... VERSUCHE KORREKTUR\n";
+        }
+        return 1;
+   } elsif ($number==6 && $filename eq $schueler_to_check_dateien[2]) {
+        # 6 Strichpunkte sind OK in Extrakurse-Datei
+        if($Conf::log_level>=3){
+           print " ... $number Strichpunkte gefunden in $filename ...... OK\n";
+        }
+        return 1;
+   } elsif ($number==8 && $filename eq $schueler_to_check_dateien[3]) {
+        # Eintragen wieviele Strichpunkt erlaubt sind
+        # 8 Strichpunkte sind OK in Lehrer-Datei
+        if($Conf::log_level>=3){
+           print " ... $number Strichpunkte gefunden in $filename ...... OK\n";
+        } 
+        return 1;
+   } else {
+        $datensatz_korrupt=1;
+        print " ... $number Strichpunkte gefunden in $filename ... FEHLER\n";
+        $datensatz_korrupt_anzahl++;
+        push (@admin_list_corrupt, "Korrupter Datensatz (", $number ,
+	      " Strichpunkte):\n");
+        push (@admin_list_corrupt, "Linie $zeilen_anzahl_datei:   $_\n\n");
+
+  	# Abbruch
+        return 0;
+   }
+}
+
+
+
+
+
+
+
+sub birthdate_usable {
+    my ($date) = @_;
+    my ($tag, $monat, $jahr);
+       # Wenn im Geburtsdatum zweimal . vorkommt, oder ganz leer ist ????? 
+       # wird der Datensatz weiterverarbeitet,
+       #    sonst --> report.admin
+       #              $datum_korrupt=1 und Abbruch
+       my $punkte_anzahl=$date=~tr/\.//;
+       if ($punkte_anzahl==2){
+            if($Conf::log_level>=3){
+               print " ... $punkte_anzahl Punkte im Datum gefunden ... OK\n";
+	     }
+       } elsif ($date eq ""){
+            print "... Datum ist leer, Datensatz nicht korrupt ...\n";
+       } else {
+	    $datum_korrupt=1;
+            print " ... $punkte_anzahl Punkte im Datum gefunden ... FEHLER\n";
+	    $datum_korrupt_anzahl++;
+            
+            # Eintrag in report.admin
+            push (@admin_list_corrupt, "Korrupter Datensatz (" , $punkte_anzahl ,
+                              " Punkte im Datum):\n" , $_ , "\n\n");
+            # Abbruch
+            $tag = "0"  
+       }
+
+       ($tag,$monat,$jahr)=split(/\./,$date);
+
+       # Falls einer der Datumswerte undefined ist mach ihn zum leerstring
+       # verhindert ein paar Fehlermeldungen
+      if (not defined $tag){
+          $tag="";
+	}
+      if (not defined $monat){
+          $monat="";
+	}
+      if (not defined $jahr){
+          $jahr="";
+	}
+
+      return ($tag,$monat,$jahr);
+}
+
+
+
+
+
+
+sub syntax_check_entry {
+    my ($class, $surname, $name, $day, $month, $year, 
+        $birthdate, $wish_login, $filename) = @_;
+    # check for emty fields
+    if($class eq ""){$feld_klasse_leer=1;}
+    if($surname eq ""){$feld_nachname_leer=1;}
+    if($name eq ""){$feld_vorname_leer=1;}
+    if($birthdate eq ""){$feld_geburt_leer=1;}
+    # Pruefen nach nichterlaubten Zeichen
+
+    # Klasse
+    # Zulassen: a-z  0-9  und -
+    if ($class=~/[^a-z0-9\-]/) { # Wenn diese Zeichen nicht enthalten
+        # Dann ist der Klassenamen vermutlich syntaktisch falsch
+        $klasse_unerlaubtes_zeichen=1;
+    } else {
+        if($Conf::log_level>=3){
+	   print " ... Klasse   OK ...\n";
+	}
+    }
+ 
+    # Nachname
+    # Zulassen: a-z  und - (Für Doppelnamen) sowie ' (O'Reilly)
+    if (($surname=~/[^a-zäöüß\-\']/) &&
+       ($filename eq $schueler_to_check_dateien[0]))# Schülerdatei 
+    { # Wenn Zeichen nicht enthalten
+        # Dann ist der Nachnamen vermutlich syntaktisch falsch
+        $nachname_unerlaubtes_zeichen=1;
+    } elsif ($surname=~/[^a-z0-9äöüß\-\']/){# Extraschülerdatei
+        $nachname_unerlaubtes_zeichen=1;
+    } else { 
+        if($Conf::log_level>=3){
+           print " ... Nachname OK in $filename ...\n";
+	}
+    }
+
+    # Vorname
+    # Zulassen: a-z  und - (Für Doppelnamen) sowie ' (z. B. O'Reilly)
+    if (($name=~/[^a-zäöüß\-\']/) && 
+       ($filename eq $schueler_to_check_dateien[0]))# Schülerdatei
+    { # Wenn Zeichen nicht enthalten
+        # Dann ist der Klassenamen vermutlich syntaktisch falsch
+        $vorname_unerlaubtes_zeichen=1;
+    } elsif ($name=~/[^a-z0-9äöüß\-\']/){# Extraschülerdatei
+        $vorname_unerlaubtes_zeichen=1;
+    } else {
+       if($Conf::log_level>=3){
+	  print " ... Name     OK in $filename ...\n";
+       }
+    }
+
+    #Datum
+    # Tag: von 1, bzw 01 bis 31, siehe Hash-Tabelle %tage_erlaubt
+    if (exists($tage_erlaubt{$day})){# ist Tag im hash zu finden
+        if($Conf::log_level>=3){
+           print " ... Tag      OK ...\n";
+        }
+        $day=$tage_erlaubt{$day};
+    } else {
+        print " ... Tag FEHLER ...\n";
+        $datum_unrealistisch=1;
+    }
+    # Monat: von 1 bis 12, bzw 01 bis 12, siehe Hash-Tabelle %monate_erlaubt
+    if (exists($monate_erlaubt{$month})){# ist Monat im hash zu finden
+        if($Conf::log_level>=3){
+	   print " ... Monat    OK ...\n";
+        }
+        $month=$monate_erlaubt{$month};
+    } else {
+        print " ... Monat FEHLER ...\n";
+        $datum_unrealistisch=1;
+    }
+    # Geburtsjahreszahl von bis
+    if ((exists($geburts_jahreszahl_erlaubt{$year})) &&
+       ($filename eq $schueler_to_check_dateien[0]))# Schülerdatei
+    {
+        # Wenn Geburtsjahreszahl im hash zu finden ist
+        # Ersetze den Key(z. B. 97) mit dem Value (1997)
+        $year=$geburts_jahreszahl_erlaubt{$year};
+        if($Conf::log_level>=3){
+           print " ... Jahr     OK in $filename ...\n";
+        }
+    } elsif ((not exists($geburts_jahreszahl_erlaubt{$year})) &&
+        ($filename eq $schueler_to_check_dateien[0])) {
+        print " ... Jahr     Fehler ...\n";
+        $datum_unrealistisch=1;
+    } elsif (($year>=1900) && ($year<=2100)) {
+        if($Conf::log_level>=3){
+           print " ... Jahr     OK in $filename ...\n";
+        }
+    } else {
+        print " ... Jahr FEHLER ...\n";
+        $datum_unrealistisch=1;
+    }
+    
+    # Wunschloginnamen checken
+    # Zulassen: a-z  sowie 0-9
+    if ($wish_login eq "wunschlogin") {
+        # nix tun, kein wunsch_login angegeben
+    }  elsif ($wish_login=~/[^a-z0-9]/){
+        # Fehlerhafter Wunsch-Login
+        print "\n\n\nSYNTAXFEHLER!\n";
+        print "\n\n  ---$wish_login---    enthält Sonderzeichen\n\n";
+        print "\n\n  Beheben sie diesen Fehler in /etc/sophomorix/user/extrakurse.txt\n\n";
+        print "\n\n  Und starten sie das Programm neu.\n\n";
+        # Programm beenden
+           exit;
+    } else {
+        if($Conf::log_level>=3){
+	   print " ... Wunschlogin  $wish_login OK in $filename ...\n";
+        }
+    }
+    # Wunsch-Passwort checken: Fuer nicht notwendig erachtet
+    return($class, $surname, $name, $day, $month, $year, $birthdate, $wish_login);
+}
+
+
+
+sub is_in_inhibit_class {
+    # schueler in sperrklassen ausfiltern
+    my ($class) = @_;
+    if ($sperrklassen{"$class"}){
+        print " ... $vorname $nachname ist in einer Sperrklasse!\n";
+        ## Datumscheck durchführen:
+        print " ... Sperrdatum in Epochenzeit für die Klasse $class ist: ", 
+               $sperrklassen{"$class"},"\n";
+        print " ... Epochenzeit zu Beginn der Programmablaufes war     : ", 
+               $epoche_jetzt, "\n";
+        if ($epoche_jetzt>$sperrklassen{"$class"}){
+            print $vorname , " " , $nachname , 
+                  " wird weiterverarbeitet (Sperrzeit überschritten!)\n";
+            # Datensatz in sophomorix.ok schreiben
+            return 0;
+        }elsif ($schueler_im_system_hash{$identifier_ok}){
+            # Wenn Schüler im System
+            print "########################################",
+                  "########################################\n",
+                  "Der Schüler ist schon im System,",
+                  " Datensatz wird deshalb NICHT ausgefiltert.\n",
+                  " (zum Ausfiltern müsste ein Eintrag in ",
+                  "entfernen.txt vorliegen)\n",
+                  "########################################",
+                  "########################################\n";
+            # Schüler im System lassen
+            # Datensatz in sophomorix.ok schreiben
+            return 0;
+        }else {
+            print $vorname , $nachname , 
+                  " wird NICHT angelegt (Sperrzeit noch nicht erreicht!)\n";
+            # Datensatz in report.gesperrt schreiben
+	    print REPORTGESPERRT "$_\n";
+            $schueler_gesperrt_anzahl++;
+            # Schueler IS in inhibit class
+            return 1;
+        }
+    } else {
+        if($Conf::log_level>=3){
+           print " ... Keine Sperrklasse ...\n";
+	}
+        return 0;
+    } #Einträge in Sperrklassen sind ausgefiltert
+}
+
+
+
+
+
+
+
+sub is_in_remove_class {
+    # Eintraege in Entfernen-Klasse ausfiltern
+    my ($class) = @_;
+    if ($entfern_klassen{"$class"}){
+        print " ... $vorname $nachname ist in einer zu",
+              " entfernenden Klasse!\n";
+        ## Datumscheck durchführen:
+        print " ... Einlasszeit in Epochenzeit für die Klasse $class ist: ", 
+              $entfern_klassen{"$class"},"\n";
+        print " ... Epochenzeit zu Beginn der Programmablaufes war      : ", 
+              $epoche_jetzt, "\n";
+        if ($epoche_jetzt>$entfern_klassen{"$class"}){
+            print $vorname , " " , $nachname , 
+                  " wird weiterverarbeitet (Sperrzeit überschritten!)\n";
+            # Datensatz in sophomorix.ok schreiben
+            return 0;
+        }else {
+           print "########################################",
+                 "########################################\n",
+                 "$vorname $nachname", 
+                 " wird NICHT angelegt/Entfernt ",
+                 "(Einlasszeit nicht erreicht!)\n",
+                 "########################################",
+                 "########################################\n";
+           # Datensatz in report.gesperrt schreiben
+	   print REPORTGESPERRT "$_\n";
+           $schueler_entfernt_anzahl++;
+           # Schueler IS in remove class
+           return 1;
+        }
+    } else {
+        if($Conf::log_level>=3){
+           print " ... Keine zu entfernende Klasse ...\n";
+        }
+        return 0;
+    } #Einträge in Entfernen-Klasse sind ausgefiltert
+}
+
+
+
+sub add_user_to_queue {
+    my ($user, $wunsch_login, $wunsch_passwort) = @_;
+    # Zeile zerlegen
+    my ($admin_class,$okfeld2,$okfeld3,$okfeld4,$unid)=split(/;/, $user);
+    # Identifier bilden
+    my $identifier=join("",($okfeld2,";",$okfeld3,";",$okfeld4));
+    my $real_class = "lehrer";
+    # Ausser bei lehrern ein k hinzufuegen
+    if (not $admin_class eq "lehrer"){
+          $real_class="k"."$admin_class";
+    }
+
+    # Sub-Klasse beruecksichtigen
+    if (exists $schueler_subklassen{$identifier}) {
+       print "$identifier ist in subklasse -$schueler_subklassen{$identifier} \n";
+       $real_class="$real_class"."-"."$schueler_subklassen{$identifier}";  
+    }
+
+if (not exists $schueler_ok_hash{$identifier}){
+    $schueler_ok_hash{$identifier}=$admin_class;
+}
+
+    # Unid in hash-table einordnen, falls moeglich
+    if (not exists $schueler_ok_hash{$identifier} and $unid ne ""){
+       # Eintrag in die Hash-Tabelle, falls identifier noch nicht vorhanden
+       $unid_ok_file{$unid}="$identifier";
+    } elsif ($unid eq ""){
+       # nix tun, da leer
+    } else {
+       # Fehler
+	print "Error UNID $unid is not unique!\n";
+    }   
+
+    # User in hash-table einordnen, falls moeglich
+    if (not exists $schueler_ok_hash{$identifier} and $unid ne ""){
+       # Eintrag in die Hash-Tabelle, falls identifier noch nicht vorhanden
+       $schueler_ok_hash{$identifier}="$admin_class";
+    } elsif ($unid eq ""){
+       # nix tun, da leer
+    } else {
+        # Identifier schon vorhanden, kommt also mehrfach vor
+        # Pruefen ob die Klasse auch gleich ist und Datei schueler.txt ist
+        if ($schueler_ok_hash{$identifier} eq $real_class 
+            && ($schuelerdatei eq $schueler_to_check_dateien[0])){
+            # Klasse ist gleich/Datensatz wird verwendet
+            print REPORTSEKRETARIAT "----------------------------------------",
+                                    "----------------------------------------";
+            printf REPORTSEKRETARIAT "\n%-23s(Zeile:%6s) :  %-30s\n",
+                                     "Mehrfacher Datensatz", 
+                                     $zeilen_anzahl_datei,
+                                     "$klasse".";"."$identifier_schueler_ok";
+            printf REPORTSEKRETARIAT "%38s:  %-30s\n" ,
+                                     "ORIGINALDATENSATZ ", 
+                                     $zeile_orig;
+            print REPORTSEKRETARIAT ("Der Datensatz kommt mehrfach vor!\n");
+        } else {
+            # Klasse ist verschieden
+            # Meldung: Identifier muss eindeutig bleiben
+            print REPORTSEKRETARIAT "----------------------------------------",
+                                    "----------------------------------------";
+            printf REPORTSEKRETARIAT "\n%-23s(Zeile:%6s) :  %-30s\n",
+                                     "Mehrfacher Datensatz", 
+                                     $zeilen_anzahl_datei,
+                                     "$klasse".";"."$identifier";
+            printf REPORTSEKRETARIAT "%38s:  %-30s\n" ,
+                                     "ORIGINALDATENSATZ ", 
+                                     $zeile_orig;
+            print REPORTSEKRETARIAT "Für diesen Schüler gibt es ebenfalls",
+                                    " eine Zuordnung zur Klasse  ", 
+                                    ,$schueler_ok_hash{$identifier},
+#                                    ,substr($schueler_ok_hash{$identifier},1,30),
+                                    " !\n"; 
+            return 0;
+            #next;
+        }
+    }
+        
+    # User in Hashtable (key = identifier, value = wunschlogoin)
+    $schueler_ok_wunsch_login_hash{$identifier}="$wunsch_login";
+
+    # User in Hashtable (key = identifier, value = wunschpasswort)
+    $schueler_ok_wunsch_passwort_hash{$identifier}="$wunsch_passwort";
+
+    # Schueler in den Klassen zaehlen
+    if (exists($klasse_schueleranzahl{$admin_class})){
+        $klasse_schueleranzahl{$admin_class}++; # 1 dazuzählen
+    } else {
+        $klasse_schueleranzahl{$admin_class}=1;
+    }
+    return 1;
+}
+
+
+
+
+
+
+sub update_ids {
+   my $identifier_file = "";
+   my $identifier_sys = "";
+   # walk through all UNID's
+   while ( my ($unid_file, $identifier_file) = each %unid_ok_file ) { 
+      print "\n";
+      print "UNID: $unid \n";
+      print "Sorting: \n";
+      print "UNID in File      :  $unid_file \n";
+      print "Identifier in File:  $identifier_file \n";
+
+     if (exists $unid_ok_system{$unid_file}) {
+         $identifier_sys = $unid_ok_system{$unid_file};
+         # UNID exists in system, trying to update identifier
+         print "UNID $unid_file exists in the \n",
+               "  System with identifier  : $identifier_sys\n";
+         print "  Files  with identifier  : $identifier_file \n";
+         # are they the same Person?
+
+         if ($identifier_file eq $identifier_sys) {
+             # identical, do nothing
+             print "Identical identifiers, I'm doing nothing\n";
+             next;
+         } elsif (amatch("$identifier_sys", ["i 40%"], $identifier_file) ) {
+             # similar
+             print "Looks like the same person\n";
+             print "$unid_file will get $identifier_file\n";
+             # push the new identifier to the system
+             &update_identifier($unid_file, $identifier_file);
+             # update the identifier in the hashes 
+             print "\nReplacing in the System-Hash\n",
+                   "   $identifier_sys\n",
+                   "with \n",
+                   "   $identifier_file \n";
+             # Hashes, in which entries MUST exist
+             my $old_class = $schueler_im_system_hash{$identifier_sys};
+             delete $schueler_im_system_hash{$identifier_sys};
+             $schueler_im_system_hash{$identifier_file} = "$old_class";
+
+             my $old_login = $schueler_im_system_loginname{$identifier_sys};
+             delete $schueler_im_system_loginname{$identifier_sys};
+             $schueler_im_system_loginname{$identifier_file} = "$old_login";
+
+             my $old_status = $sophomorix_status{$identifier_sys};
+             delete $sophomorix_status{$identifier_sys};
+             $sophomorix_status{$identifier_file} = "$old_status";
+
+             # Hashes, in which entries MAY exist
+             if (exists $user_duldungsbeginn{$identifier_sys}) {
+                my $old_tol = $user_duldungsbeginn{$identifier_sys};
+                delete $user_duldungsbeginn{$identifier_sys};
+                $user_duldungsbeginn{$identifier_file} = "$old_tol";
+	     }
+
+             if (exists $user_deaktivierungsbeginn{$identifier_sys}) {
+                my $old_deact = $user_deaktivierungsbeginn{$identifier_sys};
+                delete $user_deaktivierungsbeginn{$identifier_sys};
+                $user_deaktivierungsbeginn{$identifier_file} = "$old_deact";
+	     }
+
+             if (exists $schueler_subklassen{$identifier_sys}) {
+                my $old_sub = $schueler_subklassen{$identifier_sys};
+                delete $schueler_subklassen{$identifier_sys};
+                $schueler_subklassen{$identifier_file} = "$old_sub";
+	     }
+
+             if (exists $unid_ok_system{$unid_file} ) {
+                delete $unid_ok_system{$unid_file};
+                $unid_ok_system{$unid_file} = "$identifier_file";
+	     }
+
+         } else {
+             # too different, promt the user, secretary, ... ???
+             print "Looks like diffrent persons";
+         }
+
+     } else {
+         # UNID doesn't exist
+         print "UNID  $unid_file  doesn't exist in the System\n";
+         # ermittle den identifier zu diese unid
+         print "UNID    has identifier  $identifier_file  \n";
+         if (exists $schueler_im_system_hash{$identifier_file} ) {
+            print "Identifier  $identifier_file  exists in the system\n";
+            &upload_unid($identifier_file,$unid_file);
+	}
+     }
+   }
+}
+
+
+
+
+
+
+
+
+sub report_error {
+    print REPORTSEKRETARIAT "----------------------------------------",
+                            "----------------------------------------";
+    printf REPORTSEKRETARIAT "\n%-23s(Zeile:%6s) :  %-30s\n",
+                             "Fehlerhafter Datensatz", 
+                             $zeilen_anzahl_datei,$_;
+    printf REPORTSEKRETARIAT "%38s:  %-30s\n" ,
+                             "ORIGINALDATENSATZ ", 
+                             $zeile_orig;
+    print "##### Fehlerhafter Datensatz (Zeile: $zeilen_anzahl_datei)\n","$_\n";
+    if ($feld_klasse_leer==1){
+	print REPORTSEKRETARIAT "   - Feld Klasse ist leer\n";
+        print "   - Feld Klasse ist leer\n";
+	$feld_klasse_leer_anzahl++;
+    };
+    if ($feld_nachname_leer==1){
+	print REPORTSEKRETARIAT "   - Feld Nachname ist leer\n";
+        print "   - Feld Nachname ist leer\n";
+        $feld_nachname_leer_anzahl++;
+    };
+    if ($feld_vorname_leer==1){
+	print REPORTSEKRETARIAT "   - Feld Vorname ist leer\n";
+        print "   - Feld Vorname ist leer\n";
+	$feld_vorname_leer_anzahl++;
+    };
+    if ($feld_geburt_leer==1){
+	print REPORTSEKRETARIAT "   - Feld Geburtsdatum ist leer\n";
+	print "   - Feld Geburtsdatum ist leer\n";
+	$feld_geburt_leer_anzahl++;
+    };
+    if ($klasse_unerlaubtes_zeichen==1){
+	print REPORTSEKRETARIAT "   - Unerlaubtes Zeichen in der Klasse\n";
+	print "   - Unerlaubtes Zeichen in Klasse\n";
+	$klasse_unerlaubtes_zeichen_anzahl++;
+    };
+    if ($nachname_unerlaubtes_zeichen==1){
+	print REPORTSEKRETARIAT "   - Unerlaubtes Zeichen im Nachnamen\n";
+	print "   - Unerlaubtes Zeichen im Nachnamen\n";
+	$nachname_unerlaubtes_zeichen_anzahl++;
+    };
+    if ($vorname_unerlaubtes_zeichen==1){
+	print REPORTSEKRETARIAT "   - Unerlaubtes Zeichen im Vornamen\n";
+	print "   - Unerlaubtes Zeichen im Vornamen\n";
+	$vorname_unerlaubtes_zeichen_anzahl++;
+    };
+    if ($datum_unrealistisch==1){
+	print REPORTSEKRETARIAT "   - Datum ist unrealistisch" , 
+                                "/unerlaubtes Zeichen/leer\n";
+	print "   - Datum ist unrealistisch/unerlaubtes ",
+              "Zeichen/leer\n";
+	$datum_unrealistisch_anzahl++;
+    };
+    print "\n";
+}
+
+
+
+
+
+
+
+sub generate_admin_report {
+    # report.admin         --> Infos nur für den Administrator
+    open(REPORTADMIN, ">${DevelConf::ergebnis_pfad}/report.admin") || die "Fehler: $!";
+    print REPORTADMIN "Administrator-Report:\n";
+    print REPORTADMIN "Start-Zeitpunkt: ",
+                       $tag,".",
+                       $monat,".",
+                       $jahr,", Zeit: ",
+                       $hours,":",
+                       $min, "-",
+                       $sec, "\n\n\n";
+
+    print REPORTADMIN "Korrupte Datensaetze:\n";
+    print REPORTADMIN "----------------------------------------",
+                  "----------------------------------------\n";
+
+    foreach my $line (@admin_list_corrupt) {
+        print REPORTADMIN $line;
+    }
+
+    print REPORTADMIN "\n\n";
+
+    print REPORTADMIN  "Abschluss-Report für den Administrator:\n";              
+    print REPORTADMIN  "----------------------------------------",
+                   "----------------------------------------\n";
+    print REPORTADMIN "Ermittele mit folgenden Vornamen, ",
+                      "ob Feld 3 tatsächlich Vornamen enthält: \n";
+    while (($k,$v) = each %vornamen_hash){
+        print REPORTADMIN $k , " ";
+    }
+    print REPORTADMIN"\n";
+    printf REPORTADMIN "%-50s:%6s\n" ,  "In Feld 2 (Nachnamen-Feld) gefundene Vornamen" ,
+                       $feld2_ist_vorname;
+
+    printf REPORTADMIN "%-50s:%6s\n" ,  "In Feld 3 (Vornamen-Feld) gefundene Vornamen" ,
+                       $feld3_ist_vorname;
+
+    printf REPORTADMIN "%-50s:%6s\n\n" ,  "Tauschen von Vor- und Nachnamen (1 = JA) " ,
+                       $Conf::vorname_nachname_tausch;
+
+    printf REPORTADMIN "%-50s:%6s\n", 
+                       "Eingelesene Zeilen (ohne Kommentarzeilen)", $zeilen_anzahl;
+
+    printf REPORTADMIN "%-50s:%6s\n", 
+                       "Davon Korrupte Datensätze (Strichpunkt)", 
+                       $datensatz_korrupt_anzahl;
+
+    printf REPORTADMIN "%-50s:%6s\n", 
+                       "Korruptes Datum (Punkte)", 
+                       $datum_korrupt_anzahl;
+
+    printf REPORTADMIN "%-50s:%6s\n", 
+                       "Leere Zeilen", 
+                       $leere_zeilen_anzahl;
+
+    print REPORTADMIN  "                            ",
+                       "                     ---------\n";
+    $weiterverarbeitet_anzahl=
+                    $zeilen_anzahl
+                   -$datensatz_korrupt_anzahl
+                   -$datum_korrupt_anzahl
+                   -$leere_zeilen_anzahl;
+
+    printf REPORTADMIN "%-50s:%6s\n", 
+                       "Weiterverarbeitete Datensätze",  
+                       $weiterverarbeitet_anzahl;
+
+    print REPORTADMIN  "\nVon den weiterverarbeiteten Datensätzen\n";
+    printf REPORTADMIN "%-50s:%6s\n", 
+                       "wurden von sperrklassen.txt gesperrt", 
+                       $schueler_gesperrt_anzahl;
+    printf REPORTADMIN "%-50s:%6s\n", 
+                       "wurden von entfernen.txt gesperrt", 
+                       $schueler_entfernt_anzahl;
+
+    # Ausgabe von 
+    if ($Conf::splan_sternchenlkassen_filtern eq "ja") {
+        printf REPORTADMIN "%-50s:%6s\n", 
+                           "wurden als *klassen gesperrt (SPLAN)", 
+                           $schueler_sternchenklasse_anzahl;
+    }
+
+    print REPORTADMIN  "                          ",
+                       "                       ---------\n";
+    $ungesperrt_anzahl=
+                    $weiterverarbeitet_anzahl
+                   -$schueler_gesperrt_anzahl
+                   -$schueler_entfernt_anzahl
+                   -$schueler_sternchenklasse_anzahl;# ist null, wenn ausfiltern
+               
+    printf REPORTADMIN "%-50s:%6s\n", 
+                       "Ungesperrte/Nicht entfernte Schüler ", 
+                       $ungesperrt_anzahl;
+
+    print REPORTADMIN  "\n";
+
+    printf REPORTADMIN "%-50s:%6s\n", 
+                       "Davon anzulegende Schüler", 
+                       $schueler_ok_anzahl;
+    print REPORTADMIN "\n";
+
+    print REPORTADMIN  "Fehler in Datensätzen:\n";
+    printf REPORTADMIN "%-50s:%6s\n", 
+                       "  Leeres Feld Klasse", 
+                       $feld_klasse_leer_anzahl ;
+    printf REPORTADMIN "%-50s:%6s\n", 
+                       "  Leeres Feld Nachname", 
+                       $feld_nachname_leer_anzahl;
+    printf REPORTADMIN "%-50s:%6s\n", 
+                       "  Leeres Feld Vorname", 
+                       $feld_vorname_leer_anzahl;
+    printf REPORTADMIN "%-50s:%6s\n", 
+                       "  Leeres Feld Geburtsdatum", 
+                       $feld_geburt_leer_anzahl;
+    printf REPORTADMIN "%-50s:%6s\n", 
+                       "  Unerlaubtes Zeichen in der Klasse", 
+                       $klasse_unerlaubtes_zeichen_anzahl;
+    printf REPORTADMIN "%-50s:%6s\n", 
+                       "  Unerlaubtes Zeichen im Nachnamen", 
+                       $nachname_unerlaubtes_zeichen_anzahl;
+    printf REPORTADMIN "%-50s:%6s\n",
+                       "  Unerlaubtes Zeichen im Vornamen", 
+                       $vorname_unerlaubtes_zeichen_anzahl;
+    printf REPORTADMIN "%-50s:%6s\n", 
+                       "  Datum unrealistisch/unerlaubtes Zeichen/leer", 
+                       $datum_unrealistisch_anzahl;
+    print REPORTADMIN "\n";
+
+
+    # WARNUNGEN
+    print REPORTADMIN  "\n";
+    print REPORTADMIN  "========================================",
+                       "========================================\n";
+    print REPORTADMIN  "WARNUNGEN !\n";
+    print REPORTADMIN  "========================================",
+                       "========================================\n";
+
+    # Klassen mit zuviel oder zuwenigen SchuelerInnen
+    print REPORTADMIN  "Bezüglich der Schüleranzahl befinden sich in\n";
+    print REPORTADMIN  "sophomorix.ok folgende Zweifels-Fälle:\n";
+    print REPORTADMIN  "----------------------------------------",
+                       "----------------------------------------\n";
+    while (($klass,$sch_zahl) = each %klasse_schueleranzahl){
+        if ($sch_zahl<=$Conf::mindest_schueler_anzahl_pro_klasse){
+	    print  REPORTADMIN "Klassenstärke ",
+                               $Conf::mindest_schueler_anzahl_pro_klasse,
+                               " oder weniger SchülerInnen:\n";
+            printf REPORTADMIN "  %-12s:%6s\n\n", "$klass" , $sch_zahl; 
+        }
+        if ($sch_zahl>=$Conf::maximale_schueler_anzahl_pro_klasse){
+	    print  REPORTADMIN "Klassenstärke ",
+                               $Conf::maximale_schueler_anzahl_pro_klasse,
+                               " oder mehr SchülerInnen:\n";
+            printf REPORTADMIN "  %-12s:%6s\n\n", "$klass" , $sch_zahl; 
+        }
+
+    }         
+
+
+    print REPORTADMIN  "\n";
+    print REPORTADMIN  "========================================",
+                   "========================================\n";
+    print REPORTADMIN  "WAS WÄRE WENN ... !\n";
+    print REPORTADMIN  "========================================",
+                   "========================================\n";
+
+    print REPORTADMIN "\n\nEntfernt werden KÖNNEN:\n";
+    print REPORTADMIN "----------------------------------------",
+                  "----------------------------------------\n";
+
+
+    foreach my $line (@admin_list_toleration) {
+        print REPORTADMIN $line;
+    }
+
+
+
+
+
+    foreach my $line (@admin_list_deactivation) {
+        print REPORTADMIN $line;
+    }
+
+
+
+    foreach my $line (@admin_list_kill) {
+        print REPORTADMIN $line;
+    }
+
+    print REPORTADMIN "----------------------------------------",
+                      "----------------------------------------\n";
+    print REPORTADMIN "Insgesamt KÖNNEN $schueler_weg_anzahl", 
+                      " User entfernt werden.\n";
+
+    print REPORTADMIN "\n\nVersetzen nach dachboden/speicher möglich:\n";
+    print REPORTADMIN "----------------------------------------",
+                  "----------------------------------------\n";
+
+    foreach my $line (@admin_list_attic) {
+        print REPORTADMIN $line;
+    }
+
+    print REPORTADMIN "----------------------------------------",
+                      "----------------------------------------\n";
+    print REPORTADMIN "Insgesamt KÖNNEN $schueler_duldungs_beginn_anzahl", 
+                      " User nach dachboden/speicher versetzt werden.\n";
+
+    print REPORTADMIN "\n\nAngelegt würden:\n";
+    print REPORTADMIN "----------------------------------------",
+                      "----------------------------------------\n";
+
+    foreach my $line (@admin_list_add) {
+        print REPORTADMIN $line;
+    }
+
+    print REPORTADMIN "----------------------------------------", 
+                      "----------------------------------------\n";
+    print REPORTADMIN "Insgesamt WÜRDEN ", "$schueler_hinzu_anzahl", 
+                      " User angelegt.\n";
+
+    print REPORTADMIN "\n\nVersetzt würden:\n";
+    print REPORTADMIN "----------------------------------------",
+                      "----------------------------------------\n";
+
+    foreach my $line (@admin_list_move) {
+        print REPORTADMIN $line;
+    }
+
+    print REPORTADMIN "----------------------------------------", 
+                      "----------------------------------------\n";
+    print REPORTADMIN "Insgesamt WÜRDEN ", "$schueler_zuversetzen_anzahl", 
+                      " Schüler versetzt.\n";
+
+    print REPORTADMIN "\n\n";
+    print REPORTADMIN "########################################",
+                      "########################################\n";
+    print REPORTADMIN "Sie sollten sophomorix-teach-in aufrufen!\n";
+    print REPORTADMIN "########################################",
+                      "########################################";
+    print REPORTADMIN "\n";
+    close(REPORTADMIN);
+}
+
+
+sub generate_class_user_count_file {
+    # Klasse-Schueleranzahl-Datei
+    open(KLASSESCHUELER,">${DevelConf::ergebnis_pfad}/klasse.schuelerzahl") 
+                        || die "Fehler: $!";
+    while (($klass,$sch_zahl) = each %klasse_schueleranzahl){
+        print KLASSESCHUELER $klass , ";" , $sch_zahl ,";\n";
+    }         
+    close(KLASSESCHUELER);
+}
+
+
+
+
+
+sub close_report_files {
+    # ===========================================================================
+    # Close the report-files 
+    # ===========================================================================
+
+}
+
+
+
+
+
+# ===========================================================================
+# Erlaubte Zeichen für das Datum erzeugen
+sub datum_erlaubt {
+# erlaubte Zeichen für die Tage
+%tage_erlaubt = qw(
+     1     01          01    01
+     2     02          02    02
+     3     03          03    03
+     4     04          04    04
+     5     05          05    05
+     6     06          06    06
+     7     07          07    07
+     8     08          08    08
+     9     09          09    09
+     10    10          11    11
+     12    12          13    13
+     14    14          15    15
+     16    16          17    17
+     18    18          19    19
+     20    20          21    21
+     22    22          23    23
+     24    24          25    25
+     26    26          27    27
+     28    28          29    29
+     30    30          31    31
+);
+# erlaubte Zeichen für die Monate
+%monate_erlaubt = qw(
+     1     01          01    01
+     2     02          02    02
+     3     03          03    03
+     4     04          04    04
+     5     05          05    05
+     6     06          06    06
+     7     07          07    07
+     8     08          08    08
+     9     09          09    09
+     10    10          11    11
+     12    12
+);
+# erlaubte zeichen für die Jahreszahl in ein Hash schreiben
+$geburts_jahreszahl_lauf=$Conf::geburts_jahreszahl_start;
+#print "Erlaubte Geburts-Jahreszahlen sind:\n";
+while ($geburts_jahreszahl_lauf<=$Conf::geburts_jahreszahl_stop){
+    # 19xx
+    $geburts_jahreszahl_erlaubt{$geburts_jahreszahl_lauf}
+     =$geburts_jahreszahl_lauf;
+    #print $geburts_jahreszahl_lauf, 
+    #      " ist ", 
+    #      $geburts_jahreszahl_erlaubt{$geburts_jahreszahl_lauf}, 
+    #      "\n";
+    # xx 
+    $geburts_jahreszahl_erlaubt{substr($geburts_jahreszahl_lauf,2)}
+    = $geburts_jahreszahl_lauf;
+    #print (substr($geburts_jahreszahl_lauf,2), 
+    #      " ist auch erlaubt\n"); 
+    $geburts_jahreszahl_lauf++;
+}
+}
+
+
+
+
+
+
+sub update_deactivation_data {
+    my $login="";
+    while(my ($identifier,$date) = each %user_deaktivierungsbeginn){
+       my $string = "$identifier"."::"."$date\n";
+       # Check if user reappears in files
+       if (exists $schueler_ok_hash{$identifier}) {
+           # taucht wieder auf -> d
+           print "$identifier ist wieder da\n";
+       } else {
+           # taucht nicht auf -> drinlassen
+           $login= "schueler_im_system_hash{$identifier}";
+           # Alle zum deaktivieren notwendigen Schritte durchführen
+           &set_deactivation_date($identifier,$date);
+           &user_deaktivieren($login);
+       }
+    }
+}
+
+
+
+
+
+sub generate_toleration_move_file {
+    my $identifier_sys = "";
+    my $toleration_date = "";
+#    my @toleration_list = ();
+    my $move_line = ();
+    my $toleration_message = "";
+    my $move_message = "";
+
+    open(SOPHOMORIXMOVE, 
+        ">${DevelConf::ergebnis_pfad}/sophomorix.move") 
+        || die "Fehler: $!";
+#    open(DULDUNGSBEGINN, 
+#        ">${DevelConf::dyn_config_pfad}/user-duldungsbeginn") 
+#        || die "Fehler: $!";
+    print "\n";
+
+    &titel("Versetzten in den Dachboden/Speicher moeglich:");
+ 
+    while(($identifier_sys,$toleration_date) = each %user_duldungsbeginn){
+      # Check all tolerated users
+      $toleration_message = "$identifier_sys"."::"."$toleration_date\n";
+      # Check if user reappears in the files
+      if (exists $schueler_ok_hash{$identifier_sys}) {
+         # User reappears -> don't put him on the new tolerationlist
+         print "$identifier_sys taucht wieder in schueler.txt auf\n";
+         print "Entferne ihn aus der Duldungsliste\n";
+      } else {
+#         # User is still missing, put him on the new tolerationlist
+#         push (@toleration_list, $toleration_message);
+         # Check if user is in the toleration-class (dachboden/speicher)
+         if ($schueler_im_system_hash{$identifier_sys} ne "dachboden" 
+           && $schueler_im_system_hash{$identifier_sys} ne "speicher") {
+            # User is not in the toleration-class (dachboden/speicher)
+            # Count him and put him in sophomorix.move
+            $schueler_duldungs_beginn_anzahl++;
+            # set the toleration_date and Status in the user_database
+            &set_toleration_date($identifier_sys,$toleration_date);
+	    if ($schueler_im_system_hash{$identifier_sys} eq "lehrer") {
+                $move_line="$schueler_im_system_loginname{$identifier_sys}".
+                     "::"."lehrer".
+                     "::"."speicher\n";
+                $move_message="$identifier_sys".
+                     " (Login: $schueler_im_system_hash{$identifier_sys})".
+                     " ---> speicher\n";
+            } else {
+                $move_line="$schueler_im_system_loginname{$identifier_sys}".
+                     "::"."$schueler_im_system_hash{$identifier_sys}".
+                     "::"."dachboden\n";
+                $move_message="$identifier_sys".
+                     " (Login: $schueler_im_system_hash{$identifier_sys})".
+                     " ---> dachboden\n";
+	    }
+#            print REPORTADMIN "$move_message";
+            print SOPHOMORIXMOVE "$move_line";
+         }
+      }
+   }
+
+# mit ldap ersetzten
+#   @toleration_list = sort @toleration_list;
+#   foreach my $wert (@toleration_list) {
+#       print DULDUNGSBEGINN $wert;
+#   }
+
+   &titel("Insgesamt KÖNNEN $schueler_duldungs_beginn_anzahl User in den dachboden/speicher versetzt werden.");
+#   close(DULDUNGSBEGINN);
+   close(SOPHOMORIXMOVE);
+}
+
+
+
+
+
+
+sub generate_move_file {
+    my $identifier_file = "";
+    my $login = "";
+    # ADD this lines
+    open(SOPHOMORIXMOVE, 
+         ">>${DevelConf::ergebnis_pfad}/sophomorix.move") 
+         || die "Fehler: $!";
+
+    &titel("Versetzt würden folgende Schüler:");
+
+    while ( ($identifier_file, $login) = each %schueler_ok_hash ){
+      if (exists $schueler_im_system_hash{$identifier_file}) {
+         # schueler, die im System sind 
+         # und in sophomorix.ok weitervergleichen
+         if ("$schueler_ok_hash{$identifier_file}" ne 
+          "$schueler_im_system_hash{$identifier_file}"){
+              $schueler_zuversetzen_anzahl++;
+              # Alle zum versetzen erforderlichen Daten zusammensetzen
+              my $string_kurz="$schueler_im_system_loginname{$identifier_file}".
+                              " aus $schueler_im_system_hash{$identifier_file}".
+                              " nach Klasse $schueler_ok_hash{$identifier_file}";
+              my $string_move="$schueler_im_system_loginname{$identifier_file}".
+                              "::"."$schueler_im_system_hash{$identifier_file}".
+                              "::"."$schueler_ok_hash{$identifier_file}";
+           # Konsole
+           printf "%-30s %40s\n","$identifier_file","$string_kurz";
+           # Admin-Report
+           push @admin_list_move, "%-30s %40s\n","$identifier_file","$string_kurz";
+           # File
+           print SOPHOMORIXMOVE ("$string_move\n");
+         }
+      }
+    }
+
+    &titel("Insgesamt WÜRDEN $schueler_zuversetzen_anzahl Schüler versetzt.");
+    close(SOPHOMORIXMOVE);
+}
+
+
+
+
+
+
+sub generate_add_file {
+    my $identifier = "";
+    my $admin_class = "";
+    open(SOPHOMORIXADD, 
+          ">${DevelConf::ergebnis_pfad}/sophomorix.add") 
+         || die "Fehler: $!";
+
+    &titel("Angelegt würden folgende User:");
+
+    while ( ($identifier, $admin_class) = each %schueler_ok_hash ){
+      unless (exists $schueler_im_system_hash{$identifier}) {
+         my $string="$identifier"."::".
+                    "$schueler_ok_wunsch_login_hash{$identifier}"."::".
+                    "$schueler_ok_wunsch_passwort_hash{$identifier}"."\n";
+         print ("$string");
+         push @admin_list_add, "$string";
+         # Put admin_class and string in file
+         print SOPHOMORIXADD ("$admin_class"."::"."$string");
+         $schueler_hinzu_anzahl++;
+      }
+    }
+
+    &titel("Insgesamt WÜRDEN $schueler_hinzu_anzahl User angelegt.");
+    close(SOPHOMORIXADD);
+}
+
+
+
+
+
+sub get_action_date {
+    # Parameter 1: identifier
+    # Parameter 2: type (deactivation, kill)
+    my ($identifier, $type) = @_;
+    my $action_epoche;
+    my $usertype="";
+    my $days;
+    my $last_action;
+    my ($l_day, $l_month, $l_year)=(0, 0, 0);
+    my $sequenztype="";
+    if ($type eq "deactivation") {
+       $last_action = $user_duldungsbeginn{$identifier};
+       ($l_day, $l_month, $l_year) = split(/\./, $last_action);
+       $sequenztype="TolerationDate";
+       if ($schueler_im_system_hash{$identifier} eq "lehrer" ||
+           $schueler_im_system_hash{$identifier} eq "speicher" ) {
+           # Falls Lehrer
+           $usertype="Lehrer/in";
+           $days=$Conf::lehrer_duldung_tage;
+       } else {
+           # Falls Schüler
+           $usertype="Schueler/in";
+           $days=$Conf::schueler_duldung_tage;
+       }
+
+    } elsif ($type eq "kill") {
+       $last_action = $user_deaktivierungsbeginn{$identifier};
+       ($l_day, $l_month, $l_year) = split(/\./, $last_action);
+       $sequenztype="DeactivationDate";
+       if ($schueler_im_system_hash{$identifier} eq "lehrer" ||
+           $schueler_im_system_hash{$identifier} eq "speicher" ) {
+           # Falls Lehrer
+           $usertype="Lehrer/in";
+           $days=$Conf::lehrer_deaktivierung_tage;
+       } else {
+           # Falls Schüler
+           $usertype="Schueler/in";
+           $days=$Conf::schueler_deaktivierung_tage;
+       }
+    } else {
+        print "Error fetching sequenz_date! \n";
+        print "Unknown Parameter $type! \n";
+        exit;
+    }
+print "\n\n$l_month\n\n";
+    $l_month=$l_month-1;
+    $l_year=$l_year-1900;
+    $action_epoche=timelocal(0, 0, 0, $l_day , $l_month, $l_year);
+    $action_epoche=$action_epoche+$days*86400;
+#       if($Conf::log_level>=2){
+          print  "\n";
+          printf "%-20s %3s\n","$usertype","$identifier";
+          printf "%-20s %3s\n","Klasse","$schueler_im_system_hash{$identifier}";
+          printf "%-20s %3s\n","$sequenztype:","$last_action";
+          print  "\n";
+          printf "%-20s %3s\n", "Checking for:", "$type";
+          printf "%-20s %3s\n","$type in:","$days days after $last_action";
+          printf "%-20s %-15s %3s\n",
+                 "Today is:","$epoche_jetzt", &zeit("$epoche_jetzt");
+          printf "%-20s %-15s %3s\n","$type starts:",
+                 "$action_epoche", &zeit("$action_epoche");
+#       }
+    if ($action_epoche <  $epoche_jetzt) {
+        # do something
+        printf "%-20s %3s\n", "Take this Action:", "$type";
+        return $action_epoche;
+    } else {
+        # do nothing
+        print "Don't do annything ...\n";
+        return 0;
+    }
+}
+
+
+
+
+
+
+
+sub generate_kill_file {
+    my $identifier = "";
+    my $admin_class = "";
+    open(SOPHOMORIKILL, 
+         ">${DevelConf::ergebnis_pfad}/sophomorix.kill") 
+         || die "Fehler: $!";
+
+    &titel("Entfernt werden KÖNNEN folgende User:");
+
+    while ( ($identifier, $admin_class) = each %schueler_im_system_hash ){
+       unless (exists $schueler_ok_hash{$identifier}) {
+         # User is not anymore in Files -> Tolereation hash
+          if (not exists $user_duldungsbeginn{$identifier}){
+              $user_duldungsbeginn{$identifier}="$heute";
+              print "INFO: $identifier wird ab $heute nur noch geduldet\n";
+              # report.admin
+              push @admin_list_toleration, 
+                   "$identifier wird ab $heute nur noch geduldet\n";
+              next;
+          }
+
+          # Check if user must be deactivated
+          if (not exists $user_deaktivierungsbeginn{$identifier}){
+              $epoche_deaktivierung_ab = &get_action_date($identifier, "deactivation");
+              if ($epoche_deaktivierung_ab != 0) {
+                  $user_deaktivierungsbeginn{$identifier}="$heute";
+                  if($Conf::log_level>=2){
+                      print "$identifier wurde am $heute deaktiviert\n";
+                      push @admin_list_deactivation, 
+                           "$identifier wurde am $heute deaktiviert\n";
+                  }
+              } else {
+                 if($Conf::log_level>=2){
+                    print "### User $identifier ist im Duldungszeitraum\n"; 
+	         }
+	      }
+
+          } else {
+              # Check if user has to be deleted
+              $epoche_loeschen_ab = &get_action_date($identifier, "kill");
+	      if ($epoche_loeschen_ab !=0) {
+                  # prepare a line for sophomorix.kill
+                  my $login="$schueler_im_system_loginname{$identifier}"."\n";
+                  my $string="$identifier"."::".
+		     "$schueler_im_system_loginname{$identifier}"."\n";
+                  printf "Loeschbar: %-40s Login: %-10s\n","$identifier","$login";
+                  # report.admin
+                  push @admin_list_kill, "Loeschbar:     $identifier $login";
+                  print SOPHOMORIKILL ("$string");
+                  $schueler_weg_anzahl++;
+              } else {
+                  if($Conf::log_level>=2){
+                     print "### User $identifier ist im Deaktivierungszeitraum\n"; 
+	          }
+              }
+
+          }
+      }# END unless
+
+    }# END while
+    &titel("Insgesamt KÖNNEN $schueler_weg_anzahl User entfernt werden.");
+    close(SOPHOMORIKILL);
+}
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+sub filter_school_admin_software {
+     my ($line) = @_;
+     # Todo: Variable with string in user.conf $admin_software="splan";
+     # open splan.filter and Read the following lines from there
+       # SPLAN-Sonderzeichen BEGINN
+       #evtl recode ibmpc..lat1
+       # Falsches ' in richtiges umwandeln
+       $line=~s/`/'/g;
+       # ü umwandeln
+       $line=~s/ü/ue/g;
+       $line=~s/\201/ue/g;
+       # Ü umwandeln
+       $line=~s/Ü/ue/g;
+       $line=~s/\232/ue/g;
+       # ö umwandeln
+       $line=~s/ö/oe/g;
+       $line=~s/\224/oe/g;
+       # Ö umwandeln
+       $line=~s/Ö/oe/g;
+       $line=~s/\231/oe/g;
+       # ä umwandeln
+       $line=~s/ä/ae/g;
+       $line=~s/\204/ae/g;
+       # Ä umwandeln
+       # gibt es nicht
+       $line=~s/Ä/ae/g;
+       # e mit Akzent  umwandeln
+       $line=~s/\202/e/g;
+       $line=~s/\212/e/g;
+       $line=~s/è/e/g;
+       $line=~s/é/e/g;
+       # a mit Akzent umwandeln
+       $line=~s/À/a/g;
+       # a mit Dach umwandeln
+       $line=~s/\203/a/g;
+       # o mit Akzent umwandeln
+       $line=~s/¢/o/g;
+       # o mit Dach umwandeln
+       $line=~s/\223/o/g;
+       # russisches i
+       $line=~s/ï/i/g;
+       # u mit akzent
+       s/£/u/g;
+       # SPLAN-Sonderzeichen ENDE
+
+       # ß umwandeln
+       $line=~s/ß/ss/g;
+       $line=~s/á/ss/g;
+
+       # Sonderzeichen wegfallenlassen
+       # Minus streichen
+       $line=~s/-//g;
+       # ' Streichen
+       # mit s/'//g; geht die Emacs-Formetierung nicht mehr
+       $line=~s/\'//g;
+       return $line;
+}
+
+# Ende Sub
+
+
