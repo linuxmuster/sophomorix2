@@ -206,11 +206,6 @@ sub check_account {
     my $samba_lock=2;
     my $homedir_exists=0;
 
-    # permissions
-    my $homedir_perm="2751";
-    my $windir_perm="2750";
-    my $share_link_perm="2750";
-
     # linux
     open(SHADOW, "/etc/shadow");
     while (<SHADOW>){
@@ -243,9 +238,12 @@ sub check_account {
        # fetching account Data
        my($name,$passwd,$uid,$gid,$quota,$comment,
           $gcos,$dir,$shell) = getpwnam($login);
+       my $pri_grp = getgrgid($gid);
        &check_dir($dir,$login,"lehrer","2751");
        &check_dir("${dir}/windows",$login,"lehrer","2750");
        &check_dir("${dir}/Tauschverzeichnisse","admin","lehrer","1755");
+       my $link_dir="${dir}/Tauschverzeichnisse";
+       &check_links("${link_dir}",$login);
 
     }
 
@@ -285,6 +283,42 @@ sub check_dir {
     &is($exists, 1 ,"Checking if  $abs_path exists");
 }
 
+
+sub check_links {
+    my ($link_dir, $login) = @_;
+    my $exists=0;
+    my @checked_links=();
+    print "Checking links in $link_dir \n";
+    my $grp_string="";
+    my $pri_group_string=`id -gn $login`;
+    my $group_string=`id -Gn $login`;
+    chomp($group_string);
+    chomp($pri_group_string);
+    my @group_list=split(/ /, $group_string);
+    print "Groups of $login: @group_list \n";
+
+    foreach $group (@group_list){
+	$exists=0;
+        $link=$link_dir."/Tausch-".$group;
+        push @checked_links, $links;
+        if (-e $link){
+          $exists=1;
+          my $link_target = readlink $link;
+          print "Target: $link_target \n";    
+          &is($link_target,"/home/tausch/klassen/${group}" ,
+              "Checking if  target is of link is OK");
+
+          # Does Target exist??????ßß
+        }
+        # show result of existance check
+        &is($exists, 1 ,"Checking if  $link is link/exists");
+    }
+
+    # lesen, welche Links in $link_dir sind -> Liste
+    # alle gecheckten links abziehen
+    # es sollten keine restlichen Links übrig sein
+    # Link nach schule Testen
+}
 
 
 sub run_command {
