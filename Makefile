@@ -31,6 +31,9 @@ SAMBADEBCONFDIR=$(DESTDIR)/etc/samba
 # SAMBA Debian 
 SAMBADIR=$(DESTDIR)/var/lib/samba
 
+# Config-templates
+CTEMPDIR=$(DESTDIR)/var/lib/sophomorix/config-templates
+
 # WEBMINCONFDIR ML und Debian
 WEBMINCONFDIR=$(DESTDIR)/etc/webmin
 
@@ -44,6 +47,8 @@ install-base:
 	install -d -m700 -oroot -groot $(DESTDIR)/var/log/sophomorix
 	install -d -m700 -oroot -groot $(DESTDIR)/var/log/sophomorix/user
 	install -d -m700 -oroot -groot $(DESTDIR)/var/lib/sophomorix/drucken
+	install -d -m700 -oroot -groot $(CTEMPDIR)
+	install -d -m700 -oroot -groot $(CTEMPDIR)/samba/netlogon
 
 	##### scripts
 	install -d $(DESTDIR)/usr/sbin
@@ -51,13 +56,17 @@ install-base:
 	##### configs for admin
 	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/user
 	install -oroot -groot --mode=0600 sophomorix-base/config/*[!CVS] $(DESTDIR)/etc/sophomorix/user
+	##### config-templates
+	install -oroot -groot --mode=0700 sophomorix-base/config-templates/*[!CVS] $(CTEMPDIR)
 	##### configs for developers
 	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/devel/user
 	install -oroot -groot --mode=0700 sophomorix-base/config-devel/*[!CVS] $(DESTDIR)/etc/sophomorix/devel/user
 	##### Copy the module
 	install -d -m755 -oroot -groot $(PERLMOD)
 	install -oroot -groot --mode=0644 sophomorix-base/modules/Sophomorix*[a-z1-9] $(PERLMOD)
-
+	# for samba
+	install -d -m700 -oroot -groot $(DESTDIR)/home/samba/netlogon
+	install -oroot -groot --mode=0700 sophomorix-base/samba/netlogon/login.bat $(CTEMPDIR)/samba/netlogon
 
 install-files:
 	##### lib for managing users in files (passwd, group, user.protokoll)
