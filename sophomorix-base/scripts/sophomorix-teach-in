@@ -19,27 +19,41 @@ use Term::ANSIColor qw(:constants); # farbiger Text RED, BLUE, ...
 $Term::ANSIColor::AUTORESET = 1;
 
 # Einlesen der Konfigurationsdatei für Entwickler
-{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
 
 # jeffbecks Bibliothek und
 # Einlesen der Konfigurationsdatei
 #require "${DevelConf::library_pfad}/sophomorix-lib";
 
-# Nur als Dummy(Warnings verhindern)
-if($DevelConf::ergebnis_pfad){};
-if($DevelConf::dyn_config_pfad){};
-if($DevelConf::schueler_oder_user){};
-if($DevelConf::library_pfad){};
-#if(){};
 
 
 # ===========================================================================
-# Deklarationen
+# Loading the db-Module, list of functions
 # ===========================================================================
+# list of functions to load if db is 'files'
+use if ${DevelConf::db_backend} eq 'files' , 
+    'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                       );
+
+# list of functions to load if db is 'ldap'
+use if ${DevelConf::db_backend} eq 'ldap' ,
+    'Sophomorix::SophomorixLDAP' => qw(show_modulename);;
+
 
 # ===========================================================================
-# Aufrufparameter
+# Loading the sys-db-Module, list of functions
 # ===========================================================================
+# list of functions to load if sys_db is 'files'
+use if ${DevelConf::sys_db} eq 'files' , 
+    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
+                                          );
+
+
+# show the Database Modules that are loaded
+&show_modulename();
+&show_sys_modulename();
+
+
 
 
 
@@ -127,28 +141,18 @@ if ($help==1) {
    my @list = split(/\//,$0);
    my $scriptname = pop @list;
    # Befehlbeschreibung
-   print "$scriptname sucht in hinzukommenden usern und zu löschenden usern\n"; 
-   print "nach Ähnlichen. Mit $scriptname können diese User einander zugeordnet werden.\n";
-   print "So wird ein korrigierter User-Datensatz unter seinem alten Namen durchgeschleust.\n\n";
-   # gemeinsamer Hilfetext
-   &help_text_all;
+   print "Changes updated userdata (Name, Firstname, Birthday) in an existing\n",
+         "account of the sophomorix database.\n";
+   print('
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -a value / --approx value
+  -r login / --redo login
 
-   # optionen
-   print "Optionen:\n\n";
-
-   print "  --info, -i\n";
-   print "     Gibt den Inhalt der bisherigen teach-in.txt aus.\n\n";
-
-   print "  --clear, -c\n";
-   print "     Löscht die Datei teach-in.txt.\n\n";
-
-   print "  --approx, -a\n";
-   print "     Gibt an, wie genau es $scriptname nehmen soll bei der Suche nach\n";
-   print "     Ähnlichen Usern. Erlaubt sin Werte von 5 bis 60. Der standardwert ist 25.\n";
-   print "     Je höher der Wert, desto mehr User werden gefunden.\n\n";
-
-
-
+Please see the sophomorix-teach-in(8) man pages for full documentation
+');
    exit;
 }
 

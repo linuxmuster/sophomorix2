@@ -1,0 +1,66 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH SOPHOMORIX-TEACH-IN 8 "January 23, 2005"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+sophomorix-teach-in \- Trägt verändete Schülerdaten (Name, Vorname,
+Geburtsdatum) in einen vorhandenen Account der sophomorix Datenbank ein.
+.SH SYNOPSIS
+.B sophomorix-teach-in
+.RI [ options ]
+.br
+.SH DESCRIPTION
+.B sophomorix-teach-in  
+Liest die User, die anzulegen sind aus sophomorix.add und die Schüler
+die zu löschen sind aus sophomorix.kill. Sind sich darin User (Name, Vorname, Geburtsdatum) ähnlich, können bei Bestätigung durch den Administrator diese Accounts ineinander überführt werden. Bei Bedarf können diese Änderungen Rückgängig gemacht werden.
+.PP
+.SH OPTIONS
+.B sophomorix-teach-in
+benützt die GNU command line syntax, mit langen Optionen, die mit zwei
+Bindestrichen (`-') beginnen:
+.TP
+.B \-h, \-\-help
+Kurzübersicht über Optionen, sowie eine Liste der eingelesenen Dateien.
+.TP
+.B \-v, \-\-verbose
+Sagt, was das Programm gerade macht (verbose)
+.TP
+.B \-vv, \-\-verbose \-\-verbose
+Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
+.TP
+.B \-a wert, \-\-approx wert
+gibt an, wie genau es sophomorix-teach-in nehmen soll bei der Suche nach ähnlichen Usern. Erlaubt sind Werte von 5 bis 60. Der Standardwert ist 25. Je höher der Wert, desto mehr User werden gefunden.
+.TP
+.B \-r login, \--redo login
+Nimmt die am Account login zuletzt gemachte Änderung zurück.
+.TP
+.SH SEE ALSO
+.BR sophomorix (8),
+.BR sophomorix-teach-in (8),
+.BR sophomorix-add (8),
+.BR sophomorix-move (8),
+.BR sophomorix-print (8),
+.BR sophomorix-kill (8),
+.BR sophomorix-split (8),
+.BR sophomorix-project (8),
+
+.\".BR baz (1).
+.\".br
+.\"You can see the full options of the Programs by calling for example 
+.\".IR "sophomrix-teach-in -h" ,
+.
+.SH AUTHOR
+This manual page was written by <jeffbeck@web.de>.
