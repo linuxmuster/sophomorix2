@@ -1296,18 +1296,20 @@ Gibt die Zeit zurück. Geht mit `` einfacher ToDo
 
 =cut
 sub zeit_stempel {
+    my $zeit = `date +%Y-%m-%d_%H-%M-%S`;
+    chomp($zeit);
    # Startdatum in eine temporäre Datei schreiben
-   system("date +%Y-%m-%d_%H-%M-%S > /tmp/starttime");
+#   system("date +%Y-%m-%d_%H-%M-%S > /tmp/starttime");
 
    # Startdatum wieder auslesen
-   open(STARTTIME, "/tmp/starttime") || die "Fehler: $!";
-   while(<STARTTIME>){
-      chomp();
-      $zeit=$_;
-   }
-
-   # Temporäre Datei wieder löschen
-   system("rm /tmp/starttime");
+#   open(STARTTIME, "/tmp/starttime") || die "Fehler: $!";
+#   while(<STARTTIME>){
+#      chomp();
+#      $zeit=$_;
+#   }
+#
+#   # Temporäre Datei wieder löschen
+#   system("rm /tmp/starttime");
 
    return $zeit;
 }
