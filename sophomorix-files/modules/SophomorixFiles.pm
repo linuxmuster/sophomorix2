@@ -12,6 +12,7 @@ require Exporter;
 	     create_user_db_entry
 	     delete_user_db_entry
 	     update_user_db_entry
+             create_project_db
              provide_class
              move_user_db_entry
              get_sys_users
@@ -453,6 +454,130 @@ sub update_user_db_entry {
     #print "$count OLD line found \n\n";
     return $count;
 }
+
+
+
+
+
+
+
+
+
+=head1 create_project_db
+
+Parameter 1: Name of project to be updated or created
+
+Parameter 2: List with Attribute=Value
+
+If the project doesnt exist, it is created
+
+
+=cut
+
+sub create_project_db {
+    my $param="";
+#    my $login_file="";
+    my $project_name_file="";
+    my $old_line="";
+    my $new_line="";
+    my $count=0;
+    my ($p_name,$p_long_name,$p_teachers,$p_members,$p_member_groups,
+        $p_add_quota,$p_max_members)=(),
+
+    my $project=shift;
+    my $file="${DevelConf::protokoll_pfad}/projects.db";
+
+    # Which file?
+    foreach $param (@_){
+       ($attr,$value) = split(/=/,$param);
+       if ($attr eq "File"){$file="$value"}
+    } 
+
+    open(TMP, ">$file.tmp");
+    open(FILE, "<$file");
+    while(<FILE>){
+        $old_line=$_;
+	($project_name_file)=split(/;/);
+        if ($project eq $project_name_file){
+           # found the line
+	    chomp();
+	    print "Project $project found\n";
+            printf "   %-18s : %-20s\n","Name" ,$project;
+           ($p_name,$p_long_name,$p_teachers,$p_members,$p_member_groups,
+            $p_add_quota,$p_max_members)=split(/;/);
+           if (not defined $p_name){$p_name=$project}
+           if (not defined $p_long_name){$p_long_name=$p_name}
+           if (not defined $p_teachers){$p_teachers=""}
+           if (not defined $p_members){$p_members=""}
+           if (not defined $p_member_groups){$p_member_groups=""}
+           if (not defined $p_add_quota){$p_add_quota=""}
+           if (not defined $p_max_members){$p_max_members=""}
+           $count++;
+           # Check of Parameters
+           foreach $param (@_){
+              ($attr,$value) = split(/=/,$param);
+              printf "   %-18s : %-20s\n",$attr ,$value;
+              if    ($attr eq "Name"){$p_name="$value"}
+              elsif ($attr eq "LongName"){$p_long_name="$value"}
+              elsif ($attr eq "Teachers"){$p_teachers="$value"}
+              elsif ($attr eq "Members"){$p_members="$value"}
+              elsif ($attr eq "MemberGroups"){$p_member_groups="$value"}
+              elsif ($attr eq "AddQuota"){$p_add_quota="$value"}
+              elsif ($attr eq "MaxMembers"){$p_max_members="$value"}
+              elsif ($attr eq "File"){$file="$value"}
+              else {print "Attribute $attr unknown\n"}
+	  }
+          # change the Line
+       $new_line=$p_name.";".$p_long_name.";".$p_teachers.";".
+                    $p_members.";".$p_member_groups.";".$p_add_quota.";".
+                    $p_max_members.";\n";
+          print "OLD Line:   $old_line";
+          print "NEW Line:   $new_line";
+          print TMP "$new_line";         
+        } else {
+            print TMP "$old_line";
+        }
+    }
+    # new file is in *.tmp
+    if ($count==1){
+        # one line found -> updating the project
+	close(FILE);
+	close(TMP);
+       system("mv $file.tmp $file");  
+    } elsif ($count==0){ 
+        # 0 lines found -> creating the project
+        print "$count OLD projects found, creating the project \n\n";
+        $p_name=$project;
+        printf "   %-18s : %-20s\n","Name" ,$project;
+        foreach $param (@_){
+           ($attr,$value) = split(/=/,$param);
+           printf "   %-18s : %-20s\n",$attr ,$value;
+           if ($attr eq "LongName"){$p_long_name="$value"}
+           elsif ($attr eq "Teachers"){$p_teachers="$value"}
+           elsif ($attr eq "Members"){$p_members="$value"}
+           elsif ($attr eq "MemberGroups"){$p_member_groups="$value"}
+           elsif ($attr eq "AddQuota"){$p_add_quota="$value"}
+           elsif ($attr eq "MaxMembers"){$p_max_members="$value"}
+           elsif ($attr eq "File"){$file="$value"}
+           else {print "Attribute $attr unknown\n"}
+        }
+        $new_line=$p_name.";".$p_long_name.";".$p_teachers.";".
+                  $p_members.";".$p_member_groups.";".$p_add_quota.";".
+                  $p_max_members.";\n";
+        print "OLD Line:   $old_line";
+        print "NEW Line:   $new_line";
+        print TMP "$new_line";         
+	close(FILE);
+        close(TMP);
+        system("mv $file.tmp $file");  
+    }
+    return $count;
+}
+
+
+
+
+
 
 
 # ENDE DER DATEI
