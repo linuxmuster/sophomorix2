@@ -14,7 +14,7 @@ package Sophomorix::SophomorixBase;
 require Exporter;
 use Time::Local;
 use Time::localtime;
-
+#use Sophomorix::SophomorixConfig;
 
 @ISA = qw(Exporter);
 
@@ -152,18 +152,18 @@ of B<SophomorixBase> and youre off.
 =over 4
 
 =cut
-    my $develconf="/usr/share/sophomorix/devel/sophomorix-devel.conf";
-if (not -e $develconf){
-    print "ERROR: $develconf not found!\n";
-    exit;
-}
+#    my $develconf="/usr/share/sophomorix/devel/sophomorix-devel.conf";
+#if (not -e $develconf){
+#    print "ERROR: $develconf not found!\n";
+#    exit;
+#}
 
 # Einlesen der Konfigurationsdatei für Entwickler
 #{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
-{ package DevelConf ; do "$develconf"}
+#{ package DevelConf ; do "$develconf"}
 
 # Einlesen der Konfigurationsdatei
-{ package Conf ; do "${DevelConf::config_pfad}/sophomorix.conf"}
+#{ package Conf ; do "${DevelConf::config_pfad}/sophomorix.conf"}
 # Die in sophomorix.conf als global (ohne my) deklarierten Variablen
 # können nun mit $Conf::Variablenname angesprochen werden
 

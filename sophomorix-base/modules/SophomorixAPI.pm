@@ -87,18 +87,18 @@ webmin modules for sophomorix.
 =over 4
 
 =cut
-    my $develconf="/usr/share/sophomorix/devel/sophomorix-devel.conf";
-if (not -e $develconf){
-    print "ERROR: $develconf not found!\n";
-    exit;
-}
+#    my $develconf="/usr/share/sophomorix/devel/sophomorix-devel.conf";
+#if (not -e $develconf){
+#    print "ERROR: $develconf not found!\n";
+#    exit;
+#}
 
 # Einlesen der Konfigurationsdatei für Entwickler
 #{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
-{ package DevelConf ; do "$develconf"}
+#{ package DevelConf ; do "$develconf"}
 
 # Einlesen der Konfigurationsdatei
-{ package Conf ; do "${DevelConf::config_pfad}/sophomorix.conf"}
+#{ package Conf ; do "${DevelConf::config_pfad}/sophomorix.conf"}
 # Die in sophomorix.conf als global (ohne my) deklarierten Variablen
 # können nun mit $Conf::Variablenname angesprochen werden
 

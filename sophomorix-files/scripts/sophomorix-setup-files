@@ -7,12 +7,14 @@
 
 # This Script adds users that are necessary to use sophomorix-files 
 # It should be run as postinst
+#use Sophomorix::SophomorixConfig; 
 use Sophomorix::SophomorixBase; 
 
 # Einlesen der Konfigurationsdatei für Entwickler
-{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+{ package DevelConf ; do "/usr/share/sophomorix/devel/sophomorix-devel.conf"}
 
-print "##### sophomorix-setup-files is configuring the system for sophomorix-files ...\n";
+print "##### sophomorix-setup-files is configuring",
+      " the system for sophomorix-files ...\n";
 
 # gruppe admin anlegen
 #system("groupadd -g 1000 admin");
