@@ -22,20 +22,34 @@
     <itemizedlist>
       <listitem>
 	<para>Datenbankabhängiger Code wurde in Funktionen
-	ausgelagert. Ebenso Authentifizierungssystemabhängiger
-	Code. Damit ist es möglich, recht einfach die Datenbank
-	(files, sql, ldap, ...) bzw. das Authentifitierungssystem
-	(files, ldap, sql, ...) zu wechseln, ohne große Änderungen in
-	witen Teilen des  Sophomorix Quellcodes.</para>
+	ausgelagert, die in perl-Modulen zusammengefasst sind. Ebenso
+	Authentifizierungssystemabhängiger Code. Damit ist es möglich,
+	recht einfach die Datenbank (files, sql, ldap, ...) bzw. das
+	Authentifitierungssystem (files, ldap, sql, ...) zu wechseln,
+	ohne große Änderungen in witen Teilen des Sophomorix
+	Quellcodes.</para>
       </listitem>
       <listitem>
 	<para>Projekte, an denen Schüler aus verschiedenen Klassen
-	Mitglieder sein können, sowie Beliebige Lehrer.</para>
+	Mitglieder sein können, sowie beliebige Lehrer.</para>
+      </listitem>
+      <listitem>
+	<para>Ein Projekt kann sich auch aus anderen Gruppen (Klassen,
+	Subklassen, Projekten) zusammensetzen. Dann sind diejenigen
+	User Projektmitglieder, die im Moment in diesen Klassen
+	sind.</para>
       </listitem>
       <listitem>
 	<para>auto-teach-in: Falls möglich werden die Schülerdaten,
 	wenn sie sich verändrrn selbs in die Datenbank von sophomorix
 	hochgeladen. </para>
+      </listitem>
+      <listitem>
+	<para>Benutzer-Status: Ein Benutzerstatus charakterisiert nun
+	den Zustand eines Users. Durch ändern des Benutzerstatus kann
+	z.B. ein Schüler schnell gelöscht werden. Außerdem kann der
+	Weg eines Users durch das System besser nachvollzogen werden.
+	</para>
       </listitem>
       <listitem>
 	<para>Unid: als 5. Feld wird eine eindeutige ID des
@@ -46,7 +60,10 @@
     </itemizedlist>
   </sect1>
   <sect1>
-    <title>Bestandteile (noch nicht aktuell)</title> 
+    <title>Bestandteile von <userinput>sophomorix</userinput></title> 
+
+<sect2>
+    <title><userinput>sophomorix</userinput>-Grundsystem</title> 
 
           <para>&so; besteht aus folgenden
     <emphasis>obligatorischen</emphasis> Debian-Paketen:</para>
@@ -58,7 +75,7 @@
            grundlegenden Scripte von sophomorix, wie z.b
            <userinput>sophomorix-check</userinput>,
            <userinput>sophomorix-add</userinput>, ....
-            sowie deren man pages.</para>
+            sowie deren <ulink url="./man/man8">man pages</ulink>.</para>
 
         </listitem>
         <listitem>
@@ -110,6 +127,29 @@
 
           </itemizedlist></para>
 
+    <para><figure>
+	<title>Zusammenhang von Konfiguration, Datenbank und
+	    Authentifizierungssystem</title>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="databases.png" format="png">
+	  </imageobject>
+	  <imageobject>
+	    <imagedata fileref="databases.eps" format="eps">
+	  </imageobject>
+	  <textobject>
+	    <phrase>Zusammenhang von Konfiguration, Datenbank und
+	    Authentifizierungssystem.</phrase>
+	  </textobject>
+	</mediaobject>
+      </figure>
+</para>
+
+</sect2>
+
+<sect2>
+    <title>Zusätzliche Pakete</title> 
+
 <para>Zusätzlich können mit &so;  noch folgende
     <emphasis>optionale</emphasis> Debian-Pakete benutzt werden:</para>
     <para><itemizedlist>
@@ -132,105 +172,65 @@
 
           </itemizedlist></para>
 
-
-    <para>&so; besteht aus mehreren
-      Perl-Scripten: </para>
-    <para><itemizedlist>
-	<listitem>
-	  <para><userinput>sophomorix-check</userinput> zum prüfen den
-	    Schülerdaten und Lehrerdaten ohne neue User anzulegen.</para>
-	</listitem>
-	<listitem>
-	  <para><userinput>sophomorix-add</userinput> zum anlegen der Schüler
-	    und Lehrer. Dieses Script ruft intern
-	    <userinput>sophomorix-print</userinput> zur Erzeugung der
-	    Druckdaten auf.
-	</listitem>
-	<listitem>
-	  <para><userinput>sophomorix-move</userinput> zum Versetzen der
-	    Schüler (und Lehrer).
-	</listitem>
-	<listitem>
-	  <para><userinput>sophomorix-kill</userinput> zum endgültigen
-            Entfernen von Schülern oder Lehrer.
-	</listitem>
-	<listitem>
-	  <para><userinput>sophomorix-teach-in</userinput> sucht nach
-	    Namenskorrekturen und erzeugt entsprechende Einträge, die dafür
-	    sorgen, dass ein Schüler nicht entfernt werden muss. </para>
-	</listitem>
-	<listitem>
-	  <para><userinput>sophomorix-quota</userinput> zum einstellen von
-	    Schüler-, Lehrer oder Klassenquota. </para>
-	</listitem>
-	<listitem>
-	  <para><userinput>sophomorix-reactivate</userinput> zum
-	    Wiederherstellen eines von &so; deaktivierten Schülers oder
-	    Lehrers. </para>
-	</listitem>
-	<listitem>
-	  <para><userinput>sophomorix-repair</userinput> zur Erstinstallation,
-	    wenn noch keine Verzeichnisse für sophomorix existieren, oder zum
-	    reparieren (anlegen falls nicht vorhanden, Dateirechte anpassen,
-	    Benutzer und Benutzergruppe anpassen)</para>
-	</listitem>
-      </itemizedlist>
+    <para>Für die Dokumetation der einzelnen Scripte schauen sie bitte
+    auf die Manual-Seiten die sie für
+    <userinput>sophomorix-check</userinput> z.B. mit dem Befehl
+    <userinput>man sophomorix-check</userinput> aufrufen können. Oder
+    sie lesen die <ulink url="./man/man8">HTML-Version der man
+    pages</ulink>
     </para>
-    <para>Alle diese Scripte werden nach <userinput>/usr/sbin</userinput>
-      installiert, und können jederzeit als <userinput>root</userinput> mit
-      ihrem Namen aufgerufen werden. Mit der Option 
-      <userinput>--help</userinput> erhalten Sie Hilfe. Die Option
-      <userinput>--info</userinput> gibt Informationen, welche Aktionen möglich
-      sind. Der Befehl <userinput>sophomorix-add --info</userinput> gibt zum
-      Beispiel aus, welche User angelegt werden können. 
-    <para>Eine weitere Aufrufmöglichkeit besteht über Webmin. Diese ist
-      momentan in Entwicklung.</para>
-    <para>Alle Konfigurationsdateien befinden sich in
-      <userinput>/etc/sophomorix/user</userinput></para>
-    <para>Alle von &so; erzeugten Daten finden sich unter
-      <userinput>/var/lib/sophomorix</userinput>.
-      Eine Ausnahme gibt es bei 
-      <userinput>sophomorix-pre</userinput>, wenn der Benutzerimport per Webmin 
-      durchgeführt wird. Dort werden die PDF-Dateien mit den Login-Kärtchen 
-      (<userinput>alle.pdf</userinput> und <userinput>hinzu.pdf</userinput>) nach 
-      <userinput>/usr/local/samba/users</userinput> kopiert, um kompatibel zu 
-      bisherigen Musterlösungs-Versionen zu bleiben.</para>
-  </sect1>
+
+</sect2>
+
+<sect2>
+    <title>Webmin-Module</title>
+
+<para>Todo</para> 
+</sect2>
+
+
+
+
+
+
   <sect1>
     <title>Grundprinzipien (noch nicht aktuell)</title>
     <para>Um die Benutzerverwaltung zu vereinfachen habe ich nachfolgende
       Prinzipien eingesetzt</para>
     <sect2>
-      <title>Einheitliches Datenformat für User</title>
-      <para>Die Schüler- und Lehrerdaten werden auf ein einheitliches Format gebracht.
-	    Unabhängig vom verwendeten Schulverwaltungsprogramm. Somit ist ein
-	    Wechsel/Upgrade desselben ohne Gefahr möglich.</para>
+      <title>Einheitliches Datenformat für User</title> <para>Die
+      Schüler- und Lehrerdaten werden auf ein einheitliches Format
+      gebracht.  Unabhängig vom verwendeten
+      Schulverwaltungsprogramm. Somit ist ein Wechsel/Upgrade
+      desselben ohne Gefahr möglich.</para>
     </sect2>
     <sect2>
-      <title>Verwendung korrigierter Daten</title>
-	  <para>Daten aus dem Sekretariat sollen erst verwendet werden, wenn
-	    sie in korrigierter Form (=endgültiger) Form vorliegen. Zuvor
-	    können die Daten ausgefiltert werden, oder es werden Schüler
-	    Klassenweise angelegt.</para>
+      <title>Verwendung korrigierter Daten</title> <para>Daten aus dem
+	  Sekretariat sollen erst verwendet werden, wenn sie in
+	  korrigierter Form (=endgültiger) Form vorliegen. Zuvor
+	  können die Daten ausgefiltert werden, oder es werden Schüler
+	  Klassenweise angelegt.</para>
     </sect2>
     <sect2>
-      <title>Feststehender Loginname eines Users</title>
-	  <para>Ist ein Schüler einmal angelegt, so soll er während seiner
-	    ganzen Schulkarriere mit demselben Login-Namen, Paswort und
-	    Home-Verzeichnis angemeldet bleiben. Auch wenn sich an seinen
-	    Schulverwaltungs-Daten noch etwas ändern sollte. Dies hat die
-	    erfreuliche Konsequenz, dass alle Login-Informationen an jeden
-	    Schüler nur einmal ausgegeben werden müssen.</para>
+      <title>Feststehender Loginname eines Users</title> <para>Ist ein
+	  Schüler einmal angelegt, so soll er während seiner ganzen
+	  Schulkarriere mit demselben Login-Namen, Paswort und
+	  Home-Verzeichnis angemeldet bleiben. Auch wenn sich an
+	  seinen Schulverwaltungs-Daten noch etwas ändern sollte. Dies
+	  hat die erfreuliche Konsequenz, dass alle
+	  Login-Informationen an jeden Schüler nur einmal ausgegeben
+	  werden müssen.</para>
     </sect2>
     <sect2>
       <title>Halbautomatisches Löschen eines Users</title>
 	  <para>Schüler werden nicht sofort gelöscht, wenn sie in der
-	    Schulverwaltungsdatei nicht mehr auftauchen. Sie werden erst in die
-	    Klasse <userinput>dachboden</userinput> verschoben. Dort werden sie
-	    eine Zeit lang toleriert. In einem weiteren Schritt werden sie
-	    deaktiviert, sie können sich nicht mehr per Windows einloggen.
-	    Wiederum nach einer Zeitspanne werden sie dann endgültig gelöscht.
-	    Dabei wird kein Daten-Backup gemacht.</para>
+	  Schulverwaltungsdatei nicht mehr auftauchen. Sie werden erst
+	  in die Klasse <userinput>dachboden</userinput>
+	  verschoben. Dort werden sie eine Zeit lang toleriert. In
+	  einem weiteren Schritt werden sie deaktiviert, sie können
+	  sich nicht mehr per Windows einloggen.  Wiederum nach einer
+	  Zeitspanne werden sie dann endgültig gelöscht.  Dabei wird
+	  kein Daten-Backup gemacht.</para>
       <sect3>
 	<title>Eigenschaften eines Users</title>
       <para>Ein User hat folgende Eigenschaften:</para>
