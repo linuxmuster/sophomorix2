@@ -32,43 +32,75 @@
 #
 #
 ###   /home/*
-/home/admin::admin::admin::0700
-/home/klassenarbeit::admin::admin::0775
-/home/lehrer::admin::admin::0775
-/home/schueler::admin::lehrer::2751
-/home/tausch::admin::admin::1775
-/home/workstations::admin::admin::0775
-/home/aufgaben::admin::admin::0775
+#/home/admin::admin::admin::0700
+$homedir_admin::admin::admin::0700
+#/home/klassenarbeit::admin::admin::0775
+$share_exams::admin::admin::0775
+
+###/home/lehrer::admin::admin::0775
+$homedir_teacher::admin::admin::0775
+#/home/schueler::admin::lehrer::2751
+$homedir_pupil::admin::admin::1775
+#/home/workstations::admin::admin::0775
+$homedir_ws::admin::admin::0775
+#/home/aufgaben::admin::admin::0775
+$share_tasks::admin::admin::0775
 #
 ### /home/aufgaben/*
-/home/aufgaben/$klassen::admin::lehrer::3755
+#/home/aufgaben/$klassen::admin::lehrer::3755
+$share_tasks/$klassen::admin::lehrer::3755
 #
 ### /home/klassenarbeit/*
 /home/klassenarbeit/$raeume/aufgaben::admin::$raeume::3770
-###   /home/tausch/* 
-/home/tausch/klassen::admin::lehrer::0751
-/home/tausch/lehrer::admin::lehrer::3770
-/home/tausch/schueler::admin::lehrer::3777
-/home/tausch/klassen/$klassen::admin::lehrer::3777
+###   /home/tausch/*
+$share_share::admin::admin::1775
+#/home/tausch/klassen::admin::lehrer::0751
+$share_classes::admin::lehrer::0751
+$share_projects::admin::lehrer::0751
+#/home/tausch/lehrer::admin::lehrer::3770
+$share_teacher::admin::lehrer::3770
+#/home/tausch/schueler::admin::lehrer::3777
+$share_school::admin::lehrer::3777
+#/home/tausch/klassen/$klassen::admin::lehrer::3777
+$share_classes/$klassen::admin::lehrer::3777
+
+# Todo
+#$share_projects/$klassen::admin::lehrer::3777
+
 #
 ###  User-Verzeichnisse
 #
 # Schüler
-/home/schueler/$klassen::admin::lehrer::2751 
-/home/schueler/$klassen/$schueler::$schueler::lehrer::0700
-/home/schueler/$klassen/$schueler/windows::$schueler::lehrer::0700 
-/home/schueler/$klassen/$schueler/windows/sammelordner::$schueler::lehrer::2750
-/home/schueler/$klassen/$schueler/Tauschverzeichnisse::admin::lehrer::1755
-/home/schueler/$klassen/$schueler/www::$webuser::root::0001/0501
-/home/schueler/$klassen/$schueler/www/public_html::$schueler::lehrer::2755
+#/home/schueler/$klassen::admin::lehrer::2751 
+#/home/schueler/$klassen/$schueler::$schueler::lehrer::0700
+#/home/schueler/$klassen/$schueler/windows::$schueler::lehrer::0700 
+#/home/schueler/$klassen/$schueler/windows/sammelordner::$schueler::lehrer::2750
+#/home/schueler/$klassen/$schueler/Tauschverzeichnisse::admin::lehrer::1755
+#/home/schueler/$klassen/$schueler/www::$webuser::root::0001/0501
+#/home/schueler/$klassen/$schueler/www/public_html::$schueler::lehrer::2755
+
+$homedir_pupil/$klassen::admin::lehrer::2751 
+$homedir_pupil/$klassen/$schueler::$schueler::lehrer::0700
+$homedir_pupil/$klassen/$schueler/windows::$schueler::lehrer::0700 
+$homedir_pupil/$klassen/$schueler/windows/sammelordner::$schueler::lehrer::2750
+$homedir_pupil/$klassen/$schueler/Tauschverzeichnisse::admin::lehrer::1755
+$homedir_pupil/$klassen/$schueler/www::$webuser::root::0001/0501
+$homedir_pupil/$klassen/$schueler/www/public_html::$schueler::lehrer::2755
 #
 # Lehrer
-/home/lehrer/$lehrer::$lehrer::lehrer::0700/0701
-/home/lehrer/$lehrer/windows::$lehrer::lehrer::0700
-/home/lehrer/$lehrer/windows/sammelordner::$lehrer::lehrer::0755
-/home/lehrer/$lehrer/windows/aufgaben::admin::lehrer::0775
-/home/lehrer/$lehrer/www::$webuser::root::0001/0501
-/home/lehrer/$lehrer/www/public_html::$lehrer::lehrer::2755
+#/home/lehrer/$lehrer::$lehrer::lehrer::0700/0701
+#/home/lehrer/$lehrer/windows::$lehrer::lehrer::0700
+#/home/lehrer/$lehrer/windows/sammelordner::$lehrer::lehrer::0755
+#/home/lehrer/$lehrer/windows/aufgaben::admin::lehrer::0775
+#/home/lehrer/$lehrer/www::$webuser::root::0001/0501
+#/home/lehrer/$lehrer/www/public_html::$lehrer::lehrer::2755
+
+$homedir_teacher/$lehrer::$lehrer::lehrer::0700/0701
+$homedir_teacher/$lehrer/windows::$lehrer::lehrer::0700
+$homedir_teacher/$lehrer/windows/sammelordner::$lehrer::lehrer::0755
+$homedir_teacher/$lehrer/windows/aufgaben::admin::lehrer::0775
+$homedir_teacher/$lehrer/www::$webuser::root::0001/0501
+$homedir_teacher/$lehrer/www/public_html::$lehrer::lehrer::2755
 #
 # admin
 /home/admin/windows::admin::admin::0700
@@ -85,10 +117,13 @@
 #/home/workstations/$raeume/$workstation/www/public_html::$workstation::lehrer::2755
 #
 ### SAMBA
-/$samba::root::root::0755
-/$samba/cds::admin::admin::0755
-/$samba/netlogon::admin::admin::0755
-/$samba/progs::admin::admin::0755
+#\$samba::root::root::0755
+$homedir_samba::root::root::0755
+#/$samba/cds::admin::admin::0755
+$homedir_samba_cds::admin::admin::0755
+#/$samba/netlogon::admin::admin::0755
+$homedir_samba_netlogon::admin::admin::0755
+$homedir_samba_progs::admin::admin::0755
 /$samba/users::admin::admin::0755
 /$samba/workstations::admin::admin::0755
 # Sicherheit
