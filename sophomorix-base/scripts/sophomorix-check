@@ -19,6 +19,7 @@ use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 #use Schedule::at;
 use String::Approx 'amatch';
+use Sophomorix::SophomorixBase;
 use Time::Local;
 use Time::localtime;
 use Term::ANSIColor qw(:constants); # farbiger Text RED, BLUE, ...
@@ -30,7 +31,7 @@ $Term::ANSIColor::AUTORESET = 1;
 
 # jeffbecks Bibliothek und
 # Einlesen der Konfigurationsdatei
-require "${DevelConf::library_pfad}/sophomorix-lib-base";
+#require "${DevelConf::library_pfad}/sophomorix-lib-base";
 require "${DevelConf::library_pfad}/sophomorix-lib-files";
 #require "${DevelConf::library_pfad}/sophomorix-libldap";
 
@@ -68,6 +69,7 @@ my  @schueler_to_check_dateien=(
 # =========================================================================
 
 # faellt weg/nur alphabetisch, da zusatzdaten in ldap
+&check_datei_touch("${DevelConf::users_pfad}/lehrer.txt");
 &lehrer_ordnen();
 
 # ===========================================================================
@@ -350,7 +352,7 @@ my $value="";
 # Existenz wichtiger Dateien prüfen
 # ===========================================================================
 &check_datei_exit("${DevelConf::users_pfad}/schueler.txt");
-&check_datei_exit("${DevelConf::users_pfad}/lehrer.txt");
+#&check_datei_exit("${DevelConf::users_pfad}/lehrer.txt");
 &check_datei_exit("${DevelConf::config_pfad}/entfernen.txt");
 &check_datei_exit("${DevelConf::config_pfad}/sperrklassen.txt");
 
@@ -377,6 +379,8 @@ mkdir("${DevelConf::ergebnis_pfad}",0700)
 
 &check_datei_touch("${DevelConf::pruef_pfad}/user.reaktiviert");
 &check_datei_touch("${DevelConf::config_pfad}/teach-in.txt");
+#&check_datei_touch("${DevelConf::users_pfad}/lehrer.txt");
+&check_datei_touch("${DevelConf::dyn_config_pfad}/user.protokoll");
 &check_datei_touch("${DevelConf::dyn_config_pfad}/user-duldungsbeginn");
 &check_datei_touch("${DevelConf::dyn_config_pfad}/user-deaktivierungsbeginn");
 

@@ -16,6 +16,7 @@
 # Bibliotheken
 use strict;
 use Getopt::Long;
+use Sophomorix::SophomorixBase;
 Getopt::Long::Configure ("bundling");
 #use Schedule::at;
 
@@ -24,7 +25,7 @@ Getopt::Long::Configure ("bundling");
 
 # jeffbecks Bibliothek und
 # Einlesen der Konfigurationsdatei
-require "${DevelConf::library_pfad}/sophomorix-lib-base";
+#require "${DevelConf::library_pfad}/sophomorix-lib-base";
 
 # Nur als Dummy(Warnings verhindern)
 if($Conf::schul_name){};
@@ -912,9 +913,15 @@ close(LATEX);
 # LATEXEN des Dokuments
 # ===========================================================================
 
-&latexen;
-&latexen;
-&latexen;
+# hoehere Qualitaet
+#&latexen;
+#&latexen;
+#&latexen;
+
+# einfacher
+&pdflatexen;
+&pdflatexen;
+#&pdflatexen;
 
 
 # Datei öffnen und mit acrobat-reader anzeigen falls --show
@@ -935,6 +942,11 @@ if ($show==1) {
 # ===========================================================================
 # Subroutinen
 # ===========================================================================
+
+sub pdflatexen {
+   system("pdflatex ${DevelConf::druck_pfad}/$output_file_basename.tex $dev_null");
+
+}
 
 sub latexen {
   # PS aus $output_file_basename.tex erzeugen

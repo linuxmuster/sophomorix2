@@ -12,6 +12,7 @@ use strict;
 use Quota;
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
+use Sophomorix::SophomorixBase;
 #use Net::LDAP;
 #use Schedule::at;
 
@@ -21,7 +22,7 @@ Getopt::Long::Configure ("bundling");
 
 # jeffbecks Bibliothek und
 # Einlesen der Konfigurationsdatei
-require "${DevelConf::library_pfad}/sophomorix-lib-base";
+#require "${DevelConf::library_pfad}/sophomorix-lib-base";
 require "${DevelConf::library_pfad}/sophomorix-lib-files";
 
 # Nur als Dummy(Warnings verhindern)
