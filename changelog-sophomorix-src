@@ -2,26 +2,24 @@ This is the todo/changelog for the sophomorix sourcecode
 
 ##########  todo ##########
 
-sophomorix-repair
-   - ok so far
+sophomorix-repair (seems ok so far)
 
 
 sophomorix-quota
 
-   - limit sophomorix-quota to 
+   - limit sophomorix-quota to (option names as in sophomotix-add) 
        - class(-c), 
        - project(-p), 
        - school(schoolname), ...
 
 
-
-sophomorix-teach-in
+sophomorix-teach-in (seems ok so far)
 
 
 sophomorix-check
 
    - what about the shell (/bin/bash) when updating from old files?
-   - add switch in sophomorix-check to do/do not an auto-teach-in
+   - what about the quota  when updating from old files?
    - add more auto-teach-in
 
 sophomorix-split
@@ -43,7 +41,7 @@ sophomorix-passwd
 sophomorix-print
 
    - print subclass on login-card
-   - what about projects?
+   - what about projects, show project membership?
    - make configurable which print-output sophomorix-print generates 
      to save time (ps, pdf,csv,...) 
 
@@ -53,7 +51,7 @@ sophomorix-project
    - check if loginname is valid before adding user to a project   
 
 
-sophomorix-update:
+sophomorix-update(sophomorix-vampire?):
 
    - write script to update
      problem id of lehrer on debian is 105 ml 2.x is 1002
@@ -72,6 +70,10 @@ All Scripts:
    - remove old subclass stuff (extrafile to specify subclass)
    - get_xxx functions of sophomorix-repair: give a international name 
      and put it to SophomorixAPI, document it with perldoc 
+   - unify the options for all scripts (create rfc), where a common
+     naming system is used, i.e what options are used to refer to a AdminClass:
+         -c AdminClass --class AdminClass --adminclass AdminClass
+         ...
 
 Think about:
 
@@ -87,8 +89,11 @@ RELEASES:
 
 1.1.7 (2005-01-?)
 
-   - replacement for sophomorix-teach-in
-   - show admin-class and exit-admin-class when teaching-in
+   - moved all query function of sophomorix-repair to SophomorixAPI and 
+     renaming them international
+   - added a switch (--no-sync) in sophomorix-check to do/do not an auto-teach-in
+   - replacement for sophomorix-teach-in finished as alpha version
+   - show login, admin-class and exit-admin-class when teaching-in
    - include/check sophomorix-repair
    - removed variable $samba_dir in repair.directories, ...
    - The Filesystem under /home is controlled by variables in sophomorix-devel.conf
