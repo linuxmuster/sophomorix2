@@ -204,6 +204,7 @@ sub check_account {
     # 0: unlocked account
     my $linux_lock=2;
     my $samba_lock=2;
+    my $homedir_exists=0;
     # linux
     open(SHADOW, "/etc/shadow");
     while (<SHADOW>){
@@ -227,10 +228,24 @@ sub check_account {
     } elsif ($type eq "enabled"){
        is($linux_lock, 0 ,"Checking if Linux-Account of $login is enabled");
        is($samba_lock, 0 ,"Checking if Samba-Account of $login is enabled");
-   } elsif ($type eq "nonexisting"){
+    } elsif ($type eq "nonexisting"){
        is($linux_lock, 2 ,"Checking if Linux-Account of $login doesnt exist");
        is($samba_lock, 2 ,"Checking if Samba-Account of $login doesnt exist");
     }
+
+    if ($type ne "nonexisting"){
+       # fetching account Data
+       my($name,$passwd,$uid,$gid,$quota,$comment,
+          $gcos,$dir,$shell) = getpwnam($login);
+       # existence
+       if (-e $dir){
+	   $homedir_exists=1;
+       }
+       # permissions
+
+       is($homedir_exists, 1 ,"Checking if Homedir $dir exists");
+    }
+
 }
 
 

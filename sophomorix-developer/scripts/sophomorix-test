@@ -380,22 +380,119 @@ $login=&get_login_name("3c;larry wall;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1972.*");
 &check_account($login,"enabled");
 
 
+print '
+###########################################################################
+#                                                                         #
+#                              AUTO-TEACH-IN TESTEN                       #
+#                                                                         #
+###########################################################################
+';
+
+# updating the name Öz -> Ötz
+&exchange_line_in_file("7C;Öztürk;Mohammed;2.4.82;*",
+   "/etc/sophomorix/user/schueler.txt",
+   "7C;Ötztürk;Mohammed;2.4.82;");
+
+&run_command("sophomorix-check",$verbose);
+
+# Test
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+&check_emptyness("sophomorix.kill");
+
+
+&check_line_in_file(
+  "7c;mohammed oetztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982;[A-Za-z0-9]*;[A-D]?;E;;;[a-z0-9]*;[A-Z]*;",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+# updating the first Mohhammed -> Mohammad
+&exchange_line_in_file("7C;Ötztürk;Mohammed;2.4.82;*",
+   "/etc/sophomorix/user/schueler.txt",
+   "7C;Ötztürk;Mohammad;2.4.82;");
+
+&run_command("sophomorix-check",$verbose);
+
+# Test
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+&check_emptyness("sophomorix.kill");
+
+
+&check_line_in_file(
+  "7c;mohammad oetztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982;[A-Za-z0-9]*;[A-D]?;E;;;[a-z0-9]*;[A-Z]*;",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+
+# updating birth 82 -> 83
+&exchange_line_in_file("7C;Ötztürk;Mohammad;2.4.82;*",
+   "/etc/sophomorix/user/schueler.txt",
+   "7C;Ötztürk;Mohammad;2.4.83;");
+
+&run_command("sophomorix-check",$verbose);
+
+# Test
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+&check_emptyness("sophomorix.kill");
+
+
+&check_line_in_file(
+  "7c;mohammad oetztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1983;[A-Za-z0-9]*;[A-D]?;E;;;[a-z0-9]*;[A-Z]*;",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+
 
 
 print '
 ###########################################################################
 #                                                                         #
-#                         NOCH ANGELEGTE USER ENTFERNEN                   #
+#                      UNID HOCHLADEN - DATEN ÄNDERN                      #
 #                                                                         #
+###########################################################################
+';
+
+# updating the unid
+&exchange_line_in_file("3C;Wall;Larry;2.4.72;*",
+   "/etc/sophomorix/user/schueler.txt",
+   "3C;Wall;Larry;2.4.72;123456789;");
+
+&run_command("sophomorix-check",$verbose);
+
+# Test
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+&check_emptyness("sophomorix.kill");
+
+
+&check_line_in_file(
+  "3c;larry wall;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1972;123456789;[A-D]?;E;;;[a-z0-9]*;[A-Z]*;",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+# new name, first, birth
+&exchange_line_in_file("3C;Wall;Larry;2.4.72;*",
+   "/etc/sophomorix/user/schueler.txt",
+   "3C;Stallman;Richard;2.4.62;123456789;");
+
+
+&run_command("sophomorix-check",$verbose);
+
+
+
+print '
+###########################################################################
+# # # NOCH ANGELEGTE USER ENTFERNEN # # #
 ###########################################################################
 ';
 
 
 &remove_line(
-  "7C;Öztürk;Mohammed;2.4.82;",
+  "7C;Ötztürk;Mohammad;2.4.83;",
   "${DevelConf::users_pfad}/schueler.txt");
+#&remove_line(
+#  "3C;Wall;Larry;2.4.72;",
+#  "${DevelConf::users_pfad}/schueler.txt");
 &remove_line(
-  "3C;Wall;Larry;2.4.72;",
+  "3C;Stallman;Richard;2.4.62;",
   "${DevelConf::users_pfad}/schueler.txt");
 &remove_line(
   "m1kb;M\203hn;\223liver;12.10.1982;",
@@ -403,11 +500,11 @@ print '
 
 &run_command("sophomorix-check",$verbose);
 
-$login=&get_login_name("7c;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982");
+$login=&get_login_name("7c;mohammad oetztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1983");
 # make user tolerated for a looooong time
 &update_user_db_entry($login,"TolerationDate=01.01.1970");
 
-$login=&get_login_name("3c;larry wall;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1972");
+$login=&get_login_name("3c;richard stallman;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1962");
 # make user tolerated for a looooong time
 &update_user_db_entry($login,"TolerationDate=01.01.1970");
 
@@ -423,7 +520,7 @@ $login=&get_login_name("m1kb;oliver mahn;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982");
 my @logins=();
 
 
-$login=&get_login_name("dachboden;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982");
+$login=&get_login_name("dachboden;mohammad oetztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1983");
 
 push @logins, $login;
 
@@ -431,7 +528,7 @@ push @logins, $login;
 &update_user_db_entry($login,"DeactivationDate=01.01.1971");
 
 
-$login=&get_login_name("dachboden;larry wall;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1972");
+$login=&get_login_name("dachboden;richard stallman;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1962");
 push @logins, $login;
 &check_account($login,"disabled");
 &update_user_db_entry($login,"DeactivationDate=01.01.1971");
