@@ -23,6 +23,8 @@ use Time::localtime;
              get_user_adminclass
              get_pupils_school
              get_adminclasses_school
+             get_adminclasses_sub_school
+             get_projects_school
              get_workstations_room
              get_workstations_school
              get_rooms_school
@@ -225,6 +227,83 @@ sub get_adminclasses_school {
     endpwent();
 
     while (my ($k) = each %klassen_hash){
+       # Liste füllen
+       push (@liste, $k);
+    }
+    
+    @liste = sort @liste;
+    return @liste;
+}
+
+=pod
+
+=item I<@list = get_adminclasses_sub_school()>
+
+Returns an asciibetical list of all AdminClasses with subclasses in the school. 
+The group of all teachers is NOT included in this list
+
+=cut
+
+# Diese Funktion liefert eine Liste aller Klassen der Schule zurück
+sub get_adminclasses_sub_school {
+    # this is database-dependant ?????????????
+    my $file="$DevelConf::protokoll_datei";
+    my %klassen_hash=();
+    my @liste;
+    open(DB, "<$file");
+    while(<DB>){
+        chomp();
+        if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+        if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+        my @line=split(/;/);
+        if (not defined $line[6]){
+            $line[6]="";
+	}
+        if ($line[6] eq "A" or
+            $line[6] eq "B" or
+            $line[6] eq "C" or
+            $line[6] eq "D"){
+            # print "Class: $line[0]\n"; 
+            # print "  Sub:  $line[6]\n"; 
+            $klassen_hash{$line[0]}="";
+        }
+    }
+
+    close(DB);
+    while (my ($k) = each %klassen_hash){
+       # Liste füllen
+       push (@liste, $k);
+    }
+    
+    @liste = sort @liste;
+    return @liste;
+}
+
+=pod
+
+=item I<@list = get_projects_school()>
+
+Returns an asciibetical list (short name = linux name) of all projects
+in the school.
+
+=cut
+
+# Diese Funktion liefert eine Liste aller Klassen der Schule zurück
+sub get_projects_school {
+    # this is database-dependant ?????????????
+    my $file="${DevelConf::protokoll_pfad}/projects_db";
+    my %projects=();
+    my @liste;
+    open(DB, "<$file");
+    while(<DB>){
+        chomp();
+        if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+        if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+        my @line=split(/;/);
+        $projects{$line[0]}="";
+    }
+    close(DB);
+    while (my ($k) = each %projects){
        # Liste füllen
        push (@liste, $k);
     }

@@ -19,6 +19,7 @@ use strict;
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
 use Sophomorix::SophomorixFiles;
 #use Schedule::at;
 
@@ -99,11 +100,17 @@ Please see the sophomorix-add(8) man pages for full documentation
    exit;
 }
 
+
 # --info
 if ($info==1){
-    print "Option info\n";
+    my @list=&get_adminclasses_sub_school();
+    print "Classes with subclasses are: \n";
+    foreach my $item (@list){
+	print "   $item \n";
+    }
     exit;
 }
+
 
 # Abbruch wenn als klasse lehrer abgegeben
 if ($class eq "" or $class eq "lehrer"){

@@ -151,6 +151,18 @@ my @klassen=&get_adminclasses_school();
 &print_list("The list of every AdminClass:",@klassen);
 
 
+# Subclasses
+&titel("Creating list of every AdminClass with subclasses...");
+my @klassen_sub=&get_adminclasses_sub_school(); 
+&print_list("The list of every AdminClass with subclasses:",@klassen);
+
+
+# Projects
+&titel("Creating list of every Project ...");
+my @projects=&get_projects_school(); 
+&print_list("The list of every Project:",@klassen);
+
+
 # Räume
 &titel("Creating list of every room ...");
 #my @raeume=&get_raeume_in_schule(); 

@@ -1748,22 +1748,39 @@ sub set_sophomorix_passwd {
 
 =pod
 
-=item I<create_share_link(login,project)>
+=item I<create_share_link(login,project,type)>
 
-Legt ein Link an in das Tauschverzeichnis des Projekts an.
+Legt ein Link an in das Tauschverzeichnis des Projekts an. Der type
+kann sein: project oder subclass
 
 =cut
 # this should be true for all db and auth-systems
 sub create_share_link {
-    my ($login,$project) = @_;
-    print "Creating a link for user $login to project $project.\n";
-    my $link_dir="${DevelConf::share_projects}/${project}/";
-
+    my ($login,$share_name,$type) = @_;
+    my $link_target="";
+    # project is standard
+    if (not defined $type or $type eq ""){
+	$type="project";
+    }
     my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
        $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
+    my $link_name=$home."/Tauschverzeichnisse/Tausch-${share_name}";   
+    print "Creating a link for user $login to project $share_name.\n";
 
-    my $link_name=$home."/Tauschverzeichnisse/Tausch-${project}";   
-    my $link_target="${DevelConf::share_projects}/${project}/";
+
+    if ($type eq "project"){
+        # project
+        # my $link_dir="${DevelConf::share_projects}/${share_name}/";
+        $link_target="${DevelConf::share_projects}/${share_name}/";
+   } elsif ($type eq "subclass"){
+        # subclass
+        $link_target="${DevelConf::share_subclasses}/${share_name}/";
+    } else {
+        print "Unknown type $type\n\n";
+	return 0;
+    }
+
+
 
     print "   Link name : $link_name\n";
     print "   Target    : $link_target\n";
