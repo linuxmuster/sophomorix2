@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-TEACH-IN 8 "January 23, 2005"
+.TH SOPHOMORIX-TEACH-IN 8 "February 17, 2005"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -23,29 +23,42 @@ Geburtsdatum) in einen vorhandenen Account der sophomorix Datenbank ein.
 .RI [ options ]
 .br
 .SH DESCRIPTION
-.B sophomorix-teach-in  
-Liest die User, die anzulegen sind aus sophomorix.add und die Schüler
-die zu löschen sind aus sophomorix.kill. Sind sich darin User (Name, Vorname, Geburtsdatum) ähnlich, können bei Bestätigung durch den Administrator diese Accounts ineinander überführt werden. Bei Bedarf können diese Änderungen Rückgängig gemacht werden.
+.B sophomorix-teach-in
+.br
+liest die User, die anzulegen sind aus sophomorix.add und die User,
+die nicht mehr in den Konfigurationsdateien sind ein. Sind sich 2 User
+aus diesen Bereichen ähnlich (Name, Vorname, Geburtsdatum), können bei
+Bestätigung durch den Administrator diese Accounts ineinander
+überführt werden. Dabei werden die Daten in der sophomorix Datenbank aktualisiert.
+.TP
+Bei jedem Einpflegen von Änderungen werden log-Dateien angelegt. Bei Bedarf können diese Änderungen Rückgängig gemacht werden.
+.TP
+Gibt es zu einem Account mehrere Aktionen, die rückgängig gemacht werden können, so wird immer die letzte Änderung rückgängig gemacht. Auf diese Weise kann man sich in den jeweiligen Schritten zurücktasten.
 .PP
 .SH OPTIONS
 .B sophomorix-teach-in
 benützt die GNU command line syntax, mit langen Optionen, die mit zwei
 Bindestrichen (`-') beginnen:
 .TP
-.B \-h, \-\-help
+.B -h, --help
 Kurzübersicht über Optionen, sowie eine Liste der eingelesenen Dateien.
 .TP
-.B \-v, \-\-verbose
+.B -v, --verbose
 Sagt, was das Programm gerade macht (verbose)
 .TP
-.B \-vv, \-\-verbose \-\-verbose
+.B -vv, --verbose --verbose
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
-.B \-a wert, \-\-approx wert
+.B -a wert, --approx wert
 gibt an, wie genau es sophomorix-teach-in nehmen soll bei der Suche nach ähnlichen Usern. Erlaubt sind Werte von 5 bis 60. Der Standardwert ist 25. Je höher der Wert, desto mehr User werden gefunden.
 .TP
-.B \-r login, \--redo login
+.B -u login, --undo login
 Nimmt die am Account login zuletzt gemachte Änderung zurück.
+.TP
+.B -i, --info
+Zeigt alle Aktionen an, die Rückgängig gemacht werden können. 
+.br
+In Kombination mit --redo login werden diejenigen Aktionen angezeigt, die beim Account login rückgängig gemacht werden können.
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),

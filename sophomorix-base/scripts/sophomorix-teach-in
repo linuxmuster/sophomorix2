@@ -11,7 +11,6 @@ use strict;
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 use Sophomorix::SophomorixBase;
-#use Schedule::at;
 # Für das Fuzzy-matching
 use String::Approx 'amatch';
 use Term::ANSIColor qw(:constants); # farbiger Text RED, BLUE, ...
@@ -67,12 +66,6 @@ my $hinzu_klasse;
 # Hash in die Hinzukommende Schüler eingelesen werden
 my %schueler_hinzu_hash;
 
-# Hash für Eintage in der Teach-in-Datei
-#my %teach_in_hash_alt;
-# Key und Value in diesem Hash
-my $teachin_im_system;
-my $teachin_replace;
-
 # Hash für das Auswahlmenü
 my %auswahl_hash;
 # Variablen für das Auswahlmenü
@@ -86,9 +79,6 @@ my $k;
 my $v;
 
 
-
-
-
 # ===========================================================================
 # Optionen verarbeiten
 # ==========================================================================
@@ -98,25 +88,22 @@ my $testen=0;
 $Conf::log_level=1;
 my $help=0;
 my $info=0;
-my $clear=0;
+my $undo_login="";
 # Parameter gibt an wie verschieden ähnliche Schüler finden soll (in Prozent)
 # 10% nur sehr änliche Namen werden gefunden
 # 25% sinnvoller Wert
 # 45% auch Schüler mit vertauschtem Vor- und Nachname werden gefunden
 my $match_fehlertoleranz="";;
 
-
-
 # Parsen der Optionen
 my $testopt=GetOptions(
-           "clear|c" => \$clear,
+           "undo=s" => \$undo_login,
            "approx|a=s" => \$match_fehlertoleranz,
 #           "test|t" => \$testen,
            "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
            "info|i" => \$info
           );
-
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
@@ -128,8 +115,8 @@ if ($help==1) {
    my @list = split(/\//,$0);
    my $scriptname = pop @list;
    # Befehlbeschreibung
-   print "Changes updated userdata (Name, Firstname, Birthday) in an existing\n",
-         "account of the sophomorix database.\n";
+   print "Updates userdata (Lastname, Firstname, Birthday) in an existing\n",
+         "account of the sophomorix database in an interactive way.\n";
    print('
 Options
   -h  / --help
@@ -149,7 +136,8 @@ if ($match_fehlertoleranz eq ""){
 # Standardwert angeben für das Argument
 $match_fehlertoleranz="25";
 } else {
-   if (exists($match_fehlertoleranz_erlaubt{$match_fehlertoleranz})){# ist im Hash zu finden
+   if (exists($match_fehlertoleranz_erlaubt{$match_fehlertoleranz})){
+           # ist im Hash zu finden
            # nix tun
        } else {
            # Abbruch
@@ -160,35 +148,97 @@ $match_fehlertoleranz="25";
        }
 }
 
-# --clear
-if ($clear==1){
-    # Löschen
-    print "\nLösche ${DevelConf::config_pfad}/teach-in.txt ...\n";
-    system("rm ${DevelConf::config_pfad}/teach-in.txt");
-    # Leere Datei anlegen
-    &check_datei_touch("${DevelConf::config_pfad}/teach-in.txt");
-    # Meldung
-    print "Sie müssen nun sophomorix-check aufrufen, und erst dann können\n";
-    print "sie einen erneuten teach-in durchführen\n\n";
-    exit;
-}
 
 # --info
 if ($info==1){
-    # Ausgabe von teach-in.txt
-    open(TEACHIN, "${DevelConf::config_pfad}/teach-in.txt");
+    my $count=0;
+    print "Undoable changes:\n";
+    open(HISTORY,
+     "${DevelConf::log_files}/user-modify.log") 
+     || die "Fehler: $!";
 
-    print "\n  Folgende user sind schon in teach-in.txt:\n\n";
-
-    print "Linux-Netzwerk-Identifier                Schulverwaltung-Identifier\n";
-    &linie;
-    while (<TEACHIN>){
+    while (<HISTORY>){
       chomp();
-      if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
-      ($teachin_im_system,$teachin_replace)=split(/:::/);
-      printf "%-40s %3s","$teachin_im_system","$teachin_replace\n";  
+      my @line=split(/::/);
+      if (not defined $line[6]){$line[6]=""}
+      my $info=$line[0]."(".$line[1]."): ";
+      if (($undo_login ne "" and $line[2] eq $undo_login) or
+          ($undo_login eq "") ){
+        $count++;
+        print "Loginname  $line[2]($count):\n";
+        printf "  %-27s %-12s %-55s \n",$info,"Old entry:",$line[3];
+        printf "%-8s %-20s %-12s %-55s \n\n","  Unid:",$line[6],"System:",$line[5];
+      }
     }
-    close(TEACHIN);
+    if ($undo_login ne ""){
+        print "Action ($count) can be undone.\n";
+    }
+    close(HISTORY);
+    exit;
+}
+
+# --redo
+if ($undo_login ne ""){
+    print "Undoing changes to account $undo_login:\n\n";
+    open(LOG,
+     "${DevelConf::log_files}/user-modify.log") 
+     || die "Fehler: $!";
+    my $count=0;
+    my ($last,$first,$birth);
+    my ($kind,$date,$login,$identifier_old,$a,$identifier_sys);
+    while (<LOG>){
+        ($kind,$date,$login,$identifier_old,$a,$identifier_sys)=split(/::/);
+        if ($login eq $undo_login){
+	  $count++;
+	  ($last,$first,$birth)=split(/;/,$identifier_old);
+          printf " %-14s %-64s \n",
+                 "($count) $login","System:           $identifier_sys";
+          printf " %-14s %-64s \n\n",
+                 "","Can be undone to: $identifier_old";
+        }
+    }
+    close(LOG);
+
+    if ($count>=1){
+       &update_user_db_entry($login, 
+                             "Name=$first",
+                             "LastName=$last",
+                             "Birthday=$birth");
+       # update the system
+       &update_gecos($login,$first,$last);
+
+       # removing last entry in log-lines
+       open(LOG,
+       "${DevelConf::log_files}/user-modify.log") 
+       || die "Fehler: $!";
+       my @log_lines = reverse <LOG>;
+       my @log_lines_tmp;
+       my $hit=0;
+       foreach my $line (@log_lines){
+          ($kind,$date,$login,$identifier_old,$a,$identifier_sys)=split(/::/,$line);
+	  if ($login eq $undo_login and $hit==0){
+              # dont print line
+              $hit=1;
+          } else {
+              unshift(@log_lines_tmp,$line),
+          }
+       }
+
+       # write the tmp-file
+       open(LOGTMP,
+       ">${DevelConf::log_files}/user-modify.log-tmp") 
+       || die "Fehler: $!";
+       foreach my $line (@log_lines_tmp){
+	   print LOGTMP $line;
+       }
+       close(LOGTMP);
+
+       # cp the tmp-file
+       system("mv ${DevelConf::log_files}/user-modify.log-tmp ${DevelConf::log_files}/user-modify.log");
+       print "Action ($count) was undone!\n";
+    } else {
+       print "Sorry: Could not find loginname $undo_login\n";
+    }
     exit;
 }
 
@@ -202,7 +252,7 @@ if ($info==1){
 # ===========================================================================
 # Schüler-Hinzu-Hash erstellen
 # ===========================================================================
-open(SCHUELERHINZU,
+open(SOPHOMORIXADD,
      "${DevelConf::ergebnis_pfad}/sophomorix.add") 
      || die "Fehler: $!";
 
@@ -210,7 +260,7 @@ if($Conf::log_level>=3){
    &titel("Users that would be added (sophomorix.add):");
  }
 
-while(<SCHUELERHINZU>){
+while(<SOPHOMORIXADD>){
    chomp();
    ($hinzu_klasse,$identifier,$a)=split(/::/);
    $schueler_hinzu_hash{$identifier}="$hinzu_klasse";
@@ -220,40 +270,7 @@ while(<SCHUELERHINZU>){
     }
 }
 
-close(SCHUELERHINZU);
-
-
-
-# ===========================================================================
-# Alter Teach-In-Hash aus teach-in.txt erstellen
-# ===========================================================================
-#open(SCHUELERTEACHIN,
-#     "<${DevelConf::config_pfad}/teach-in.txt") 
-#     || die "Fehler: $!";
-#
-#while(<SCHUELERTEACHIN>){
-#   chomp();
-#   if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
-#   ($teachin_im_system,$teachin_replace)=split(/:::/);
-#   $teach_in_hash_alt{$teachin_im_system}="$teachin_replace";
-#}
-#
-#&titel("Einträge in der bisherigen Datei teach-in.txt:");
-#
-#print " - Linux-Netzwerk Schreibweise -  :::  - Verwaltung Schreibweise -\n";
-#print "----------------------------------------",
-#      "----------------------------------------\n";
-
-#while (($k,$v) = each %teach_in_hash_alt) {
-#print "$k",":::","$v","\n";
-#}
-
-#print "\n";
-
-#close(SCHUELERTEACHIN);
- 
-
-
+close(SOPHOMORIXADD);
 
 
 # ===========================================================================
@@ -261,7 +278,6 @@ close(SCHUELERHINZU);
 # ===========================================================================
 
 &titel("Asking the system for users ...");
-
 
 my ($ref_login, 
     $ref_adminclass,
@@ -282,6 +298,7 @@ my %schueler_im_system_loginname = %$ref_login;
 
 # identifier - ExitAdminClass
 my %schueler_im_system_exit_admin_class = %$ref_exit_adminclass;
+
 
 
 &titel("Extracting teach-in users from the system ...");
@@ -383,12 +400,12 @@ foreach $identifier (@toleration){
       my $identifier_file=$auswahl_hash{$user_antwort},
       my $login=$schueler_im_system_loginname{$identifier_sys};
       my ($last,$first,$birth)=split(/;/,$identifier_file);
-      print "\nlogin: $login";
-      print "\nsys: $identifier_sys";
-      print "\nfile: $identifier_file";
-      print "\nlast: $last";
-      print "\nfirst: $first";
-      print "\nbirth: $birth\n\n";
+#      print "\nlogin: $login";
+#      print "\nsys: $identifier_sys";
+#      print "\nfile: $identifier_file";
+#      print "\nlast: $last";
+#      print "\nfirst: $first";
+#      print "\nbirth: $birth\n\n";
       # updating the database
       &update_user_db_entry($login, 
                             "Name=$first",
@@ -400,7 +417,6 @@ foreach $identifier (@toleration){
                                 $identifier_sys,
                                 $identifier_file,
                                );
-
       # update the system
       &update_gecos($login,$first,$last);
 
@@ -421,42 +437,7 @@ foreach $identifier (@toleration){
         delete($schueler_im_system_exit_admin_class{$identifier_sys});
         $schueler_im_system_exit_admin_class{$identifier_file}="$save_exit";
       }
-
-#      # Wenn Eintrag im Hash_alt vorhanden, erstmal löschen
-#      if (exists($teach_in_hash_alt{$identifier})){
-#         # Dann den Eintrag löschen
-#         delete($teach_in_hash_alt{$identifier});
-#      } 
-#      # Eintrag neu schreiben (mit evtl. verändertem Wert)
-#      $teach_in_hash_alt{$identifier}="$auswahl_hash{$user_antwort}";
    }
 }
-
-
-# ===========================================================================
-# Modifizierten Teach-in-Hash-alt nach teach-in.txt schreiben
-# ===========================================================================
-#open(SCHUELERTEACHIN,
-#     ">${DevelConf::config_pfad}/teach-in.txt") 
-#     || die "Fehler: $!";
-
-# Kommentar einfügen !muss in sophomorix-check auch angepasst werden!
-#print SCHUELERTEACHIN "# sophomorix-Konfigurationsdatei\n";
-#print SCHUELERTEACHIN "# Alle Kommentare -außer den jetzt sichtbaren- werden wieder entfernt!\n";
-#print SCHUELERTEACHIN "# Editieren Sie diese Datei nur, wenn sie wissen, was sie tun!\n";
-#print SCHUELERTEACHIN "# Linux-Netzwerk Schreibweise ::: Verwaltung Schreibweise:\n";
-#print SCHUELERTEACHIN "# ---------------------------------------",
-                   "---------------------------------------\n";
-## Einträge schreiben
-#while (($k,$v) = each %teach_in_hash_alt) {
-#print SCHUELERTEACHIN "$k",":::","$v","\n";
-#}
-#close(SCHUELERTEACHIN);
-
-
-
-# ===========================================================================
-# Ende Logo ausgeben
-# ===========================================================================
 
 &titel("... sophomorix-teach-in is terminated regularly.");
