@@ -1,0 +1,41 @@
+Readme how to translate manpages:
+
+This a reminder for ME how to write and organize the manpages,
+and a short introduction for YOU, if you want to translate manpages
+of sophomorix to another language.
+
+
+1. manpages are stored in the directory
+   
+    CVS-SOURCE/sophomorix-package/man/language/
+
+    where CVS-SOURCE is currently sophomorix2
+
+    where package is the name of the sophomorix-subpackage, 
+       i.e. base, files, developer, ...
+
+    and language is a two letter abbreviation of the language,
+       i.e. de, en, ..
+
+
+2. I'm writing the manpages in german(de), and most likely will
+   translate them into english(en)
+
+
+3. If you want to translate the manpages to another language,
+   you need CVS-access or translate the manpage and send it to me.
+   (you find my email-address in the scripts)
+
+
+4. If you tell me that the manpages are perfect for release, give me 
+   a note and I will include it in the Debian-Package.
+
+   Please do NOT edit debian/rules by yourself!
+
+
+5. To work with manpages I suggest you to use an editor with 
+   syntax-highlighting (emacs, vim, ...).
+
+   To view the formatted manpages use:
+
+    man -l manpage.de.8
