@@ -35,7 +35,9 @@ sophomorix-quota
    - option --school(=pupil, teacher, workstation)
      Use this option in sophomorix-passwd also?
        -> include in function create_userlist
-
+   - check if quota isreally set (how?, grep through 'quota user' ?)
+   - find users without quota, report them
+   - find users that approch their quota, send mail, ...
 
 sophomorix-teach-in (seems ok so far)
 
@@ -65,6 +67,7 @@ sophomorix-check
          - automatisch: Schülerzahl, Klassenzahl ?????? oder besser dynamisch
          - ....
    - Format report.office with latex          
+   - include filter-file for different school-administration-sofware
 
 
 sophomorix-add
@@ -75,7 +78,9 @@ sophomorix-add
 
 sophomorix-move
    - remove option --klassenintern () done, check this
-
+   - move Data from share into home, even if 'hidden' in another owners directory
+   - quick-move of a user(move user with a command, and keep him somehow out of 
+     way, when calling sophomorix-move)
 
 sophomorix-kill
    - when a user is deleted, move its line(s) from user-modify.log to 
@@ -96,7 +101,8 @@ sophomorix-user
    - user with status U,E must not be reactivated?
    - option -i : shows all users (should be used with | less)
    - option --reactivatable (or -i -D -T shows info about Disabled snd Tolerated)
-
+   - when reactivating a user, set a date in the future to keep her longer acctive 
+     (optional parameter)
 
 sophomorix-split
    - check if exchange dir is created
@@ -121,13 +127,15 @@ sophomorix-print
    - print subclass on login-card?
    - what about projects, show project membership?
    - make configurable which print-output sophomorix-print generates 
-     to save time (ps, pdf,csv,...) 
+     to save time (ps, pdf,csv,...)
+   - put school-logo on login-card, watermark, ...
+   - generate a onepage-printaout for teachers (help, mail, webmin-login, ...)
    
 
 sophomorix-project
    - create exchange directories automatically, when the project is created
    - option -p astro -i should display info about group astro (6users in a row, ...)
-   - add status stuff to projects
+   - add status stuff/lifetime stuff to projects
       P= Permanent, will not be automatically removed
       ... see drawing in doku
       when a project is disabled:
@@ -140,11 +148,13 @@ sophomorix-project
        - delete exchange dir
        - delete links from users to exchange dir
        - move data back to homedir of user?
-   - check if loginname is valid before adding user to a project   
+   - check if loginname is valid before adding user to a project
+   - allo teachers to add a project (if no AddQuota is involved)
 
 
 sophomorix-class
    - show classes in alphabetical order (use list insted of hash, when fetching)   
+   - if no class is found,-> message
    - class_db:
      Type:
        A: AdminClass (creted by schueler.txt entries)
@@ -200,6 +210,11 @@ sophomorix-teacher
    - write new script to distribute data, collect data, ...
    - read perlsec
 
+sophomorix-endofyear (new script)
+   - remove content of share-directories
+   - exclude classes of type extra
+
+
 
 
 
@@ -212,6 +227,12 @@ SophomorixAPI:
 
 
 All Scripts:
+   - remove compatibility-mode to ml 1.1.1
+   - log teacher actions (sophomorix-teacher, ... to find out if a teacher 
+     account is missused)
+   - replace sperrklassen.txt and entfernklassen.txt with filter.txt
+   - use lehrer.txt (Field: kurz RealShortName )
+   - test csv-output on windows and linux
    - clear a user: 
            - keep his login, passwd, homedir
            - keep entry in database
@@ -253,6 +274,16 @@ All Scripts:
 ============================================================
 Think about:
 ============================================================
+   - make standard-passwort linux configurable
+   - mail: experienced admins should be able to make entrys to
+     /etc/aliases without being overriden
+     (read aliases first, then add generated stuff)   
+   - commands for every user (sophomorix-show-my account, ...)
+   - creating a htmlpage with links to all usable public-html's
+     (this script updates this page, whenever a teacher opens/closes a 
+      users public-html)
+   - quick-self-add-mode
+   - Mail notification for events (i.e. new student in your class, ...) 
    - use of sperrklassen.txt or entfernen.txt (-> filter.txt)
    - think about getting user in class lists from the database
      for correction of exams, ...
@@ -305,6 +336,7 @@ RELEASES:
 
 
 1.2.1 (2005-03-?)
+   - updated html-Documentation (some stuff is still missing)
    - sopho-man2html:
        - moved manpages of section 1 to a different directory 
          in the html-documentation
