@@ -79,7 +79,6 @@ sophomorix-add
    - add user to cyrus (dont't know how to do)
    * dont add group lehrer to class_db
    - add standard linux GUI (kde3 (configurable))
-   * call sophomorix-webmin  
 
 sophomorix-move
    - move Data from share into home, even if 'hidden' in another owners directory
@@ -225,7 +224,6 @@ sophomorix-webmin
    - totally configure webmin
    - option --noninteractive 
 
-   ** option --modules
 
    -  Be aware: problem group student would need 1 entrys for every student 
        (this will be a very loooooooooong line)
@@ -237,7 +235,11 @@ sophomorix-webmin
                    in /usr/sbin (webmin-teacher-modules, ...-admin-, -student-)
                    which can be overwritten by files in /etc/sophomorix/webmin
 
-   - when adding teachers, add modules that they can use 
+   - if users are added without webmin installed, root and admin are missing
+      - create root,admin, when creating files
+      - or better do nothing when they dont exist
+
+
    - usermin-modules will be converted to webmin by thomas
        -> usermin is not running on the ml-server
        -> postinstall-script muss sich in gruppe student, teacher eintragen
@@ -402,6 +404,14 @@ RELEASES:
 
 
 1.2.1 (2005-03-?)
+   - sophomorix-add/-kill  call sophomorix-webmin to rewrite the webmin 
+     user database (webmin.acl, miniserv.users) 
+   - sophomorix-webmin --modules 
+     (creates a list of all students/teachers and adds modules from 
+      /usr/share/sophomorix/webmin/... to the users) 
+   - new option for sophomorix-webmin:
+       --loghost 0 / --loghost 1
+     (0 makes webmin faster, if DNS is not working)
    - renamed "lehrer" to $DevelConf::teacher (50 times!)
      (seems to work so far)
    - created new file in tmp to pre-filter lehrer.txt:
@@ -414,7 +424,6 @@ RELEASES:
       klasse.schuelerzahl  --> AdminClass.students
       extrakurse.schueler  --> extrakurse.students
       schueler.txt.tausch  --> schueler.txt.tmp
-
    - sophomorix-teacher: --collect added (it worked once)
    - sophomorix-teacher: --handout added (still alpha)
    - no-restart option in sophomorix-webmin added
