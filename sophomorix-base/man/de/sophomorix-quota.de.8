@@ -44,7 +44,7 @@ Datei:  /etc/sophomorix/user/quota.txt
 Datei:  /etc/sophomorix/user/lehrer.txt
 .TP
 .B 5. Quotaangaben für Klassen (AdminClass):
-Datei  /etc/sophomorix/user/schuleinfo.txt
+Datei  /etc/sophomorix/user/schulinfo.txt
 (Diese Datei wird wahrscheinlich in Kürze umbenannt)
 .TP
 .B 6. Quotaangaben für Projekte: 
@@ -143,7 +143,7 @@ Schritte beim setzten von Quota auf anderen aufbauen.
 prüft nicht, ob die übergebenen loginnamen sinnvoll sind. 
 .TP
 .B --sum
-zeigt am Ende die Gesamtsumme der vergebenen Quota an.
+zeigt am Ende die Gesamtsumme der vergebenen Quota an.(Todo)
 .TP
 .B -s, --system
 sophomorix-quota benutzt anstelle des Perl-Moduls Quota::
@@ -172,6 +172,9 @@ setzt Quota für jede Workstation im raum raum1,raum2 ...
 .TP
 .B  --workstations 
 setzt Quota für alle Workstations der Schule.
+.TP
+.B  --school 
+setzt Quota für alle Lehrer, Schüler und Workstations der Schule (ToDo).
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
