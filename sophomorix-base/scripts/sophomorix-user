@@ -51,7 +51,8 @@ $Conf::log_level=1;
 my $help=0;
 my $freeze="";
 my $permanent="";
-my $removeable="";
+my $removable="";
+my $killable="";
 my $activate="";
 
 # Parsen der Optionen
@@ -60,7 +61,8 @@ my $testopt=GetOptions(
            "help|h" => \$help,
        "F|freeze=s" => \$freeze,
        "P|permanent=s" => \$permanent,
-       "R|removeable=s" => \$removeable,
+       "R|removable=s" => \$removable,
+       "K|killable=s" => \$killable,
        "A|activate=s" => \$activate,
           );
 
@@ -85,7 +87,8 @@ Options
   -vv / --verbose --verbose
   -F loginname   /   --freeze loginname
   -P loginname   /   --permanent loginname
-  -R loginname   /   --removeable loginname
+  -R loginname   /   --removable loginname
+  -K loginname   /   --killable loginname
   -A loginname   /   --activate loginname
 
 Please see the sophomorix-user(8) man pages for full documentation
@@ -145,22 +148,43 @@ if ($permanent ne""){
 
 
 
-# --removeable
-if ($removeable ne""){
-    print "Making the account of $removeable removeable by sophomorix-kill:\n";
+# --removable
+if ($removable ne""){
+    print "Making the account of $removable removable by sophomorix-kill:\n";
     # check if it is really an account
-    if (getpwnam("$removeable")){
-	print "   - $removeable is a valid username.\n";
+    if (getpwnam("$removable")){
+	print "   - $removable is a valid username.\n";
     } else {
-	print "   - $removeable is not a valid username.\n";
+	print "   - $removable is not a valid username.\n";
         exit;
     }
-    # doing the removeable
-    &update_user_db_entry($removeable, 
+    # doing the removable
+    &update_user_db_entry($removable, 
                           "Status=R",
                           "TolerationDate=01.01.1970",
                           "DeactivationDate=01.01.1970");
-    &user_deaktivieren($removeable);
+    &user_deaktivieren($removable);
+}
+
+
+
+
+# --killable
+if ($killable ne""){
+    print "Making the account of $killable killable by sophomorix-kill:\n";
+    # check if it is really an account
+    if (getpwnam("$killable")){
+	print "   - $killable is a valid username.\n";
+    } else {
+	print "   - $killable is not a valid username.\n";
+        exit;
+    }
+    # doing the killable
+    &update_user_db_entry($killable, 
+                          "Status=K",
+                          "TolerationDate=01.01.1970",
+                          "DeactivationDate=01.01.1970");
+    &user_deaktivieren($killable);
 }
 
 
