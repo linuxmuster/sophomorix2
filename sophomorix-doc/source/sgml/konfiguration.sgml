@@ -5,32 +5,26 @@
     <title id="konfigurationsdateien"
       xreflabel="Konfigurationsdateien">Konfigurationsdateien</title>
     <sect2>
+    <title>Allgemeines</title> 
+
+    <para>Alle Dateien, die sie selber bearbeiten können/müssen, haben
+    die Endung <userinput>.txt</userinput> oder
+    <userinput>.conf</userinput>.  Alle anderen Dateien dürfen nicht
+    editiert werden! </para> 
+
+    <para>Editieren können sie die Dateien mit einem Unix-Editor wie
+    <userinput>xemacs</userinput>, <userinput>emacs</userinput>,
+    <userinput>vi</userinput>. Nicht zu empfehlen ist, die Dateien
+    über das Netzwerk von einer Windows-Arbeitsstation aus zu
+    editieren, da man immer daran denken muss unter einem bestimmten
+    Format abzuspeichern. Wenn man's irgendeinmal vergisst, .... gibts
+    Probleme.</para>
+
+    <para>Eine weitere Möglichkeit, ist das editieren der Dateien mit
+    <userinput>webmin</userinput>.</para>
+    </sect2>
+    <sect2>
     <title>Allgemeine Konfiguration</title>
-    <para>Alle Dateien, die sie selber bearbeiten können/müssen, haben die
-	Endung <userinput>.txt</userinput> oder <userinput>.conf</userinput>.
-	Alle anderen Dateien dürfen nicht editiert werden! </para>
-    <para>Hundertprozentig sicher editieren können sie die Dateien mit dem
-	Editor <userinput>xemacs</userinput>, der auf dem Musterlösungs-Server
-	vorhanden ist. (Damit habe ich alles getesetet). Nicht zu empfehlen
-	ist, die Dateien über das Netzwerk von einer Windows-Arbeitsstation aus
-	zu editieren, da man immer daran denken muss unter einem bestimmten
-	Format abzuspeichern. Wenn man's irgendeinmal vergisst, .... gibts
-	Probleme.</para>
-      <para>Falls sie sich sehr gut mit Codiertabellen,
-      Zeilentrenner-umwandlungen, ... auskennen, und dies dennoch machen
-      wollen, teilen sie mir bitte die Ergebnisse mit.</para>
-      <para>Eine weiter, sicherere (allerdings noch nicht vollständig getestet)
-	Möglichkeit, ist das editieren der Dateien mit
-	<userinput>webmin</userinput>. Öffnen sie dazu einen Browser im
-	Intranet und geben sie folgende URL ein:</para>
-      <para><screen>https://server:999/file</screen></para>
-      <para>Nach dem Anmelden als admin sehen Sie einen Dateimanager, der
-	ahnlich zu bedienen ist, wie der Konqueror oder Windows-Explorer. Dazu
-	muss allerdings Java aktiviert sein (Menü: Edit - Preferences -
-	advanced - enable Java).</para>
-      <para>Gehen sie nun nach </para>
-      <para><screen>/etc/sophomorix/user</screen> und editieren
-	Sie dann die Konfigurationsdateien.</para>
     <para>&check; enthält folgende Dateien im Verzeichnis
       <userinput>/etc/sophomorix/user/</userinput>, 
       in denen Sie für ihre Schule passende Einträge machen können:</para>
@@ -48,6 +42,7 @@
 	      (<userinput>@</userinput>) Werte zugewiesen werden.</para>
 	  </listitem>
 	<listitem>
+	  <para>Im Moment (Version 1.2) wird empfohlen diese Dateien nicht zu benutzen!</para>
 	  <para>Die Dateien <userinput>sperrklassen.txt</userinput> und
 	      <userinput>entfernen.txt</userinput> ermöglichen das verzögerte
 	      Anlegen von Klassen. Damit kann erreicht werden, dass z. B.
@@ -114,18 +109,15 @@
 	  <para>In der  Datei <userinput>extrakurse.txt</userinput> kann mit
 	      einer Zeile ein ganzer Kurs (=Manuell angelegte Klasse) angelegt
 	      werden. Die Syntax lesen Sie bitte in der Datei selber
-	      nach. Wichtiges Feature ist, dass sie schon beim anlegen angeben
-	      können, ab wann es diesen Kurs nicht mehr geben soll.</para>
+	      nach. </para>
+
+	    <para>Sie können schon beim anlegen angeben, ab wann es
+	    diesen Kurs nicht mehr geben soll.</para>
 	</listitem>
 	<listitem>
-	  <para>Die Datei <userinput>schueler.teach-in.txt</userinput> kann
-	    zwar von Hand editiert werden. Besser ist es jedoch dazu das Script
-	    <userinput>teach-in.pl</userinput> zu benutzen. </para>
-	  <para>Von Hand getätigte, syntaktisch richtige Einträge, die einen
-	    <emphasis>tatsächlich existierenden</emphasis> Schüler betreffen,
-	    bleiben auch nach dem Aufruf von <userinput>teach-in.pl</userinput>
-	    erhalten, wenn nicht durch das teach-in der manuell eingetragene
-	    Wert überschrieben wird.</para>
+	  <para>Die Datei <userinput>schueler.teach-in.txt</userinput>
+	  gibt es seit Version 1.2 nicht mehr, da die Änderungen in
+	  die sophomorix Datenbank eingepflegt werden.</para>
 	  </listitem>
 	  <listitem>
 	    <para>Letztendlich gibt es noch besondere

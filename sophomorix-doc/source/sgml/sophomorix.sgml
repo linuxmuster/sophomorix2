@@ -1,5 +1,6 @@
 <!DOCTYPE book
   PUBLIC "-//OASIS//DTD DocBook V4.2//EN"
+  "/usr/share/sgml/docbook/dtd/4.2/docbook.dtd"
 [
 <!ENTITY limu "Linux-Musterlösung">
 <!ENTITY bsz "BSZ (Berufliches Schulzentrum Leonberg)">
@@ -13,11 +14,10 @@
 <!ENTITY tools SYSTEM "tools.sgml">
 <!ENTITY installation-anhang SYSTEM "installation-anhang.sgml">
 <!ENTITY lehreranlegen SYSTEM "lehreranlegen.sgml">
-<!ENTITY benutzerstamm SYSTEM "benutzerstamm.sgml">
+<!-- <!ENTITY benutzerstamm SYSTEM "benutzerstamm.sgml"> -->
 <!ENTITY schulverwaltung SYSTEM "schulverwaltung.sgml">
-<!ENTITY gesamtzusammenhang SYSTEM "anhang-gesamtzusammenhang.sgml">
+<!-- <!ENTITY gesamtzusammenhang SYSTEM "anhang-gesamtzusammenhang.sgml"> -->
 <!ENTITY systemzeit SYSTEM "anhang-systemzeit.sgml">
-<!ENTITY knownbugs SYSTEM "knownbugs.sgml">
 <!ENTITY todo SYSTEM "todo.sgml">
 <!ENTITY changelog2 SYSTEM "changelog2.sgml">
 <!ENTITY roadmap SYSTEM "roadmap.sgml">
@@ -86,29 +86,30 @@ CVS-Modul <userinput>sophomorix2</userinput> auf cvs.bszleo.de im Unterverzeichn
 	</listitem>
       </itemizedlist>
     <para>
-      Um die &limu; auch an großen Schulen mit komplexer Benutzerverwaltung
-      einsetzen zu können, wurde &so; geschrieben. </para>
-    <para>Ich selbst bin am Beruflichen Schulzentrum Leonberg Netzwerkbetreuer,
-      einer Schule mit ca. 3000 Schülern. Wir haben im EDV-Bereich
-      Volkshochschulkurse an der Schule und sehr viele Blockklassen in der
-      Berufsschule. Die Schüler dieser Klassen werden irgendwann zwischen
-      Sommerferien und Weihnachten in das Schulverwaltungsprogramm aufgenommen.
-      Deshalb muss in diesem Zeitraum jede Woche eine Aktualisierung der User
-      vorgenommen werden.</para>
+      Um die &limu; auch an großen Schulen mit komplexer
+      Benutzerverwaltung einsetzen zu können, wurde &so;
+      geschrieben. </para> <para>Ich selbst bin am Beruflichen
+      Schulzentrum Leonberg Netzwerkbetreuer, einer Schule mit
+      ca. 3000 Schülern. Wir haben im EDV-Bereich Volkshochschulkurse
+      an der Schule und sehr viele Blockklassen in der
+      Berufsschule. Die Schüler dieser Klassen werden irgendwann
+      zwischen Sommerferien und Weihnachten in das
+      Schulverwaltungsprogramm aufgenommen.  Deshalb muss in diesem
+      Zeitraum jede Woche eine Aktualisierung der User vorgenommen
+      werden.</para>
   </preface>
 
 
 &grundlagen;
 &prinzip;
 &konfiguration;
-&tools;
+<!-- &tools; -->
 &installation-anhang;
 &lehreranlegen;
-&benutzerstamm;
+<!--&benutzerstamm;	  Ganz anders bei sophomorix2 -->
 &schulverwaltung;
-&gesamtzusammenhang;
+<!--&gesamtzusammenhang;-->
 &systemzeit;
-&knownbugs;
 &todo;
 &changelog2;
 &roadmap;

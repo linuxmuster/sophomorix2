@@ -1,50 +1,30 @@
 <appendix>
-  <title>Installation von &check;  (noch nicht aktuell)</title>
+  <title>Installation/Erste Tests von &check; </title>
   <sect1>
-    <title>Installation</title>
+    <title>Installation der &check; pakete ohne Linux-Musterlösung</title>
     <para><orderedlist>
 	<listitem>
-	  <para>Melden sie sich als <userinput>root</userinput> an und öffnen
-	    Sie eine Konsole</para>
+	  <para>Besorgen sie sich eine Debian Netinstaller-CD und
+	  installieren sie ein Debian Sarge Grundsystem.</para>
 	</listitem>
 
 	<listitem>
-	  <para>Besorgen sie sich das neueste RPM-Pakete zu sophomorix unter
-	    der URL:</para>
-	  <para><screen>http://cvs.bszleo.de/sophomorix/RPMS</screen></para>
-	  <para>Sie brauchen folgende Pakete:</para>
-	  <para><itemizedlist>
-	      <listitem>
-		<para>string-approx-perl-3.19.2-5.i386.rpm</para>
-	      </listitem>
-	      <listitem>
-		<para>quota-perl-1.4.6.2-3.i386.rpm</para>
-	      </listitem>
-	      <listitem>
-		<para>sophomorix-u.v.x-z.i386.rpm</para>
-	      </listitem>
-	    </itemizedlist>
-</para>
-	</listitem>
-	<listitem>
-	  <para>Kopieren Sie diese 3 Dateien in ihr System,
-	    zum Beispiel nach <userinput>/root</userinput>.</para>
-	</listitem>
-	<listitem>
-	  <para>Gehen Sie mit <userinput>cd /root</userinput> in dieses
-	    Verzeichnis, und installieren Sie die RPM-Pakete mit folgendem
-	    Befehl:</para><para>
-	    <screen>
-rpm -Uhv string-approx-perl-3.19.2-5.i386.rpm
-rpm -Uhv quota-perl-1.4.6.2-3.i386.rpm
-rpm -Uhv sophomorix-u.v.w-x.i386.rpm</screen>
-          </para>
-	  <para>Anstelle von <userinput>u.v.w</userinput> schreiben Sie die
-	    Versionsnummer, anstelle von <userinput>x</userinput> die
-	    Release-Nummer (Benutzen sie die Tabulatortaste!). </para>
-	  <para>Wenn sie mit obigem Befehl installieren, dann erlaubt
-	    <userinput>rpm</userinput> nur neuere Versionen wie die schon
-	    vorhandene zu installieren.</para>
+	  <para>Tragen sie in
+	  <userinput>/etc/apt/sources.list</userinput> den
+	  sophomorix-Paketserver ein:</para> 
+ 
+          <para><screen>   deb http://cvs.bszleo.de/sophomorix/debs ./</screen></para> 
+
+          <para>Installieren Sie das paket <userinput>sophomorix2</userinput>:</para>
+          <para><screen>   apt-get update</screen></para> 
+
+          <para>und anschließend:</para> 
+
+          <para><screen>   apt-get install sophomorix2</screen></para>
+
+          <para>Bei allen Fragen können die Voreinstellungen
+          übernommen werden, jedoch lassen Sie die samba Datenbank
+          <userinput>passdb.tdb</userinput> anlegen</para>
 	</listitem>
 	<listitem>
 	  <para>Öffnen Sie die Datei
@@ -56,18 +36,54 @@ rpm -Uhv sophomorix-u.v.w-x.i386.rpm</screen>
   </sect1>
   <sect1>
     <title>Update</title>
-    <para>Ein update ist mit denselben Befehlen wie die Installation
-      möglich. Sie brauchen dazu nur eine neuere Version von
-      <userinput>sophomorix</userinput>. </para>
-    <para>Upgedatet wird mit:</para>
-    <para><screen>rpm -Uhv sophomorix-u.v.w-x.i386.rpm</screen></para>
-    <para>Evtl. müssen die Konfigurationsdatein angepasst werden: </para>
+    <sect2>
+      <title>Vorarbeit</title>
+
+    <para>Sie sollten auf jeden Fall zuerst das aktuelle <ulink
+      url="http://cvs.bszleo.de/cgi-bin/viewcvs.cgi/sophomorix2/changelog-sophomorix-src"><userinput>changelog-sophomorix-src</userinput></ulink>
+      lesen, um zu sehen, ob sich etwas Wichtiges verändert hat!</para>
+
+    <para>Wählen Sie in die aktuelle Version (HEAD) von
+      <userinput>changelog-sophomorix-src</userinput> und gehen Sie in
+      den Abschnitt
+
+<screen>
+############################################################
+RELEASES:
+############################################################
+</screen>
+
+und lesen sie das für die zu installierende Version passende Stelle.
+
+    </para> 
+    </sect2>
+    <sect2>
+      <title>Update durchführen</title>
+
+    <para>Upgedatet wird (wie auch bei der Installation) mit:</para>
+ 
+    <para><screen>   apt-get update</screen></para> 
+
+    <para>und anschließend:</para> 
+
+    <para><screen>   apt-get install sophomorix2</screen></para>
+    <para>Evtl. müssen die Konfigurationsdatein angepasst werden:</para>
+
+    <para>Das erkennen sie daran, dass sie beim Update gefragt werden
+      ob sie die alte Konfigurationsdatei behalten wollen, oder die
+      neue des Maintainers einspielen wollen.</para>
+
+    <para>Sie sollten hier die neue Konfigurationsdatei annehmen und
+    ihre Änderungen in diese einpflegen.</para>
+<!-- 
     <para>Das erkennen sie daran, dass beim Update Konfigurationsdateien mit
       dem Dataianhang der Endung <userinput>.rpmsave</userinput> angelegt
       werden. Diese Dateien enthalten ihre Konfigurationsdateien (mit IHREN
       speziellen Änderungen), wenn diese von der Konfigurationsdatei im NEUEN
       rpm-Paket überschrieben wird.</para>
-    <para>Beispiel:</para>
+
+ -->
+    <para>Beispiel:(Wie in Debian??)</para>
     <para>mit Version 0.9.18 kam die Konfigurationsdatei
       <userinput>sophomorix.conf</userinput> mit.</para>
     <para>Diese Datei haben sie verändert, um Einstellungen für ihre Schule
@@ -146,13 +162,8 @@ rpm -Uhv sophomorix-u.v.w-x.i386.rpm</screen>
 	  <para>Mit C-x C-c beenden sie Xemacs.</para>
 	</listitem>
       </orderedlist>
-</para>
-    <sect2>
-      <title>Wichtig:</title>
-    <para>(Lesen sie auf jeden Fall die
-      Datei:</para>
-    <para><userinput>http://cvs.bszleo.de/sophomorix/RPMS/README.txt</userinput></para>
-    </sect2>
+</para>    
+</sect2>
   </sect1>
 </appendix>
 <!-- Dieser Kommentar bleibt am Ende des Teil-Dokuments
