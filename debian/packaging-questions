@@ -23,6 +23,8 @@ sophomorix-sql
 
    debconf-communicate -p critical samba
 
+*****   -- geht nicht
+
 5. virtuelles paket sophomorix-db (database)
      wird erfüllt durch sophomorix-files
                                   -ldap
@@ -33,9 +35,14 @@ sophomorix-sql
 
 6. Kann die eingepackten Abhängigkeiten ansehen
 
+***** lesspipe , output wieder fallenlassen, dann less *.deb
 
 7. wie prüft man in einem script, ob webmin installiert ist
    Debian-Paketmanagement fragen?
+
+***** Dateien abfragen
+
+****postinst von sophomorix-webmin   -> sophomorix-webmin
 
 
 8. welche Dateien sollen in conffiles?   
@@ -47,10 +54,16 @@ sophomorix-sql
    repair.directories und sophomorix-devel.conf sollen übergebügelt werden.
    -> anderer Platz suchen? config-templates?
 
+
+***** /usr/share/paketname
+
+
 9. sophomorix.conf hat #!/usr/bin/perl drin
    lintian-Fehler:  executable with not executable permissions.
    700 löst das Problem. Nachteile?
 
+
+****** emacs-Zeile rein
 
 10. Zum Packen von sophomorix-doc-html ist erforderlich:
     - perl für sophomorix-man2html
@@ -64,9 +77,13 @@ sophomorix-sql
       packen
 
 
+**** evtl die doku in ein eigenes Paket auslagern
+
 11. wohin kommt ein script, das nur zum packen gebraucht wird, aber
     nicht mit ausgeliefert werden soll
 
+
+***** buildhelper ist OK
 
 12. soll ein Paket, das man-pages mitbringt mandb aufrufen?
 
@@ -74,8 +91,13 @@ sophomorix-sql
        muss mandb mit parameter gestartet werden, um auch de manpages zu
        indizieren?
 
+***** mandb:  wird von cron gemacht 
+
+
 
 13. Wie kann man lange Zeile in control/Depends:  umbrechen/kürzen?
+
+***** lang lassen
 
 14. Zusätzlich soll ein Paket 'sophomorix' erstellt werden, das alles 
     wichtige nachzieht:
@@ -88,3 +110,11 @@ sophomorix-sql
     später soll update auf ldap,sql möglich sein, d.h.
     zusätzlich paket sophomorix-sql dazu, und als postinst add die Datembank 
     verschieben
+
+**** eintagen wie die anderen Pakete auch, als erstes
+
+
+15 lintian-Fehler mit Fehlender man page für sophomorix-reactivate:
+
+   Fehler ignorieren oder was?
+
