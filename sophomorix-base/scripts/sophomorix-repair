@@ -9,6 +9,7 @@
 use strict;
 use Getopt::Long;
 use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
 Getopt::Long::Configure ("bundling");
 
 # Einlesen der Konfigurationsdatei für Entwickler
@@ -65,8 +66,6 @@ my $lehrer=0;
 my $login="";
 $Conf::log_level=1;
 
-# repair.directories einlesen
-&get_alle_verzeichnis_rechte();
 
 ################################################################################
 # Beginn
@@ -98,8 +97,6 @@ if ($www==0 && $dateirechte==0) {
 }
 
 
-
-
 # --help
 if ($help==1) {
    # Scriptname ermitteln
@@ -127,12 +124,6 @@ Please see the sophomorix-repair(8) man pages for full documentation
 }
 
 
-
-
-
-
-
-
 # --file
 if ($filename ne "") {
    if (-e $filename) {
@@ -145,40 +136,49 @@ if ($filename ne "") {
 }
 
 
+# repair.directories einlesen
+&titel("Reading permision data ...");
+&get_alle_verzeichnis_rechte();
+
 
 ################################################################################
 # Gruppenlisten/Userlisten erstellen
 ################################################################################
 
 # Klassen
+&titel("Creating list of every AdminClass ...");
 my @klassen=&get_klassen_in_schule(); 
+&print_list("The list of every AdminClass:",@klassen);
+
+
 # Räume
+&titel("Creating list of every room ...");
 my @raeume=&get_raeume_in_schule(); 
+&print_list("The list of every room:",@raeume);
 
 
 # Userlisten
 
 # schueler
+&titel("Creating list of every pupil ...");
 my @schueler=&get_schueler_in_schule();
-# lehrer
-my @lehrer=&get_lehrer_in_schule();
-# workstations
-my @workstations=&get_workstations_in_schule();
+&print_list("The list of every pupil:",@schueler);
 
-#my @userliste=&get_workstations_in_raum("km1kb2t");
+# lehrer
+&titel("Creating list of every teacher ...");
+my @lehrer=&get_lehrer_in_schule();
+&print_list("The list of every teacher:",@lehrer);
+
+# workstations
+&titel("Creating list of every workstation ...");
+my @workstations=&get_workstations_in_schule();
+&print_list("The list of every workstation:",@workstations);
 
 my @www_userliste=();
 
-#print "@userliste";
-#exit;
 
 
-
-
-
-
-
-# --dateirechte
+# --permissions
 if ($dateirechte==1) {
    &repair_directories();
    exit;
@@ -223,52 +223,98 @@ sub repair_directories {
        chomp();   
        if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
        if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
-       &titel("Verarbeitete Zeile: $_");
+
+       # replace the first occurence of the string $homedir... 
+       # with the value of the variable $homedir...
+
+       s/\$homedir_admin/$DevelConf::homedir_admin/;
+       s/\$homedir_pupil/${DevelConf::homedir_pupil}/;     
+       s/\$homedir_teacher/$DevelConf::homedir_teacher/; 
+       s/\$homedir_ws/$DevelConf::homedir_ws/; 
+
+       # order is important($homedir_samba must be replaced at last)    
+       s/\$homedir_samba_cds/$DevelConf::homedir_samba_cds/;     
+       s/\$homedir_samba_netlogon/$DevelConf::homedir_samba_netlogon/;     
+       s/\$homedir_samba_progs/$DevelConf::homedir_samba_progs/;     
+       s/\$homedir_samba/$DevelConf::homedir_samba/;     
+
+       s/\$share_exams/$DevelConf::share_exams/;     
+       s/\$share_tasks/$DevelConf::share_tasks/;     
+       s/\$share_share/$DevelConf::share_share/;     
+       s/\$share_classes/$DevelConf::share_classes/;     
+       s/\$share_projects/$DevelConf::share_projects/;     
+       s/\$share_teacher/$DevelConf::share_teacher/;     
+       s/\$share_school/$DevelConf::share_school/;     
+       s/\$share_share/$DevelConf::share_share/;     
+
+
+
+       
+       &titel("Line: $_");
        # Zeile zerlegen
        my ($path, $owner, $groupowner, $permission) = split(/::/);
+
+
 
        # Gruppen auswählen
        if (/\$klassen/) {
            # Liste ist Klassenliste
            @gruppen=@klassen;
            $gruppen_anzahl++;
-           print "\$klassen gefunden (Gruppenplatzhalter: $gruppen_anzahl)\n";
+           if($Conf::log_level>=3){
+              print "\$klassen gefunden (Gruppenplatzhalter: $gruppen_anzahl)\n";
+           }
        }elsif (/\$raeume/) {
            # Liste ist Raumliste
            @gruppen=@raeume;
            $gruppen_anzahl++;
-           print "\$raeume gefunden (Gruppenplatzhalter: $gruppen_anzahl)\n";
+           if($Conf::log_level>=3){
+              print "\$raeume found (Group: $gruppen_anzahl)\n";
+	   }
        } else {
-           print ("Keine \$klassen oder \$raeume gefunden (Gruppenplatzhalter: $groupowner)\n");
+           if($Conf::log_level>=3){
+              print ("No \$klassen or \$raeume found (Group: $groupowner)\n");
+           }
            @gruppen=($groupowner);
        }
 
        # Abbruch, falls verschiedene Gruppenplatzhalter
        if ($gruppen_anzahl > 1){
-             print "\nFehler: Gruppen-Platzhalter-Anzahl $gruppen_anzahl. ABBRUCH.\n\n";
+             print "\nFehler: Gruppen-Platzhalter-Anzahl $gruppen_anzahl.",
+                   " ABBRUCH.\n\n";
              exit;
        }
 
        # User auswählen
        if ($path=~/\$schueler/) {
-           print "\$schueler gefunden (Schülerliste)\n";
+           if($Conf::log_level>=3){
+              print "\$schueler found (Schülerliste)\n";
+	   }
            # Liste ist Schülerliste
            @user=@schueler;
            $user_anzahl++;
-           print "\$schueler gefunden (Userplatzhalter: $user_anzahl)\n";
+           if($Conf::log_level>=3){
+              print "\$schueler found (Userplatzhalter: $user_anzahl)\n";
+	   }
        } elsif (/\$lehrer/) {
            # Liste ist Lehrerliste
            @user=@lehrer;
            $user_anzahl++;
-           print "\$lehrer gefunden (Userplatzhalter: $user_anzahl)\n";
+           if($Conf::log_level>=3){
+              print "\$lehrer found (Userplatzhalter: $user_anzahl)\n";
+	   }
        }elsif (/\$workstations/) {
            # Liste ist Workstationliste
            @user=@workstations;
            $user_anzahl++;
-           print "\$workstations gefunden (Userplatzhalter: $user_anzahl)\n";
+           if($Conf::log_level>=3){
+              print "\$workstations found (Userplatzhalter: $user_anzahl)\n";
+	   }
        } else {
-           print ("Keine \$schueler, \$lehrer oder \$workstations gefunden ");
-           print ("(Userplatzhalter: $owner)\n");
+           if($Conf::log_level>=3){
+              print ("No \$schueler, \$lehrer or \$workstations found ");
+              print ("(Userplatzhalter: $owner)\n");
+	   }
            @user=($owner);
        }
 
@@ -283,13 +329,13 @@ sub repair_directories {
          
        # Verzeichnis reparieren
        if($Conf::log_level>=3){
-          print "Aufruf von &repair_directory mit:\n";
-          print " Pfad:         $path\n";
-          print " Owner:        $owner\n";
-          print " Gruppe:       $groupowner\n";
-          print " Rechte:       $permission\n";
-          print " Gruppenliste: @gruppen\n";
-          print " Userliste:    @user\n";
+          print "   Aufruf von &repair_directory mit:\n";
+          print "     Pfad:         $path\n";
+          print "     Owner:        $owner\n";
+          print "     Gruppe:       $groupowner\n";
+          print "     Rechte:       $permission\n";
+          print "     Gruppenliste: @gruppen\n";
+          print "     Userliste:    @user\n";
        }
        &repair_directory($path, $owner, $groupowner, $permission, \@gruppen, \@user);
    }
@@ -322,10 +368,12 @@ sub repair_directory {
    # $webuser
    $owner=~s/\$webuser/$DevelConf::apache_user/;
    # $samba
-   $path=~s/\/\$samba/$DevelConf::samba_dir/;
+#   $path=~s/\/\$samba/$DevelConf::samba_dir/;
    my @userliste=();
 
-   print "Pfad mit Ersetzungen: $path\n";
+   if($Conf::log_level>=3){
+      print "Pfad mit Ersetzungen: $path\n";
+   }
 
    foreach $gruppe (@$gruppen){
          if($Conf::log_level>=3){
@@ -341,7 +389,8 @@ sub repair_directory {
 
          # Userliste evtl. einschränken
 	 if ($path=~/\$klassen/ && $path=~/\$schueler/) {
-            @userliste=&get_schueler_in_klasse($gruppe);
+#            @userliste=&get_schueler_in_klasse($gruppe);
+            @userliste=&get_user_in_adminclass($gruppe);
             #print "Userliste: Nur Klasse\n";
 	 } elsif ($path=~/\$raeume/ && $path=~/\$workstation/) {
             @userliste=&get_workstations_in_raum($gruppe);
@@ -350,7 +399,7 @@ sub repair_directory {
             my $zahl=@$user;
             if (not $zahl==0) {
                @userliste=@$user;
-               print "Userliste: Alle ($zahl)\n";
+               #print "Userliste: Alle ($zahl)\n";
 	    } else {
                @userliste=("");
                print "Userliste: User ohne Namen ($zahl User)\n";
@@ -417,7 +466,10 @@ sub repair_directory {
              # Umwandeln in übliche Schreibweise
              $mode &=07777;
              $mode=sprintf "%04o",$mode;
-             print "Verzeichnis-Rechte sind $mode  (Erlaubt: $permission)\n";
+
+             if($Conf::log_level>=2){
+                print "Permissions are $mode  (Permitted: $permission)\n";
+	     }
              # Falls Verzeichnisrechte gesetzt werden müssen, auf den ersten Wert setzten 
              $permission_to_set=$permission_list[0];
              # Sind die Verzeichnisrechte OK
@@ -437,11 +489,13 @@ sub repair_directory {
          if ($korrigieren==1) {
             chmod oct($permission_to_set), $path;
             chown $ownerid, $gid, $path;
-            print "Repariere:  $path  $owner($ownerid) $groupowner($gid) $permission_to_set\n\n";
+            print "   Repairing: $path $owner($ownerid) ",
+                  "$groupowner($gid) $permission_to_set\n";
          } else {
             # Verzeichnisrechte nicht korrigieren
             chown $ownerid, $gid, $path;
-            print "Repariere:  $path  $owner($ownerid) $groupowner($gid) Rechte: OK\n\n";
+            print "   Repairing: $path $owner($ownerid) ",
+                  "$groupowner($gid) Rechte: OK\n";
             # Korrigier-Variable zurücksetzten
             $korrigieren=1;
 	 }

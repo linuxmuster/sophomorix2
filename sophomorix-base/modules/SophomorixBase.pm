@@ -20,7 +20,8 @@ use Time::localtime;
 
 @EXPORT_OK = qw( check_datei_touch );
 @EXPORT = qw( linie 
-              titel 
+              titel
+              print_list 
               formatiere_liste
               get_alle_verzeichnis_rechte
               get_v_rechte
@@ -48,6 +49,7 @@ use Time::localtime;
               create_share_link
               remove_share_link
               zeit
+              append_auto_teach_in_log
               backup_amk_file
               get_klasse_von_login
               get_schueler_in_schule
@@ -202,16 +204,23 @@ sub titel {
 
 =pod
 
-=item I<titel(text)>
+=item I<print_list(name,@liste)>
 
-Creates a framed titel with the text I<text>. The frame is thinner,
-when --verbose is not used.
+prints every element of a list on a single line, if loglevel is 3
+(option -vv) and shows the header name.
 
 =cut
 sub print_list {
+   my $name=shift;
    my @list= @_;
-
+   my $number=$#list+1;
+   my $element="";
    if($Conf::log_level>=3){
+       print "\nBegin: $name ($number)\n";
+       foreach $element (@list){
+	   print "   ",$element,"\n";
+       }
+       print "End: $name ($number)\n\n";
 
    }
 }
@@ -371,7 +380,7 @@ sub setup_verzeichnis {
       # $webserver ersetzten
       $pfad=~s/\/\$webserver/$DevelConf::apache_root/;
       # $samba ersetzten
-      $pfad=~s/\/\$samba/$DevelConf::samba_dir/;
+ #     $pfad=~s/\/\$samba/$DevelConf::samba_dir/;
 
       # user einbinden
       if (defined $user) {
@@ -751,8 +760,8 @@ sub neue_linux_gruppe_schueler {
     #my $schueler_homes = "${DevelConf::homedir_pupil}/${gruppe}";
     my $klassen_tausch = "${DevelConf::share_classes}/${gruppe}";
     my $klassen_aufgaben = "${DevelConf::share_tasks}/${gruppe}";
-    my $smb_musterklasse = "${DevelConf::samba_dir}/netlogon/klasse.bat";
-    my $smb_klasse = "${DevelConf::samba_dir}/netlogon/${gruppe}.bat";
+#    my $smb_musterklasse = "${DevelConf::samba_dir}/netlogon/klasse.bat";
+#    my $smb_klasse = "${DevelConf::samba_dir}/netlogon/${gruppe}.bat";
 #    my $web_klasse = "${DevelConf::apache_root}/userdata/${gruppe}";
 
     #--------------------------------------------------
@@ -1671,13 +1680,13 @@ sub  check_options{
    if (not $parse_ergebnis==1){
       my @list = split(/\//,$0);
       my $scriptname = pop @list;
-      print "\nSie haben bei der Eingabe der Optionen einen Fehler begangen.\n"; 
-      print "Siehe Fehlermeldung weiter oben. \n\n";
-      print "... $scriptname beendet sich.\n\n";
+      print "\nYou have made a mistake, when specifying options.\n"; 
+      print "See error message above. \n\n";
+      print "... $scriptname is terminating.\n\n";
       exit;
    } else {
       if($Conf::log_level>=3){
-         print "Alle Befehls-Optionen wurden erkannt.\n\n";
+         print "All options  were recognized.\n";
       }
    }
 
@@ -1956,6 +1965,33 @@ sub zeit {
   return $string;
 }
 
+
+
+
+
+
+sub append_auto_teach_in_log {
+   # appends a line to auto-teach-in.log
+   my ($type,$login,$old,$new, $unid)=@_;
+   my $heute=`date +%d.%m.%Y`;
+   chomp($heute);
+   if (not defined $unid){$unid=""} 
+   open(ATLOG, 
+       ">>${DevelConf::log_files}/user-modify.log") 
+        || die "Fehler: $!";
+   print ATLOG  $type."::".$heute."::".$login."::".
+                 $old."::->::".$new."::".$unid."\n";
+   close(ATLOG);
+
+}
+
+
+
+
+
+
+
+
 =pod
 
 =item I<zeit(epoche)>
@@ -2022,8 +2058,9 @@ sub get_schueler_in_schule {
     setpwent();
     while (@pwliste=getpwent()) {
     #print"$pwliste[7]";  # Das 8. Element ist das Home-Verzeichnis
-      if ($pwliste[7]=~/^\/home\/pupil\//) {
-         push(@schuelerliste, $pwliste[0]);
+ #     if ($pwliste[7]=~/^\/home\/pupil\//) {
+       if ($pwliste[7]=~/^$DevelConf::homedir_pupil/) {
+       push(@schuelerliste, $pwliste[0]);
          #print "$pwliste[0]<p>";
       }
     }
@@ -2071,7 +2108,8 @@ sub get_lehrer_in_schule {
     setpwent();
     while (@pwliste=getpwent()) {
       #print "Prüfe user: $pwliste[0]<p>";
-     if ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/teacher\//) {
+#     if ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/teacher\//) {
+     if ($pwliste[3] eq $gid && $pwliste[7]=~/^$DevelConf::homedir_teacher/) {
          push(@lehrerliste, $pwliste[0]);
       }
     }
@@ -2112,7 +2150,8 @@ sub get_workstations_in_schule {
     setpwent();
     while (@pwliste=getpwent()) {
     #print"$pwliste[7]";  # Das 8. Element ist das Home-Verzeichnis
-      if ($pwliste[7]=~/^\/home\/workstations\//) {
+#      if ($pwliste[7]=~/^\/home\/workstations\//) {
+      if ($pwliste[7]=~/^$DevelConf::homedir_ws/) {
          push(@workstationliste, $pwliste[0]);
          #print "$pwliste[0]<p>";
       }
@@ -2159,7 +2198,8 @@ sub get_workstations_in_raum {
     setpwent();
     while (@pwliste=getpwent()) {
     #print"$pwliste[7]\n";  # Das 8. Element ist das Home-Verzeichnis
-     if ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/workstations\//) {
+#     if ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/workstations\//) {
+     if ($pwliste[3] eq $gid && $pwliste[7]=~/^$DevelConf::homedir_ws/) {
          push(@workstations, $pwliste[0]);
          #print "$pwliste[3]";
       }
@@ -2193,7 +2233,8 @@ sub get_klassen_in_schule {
 
     setpwent();
     while (@pwliste=getpwent()) {
-       if ($pwliste[7]=~/^\/home\/pupil\//) {
+#       if ($pwliste[7]=~/^\/home\/pupil\//) {
+       if ($pwliste[7]=~/^$DevelConf::homedir_pupil/) {
           $klassen_hash{getgrgid($pwliste[3])}=""; 
        }
     }
@@ -2219,7 +2260,8 @@ sub get_klassen_in_schule_hash {
 
     setpwent();
     while (@pwliste=getpwent()) {
-       if ($pwliste[7]=~/^\/home\/schueler\//) {
+#       if ($pwliste[7]=~/^\/home\/schueler\//) {
+       if ($pwliste[7]=~/^$DevelConf::homedir_pupil/) {
           $klassen_hash{getgrgid($pwliste[3])}=""; 
        }
     }
@@ -2241,7 +2283,8 @@ sub check_klasse {
 
     setpwent();
     while (@pwliste=getpwent()) {
-       if ($pwliste[7]=~/^\/home\/schueler\//) {
+#       if ($pwliste[7]=~/^\/home\/schueler\//) {
+       if ($pwliste[7]=~/^$DevelConf::homedir_pupil/) {
           $klassen_id_hash{$pwliste[3]}=""; 
           #print "$pwliste[3]";
        }
@@ -2281,7 +2324,8 @@ sub get_raeume_in_schule {
 
     setpwent();
     while (@pwliste=getpwent()) {
-       if ($pwliste[7]=~/^\/home\/workstations\//) {
+#       if ($pwliste[7]=~/^\/home\/workstations\//) {
+       if ($pwliste[7]=~/^$DevelConf::homedir_ws/) {
           $raeume_hash{getgrgid($pwliste[3])}=""; 
        }
     }
@@ -2328,7 +2372,8 @@ sub get_raeume_in_schule_hash {
 
     setpwent();
     while (@pwliste=getpwent()) {
-       if ($pwliste[7]=~/^\/home\/workstations\//) {
+#       if ($pwliste[7]=~/^\/home\/workstations\//) {
+       if ($pwliste[7]=~/^$DevelConf::homedir_ws/) {
           $raeume_hash{getgrgid($pwliste[3])}=""; 
        }
     }
@@ -2353,7 +2398,8 @@ sub check_raum {
 
     setpwent();
     while (@pwliste=getpwent()) {
-       if ($pwliste[7]=~/^\/home\/workstations\//) {
+#       if ($pwliste[7]=~/^\/home\/workstations\//) {
+       if ($pwliste[7]=~/^$DevelConf::homedir_ws/) {
           $raum_id_hash{$pwliste[3]}=""; 
           #print "$pwliste[3]";
        }
@@ -2692,7 +2738,9 @@ sub daten_loeschen {
    #$deletestring="${DevelConf::share_classes}/km1kb2t"; 
    if (exists $user_loesch_hash_id{$statliste[4]}) {
       # Nochmal checken, ob wirklich löschen
-      if ($deletestring=~/^\/home\/tausch\/klassen\/${klasse}\//) {
+#      if ($deletestring=~/^\/home\/tausch\/klassen\/${klasse}\//) {
+# ???????????
+      if ($deletestring=~/^\/home\/share\/classes\/${klasse}\//) {
          print "<b>Lösche : ","$deletestring"," ---> Eigentümer: $statliste[4]","($owner)","</b><p>";
          #rmtree($deletestring); 
          # tut, aber gefährlich und löscht root-Dateien in Unterverzeichnissen
@@ -3655,7 +3703,8 @@ sub unterricht_einsammeln {
   my $lehrer_pfad ="";
   my $lehrer_verzeichnis="${DevelConf::homedir_teacher}/${loginname}/windows/sammelordner/U-${klasse}_${date}";
   my $aufgaben="${DevelConf::share_tasks}/${klasse}/${loginname}";
-  my @klasse = &get_schueler_in_klasse($klasse);
+#  my @klasse = &get_schueler_in_klasse($klasse);
+  my @klasse = &get_user_in_adminclass($klasse);
 
   # Verzeichnis Anlegen
   # repair.directories einlesen

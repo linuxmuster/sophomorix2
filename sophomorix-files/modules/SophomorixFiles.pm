@@ -15,6 +15,7 @@ require Exporter;
 	     remove_user_db_entry
              create_project_db
              get_sys_users
+             get_teach_in_sys_users
              get_print_data
              search_user
              backup_user_database
@@ -367,6 +368,34 @@ system ("chmod 600 $DevelConf::protokoll_datei");
           \%identifier_account_type
          );
 }
+
+
+
+# returns users in the system that are not in schueler.txt/lehrer.txt
+# i.e. the users for  teach-in
+sub get_teach_in_sys_users{
+   open(TOLERATION,"<${DevelConf::dyn_config_pfad}/user.protokoll");
+   while(<TOLERATION>){
+     my @line=split(/;/);
+     if(defined $line[7] and ($line[7] eq "D" or 
+                              $line[7] eq "T" or
+                              $line[7] eq "S" or
+                              $line[7] eq "A")){
+       #print "Element: $line[7] \n";
+       if ($line[7]){
+         my $gecos=$line[1];
+         my ($first,$last)=split(/ /,$gecos);
+         my $identifier=$last.";".$first.";".$line[4];
+         #print $identifier."\n";
+         push @toleration, $identifier;
+       }	    
+     }
+   }
+   close(TOLERATION);
+   return @toleration;
+}
+
+
 
 
 

@@ -77,6 +77,7 @@ my $help=0;
 my $file_to_check="";
 my $old_info_dir="";
 my $no_kclass=0;
+my $no_auto_teach_in=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -84,6 +85,7 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "get-info-from-old-files=s" => \$old_info_dir,
            "no-kclass" => \$no_kclass,
+           "no-auto-teach-in|no-sync" => \$no_auto_teach_in,
            "file=s" => \$file_to_check,
           );
 
@@ -116,6 +118,7 @@ Options
   -h  / --help
   -v  / --verbose
   -vv / --verbose --verbose
+  --no-auto-teach-in / --no-sync
   --get-info-from-old-files directory
   --file filename
 
@@ -943,8 +946,11 @@ if ($Conf::splan_sternchenlkassen_filtern eq "ja") {
 # ===========================================================================
 # Load new data into the Database and System by use of AI
 # ===========================================================================
-
-&auto_teach_in();
+if ($no_auto_teach_in==1){
+  # no auto-teach-in
+} else {
+  &auto_teach_in();
+}
 
 my %go_come=();
 my %come_points=();
@@ -2161,19 +2167,6 @@ sub auto_teach_in {
    &titel("auto_teach-in: ... $auto_teach_in_count accounts modified");
 }
 
-
-sub append_auto_teach_in_log {
-   # appends a line to auto-teach-in.log
-   my ($type,$login,$old,$new, $unid)=@_;
-   if (not defined $unid){$unid=""} 
-  open(ATLOG, 
-       ">>${DevelConf::log_files}/user-modify.log") 
-        || die "Fehler: $!";
-    print ATLOG  $type."::".$heute."::".$login."::".
-                 $old."::->::".$new."::".$unid."\n";
-    close(ATLOG);
-
-}
 
 
 

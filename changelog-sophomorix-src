@@ -3,9 +3,7 @@ This is the todo/changelog for the sophomorix sourcecode
 ##########  todo ##########
 
 sophomorix-repair
-
-   - include/check sophomorix-repair
-   - remove variable $samba in repair.directories
+   - ok so far
 
 
 sophomorix-quota
@@ -63,6 +61,7 @@ sophomorix-update:
    - write script to update
      problem id of lehrer on debian is 105 ml 2.x is 1002
        -- workaround
+          0. install sophomorix2
           1. groupdel lehrer (removes 105), works only when no teacher exists
           2. sophomorix-setup (repairs directories with groupowner lehrer)
           3. update (lehrer with old id will be created automatically)
@@ -74,7 +73,8 @@ All Scripts:
    - set/check file-permissions at the and of each sophomorix-* run. 
    - shorter verbosity when no verbosity option is given
    - remove old subclass stuff (extrafile to specify subclass)
-
+   - get_xxx functions of sophomorix-repair: give a international name 
+     and put it to SophomorixAPI, document it with perldoc 
 
 Think about:
 
@@ -89,7 +89,8 @@ RELEASES:
 
 
 1.1.7 (2005-01-?)
-
+   - include/check sophomorix-repair
+   - removed variable $samba_dir in repair.directories, ...
    - The Filesystem under /home is controlled by variables in sophomorix-devel.conf
    - repair.directories uses this variable to identify permissions
    - added a few directories under /home/samba

@@ -18,21 +18,15 @@ use Term::ANSIColor qw(:constants); # farbiger Text RED, BLUE, ...
 # nach jedem Printbefehl wieder auf Standardfarbe zurücksetzen
 $Term::ANSIColor::AUTORESET = 1;
 
-# Einlesen der Konfigurationsdatei für Entwickler
-#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
-
-# jeffbecks Bibliothek und
-# Einlesen der Konfigurationsdatei
-#require "${DevelConf::library_pfad}/sophomorix-lib";
-
-
-
 # ===========================================================================
 # Loading the db-Module, list of functions
 # ===========================================================================
 # list of functions to load if db is 'files'
 use if ${DevelConf::db_backend} eq 'files' , 
     'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                        get_teach_in_sys_users
+                                        update_user_db_entry
+                                        get_sys_users
                                        );
 
 # list of functions to load if db is 'ldap'
@@ -46,16 +40,11 @@ use if ${DevelConf::db_backend} eq 'ldap' ,
 # list of functions to load if sys_db is 'files'
 use if ${DevelConf::sys_db} eq 'files' , 
     'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
+                                           update_gecos      
                                           );
-
-
 # show the Database Modules that are loaded
 &show_modulename();
 &show_sys_modulename();
-
-
-
-
 
 # Erlaubte Werte in einen Hash schreiben
 my %match_fehlertoleranz_erlaubt = qw(
@@ -68,20 +57,18 @@ my %match_fehlertoleranz_erlaubt = qw(
 );
 
 
-
-
-
 # ===========================================================================
 # Variablen, ...
 # ===========================================================================
 
 my $identifier;
+my $hinzu_klasse;
 
 # Hash in die Hinzukommende Schüler eingelesen werden
 my %schueler_hinzu_hash;
 
 # Hash für Eintage in der Teach-in-Datei
-my %teach_in_hash_alt;
+#my %teach_in_hash_alt;
 # Key und Value in diesem Hash
 my $teachin_im_system;
 my $teachin_replace;
@@ -125,7 +112,7 @@ my $testopt=GetOptions(
            "clear|c" => \$clear,
            "approx|a=s" => \$match_fehlertoleranz,
 #           "test|t" => \$testen,
-#           "verbose|v+" => \$Conf::log_level,
+           "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
            "info|i" => \$info
           );
@@ -210,12 +197,7 @@ if ($info==1){
 # Programmbeginn
 # ===========================================================================
 
-# ===========================================================================
-# Start-Logo ausgeben
-# ===========================================================================
-
-&titel("sophomorix-teach-in startet mit einer Fehlertoleranz von $match_fehlertoleranz %");
-
+&titel("sophomorix-teach-in starts with $match_fehlertoleranz % amatch");
 
 # ===========================================================================
 # Schüler-Hinzu-Hash erstellen
@@ -224,25 +206,19 @@ open(SCHUELERHINZU,
      "${DevelConf::ergebnis_pfad}/sophomorix.add") 
      || die "Fehler: $!";
 
-
-
 if($Conf::log_level>=3){
-   &titel("Hinzukommen sollen folgende Schüler (Hinzu-Hash):");
+   &titel("Users that would be added (sophomorix.add):");
  }
-   while(<SCHUELERHINZU>){
 
-      chomp();
-      if($Conf::log_level>=3){
-         print "Lese ein:                  $_\n";
-       }
-      ($a,$identifier,$a)=split(/::/);
-      $schueler_hinzu_hash{$identifier}="hinzu";
-#      if($Conf::log_level>=3){
-         print "Extrahierter Identifier:   $identifier\n";
-#       }
-   }
-
-
+while(<SCHUELERHINZU>){
+   chomp();
+   ($hinzu_klasse,$identifier,$a)=split(/::/);
+   $schueler_hinzu_hash{$identifier}="$hinzu_klasse";
+   if($Conf::log_level>=3){
+      print "Reading:    $_\n";
+      print "Identifier: $identifier\n";
+    }
+}
 
 close(SCHUELERHINZU);
 
@@ -251,31 +227,31 @@ close(SCHUELERHINZU);
 # ===========================================================================
 # Alter Teach-In-Hash aus teach-in.txt erstellen
 # ===========================================================================
-open(SCHUELERTEACHIN,
-     "<${DevelConf::config_pfad}/teach-in.txt") 
-     || die "Fehler: $!";
+#open(SCHUELERTEACHIN,
+#     "<${DevelConf::config_pfad}/teach-in.txt") 
+#     || die "Fehler: $!";
+#
+#while(<SCHUELERTEACHIN>){
+#   chomp();
+#   if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+#   ($teachin_im_system,$teachin_replace)=split(/:::/);
+#   $teach_in_hash_alt{$teachin_im_system}="$teachin_replace";
+#}
+#
+#&titel("Einträge in der bisherigen Datei teach-in.txt:");
+#
+#print " - Linux-Netzwerk Schreibweise -  :::  - Verwaltung Schreibweise -\n";
+#print "----------------------------------------",
+#      "----------------------------------------\n";
 
-while(<SCHUELERTEACHIN>){
-   chomp();
-   if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
-   ($teachin_im_system,$teachin_replace)=split(/:::/);
-   $teach_in_hash_alt{$teachin_im_system}="$teachin_replace";
-}
+#while (($k,$v) = each %teach_in_hash_alt) {
+#print "$k",":::","$v","\n";
+#}
 
-&titel("Einträge in der bisherigen Datei teach-in.txt:");
+#print "\n";
 
-print " - Linux-Netzwerk Schreibweise -  :::  - Verwaltung Schreibweise -\n";
-print "----------------------------------------",
-      "----------------------------------------\n";
-
-while (($k,$v) = each %teach_in_hash_alt) {
-print "$k",":::","$v","\n";
-}
-
-print "\n";
-
-close(SCHUELERTEACHIN);
-
+#close(SCHUELERTEACHIN);
+ 
 
 
 
@@ -284,32 +260,51 @@ close(SCHUELERTEACHIN);
 # Alle Schüler, die entfernt werden sollen einzeln abfragen
 # ===========================================================================
 
-&titel("Der Teach-in beginnt ...");
-
-my @toleration=();
+&titel("Asking the system for users ...");
 
 
-open(TOLERATION,"<${DevelConf::dyn_config_pfad}/user.protokoll");
-while(<TOLERATION>){
-     my @line=split(/;/);
-     if(defined $line[7]){
-       if ($line[7]){
-         my $gecos=$line[1];
-         my ($first,$last)=split(/ /,$gecos);
-         my $identifier=$last.";".$first.";".$line[4];
-         print $identifier."\n";
-         push @toleration, $identifier;
-       }	    
-     }
-}
-close(TOLERATION);
+my ($ref_login, 
+    $ref_adminclass,
+    $ref_status,
+    $ref_subclass,
+    $ref_toleration_date,
+    $ref_deactivation_date,
+    $ref_unid_identifier,
+    $ref_exit_adminclass,
+    $ref_account_type,
+   ) = &get_sys_users();
 
+# identifier - klasse (ohne k = sophomorixAdminClass)
+my %schueler_im_system_hash = %$ref_adminclass;
+
+# identifier - loginname (uid in ldap)
+my %schueler_im_system_loginname = %$ref_login;
+
+# identifier - ExitAdminClass
+my %schueler_im_system_exit_admin_class = %$ref_exit_adminclass;
+
+
+&titel("Extracting teach-in users from the system ...");
+
+my @toleration=&get_teach_in_sys_users();
+&print_list("Teach-in users from the system",@toleration);
 
 foreach $identifier (@toleration){
    # Gesucht wird Entsprechung zu diesem Schüler
    printf "%-25s: %-40s\n" , 
-          "Bereits im System ist", 
+          "User in the system is", 
           "$identifier";
+   printf "%-25s: %-40s\n" , 
+          "Login", 
+          "$schueler_im_system_loginname{$identifier}";
+   printf "%-25s: %-40s\n" , 
+          "AdminClass", 
+          "$schueler_im_system_hash{$identifier}";
+   if (exists $schueler_im_system_exit_admin_class{$identifier}){
+      printf "%-25s: %-40s\n" , 
+             "ExitAdminClass", 
+             "$schueler_im_system_exit_admin_class{$identifier}";
+   }
    print "----------------------------------------",
          "----------------------------------------\n";
    # Auswahlnummer auf eins setzen
@@ -330,8 +325,11 @@ foreach $identifier (@toleration){
       if (amatch("$identifier" , ["i   ${match_fehlertoleranz}%"])){
          $entsprechungs_nummer++;
          printf "%-25s: %-40s\n" , 
-                "($entsprechungs_nummer) Etwaige Entsprechung",
+                "($entsprechungs_nummer) Approx match",
                 "$schueler_hinzu";
+         printf "%-25s: %-40s\n" , 
+                "    AdminClass",
+                "$schueler_hinzu_hash{$schueler_hinzu}";
          # Approx-Match ablegen im Auswahl-Hash
          $auswahl_hash{$entsprechungs_nummer}="$schueler_hinzu";
       }
@@ -339,7 +337,7 @@ foreach $identifier (@toleration){
    # (0) = Nichts machen hinzufügen zum Auswahl-Hash
    printf "%-25s: %-40s\n" , 
           "(0)",
-          "Nichts tun";
+          "Do nothing";
           $auswahl_hash{0}="Nichts tun!";
    print "----------------------------------------",
          "----------------------------------------\n";
@@ -359,57 +357,101 @@ foreach $identifier (@toleration){
             last; # Ausstieg aus Endlosschleife
          } else {
             # Endlosschleife, Eingabe wiederholen
-            print "Fehlerhafte Eingabe. Bitte wiederholen! Zuerst die Ziffer, dann <RETURN>\n";
+            print "Fehlerhafte Eingabe. Bitte wiederholen!",
+                  " Zuerst die Ziffer, dann <RETURN>\n";
          }
       }
     }
    # ======================================================================
    # Resultat der Useraktion verarbeiten
    # ======================================================================
-   print "========================================",
-         "========================================\n";
-   print "Speichere:  ", 
-         "$identifier",
-         ":::",
-         "$auswahl_hash{$user_antwort}\n";
-   print "========================================",
-         "========================================\n\n\n\n";
    # Ausgabe in die tech-in-datei
    if ($user_antwort eq "0"){ # nur, wenn 1,2,3,... gewählt etwas tun
       # Nichts tun
+      print "\n\n\n";
    } else {
-      # Wenn Eintrag im Hash_alt vorhanden, erstmal löschen
-      if (exists($teach_in_hash_alt{$identifier})){
-         # Dann den Eintrag löschen
-         delete($teach_in_hash_alt{$identifier});
-      } 
-      # Eintrag neu schreiben (mit evtl. verändertem Wert)
-      $teach_in_hash_alt{$identifier}="$auswahl_hash{$user_antwort}";
+      print "========================================",
+            "========================================\n";
+      print "Updating sophomorix database:  ", 
+            "$identifier",
+            ":::",
+            "$auswahl_hash{$user_antwort}\n";
+      print "========================================",
+            "========================================\n\n\n";
+
+      my $identifier_sys=$identifier;
+      my $identifier_file=$auswahl_hash{$user_antwort},
+      my $login=$schueler_im_system_loginname{$identifier_sys};
+      my ($last,$first,$birth)=split(/;/,$identifier_file);
+      print "\nlogin: $login";
+      print "\nsys: $identifier_sys";
+      print "\nfile: $identifier_file";
+      print "\nlast: $last";
+      print "\nfirst: $first";
+      print "\nbirth: $birth\n\n";
+      # updating the database
+      &update_user_db_entry($login, 
+                            "Name=$first",
+                            "LastName=$last",
+                            "Birthday=$birth");
+      # log
+      &append_auto_teach_in_log("man-teach-in",
+                                $login,
+                                $identifier_sys,
+                                $identifier_file,
+                               );
+
+      # update the system
+      &update_gecos($login,$first,$last);
+
+      # update the hashes
+      if (exists $schueler_im_system_hash{$identifier_sys}){
+        my $save_class=$schueler_im_system_hash{$identifier_sys};
+        delete($schueler_im_system_hash{$identifier_sys});
+        $schueler_im_system_hash{$identifier_file}="$save_class";
+      }
+
+      if (exists $schueler_im_system_loginname{$identifier_sys}){
+        my $save_login=$schueler_im_system_loginname{$identifier_sys};
+        delete($schueler_im_system_loginname{$identifier_sys});
+        $schueler_im_system_loginname{$identifier_file}="$save_login";
+      }
+      if (exists $schueler_im_system_exit_admin_class{$identifier_sys}){
+        my $save_exit=$schueler_im_system_exit_admin_class{$identifier_sys};
+        delete($schueler_im_system_exit_admin_class{$identifier_sys});
+        $schueler_im_system_exit_admin_class{$identifier_file}="$save_exit";
+      }
+
+#      # Wenn Eintrag im Hash_alt vorhanden, erstmal löschen
+#      if (exists($teach_in_hash_alt{$identifier})){
+#         # Dann den Eintrag löschen
+#         delete($teach_in_hash_alt{$identifier});
+#      } 
+#      # Eintrag neu schreiben (mit evtl. verändertem Wert)
+#      $teach_in_hash_alt{$identifier}="$auswahl_hash{$user_antwort}";
    }
 }
 
-#close(DULDUNG);
-   
 
 # ===========================================================================
 # Modifizierten Teach-in-Hash-alt nach teach-in.txt schreiben
 # ===========================================================================
-open(SCHUELERTEACHIN,
-     ">${DevelConf::config_pfad}/teach-in.txt") 
-     || die "Fehler: $!";
+#open(SCHUELERTEACHIN,
+#     ">${DevelConf::config_pfad}/teach-in.txt") 
+#     || die "Fehler: $!";
 
 # Kommentar einfügen !muss in sophomorix-check auch angepasst werden!
-print SCHUELERTEACHIN "# sophomorix-Konfigurationsdatei\n";
-print SCHUELERTEACHIN "# Alle Kommentare -außer den jetzt sichtbaren- werden wieder entfernt!\n";
-print SCHUELERTEACHIN "# Editieren Sie diese Datei nur, wenn sie wissen, was sie tun!\n";
-print SCHUELERTEACHIN "# Linux-Netzwerk Schreibweise ::: Verwaltung Schreibweise:\n";
-print SCHUELERTEACHIN "# ---------------------------------------",
+#print SCHUELERTEACHIN "# sophomorix-Konfigurationsdatei\n";
+#print SCHUELERTEACHIN "# Alle Kommentare -außer den jetzt sichtbaren- werden wieder entfernt!\n";
+#print SCHUELERTEACHIN "# Editieren Sie diese Datei nur, wenn sie wissen, was sie tun!\n";
+#print SCHUELERTEACHIN "# Linux-Netzwerk Schreibweise ::: Verwaltung Schreibweise:\n";
+#print SCHUELERTEACHIN "# ---------------------------------------",
                    "---------------------------------------\n";
-# Einträge schreiben
-while (($k,$v) = each %teach_in_hash_alt) {
-print SCHUELERTEACHIN "$k",":::","$v","\n";
-}
-close(SCHUELERTEACHIN);
+## Einträge schreiben
+#while (($k,$v) = each %teach_in_hash_alt) {
+#print SCHUELERTEACHIN "$k",":::","$v","\n";
+#}
+#close(SCHUELERTEACHIN);
 
 
 
@@ -417,5 +459,4 @@ close(SCHUELERTEACHIN);
 # Ende Logo ausgeben
 # ===========================================================================
 
-&titel("... sophomorix-teach-in beendet sich jetzt.");
-
+&titel("... sophomorix-teach-in is terminated regularly.");
