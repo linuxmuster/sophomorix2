@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-ADD 8 "November 26, 2004"
+.TH SOPHOMORIX-PRINT 8 "November 30, 2004"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -16,20 +16,28 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for manpage-specific macros, see man(7)
 .SH NAME
-sophomorix-add \- Erzeugen von Benutzeraccounts für einen Schulserver
+sophomorix-print \- Drucken von Benutzeraccount-Daten
 .SH SYNOPSIS
-.B sophomorix-add
+.B sophomorix-print
 .RI [ options ] 
 .br
 .SH DESCRIPTION
-.B sophomorix-add
+.B sophomorix-print
 .br
-Nachdem sophomorix-check ermittelt hat, welche user angelegt werden
-können (Datei: sophomorix.add), trägt sophomorix-add diese neuen user in die
-sophomorix Datenbank ein und macht sie dem System bekannt.
+Sofern User angelegt wurden werden diejenigen User ausgedruckt, die im
+letzten Schritt angelegt wurden. 
+.br
+Mit den Optionen können User auch klassenweise, ... ausgedruckt
+werden.
+.br
+Die erzeugten Daten finden sich in /var/lib/sophomorix/drucken.
+.br 
+(später: /var/lib/sophomorix/print)
+.br
+Im Moment funktioniert sophomorix-print nur ohne Optionen!!
 .PP
 .SH OPTIONS
-.B sophomorix-add
+.B sophomorix-print
 benützt die GNU command line syntax, mit langen Optionen, die mit zwei
 Bindestrichen (`-') beginnen:
 .TP
@@ -42,20 +50,25 @@ Sagt, was das Programm gerade macht (verbose)
 .B -vv, --verbose --verbose
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
-.B -i , --info
-Listet alle user auf, die angelegt werden können.
+.B -a , --all, --alle
+Erzeugt ein Datei, in der ALLE angelegten User enthalten sind.
 .TP
-.B -l loginname, -u loginname, --login loginname, --user loginname
-Legt nur die user an, die den loginnamen loginname bekommen
-werden. Um loginname im Voraus zu ermitteln ist etwas Raten erforderlich.
+.B -l lehrer, -t lehrer, --lehrer lehrer, --teacher lehrer
+Erzeugt eine Datei, in der nur Lehrer enthalten sind.
 .TP
-.B -g klasse, --group klasse, -c klasse, --class klasse, -k klasse, --klasse klasse
-Legt nur user an, die in die angegebene Klasse klasse kommen.
+.B -k klasse, -c klasse, -g klasse, --klasse klasse
+Erzeugt eine Datei, in der nur User enthalten sind, die in der
+angegebenen Klasse sind.
 .TP
-.B -t, --test
-sophomorix-add läuft möglichst normal ab, ohne die Accounts
-tatsächlich zu erzeugen. Es kann zu unsinnigen Fehlermeldungen kommen,
-da einige Schritte beim Anlegen auf anderen aufbauen.
+.B -s, --show,
+Startet nach dem erzeugen der Datei einen Viewer, um die Datei gleich
+anzusehen. (Macht nur Sinn, wenn eine grafische Oberfläche zur
+Verfügung steht).
+.TP
+.B --caller name
+Der Dateiname und der Inhalt der Datei enthält den String name. Dies
+kann z.B beim Aufruf aus webmin verwendet werden, um den Aufrufenden
+Lehrer (caller) mit auszudrucken.
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
@@ -70,7 +83,7 @@ da einige Schritte beim Anlegen auf anderen aufbauen.
 .\".BR baz (1).
 .\".br
 .\"You can see the full options of the Programs by calling for example 
-.\".IR "sophomrix-add -h" ,
+.\".IR "sophomrix-print -h" ,
 .
 .SH AUTHOR
 This manual page was written by <jeffbeck@web.de>.
