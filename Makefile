@@ -55,7 +55,7 @@ CTEMPDIR=$(DESTDIR)/usr/share/sophomorix/config-templates
 # WEBMINCONFDIR ML und Debian
 WEBMINCONFDIR=$(DESTDIR)/etc/webmin
 
-all: install-base install-files install-sys-files install-developer install-webmin install-webmin-classmanager
+all: install-base install-files install-sys-files install-vampire install-developer install-webmin install-webmin-classmanager
 
 clean: clean-doc
 
@@ -110,6 +110,10 @@ install-sys-files:
 	##### Copy the module
 	install -d -m755 -oroot -groot $(PERLMOD)
 	install -oroot -groot --mode=0644 sophomorix-sys-files/modules/Sophomorix*[a-z1-9] $(PERLMOD)
+
+install-vampire:
+	##### lib for managing the user database in plain files
+	install -oroot -groot --mode=0744 sophomorix-vampire/scripts/sophomorix*[a-z1-9] $(DESTDIR)/usr/sbin
 
 install-ldap:
 	##### Copy the module

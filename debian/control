@@ -42,6 +42,16 @@ Description: module to write to plain linux files
  This module contains functions to propagate the sophomorix database
  to /etc/passwd, /etc/shadow, /etc/group, /etc/gshadow, ...
  
+Package: sophomorix-vampire
+Architecture: any
+Depends: sophomorix2 (>=1.2), rsync (>=2.6.3), ssh (>=3.8.1)
+Provides: sophomorix-sysdb
+Description: script to such data to a new server
+ This script is run on a new sophomorix server. It pushes a ssh-key to an 
+ old sophomorix-server, fetches its users and data. Perfect for big step 
+ updates or moving to new hardware. Perhaps also a way to mirror a server
+ for backup. 
+ 
 
 Package: sophomorix-ldap
 Architecture: any
