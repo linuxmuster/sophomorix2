@@ -79,34 +79,23 @@ if ($help==1) {
    my @list = split(/\//,$0);
    my $scriptname = pop @list;
    # Befehlbeschreibung
-   print "$scriptname splittet klassen in subklassen(Gruppe A,B,C oder D).\n"; 
+   print('
+sophomorix-split splits classes into subclasses A,B,C,D
 
-   # gemeinsamer Hilfetext
-   &help_text_all;
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -i  / --info
+  -k klasse / --klasse klasse
+  -l login / --lastchange login
+  -A comment -B comment -C comment -D comment
+  -Amemebers user 1,user2, ... -Bmembers -user1.user2, ... ...
+  --noninteractive
 
-   # optionen
-   print "Optionen:\n\n";
-
-   print "  --info, -i\n";
-   print "     Gibt die Klassen an, die gesplittet werden können.\n\n";
-
-   print "  --klasse klasse, -k klasse\n";
-   print "     Splittet die Klasse klasse\n\n";
-
-   print "  --lastchange login, -l login\n";
-   print "     Loginname des users der als letztes gesplittet hat.\n\n";
-
-   print "  -A Kommentar, -B Kommentar, -C Kommentar, -D Kommentar\n";
-   print "     Hängt den Kommentar an den Langen Namen der Subclasse an.\n\n";
-
-   print "  --noninteractive \n";
-   print "     Frägt nicht nach Gruppenzugekörigkeiten der User ab, sondern\n";
-   print "     erwartet --Amembers, --Bmembers, ... \n\n";
-
-   print "  --Amemebers user1,user2, ... --Dmemebers user1,user2,user,...\n";
-   print "     Userzugehörigkeiten zu den Subclassen A,B,C,D per Option\n";
-   print "     (wird nur bei --noninteractive ausgewertet)\n\n";
-
+Please see the sophomorix-add(8) man pages for full documentation
+');
+   print "\n";
    exit;
 }
 
