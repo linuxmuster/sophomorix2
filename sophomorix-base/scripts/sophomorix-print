@@ -915,8 +915,8 @@ close(LATEX);
 
 # hoehere Qualitaet
 #&latexen;
-#&latexen;
-#&latexen;
+&latexen;
+&latexen;
 
 # einfacher
 &pdflatexen;
@@ -944,7 +944,7 @@ if ($show==1) {
 # ===========================================================================
 
 sub pdflatexen {
-   system("pdflatex ${DevelConf::druck_pfad}/$output_file_basename.tex $dev_null");
+   system("cd ${DevelConf::druck_pfad}; pdflatex $output_file_basename.tex $dev_null");
 
 }
 

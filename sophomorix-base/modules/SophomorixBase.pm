@@ -86,10 +86,35 @@ use Time::localtime;
               unterricht_einsammeln
               );
 
-# Dieses Script (sophomorix-lib) wurde von Rüdiger Beck erstellt
+# Dieses Modul (SophomorixBase.pm) wurde von Rüdiger Beck erstellt
 # Es ist freie Software
 # Bei Fehlern wenden Sie sich bitte an mich.
 # jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+=head1 NAME
+
+=head1 DESCRIPTION
+
+B<sophomorix> is a user administration tool for a school server. It
+lets you administrate a huge amount of users by exporting all pupils of
+a school into a file and reading them into a linux system.
+
+B<Sophomorix> will in the future use different backends (files, ldap,
+SQL-Databases, ...) to store its data. If you want to access this data
+you could talk to the backend directly, but this would mean, that you
+would have to update your scripts when the data organisation in the
+backend changes.
+
+A better way is to use only the functions of B<SophomorixBase>. So if
+the data organisation changes you only have to get a current version
+of B<SophomorixBase> and you're off.
+
+
+=head1 FUNCTIONS
+
+=head2 Formatting
+
+=cut
 
 # Einlesen der Konfigurationsdatei für Entwickler
 { package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
@@ -103,6 +128,12 @@ use Time::localtime;
 ################################################################################
 # FORMATIERUNGEN
 ################################################################################
+
+=head3 Titel
+
+Test
+
+=cut
 
 # ===========================================================================
 # Titelleiste erzeugen
@@ -1486,6 +1517,15 @@ sub get_klasse_von_login {
 # Diese Funktion hat als Argument einen Gruppennamen
 # Sie liefert alle Schüler dieser Klasse zurück
 # Wenn keine Schüler in dieser Gruppe sind wird eine leere Liste zurückgegeben
+
+=head1 Fetching all pupils in a class
+
+=item get_schueler_in_klasse
+
+This function returns an ascibetical list of the members in a class
+
+=cut
+
 sub get_schueler_in_klasse {
     my ($klasse)=@_;
     #print "$klasse<p>";

@@ -8,6 +8,7 @@
 use strict;
 use Getopt::Long;
 use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixFiles;
 Getopt::Long::Configure ("bundling");
 #use Schedule::at;
 
@@ -16,8 +17,8 @@ Getopt::Long::Configure ("bundling");
 
 # jeffbecks Bibliothek und
 # Einlesen der Konfigurationsdatei
-require "${DevelConf::library_pfad}/sophomorix-lib-base";
-require "${DevelConf::library_pfad}/sophomorix-lib-files";
+#require "${DevelConf::library_pfad}/sophomorix-lib-base";
+#require "${DevelConf::library_pfad}/sophomorix-lib-files";
 
 # Nur als Dummy(Warnings verhindern)
 if(${DevelConf::library_pfad}){};

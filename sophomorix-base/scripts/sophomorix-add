@@ -13,6 +13,7 @@ use Quota;
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixFiles;
 #use Net::LDAP;
 #use Schedule::at;
 
@@ -23,7 +24,7 @@ use Sophomorix::SophomorixBase;
 # jeffbecks Bibliothek und
 # Einlesen der Konfigurationsdatei
 #require "${DevelConf::library_pfad}/sophomorix-lib-base";
-require "${DevelConf::library_pfad}/sophomorix-lib-files";
+#require "${DevelConf::library_pfad}/sophomorix-lib-files";
 
 # Nur als Dummy(Warnings verhindern)
 if($Conf::lehrer_zufall_passwort){};

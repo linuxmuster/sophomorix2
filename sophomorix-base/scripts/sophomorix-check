@@ -20,6 +20,7 @@ Getopt::Long::Configure ("bundling");
 #use Schedule::at;
 use String::Approx 'amatch';
 use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixFiles;
 use Time::Local;
 use Time::localtime;
 use Term::ANSIColor qw(:constants); # farbiger Text RED, BLUE, ...
@@ -27,12 +28,12 @@ use Term::ANSIColor qw(:constants); # farbiger Text RED, BLUE, ...
 $Term::ANSIColor::AUTORESET = 1;
 
 # Einlesen der Konfigurationsdatei für Entwickler
-{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
 
 # jeffbecks Bibliothek und
 # Einlesen der Konfigurationsdatei
 #require "${DevelConf::library_pfad}/sophomorix-lib-base";
-require "${DevelConf::library_pfad}/sophomorix-lib-files";
+#require "${DevelConf::library_pfad}/sophomorix-lib-files";
 #require "${DevelConf::library_pfad}/sophomorix-libldap";
 
 # Nur als Dummy(Warnings verhindern)

@@ -13,8 +13,11 @@ HOME=$(DESTDIR)/home
 # Developement
 USERROOT=$(DESTDIR)/root
 
-#Daten
+# Data
 LIBDIR=$(DESTDIR)/var/lib/sophomorix
+
+# Perl modules
+PERLMOD=$(DESTDIR)/usr/lib/perl5/Sophomorix
 
 # Debian
 WEBMINDEBDIR=$(DESTDIR)/usr/share/webmin
@@ -51,22 +54,26 @@ install-base:
 	##### configs for developers
 	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/devel/user
 	install -oroot -groot --mode=0700 sophomorix-base/config-devel/*[!CVS] $(DESTDIR)/etc/sophomorix/devel/user
-	##### Copy the DB-independant libs
-#	install -oroot -groot --mode=0744 sophomorix-base/lib/sophomorix-*[a-z1-9] $(DESTDIR)/usr/sbin
 	##### Copy the module
-	install -d -m755 -oroot -groot $(DESTDIR)/usr/lib/perl5/Sophomorix
-	install -oroot -groot --mode=0644 sophomorix-base/modules/Sophomorix*[a-z1-9] $(DESTDIR)/usr/lib/perl5/Sophomorix
+	install -d -m755 -oroot -groot $(PERLMOD)
+	install -oroot -groot --mode=0644 sophomorix-base/modules/Sophomorix*[a-z1-9] $(PERLMOD)
 
 
 install-files:
 	##### lib for managing users in files (passwd, group, user.protokoll)
-	install -oroot -groot --mode=0744 sophomorix-files/lib/sophomorix*[a-z1-9] $(DESTDIR)/usr/sbin
 	install -oroot -groot --mode=0744 sophomorix-files/scripts/sophomorix*[a-z1-9] $(DESTDIR)/usr/sbin
+	##### Copy the module
+	install -d -m755 -oroot -groot $(PERLMOD)
+	install -oroot -groot --mode=0644 sophomorix-files/modules/Sophomorix*[a-z1-9] $(PERLMOD)
 
 
 install-developer:
 	##### tset and developement tools
 	install -oroot -groot --mode=0744 sophomorix-developer/scripts/sophomorix*[a-z1-9] $(DESTDIR)/usr/sbin
+	##### Copy the module
+	install -d -m755 -oroot -groot $(PERLMOD)
+	install -oroot -groot --mode=0644 sophomorix-developer/modules/Sophomorix*[a-z1-9] $(PERLMOD)
+
 
 
 # sophomorix-webmin
