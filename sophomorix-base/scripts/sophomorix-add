@@ -453,8 +453,11 @@ if($Conf::use_quota eq "yes"){
                         $shell,
                         $quotastring);
 
-  # 2. Entry to the sys database
+  # 2. Add the class (db and dirs,links, ...)
   &add_class_to_sys($new_admin_group); # VOR add_user_to_sys !
+  &provide_class_files($new_admin_group);
+
+  # 3. Add  user to db
   &add_user_to_sys($nachname,
                    $vorname,
                    $gebdat,
@@ -464,16 +467,15 @@ if($Conf::use_quota eq "yes"){
                    $shell);
   &set_password($login_name_ok,$klartext_passwort);
 
-  # 3. Add teacher to webmin
+  # 4. Add teacher to webmin
   if ($new_admin_group eq "lehrer"){
      &webmin_eintrag($login_name_ok);
   }
 
-  # 4. Creating dirs, links
-  &provide_class_files($new_admin_group);
+  # 5. Creating dirs, links for the user
   &provide_user_files($login_name_ok,$new_admin_group);
 
-  # 4. Setting quota 
+  # 6. Setting quota 
   &setze_quota($DevelConf::system,
                $login_name_ok, 
                \@quota_fs_liste, 

@@ -620,7 +620,6 @@ Creates all files and directories for a class (exchange directories).
 
 
 sub provide_class_files {
-
 #?????? lehrer?
     my ($class) = @_;
     my $klassen_homes="/home/schueler/$class";

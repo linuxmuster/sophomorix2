@@ -13,7 +13,8 @@ Getopt::Long::Configure ("bundling");
 #use Schedule::at;
 
 if($Conf::use_quota ne "yes"){
-    print "sophomorix.conf says:  You don't want to use quota.\n";
+  print "\nsophomorix.conf says:  You don't want to use quota.\n\n";
+  print "Set  use_quota=\"yes\"  in sophomorix.conf, if you want to use quota.\n\n";
     exit;
 }
 
