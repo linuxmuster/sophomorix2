@@ -106,6 +106,7 @@ sub append_line {
 sub remove_line {
     my $login="";
     my @fields=();
+    my $found=0;
     my ($regex,$file) = @_;
     #print "Running on $file \n"; 
     open(SCH,"<$file");
@@ -113,7 +114,8 @@ sub remove_line {
     while (<SCH>){
       chomp();
       if (/$regex/){
-          print "   Removing a line in $file!\n";
+          $found=1;
+          print "   Removing $_ in $file!\n";
           # remember the login
           @fields=split(/;/);
 	  $login=$fields[2];
@@ -124,6 +126,9 @@ sub remove_line {
     close(SCH);
     close(TMP);
     system("mv $file.tmp $file");
+    if ($found == 0){
+	print "   Could not find Regex $regex \n";
+    }
     return $login;
 }
 
