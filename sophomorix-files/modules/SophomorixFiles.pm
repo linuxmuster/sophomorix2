@@ -17,6 +17,7 @@ require Exporter;
              get_sys_users
              get_print_data
              search_user
+             backup_user_database
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
@@ -842,6 +843,21 @@ sub search_user {
 
 
 
+
+=pod
+
+=item  I<backup_sys_database()>
+
+Makes a backup of the sophomorix user database
+
+=cut
+sub backup_user_database {
+    my ($time, $string) = @_;
+    &do_falls_nicht_testen(
+      "cp ${DevelConf::protokoll_pfad}/user.protokoll ${DevelConf::log_pfad}/${time}.user.protokoll-${string}",
+      "chmod 600 ${DevelConf::log_pfad}/${time}.user.protokoll-${string}"
+    );
+}
 
 
 

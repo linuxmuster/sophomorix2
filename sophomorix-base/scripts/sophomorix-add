@@ -19,6 +19,7 @@ use Sophomorix::SophomorixBase;
 use if ${DevelConf::db_backend} eq 'files' , 
     'Sophomorix::SophomorixFiles' => qw(show_modulename
                                         create_user_db_entry
+                                        backup_user_database
                                        );
 
 # list of functions to load if db is 'ldap'
@@ -222,25 +223,10 @@ if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.add")) {
 }
 
 
-# ===========================================================================
-# user.protokoll mitloggen
-# ===========================================================================
-&do_falls_nicht_testen(
-  "cp ${DevelConf::protokoll_pfad}/user.protokoll ${DevelConf::log_pfad}/${zeit}.user.protokoll-vor",
-  "chmod 600 ${DevelConf::log_pfad}/${zeit}.user.protokoll-vor"
-);
-
-# ===========================================================================
+# sophomorix database sichern
+&backup_user_database($zeit, "before.add");
 # sophomorix.add mitloggen
-# ===========================================================================
-&do_falls_nicht_testen(
-# Verarbeitete Datei mit Zeitstempel versehen
-  "cp ${DevelConf::ergebnis_pfad}/sophomorix.add ${DevelConf::log_pfad}/${zeit}.sophomorix.add-before",
-  # Nur für root lesbar machen
-  "chown root:root ${DevelConf::log_pfad}/${zeit}.sophomorix.add-before",
-  "chmod 600 ${DevelConf::log_pfad}/${zeit}.sophomorix.add-before"
-);
-
+&backup_amk_file($zeit,"add","before");
 
 # Verbessern, siehe idealx
 if (${DevelConf::debian} ne "yes") {
@@ -511,27 +497,10 @@ if (${DevelConf::debian} ne "yes") {
 # später ???
 &print();
 
-# ===========================================================================
 # sophomorix.add moven, damit sie nicht nochmal eingelesen werden kann
-# ===========================================================================
-&do_falls_nicht_testen(
-   # Verarbeitete Datei mit Zeitstempel versehen
-   "mv ${DevelConf::ergebnis_pfad}/sophomorix.add ${DevelConf::log_pfad}/${zeit}.sophomorix.add-after",
-   # Nur für root lesbar machen
-   "chown root:root ${DevelConf::log_pfad}/${zeit}.sophomorix.add-after",
-   "chmod 600 ${DevelConf::log_pfad}/${zeit}.sophomorix.add-after"
-		     );
-
-
-
-# ===========================================================================
-# user.protokoll mitloggen
-# ===========================================================================
-&do_falls_nicht_testen(
-   "cp ${DevelConf::protokoll_pfad}/user.protokoll ${DevelConf::log_pfad}/${zeit}.user.protokoll-nach",
-   "chmod 600 ${DevelConf::log_pfad}/${zeit}.user.protokoll-nach"
-		     );
-
+&backup_amk_file($zeit,"add","after","mv");
+# sophomorix database sichern
+&backup_user_database($zeit, "after.add");
 
 # ===========================================================================
 # hinzu.pdf, hinzu.csv mitloggen

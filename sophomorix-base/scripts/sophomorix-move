@@ -18,6 +18,7 @@ Getopt::Long::Configure ("bundling");
 use if ${DevelConf::db_backend} eq 'files' , 
     'Sophomorix::SophomorixFiles' => qw(show_modulename
                                         update_user_db_entry
+                                        backup_user_database
                                        );
 
 # list of functions to load if db is 'ldap'
@@ -199,14 +200,10 @@ if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.move")) {
   exit; 
 }
 
-# ===========================================================================
-# user.protokoll mitloggen
-# ===========================================================================
-&do_falls_nicht_testen(
-  "cp ${DevelConf::protokoll_pfad}/user.protokoll ${DevelConf::log_pfad}/${zeit}.user.protokoll-vorher",
-  "chmod 600 ${DevelConf::log_pfad}/${zeit}.user.protokoll-vorher"
-);
-
+# sophomorix database sichern
+&backup_user_database($zeit, "before.move");
+# sophomorix.move mitloggen
+&backup_amk_file($zeit,"move","before");
 
 # Protokolldatei lesen
 %protokoll_hash=&protokoll_linien();
@@ -362,22 +359,18 @@ close(NOCHVERSETZEN);
 
 
 
-# Verarbeitete Datei mit Zeitstempel versehen
-# Nur wenn nicht leer ?????
-&do_falls_nicht_testen(
-    "mv ${DevelConf::ergebnis_pfad}/sophomorix.move ${DevelConf::log_pfad}/${zeit}.sophomorix.move",
-# Nur für root lesbar machen
-    "chmod 600 ${DevelConf::log_pfad}/${zeit}.sophomorix.move"
-);
+## Verarbeitete Datei mit Zeitstempel versehen
+## Nur wenn nicht leer ?????
+#&do_falls_nicht_testen(
+#    "mv ${DevelConf::ergebnis_pfad}/sophomorix.move ${DevelConf::log_pfad}/${zeit}.sophomorix.move",
+## Nur für root lesbar machen
+#    "chmod 600 ${DevelConf::log_pfad}/${zeit}.sophomorix.move"
+#);
 
-# ===========================================================================
-# user.protokoll mitloggen
-# ===========================================================================
-&do_falls_nicht_testen(
-    "cp ${DevelConf::protokoll_pfad}/user.protokoll ${DevelConf::log_pfad}/${zeit}.user.protokoll-nachher",
-    "chmod 600 ${DevelConf::log_pfad}/${zeit}.user.protokoll-nachher"
-);
-
+# sophomorix database sichern
+&backup_user_database($zeit, "after.move");
+# sophomorix.move mitloggen
+&backup_amk_file($zeit,"move","after");
 
 # ===========================================================================
 # Nicht verarbeitete User nach sophomorix.move kopieren

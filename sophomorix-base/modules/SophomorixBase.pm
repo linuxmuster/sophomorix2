@@ -41,6 +41,7 @@ use Time::localtime;
               create_share_link
               remove_share_link
               zeit
+              backup_amk_file
               get_klasse_von_login
               get_schueler_in_klasse
               get_schueler_in_schule
@@ -1762,6 +1763,29 @@ sub zeit {
   my $string="$day.$month.$year";
   #print "$string\n";
   return $string;
+}
+
+=pod
+
+=item I<zeit(epoche)>
+
+Erzeugt Datum aus epochenzeit
+
+=cut
+sub backup_amk_file {
+    my ($time, $str, $str2, $com) = @_;
+    if (not defined $com){
+	$com="cp";
+    }
+    my $inp=${DevelConf::ergebnis_pfad};
+    my $outp=${DevelConf::log_pfad};
+    # Verarbeitete Datei mit Zeitstempel versehen
+    &do_falls_nicht_testen(
+      "$com ${inp}/sophomorix.${str} ${outp}/${time}.sophomorix.${str}-${str2}",
+      # Nur für root lesbar machen
+      "chown root:root ${outp}/${time}.sophomorix.${str}-${str2}",
+      "chmod 600 ${outp}/${time}.sophomorix.${str}-${str2}"
+    );
 }
 
 

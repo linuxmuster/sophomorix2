@@ -144,21 +144,10 @@ if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.kill")) {
   exit; 
 }
 
-
-
-# ===========================================================================
-# Datei-Zustand (VORHER) mitloggen (user.protokoll)
-# ===========================================================================
-&titel("Datei-Zustand (VORHER) mitloggen ...");
-
-
-
-&do_falls_nicht_testen(
-     "cp ${DevelConf::protokoll_pfad}/user.protokoll ${DevelConf::log_pfad}/${zeit}.user.protokoll-vor",
-     "chmod 600 ${DevelConf::log_pfad}/${zeit}.user.protokoll-vor"
-);
-
-
+# sophomorix database sichern
+&backup_user_database($zeit, "before.kill");
+# sophomorix.kill mitloggen
+&backup_amk_file($zeit,"kill","before");
 
 # ===========================================================================
 # Protokolldatei lesen
@@ -278,21 +267,18 @@ close(YETTOKILL);
 # ===========================================================================
 # Verarbeitete Datei mit Zeitstempel versehen
 # ===========================================================================
-&do_falls_nicht_testen(
-   "mv ${DevelConf::ergebnis_pfad}/sophomorix.kill ${DevelConf::log_pfad}/${zeit}.sophomorix.kill",
-   # Nur für root lesbar machen
-   "chmod 600 ${DevelConf::log_pfad}/${zeit}.sophomorix.kill"
-);
+#&do_falls_nicht_testen(
+#   "mv ${DevelConf::ergebnis_pfad}/sophomorix.kill ${DevelConf::log_pfad}/${zeit}.sophomorix.kill",
+#   # Nur für root lesbar machen
+#   "chmod 600 ${DevelConf::log_pfad}/${zeit}.sophomorix.kill"
+#);
 
 
 
-# ===========================================================================
-# user.protokoll mitloggen
-# ===========================================================================
-&do_falls_nicht_testen(
-   "cp ${DevelConf::protokoll_pfad}/user.protokoll ${DevelConf::log_pfad}/${zeit}.user.protokoll-nach",
-   "chmod 600 ${DevelConf::log_pfad}/${zeit}.user.protokoll-nach"
-);
+# sophomorix database sichern
+&backup_user_database($zeit, "after.kill");
+# sophomorix.kill mitloggen
+&backup_amk_file($zeit,"kill","after");
 
 # ===========================================================================
 # Falls nur getestet wird, darf die Datei nicht ersetzt werden
