@@ -31,6 +31,9 @@ system("install -d /root/sophomorix-test");
 # Start
 ############################################################
 
+system("sophomorix-check ");
+
+
 if (3==5){
 if (-z "${DevelConf::ergebnis_pfad}/sophomorix.add") {
     print "sophomorix.add ist leer oder nonexistent: OK\n";
@@ -69,10 +72,10 @@ my @users_to_add=(
 
 
 foreach $user (@users_to_add){
-   &append_line("$user","$DevelConf::users_pfad::schueler.txt");
+   &append_line("$user","${DevelConf::users_pfad}/schueler.txt");
 }
 
-#system("sophomorix-check > /dev/null");
+system("sophomorix-check ");
 
 # Test
 $line=&get_line_in_file("m4kb::maier;joerg;12.10.1982","sophomorix.add");
@@ -97,11 +100,17 @@ chomp($line);
    "Is  $line  added to sophomorix.add");
 
 
-#system("sophomorix-add > /dev/null");
+system("sophomorix-add ");
 
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.move");
 &check_emptyness("sophomorix.kill");
+
+&check_existence("${DevelConf::var_lib_pfad}/drucken/hinzu.pdf");
+&check_existence("${DevelConf::var_lib_pfad}/drucken/hinzu.tex");
+&check_existence("${DevelConf::var_lib_pfad}/drucken/hinzu.gass");
+
+
 
 &check_line_in_file("joerg maier","/etc/passwd"),
 &check_line_in_file(
@@ -118,6 +127,9 @@ chomp($line);
   "m1kb;oliver mahn;[a-z1-9]{2,};[a-z1-9]{3,};12.10.1982",
   "$DevelConf::protokoll_pfad/user.protokoll");
 
+
+
+
 $login=&remove_line(
   "m4kb;joerg maier;[a-z1-9]{2,};[a-z1-9]{3,};12.10.1982",
   "$DevelConf::protokoll_pfad/user.protokoll");
@@ -130,7 +142,7 @@ $login=&remove_line(
 
 &kill_user("$login");
 
-&check_line_in_file(
+$login=&remove_line(
   "m1kb;oliver mahn;[a-z1-9]{2,};[a-z1-9]{3,};12.10.1982",
   "$DevelConf::protokoll_pfad/user.protokoll");
 
@@ -197,7 +209,7 @@ sub check_line_in_file {
 
 sub append_line {
     my ($string,$file) = @_;
-    open(SCH,">>${DevelConf::config_pfad}/$file");
+    open(SCH,">>$file");
     #print "Appending to $file: \n $string \n\n";
     print SCH "$string\n";
     close(SCH);
@@ -232,6 +244,12 @@ sub check_emptyness{
     my ($file) = @_;
     ok('-z "${DevelConf::ergebnis_pfad}/$file"',
        "$file ist leer/nonexistent");
+}
+
+sub check_existence{
+    my ($file) = @_;
+    ok("-e $file",
+       "$file existiert");
 }
 
 
