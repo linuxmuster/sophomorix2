@@ -84,7 +84,7 @@ sub create_user_db_entry {
        # Datei Schlieﬂen, damit Schreiben erzwingen (Falls Programmabsturz)
        close(PROTOKOLL);
   } else {
-       print "Test:   $DevelConf::protokoll_datei modifizieren\n";
+       print "Test:   modifying $DevelConf::protokoll_datei \n";
   }
 
 }

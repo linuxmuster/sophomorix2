@@ -4,6 +4,11 @@
 # Bei Fehlern wenden Sie sich bitte an mich.
 # jeffbeck@web.de  oder  jeffbeck@gmx.de
 
+# todo:
+
+#--student-account: make sure, that account for students exists 
+#--teacher-account: ''
+
 # Bibliotheken
 use strict;
 use Getopt::Long;
@@ -60,6 +65,8 @@ my $help=0;
 my $all_hosts=0;
 my $localhost=0;
 my $auto_logout=5;
+my $groups=0;
+my $no_restart=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -67,7 +74,9 @@ my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
            "all-hosts" => \$all_hosts,
            "localhost" => \$localhost,
-           "auto-logout=i" => \$auto_logout
+           "auto-logout=i" => \$auto_logout,
+           "groups" => \$groups,
+           "no-restart" => \$no_restart
           );
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
@@ -100,6 +109,7 @@ Options
   --all-hosts
   --localhost
   --auto-logout number_in_minutes
+  --groups
 
 Please see the sophomorix-webmin(8) man page for full documentation
 ');
@@ -133,7 +143,7 @@ if ($all_hosts==1){
     close(FILE);
     close(TMP);
     system("mv $file.tmp $file");
-    system("/etc/init.d/webmin restart");
+    &restart_webmin();
 }
 
 # --localhoat
@@ -156,7 +166,7 @@ if ($localhost==1){
     close(FILE);
     close(TMP);
     system("mv $file.tmp $file");
-    system("/etc/init.d/webmin restart");
+    &restart_webmin();
 }
 
 
@@ -180,18 +190,115 @@ if ($auto_logout!=5){
     close(FILE);
     close(TMP);
     system("mv $file.tmp $file");
-    system("/etc/init.d/webmin restart");
+    &restart_webmin();
+}
+
+# --group
+if ($groups==1){
+    my $file="/etc/webmin/webmin.groups";
+    my @modules_teacher=();
+    my @modules_student=();
+    my @users=();
+    my $line="";
+    my $add_teacher=1;
+    my $add_student=1;
+    if (not -e $file){system("touch $file")}
+    
+    # search file if line exists
+    open(FILE, "<$file") || die "Error: $! not found";
+    while (<FILE>){
+	chomp();
+        my ($group,$users,$modules,$donnow)=split(/:/);
+        if ($group eq "teacher"){$add_teacher=0}
+        if ($group eq "student"){$add_student=0}
+    }
+    close(FILE);
+    
+    # add line if it doesn exist
+    open(FILE, ">>$file") || die "Error: $! not found";
+    if ($add_teacher==1){print FILE "teacher::::\n"}
+    if ($add_student==1){print FILE "student::::\n"}
+    close(FILE);
+
+    # fill the lines with users
+    open(FILE, "<$file") || die "Error: $! not found";
+    open(TMP, ">${file}.tmp") || die "Error: $! not found";
+    while (<FILE>){
+	chomp();
+        my ($group,$users,$modules,$donnow)=split(/:/);
+        my @modules=split(/ /, $modules);
+
+        if ($group eq "teacher"){
+            @modules_teacher=@modules;
+            @users=&get_user_adminclass("lehrer");
+            # create string
+            my $string="";
+            foreach my $item (@users){$string=$string." "."$item"}
+            # remove first space
+            $string=~s/^ //;
+            print TMP "$group",":",
+                      "$string",":",
+                      "$modules",":",
+	              "$donnow",":\n";
+
+        } elsif ($group eq "student"){
+            @modules_student=@modules;
+            my @users_pupil=&get_pupils_school();
+            my @users_teacher=&get_user_adminclass("lehrer");
+            @users = (@users_teacher, @users_pupil);
+            # create string
+            my $string="";
+            foreach my $item (@users){$string=$string." "."$item"}
+            # remove first space
+            $string=~s/^ //;
+            print TMP "$group",":",
+                      "$string",":",
+                      "$modules",":",
+	              "$donnow",":\n";
+        } else {
+            # continue using this line unchanged
+	    $line=$_."\n";
+            print TMP $_."\n";
+        }
+    }
+    close(FILE);
+    close(TMP);
+    system("mv $file.tmp $file");
+    # ??? notwendig ?????
+    &restart_webmin();
 }
 
 
 
 
 
+
+
+
+sub restart_webmin{
+    my $bin="/etc/init.d/webmin";
+    if (not -e $bin){
+       &titel("$bin is missing: webmin not installed?");       
+    }
+    if ($no_restart==0 and -e $bin){
+       system("$bin restart");
+    }
+    
+}
+
+
+############################################################
+# End of new command
+############################################################
+
+
+
 exit;
 
-open(ADMINMODULENEU, ">$webmin_modules_neu");
 
- 
+
+
+open(ADMINMODULENEU, ">$webmin_modules_neu");
 
 # ===========================================================================
 # alte webmin.acl sichern

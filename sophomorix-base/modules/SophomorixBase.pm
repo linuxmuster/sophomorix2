@@ -426,9 +426,9 @@ sub setup_verzeichnis {
       if ($permissions =~m/\//) {
          ($permissions)=split(/\//,$permissions);
       }
-      # $webuser ersetzten
+      # $webuser ersetzen
       $owner=~s/\$webuser/$DevelConf::apache_user/;
-      # $webserver ersetzten
+      # $webserver ersetzen
       $pfad=~s/\/\$webserver/$DevelConf::apache_root/;
 
       # user einbinden
@@ -442,11 +442,11 @@ sub setup_verzeichnis {
       }
 
     if($Conf::log_level>=3){
-      print "Benutze Rechte von          $verzeichnis\n";
-      print "Zu setztender Eigentümer:   $owner\n";
-      print "Zu setztende Gruppe:        $gowner\n";
-      print "Zu setztende Rechte:        $permissions\n";
-      print "Wende an auf Verzeichnis:   $pfad\n";
+      print "Using Dato of:      $verzeichnis\n";
+      print "Owner to set:       $owner\n";
+      print "Group owner to set: $gowner\n";
+      print "Permissions to set: $permissions\n";
+      print "Apply to:           $pfad\n";
       
     }
   
@@ -470,10 +470,10 @@ sub setup_verzeichnis {
       exit;
    }
 
-   # Rechte und Owner setzten   
+   # Rechte und Owner setzen   
    if ($DevelConf::testen==0) {
      if($Conf::log_level>=2){
-        print "Setze $pfad auf $permissions $owner.$gowner\n\n";
+        print "Setting $pfad to $permissions $owner.$gowner\n\n";
       }
      system("chown ${owner}.${gowner} $pfad");
      system("chmod $permissions $pfad");
@@ -703,7 +703,7 @@ sub save_tausch_klasse {
       my @statliste=lstat($path);
       my $owner = getpwuid $statliste[4];
       print "Gefunden: $datei gehört $owner\n";
-      # wenn die Datei/Verzeichnis dem zu versetztenden gehört
+      # wenn die Datei/Verzeichnis dem zu versetzenden gehört
       # Todo: UND bei Verzeichnissen kein weiterer owner unterhalb auftritt ???????
       if ($owner eq "$login") {
       # Verschieben
@@ -958,7 +958,7 @@ sub user_links {
       # nichts tun
   }
   else {
-     # normales Versetzten (auch lehrer -> speicher)
+     # normales Versetzen (auch lehrer -> speicher)
      # sicherstellen dass Verzeichnis Tauschverzeichnisse existiert
 #     &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/Tauschverzeichnisse",
 #                      "$user_home/Tauschverzeichnisse");
@@ -1409,7 +1409,7 @@ sub do_falls_nicht_testen {
          system("$systembefehl");
       } else {
          # Ausgeben
-         print "Befehl (Test):   $systembefehl\n";
+         print " * Test: $systembefehl\n";
       }
  }
 }
@@ -1772,7 +1772,7 @@ sub set_sophomorix_passwd {
           print SMBPASSWD "$pass\n$pass\n"; 
        close(SMBPASSWD);
   } else {
-     print "Test: Passwort setzten\n";
+     print "Test: Setting password \n";
   }
 }
 
@@ -2796,7 +2796,7 @@ sub get_quotastring {
 
 
 # ===========================================================================
-# Quota setzten
+# Quota setzen
 # ===========================================================================
    # $userkey:                             username
    # \@quota_filesystems                   Referenz auf Liste mit filesystemen
@@ -3106,7 +3106,7 @@ sub get_klassen_quota {
        $mail,
        $klassen_quota)=split(/;/);
        # gid der Klasse ermitteln
-       # k vor Klasse setzten  
+       # k vor Klasse setzen  
        $klasse="k"."$klasse";
        # Wenn Quotaangabe vorhanden, dann benutzen
        if($klassen_quota ne "quota"){

@@ -66,17 +66,13 @@ my $login_name_ok="";
 my $klartext_passwort="";
 my $new_admin_group="";
 my $shell="";
-my $quotastring="";
+#my $quotastring="";
 
-#my %schueler_ok_hash=();
 my %user_login_hash=();
 
-###my %login_quota=();
-###my $login_quota_typ="";
+#my $datei="";
 
-my $webmin_neustart=0;
-
-my $i;
+#my $i;
 
 my $dev_null="1>/dev/null 2>/dev/null";
 
@@ -134,10 +130,8 @@ Please see the sophomorix-add(8) man pages for full documentation
 
 # --info
 if ($info==1) {
-   # Hash mit identifier--klasse
-#   %schueler_ok_hash=&schueler_ok_hash();
    # Ausgabe der Anlegbaren user
-    print "\nThe following users can be added:\n";
+   print "\nThe following users can be added:\n";
    print "(Fields with --- are automatically created by sophomorix-add):\n\n";
    printf "%-10s %-6s %-10s %-4s %-10s %-35s\n",
           "login",
@@ -189,45 +183,6 @@ if ($gruppe ne "") {
 # Start
 ################################################################################
 
-my $datei="";
-
-################################################################################
-# Soll-Quota ermitteln
-################################################################################
-
-# später mit ldap
-
-
-#if($Conf::log_level>=3){
-#      &titel("Calculating quota for new users ...");
-#}
-
-#my %standard_quota=();
-#my %lehrer_quota=();
-#my %klassen_quota=();
-#my @quota_fs_liste=();
-
-
-#if ($Conf::use_quota eq "yes") {
-#   # quota.txt auslesen
-#   %standard_quota=&get_standard_quota();
-#
-#   # lehrer.txt auslesen
-#   %lehrer_quota=&get_lehrer_quota();
-#
-#   # schulinfo.txt auslesen
-#   %klassen_quota=&get_klassen_quota();
-#
-#   # Quotierte Dateisysteme ermitteln
-#   @quota_fs_liste=&get_quota_fs_liste();
-#}
-
-
-#  project database auslesen
-#  AdminClass - AddQuota
-#my %project_add_quota=&get_project_add__quota();
-
-
 
 
 ################################################################################
@@ -263,14 +218,6 @@ if (${DevelConf::debian} ne "yes") {
 
 my @passwort_zeichen=&get_passwd_charlist();
 
-#srand;
-#my $anzahl_zeichen=0;
-#my $chars="";
-#foreach $chars(@passwort_zeichen)              # Wieviele Zeichen gewaehlt?
-#{
-#  $anzahl_zeichen++;
-#};
-
 
 # ===========================================================================
 # Alle identifier von Schülern in schueler.ok in eine Hash-Tabelle
@@ -289,11 +236,8 @@ open(NOCHANLEGEN,">${DevelConf::ergebnis_pfad}/sophomorix.add.new") || die "Fehl
 
 open(USERHINZU,"${DevelConf::ergebnis_pfad}/sophomorix.add") || die "Fehler: $!";
 while(<USERHINZU>){
-###   $login_quota_typ="";
    $user_nummer++;
    chomp();
-   # absplitten von Wunschlogin und Wunschpasswort
-# alt   ($identifier,$wunsch_login,$wunsch_passwort)=split("::");
    # absplitten von Wunschlogin und Wunschpasswort
    ($new_admin_group,
     $identifier,
@@ -356,50 +300,15 @@ while(<USERHINZU>){
    $user_login_hash{$login_name_ok}="neu";
 
 
-# Klartext-Passwort
-if ($wunsch_passwort eq "---") {
-    $klartext_passwort=&get_plain_password($new_admin_group,@passwort_zeichen);
- } else {
-    $klartext_passwort=$wunsch_passwort
- }
+   # Klartext-Passwort
+   if ($wunsch_passwort eq "---") {
+       $klartext_passwort=&get_plain_password($new_admin_group,@passwort_zeichen);
+   } else {
+       $klartext_passwort=$wunsch_passwort
+   }
 
-# Shell
-$shell=&shell_ermitteln($new_admin_group);
-
-#if($Conf::use_quota eq "yes"){
-#  # Quota
-#   if ($new_admin_group eq "lehrer") {
-#      # Es ist ein Lehrer
-#      if (exists $lehrer_quota{$login_name_ok}) {
-#         # Es gibt lehrerquota
-#         $login_quota{$login_name_ok}=$lehrer_quota{"$login_name_ok"};
-#         $login_quota_typ="Einzel-Lehrer-Quota";
-#      } else {
-#         $login_quota{$login_name_ok}=$standard_quota{"standard-lehrer"};
-#         $login_quota_typ="Standard-Lehrer-Quota";
-#      }
-#   } else {
-#      # Es ist ein Schüler
-#      if (exists $klassen_quota{$new_admin_group}) {
-#         # Es gibt klassenquota
-#         $login_quota_typ="Klassen-Quota";
-#         $login_quota{$login_name_ok}=$klassen_quota{"$new_admin_group"};
-#      } else {
-#         # standart-wert setzten
-#         # 1) im Hash %standard_quota
-#         # 2) den key standard-schueler suchen
-#         # 3) auf dessen Value (Referenz auf liste)
-#         # 4) eine neue Referenz setzten
-#         #$login_quota{$login_name_ok}=[@null_quota_liste];
-#         $login_quota{$login_name_ok}=$standard_quota{"standard-schueler"};
-#         $login_quota_typ="Standard-Schüler-Quota";
-#         # $login_quota{$login_name_ok}=$standard_quota{"standard-lehrer"};
-#       }
-#   }
-#}
-# Test
-#my @test_array=("0-0-0-0","test","test2");
-#$login_quota{"michelgr"}=\@test_array;
+   # Shell
+   $shell=&shell_ermitteln($new_admin_group);
 
    # Abbruch, wenn nicht der richtige loginname angelegt wird
    if ($loginname ne "") {
@@ -410,7 +319,6 @@ $shell=&shell_ermitteln($new_admin_group);
      }
    }
 
-
    # Abbruch, wenn nicht die richtige klasse angelegt wird
    if ($gruppe ne "") {
      if ($new_admin_group ne $gruppe) {
@@ -420,9 +328,8 @@ $shell=&shell_ermitteln($new_admin_group);
      }
    }
 
-
-# Ermittelte Daten ausgeben
-  if($Conf::log_level>=1){
+   # Ermittelte Daten ausgeben
+   if($Conf::log_level>=1){
       print "\n";
       &titel("Creating User $user_nummer :");
       print("Nachname:         $nachname\n");
@@ -439,38 +346,23 @@ $shell=&shell_ermitteln($new_admin_group);
       if ($new_admin_group eq "lehrer") {
          # Es ist ein Lehrer
          print("Shell (Lehrer):  $shell\n"); 
-       } else {
+      } else {
          # Es ist ein Schüler
          print("Shell (Schüler):  $shell\n"); 
-       }
-       
-#       { # Klammern um $j lokal zu halten, Beginn
-#       my $j; 
-#       $quotastring="";
-#          for ($j=0; $j < @quota_fs_liste; $j++){
-#             print ("Quota:       ${ $login_quota{$login_name_ok} }[$j]");
-#             print ("  on $quota_fs_liste[$j]  ($login_quota_typ)\n");
-#             if ($quotastring eq ""){
-#                $quotastring=${ $login_quota{$login_name_ok} }[$j];
-#             } else {
-#                $quotastring=$quotastring."+".${ $login_quota{$login_name_ok} }[$j];
-#	     }
-#          }
-#       } # Klammern um $j lokal zu halten, Ende
-#       print "Quotastring: $quotastring \n";
-  }
+      }
+   }
 
-  # Nun wird der User angelegt
+   # Nun wird der User angelegt
   
-  # 1. Entry in sophomorix database
-  &create_user_db_entry($nachname,
-                        $vorname,
-                        $gebdat,
-                        $new_admin_group,
-                        $login_name_ok,
-                        $klartext_passwort,
-                        $shell,
-                        $quotastring);
+   # 1. Entry in sophomorix database
+   &create_user_db_entry($nachname,
+                         $vorname,
+                         $gebdat,
+                         $new_admin_group,
+                         $login_name_ok,
+                         $klartext_passwort,
+                         $shell,
+                         "");
 
   # 2. Add the class (db and dirs,links, ...)
   &create_class_db_entry($new_admin_group);
@@ -488,39 +380,29 @@ $shell=&shell_ermitteln($new_admin_group);
                    $wunsch_id);
   &set_sophomorix_passwd($login_name_ok,$klartext_passwort);
 
-  # 4. Add teacher to webmin
-  if ($new_admin_group eq "lehrer"){
-     &webmin_eintrag($login_name_ok);
-  }
+  # 4. Add user to webmin
+  &create_webmin_account($login_name_ok);
 
   # 5. Creating dirs, links for the user
   &provide_user_files($login_name_ok,$new_admin_group);
-
-  # 6. Setting quota 
-# this is done at the end
-#  &setze_quota($DevelConf::system,
-#               $login_name_ok, 
-#               \@quota_fs_liste, 
-#               \@{ $login_quota{$login_name_ok} });
 }
 
 close(USERHINZU);
 close(NOCHANLEGEN);
 
 
-if ($webmin_neustart==1){
-   # Webmin neu starten, falls Lehrer angelegt wurden:
-  if (-e "/etc/init.d/webmin"){
-    &do_falls_nicht_testen(
-                           "/etc/init.d/webmin stop",
-                           "/etc/init.d/webmin start"
-                          );
+# add all students/teacher to the webmin group student/teacher
+# dont restart webmin (this is done later)
+&do_falls_nicht_testen("sophomorix-webmin --groups --no-restart");
 
-  }
+
+# Webmin neu starten
+if (-e "/etc/init.d/webmin"){
+   &do_falls_nicht_testen("/etc/init.d/webmin restart");
 }
 
 
-
+# ?????
 if (${DevelConf::debian} ne "yes") {
    &do_falls_nicht_testen("rcnscd start");
 }
@@ -566,10 +448,8 @@ if ($DevelConf::testen==0) {
 if ($Conf::use_quota eq "yes") {
     system("sophomorix-quota --noninteractive");
 } else {
-    &titel("NOT setting quota\n");
+    &titel("NOT setting quota");
 }
-
-
 
 &titel("sophomorix-add terminated regularly");
 
@@ -597,76 +477,49 @@ sub print {
       # Mit 1mal sophomorix-print aufrufen sollte es tun, tut es aber nicht
       system("$DevelConf::executable_pfad/sophomorix-print");
    } else {
-      print "\n\nDruckdaten werden NICHT erzeugt: Testmodus\n\n"; 
+       &titel("NOT generating print data (Test)");
+#      print "\n\nDruckdaten werden NICHT erzeugt: Testmodus\n\n"; 
    }
 }
 
 # ===========================================================================
-# Eintrag eines Lehers in webmin machen
+# Eintrag Users in webmin machen
 # ===========================================================================
-sub webmin_eintrag {
+sub create_webmin_account {
    my ($user)=@_;
+   # files to modify
    my $wmsu="/etc/webmin/miniserv.users";
    my $webminacl="/etc/webmin/webmin.acl";
-   if (-e $wmsu){
 
-      # ======================================================================
-      #  miniserv.users mitloggen
-      # ======================================================================
-      &do_falls_nicht_testen(
-         "cp  $wmsu ${DevelConf::log_pfad}/${zeit}.miniserv.users-vor",
-         "chmod 600 ${DevelConf::log_pfad}/${zeit}.miniserv.users-vor"
-      );
-
-      open (MINISERVUSERS, ">>$wmsu") 
-         ||   die "Kann $wmsu nicht öffnen\n";
-        if ($DevelConf::testen==0) {
-           # Ausführen: Lehrer anhängen
-           print MINISERVUSERS "$user:x:0::\n";
-        } else {
-           # Ausgeben
-           print "Schreibe (Test) $wmsu:   $user:x:0::\n";
-        }
-      close(MINISERVUSERS);
-
-      # ======================================================================
-      #  miniserv.users mitloggen
-      # ======================================================================
-      &do_falls_nicht_testen(
-        "cp  $wmsu ${DevelConf::log_pfad}/${zeit}.miniserv.users-after",
-        "chmod 600 ${DevelConf::log_pfad}/${zeit}.miniserv.users-after",
-       # Webmin acl für den Lehrer erstellen
-# ???????
-#       "cp -f /etc/webmin/muster.acl /etc/webmin/$user.acl"
-      );
-
-#   &do_falls_nicht_testen(
-#       "cp $webminacl  ${DevelConf::log_pfad}/${zeit}.webmin.acl-after",
-#       "chmod 600 ${DevelConf::log_pfad}/${zeit}.webmin.acl-after",
-#       # set webmin acl 
-#       "cp -f /etc/webmin/acl/muster.acl /etc/webmin/acl/$user.acl"
-#   );
-
-      # Bei Debian bessere Lösung anstreben wie custom-Befehle
-      if (${DevelConf::debian} ne "yes") {
-         &do_falls_nicht_testen(
-             # Angeben, welche Befehle der Lehrer in custom ausführen darf
-             # Besser: Lehrer darf alle Befehle in der Rubrik Lehrer ausführen
-             "cp -f /etc/webmin/custom/muster.acl /etc/webmin/custom/$user.acl"
-         );
-      }
-      # Alle notwendigen Module den neuen Lehrern freigeben
-      if (-e "/usr/sbin/sophomorix-webmin") {
-         system("sophomorix-webmin");
-      }
-      # Mail-alias
-      if (-e "/usr/sbin/sophomorix-mail") {
-         system("sophomorix-mail");
-      }
-      # Webmin muss neu gestartet werden
-      $webmin_neustart=1;
+   # miniserv.users entry
+   if (not -e $wmsu){system ("install $wmsu")}
+   # append entry
+   open (MINISERVUSERS, ">>$wmsu") ||   die "Cannot open $wmsu \n";
+   if ($DevelConf::testen==0) {
+      # Ausführen: User anhängen
+      print MINISERVUSERS "$user:x:0::\n";
+   } else {
+      # Ausgeben
+      print "Appending Line to $wmsu (Test):   $user:x:0::\n";
    }
+   close(MINISERVUSERS);
+
+
+   # webmin.acl entry
+   if (not -e $webminacl){system ("install $webminacl")}
+
+   # append entry
+   open (WEBMINACL, ">>$webminacl") ||   die "Cannot open $webminacl \n";
+   if ($DevelConf::testen==0) {
+      # Ausführen: User anhängen
+      print WEBMINACL "$user:\n";
+   } else {
+      # Ausgeben
+      print "Appending Line to $webminacl (Test):   $user:\n";
+   }
+   close(WEBMINACL);
 }
+
 
 # ===========================================================================
 # Shell ermitteln
@@ -692,139 +545,3 @@ sub shell_ermitteln {
        }
  return $login_shell;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-################################################################################
-# Alte Subroutinen, nur zum nachgucken
-################################################################################
-
-sub neuer_linux_user_lehrer {
-# Vorraussetzungen:
-# /home/lehrer existiert schon
-# /home/tausch/lehrer existiert schon
-
-my $lehrer_home = "/home/lehrer/$login_name_ok";
-my $www_home = "/home/lehrer/$login_name_ok/www";
-
-# Zugriff auf zentrale Rechte
-if ($DevelConf::testen==0) {
-   &setup_verzeichnis("/home/lehrer/\$lehrer",
-                      "/home/lehrer/$login_name_ok",
-                      "$login_name_ok");
-
-   &setup_verzeichnis("/home/lehrer/\$lehrer/windows",
-                      "/home/lehrer/$login_name_ok/windows",
-                      "$login_name_ok");
-
-   &setup_verzeichnis("/home/lehrer/\$lehrer/www",
-                      "$www_home");
-
-   &setup_verzeichnis("/home/lehrer/\$lehrer/www/public_html",
-                      "$www_home/public_html",
-                      "$login_name_ok");
-}
-
-&do_falls_nicht_testen(
-              # Link von windows aus
-              "rm -rf /home/lehrer/$login_name_ok/windows/public_html",
-              "cd /home/lehrer/$login_name_ok/windows; ln -s ../www/public_html public_html",
-              # Link von Linux aus
-              "cd /home/lehrer/$login_name_ok; ln -s www/public_html public_html"
-);
-
-&webmin_eintrag($login_name_ok);
-# passwort verschlüsseln, samba
-&passwort_setzen();
-&protokolldatei_modifizieren();
-}
-
-
-# ===========================================================================
-# Eintrag in user_db
-# ===========================================================================
-# alt
-sub protokolldatei_modifizieren {
-  if ($DevelConf::testen==0) {
-     open(PROTOKOLL,">>$DevelConf::protokoll_datei");
-     
-       # zeile anhängen
-       print PROTOKOLL "$new_admin_group;$gecos;$login_name_ok;$klartext_passwort;$gebdat\n";
-       # Datei Schließen, damit Schreiben erzwingen (Falls Programmabsturz)
-     close(PROTOKOLL);
-  } else {
-       print "Test:   $DevelConf::protokoll_datei modifizieren\n";
-  }
-
-}
-
-
-
-# ===========================================================================
-# Schüler anlegen
-# ===========================================================================
-sub neuer_schueler {
-my ($login, $gruppe, $gec, $passwort, $sh)=@_;
-my $schueler_home = "/home/schueler/$gruppe/$login";
-my $tausch_klasse = "/home/tausch/klassen/$gruppe";
-my $www_home = "/home/schueler/$gruppe/$login/www";
-
-# Eigentümer von /home/schueler/klasse/name REKURSIV ändern in:   user:lehrer
-&do_falls_nicht_testen(
-     "chown -R $login:lehrer $schueler_home"
-);
-
-if ($DevelConf::testen==0) {
-   &setup_verzeichnis("/home/schueler/\$klassen/\$schueler",
-                      "$schueler_home",
-                      "$login");
-   &setup_verzeichnis("/home/schueler/\$klassen/\$schueler/windows",
-                      "$schueler_home/windows",
-                      "$login");
-   &setup_verzeichnis("/home/schueler/\$klassen/\$schueler/windows/sammelordner",
-                      "$schueler_home/windows/sammelordner",
-                      "$login");
-   &setup_verzeichnis("/home/schueler/\$klassen/\$schueler/www",
-                      "$www_home");
-   &setup_verzeichnis("/home/schueler/\$klassen/\$schueler/www/public_html",
-                      "$www_home/public_html",
-                      "$login");
-}
-
-
-#www
-&do_falls_nicht_testen(
-           # Link von windows aus
-           "rmdir $schueler_home/windows/public_html $dev_null",
-           "cd $schueler_home/windows; ln -s ../www/public_html public_html",
-           # Link von Linux aus
-           "cd $schueler_home; ln -s www/public_html public_html"
-);
-
-&user_links($login, $gruppe);
-
-&passwort_setzen();
-
-&protokolldatei_modifizieren();
-
-}
-
-
-
-
-
-
-

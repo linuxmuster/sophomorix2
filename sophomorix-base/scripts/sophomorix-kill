@@ -190,11 +190,9 @@ while(<KILL>){
        }
      }
 
-     #####################################
      # Ermittelte Daten ausgeben
-     #####################################
      if($Conf::log_level>=1){
-        print("\nEntferne User $user_nummer aus dem System:\n");
+        print("\nRemoving User $user_nummer:\n");
         print("Identifier:          $identifier_to_kill\n");
         print("Login-Name:          $login_name_to_kill\n");
         print("Home-Verzeichnis:    $home_verzeichnis_to_kill\n");
@@ -204,38 +202,27 @@ while(<KILL>){
         print("Klasse:              $linux_gruppe_to_kill\n\n");
       } 
 
-      #####################################
       # Jetzt wird gelöscht
-      #####################################   
       &delete_user_from_sys($login_name_to_kill);
       
-      #####################################
       # Zeile aus user_db entfernen
-      #####################################
- 
-     if ($DevelConf::testen==0) {
+      if ($DevelConf::testen==0) {
          &remove_user_db_entry($login_name_to_kill);
       } else {
-        print "Nur Test:        Removing $login_name_to_kill from the",
+        print "Test:        Removing $login_name_to_kill from the",
               " sophomorix database.\n"
       }
-     
+ 
+      # webmin
+      &remove_webmin_account($login_name_to_kill);
 
-      ############################################
-      # Zusätzlich zu tun
-      ############################################
-      if ($linux_gruppe_to_kill eq "lehrer") {
-          # Es ist ein Lehrer
-          &webmin_eintrag_loeschen($login_name_to_kill);
-       } else {
-          # Es ist ein Schüler
-          # Klassenverzeichnis in denen die Homes sind löschen, falls leer
-          &do_falls_nicht_testen(
-#             "rmdir --ignore-fail-on-non-empty /home/schueler/$linux_gruppe_to_kill",
+      if ($linux_gruppe_to_kill ne "lehrer") {
+         # Es ist ein Schüler
+         # Klassenverzeichnis in denen die Homes sind löschen, falls leer
+         &do_falls_nicht_testen(
              "rmdir --ignore-fail-on-non-empty ${DevelConf::homedir_pupil}/$linux_gruppe_to_kill",
           # Klassentauschverzeichnis löschen, falls leer 
           # (Ist normalerweise nicht Leer)
-#          "rmdir --ignore-fail-on-non-empty /home/tausch/klassen/$linux_gruppe_to_kill"
           "rmdir --ignore-fail-on-non-empty ${DevelConf::share_classes}/$linux_gruppe_to_kill"
           );
        }
@@ -265,19 +252,6 @@ close(YETTOKILL);
 # ===========================================================================
 # Datei-Zustand (NACHHER) mitloggen 
 # ===========================================================================
-&titel("Datei-Zustand (NACHHER) mitloggen ...");
-
-# ===========================================================================
-# Verarbeitete Datei mit Zeitstempel versehen
-# ===========================================================================
-#&do_falls_nicht_testen(
-#   "mv ${DevelConf::ergebnis_pfad}/sophomorix.kill ${DevelConf::log_pfad}/${zeit}.sophomorix.kill",
-#   # Nur für root lesbar machen
-#   "chmod 600 ${DevelConf::log_pfad}/${zeit}.sophomorix.kill"
-#);
-
-
-
 # sophomorix database sichern
 &backup_user_database($zeit, "after.kill");
 # sophomorix.kill mitloggen
@@ -306,133 +280,65 @@ print ("\nsophomorix-kill terminated regularly ...\n");
 # ===========================================================================
 # sub
 # ===========================================================================
-sub webmin_eintrag_loeschen {
+sub remove_webmin_account {
    my ($user)=@_;
    my $wmsu="/etc/webmin/miniserv.users";
    my $webminacl="/etc/webmin/webmin.acl";
    my @miniserv_users=();
    my @webmin_acl=();
+   
+   # removing miniserv.users entry
    if (-e $wmsu){
-
-      # ======================================================================
-      #  miniserv.users mitloggen
-      # ======================================================================
-      &do_falls_nicht_testen(
-         "cp  $wmsu ${DevelConf::log_pfad}/${zeit}.miniserv.users-vor",
-         "chmod 600 ${DevelConf::log_pfad}/${zeit}.miniserv.users-vor"
-      );
-
-      open (MINISERVUSERS, "<$wmsu") 
-        ||   die "Kann $wmsu nicht öffnen\n";
-        # Zeilen in einer Liste speichern
-        while(<MINISERVUSERS>){ 
-          if (/^$user/){ # wenn die user-Zeile gefunden
-            # nix tun
-          } else {
-            # zur Liste hinzu
-            push(@miniserv_users, $_);
-          }
-        }
-      close(MINISERVUSERS);
-
-      if ($DevelConf::testen==0) {
-         open (MINISERVUSERS, ">$wmsu"); 
-           foreach $a (@miniserv_users){
-             print MINISERVUSERS "$a";
-           }
-         close(MINISERVUSERS);
-      } else {
-         print "Test: miniservusers löschen\n";
-      }
-
-      # ======================================================================
-      #  miniserv.users mitloggen
-      # ======================================================================
-      &do_falls_nicht_testen(
-         "cp  $wmsu ${DevelConf::log_pfad}/${zeit}.miniserv.users-nach",
-         "chmod 600 ${DevelConf::log_pfad}/${zeit}.miniserv.users-nach"
-      );
-
-      # Webmin acl für den Lehrer erstellen
-      &do_falls_nicht_testen(
-         "rm /etc/webmin/$user.acl"
-      );
-
-      # ======================================================================
-      #   webmin.acl mitloggen
-      # ======================================================================
-      &do_falls_nicht_testen(
-        "cp $webminacl  ${DevelConf::log_pfad}/${zeit}.webmin.acl-vor",
-        "chmod 600 ${DevelConf::log_pfad}/${zeit}.webmin.acl-vor"
-      );
-
-      open (WEBMINACL, "<$webminacl") 
-        ||   die "Kann $webminacl nicht öffnen\n";
-        # Zeilen in einer Liste speichern
-        while(<WEBMINACL>){ 
-          if (/^$user/){ # wenn die user-Zeile gefunden
-            # nix tun
-          } else {
-            # zur Liste hinzu
-            push(@webmin_acl ,$_);
-          }
-        }
-      close(WEBMINACL);
-
-      if ($DevelConf::testen==0) {
-        open (WEBMINACL, ">$webminacl"); 
-           foreach $a (@webmin_acl){
-             print WEBMINACL "$a";
-           }
-        close(WEBMINACL);
-      }
-
-      # ======================================================================
-      #   webmin.acl mitloggen
-      # ======================================================================
-      &do_falls_nicht_testen(
-         "cp $webminacl  ${DevelConf::log_pfad}/${zeit}.webmin.acl-vor",
-         "chmod 600 ${DevelConf::log_pfad}/${zeit}.webmin.acl-vor"
-      );
-
-      open (WEBMINACL, "<$webminacl") 
-        ||   die "Kann $webminacl nicht öffnen\n";
-        # Zeilen in einer Liste speichern
-        while(<WEBMINACL>){ 
-           if (/^$user/){ # wenn die user-Zeile gefunden
+      # remove entry
+      open (MINISERVUSERS, "<$wmsu") || die "Cannot open  $wmsu\n";
+      open (TMP, ">$wmsu.tmp") || die "Cannot open $wmsu.tmp\n";
+      while(<MINISERVUSERS>){ 
+         if (/^$user:/){ # wenn die user-Zeile gefunden
              # nix tun
-           } else {
-             # zur Liste hinzu
-             push(@webmin_acl ,$_);
-           }
-        }
-      close(WEBMINACL);
-
-      if ($DevelConf::testen==0) {
-         open (WEBMINACL, ">$webminacl"); 
-            foreach $a (@webmin_acl){
-               print WEBMINACL "$a";
-            }
-         close(WEBMINACL);
+         } else {
+	      print TMP $_;
+         }
       }
-
-      # ======================================================================
-      #   webmin.acl mitloggen
-      # ======================================================================
-      &do_falls_nicht_testen(
-         "cp $webminacl  ${DevelConf::log_pfad}/${zeit}.webmin.acl-nach",
-         "chmod 600 ${DevelConf::log_pfad}/${zeit}.webmin.acl-nach"
-      );
-
-      &do_falls_nicht_testen(
-         "cp $webminacl  ${DevelConf::log_pfad}/${zeit}.webmin.acl-nach",
-         "chmod 600 ${DevelConf::log_pfad}/${zeit}.webmin.acl-nach",
-         "rm /etc/webmin/acl/$user.acl"
-      );  
-      # Angeben, welche Befehle der Lehrer in custom ausführen darf
-      # Besser: Lehrer darf alle Befehle in der Rubrik Lehrer ausführen
-      &do_falls_nicht_testen(
-        "rm /etc/webmin/custom/$user.acl"
-      );
+      close(MINISERVUSERS);
+      close(TMP);
+      # really do it
+      if ($DevelConf::testen==0) {
+          system("mv $wmsu.tmp $wmsu");
+      } else {
+         print "Test: removing user from $wmsu\n";
+         # remove tmp?         
+      }
    }
+
+
+   # removing webmin.acl entry
+   if (-e $webminacl){
+      # remove entry
+      open (WEBMINACL, "<$webminacl") || die "Cannot open $webminacl\n";
+      open (TMP, ">$webminacl.tmp") || die "Cannot open $webminacl.tmp\n";
+      while(<WEBMINACL>){ 
+         if (/^$user:/){ # wenn die user-Zeile gefunden
+             # nix tun
+         } else {
+	      print TMP $_;
+         }
+      }
+      close(WEBMINACL);
+      close(TMP);
+      # really do it
+      if ($DevelConf::testen==0) {
+          system("mv $webminacl.tmp $webminacl");
+      } else {
+         print "Test: removing user from $webminacl\n";
+         # remove tmp?         
+      }
+  }
+
+
+  # removing users acl, if existing 
+  if (-e "/etc/webmin/custom/${user}.acl"){
+        &do_falls_nicht_testen(
+          "rm /etc/webmin/custom/$user.acl"
+        );
+  }
 }
