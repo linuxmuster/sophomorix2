@@ -6,7 +6,9 @@ sophomorix-repair (seems ok so far)
 
 
 sophomorix-quota (seems ok so far)
-
+   - option --sum:
+   - option --school(=pupil, teacher, workstation)
+     Use this option in sophomorix-passwd also?
 
 sophomorix-teach-in (seems ok so far)
 
@@ -92,6 +94,14 @@ RELEASES:
 
 
 1.1.7 (2005-01-?)
+   - Bugfixes to sophomorix-project: Dont create links to root or dont add 
+     root to unix-group of project
+
+   - complete rewrite of sophomorix-quota to acommodate AddQuota of projects
+     (option --sum missing)
+     Quotastring syntax simplified to gain speed:  i.e. 23+45
+     (minus sign or x is NOT SUPPORTED anymore)
+
    - limit sophomorix-quota to (option names as in sophomotix-add) 
        - class(-c), 
        - login ...

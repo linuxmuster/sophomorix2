@@ -140,8 +140,8 @@ if ($create==1){push @options, "Create=yes"}
 
 sub show_project_list {
    open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects.db");
-   print "The following projects exist already:\n";
-   printf "   %-16s %-16s %-60s\n","Name:", "Teachers", "LongName:";
+   print "The following projects exist already:\n\n";
+   printf "%-16s %-16s %-9s %-40s\n","Name:", "Teachers", "AddQuota", "LongName:";
 
    print "=======================================",
          "=======================================\n";
@@ -150,9 +150,11 @@ sub show_project_list {
        my @line=split(/;/);
        if (not defined $line[1]){$line[1]="---"}
        if (not defined $line[2]){$line[2]="---"}
-       printf "   %-16s %-16s %-60s\n",$line[0], $line[2], $line[1];
+       if (not defined $line[5]){$line[5]="---"}
+       printf "%-16s %-16s %-9s %-40s\n",$line[0], $line[2], $line[5], $line[1];
    }
    close(PROJECT);
+   print "\n";
 }
 
 sub create_project {
@@ -249,6 +251,7 @@ sub create_project {
     print "     Users to add: @users_to_add\n";
     # adding the users
     foreach my $user (@users_to_add) {
+       if ($user eq "root"){next;}
        system("adduser $user $project");
        # create a link
        &create_share_link($user,$project);
