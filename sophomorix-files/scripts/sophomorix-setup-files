@@ -5,12 +5,9 @@
 # jeffbeck@web.de  oder  jeffbeck@gmx.de
 
 
-# Problems: What if ldap is used?
-# Should sophomorix-files.postinst call this script?
-
-
 # This Script adds users that are necessary to use sophomorix-files 
 # It should be run as postinst
+use Sophomorix::SophomorixBase; 
 
 # Einlesen der Konfigurationsdatei für Entwickler
 { package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
@@ -34,4 +31,18 @@ system("useradd -g admin -d /home/admin -s /bin/bash -c Windows_Systemverwalter 
 #system("usermod -G lehrer admin");
 system("gpasswd -a admin lehrer");
 
+# repair.directories einlesen
+&get_alle_verzeichnis_rechte();
 
+# add files for the sophomorix-database
+
+&check_datei_touch("${DevelConf::dyn_config_pfad}/user_db");
+&check_datei_touch("${DevelConf::dyn_config_pfad}/class_db");
+&check_datei_touch("${DevelConf::dyn_config_pfad}/projects_db");
+
+&check_datei_touch("${DevelConf::dyn_config_pfad}/workstation_db");
+&check_datei_touch("${DevelConf::dyn_config_pfad}/room_db");
+&check_datei_touch("${DevelConf::dyn_config_pfad}/department_db");
+
+# make important data readable by root only
+&setup_verzeichnis("\$var_lib_pfad","$DevelConf::var_lib_pfad");

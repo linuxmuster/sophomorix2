@@ -6,8 +6,8 @@
 
 
 # This Script adds directories and files that are necessary for sophomorix-base 
-use Sophomorix::SophomorixBase; 
 # It should be run as postinst
+use Sophomorix::SophomorixBase; 
 
 # Einlesen der Konfigurationsdatei für Entwickler
 { package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
@@ -63,4 +63,9 @@ print "##### sophomorix-setup is configuring the system for sophomorix-base ...\
 ###system("install -d -oadmin -gadmin -m0700 /home/samba/netlogon");
 
 #&check_datei_touch("${DevelConf::users_pfad}/schueler.txt");
+
+
+# make important data readable by root only
+&setup_verzeichnis("\$var_lib_pfad","$DevelConf::var_lib_pfad");
+
 
