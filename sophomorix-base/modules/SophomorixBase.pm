@@ -889,8 +889,16 @@ sub lehrer_ordnen {
      }
 
 
+     if (not defined $lehrer_kuerzel) {
+         $lehrer_kuerzel="kurz";
+     }
+
      if ($lehrer_kuerzel eq "") {
          $lehrer_kuerzel="kurz";
+     }
+
+     if (not defined $quota) {
+         $quota="quota";
      }
 
      if ($quota eq "") {
