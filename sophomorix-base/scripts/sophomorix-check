@@ -29,6 +29,9 @@ $Term::ANSIColor::AUTORESET = 1;
 use if ${DevelConf::db_backend} eq 'files' , 
     'Sophomorix::SophomorixFiles' => qw(show_modulename
                                         get_sys_users
+                                        update_user_db_entry
+                                        user_reaktivieren
+                                        user_deaktivieren
                                        );
 
 # list of functions to load if db is 'ldap'
@@ -53,8 +56,8 @@ my  @schueler_to_check_dateien=(
     "${DevelConf::ergebnis_pfad}/extrakurse.schueler",
     # 3:lehrer.txt
     "${DevelConf::users_pfad}/lehrer.txt",
-    # 4: reaktivierte Schüler
-    "${DevelConf::pruef_pfad}/user.reaktiviert"
+#    # 4: reaktivierte Schüler
+#    "${DevelConf::pruef_pfad}/user.reaktiviert"
    );
 
 # =========================================================================
@@ -194,9 +197,6 @@ my %sophomorix_status=();
 my %user_duldungsbeginn=();
 my %user_deaktivierungsbeginn=();
 
-# Daten aus user.reaktiviert einlesen in eine Hash-Tabelle
-#my %user_reaktiviert=();
-
 # Fehlersuche 
 my $k="";
 my $v="";
@@ -257,6 +257,9 @@ my $schueler_gesperrt_anzahl=0;
 my $schueler_entfernt_anzahl=0;
 # 0 unbedingt lassen bei Sternchenklassen (SPLAN):
 my $schueler_sternchenklasse_anzahl=0;
+
+my $move=0;
+
 
 # Alles OK
 #my $identifier_to_check="";
@@ -365,7 +368,7 @@ mkdir("${DevelConf::ergebnis_pfad}",0700)
 &check_verzeichnis_mkdir("${DevelConf::dyn_config_pfad}");
 &check_verzeichnis_mkdir("${DevelConf::druck_pfad}");
 
-&check_datei_touch("${DevelConf::pruef_pfad}/user.reaktiviert");
+#&check_datei_touch("${DevelConf::pruef_pfad}/user.reaktiviert");
 #&check_datei_touch("${DevelConf::ergebnis_pfad}/sophomorix.add");
 #&check_datei_touch("${DevelConf::ergebnis_pfad}/sophomorix.kill");
 &check_datei_touch("${DevelConf::dyn_config_pfad}/user.protokoll");
@@ -569,7 +572,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
    # wunsch-login leeren, da er nicht von jedem Datensatz überschrieben wird
    $wunsch_login="wunschlogin";
    $wunsch_passwort="erstpw";
-   &titel("Bearbeite ${schuelerdatei} ...");
+   &titel("Reading  ${schuelerdatei} ...");
 
    print REPORTSEKRETARIAT  "\n\n########################################", 
                             "########################################\n";
@@ -1000,6 +1003,8 @@ if($Conf::log_level>=3){
 &e_t_check();
 
 
+
+
 # B) T, A, S --->>> E,U
 #==================================================
 # 1. Tolerated(T) -> Enabled(E) .move (dachboden -> neue klasse)
@@ -1031,6 +1036,8 @@ if($Conf::log_level>=3){
 
 
 
+
+
 # E) R
 #==================================================
 # 1. Removeable(R) bleibt   .kill
@@ -1047,7 +1054,7 @@ if($Conf::log_level>=3){
 
 
 # Move users from class to class (appended to sophomorix.add)
-&generate_move_file();
+#&generate_move_file();
 
 
 # ===========================================================================
@@ -1131,6 +1138,7 @@ print RED "Sie sollten sophomorix-teach-in aufrufen!\n";
 
 
 sub append_move_entry {
+    
     # appends a line to sophomorix.move
     my ($identifier, $old_class, $new_class)=@_;
     my $login=$schueler_im_system_loginname{$identifier};
@@ -1142,7 +1150,7 @@ sub append_move_entry {
     } 
 
     $move_line="$login"."::".$old_class."::"."$new_class"."\n";
-    $move_message="$identifier (Login: $login)  ---> $new_class\n";
+    $move_message="   $identifier (Login: $login)  ---> $new_class\n";
 
     #print REPORTADMIN "$move_message";
     print "$move_message";
@@ -1151,6 +1159,7 @@ sub append_move_entry {
         || die "Fehler: $!";
     print SOPHOMORIXMOVE "$move_line";
     close(SOPHOMORIXMOVE);
+    $move++;
 }
 
 
@@ -1159,7 +1168,7 @@ sub append_kill_entry {
     my ($identifier)=@_;
     my $login=$schueler_im_system_loginname{$identifier};
     my $kill_line="$identifier"."::"."$login"."\n";
-    my $kill_message="$identifier (Login: $login)  ---> Removable\n";
+    my $kill_message="   $identifier (Login: $login)  ---> Removable\n";
 
     #print REPORTADMIN "$kill_message";
     open(SOPHOMORIXKILL, 
@@ -1176,12 +1185,11 @@ sub append_kill_entry {
 
 
 sub u_t_check {
+   my $count=0;
    # Usable(U) -> Tolerated(T)  .move (alte klasse -> dachboden) 
    # Step 1: Tolerate the user
    while ( my ($identifier, $status) = each %sophomorix_status ){
      if ($status eq "U" or $status eq "E" or $status eq ""){
-	 print "Ident: $identifier   Status: $status\n";
-#       while (my ($identifier, $admin_class) = each %schueler_im_system_hash ){
          unless (exists $schueler_ok_hash{$identifier}) {
            # User is not anymore in Files
            if (not exists $user_duldungsbeginn{$identifier}){
@@ -1194,21 +1202,18 @@ sub u_t_check {
               push @admin_list_toleration, 
                     "$identifier wird ab $heute nur noch geduldet\n";
 	      
-              print "u_t_check: entry in sophomorix.move\n";
               &append_move_entry($identifier,
                                 $schueler_im_system_hash{$identifier},
                                 "dachboden");
+              # Counter
+              $count++;
   
               next;
            }
-        #}
       }
      }
    }
-     &titel("u_t_check: Es KÖNNEN $schueler_duldungs_beginn_anzahl User in den dachboden/speicher versetzt werden.");
-
 }
-
 
 
 
@@ -1217,26 +1222,31 @@ sub u_t_check {
 
 sub e_t_check {
    # Enabled(E) -> Tolerated(T) .move (alte klasse -> dachboden)
-   # wird mit ut gemacht??? 
+   # wird mit u_t gemacht??? 
 }
 
 
 
 sub t_e_check {
-   # Tolerated(T) -> Enabled(E) .move (dachboden -> neue klasse) 
-    while(my ($identifier,$toleration_date) = each %user_duldungsbeginn){
-      # Check if user reappears in the files
-      if (exists $schueler_ok_hash{$identifier}) {
-          print "$identifier taucht wieder in schueler.txt auf\n";
-          my $login=$schueler_im_system_loginname{$identifier};
-          &update_user_db_entry($login, 
-                                "Status=E",
-                                "TolerationDate=",
-                                "DeactivationDate=");
-          &user_reaktivieren("$login");
-      }
-    }
-
+# doppelt mit d_e_check
+#
+#   my $count=0;
+#   &titel("t_e_check: Suche wieder aufgetauchte User ...");
+#   # Tolerated(T) -> Enabled(E) .move (dachboden -> neue klasse) 
+#    while(my ($identifier,$toleration_date) = each %user_duldungsbeginn){
+#      # Check if user reappears in the files
+#      if (exists $schueler_ok_hash{$identifier}) {
+#          print "   $identifier taucht wieder in schueler.txt auf\n";
+#          my $login=$schueler_im_system_loginname{$identifier};
+#          &update_user_db_entry($login, 
+#                                "Status=E",
+#                                "TolerationDate=",
+#                                "DeactivationDate=");
+#          &user_reaktivieren("$login");
+#          $count++;
+#      }
+#    }
+#    &titel("t_e_check: ... es sind $count User wieder aufgetaucht.");
 }
 
 
@@ -1254,16 +1264,18 @@ sub s_u_check {
 
 
 sub t_d_check {
+   my $count_move=0;
+   my $count_disabled=0;
+   &titel("t_d_check: Suche Tolerierte User zum versetzen/deaktivieren ...");
    # Tolerated(T) -> Disabled(D)   .move (alte klasse -> dachboden)
    while ( my ($identifier, $status) = each %sophomorix_status ){
        if ($status eq "T"){
-	  print "   t_d_check working on $identifier, Status $status\n";
           my $login=$schueler_im_system_loginname{$identifier};
           my $sys_class=$schueler_im_system_hash{$identifier};
           # check if tolerated user is not in dachboden/speicher
           if ($sys_class ne "dachboden" and $sys_class ne "speicher") {
-	     print "t_d_check: entry in sophomorix.move\n";
              &append_move_entry($identifier,$sys_class,"dachboden");
+             $count_move++;
           }
           # checking for deactivation
           if (not exists $user_deaktivierungsbeginn{$identifier}){
@@ -1271,13 +1283,14 @@ sub t_d_check {
                                                          "deactivation");
              if ($epoche_deaktivierung_ab != 0) {
 #               $user_deaktivierungsbeginn{$identifier}="$heute";
-                print "$identifier wurde am $heute deaktiviert\n";
+                print "   $identifier wurde am $heute deaktiviert\n";
                 push @admin_list_deactivation, "$identifier wurde am $heute deaktiviert\n";
                 # Alle zum deaktivieren notwendigen Schritte durchführen
                 &update_user_db_entry($login, 
                                       "Status=D", 
                                       "DeactivationDate=$heute");
                 &user_deaktivieren($login);
+                $count_disabled++;
              } else {
                 if($Conf::log_level>=2){
                    print "### User $identifier ist im Tolerierungs-Zeitraum\n"; 
@@ -1287,6 +1300,8 @@ sub t_d_check {
 	  }
        }
    }
+   &titel("t_d_check:  ... $count_move tolerierte User -> dachboden/speicher");
+   &titel("t_d_check:  ... $count_disabled  User wurden disabled");
 }
 
 
@@ -1308,23 +1323,24 @@ sub s_d_check {
 
 
 sub d_e_check {
+   my $count=0;
+   &titel("d_e_check: Suche User die wieder auftauchen ...");
    # Disabled(D) -> Enabled(E)  .kill .move (alte klasse -> dachboden)
    while ( my ($identifier, $status) = each %sophomorix_status ){
-       if ($status eq "D"){
+       if ($status eq "D" or $status eq "T" or $status eq "R"){
 	  my $date=$user_deaktivierungsbeginn{$identifier};
           my $login=$schueler_im_system_loginname{$identifier};
           # Check if user reappears in files
           if (exists $schueler_ok_hash{$identifier}) {
              # taucht wieder auf -> d
-             print "$identifier ist wieder da\n";
+             print "   $identifier ist wieder da\n";
              &update_user_db_entry($login, 
                                    "Status=E",
                                    "TolerationDate=",
                                    "DeactivationDate=",);
              &user_reaktivieren("$login");
+             $count++;
           } else {
- 
-
 
             # taucht nicht auf -> drinlassen
              # Alle zum deaktivieren notwendigen Schritte durchführen
@@ -1332,21 +1348,33 @@ sub d_e_check {
              #                      "Status=D", 
              #                      "DeactivationDate=$date");
              #&user_deaktivieren($login);
-
-
           }
        }
    }
+   &titel("d_e_check: ... $count User sind wieder aufgetaucht");
 }
 
 
 
 sub d_r_check {
-   # Disabled(D) -> R(Removeable) .kill 
-   &titel("Entfernt werden KÖNNEN folgende User:");
+   # Disabled(D) -> R(Removeable) .kill
+   my $count_removable=0; 
+   my $count_move=0; 
+   &titel("d_r_check: Suche disabled User zum versetzen/loeschen...");
    while ( my ($identifier, $status) = each %sophomorix_status ){
        if ($status eq "D"){
          my $login="$schueler_im_system_loginname{$identifier}";
+
+
+          my $sys_class=$schueler_im_system_hash{$identifier};
+          # check if disabled user is not in dachboden/speicher
+          if ($sys_class ne "dachboden" and $sys_class ne "speicher") {
+             &append_move_entry($identifier,$sys_class,"dachboden");
+             $count_move++;
+          }
+
+
+
          if (not exists $schueler_ok_hash{$identifier}) {
            if (exists $user_deaktivierungsbeginn{$identifier}){
               # Check if user has to be made removeable
@@ -1357,16 +1385,19 @@ sub d_r_check {
                   # report.admin
                   push @admin_list_kill, "Loeschbar:     $identifier $login\n";
                   &append_kill_entry($identifier);
+                  $count_removable++;
                   $schueler_weg_anzahl++;
               } else {
                   if($Conf::log_level>=2){
-                     print "### User $identifier nicht Removeable\n"; 
+                     print "### User $identifier nicht Removable\n"; 
 	          }
               }
 	   }
          }
        }
    }
+   &titel("d_r_check: ... $count_move disabled User -> dachboden/speicher");
+   &titel("d_r_check: ... $count_removable User sind löschbar.");
 }
 
 
@@ -1456,7 +1487,7 @@ if($Conf::vorname_nachname_tausch==1){
     }
 } else {
     # kein Tausch durchführen
-      &titel("Erzeuge ergebnis/schueler.txt.tausch (Ohne Feldertausch)");
+      &titel("Creating ergebnis/schueler.txt.tausch (Ohne Feldertausch)");
 
     while(<SCHUELERNEUANZULEGENVOR>){
        s/ //g;
@@ -1521,9 +1552,9 @@ if ($Conf::splan_sternchenlkassen_filtern eq "ja") {
 
 
 sub get_entfern_klassen {
-    # ===========================================================================
+    # ========================================================================
     # entfernklassen checken und in einen hash schreiben
-    # ===========================================================================
+    # ========================================================================
     # Auslesen aus sperrklassen: alle Buchstaben klein machen
     # Nur kleinbuchstaben ins Hash
     # Vor dem Vergleich mit hash in Kleinbuchstaben umbauen
@@ -1535,7 +1566,7 @@ sub get_entfern_klassen {
     my $entfern_datum_epoche=0;
     my %hash=();
 
-    &titel("Lese die Datei entfernen.txt ein ...");
+    &titel("Reading entfernen.txt ...");
 
     open(DELCLASSES,"${DevelConf::config_pfad}/entfernen.txt") || die "Fehler: $!";
     while(<DELCLASSES>){
@@ -1579,9 +1610,9 @@ sub get_entfern_klassen {
 
 
 sub get_sperrklassen {
-    # ===========================================================================
+    # ========================================================================
     # sperrklassen checken und in einen hash schreiben
-    # ===========================================================================
+    # ========================================================================
     # Auslesen aus sperrklassen: alle Buchstaben klein machen
     # Nur kleinbuchstaben ins Hash
     # Vor dem Vergleich mit hash in Kleinbuchstaben umbauen
@@ -1593,7 +1624,7 @@ sub get_sperrklassen {
     my $sperrdatum_epoche=0;
     my %hash=();
 
-    &titel("Lese die Datei sperrklassen.txt ein ...");
+    &titel("Reading sperrklassen.txt ...");
 
     open(SPERRKLASSEN,"${DevelConf::config_pfad}/sperrklassen.txt") || die "Fehler: $!";;
     while(<SPERRKLASSEN>){
@@ -1645,13 +1676,15 @@ sub semicolon_number_ok {
         return 1;
    } elsif ($number==5 && $filename eq $schueler_to_check_dateien[0] ){
         if($Conf::log_level>=3){
-	    print " ... $number Strichpunkte gefunden (UNID) ... OK in $filename\n";
+	    print " ... $number Strichpunkte gefunden (UNID)",
+                  " ... OK in $filename\n";
         }
         return 1;
    } elsif ($strichpunkt_anzahl==5 && $filename eq $schueler_to_check_dateien[1] ){
             # 5 Strichpunkte erlaubt in extraschueler.txt
             if($Conf::log_level>=3){
-               print " ... $number Strichpunkte gefunden in $filename ... OK\n";
+               print " ... $number Strichpunkte gefunden",
+                     " in $filename ... OK\n";
 	     }
 	return 1;
    } elsif ($_ eq "") {
@@ -2659,7 +2692,7 @@ sub generate_toleration_move_file {
 
 
 
-
+# deprecated
 sub generate_move_file {
     my $identifier = "";
     my $login = "";
@@ -2711,7 +2744,7 @@ sub generate_add_file {
           ">${DevelConf::ergebnis_pfad}/sophomorix.add") 
          || die "Fehler: $!";
 
-    &titel("Angelegt würden folgende User:");
+    &titel("generate_add_file: Suche anzulegende User:");
 
     while ( ($identifier, $admin_class) = each %schueler_ok_hash ){
       unless (exists $schueler_im_system_hash{$identifier}) {
@@ -2726,7 +2759,7 @@ sub generate_add_file {
       }
     }
 
-    &titel("Insgesamt WÜRDEN $schueler_hinzu_anzahl User angelegt.");
+    &titel("generate_add_file: Insgesamt WÜRDEN $schueler_hinzu_anzahl User angelegt.");
     close(SOPHOMORIXADD);
 }
 
