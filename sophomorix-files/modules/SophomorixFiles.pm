@@ -489,8 +489,8 @@ sub update_user_db_entry {
           $first_pass.";".$birthday.";".$unid.";".$subclass.";".
           $status.";".$toleration_date.";".$deactivation_date.";".
           $exit_admin_class.";".$account_type.";"."\n";
-   #       print " OLD: $old_line";
-   #       print " NEW: $new_line";
+          print " OLD: $old_line";
+          print " NEW: $new_line";
           print TMP "$new_line";         
         } else {
             print TMP "$old_line";

@@ -549,20 +549,6 @@ my ($ref_login,
 #my $neu = $ref_unid_identifier->{"torvalds;linus;01.02.1983"};
 #my $neu = $unid_ok_system{"gfgtrr"};
 
-#print $neu,"\n";
-
-
-# Print all users
-if($Conf::log_level>=3){
-   print("Schüler im System:                   ",
-         "                        AdminClass:\n");
-   print("=======================================",
-         "=======================================\n");
-   while (($k,$v) = each %schueler_im_system_hash){
-     printf "%-60s %3s\n","$k","$v";
-   }
-}
-
 
 # ===========================================================================
 # Einlesen der Entfern-Klassen in eine Hash-Tabelle
@@ -907,122 +893,10 @@ if ($Conf::splan_sternchenlkassen_filtern eq "ja") {
 
 
 # ===========================================================================
-# Ausgabe von Hashes
+# Ausgabe von Hashes vor dem updaten der Systemdatenbank
 # ===========================================================================
 
-# Ausgabe aller User, die zukünftig im System sein werden (sophomorix.ok)
-# mit ihrer Klasse
-if($Conf::log_level>=3){
-   &titel("Gebe den Inhalt von sophomorix.ok aus ... und die Klassen");
-   print("User in sophomorix.ok(schueler_ok_hash):",
-         "                     Linux-Gruppe:\n");
-   print("=======================================",
-         "========================================\n");
-   while (($k,$v) = each %schueler_ok_hash){
-
-     printf "%-60s %3s\n","$k","$v";
-   }
- }
-
-# Ausgabe aller User, die in Zukunft im System sein werden sophomorix.ok, 
-# mit Wunsch-Login
-if($Conf::log_level>=3){
-   &titel("Gebe den Inhalt von sophomorix.ok aus ... und die Wunsch-Logins");
-   print("User in sophomorix.ok:             ",
-         "                          Wunsch-Logins:\n");
-   print("=======================================",
-         "========================================\n");
-   while (($k,$v) = each %schueler_ok_wunsch_login_hash){
-     printf "%-60s %3s\n","$k","$v";
-   }
- }
-
-
-# Ausgabe aller User, die in Zukunft im System sein werden sophomorix.ok
-# mit Wunsch-Passwort
-if($Conf::log_level>=3){
-   &titel("Gebe Inhalt von sophomorix.ok aus ... und die Wunsch-Passwörter");
-   print("User in sophomorix.ok:               ",
-         "                        Wunsch-Passwörter:\n");
-   print("=======================================",
-         "========================================\n");
-   while (($k,$v) = each %schueler_ok_wunsch_passwort_hash){
-     printf "%-60s %3s\n","$k","$v";
-   }
- }
-
-
-# Ausgabe aller UNID, die schon im System sind
-# mit identifier
-if($Conf::log_level>=3){
-   &titel("UNIDs im System");
-   print("UNID:",
-         "                                    Identifier:\n");
-   print("=======================================",
-         "========================================\n");
-   while (($k,$v) = each %unid_ok_system){
-     printf "%-40s %-30s\n","$k","$v";
-   }
- }
-
-
-# Ausgabe aller UNID, in den files
-# mit identifier
-if($Conf::log_level>=3){
-   &titel("UNIDs in Files");
-   print("UNID:",
-         "                                    Identifier:\n");
-   print("=======================================",
-         "========================================\n");
-   while (($k,$v) = each %unid_ok_file){
-     printf "%-40s %-30s\n","$k","$v";
-   }
-}
-
-
-
-# Ausgabe aller Stati
-# mit identifier
-if($Conf::log_level>=3){
-   &titel("Status in Files");
-   print("Identifier:",
-         "                              Status:\n");
-   print("=======================================",
-         "========================================\n");
-   while (($k,$v) = each %sophomorix_status){
-     printf "%-40s %-3s\n","$k","$v";
-   }
-}
-
-
-# Ausgabe aller ExitAdminClass, die schon im System sind
-# mit identifier
-if($Conf::log_level>=3){
-   &titel("ExitAdminClass im System");
-   print("Identifier:",
-         "                              ExitAdminClass:\n");
-   print("=======================================",
-         "========================================\n");
-   while (($k,$v) = each %schueler_im_system_exit_admin_class){
-     printf "%-40s %-12s\n","$k","$v";
-   }
- }
-
-
-
-# Ausgabe aller AccountType, die schon im System sind
-# mit identifier
-if($Conf::log_level>=3){
-   &titel("AccountType im System");
-   print("Identifier:",
-         "                              AccountType:\n");
-   print("=======================================",
-         "========================================\n");
-   while (($k,$v) = each %schueler_im_system_account_type){
-     printf "%-40s %-3s\n","$k","$v";
-   }
- }
-
+&show_all_hashes();
 
 # ===========================================================================
 # Load UNIDS into the SYSTEM
@@ -1157,130 +1031,36 @@ foreach my $go (keys %will_go) {
 }
 
 
-sub add_first_match {
-    # identifiy additional Firstname in first (peter hanspeter)
-    my $go=shift @_;
-    my $come=shift@_;
-    my $max_points=90;
-    # small First is amatch in the large
-    if (amatch($_[0], ["$_[8]"], $_[1])
-       and amatch($_[3], ["$_[9]"], $_[2])
-       and ( $_[2]=~/^$_[3]/ or $_[2]=~/$_[3]$/ ) 
-       and amatch($_[4], ["$_[10]"], $_[5])
-       ){
-       my $ed_dist_points=$max_points-15*abs( adist($_[0],$_[1]))-15*abs( adist($_[4],$_[5])) ;
-       print "### add_first_match: \n",
-             "    Name  $_[0] and $_[1] have less than $_[8] distance\n",
-             "    First $_[3] is found in the beginning/end of $_[2]\n",
-             "    Birth $_[4] and $_[5] have less than $_[10] distance\n";
-       &better_match($go,$come,$ed_dist_points);
-    } else {
-       print "### add_first_match:         No match!\n",
-    }
-
-}
-
-
-
-sub multi_change_match {
-    # identifiy small changes in EACH of name,first,birth
-    my $go=shift @_;
-    my $come=shift@_;
-    my $max_points=100;
-    if (amatch($_[0], ["$_[8]"], $_[1])
-       and amatch($_[2], ["$_[9]"], $_[3])
-       and amatch($_[4], ["$_[10]"], $_[5])
-       ){
-       my $ed_dist_points=$max_points-10*abs( adist($_[0],$_[1]))-10*abs( adist($_[2],$_[3]))-10*abs( adist($_[4],$_[5])) ;
-       print "### multi_change_match: \n",
-             "   $_[0] and $_[1] are similar! (Limit: $_[8])\n",
-             "   $_[2] and $_[3] are similar! (Limit: $_[9])\n",
-             "   $_[4] and $_[5] are similar! (Limit: $_[10])\n",
-             "   ( => $ed_dist_points Points)\n";
-       &better_match($go,$come,$ed_dist_points);
-    } else {
-       print "### multi_change_match:      No match!\n",
-    }
-}
-
-
-
-sub single_change_match {
-    # identifiy small changes in ONE of name,first,birth
-    my $go=shift @_;
-    my $come=shift@_;
-    my $max_points=101;
-    # 0,1 name
-    # 2,3 first
-    # 4,5 birth
-    # 6,7 class
-    # 8,9,10 %match_name,%match_first,%match_birth
-    if (amatch($_[0], ["$_[8]"], $_[1])
-       and $_[2] eq $_[3]
-       and $_[4] eq $_[5]
-       ){
-       my $ed_dist_points=$max_points-abs( adist($_[0],$_[1])*10 );
-       print "###  single_change_match:    $_[0] and $_[1] are similar!\n",
-             "     ( => $ed_dist_points Points)\n";
-       &better_match($go,$come,$ed_dist_points);
-    }elsif ($_[0] eq $_[1]
-       and amatch($_[2], ["$_[9]"], $_[3])
-       and $_[4] eq $_[5]
-       ){
-       my $ed_dist_points=adist($_[2],$_[3]);
-       print "###  single_change_match:    $_[2] and $_[3] are similar!\n",
-             "     ( => $ed_dist_points Points)\n";
-       &better_match($go,$come,$ed_dist_points);
-    } elsif ($_[0] eq $_[1]
-       and $_[2] eq $_[3]
-       and amatch($_[4], ["$_[10]"], $_[5])
-       ){
-       my $ed_dist_points=adist($_[4],$_[5]);
-       print "###  single_change_match:    $_[4] and $_[5] are similar!\n",
-             "     ( => $ed_dist_points Points)\n";
-       &better_match($go,$come,$ed_dist_points);
-    } elsif ($_[2] eq $_[3]
-       and $_[4] eq  $_[5]
-       ){
-       my $ed_dist_points=77; # marriage
-       print "###  single_change_match(marriage): $_[0] / $_[1] has married\n",
-             "     ( => $ed_dist_points Points)\n";
-       &better_match($go,$come,$ed_dist_points);
-    } else {
-       print "### single_change_match:     No match!\n",
-    }
-}
-
-
-sub better_match {
-    my ($go, $come, $points)=@_;
-    my $old_points=0;
-    # hat $come schon Punkte
-    if (exists $go_come{$go}){
-        # get user that matches
-        my $user=$go_come{$go};
-	$old_points=$come_points{$user}
-    }
-#    if (exists $come_points{$come}){
-#	$old_points=$come_points{$come}
-#    }
-    print "### $come  has $old_points points, can get $points points.\n"; 
-    if ($points > $old_points){
-        print "### Updating: $come -> $go ($points pts) \n";
-	$go_come{$go}=$come;
-        $come_points{$come}=$points;
-    } else {
-        print "### Not updating: Not enough points.\n";
-    }
-}
 
 
 
 
 print "\nGo   --- Come \n";
 &linie();
-while (($k,$v) = each %go_come){
-    print $k , "    ", $v, "\n";
+while (my ($identifier_sys,$identifier_file) = each %go_come){
+    print $identifier_sys , "    ", $identifier_file, "\n";
+
+             # updating the hashes that sophomorix uses internally
+             &update_all_hashes($identifier_sys,
+                                $identifier_file,
+                               );
+
+    my $login=$schueler_im_system_loginname{$identifier_file};
+    my ($last,$first,$birth)=split(/;/, $identifier_file);
+    print "$last   $first   $birth \n\n";
+             &update_user_db_entry($login, 
+                            "Name=$first",
+                            "LastName=$last",
+                            "Birthday=$birth");
+
+
+### DB-DEpendant????????
+             # update the gecos-filed
+             my $gecos="$first"." "."$last";
+             system("usermod -c '$gecos' $login");
+
+
+
 }
 
 print "\n";
@@ -2478,48 +2258,12 @@ sub update_ids {
              # update the gecos-filed
              $gecos="$first"." "."$last";
              system("usermod -c '$gecos' $login");
-             # update the identifier in the hashes 
-#             print "\nReplacing in the System-Hash\n",
-#                   "   $identifier_sys\n",
-#                   "with \n",
-#                   "   $identifier_file \n";
-             # Hashes, in which entries MUST exist
-             my $old_class = $schueler_im_system_hash{$identifier_sys};
-             delete $schueler_im_system_hash{$identifier_sys};
-             $schueler_im_system_hash{$identifier_file} = "$old_class";
 
-             my $old_login = $schueler_im_system_loginname{$identifier_sys};
-             delete $schueler_im_system_loginname{$identifier_sys};
-             $schueler_im_system_loginname{$identifier_file} = "$old_login";
-
-             my $old_status = $sophomorix_status{$identifier_sys};
-             delete $sophomorix_status{$identifier_sys};
-             $sophomorix_status{$identifier_file} = "$old_status";
-
-             # Hashes, in which entries MAY exist
-             if (exists $user_duldungsbeginn{$identifier_sys}) {
-                my $old_tol = $user_duldungsbeginn{$identifier_sys};
-                delete $user_duldungsbeginn{$identifier_sys};
-                $user_duldungsbeginn{$identifier_file} = "$old_tol";
-	     }
-
-             if (exists $user_deaktivierungsbeginn{$identifier_sys}) {
-                my $old_deact = $user_deaktivierungsbeginn{$identifier_sys};
-                delete $user_deaktivierungsbeginn{$identifier_sys};
-                $user_deaktivierungsbeginn{$identifier_file} = "$old_deact";
-	     }
-
-             if (exists $schueler_subklassen{$identifier_sys}) {
-                my $old_sub = $schueler_subklassen{$identifier_sys};
-                delete $schueler_subklassen{$identifier_sys};
-                $schueler_subklassen{$identifier_file} = "$old_sub";
-	     }
-
-             if (exists $unid_ok_system{$unid_file} ) {
-                delete $unid_ok_system{$unid_file};
-                $unid_ok_system{$unid_file} = "$identifier_file";
-	     }
-
+             # updating the hashes that sophomorix uses internally
+             &update_all_hashes($identifier_sys,
+                                $identifier_file,
+                                $unid_file,
+                               );
          } else {
              # too different, promt the user, secretary, ... ???
              print "Looks like different persons to me!";
@@ -2545,7 +2289,78 @@ sub update_ids {
 
 
 
+sub update_all_hashes {
+    my ($identifier_sys,
+        $identifier_file,
+        $unid_file) = @_;
 
+    # Hashes, in which entries MUST exist
+
+    # identifier - AdminClass
+    my $old_class = $schueler_im_system_hash{$identifier_sys};
+    delete $schueler_im_system_hash{$identifier_sys};
+    $schueler_im_system_hash{$identifier_file} = "$old_class";
+
+    # identifier - loginname
+    my $old_login = $schueler_im_system_loginname{$identifier_sys};
+    delete $schueler_im_system_loginname{$identifier_sys};
+    $schueler_im_system_loginname{$identifier_file} = "$old_login";
+
+    # identifier - status
+    my $old_status = $sophomorix_status{$identifier_sys};
+    delete $sophomorix_status{$identifier_sys};
+    $sophomorix_status{$identifier_file} = "$old_status";
+
+    # Hashes, in which entries MAY exist
+
+    # identifier - TolerationDate
+    if (exists $user_duldungsbeginn{$identifier_sys}) {
+       my $old_tol = $user_duldungsbeginn{$identifier_sys};
+       delete $user_duldungsbeginn{$identifier_sys};
+       $user_duldungsbeginn{$identifier_file} = "$old_tol";
+    }
+
+    # identifier - DeactivationDate
+    if (exists $user_deaktivierungsbeginn{$identifier_sys}) {
+       my $old_deact = $user_deaktivierungsbeginn{$identifier_sys};
+       delete $user_deaktivierungsbeginn{$identifier_sys};
+       $user_deaktivierungsbeginn{$identifier_file} = "$old_deact";
+    }
+
+    # identifier - SubClass
+    if (exists $schueler_subklassen{$identifier_sys}) {
+       my $old_sub = $schueler_subklassen{$identifier_sys};
+       delete $schueler_subklassen{$identifier_sys};
+       $schueler_subklassen{$identifier_file} = "$old_sub";
+    }
+
+    # identifier - ExitAdminClass
+    if (exists $schueler_im_system_exit_admin_class{$identifier_sys}) {
+       my $old_eac= $schueler_im_system_exit_admin_class{$identifier_sys};
+       delete $schueler_im_system_exit_admin_class{$identifier_sys};
+       $schueler_im_system_exit_admin_class{$identifier_file} = "$old_eac";
+    }
+
+
+    # identifier - AccountType
+    if (exists $schueler_im_system_account_type{$identifier_sys}) {
+       my $old_at = $schueler_im_system_account_type{$identifier_sys};
+       delete $schueler_im_system_account_type{$identifier_sys};
+       $schueler_im_system_account_type{$identifier_file} = "$old_at";
+    }
+
+
+    # only if unid has to be updated
+    if (defined $unid_file) {
+       # unid -identifier
+       if (exists $unid_ok_system{$unid_file} ) {
+          delete $unid_ok_system{$unid_file};
+          $unid_ok_system{$unid_file} = "$identifier_file";
+       }
+    }
+
+
+}
 
 
 
@@ -3251,6 +3066,257 @@ sub generate_kill_file {
 
 
 
+
+sub show_all_hashes {
+if($Conf::log_level>=1){
+   &linie();
+   &titel("This is the contents of the hashes");
+   &linie();
+
+   # schueler_ok-hash
+   print("User in sophomorix.ok (schueler_ok_hash):",
+         "                    AdminClass:\n");
+   &linie();
+   while (($k,$v) = each %schueler_ok_hash){
+     printf "%-60s %3s\n","$k","$v";
+   }
+   &linie();
+
+
+
+   # Print all users in the system
+   print("Schüler im System:                   ",
+         "                        AdminClass:\n");
+   &linie();
+   while (($k,$v) = each %schueler_im_system_hash){
+     printf "%-60s %3s\n","$k","$v";
+   }
+   &linie();
+
+
+
+   # Print all users in the system and loginname
+   print("Schüler im System:                   ",
+         "                        Login:\n");
+   &linie();
+   while (($k,$v) = each %schueler_im_system_loginname){
+     printf "%-60s %3s\n","$k","$v";
+   }
+   &linie();
+
+
+
+   # Print all users in the system and subclass
+   print("Schüler im System:                   ",
+         "                        SubClass:\n");
+   &linie();
+   while (($k,$v) = each %schueler_subklassen){
+     printf "%-60s %3s\n","$k","$v";
+   }
+   &linie();
+
+
+
+   # Print all users in the files - Wunschlogin
+   print("User in sophomorix.ok (schueler_ok_hash):",
+         "                    Wunsch-Logins:\n");
+   &linie();
+   while (($k,$v) = each %schueler_ok_wunsch_login_hash){
+     printf "%-60s %3s\n","$k","$v";
+   }
+   &linie();
+
+
+   # Print all users in the files - Password
+   print("User in sophomorix.ok (schueler_ok_hash):",
+         "                    Wunsch-Passwörter:\n");
+   &linie();
+   while (($k,$v) = each %schueler_ok_wunsch_passwort_hash){
+     printf "%-60s %3s\n","$k","$v";
+   }
+   &linie();
+
+
+
+   # Print Unids and identifier in the system
+   print("UNID im System (unid_ok_system):",
+         "         Identifier:\n");
+   &linie();
+   while (($k,$v) = each %unid_ok_system){
+     printf "%-40s %-30s\n","$k","$v";
+   }
+   &linie();
+
+
+
+   # Print Unids and identifier in the files
+   print("UNID in files (unid_ok_file):",
+         "            Identifier:\n");
+   &linie();
+   while (($k,$v) = each %unid_ok_file){
+     printf "%-40s %-30s\n","$k","$v";
+   }
+   &linie();
+
+
+
+   # print allStatus-Information 
+   print("Identifier (sophomorix_status): ",
+         "         Status:\n");
+   &linie();
+   while (($k,$v) = each %sophomorix_status){
+     printf "%-40s %-3s\n","$k","$v";
+   }
+   &linie();
+
+
+   # print ExitAdminClass of system-users
+   print("schueler_im_system_exit_admin_class:",
+         "     ExitAdminClass:\n");
+   &linie();
+   while (($k,$v) = each %schueler_im_system_exit_admin_class){
+     printf "%-40s %-12s\n","$k","$v";
+   }
+   &linie();
+
+
+
+   # print AccountType of system users
+   print("schueler_im_system_account_type:",
+         "         AccountType:\n");
+   &linie();
+   while (($k,$v) = each %schueler_im_system_account_type){
+     printf "%-40s %-3s\n","$k","$v";
+   }
+   &linie();
+
+
+ }# end loglevel
+     &linie();
+     &titel("End of all Hashes");
+     &linie();
+}
+
+
+sub add_first_match {
+    # identifiy additional Firstname in first (peter hanspeter)
+    my $go=shift @_;
+    my $come=shift@_;
+    my $max_points=90;
+    # small First is amatch in the large
+    if (amatch($_[0], ["$_[8]"], $_[1])
+       and amatch($_[3], ["$_[9]"], $_[2])
+       and ( $_[2]=~/^$_[3]/ or $_[2]=~/$_[3]$/ ) 
+       and amatch($_[4], ["$_[10]"], $_[5])
+       ){
+       my $ed_dist_points=$max_points-15*abs( adist($_[0],$_[1]))-15*abs( adist($_[4],$_[5])) ;
+       print "### add_first_match: \n",
+             "    Name  $_[0] and $_[1] have less than $_[8] distance\n",
+             "    First $_[3] is found in the beginning/end of $_[2]\n",
+             "    Birth $_[4] and $_[5] have less than $_[10] distance\n";
+       &better_match($go,$come,$ed_dist_points);
+    } else {
+       print "### add_first_match:         No match!\n",
+    }
+
+}
+
+
+
+
+
+sub multi_change_match {
+    # identifiy small changes in EACH of name,first,birth
+    my $go=shift @_;
+    my $come=shift@_;
+    my $max_points=100;
+    if (amatch($_[0], ["$_[8]"], $_[1])
+       and amatch($_[2], ["$_[9]"], $_[3])
+       and amatch($_[4], ["$_[10]"], $_[5])
+       ){
+       my $ed_dist_points=$max_points-10*abs( adist($_[0],$_[1]))-10*abs( adist($_[2],$_[3]))-10*abs( adist($_[4],$_[5])) ;
+       print "### multi_change_match: \n",
+             "   $_[0] and $_[1] are similar! (Limit: $_[8])\n",
+             "   $_[2] and $_[3] are similar! (Limit: $_[9])\n",
+             "   $_[4] and $_[5] are similar! (Limit: $_[10])\n",
+             "   ( => $ed_dist_points Points)\n";
+       &better_match($go,$come,$ed_dist_points);
+    } else {
+       print "### multi_change_match:      No match!\n",
+    }
+}
+
+
+
+sub single_change_match {
+    # identifiy small changes in ONE of name,first,birth
+    my $go=shift @_;
+    my $come=shift@_;
+    my $max_points=101;
+    # 0,1 name
+    # 2,3 first
+    # 4,5 birth
+    # 6,7 class
+    # 8,9,10 %match_name,%match_first,%match_birth
+    if (amatch($_[0], ["$_[8]"], $_[1])
+       and $_[2] eq $_[3]
+       and $_[4] eq $_[5]
+       ){
+       my $ed_dist_points=$max_points-abs( adist($_[0],$_[1])*10 );
+       print "###  single_change_match:    $_[0] and $_[1] are similar!\n",
+             "     ( => $ed_dist_points Points)\n";
+       &better_match($go,$come,$ed_dist_points);
+    }elsif ($_[0] eq $_[1]
+       and amatch($_[2], ["$_[9]"], $_[3])
+       and $_[4] eq $_[5]
+       ){
+       my $ed_dist_points=$max_points-abs( adist($_[2],$_[3])*10 );
+       print "###  single_change_match:    $_[2] and $_[3] are similar!\n",
+             "     ( => $ed_dist_points Points)\n";
+       &better_match($go,$come,$ed_dist_points);
+    } elsif ($_[0] eq $_[1]
+       and $_[2] eq $_[3]
+       and amatch($_[4], ["$_[10]"], $_[5])
+       ){
+       my $ed_dist_points=$max_points-abs( adist($_[4],$_[5])*10 );
+       print "###  single_change_match:    $_[4] and $_[5] are similar!\n",
+             "     ( => $ed_dist_points Points)\n";
+       &better_match($go,$come,$ed_dist_points);
+    } elsif ($_[2] eq $_[3]
+       and $_[4] eq  $_[5]
+       ){
+       my $ed_dist_points=77; # marriage
+       print "###  single_change_match(marriage): $_[0] / $_[1] has married\n",
+             "     ( => $ed_dist_points Points)\n";
+       &better_match($go,$come,$ed_dist_points);
+    } else {
+       print "### single_change_match:     No match!\n",
+    }
+}
+
+
+
+sub better_match {
+    my ($go, $come, $points)=@_;
+    my $old_points=0;
+    # hat $come schon Punkte
+    if (exists $go_come{$go}){
+        # get user that matches
+        my $user=$go_come{$go};
+	$old_points=$come_points{$user}
+    }
+#    if (exists $come_points{$come}){
+#	$old_points=$come_points{$come}
+#    }
+    print "### $come  has $old_points points, can get $points points.\n"; 
+    if ($points > $old_points){
+        print "### Updating: $come -> $go ($points pts) \n";
+	$go_come{$go}=$come;
+        $come_points{$come}=$points;
+    } else {
+        print "### Not updating: Not enough points.\n";
+    }
+}
 
 
 
