@@ -33,9 +33,6 @@ my $linux_gruppe_to_kill="";
 my $linie_to_kill="";
 my %protokoll_hash=();
 
-# Zu modifiezierende Dateien
-my %user_duldungsbeginn=();
-my %user_deaktivierungsbeginn=();
 my $k="";
 my $v="";
 
@@ -161,19 +158,6 @@ if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.kill")) {
 # ===========================================================================
 #%protokoll_hash=&protokoll_linien();
 %protokoll_hash=&get_protokoll_lines();
-
-
-# ===========================================================================
-# user-duldungsbeginn einlesen
-# ===========================================================================
-#%user_duldungsbeginn=&get_user_duldungsbeginn();
-
-# ===========================================================================
-# user-deaktivierungsbeginn einlesen
-# ===========================================================================
-#%user_deaktivierungsbeginn=&get_user_deaktivierungsbeginn();
-
-
 
 
 # ===========================================================================
@@ -323,10 +307,7 @@ if ($DevelConf::testen==0) {
  }
 
 
-
-
-
-print ("\nsophomorix-kill endet ...\n");
+print ("\nsophomorix-kill terminated regularly ...\n");
 
 
 
@@ -351,6 +332,9 @@ while (($k,$v) = each %data){
 }
     return %data,
 }
+
+
+
 
 sub webmin_eintrag_loeschen {
    my ($user)=@_;
