@@ -180,19 +180,26 @@ my $datei="";
 #if($Conf::log_level>=3){
       &titel("Calculating quota for new users ...");
 #}
-# quota.txt auslesen
-my %standard_quota=&get_standard_quota();
 
-# lehrer.txt auslesen
-my %lehrer_quota=&get_lehrer_quota();
-
-# schulinfo.txt auslesen
-my %klassen_quota=&get_klassen_quota();
+my %standard_quota=();
+my %lehrer_quota=();
+my %klassen_quota=();
+my @quota_fs_liste=();
 
 
-# Quotierte Dateisysteme ermitteln
-my @quota_fs_liste=&get_quota_fs_liste();
+if ($Conf::use_quota eq "yes") {
+   # quota.txt auslesen
+   %standard_quota=&get_standard_quota();
 
+   # lehrer.txt auslesen
+   %lehrer_quota=&get_lehrer_quota();
+
+   # schulinfo.txt auslesen
+   %klassen_quota=&get_klassen_quota();
+
+   # Quotierte Dateisysteme ermitteln
+   @quota_fs_liste=&get_quota_fs_liste();
+}
 
 
 #  project database auslesen

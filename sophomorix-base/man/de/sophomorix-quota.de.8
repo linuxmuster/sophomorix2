@@ -31,20 +31,23 @@ System gesetzt.
 .TP
 Folgende Dateien dienen zur Konfiguration von Quotaangaben:
 .TP
-.B 1. Standard-Quotawerte für Lehrer, Schüler, Workstation
+.B 1. Generelles Einschalten bzw. ausschalten von Quota
+Datei:  /etc/sophomorix/user/sophomorix.conf
+.TP
+.B 2. Standard-Quotawerte für Lehrer, Schüler, Workstation
 Datei:  /etc/sophomorix/user/quota.txt
 .TP
-.B 2. Quota einzelner user AUSSER lehrer, z. B. admin
+.B 3. Quota einzelner user AUSSER lehrer, z. B. admin
 Datei:  /etc/sophomorix/user/quota.txt
 .TP
-.B 3. Quota einzelner lehrer
+.B 4. Quota einzelner lehrer
 Datei:  /etc/sophomorix/user/lehrer.txt
 .TP
-.B 4. Quotaangaben für Klassen (AdminClass):
+.B 5. Quotaangaben für Klassen (AdminClass):
 Datei  /etc/sophomorix/user/schuleinfo.txt
 (Diese Datei wird wahrscheinlich in Kürze umbenannt)
 .TP
-.B 5. Quotaangaben für Projekte: 
+.B 6. Quotaangaben für Projekte: 
 Diese Quotaangaben werden mit dem Befehl
 sophomorix-project direkt in die sophomorix-Datenbank eingetragen.
 .br
@@ -53,6 +56,16 @@ Achtung: Bei diesen Quotaangaben handelt es sich um zusätzliche Quota
 .br
 Dieses Feature ist im Moment noch nicht enthalten!!!
 .PP
+.SH Syntax von Quotaangaben
+Quotaangaben haben z.B. bei 3 Filesystemen mit 'usrquota' folgende Syntax:
+.br
+   30+24+1000
+.br
+Mehr Informationen beim Aufruf von:
+.br
+   sophomorix-quota -i
+.br
+Dazu muss in sophomorix.conf use_quota="yes" gesetzt sein.   
 .SH Vorbereitung/Installation
 Für ein Debian System mit Debian-Kernel unterscheidet sich die
 Installation je nach verwendeter Kernelversion:
@@ -79,6 +92,20 @@ Erzeugen sie nun die passende Quotadatei quota.user mit dem Befehl:
 .TP
 4. Schalten sie Quota ein
    quotaon -avu
+.TP
+5. Quota in sophomorix einschalten 
+Damit sophomorix beim Anlegen von Usern Quota setzt, setzen sie in sophomorix.conf 
+folgende Variable:
+   use_quota="yes"
+.TP
+6. Setzen von Standard-Werten für Quota Setzen Sie in den obigen
+Dateien die Standard-Werte für Quota auf passende Werte. Beachten sie,
+dass die Quotaangaben mit der Anzahl der quotierten
+Filesysteme(Windows-Begriff: Partitionen) übereinstimmt (siehe Syntax
+der Quotaangaben).
+.TP
+7. Rufen Sie folgenden Befehl auf, um Quota für alle user zu setzen:
+   sophomorix-quota
 .PP
 .B Kernel 2.6.x:
 .TP
