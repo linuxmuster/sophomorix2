@@ -77,6 +77,7 @@ my $help=0;
 my $file_to_check="";
 my $old_info_dir="";
 my $no_kclass=0;
+my $use_uid=0;
 my $no_auto_teach_in=0;
 
 # Parsen der Optionen
@@ -84,6 +85,7 @@ my $testopt=GetOptions(
        "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
            "get-info-from-old-files=s" => \$old_info_dir,
+           "use-uid" => \$use_uid,
            "no-kclass" => \$no_kclass,
            "no-auto-teach-in|no-sync" => \$no_auto_teach_in,
            "file=s" => \$file_to_check,
@@ -2780,7 +2782,7 @@ sub generate_add_file {
                 $password="---";
             }
 
-	    if (exists $old_id_id{$identifier}){
+	    if (exists $old_id_id{$identifier} and $use_uid==1){
 		$id=$old_id_id{$identifier};
             } else {
                 $id="---";

@@ -11,7 +11,9 @@ how can i package this directories with its permissions?
 
 
 
-sophomorix-repair (seems ok so far)
+sophomorix-repair 
+   - use function create_userlist to specify users
+   - update man page
 
 
 sophomorix-quota 
@@ -144,7 +146,6 @@ sophomorix-test
 
 sophomorix-vampire:
 
-   - write script to update
      problem: id of lehrer on debian is 105 ml 2.x is 1002
        -- workaround
           0. install sophomorix2
@@ -155,6 +156,12 @@ sophomorix-vampire:
               expects group lehrer to exist.
           2. sophomorix-setup (repairs directories with groupowner lehrer)
           3. update (lehrer with old id will be created automatically)
+   - backup /etc to /etc/sophomorix-vampire
+   - move homes
+   - move mail
+   - move shares
+   - invent k option, used as in sophomorix-check(necessary?)
+
 
 
 sophomorix-tuition??
@@ -227,6 +234,10 @@ RELEASES:
 
 
 1.2.0 (2005-02-?)
+   - first uncomplete sophomorix-vampire verion
+     - distributed in package sophomorix-vampire
+     - pushing a key and fetching files
+
    - Fixed Bug where sophomorix-print generated files in the directory 
      in wich it was called. This made the script abort without producing an error,
      when executed in a nfs mounted read-only filesystem.

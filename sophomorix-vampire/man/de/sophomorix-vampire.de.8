@@ -1,0 +1,123 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH SOPHOMORIX-VAMPIRE 8 "February 28, 2005"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+sophomorix-vampire \- Holen von Benutzern und deren Daten auf einen neuen Server
+.SH SYNOPSIS
+.B sophomorix-vampire
+.RI [ options ]
+.br
+.SH DESCRIPTION
+.B sophomorix-vampire  
+legt eines sh-key auf einem Server ab und holt dann Benutzer und deren Daten. sophomorix-vampire wird auf dem neuen Server gestartet geht folgendermassen vor:
+.TP
+.B 1. Erzeugen eins ssh-keys und ablegen auf dem alten Server.
+.TP
+.B 2. Konfigurationsdateien von sophomorix und dem system holen
+.TP
+.B 2. Benutzer mit gleichen Loginnamen anlegen (Todo: workstations)
+.TP
+.B 3. Quota anlegen(Todo)
+.TP
+.B 4. Ermitteln welche User auf dem neuen system NICHT vorhanden sind, aber auf dem alten.(dachboden-user)
+.TP
+.B 5. Synchronisieren der home-Verzeichnisse der user auf dem neuen Server.
+.TP
+.B 6. Synchronisieren der Klassentausch-Verzeichnisse aller Klassen des neuen Servers
+.TP 
+
+.PP
+.SH OPTIONS
+.B sophomorix-vampire
+benützt die GNU command line syntax, mit langen Optionen, die mit zwei
+Bindestrichen (`-') beginnen:
+.TP
+.B -h, --help
+Kurzübersicht über Optionen, sowie eine Liste der eingelesenen Dateien.
+.TP
+.B -v, --verbose
+Sagt, was das Programm gerade macht (verbose)
+.TP
+.B -vv, --verbose --verbose
+Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
+.TP
+.B -i, --info
+Sagt für welche User Passwörter verändert werden würden.
+.TP
+.B --server ip, --server name
+gibt an von welchem Server die Daten geholt werden sollen. Wenn die Namensauflösung funktioniert kann auch der name des servers benutzt werden.
+.TP
+.B --clear
+löscht das Verzeichnis /root/sophomorix-vampire in dem Konfigurationsdateien des alten Servers liegen und holt sie neu.
+.TP
+.B Optionen, die angeben, wie das Passwort lauten soll:
+.TP
+Wenn keine dieser Option angegeben wird, dann werden die Einstellungen aus sophomorix.conf verwendet.
+.TP
+.B -p geheim, --password geheim
+setzt das Passwort auf den Wert geheim. 
+.TP
+.B --common
+erzeugt nach den Angaben in sophomorix.conf jeweils ein Passwort für Lehrer und eines für Schüler . Alle Lehrer bzw. Schüler bekommen dasselbe Passwort. 
+.TP
+Wird eine Längenangabe mit --plength num gemacht, dann wird ein Zufallspasswort generiert.
+.TP
+.B --reset
+setzt das Passwort auf den Wert, der beim ersten Anlegen des Users gültig war. Dieser Wert wird aus der sophomorix Datenbank geholt. 
+.TP
+.B --random
+setzt das Passwort bei Lehrern und Schülern auf einen neuen, individuellen Zufallswert. Jeder User bekommt ein eigenes Zufallspasswort. Die Länge richtet sich nach den Angaben in sophomorix.conf. 
+.TP
+.B --plength num
+Setzt die Länge der Zufalls-Passwörter auf den Wert num. Die Länge richtet sich somit nicht mehr nach den Angaben in sophomorix.conf.  
+.TP
+.B Optionen die angeben von welchen Usern Daten synchronisiert werden sollen
+.TP
+Die Auswahl erfolgt anhäufend. Das bedeutet, dass durch Angabe mehrerer Optionen eine Userliste erzeugt wird, in der kein User doppelt vorkommt, aber jeder enthalten ist.
+.TP
+.B -l name1,name2, ... , --login name1, ... -u name1, ... , --user name1, ... 
+setzt das Passwort der  User name1,name2, ... . Der user kann auch eine Workstation sein.
+.TP
+.B -c class1,class2, ... , --class class1,class2, ...
+setzt das Passwort für jeden User in der Klasse class. Class kann auch die Gruppe der Lehrer sein (lehrer im Moment).
+.TP
+.B --pupils 
+setzt das Passwort für alle Schüler der Schule.
+.TP
+.B -r raum1,raum2, ... , --room raum1,raum2,...
+setzt das Passwort für jede Workstation im raum raum1,raum2 ...
+.TP
+.B  --workstations 
+setzt das Passwort für alle Workstations der Schule.
+.TP
+.SH SEE ALSO
+.BR sophomorix (8),
+.BR sophomorix-teach-in (8),
+.BR sophomorix-add (8),
+.BR sophomorix-move (8),
+.BR sophomorix-print (8),
+.BR sophomorix-kill (8),
+.BR sophomorix-split (8),
+.BR sophomorix-project (8),
+
+.\".BR baz (1).
+.\".br
+.\"You can see the full options of the Programs by calling for example 
+.\".IR "sophomrix-vampire -h" ,
+.
+.SH AUTHOR
+This manual page was written by <jeffbeck@web.de>.
