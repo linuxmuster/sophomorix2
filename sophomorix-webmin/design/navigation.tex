@@ -1,0 +1,163 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{multicol}
+\usepackage{lscape}
+\usepackage{textcomp}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage{ngerman}
+\usepackage{fancybox}
+\usepackage{marvosym}
+\usepackage{fancyhdr}
+\usepackage[dvips]{color}
+\usepackage{moreverb}
+\usepackage{psfrag}
+% ams-Befehl square ab jetzt nutzlos, da \square von SIunits neu definiert wird
+\usepackage[cdots,amssymb,thickqspace]{SIunits} 
+\usepackage{longtable}
+\usepackage{dcolumn}
+\usepackage[german,timestamp,dark]{draftcopy}
+\usepackage{lastpage}
+% Satzspiegel
+\setlength{\voffset}{-25.4mm}
+\setlength{\hoffset}{-25.4mm}
+
+\draftcopyFirstPage{1}
+
+\setlength{\textwidth}{200mm}
+\setlength{\topmargin}{0mm}
+\setlength{\textheight}{280mm}
+\setlength{\headheight}{11mm}
+\setlength{\headsep}{1mm}
+\setlength{\topskip}{0mm}
+
+\setlength{\footskip}{5mm}
+\setlength{\parindent}{0mm}
+
+% ohne Rand 
+\setlength{\oddsidemargin}{9mm}
+\setlength{\evensidemargin}{9mm}
+
+% zentriert
+%\setlength{\oddsidemargin}{15mm}
+%\setlength{\evensidemargin}{15mm}
+
+\setlength{\fboxsep}{1mm}
+\setlength{\fboxrule}{0.35mm}
+
+\newcounter{mypage}
+\setcounter{mypage}{1}
+
+\pagestyle{empty}
+
+\newcommand{\fs}{%
+f/s%
+}
+
+\begin{document}
+\begin{landscape}
+
+
+\begin{tabular}{|l|p{12mm}||p{32mm}|p{32mm}|p{32mm}|p{32mm}||p{32mm}|p{32mm}|p{32mm}|} \hline
+& & 
+\multicolumn{4}{c||}{\rule[-3mm]{0mm}{8mm}\large \bf Klassen/Projekte betreffend}&
+\multicolumn{3}{c|}{\large \bf Räume betreffend} \\ \hline \hline
+\rule[-3mm]{0mm}{8mm}\Large \bf 1 & Module & 
+Klassenmanager & Hompages & Datenbanken & svn &
+Internet & Drucken & Klassenarbeiten \\ \hline \hline
+%%%
+\rule[-3mm]{0mm}{8mm}\Large \bf 2 &
+Klasse/ \newline
+Projekt/ \newline
+Raum \newline
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Klasse/Raum/Projekt
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+&
+% klassenmanager
+-- Eintragen in K \newline
+-- Austragen aus K \newline
+-- Passwortliste K \newline
+-- L $\longrightarrow$ K \newline
+-- K $\longrightarrow$ L \newline
+& 
+% homepage
+-- ins Intranet \fs \newline
+-- ins Internet \fs \newline
+
+& 
+% datenbanken
+-- DB für K \fs \newline
+-- DB je S \fs \newline
+& 
+% Versionsverwaltung
+-- MOD a/l \newline
+&
+% Internet
+Alle PC \fs \newline
+Alle SPC \fs \newline
+& 
+% Drucker
+-- D für R \fs \newline
+& 
+% Klassenarbeiten
+-- KA Beginnen \newline
+-- KA Beenden \newline
+\\ \hline \hline
+%%%
+\rule[-3mm]{0mm}{8mm}\Large \bf 3
+& 
+User/ \newline
+Rechner \newline
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% User/Rechner
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+&
+% klassenmanager
+-- Quota anzeigen \newline
+-- SubClass anzeigen \newline
+-- Epw anzeigen \newline
+-- Rücksetzten Epw \newline
+& 
+% Homepage
+-- ins Intranet \fs \newline
+-- ins Internet \fs \newline
+-- S darf selber \fs \newline
+-- ln S-Homepage \newline
+& 
+% Datenbanken
+-- DB für S  \newline
+& 
+% Versionsverwaltung
+-- M für S \fs \newline
+&
+% Internet
+R \fs \newline 
+& 
+% Drucker
+-- D für PC \fs \newline 
+& 
+% klassenarbeiten
+-- Inhalt SAM \newline
+-- Netztraffic \newline
+\\ \hline
+\end{tabular}
+
+\vspace{4mm}
+
+Legende: 
+
+f/s: freischalten/sperren, a/l: anlegen/löschen, Epw: Erstpasswort, 
+
+K: Klasse, S: Schüler, 
+R: Raum, PC: Rechner, D: Drucker, 
+
+KA: Klasenarbeit, SAM: Sammelordner, DB: Datenbank, MOD: SVN-Module
+\end{landscape}
+
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 
