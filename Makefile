@@ -1,12 +1,14 @@
 #!/usr/bin/make
 # Dies ist das sophomorix Makefile bis zur Version 0.9.x
 
-
 # Zur Erstellung des Debian-Pakets notwendig (make DESTDIR=/root/sophomorix)
 DESTDIR=
 
-# Allgemein (Debian und ML 2.0)
+# Debian
 #====================================
+
+# Homes
+HOME=$(DESTDIR)/home
 
 # Developement
 USERROOT=$(DESTDIR)/root
@@ -16,16 +18,6 @@ LIBDIR=$(DESTDIR)/var/lib/sophomorix
 
 # Debian
 WEBMINDEBDIR=$(DESTDIR)/usr/share/webmin
-
-
-# SuSE
-#====================================
-# Dokumentation
-DOCSUSEDIR=$(DESTDIR)/usr/share/doc/packages
-
-
-# Debian
-#====================================* $(DESTDIR)/usr/sbin
 
 # Dokumentation
 DOCDEBDIR=$(DESTDIR)/usr/share/doc
@@ -39,12 +31,17 @@ SAMBADIR=$(DESTDIR)/var/lib/samba
 # WEBMINCONFDIR ML und Debian
 WEBMINCONFDIR=$(DESTDIR)/etc/webmin
 
-all: install-base install-files
+all: install-base install-files install-developer
+
 
 # sophomorix-base
 install-base:
 	##### some dirs
 	install -d -m700 -oroot -groot $(DESTDIR)/var/lib/sophomorix
+	install -d -m700 -oroot -groot $(DESTDIR)/var/log/sophomorix
+	install -d -m700 -oroot -groot $(DESTDIR)/var/log/sophomorix/user
+	install -d -m700 -oroot -groot $(DESTDIR)/var/lib/sophomorix/drucken
+
 	##### scripts
 	install -d $(DESTDIR)/usr/sbin
 	install -oroot -groot --mode=0744 sophomorix-base/scripts/sophomorix* $(DESTDIR)/usr/sbin
@@ -61,6 +58,12 @@ install-base:
 install-files:
 	##### lib for managing users in files (passwd, group, user.protokoll)
 	install -oroot -groot --mode=0744 sophomorix-files/lib/sophomorix* $(DESTDIR)/usr/sbin
+	install -oroot -groot --mode=0744 sophomorix-files/scripts/sophomorix* $(DESTDIR)/usr/sbin
+
+
+install-developer:
+	##### tset and developement tools
+	install -oroot -groot --mode=0744 sophomorix-developer/scripts/sophomorix* $(DESTDIR)/usr/sbin
 
 
 # sophomorix-webmin
