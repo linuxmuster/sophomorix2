@@ -147,13 +147,14 @@ if ($filename ne "") {
 
 # Klassen
 &titel("Creating list of every AdminClass ...");
-my @klassen=&get_klassen_in_schule(); 
+my @klassen=&get_adminclasses_school(); 
 &print_list("The list of every AdminClass:",@klassen);
 
 
 # Räume
 &titel("Creating list of every room ...");
-my @raeume=&get_raeume_in_schule(); 
+#my @raeume=&get_raeume_in_schule(); 
+my @raeume=&get_rooms_school(); 
 &print_list("The list of every room:",@raeume);
 
 
@@ -161,21 +162,24 @@ my @raeume=&get_raeume_in_schule();
 
 # schueler
 &titel("Creating list of every pupil ...");
-my @schueler=&get_schueler_in_schule();
+#my @schueler=&get_schueler_in_schule();
+my @schueler=&get_pupils_school();
 &print_list("The list of every pupil:",@schueler);
 
 # lehrer
 &titel("Creating list of every teacher ...");
-my @lehrer=&get_lehrer_in_schule();
+#my @lehrer=&get_lehrer_in_schule();
+my @lehrer=&get_user_adminclass("lehrer");
+
 &print_list("The list of every teacher:",@lehrer);
 
 # workstations
 &titel("Creating list of every workstation ...");
-my @workstations=&get_workstations_in_schule();
+#my @workstations=&get_workstations_in_schule();
+my @workstations=&get_workstations_school();
 &print_list("The list of every workstation:",@workstations);
 
 my @www_userliste=();
-
 
 
 # --permissions
@@ -187,9 +191,9 @@ if ($dateirechte==1) {
 # --www
 if ($www==1) {
   if ($lehrer==1) {
-      @www_userliste=&get_lehrer_in_schule();
+      @www_userliste=&get_user_adminclass("lehrer");
    } elsif ($schueler==1){
-      @www_userliste=&get_schueler_in_schule();
+      @www_userliste=&get_pupils_school();
    } elsif ($login ne "") {
       @www_userliste=$login;
    }
@@ -390,7 +394,7 @@ sub repair_directory {
          # Userliste evtl. einschränken
 	 if ($path=~/\$klassen/ && $path=~/\$schueler/) {
 #            @userliste=&get_schueler_in_klasse($gruppe);
-            @userliste=&get_user_in_adminclass($gruppe);
+            @userliste=&get_user_adminclass($gruppe);
             #print "Userliste: Nur Klasse\n";
 	 } elsif ($path=~/\$raeume/ && $path=~/\$workstation/) {
             @userliste=&get_workstations_in_raum($gruppe);
