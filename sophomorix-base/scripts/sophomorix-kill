@@ -13,15 +13,6 @@ use Sophomorix::SophomorixBase;
 use Sophomorix::SophomorixFiles;
 #use Schedule::at;
 
-# Einlesen der Konfigurationsdatei für Entwickler
-#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
-
-# jeffbecks Bibliothek und
-# Einlesen der Konfigurationsdatei
-#require "${DevelConf::library_pfad}/sophomorix-lib";
-
-
-
 # ===========================================================================
 # Loading the db-Module, list of functions
 # ===========================================================================
@@ -66,15 +57,15 @@ my %protokoll_hash=();
 my $k="";
 my $v="";
 
-################################################################################
+#############################################################################
 # User Löschen aus schueler.?????weg
-################################################################################
+#############################################################################
 
 
 
 # ===========================================================================
 # Optionen verarbeiten
-# ==========================================================================
+# ===========================================================================
 
 # Variablen für Optionen
 $DevelConf::testen=0;
@@ -102,25 +93,24 @@ if ($help==1) {
    my @list = split(/\//,$0);
    my $scriptname = pop @list;
    # Befehlsbeschreibung
-   print "$scriptname entfernt Schüler aus der Datei \n";
-   print "   ${DevelConf::ergebnis_pfad}/user.hinzu \n";
-   print "aus dem System\n\n";
-   # gemeinsamer Hilfetext aller Scripten
 
-   # optionen
-   print "Optionen:\n\n";
 
-   print "  --login user, --loginname user, --user user, -u user, -l user\n";
-   print "     Es wird nur die Schülerin/der Schüler gelöscht, \n";
-   print "     die/der den Benutzernamen user hat.\n\n";
 
-   &help_text_all;
-   
-   print "Testen:\n\n";
-   # testen
-   print "  -t, --test\n";
-   print "     Lehrer und Schüler werden nicht wirklich entfernt oder deakiviert. \n";
-   print "     Ansonsten läuft $scriptname möglichst normal.\n\n";
+
+   print('
+sophomorix-kill removes users from the sophomorix database and deletes their data for good.
+
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -i  / --info
+  -l  loginname /   --loginame loginname 
+  -t  / --test
+
+Please see the sophomorix-kill(8) man pages for full documentation
+');
+   print "\n";
    exit;
 }
 

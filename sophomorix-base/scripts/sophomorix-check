@@ -42,6 +42,7 @@ use if ${DevelConf::db_backend} eq 'ldap' ,
 # list of functions to load if sys_db is 'files'
 use if ${DevelConf::sys_db} eq 'files' , 
     'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
+                                           update_gecos
                                           );
 
 

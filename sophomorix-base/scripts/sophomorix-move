@@ -334,10 +334,8 @@ while(<USERVERSETZEN>){
 
    # Sicherstellen dass neue Klasse (Linux-Gruppe) existiert
    if ($neue_klasse ne "lehrer") {
-
-     &provide_class_files($neue_klasse)
+     &provide_class_files($neue_klasse);
      &add_class_to_sys($neue_klasse);
-
      # veraltet
      #&neue_linux_gruppe_schueler($neue_klasse);
    }
