@@ -89,7 +89,7 @@ sub check_line_in_file {
     chomp($result);
     &like($result,
       qr/$regex/,
-      "Line is exactly ONCE in $file");
+      "Line is ONCE in $file");
 
     return $result;
 }
