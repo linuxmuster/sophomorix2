@@ -36,6 +36,7 @@ use if ${DevelConf::db_backend} eq 'files' ,
                                         update_user_db_entry
                                         user_reaktivieren
                                         user_deaktivieren
+                                        update_gecos
                                        );
 
 # list of functions to load if db is 'ldap'
@@ -899,45 +900,49 @@ if ($Conf::splan_sternchenlkassen_filtern eq "ja") {
 &show_all_hashes();
 
 # ===========================================================================
-# Load UNIDS into the SYSTEM
+# Load UNIDS into the Database and System
 # ===========================================================================
 &update_ids();
 
+# ===========================================================================
+# Load new data into the Database and System by use of AI
+# ===========================================================================
 
-# auto teach-in
-
-print "Starting AUTO-Teach-in\n\n";
-
-my %will_come=();
-my %will_go=();
-
-
-# will go:
-foreach (keys %schueler_im_system_hash) {
-    # will go
-    if (not exists $schueler_ok_hash{$_}){
-	print "will_go  :  $_  $schueler_im_system_hash{$_}\n";
-        $will_go{$_}=$schueler_im_system_hash{$_};
-
-    }
-}
-
-
-print "\n";
-
-# will come:
-foreach (keys %schueler_ok_hash) {
-    # will come
-    if (not exists $schueler_im_system_hash{$_}){
-	print "will_come:  $_  $schueler_ok_hash{$_}\n";
-        $will_come{$_}=$schueler_ok_hash{$_};
-
-    }
-}
-
+&auto_teach_in();
 
 my %go_come=();
 my %come_points=();
+
+sub auto_teach_in {
+   my $count=0;
+   my %will_come=();
+   my %will_go=();
+
+   &titel("auto_teach-in: Modyfying the following accounts:");
+
+   # will go:
+   foreach (keys %schueler_im_system_hash) {
+       # will go
+       if (not exists $schueler_ok_hash{$_}){
+          if($Conf::log_level>=3){
+             print "will_go  :  $_  $schueler_im_system_hash{$_}\n";
+          }
+          $will_go{$_}=$schueler_im_system_hash{$_};
+       }
+   }
+
+   # will come:
+   foreach (keys %schueler_ok_hash) {
+      # will come
+      if (not exists $schueler_im_system_hash{$_}){
+         if($Conf::log_level>=3){
+            print "will_come:  $_  $schueler_ok_hash{$_}\n";
+         }
+         $will_come{$_}=$schueler_ok_hash{$_};
+
+      }
+   }
+
 
 
 foreach my $go (keys %will_go) {
@@ -950,19 +955,17 @@ foreach my $go (keys %will_go) {
 
     foreach my $come (keys %will_come) {
         my $come_class=$will_come{$come};
-#        my ($come_name,$come_first,$come_birth)=split(/;/, $come);
         my @come=split(/;/, $come);
         push @come, $come_class;
-#	print "   Checking $go ($go_class)     $come ($come_class)   \n";
   
-        print "\n### Checking vanising  $go   for matches:\n";
-        &linie();
-        printf "%-25s %-25s %-11s %-11s \n",$go[0],$go[1],$go[2],$go[3];
-        printf "%-25s %-25s %-11s %-11s \n",$come[0],$come[1],$come[2],$come[3];
-        &linie();
-        # immer das langen im kurzen suchen
-        # adist(kurz, lang)
-
+        if($Conf::log_level>=3){
+           print "\n### Checking vanising  $go   for matches:\n";
+           &linie();
+           printf "%-25s %-25s %-11s %-11s \n",$go[0],$go[1],$go[2],$go[3];
+           printf "%-25s %-25s %-11s %-11s \n",$come[0],$come[1],$come[2],$come[3];
+           &linie();
+        }
+        # immer das lange im kurzen suchen
         my $dist_name;
         my $dist_first;
 
@@ -1002,80 +1005,62 @@ foreach my $go (keys %will_go) {
                    $go[3]);
 
         my $dist_birth = adist($come[2], $go[2]);
-#        printf "%-25s %-25s %-11s \n",
-#               $dist_name,$dist_first,$dist_birth;
+
         # 1-Zeichen-Substitution in klasse
         if ($go[3] eq $come[3]) {
-            print "### Identical Class:         Yes!\n";
+            if($Conf::log_level>=3){
+               print "### Identical Class:         Yes!\n";
+	    }
             &single_change_match(@param, "30%", "30%","30%");
             &multi_change_match(@param, "15%", "15%","15%");
             &add_first_match(@param, "15%", "10%","15%");
             # marriage
             &single_change_match(@param, "100%", "0%","0%");
-
         } elsif (amatch($go[3], ["S1"], $come[3])){
-           print "### ApproxMatchClass:        Yes!\n";    
+            if($Conf::log_level>=3){
+              print "### ApproxMatchClass:        Yes!\n";    
+            }
             &single_change_match(@param, "15%", "15%", "15%");
             &multi_change_match(@param, "30%", "30%","30%");
             &add_first_match(@param, "15%", "10%","15%");
-
         } else {
-           print "### ApproxMatchClass:        No!\n";
+            if($Conf::log_level>=3){
+               print "### ApproxMatchClass:        No!\n";
+            }
             &single_change_match(@param, "0%","0%","0%");
             &multi_change_match(@param, "30%", "30%","30%");
             &add_first_match(@param, "15%", "10%","15%");
 
         }
-        print "\n",
     }
 }
 
 
-
-
-
-
-print "\nGo   --- Come \n";
-&linie();
 while (my ($identifier_sys,$identifier_file) = each %go_come){
-    print $identifier_sys , "    ", $identifier_file, "\n";
+    my $points = $come_points{$identifier_file};
 
-             # updating the hashes that sophomorix uses internally
-             &update_all_hashes($identifier_sys,
-                                $identifier_file,
-                               );
+    printf "  %-37s %-37s %-3sPts\n",
+           $identifier_sys,
+           $identifier_file,
+           $points;
+    # updating the hashes that sophomorix uses internally
+    &update_all_hashes($identifier_sys,$identifier_file);
 
+    # update the database
     my $login=$schueler_im_system_loginname{$identifier_file};
     my ($last,$first,$birth)=split(/;/, $identifier_file);
-    print "$last   $first   $birth \n\n";
-             &update_user_db_entry($login, 
-                            "Name=$first",
-                            "LastName=$last",
-                            "Birthday=$birth");
-
-
-### DB-DEpendant????????
-             # update the gecos-filed
-             my $gecos="$first"." "."$last";
-             system("usermod -c '$gecos' $login");
-
-
-
+    &update_user_db_entry($login, 
+                          "Name=$first",
+                          "LastName=$last",
+                          "Birthday=$birth");
+    # update the system
+    &update_gecos($login,$first,$last);
 }
 
-print "\n";
-
-print "\nCome   --- Points \n";
-&linie();
-while (($k,$v) = each %come_points){
-    print $k , "    ", $v, "\n";
+    &titel("auto_teach-in: ... $count accounts modified");
 }
 
 
-
-
-
-print "\n\nEnding AUTO-Teach-in\n";
 
 
 # ===========================================================================
@@ -1142,6 +1127,11 @@ print "\n\nEnding AUTO-Teach-in\n";
 
 
 # Problem bisher kill muss vor move kommen
+
+
+
+
+&show_all_hashes();
 
 
 # ===========================================================================
@@ -2218,6 +2208,7 @@ if (not exists $schueler_ok_hash{$identifier}){
 
 
 sub update_ids {
+   my $count=0;
    my $identifier_file = "";
    my $identifier_sys = "";
    my $login="";
@@ -2225,6 +2216,7 @@ sub update_ids {
    my $first="";
    my $birthday="";
    my $gecos="";
+   &titel("update_ids: Modifying the following accounts:");
    # walk through all UNID's
    while ( my ($unid_file, $identifier_file) = each %unid_ok_file ) { 
      if (exists $unid_ok_system{$unid_file}) {
@@ -2242,28 +2234,28 @@ sub update_ids {
                 print "Identical identifiers, I'm doing nothing\n";
 	    }
              next;
-         } elsif (amatch("$identifier_sys", ["i 40%"], $identifier_file) ) {
+         } elsif (amatch("$identifier_sys", ["i 50%"], $identifier_file) ) {
              # similar
              $login=$schueler_im_system_loginname{$identifier_sys};
              if($Conf::log_level>=3){
                 print "Looks like the same person --> ";
-                print "$login ($unid_file) will become: $identifier_file\n";
 	     }
+             print "$login (Unid: $unid_file) ",
+                   "$identifier_sys -> $identifier_file\n";
              # push the new identifier to the system
              ($last,$first,$birthday)=split(/;/, $identifier_file);
              &update_user_db_entry($login, "LastName=$last",
                                            "Name=$first",
                                            "Birthday=$birthday");
-### DB-DEpendant????????
-             # update the gecos-filed
-             $gecos="$first"." "."$last";
-             system("usermod -c '$gecos' $login");
+             # update the system
+             &update_gecos($login,$first,$last);
 
              # updating the hashes that sophomorix uses internally
              &update_all_hashes($identifier_sys,
                                 $identifier_file,
                                 $unid_file,
                                );
+             $count++;
          } else {
              # too different, promt the user, secretary, ... ???
              print "Looks like different persons to me!";
@@ -2285,6 +2277,7 @@ sub update_ids {
 	}
      }
    }
+   &titel("update_ids: ... $count accounts updated.");
 }
 
 
@@ -3068,7 +3061,7 @@ sub generate_kill_file {
 
 
 sub show_all_hashes {
-if($Conf::log_level>=1){
+if($Conf::log_level>=3){
    &linie();
    &titel("This is the contents of the hashes");
    &linie();
@@ -3189,12 +3182,9 @@ if($Conf::log_level>=1){
      printf "%-40s %-3s\n","$k","$v";
    }
    &linie();
-
-
+   &titel("End of all Hashes");
+   &linie();
  }# end loglevel
-     &linie();
-     &titel("End of all Hashes");
-     &linie();
 }
 
 
@@ -3210,13 +3200,17 @@ sub add_first_match {
        and amatch($_[4], ["$_[10]"], $_[5])
        ){
        my $ed_dist_points=$max_points-15*abs( adist($_[0],$_[1]))-15*abs( adist($_[4],$_[5])) ;
-       print "### add_first_match: \n",
-             "    Name  $_[0] and $_[1] have less than $_[8] distance\n",
-             "    First $_[3] is found in the beginning/end of $_[2]\n",
-             "    Birth $_[4] and $_[5] have less than $_[10] distance\n";
+       if($Conf::log_level>=3){
+          print "### add_first_match: \n",
+                "    Name  $_[0] and $_[1] have less than $_[8] distance\n",
+                "    First $_[3] is found in the beginning/end of $_[2]\n",
+                "    Birth $_[4] and $_[5] have less than $_[10] distance\n";
+       }
        &better_match($go,$come,$ed_dist_points);
     } else {
-       print "### add_first_match:         No match!\n",
+       if($Conf::log_level>=3){
+          print "### add_first_match:         No match!\n",
+       }
     }
 
 }
@@ -3235,14 +3229,18 @@ sub multi_change_match {
        and amatch($_[4], ["$_[10]"], $_[5])
        ){
        my $ed_dist_points=$max_points-10*abs( adist($_[0],$_[1]))-10*abs( adist($_[2],$_[3]))-10*abs( adist($_[4],$_[5])) ;
-       print "### multi_change_match: \n",
-             "   $_[0] and $_[1] are similar! (Limit: $_[8])\n",
-             "   $_[2] and $_[3] are similar! (Limit: $_[9])\n",
-             "   $_[4] and $_[5] are similar! (Limit: $_[10])\n",
-             "   ( => $ed_dist_points Points)\n";
+       if($Conf::log_level>=3){
+          print "### multi_change_match: \n",
+                "   $_[0] and $_[1] are similar! (Limit: $_[8])\n",
+                "   $_[2] and $_[3] are similar! (Limit: $_[9])\n",
+                "   $_[4] and $_[5] are similar! (Limit: $_[10])\n",
+                "   ( => $ed_dist_points Points)\n";
+       }
        &better_match($go,$come,$ed_dist_points);
     } else {
-       print "### multi_change_match:      No match!\n",
+       if($Conf::log_level>=3){
+          print "### multi_change_match:      No match!\n",
+       }
     }
 }
 
@@ -3263,34 +3261,44 @@ sub single_change_match {
        and $_[4] eq $_[5]
        ){
        my $ed_dist_points=$max_points-abs( adist($_[0],$_[1])*10 );
-       print "###  single_change_match:    $_[0] and $_[1] are similar!\n",
-             "     ( => $ed_dist_points Points)\n";
+       if($Conf::log_level>=3){
+          print "###  single_change_match:    $_[0] and $_[1] are similar!\n",
+                "     ( => $ed_dist_points Points)\n";
+       }
        &better_match($go,$come,$ed_dist_points);
     }elsif ($_[0] eq $_[1]
        and amatch($_[2], ["$_[9]"], $_[3])
        and $_[4] eq $_[5]
        ){
        my $ed_dist_points=$max_points-abs( adist($_[2],$_[3])*10 );
-       print "###  single_change_match:    $_[2] and $_[3] are similar!\n",
-             "     ( => $ed_dist_points Points)\n";
+       if($Conf::log_level>=3){
+          print "###  single_change_match:    $_[2] and $_[3] are similar!\n",
+                "     ( => $ed_dist_points Points)\n";
+       }
        &better_match($go,$come,$ed_dist_points);
     } elsif ($_[0] eq $_[1]
        and $_[2] eq $_[3]
        and amatch($_[4], ["$_[10]"], $_[5])
        ){
        my $ed_dist_points=$max_points-abs( adist($_[4],$_[5])*10 );
-       print "###  single_change_match:    $_[4] and $_[5] are similar!\n",
-             "     ( => $ed_dist_points Points)\n";
+       if($Conf::log_level>=3){
+          print "###  single_change_match:    $_[4] and $_[5] are similar!\n",
+                "     ( => $ed_dist_points Points)\n";
+       }
        &better_match($go,$come,$ed_dist_points);
     } elsif ($_[2] eq $_[3]
        and $_[4] eq  $_[5]
        ){
        my $ed_dist_points=77; # marriage
-       print "###  single_change_match(marriage): $_[0] / $_[1] has married\n",
-             "     ( => $ed_dist_points Points)\n";
+       if($Conf::log_level>=3){
+          print "###  single_change_match(marriage): $_[0] / $_[1] has married\n",
+                "     ( => $ed_dist_points Points)\n";
+       }
        &better_match($go,$come,$ed_dist_points);
     } else {
-       print "### single_change_match:     No match!\n",
+       if($Conf::log_level>=3){
+          print "### single_change_match:     No match!\n",
+       }
     }
 }
 
@@ -3305,16 +3313,19 @@ sub better_match {
         my $user=$go_come{$go};
 	$old_points=$come_points{$user}
     }
-#    if (exists $come_points{$come}){
-#	$old_points=$come_points{$come}
-#    }
-    print "### $come  has $old_points points, can get $points points.\n"; 
+    if($Conf::log_level>=3){
+       print "### $come  has $old_points points, can get $points points.\n"; 
+    }
     if ($points > $old_points){
-        print "### Updating: $come -> $go ($points pts) \n";
+        if($Conf::log_level>=3){
+           print "### Updating: $come -> $go ($points pts) \n";
+        }
 	$go_come{$go}=$come;
         $come_points{$come}=$points;
     } else {
-        print "### Not updating: Not enough points.\n";
+        if($Conf::log_level>=3){
+           print "### Not updating: Not enough points.\n";
+        }
     }
 }
 
