@@ -16,7 +16,8 @@ sophomorix-repair
    - update man page
 
 
-sophomorix-quota 
+sophomorix-quota
+   --check option --noninteractive 
    - option --auto-setup
        makes a usable quota-system
        does what it needs to have quota enabled and working
@@ -57,6 +58,7 @@ sophomorix-check
 
 sophomorix-add
    - create new users with quota
+   - add call sophomorix-quota --noninteractive
 
 
 sophomorix-move
@@ -222,6 +224,17 @@ Think about:
        1. automatically created projects:  department-spanning
        2. manually created projects by root
        3. Projects created by teachers
+
+Administration software:
+   schueler.txt:    class;lastname;firstname;birthday;unid;department;
+   lehrer.txt:    class;lastname;firstname;birthday;wish-loginname
+
+Software Vendors:
+   - SPLAN
+   - IBIS
+   - LUSD (mandatory in Hessen, Germany)
+   - Schulkartei
+
 
 
 
