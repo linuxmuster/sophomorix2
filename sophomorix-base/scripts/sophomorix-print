@@ -57,7 +57,7 @@ use if ${DevelConf::sys_db} eq 'files' ,
 
 my $schul_name="---";
 
-# Auslsen der Schulinfo-Datei
+# Auslesen der Schulinfo-Datei
 my $info_klasse="";
 my $info_abteilung="";
 my $info_klassen_typ="";
@@ -958,17 +958,17 @@ sub pdflatexen {
 sub latexen {
    &titel("latex is creating output ...");
    # PS aus $output_file_basename.tex erzeugen
-   system("latex ${DevelConf::druck_pfad}/$output_file_basename.tex $dev_null");
+   system("cd ${DevelConf::druck_pfad}; latex $output_file_basename.tex $dev_null");
    # 2x, wegen Inhaltsverzeichnis
-   system("latex ${DevelConf::druck_pfad}/$output_file_basename.tex $dev_null");
+   system("cd ${DevelConf::druck_pfad}; latex $output_file_basename.tex $dev_null");
    &titel("dvips is creating output ...");
-   system("dvips ${DevelConf::druck_pfad}/$output_file_basename.dvi $dev_null");
+   system("cd ${DevelConf::druck_pfad}; dvips $output_file_basename.dvi $dev_null");
    &titel("ps2pdf is creating output ...");
-   system("ps2pdf ${DevelConf::druck_pfad}/$output_file_basename.ps $dev_null");
-   system("rm $output_file_basename.log $dev_null");
-   system("rm $output_file_basename.toc $dev_null");
-   system("rm $output_file_basename.aux $dev_null");
-   system("mv $output_file_basename.* ${DevelConf::druck_pfad}/ $dev_null");
+   system("cd ${DevelConf::druck_pfad}; ps2pdf $output_file_basename.ps $dev_null");
+
+   system("rm ${DevelConf::druck_pfad}/$output_file_basename.log $dev_null");
+   system("rm ${DevelConf::druck_pfad}/$output_file_basename.toc $dev_null");
+   system("rm ${DevelConf::druck_pfad}/$output_file_basename.aux $dev_null");
 
    # Dateien für user unlesbar machen
    system("chmod 400 ${DevelConf::druck_pfad}/$output_file_basename.* $dev_null");

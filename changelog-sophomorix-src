@@ -97,7 +97,6 @@ sophomorix-print
    - what about projects, show project membership?
    - make configurable which print-output sophomorix-print generates 
      to save time (ps, pdf,csv,...) 
-   - why is is script interrupted when run in read-only directory
    
 
 sophomorix-project
@@ -221,6 +220,10 @@ RELEASES:
 
 
 1.2.0 (2005-02-?)
+   - Fixed Bug where sophomorix-print generated files in the directory 
+     in wich it was called. This made the script abort without producing an error,
+     when executed in a nfs mounted read-only filesystem.
+
    - sophomorix-user -s username
      added options zo the underlying quota command to
        - not sho remot filesystems
