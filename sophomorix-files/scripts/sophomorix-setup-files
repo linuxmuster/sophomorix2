@@ -1,0 +1,38 @@
+#!/usr/bin/perl 
+# Dieses Script (sophomorix-setup-files) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+
+# Problems: What if ldap is used?
+# Should sophomorix-files.postinst call this script?
+
+
+# This Script adds users that are necessary to use sophomorix-files 
+use Sophomorix::SophomorixBase; 
+# It should be run as postinst
+
+# Einlesen der Konfigurationsdatei für Entwickler
+{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+
+print "##### sophomorix-setup-files is configuring the system for sophomorix-files ...\n";
+
+# gruppe admin anlegen
+#system("groupadd -g 1000 admin");
+system("groupadd admin");
+
+# gruppe lehrer anlegen
+#system("groupadd -g 1002 lehrer");
+system("groupadd lehrer");
+
+# admin anlegen
+#system("useradd -u 500 -g admin -G lehrer -d /home/admin -s /bin/bash -c Windows_Systemverwalter -p admin!  admin");
+system("useradd -g admin -d /home/admin -s /bin/bash -c Windows_Systemverwalter -p admin!  admin");
+
+# admin muss in der Gruppe lehrer Mitglied sein
+# (primäre Gruppe bleibt admin)
+#system("usermod -G lehrer admin");
+system("gpasswd -a admin lehrer");
+
+
