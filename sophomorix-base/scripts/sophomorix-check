@@ -304,6 +304,9 @@ my %unid_ok_file=();
 my %unid_ok_system=();
 my %schueler_ok_wunsch_login_hash=();
 my %schueler_ok_wunsch_passwort_hash=();
+my %schueler_im_system_exit_admin_class=();
+my %schueler_im_system_account_type=();
+ 
 my $schueler_weg_anzahl=0;
 my $schueler_hinzu_anzahl=0;
 my $schueler_zuversetzen_anzahl=0;
@@ -502,7 +505,9 @@ my ($ref_login,
     $ref_subclass,
     $ref_toleration_date,
     $ref_deactivation_date,
-    $ref_unid_identifier
+    $ref_unid_identifier,
+    $ref_exit_adminclass,
+    $ref_account_type,
    ) = &get_sys_users();
 
 # identifier - klasse (ohne k = sophomorixAdminClass)
@@ -526,6 +531,11 @@ my ($ref_login,
 # unid - sophomorixIdentifier
 %unid_ok_system = %$ref_unid_identifier;
 
+# identifier - ExitAdminClass
+%schueler_im_system_exit_admin_class = %$ref_exit_adminclass;
+
+# identifier - AccountType 
+%schueler_im_system_account_type = %$ref_account_type;
 
 
 #my $neu = $ref_unid_identifier->{"werner;ruediger;17.11.1986"};
@@ -940,11 +950,11 @@ if($Conf::log_level>=3){
 if($Conf::log_level>=3){
    &titel("UNIDs im System");
    print("UNID:",
-         "                          Identifier:\n");
+         "                                    Identifier:\n");
    print("=======================================",
          "========================================\n");
    while (($k,$v) = each %unid_ok_system){
-     printf "%-30s %3s\n","$k","$v";
+     printf "%-40s %-30s\n","$k","$v";
    }
  }
 
@@ -954,11 +964,11 @@ if($Conf::log_level>=3){
 if($Conf::log_level>=3){
    &titel("UNIDs in Files");
    print("UNID:",
-         "                          Identifier:\n");
+         "                                    Identifier:\n");
    print("=======================================",
          "========================================\n");
    while (($k,$v) = each %unid_ok_file){
-     printf "%-30s %3s\n","$k","$v";
+     printf "%-40s %-30s\n","$k","$v";
    }
 }
 
@@ -969,20 +979,51 @@ if($Conf::log_level>=3){
 if($Conf::log_level>=3){
    &titel("Status in Files");
    print("Identifier:",
-         "                          Status:\n");
+         "                              Status:\n");
    print("=======================================",
          "========================================\n");
    while (($k,$v) = each %sophomorix_status){
-     printf "%-30s %3s\n","$k","$v";
+     printf "%-40s %-3s\n","$k","$v";
    }
 }
 
+
+# Ausgabe aller ExitAdminClass, die schon im System sind
+# mit identifier
+if($Conf::log_level>=3){
+   &titel("ExitAdminClass im System");
+   print("Identifier:",
+         "                              ExitAdminClass:\n");
+   print("=======================================",
+         "========================================\n");
+   while (($k,$v) = each %schueler_im_system_exit_admin_class){
+     printf "%-40s %-12s\n","$k","$v";
+   }
+ }
+
+
+
+# Ausgabe aller AccountType, die schon im System sind
+# mit identifier
+if($Conf::log_level>=3){
+   &titel("AccountType im System");
+   print("Identifier:",
+         "                              AccountType:\n");
+   print("=======================================",
+         "========================================\n");
+   while (($k,$v) = each %schueler_im_system_account_type){
+     printf "%-40s %-3s\n","$k","$v";
+   }
+ }
 
 
 # ===========================================================================
 # Load UNIDS into the SYSTEM
 # ===========================================================================
 &update_ids();
+
+
+# auto teach-in
 
 
 # ===========================================================================
