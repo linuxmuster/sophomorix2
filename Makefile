@@ -34,7 +34,7 @@ SAMBADIR=$(DESTDIR)/var/lib/samba
 # WEBMINCONFDIR ML und Debian
 WEBMINCONFDIR=$(DESTDIR)/etc/webmin
 
-all: install-base install-files install-developer
+all: install-base install-files install-developer install-webmin install-webmin-classmanager
 
 
 # sophomorix-base
@@ -66,6 +66,11 @@ install-files:
 	install -d -m755 -oroot -groot $(PERLMOD)
 	install -oroot -groot --mode=0644 sophomorix-files/modules/Sophomorix*[a-z1-9] $(PERLMOD)
 
+install-ldap:
+	##### Copy the module
+	install -d -m755 -oroot -groot $(PERLMOD)
+	install -oroot -groot --mode=0644 sophomorix-ldap/modules/Sophomorix*[a-z1-9] $(PERLMOD)
+
 
 install-developer:
 	##### tset and developement tools
@@ -73,6 +78,23 @@ install-developer:
 	##### Copy the module
 	install -d -m755 -oroot -groot $(PERLMOD)
 	install -oroot -groot --mode=0644 sophomorix-developer/modules/Sophomorix*[a-z1-9] $(PERLMOD)
+
+
+install-webmin:
+	install -d $(DESTDIR)/usr/sbin
+	install -oroot -groot --mode=0744 sophomorix-webmin/scripts/sophomorix-*[a-z1-9] $(DESTDIR)/usr/sbin
+	##### configs for admin
+	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/user
+	install -oroot -groot --mode=0600 sophomorix-webmin/config/*[!CVS] $(DESTDIR)/etc/sophomorix/user
+	##### configs for developers
+	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/devel/user
+	install -oroot -groot --mode=0700 sophomorix-webmin/config-devel/*.txt $(DESTDIR)/etc/sophomorix/devel/user
+	# webmin base-configuration
+	# Webmin-Kategorien
+	install -d -m755 -oroot -groot $(WEBMINCONFDIR)
+	install -oroot -groot --mode=0644 sophomorix-webmin/config-webmin/*[a-z] $(WEBMINCONFDIR)
+#	install -oroot -groot --mode=0644 webmin/webmin.cats $(WEBMINCONFDIR)
+
 
 
 
@@ -89,14 +111,17 @@ install-developer:
 
 
 # sophomorix-webmin
-#install-webmin-classmanager:
-#	# configs for developers
-#	install -d -m700 -oroot -groot $(WEBMINDEBDIR)/classmanager
-#	install -oroot -groot --mode=0700 sophomorix-webmin-classmanager/*.cgi $(WEBMINDEBDIR)/classmanager
-#	install -d -m700 -oroot -groot $(WEBMINDEBDIR)/classmanager/help
-#	install -oroot -groot --mode=0700 sophomorix-webmin-classmanager/help/*.html $(WEBMINDEBDIR)/classmanager/help
-#	install -d -m700 -oroot -groot $(WEBMINDEBDIR)/classmanager/images
-#	install -oroot -groot --mode=0700 sophomorix-webmin-classmanager/images/ $(WEBMINDEBDIR)/classmanager/help
+install-webmin-classmanager:
+	# the module
+	install -d -m755 -oroot -groot $(WEBMINDEBDIR)/classmanager
+	install -oroot -groot --mode=0755 sophomorix-webmin-classmanager/classmanager/*.cgi $(WEBMINDEBDIR)/classmanager
+	install -oroot -groot --mode=0755 sophomorix-webmin-classmanager/classmanager/module.info $(WEBMINDEBDIR)/classmanager
+	install -d -m755 -oroot -groot $(WEBMINDEBDIR)/classmanager/help
+	install -oroot -groot --mode=0644 sophomorix-webmin-classmanager/classmanager/help/*.html $(WEBMINDEBDIR)/classmanager/help
+	install -d -m755 -oroot -groot $(WEBMINDEBDIR)/classmanager/images
+	install -oroot -groot --mode=0644 sophomorix-webmin-classmanager/classmanager/images/*.gif $(WEBMINDEBDIR)/classmanager/images
+	install -d -m755 -oroot -groot $(WEBMINDEBDIR)/classmanager/lang
+	install -oroot -groot --mode=0644 sophomorix-webmin-classmanager/classmanager/lang/*[!CVS] $(WEBMINDEBDIR)/classmanager/lang
 
 
 

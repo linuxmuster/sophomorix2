@@ -209,7 +209,6 @@ while(<KILL>){
        }
      }
 
-
      #####################################
      # Ermittelte Daten ausgeben
      #####################################
@@ -248,40 +247,7 @@ while(<KILL>){
         print "Nur Test:        $DevelConf::protokoll_datei modifizieren\n"
       }
      
-      ##########################################
-      # user aus der Duldungsdatei löschen 
-      ########################################## 
-#      if ($DevelConf::testen==0) {
-#         # aus Hash entfernen
-#         delete($user_duldungsbeginn{$identifier_to_kill});
-#         # neue Datei öffnen
-#         open(DULDUNG,">$DevelConf::dyn_config_pfad/user-duldungsbeginn");
-#            while (($k,$v) = each %user_duldungsbeginn){
-#                print DULDUNG $k , "::", $v, "\n";
-#            }
-#         close(DULDUNG);
-#      } else {
-#        print "Nur Test:        ",
-#              "$DevelConf::dyn_config_pfad/user-duldungsbeginn modifizieren\n"
-#      }
 
-      ############################################
-      # user aus der Deaktivierungsdatei löschen 
-      ############################################      
-#      if ($DevelConf::testen==0) {
-#         # aus Hash entfernen
-#         delete($user_deaktivierungsbeginn{$identifier_to_kill});
-#         # neue Datei öffnen
-#         open(DEAKTIVIERUNG,">$DevelConf::dyn_config_pfad/user-deaktivierungsbeginn");
-#            while (($k,$v) = each %user_deaktivierungsbeginn){
-#                print DEAKTIVIERUNG $k , "::", $v, "\n";
-#            }
-#         close(DEAKTIVIERUNG);
-#      } else {
-#        print "Nur Test:        ",
-#              "$DevelConf::dyn_config_pfad/user-deaktivierungsbeginn modifizieren\n"
-#      }
-#
       ############################################
       # Zusätzlich zu tun
       ############################################

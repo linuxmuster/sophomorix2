@@ -148,11 +148,15 @@ sub linie {
 sub titel {
    my ($a) = @_;
 
+   if($Conf::log_level>=2){
    print  "\n#########################################", 
                             "#######################################\n";
    printf "%-3s %-73s %-2s"," #","$a","#";
    print  "\n########################################",
                             "########################################\n";
+   } else {
+         printf "%-3s %-73s %-3s\n", "#####", "$a", "#####";
+   }
 }
 
 
@@ -1466,11 +1470,16 @@ sub user_deaktivieren {
 # ===========================================================================
 sub user_reaktivieren {
    my ($loginname) = @_;
-   # samba-login enabeln
-   my $string="smbpasswd -e $loginname >/dev/null";
+   # samba
+   my $samba_string="smbpasswd -e $loginname >/dev/null";
+   system("$samba_string");
+   # linux
+   my $linux_string="usermod -U $loginname >/dev/null";
+   system("$linux_string");
    if($Conf::log_level>=2){
-      print "User $loginname wird reaktiviert:\n";
-      print "  $string";
+      print "User $loginname wird deaktiviert:\n";
+      print "  Samba:  $samba_string\n";
+      print "  Linux:  $linux_string\n";
    }
    system("smbpasswd -e $loginname >/dev/null");
    # linux-login

@@ -4,13 +4,6 @@
 # Bei Fehlern wenden Sie sich bitte an mich.
 # jeffbeck@web.de  oder  jeffbeck@gmx.de
 
-
-# Todo: 
-# Subroutines open report files swap-order einruecken und Variablen 
-# sauber uebergeben
-# Vorcheck in subroutine packen
-# $DevelConf::ldap fällt weg
-
 # ===========================================================================
 # Bibliotheken
 # ===========================================================================
@@ -20,21 +13,33 @@ Getopt::Long::Configure ("bundling");
 #use Schedule::at;
 use String::Approx 'amatch';
 use Sophomorix::SophomorixBase;
-use Sophomorix::SophomorixFiles;
+#use Sophomorix::SophomorixFiles;
 use Time::Local;
 use Time::localtime;
 use Term::ANSIColor qw(:constants); # farbiger Text RED, BLUE, ...
 # nach jedem Printbefehl wieder auf Standardfarbe zurücksetzen
 $Term::ANSIColor::AUTORESET = 1;
 
+# loading the Module for the Database-Backend 
+if (${DevelConf::db_backend} eq 'files'){
+    #print "Using ${DevelConf::db_backend} \n";
+    require Sophomorix::SophomorixFiles;
+    import Sophomorix::SophomorixFiles;
+#    use Sophomorix::SophomorixFiles;   # tut nicht
+} elsif (${DevelConf::db_backend} eq 'ldap'){
+    #print "Using $DevelConf::db_backend \n";
+    require Sophomorix::SophomorixLDAP;
+    import Sophomorix::SophomorixLDAP;
+#    use Sophomorix::SophomorixLDAP;   # tut nicht
+} elsif (${DevelConf::db_backend} eq 'postgresql'){
+    #print "Using $DevelConf::db_backend \n";
+    require Sophomorix::SophomorixPostgreSQL;
+    import Sophomorix::SophomorixLPostgreSQL;
+#    use Sophomorix::SophomorixPostgreSQL;   # tut nicht
+}
+
 # Einlesen der Konfigurationsdatei für Entwickler
 #{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
-
-# jeffbecks Bibliothek und
-# Einlesen der Konfigurationsdatei
-#require "${DevelConf::library_pfad}/sophomorix-lib-base";
-#require "${DevelConf::library_pfad}/sophomorix-lib-files";
-#require "${DevelConf::library_pfad}/sophomorix-libldap";
 
 # Nur als Dummy(Warnings verhindern)
 if($Conf::drei_strichpunkt){};
@@ -44,11 +49,10 @@ if($Conf::geburts_jahreszahl_stop){};
 if($DevelConf::var_lib_pfad){};
 if($DevelConf::library_pfad){};
 if($DevelConf::druck_pfad){};
-#if($DevelConf::subklassen){};
-#if($DevelConf::apache_root){};
 if($DevelConf::debian){};
 
-$DevelConf::ldap="no";
+# show the Database Module that is loaded
+&show_modulename();
 
 # Es wird eine Datei sophomorix.ok (schueler+lehrer) erzeugt 
 # Welche Dateien mit Userdaten sollen verarbeitet werden
@@ -69,7 +73,6 @@ my  @schueler_to_check_dateien=(
 # lehrer.txt ordnen
 # =========================================================================
 
-# faellt weg/nur alphabetisch, da zusatzdaten in ldap
 &check_datei_touch("${DevelConf::users_pfad}/lehrer.txt");
 &lehrer_ordnen();
 
@@ -114,7 +117,7 @@ if ($help==1) {
    print"\nDabei sind\n\n";
    print"   schueler.txt.tausch ist aus schueler.txt entstanden\n";
    print"   extrakurse.schueler ist aus extrakurse.txt entstanden\n";
-   print "\n\n";
+#   print "\n\n";
 
    # gemeinsamer Hilfetext
    &help_text_all;
@@ -204,12 +207,7 @@ my %user_duldungsbeginn=();
 my %user_deaktivierungsbeginn=();
 
 # Daten aus user.reaktiviert einlesen in eine Hash-Tabelle
-my %user_reaktiviert=();
-
-# ??? wird direkt aus ldap ermittelt
-# Hash mit key=identifier value=login vorhandener User anlegen
-# das ist doch doppelt
-#my %ident_login=();
+#my %user_reaktiviert=();
 
 # Fehlersuche 
 my $k="";
@@ -375,24 +373,10 @@ mkdir("${DevelConf::ergebnis_pfad}",0700)
 &check_verzeichnis_mkdir("${DevelConf::dyn_config_pfad}");
 &check_verzeichnis_mkdir("${DevelConf::druck_pfad}");
 
-#&check_verzeichnis_mkdir("${DevelConf::apache_root}/userdata");
-
-
 &check_datei_touch("${DevelConf::pruef_pfad}/user.reaktiviert");
-&check_datei_touch("${DevelConf::config_pfad}/teach-in.txt");
+#&check_datei_touch("${DevelConf::config_pfad}/teach-in.txt");
 #&check_datei_touch("${DevelConf::users_pfad}/lehrer.txt");
 &check_datei_touch("${DevelConf::dyn_config_pfad}/user.protokoll");
-&check_datei_touch("${DevelConf::dyn_config_pfad}/user-duldungsbeginn");
-&check_datei_touch("${DevelConf::dyn_config_pfad}/user-deaktivierungsbeginn");
-
-# ===========================================================================
-# Start-Logo ausgeben
-# ===========================================================================
-print "\n";
-
-&titel("sophomorix-check startet ...");
-print "Debian: $DevelConf::debian\n";
-print "openldap: $DevelConf::ldap\n";
 
 # ===========================================================================
 # Heutiges Datum ermitteln
@@ -400,7 +384,6 @@ print "openldap: $DevelConf::ldap\n";
 
 ## Epochenzeit in Sekunden seit 1.1.1970. 
 $epoche_jetzt=time;
-$heute=&zeit($epoche_jetzt);
 
 my $jetzt=localtime($epoche_jetzt);
 $sec=$jetzt->sec;
@@ -410,10 +393,10 @@ $tag=$jetzt->mday;
 $monat=$jetzt->mon+1;
 $jahr=$jetzt->year+1900;
 
-$heute="$tag.$monat.$jahr";
+$heute=`date +%d.%m.%Y`;
+chomp($heute);
 
-print "Heute: $heute \n";
-print "Zeit:  $hours Uhr $min Minuten $sec Sekunden\n\n";
+&titel("Date: $heute     Time: $hours Uhr $min Minuten $sec Sekunden");
 
 # ===========================================================================
 # Duldungsdatum und Deaktivierungsdatum ermitteln
@@ -445,7 +428,7 @@ if($Conf::log_level>=3){
    print "Deaktivierte Lehrer bleiben deaktiviert bis:  $epoche_deaktivierung_bis_lehrer ",
       &zeit($epoche_deaktivierung_bis_lehrer)," ($Conf::lehrer_deaktivierung_tage Tage)\n";
 
-   print "\n";
+#   print "\n";
 }
 
 
@@ -505,8 +488,7 @@ close(SCHUELERNEUANZULEGENVOR);
 # ===========================================================================
 # user.reaktiviert einlesen in Hash
 # ===========================================================================
-# ??? ldap ????
-%user_reaktiviert=&get_user_reaktiviert;
+#%user_reaktiviert=&get_user_reaktiviert;
 
 
 # ===========================================================================
@@ -520,10 +502,9 @@ close(SCHUELERNEUANZULEGENVOR);
 &open_report_files();
 
 # ===========================================================================
-# Get information of all ldap-users on the ldap-server
+# Get information from the System
 # ===========================================================================
 &titel("Asking the system for users ...");
-print "This can take a minute ...\n";
 
 my ($ref_login, 
     $ref_adminclass,
@@ -574,15 +555,11 @@ if($Conf::log_level>=3){
 }
 
 
-# ldap: OK
-# ???????????????????? oder besser status-Feld in group-object?
-
 # ===========================================================================
 # Einlesen der Entfern-Klassen in eine Hash-Tabelle
 # ===========================================================================
 %entfern_klassen = &get_entfern_klassen();
 
-#ldap: OK
 # ===========================================================================
 # Einlesen der Sperr-Klassen in eine Hash-Tabelle
 # ===========================================================================
@@ -603,7 +580,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
    # wunsch-login leeren, da er nicht von jedem Datensatz überschrieben wird
    $wunsch_login="wunschlogin";
    $wunsch_passwort="erstpw";
-   print "\n\n";
+#   print "\n\n";
    &titel("Bearbeite ${schuelerdatei} ...");
 
 
@@ -618,8 +595,6 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
 
    open(USERDATEI, "${schuelerdatei}") || die "Fehler: $! ${schuelerdatei} nicht gefunden!"; 
 
-
-print("\n");
     while(<USERDATEI>){
        $wunsch_login="";
        $unid="";
@@ -849,12 +824,12 @@ print("\n");
 
             # Datensatz aus user.reaktiviert herausnehmen, falls dort vorhanden außer 
             # falls user.reaktiviert gerade bearbeitet wird
-            if(exists $user_reaktiviert{$identifier_ok} 
-               and $schuelerdatei ne $schueler_to_check_dateien[4]) {
-               # Entfernen
-               print "$identifier_ok aus user.reaktiviert entfernen\n";
-               delete($user_reaktiviert{$identifier_ok});
-            }
+#            if(exists $user_reaktiviert{$identifier_ok} 
+#               and $schuelerdatei ne $schueler_to_check_dateien[4]) {
+#               # Entfernen
+#               print "$identifier_ok aus user.reaktiviert entfernen\n";
+#               delete($user_reaktiviert{$identifier_ok});
+#            }
 
             # Subklassen bilden
             if (exists $schueler_subklassen{$identifier_ok}) {
@@ -880,6 +855,9 @@ print("\n");
             # Kein Fehler aufgetreten, also in sophomorix.ok schreiben:
             # ============================================================
             $schueler_ok_anzahl++;
+
+
+
             print SOPHOMORIXOK "$datensatz_ok\n"; # neu zusammengesetzt
             # In sophomorix.ok sind nun die korrigierten Datensätze 
             # aus schueler.txt, ....   
@@ -944,7 +922,7 @@ if ($Conf::splan_sternchenlkassen_filtern eq "ja") {
 # mit ihrer Klasse
 if($Conf::log_level>=3){
    &titel("Gebe den Inhalt von sophomorix.ok aus ... und die Klassen");
-   print("User in sophomorix.ok:",
+   print("User in sophomorix.ok(schueler_ok_hash):",
          "                                       Linux-Gruppe:\n");
    print("===============================================================================\n");
    while (($k,$v) = each %schueler_ok_hash){
@@ -1020,7 +998,7 @@ if($Conf::log_level>=3){
 # ===========================================================================
 # Datei öffnen, in die die zu löschenden Schüler geschrieben werden
 # ===========================================================================
-&generate_kill_file();
+#&generate_kill_file();
 
 # ===========================================================================
 # Tolerierte User ermitteln und Versetzen nach Dachboden/Speicher schreiben
@@ -1031,10 +1009,13 @@ if($Conf::log_level>=3){
 &generate_move_file();
 
 
+
 # ===========================================================================
 # Datei öffnen, in die zu deaktivierende Schüler geschrieben werden
 # ===========================================================================
 &update_deactivation_data();
+
+&generate_kill_file();
 
 # ===========================================================================
 # Datei rezeugen, in die die neuen User geschrieben werden
@@ -1052,32 +1033,33 @@ if($Conf::log_level>=3){
 # ===========================================================================
 if($schueler_hinzu_anzahl!=0 && ($schueler_duldungs_beginn_anzahl!=0 or $schueler_weg_anzahl!=0)){
 
-print RED "\nSie sollten sophomorix-teach-in aufrufen!";
+print RED "Sie sollten sophomorix-teach-in aufrufen!\n";
 
 }
 
 # ===========================================================================
 # user.reaktiviert neu schreiben
 # ===========================================================================
-  open(NEWREAKTIV, 
-       ">${DevelConf::pruef_pfad}/user.reaktiviert.new") 
-       || die "Kann ${DevelConf::pruef_pfad}/user.reaktiviert.new nicht öffnen";
-     # hash alphabetisch geordnet reinschreiben
-     @liste=();
-     while(($k,$v) = each %user_reaktiviert){
-        my $string = "$v".";"."$k;\n";
-        push (@liste, $string);
-      }
-     @liste = sort @liste;
-     foreach my $wert (@liste) {
-        print NEWREAKTIV $wert;
-     }
-     close(NEWREAKTIV);
-     # Ersetzen
-     rename("${DevelConf::pruef_pfad}/user.reaktiviert",
-            "${DevelConf::pruef_pfad}/user.reaktiviert.old" );
-     rename("${DevelConf::pruef_pfad}/user.reaktiviert.new",
-            "${DevelConf::pruef_pfad}/user.reaktiviert" );
+#  open(NEWREAKTIV, 
+#       ">${DevelConf::pruef_pfad}/user.reaktiviert.new") 
+#       || die "Kann ${DevelConf::pruef_pfad}/user.reaktiviert.new nicht öffnen";
+#     # hash alphabetisch geordnet reinschreiben
+#     @liste=();
+#     while(($k,$v) = each %user_reaktiviert){
+#        my $string = "$v".";"."$k;\n";
+#        push (@liste, $string);
+#      }
+#     @liste = sort @liste;
+#     foreach my $wert (@liste) {
+#        print NEWREAKTIV $wert;
+#     }
+#     close(NEWREAKTIV);
+#     # Ersetzen
+#     rename("${DevelConf::pruef_pfad}/user.reaktiviert",
+#            "${DevelConf::pruef_pfad}/user.reaktiviert.old" );
+#     rename("${DevelConf::pruef_pfad}/user.reaktiviert.new",
+#            "${DevelConf::pruef_pfad}/user.reaktiviert" );
+#
 
 
 
@@ -1099,14 +1081,14 @@ print RED "\nSie sollten sophomorix-teach-in aufrufen!";
 
 
 
- if($Conf::log_level>=3){
-      print "Inhalt von user.reaktiviert am Programmende:\n";     
-      print "Identifier                          Klasse\n";
-      &linie;
-      while (($k,$v) = each %user_reaktiviert) {
-         printf "%-35s %3s\n","$k","$v";
-      }
-    }
+ #if($Conf::log_level>=3){
+ #     print "Inhalt von user.reaktiviert am Programmende:\n";     
+ #     print "Identifier                          Klasse\n";
+ #     &linie;
+ #     while (($k,$v) = each %user_reaktiviert) {
+ #        printf "%-35s %3s\n","$k","$v";
+ #     }
+ #   }
 
 
 # ===========================================================================
@@ -1123,8 +1105,7 @@ print RED "\nSie sollten sophomorix-teach-in aufrufen!";
 # ===========================================================================
 # Ende des Scripts
 # ===========================================================================
-print "\n\n";
-&titel("... sophomorix-check beendet sich jetzt.");
+&titel("... sophomorix-check terminated regularly");
 
 
 
@@ -1156,9 +1137,6 @@ open(SCHUELERNEUANZULEGENVOR,
 
 # ===========================================================================
 # Tauschen oder nicht
-if($Conf::log_level>=1){
-   &titel("Tauschen von FELDERN");
-}
 if($Conf::log_level>=2){
    print "Eingestellt in sophomorix.conf ist:\n";
 }
@@ -1201,7 +1179,7 @@ if($Conf::vorname_nachname_tausch==1){
        print "\n         Tausche Feld 2 mit Feld 3!\n";
     }
     if($Conf::log_level>=3){
-       print "\nErzeuge ergebnis/schueler.txt.tausch\n";
+       print "Erzeuge ergebnis/schueler.txt.tausch\n";
        print "mit getauschtem Vor- und Nachnamen\n";
      }
     $Conf::vorname_nachname_tausch=1; # für den report merken
@@ -1218,7 +1196,7 @@ if($Conf::vorname_nachname_tausch==1){
     }
 } else {
     # kein Tausch durchführen
-      print "\nErzeuge ergebnis/schueler.txt.tausch (Ohne Feldertausch)\n\n";
+      &titel("Erzeuge ergebnis/schueler.txt.tausch (Ohne Feldertausch)");
 
     while(<SCHUELERNEUANZULEGENVOR>){
        s/ //g;
@@ -1337,11 +1315,9 @@ sub get_entfern_klassen {
        if($Conf::log_level>=3){
           print "    Epochenzeit $entfern_datum_epoche";
         }
-       print "\n";
        ## Werte in hash-Tabelle schreiben
        $hash{"$entfern_klasse"}="$entfern_datum_epoche";
    }
-    print "\n";
    close(DELCLASSES);
    return %hash;
 }
@@ -1397,12 +1373,10 @@ sub get_sperrklassen {
        if($Conf::log_level>=3){
           print "    Epochenzeit $sperrdatum_epoche";
        }
-       print "\n";
        ## Werte in hash-Tabelle schreiben
        $hash{"$sperrklasse"}="$sperrdatum_epoche";
     }
     ## Abfragen der Hashtabelle, Beispiel
-    print "\n";
     close(SPERRKLASSEN);
     return %hash;
 }
@@ -1737,6 +1711,7 @@ sub is_in_remove_class {
 
 
 sub add_user_to_queue {
+#    my $unid="";
     my ($user, $wunsch_login, $wunsch_passwort) = @_;
     # Zeile zerlegen
     my ($admin_class,$okfeld2,$okfeld3,$okfeld4,$unid)=split(/;/, $user);
@@ -1750,7 +1725,7 @@ sub add_user_to_queue {
 
     # Sub-Klasse beruecksichtigen
     if (exists $schueler_subklassen{$identifier}) {
-       print "$identifier ist in subklasse -$schueler_subklassen{$identifier} \n";
+    #   print "$identifier ist in subklasse -$schueler_subklassen{$identifier} \n";
        $real_class="$real_class"."-"."$schueler_subklassen{$identifier}";  
     }
 
@@ -1759,10 +1734,12 @@ if (not exists $schueler_ok_hash{$identifier}){
 }
 
     # Unid in hash-table einordnen, falls moeglich
-    if (not exists $schueler_ok_hash{$identifier} and $unid ne ""){
+#    if (not exists $schueler_ok_hash{$identifier} and $unid ne ""){
+    if ($unid ne ""){
        # Eintrag in die Hash-Tabelle, falls identifier noch nicht vorhanden
        $unid_ok_file{$unid}="$identifier";
     } elsif ($unid eq ""){
+       #	print "UNID is empty\n";
        # nix tun, da leer
     } else {
        # Fehler
@@ -1829,44 +1806,51 @@ if (not exists $schueler_ok_hash{$identifier}){
 }
 
 
-
-
-
-
 sub update_ids {
    my $identifier_file = "";
    my $identifier_sys = "";
+   my $login="";
+   my $last="";
+   my $first="";
+   my $birthday="";
+   my $gecos="";
    # walk through all UNID's
    while ( my ($unid_file, $identifier_file) = each %unid_ok_file ) { 
-      print "\n";
-      print "UNID: $unid \n";
-      print "Sorting: \n";
-      print "UNID in File      :  $unid_file \n";
-      print "Identifier in File:  $identifier_file \n";
-
      if (exists $unid_ok_system{$unid_file}) {
          $identifier_sys = $unid_ok_system{$unid_file};
+         if($Conf::log_level>=3){
+             print "\nUNID $unid_file exists in the \n",
+                   "  System with identifier  : $identifier_sys\n";
+             print "  Files  with identifier  : $identifier_file \n";
+         }
          # UNID exists in system, trying to update identifier
-         print "UNID $unid_file exists in the \n",
-               "  System with identifier  : $identifier_sys\n";
-         print "  Files  with identifier  : $identifier_file \n";
          # are they the same Person?
-
          if ($identifier_file eq $identifier_sys) {
              # identical, do nothing
-             print "Identical identifiers, I'm doing nothing\n";
+             if($Conf::log_level>=3){
+                print "Identical identifiers, I'm doing nothing\n";
+	    }
              next;
          } elsif (amatch("$identifier_sys", ["i 40%"], $identifier_file) ) {
              # similar
-             print "Looks like the same person\n";
-             print "$unid_file will get $identifier_file\n";
+             $login=$schueler_im_system_loginname{$identifier_sys};
+             if($Conf::log_level>=3){
+                print "Looks like the same person --> ";
+                print "$login ($unid_file) will become: $identifier_file\n";
+	     }
              # push the new identifier to the system
-             &update_identifier($unid_file, $identifier_file);
+             ($last,$first,$birthday)=split(/;/, $identifier_file);
+             &update_user_db_entry($login, "LastName=$last",
+                                           "Name=$first",
+                                           "Birthday=$birthday");
+### DB-DEpendant????????
+             $gecos="$first"." "."$last";
+             system("usermod -c '$gecos' $login");
              # update the identifier in the hashes 
-             print "\nReplacing in the System-Hash\n",
-                   "   $identifier_sys\n",
-                   "with \n",
-                   "   $identifier_file \n";
+#             print "\nReplacing in the System-Hash\n",
+#                   "   $identifier_sys\n",
+#                   "with \n",
+#                   "   $identifier_file \n";
              # Hashes, in which entries MUST exist
              my $old_class = $schueler_im_system_hash{$identifier_sys};
              delete $schueler_im_system_hash{$identifier_sys};
@@ -1916,7 +1900,12 @@ sub update_ids {
          print "UNID    has identifier  $identifier_file  \n";
          if (exists $schueler_im_system_hash{$identifier_file} ) {
             print "Identifier  $identifier_file  exists in the system\n";
-            &upload_unid($identifier_file,$unid_file);
+             # login des identifier holen
+	    my $login=$schueler_im_system_loginname{$identifier_file};
+	    print "Updating $login\n";
+	    &update_user_db_entry($login, "Unid=$unid_file");
+             # unid updaten
+#            &upload_unid($identifier_file,$unid_file);
 	}
      }
    }
@@ -1938,7 +1927,7 @@ sub report_error {
     printf REPORTSEKRETARIAT "%38s:  %-30s\n" ,
                              "ORIGINALDATENSATZ ", 
                              $zeile_orig;
-    print "##### Fehlerhafter Datensatz (Zeile: $zeilen_anzahl_datei)\n","$_\n";
+    print  "##### Fehlerhafter Datensatz (Zeile: $zeilen_anzahl_datei)\n","$_\n";
     if ($feld_klasse_leer==1){
 	print REPORTSEKRETARIAT "   - Feld Klasse ist leer\n";
         print "   - Feld Klasse ist leer\n";
@@ -1981,7 +1970,7 @@ sub report_error {
               "Zeichen/leer\n";
 	$datum_unrealistisch_anzahl++;
     };
-    print "\n";
+#    print "\n";
 }
 
 
@@ -2331,12 +2320,20 @@ sub update_deactivation_data {
        # Check if user reappears in files
        if (exists $schueler_ok_hash{$identifier}) {
            # taucht wieder auf -> d
-           print "$identifier ist wieder da\n";
+          print "$identifier ist wieder da\n";
+          $login=$schueler_im_system_loginname{$identifier};
+          &update_user_db_entry($login, 
+                               "Status=E",
+                               "TolerationDate=",
+                               "DeactivationDate=",);
+         &user_reaktivieren("$login");
        } else {
            # taucht nicht auf -> drinlassen
            $login=$schueler_im_system_loginname{$identifier};
            # Alle zum deaktivieren notwendigen Schritte durchführen
-           &update_user_db_entry($login, "DeactivationDate=$date");
+           &update_user_db_entry($login, 
+                                 "Status=D", 
+                                 "DeactivationDate=$date");
            &user_deaktivieren($login);
        }
     }
@@ -2358,10 +2355,7 @@ sub generate_toleration_move_file {
     open(SOPHOMORIXMOVE, 
         ">${DevelConf::ergebnis_pfad}/sophomorix.move") 
         || die "Fehler: $!";
-#    open(DULDUNGSBEGINN, 
-#        ">${DevelConf::dyn_config_pfad}/user-duldungsbeginn") 
-#        || die "Fehler: $!";
-    print "\n";
+#    print "\n";
 
     &titel("Versetzten in den Dachboden/Speicher moeglich:");
  
@@ -2373,6 +2367,12 @@ sub generate_toleration_move_file {
          # User reappears -> don't put him on the new tolerationlist
          print "$identifier_sys taucht wieder in schueler.txt auf\n";
          print "Entferne ihn aus der Duldungsliste\n";
+         $login=$schueler_im_system_loginname{$identifier_sys};
+         &update_user_db_entry($login, 
+                               "Status=E",
+                               "TolerationDate=",
+                               "DeactivationDate=");
+         &user_reaktivieren("$login");
       } else {
 #         # User is still missing, put him on the new tolerationlist
 #         push (@toleration_list, $toleration_message);
@@ -2384,7 +2384,9 @@ sub generate_toleration_move_file {
             $schueler_duldungs_beginn_anzahl++;
             # set the toleration_date and Status in the user_database
 	    $login=$schueler_im_system_loginname{$identifier_sys};
-            &update_user_db_entry($login, "TolerationDate=$toleration_date");
+            &update_user_db_entry($login, 
+                                  "Status=T",
+                                  "TolerationDate=$toleration_date");
 	    if ($schueler_im_system_hash{$identifier_sys} eq "lehrer") {
                 $move_line="$schueler_im_system_loginname{$identifier_sys}".
                      "::"."lehrer".
@@ -2405,15 +2407,7 @@ sub generate_toleration_move_file {
          }
       }
    }
-
-# mit ldap ersetzten
-#   @toleration_list = sort @toleration_list;
-#   foreach my $wert (@toleration_list) {
-#       print DULDUNGSBEGINN $wert;
-#   }
-
    &titel("Insgesamt KÖNNEN $schueler_duldungs_beginn_anzahl User in den dachboden/speicher versetzt werden.");
-#   close(DULDUNGSBEGINN);
    close(SOPHOMORIXMOVE);
 }
 
@@ -2539,12 +2533,11 @@ sub get_action_date {
         print "Unknown Parameter $type! \n";
         exit;
     }
-print "\n\n$l_month\n\n";
     $l_month=$l_month-1;
     $l_year=$l_year-1900;
     $action_epoche=timelocal(0, 0, 0, $l_day , $l_month, $l_year);
     $action_epoche=$action_epoche+$days*86400;
-#       if($Conf::log_level>=2){
+       if($Conf::log_level>=3){
           print  "\n";
           printf "%-20s %3s\n","$usertype","$identifier";
           printf "%-20s %3s\n","Klasse","$schueler_im_system_hash{$identifier}";
@@ -2556,14 +2549,18 @@ print "\n\n$l_month\n\n";
                  "Today is:","$epoche_jetzt", &zeit("$epoche_jetzt");
           printf "%-20s %-15s %3s\n","$type starts:",
                  "$action_epoche", &zeit("$action_epoche");
-#       }
+       }
     if ($action_epoche <  $epoche_jetzt) {
         # do something
-        printf "%-20s %3s\n", "Take this Action:", "$type";
+        if($Conf::log_level>=3){
+           printf "%-20s %3s\n", "Take this Action:", "$type";
+        }
         return $action_epoche;
     } else {
         # do nothing
-        print "Don't do annything ...\n";
+        if($Conf::log_level>=3){
+           print "Don't do anything ...\n";
+        }
         return 0;
     }
 }
@@ -2588,7 +2585,14 @@ sub generate_kill_file {
          # User is not anymore in Files -> Tolereation hash
           if (not exists $user_duldungsbeginn{$identifier}){
               $user_duldungsbeginn{$identifier}="$heute";
+
               print "INFO: $identifier wird ab $heute nur noch geduldet\n";
+
+              my $login=$schueler_im_system_loginname{$identifier};
+              &update_user_db_entry($login, 
+                              "Status=T",
+                               "TolerationDate=$heute");
+
               # report.admin
               push @admin_list_toleration, 
                    "$identifier wird ab $heute nur noch geduldet\n";
@@ -2612,14 +2616,16 @@ sub generate_kill_file {
 	      }
 
           } else {
-              # Check if user has to be deleted
+              # Check if user has to be made removeable
               $epoche_loeschen_ab = &get_action_date($identifier, "kill");
 	      if ($epoche_loeschen_ab !=0) {
                   # prepare a line for sophomorix.kill
                   my $login="$schueler_im_system_loginname{$identifier}";
+                  &update_user_db_entry($login, 
+                                       "Status=R");
                   my $string="$identifier"."::".
 		     "$schueler_im_system_loginname{$identifier}"."\n";
-                  printf "Loeschbar: %-40s Login: %-10s\n","$identifier","$login";
+                  printf "Loeschbar:    %-12s %-50s\n","$login","$identifier";
                   # report.admin
                   push @admin_list_kill, "Loeschbar:     $identifier $login\n";
                   print SOPHOMORIKILL ("$string");
