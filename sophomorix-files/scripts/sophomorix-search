@@ -157,10 +157,10 @@ open(PROTOKOLL,"<$DevelConf::protokoll_datei");
        }
        printf "   SecondaryGroups  :%-48s %-11s\n",$grp_string,$login;
 
-       printf "   FirstGecos       : %-47s %-11s\n", $gec_user,$login;
+       printf "   Gecos            : %-47s %-11s\n", $gec_user,$login;
   
           if (defined $loginname_passwd){
-             printf "   RealGecos        : %-47s %-11s\n",$gcos_passwd, $login;
+             printf "   SystemGecos      : %-47s %-11s\n",$gcos_passwd, $login;
 	  }
 
           if (-e $home){

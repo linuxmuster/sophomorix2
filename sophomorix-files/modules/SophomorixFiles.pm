@@ -477,6 +477,7 @@ If the project doesnt exist, it is created
 =cut
 
 sub create_project_db {
+    my $create=0;
     my $param="";
 #    my $login_file="";
     my $project_name_file="";
@@ -493,6 +494,7 @@ sub create_project_db {
     foreach $param (@_){
        ($attr,$value) = split(/=/,$param);
        if ($attr eq "File"){$file="$value"}
+       if ($attr eq "Create"){$create=1}
     } 
 
     open(TMP, ">$file.tmp");
@@ -546,7 +548,7 @@ sub create_project_db {
 	close(FILE);
 	close(TMP);
        system("mv $file.tmp $file");  
-    } elsif ($count==0){ 
+    } elsif ($count==0 and $create==1){ 
         # 0 lines found -> creating the project
         print "Project $project is nonexisting -> CREATING\n";
         $p_name=$project;
@@ -579,6 +581,9 @@ sub create_project_db {
 	close(FILE);
         close(TMP);
         system("mv $file.tmp $file");  
+    } elsif ($count==0){
+        print "Project $project is nonexisting -> I do nothing\n";
+        print "Use --create to create the project\n";
     }
     return $count;
 }
