@@ -14,6 +14,7 @@ require Exporter;
 	     update_user_db_entry
              create_project_db
              get_sys_users
+             search_user
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
@@ -21,9 +22,13 @@ require Exporter;
 
 
 
-use Sophomorix::SophomorixBase qw ( titel 
+use Sophomorix::SophomorixBase qw ( titel
                                     do_falls_nicht_testen
                                     provide_class_files
+                                    get_group_list
+                                    print_user_samba_data
+                                    get_user_history
+                                    print_forward
                                   );
 
 
@@ -32,13 +37,23 @@ use Sophomorix::SophomorixBase qw ( titel
 # ===========================================================================
 # list of functions to load if sys_db is 'files'
 use if ${DevelConf::sys_db} eq 'files' , 
-    'Sophomorix::SophomorixSYSFiles' => qw(add_class_to_sys
+    'Sophomorix::SophomorixSYSFiles' => qw( add_class_to_sys
+                                            get_user_auth_data
                                           );
 
 
+=head1 Documentation of SophomorixFiles.pm
+
+=head2 FUNCTIONS
+
+
+=cut
+
 
 sub show_modulename {
-    &titel("DB-Backend-Module:   SophomorixFiles.pm");
+#    if($Conf::log_level>=2){
+       &titel("DB-Backend-Module:   SophomorixFiles.pm");
+#   }
 }
 
 
@@ -398,6 +413,7 @@ sub update_user_db_entry {
     my $deactivation_date="";
     my $exit_admin_class="";
     my $account_type="";
+    my $quota="";
     my $file="${DevelConf::protokoll_pfad}/user.protokoll";
 
     # Which file?
@@ -416,7 +432,7 @@ sub update_user_db_entry {
 	    chomp();
            ($admin_class,$gecos,$login_file,$first_pass,$birthday,$unid,
             $subclass,$status,$toleration_date,$deactivation_date,
-            $exit_admin_class,$account_type)=split(/;/);
+            $exit_admin_class,$account_type,$quota)=split(/;/);
             # filling undefined attr with empty string
 	    if (not defined $unid){$unid=""}
 	    if (not defined $subclass){$subclass=""}
@@ -425,6 +441,7 @@ sub update_user_db_entry {
 	    if (not defined $deactivation_date){$deactivation_date=""}
 	    if (not defined $exit_admin_class){$exit_admin_class=""}
 	    if (not defined $account_type){$account_type=""}
+	    if (not defined $quota){$quota=""}
 	   ($name,$lastname)=split(/ /,$gecos);
 	    $count++;
            # Check of Parameters
@@ -444,13 +461,14 @@ sub update_user_db_entry {
               elsif ($attr eq "File"){$file="$value"}
               elsif ($attr eq "ExitAdminClass"){$exit_admin_class="$value"}
               elsif ($attr eq "AccountType"){$account_type="$value"}
+              elsif ($attr eq "Quota"){$quota="$value"}
               else {print "Attribute $attr unknown\n"}
 	  }
           # change the Line
           $new_line=$admin_class.";".$name." ".$lastname.";".$login.";".
           $first_pass.";".$birthday.";".$unid.";".$subclass.";".
           $status.";".$toleration_date.";".$deactivation_date.";".
-          $exit_admin_class.";".$account_type.";"."\n";
+          $exit_admin_class.";".$account_type.";".$quota.";"."\n";
 #          print " OLD: $old_line";
 #          print " NEW: $new_line";
           print TMP "$new_line";         
@@ -543,16 +561,6 @@ sub user_reaktivieren {
 
 
 
-=head1 create_project_db
-
-Parameter 1: Name of project to be updated or created
-
-Parameter 2: List with Attribute=Value
-
-If the project doesnt exist, it is created
-
-
-=cut
 
 sub create_project_db {
     my $create=0;
@@ -666,6 +674,156 @@ sub create_project_db {
     }
     return $count;
 }
+
+
+=head2 FUNCTIONS
+
+=head3 Searching
+
+=over 4
+
+=cut
+
+
+=pod
+
+=item I<linie()>
+
+Creates a line.
+
+=cut
+sub search_user {
+
+  # database dependent
+  my ($string) = @_;
+  my ($class,$gec_user,$login,$first_pass,$birth,$unid,
+      $subclass,$status,$tol,$deact,$ex_admin,$acc_type,$quota)=();
+
+  my ($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,
+     $quota_passwd,$name_passwd,$gcos_passwd,$home,$shell)=();
+
+  my $group_string="";
+  my @group_list=();
+  my $pri_group_string="";
+  my $grp_string="";
+  my $home_ex="---";
+
+  &titel("I'm looking for $string in $DevelConf::protokoll_datei ...");
+  open(PROTOKOLL,"<$DevelConf::protokoll_datei");
+  while (<PROTOKOLL>){
+    if (/$string/){
+       chomp();
+
+       ($class,$gec_user,$login,$first_pass,$birth,
+       $unid,$subclass,$status,$tol,$deact,$ex_admin,$acc_type,$quota)=split(/;/);
+
+       ($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
+       $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
+
+       # Gruppen-Zugehoerigkeit
+       @group_list=&get_group_list($login);
+       $pri_group_string=$group_list[0];
+
+	  print "User                :  $login  ";
+       if (defined $loginname_passwd){
+	     print "($loginname_passwd exists in the system) \n";
+       } else {
+	     print "(ERROR: $login is not in the system) \n";
+       }
+       print "=======================================";
+       print "=======================================\n";
+
+       printf "   AdminClass       : %-47s %-11s\n",$class,$login;
+       printf "   PrimaryGroup     : %-47s %-11s\n",$pri_group_string,$login;
+       foreach my $gr (@group_list){
+	   $grp_string= $grp_string." ".$gr;
+	  #print $gr," ";
+       }
+       printf "   SecondaryGroups  :%-48s %-11s\n",$grp_string,$login;
+       printf "   Gecos            : %-47s %-11s\n", $gec_user,$login;
+  
+       if (defined $loginname_passwd){
+          printf "   SystemGecos      : %-47s %-11s\n",$gcos_passwd, $login;
+       }
+
+       if (-e $home){
+          $home_ex=$home."  (existing)";
+	  #print "(existing) \n";
+       } else {
+          #print "(ERROR: non-existing!) \n";
+          $home_ex=$home."  (ERROR: non-existing)";
+       }
+       if (defined $home){
+          printf "   Home             : %-47s %-11s\n",$home_ex,$login;
+       }
+
+       if (defined $shell){
+          printf "   LoginShell       : %-47s %-11s\n",$shell,$login;
+       }
+
+       printf "   FirstPassword    : %-47s %-11s\n",$first_pass,$login;
+       printf "   Birthday         : %-47s %-11s\n",$birth,$login;
+
+       if (defined $unid){
+          printf "   Unid             : %-47s %-11s\n",$unid,$login;
+       }
+
+       if (defined $subclass){
+	  printf "   SubClass         : %-47s %-11s\n",$subclass,$login;
+       }
+
+       if (defined $status){
+	  printf "   Status           : %-47s %-11s\n",$status,$login;
+       }
+
+       if (defined $tol){
+          printf "   TolerationDate   : %-47s %-11s\n",$tol,$login;
+       }
+
+       if (defined $deact){
+          printf "   DeactivationDate : %-47s %-11s\n",$deact,$login;
+       }
+
+       if (defined $ex_admin){
+	  printf "   ExitAdminClass   : %-47s %-11s\n",$ex_admin,$login;
+       }
+
+       if (defined $acc_type){
+	  printf "   AccountType      : %-47s %-11s\n",$acc_type,$login;
+       }
+       if (defined $quota){
+	  printf "   Quota (MB)       : %-47s %-11s\n",$quota,$login;
+       }
+
+       if (-e "/usr/bin/quota"){
+          print "Real Quota (output of 'quota $login'): \n";
+          system("quota $login");
+       }
+       # samba, database independent
+       &print_user_samba_data($login);
+
+
+       if($Conf::log_level>=2){
+          # history, database independent
+          print "History of $login:\n";
+          &get_user_history($login);
+          print "Mail forwarding of $login:\n";
+          &print_forward($login, $home);
+       }
+       print "\n";
+
+       ($class,$gec_user,$login,$first_pass,$birth,$unid,
+        $subclass,$status,$tol,$deact,$ex_admin,$acc_type,$quota)=(
+        "","","","","","","","","","","","");
+     }
+  }
+  close(PROTOKOLL);
+}
+
+
+
+
+
 
 
 
