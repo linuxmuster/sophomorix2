@@ -1,20 +1,28 @@
 This is the todo/changelog for the sophomorix sourcecode
 
-##########  todo ##########
+############################################################
+Todo
+############################################################
 
 sophomorix-repair (seems ok so far)
 
 
-sophomorix-quota (seems ok so far)
+sophomorix-quota 
+   - option --auto-setup
+       makes a usable quota-system
+       does what it needs to have quota enabled and working
    - option --sum still missing
    - option --school(=pupil, teacher, workstation)
      Use this option in sophomorix-passwd also?
+       -> include in function create_userlist
 
 
 sophomorix-teach-in (seems ok so far)
 
 
 sophomorix-check
+   - check what happens when a wish-login in lehrer.txt is given twice
+     - > generate proper error message
    - what about the shell (/bin/bash) when updating from old files?
    - what about the quota  when updating from old files?
        lehrer.txt: automatically used, when copied
@@ -23,7 +31,20 @@ sophomorix-check
        classes:    schulinfo.txt should be copied/used to class_db
              --> check this
    - add more auto-teach-in
-
+      - exchange of firstname and lastname should be detected automatically
+   - filter out users in schueler.txt that have groupname "lehrer" or "teacher"
+     for security reasons
+   - add use of field 6, upload Field 6 Data automatically into database
+      - add entry for every user in user_db: "Department"
+      - for every department create entry in department_db
+      department_ contains:
+         - Name of department i.e. "Hauptschule"
+         - Name String, i.e. "HS Sydney", which is used by printing things.
+         - Mail suffix, i.e "hs-sydney.de" -> user@hs-sydney.de
+         - short name, i.e. "hss"
+         - automatisch: Schülerzahl, Klassenzahl ?????? oder besser dynamisch
+         - ....
+          
 
 sophomorix-add
    - create new users with quota
@@ -41,11 +62,29 @@ sophomorix-kill
      (is this fine?)
 
 
+sophomorix-user 
+   - wenn user is reactivated, then add her automatically in her ExitAdminClass, 
+     if she is in dachboden 
+     or in the class specified by  -c class option
+   - option --move moves a pupil at once in the new class 
+     i.e. (calls sophomorix-move -l loginname)
+   - user with status U,E must not be reactivated?
+   - option -i : shows all users (should be used with | less)
+   - option --reactivatable (or -i -D -T shows info about Disabled snd Tolerated)
+
+
 sophomorix-split
+   - check if exchange dir is created
+   -check if links are created to exchange dir
+   - create commands with only the changes of users to apply. 
+     ( like in sophomorix-project, use the same code?)
    - sophomorix-split options: 
         split randomly in 2,3 halves
         split half-half
         split a class into projects(is this necessary?)
+   - rename database subclasses to subclass_db
+   - add some show info stuff
+   - add change long name of subclass
 
 
 sophomorix-passwd
@@ -62,13 +101,39 @@ sophomorix-print
    
 
 sophomorix-project
+   - create exchange directories automatically, when the project is created
    - option -p astro -i should display info about group astro (6users in a row, ...)
    - add status stuff to projects
+      P= Permanent, will not be automatically removed
+      ... see drawing in doku
+      when a project is disabled:
+       - no data exchange
+       - no database access, ...
+       - mail to project teacher
+       - delete after xxx days (cron-job)
+
+   - when killing a project: 
+       - delete line
+       - delete exchange dir
+       - delete links from users to exchange dir
+       - move data back to homedir of user?
    - check if loginname is valid before adding user to a project   
 
 
 sophomorix-class
    - show classes in alphabetical order (use list insted of hash, when fetching)   
+   - class_db:
+     Type:
+       A: AdminClass (creted by schueler.txt entries)
+       X: ExtraClass (created by extrakurse.txt)
+       K: Killable (no users in this class anymore, can be killed)
+   --kill  remove a class from database,
+           delete the exchange directory
+           ...
+
+
+sophomorix-test
+   - include reactivation by sophomrix-user -A
   
 
 sophomorix-vampire:
@@ -109,20 +174,58 @@ All Scripts:
      naming system is used, i.e what options are used to refer to a AdminClass:
          -c AdminClass --class AdminClass --adminclass AdminClass
          ...
+   - add references to all other man pages in every man-page
 
+
+============================================================
 Think about:
+============================================================
 
+   - think about getting user in class lists from the database
+     for correction of exams, ...
+   - think about lehrer.txt handling
+   think about ext-lehrer (teacher fo only one class).
+     probably needed for vhs-Kurse, etc., ...
+   - think about: when a teacher adds/removes herself to a class, 
+     add/remove her to a field in class_db
+   - think about acl's and their handling in repair-directory
+   - think about self adding of users
    - think about grpquota in projects
-   - think about file-locking
+   - think about manually moving pupils in other classes
+      - restrict manually moving to Permanent,Frozen?
+      - manually create classes for Permanent
+        or automatically create a class permanent, where all Permanent/Frozen users 
+        a moved to?
+        do they have an exchange directory?
+   - think about file-locking (use DBD:CSV - module)
+   - Think about removing ALL files of a user when she is deleted
+     (find /home/share ... and kill them)
+     think about renaming every file in an exchange-directory
+     of a user that wil be killed shortly to
+       filename.txt   -> will_be_deleted_filename.txt
+   - group problems: which group should be primary group
+   - easy to hook in prefilter-scripts, that are run automatically
+   - create multiple project_db files ???
+       1. automatically created projects:  department-spanning
+       2. manually created projects by root
+       3. Projects created by teachers
 
 
 
 
+
+
+############################################################
 RELEASES:
-
+############################################################
 
 
 1.2.0 (2005-02-?)
+   - sophomorix-user -s username
+     added options zo the underlying quota command to
+       - not sho remot filesystems
+       - show also unused filesystems
+
    - rename print-data 
         hinzu.*  -> add.* and others
 
@@ -131,6 +234,7 @@ RELEASES:
      i.e.  user.protokoll -> user_db
            projects.db    -> projects_db
            class.db       -> class_db
+           subclasses     -> subclasses_db
 
    - made the directories under /var/lib/sophomorix international (names)
      i.e.:
