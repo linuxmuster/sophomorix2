@@ -32,8 +32,8 @@ sub titel {
 
    print  "\n#########################################", 
                             "#######################################\n";
-   printf "%-3s %-73s %-2s"," #","$a","#\n";
-   print  "########################################",
+   printf "%-3s %-73s %-2s"," #","$a","#";
+   print  "\n########################################",
                             "########################################\n";
 }
 
@@ -329,7 +329,11 @@ sub save_tausch_klasse {
    print "Hierher moven (Home des Schülers/lehrers): \n   $dirpath\n";
    print "Hier suchen (Klassen-Tausch/Lehrer-Tausch):\n   $tausch_klasse_path\n";
 
-   opendir KTAUSCH, $tausch_klasse_path or die "kann  nicht öffnen\n";
+   if (not -e "$tausch_klasse_path"){
+     # nit tun
+   } else {
+   opendir KTAUSCH, $tausch_klasse_path or 
+                  die "kann $tausch_klasse_path nicht öffnen\n";
 
    foreach my $datei (readdir KTAUSCH){
       if ($datei eq "."){next};
@@ -354,6 +358,7 @@ sub save_tausch_klasse {
       }
    }
    closedir KTAUSCH;
+}
 }
 
 
@@ -771,7 +776,7 @@ sub lehrer_ordnen {
 
 
      # geordnete Zeile ausgeben
-     printf LEHRERTMP ("%-6s %-14s %-14s %-11s %-8s %-8s %-4s %-6s %-1s",
+     printf LEHRERTMP ("%-6s %-14s %-14s %-11s %-8s %-8s %-4s %-6s",
            "$typ",
            ";$nachname",
            ";$vorname",
@@ -779,8 +784,8 @@ sub lehrer_ordnen {
            ";$wunsch_login",
            ";$erst_passwort",
            ";$lehrer_kuerzel",
-           ";$quota",
-           ";\n");
+           ";$quota");
+     print LEHRERTMP (";\n");
    }
   
    close(LEHRER);
