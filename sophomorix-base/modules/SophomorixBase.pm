@@ -34,7 +34,9 @@ use Time::localtime;
               check_config_template
               check_datei_touch
               check_verzeichnis_mkdir
+              print_user_samba_data
               get_user_history
+              get_group_list
               zeit
               get_klasse_von_login
               get_schueler_in_klasse
@@ -1560,6 +1562,26 @@ sub get_user_history {
 }
 
 
+
+
+=pod
+
+=item I<get_group_list(login)>
+
+Gibt die Liste der Gruppennamen zurück, in denen der user mit dem
+loginnamen login ist.
+
+=cut
+sub get_group_list {
+    my ($login) = @_;
+    my @group_list=();
+    my $pri_group_string=`id -gn $login`;
+    my $group_string=`id -Gn $login`;
+    chomp($group_string);
+    chomp($pri_group_string);
+    @group_list=split(/ /, $group_string);
+    return @group_list;
+}
 
 
 
