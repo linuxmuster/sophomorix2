@@ -876,7 +876,8 @@ sub search_user {
           }
           if (-e "/usr/bin/quota"){
 	     print "   "; # indent output of following command
-             system("quota $login");
+             # -l show only local quota, no nfs          
+             system("quota -l $login");
           }
        }
        # samba, database independent
