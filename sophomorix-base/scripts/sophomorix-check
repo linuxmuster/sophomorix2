@@ -995,10 +995,17 @@ if($Conf::log_level>=3){
 # Was waere wenn ...
 # ===========================================================================
 
+# Problem kill muss vor move kommen
+# Vielleicht besser.
+# 1. tolerierte Schüler suchen und in user.db,hash updaten
+# 2. removable users ...
+# 3. move file
+# 4. kill file (noch notwendig?)
+
 # ===========================================================================
 # Datei öffnen, in die die zu löschenden Schüler geschrieben werden
 # ===========================================================================
-#&generate_kill_file();
+&generate_kill_file();
 
 # ===========================================================================
 # Tolerierte User ermitteln und Versetzen nach Dachboden/Speicher schreiben
@@ -1015,7 +1022,7 @@ if($Conf::log_level>=3){
 # ===========================================================================
 &update_deactivation_data();
 
-&generate_kill_file();
+#&generate_kill_file();
 
 # ===========================================================================
 # Datei rezeugen, in die die neuen User geschrieben werden
@@ -2609,6 +2616,12 @@ sub generate_kill_file {
                       push @admin_list_deactivation, 
                            "$identifier wurde am $heute deaktiviert\n";
                   }
+              # Alle zum deaktivieren notwendigen Schritte durchführen
+              my $login=$schueler_im_system_loginname{$identifier};
+              &update_user_db_entry($login, 
+                                 "Status=D", 
+                                 "DeactivationDate=$heute");
+              &user_deaktivieren($login);
               } else {
                  if($Conf::log_level>=2){
                     print "### User $identifier ist im Duldungszeitraum\n"; 
