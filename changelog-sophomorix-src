@@ -8,6 +8,8 @@ packaging:
 Makefile create directories in correct permissions, 
 how can i package this directories with its permissions?
 
+dokumentation:
+   grafik workflow aktualisieren
 
 
 sophomorix-repair 
@@ -54,7 +56,8 @@ sophomorix-check
          - short name, i.e. "hss"
          - automatisch: Schülerzahl, Klassenzahl ?????? oder besser dynamisch
          - ....
-          
+   - Format report.office with latex          
+
 
 sophomorix-add
    - create new users with quota
@@ -78,6 +81,8 @@ sophomorix-user
    - wenn user is reactivated, then add her automatically in her ExitAdminClass, 
      if she is in dachboden 
      or in the class specified by  -c class option
+   - Changing a state of a user(make Permanent, Killable, ...)
+     by using function create_userlist, i.e. make all pupils killable
    - option --move moves a pupil at once in the new class 
      i.e. (calls sophomorix-move -l loginname)
    - user with status U,E must not be reactivated?
@@ -122,7 +127,6 @@ sophomorix-project
        - no database access, ...
        - mail to project teacher
        - delete after xxx days (cron-job)
-
    - when killing a project: 
        - delete line
        - delete exchange dir
@@ -151,7 +155,8 @@ sophomorix-vampire:
    - backup /etc to /etc/sophomorix-vampire
    - move mail
    - move shares
-   - option for k necessary? 
+   - option for k necessary?
+   - add manpage to html-doc 
 
 sophomorix-webmin
    - totally configure webmin
@@ -162,7 +167,7 @@ sophomorix-webmin
      student,teacher,admin
      file: webmin.group
        problem group student would need 1 entrys for every student 
-       (this will be a verrrrry long line)
+       (this will be a very loooooooooong line)
 
    - when adding teachers, add modules that they can use 
    - usermin-module will be converted to webmin by thomas
@@ -179,20 +184,26 @@ sophomorix-teacher
    - write new script to distribute data, collect data, ...
    - read perlsec
 
+
+sopho-man2html
+   - create manpages in area 1 in directory man1 (create a teacher dokumentation)
+
+
 Functions in SophomorixBase:
    - rename: append_auto_teach_in_log --> append_teach_in_log
    - Put Quota-functions in SophomorixQuota.pm 
 
 
 SophomorixAPI: Dringend!!!!!!!!!!!!!!!
-
-   - funktion zum schreiben der eingetragenen klassen
-   - dito zum lesen, ascibetisch
-   - funktion get_all_admin_classes (liest class_db aus)
    - mail an musterloesung@lihas.de (tho@lihas.de)
 
 
 All Scripts:
+   - rename:
+     user.imsystem         --> sophomorix.system
+     report.sekretariat    --> report.office
+     klasse.schuelerzahl --> AdminClass.students
+
    - create global variable $teacher_grpname="lehrer" and use it in all scripts
    - read the config-files from thomas
      (file:  debconf datenbank, perl-lib zum auslesen benutzen ist dabei)
@@ -268,6 +279,12 @@ RELEASES:
 
 
 1.2.0 (2005-02-?)
+   - SophomorixAPI
+     - funktion zum schreiben der eingetragenen klassen
+     - dito zum lesen, ascibetisch
+     - funktion get_all_admin_classes (liest class_db aus)
+
+  
    - sophomorix-teacher: first release
      adding, removing class from MyAdminClasses
 
