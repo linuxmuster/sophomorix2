@@ -35,10 +35,6 @@ use Time::localtime;
               check_datei_touch
               check_verzeichnis_mkdir
               zeit
-              get_schueler_subklassen
-              get_user_duldungsbeginn
-              get_user_deaktivierungsbeginn
-              get_user_reaktiviert
               get_klasse_von_login
               get_schueler_in_klasse
               get_schueler_in_schule
@@ -646,7 +642,7 @@ sub extra_kurs_schueler {
   open(EXTRAKURSE, "<${DevelConf::config_pfad}/extrakurse.txt") 
        || die "Fehler: $!";
 
-  &titel("Lese die Datei ${DevelConf::config_pfad}/extrakurse.txt ein ...");
+  &titel("Reading ${DevelConf::config_pfad}/extrakurse.txt ...");
 
   while(<EXTRAKURSE>){
      my $datum="";
@@ -1315,139 +1311,6 @@ sub zeit {
   #print "$string\n";
   return $string;
 }
-
-
-
-# ===========================================================================
-# schueler.subklassen einlesen in einen Hash
-# ===========================================================================
-sub get_schueler_subklassen {
-   my %hash=();
-   my $subklasse="";
-   my $identifier="";
-   if($Conf::log_level>=3){
-      &titel("Lese die Datei schueler.subklassen ein ...");
-    }
-   open(SUBKLASSEN, "<${DevelConf::subklassen}");
-   while(<SUBKLASSEN>){
-       chomp();
-       if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
-       s/\s//g; # Spezialzeichen raus
-       ($identifier,$subklasse)=split(/::/);
-       # Hash füllen
-       $hash{$identifier}="$subklasse";
-   }
-
-   # Ausgabe des Hashes
-   if($Conf::log_level>=3){
-      while (($k,$v) = each %hash) {
-         printf "%-35s %3s\n","$k","ist in Subklasse $v";
-      }
-    }
-   close(SUBKLASSEN);
-   return %hash;
-}
-
-
-
-
-# ===========================================================================
-# user-duldungsbeginn einlesen in einen Hash
-# ===========================================================================
-sub get_user_duldungsbeginn {
-   my %hash=();
-   if($Conf::log_level>=3){
-      &titel("Lese die Datei user-duldungsbeginn ein ...");
-    }
-   open(DEAKTAB,
-        "<${DevelConf::dyn_config_pfad}/user-duldungsbeginn") || die "Fehler: $!";
-   while(<DEAKTAB>){
-       chomp();
-       if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
-       s/\s//g; # Spezialzeichen raus
-       my ($identifier,$datum)=split(/::/);
-       # Hash füllen
-       $hash{$identifier}="$datum";
-   }
-
-   # Ausgabe des Hashes
-   if($Conf::log_level>=3){
-      print "User-Duldungsbeginn-Hash:\n";
-      while (($k,$v) = each %hash) {
-         printf "%-35s %3s\n","$k","seit $v nur noch geduldet.";
-      }
-    }
-   close(DEAKTAB);
-   return %hash;
-}
-
-
-
-
-# ===========================================================================
-# user-deaktivierungsbeginn einlesen in einen Hash
-# ===========================================================================
-sub get_user_deaktivierungsbeginn {
-   my %hash=();
-   if($Conf::log_level>=3){
-      &titel("Lese die Datei user-deaktivierungsbeginn ein ...");
-    }
-   open(LOESCHAB,
-        "<${DevelConf::dyn_config_pfad}/user-deaktivierungsbeginn") || die "Fehler: $!";
-   while(<LOESCHAB>){
-       chomp();
-       if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
-       s/\s//g; # Spezialzeichen raus
-       my ($identifier,$datum)=split(/::/);
-       # Hash füllen
-       $hash{$identifier}="$datum";
-   }
-   if($Conf::log_level>=3){
-      print "User-Deaktivierungsbeginn-Hash:\n";
-      while (($k,$v) = each %hash) {
-         printf "%-35s %3s\n","$k","seit $v deaktiviert.";
-      }
-    }
-   close(LOESCHAB);
-   return %hash;
-}
-
-
-
-
-# ===========================================================================
-# user-reaktiviert einlesen in einen Hash
-# ===========================================================================
-sub get_user_reaktiviert {
-   my %hash=();
-   if($Conf::log_level>=3){
-      &titel("Lese die Datei user.reaktiviert ein ...");
-    }
-   open(REAKTIV,
-        "<${DevelConf::pruef_pfad}/user.reaktiviert") || die "Fehler: $!";
-   while(<REAKTIV>){
-       chomp();
-       if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
-       s/\s//g; # Spezialzeichen raus
-       my ($klasse,$feld2,$feld3,$feld4)=split(/;/);
-       my $identifier=join(";",($feld2,$feld3,$feld4));
-       # Hash füllen
-       $hash{$identifier}="$klasse";
-   }
-   if($Conf::log_level>=3){
-      print "\nInhalt von user.reaktiviert:\n";     
-      print "Identifier                          Klasse\n";
-      &linie;
-      while (($k,$v) = each %hash) {
-         printf "%-35s %3s\n","$k","$v";
-      }
-    }
-   close(REAKTIV);
-   return %hash;
-}
-
-
-
 
 
 
