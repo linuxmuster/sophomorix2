@@ -54,6 +54,8 @@ my $gebdat;
 my $gecos="";
 my $wunsch_login;
 my $wunsch_passwort;
+my $wunsch_id;
+my $wunsch_gid;
 my $login_teil_1="";
 my $login_teil_2="";
 my $login_name_to_check="";
@@ -133,16 +135,33 @@ if ($info==1) {
    # Hash mit identifier--klasse
 #   %schueler_ok_hash=&schueler_ok_hash();
    # Ausgabe der Anlegbaren user
-   print "\nFolgende user können angelegt werden:\n\n";
-   print "Wunschlogin  AdminClass  Quota     Identifier   \n";
+    print "\nThe following users can be added:\n";
+   print "(Fields with --- are automatically created by sophomorix-add):\n\n";
+   printf "%-10s %-6s %-10s %-4s %-10s %-40s\n",
+          "login",
+          "id",
+          "AdminClass",
+          "gid",
+          "Old-Pass",
+          "Identifier";
    &linie;
 
    open(USERHINZU,"${DevelConf::ergebnis_pfad}/sophomorix.add") || die "Fehler: $!";
       while(<USERHINZU>){
         chomp();
-        ($new_admin_group,$identifier,$wunsch_login,$wunsch_passwort)=split("::");
-        printf "%-14s %-16s %-40s\n",
-               "$wunsch_login","$new_admin_group","$identifier";
+        ($new_admin_group,
+         $identifier,
+         $wunsch_login,
+         $wunsch_passwort,
+         $wunsch_id,
+         $wunsch_gid)=split("::");
+        printf "%-10s %-6s %-10s %-4s %-10s %-40s\n",
+               "$wunsch_login",
+               "$wunsch_id", 
+               "$new_admin_group",
+	       "$wunsch_gid",
+               "$wunsch_passwort", 
+               "$identifier";
      }
    close(USERHINZU);
    print "\n";
@@ -284,7 +303,12 @@ while(<USERHINZU>){
    # absplitten von Wunschlogin und Wunschpasswort
 # alt   ($identifier,$wunsch_login,$wunsch_passwort)=split("::");
    # absplitten von Wunschlogin und Wunschpasswort
-   ($new_admin_group,$identifier,$wunsch_login,$wunsch_passwort)=split("::");
+   ($new_admin_group,
+    $identifier,
+    $wunsch_login,
+    $wunsch_passwort,
+    $wunsch_id,
+    $wunsch_gid)=split("::");
 
    ($nachname,$vorname,$gebdat)=split(";", $identifier);
    # Gruppennamen ermitteln, max 8 Zeichen, k als 1. Buchstaben vorsetzen
@@ -299,7 +323,7 @@ while(<USERHINZU>){
    $gecos=$vorname." ".$nachname; 
 
    # Falls Wunsch-Login-Namen gegeben, diesen benutzen
-   if ($wunsch_login ne "wunschlogin"){
+   if ($wunsch_login ne "---"){
     $login_name_to_check="$wunsch_login";
    } else {
     # Sonst: Login-Name bilden
@@ -314,7 +338,7 @@ while(<USERHINZU>){
        # Wenn der zu prüfende Login-Name nicht schon vorhanden
        # Kann er benutzt werden 
        $login_name_ok=$login_name_to_check;
-   } elsif ($wunsch_login ne "wunschlogin"){
+   } elsif ($wunsch_login ne "---"){
        # Wunsch-Login angegeben
        # Abbrechen, Wunsch-Login soll nicht verändert werden
        print "\nFEHLER:\n";
@@ -341,7 +365,7 @@ while(<USERHINZU>){
 
 
 # Klartext-Passwort
-if ($wunsch_passwort eq "erstpw") {
+if ($wunsch_passwort eq "---") {
     $klartext_passwort=&klartext_passwort_ermitteln($new_admin_group);
  } else {
     $klartext_passwort=$wunsch_passwort
@@ -413,11 +437,13 @@ if($Conf::use_quota eq "yes"){
       print("Vorname:          $vorname\n");
       print("Geburtsdatum:     $gebdat\n");
       print("Identifier:       $identifier\n");
-      print("Admin-Gruppe:     $new_admin_group\n"); # lehrer oder klasse
+      print("AdminClass:       $new_admin_group\n"); # lehrer oder klasse
+      print("Unix-gid:         $wunsch_gid\n"); # lehrer oder klasse
       print("GECOS:            $gecos\n");
       print("Login (prüfen):   $login_name_to_check\n");
       print("Login (OK):       $login_name_ok\n");
       print("Passwort:         $klartext_passwort\n");
+      print("Unix-id:          $wunsch_id\n");
       if ($new_admin_group eq "lehrer") {
          # Es ist ein Lehrer
          print("Shell (Lehrer):  $shell\n"); 
@@ -454,7 +480,7 @@ if($Conf::use_quota eq "yes"){
                         $quotastring);
 
   # 2. Add the class (db and dirs,links, ...)
-  &add_class_to_sys($new_admin_group); # VOR add_user_to_sys !
+  &add_class_to_sys($new_admin_group,$wunsch_gid); # VOR add_user_to_sys !
   &provide_class_files($new_admin_group);
 
   # 3. Add  user to db
@@ -464,7 +490,8 @@ if($Conf::use_quota eq "yes"){
                    $new_admin_group,
                    $login_name_ok,
                    $klartext_passwort,
-                   $shell);
+                   $shell,
+                   $wunsch_id);
   &set_password($login_name_ok,$klartext_passwort);
 
   # 4. Add teacher to webmin

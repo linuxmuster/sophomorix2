@@ -75,12 +75,14 @@ my  @schueler_to_check_dateien=(
 $Conf::log_level=1;
 my $help=0;
 my $file_to_check="";
+my $old_info_dir="";
 
 # Parsen der Optionen
 my $testopt=GetOptions(
        "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
-             "file=s" => \$file_to_check,
+           "get-info-from-old-files=s" => \$old_info_dir,
+           "file=s" => \$file_to_check,
           );
 
 
@@ -112,6 +114,7 @@ Options
   -h  / --help
   -v  / --verbose
   -vv / --verbose --verbose
+  --get-info-from-old-files directory
   --file filename
 
 Please see the sophomorix-check(8) man pages for full documentation
@@ -338,6 +341,13 @@ my @admin_list_add;
 my @admin_list_move;
 
 
+# hashes from old data
+my %old_id_login=();
+my %old_id_password=();
+my %old_id_id=();
+my %old_gname_gid=();
+
+
 
 # Allgemein
 my $key="";
@@ -548,6 +558,31 @@ my ($ref_login,
 # identifier - AccountType 
 %schueler_im_system_account_type = %$ref_account_type;
 
+
+# ===========================================================================
+# Get information from old files
+# ===========================================================================
+if ($old_info_dir ne ""){
+   &titel("Extracting information from old files ...");
+   my ($ref_old_id_login, 
+       $ref_old_id_password,
+       $ref_old_id_id,
+       $ref_old_group_gid
+      ) = &get_old_info($old_info_dir);
+   # old files: identifier - old_login 
+   %old_id_login = %$ref_old_id_login;
+   # old files: identifier - old_login 
+   %old_id_password = %$ref_old_id_password;
+   # old files: identifier - old_login 
+   %old_id_id = %$ref_old_id_id;
+   # old files: groupname - old_id 
+   %old_gname_gid = %$ref_old_group_gid;
+
+#   print "\n\nDas ist der old-id-id hash\n";
+#   while (($k,$v) = each %old_id_id){
+#       print $k , " ", $v, "\n";
+#   }
+}
 
 # ===========================================================================
 # Einlesen der Entfern-Klassen in eine Hash-Tabelle
@@ -2713,6 +2748,11 @@ while ($geburts_jahreszahl_lauf<=$Conf::geburts_jahreszahl_stop){
 sub generate_add_file {
     my $identifier = "";
     my $admin_class = "";
+    my $string="";
+    my $login="";
+    my $password="";
+    my $id="";
+    my $gid="";
     open(SOPHOMORIXADD, 
           ">${DevelConf::ergebnis_pfad}/sophomorix.add") 
          || die "Fehler: $!";
@@ -2721,9 +2761,47 @@ sub generate_add_file {
 
     while ( ($identifier, $admin_class) = each %schueler_ok_hash ){
       unless (exists $schueler_im_system_hash{$identifier}) {
-         my $string="$identifier"."::".
-                    "$schueler_ok_wunsch_login_hash{$identifier}"."::".
-                    "$schueler_ok_wunsch_passwort_hash{$identifier}"."\n";
+	 if ($old_info_dir eq ""){
+            # Dont use old data
+            $string="$identifier"."::".
+#                    "$schueler_ok_wunsch_login_hash{$identifier}"."::".
+                    "---"."::".
+#                    "$schueler_ok_wunsch_passwort_hash{$identifier}"."::".
+                    "---"."::".
+                    "---"."::"."---"."\n";
+	 } else {
+            # Use old data
+	    if (exists $old_id_login{$identifier}){
+		$login=$old_id_login{$identifier};
+            } else {
+                $login="---";
+            }
+
+	    if (exists $old_id_password{$identifier}){
+		$password=$old_id_password{$identifier};
+            } else {
+                $password="---";
+            }
+
+	    if (exists $old_id_id{$identifier}){
+		$id=$old_id_id{$identifier};
+            } else {
+                $id="---";
+            }
+
+	    if (exists $old_gname_gid{$admin_class}){
+		$gid=$old_gname_gid{$admin_class};
+            } else {
+                $gid="---";
+            }
+
+            $string="$identifier"."::".
+                    "$login"."::".
+                    "$password"."::".
+                    "$id"."::".
+                    "$gid"."\n";
+         }
+
          print ("$string");
          push @admin_list_add, "$string";
          # Put admin_class and string in file

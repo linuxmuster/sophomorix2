@@ -25,6 +25,7 @@ use Time::localtime;
               get_alle_verzeichnis_rechte
               get_v_rechte
               setup_verzeichnis
+              get_old_info 
               user_login_hash
               save_tausch_klasse
               neue_linux_gruppe_schueler
@@ -408,6 +409,106 @@ sub setup_verzeichnis {
 
   
 }
+
+
+
+
+
+
+
+
+
+sub get_old_info {
+   my ($dir) = @_;
+   # Files
+   my $protocol="${dir}/user.protokoll";
+   my $passwd="${dir}/passwd";
+   my $group="${dir}/group";
+   my $teach_in="${dir}/teach-in.txt";
+
+   if($Conf::log_level>=1){
+      print "I use the following old files:\n";
+      print "   user.protokoll:   $protocol\n";
+      print "   teach-in.txt:     $teach_in\n";
+      print "   passwd:           $passwd\n";
+      print "   group:            $group\n";
+   }
+
+   # Result-hashes
+   my %old_id_login=();
+   my %old_login_id=();
+   my %old_id_password=();  
+   my %old_id_id=();  
+   my %old_group_gid=();  
+   my %old_teach_in=();
+   my ($admin_class, $gecos,$login, $pass,$birth)=();
+   my ($name,$surname)=();
+   my ($passwd_login,$spass,$id,$gid,$passwd_gecos,$home,$shell)=();
+   my ($gname,$gpass,$group_gid);
+   my ($identifier_sys,$identifier_admin);
+
+   open(TEACHINDATEN,"$teach_in") || die "Fehler: $!";
+   while(<TEACHINDATEN>){
+      chomp();
+      if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+      ($identifier_sys,$identifier_admin)=split(/:::/); 
+      $old_teach_in{$identifier_sys}="$identifier_admin";
+   }
+   close(TEACHINDATEN);
+
+   # creating login -> unix-id hash
+   open(PASSWD, "<$passwd") || die "Fehler: $!";
+   while(<PASSWD>){
+       chomp($_);
+       ($passwd_login,$spass,$id,$gid,$passwd_gecos,$home,$shell)=split(/:/);
+       $old_login_id{$passwd_login}="$id";
+   }
+   close(PASSWD);
+
+   # creating identifier -> ... hashes
+   open(PROTOCOL, "<$protocol") || die "Fehler: $!";
+   while(<PROTOCOL>){
+       chomp($_);
+       ($admin_class, $gecos,$login, $pass,$birth)=split(/;/);
+       ($name,$surname)=split(/\ /,$gecos); 
+        $identifier="$surname".";"."$name".";"."$birth";
+
+       # adjusting identifier according to teach-in.txt
+       if (exists $old_teach_in{$identifier}){
+          $identifier=$old_teach_in{$identifier}
+       }
+
+       # identifier -> login hash
+       $old_id_login{$identifier}="$login";
+       # identifier -> password hash
+       $old_id_password{$identifier}="$pass";
+       # looking up id
+       $id=$old_login_id{$login};
+       # identifier -> id hash
+       $old_id_id{$identifier}="$id";
+   }
+   close(PROTOCOL);
+
+
+   # creating groupname -> unix-gid hash
+   open(GROUP, "<$group") || die "Fehler: $!";
+   while(<GROUP>){
+       chomp($_);
+       ($gname,$gpass,$group_gid)=split(/:/);
+       $old_group_gid{$gname}="$group_gid";
+   }
+   close(GROUP);
+
+
+   # return references to the hashes
+   return(\%old_id_login,
+          \%old_id_password,
+          \%old_id_id,
+          \%old_group_gid 
+         );
+}
+
+
 
 
 
@@ -3535,6 +3636,8 @@ sub unterricht_einsammeln {
    system("chown -R ${loginname}:lehrer $lehrer_verzeichnis");
    print "Aufgaben Einsammeln ... fertig.</b><p> ";
 }
+
+
 
 
 
