@@ -36,6 +36,9 @@ WEBMINDEBDIR=$(DESTDIR)/usr/share/webmin
 # Dokumentation
 DOCDEBDIR=$(DESTDIR)/usr/share/doc
 
+# Dokumentation
+DEVELCONF=$(DESTDIR)/usr/share/sophomorix
+
 # SAMBADEBCONFDIR für Debian 
 SAMBADEBCONFDIR=$(DESTDIR)/etc/samba
 
@@ -43,7 +46,8 @@ SAMBADEBCONFDIR=$(DESTDIR)/etc/samba
 SAMBADIR=$(DESTDIR)/var/lib/samba
 
 # Config-templates
-CTEMPDIR=$(DESTDIR)/var/lib/sophomorix/config-templates
+#CTEMPDIR=$(DESTDIR)/var/lib/sophomorix/config-templates
+CTEMPDIR=$(DESTDIR)/usr/share/sophomorix/config-templates
 
 # WEBMINCONFDIR ML und Debian
 WEBMINCONFDIR=$(DESTDIR)/etc/webmin
@@ -75,8 +79,13 @@ install-base:
 	install -oroot -groot --mode=0600 sophomorix-base/config-templates/*[!CVS] $(CTEMPDIR)
 	##### configs for developers
 	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/devel/user
-	install -oroot -groot --mode=0700 sophomorix-base/config-devel/sophomorix-devel.conf $(DESTDIR)/etc/sophomorix/devel/user
-	install -oroot -groot --mode=0600 sophomorix-base/config-devel/repair.directories $(DESTDIR)/etc/sophomorix/devel/user
+	install -d -m700 -oroot -groot $(DEVELCONF)/devel
+
+	install -oroot -groot --mode=0600 sophomorix-base/config-devel/sophomorix-devel.conf $(DEVELCONF)/devel
+	install -oroot -groot --mode=0600 sophomorix-base/config-devel/repair.directories $(DEVELCONF)/devel
+
+#	install -oroot -groot --mode=0700 sophomorix-base/config-devel/sophomorix-devel.conf $(DESTDIR)/etc/sophomorix/devel/user
+#	install -oroot -groot --mode=0600 sophomorix-base/config-devel/repair.directories $(DESTDIR)/etc/sophomorix/devel/user
 	##### Copy the module
 	install -d -m755 -oroot -groot $(PERLMOD)
 	install -oroot -groot --mode=0644 sophomorix-base/modules/Sophomorix*[a-z1-9] $(PERLMOD)
@@ -170,6 +179,7 @@ clean-doc:
 doc:
 	# Creating html-documentation
 	cd ./sophomorix-doc/source/sgml; docbook2html --nochunks --output ../../html  sophomorix.sgml
+	cd ./sophomorix-doc/source/sgml; docbook2html --nochunks --output ../../html  changelog.sgml
 	# Copying the pictures
 	cp ./sophomorix-doc/source/pictures/pics/splan-*.jpg ./sophomorix-doc/html
 	cp ./sophomorix-doc/source/pictures/pics/workflow.png ./sophomorix-doc/html
@@ -178,6 +188,8 @@ doc:
 	cp ./sophomorix-doc/source/pictures/pics/databases.png ./sophomorix-doc/html
 	# Creating html-manpages
 	buildhelper/sopho-man2html
+	# Creating changelog
+	buildhelper/sopho-changelog
 
 
 # sophomorix-usermin

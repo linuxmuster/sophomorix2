@@ -1,0 +1,18 @@
+#!/usr/bin/perl -w
+# Dieses Script (sopho-changelog) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+
+# Bibliotheken
+use strict;
+
+print "sopho-changelog: Creating the changelog for html documentation\n";
+
+
+my $out_path="sophomorix-doc/html/changelog";
+
+system("install -d $out_path");
+system("cp changelog-sophomorix-src ${out_path}/changelog");
+
