@@ -1,0 +1,74 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH SOPHOMORIX SECTION "February 19, 2004"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+sophomorix \- User administration of a school-server
+.SH SYNOPSIS
+.B sophomorix-check
+.RI [ options ] ...
+.br
+.B sophomorix-add
+.RI [ options ] ...
+.br
+.B sophomorix-move
+.RI [ options ] ...
+.br
+.B sophomorix-kill
+.RI [ options ] ...
+.br
+.B sophomorix-search
+.RI [ options ] ...
+.SH DESCRIPTION
+This manual page documents briefly the
+.B sophomorix-*
+commands.
+.PP
+.\" TeX users may be more comfortable with the \fB<whatever>\fP and
+.\" \fI<whatever>\fP escape sequences to invode bold face and italics, 
+.\" respectively.
+\fBsophomorix-check\fP checks which users can be added, can be moved to another group or can be removed permanently from the system. 
+.TP
+\fBsophomorix-add\fP adds users to the system. 
+.TP
+\fBsophomorix-move\fP moves users to another group 
+.TP
+\fBsophomorix-kill\fP removes users from the system (no way back) 
+.TP
+\fBsophomorix-search\fP searches the database of users
+.SH OPTIONS
+These programs follow the usual GNU command line syntax, with long
+options starting with two dashes (`-').
+.TP
+To see the full help for a 
+.B sophomorix-* command
+, use one of the following options: 
+.TP
+.B \-h, \-\-help
+Show summary of options.
+.TP
+.B \-i, \-\-info
+Show information about what can or will be done.
+.\".SH SEE ALSO
+.\".BR bar (1),
+.\".BR baz (1).
+.\".br
+.\"You can see the full options of the Programs by calling for example 
+.\".IR "sophomrix-check -h" ,
+.
+.SH AUTHOR
+This manual page was written by <jeffbeck@web.de>,
+for the Debian GNU/Linux system (but may be used by others).
