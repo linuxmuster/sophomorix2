@@ -232,9 +232,9 @@ print FILE "homepage;Schul-Homepage;gallilga;thuraudi,werner;7c;1000;16;\n";
 close(FILE);
 
 &create_project_db("astro",
-                      "File=/root/sophomorix-test/projects-test",
-                      "LongName=Astronomie fuer Eltern",
-                      "Create=yes");
+                   "File=/root/sophomorix-test/projects-test",
+                   "LongName=Astronomie fuer Eltern",
+                   "Create=yes");
 
 &check_line_in_file(
   "astro;Astronomie fuer Eltern;gallilga;peter,werner;12c;1000;16;",
@@ -278,3 +278,40 @@ close(FILE);
 &check_line_in_file(
   "chemie;Chemie im Alltag;gallilga;thuraudi,merckxed;;300;14;",
   "/root/sophomorix-test/projects-test");
+
+
+
+
+print '
+###########################################################################
+#                          Testing quota_addition                      #
+###########################################################################
+';
+
+
+my $result="";
+
+$result=&quota_addition("50");
+is($result, 50 ,"Adding 50 to check if quota_addition() can do this");
+
+
+$result=&quota_addition("50","30");
+is($result, 80 ,"Adding 50 and 30");
+
+$result=&quota_addition("22","3000","78");
+is($result, 3100 ,"Adding 22 and 3000 and 78");
+
+
+$result=&quota_addition("22","3000","78","400", "6000");
+is($result, 9500 ,"Adding 22 and 3000 and 78 and 400 and 6000");
+
+
+$result=&quota_addition("22+300","33+3000");
+is($result, "55+3300" ,"Adding 22+300 and 33+3000");
+
+$result=&quota_addition("10+100+200+400+800+",
+                        "20+200+400+600+1000",
+                        "30+300+600+800+1200+");
+is($result, 
+   "60+600+1200+1800+3000" ,
+   "Adding a lot of stuff (3 quotastrings with 5 filsystems each)");
