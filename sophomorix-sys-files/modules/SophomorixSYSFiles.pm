@@ -13,6 +13,7 @@ require Exporter;
              update_gecos
              delete_user_from_sys
              add_class_to_sys
+             add_user_to_sys
              get_user_auth_data
 );
 
@@ -37,9 +38,11 @@ Shows the name of the actually loaded module
 
 =cut
 
+
 sub show_sys_modulename {
 #    if($Conf::log_level>=2){
        &Sophomorix::SophomorixBase::titel("SYS-DB-Module:       SophomorixSYSFiles.pm");
+
 #   }
 }
 
@@ -95,6 +98,37 @@ sub add_class_to_sys {
        "groupadd $class",
     );
 
+}
+
+
+=pod
+
+=item  I<add_user_to_sys(class)>
+
+Adds the user I<user> to the system database.
+
+
+=cut
+
+sub add_user_to_sys {
+    my ($nachname,
+       $vorname,
+       $gebdat,
+       $class,
+       $login,
+       $pass,
+       $sh) = @_;
+
+    my $gec = "$vorname"." "."$nachname";
+    my $home ="";
+    if ($class eq "lehrer"){
+       $home = "/home/lehrer/$login";
+    } else {
+       $home = "/home/schueler/$class/$login";
+    }
+    &Sophomorix::SophomorixBase::do_falls_nicht_testen(
+       "useradd -c '$gec' -d $home -m -g $class -p $pass -s $sh $login"
+    );
 }
 
 

@@ -33,6 +33,8 @@ use if ${DevelConf::db_backend} eq 'ldap' ,
 # list of functions to load if db is 'files'
 use if ${DevelConf::sys_db} eq 'files' , 
     'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
+                                           add_class_to_sys
+                                           add_user_to_sys
                                           );
 
 
@@ -59,6 +61,7 @@ my $login_name_ok="";
 my $klartext_passwort="";
 my $new_admin_group="";
 my $shell="";
+my $quotastring="";
 
 #my %schueler_ok_hash=();
 my %user_login_hash=();
@@ -131,22 +134,15 @@ if ($info==1) {
 #   %schueler_ok_hash=&schueler_ok_hash();
    # Ausgabe der Anlegbaren user
    print "\nFolgende user können angelegt werden:\n\n";
-   print "Wunsch-Login   Klasse           Identifier\n";
+   print "Wunschlogin  AdminClass  Quota     Identifier   \n";
    &linie;
 
    open(USERHINZU,"${DevelConf::ergebnis_pfad}/sophomorix.add") || die "Fehler: $!";
       while(<USERHINZU>){
         chomp();
         ($new_admin_group,$identifier,$wunsch_login,$wunsch_passwort)=split("::");
-
-#       my $string="$schueler_ok_hash{$identifier}";
-#	if ($string ne "lehrer"){
-#          $string="k"."$string";
-#        } else {
-#          # nix tun
-#        }
-       printf "%-14s %-16s %-40s\n",
-              "$wunsch_login","$new_admin_group","$identifier";
+        printf "%-14s %-16s %-40s\n",
+               "$wunsch_login","$new_admin_group","$identifier";
      }
    close(USERHINZU);
    print "\n";
@@ -182,20 +178,29 @@ my $datei="";
 
 
 #if($Conf::log_level>=3){
-#      &titel("Ermittelte Soll-Quota:");
+      &titel("Calculating quota for new users ...");
 #}
 # quota.txt auslesen
-#my %standard_quota=&get_standard_quota();
+my %standard_quota=&get_standard_quota();
 
 # lehrer.txt auslesen
-#my %lehrer_quota=&get_lehrer_quota();
+my %lehrer_quota=&get_lehrer_quota();
 
 # schulinfo.txt auslesen
-#my %klassen_quota=&get_klassen_quota();
+my %klassen_quota=&get_klassen_quota();
 
 
 # Quotierte Dateisysteme ermitteln
-#my @quota_fs_liste=&get_quota_fs_liste();
+my @quota_fs_liste=&get_quota_fs_liste();
+
+
+
+#  project database auslesen
+#  AdminClass - AddQuota
+#my %project_add_quota=&get_project_add__quota();
+
+
+
 
 ################################################################################
 # User (Schüler und Lehrer) anlegen aus sophomorix.add
@@ -289,7 +294,6 @@ while(<USERHINZU>){
    # absplitten von Wunschlogin und Wunschpasswort
    ($new_admin_group,$identifier,$wunsch_login,$wunsch_passwort)=split("::");
 
-
    ($nachname,$vorname,$gebdat)=split(";", $identifier);
    # Gruppennamen ermitteln, max 8 Zeichen, k als 1. Buchstaben vorsetzen
    # problematisch, da sich klassen erst nach 8 zeichen unterscheiden können????????????
@@ -354,38 +358,37 @@ if ($wunsch_passwort eq "erstpw") {
 # Shell
 $shell=&shell_ermitteln($new_admin_group);
 
-
-#   # Quota
-#   if ($new_admin_group eq "lehrer") {
-#      # Es ist ein Lehrer
-#      if (exists $lehrer_quota{$login_name_ok}) {
-#         # Es gibt lehrerquota
-#         $login_quota{$login_name_ok}=$lehrer_quota{"$login_name_ok"};
-#         $login_quota_typ="Einzel-Lehrer-Quota";
-#      } else {
-#         $login_quota{$login_name_ok}=$standard_quota{"standard-lehrer"};
-#         $login_quota_typ="Standard-Lehrer-Quota";
-#      }
-#   } else {
-#      # Es ist ein Schüler
-#      if (exists $klassen_quota{$new_admin_group}) {
-#         # Es gibt klassenquota
-#         $login_quota_typ="Klassen-Quota";
-#         $login_quota{$login_name_ok}=$klassen_quota{"$new_admin_group"};
-#      } else {
-#         # standart-wert setzten
-#         # 1) im Hash %standard_quota
-#         # 2) den key standard-schueler suchen
-#         # 3) auf dessen Value (Referenz auf liste)
-#         # 4) eine neue Referenz setzten
-#         #$login_quota{$login_name_ok}=[@null_quota_liste];
-#         $login_quota{$login_name_ok}=$standard_quota{"standard-schueler"};
-#         $login_quota_typ="Standard-Schüler-Quota";
-#         # $login_quota{$login_name_ok}=$standard_quota{"standard-lehrer"};
-#       }
-#   }
-#
-
+if($Conf::use_quota eq "yes"){
+  # Quota
+   if ($new_admin_group eq "lehrer") {
+      # Es ist ein Lehrer
+      if (exists $lehrer_quota{$login_name_ok}) {
+         # Es gibt lehrerquota
+         $login_quota{$login_name_ok}=$lehrer_quota{"$login_name_ok"};
+         $login_quota_typ="Einzel-Lehrer-Quota";
+      } else {
+         $login_quota{$login_name_ok}=$standard_quota{"standard-lehrer"};
+         $login_quota_typ="Standard-Lehrer-Quota";
+      }
+   } else {
+      # Es ist ein Schüler
+      if (exists $klassen_quota{$new_admin_group}) {
+         # Es gibt klassenquota
+         $login_quota_typ="Klassen-Quota";
+         $login_quota{$login_name_ok}=$klassen_quota{"$new_admin_group"};
+      } else {
+         # standart-wert setzten
+         # 1) im Hash %standard_quota
+         # 2) den key standard-schueler suchen
+         # 3) auf dessen Value (Referenz auf liste)
+         # 4) eine neue Referenz setzten
+         #$login_quota{$login_name_ok}=[@null_quota_liste];
+         $login_quota{$login_name_ok}=$standard_quota{"standard-schueler"};
+         $login_quota_typ="Standard-Schüler-Quota";
+         # $login_quota{$login_name_ok}=$standard_quota{"standard-lehrer"};
+       }
+   }
+}
 # Test
 #my @test_array=("0-0-0-0","test","test2");
 #$login_quota{"michelgr"}=\@test_array;
@@ -412,7 +415,8 @@ $shell=&shell_ermitteln($new_admin_group);
 
 # Ermittelte Daten ausgeben
   if($Conf::log_level>=1){
-      print("\n##### Lege User $user_nummer an:\n");
+      print "\n";
+      &titel("Creating User $user_nummer :");
       print("Nachname:         $nachname\n");
       print("Vorname:          $vorname\n");
       print("Geburtsdatum:     $gebdat\n");
@@ -429,53 +433,62 @@ $shell=&shell_ermitteln($new_admin_group);
          # Es ist ein Schüler
          print("Shell (Schüler):  $shell\n"); 
        }
-#       { # Klammern um $j lokal zu halten, Beginn
-#       my $j; 
-#          for ($j=0; $j < @quota_fs_liste; $j++){
-#             print ("Soll-Quota:       ${ $login_quota{$login_name_ok} }[$j]");
-#             print ("  auf $quota_fs_liste[$j]  ($login_quota_typ)\n");
-#          }
-#       } # Klammern um $j lokal zu halten, Ende
+       { # Klammern um $j lokal zu halten, Beginn
+       my $j; 
+       $quotastring="";
+          for ($j=0; $j < @quota_fs_liste; $j++){
+             print ("Quota:       ${ $login_quota{$login_name_ok} }[$j]");
+             print ("  on $quota_fs_liste[$j]  ($login_quota_typ)\n");
+             if ($quotastring eq ""){
+                $quotastring=${ $login_quota{$login_name_ok} }[$j];
+             } else {
+                $quotastring=$quotastring."+".${ $login_quota{$login_name_ok} }[$j];
+	     }
+          }
+       } # Klammern um $j lokal zu halten, Ende
+       print "Quotastring: $quotastring \n";
   }
 
-  # Ist Schüler schon im System, aber deaktiviert -> dann reaktivieren
+  # Nun wird der User angelegt
+  
+  # 1. Entry in sophomorix database
+  &create_user_db_entry($nachname,
+                        $vorname,
+                        $gebdat,
+                        $new_admin_group,
+                        $login_name_ok,
+                        $klartext_passwort,
+                        $shell,
+                        $quotastring);
 
-  # Nun wird der User angelegt  
-  # Lehrer und Schueler
-  # Todo
-  &create_user_db_entry(
-       $nachname,
-       $vorname,
-       $gebdat,
-       $new_admin_group,
-       $login_name_ok,
-       $klartext_passwort,
-       $shell,
-       "200",
-   );
+  # 2. Entry to the sys database
+  &add_class_to_sys($new_admin_group); # VOR add_user_to_sys !
+  &add_user_to_sys($nachname,
+                   $vorname,
+                   $gebdat,
+                   $new_admin_group,
+                   $login_name_ok,
+                   $klartext_passwort,
+                   $shell);
+  &set_password($login_name_ok,$klartext_passwort);
 
-  if ($new_admin_group eq "lehrer") {
-     # Es ist ein Lehrer
-     &neuer_linux_user_lehrer();
-   } else {
+  # 3. Add teacher to webmin
+  if ($new_admin_group eq "lehrer"){
+     &webmin_eintrag($login_name_ok);
+  }
 
-     &neuer_schueler($login_name_ok, $new_admin_group, $gecos, $klartext_passwort, $shell);
+  # 4. Creating dirs, links
+  &provide_class_files($new_admin_group);
+  &provide_user_files($login_name_ok,$new_admin_group);
 
-   }
-
-  # Lehrer und Schueler
-  # Nun werden die Quota des user gesetzt
-#  &setze_quota($login_name_ok, \@quota_fs_liste, \@{ $login_quota{$login_name_ok} });
-
-
+  # 4. Setting quota 
+  &setze_quota($login_name_ok, 
+               \@quota_fs_liste, 
+               \@{ $login_quota{$login_name_ok} });
 }
+
 close(USERHINZU);
 close(NOCHANLEGEN);
-
-
-
-# Alle User sind angelegt
-&titel("Dateien wegsichern:");
 
 
 if ($webmin_neustart==1){
@@ -496,7 +509,7 @@ if (${DevelConf::debian} ne "yes") {
 }
 
 # später ???
-&drucken();
+&print();
 
 # ===========================================================================
 # sophomorix.add moven, damit sie nicht nochmal eingelesen werden kann
@@ -539,20 +552,23 @@ if ($DevelConf::testen==0) {
    # Kein Test
    rename("${DevelConf::ergebnis_pfad}/sophomorix.add.new",
           "${DevelConf::ergebnis_pfad}/sophomorix.add" );
- } else {
+} else {
    # Test
    system("rm -f ${DevelConf::ergebnis_pfad}/sophomorix.add.new > /dev/null");
- }
+}
 
-   &titel("Soll-Quota:");
-   while (my ($key,$value) = each %login_quota){
-     printf "Soll-Quota:  %-10s %3s\n","$key","@{ $value }";
-   }
+# Nur root darf lesen
+#system ("chown root:root $DevelConf::protokoll_datei");
+#system ("chmod 600 $DevelConf::protokoll_datei");
+
+&titel("sophomorix-add terminated regularly");
 
 
 
 
-print ("\nsophomorix-add endet ...\n\n");
+
+
+
 
 
 
@@ -563,244 +579,17 @@ print ("\nsophomorix-add endet ...\n\n");
 # Subroutinen
 ################################################################################
 
-
-
-# ===========================================================================
-# Lehrer anlegen
-# ===========================================================================
-sub neuer_linux_user_lehrer
-{
-
-# Vorraussetzungen:
-# /home/lehrer existiert schon
-# /home/tausch/lehrer existiert schon
-
-my $lehrer_home = "/home/lehrer/$login_name_ok";
-my $www_home = "/home/lehrer/$login_name_ok/www";
-
-# Zugriff auf zentrale Rechte
-if ($DevelConf::testen==0) {
-   &setup_verzeichnis("/home/lehrer/\$lehrer",
-                      "/home/lehrer/$login_name_ok",
-                      "$login_name_ok");
-
-   &setup_verzeichnis("/home/lehrer/\$lehrer/windows",
-                      "/home/lehrer/$login_name_ok/windows",
-                      "$login_name_ok");
-
-   &setup_verzeichnis("/home/lehrer/\$lehrer/www",
-                      "$www_home");
-
-   &setup_verzeichnis("/home/lehrer/\$lehrer/www/public_html",
-                      "$www_home/public_html",
-                      "$login_name_ok");
-}
-
-
-&do_falls_nicht_testen(
-              # Link von windows aus
-              "rm -rf /home/lehrer/$login_name_ok/windows/public_html",
-              "cd /home/lehrer/$login_name_ok/windows; ln -s ../www/public_html public_html",
-              # Link von Linux aus
-              "cd /home/lehrer/$login_name_ok; ln -s www/public_html public_html"
-);
-
-&webmin_eintrag($login_name_ok);
-# passwort verschlüsseln, samba
-&passwort_setzen();
-&protokolldatei_modifizieren();
-}
-
-
-
-# ===========================================================================
-# Passwort setzen Linux und Samba
-# ===========================================================================
-sub passwort_setzen {
-  if ($DevelConf::testen==0) {
-     # Passwort verschlüsseln
-     open(PASSWD,"| /usr/sbin/chpasswd");
-       print PASSWD "$login_name_ok:$klartext_passwort\n";     
-     close(PASSWD);
-     # Passwort in smbpasswd setzen
-     open(SMBPASSWD,"| /usr/bin/smbpasswd -s -a $login_name_ok");
-       print SMBPASSWD "$klartext_passwort\n$klartext_passwort\n"; 
-     close(SMBPASSWD);
-  } else {
-     print "Test: Passwort setzten\n";
-  }
-}
-
-
-
-
-# ===========================================================================
-# Eintrag in user.protokoll
-# ===========================================================================
-sub protokolldatei_modifizieren {
-  if ($DevelConf::testen==0) {
-     open(PROTOKOLL,">>$DevelConf::protokoll_datei");
-     
-       # zeile anhängen
-       print PROTOKOLL "$new_admin_group;$gecos;$login_name_ok;$klartext_passwort;$gebdat\n";
-       # Datei Schließen, damit Schreiben erzwingen (Falls Programmabsturz)
-     close(PROTOKOLL);
-  } else {
-       print "Test:   $DevelConf::protokoll_datei modifizieren\n";
-  }
-
-}
-
-
-
-
-
-# ===========================================================================
-# Schüler anlegen
-# ===========================================================================
-sub neuer_schueler {
-my ($login, $gruppe, $gec, $passwort, $sh)=@_;
-my $schueler_home = "/home/schueler/$gruppe/$login";
-my $tausch_klasse = "/home/tausch/klassen/$gruppe";
-my $www_home = "/home/schueler/$gruppe/$login/www";
-
-# Eigentümer von /home/schueler/klasse/name REKURSIV ändern in:   user:lehrer
-&do_falls_nicht_testen(
-     "chown -R $login:lehrer $schueler_home"
-);
-
-if ($DevelConf::testen==0) {
-   &setup_verzeichnis("/home/schueler/\$klassen/\$schueler",
-                      "$schueler_home",
-                      "$login");
-   &setup_verzeichnis("/home/schueler/\$klassen/\$schueler/windows",
-                      "$schueler_home/windows",
-                      "$login");
-   &setup_verzeichnis("/home/schueler/\$klassen/\$schueler/windows/sammelordner",
-                      "$schueler_home/windows/sammelordner",
-                      "$login");
-   &setup_verzeichnis("/home/schueler/\$klassen/\$schueler/www",
-                      "$www_home");
-   &setup_verzeichnis("/home/schueler/\$klassen/\$schueler/www/public_html",
-                      "$www_home/public_html",
-                      "$login");
-}
-
-
-#www
-&do_falls_nicht_testen(
-           # Link von windows aus
-           "rmdir $schueler_home/windows/public_html $dev_null",
-           "cd $schueler_home/windows; ln -s ../www/public_html public_html",
-           # Link von Linux aus
-           "cd $schueler_home; ln -s www/public_html public_html"
-);
-
-&user_links($login, $gruppe);
-
-&passwort_setzen();
-
-&protokolldatei_modifizieren();
-
-}
-
-# Nur root darf lesen
-system ("chown root:root $DevelConf::protokoll_datei");
-system ("chmod 600 $DevelConf::protokoll_datei");
-
-
-
-
-
-
 # ===========================================================================
 # sophomorix-print aufrufen
 # ===========================================================================
-sub drucken {
+sub print {
    if ($DevelConf::testen==0) {
-      &titel("sophomorix-print startet");
-      print "\n\n  Die Ausdruckdateien werden generiert\n\n";
       # Mit 1mal sophomorix-print aufrufen sollte es tun, tut es aber nicht
       system("$DevelConf::executable_pfad/sophomorix-print");
-
-      &titel("... sophomorix-print wird beendet.");
    } else {
       print "\n\nDruckdaten werden NICHT erzeugt: Testmodus\n\n"; 
    }
 }
-
-
-
-
-# ===========================================================================
-# Shell ermitteln
-# ===========================================================================
-sub shell_ermitteln {
-   my ($gruppe)=@_;
-   my $login_shell;
-   # Shell ermitteln (Lehrer <> Schüler)
-      if ($gruppe eq "lehrer") {
-         # Es ist ein Lehrer
-         if ($Conf::lehrer_per_ssh eq "ja") {
-             $login_shell="/bin/bash";
-           } else {
-             $login_shell="/bin/false";
-           }
-       } else {
-         # Es ist ein Schüler
-         if ($Conf::schueler_per_ssh eq "ja") {
-             $login_shell="/bin/bash";
-           } else {
-             $login_shell="/bin/false";
-	   }
-       }
- return $login_shell;
-}
-
-
-
-
-
-# ===========================================================================
-# Klartext-Passwort erzeugen
-# ===========================================================================
-sub klartext_passwort_ermitteln {
-   my ($gruppe)=@_;
-   my $passwort="";
-
-     if ($gruppe eq "lehrer") {
-         # Es ist ein Lehrer
-            if ($Conf::lehrer_zufall_passwort eq "ja") {
-            # Zufallspasswort erzeugen
-            for ($i=1;$i<=${Conf::zufall_passwort_anzahl_lehrer};$i++)
-              {
-                 $passwort=$passwort.$passwort_zeichen[int (rand $anzahl_zeichen)];
-              }
-         } else {
-            # Standard-Passwort verwenden
-            $passwort="linux";
-	  }
-
-       } else {
-         # Es ist ein Schüler
-         if ($Conf::schueler_zufall_passwort eq "ja") {
-             # Zufallspasswort erzeugen
-             for ($i=1;$i<=${Conf::zufall_passwort_anzahl_schueler};$i++)
-               {
-                  $passwort=$passwort.$passwort_zeichen[int (rand $anzahl_zeichen)];
-               }
-           } else {
-             # Standard-Passwort verwenden
-             $passwort="linux";
-           }
-       }
-    return $passwort;
-}
-
-
-
-
-
 
 # ===========================================================================
 # Eintrag eines Lehers in webmin machen
@@ -868,4 +657,220 @@ sub webmin_eintrag {
       $webmin_neustart=1;
    }
 }
+
+# ===========================================================================
+# Klartext-Passwort erzeugen
+# ===========================================================================
+sub klartext_passwort_ermitteln {
+   my ($gruppe)=@_;
+   my $passwort="";
+
+     if ($gruppe eq "lehrer") {
+         # Es ist ein Lehrer
+            if ($Conf::lehrer_zufall_passwort eq "ja") {
+            # Zufallspasswort erzeugen
+            for ($i=1;$i<=${Conf::zufall_passwort_anzahl_lehrer};$i++)
+              {
+                 $passwort=$passwort.$passwort_zeichen[int (rand $anzahl_zeichen)];
+              }
+         } else {
+            # Standard-Passwort verwenden
+            $passwort="linux";
+	  }
+
+       } else {
+         # Es ist ein Schüler
+         if ($Conf::schueler_zufall_passwort eq "ja") {
+             # Zufallspasswort erzeugen
+             for ($i=1;$i<=${Conf::zufall_passwort_anzahl_schueler};$i++)
+               {
+                  $passwort=$passwort.$passwort_zeichen[int (rand $anzahl_zeichen)];
+               }
+           } else {
+             # Standard-Passwort verwenden
+             $passwort="linux";
+           }
+       }
+    return $passwort;
+}
+
+# ===========================================================================
+# Shell ermitteln
+# ===========================================================================
+sub shell_ermitteln {
+   my ($gruppe)=@_;
+   my $login_shell;
+   # Shell ermitteln (Lehrer <> Schüler)
+      if ($gruppe eq "lehrer") {
+         # Es ist ein Lehrer
+         if ($Conf::lehrer_per_ssh eq "ja") {
+             $login_shell="/bin/bash";
+           } else {
+             $login_shell="/bin/false";
+           }
+       } else {
+         # Es ist ein Schüler
+         if ($Conf::schueler_per_ssh eq "ja") {
+             $login_shell="/bin/bash";
+           } else {
+             $login_shell="/bin/false";
+	   }
+       }
+ return $login_shell;
+}
+
+# ===========================================================================
+# Passwort setzen Linux und Samba
+# ===========================================================================
+sub set_password {
+    my ($login,$pass) = @_;
+    if ($DevelConf::testen==0) {
+       # Passwort verschlüsseln
+       open(PASSWD,"| /usr/sbin/chpasswd");
+          print PASSWD "$login:$pass\n";     
+       close(PASSWD);
+       # Passwort in smbpasswd setzen
+       open(SMBPASSWD,"| /usr/bin/smbpasswd -s -a $login");
+          print SMBPASSWD "$pass\n$pass\n"; 
+       close(SMBPASSWD);
+  } else {
+     print "Test: Passwort setzten\n";
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+################################################################################
+# Alte Subroutinen, nur zum nachgucken
+################################################################################
+
+sub neuer_linux_user_lehrer {
+# Vorraussetzungen:
+# /home/lehrer existiert schon
+# /home/tausch/lehrer existiert schon
+
+my $lehrer_home = "/home/lehrer/$login_name_ok";
+my $www_home = "/home/lehrer/$login_name_ok/www";
+
+# Zugriff auf zentrale Rechte
+if ($DevelConf::testen==0) {
+   &setup_verzeichnis("/home/lehrer/\$lehrer",
+                      "/home/lehrer/$login_name_ok",
+                      "$login_name_ok");
+
+   &setup_verzeichnis("/home/lehrer/\$lehrer/windows",
+                      "/home/lehrer/$login_name_ok/windows",
+                      "$login_name_ok");
+
+   &setup_verzeichnis("/home/lehrer/\$lehrer/www",
+                      "$www_home");
+
+   &setup_verzeichnis("/home/lehrer/\$lehrer/www/public_html",
+                      "$www_home/public_html",
+                      "$login_name_ok");
+}
+
+&do_falls_nicht_testen(
+              # Link von windows aus
+              "rm -rf /home/lehrer/$login_name_ok/windows/public_html",
+              "cd /home/lehrer/$login_name_ok/windows; ln -s ../www/public_html public_html",
+              # Link von Linux aus
+              "cd /home/lehrer/$login_name_ok; ln -s www/public_html public_html"
+);
+
+&webmin_eintrag($login_name_ok);
+# passwort verschlüsseln, samba
+&passwort_setzen();
+&protokolldatei_modifizieren();
+}
+
+
+# ===========================================================================
+# Eintrag in user.protokoll
+# ===========================================================================
+# alt
+sub protokolldatei_modifizieren {
+  if ($DevelConf::testen==0) {
+     open(PROTOKOLL,">>$DevelConf::protokoll_datei");
+     
+       # zeile anhängen
+       print PROTOKOLL "$new_admin_group;$gecos;$login_name_ok;$klartext_passwort;$gebdat\n";
+       # Datei Schließen, damit Schreiben erzwingen (Falls Programmabsturz)
+     close(PROTOKOLL);
+  } else {
+       print "Test:   $DevelConf::protokoll_datei modifizieren\n";
+  }
+
+}
+
+
+
+# ===========================================================================
+# Schüler anlegen
+# ===========================================================================
+sub neuer_schueler {
+my ($login, $gruppe, $gec, $passwort, $sh)=@_;
+my $schueler_home = "/home/schueler/$gruppe/$login";
+my $tausch_klasse = "/home/tausch/klassen/$gruppe";
+my $www_home = "/home/schueler/$gruppe/$login/www";
+
+# Eigentümer von /home/schueler/klasse/name REKURSIV ändern in:   user:lehrer
+&do_falls_nicht_testen(
+     "chown -R $login:lehrer $schueler_home"
+);
+
+if ($DevelConf::testen==0) {
+   &setup_verzeichnis("/home/schueler/\$klassen/\$schueler",
+                      "$schueler_home",
+                      "$login");
+   &setup_verzeichnis("/home/schueler/\$klassen/\$schueler/windows",
+                      "$schueler_home/windows",
+                      "$login");
+   &setup_verzeichnis("/home/schueler/\$klassen/\$schueler/windows/sammelordner",
+                      "$schueler_home/windows/sammelordner",
+                      "$login");
+   &setup_verzeichnis("/home/schueler/\$klassen/\$schueler/www",
+                      "$www_home");
+   &setup_verzeichnis("/home/schueler/\$klassen/\$schueler/www/public_html",
+                      "$www_home/public_html",
+                      "$login");
+}
+
+
+#www
+&do_falls_nicht_testen(
+           # Link von windows aus
+           "rmdir $schueler_home/windows/public_html $dev_null",
+           "cd $schueler_home/windows; ln -s ../www/public_html public_html",
+           # Link von Linux aus
+           "cd $schueler_home; ln -s www/public_html public_html"
+);
+
+&user_links($login, $gruppe);
+
+&passwort_setzen();
+
+&protokolldatei_modifizieren();
+
+}
+
+
+
+
+
+
 

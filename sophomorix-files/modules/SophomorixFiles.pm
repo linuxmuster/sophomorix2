@@ -69,40 +69,18 @@ sub create_user_db_entry {
        $pass,
        $sh,
        $quota) = @_;
-
     my $gec = "$vorname"." "."$nachname";
-    my $home ="";
-    if ($class eq "lehrer"){
-       $home = "/home/lehrer/$login";
-    } else {
-       $home = "/home/schueler/$class/$login";
-    }
-    #&provide_class($class);
-    &provide_class_files($class);
-    &add_class_to_sys($class);
+    if ($DevelConf::testen==0) {
+       open(PROTOKOLL,">>$DevelConf::protokoll_datei");
+       # zeile anhängen
+       print PROTOKOLL "$class;$gec;$login;$pass;$gebdat;;;;;;;;$quota;\n";
+       # Datei Schließen, damit Schreiben erzwingen (Falls Programmabsturz)
+       close(PROTOKOLL);
+  } else {
+       print "Test:   $DevelConf::protokoll_datei modifizieren\n";
+  }
 
-    &do_falls_nicht_testen(
-       "useradd -c '$gec' -d $home -m -g $class -p $pass -s $sh $login"
-    );
 }
-
-
-#sub delete_user_db_entry {
-#    ($login)=@_;
-#    &do_falls_nicht_testen(
-#       # aus smbpasswd entfernen
-#       "/usr/bin/smbpasswd  -x $login",
-#       # Aus Benutzerdatenbank entfernen (-r: Home löschen)
-#       "userdel  -r $login",
-#    );
-#}
-
-
-
-
-
-
-
 
 
 
@@ -745,7 +723,7 @@ sub search_user {
   my $grp_string="";
   my $home_ex="---";
 
-  &titel("I'm looking for $string in $DevelConf::protokoll_datei ...");
+  &Sophomorix::SophomorixBase::titel("I'm looking for $string in $DevelConf::protokoll_datei ...");
   open(PROTOKOLL,"<$DevelConf::protokoll_datei");
   while (<PROTOKOLL>){
     if (/$string/){
@@ -755,10 +733,10 @@ sub search_user {
        $unid,$subclass,$status,$tol,$deact,$ex_admin,$acc_type,$quota)=split(/;/);
 
        ($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
-       $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
+       $name_passwd,$gcos_passwd,$home,$shell)=&Sophomorix::SophomorixBase::get_user_auth_data($login);
 
        # Gruppen-Zugehoerigkeit
-       @group_list=&get_group_list($login);
+       @group_list=&Sophomorix::SophomorixBase::get_group_list($login);
        $pri_group_string=$group_list[0];
 
 	  print "User                :  $login  ";
@@ -828,24 +806,28 @@ sub search_user {
        if (defined $acc_type){
 	  printf "   AccountType      : %-47s %-11s\n",$acc_type,$login;
        }
-       if (defined $quota){
-	  printf "   Quota (MB)       : %-47s %-11s\n",$quota,$login;
-       }
 
-       if (-e "/usr/bin/quota"){
-          print "Real Quota (output of 'quota $login'): \n";
-          system("quota $login");
+       if($Conf::use_quota eq "yes"){
+          if (defined $quota){
+	     printf "   Quota (MB)       : %-47s %-11s\n",$quota,$login;
+          } else {
+	     print  "   Quota (MB)       : --- \n";
+          }
+          if (-e "/usr/bin/quota"){
+	     print "   "; # indent output of following command
+             system("quota $login");
+          }
        }
        # samba, database independent
-       &print_user_samba_data($login);
+       &Sophomorix::SophomorixBase::print_user_samba_data($login);
 
 
        if($Conf::log_level>=2){
           # history, database independent
           print "History of $login:\n";
-          &get_user_history($login);
+          &Sophomorix::SophomorixBase::get_user_history($login);
           print "Mail forwarding of $login:\n";
-          &print_forward($login, $home);
+          &Sophomorix::SophomorixBase::print_forward($login, $home);
        }
        print "\n";
 

@@ -72,6 +72,7 @@ use Time::localtime;
               liste_ausgeben
               get_mail_alias_from
               check_quotastring
+              get_quotastring
               setze_quota
               get_standard_quota
               get_lehrer_quota
@@ -86,14 +87,27 @@ use Time::localtime;
               ka_einsammeln
               unterricht_einsammeln
               provide_class_files
+              provide_user_files
               );
 
 
 
 
+# wenn diese Zeile da steht dann muss in SophomorixSYSFiles.pm immer
+# wenn eine Funktion aus SophomorixBase.pm genutzt wird der absolute Pfad
+# &Sophomorix::SophomorixBase::titel() angegeben werden.
+# Es wir nach der Funktion in Sophomorix::SophomorixSYSFiles::titel gesucht
+
 use Sophomorix::SophomorixSYSFiles qw ( 
                                     get_user_auth_data
                                   );
+
+
+
+
+#use Sophomorix::SophomorixFiles qw ( 
+#                                    update_user_db_entry
+#                                  );
 
 
 
@@ -598,6 +612,8 @@ Creates all files and directories for a class (exchange directories).
 
 
 sub provide_class_files {
+
+#?????? lehrer?
     my ($class) = @_;
     my $klassen_homes="/home/schueler/$class";
     my $klassen_tausch="/home/tausch/klassen/$class";
@@ -611,27 +627,90 @@ sub provide_class_files {
 }
 
 
-#sub provide_class {
-#    my ($class) = @_;
-#    my $klassen_homes="/home/schueler/$class";
-#    my $klassen_tausch="/home/tausch/klassen/$class";
-#    my $klassen_aufgaben="/home/aufgaben/$class";
-#    &setup_verzeichnis("/home/schueler/\$klassen",
-#                    "$klassen_homes");
-#    &setup_verzeichnis("/home/tausch/klassen/\$klassen",
-#                    "$klassen_tausch");
-#    &setup_verzeichnis("/home/aufgaben/\$klassen",
-#                    "$klassen_aufgaben");
-#
-#    &add_class_to_sys($class);
-#    #&do_falls_nicht_testen(
-#    #   "groupadd $class",
-#    #);
-#}
+=pod
+
+=item I<provide_user_files(class)>
+
+Creates all files and directories for a user.
+
+=cut
+sub provide_user_files {
+    my ($login,$class) = @_;
+    my $home="";
+    my $share_class = "";
+    my $dev_null="1>/dev/null 2>/dev/null";
+    if ($class eq "lehrer"){
+        # lehrer
+        $home = "/home/lehrer/$login";
+        $www_home = "/home/lehrer/$login/www";
+        $share_class = "/home/tausch/lehrer";
+        if ($DevelConf::testen==0) {
+           &setup_verzeichnis("/home/lehrer/\$lehrer",
+                      "/home/lehrer/$login",
+                      "$login");
+
+           &setup_verzeichnis("/home/lehrer/\$lehrer/windows",
+                      "/home/lehrer/$login/windows",
+                      "$login");
+
+           &setup_verzeichnis("/home/lehrer/\$lehrer/www",
+                      "$www_home");
+
+           &setup_verzeichnis("/home/lehrer/\$lehrer/www/public_html",
+                      "$www_home/public_html",
+                      "$login");
+        }
+        &do_falls_nicht_testen(
+           # Link von windows aus
+           "rm -rf /home/lehrer/$login/windows/public_html",
+           "cd /home/lehrer/$login/windows; ln -s ../www/public_html public_html",
+           # Link von Linux aus
+           "cd /home/lehrer/$login; ln -s www/public_html public_html"
+        );
+    } else { 
+        # schueler
+        $home = "/home/schueler/$class/$login";
+        $www_home = "/home/schueler/$class/$login/www";
+        $share_class = "/home/tausch/klassen/$class";
+
+        # Eigentümer von /home/schueler/klasse/name REKURSIV 
+        # aendern in:   user:lehrer
+        &do_falls_nicht_testen(
+             "chown -R $login:lehrer $home"
+        );
+
+        if ($DevelConf::testen==0) {
+           &setup_verzeichnis("/home/schueler/\$klassen/\$schueler",
+                              "$home",
+                              "$login");
+           &setup_verzeichnis("/home/schueler/\$klassen/\$schueler/windows",
+                              "$home/windows",
+                              "$login");
+           &setup_verzeichnis(
+                  "/home/schueler/\$klassen/\$schueler/windows/sammelordner",
+                  "$home/windows/sammelordner",
+                  "$login");
+           &setup_verzeichnis("/home/schueler/\$klassen/\$schueler/www",
+                              "$www_home");
+           &setup_verzeichnis(
+                  "/home/schueler/\$klassen/\$schueler/www/public_html",
+                  "$www_home/public_html",
+                  "$login");
+           #www
+           &do_falls_nicht_testen(
+              # Link von windows aus
+              "rmdir $home/windows/public_html $dev_null",
+              "cd $home/windows; ln -s ../www/public_html public_html",
+              # Link von Linux aus
+              "cd $home; ln -s www/public_html public_html"
+           );
 
 
-
-
+         }
+    }
+    # Für alle user (lehrer und schueler)
+    &user_links($login, $class);
+}
 
 
 
@@ -2698,16 +2777,47 @@ sub checked_quotastring {
 
 
 # ===========================================================================
+# Quota ermitteln
+# ===========================================================================
+sub get_quotastring {
+   my $quotastring="";
+   my $user_db_quota_entry="";
+   my ($user,$fsliste, $quotaliste)=@_;
+   # Nun die Elemente der Dateisystem-Liste durchgehen von 1 bis j
+
+   for ($j=0; $j < @$fsliste; $j++){
+      # Aus der Listenreferenz das j-te Element herausnehmen
+      $quotastring = $quotaliste->[$j];
+      $fs = $fsliste->[$j];
+
+      # Leerzeichen aus quotastring entfernen und return abschneiden
+      chomp($quotastring);
+      $quotastring=~s/ //g;
+      if ($user_db_quota_entry eq "") {
+         $user_db_quota_entry=$quotastring;
+     } else {
+         $user_db_quota_entry=$user_db_quota_entry."+".$quotastring;
+     }
+  }
+  print("  User $user has $user_db_quota_entry as quota\n");
+   return $user_db_quota_entry;
+}
+
+
+# ===========================================================================
 # Quota setzten
 # ===========================================================================
    # $userkey:                             username
    # \@quota_filesystems                   Referenz auf Liste mit filesystemen
    # \@{ $login_quota_hash{$userkey} }     Referenz auf den Key $userkey im 
-   # Hash %login_quota_hash, der eine Referenz auf die Liste mit den Quota enthält   
-   # Beispiel: &setze_quota($userkey , \@quota_filesystems, \@{ $login_quota_hash{$userkey} } );
+   # Hash %login_quota_hash, der Referenz auf Liste mit Quota enthält   
+   # Beispiel: &setze_quota($userkey , 
+   #                        \@quota_filesystems, 
+   #                        \@{ $login_quota_hash{$userkey} } );
 sub setze_quota {
    # neue, private Variablen für diesen Block anlegen
    my $quotastring="";
+#   my $user_db_quota_entry="";
    my $minus_anzahl=0;
    # Optionen für den setquota-Befehl
    my $q_opt1="";
@@ -2737,7 +2847,11 @@ sub setze_quota {
       # Leerzeichen aus quotastring entfernen und return abschneiden
       chomp($quotastring);
       $quotastring=~s/ //g;
-   
+#      if ($user_db_quota_entry eq "") {
+#         $user_db_quota_entry=$quotastring;
+#      } else {
+#         $user_db_quota_entry=$user_db_quota_entry."+".$quotastring;
+#      }
       # falls Minus-Zeichen vorhanden, aufsplitten
       if ($quotastring=~/-/) {
          # quotastring aufsplitten
@@ -2813,11 +2927,12 @@ sub setze_quota {
 
       if(not $DevelConf::testen==1) {
         #Es ist ernst
+        
 	if (not $DevelConf::system==1){
           # Quota-Modul benutzen
           Quota::setqlim($fs,$uid,"${q_opt1}000","${q_opt2}000",$q_opt3,$q_opt4);
-          print "Setze Quota auf $fs für User $uid \n"; 
-          print "auf: ${q_opt1}000 ${q_opt2}000 $q_opt3 $q_opt4 \n";
+          print "Setting quota on $fs for user $uid \n"; 
+          print "to: ${q_opt1}000 ${q_opt2}000 $q_opt3 $q_opt4 \n";
 	} else {
           # Systembefehl benutzten
           system("${quota_befehl}")
