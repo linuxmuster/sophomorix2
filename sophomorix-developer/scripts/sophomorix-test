@@ -68,6 +68,7 @@ foreach $user (@users_to_add){
 
 ###########################################################################
 # Check
+print "Adding $#users_to_add users to schueler.txt\n";
 &run_command("sophomorix-check",$verbose);
 
 
@@ -85,8 +86,14 @@ foreach $user (@users_to_add){
   "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.add");
 # Test
 &check_line_in_file(
+  "2c::wall;larry;02.04.1972::[a-z]{2,}::[a-z]{3,}",
+  "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.add");
+# Test
+&check_line_in_file(
   "m1kb::mahn;oliver;12.10.1982::[a-z]{2,}::[a-z]{3,}",
   "${DevelConf::var_lib_pfad}/ergebnis/sophomorix.add");
+
+
 # Test
 &check_emptyness("sophomorix.move");
 # Test
@@ -114,6 +121,8 @@ foreach $user (@users_to_add){
                     "${DevelConf::var_lib_pfad}/drucken/hinzu.tex");
 &check_line_in_file("mohammed oeztuerk",
                     "${DevelConf::var_lib_pfad}/drucken/hinzu.tex");
+&check_line_in_file("larry wall",
+                    "${DevelConf::var_lib_pfad}/drucken/hinzu.tex");
 &check_line_in_file("oliver mahn",
                     "${DevelConf::var_lib_pfad}/drucken/hinzu.tex");
 # andere
@@ -133,6 +142,11 @@ foreach $user (@users_to_add){
 &check_line_in_file(":mohammed oeztuerk:","/etc/passwd");
 &check_line_in_file(
   "7a;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982",
+  "$DevelConf::protokoll_pfad/user.protokoll");
+
+&check_line_in_file(":larry wall:","/etc/passwd");
+&check_line_in_file(
+  "2c;larry wall;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1972",
   "$DevelConf::protokoll_pfad/user.protokoll");
 
 &check_line_in_file(":oliver mahn:","/etc/passwd");
@@ -225,8 +239,8 @@ $login=&get_login_name("dachboden;joerg maier;[a-z0-9]{2,};[a-z0-9]{3,};12.10.19
 
 &run_command("sophomorix-kill",$verbose);
 
+&check_account($login,"nonexisting");
 
-# Test: Wird Datenbank upgedated?
 
 
 
@@ -406,18 +420,24 @@ $login=&get_login_name("m1kb;oliver mahn;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982");
 
 &run_command("sophomorix-move",$verbose);
 
+my @logins=();
+
 
 $login=&get_login_name("dachboden;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982");
+
+push @logins, $login;
 
 &check_account($login,"disabled");
 &update_user_db_entry($login,"DeactivationDate=01.01.1971");
 
 
 $login=&get_login_name("dachboden;larry wall;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1972");
+push @logins, $login;
 &check_account($login,"disabled");
 &update_user_db_entry($login,"DeactivationDate=01.01.1971");
 
 $login=&get_login_name("dachboden;oliver mahn;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982");
+push @logins, $login;
 &check_account($login,"disabled");
 &update_user_db_entry($login,"DeactivationDate=01.01.1971");
 
@@ -427,6 +447,9 @@ $login=&get_login_name("dachboden;oliver mahn;[a-z0-9]{2,};[a-z0-9]{3,};12.10.19
 &run_command("sophomorix-kill",$verbose);
 
 
+foreach my $login (@logins){
+   &check_account($login,"nonexisting");
+}
 
 
 exit;
@@ -464,22 +487,6 @@ $login=&remove_line(
   "m1kb;M\203hn;\223liver;12.10.1982;",
   "${DevelConf::users_pfad}/schueler.txt");
 &kill_user("$login");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
