@@ -1,0 +1,173 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-test) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+
+# weiter:
+
+#Auswertung .add, .move, .kill
+
+
+# Bibliotheken
+
+use strict;
+use Getopt::Long;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixFiles;
+use Sophomorix::SophomorixTest;
+use Test::More "no_plan";
+
+Getopt::Long::Configure ("bundling");
+
+# Einlesen der Konfigurationsdatei für Entwickler
+{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+
+
+system("install -d /root/sophomorix-test");
+
+
+
+############################################################
+print "\nTesting update_user-db_entry \n\n";
+############################################################
+
+open(FILE,">/root/sophomorix-test/user.protokoll-test");
+
+print FILE "dachboden;one joop;joopma;linux;03.12.1977\n";
+print FILE "g12kb;another joop;joopma;dbddhkp;04.10.1974\n";
+print FILE "7a;klaus meier;meiekl;linux;10.10.1988\n";
+print FILE "12b;juergen stiller;stilleju;linux;10.12.1978\n";
+
+close(FILE);
+
+&update_user_db_entry("meiekl",
+                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "TolerationDate=25.04.2004");
+&check_line_in_file(
+  "7a;klaus meier;meiekl;linux;10.10.1988;;;;25.04.2004;;",
+  "/root/sophomorix-test/user.protokoll-test");
+
+
+&update_user_db_entry("stilleju",
+                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "AdminClass=astro",
+                      "Birthday=10.12.1979",
+                      "FirstPass=dsf45rhR",
+                      "DeactivationDate=25.04.2004",
+                      "Name=linus",
+                      "LastName=torvalds",
+                      "Unid=123654789",
+                      "SubClass=B",
+                      "Status=1",
+                      "DeactivationDate=25.04.2004",
+                      "TolerationDate=30.03.2003");
+&check_line_in_file(
+  "astro;linus torvalds;stilleju;dsf45rhR;10.12.1979;123654789;B;1;30.03.2003;25.04.2004;",
+  "/root/sophomorix-test/user.protokoll-test");
+
+
+# Unid entfernen
+&update_user_db_entry("stilleju",
+                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "Unid=");
+&check_line_in_file(
+  "astro;linus torvalds;stilleju;dsf45rhR;10.12.1979;;B;1;30.03.2003;25.04.2004;",
+  "/root/sophomorix-test/user.protokoll-test");
+
+
+# Versetzen
+&update_user_db_entry("stilleju",
+                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "AdminClass=m2kb");
+&check_line_in_file(
+  "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;;B;1;30.03.2003;25.04.2004;",
+  "/root/sophomorix-test/user.protokoll-test");
+
+
+# Unid hochladen
+&update_user_db_entry("stilleju",
+                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "Unid=AgooseSLoos");
+&check_line_in_file(
+  "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;B;1;30.03.2003;25.04.2004;",
+  "/root/sophomorix-test/user.protokoll-test");
+
+
+# Subklasse wechseln
+&update_user_db_entry("stilleju",
+                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "SubClass=C");
+&check_line_in_file(
+  "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;1;30.03.2003;25.04.2004;",
+  "/root/sophomorix-test/user.protokoll-test");
+
+
+# Deact
+&update_user_db_entry("stilleju",
+                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "DeactivationDate=12.03.2005");
+&check_line_in_file(
+  "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;1;30.03.2003;12.03.2005;",
+  "/root/sophomorix-test/user.protokoll-test");
+
+
+# Tol
+&update_user_db_entry("stilleju",
+                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "TolerationDate=12.07.2002");
+&check_line_in_file(
+  "m2kb;linus torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;1;12.07.2002;12.03.2005;",
+  "/root/sophomorix-test/user.protokoll-test");
+
+
+# Name
+&update_user_db_entry("stilleju",
+                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "Name=linux");
+&check_line_in_file(
+  "m2kb;linux torvalds;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;1;12.07.2002;12.03.2005;",
+  "/root/sophomorix-test/user.protokoll-test");
+
+
+# Nachname
+&update_user_db_entry("stilleju",
+                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "LastName=presley");
+&check_line_in_file(
+  "m2kb;linux presley;stilleju;dsf45rhR;10.12.1979;AgooseSLoos;C;1;12.07.2002;12.03.2005;",
+  "/root/sophomorix-test/user.protokoll-test");
+
+
+# Birthday
+&update_user_db_entry("stilleju",
+                      "File=/root/sophomorix-test/user.protokoll-test",
+                      "Birthday=14.01.1966");
+
+&check_line_in_file(
+  "m2kb;linux presley;stilleju;dsf45rhR;14.01.1966;AgooseSLoos;C;1;12.07.2002;12.03.2005;",
+  "/root/sophomorix-test/user.protokoll-test");
+
+
+# No match
+&is( &update_user_db_entry("stil",
+        "File=/root/sophomorix-test/user.protokoll-test",
+	"Birthday=14.01.1966") , 0 , "Testing for Zero Match");
+&check_line_in_file(
+  "m2kb;linux presley;stilleju;dsf45rhR;14.01.1966;AgooseSLoos;C;1;12.07.2002;12.03.2005;",
+  "/root/sophomorix-test/user.protokoll-test");
+
+
+# Double match
+&is( &update_user_db_entry("joopma",
+        "File=/root/sophomorix-test/user.protokoll-test",
+	"Birthday=14.01.1966") , 2 , "Testing for Double Match");
+&check_line_in_file(
+  "dachboden;one joop;joopma;linux;03.12.1977",
+  "/root/sophomorix-test/user.protokoll-test");
+&check_line_in_file(
+  "g12kb;another joop;joopma;dbddhkp;04.10.1974",
+  "/root/sophomorix-test/user.protokoll-test");
+
+
