@@ -56,6 +56,7 @@ install: build
 	$(MAKE) install-base DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-ldap DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-files DESTDIR=$(CURDIR)/debian/sophomorix
+	$(MAKE) install-sys-files DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-developer DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-webmin-classmanager DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) doc DESTDIR=$(CURDIR)/debian/sophomorix
@@ -70,7 +71,9 @@ binary-arch: build install
 	dh_testdir
 	dh_testroot
 #	dh_installdebconf	
-	dh_installchangelogs 
+	dh_installchangelogs
+# install debian/copyright file in every package:
+	dh_installdocs
 	dh_installdocs -psophomorix-doc-html sophomorix-doc/html
 #	dh_installexamples
 #	dh_installmenu

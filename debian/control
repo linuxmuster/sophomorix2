@@ -7,7 +7,8 @@ Standards-Version: 3.5.2
 
 Package: sophomorix-base
 Architecture: any
-Depends:  sophomorix-db, quota (>=3.12), perl-base (>=5.8.4), libquota-perl (>= 1.4.9), samba (>= 3.0.7), libstring-approx-perl (>=3.23), tetex-base (>=2.0.2), tetex-bin (>=2.0.2), tetex-extra (>=2.0.2), gs-common (>=0.3.6)
+Suggests: sophomorix-doc-html
+Depends:  sophomorix-db, sophomorix-sysdb, quota (>=3.12), perl-base (>=5.8.4), libquota-perl (>= 1.4.9), samba (>= 3.0.7), libstring-approx-perl (>=3.23), tetex-base (>=2.0.2), tetex-bin (>=2.0.2), tetex-extra (>=2.0.2), gs-common (>=0.3.6)
 Description: Scripts for sophomorix
  sophomorix-base contains all database independent scripts to run sophomorix
  on the console. You additionally need a perl-module(virtual package 
@@ -16,13 +17,25 @@ Description: Scripts for sophomorix
 
 Package: sophomorix-files
 Architecture: any
-Depends:  passwd (>= 4.03)
+Suggests: sophomorix-doc-html
+Depends:  
 Provides: sophomorix-db
-Description: Files-Database for sophomorix
+Description: Database (plain files) for sophomorix
  Database module to store the Sophomorix database in files
+
+Package: sophomorix-sys-files
+Architecture: any
+Suggests: sophomorix-doc-html
+Depends:  passwd (>= 4.03)
+Provides: sophomorix-sysdb
+Description: Module to write to plain linux files
+ This module contains functions to propagate the sophomorix database
+ to /etc/passwd, /etc/shadow, /etc/group, /etc/gshadow, ...
+ 
 
 Package: sophomorix-ldap
 Architecture: any
+Suggests: sophomorix-doc-html
 Depends:  slapd (>=2.1.22), ldap-utils (>=2.1.22),libnet-ldap-perl (>=0.30)
 Provides: sophomorix-db
 Description: ldap direcory for sophomorix

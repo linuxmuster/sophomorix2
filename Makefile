@@ -48,7 +48,7 @@ CTEMPDIR=$(DESTDIR)/var/lib/sophomorix/config-templates
 # WEBMINCONFDIR ML und Debian
 WEBMINCONFDIR=$(DESTDIR)/etc/webmin
 
-all: install-base install-files install-developer install-webmin install-webmin-classmanager
+all: install-base install-files install-sys-files install-developer install-webmin install-webmin-classmanager
 
 
 # sophomorix-base
@@ -82,11 +82,17 @@ install-base:
 	install -oroot -groot --mode=0600 sophomorix-base/samba/netlogon/login.bat $(CTEMPDIR)/samba/netlogon
 
 install-files:
-	##### lib for managing users in files (passwd, group, user.protokoll)
+	##### lib for managing the user database in plain files
 	install -oroot -groot --mode=0744 sophomorix-files/scripts/sophomorix*[a-z1-9] $(DESTDIR)/usr/sbin
 	##### Copy the module
 	install -d -m755 -oroot -groot $(PERLMOD)
 	install -oroot -groot --mode=0644 sophomorix-files/modules/Sophomorix*[a-z1-9] $(PERLMOD)
+
+install-sys-files:
+	##### lib for propagating the db to files
+	##### Copy the module
+	install -d -m755 -oroot -groot $(PERLMOD)
+	install -oroot -groot --mode=0644 sophomorix-sys-files/modules/Sophomorix*[a-z1-9] $(PERLMOD)
 
 install-ldap:
 	##### Copy the module
