@@ -114,6 +114,10 @@ if ($create==1){push @options, "Create=yes"}
 # Programmbeginn
 # ===========================================================================
 
+# repair.directories einlesen
+&get_alle_verzeichnis_rechte();
+
+
 # Step 1
 # write the projects-line
 &create_project_db(@options);
@@ -184,9 +188,12 @@ sub create_project {
     #make sure that group exists
     system("groupadd $project");
     # make sure that the share die exists
-# ??????? Dateirechte aus repair.directories
-    &check_verzeichnis_mkdir("/home/tausch/projects");
-    &check_verzeichnis_mkdir("/home/tausch/projects/${project}");
+#    &check_verzeichnis_mkdir("/home/tausch/projects");
+#    &check_verzeichnis_mkdir("/home/tausch/projects/${project}");
+    &setup_verzeichnis("\$share_projects","${DevelConf::share_projects}");
+    # Todo ?????? muss mit rechten aus repair.directories angelegt werden
+    &check_verzeichnis_mkdir("${DevelConf::share_projects}/${project}");
+ 
     # create the userlist
     # the new teachers
     @new_teachers=split(/,/, $project_data{"Teachers"});

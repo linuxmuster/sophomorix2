@@ -233,10 +233,10 @@ while(<USERVERSETZEN>){
    # Home ermitteln
    if ($neue_klasse eq "lehrer") {
       # in klasse lehrer versetzten
-      $neues_home="/home/lehrer/${login_versetzen}";
+      $neues_home="${DevelConf::homedir_teacher}/${login_versetzen}";
    } else {
       # in andere Klasse versetzten (auch dachboden/speicher)
-      $neues_home="/home/schueler/${neue_klasse}/${login_versetzen}";
+      $neues_home="${DevelConf::homedir_pupil}/${neue_klasse}/${login_versetzen}";
    } 
 
 
