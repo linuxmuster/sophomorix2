@@ -865,7 +865,7 @@ sub provide_user_files {
         # Eigentümer von ${DevelConf::homedir_pupil}/klasse/name REKURSIV 
         # aendern in:   user:lehrer
         &do_falls_nicht_testen(
-             "chown -R $login:teacher $home"
+             "chown -R $login:${DevelConf::teacher} $home"
         );
 
         if ($DevelConf::testen==0) {
@@ -1489,7 +1489,7 @@ Legt leere Datei an, wenn die übergebene Datei nicht existiert
 sub check_datei_touch {
   my ($datei) = @_;
   if (not (-e "$datei")) {
-     print "\n  Die Datei ${datei} wird angelegt \n\n";
+     print "   Die Datei ${datei} wird angelegt \n";
      system("touch ${datei}");
   } 
 }
@@ -3337,7 +3337,8 @@ sub austeilen_manager{
   }
 
   &check_verzeichnis_mkdir("$aufgaben_grp");
-  system ("chown $loginname.teacher $aufgaben_grp");
+#  system ("chown $loginname.teacher $aufgaben_grp");
+  system ("chown $loginname.${DevelConf::teacher} $aufgaben_grp");
   &check_verzeichnis_mkdir("$tausch_ka");
 #  system ("chown $loginname.lehrer $aufgaben_grp");
 
@@ -3699,7 +3700,7 @@ sub ka_einsammeln {
    system("rsync -tor --delete $aufgaben $lehrer_verzeichnis");
    system("rsync -tr $aufgaben $log_verzeichnis");
    # Alles soll lehrer gehören
-   system("chown -R ${loginname}:teacher $lehrer_verzeichnis");
+   system("chown -R ${loginname}:${DevelConf::teacher} $lehrer_verzeichnis");
    # Alles soll root gehören
    system("chown -R root:root $log_verzeichnis");
    # Daten auf der Workstation löschen
@@ -3772,7 +3773,7 @@ sub unterricht_einsammeln {
       system("rsync -tor --delete $aufgaben $lehrer_verzeichnis");
    }
    # Alles soll lehrer gehören
-   system("chown -R ${loginname}:teacher $lehrer_verzeichnis");
+   system("chown -R ${loginname}:${DevelConf::teacher} $lehrer_verzeichnis");
    print "Aufgaben Einsammeln ... fertig.</b><p> ";
 }
 

@@ -227,6 +227,15 @@ sophomorix-webmin
    - totally configure webmin
    - option --noninteractive 
 
+   ** ml_account  : Benutzerkonto  (alle user)
+   ** ml_teacher  : Unterricht (alle)
+   ** ml_admin    : Administration
+
+
+check: is user taken out of webmin, when she is Disabled? Is this necessary or is the !-sign in /etc/shadow enough?
+
+miniserv.users: letztes Feld : hosts von denen man zugreifen darf 
+
 
    -  Be aware: problem group student would need 1 entrys for every student 
        (this will be a very loooooooooong line)
@@ -336,6 +345,7 @@ All Scripts:
 ============================================================
 Think about:
 ============================================================
+   - deleting /home/exams
    - restart of nscd (will nscd be running? is restart necessary)
    - use logrotate (debian/logrotate, dh_logrotate)
    - log password changes securely
@@ -383,8 +393,8 @@ Think about:
        3. Projects created by teachers
 
 Administration software:
-   schueler.txt:    class;lastname;firstname;birthday;unid;department;
-   lehrer.txt:    class;lastname;firstname;birthday;wish-loginname
+   schueler.txt:   class;lastname;firstname;birthday;unid;department;
+   lehrer.txt:     class;lastname;firstname;birthday;wish-loginname
 
 Software Vendors:
    - SPLAN
@@ -392,6 +402,7 @@ Software Vendors:
    - LUSD (mandatory in Hessen, Germany)
    - Schulkartei
 
+Samba net Befehl ansehen
 
 
 
@@ -404,8 +415,21 @@ RELEASES:
 
 ????? next: create links in Tausch, when user is put in subclass
 
+????? new build-package 
 
-1.2.1 (2005-03-?)
+
+???? Bug: a user in dachboden is reactivated by a similar(=must be identical) 
+     new user
+
+
+1.2.1 (2005-04-08)
+   - The following module-names are shown to students,teachers,admin: 
+       ml_account  : Benutzerkonto     (alle students)
+       ml_teacher  : Unterricht        (all teachers)
+       ml_admin    : Administration    (all admins)
+   - changed groupname teacher to teachers and /home/reachers
+   - changed groupname student to students and /home/students
+   - /home/pupil/ -> /home/students 
    - when a user is killed, 
        - move its line(s) from user-modify.log to user-modify-archive.log
           (speed up lookups in user-modify.log)

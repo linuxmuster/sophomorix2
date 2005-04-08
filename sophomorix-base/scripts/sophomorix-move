@@ -294,7 +294,7 @@ while(<USERVERSETZEN>){
    # Dateien im neuen home gehoeren nun der Klassengruppe.
    # Muss angepasst werden an Eigentümer lehrer
    &do_falls_nicht_testen(
-        "chown -R .teacher $neues_home",
+        "chown -R .${DevelConf::teacher} $neues_home",
         "chown .root $neues_home/www"
    );
 

@@ -444,7 +444,7 @@ sub login_type {
     setpwent();
     while(($login,$a,$a,$a,$a,$a,$a,$home)=getpwent()) {
         if($home=~/^$DevelConf::homedir_pupil/){
-           $login_type{$login}="pupil";
+           $login_type{$login}="student";
         } elsif($home=~/^$DevelConf::homedir_ws/){
            $login_type{$login}="workstation";
         } elsif($home=~/^$DevelConf::homedir_teacher/){
@@ -478,7 +478,7 @@ sub get_quota{
 	#print "Found quota for class $grname: $quotastring\n";
     } else {
         # take standard values
-        if ($login_type{$login} eq "pupil"){
+        if ($login_type{$login} eq "student"){
 	    $quotastring=$quota_txt{"standard-schueler"};
         } elsif ($login_type{$login} eq "teacher"){
 	    $quotastring=$quota_txt{"standard-lehrer"};

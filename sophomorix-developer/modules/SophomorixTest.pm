@@ -241,8 +241,6 @@ sub check_account {
        my $pri_grp = getgrgid($gid);
        &check_dir($dir,$login,${DevelConf::teacher},"0700");
        &check_dir("${dir}/windows",$login,${DevelConf::teacher},"0700");
-#       &check_dir("${dir}/Tauschverzeichnisse","admin",${DevelConf::teacher},"1755");
-#       my $link_dir="${dir}/Tauschverzeichnisse";
        &check_dir("${dir}/${Language::share_dir}","root","root","1755");
        my $link_dir="${dir}/${Language::share_dir}";
        &check_links("${link_dir}",$login);
@@ -309,7 +307,7 @@ sub check_links {
           my $link_target = readlink $link;
           print "Target: $link_target \n";
           if ($group eq ${DevelConf::teacher}){    
-            &is($link_target,"/home/share/teacher" ,
+            &is($link_target,"/home/share/teachers" ,
                "Checking if  target of link is /home/share/classes/${group}");
 	  } else {
             &is($link_target,"/home/share/classes/${group}" ,

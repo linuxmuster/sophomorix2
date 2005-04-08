@@ -102,40 +102,40 @@ if ($add==1 and not -e "/root/sophomorix-test/bunchofusers"){
     ';
     foreach $user (@userlist){
        my ($txt,$proto)=split(/==/, $user);
-       print "TXT       :  $txt \n";
-       print "PROTOKOLL :  $proto \n";
+#       print "TXT       :  $txt \n";
+#       print "PROTOKOLL :  $proto \n";
        &append_line("$txt","${DevelConf::users_pfad}/schueler.txt");
     }
 
-    print "Anlegen von Schülern\n";
+    print "Adding students ...\n";
     &run_command("sophomorix-check",$verbose);
     &run_command("sophomorix-add",$verbose);
 
 
     foreach $teacher (@teacherlist){
        my ($txt,$proto)=split(/==/, $teacher);
-       print "TXT       :  $txt \n";
-       print "PROTOKOLL :  $proto \n";
+#       print "TXT       :  $txt \n";
+#       print "PROTOKOLL :  $proto \n";
        &append_line("$txt","${DevelConf::users_pfad}/lehrer.txt");
     }
 
-    print "Anlegen von Lehrern\n";
+    print "Adding teachers ...\n";
     &run_command("sophomorix-check",$verbose);
     &run_command("sophomorix-add",$verbose);
 
 
     foreach $user (@userlist){
        my ($txt,$proto)=split(/==/, $user);
-       print "TXT       :  $txt \n";
-       print "PROTOKOLL :  $proto \n";
+#       print "TXT       :  $txt \n";
+#       print "PROTOKOLL :  $proto \n";
        my $login=&get_login_name("$proto");
        &check_account($login,"enabled");
     }
 
     foreach $teacher (@teacherlist){
        my ($txt,$proto)=split(/==/, $teacher);
-       print "TXT       :  $txt \n";
-       print "PROTOKOLL :  $proto \n";
+#       print "TXT       :  $txt \n";
+#       print "PROTOKOLL :  $proto \n";
        my $login=&get_login_name("$proto");
        &check_account($login,"enabled");
     }

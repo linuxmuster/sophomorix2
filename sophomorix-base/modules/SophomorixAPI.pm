@@ -661,23 +661,6 @@ sub create_userlist {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 =pod
 
 =item I<%hash = get_ml_users()>
@@ -697,7 +680,7 @@ sub get_ml_users {
     while (@pwliste=getpwent()) {
     #print"$pwliste[7]\n";  # Das 8. Element ist das Home-Verzeichnis
        if ($pwliste[7]=~/^$DevelConf::homedir_pupil/) {
-	   $ml_hash{$pwliste[0]}="pupil";
+	   $ml_hash{$pwliste[0]}="student";
          #print "$pwliste[0]\n";
        }
        if ($pwliste[7]=~/^$DevelConf::homedir_teacher/) {

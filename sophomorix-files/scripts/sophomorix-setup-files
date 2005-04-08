@@ -23,11 +23,13 @@ system("groupadd admin");
 # gruppe lehrer anlegen
 #system("groupadd -g 1002 lehrer");
 #system("groupadd lehrer");
-system("groupadd teacher");
+#system("groupadd teacher");
+system("groupadd ${DevelConf::teacher}");
 
 # make some scripts owned by leherer
 #system("chown root.lehrer /usr/bin/sophomorix-teacher");
-system("chown root.teacher /usr/bin/sophomorix-teacher");
+#system("chown root.teacher /usr/bin/sophomorix-teacher");
+system("chown root.${DevelConf::teacher} /usr/bin/sophomorix-teacher");
 system("chmod 4750 /usr/bin/sophomorix-teacher");
 
 
@@ -39,7 +41,8 @@ system("useradd -g admin -d /home/admin -s /bin/bash -c Windows_Systemverwalter 
 # (primäre Gruppe bleibt admin)
 #system("usermod -G lehrer admin");
 #system("gpasswd -a admin lehrer");
-system("gpasswd -a admin teacher");
+#system("gpasswd -a admin teacher");
+system("gpasswd -a admin ${DevelConf::teacher}");
 
 # repair.directories einlesen
 &get_alle_verzeichnis_rechte();

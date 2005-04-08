@@ -253,15 +253,15 @@ if ($groups==1){
     while (<FILE>){
 	chomp();
         my ($group,$users,$modules,$donnow)=split(/:/);
-        if ($group eq "teacher"){$add_teacher=0}
-        if ($group eq "student"){$add_student=0}
+        if ($group eq ${DevelConf::teacher}){$add_teacher=0}
+        if ($group eq ${DevelConf::student}){$add_student=0}
     }
     close(FILE);
     
     # add line if it doesn exist
     open(FILE, ">>$file") || die "Error: $! not found";
-    if ($add_teacher==1){print FILE "teacher::::\n"}
-    if ($add_student==1){print FILE "student::::\n"}
+    if ($add_teacher==1){print FILE "${DevelConf::teacher}::::\n"}
+    if ($add_student==1){print FILE "${DevelConf::student}::::\n"}
     close(FILE);
 
     # fill the lines with users
@@ -272,7 +272,7 @@ if ($groups==1){
         my ($group,$users,$modules,$donnow)=split(/:/);
         my @modules=split(/ /, $modules);
 
-        if ($group eq "teacher"){
+        if ($group eq ${DevelConf::teacher}){
             @modules_teacher=@modules;
             @users=&get_user_adminclass(${DevelConf::teacher});
             # create string
@@ -285,7 +285,7 @@ if ($groups==1){
                       "$modules",":",
 	              "$donnow",":\n";
 
-        } elsif ($group eq "student"){
+        } elsif ($group eq ${DevelConf::student}){
             @modules_student=@modules;
             my @users_pupil=&get_pupils_school();
             my @users_teacher=&get_user_adminclass(${DevelConf::teacher});
@@ -364,6 +364,8 @@ if ($modules==1){
     # teachers
     my @users_teacher=&get_user_adminclass(${DevelConf::teacher});
     my $teacher_modules = &get_webmin_modules("teacher");
+    print "TEACH:  $teacher_modules\n @users_teacher\n";
+
     foreach my $teacher (@users_teacher){
 	my $miniserv_string=$teacher.":x:0::"."\n";
         print MINISERVTMP $miniserv_string;
@@ -400,7 +402,7 @@ sub get_webmin_modules {
     my ($group) = @_;
     my $file="${DevelConf::devel_webmin_path}/webmin-${group}-modules.conf";
     my $string="";
-
+    print "File: $file\n";
     open(MOD, "<$file") || die "Error: $! not found";
     while (<MOD>){
        chomp();

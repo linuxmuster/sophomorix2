@@ -1363,7 +1363,7 @@ sub rename_teacher_groupname {
    open (TEACHERTMP, ">${DevelConf::lehrer_datei}") 
      || die "Fehler: $!";
    while(<TEACHER>){
-       s/^${Conf::teacher_group_name}/teacher/g;
+       s/^${Conf::teacher_group_name}/${DevelConf::teacher}/g;
        print TEACHERTMP $_;
    }
    close(TEACHER);
