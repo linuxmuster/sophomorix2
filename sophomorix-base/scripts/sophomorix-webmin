@@ -364,7 +364,6 @@ if ($modules==1){
     # teachers
     my @users_teacher=&get_user_adminclass(${DevelConf::teacher});
     my $teacher_modules = &get_webmin_modules("teacher");
-    print "TEACH:  $teacher_modules\n @users_teacher\n";
 
     foreach my $teacher (@users_teacher){
 	my $miniserv_string=$teacher.":x:0::"."\n";
@@ -402,7 +401,6 @@ sub get_webmin_modules {
     my ($group) = @_;
     my $file="${DevelConf::devel_webmin_path}/webmin-${group}-modules.conf";
     my $string="";
-    print "File: $file\n";
     open(MOD, "<$file") || die "Error: $! not found";
     while (<MOD>){
        chomp();
