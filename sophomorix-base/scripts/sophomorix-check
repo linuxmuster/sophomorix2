@@ -57,11 +57,18 @@ my  @schueler_to_check_dateien=(
     # 2:konfiguration/extrakurse.txt
     "${DevelConf::ergebnis_pfad}/extrakurse.students",
     # 3:lehrer.txt
-#    "${DevelConf::users_pfad}/lehrer.txt",
     "$DevelConf::lehrer_datei",
-#    # 4: reaktivierte Schüler
-#    "${DevelConf::pruef_pfad}/user.reaktiviert"
    );
+
+
+
+# ?????????????????? hash nicht richtig definiert
+my %filename_map = ("$DevelConf::schueler_datei", "schueler.txt",
+        "${DevelConf::config_pfad}/extraschueler.txt","extraschueler.txt",
+        "$DevelConf::lehrer_datei","lehrer.txt",
+        "${DevelConf::ergebnis_pfad}/extrakurse.students","extrakurse.students"
+		    );
+
 
 # =========================================================================
 # lehrer.txt ordnen
@@ -330,6 +337,8 @@ my %schueler_ok_hash=();
 my %unid_ok_file=();
 my %unid_ok_system=();
 my %schueler_ok_wunsch_login_hash=();
+my %wunsch_login_seen=();
+my %wunsch_login_forbidden=();
 my %schueler_ok_wunsch_passwort_hash=();
 my %schueler_im_system_exit_admin_class=();
 my %schueler_im_system_account_type=();
@@ -908,7 +917,8 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
             # Korrekter Datensatz in Hashtabelle %schueler_ok_hash speichern
             if ( &add_user_to_queue($datensatz_ok,
                                     $wunsch_login,
-                                    $wunsch_passwort) ==0 ){
+                                    $wunsch_passwort,
+                                    $schuelerdatei) ==0 ){
                 next;
             }
 
@@ -1955,26 +1965,52 @@ sub is_in_remove_class {
 
 
 sub add_user_to_queue {
-    my ($user, $wunsch_login, $wunsch_passwort) = @_;
+    my ($user, $wunsch_login, $wunsch_passwort,$file) = @_;
     # Zeile zerlegen
     my ($admin_class,$okfeld2,$okfeld3,$okfeld4,$unid)=split(/;/, $user);
     # Identifier bilden
     my $identifier=join("",($okfeld2,";",$okfeld3,";",$okfeld4));
     my $real_class = ${DevelConf::teacher};
     # Ausser bei lehrern ein k hinzufuegen
-    if (not $admin_class eq ${DevelConf::teacher}){
-          $real_class="k"."$admin_class";
-    }
+# ??????????????
+#    if (not $admin_class eq ${DevelConf::teacher}){
+#          $real_class="k"."$admin_class";
+#    }
 
     # Sub-Klasse beruecksichtigen
-    if (exists $schueler_subklassen{$identifier}) {
-    #   print "$identifier ist in subklasse -$schueler_subklassen{$identifier} \n";
-       $real_class="$real_class"."-"."$schueler_subklassen{$identifier}";  
-    }
+#    if (exists $schueler_subklassen{$identifier}) {
+#    #   print "$identifier ist in subklasse -$schueler_subklassen{$identifier} \n";
+#       $real_class="$real_class"."-"."$schueler_subklassen{$identifier}";  
+#    }
 
+
+
+    # Create Error, when wunschlogin seen twice
+    if (not $wunsch_login eq "---" and exists $wunsch_login_seen{$wunsch_login}){
+        my $old_number=1;
+        print "\nWARNING: Users will not be added!\n\n";
+	print "   Loginname    $wunsch_login    in    $filename_map{ $file  }  ",
+              "is double ($identifier)!\n";
+	print "   I have seen  $wunsch_login    in ",
+              "   $filename_map{ $wunsch_login_seen{ $wunsch_login } } ",
+              " already!\n\n";
+	print "   Please edit these files and correct this error ",
+              "to add this users. \n\n";
+        if (exists $wunsch_login_forbidden{$wunsch_login}){
+#	   print "$wunsch_login is old ($wunsch_login_forbidden{$wunsch_login})\n";
+           $old_number=$wunsch_login_forbidden{$wunsch_login};
+        }
+        $wunsch_login_forbidden{$wunsch_login}=$old_number+1;
+    } else {
+       $wunsch_login_seen{$wunsch_login}="$file";
 if (not exists $schueler_ok_hash{$identifier}){
     $schueler_ok_hash{$identifier}=$admin_class;
 }
+
+    }
+
+
+
 
     # Unid in hash-table einordnen, falls moeglich
     if ($unid ne ""){
@@ -1997,7 +2033,8 @@ if (not exists $schueler_ok_hash{$identifier}){
     } else {
         # Identifier schon vorhanden, kommt also mehrfach vor
         # Pruefen ob die Klasse auch gleich ist und Datei schueler.txt ist
-        if ($schueler_ok_hash{$identifier} eq $real_class 
+#        if ($schueler_ok_hash{$identifier} eq $real_class 
+        if ($schueler_ok_hash{$identifier} eq $admin_class 
             && ($schuelerdatei eq $schueler_to_check_dateien[0])){
             # Klasse ist gleich/Datensatz wird verwendet
             print REPORTSEKRETARIAT "----------------------------------------",
@@ -2034,6 +2071,7 @@ if (not exists $schueler_ok_hash{$identifier}){
         
     # User in Hashtable (key = identifier, value = wunschlogoin)
     $schueler_ok_wunsch_login_hash{$identifier}="$wunsch_login";
+
 
     # User in Hashtable (key = identifier, value = wunschpasswort)
     $schueler_ok_wunsch_passwort_hash{$identifier}="$wunsch_passwort";
@@ -2790,6 +2828,7 @@ sub generate_add_file {
             $string="$identifier"."::";
             if (exists $schueler_ok_wunsch_login_hash{$identifier}){
               $string=$string."$schueler_ok_wunsch_login_hash{$identifier}"."::";
+              $login=$schueler_ok_wunsch_login_hash{$identifier}
             } else {
               $string=$string."---"."::";
             }
@@ -2800,14 +2839,6 @@ sub generate_add_file {
               $string=$string."---"."::";
             }
             $string=$string."---"."::"."---"."\n";
-
-#            $string="$identifier"."::".
-##                    "$schueler_ok_wunsch_login_hash{$identifier}"."::".
-#                    "---"."::".
-##                    "$schueler_ok_wunsch_passwort_hash{$identifier}"."::".
-#                    "---"."::".
-#                    "---"."::"."---"."\n";
-
 	 } else {
             # Use old data
 	    if (exists $old_id_login{$identifier}){
@@ -2841,11 +2872,20 @@ sub generate_add_file {
                     "$gid"."\n";
          }
 
-         print ("$string");
-         push @admin_list_add, "$string";
-         # Put admin_class and string in file
-         print SOPHOMORIXADD ("$admin_class"."::"."$string");
-         $schueler_hinzu_anzahl++;
+         print "  $string";
+
+         # check if login is not forbidden
+         if (not exists $wunsch_login_forbidden{$login}){
+            # loginname is allowed
+            push @admin_list_add, "$string";
+            # Put admin_class and string in file
+            print SOPHOMORIXADD ("$admin_class"."::"."$string");
+            $schueler_hinzu_anzahl++;
+	} else {
+            # loginname is forbidden
+            push @admin_list_add, "*$login is forbidden*$string";
+            print "$login as loginname is forbidden (used more than once)\n";
+        }
       }
     }
 
@@ -2942,6 +2982,16 @@ if($Conf::log_level>=3){
    &titel("This is the contents of the hashes");
    &linie();
 
+   # filename_map
+   print("Filename Map (filename_map):\n");
+   &linie();
+   while (($k,$v) = each %filename_map){
+     printf "%-60s %3s\n","$k","$v";
+   }
+   &linie();
+
+
+
    # schueler_ok-hash
    print("User in sophomorix.ok (schueler_ok_hash):",
          "                    AdminClass:\n");
@@ -2987,7 +3037,7 @@ if($Conf::log_level>=3){
 
 
    # Print all users in the files - Wunschlogin
-   print("User in sophomorix.ok (schueler_ok_hash):",
+   print("User in sophomorix.ok (schueler_ok_wunsch_login_hash):",
          "                    Wunsch-Logins:\n");
    &linie();
    while (($k,$v) = each %schueler_ok_wunsch_login_hash){
@@ -3058,8 +3108,21 @@ if($Conf::log_level>=3){
      printf "%-40s %-3s\n","$k","$v";
    }
    &linie();
+
+
+
+   # print Forbidden Wish-Logins
+   print("Forbidden Wish-Logins:",
+         "         Number:\n");
+   &linie();
+   while (($k,$v) = each %wunsch_login_forbidden){
+     printf "%-40s %-3s\n","$k","$v";
+   }
+   &linie();
    &titel("End of all Hashes");
    &linie();
+
+
  }# end loglevel
 }
 

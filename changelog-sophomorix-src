@@ -48,8 +48,6 @@ sophomorix-teach-in (seems ok so far)
 
 
 sophomorix-check
-   * check what happens when a wish-login in lehrer.txt is given twice
-     - > generate proper error message
    - what about the shell (/bin/bash) when updating from old files?
    - what about the quota  when updating from old files?
        lehrer.txt: automatically used, when copied
@@ -415,20 +413,16 @@ RELEASES:
 
 ????? next: create links in Tausch, when user is put in subclass
 
-????? new build-package 
-
-
 ???? Bug: a user in dachboden is reactivated by a similar(=must be identical) 
      new user
 
 
 
 1.2.2 (2005-04-?)
-
-
-
-
-
+   - when a wish-login in lehrer.txt/schueler.txt is given multiple times:
+      -> none of the users will be added
+      -> error-message 
+      -> report.admin entry is created 
 
 
 1.2.1 (2005-04-08)

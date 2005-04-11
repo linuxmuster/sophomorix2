@@ -220,11 +220,6 @@ my @passwort_zeichen=&get_passwd_charlist();
 
 
 # ===========================================================================
-# Alle identifier von Schülern in schueler.ok in eine Hash-Tabelle
-# ===========================================================================
-#%schueler_ok_hash=&schueler_ok_hash();
-
-# ===========================================================================
 # Alle vorhandenen Loginnamen einlesen 
 # ===========================================================================
 %user_login_hash=&user_login_hash();
@@ -247,14 +242,6 @@ while(<USERHINZU>){
     $wunsch_gid)=split("::");
 
    ($nachname,$vorname,$gebdat)=split(";", $identifier);
-   # Gruppennamen ermitteln, max 8 Zeichen, k als 1. Buchstaben vorsetzen
-   # problematisch, da sich klassen erst nach 8 zeichen unterscheiden können????????????
-   # Auf 14 hochgesetzt (groupadd erlaubt 16 Zeichen, 2 für Subklassen reserviert)
-#   if ($schueler_ok_hash{$identifier} eq ${DevelConf::teacher}) {
-#      $new_admin_group=${DevelConf::teacher};
-#   } else {
-#       $new_admin_group=substr("k"."$schueler_ok_hash{$identifier}",0,14);
-#   }
    # GECOS-Feld:
    $gecos=$vorname." ".$nachname; 
 
@@ -277,9 +264,9 @@ while(<USERHINZU>){
    } elsif ($wunsch_login ne "---"){
        # Wunsch-Login angegeben
        # Abbrechen, Wunsch-Login soll nicht verändert werden
-       print "\nFEHLER:\n";
-       print "Kann User   $vorname $nachname   nicht anlegen\n";
-       print "Wunsch-Login-Name   $wunsch_login   ist schon in Verwendung!\n\n";
+       print "\nERROR:\n";
+       print "Cannot add user   $vorname $nachname \n";
+       print "Loginname   $wunsch_login   exists in the system already!\n\n";
        next;
    } else {
        # Wenn schon vorhanden, muss Login-Namen modifiziert werden
@@ -451,12 +438,6 @@ if ($Conf::use_quota eq "yes") {
 }
 
 &titel("sophomorix-add terminated regularly");
-
-
-
-
-
-
 
 
 
