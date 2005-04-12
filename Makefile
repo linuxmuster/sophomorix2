@@ -128,6 +128,10 @@ install-sys-files:
 install-vampire:
 	##### lib for managing the user database in plain files
 	install -oroot -groot --mode=0744 sophomorix-vampire/scripts/sophomorix*[a-z1-9] $(DESTDIR)/usr/sbin
+	##### configs
+	install -d -m755 -oroot -groot $(CONF)/vampire
+	install -oroot -groot --mode=0644 sophomorix-vampire/config/vampire*files $(CONF)/vampire
+	install -oroot -groot --mode=0644 sophomorix-vampire/config/vampire*dirs $(CONF)/vampire
 
 #install-ldap:
 #	##### Copy the module
