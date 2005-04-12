@@ -29,7 +29,7 @@ use if ${DevelConf::db_backend} eq 'files' ,
 
 # list of functions to load if db is 'ldap'
 use if ${DevelConf::db_backend} eq 'ldap' ,
-    'Sophomorix::SophomorixLDAP' => qw(show_modulename);;
+    'Sophomorix::SophomorixLDAP' => qw(show_modulename);
 
 
 
@@ -40,8 +40,6 @@ use if ${DevelConf::db_backend} eq 'ldap' ,
 use if ${DevelConf::sys_db} eq 'files' , 
     'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
                                           );
-
-
 
 # show the Database Modules that are loaded
 &show_modulename();
@@ -56,6 +54,7 @@ my $clear=0;
 my $server="";
 my $sync_user=0;
 my $sync_homes=0;
+my $sync_dirs=0;
 my $key=0;
 
 my $loginname="";
@@ -65,6 +64,10 @@ my $rooms="";
 my $ws=0;
 my $force=0;
 my @userlist=();
+my $dir_old_files="/root/sophomorix-vampire";
+
+my $old_version="2.x";
+
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -73,7 +76,9 @@ my $testopt=GetOptions(
            "server=s" => \$server,
            "sync-user" => \$sync_user,
            "sync-homes" => \$sync_homes,
+           "sync-dirs" => \$sync_dirs,
            "key" => \$key,
+           "files" => \$fetch_files,
            "login|user|u|l=s" => \$loginname,
            "class|klasse|c|k=s" => \$classes,
            "pupil|pupils" => \$pupil,
@@ -115,99 +120,100 @@ Please see the sophomorix-vampire(8) man pages for full documentation
 
 
 if ($server eq ""){
-    print "You must tell me which server I shall suck data from!\n";
-    exit;
+    # try to fetch server ip
+    if (-e "${DevelConf::vampire_path}/server"){
+       open (SERVER, "<${DevelConf::vampire_path}/server");
+       while (<SERVER>){
+	   chomp();
+           $server=$_;
+       }
+       close(SERVER);
+       print "Using $server from ${DevelConf::vampire_path}/server as Server-IP\n";
+    } else {
+       # no IP available -> Error Message
+       print "You must tell me which server I shall suck data from!\n";
+       exit;
+    }
+} else {
+    # save the server ip
+    system("install -d ${DevelConf::vampire_path}");
+    open (SERVER, ">${DevelConf::vampire_path}/server");
+    print SERVER $server;
+    close(SERVER);
 }
 
 
 
 
 ############################################################
-# put a key on the server to be sucked out
+# Step 1: put a key on the server to be sucked out
 ############################################################
 
 my $key_dsa="/root/.ssh/vampire_key_dsa";
 
 if ($key==1) {
     # generate key
+    print "* Step 1:  copying a key to a server\n";
     print "Generating a key ...\n";
     system("/usr/bin/ssh-keygen -f ${key_dsa} -t dsa -N ''");
     # copy key
     print "Copying public key to other server...\n";
     $command="ssh-copy-id -i ${key_dsa}.pub root\@${server}";
     system("$command");
+} else {
+    print "* Step 1:  --key \n",
+          "   I assume you have a key on $server\n";
+    # test this
 }
 
 
 ############################################################
-# get some files to add the users
+# Step 2: get some files
 ############################################################
 
-
-# files to fetch
-
-# testing
-#my @files=("/etc/fstab");
-
-
-my @files=("/etc/sophomorix/user/lehrer.txt",
-           "/etc/sophomorix/user/schueler.txt",
-           "/etc/sophomorix/user/teach-in.txt",
-           "/etc/sophomorix/user/schulinfo.txt",
-           "/var/lib/sophomorix/dynconfig/user.protokoll",
-           "/var/machines/pxeclient/tmp/pxe/wimport_data",
-           "/etc/passwd",
-           "/etc/group",
-           "/etc/shadow",
-           "/etc/smbpasswd",
-           );
-
-my $dir_old_files="/root/sophomorix-vampire";
-
-
-
-
-# todo nicht anlegen, falls existent
-if (not -e $dir_old_files){
-    system("mkdir $dir_old_files");
-    $fetch_files=1;
-} elsif ($clear==1) {
+if ($clear==1) {
     print "Fetching configuration data once again.\n";
     system("rm -rf $dir_old_files");
     system("mkdir $dir_old_files");
     $fetch_files=1,
-} else {
-    print "I'm NOT fetching files, $dir_old_files exist.\n";
-    print "Use option --clear to fetch data once again.\n";
 }
 
-
 if ($fetch_files==1){
+    print "* Step 2:  fetching files to ${dir_old_files}\n";
+    # reading the list of files to fetch from the old server
+    my @files=&get_conf_lines("vampire_${old_version}_files");
+    #foreach my $file (@files){
+    #   print $file,"\n";
+    #}
     foreach my $file (@files){
        $command="scp -i $key_dsa root\@${server}:$file $dir_old_files";
        system("$command");
     }
     # rename some files
+    # put these in a file ?????????
     system("mv $dir_old_files/schulinfo.txt $dir_old_files/class_db");
     system("mv $dir_old_files/user.protokoll $dir_old_files/user_db");
+} else {
+    print "* Step 2:  --files\n",
+          "   I assume you have fetched files already\n";
 }
 
 
 ############################################################
 # add the users
 ############################################################
-
-
 if ($sync_user==1){
-   system("cp /root/sophomorix-vampire/schueler.txt ${DevelConf::users_pfad}/schueler.txt");
-   system("cp /root/sophomorix-vampire/lehrer.txt ${DevelConf::users_pfad}/lehrer.txt");
-   system("sophomorix-check --get-info-from-old-files /root/sophomorix-vampire");
+   print "* Step 3:  synchronizing users\n";
+   system("cp ${dir_old_files}/schueler.txt ${DevelConf::users_pfad}/schueler.txt");
+   system("cp ${dir_old_files}/lehrer.txt ${DevelConf::users_pfad}/lehrer.txt");
+   system("sophomorix-check --get-info-from-old-files ${dir_old_files}");
 # alles
 #   system("sophomorix-add");
    system("sophomorix-add -c m1kb2t");
    system("sophomorix-move");
 } else {
-    print "Don't add users   use option --sync-user\n";
+    print "* Step 3:  --sync-users\n",
+          "   I assume you have synchronized users already\n";
 }
 
 # check the id of the group teacher
@@ -218,6 +224,7 @@ if ($sync_user==1){
 ############################################################
 # synchronize the user data
 ############################################################
+
 
 # create userlist with options
 if ($loginname ne "" or $classes ne "" or $pupil!=0 or $rooms ne "" or $ws!=0){
@@ -235,52 +242,53 @@ if ($loginname ne "" or $classes ne "" or $pupil!=0 or $rooms ne "" or $ws!=0){
     }
 }
 
-&print_list_column(6,"Userliste zum synchronisieren von \$HOME",@userlist);
 
-
-# do this for all users
-foreach my $user (@userlist){
-    my $old_home="";
-    my $new_home="";
-    my $command="";
-
-    # look up homes in old passwd
-    open(OLD, "<${dir_old_files}/passwd");
-    while (<OLD>){
+if ($sync_homes==1){
+   print "* Step 4:  synchronizing user homes\n";
+   &print_list_column(6,"Userlist for synchronising \$HOME",@userlist);
+   # do this for all users
+   foreach my $user (@userlist){
+     my $old_home="";
+     my $new_home="";
+     my $command="";
+     # look up homes in old passwd
+     open(OLD, "<${dir_old_files}/passwd");
+     while (<OLD>){
 	my @list=split(/:/);
         if ($list[0] eq $user){
             $old_home=$list[5]."/";            
         }
-    }
-    close(OLD);
+     }
+     close(OLD);
 
-    # look up new homes  in passwd
-    setpwent();
-    while (my @list=getpwent()) {
+     # look up new homes  in passwd
+     setpwent();
+     while (my @list=getpwent()) {
         if ($list[0] eq $user){
             #print "$list[7]\n";
             $new_home=$list[7]."/";
         }
-    }
-    endpwent();
+     }
+     endpwent();
 
-    # rsync all homes
-    print "\n";
-    &titel("Synchronizig home of user $user:");
-    print "   $old_home --> $new_home\n";
+     # rsync all homes
+     print "\n";
+     &titel("Synchronizig home of user $user:");
+     print "   $old_home --> $new_home\n";
+     $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avz --delete  root\@${server}:$old_home $new_home";
+     #print "$command\n";
+     system($command); 
 
-    $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avz --delete  root\@${server}:$old_home $new_home";
-    #print "$command\n";
-    system($command); 
 
+    # repair directories
+    # needed to correct permissions owner www-run becomes www-data, ...
 
-   # repair directories
-   # needed to correct permissions owner www-run becomes www-data, ...
-
-   # sync mail (the dir in /var/spool/mail) 
-   
+    # sync mail (the dir in /var/spool/mail) 
+   }
+} else {
+    print "* Step 4:  --sync-homes\n",
+          "   I assume you have synchronized user homes already\n";
 }
-
 
 
 
@@ -317,14 +325,63 @@ foreach my $user (@userlist){
 ############################################################
 
 
+############################################################
+# rsync dirs im /etc/sophomorix/vampire/vampire_x.x_dirs
+############################################################
 
 
 
 
+# reading a list of dirs to rsync from the old server
+my @dirs=&get_conf_lines("vampire_${old_version}_dirs");
+#foreach my $dirline (@dirs){
+#   print $dirline,"\n";
+#}
+
+if ($sync_dirs==1){
+    print "* Step 8:  synchronizing other dirs\n";
+    &rsync_dirs(@dirs);
+} else {
+    print "* Step 8:  --sync-dirs\n",
+          "   I assume you have synchronized other dirs already\n";
+}
 
 
 
 
+############################################################
+# sub
+############################################################
+
+sub rsync_dirs {
+    my @dirlist = @_;
+    foreach my $entry (@dirlist){
+        my ($old,$new)=split(/::/,$entry);
+        print"  - OLD: $old\n",
+             "    NEW: $new\n";
+        $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avz --delete  root\@${server}:$old $new";
+#        print "$command\n";
+#       system($command); 
+    }
+}
+
+
+sub get_conf_lines {
+    my ($name) = @_;
+    my $file = "${DevelConf::vampire_conf}/${name}";
+    my @filelist = ();
+    open(FILES,"<$file") || die "Cannot open $file: $!";
+    while (<FILES>){
+	chomp();
+        s/^ //g; # Leerzeichen am Zeilenangfang entfernen
+        if(/^\#/ or $_ eq ""){ # # am Anfang bedeutet Kommentarzeile
+          next;
+        }      
+        push @filelist, $_;
+    }
+    close(FILES);
+    return @filelist;
+}
 
 
 
