@@ -83,6 +83,8 @@ sophomorix-add
    - add call sophomorix-quota --noninteractive
    - add user to cyrus (dont't know how to do)
    * dont add group lehrer to class_db
+   * add windows-group when unix-group is added
+     Command: net groupmap ...
    - add standard linux GUI (kde3 (configurable))
 
 sophomorix-move
@@ -349,6 +351,7 @@ All Scripts:
 ============================================================
 Think about:
 ============================================================
+   - moodle (add users to classes, add teachers to admins)
    - deleting /home/exams
    - restart of nscd (will nscd be running? is restart necessary)
    - use logrotate (debian/logrotate, dh_logrotate)
@@ -409,6 +412,13 @@ Software Vendors:
 Samba net Befehl ansehen
 
 
+CD-Installation:
+  - boot with option    auto26 or expert26
+  - reboot without CD
+  - internal NIC: eth1
+  - externel NIC  eth0
+    (vmware: eth0 is the card on top: briged)
+    (vmware: eth1 is the card on the bottom: host only)
 
 
 
