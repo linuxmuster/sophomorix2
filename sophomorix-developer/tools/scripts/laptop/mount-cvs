@@ -1,0 +1,12 @@
+#!/usr/bin/perl -w
+
+# Bibliotheken
+use strict;
+
+print "Trying to mount the cvs-Directory from the laptop\n";
+
+system("install -d /mnt2/cvs");
+
+system("mount -t nfs 10.1.23.4:/home/bz/cvs-workspace /mnt2/cvs");
+
+

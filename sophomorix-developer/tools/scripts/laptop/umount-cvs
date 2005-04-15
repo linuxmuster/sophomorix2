@@ -1,0 +1,13 @@
+#!/usr/bin/perl -w
+
+# Bibliotheken
+use strict;
+
+print "Trying to umount the cvs-Directory from the laptop\n";
+
+system("umount /mnt2/cvs");
+
+system("rmdir /mnt2/cvs");
+system("rmdir /mnt2");
+
+
