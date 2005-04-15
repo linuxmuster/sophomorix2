@@ -61,6 +61,11 @@ CTEMPDIR=$(DESTDIR)/usr/share/sophomorix/config-templates
 # WEBMINCONFDIR ML und Debian
 WEBMINCONFDIR=$(DESTDIR)/etc/webmin
 
+# Tools
+TOOLS=$(DESTDIR)/root/sophomorix-developer
+
+
+
 all: install-base install-files install-sys-files install-vampire install-developer
 
 clean: clean-doc
@@ -147,6 +152,13 @@ install-developer:
 	##### Copy the module
 	install -d -m755 -oroot -groot $(PERLMOD)
 	install -oroot -groot --mode=0644 sophomorix-developer/modules/Sophomorix*[a-z1-9] $(PERLMOD)
+	# tools for developing
+	##### apt
+	install -d $(TOOLS)/apt/s-lists
+	install -oroot -groot --mode=0644 sophomorix-developer/tools/apt/s-lists/*[a-z1-9] $(TOOLS)/apt/s-lists
+	##### script for laptop development
+	install -d $(TOOLS)/scripts/laptop
+	install -oroot -groot --mode=0755 sophomorix-developer/tools/scripts/laptop/*[a-z1-9] $(TOOLS)/scripts/laptop
 
 
 #install-webmin:
