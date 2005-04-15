@@ -44,7 +44,7 @@ Description: module to write to plain linux files
  
 Package: sophomorix-vampire
 Architecture: any
-Depends: sophomorix2 (>=1.2), rsync (>=2.6.3), ssh (>=3.8.1)
+Depends: sophomorix2 (>=1.2.2), rsync (>=2.6.3), ssh (>=3.8.1)
 Provides: sophomorix-sysdb
 Description: script to such data to a new server
  This script is run on a new sophomorix server. It pushes a ssh-key to an 
@@ -56,7 +56,7 @@ Description: script to such data to a new server
 Package: sophomorix-developer
 Architecture: any
 Suggests: perl-doc
-Depends:  sophomorix-base (>=1.1.1)
+Depends:  sophomorix2 (>=1.2.2)
 Description: Test suite for sophomorix
  Scripts to test sophomorix on a runnig system. These scripts can screw up 
  your server!
