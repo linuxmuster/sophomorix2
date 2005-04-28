@@ -155,10 +155,10 @@ install-developer:
 	# tools for developing
 	##### apt
 	install -d $(TOOLS)/apt/s-lists
-	install -oroot -groot --mode=0644 sophomorix-developer/tools/apt/s-lists/*[a-z1-9] $(TOOLS)/apt/s-lists
+	install -oroot -groot --mode=0644 sophomorix-developer/tools/apt/s-lists/*sources.list $(TOOLS)/apt/s-lists
 	##### script for laptop development
 	install -d $(TOOLS)/scripts/laptop
-	install -oroot -groot --mode=0755 sophomorix-developer/tools/scripts/laptop/*[a-z1-9] $(TOOLS)/scripts/laptop
+	install -oroot -groot --mode=0755 sophomorix-developer/tools/scripts/laptop/*-cvs $(TOOLS)/scripts/laptop
 
 
 #install-webmin:
