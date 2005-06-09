@@ -377,9 +377,20 @@ postgres-integration:
             - tho sends list of packages and config-files
 
         Postres:
-            - /etc/postgres/
-            - create empty Database if nonexisting
-            - dump ald database, merge it
+            - modify/check /etc/postgres/pg_hba.conf
+            - try to connect as user sophomorix to sophomorix
+               YES:
+             - dump old database, merge it
+                 pg_dump sophomorix > file.sql
+
+               NO:
+               - create user sophomorix (CL S. 147) if nonexisting
+                 (save password in a file, root.root 600)
+               - create empty Database if nonexisting
+                 create_db -T template0 sophomorix
+               - insert data into sophomorix 
+                 psql sophomorix < file.sql
+            Questions:
             - Paswort/Access (random password/fixed password)
             - use other port than postgres standard
 
