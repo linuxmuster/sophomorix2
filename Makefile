@@ -66,7 +66,7 @@ TOOLS=$(DESTDIR)/root/sophomorix-developer
 
 
 
-all: install-base install-files install-sys-files install-vampire install-developer
+all: install-base install-files install-sys-files install-pgldap install-sys-pgldap install-vampire install-developer
 
 clean: clean-doc
 
@@ -124,11 +124,23 @@ install-files:
 	install -d -m755 -oroot -groot $(PERLMOD)
 	install -oroot -groot --mode=0644 sophomorix-files/modules/Sophomorix*[a-z1-9] $(PERLMOD)
 
+install-pgldap:
+	##### lib for managing the user database in pgldap
+	##### Copy the module
+	install -d -m755 -oroot -groot $(PERLMOD)
+	install -oroot -groot --mode=0644 sophomorix-pgldap/modules/Sophomorix*[a-z1-9] $(PERLMOD)
+
 install-sys-files:
 	##### lib for propagating the db to files
 	##### Copy the module
 	install -d -m755 -oroot -groot $(PERLMOD)
 	install -oroot -groot --mode=0644 sophomorix-sys-files/modules/Sophomorix*[a-z1-9] $(PERLMOD)
+
+install-sys-pgldap:
+	##### lib for propagating the db to pgldap
+	##### Copy the module
+	install -d -m755 -oroot -groot $(PERLMOD)
+	install -oroot -groot --mode=0644 sophomorix-sys-pgldap/modules/Sophomorix*[a-z1-9] $(PERLMOD)
 
 install-vampire:
 	##### lib for managing the user database in plain files
