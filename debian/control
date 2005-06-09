@@ -42,6 +42,22 @@ Description: module to write to plain linux files
  This module contains functions to propagate the sophomorix database
  to /etc/passwd, /etc/shadow, /etc/group, /etc/gshadow, ...
  
+Package: sophomorix-pgldap
+Architecture: any
+Suggests: sophomorix-doc-html
+Depends:  
+Provides: sophomorix-db
+Description: postgresql database for sophomorix
+ Database module to store the Sophomorix database in postgresql
+
+Package: sophomorix-sys-pgldap
+Architecture: any
+Suggests: sophomorix-doc-html
+Depends:
+Provides: sophomorix-sysdb
+Description: compatibility module for sophomorix
+ this module provides compatibility with 'files'
+ 
 Package: sophomorix-vampire
 Architecture: any
 Depends: sophomorix2 (>=1.2.2), rsync (>=2.6.3), ssh (>=3.8.1)
