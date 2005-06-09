@@ -11,7 +11,7 @@ use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
-use Sophomorix::SophomorixFiles;
+#use Sophomorix::SophomorixFiles;
 #use Schedule::at;
 
 # ===========================================================================
@@ -20,14 +20,15 @@ use Sophomorix::SophomorixFiles;
 # list of functions to load if db is 'files'
 use if ${DevelConf::db_backend} eq 'files' , 
     'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                        backup_user_database
                                         remove_user_db_entry
                                        );
 
-# list of functions to load if db is 'ldap'
-use if ${DevelConf::db_backend} eq 'ldap' ,
-    'Sophomorix::SophomorixLDAP' => qw(show_modulename);;
-
-
+use if ${DevelConf::db_backend} eq 'pgldap' , 
+    'Sophomorix::SophomorixPgLdap' => qw(show_modulename
+                                        backup_user_database
+                                        remove_user_db_entry
+                                       );
 
 # ===========================================================================
 # Loading the sys-db-Module, list of functions
@@ -37,6 +38,13 @@ use if ${DevelConf::sys_db} eq 'files' ,
     'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
                                            delete_user_from_sys
                                           );
+
+# list of functions to load if db is 'pgldap'
+use if ${DevelConf::sys_db} eq 'pgldap' , 
+    'Sophomorix::SophomorixSYSPgLdap' => qw(show_sys_modulename
+                                           delete_user_from_sys
+                                          );
+
 my $zeit=&zeit_stempel;
 my $user_nummer=0;
 

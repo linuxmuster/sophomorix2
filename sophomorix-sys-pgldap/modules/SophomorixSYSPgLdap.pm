@@ -26,7 +26,7 @@ use Sophomorix::SophomorixBase qw ( titel
 =head1 Documentation of SophomorixSYSPgLdap.pm
 
 The module is used to write/modify sophomorix database information to
-the system wich uses postgresql as ldap backend
+the system wich uses files (passwd, group, ...)
 
 =head2 Functions
 
@@ -58,7 +58,10 @@ Updates the gecos field of login in /etc/passwd
 =cut
 
 sub update_gecos {
-   # nothing to do
+   # update the gocos-fiels in /etc/passwd
+   my ($login,$first,$last) = @_;
+   my $gecos="$first"." "."$last";
+   system("usermod -c '$gecos' $login");
 }
 
 =pod
@@ -76,9 +79,7 @@ sub delete_user_from_sys {
        # aus smbpasswd entfernen
        "/usr/bin/smbpasswd  -x $login",
        # Aus Benutzerdatenbank entfernen (-r: Home löschen)
-       #"userdel  -r $login",
-       # remove the users homedirectory 
-       # ???? Todo ???
+       "userdel  -r $login",
     );
 }
 
@@ -92,7 +93,19 @@ Adds the group I<class> to the system database.
 =cut
 
 sub add_class_to_sys {
-    # nothing to do
+    ($class,$gid)=@_;
+    if (not defined $gid){
+        $gid="---";
+    }
+    if ($gid eq "---" or $gid eq ""){
+       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
+          "groupadd $class",
+       );
+   } else {
+       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
+          "groupadd -g $gid $class",
+       );
+   }
 }
 
 
@@ -106,7 +119,32 @@ Adds the user I<user> to the system database.
 =cut
 
 sub add_user_to_sys {
-    # nothing to do
+    my ($nachname,
+       $vorname,
+       $gebdat,
+       $class,
+       $login,
+       $pass,
+       $sh,
+       $wunsch_id) = @_;
+
+    my $gec = "$vorname"." "."$nachname";
+    my $home ="";
+    if ($class eq ${DevelConf::teacher}){
+       $home = "${DevelConf::homedir_teacher}/$login";
+    } else {
+       $home = "${DevelConf::homedir_pupil}/$class/$login";
+    }
+    if ($wunsch_id eq "---"){
+       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
+          "useradd -c '$gec' -d $home -m -g $class -p $pass -s $sh $login"
+       );
+    } else {
+       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
+          "useradd -c '$gec' -d $home -m -g $class -p $pass -s $sh $login -u $wunsch_id"
+#         "useradd -c '$gec' -m -g $class -p $pass -s $sh $login"
+    );
+    }
 }
 
 
@@ -120,7 +158,6 @@ Retrieves data as in getpwnam Does getpwnam also work with ldap, sql?
 
 =cut
 sub get_user_auth_data {
-    # should be OK so ???
     my ($login) = @_;
     # Abfragen der /etc/passwd
     my @data = getpwnam("$login");

@@ -32,10 +32,14 @@ use if ${DevelConf::db_backend} eq 'files' ,
                                         user_reaktivieren     
                                        );
 
-# list of functions to load if db is 'ldap'
-use if ${DevelConf::db_backend} eq 'ldap' ,
-    'Sophomorix::SophomorixLDAP' => qw(show_modulename);;
-
+# list of functions to load if db is 'pgldap'
+use if ${DevelConf::db_backend} eq 'pgldap' , 
+    'Sophomorix::SophomorixPgLdap' => qw(show_modulename
+                                        search_user
+                                        update_user_db_entry
+                                        user_deaktivieren
+                                        user_reaktivieren     
+                                       );
 
 
 # ===========================================================================
@@ -44,6 +48,11 @@ use if ${DevelConf::db_backend} eq 'ldap' ,
 # list of functions to load if db is 'files'
 use if ${DevelConf::sys_db} eq 'files' , 
     'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
+                                          );
+
+# list of functions to load if db is 'pgldap'
+use if ${DevelConf::sys_db} eq 'pgldap' , 
+    'Sophomorix::SophomorixSYSPgLdap' => qw(show_sys_modulename
                                           );
 
 
