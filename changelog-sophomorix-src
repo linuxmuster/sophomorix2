@@ -333,7 +333,12 @@ All Scripts:
 
    - read the config-files from thomas
      (file:  debconf datenbank, perl-lib zum auslesen benutzen ist dabei)
-      debconf-show linuxmuster-base
+      - debconf-show linuxmuster-base
+         zeigt alle werte von linuxmuster-base
+      - echo get cupsys/raw-print | debconf-communicate | awk '{print $2}'
+         (' ist shift-#)
+         liest einzelne Werte aus
+
    * creating database file from sophomorix-setup-files??
        removing it from sophomorix-check??
    * remove old stuff: ${schueler_oder_user}.protokoll";
@@ -348,6 +353,57 @@ All Scripts:
          -c AdminClass --class AdminClass --adminclass AdminClass
          ...
    - add references to all other man pages in every man-page
+
+
+
+
+postgres-integration:
+
+        Packaging:
+            - new package sophomorix-postgres-ldap ???
+            - Beispielpaket: moodle, imp3
+        Dependencies:
+            - tho sends list of packages and config-files
+
+        Postres:
+            - /etc/postgres/
+            - create empty Database if nonexisting
+            - dump ald database, merge it
+            - Paswort/Access (random password/fixed password)
+            - use other port than postgres standard
+
+        LDAP:
+            - Table ldap_entries with dc=xxx
+            - /etc/ldap/slapd.conf
+            - /etc/ldap/ldap.conf
+
+            - pam_ldap 
+            - /etc/pam_ldap.conf
+            - /etc/libnss-ldap.conf
+            - /etc/nssswitch.conf        
+              /etc/pam.d/*
+
+        Passwort in /etc/ldap.secret   (Zugriff 600)
+
+        ldap:
+            - user anlegen mit smbldap-useradd (statt )
+
+
+        Functions in sophomorix-files.pm
+            - jeffbeck comments this file and tho replaces 
+              it with fuctions that read/write to postgres
+            - tho adds new functions that connect/disconnect 
+              to the database.
+              this functions are called 
+                  - at the begin of a sophomorix-script
+                    (two scripts readonly read/write)
+                  - at the end of a sophomorix-script
+
+              
+
+
+        Client /etc/pam/ldap
+
 
 
 ============================================================
@@ -454,11 +510,6 @@ id	short_status	long_status
 ############################################################
 RELEASES:
 ############################################################
-
-2.6.05 neues Treffen
-
-
-
 
 
 
