@@ -67,6 +67,9 @@ sub show_modulename {
 }
 
 
+
+
+# adds a user to the user database
 sub create_user_db_entry {
     my ($nachname,
        $vorname,
@@ -91,13 +94,14 @@ sub create_user_db_entry {
 
 
 
+
+# adds a class to the user database
 sub create_class_db_entry {
     my ($class_to_add) = @_;
     my %classes=();
     my ($class,$dept,$type,$mail,$quota) = ("","","","","");
     # which classes exist
     open(CLASS,"<${DevelConf::protokoll_pfad}/class_db");
-#    open(CLASS,"/var/lib/sophomorix/dynconfig/class_db");
     while (<CLASS>) {
        ($class,$dept,$type,$mail,$quota)=split(/;/);
        $classes{$class}="some info";
@@ -113,41 +117,18 @@ sub create_class_db_entry {
 }
 
 
-# deprecated
-sub move_user_db_entry {
-   #user in db versetzen
-    print "Moving user in files \n";
-    my $pro_login="";
-    my ($login,$new_class,$old_class) = @_;
-      open(PROTOKOLLNEW,">$DevelConf::protokoll_datei.new");
-      open(PROTOKOLL,"<$DevelConf::protokoll_datei");
-         while (<PROTOKOLL>) {
-	     ($a,$a,$pro_login)=split(/;/);
-             if ($pro_login eq $login){
-		 s/$old_class/$new_class/;
-             }
-	        print PROTOKOLLNEW "$_";
-   	 }
-      close(PROTOKOLL);
-    system ("mv $DevelConf::protokoll_datei.new $DevelConf::protokoll_datei");
-} 
-
-
-
-#sub set_toleration_date {
-#
-#}
 
 ###########################################################################
 # CHECKED, NEW
 ###########################################################################
 
 
+# reads the user database into perl hashes.
+# the scripts all work with the perl hashes (instead of the database itself)
 sub get_sys_users {
    my $number=1;
    my $login="";
    my $admin_class="";
-#   my $linux_class="";
    my $identifier="";
    my $unid="";
    my $subclass="";
@@ -276,8 +257,6 @@ system ("chmod 600 $DevelConf::protokoll_datei");
       print "Line $number(user_db):  ",$_,"\n";
       print "User $number  Attributes (MUST): \n";
       print "  Login       :   $login \n"; 
-#      print "  Erstpass    :   $password_pro \n"; 
-#      print "  LinuxClass  :   $linux_class \n";
       print "  AdminClass  :   $admin_class \n";
       print "  Identifier  :   $identifier \n";
 
@@ -398,8 +377,13 @@ system ("chmod 600 $DevelConf::protokoll_datei");
 
 
 
+
+
 # returns users in the system that are not in schueler.txt/lehrer.txt
 # i.e. the users for  teach-in
+
+# returns a list of users with status D,T,S,A
+
 sub get_teach_in_sys_users{
    open(TOLERATION,"<${DevelConf::dyn_config_pfad}/user_db");
    while(<TOLERATION>){
@@ -426,6 +410,9 @@ sub get_teach_in_sys_users{
 
 
 
+# returns a list of the following lines from all users:
+# Syntax:
+#   class;firstname lastname;loginname;FirstPassword;birthday;  
 
 sub get_print_data {
     my @lines=();
@@ -445,6 +432,8 @@ Parameter 1: Loginname of user to be updated
 Parameter 2: List with Attribute=Value
 
 =cut
+
+# this function changes the fields of the user login
 
 sub update_user_db_entry {
     my $param="";
@@ -522,8 +511,6 @@ sub update_user_db_entry {
           $first_pass.";".$birthday.";".$unid.";".$subclass.";".
           $status.";".$toleration_date.";".$deactivation_date.";".
           $exit_admin_class.";".$account_type.";".$quota.";"."\n";
-#          print " OLD: $old_line";
-#          print " NEW: $new_line";
           print TMP "$new_line";         
         } else {
             print TMP "$old_line";
@@ -543,7 +530,7 @@ sub update_user_db_entry {
 
 
 
-
+# this function removes a user entry in the database 
 sub remove_user_db_entry {
     my ($login) = @_;
     my $login_file="";
@@ -570,10 +557,11 @@ sub remove_user_db_entry {
 # ===========================================================================
 # User DE-aktivieren
 # ===========================================================================
+
+# deactivate a users login, ...
+
 sub user_deaktivieren {
    my ($loginname) = @_;
-#   my $klasse=&get_klasse_von_login($loginname);
-#   my $www_home="$DevelConf::apache_root/userdata/$klasse/$loginname";
    # samba
    my $samba_string="smbpasswd -d $loginname >/dev/null";
    system("$samba_string");
@@ -603,6 +591,9 @@ sub user_deaktivieren {
 # ===========================================================================
 # User RE-aktivieren
 # ===========================================================================
+
+# enables a users login, ...
+
 sub user_reaktivieren {
    my ($loginname) = @_;
    # samba
@@ -633,7 +624,7 @@ sub user_reaktivieren {
 
 
 
-
+# create a project (can be implemented later)
 
 sub create_project_db {
     my $create=0;
@@ -766,8 +757,15 @@ sub create_project_db {
 Creates a line.
 
 =cut
-sub search_user {
 
+
+# searches the user database and others for a user
+
+# this must be implemented completely new
+# because it searches in the lines of user.db
+
+
+sub search_user {
   # database dependent
   my ($string) = @_;
   my ($class,$gec_user,$login,$first_pass,$birth,$unid,
@@ -918,6 +916,9 @@ sub search_user {
 Makes a backup of the sophomorix user database
 
 =cut
+
+# this function can be left empty so far
+
 sub backup_user_database {
     my ($time, $string) = @_;
     &do_falls_nicht_testen(
@@ -934,6 +935,11 @@ sub backup_user_database {
 Returns the FirstPassword of the user login
 
 =cut
+
+
+# query the datadase for a users initial password 
+# (can be implemented later)
+
 sub get_first_password {
   my ($username) = @_;
   open(PASSPROT, "$DevelConf::dyn_config_pfad/user_db");
@@ -959,6 +965,9 @@ sub get_first_password {
 Returns 1, if  login is in the sophomorix database.
 
 =cut
+
+# (can be implemented later)
+
 sub check_sophomorix_user {
   my ($username) = @_;
   my $result=0;
@@ -978,7 +987,7 @@ sub check_sophomorix_user {
 
 
 
-
+# (can be implemented later)
 
 sub show_project_list {
    open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects_db") || die "Fehler: $!";
@@ -1001,6 +1010,8 @@ sub show_project_list {
 
 
 
+# (can be implemented later)
+
 sub show_class_list {
    open(CLASS,"<${DevelConf::dyn_config_pfad}/class_db") || die "Fehler: $!";
    print "The following AdminClasses exist:\n\n";
@@ -1022,9 +1033,6 @@ sub show_class_list {
    close(CLASS);
    print "\n";
 }
-
-
-
 
 
 
