@@ -45,10 +45,11 @@ Description: module to write to plain linux files
 Package: sophomorix-pgldap
 Architecture: any
 Suggests: sophomorix-doc-html
-Depends:  
+Depends:  slapd (>=2.2.23), smbldap-tools (>=0.87), postgresql (>=7.4.7)
 Provides: sophomorix-db
-Description: postgresql database for sophomorix
- Database module to store the Sophomorix database in postgresql
+Description: postgresql database with ldap access for sophomorix
+ Database module to store the Sophomorix database in postgresql and make 
+ the database available in openldap.
 
 Package: sophomorix-sys-pgldap
 Architecture: any
