@@ -14,8 +14,6 @@ Todo
           sophomorix-project
           sophomorix-samba (still needed ??)
           sophomorix-split
-   - use module pgldap, when it is set in sophomorix.conf 
-   - create package
 
 
 packaging:
@@ -543,7 +541,12 @@ RELEASES:
 
 ???? *.dsc,*.tar.gz,*.changes bei sophomorix-pakete ins source Verzeichnis
 
-1.2.2 (2005-04-?)
+
+1.4.0 (2005-)
+   - added get_debconf_value to read from the debconf database
+   - create packages sophomorix-pgldap and sophomorix-sys-pgldap
+   - use module pgldap, when it is set in sophomorix.conf 
+
    - when a wish-login in lehrer.txt/schueler.txt is given multiple times:
       -> none of the users will be added
       -> error-message 

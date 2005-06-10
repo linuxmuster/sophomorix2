@@ -99,6 +99,7 @@ use Time::localtime;
               provide_subclass_files
               provide_project_files
               provide_user_files
+              get_debconf_value
               );
 
 
@@ -3778,6 +3779,18 @@ sub unterricht_einsammeln {
 }
 
 
+
+
+sub get_debconf_value {
+    my ($package,$entry)=@_;
+    my $result=`echo get $package/$entry | debconf-communicate`;
+    chomp($result);
+    my ($value,$ret)=split(/ /, $result);
+    # print "Result: $result \n";
+    print "$package/$entry: $ret \n";
+
+    return $ret;
+}
 
 
 
