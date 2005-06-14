@@ -7,13 +7,130 @@
 
 # This Script adds directories and files that are necessary for sophomorix-base 
 # It should be run as postinst
+use strict;
+use DBI;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+
+
 use Sophomorix::SophomorixConfig; 
 
 print "##### sophomorix-setup-pgldap is configuring postres for sophomorix-pgldap ...\n";
 
 
+my $dbname="sopo12";
+my $dbuser=$dbname;
+my $pass_file="/etc/sophomorix/pgldap.secret";
+my $pass="server77";
+my $dbh;
 
-print "##### sophomorix-setup-pgldap is configuring openldap for sophomorix-pgldap ...\n";
 
 
+# use password from option, when given
+# else: create long random password
+
+
+
+
+
+
+# make sure database exists
+system("su --command='createuser $dbuser -A -D' postgres");
+# make sure database exists
+system("su --command='createdb $dbname' postgres");
+
+
+
+
+# check if I can connect without password
+print "\nChecking if you have a password set for the sophomorix user ...\n"; 
+
+my $dbh = DBI->connect("dbi:Pg:dbname=$dbname", "$dbuser","",
+               { RaiseError => 1, PrintError => 0, AutoCommit => 1 });
+
+if (defined $dbh){
+    print "   Connection without password was succesful!\n";
+    print "   I'm setting a random password ($pass_file)!\n";
+    # todo
+
+} else {
+    print "   Could not connect to database without password!\n";
+}
+
+
+
+# sql-command to create user
+
+# CREATE USER $dbname WITH PASSWORD $password
+
+# include the following line to /etc/postgresql/pg_hba.conf:
+# local   all   all    passwd
+# local   sophmorix   sophomorix    passwd
+
+
+
+# check if I can connect with saved password
+print "\nChecking if I can connect with ramdom password from $pass_file ...\n"; 
+
+# read the password
+if (-e $pass_file){
+   my $pass_saved=&get_password($pass_file);
+   print "   Trying to connect as $dbuser to $dbname with password $pass_saved!\n";
+
+   my $dbh = DBI->connect("dbi:Pg:dbname=$dbname", "$dbuser","$pass_saved",
+               { RaiseError => 1, PrintError => 0, AutoCommit => 1 });
+   if (defined $dbh){
+    print "   Connection with password $pass_saved successful!\n";
+    print "   Database $dbname ready for user $dbuser!\n";
+  } else {
+      print "   Could not connect to database with password $pass_saved!\n";
+  }
+} else{
+    print "\n There is no saved password, skipping ...\n";
+}
+
+
+
+
+print "\n##### sophomorix-setup-pgldap is configuring openldap for sophomorix-pgldap ...\n";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################################
+# sub
+############################################################
+
+sub save_password {
+    my ($password,$file)=@_;
+    open (FILE, ">$file");
+    print FILE $password;
+    close (FILE);
+
+}
+
+
+sub get_password {
+    my ($file)=@_;
+    my $password;
+    open (FILE, "<$file");
+    while (<FILE>){
+        #print "Line: $_ \n";
+	$password=$_;
+    }
+    close (FILE);
+    return $password;
+}
 
