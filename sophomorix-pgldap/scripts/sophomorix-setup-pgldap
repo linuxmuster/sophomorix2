@@ -15,6 +15,26 @@ Getopt::Long::Configure ("bundling");
 
 use Sophomorix::SophomorixConfig; 
 
+
+# sophomorix-databas is a persistent database
+# should be in /var/lib/sophomorix
+# database type is postgresql -> no choice
+# connection: unix socket or tcp/ip ??? automatically
+# host is localhost -> no choice
+# password is auto-generaded -> no choice
+# database name is sophomorix -> no choice
+#
+# backup database when updating -> show where to find backups
+# remove database when deconfigure/remove package -> no
+# remove database when purge package -> no
+
+
+# moodle
+# moodle macht keinen Eintrag in /etc/postgresql/pg-hba.conf
+# wieso tuts trotzdem 
+# (when user moodle is added (adduser), then it works ->  pg-hba.conf:  ident)
+
+
 print "##### sophomorix-setup-pgldap is configuring postres for sophomorix-pgldap ...\n";
 
 
@@ -66,6 +86,10 @@ if (defined $dbh){
 # include the following line to /etc/postgresql/pg_hba.conf:
 # local   all   all    passwd
 # local   sophmorix   sophomorix    passwd
+
+
+# datenbank uploaden
+# su postgres; psql < datenbank.sql
 
 
 
