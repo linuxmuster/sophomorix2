@@ -26,6 +26,21 @@ use Test::More;
 # Bei Fehlern wenden Sie sich bitte an mich.
 # jeffbeck@web.de  oder  jeffbeck@gmx.de
 
+############################################################
+# functions to change for sophomorix-pgldap
+############################################################
+
+# check_line in_file must be repaced with: check_entry_in_database 
+# in the scripts when file is user_db, /etc/passwd ...
+
+# kill_user
+# what is this for?
+# must not use userdel
+
+# check_account
+# must not look in files
+
+############################################################
 
 
 # exchanging the line, wich is only ONCE in $file

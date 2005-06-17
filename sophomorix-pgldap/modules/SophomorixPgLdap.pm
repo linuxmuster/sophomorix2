@@ -8,6 +8,8 @@ package Sophomorix::SophomorixPgLdap;
 require Exporter;
 @ISA =qw(Exporter);
 @EXPORT = qw(show_modulename
+             db_connect
+             db_disconnect
 	     create_user_db_entry
              create_class_db_entry
              user_deaktivieren
@@ -69,6 +71,34 @@ sub show_modulename {
 #    if($Conf::log_level>=2){
        &titel("DB-Backend-Module:   SophomorixPgLdap.pm");
 #   }
+}
+
+
+
+# connect to sql database
+sub db_connect {
+    my $dbname="sophomorix";
+    my $dbuser="sophomorix";
+    my $pass_saved="sophomorix";
+    print "Connecting to database ...\n";
+    # needs at UNIX sockets:   local all all  trust sameuser
+    my $dbh = DBI->connect("dbi:Pg:dbname=$dbname", "$dbuser","$pass_saved",
+               { RaiseError => 1, PrintError => 0, AutoCommit => 1 });
+    if (defined $dbh){
+       print "   Connection with password $pass_saved successful!\n";
+       print "   Database $dbname ready for user $dbuser!\n";
+    } else {
+       print "   Could not connect to database with password $pass_saved!\n";
+    }
+    return $dbh
+}
+
+
+# connect to sql database
+sub db_disconnect {
+    my ($dbh) = @_;
+    $dbh->disconnect();
+    print "Disconnecting ...\n";
 }
 
 

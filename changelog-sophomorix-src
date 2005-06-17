@@ -498,6 +498,8 @@ CD-Installation:
     (vmware: eth0 is the card on top: briged)
     (vmware: eth1 is the card on the bottom: host only)
 
+vmware image:
+  - add in /etc/hosts:   10.1.23.4  rix.bszleo  rix
 
 
 
@@ -529,6 +531,22 @@ id	short_status	long_status
 ############################################################
 RELEASES:
 ############################################################
+
+Update steps to postgresql-ldap
+
+     step 1: write functions to store in postgresql 
+             instead of user_db, ...
+             system users still in files
+
+     step 2: incude stuff from files (shell, homedir, ...)
+      
+
+     step 3: configure ldap to replace files
+             dont add system users in files
+
+     step 4: configure samba and fill data in it via ldap 
+
+
 
 
 
