@@ -3785,11 +3785,16 @@ sub get_debconf_value {
     my ($package,$entry)=@_;
     my $result=`echo get $package/$entry | debconf-communicate`;
     chomp($result);
-    my ($value,$ret)=split(/ /, $result);
-    # print "Result: $result \n";
-    print "$package/$entry: $ret \n";
-
-    return $ret;
+    $_=$result;
+    print "$result\n\n";
+    if (m/doesn.?t exist/){
+	return 0;
+    } else {
+       my ($value,$ret)=split(/ /, $result);
+       # print "Result: $result \n";
+       print "$package/$entry: $ret \n";
+       return $ret;
+    }
 }
 
 
