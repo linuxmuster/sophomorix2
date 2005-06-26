@@ -14,6 +14,45 @@ Getopt::Long::Configure ("bundling");
 
 
 use Sophomorix::SophomorixConfig; 
+use Sophomorix::SophomorixBase; 
+
+
+# standard-values (better ask user)
+my $domainname="my.own.localdomain.de";
+my $basename="erttree";
+my $template="/usr/share/sophomorix/config-templates";
+
+
+my $value=&get_debconf_value("sambass", "run_mode");
+
+if ($value ne 0){
+    $domainname=$value;
+}
+
+my (@domains)= split(/\./,$domainname);
+
+my @ldapdomains=();
+
+foreach my $value (@domains) {
+    push @ldapdomains, "dc=${value}";
+}
+
+$basename = join "," , @ldapdomains;
+
+$basename=$basename;
+
+print "Setting up basename $basename\n";
+system("sed -e s/\@\@basename\@\@/${basename}/g ${template}/ldap/ldap.conf.template > /root/test"); 
+
+
+
+
+
+
+
+    exit;
+
+
 
 
 # sophomorix-databas is a persistent database
@@ -36,6 +75,10 @@ use Sophomorix::SophomorixConfig;
 
 
 print "##### sophomorix-setup-pgldap is configuring postres for sophomorix-pgldap ...\n";
+
+
+
+
 
 
 my $dbname="sopo12";

@@ -55,7 +55,6 @@ SAMBADEBCONFDIR=$(DESTDIR)/etc/samba
 SAMBADIR=$(DESTDIR)/var/lib/samba
 
 # Config-templates
-#CTEMPDIR=$(DESTDIR)/var/lib/sophomorix/config-templates
 CTEMPDIR=$(DESTDIR)/usr/share/sophomorix/config-templates
 
 # WEBMINCONFDIR ML und Debian
@@ -132,6 +131,8 @@ install-pgldap:
 	##### Copy the module
 	install -d -m755 -oroot -groot $(PERLMOD)
 	install -oroot -groot --mode=0644 sophomorix-pgldap/modules/Sophomorix*[a-z1-9] $(PERLMOD)
+	install -d -m755 -oroot -groot $(CTEMPDIR)/ldap/
+	install -oroot -groot --mode=0644 sophomorix-pgldap/config-ldap/ldap.conf.template $(CTEMPDIR)/ldap/
 
 install-sys-files:
 	##### lib for propagating the db to files
