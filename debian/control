@@ -22,7 +22,7 @@ Description: scripts for sophomorix
  sophomorix-base contains all database independent scripts to run sophomorix
  on the console. You additionally need a perl-module(virtual package 
  sophomorix-db) to access the database (i.e. one of sophomorix-files, 
- sophomorix-ldap, sophomorix-sql)
+ sophomorix-pgldap, sophomorix-sql)
 
 
 Package: sophomorix-files
@@ -45,7 +45,7 @@ Description: module to write to plain linux files
 Package: sophomorix-pgldap
 Architecture: any
 Suggests: sophomorix-doc-html
-Depends:  slapd (>=2.2.23), smbldap-tools (>=0.87), libdbd-pg-perl (>=1.41), postgresql (>=7.4.7)
+Depends:  slapd (>=2.2.23), libpam-ldap , ldap-utils, libnss-ldap, unixodbc, odbcinst1, libiodbc2, iodbc, smbldap-tools (>=0.87), libdbd-pg-perl (>=1.41), postgresql (>=7.4.7)
 Provides: sophomorix-db
 Description: postgresql database with ldap access for sophomorix
  Database module to store the Sophomorix database in postgresql and make 
@@ -61,7 +61,7 @@ Description: compatibility module for sophomorix
  
 Package: sophomorix-vampire
 Architecture: any
-Depends: sophomorix2 (>=1.2.2), rsync (>=2.6.3), ssh (>=3.8.1)
+Depends: sophomorix2 (>=1.3.0), rsync (>=2.6.3), ssh (>=3.8.1)
 Description: script to such data to a new server
  This script is run on a new sophomorix server. It pushes a ssh-key to an 
  old sophomorix-server, fetches its users and data. Perfect for big step 
@@ -72,7 +72,7 @@ Description: script to such data to a new server
 Package: sophomorix-developer
 Architecture: any
 Suggests: perl-doc
-Depends:  sophomorix2 (>=1.2.2)
+Depends:  sophomorix2 (>=1.3.0)
 Description: Test suite for sophomorix
  Scripts to test sophomorix on a runnig system. These scripts can screw up 
  your server!
