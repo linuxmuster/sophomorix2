@@ -1,0 +1,67 @@
+##### @@message1@@
+##### @@message2@@
+##### $Id$
+# Allow LDAPv2 binds
+allow bind_v2
+
+include         /etc/ldap/schema/core.schema
+include         /etc/ldap/schema/cosine.schema
+include         /etc/ldap/schema/nis.schema
+include         /etc/ldap/schema/inetorgperson.schema
+include         /etc/ldap/schema/samba.schema
+
+# Do not enable referrals until AFTER you have a working directory
+# service AND an understanding of referrals.
+#referral	ldap://root.openldap.org
+
+pidfile		/var/run/slapd/slapd.pid	
+argsfile	/var/run/slapd.args
+
+loglevel       	0 
+
+#schemacheck	off
+
+# Where the dynamically loaded modules are stored
+modulepath      /usr/lib/ldap
+moduleload      back_sql
+
+access to attrs=sambaLMPassword,sambaNTPassword,sambaPwdLastSet,sambaPwdMustChange,sambaAcctFlags
+	by dn="cn=admin,@@basename@@" write
+	by anonymous auth
+	by self write
+	by * none
+
+access to attrs=userPassword
+	by dn="cn=admin,@@basename@@" write
+	by anonymous auth
+	by self write
+	by * none
+
+# The admin dn has full write access
+	access to *
+	by dn="cn=admin,@@basename@@" write
+	by * read
+
+
+#######################################################################
+# sql database definitions
+#######################################################################
+
+database	sql
+suffix		"@@basename@@"
+rootdn		"cn=admin,@@basename@@"
+rootpw		12keins	
+dbname		PgSQL
+dbuser		ldap	
+dbpasswd	12keins	
+
+
+# Save the time that the entry gets modified, for database
+lastmod         off
+
+# insentry_query	"INSERT INTO ldap_entries (dn,oc_map_id,parent,keyval) VALUES (?,?,?,?)"
+insentry_stmt   "insert into ldap_entries (id,dn,oc_map_id,parent,keyval) values ((select max(id)+1 from ldap_entries),?,?,?,?)"
+upper_func      "upper"
+strcast_func    "text"
+concat_pattern  "?||?"
+has_ldapinfo_dn_ru      no
