@@ -131,8 +131,12 @@ install-pgldap:
 	##### Copy the module
 	install -d -m755 -oroot -groot $(PERLMOD)
 	install -oroot -groot --mode=0644 sophomorix-pgldap/modules/Sophomorix*[a-z1-9] $(PERLMOD)
+	##### Copy the config
+	install -d -m755 -oroot -groot $(CONF)/pgldap/
+	install -oroot -groot --mode=0644 sophomorix-pgldap/config/pgldap.conf $(CONF)/pgldap/
+	##### Copy the config-templates
 	install -d -m755 -oroot -groot $(CTEMPDIR)/ldap/
-	install -oroot -groot --mode=0644 sophomorix-pgldap/config-ldap/ldap.conf.template $(CTEMPDIR)/ldap/
+	install -oroot -groot --mode=0644 sophomorix-pgldap/config-ldap/*.template $(CTEMPDIR)/ldap/
 
 install-sys-files:
 	##### lib for propagating the db to files

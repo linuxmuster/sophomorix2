@@ -13,36 +13,89 @@ use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 
 
+# Todo replace debconf calls with thomas values
+
 use Sophomorix::SophomorixConfig; 
 use Sophomorix::SophomorixBase; 
 
-
-# standard-values (better ask user)
-my $domainname="my.own.localdomain.de";
-my $basename="erttree";
-my $template="/usr/share/sophomorix/config-templates";
+my $command="";
+my $replace="";
 
 
-my $value=&get_debconf_value("sambass", "run_mode");
+my $basename="";
+my $domainname="";
 
-if ($value ne 0){
-    $domainname=$value;
+print "Using the following values to configure the system\n";
+############################################################
+# read the values from the config file
+############################################################
+my $config_file="/etc/sophomorix/pgldap/pgldap.conf";
+if (-e $config_file) { 
+   { package PgLdapConf ; do "$config_file"}
+   $domainname=$PgLdapConf::domainname;
 }
 
-my (@domains)= split(/\./,$domainname);
+############################################################
+# get debconf data, one by one
+############################################################
 
+# domainname
+
+my $domainname_debconf=&get_debconf_value("sambass", "run_mode",0);
+# process debconf data
+if ($domainname_debconf ne 0){
+    # from debconf
+    $domainname=$domainname_debconf;    
+    print "   Domainname from debconf    :   $domainname \n";
+} else {
+    # from config file
+    print "   Domainname from pgldap.conf:   $domainname \n";
+}
+
+
+
+
+
+############################################################
+# Replace the following config-files
+############################################################
+# path to the template-files
+my $template="/usr/share/sophomorix/config-templates";
+
+my $ldap_conf="/etc/ldap/ldap.conf";
+my $slapd_conf="/etc/ldap/slapd.conf";
+
+
+
+############################################################
+# message
+############################################################
+#my $message="# Do not change this file! \n# This configuration file was automatically created";
+my $message1="Do not change this file! It will be overwritten!";
+my $message2="This configuration file was automatically created by sophomorix-setup-pgldap";
+
+############################################################
+# basename
+############################################################
 my @ldapdomains=();
-
+my (@domains)= split(/\./,$domainname);
 foreach my $value (@domains) {
     push @ldapdomains, "dc=${value}";
 }
-
 $basename = join "," , @ldapdomains;
 
-$basename=$basename;
 
-print "Setting up basename $basename\n";
-system("sed -e s/\@\@basename\@\@/${basename}/g ${template}/ldap/ldap.conf.template > /root/test"); 
+$replace= " -e 's/\@\@basename\@\@/${basename}/g'". 
+          " -e 's/\@\@message1\@\@/${message1}/g'". 
+          " -e 's/\@\@message2\@\@/${message2}/g'"; 
+
+# do it!
+$command="sed $replace ${template}/ldap/ldap.conf.template > $ldap_conf";
+system("$command"); 
+
+
+$command="sed $replace ${template}/ldap/slapd.conf.template > $slapd_conf";
+system("$command"); 
 
 
 
@@ -50,7 +103,7 @@ system("sed -e s/\@\@basename\@\@/${basename}/g ${template}/ldap/ldap.conf.templ
 
 
 
-    exit;
+exit;
 
 
 
