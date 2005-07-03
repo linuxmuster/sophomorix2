@@ -3782,17 +3782,24 @@ sub unterricht_einsammeln {
 
 
 sub get_debconf_value {
-    my ($package,$entry)=@_;
+    my ($package,$entry,$show)=@_;
+    # show=1, show messages
+    if (not defined $show){
+	$show=1;
+    }
     my $result=`echo get $package/$entry | debconf-communicate`;
     chomp($result);
     $_=$result;
-    print "$result\n\n";
+    if ($show==1){
+       print "$result\n\n";
+    }
     if (m/doesn.?t exist/){
 	return 0;
     } else {
        my ($value,$ret)=split(/ /, $result);
-       # print "Result: $result \n";
-       print "$package/$entry: $ret \n";
+       if ($show==1){
+          print "$package/$entry: $ret \n";
+       }
        return $ret;
     }
 }
