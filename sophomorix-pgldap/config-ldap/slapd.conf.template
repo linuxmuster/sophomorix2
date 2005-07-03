@@ -50,10 +50,10 @@ access to attrs=userPassword
 database	sql
 suffix		"@@basename@@"
 rootdn		"cn=admin,@@basename@@"
-rootpw		12keins	
+rootpw		@@ldappassword@@	
 dbname		PgSQL
 dbuser		ldap	
-dbpasswd	12keins	
+dbpasswd	@@dbpassword@@	
 
 
 # Save the time that the entry gets modified, for database
