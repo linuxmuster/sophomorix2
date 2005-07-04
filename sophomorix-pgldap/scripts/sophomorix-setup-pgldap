@@ -18,12 +18,15 @@ Getopt::Long::Configure ("bundling");
 use Sophomorix::SophomorixConfig; 
 use Sophomorix::SophomorixBase; 
 
-my $command="";
 my $replace="";
 
 
 my $basename="";
 my $domainname="";
+my $sid="";
+my $ldappassword="";
+my $dbpassword="";
+my $dbname="";
 
 print "Using the following values to configure the system\n";
 ############################################################
@@ -33,6 +36,9 @@ my $config_file="/etc/sophomorix/pgldap/pgldap.conf";
 if (-e $config_file) { 
    { package PgLdapConf ; do "$config_file"}
    $domainname=$PgLdapConf::domainname;
+   $ldappassword=$PgLdapConf::ldappassword;
+   $dbpassword=$PgLdapConf::dbpassword;
+   $dbname=$PgLdapConf::dbname;
 }
 
 ############################################################
@@ -62,10 +68,22 @@ if ($domainname_debconf ne 0){
 # path to the template-files
 my $template="/usr/share/sophomorix/config-templates";
 
+# ldap
 my $ldap_conf="/etc/ldap/ldap.conf";
 my $slapd_conf="/etc/ldap/slapd.conf";
+my $smbldap_conf="/etc/smbldap-tools/smbldap.conf";
 
+# pg
+my $odbc_ini="/etc/odbc.ini";
+my $odbcinst_ini="/etc/odbcinst.ini";
+my $sophomorix_db="/usr/share/sophomorix/config-templates/pg/sophomorix.sql";
 
+# pam
+my $common_account="/etc/pam.d/common-account";
+my $common_auth="/etc/pam.d/common-auth";
+my $common_password="/etc/pam.d/common-password";
+my $common_session="/etc/pam.d/common-session";
+my $pam_ldap_conf="/etc/pam_ldap.conf";
 
 ############################################################
 # message
@@ -84,19 +102,53 @@ foreach my $value (@domains) {
 }
 $basename = join "," , @ldapdomains;
 
+############################################################
+# SID
+############################################################
+$sid=`net getlocalsid`;
+($a,$sid)=split(/:/,$sid);
+$sid=~s/ //g;
+chomp($sid);
+print "   SID from the system        :   $sid \n";
+#print "---$sid---\n";
 
+############################################################
+# Database
+############################################################
+print "   Database name              :   $dbname \n";
+
+
+
+# the great replacement string
 $replace= " -e 's/\@\@basename\@\@/${basename}/g'". 
+          " -e 's/\@\@sid\@\@/${sid}/g'". 
+          " -e 's/\@\@ldappassword\@\@/${ldappassword}/g'". 
+          " -e 's/\@\@dbpassword\@\@/${dbpassword}/g'". 
+          " -e 's/\@\@dbname\@\@/${dbname}/g'". 
           " -e 's/\@\@message1\@\@/${message1}/g'". 
           " -e 's/\@\@message2\@\@/${message2}/g'"; 
 
-# do it!
-$command="sed $replace ${template}/ldap/ldap.conf.template > $ldap_conf";
-system("$command"); 
 
+# do it, ldap 
+system("sed $replace ${template}/ldap/ldap.conf.template > $ldap_conf"); 
+system("sed $replace ${template}/ldap/slapd.conf.template > $slapd_conf"); 
+system("sed $replace ${template}/ldap/smbldap.conf.template > $smbldap_conf"); 
+# do it, pg
+system("sed $replace ${template}/pg/odbc.ini.template > $odbc_ini"); 
+system("sed $replace ${template}/pg/odbcinst.ini.template > $odbcinst_ini");
 
-$command="sed $replace ${template}/ldap/slapd.conf.template > $slapd_conf";
-system("$command"); 
+# what to do:
+# 3x basename
+# 1x sid
+# ... 
+system("sed $replace ${template}/pg/sophomorix.sql.template > $sophomorix_db"); 
 
+# do it, pam
+system("sed $replace ${template}/pam/common-account.template > $common_account"); 
+system("sed $replace ${template}/pam/common-auth.template > $common_auth"); 
+system("sed $replace ${template}/pam/common-password.template > $common_password"); 
+system("sed $replace ${template}/pam/common-session.template > $common_session"); 
+system("sed $replace ${template}/pam/pam_ldap.conf.template > $pam_ldap_conf"); 
 
 
 

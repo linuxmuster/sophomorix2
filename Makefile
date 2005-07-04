@@ -140,6 +140,8 @@ install-pgldap:
 	##### Copy the pg config-templates
 	install -d -m755 -oroot -groot $(CTEMPDIR)/pg/
 	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/*.template $(CTEMPDIR)/pg/
+	install -d -m755 -oroot -groot $(CTEMPDIR)/pam/
+	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pam/*.template $(CTEMPDIR)/pam/
 
 install-sys-files:
 	##### lib for propagating the db to files
