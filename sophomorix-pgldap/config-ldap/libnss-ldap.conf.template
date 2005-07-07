@@ -1,10 +1,11 @@
-###DEBCONF###
+##### @@message1@@
+##### @@message2@@
+##### $Id$
 # the configuration of this file will be done by debconf as long as the
 # first line of the file says '###DEBCONF###'
 #
 # you should use dpkg-reconfigure libnss-ldap to configure this file.
 #
-# $Id$
 #
 # This is the configuration file for the LDAP nameservice
 # switch library and the LDAP PAM module.
@@ -22,7 +23,7 @@ host 127.0.0.1
 
 # The distinguished name of the search base.
 #base dc=example,dc=net
-base dc=linuxmuster,dc=de
+base @@basename@@
 
 # Another way to specify your LDAP server is to provide an
 # uri with the server name. This allows to use
@@ -47,7 +48,7 @@ ldap_version 3
 # The distinguished name to bind to the server with
 # if the effective user ID is root. Password is
 # stored in /etc/ldap.secret (mode 600)
-rootbinddn cn=admin,dc=linuxmuster,dc=de
+rootbinddn cn=admin,@@basename@@
 
 # The port.
 # Optional: default is 389.
