@@ -72,6 +72,7 @@ my $template="/usr/share/sophomorix/config-templates";
 my $ldap_conf="/etc/ldap/ldap.conf";
 my $slapd_conf="/etc/ldap/slapd.conf";
 my $smbldap_conf="/etc/smbldap-tools/smbldap.conf";
+my $ldap_secret="/etc/ldap/ldap.secret";
 
 # pg
 my $odbc_ini="/etc/odbc.ini";
@@ -133,6 +134,7 @@ $replace= " -e 's/\@\@basename\@\@/${basename}/g'".
 system("sed $replace ${template}/ldap/ldap.conf.template > $ldap_conf"); 
 system("sed $replace ${template}/ldap/slapd.conf.template > $slapd_conf"); 
 system("sed $replace ${template}/ldap/smbldap.conf.template > $smbldap_conf"); 
+system("sed $replace ${template}/ldap/ldap.secret.template > $ldap_secret"); 
 # do it, pg
 system("sed $replace ${template}/pg/odbc.ini.template > $odbc_ini"); 
 system("sed $replace ${template}/pg/odbcinst.ini.template > $odbcinst_ini");
