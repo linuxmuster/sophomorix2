@@ -114,7 +114,7 @@ install-base:
 	install -oroot -groot --mode=0644 sophomorix-base/modules/Sophomorix*[a-z1-9] $(PERLMOD)
 	# for samba
 	install -d -m700 -oroot -groot $(DESTDIR)/home/samba/netlogon
-	install -oroot -groot --mode=0600 sophomorix-base/samba/netlogon/login.bat $(CTEMPDIR)/samba/netlogon
+	install -oroot -groot --mode=0600 sophomorix-base/samba/netlogon/*.bat.template $(CTEMPDIR)/samba/netlogon
 
 install-files:
 	##### lib for managing the user database in plain files
@@ -140,8 +140,12 @@ install-pgldap:
 	##### Copy the pg config-templates
 	install -d -m755 -oroot -groot $(CTEMPDIR)/pg/
 	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/*.template $(CTEMPDIR)/pg/
+	##### Copy the pam config-templates
 	install -d -m755 -oroot -groot $(CTEMPDIR)/pam/
 	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pam/*.template $(CTEMPDIR)/pam/
+	##### Copy the samba config-templates
+	install -d -m755 -oroot -groot $(CTEMPDIR)/samba/
+	install -oroot -groot --mode=0644 sophomorix-pgldap/config-samba/smb.conf.template $(CTEMPDIR)/samba/
 
 install-sys-files:
 	##### lib for propagating the db to files

@@ -12,12 +12,9 @@ use Sophomorix::SophomorixBase;
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 
-# Einlesen der Konfigurationsdatei für Entwickler
-#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
-
 
 # ===========================================================================
-# netlogon-scripte erstellen
+# get servername
 # ==========================================================================
 my $servername="";
 
@@ -35,8 +32,16 @@ if ($servername_debconf ne 0){
 
 
 
+# ===========================================================================
+# netlogon-scripte erstellen
+# ==========================================================================
 
 &patch_netlogon("login.bat");
+
+
+# ===========================================================================
+# sub
+# ==========================================================================
 
 sub patch_netlogon {
     my ($template) = @_;

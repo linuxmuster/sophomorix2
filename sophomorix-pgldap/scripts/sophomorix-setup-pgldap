@@ -23,6 +23,9 @@ my $replace="";
 
 my $basename="";
 my $domainname="";
+my $servername="";
+my $smbworkgroup="";
+my $internip="";
 my $sid="";
 my $ldappassword="";
 my $dbpassword="";
@@ -36,6 +39,9 @@ my $config_file="/etc/sophomorix/pgldap/pgldap.conf";
 if (-e $config_file) { 
    { package PgLdapConf ; do "$config_file"}
    $domainname=$PgLdapConf::domainname;
+   $servername=$PgLdapConf::servername;
+   $smbworkgroup=$PgLdapConf::smbworkgroup;
+   $internip=$PgLdapConf::internip;
    $ldappassword=$PgLdapConf::ldappassword;
    $dbpassword=$PgLdapConf::dbpassword;
    $dbname=$PgLdapConf::dbname;
@@ -46,16 +52,57 @@ if (-e $config_file) {
 ############################################################
 
 # domainname
-
-my $domainname_debconf=&get_debconf_value("sambass", "run_mode",0);
+#------------------------------------------------------------
+my $domainname_debconf=&get_debconf_value("linuxmuster-base", "domainname",0);
 # process debconf data
 if ($domainname_debconf ne 0){
     # from debconf
     $domainname=$domainname_debconf;    
-    print "   Domainname from debconf    :   $domainname \n";
+    print "   Domainname from debconf     :   $domainname \n";
 } else {
     # from config file
-    print "   Domainname from pgldap.conf:   $domainname \n";
+    print "   Domainname from pgldap.conf :   $domainname \n";
+}
+
+
+# servername
+#------------------------------------------------------------
+my $servername_debconf=&get_debconf_value("linuxmuster-base", "servername",0);
+# process debconf data
+if ($servername_debconf ne 0){
+    # from debconf
+    $servername=$servername_debconf;    
+    print "   Servername from debconf     :   $servername \n";
+} else {
+    # from config file
+    print "   Servername from pgldap.conf :   $servername \n";
+}
+
+
+# workgroup from samba
+#------------------------------------------------------------
+my $smbworkgroup_debconf=&get_debconf_value("linuxmuster-base", "workgroup",0);
+# process debconf data
+if ($smbworkgroup_debconf ne 0){
+    # from debconf
+    $smbworkgroup=$smbworkgroup_debconf;    
+    print "   Workgroup from debconf      :   $smbworkgroup \n";
+} else {
+    # from config file
+    print "   Workgroup from pgldap.conf  :   $smbworkgroup \n";
+}
+
+# internal ip
+#------------------------------------------------------------
+my $internip_debconf=&get_debconf_value("linuxmuster-base", "internip",0);
+# process debconf data
+if ($internip_debconf ne 0){
+    # from debconf
+    $internip=$internip_debconf;    
+    print "   Internal IP from debconf    :   $internip \n";
+} else {
+    # from config file
+    print "   Internal IP from pgldap.conf:   $internip \n";
 }
 
 
@@ -73,6 +120,8 @@ my $ldap_conf="/etc/ldap/ldap.conf";
 my $slapd_conf="/etc/ldap/slapd.conf";
 my $smbldap_conf="/etc/smbldap-tools/smbldap.conf";
 my $ldap_secret="/etc/ldap/ldap.secret";
+my $nsswitch_conf="/etc/nsswitch.conf";
+my $libnssldap_conf="/etc/libnss-ldap.conf";
 
 # pg
 my $odbc_ini="/etc/odbc.ini";
@@ -85,6 +134,10 @@ my $common_auth="/etc/pam.d/common-auth";
 my $common_password="/etc/pam.d/common-password";
 my $common_session="/etc/pam.d/common-session";
 my $pam_ldap_conf="/etc/pam_ldap.conf";
+
+# samba
+my $smb_conf="/etc/samba/smb.conf";
+
 
 ############################################################
 # message
@@ -110,19 +163,22 @@ $sid=`net getlocalsid`;
 ($a,$sid)=split(/:/,$sid);
 $sid=~s/ //g;
 chomp($sid);
-print "   SID from the system        :   $sid \n";
+print "   SID from the system         :   $sid \n";
 #print "---$sid---\n";
 
 ############################################################
 # Database
 ############################################################
-print "   Database name              :   $dbname \n";
+print "   Database name               :   $dbname \n";
 
 
 
 # the great replacement string
 $replace= " -e 's/\@\@basename\@\@/${basename}/g'". 
+          " -e 's/\@\@servername\@\@/${servername}/g'". 
+          " -e 's/\@\@internip\@\@/${internip}/g'". 
           " -e 's/\@\@sid\@\@/${sid}/g'". 
+          " -e 's/\@\@workgroup\@\@/${smbworkgroup}/g'". 
           " -e 's/\@\@ldappassword\@\@/${ldappassword}/g'". 
           " -e 's/\@\@dbpassword\@\@/${dbpassword}/g'". 
           " -e 's/\@\@dbname\@\@/${dbname}/g'". 
@@ -135,6 +191,9 @@ system("sed $replace ${template}/ldap/ldap.conf.template > $ldap_conf");
 system("sed $replace ${template}/ldap/slapd.conf.template > $slapd_conf"); 
 system("sed $replace ${template}/ldap/smbldap.conf.template > $smbldap_conf"); 
 system("sed $replace ${template}/ldap/ldap.secret.template > $ldap_secret"); 
+system("sed $replace ${template}/ldap/nsswitch.conf.template > $nsswitch_conf"); 
+system("sed $replace ${template}/ldap/libnss-ldap.conf.template > $libnssldap_conf"); 
+
 # do it, pg
 system("sed $replace ${template}/pg/odbc.ini.template > $odbc_ini"); 
 system("sed $replace ${template}/pg/odbcinst.ini.template > $odbcinst_ini");
@@ -152,6 +211,8 @@ system("sed $replace ${template}/pam/common-password.template > $common_password
 system("sed $replace ${template}/pam/common-session.template > $common_session"); 
 system("sed $replace ${template}/pam/pam_ldap.conf.template > $pam_ldap_conf"); 
 
+# do it, samba
+system("sed $replace ${template}/samba/smb.conf.template > $smb_conf"); 
 
 
 
