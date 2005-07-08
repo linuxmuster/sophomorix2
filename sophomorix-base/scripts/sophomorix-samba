@@ -19,14 +19,33 @@ Getopt::Long::Configure ("bundling");
 # ===========================================================================
 # netlogon-scripte erstellen
 # ==========================================================================
+my $servername="";
+
+my $servername_debconf=&get_debconf_value("linuxmuster-base", "servername",0);
+# process debconf data
+if ($servername_debconf ne 0){
+    # from debconf
+    $servername=$servername_debconf;    
+    print "   Servername from debconf     :   $servername \n";
+} else {
+    # from config file
+    $servername=$Conf::smb_netbios_name;
+    print "   Servername from sophomorix.conf :   $servername \n";
+}
+
+
+
 
 &patch_netlogon("login.bat");
 
 sub patch_netlogon {
     my ($template) = @_;
+    # target file
+    my $login_path="${DevelConf::devel_netlogon_path}/$template";
+    # add the .template
+    $template=$template.".template";
     my $template_path="${DevelConf::devel_netlogon_template}/$template";
     my $tmp=$template_path."-tmp";
-    my $login_path="${DevelConf::devel_netlogon_path}/$template";
 
     open(TEMPLATE, "<$template_path");
     open(TMP, ">$tmp");
@@ -36,7 +55,8 @@ sub patch_netlogon {
         if(/^\###/){next;} # Bei 3-fachen Kommentarzeichen aussteigen
         if(not /^\#/){ 
             # ersetzte netbios name
-            s/\$smb_netbios_name/$Conf::smb_netbios_name/g;
+       #     s/\$smb_netbios_name/$Conf::smb_netbios_name/g;
+            s/\@\@servername\@\@/$Conf::smb_netbios_name/g;
         }
         #mac
         #print TMP "$_\l\r";
