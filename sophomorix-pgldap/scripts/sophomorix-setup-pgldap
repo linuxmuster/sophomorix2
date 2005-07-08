@@ -27,6 +27,7 @@ my $servername="";
 my $smbworkgroup="";
 my $internip="";
 my $sid="";
+my $smbserverstring="";
 my $ldappassword="";
 my $dbpassword="";
 my $dbname="";
@@ -41,6 +42,7 @@ if (-e $config_file) {
    $domainname=$PgLdapConf::domainname;
    $servername=$PgLdapConf::servername;
    $smbworkgroup=$PgLdapConf::smbworkgroup;
+   $smbserverstring=$PgLdapConf::smbserverstring;
    $internip=$PgLdapConf::internip;
    $ldappassword=$PgLdapConf::ldappassword;
    $dbpassword=$PgLdapConf::dbpassword;
@@ -167,6 +169,11 @@ print "   SID from the system         :   $sid \n";
 #print "---$sid---\n";
 
 ############################################################
+# SMB server string
+############################################################
+print "   Samba Server String         :   $smbserverstring \n";
+
+############################################################
 # Database
 ############################################################
 print "   Database name               :   $dbname \n";
@@ -179,6 +186,7 @@ $replace= " -e 's/\@\@basename\@\@/${basename}/g'".
           " -e 's/\@\@internip\@\@/${internip}/g'". 
           " -e 's/\@\@sid\@\@/${sid}/g'". 
           " -e 's/\@\@workgroup\@\@/${smbworkgroup}/g'". 
+          " -e 's/\@\@smbserverstring\@\@/${smbserverstring}/g'". 
           " -e 's/\@\@ldappassword\@\@/${ldappassword}/g'". 
           " -e 's/\@\@dbpassword\@\@/${dbpassword}/g'". 
           " -e 's/\@\@dbname\@\@/${dbname}/g'". 
