@@ -1,0 +1,24 @@
+#! /bin/sh
+# postrm script for sophomorix-pgldap
+#
+# see: dh_installdeb(1)
+
+set -e
+
+# source debconf stuff
+. /usr/share/debconf/confmodule
+# sozrce dbconfig-common stuff
+. /usr/share/dbconfig-common/dpkg/postrm.pgsql
+# do it
+# parameter 1: package name
+# parameter 2: arguments that were passed to the maintainer script
+dbc_go sophomorix-pgldap $@
+
+
+# Automatically added by dh_installdebconf
+if [ "$1" = purge ] && [ -e /usr/share/debconf/confmodule ]; then
+        . /usr/share/debconf/confmodule
+        db_purge
+fi
+# End automatically added section
+
