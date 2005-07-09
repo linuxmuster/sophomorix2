@@ -64,7 +64,7 @@ WEBMINCONFDIR=$(DESTDIR)/etc/webmin
 TOOLS=$(DESTDIR)/root/sophomorix-developer
 
 # dbconfig-common/install
-DBINSTALL=$(DESTDIR)/usr/share/dbconfig-common/data/sophomorix-pgldap/install/pgsql
+DBINSTALL=$(DESTDIR)/usr/share/dbconfig-common/data/sophomorix-pgldap/install
 
 # dbconfig-common/upgrade
 DBUPGRADE=$(DESTDIR)/usr/share/dbconfig-common/data/sophomorix-pgldap/upgrade
@@ -154,7 +154,7 @@ install-pgldap:
 	install -oroot -groot --mode=0644 sophomorix-pgldap/config-samba/smb.conf.template $(CTEMPDIR)/samba/
 	##### the install script for the database installation
 	install -d -m755 -oroot -groot $(DBINSTALL)/
-	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/sophomorix.sql $(DBINSTALL)/
+	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/sophomorix.sql $(DBINSTALL)/pgsql
 	##### the install script for the database installation
 	install -d -m755 -oroot -groot $(DBUPGRADE)/
 	##### put the update scripts ino place ()
