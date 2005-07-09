@@ -63,6 +63,12 @@ WEBMINCONFDIR=$(DESTDIR)/etc/webmin
 # Tools
 TOOLS=$(DESTDIR)/root/sophomorix-developer
 
+# dbconfig-common/install
+DBINSTALL=$(DESTDIR)/usr/share/dbconfig-common/data/sophomorix-pgldap/install/pgsql
+
+# dbconfig-common/upgrade
+DBUPGRADE=$(DESTDIR)/usr/share/dbconfig-common/data/sophomorix-pgldap/upgrade
+
 
 
 all: install-base install-files install-sys-files install-pgldap install-sys-pgldap install-vampire install-developer
@@ -146,6 +152,13 @@ install-pgldap:
 	##### Copy the samba config-templates
 	install -d -m755 -oroot -groot $(CTEMPDIR)/samba/
 	install -oroot -groot --mode=0644 sophomorix-pgldap/config-samba/smb.conf.template $(CTEMPDIR)/samba/
+	##### the install script for the database installation
+	install -d -m755 -oroot -groot $(DBINSTALL)/
+	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/sophomorix.sql $(DBINSTALL)/
+	##### the install script for the database installation
+	install -d -m755 -oroot -groot $(DBUPGRADE)/
+	##### put the update scripts ino place ()
+
 
 install-sys-files:
 	##### lib for propagating the db to files
