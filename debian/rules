@@ -60,6 +60,7 @@ install: build
 	$(MAKE) install-pgldap DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-sys-pgldap DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-developer DESTDIR=$(CURDIR)/debian/sophomorix
+	$(MAKE) install-vampire DESTDIR=$(CURDIR)/debian/sophomorix
 #	$(MAKE) install-webmin-classmanager DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) doc DESTDIR=$(CURDIR)/debian/sophomorix
 

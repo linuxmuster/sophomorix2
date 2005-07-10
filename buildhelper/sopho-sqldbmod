@@ -1,0 +1,32 @@
+#!/usr/bin/perl 
+# Dieses Script (sopho-sqldbmod) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+
+# This Script replaces @@tag@@ tags in sophomorix.sql.template
+# BEFORE packaging takes places
+use strict;
+
+my $replace="";
+
+my $dbname="sophomorix";
+my $dbuser="sophomorix";
+
+
+# the great replacement string
+$replace= " -e 's/\@\@dbname\@\@/${dbname}/g'". 
+          " -e 's/\@\@dbuser\@\@/${dbuser}/g'"; 
+
+my $template="./sophomorix-pgldap/config-pg/sophomorix.sql.template";
+my $generated="./sophomorix-pgldap/config-pg/sophomorix.sql.generated";
+
+# the great replacement string
+$replace= " -e 's/\@\@dbname\@\@/${dbname}/g'". 
+          " -e 's/\@\@dbuser\@\@/${dbuser}/g'"; 
+
+
+# do it
+system("sed $replace $template > $generated"); 
+

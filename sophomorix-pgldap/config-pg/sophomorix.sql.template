@@ -16,7 +16,7 @@ REVOKE ALL ON SCHEMA public FROM PUBLIC;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
-SET SESSION AUTHORIZATION 'ldap';
+SET SESSION AUTHORIZATION '@@dbuser@@';
 
 SET search_path = public, pg_catalog;
 
