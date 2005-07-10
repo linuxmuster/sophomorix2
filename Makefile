@@ -42,6 +42,9 @@ DOCDEBDIR=$(DESTDIR)/usr/share/doc
 # Developer
 CONF=$(DESTDIR)/etc/sophomorix
 
+# Schema
+SCHEMA=$(DESTDIR)/etc/ldap/schema
+
 # Developer
 DEVELCONF=$(DESTDIR)/usr/share/sophomorix
 
@@ -117,7 +120,7 @@ install-base:
 	install -oroot -groot --mode=0644 sophomorix-base/lang/sophomorix-lang.*[a-z] $(LANGUAGE)
 	##### Copy the module
 	install -d -m755 -oroot -groot $(PERLMOD)
-	install -oroot -groot --mode=0644 sophomorix-base/modules/Sophomorix*[a-z1-9] $(PERLMOD)
+	install -oroot -groot --mode=0644 sophomorix-base/modules/Sophomorix*[A-Za-z1-9].pm $(PERLMOD)
 	# for samba
 	install -d -m700 -oroot -groot $(DESTDIR)/home/samba/netlogon
 	install -oroot -groot --mode=0600 sophomorix-base/samba/netlogon/*.bat.template $(CTEMPDIR)/samba/netlogon
@@ -130,6 +133,8 @@ install-files:
 	install -oroot -groot --mode=0644 sophomorix-files/modules/Sophomorix*[a-z1-9] $(PERLMOD)
 
 install-pgldap:
+	##### patch sophomorix.sql.template BEFORE installation
+	./buildhelper/sopho-sqldbmod
 	##### lib for managing the user database in pgldap
 	##### scripts
 	install -d $(DESTDIR)/usr/sbin
@@ -152,9 +157,12 @@ install-pgldap:
 	##### Copy the samba config-templates
 	install -d -m755 -oroot -groot $(CTEMPDIR)/samba/
 	install -oroot -groot --mode=0644 sophomorix-pgldap/config-samba/smb.conf.template $(CTEMPDIR)/samba/
+	##### install samba.schema
+	install -d -m755 -oroot -groot $(SCHEMA)/
+	install -oroot -groot --mode=0755 sophomorix-pgldap/config-ldap/samba.schema $(SCHEMA)/
 	##### the install script for the database installation
 	install -d -m755 -oroot -groot $(DBINSTALL)/
-	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/sophomorix.sql $(DBINSTALL)/pgsql
+	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/sophomorix.sql.generated $(DBINSTALL)/pgsql
 	##### the install script for the database installation
 	install -d -m755 -oroot -groot $(DBUPGRADE)/
 	##### put the update scripts ino place ()
@@ -173,9 +181,10 @@ install-sys-pgldap:
 	install -oroot -groot --mode=0644 sophomorix-sys-pgldap/modules/Sophomorix*[a-z1-9] $(PERLMOD)
 
 install-vampire:
-	##### lib for managing the user database in plain files
-	install -oroot -groot --mode=0744 sophomorix-vampire/scripts/sophomorix*[a-z1-9] $(DESTDIR)/usr/sbin
-	##### configs
+	##### migration scripts 
+	install -d $(DESTDIR)/usr/sbin
+	install -oroot -groot --mode=0744 sophomorix-vampire/scripts/sophomorix-*[a-z1-9] $(DESTDIR)/usr/sbin
+	##### migration configs
 	install -d -m755 -oroot -groot $(CONF)/vampire
 	install -oroot -groot --mode=0644 sophomorix-vampire/config/vampire*files $(CONF)/vampire
 	install -oroot -groot --mode=0644 sophomorix-vampire/config/vampire*dirs $(CONF)/vampire
