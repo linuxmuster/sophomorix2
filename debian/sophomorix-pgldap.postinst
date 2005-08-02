@@ -26,7 +26,7 @@ set -e
 
 # source debconf stuff
 . /usr/share/debconf/confmodule
-# sozrce dbconfig-common stuff
+# source dbconfig-common stuff
 . /usr/share/dbconfig-common/dpkg/postinst.pgsql
 # do it
 # parameter 1: package name
@@ -40,8 +40,8 @@ dbc_go sophomorix-pgldap $@
 case "$1" in
     configure)
     # calling the setup-script of sophomorix
-    echo "calling sophomorix-setup-pgldap"
-    sophomorix-setup-pgldap
+    #echo "calling sophomorix-setup-pgldap"
+    #sophomorix-setup-pgldap
 
     ;;
 

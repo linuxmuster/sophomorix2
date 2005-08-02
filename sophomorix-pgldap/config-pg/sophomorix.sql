@@ -5,2227 +5,1670 @@
 SET client_encoding = 'LATIN9';
 SET check_function_bodies = false;
 
+SET SESSION AUTHORIZATION 'postgres';
+
+--
+-- TOC entry 4 (OID 2200)
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
 SET SESSION AUTHORIZATION 'ldap';
 
 SET search_path = public, pg_catalog;
 
 --
--- Data for TOC entry 10 (OID 47635)
+-- TOC entry 5 (OID 82398)
+-- Name: ldap_attr_mappings; Type: TABLE; Schema: public; Owner: ldap
+--
+
+CREATE TABLE ldap_attr_mappings (
+    id serial NOT NULL,
+    oc_map_id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    sel_expr character varying(255) NOT NULL,
+    sel_expr_u character varying(255),
+    from_tbls character varying(255) NOT NULL,
+    join_where character varying(255),
+    add_proc character varying(255),
+    delete_proc character varying(255),
+    param_order integer NOT NULL,
+    expect_return integer NOT NULL
+);
+
+
+--
+-- TOC entry 6 (OID 82403)
+-- Name: ldap_entries; Type: TABLE; Schema: public; Owner: ldap
+--
+
+CREATE TABLE ldap_entries (
+    id serial NOT NULL,
+    dn character varying(255) NOT NULL,
+    oc_map_id integer NOT NULL,
+    parent integer NOT NULL,
+    keyval integer NOT NULL
+);
+
+
+--
+-- TOC entry 7 (OID 82406)
+-- Name: ldap_entry_objclasses; Type: TABLE; Schema: public; Owner: ldap
+--
+
+CREATE TABLE ldap_entry_objclasses (
+    entry_id integer NOT NULL,
+    oc_name character varying(64)
+);
+
+
+--
+-- TOC entry 8 (OID 82410)
+-- Name: institutes; Type: TABLE; Schema: public; Owner: ldap
+--
+
+CREATE TABLE institutes (
+    id serial NOT NULL,
+    name character varying(255)
+);
+
+
+--
+-- TOC entry 9 (OID 82413)
+-- Name: ldap_referrals; Type: TABLE; Schema: public; Owner: ldap
+--
+
+CREATE TABLE ldap_referrals (
+    entry_id integer,
+    name character(255),
+    url character(255)
+);
+
+
+--
+-- TOC entry 10 (OID 82415)
+-- Name: groups_users; Type: TABLE; Schema: public; Owner: ldap
+--
+
+CREATE TABLE groups_users (
+    gidnumber integer NOT NULL,
+    memberuid integer NOT NULL
+);
+
+
+--
+-- TOC entry 11 (OID 82417)
+-- Name: groups_groups; Type: TABLE; Schema: public; Owner: ldap
+--
+
+CREATE TABLE groups_groups (
+    gidnumber integer NOT NULL,
+    membergid integer NOT NULL
+);
+
+
+--
+-- TOC entry 56 (OID 82419)
+-- Name: set_groups_cn(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_groups_cn(character varying, integer) RETURNS integer
+    AS 'UPDATE groups SET gid=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT);
+SELECT $2 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 57 (OID 82420)
+-- Name: set_groups_gidnumber(integer, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_groups_gidnumber(integer, integer) RETURNS integer
+    AS 'UPDATE groups SET gidnumber=CAST($1 AS INT) WHERE id=CAST($2 AS INT);
+UPDATE samba_group_mapping SET gidnumber=CAST($1 AS INT) WHERE id=CAST($2 AS INT);
+SELECT $2 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 58 (OID 82421)
+-- Name: create_groups(); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION create_groups() RETURNS integer
+    AS 'SELECT setval (''groups_id_seq'', (select max(id) FROM groups));
+INSERT INTO groups (id,gid,gidnumber) VALUES (nextval(''groups_id_seq''),'''',00);
+INSERT INTO samba_group_mapping (id,gidnumber) VALUES ((SELECT max(id) FROM groups),00);
+SELECT max(id) FROM groups
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 12 (OID 82424)
+-- Name: samba_group_mapping; Type: TABLE; Schema: public; Owner: ldap
+--
+
+CREATE TABLE samba_group_mapping (
+    id serial NOT NULL,
+    gidnumber integer,
+    sambasid character varying,
+    sambagrouptype character varying,
+    displayname character varying,
+    description character varying,
+    sambasidlist character varying
+);
+
+
+--
+-- TOC entry 59 (OID 82430)
+-- Name: set_groups_sambasid(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_groups_sambasid(character varying, integer) RETURNS integer
+    AS 'UPDATE samba_group_mapping SET sambasid=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT);
+INSERT INTO ldap_entry_objclasses (entry_id,oc_name) VALUES ((SELECT id from ldap_entries WHERE oc_map_id=4 AND keyval=$2),''sambaGroupMapping'');
+SELECT $2 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 60 (OID 82431)
+-- Name: set_groups_sambagrouptype(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_groups_sambagrouptype(character varying, integer) RETURNS integer
+    AS '        UPDATE samba_group_mapping SET sambagrouptype=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT);
+                SELECT $2 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 61 (OID 82432)
+-- Name: set_groups_sambasidlist(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_groups_sambasidlist(character varying, integer) RETURNS integer
+    AS '        UPDATE samba_group_mapping SET sambasidlist=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT);
+                SELECT $2 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 62 (OID 82433)
+-- Name: set_groups_description(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_groups_description(character varying, integer) RETURNS integer
+    AS '        UPDATE samba_group_mapping SET description=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT);
+                SELECT $2 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 63 (OID 82434)
+-- Name: set_groups_displayname(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_groups_displayname(character varying, integer) RETURNS integer
+    AS '        UPDATE samba_group_mapping SET displayname=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT);
+                SELECT $2 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 64 (OID 82435)
+-- Name: create_account(); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION create_account() RETURNS integer
+    AS 'SELECT setval (''posix_account_id_seq'', (select case when max(id) is null then 1 else max(id) end from posix_account));
+INSERT INTO posix_account (id,uidnumber,uid,gidnumber) VALUES (nextval(''posix_account_id_seq''),00,0,0);
+INSERT INTO samba_sam_account (id) VALUES ((SELECT max(id) FROM posix_account));
+SELECT max(id) FROM posix_account'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 65 (OID 82436)
+-- Name: set_account_uidnumber(integer, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_uidnumber(integer, integer) RETURNS integer
+    AS 'UPDATE posix_account SET uidnumber=CAST($1 AS INT) WHERE id=CAST($2 AS INT);
+SELECT $2 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 66 (OID 82437)
+-- Name: set_account_uid(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_uid(character varying, integer) RETURNS integer
+    AS '
+        UPDATE posix_account SET uid=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT);
+        SELECT $2 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 67 (OID 82438)
+-- Name: set_account_surname(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_surname(character varying, integer) RETURNS integer
+    AS '        UPDATE posix_account SET surname=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT);
+        SELECT $2 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 68 (OID 82439)
+-- Name: set_account_firstname(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_firstname(character varying, integer) RETURNS integer
+    AS '
+        UPDATE posix_account SET firstname=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT);
+        SELECT $2 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 69 (OID 82440)
+-- Name: set_account_userpassword(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_userpassword(character varying, integer) RETURNS integer
+    AS '
+        UPDATE posix_account SET userpassword=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT);
+        SELECT $2 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 70 (OID 82441)
+-- Name: set_account_loginshell(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_loginshell(character varying, integer) RETURNS integer
+    AS '
+        UPDATE posix_account SET loginshell=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT);
+        SELECT $2 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 71 (OID 82442)
+-- Name: del_account_uidnumber(integer, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_uidnumber(integer, integer) RETURNS integer
+    AS '
+        UPDATE posix_account SET uidnumber=NULL WHERE id=CAST($2 AS INT);
+        SELECT $2 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 72 (OID 82443)
+-- Name: set_account_gidnumber(integer, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_gidnumber(integer, integer) RETURNS integer
+    AS '
+        UPDATE posix_account SET gidnumber=CAST($1 AS INT) WHERE id=CAST($2 AS INT);
+        SELECT $2 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 73 (OID 82444)
+-- Name: del_account_gidnumber(integer, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_gidnumber(integer, integer) RETURNS integer
+    AS '        UPDATE posix_account SET gidnumber=1 WHERE id=CAST($1 AS INT);
+        SELECT $1 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 74 (OID 82445)
+-- Name: set_account_homedirectory(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_homedirectory(character varying, integer) RETURNS integer
+    AS '
+        UPDATE posix_account SET homedirectory=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT);
+        SELECT $2 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 13 (OID 82448)
+-- Name: organizational_unit; Type: TABLE; Schema: public; Owner: ldap
+--
+
+CREATE TABLE organizational_unit (
+    id serial NOT NULL,
+    ou character varying(40) NOT NULL,
+    description character varying(255)
+);
+
+
+--
+-- TOC entry 75 (OID 82451)
+-- Name: create_organizational_unit(); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION create_organizational_unit() RETURNS integer
+    AS '
+	SELECT setval (''organizational_unit_id_seq'', (select max(id) FROM organizational_unit));
+	INSERT INTO organizational_unit (id,ou,description) 
+		VALUES (nextval(''organizational_unit_id_seq''),'''','''');
+	SELECT max(id) FROM organizational_unit
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 76 (OID 82452)
+-- Name: delete_organizational_unit(integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION delete_organizational_unit(integer) RETURNS integer
+    AS '
+	DELETE FROM organizational_unit WHERE id=CAST($1 AS INT);
+	SELECT $1 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 77 (OID 82453)
+-- Name: set_organizational_unit_ou(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_organizational_unit_ou(character varying, integer) RETURNS integer
+    AS '
+	UPDATE organizational_unit SET ou=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT);
+        SELECT $2 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 78 (OID 82454)
+-- Name: set_account_cn(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_cn(character varying, integer) RETURNS integer
+    AS 'update posix_account set firstname = (
+		select case 
+			when position('' '' in $1) = 0 then $1 
+			else substr($1, 1, position('' '' in $1) - 1)
+		end
+	),surname = (
+		select case 
+			when position('' '' in $1) = 0 then ''''
+			else substr($1, position('' '' in $1) + 1) 
+		end
+	) where id = $2;
+select $2 as return'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 79 (OID 82455)
+-- Name: set_account_sambasid(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambasid(character varying, integer) RETURNS integer
+    AS 'UPDATE samba_sam_account SET sambasid=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); 
+INSERT INTO ldap_entry_objclasses (entry_id,oc_name) VALUES ((SELECT id from ldap_entries WHERE oc_map_id=3 AND keyval=$2),''sambaSamAccount'');
+SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 80 (OID 82456)
+-- Name: set_account_sambalmpassword(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambalmpassword(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambalmpassword=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 81 (OID 82457)
+-- Name: set_account_sambantpassword(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambantpassword(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambantpassword=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 82 (OID 82458)
+-- Name: set_account_sambapwdlastset(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambapwdlastset(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambapwdlastset=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 83 (OID 82459)
+-- Name: set_account_sambalogontime(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambalogontime(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambalogontime=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 84 (OID 82460)
+-- Name: set_account_sambalogofftime(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambalogofftime(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambalogofftime=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 85 (OID 82461)
+-- Name: set_account_sambakickofftime(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambakickofftime(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambakickofftime=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 86 (OID 82462)
+-- Name: set_account_sambapwdcanchange(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambapwdcanchange(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambapwdcanchange=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 87 (OID 82463)
+-- Name: set_account_sambapwdmustchange(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambapwdmustchange(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambapwdmustchange=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 88 (OID 82464)
+-- Name: set_account_sambaacctflags(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambaacctflags(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambaacctflags=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 89 (OID 82465)
+-- Name: set_account_displayname(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_displayname(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET displayname=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 90 (OID 82466)
+-- Name: set_account_sambahomepath(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambahomepath(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambahomepath=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 91 (OID 82467)
+-- Name: set_account_sambahomedrive(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambahomedrive(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambahomedrive=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 92 (OID 82468)
+-- Name: set_account_sambalogonscript(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambalogonscript(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambalogonscript=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 93 (OID 82469)
+-- Name: set_account_sambaprofilepath(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambaprofilepath(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambaprofilepath=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 94 (OID 82470)
+-- Name: set_account_description(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_description(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET description=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 95 (OID 82471)
+-- Name: set_account_sambauserworkstations(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambauserworkstations(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambauserworkstations=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 96 (OID 82472)
+-- Name: set_account_sambaprimarygroupsid(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambaprimarygroupsid(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambaprimarygroupsid=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 97 (OID 82473)
+-- Name: set_account_sambadomainname(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambadomainname(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambadomainname=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 98 (OID 82474)
+-- Name: set_account_sambabadpasswordcount(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambabadpasswordcount(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambabadpasswordcount=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 99 (OID 82475)
+-- Name: set_account_sambabadpasswordtime(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambabadpasswordtime(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambabadpasswordtime=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 100 (OID 82476)
+-- Name: set_account_sambapasswordhistory(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambapasswordhistory(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambapasswordhistory=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 101 (OID 82477)
+-- Name: set_account_sambalogonhours(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambalogonhours(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambalogonhours=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 102 (OID 82478)
+-- Name: set_account_sambamungeddial(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_sambamungeddial(character varying, integer) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambamungeddial=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 103 (OID 82479)
+-- Name: character varying, integer(integer, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION "character varying, integer"(integer, integer) RETURNS integer
+    AS 'UPDATE posix_account SET gecos=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); 
+SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 104 (OID 82480)
+-- Name: set_account_gecos(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_account_gecos(character varying, integer) RETURNS integer
+    AS 'UPDATE posix_account SET gecos=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 14 (OID 82483)
+-- Name: groups; Type: TABLE; Schema: public; Owner: ldap
+--
+
+CREATE TABLE groups (
+    id serial NOT NULL,
+    gidnumber integer NOT NULL,
+    gid character varying NOT NULL
+);
+
+
+--
+-- TOC entry 15 (OID 82491)
+-- Name: posix_account; Type: TABLE; Schema: public; Owner: ldap
+--
+
+CREATE TABLE posix_account (
+    id serial NOT NULL,
+    uidnumber integer NOT NULL,
+    uid character varying(255) NOT NULL,
+    gidnumber integer NOT NULL,
+    firstname character varying(255),
+    surname character varying(255),
+    homedirectory character varying(255),
+    gecos character varying(255),
+    loginshell character varying(255),
+    userpassword character varying(255),
+    description character(255)
+);
+
+
+--
+-- TOC entry 16 (OID 82497)
+-- Name: samba_sam_account; Type: TABLE; Schema: public; Owner: ldap
+--
+
+CREATE TABLE samba_sam_account (
+    id integer NOT NULL,
+    sambasid character varying(255),
+    cn character varying(255),
+    sambalmpassword character varying(255),
+    sambantpassword character varying(255),
+    sambapwdlastset character varying(255),
+    sambalogontime character varying(255),
+    sambalogofftime character varying(255),
+    sambakickofftime character varying(255),
+    sambapwdcanchange character varying(255),
+    sambapwdmustchange character varying(255),
+    sambaacctflags character varying(255),
+    displayname character varying(255),
+    sambahomepath character varying(255),
+    sambahomedrive character varying(255),
+    sambalogonscript character varying(255),
+    sambaprofilepath character varying(255),
+    description character varying(255),
+    sambauserworkstations character varying(255),
+    sambaprimarygroupsid character varying(255),
+    sambadomainname character varying(255),
+    sambamungeddial character varying(255),
+    sambabadpasswordcount character varying(255),
+    sambabadpasswordtime character varying(255),
+    sambapasswordhistory character varying(255),
+    sambalogonhours character varying(255)
+);
+
+
+--
+-- TOC entry 17 (OID 82504)
+-- Name: ldap_oc_mappings; Type: TABLE; Schema: public; Owner: ldap
+--
+
+CREATE TABLE ldap_oc_mappings (
+    id serial NOT NULL,
+    name character varying(64) NOT NULL,
+    keytbl character varying(64) NOT NULL,
+    keycol character varying(64) NOT NULL,
+    create_proc character varying(255),
+    delete_proc character varying(255),
+    expect_return integer NOT NULL
+);
+
+
+--
+-- TOC entry 105 (OID 82507)
+-- Name: del_account_userpassword(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_userpassword(integer, character varying) RETURNS integer
+    AS 'UPDATE posix_account SET userpassword=NULL WHERE id=CAST($1 AS INT);
+SELECT $1 AS RETURN'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 106 (OID 82508)
+-- Name: del_account_sambantpassword(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambantpassword(integer, character varying) RETURNS integer
+    AS 'UPDATE samba_sam_account SET sambantpassword=NULL WHERE id=CAST($1 AS INT);
+SELECT $1 AS RETURN'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 107 (OID 82509)
+-- Name: del_account_sambalmpassword(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambalmpassword(integer, character varying) RETURNS integer
+    AS 'UPDATE samba_sam_account SET sambalmpassword=NULL WHERE id=CAST($1 AS INT);
+SELECT $1 AS RETURN'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 108 (OID 82510)
+-- Name: del_account_sambapwdlastset(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambapwdlastset(integer, character varying) RETURNS integer
+    AS 'UPDATE samba_sam_account SET sambapwdlastset=NULL WHERE id=CAST($1 AS INT);
+SELECT $1 AS RETURN'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 18 (OID 82511)
+-- Name: posix_account_details; Type: TABLE; Schema: public; Owner: ldap
+--
+
+CREATE TABLE posix_account_details (
+    id integer NOT NULL,
+    schoolnumber character varying(255),
+    unid character varying(255),
+    birthname character varying(255),
+    title character varying(255),
+    gender character varying(255),
+    birthday date,
+    birthpostalcode character varying(255),
+    birthcity character varying(255),
+    denomination character varying(255),
+    "class" integer,
+    classentry integer,
+    schooltype integer,
+    chiefinstructor integer,
+    nationality integer,
+    religionparticipation boolean,
+    ethicsparticipation boolean,
+    education character varying(255),
+    occupation character varying(255),
+    starttraining date,
+    endtraining date
+);
+
+
+--
+-- TOC entry 19 (OID 82516)
+-- Name: sambaunixidpool; Type: TABLE; Schema: public; Owner: ldap
+--
+
+CREATE TABLE sambaunixidpool (
+    id integer NOT NULL,
+    name character varying NOT NULL
+);
+
+
+--
+-- TOC entry 20 (OID 82523)
+-- Name: sambadomain; Type: TABLE; Schema: public; Owner: ldap
+--
+
+CREATE TABLE sambadomain (
+    id serial NOT NULL,
+    sambadomainname character varying,
+    sambasid character varying
+);
+
+
+--
+-- TOC entry 109 (OID 82529)
+-- Name: create_samba_domain(); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION create_samba_domain() RETURNS integer
+    AS 'INSERT INTO sambadomain (id,sambadomainname,sambasid) VALUES (nextval(''posix_account_id_seq''),0,0);
+SELECT max(id) FROM sambadomain'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 110 (OID 82530)
+-- Name: set_samba_domain_name(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_samba_domain_name(character varying, integer) RETURNS integer
+    AS 'UPDATE sambadomain SET sambadomainname=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 111 (OID 82531)
+-- Name: set_samba_domain_sid(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION set_samba_domain_sid(character varying, integer) RETURNS integer
+    AS 'UPDATE sambadomain SET sambasid=CAST($1 AS VARCHAR) WHERE id=CAST($2 AS INT); SELECT $2 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 112 (OID 82532)
+-- Name: del_account_sambasid(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambasid(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambasid=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 113 (OID 82533)
+-- Name: del_account_sambalogontime(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambalogontime(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambalogontime=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 114 (OID 82534)
+-- Name: del_account_sambalogofftime(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambalogofftime(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambalogofftime=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 115 (OID 82535)
+-- Name: del_account_sambakickofftime(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambakickofftime(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambakickofftime=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 116 (OID 82536)
+-- Name: del_account_sambapwdcanchange(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambapwdcanchange(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambapwdcanchange=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 117 (OID 82537)
+-- Name: del_account_sambapwdmustchange(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambapwdmustchange(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambapwdmustchange=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 118 (OID 82538)
+-- Name: del_account_sambaacctflags(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambaacctflags(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambaacctflags=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 119 (OID 82539)
+-- Name: del_account_displayname(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_displayname(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET displayname=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 120 (OID 82540)
+-- Name: del_account_sambahomepath(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambahomepath(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambahomepath=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 121 (OID 82541)
+-- Name: del_account_sambahomedrive(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambahomedrive(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambahomedrive=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 122 (OID 82542)
+-- Name: del_account_sambalogonscript(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambalogonscript(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambalogonscript=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 123 (OID 82543)
+-- Name: del_account_sambaprofilepath(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambaprofilepath(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambaprofilepath=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 124 (OID 82544)
+-- Name: del_account_description(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_description(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET description=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 125 (OID 82545)
+-- Name: del_account_sambauserworkstations(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambauserworkstations(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambauserworkstations=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 126 (OID 82546)
+-- Name: del_account_sambaprimarygroupsid(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambaprimarygroupsid(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambaprimarygroupsid=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 127 (OID 82547)
+-- Name: del_account_sambadomainname(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambadomainname(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambadomainname=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 128 (OID 82548)
+-- Name: del_account_sambamungeddial(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambamungeddial(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambamungeddial=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 129 (OID 82549)
+-- Name: del_account_sambabadpasswordcount(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambabadpasswordcount(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambabadpasswordcount=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 130 (OID 82550)
+-- Name: del_account_sambabadpasswordtime(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambabadpasswordtime(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambabadpasswordtime=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 131 (OID 82551)
+-- Name: del_account_sambapasswordhistory(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambapasswordhistory(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambapasswordhistory=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 132 (OID 82552)
+-- Name: del_account_sambalogonhours(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sambalogonhours(integer, character varying) RETURNS integer
+    AS ' UPDATE samba_sam_account SET sambalogonhours=NULL WHERE id=CAST($1 AS INT); SELECT $1 AS RETURN '
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 133 (OID 82553)
+-- Name: delete_account(integer); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION delete_account(integer) RETURNS integer
+    AS 'delete from posix_account where id=$1;
+delete from samba_sam_account where id=$1;
+SELECT max(id) FROM posix_account'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 134 (OID 82554)
+-- Name: del_account_uid(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_uid(integer, character varying) RETURNS integer
+    AS 'UPDATE posix_account SET uid=1 WHERE id=CAST($1 AS INT);
+SELECT $1 AS RETURN
+'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 135 (OID 82555)
+-- Name: del_account_firstname(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_firstname(integer, character varying) RETURNS integer
+    AS 'UPDATE posix_account SET firstname=NULL WHERE id=CAST($1 AS INT);
+SELECT $1 AS RETURN'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 136 (OID 82556)
+-- Name: del_account_homedirectory(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_homedirectory(integer, character varying) RETURNS integer
+    AS 'UPDATE posix_account SET homedirectory=NULL WHERE id=CAST($1 AS INT);
+SELECT $1 AS RETURN'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 137 (OID 82557)
+-- Name: del_account_loginshell(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_loginshell(integer, character varying) RETURNS integer
+    AS 'UPDATE posix_account SET loginshell=NULL WHERE id=CAST($1 AS INT);
+SELECT $1 AS RETURN'
+    LANGUAGE sql;
+
+
+--
+-- TOC entry 138 (OID 82558)
+-- Name: del_account_sn(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
+--
+
+CREATE FUNCTION del_account_sn(integer, character varying) RETURNS integer
+    AS 'UPDATE posix_account SET surname=NULL WHERE id=CAST($1 AS INT);
+SELECT $1 AS RETURN'
+    LANGUAGE sql;
+
+
+--
+-- Data for TOC entry 139 (OID 82398)
 -- Name: ldap_attr_mappings; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
-COPY ldap_attr_mappings (id, oc_map_id, name, sel_expr, sel_expr_u, from_tbls, join_where, add_proc, delete_proc, param_order, expect_return) FROM stdin;
-5	1	o	institutes.name	\N	institutes	\N	\N	\N	0	0
-7	1	dc	lower(institutes.name)	\N	institutes,ldap_entries AS dcObject,ldap_entry_objclasses as auxObjectClass	institutes.id=dcObject.keyval AND dcObject.oc_map_id=1 AND dcObject.id=auxObjectClass.entry_id AND auxObjectClass.oc_name='dcObject'	\N	\N	0	0
-14	4	cn	groups.gid	\N	groups	\N	{ call set_groups_cn(?,?) }	\N	1	0
-13	4	gidNumber	groups.gidnumber	\N	groups	\N	{ call set_groups_gidnumber(?,?) }	\N	1	0
-11	3	homeDirectory	posix_account.homedirectory	\N	posix_account	\N	{ call set_account_homedirectory(?,?) }	{ call del_account_homedirectory(?,?) }	1	0
-16	3	loginShell	posix_account.loginshell	\N	posix_account	\N	{ call set_account_loginshell(?,?) }	{ call del_account_loginshell(?,?) }	1	0
-10	3	gidNumber	posix_account.gidnumber	\N	posix_account	\N	{ call set_account_gidnumber(?,?) }	{ call del_account_gidnumber(?,?) }	1	0
-9	3	uid	posix_account.uid	\N	posix_account	\N	{ call set_account_uid(?,?) }	{ call del_account_uid(?,?) }	1	0
-8	2	ou	organizational_unit.ou	\N	organizational_unit	\N	{ call set_organizational_unit_ou(?,?) }	\N	1	0
-12	3	uidNumber	posix_account.uidnumber	\N	posix_account	\N	{ call set_account_uidnumber(?,?) }	\N	1	0
-1	3	cn	posix_account.firstname || ' ' || posix_account.surname	\N	posix_account	\N	{ call set_account_cn(?,?) }	\N	1	0
-105	3	sn	posix_account.surname	\N	posix_account	\N	\N	\N	0	0
-106	3	gn	posix_account.firstname	\N	posix_account	\N	\N	\N	0	0
-95	4	sambaSID	samba_group_mapping.sambasid	NULL	samba_group_mapping,groups	samba_group_mapping.gidnumber=groups.gidnumber	{ call set_groups_sambasid(?,?) }		1	0
-97	4	displayName	samba_group_mapping.displayname	NULL	samba_group_mapping,groups	samba_group_mapping.gidnumber=groups.gidnumber	{ call set_groups_displayname(?,?) }		1	0
-96	4	sambaGroupType	samba_group_mapping.sambagrouptype	NULL	samba_group_mapping,groups	samba_group_mapping.gidnumber=groups.gidnumber	{ call set_groups_sambagrouptype(?,?) }		1	0
-99	4	sambaSIDList	samba_group_mapping.sambasidlist	NULL	samba_group_mapping,groups	samba_group_mapping.gidnumber=groups.gidnumber	{ call set_groups_sambasidlist(?,?) }		1	0
-98	4	description	samba_group_mapping.description	NULL	samba_group_mapping,groups	samba_group_mapping.gidnumber=groups.gidnumber	{ call set_groups_description(?,?) }		1	0
-71	3	sambaSID	samba_sam_account.sambasid	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambasid(?,?) }	NULL	1	0
-15	4	memberUid	posix_account.uid	\N	posix_account,groups_users,groups	groups_users.memberuid=posix_account.uidnumber AND groups_users.gidnumber=groups.gidnumber	\N	\N	0	0
-75	3	sambaLogonTime	samba_sam_account.sambalogontime	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambalogontime(?,?) }	NULL	1	0
-76	3	sambaLogoffTime	samba_sam_account.sambalogofftime	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambalogofftime(?,?) }	NULL	1	0
-77	3	sambaKickoffTime	samba_sam_account.sambakickofftime	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambakickofftime(?,?) }	NULL	1	0
-78	3	sambaPwdCanChange	samba_sam_account.sambapwdcanchange	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambapwdcanchange(?,?) }	NULL	1	0
-79	3	sambaPwdMustChange	samba_sam_account.sambapwdmustchange	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambapwdmustchange(?,?) }	NULL	1	0
-80	3	sambaAcctFlags	samba_sam_account.sambaacctflags	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambaacctflags(?,?) }	NULL	1	0
-81	3	displayName	samba_sam_account.displayname	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_displayname(?,?) }	NULL	1	0
-82	3	sambaHomePath	samba_sam_account.sambahomepath	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambahomepath(?,?) }	NULL	1	0
-83	3	sambaHomeDrive	samba_sam_account.sambahomedrive	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambahomedrive(?,?) }	NULL	1	0
-84	3	sambaLogonScript	samba_sam_account.sambalogonscript	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambalogonscript(?,?) }	NULL	1	0
-85	3	sambaProfilePath	samba_sam_account.sambaprofilepath	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambaprofilepath(?,?) }	NULL	1	0
-86	3	description	samba_sam_account.description	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_description(?,?) }	NULL	1	0
-87	3	sambaUserWorkstations	samba_sam_account.sambauserworkstations	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambauserworkstations(?,?) }	NULL	1	0
-88	3	sambaPrimaryGroupSID	samba_sam_account.sambaprimarygroupsid	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambaprimarygroupsid(?,?) }	NULL	1	0
-89	3	sambaDomainName	samba_sam_account.sambadomainname	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambadomainname(?,?) }	NULL	1	0
-90	3	sambaMungedDial	samba_sam_account.sambamungeddial	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambamungeddial(?,?) }	NULL	1	0
-91	3	sambaBadPasswordCount	samba_sam_account.sambabadpasswordcount	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambabadpasswordcount(?,?) }	NULL	1	0
-92	3	sambaBadPasswordTime	samba_sam_account.sambabadpasswordtime	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambabadpasswordtime(?,?) }	NULL	1	0
-93	3	sambaPasswordHistory	samba_sam_account.sambapasswordhistory	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambapasswordhistory(?,?) }	NULL	1	0
-94	3	sambaLogonHours	samba_sam_account.sambalogonhours	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambalogonhours(?,?) }	NULL	1	0
-17	3	gecos	posix_account.gecos	\N	posix_account	\N	{ call set_account_gecos(?,?) }	\N	1	0
-72	3	sambaLMPassword	samba_sam_account.sambalmpassword	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambalmpassword(?,?) }	{ call del_account_sambalmpassword(?,?) }	1	0
-73	3	sambaNTPassword	samba_sam_account.sambantpassword	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambantpassword(?,?) }	{ call del_account_sambantpassword(?,?) }	1	0
-74	3	sambaPwdLastSet	samba_sam_account.sambapwdlastset	NULL	samba_sam_account,posix_account	samba_sam_account.id=posix_account.id	{ call set_account_sambapwdlastset(?,?) }	{ call del_account_sambapwdlastset(?,?) }	1	0
-4	3	userPassword	posix_account.userpassword	\N	posix_account	\N	{ call set_account_userpassword(?,?) }	{ call del_account_userpassword(?,?) }	1	0
-\.
+INSERT INTO ldap_attr_mappings VALUES (5, 1, 'o', 'institutes.name', NULL, 'institutes', NULL, NULL, NULL, 0, 0);
+INSERT INTO ldap_attr_mappings VALUES (7, 1, 'dc', 'lower(institutes.name)', NULL, 'institutes,ldap_entries AS dcObject,ldap_entry_objclasses as auxObjectClass', 'institutes.id=dcObject.keyval AND dcObject.oc_map_id=1 AND dcObject.id=auxObjectClass.entry_id AND auxObjectClass.oc_name=''dcObject''', NULL, NULL, 0, 0);
+INSERT INTO ldap_attr_mappings VALUES (14, 4, 'cn', 'groups.gid', NULL, 'groups', NULL, '{ call set_groups_cn(?,?) }', NULL, 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (13, 4, 'gidNumber', 'groups.gidnumber', NULL, 'groups', NULL, '{ call set_groups_gidnumber(?,?) }', NULL, 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (11, 3, 'homeDirectory', 'posix_account.homedirectory', NULL, 'posix_account', NULL, '{ call set_account_homedirectory(?,?) }', '{ call del_account_homedirectory(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (16, 3, 'loginShell', 'posix_account.loginshell', NULL, 'posix_account', NULL, '{ call set_account_loginshell(?,?) }', '{ call del_account_loginshell(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (10, 3, 'gidNumber', 'posix_account.gidnumber', NULL, 'posix_account', NULL, '{ call set_account_gidnumber(?,?) }', '{ call del_account_gidnumber(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (9, 3, 'uid', 'posix_account.uid', NULL, 'posix_account', NULL, '{ call set_account_uid(?,?) }', '{ call del_account_uid(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (8, 2, 'ou', 'organizational_unit.ou', NULL, 'organizational_unit', NULL, '{ call set_organizational_unit_ou(?,?) }', NULL, 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (12, 3, 'uidNumber', 'posix_account.uidnumber', NULL, 'posix_account', NULL, '{ call set_account_uidnumber(?,?) }', NULL, 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (1, 3, 'cn', 'posix_account.firstname || '' '' || posix_account.surname', NULL, 'posix_account', NULL, '{ call set_account_cn(?,?) }', NULL, 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (105, 3, 'sn', 'posix_account.surname', NULL, 'posix_account', NULL, NULL, NULL, 0, 0);
+INSERT INTO ldap_attr_mappings VALUES (106, 3, 'gn', 'posix_account.firstname', NULL, 'posix_account', NULL, NULL, NULL, 0, 0);
+INSERT INTO ldap_attr_mappings VALUES (95, 4, 'sambaSID', 'samba_group_mapping.sambasid', 'NULL', 'samba_group_mapping,groups', 'samba_group_mapping.gidnumber=groups.gidnumber', '{ call set_groups_sambasid(?,?) }', '', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (97, 4, 'displayName', 'samba_group_mapping.displayname', 'NULL', 'samba_group_mapping,groups', 'samba_group_mapping.gidnumber=groups.gidnumber', '{ call set_groups_displayname(?,?) }', '', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (96, 4, 'sambaGroupType', 'samba_group_mapping.sambagrouptype', 'NULL', 'samba_group_mapping,groups', 'samba_group_mapping.gidnumber=groups.gidnumber', '{ call set_groups_sambagrouptype(?,?) }', '', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (99, 4, 'sambaSIDList', 'samba_group_mapping.sambasidlist', 'NULL', 'samba_group_mapping,groups', 'samba_group_mapping.gidnumber=groups.gidnumber', '{ call set_groups_sambasidlist(?,?) }', '', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (98, 4, 'description', 'samba_group_mapping.description', 'NULL', 'samba_group_mapping,groups', 'samba_group_mapping.gidnumber=groups.gidnumber', '{ call set_groups_description(?,?) }', '', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (15, 4, 'memberUid', 'posix_account.uid', NULL, 'posix_account,groups_users,groups', 'groups_users.memberuid=posix_account.uidnumber AND groups_users.gidnumber=groups.gidnumber', NULL, NULL, 0, 0);
+INSERT INTO ldap_attr_mappings VALUES (17, 3, 'gecos', 'posix_account.gecos', NULL, 'posix_account', NULL, '{ call set_account_gecos(?,?) }', NULL, 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (73, 3, 'sambaNTPassword', 'samba_sam_account.sambantpassword', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambantpassword(?,?) }', '{ call del_account_sambantpassword(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (74, 3, 'sambaPwdLastSet', 'samba_sam_account.sambapwdlastset', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambapwdlastset(?,?) }', '{ call del_account_sambapwdlastset(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (4, 3, 'userPassword', 'posix_account.userpassword', NULL, 'posix_account', NULL, '{ call set_account_userpassword(?,?) }', '{ call del_account_userpassword(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (112, 5, 'gidNumber', 'max(gidnumber)+1', NULL, 'groups', NULL, NULL, NULL, 0, 0);
+INSERT INTO ldap_attr_mappings VALUES (111, 5, 'uidNumber', 'max(uidnumber)+1
+', NULL, 'posix_account', NULL, NULL, NULL, 0, 0);
+INSERT INTO ldap_attr_mappings VALUES (114, 6, 'sambaSID', 'sambadomain.sambasid', NULL, 'sambadomain', NULL, '{ call set_samba_domain_sid(?,?) }', NULL, 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (113, 6, 'sambaDomainName', 'sambadomain.sambadomainname', NULL, 'sambadomain', NULL, '{ call set_samba_domain_name(?,?) }', NULL, 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (75, 3, 'sambaLogonTime', 'samba_sam_account.sambalogontime', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambalogontime(?,?) }', '{ call del_account_sambalogontime(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (71, 3, 'sambaSID', 'samba_sam_account.sambasid', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambasid(?,?) }', '{ call del_account_sambasid(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (76, 3, 'sambaLogoffTime', 'samba_sam_account.sambalogofftime', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambalogofftime(?,?) }', '{ call del_account_sambalogofftime(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (77, 3, 'sambaKickoffTime', 'samba_sam_account.sambakickofftime', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambakickofftime(?,?) }', '{ call del_account_sambakickofftime(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (79, 3, 'sambaPwdMustChange', 'samba_sam_account.sambapwdmustchange', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambapwdmustchange(?,?) }', '{ call del_account_sambapwdmustchange(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (80, 3, 'sambaAcctFlags', 'samba_sam_account.sambaacctflags', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambaacctflags(?,?) }', '{ call del_account_sambaacctflags(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (81, 3, 'displayName', 'samba_sam_account.displayname', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_displayname(?,?) }', '{ call del_account_displayname(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (82, 3, 'sambaHomePath', 'samba_sam_account.sambahomepath', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambahomepath(?,?) }', '{ call del_account_sambahomepath(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (83, 3, 'sambaHomeDrive', 'samba_sam_account.sambahomedrive', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambahomedrive(?,?) }', '{ call del_account_sambahomedrive(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (84, 3, 'sambaLogonScript', 'samba_sam_account.sambalogonscript', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambalogonscript(?,?) }', '{ call del_account_sambalogonscript(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (85, 3, 'sambaProfilePath', 'samba_sam_account.sambaprofilepath', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambaprofilepath(?,?) }', '{ call del_account_sambaprofilepath(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (86, 3, 'description', 'samba_sam_account.description', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_description(?,?) }', '{ call del_account_description(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (88, 3, 'sambaPrimaryGroupSID', 'samba_sam_account.sambaprimarygroupsid', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambaprimarygroupsid(?,?) }', '{ call del_account_sambaprimarygroupsid(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (89, 3, 'sambaDomainName', 'samba_sam_account.sambadomainname', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambadomainname(?,?) }', '{ call del_account_sambadomainname(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (90, 3, 'sambaMungedDial', 'samba_sam_account.sambamungeddial', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambamungeddial(?,?) }', '{ call del_account_sambamungeddial(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (91, 3, 'sambaBadPasswordCount', 'samba_sam_account.sambabadpasswordcount', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambabadpasswordcount(?,?) }', '{ call del_account_sambabadpasswordcount(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (92, 3, 'sambaBadPasswordTime', 'samba_sam_account.sambabadpasswordtime', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambabadpasswordtime(?,?) }', '{ call del_account_sambabadpasswordtime(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (93, 3, 'sambaPasswordHistory', 'samba_sam_account.sambapasswordhistory', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambapasswordhistory(?,?) }', '{ call del_account_sambapasswordhistory(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (72, 3, 'sambaLMPassword', 'samba_sam_account.sambalmpassword', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambalmpassword(?,?) }', '{ call del_account_sambalmpassword(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (87, 3, 'sambaUserWorkstations', 'samba_sam_account.sambauserworkstations', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambauserworkstations(?,?) }', '{ call del_account_sambauserworkstations(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (78, 3, 'sambaPwdCanChange', 'samba_sam_account.sambapwdcanchange', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambapwdcanchange(?,?) }', '{ call del_account_sambapwdcanchange(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (94, 3, 'sambaLogonHours', 'samba_sam_account.sambalogonhours', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambalogonhours(?,?) }', '{ call del_account_sambalogonhours(?,?) }', 1, 0);
 
 
 --
--- Data for TOC entry 11 (OID 47640)
+-- Data for TOC entry 140 (OID 82403)
 -- Name: ldap_entries; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
-COPY ldap_entries (id, dn, oc_map_id, parent, keyval) FROM stdin;
-1	dc=linuxmuster,dc=de	1	0	1
-5	ou=groups,dc=linuxmuster,dc=de	2	1	5
-2	ou=accounts,dc=linuxmuster,dc=de	2	1	1
-907	cn=linuxmuster,ou=groups,dc=linuxmuster,dc=de	4	5	41
-\.
+INSERT INTO ldap_entries VALUES (1, 'dc=linuxmuster,dc=de', 1, 0, 1);
+INSERT INTO ldap_entries VALUES (5, 'ou=groups,dc=linuxmuster,dc=de', 2, 1, 5);
+INSERT INTO ldap_entries VALUES (2, 'ou=accounts,dc=linuxmuster,dc=de', 2, 1, 1);
+INSERT INTO ldap_entries VALUES (3, 'ou=machines,dc=linuxmuster,dc=de', 2, 1, 3);
+INSERT INTO ldap_entries VALUES (4, 'cn=NextFreeUnixId,dc=linuxmuster,dc=de', 3, 1, 10000);
+INSERT INTO ldap_entries VALUES (3700, 'cn=Domain Admins,ou=groups,dc=linuxmuster,dc=de', 4, 5, 47);
+INSERT INTO ldap_entries VALUES (3701, 'cn=machines,ou=groups,dc=linuxmuster,dc=de', 4, 5, 48);
+INSERT INTO ldap_entries VALUES (3702, 'cn=linuxmuster,ou=groups,dc=linuxmuster,dc=de', 4, 5, 49);
+INSERT INTO ldap_entries VALUES (3703, 'uid=administrator,ou=accounts,dc=linuxmuster,dc=de', 3, 2, 10001);
+INSERT INTO ldap_entries VALUES (3704, 'sambaDomainName=MUSTERLOESUNG,dc=linuxmuster,dc=de', 6, 1, 10002);
+INSERT INTO ldap_entries VALUES (3706, 'uid=root,ou=accounts,dc=linuxmuster,dc=de', 3, 2, 10002);
+INSERT INTO ldap_entries VALUES (3707, 'uid=unstable$,ou=accounts,dc=linuxmuster,dc=de', 3, 2, 10003);
+INSERT INTO ldap_entries VALUES (3708, 'uid=thomash,ou=accounts,dc=linuxmuster,dc=de', 3, 2, 10004);
+INSERT INTO ldap_entries VALUES (3709, 'uid=testuser,ou=accounts,dc=linuxmuster,dc=de', 3, 2, 10005);
 
 
 --
--- Data for TOC entry 12 (OID 47643)
+-- Data for TOC entry 141 (OID 82406)
 -- Name: ldap_entry_objclasses; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
-COPY ldap_entry_objclasses (entry_id, oc_name) FROM stdin;
-907	sambaGroupMapping
-\.
+INSERT INTO ldap_entry_objclasses VALUES (4, 'sambaUnixIdPool');
+INSERT INTO ldap_entry_objclasses VALUES (3700, 'sambaGroupMapping');
+INSERT INTO ldap_entry_objclasses VALUES (3701, 'sambaGroupMapping');
+INSERT INTO ldap_entry_objclasses VALUES (3702, 'sambaGroupMapping');
+INSERT INTO ldap_entry_objclasses VALUES (3703, 'top');
+INSERT INTO ldap_entry_objclasses VALUES (3703, 'posixAccount');
+INSERT INTO ldap_entry_objclasses VALUES (3703, 'shadowAccount');
+INSERT INTO ldap_entry_objclasses VALUES (3703, 'sambaSamAccount');
+INSERT INTO ldap_entry_objclasses VALUES (3706, 'top');
+INSERT INTO ldap_entry_objclasses VALUES (3706, 'posixAccount');
+INSERT INTO ldap_entry_objclasses VALUES (3706, 'shadowAccount');
+INSERT INTO ldap_entry_objclasses VALUES (3706, 'sambaSamAccount');
+INSERT INTO ldap_entry_objclasses VALUES (3707, 'top');
+INSERT INTO ldap_entry_objclasses VALUES (3707, 'posixAccount');
+INSERT INTO ldap_entry_objclasses VALUES (3707, 'shadowAccount');
+INSERT INTO ldap_entry_objclasses VALUES (3707, 'sambaSamAccount');
+INSERT INTO ldap_entry_objclasses VALUES (3708, 'top');
+INSERT INTO ldap_entry_objclasses VALUES (3708, 'posixAccount');
+INSERT INTO ldap_entry_objclasses VALUES (3708, 'shadowAccount');
+INSERT INTO ldap_entry_objclasses VALUES (3708, 'sambaSamAccount');
+INSERT INTO ldap_entry_objclasses VALUES (3709, 'top');
+INSERT INTO ldap_entry_objclasses VALUES (3709, 'posixAccount');
+INSERT INTO ldap_entry_objclasses VALUES (3709, 'shadowAccount');
+INSERT INTO ldap_entry_objclasses VALUES (3709, 'sambaSamAccount');
 
 
 --
--- Data for TOC entry 13 (OID 47647)
+-- Data for TOC entry 142 (OID 82410)
 -- Name: institutes; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
-COPY institutes (id, name) FROM stdin;
-1	linuxmuster
-\.
+INSERT INTO institutes VALUES (1, 'linuxmuster');
 
 
 --
--- Data for TOC entry 14 (OID 47650)
+-- Data for TOC entry 143 (OID 82413)
 -- Name: ldap_referrals; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
-COPY ldap_referrals (entry_id, name, url) FROM stdin;
-1	Referral                                                                                                                                                                                                                                                       	ldap://localhost/                                                                                                                                                                                                                                              
-\.
+INSERT INTO ldap_referrals VALUES (1, 'Referral                                                                                                                                                                                                                                                       ', 'ldap://localhost/                                                                                                                                                                                                                                              ');
 
 
 --
--- Data for TOC entry 15 (OID 47652)
+-- Data for TOC entry 144 (OID 82415)
 -- Name: groups_users; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
-COPY groups_users (gidnumber, memberuid) FROM stdin;
-30000	30000
-\.
+INSERT INTO groups_users VALUES (512, 500);
 
 
 --
--- Data for TOC entry 16 (OID 47654)
+-- Data for TOC entry 145 (OID 82417)
 -- Name: groups_groups; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
-COPY groups_groups (gidnumber, membergid) FROM stdin;
-\.
 
 
 --
--- Data for TOC entry 17 (OID 47661)
+-- Data for TOC entry 146 (OID 82424)
 -- Name: samba_group_mapping; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
-COPY samba_group_mapping (id, gidnumber, sambasid, sambagrouptype, displayname, description, sambasidlist) FROM stdin;
-42	10002	S-1-5-21-2023024621-2433660191-892785488-21005	2	linuxmuster-10002	\N	\N
-965	10925	S-1-5-21-2023024621-2433660191-892785488-22851	2	linuxmuster-10925	\N	\N
-1042	30000	S-1-5-21-2023024621-2433660191-892785488-61001	2	lihasmuster	\N	\N
-43	10003	S-1-5-21-2023024621-2433660191-892785488-21007	2	linuxmuster-10003	\N	\N
-1011	10971	S-1-5-21-2023024621-2433660191-892785488-22943	2	linuxmuster-10971	\N	\N
-1043	44444	S-1-5-21-2023024621-2433660191-892785488-89889	2	testheute	\N	\N
-44	10004	S-1-5-21-2023024621-2433660191-892785488-21009	2	linuxmuster-10004	\N	\N
-45	10005	S-1-5-21-2023024621-2433660191-892785488-21011	2	linuxmuster-10005	\N	\N
-46	10006	S-1-5-21-2023024621-2433660191-892785488-21013	2	linuxmuster-10006	\N	\N
-47	10007	S-1-5-21-2023024621-2433660191-892785488-21015	2	linuxmuster-10007	\N	\N
-48	10008	S-1-5-21-2023024621-2433660191-892785488-21017	2	linuxmuster-10008	\N	\N
-49	10009	S-1-5-21-2023024621-2433660191-892785488-21019	2	linuxmuster-10009	\N	\N
-41	10000	S-1-5-21-2023024621-2433660191-892785488-21001	2	linuxmuster	\N	\N
-50	10010	S-1-5-21-2023024621-2433660191-892785488-21021	2	linuxmuster-10010	\N	\N
-51	10011	S-1-5-21-2023024621-2433660191-892785488-21023	2	linuxmuster-10011	\N	\N
-52	10012	S-1-5-21-2023024621-2433660191-892785488-21025	2	linuxmuster-10012	\N	\N
-53	10013	S-1-5-21-2023024621-2433660191-892785488-21027	2	linuxmuster-10013	\N	\N
-54	10014	S-1-5-21-2023024621-2433660191-892785488-21029	2	linuxmuster-10014	\N	\N
-55	10015	S-1-5-21-2023024621-2433660191-892785488-21031	2	linuxmuster-10015	\N	\N
-56	10016	S-1-5-21-2023024621-2433660191-892785488-21033	2	linuxmuster-10016	\N	\N
-57	10017	S-1-5-21-2023024621-2433660191-892785488-21035	2	linuxmuster-10017	\N	\N
-58	10018	S-1-5-21-2023024621-2433660191-892785488-21037	2	linuxmuster-10018	\N	\N
-59	10019	S-1-5-21-2023024621-2433660191-892785488-21039	2	linuxmuster-10019	\N	\N
-60	10020	S-1-5-21-2023024621-2433660191-892785488-21041	2	linuxmuster-10020	\N	\N
-61	10021	S-1-5-21-2023024621-2433660191-892785488-21043	2	linuxmuster-10021	\N	\N
-62	10022	S-1-5-21-2023024621-2433660191-892785488-21045	2	linuxmuster-10022	\N	\N
-966	10926	S-1-5-21-2023024621-2433660191-892785488-22853	2	linuxmuster-10926	\N	\N
-63	10023	S-1-5-21-2023024621-2433660191-892785488-21047	2	linuxmuster-10023	\N	\N
-1012	10972	S-1-5-21-2023024621-2433660191-892785488-22945	2	linuxmuster-10972	\N	\N
-64	10024	S-1-5-21-2023024621-2433660191-892785488-21049	2	linuxmuster-10024	\N	\N
-65	10025	S-1-5-21-2023024621-2433660191-892785488-21051	2	linuxmuster-10025	\N	\N
-66	10026	S-1-5-21-2023024621-2433660191-892785488-21053	2	linuxmuster-10026	\N	\N
-67	10027	S-1-5-21-2023024621-2433660191-892785488-21055	2	linuxmuster-10027	\N	\N
-68	10028	S-1-5-21-2023024621-2433660191-892785488-21057	2	linuxmuster-10028	\N	\N
-69	10029	S-1-5-21-2023024621-2433660191-892785488-21059	2	linuxmuster-10029	\N	\N
-70	10030	S-1-5-21-2023024621-2433660191-892785488-21061	2	linuxmuster-10030	\N	\N
-71	10031	S-1-5-21-2023024621-2433660191-892785488-21063	2	linuxmuster-10031	\N	\N
-72	10032	S-1-5-21-2023024621-2433660191-892785488-21065	2	linuxmuster-10032	\N	\N
-73	10033	S-1-5-21-2023024621-2433660191-892785488-21067	2	linuxmuster-10033	\N	\N
-74	10034	S-1-5-21-2023024621-2433660191-892785488-21069	2	linuxmuster-10034	\N	\N
-75	10035	S-1-5-21-2023024621-2433660191-892785488-21071	2	linuxmuster-10035	\N	\N
-76	10036	S-1-5-21-2023024621-2433660191-892785488-21073	2	linuxmuster-10036	\N	\N
-77	10037	S-1-5-21-2023024621-2433660191-892785488-21075	2	linuxmuster-10037	\N	\N
-78	10038	S-1-5-21-2023024621-2433660191-892785488-21077	2	linuxmuster-10038	\N	\N
-79	10039	S-1-5-21-2023024621-2433660191-892785488-21079	2	linuxmuster-10039	\N	\N
-80	10040	S-1-5-21-2023024621-2433660191-892785488-21081	2	linuxmuster-10040	\N	\N
-81	10041	S-1-5-21-2023024621-2433660191-892785488-21083	2	linuxmuster-10041	\N	\N
-82	10042	S-1-5-21-2023024621-2433660191-892785488-21085	2	linuxmuster-10042	\N	\N
-83	10043	S-1-5-21-2023024621-2433660191-892785488-21087	2	linuxmuster-10043	\N	\N
-967	10927	S-1-5-21-2023024621-2433660191-892785488-22855	2	linuxmuster-10927	\N	\N
-84	10044	S-1-5-21-2023024621-2433660191-892785488-21089	2	linuxmuster-10044	\N	\N
-1013	10973	S-1-5-21-2023024621-2433660191-892785488-22947	2	linuxmuster-10973	\N	\N
-85	10045	S-1-5-21-2023024621-2433660191-892785488-21091	2	linuxmuster-10045	\N	\N
-86	10046	S-1-5-21-2023024621-2433660191-892785488-21093	2	linuxmuster-10046	\N	\N
-87	10047	S-1-5-21-2023024621-2433660191-892785488-21095	2	linuxmuster-10047	\N	\N
-88	10048	S-1-5-21-2023024621-2433660191-892785488-21097	2	linuxmuster-10048	\N	\N
-89	10049	S-1-5-21-2023024621-2433660191-892785488-21099	2	linuxmuster-10049	\N	\N
-90	10050	S-1-5-21-2023024621-2433660191-892785488-21101	2	linuxmuster-10050	\N	\N
-91	10051	S-1-5-21-2023024621-2433660191-892785488-21103	2	linuxmuster-10051	\N	\N
-92	10052	S-1-5-21-2023024621-2433660191-892785488-21105	2	linuxmuster-10052	\N	\N
-93	10053	S-1-5-21-2023024621-2433660191-892785488-21107	2	linuxmuster-10053	\N	\N
-94	10054	S-1-5-21-2023024621-2433660191-892785488-21109	2	linuxmuster-10054	\N	\N
-95	10055	S-1-5-21-2023024621-2433660191-892785488-21111	2	linuxmuster-10055	\N	\N
-96	10056	S-1-5-21-2023024621-2433660191-892785488-21113	2	linuxmuster-10056	\N	\N
-97	10057	S-1-5-21-2023024621-2433660191-892785488-21115	2	linuxmuster-10057	\N	\N
-98	10058	S-1-5-21-2023024621-2433660191-892785488-21117	2	linuxmuster-10058	\N	\N
-99	10059	S-1-5-21-2023024621-2433660191-892785488-21119	2	linuxmuster-10059	\N	\N
-100	10060	S-1-5-21-2023024621-2433660191-892785488-21121	2	linuxmuster-10060	\N	\N
-101	10061	S-1-5-21-2023024621-2433660191-892785488-21123	2	linuxmuster-10061	\N	\N
-102	10062	S-1-5-21-2023024621-2433660191-892785488-21125	2	linuxmuster-10062	\N	\N
-103	10063	S-1-5-21-2023024621-2433660191-892785488-21127	2	linuxmuster-10063	\N	\N
-968	10928	S-1-5-21-2023024621-2433660191-892785488-22857	2	linuxmuster-10928	\N	\N
-104	10064	S-1-5-21-2023024621-2433660191-892785488-21129	2	linuxmuster-10064	\N	\N
-1014	10974	S-1-5-21-2023024621-2433660191-892785488-22949	2	linuxmuster-10974	\N	\N
-105	10065	S-1-5-21-2023024621-2433660191-892785488-21131	2	linuxmuster-10065	\N	\N
-106	10066	S-1-5-21-2023024621-2433660191-892785488-21133	2	linuxmuster-10066	\N	\N
-107	10067	S-1-5-21-2023024621-2433660191-892785488-21135	2	linuxmuster-10067	\N	\N
-108	10068	S-1-5-21-2023024621-2433660191-892785488-21137	2	linuxmuster-10068	\N	\N
-109	10069	S-1-5-21-2023024621-2433660191-892785488-21139	2	linuxmuster-10069	\N	\N
-110	10070	S-1-5-21-2023024621-2433660191-892785488-21141	2	linuxmuster-10070	\N	\N
-111	10071	S-1-5-21-2023024621-2433660191-892785488-21143	2	linuxmuster-10071	\N	\N
-112	10072	S-1-5-21-2023024621-2433660191-892785488-21145	2	linuxmuster-10072	\N	\N
-113	10073	S-1-5-21-2023024621-2433660191-892785488-21147	2	linuxmuster-10073	\N	\N
-114	10074	S-1-5-21-2023024621-2433660191-892785488-21149	2	linuxmuster-10074	\N	\N
-115	10075	S-1-5-21-2023024621-2433660191-892785488-21151	2	linuxmuster-10075	\N	\N
-116	10076	S-1-5-21-2023024621-2433660191-892785488-21153	2	linuxmuster-10076	\N	\N
-117	10077	S-1-5-21-2023024621-2433660191-892785488-21155	2	linuxmuster-10077	\N	\N
-118	10078	S-1-5-21-2023024621-2433660191-892785488-21157	2	linuxmuster-10078	\N	\N
-119	10079	S-1-5-21-2023024621-2433660191-892785488-21159	2	linuxmuster-10079	\N	\N
-120	10080	S-1-5-21-2023024621-2433660191-892785488-21161	2	linuxmuster-10080	\N	\N
-121	10081	S-1-5-21-2023024621-2433660191-892785488-21163	2	linuxmuster-10081	\N	\N
-122	10082	S-1-5-21-2023024621-2433660191-892785488-21165	2	linuxmuster-10082	\N	\N
-123	10083	S-1-5-21-2023024621-2433660191-892785488-21167	2	linuxmuster-10083	\N	\N
-124	10084	S-1-5-21-2023024621-2433660191-892785488-21169	2	linuxmuster-10084	\N	\N
-969	10929	S-1-5-21-2023024621-2433660191-892785488-22859	2	linuxmuster-10929	\N	\N
-125	10085	S-1-5-21-2023024621-2433660191-892785488-21171	2	linuxmuster-10085	\N	\N
-1015	10975	S-1-5-21-2023024621-2433660191-892785488-22951	2	linuxmuster-10975	\N	\N
-126	10086	S-1-5-21-2023024621-2433660191-892785488-21173	2	linuxmuster-10086	\N	\N
-127	10087	S-1-5-21-2023024621-2433660191-892785488-21175	2	linuxmuster-10087	\N	\N
-128	10088	S-1-5-21-2023024621-2433660191-892785488-21177	2	linuxmuster-10088	\N	\N
-129	10089	S-1-5-21-2023024621-2433660191-892785488-21179	2	linuxmuster-10089	\N	\N
-130	10090	S-1-5-21-2023024621-2433660191-892785488-21181	2	linuxmuster-10090	\N	\N
-131	10091	S-1-5-21-2023024621-2433660191-892785488-21183	2	linuxmuster-10091	\N	\N
-132	10092	S-1-5-21-2023024621-2433660191-892785488-21185	2	linuxmuster-10092	\N	\N
-133	10093	S-1-5-21-2023024621-2433660191-892785488-21187	2	linuxmuster-10093	\N	\N
-134	10094	S-1-5-21-2023024621-2433660191-892785488-21189	2	linuxmuster-10094	\N	\N
-135	10095	S-1-5-21-2023024621-2433660191-892785488-21191	2	linuxmuster-10095	\N	\N
-136	10096	S-1-5-21-2023024621-2433660191-892785488-21193	2	linuxmuster-10096	\N	\N
-137	10097	S-1-5-21-2023024621-2433660191-892785488-21195	2	linuxmuster-10097	\N	\N
-138	10098	S-1-5-21-2023024621-2433660191-892785488-21197	2	linuxmuster-10098	\N	\N
-139	10099	S-1-5-21-2023024621-2433660191-892785488-21199	2	linuxmuster-10099	\N	\N
-140	10100	S-1-5-21-2023024621-2433660191-892785488-21201	2	linuxmuster-10100	\N	\N
-141	10101	S-1-5-21-2023024621-2433660191-892785488-21203	2	linuxmuster-10101	\N	\N
-142	10102	S-1-5-21-2023024621-2433660191-892785488-21205	2	linuxmuster-10102	\N	\N
-143	10103	S-1-5-21-2023024621-2433660191-892785488-21207	2	linuxmuster-10103	\N	\N
-144	10104	S-1-5-21-2023024621-2433660191-892785488-21209	2	linuxmuster-10104	\N	\N
-970	10930	S-1-5-21-2023024621-2433660191-892785488-22861	2	linuxmuster-10930	\N	\N
-145	10105	S-1-5-21-2023024621-2433660191-892785488-21211	2	linuxmuster-10105	\N	\N
-1016	10976	S-1-5-21-2023024621-2433660191-892785488-22953	2	linuxmuster-10976	\N	\N
-146	10106	S-1-5-21-2023024621-2433660191-892785488-21213	2	linuxmuster-10106	\N	\N
-147	10107	S-1-5-21-2023024621-2433660191-892785488-21215	2	linuxmuster-10107	\N	\N
-148	10108	S-1-5-21-2023024621-2433660191-892785488-21217	2	linuxmuster-10108	\N	\N
-149	10109	S-1-5-21-2023024621-2433660191-892785488-21219	2	linuxmuster-10109	\N	\N
-150	10110	S-1-5-21-2023024621-2433660191-892785488-21221	2	linuxmuster-10110	\N	\N
-151	10111	S-1-5-21-2023024621-2433660191-892785488-21223	2	linuxmuster-10111	\N	\N
-152	10112	S-1-5-21-2023024621-2433660191-892785488-21225	2	linuxmuster-10112	\N	\N
-153	10113	S-1-5-21-2023024621-2433660191-892785488-21227	2	linuxmuster-10113	\N	\N
-154	10114	S-1-5-21-2023024621-2433660191-892785488-21229	2	linuxmuster-10114	\N	\N
-155	10115	S-1-5-21-2023024621-2433660191-892785488-21231	2	linuxmuster-10115	\N	\N
-156	10116	S-1-5-21-2023024621-2433660191-892785488-21233	2	linuxmuster-10116	\N	\N
-157	10117	S-1-5-21-2023024621-2433660191-892785488-21235	2	linuxmuster-10117	\N	\N
-158	10118	S-1-5-21-2023024621-2433660191-892785488-21237	2	linuxmuster-10118	\N	\N
-159	10119	S-1-5-21-2023024621-2433660191-892785488-21239	2	linuxmuster-10119	\N	\N
-160	10120	S-1-5-21-2023024621-2433660191-892785488-21241	2	linuxmuster-10120	\N	\N
-161	10121	S-1-5-21-2023024621-2433660191-892785488-21243	2	linuxmuster-10121	\N	\N
-162	10122	S-1-5-21-2023024621-2433660191-892785488-21245	2	linuxmuster-10122	\N	\N
-163	10123	S-1-5-21-2023024621-2433660191-892785488-21247	2	linuxmuster-10123	\N	\N
-164	10124	S-1-5-21-2023024621-2433660191-892785488-21249	2	linuxmuster-10124	\N	\N
-165	10125	S-1-5-21-2023024621-2433660191-892785488-21251	2	linuxmuster-10125	\N	\N
-971	10931	S-1-5-21-2023024621-2433660191-892785488-22863	2	linuxmuster-10931	\N	\N
-166	10126	S-1-5-21-2023024621-2433660191-892785488-21253	2	linuxmuster-10126	\N	\N
-1017	10977	S-1-5-21-2023024621-2433660191-892785488-22955	2	linuxmuster-10977	\N	\N
-167	10127	S-1-5-21-2023024621-2433660191-892785488-21255	2	linuxmuster-10127	\N	\N
-168	10128	S-1-5-21-2023024621-2433660191-892785488-21257	2	linuxmuster-10128	\N	\N
-169	10129	S-1-5-21-2023024621-2433660191-892785488-21259	2	linuxmuster-10129	\N	\N
-170	10130	S-1-5-21-2023024621-2433660191-892785488-21261	2	linuxmuster-10130	\N	\N
-171	10131	S-1-5-21-2023024621-2433660191-892785488-21263	2	linuxmuster-10131	\N	\N
-172	10132	S-1-5-21-2023024621-2433660191-892785488-21265	2	linuxmuster-10132	\N	\N
-173	10133	S-1-5-21-2023024621-2433660191-892785488-21267	2	linuxmuster-10133	\N	\N
-174	10134	S-1-5-21-2023024621-2433660191-892785488-21269	2	linuxmuster-10134	\N	\N
-175	10135	S-1-5-21-2023024621-2433660191-892785488-21271	2	linuxmuster-10135	\N	\N
-176	10136	S-1-5-21-2023024621-2433660191-892785488-21273	2	linuxmuster-10136	\N	\N
-177	10137	S-1-5-21-2023024621-2433660191-892785488-21275	2	linuxmuster-10137	\N	\N
-178	10138	S-1-5-21-2023024621-2433660191-892785488-21277	2	linuxmuster-10138	\N	\N
-179	10139	S-1-5-21-2023024621-2433660191-892785488-21279	2	linuxmuster-10139	\N	\N
-180	10140	S-1-5-21-2023024621-2433660191-892785488-21281	2	linuxmuster-10140	\N	\N
-181	10141	S-1-5-21-2023024621-2433660191-892785488-21283	2	linuxmuster-10141	\N	\N
-182	10142	S-1-5-21-2023024621-2433660191-892785488-21285	2	linuxmuster-10142	\N	\N
-183	10143	S-1-5-21-2023024621-2433660191-892785488-21287	2	linuxmuster-10143	\N	\N
-184	10144	S-1-5-21-2023024621-2433660191-892785488-21289	2	linuxmuster-10144	\N	\N
-185	10145	S-1-5-21-2023024621-2433660191-892785488-21291	2	linuxmuster-10145	\N	\N
-972	10932	S-1-5-21-2023024621-2433660191-892785488-22865	2	linuxmuster-10932	\N	\N
-186	10146	S-1-5-21-2023024621-2433660191-892785488-21293	2	linuxmuster-10146	\N	\N
-1018	10978	S-1-5-21-2023024621-2433660191-892785488-22957	2	linuxmuster-10978	\N	\N
-187	10147	S-1-5-21-2023024621-2433660191-892785488-21295	2	linuxmuster-10147	\N	\N
-188	10148	S-1-5-21-2023024621-2433660191-892785488-21297	2	linuxmuster-10148	\N	\N
-189	10149	S-1-5-21-2023024621-2433660191-892785488-21299	2	linuxmuster-10149	\N	\N
-190	10150	S-1-5-21-2023024621-2433660191-892785488-21301	2	linuxmuster-10150	\N	\N
-191	10151	S-1-5-21-2023024621-2433660191-892785488-21303	2	linuxmuster-10151	\N	\N
-192	10152	S-1-5-21-2023024621-2433660191-892785488-21305	2	linuxmuster-10152	\N	\N
-193	10153	S-1-5-21-2023024621-2433660191-892785488-21307	2	linuxmuster-10153	\N	\N
-194	10154	S-1-5-21-2023024621-2433660191-892785488-21309	2	linuxmuster-10154	\N	\N
-195	10155	S-1-5-21-2023024621-2433660191-892785488-21311	2	linuxmuster-10155	\N	\N
-196	10156	S-1-5-21-2023024621-2433660191-892785488-21313	2	linuxmuster-10156	\N	\N
-197	10157	S-1-5-21-2023024621-2433660191-892785488-21315	2	linuxmuster-10157	\N	\N
-198	10158	S-1-5-21-2023024621-2433660191-892785488-21317	2	linuxmuster-10158	\N	\N
-199	10159	S-1-5-21-2023024621-2433660191-892785488-21319	2	linuxmuster-10159	\N	\N
-200	10160	S-1-5-21-2023024621-2433660191-892785488-21321	2	linuxmuster-10160	\N	\N
-201	10161	S-1-5-21-2023024621-2433660191-892785488-21323	2	linuxmuster-10161	\N	\N
-202	10162	S-1-5-21-2023024621-2433660191-892785488-21325	2	linuxmuster-10162	\N	\N
-203	10163	S-1-5-21-2023024621-2433660191-892785488-21327	2	linuxmuster-10163	\N	\N
-204	10164	S-1-5-21-2023024621-2433660191-892785488-21329	2	linuxmuster-10164	\N	\N
-205	10165	S-1-5-21-2023024621-2433660191-892785488-21331	2	linuxmuster-10165	\N	\N
-206	10166	S-1-5-21-2023024621-2433660191-892785488-21333	2	linuxmuster-10166	\N	\N
-973	10933	S-1-5-21-2023024621-2433660191-892785488-22867	2	linuxmuster-10933	\N	\N
-207	10167	S-1-5-21-2023024621-2433660191-892785488-21335	2	linuxmuster-10167	\N	\N
-1019	10979	S-1-5-21-2023024621-2433660191-892785488-22959	2	linuxmuster-10979	\N	\N
-208	10168	S-1-5-21-2023024621-2433660191-892785488-21337	2	linuxmuster-10168	\N	\N
-209	10169	S-1-5-21-2023024621-2433660191-892785488-21339	2	linuxmuster-10169	\N	\N
-210	10170	S-1-5-21-2023024621-2433660191-892785488-21341	2	linuxmuster-10170	\N	\N
-211	10171	S-1-5-21-2023024621-2433660191-892785488-21343	2	linuxmuster-10171	\N	\N
-212	10172	S-1-5-21-2023024621-2433660191-892785488-21345	2	linuxmuster-10172	\N	\N
-213	10173	S-1-5-21-2023024621-2433660191-892785488-21347	2	linuxmuster-10173	\N	\N
-214	10174	S-1-5-21-2023024621-2433660191-892785488-21349	2	linuxmuster-10174	\N	\N
-215	10175	S-1-5-21-2023024621-2433660191-892785488-21351	2	linuxmuster-10175	\N	\N
-216	10176	S-1-5-21-2023024621-2433660191-892785488-21353	2	linuxmuster-10176	\N	\N
-217	10177	S-1-5-21-2023024621-2433660191-892785488-21355	2	linuxmuster-10177	\N	\N
-218	10178	S-1-5-21-2023024621-2433660191-892785488-21357	2	linuxmuster-10178	\N	\N
-219	10179	S-1-5-21-2023024621-2433660191-892785488-21359	2	linuxmuster-10179	\N	\N
-220	10180	S-1-5-21-2023024621-2433660191-892785488-21361	2	linuxmuster-10180	\N	\N
-221	10181	S-1-5-21-2023024621-2433660191-892785488-21363	2	linuxmuster-10181	\N	\N
-222	10182	S-1-5-21-2023024621-2433660191-892785488-21365	2	linuxmuster-10182	\N	\N
-223	10183	S-1-5-21-2023024621-2433660191-892785488-21367	2	linuxmuster-10183	\N	\N
-224	10184	S-1-5-21-2023024621-2433660191-892785488-21369	2	linuxmuster-10184	\N	\N
-225	10185	S-1-5-21-2023024621-2433660191-892785488-21371	2	linuxmuster-10185	\N	\N
-226	10186	S-1-5-21-2023024621-2433660191-892785488-21373	2	linuxmuster-10186	\N	\N
-974	10934	S-1-5-21-2023024621-2433660191-892785488-22869	2	linuxmuster-10934	\N	\N
-227	10187	S-1-5-21-2023024621-2433660191-892785488-21375	2	linuxmuster-10187	\N	\N
-228	10188	S-1-5-21-2023024621-2433660191-892785488-21377	2	linuxmuster-10188	\N	\N
-1020	10980	S-1-5-21-2023024621-2433660191-892785488-22961	2	linuxmuster-10980	\N	\N
-229	10189	S-1-5-21-2023024621-2433660191-892785488-21379	2	linuxmuster-10189	\N	\N
-230	10190	S-1-5-21-2023024621-2433660191-892785488-21381	2	linuxmuster-10190	\N	\N
-231	10191	S-1-5-21-2023024621-2433660191-892785488-21383	2	linuxmuster-10191	\N	\N
-232	10192	S-1-5-21-2023024621-2433660191-892785488-21385	2	linuxmuster-10192	\N	\N
-233	10193	S-1-5-21-2023024621-2433660191-892785488-21387	2	linuxmuster-10193	\N	\N
-234	10194	S-1-5-21-2023024621-2433660191-892785488-21389	2	linuxmuster-10194	\N	\N
-235	10195	S-1-5-21-2023024621-2433660191-892785488-21391	2	linuxmuster-10195	\N	\N
-236	10196	S-1-5-21-2023024621-2433660191-892785488-21393	2	linuxmuster-10196	\N	\N
-237	10197	S-1-5-21-2023024621-2433660191-892785488-21395	2	linuxmuster-10197	\N	\N
-238	10198	S-1-5-21-2023024621-2433660191-892785488-21397	2	linuxmuster-10198	\N	\N
-239	10199	S-1-5-21-2023024621-2433660191-892785488-21399	2	linuxmuster-10199	\N	\N
-240	10200	S-1-5-21-2023024621-2433660191-892785488-21401	2	linuxmuster-10200	\N	\N
-241	10201	S-1-5-21-2023024621-2433660191-892785488-21403	2	linuxmuster-10201	\N	\N
-242	10202	S-1-5-21-2023024621-2433660191-892785488-21405	2	linuxmuster-10202	\N	\N
-243	10203	S-1-5-21-2023024621-2433660191-892785488-21407	2	linuxmuster-10203	\N	\N
-244	10204	S-1-5-21-2023024621-2433660191-892785488-21409	2	linuxmuster-10204	\N	\N
-245	10205	S-1-5-21-2023024621-2433660191-892785488-21411	2	linuxmuster-10205	\N	\N
-246	10206	S-1-5-21-2023024621-2433660191-892785488-21413	2	linuxmuster-10206	\N	\N
-247	10207	S-1-5-21-2023024621-2433660191-892785488-21415	2	linuxmuster-10207	\N	\N
-975	10935	S-1-5-21-2023024621-2433660191-892785488-22871	2	linuxmuster-10935	\N	\N
-248	10208	S-1-5-21-2023024621-2433660191-892785488-21417	2	linuxmuster-10208	\N	\N
-249	10209	S-1-5-21-2023024621-2433660191-892785488-21419	2	linuxmuster-10209	\N	\N
-1021	10981	S-1-5-21-2023024621-2433660191-892785488-22963	2	linuxmuster-10981	\N	\N
-250	10210	S-1-5-21-2023024621-2433660191-892785488-21421	2	linuxmuster-10210	\N	\N
-251	10211	S-1-5-21-2023024621-2433660191-892785488-21423	2	linuxmuster-10211	\N	\N
-252	10212	S-1-5-21-2023024621-2433660191-892785488-21425	2	linuxmuster-10212	\N	\N
-253	10213	S-1-5-21-2023024621-2433660191-892785488-21427	2	linuxmuster-10213	\N	\N
-254	10214	S-1-5-21-2023024621-2433660191-892785488-21429	2	linuxmuster-10214	\N	\N
-255	10215	S-1-5-21-2023024621-2433660191-892785488-21431	2	linuxmuster-10215	\N	\N
-256	10216	S-1-5-21-2023024621-2433660191-892785488-21433	2	linuxmuster-10216	\N	\N
-257	10217	S-1-5-21-2023024621-2433660191-892785488-21435	2	linuxmuster-10217	\N	\N
-258	10218	S-1-5-21-2023024621-2433660191-892785488-21437	2	linuxmuster-10218	\N	\N
-259	10219	S-1-5-21-2023024621-2433660191-892785488-21439	2	linuxmuster-10219	\N	\N
-260	10220	S-1-5-21-2023024621-2433660191-892785488-21441	2	linuxmuster-10220	\N	\N
-261	10221	S-1-5-21-2023024621-2433660191-892785488-21443	2	linuxmuster-10221	\N	\N
-262	10222	S-1-5-21-2023024621-2433660191-892785488-21445	2	linuxmuster-10222	\N	\N
-263	10223	S-1-5-21-2023024621-2433660191-892785488-21447	2	linuxmuster-10223	\N	\N
-264	10224	S-1-5-21-2023024621-2433660191-892785488-21449	2	linuxmuster-10224	\N	\N
-265	10225	S-1-5-21-2023024621-2433660191-892785488-21451	2	linuxmuster-10225	\N	\N
-266	10226	S-1-5-21-2023024621-2433660191-892785488-21453	2	linuxmuster-10226	\N	\N
-267	10227	S-1-5-21-2023024621-2433660191-892785488-21455	2	linuxmuster-10227	\N	\N
-976	10936	S-1-5-21-2023024621-2433660191-892785488-22873	2	linuxmuster-10936	\N	\N
-268	10228	S-1-5-21-2023024621-2433660191-892785488-21457	2	linuxmuster-10228	\N	\N
-269	10229	S-1-5-21-2023024621-2433660191-892785488-21459	2	linuxmuster-10229	\N	\N
-1022	10982	S-1-5-21-2023024621-2433660191-892785488-22965	2	linuxmuster-10982	\N	\N
-270	10230	S-1-5-21-2023024621-2433660191-892785488-21461	2	linuxmuster-10230	\N	\N
-271	10231	S-1-5-21-2023024621-2433660191-892785488-21463	2	linuxmuster-10231	\N	\N
-272	10232	S-1-5-21-2023024621-2433660191-892785488-21465	2	linuxmuster-10232	\N	\N
-273	10233	S-1-5-21-2023024621-2433660191-892785488-21467	2	linuxmuster-10233	\N	\N
-274	10234	S-1-5-21-2023024621-2433660191-892785488-21469	2	linuxmuster-10234	\N	\N
-275	10235	S-1-5-21-2023024621-2433660191-892785488-21471	2	linuxmuster-10235	\N	\N
-276	10236	S-1-5-21-2023024621-2433660191-892785488-21473	2	linuxmuster-10236	\N	\N
-277	10237	S-1-5-21-2023024621-2433660191-892785488-21475	2	linuxmuster-10237	\N	\N
-278	10238	S-1-5-21-2023024621-2433660191-892785488-21477	2	linuxmuster-10238	\N	\N
-279	10239	S-1-5-21-2023024621-2433660191-892785488-21479	2	linuxmuster-10239	\N	\N
-280	10240	S-1-5-21-2023024621-2433660191-892785488-21481	2	linuxmuster-10240	\N	\N
-281	10241	S-1-5-21-2023024621-2433660191-892785488-21483	2	linuxmuster-10241	\N	\N
-282	10242	S-1-5-21-2023024621-2433660191-892785488-21485	2	linuxmuster-10242	\N	\N
-283	10243	S-1-5-21-2023024621-2433660191-892785488-21487	2	linuxmuster-10243	\N	\N
-284	10244	S-1-5-21-2023024621-2433660191-892785488-21489	2	linuxmuster-10244	\N	\N
-285	10245	S-1-5-21-2023024621-2433660191-892785488-21491	2	linuxmuster-10245	\N	\N
-286	10246	S-1-5-21-2023024621-2433660191-892785488-21493	2	linuxmuster-10246	\N	\N
-287	10247	S-1-5-21-2023024621-2433660191-892785488-21495	2	linuxmuster-10247	\N	\N
-288	10248	S-1-5-21-2023024621-2433660191-892785488-21497	2	linuxmuster-10248	\N	\N
-977	10937	S-1-5-21-2023024621-2433660191-892785488-22875	2	linuxmuster-10937	\N	\N
-289	10249	S-1-5-21-2023024621-2433660191-892785488-21499	2	linuxmuster-10249	\N	\N
-290	10250	S-1-5-21-2023024621-2433660191-892785488-21501	2	linuxmuster-10250	\N	\N
-1023	10983	S-1-5-21-2023024621-2433660191-892785488-22967	2	linuxmuster-10983	\N	\N
-291	10251	S-1-5-21-2023024621-2433660191-892785488-21503	2	linuxmuster-10251	\N	\N
-292	10252	S-1-5-21-2023024621-2433660191-892785488-21505	2	linuxmuster-10252	\N	\N
-293	10253	S-1-5-21-2023024621-2433660191-892785488-21507	2	linuxmuster-10253	\N	\N
-294	10254	S-1-5-21-2023024621-2433660191-892785488-21509	2	linuxmuster-10254	\N	\N
-295	10255	S-1-5-21-2023024621-2433660191-892785488-21511	2	linuxmuster-10255	\N	\N
-296	10256	S-1-5-21-2023024621-2433660191-892785488-21513	2	linuxmuster-10256	\N	\N
-297	10257	S-1-5-21-2023024621-2433660191-892785488-21515	2	linuxmuster-10257	\N	\N
-298	10258	S-1-5-21-2023024621-2433660191-892785488-21517	2	linuxmuster-10258	\N	\N
-299	10259	S-1-5-21-2023024621-2433660191-892785488-21519	2	linuxmuster-10259	\N	\N
-300	10260	S-1-5-21-2023024621-2433660191-892785488-21521	2	linuxmuster-10260	\N	\N
-301	10261	S-1-5-21-2023024621-2433660191-892785488-21523	2	linuxmuster-10261	\N	\N
-302	10262	S-1-5-21-2023024621-2433660191-892785488-21525	2	linuxmuster-10262	\N	\N
-303	10263	S-1-5-21-2023024621-2433660191-892785488-21527	2	linuxmuster-10263	\N	\N
-304	10264	S-1-5-21-2023024621-2433660191-892785488-21529	2	linuxmuster-10264	\N	\N
-305	10265	S-1-5-21-2023024621-2433660191-892785488-21531	2	linuxmuster-10265	\N	\N
-306	10266	S-1-5-21-2023024621-2433660191-892785488-21533	2	linuxmuster-10266	\N	\N
-307	10267	S-1-5-21-2023024621-2433660191-892785488-21535	2	linuxmuster-10267	\N	\N
-308	10268	S-1-5-21-2023024621-2433660191-892785488-21537	2	linuxmuster-10268	\N	\N
-978	10938	S-1-5-21-2023024621-2433660191-892785488-22877	2	linuxmuster-10938	\N	\N
-309	10269	S-1-5-21-2023024621-2433660191-892785488-21539	2	linuxmuster-10269	\N	\N
-310	10270	S-1-5-21-2023024621-2433660191-892785488-21541	2	linuxmuster-10270	\N	\N
-1024	10984	S-1-5-21-2023024621-2433660191-892785488-22969	2	linuxmuster-10984	\N	\N
-311	10271	S-1-5-21-2023024621-2433660191-892785488-21543	2	linuxmuster-10271	\N	\N
-312	10272	S-1-5-21-2023024621-2433660191-892785488-21545	2	linuxmuster-10272	\N	\N
-313	10273	S-1-5-21-2023024621-2433660191-892785488-21547	2	linuxmuster-10273	\N	\N
-314	10274	S-1-5-21-2023024621-2433660191-892785488-21549	2	linuxmuster-10274	\N	\N
-315	10275	S-1-5-21-2023024621-2433660191-892785488-21551	2	linuxmuster-10275	\N	\N
-316	10276	S-1-5-21-2023024621-2433660191-892785488-21553	2	linuxmuster-10276	\N	\N
-317	10277	S-1-5-21-2023024621-2433660191-892785488-21555	2	linuxmuster-10277	\N	\N
-318	10278	S-1-5-21-2023024621-2433660191-892785488-21557	2	linuxmuster-10278	\N	\N
-319	10279	S-1-5-21-2023024621-2433660191-892785488-21559	2	linuxmuster-10279	\N	\N
-320	10280	S-1-5-21-2023024621-2433660191-892785488-21561	2	linuxmuster-10280	\N	\N
-321	10281	S-1-5-21-2023024621-2433660191-892785488-21563	2	linuxmuster-10281	\N	\N
-322	10282	S-1-5-21-2023024621-2433660191-892785488-21565	2	linuxmuster-10282	\N	\N
-323	10283	S-1-5-21-2023024621-2433660191-892785488-21567	2	linuxmuster-10283	\N	\N
-324	10284	S-1-5-21-2023024621-2433660191-892785488-21569	2	linuxmuster-10284	\N	\N
-325	10285	S-1-5-21-2023024621-2433660191-892785488-21571	2	linuxmuster-10285	\N	\N
-326	10286	S-1-5-21-2023024621-2433660191-892785488-21573	2	linuxmuster-10286	\N	\N
-327	10287	S-1-5-21-2023024621-2433660191-892785488-21575	2	linuxmuster-10287	\N	\N
-328	10288	S-1-5-21-2023024621-2433660191-892785488-21577	2	linuxmuster-10288	\N	\N
-329	10289	S-1-5-21-2023024621-2433660191-892785488-21579	2	linuxmuster-10289	\N	\N
-979	10939	S-1-5-21-2023024621-2433660191-892785488-22879	2	linuxmuster-10939	\N	\N
-330	10290	S-1-5-21-2023024621-2433660191-892785488-21581	2	linuxmuster-10290	\N	\N
-331	10291	S-1-5-21-2023024621-2433660191-892785488-21583	2	linuxmuster-10291	\N	\N
-1025	10985	S-1-5-21-2023024621-2433660191-892785488-22971	2	linuxmuster-10985	\N	\N
-332	10292	S-1-5-21-2023024621-2433660191-892785488-21585	2	linuxmuster-10292	\N	\N
-333	10293	S-1-5-21-2023024621-2433660191-892785488-21587	2	linuxmuster-10293	\N	\N
-334	10294	S-1-5-21-2023024621-2433660191-892785488-21589	2	linuxmuster-10294	\N	\N
-335	10295	S-1-5-21-2023024621-2433660191-892785488-21591	2	linuxmuster-10295	\N	\N
-336	10296	S-1-5-21-2023024621-2433660191-892785488-21593	2	linuxmuster-10296	\N	\N
-337	10297	S-1-5-21-2023024621-2433660191-892785488-21595	2	linuxmuster-10297	\N	\N
-338	10298	S-1-5-21-2023024621-2433660191-892785488-21597	2	linuxmuster-10298	\N	\N
-339	10299	S-1-5-21-2023024621-2433660191-892785488-21599	2	linuxmuster-10299	\N	\N
-340	10300	S-1-5-21-2023024621-2433660191-892785488-21601	2	linuxmuster-10300	\N	\N
-341	10301	S-1-5-21-2023024621-2433660191-892785488-21603	2	linuxmuster-10301	\N	\N
-342	10302	S-1-5-21-2023024621-2433660191-892785488-21605	2	linuxmuster-10302	\N	\N
-343	10303	S-1-5-21-2023024621-2433660191-892785488-21607	2	linuxmuster-10303	\N	\N
-344	10304	S-1-5-21-2023024621-2433660191-892785488-21609	2	linuxmuster-10304	\N	\N
-345	10305	S-1-5-21-2023024621-2433660191-892785488-21611	2	linuxmuster-10305	\N	\N
-346	10306	S-1-5-21-2023024621-2433660191-892785488-21613	2	linuxmuster-10306	\N	\N
-347	10307	S-1-5-21-2023024621-2433660191-892785488-21615	2	linuxmuster-10307	\N	\N
-348	10308	S-1-5-21-2023024621-2433660191-892785488-21617	2	linuxmuster-10308	\N	\N
-349	10309	S-1-5-21-2023024621-2433660191-892785488-21619	2	linuxmuster-10309	\N	\N
-980	10940	S-1-5-21-2023024621-2433660191-892785488-22881	2	linuxmuster-10940	\N	\N
-350	10310	S-1-5-21-2023024621-2433660191-892785488-21621	2	linuxmuster-10310	\N	\N
-351	10311	S-1-5-21-2023024621-2433660191-892785488-21623	2	linuxmuster-10311	\N	\N
-1026	10986	S-1-5-21-2023024621-2433660191-892785488-22973	2	linuxmuster-10986	\N	\N
-352	10312	S-1-5-21-2023024621-2433660191-892785488-21625	2	linuxmuster-10312	\N	\N
-353	10313	S-1-5-21-2023024621-2433660191-892785488-21627	2	linuxmuster-10313	\N	\N
-354	10314	S-1-5-21-2023024621-2433660191-892785488-21629	2	linuxmuster-10314	\N	\N
-355	10315	S-1-5-21-2023024621-2433660191-892785488-21631	2	linuxmuster-10315	\N	\N
-356	10316	S-1-5-21-2023024621-2433660191-892785488-21633	2	linuxmuster-10316	\N	\N
-357	10317	S-1-5-21-2023024621-2433660191-892785488-21635	2	linuxmuster-10317	\N	\N
-358	10318	S-1-5-21-2023024621-2433660191-892785488-21637	2	linuxmuster-10318	\N	\N
-359	10319	S-1-5-21-2023024621-2433660191-892785488-21639	2	linuxmuster-10319	\N	\N
-360	10320	S-1-5-21-2023024621-2433660191-892785488-21641	2	linuxmuster-10320	\N	\N
-361	10321	S-1-5-21-2023024621-2433660191-892785488-21643	2	linuxmuster-10321	\N	\N
-362	10322	S-1-5-21-2023024621-2433660191-892785488-21645	2	linuxmuster-10322	\N	\N
-363	10323	S-1-5-21-2023024621-2433660191-892785488-21647	2	linuxmuster-10323	\N	\N
-364	10324	S-1-5-21-2023024621-2433660191-892785488-21649	2	linuxmuster-10324	\N	\N
-365	10325	S-1-5-21-2023024621-2433660191-892785488-21651	2	linuxmuster-10325	\N	\N
-366	10326	S-1-5-21-2023024621-2433660191-892785488-21653	2	linuxmuster-10326	\N	\N
-367	10327	S-1-5-21-2023024621-2433660191-892785488-21655	2	linuxmuster-10327	\N	\N
-368	10328	S-1-5-21-2023024621-2433660191-892785488-21657	2	linuxmuster-10328	\N	\N
-369	10329	S-1-5-21-2023024621-2433660191-892785488-21659	2	linuxmuster-10329	\N	\N
-370	10330	S-1-5-21-2023024621-2433660191-892785488-21661	2	linuxmuster-10330	\N	\N
-981	10941	S-1-5-21-2023024621-2433660191-892785488-22883	2	linuxmuster-10941	\N	\N
-371	10331	S-1-5-21-2023024621-2433660191-892785488-21663	2	linuxmuster-10331	\N	\N
-372	10332	S-1-5-21-2023024621-2433660191-892785488-21665	2	linuxmuster-10332	\N	\N
-1027	10987	S-1-5-21-2023024621-2433660191-892785488-22975	2	linuxmuster-10987	\N	\N
-373	10333	S-1-5-21-2023024621-2433660191-892785488-21667	2	linuxmuster-10333	\N	\N
-374	10334	S-1-5-21-2023024621-2433660191-892785488-21669	2	linuxmuster-10334	\N	\N
-375	10335	S-1-5-21-2023024621-2433660191-892785488-21671	2	linuxmuster-10335	\N	\N
-376	10336	S-1-5-21-2023024621-2433660191-892785488-21673	2	linuxmuster-10336	\N	\N
-377	10337	S-1-5-21-2023024621-2433660191-892785488-21675	2	linuxmuster-10337	\N	\N
-378	10338	S-1-5-21-2023024621-2433660191-892785488-21677	2	linuxmuster-10338	\N	\N
-379	10339	S-1-5-21-2023024621-2433660191-892785488-21679	2	linuxmuster-10339	\N	\N
-380	10340	S-1-5-21-2023024621-2433660191-892785488-21681	2	linuxmuster-10340	\N	\N
-381	10341	S-1-5-21-2023024621-2433660191-892785488-21683	2	linuxmuster-10341	\N	\N
-382	10342	S-1-5-21-2023024621-2433660191-892785488-21685	2	linuxmuster-10342	\N	\N
-383	10343	S-1-5-21-2023024621-2433660191-892785488-21687	2	linuxmuster-10343	\N	\N
-384	10344	S-1-5-21-2023024621-2433660191-892785488-21689	2	linuxmuster-10344	\N	\N
-385	10345	S-1-5-21-2023024621-2433660191-892785488-21691	2	linuxmuster-10345	\N	\N
-386	10346	S-1-5-21-2023024621-2433660191-892785488-21693	2	linuxmuster-10346	\N	\N
-387	10347	S-1-5-21-2023024621-2433660191-892785488-21695	2	linuxmuster-10347	\N	\N
-388	10348	S-1-5-21-2023024621-2433660191-892785488-21697	2	linuxmuster-10348	\N	\N
-389	10349	S-1-5-21-2023024621-2433660191-892785488-21699	2	linuxmuster-10349	\N	\N
-390	10350	S-1-5-21-2023024621-2433660191-892785488-21701	2	linuxmuster-10350	\N	\N
-982	10942	S-1-5-21-2023024621-2433660191-892785488-22885	2	linuxmuster-10942	\N	\N
-391	10351	S-1-5-21-2023024621-2433660191-892785488-21703	2	linuxmuster-10351	\N	\N
-392	10352	S-1-5-21-2023024621-2433660191-892785488-21705	2	linuxmuster-10352	\N	\N
-1028	10988	S-1-5-21-2023024621-2433660191-892785488-22977	2	linuxmuster-10988	\N	\N
-393	10353	S-1-5-21-2023024621-2433660191-892785488-21707	2	linuxmuster-10353	\N	\N
-394	10354	S-1-5-21-2023024621-2433660191-892785488-21709	2	linuxmuster-10354	\N	\N
-395	10355	S-1-5-21-2023024621-2433660191-892785488-21711	2	linuxmuster-10355	\N	\N
-396	10356	S-1-5-21-2023024621-2433660191-892785488-21713	2	linuxmuster-10356	\N	\N
-397	10357	S-1-5-21-2023024621-2433660191-892785488-21715	2	linuxmuster-10357	\N	\N
-398	10358	S-1-5-21-2023024621-2433660191-892785488-21717	2	linuxmuster-10358	\N	\N
-399	10359	S-1-5-21-2023024621-2433660191-892785488-21719	2	linuxmuster-10359	\N	\N
-400	10360	S-1-5-21-2023024621-2433660191-892785488-21721	2	linuxmuster-10360	\N	\N
-401	10361	S-1-5-21-2023024621-2433660191-892785488-21723	2	linuxmuster-10361	\N	\N
-402	10362	S-1-5-21-2023024621-2433660191-892785488-21725	2	linuxmuster-10362	\N	\N
-403	10363	S-1-5-21-2023024621-2433660191-892785488-21727	2	linuxmuster-10363	\N	\N
-404	10364	S-1-5-21-2023024621-2433660191-892785488-21729	2	linuxmuster-10364	\N	\N
-405	10365	S-1-5-21-2023024621-2433660191-892785488-21731	2	linuxmuster-10365	\N	\N
-406	10366	S-1-5-21-2023024621-2433660191-892785488-21733	2	linuxmuster-10366	\N	\N
-407	10367	S-1-5-21-2023024621-2433660191-892785488-21735	2	linuxmuster-10367	\N	\N
-408	10368	S-1-5-21-2023024621-2433660191-892785488-21737	2	linuxmuster-10368	\N	\N
-409	10369	S-1-5-21-2023024621-2433660191-892785488-21739	2	linuxmuster-10369	\N	\N
-410	10370	S-1-5-21-2023024621-2433660191-892785488-21741	2	linuxmuster-10370	\N	\N
-411	10371	S-1-5-21-2023024621-2433660191-892785488-21743	2	linuxmuster-10371	\N	\N
-983	10943	S-1-5-21-2023024621-2433660191-892785488-22887	2	linuxmuster-10943	\N	\N
-412	10372	S-1-5-21-2023024621-2433660191-892785488-21745	2	linuxmuster-10372	\N	\N
-413	10373	S-1-5-21-2023024621-2433660191-892785488-21747	2	linuxmuster-10373	\N	\N
-1029	10989	S-1-5-21-2023024621-2433660191-892785488-22979	2	linuxmuster-10989	\N	\N
-414	10374	S-1-5-21-2023024621-2433660191-892785488-21749	2	linuxmuster-10374	\N	\N
-415	10375	S-1-5-21-2023024621-2433660191-892785488-21751	2	linuxmuster-10375	\N	\N
-416	10376	S-1-5-21-2023024621-2433660191-892785488-21753	2	linuxmuster-10376	\N	\N
-417	10377	S-1-5-21-2023024621-2433660191-892785488-21755	2	linuxmuster-10377	\N	\N
-418	10378	S-1-5-21-2023024621-2433660191-892785488-21757	2	linuxmuster-10378	\N	\N
-419	10379	S-1-5-21-2023024621-2433660191-892785488-21759	2	linuxmuster-10379	\N	\N
-420	10380	S-1-5-21-2023024621-2433660191-892785488-21761	2	linuxmuster-10380	\N	\N
-421	10381	S-1-5-21-2023024621-2433660191-892785488-21763	2	linuxmuster-10381	\N	\N
-422	10382	S-1-5-21-2023024621-2433660191-892785488-21765	2	linuxmuster-10382	\N	\N
-423	10383	S-1-5-21-2023024621-2433660191-892785488-21767	2	linuxmuster-10383	\N	\N
-424	10384	S-1-5-21-2023024621-2433660191-892785488-21769	2	linuxmuster-10384	\N	\N
-425	10385	S-1-5-21-2023024621-2433660191-892785488-21771	2	linuxmuster-10385	\N	\N
-426	10386	S-1-5-21-2023024621-2433660191-892785488-21773	2	linuxmuster-10386	\N	\N
-427	10387	S-1-5-21-2023024621-2433660191-892785488-21775	2	linuxmuster-10387	\N	\N
-428	10388	S-1-5-21-2023024621-2433660191-892785488-21777	2	linuxmuster-10388	\N	\N
-429	10389	S-1-5-21-2023024621-2433660191-892785488-21779	2	linuxmuster-10389	\N	\N
-430	10390	S-1-5-21-2023024621-2433660191-892785488-21781	2	linuxmuster-10390	\N	\N
-431	10391	S-1-5-21-2023024621-2433660191-892785488-21783	2	linuxmuster-10391	\N	\N
-984	10944	S-1-5-21-2023024621-2433660191-892785488-22889	2	linuxmuster-10944	\N	\N
-432	10392	S-1-5-21-2023024621-2433660191-892785488-21785	2	linuxmuster-10392	\N	\N
-433	10393	S-1-5-21-2023024621-2433660191-892785488-21787	2	linuxmuster-10393	\N	\N
-1030	10990	S-1-5-21-2023024621-2433660191-892785488-22981	2	linuxmuster-10990	\N	\N
-434	10394	S-1-5-21-2023024621-2433660191-892785488-21789	2	linuxmuster-10394	\N	\N
-435	10395	S-1-5-21-2023024621-2433660191-892785488-21791	2	linuxmuster-10395	\N	\N
-436	10396	S-1-5-21-2023024621-2433660191-892785488-21793	2	linuxmuster-10396	\N	\N
-437	10397	S-1-5-21-2023024621-2433660191-892785488-21795	2	linuxmuster-10397	\N	\N
-438	10398	S-1-5-21-2023024621-2433660191-892785488-21797	2	linuxmuster-10398	\N	\N
-439	10399	S-1-5-21-2023024621-2433660191-892785488-21799	2	linuxmuster-10399	\N	\N
-440	10400	S-1-5-21-2023024621-2433660191-892785488-21801	2	linuxmuster-10400	\N	\N
-441	10401	S-1-5-21-2023024621-2433660191-892785488-21803	2	linuxmuster-10401	\N	\N
-442	10402	S-1-5-21-2023024621-2433660191-892785488-21805	2	linuxmuster-10402	\N	\N
-443	10403	S-1-5-21-2023024621-2433660191-892785488-21807	2	linuxmuster-10403	\N	\N
-444	10404	S-1-5-21-2023024621-2433660191-892785488-21809	2	linuxmuster-10404	\N	\N
-445	10405	S-1-5-21-2023024621-2433660191-892785488-21811	2	linuxmuster-10405	\N	\N
-446	10406	S-1-5-21-2023024621-2433660191-892785488-21813	2	linuxmuster-10406	\N	\N
-447	10407	S-1-5-21-2023024621-2433660191-892785488-21815	2	linuxmuster-10407	\N	\N
-448	10408	S-1-5-21-2023024621-2433660191-892785488-21817	2	linuxmuster-10408	\N	\N
-449	10409	S-1-5-21-2023024621-2433660191-892785488-21819	2	linuxmuster-10409	\N	\N
-450	10410	S-1-5-21-2023024621-2433660191-892785488-21821	2	linuxmuster-10410	\N	\N
-451	10411	S-1-5-21-2023024621-2433660191-892785488-21823	2	linuxmuster-10411	\N	\N
-452	10412	S-1-5-21-2023024621-2433660191-892785488-21825	2	linuxmuster-10412	\N	\N
-985	10945	S-1-5-21-2023024621-2433660191-892785488-22891	2	linuxmuster-10945	\N	\N
-453	10413	S-1-5-21-2023024621-2433660191-892785488-21827	2	linuxmuster-10413	\N	\N
-454	10414	S-1-5-21-2023024621-2433660191-892785488-21829	2	linuxmuster-10414	\N	\N
-1031	10991	S-1-5-21-2023024621-2433660191-892785488-22983	2	linuxmuster-10991	\N	\N
-455	10415	S-1-5-21-2023024621-2433660191-892785488-21831	2	linuxmuster-10415	\N	\N
-456	10416	S-1-5-21-2023024621-2433660191-892785488-21833	2	linuxmuster-10416	\N	\N
-457	10417	S-1-5-21-2023024621-2433660191-892785488-21835	2	linuxmuster-10417	\N	\N
-458	10418	S-1-5-21-2023024621-2433660191-892785488-21837	2	linuxmuster-10418	\N	\N
-459	10419	S-1-5-21-2023024621-2433660191-892785488-21839	2	linuxmuster-10419	\N	\N
-460	10420	S-1-5-21-2023024621-2433660191-892785488-21841	2	linuxmuster-10420	\N	\N
-461	10421	S-1-5-21-2023024621-2433660191-892785488-21843	2	linuxmuster-10421	\N	\N
-462	10422	S-1-5-21-2023024621-2433660191-892785488-21845	2	linuxmuster-10422	\N	\N
-463	10423	S-1-5-21-2023024621-2433660191-892785488-21847	2	linuxmuster-10423	\N	\N
-464	10424	S-1-5-21-2023024621-2433660191-892785488-21849	2	linuxmuster-10424	\N	\N
-465	10425	S-1-5-21-2023024621-2433660191-892785488-21851	2	linuxmuster-10425	\N	\N
-466	10426	S-1-5-21-2023024621-2433660191-892785488-21853	2	linuxmuster-10426	\N	\N
-467	10427	S-1-5-21-2023024621-2433660191-892785488-21855	2	linuxmuster-10427	\N	\N
-468	10428	S-1-5-21-2023024621-2433660191-892785488-21857	2	linuxmuster-10428	\N	\N
-469	10429	S-1-5-21-2023024621-2433660191-892785488-21859	2	linuxmuster-10429	\N	\N
-470	10430	S-1-5-21-2023024621-2433660191-892785488-21861	2	linuxmuster-10430	\N	\N
-471	10431	S-1-5-21-2023024621-2433660191-892785488-21863	2	linuxmuster-10431	\N	\N
-472	10432	S-1-5-21-2023024621-2433660191-892785488-21865	2	linuxmuster-10432	\N	\N
-986	10946	S-1-5-21-2023024621-2433660191-892785488-22893	2	linuxmuster-10946	\N	\N
-473	10433	S-1-5-21-2023024621-2433660191-892785488-21867	2	linuxmuster-10433	\N	\N
-474	10434	S-1-5-21-2023024621-2433660191-892785488-21869	2	linuxmuster-10434	\N	\N
-1032	10992	S-1-5-21-2023024621-2433660191-892785488-22985	2	linuxmuster-10992	\N	\N
-475	10435	S-1-5-21-2023024621-2433660191-892785488-21871	2	linuxmuster-10435	\N	\N
-476	10436	S-1-5-21-2023024621-2433660191-892785488-21873	2	linuxmuster-10436	\N	\N
-477	10437	S-1-5-21-2023024621-2433660191-892785488-21875	2	linuxmuster-10437	\N	\N
-478	10438	S-1-5-21-2023024621-2433660191-892785488-21877	2	linuxmuster-10438	\N	\N
-479	10439	S-1-5-21-2023024621-2433660191-892785488-21879	2	linuxmuster-10439	\N	\N
-480	10440	S-1-5-21-2023024621-2433660191-892785488-21881	2	linuxmuster-10440	\N	\N
-481	10441	S-1-5-21-2023024621-2433660191-892785488-21883	2	linuxmuster-10441	\N	\N
-482	10442	S-1-5-21-2023024621-2433660191-892785488-21885	2	linuxmuster-10442	\N	\N
-483	10443	S-1-5-21-2023024621-2433660191-892785488-21887	2	linuxmuster-10443	\N	\N
-484	10444	S-1-5-21-2023024621-2433660191-892785488-21889	2	linuxmuster-10444	\N	\N
-485	10445	S-1-5-21-2023024621-2433660191-892785488-21891	2	linuxmuster-10445	\N	\N
-486	10446	S-1-5-21-2023024621-2433660191-892785488-21893	2	linuxmuster-10446	\N	\N
-487	10447	S-1-5-21-2023024621-2433660191-892785488-21895	2	linuxmuster-10447	\N	\N
-488	10448	S-1-5-21-2023024621-2433660191-892785488-21897	2	linuxmuster-10448	\N	\N
-489	10449	S-1-5-21-2023024621-2433660191-892785488-21899	2	linuxmuster-10449	\N	\N
-490	10450	S-1-5-21-2023024621-2433660191-892785488-21901	2	linuxmuster-10450	\N	\N
-491	10451	S-1-5-21-2023024621-2433660191-892785488-21903	2	linuxmuster-10451	\N	\N
-492	10452	S-1-5-21-2023024621-2433660191-892785488-21905	2	linuxmuster-10452	\N	\N
-493	10453	S-1-5-21-2023024621-2433660191-892785488-21907	2	linuxmuster-10453	\N	\N
-987	10947	S-1-5-21-2023024621-2433660191-892785488-22895	2	linuxmuster-10947	\N	\N
-494	10454	S-1-5-21-2023024621-2433660191-892785488-21909	2	linuxmuster-10454	\N	\N
-495	10455	S-1-5-21-2023024621-2433660191-892785488-21911	2	linuxmuster-10455	\N	\N
-1033	10993	S-1-5-21-2023024621-2433660191-892785488-22987	2	linuxmuster-10993	\N	\N
-496	10456	S-1-5-21-2023024621-2433660191-892785488-21913	2	linuxmuster-10456	\N	\N
-497	10457	S-1-5-21-2023024621-2433660191-892785488-21915	2	linuxmuster-10457	\N	\N
-498	10458	S-1-5-21-2023024621-2433660191-892785488-21917	2	linuxmuster-10458	\N	\N
-499	10459	S-1-5-21-2023024621-2433660191-892785488-21919	2	linuxmuster-10459	\N	\N
-500	10460	S-1-5-21-2023024621-2433660191-892785488-21921	2	linuxmuster-10460	\N	\N
-501	10461	S-1-5-21-2023024621-2433660191-892785488-21923	2	linuxmuster-10461	\N	\N
-502	10462	S-1-5-21-2023024621-2433660191-892785488-21925	2	linuxmuster-10462	\N	\N
-503	10463	S-1-5-21-2023024621-2433660191-892785488-21927	2	linuxmuster-10463	\N	\N
-504	10464	S-1-5-21-2023024621-2433660191-892785488-21929	2	linuxmuster-10464	\N	\N
-505	10465	S-1-5-21-2023024621-2433660191-892785488-21931	2	linuxmuster-10465	\N	\N
-506	10466	S-1-5-21-2023024621-2433660191-892785488-21933	2	linuxmuster-10466	\N	\N
-507	10467	S-1-5-21-2023024621-2433660191-892785488-21935	2	linuxmuster-10467	\N	\N
-508	10468	S-1-5-21-2023024621-2433660191-892785488-21937	2	linuxmuster-10468	\N	\N
-509	10469	S-1-5-21-2023024621-2433660191-892785488-21939	2	linuxmuster-10469	\N	\N
-510	10470	S-1-5-21-2023024621-2433660191-892785488-21941	2	linuxmuster-10470	\N	\N
-511	10471	S-1-5-21-2023024621-2433660191-892785488-21943	2	linuxmuster-10471	\N	\N
-512	10472	S-1-5-21-2023024621-2433660191-892785488-21945	2	linuxmuster-10472	\N	\N
-513	10473	S-1-5-21-2023024621-2433660191-892785488-21947	2	linuxmuster-10473	\N	\N
-988	10948	S-1-5-21-2023024621-2433660191-892785488-22897	2	linuxmuster-10948	\N	\N
-514	10474	S-1-5-21-2023024621-2433660191-892785488-21949	2	linuxmuster-10474	\N	\N
-515	10475	S-1-5-21-2023024621-2433660191-892785488-21951	2	linuxmuster-10475	\N	\N
-1034	10994	S-1-5-21-2023024621-2433660191-892785488-22989	2	linuxmuster-10994	\N	\N
-516	10476	S-1-5-21-2023024621-2433660191-892785488-21953	2	linuxmuster-10476	\N	\N
-517	10477	S-1-5-21-2023024621-2433660191-892785488-21955	2	linuxmuster-10477	\N	\N
-518	10478	S-1-5-21-2023024621-2433660191-892785488-21957	2	linuxmuster-10478	\N	\N
-519	10479	S-1-5-21-2023024621-2433660191-892785488-21959	2	linuxmuster-10479	\N	\N
-520	10480	S-1-5-21-2023024621-2433660191-892785488-21961	2	linuxmuster-10480	\N	\N
-521	10481	S-1-5-21-2023024621-2433660191-892785488-21963	2	linuxmuster-10481	\N	\N
-522	10482	S-1-5-21-2023024621-2433660191-892785488-21965	2	linuxmuster-10482	\N	\N
-523	10483	S-1-5-21-2023024621-2433660191-892785488-21967	2	linuxmuster-10483	\N	\N
-524	10484	S-1-5-21-2023024621-2433660191-892785488-21969	2	linuxmuster-10484	\N	\N
-525	10485	S-1-5-21-2023024621-2433660191-892785488-21971	2	linuxmuster-10485	\N	\N
-526	10486	S-1-5-21-2023024621-2433660191-892785488-21973	2	linuxmuster-10486	\N	\N
-527	10487	S-1-5-21-2023024621-2433660191-892785488-21975	2	linuxmuster-10487	\N	\N
-528	10488	S-1-5-21-2023024621-2433660191-892785488-21977	2	linuxmuster-10488	\N	\N
-529	10489	S-1-5-21-2023024621-2433660191-892785488-21979	2	linuxmuster-10489	\N	\N
-530	10490	S-1-5-21-2023024621-2433660191-892785488-21981	2	linuxmuster-10490	\N	\N
-531	10491	S-1-5-21-2023024621-2433660191-892785488-21983	2	linuxmuster-10491	\N	\N
-532	10492	S-1-5-21-2023024621-2433660191-892785488-21985	2	linuxmuster-10492	\N	\N
-533	10493	S-1-5-21-2023024621-2433660191-892785488-21987	2	linuxmuster-10493	\N	\N
-534	10494	S-1-5-21-2023024621-2433660191-892785488-21989	2	linuxmuster-10494	\N	\N
-989	10949	S-1-5-21-2023024621-2433660191-892785488-22899	2	linuxmuster-10949	\N	\N
-535	10495	S-1-5-21-2023024621-2433660191-892785488-21991	2	linuxmuster-10495	\N	\N
-536	10496	S-1-5-21-2023024621-2433660191-892785488-21993	2	linuxmuster-10496	\N	\N
-1035	10995	S-1-5-21-2023024621-2433660191-892785488-22991	2	linuxmuster-10995	\N	\N
-537	10497	S-1-5-21-2023024621-2433660191-892785488-21995	2	linuxmuster-10497	\N	\N
-538	10498	S-1-5-21-2023024621-2433660191-892785488-21997	2	linuxmuster-10498	\N	\N
-539	10499	S-1-5-21-2023024621-2433660191-892785488-21999	2	linuxmuster-10499	\N	\N
-540	10500	S-1-5-21-2023024621-2433660191-892785488-22001	2	linuxmuster-10500	\N	\N
-541	10501	S-1-5-21-2023024621-2433660191-892785488-22003	2	linuxmuster-10501	\N	\N
-542	10502	S-1-5-21-2023024621-2433660191-892785488-22005	2	linuxmuster-10502	\N	\N
-543	10503	S-1-5-21-2023024621-2433660191-892785488-22007	2	linuxmuster-10503	\N	\N
-544	10504	S-1-5-21-2023024621-2433660191-892785488-22009	2	linuxmuster-10504	\N	\N
-545	10505	S-1-5-21-2023024621-2433660191-892785488-22011	2	linuxmuster-10505	\N	\N
-546	10506	S-1-5-21-2023024621-2433660191-892785488-22013	2	linuxmuster-10506	\N	\N
-547	10507	S-1-5-21-2023024621-2433660191-892785488-22015	2	linuxmuster-10507	\N	\N
-548	10508	S-1-5-21-2023024621-2433660191-892785488-22017	2	linuxmuster-10508	\N	\N
-549	10509	S-1-5-21-2023024621-2433660191-892785488-22019	2	linuxmuster-10509	\N	\N
-550	10510	S-1-5-21-2023024621-2433660191-892785488-22021	2	linuxmuster-10510	\N	\N
-551	10511	S-1-5-21-2023024621-2433660191-892785488-22023	2	linuxmuster-10511	\N	\N
-552	10512	S-1-5-21-2023024621-2433660191-892785488-22025	2	linuxmuster-10512	\N	\N
-553	10513	S-1-5-21-2023024621-2433660191-892785488-22027	2	linuxmuster-10513	\N	\N
-554	10514	S-1-5-21-2023024621-2433660191-892785488-22029	2	linuxmuster-10514	\N	\N
-990	10950	S-1-5-21-2023024621-2433660191-892785488-22901	2	linuxmuster-10950	\N	\N
-555	10515	S-1-5-21-2023024621-2433660191-892785488-22031	2	linuxmuster-10515	\N	\N
-556	10516	S-1-5-21-2023024621-2433660191-892785488-22033	2	linuxmuster-10516	\N	\N
-1036	10996	S-1-5-21-2023024621-2433660191-892785488-22993	2	linuxmuster-10996	\N	\N
-557	10517	S-1-5-21-2023024621-2433660191-892785488-22035	2	linuxmuster-10517	\N	\N
-558	10518	S-1-5-21-2023024621-2433660191-892785488-22037	2	linuxmuster-10518	\N	\N
-559	10519	S-1-5-21-2023024621-2433660191-892785488-22039	2	linuxmuster-10519	\N	\N
-560	10520	S-1-5-21-2023024621-2433660191-892785488-22041	2	linuxmuster-10520	\N	\N
-561	10521	S-1-5-21-2023024621-2433660191-892785488-22043	2	linuxmuster-10521	\N	\N
-562	10522	S-1-5-21-2023024621-2433660191-892785488-22045	2	linuxmuster-10522	\N	\N
-563	10523	S-1-5-21-2023024621-2433660191-892785488-22047	2	linuxmuster-10523	\N	\N
-564	10524	S-1-5-21-2023024621-2433660191-892785488-22049	2	linuxmuster-10524	\N	\N
-565	10525	S-1-5-21-2023024621-2433660191-892785488-22051	2	linuxmuster-10525	\N	\N
-566	10526	S-1-5-21-2023024621-2433660191-892785488-22053	2	linuxmuster-10526	\N	\N
-567	10527	S-1-5-21-2023024621-2433660191-892785488-22055	2	linuxmuster-10527	\N	\N
-568	10528	S-1-5-21-2023024621-2433660191-892785488-22057	2	linuxmuster-10528	\N	\N
-569	10529	S-1-5-21-2023024621-2433660191-892785488-22059	2	linuxmuster-10529	\N	\N
-570	10530	S-1-5-21-2023024621-2433660191-892785488-22061	2	linuxmuster-10530	\N	\N
-571	10531	S-1-5-21-2023024621-2433660191-892785488-22063	2	linuxmuster-10531	\N	\N
-572	10532	S-1-5-21-2023024621-2433660191-892785488-22065	2	linuxmuster-10532	\N	\N
-573	10533	S-1-5-21-2023024621-2433660191-892785488-22067	2	linuxmuster-10533	\N	\N
-574	10534	S-1-5-21-2023024621-2433660191-892785488-22069	2	linuxmuster-10534	\N	\N
-575	10535	S-1-5-21-2023024621-2433660191-892785488-22071	2	linuxmuster-10535	\N	\N
-991	10951	S-1-5-21-2023024621-2433660191-892785488-22903	2	linuxmuster-10951	\N	\N
-576	10536	S-1-5-21-2023024621-2433660191-892785488-22073	2	linuxmuster-10536	\N	\N
-577	10537	S-1-5-21-2023024621-2433660191-892785488-22075	2	linuxmuster-10537	\N	\N
-1037	10997	S-1-5-21-2023024621-2433660191-892785488-22995	2	linuxmuster-10997	\N	\N
-578	10538	S-1-5-21-2023024621-2433660191-892785488-22077	2	linuxmuster-10538	\N	\N
-579	10539	S-1-5-21-2023024621-2433660191-892785488-22079	2	linuxmuster-10539	\N	\N
-580	10540	S-1-5-21-2023024621-2433660191-892785488-22081	2	linuxmuster-10540	\N	\N
-581	10541	S-1-5-21-2023024621-2433660191-892785488-22083	2	linuxmuster-10541	\N	\N
-582	10542	S-1-5-21-2023024621-2433660191-892785488-22085	2	linuxmuster-10542	\N	\N
-583	10543	S-1-5-21-2023024621-2433660191-892785488-22087	2	linuxmuster-10543	\N	\N
-584	10544	S-1-5-21-2023024621-2433660191-892785488-22089	2	linuxmuster-10544	\N	\N
-585	10545	S-1-5-21-2023024621-2433660191-892785488-22091	2	linuxmuster-10545	\N	\N
-586	10546	S-1-5-21-2023024621-2433660191-892785488-22093	2	linuxmuster-10546	\N	\N
-587	10547	S-1-5-21-2023024621-2433660191-892785488-22095	2	linuxmuster-10547	\N	\N
-588	10548	S-1-5-21-2023024621-2433660191-892785488-22097	2	linuxmuster-10548	\N	\N
-589	10549	S-1-5-21-2023024621-2433660191-892785488-22099	2	linuxmuster-10549	\N	\N
-590	10550	S-1-5-21-2023024621-2433660191-892785488-22101	2	linuxmuster-10550	\N	\N
-591	10551	S-1-5-21-2023024621-2433660191-892785488-22103	2	linuxmuster-10551	\N	\N
-592	10552	S-1-5-21-2023024621-2433660191-892785488-22105	2	linuxmuster-10552	\N	\N
-593	10553	S-1-5-21-2023024621-2433660191-892785488-22107	2	linuxmuster-10553	\N	\N
-594	10554	S-1-5-21-2023024621-2433660191-892785488-22109	2	linuxmuster-10554	\N	\N
-595	10555	S-1-5-21-2023024621-2433660191-892785488-22111	2	linuxmuster-10555	\N	\N
-992	10952	S-1-5-21-2023024621-2433660191-892785488-22905	2	linuxmuster-10952	\N	\N
-596	10556	S-1-5-21-2023024621-2433660191-892785488-22113	2	linuxmuster-10556	\N	\N
-597	10557	S-1-5-21-2023024621-2433660191-892785488-22115	2	linuxmuster-10557	\N	\N
-1038	10998	S-1-5-21-2023024621-2433660191-892785488-22997	2	linuxmuster-10998	\N	\N
-598	10558	S-1-5-21-2023024621-2433660191-892785488-22117	2	linuxmuster-10558	\N	\N
-599	10559	S-1-5-21-2023024621-2433660191-892785488-22119	2	linuxmuster-10559	\N	\N
-600	10560	S-1-5-21-2023024621-2433660191-892785488-22121	2	linuxmuster-10560	\N	\N
-601	10561	S-1-5-21-2023024621-2433660191-892785488-22123	2	linuxmuster-10561	\N	\N
-602	10562	S-1-5-21-2023024621-2433660191-892785488-22125	2	linuxmuster-10562	\N	\N
-603	10563	S-1-5-21-2023024621-2433660191-892785488-22127	2	linuxmuster-10563	\N	\N
-604	10564	S-1-5-21-2023024621-2433660191-892785488-22129	2	linuxmuster-10564	\N	\N
-605	10565	S-1-5-21-2023024621-2433660191-892785488-22131	2	linuxmuster-10565	\N	\N
-606	10566	S-1-5-21-2023024621-2433660191-892785488-22133	2	linuxmuster-10566	\N	\N
-607	10567	S-1-5-21-2023024621-2433660191-892785488-22135	2	linuxmuster-10567	\N	\N
-608	10568	S-1-5-21-2023024621-2433660191-892785488-22137	2	linuxmuster-10568	\N	\N
-609	10569	S-1-5-21-2023024621-2433660191-892785488-22139	2	linuxmuster-10569	\N	\N
-610	10570	S-1-5-21-2023024621-2433660191-892785488-22141	2	linuxmuster-10570	\N	\N
-611	10571	S-1-5-21-2023024621-2433660191-892785488-22143	2	linuxmuster-10571	\N	\N
-612	10572	S-1-5-21-2023024621-2433660191-892785488-22145	2	linuxmuster-10572	\N	\N
-613	10573	S-1-5-21-2023024621-2433660191-892785488-22147	2	linuxmuster-10573	\N	\N
-614	10574	S-1-5-21-2023024621-2433660191-892785488-22149	2	linuxmuster-10574	\N	\N
-615	10575	S-1-5-21-2023024621-2433660191-892785488-22151	2	linuxmuster-10575	\N	\N
-616	10576	S-1-5-21-2023024621-2433660191-892785488-22153	2	linuxmuster-10576	\N	\N
-993	10953	S-1-5-21-2023024621-2433660191-892785488-22907	2	linuxmuster-10953	\N	\N
-617	10577	S-1-5-21-2023024621-2433660191-892785488-22155	2	linuxmuster-10577	\N	\N
-618	10578	S-1-5-21-2023024621-2433660191-892785488-22157	2	linuxmuster-10578	\N	\N
-1039	10999	S-1-5-21-2023024621-2433660191-892785488-22999	2	linuxmuster-10999	\N	\N
-619	10579	S-1-5-21-2023024621-2433660191-892785488-22159	2	linuxmuster-10579	\N	\N
-620	10580	S-1-5-21-2023024621-2433660191-892785488-22161	2	linuxmuster-10580	\N	\N
-621	10581	S-1-5-21-2023024621-2433660191-892785488-22163	2	linuxmuster-10581	\N	\N
-622	10582	S-1-5-21-2023024621-2433660191-892785488-22165	2	linuxmuster-10582	\N	\N
-623	10583	S-1-5-21-2023024621-2433660191-892785488-22167	2	linuxmuster-10583	\N	\N
-624	10584	S-1-5-21-2023024621-2433660191-892785488-22169	2	linuxmuster-10584	\N	\N
-625	10585	S-1-5-21-2023024621-2433660191-892785488-22171	2	linuxmuster-10585	\N	\N
-626	10586	S-1-5-21-2023024621-2433660191-892785488-22173	2	linuxmuster-10586	\N	\N
-627	10587	S-1-5-21-2023024621-2433660191-892785488-22175	2	linuxmuster-10587	\N	\N
-628	10588	S-1-5-21-2023024621-2433660191-892785488-22177	2	linuxmuster-10588	\N	\N
-629	10589	S-1-5-21-2023024621-2433660191-892785488-22179	2	linuxmuster-10589	\N	\N
-630	10590	S-1-5-21-2023024621-2433660191-892785488-22181	2	linuxmuster-10590	\N	\N
-631	10591	S-1-5-21-2023024621-2433660191-892785488-22183	2	linuxmuster-10591	\N	\N
-632	10592	S-1-5-21-2023024621-2433660191-892785488-22185	2	linuxmuster-10592	\N	\N
-633	10593	S-1-5-21-2023024621-2433660191-892785488-22187	2	linuxmuster-10593	\N	\N
-634	10594	S-1-5-21-2023024621-2433660191-892785488-22189	2	linuxmuster-10594	\N	\N
-635	10595	S-1-5-21-2023024621-2433660191-892785488-22191	2	linuxmuster-10595	\N	\N
-636	10596	S-1-5-21-2023024621-2433660191-892785488-22193	2	linuxmuster-10596	\N	\N
-994	10954	S-1-5-21-2023024621-2433660191-892785488-22909	2	linuxmuster-10954	\N	\N
-637	10597	S-1-5-21-2023024621-2433660191-892785488-22195	2	linuxmuster-10597	\N	\N
-638	10598	S-1-5-21-2023024621-2433660191-892785488-22197	2	linuxmuster-10598	\N	\N
-1040	11000	S-1-5-21-2023024621-2433660191-892785488-23001	2	linuxmuster-11000	\N	\N
-639	10599	S-1-5-21-2023024621-2433660191-892785488-22199	2	linuxmuster-10599	\N	\N
-640	10600	S-1-5-21-2023024621-2433660191-892785488-22201	2	linuxmuster-10600	\N	\N
-641	10601	S-1-5-21-2023024621-2433660191-892785488-22203	2	linuxmuster-10601	\N	\N
-642	10602	S-1-5-21-2023024621-2433660191-892785488-22205	2	linuxmuster-10602	\N	\N
-643	10603	S-1-5-21-2023024621-2433660191-892785488-22207	2	linuxmuster-10603	\N	\N
-644	10604	S-1-5-21-2023024621-2433660191-892785488-22209	2	linuxmuster-10604	\N	\N
-645	10605	S-1-5-21-2023024621-2433660191-892785488-22211	2	linuxmuster-10605	\N	\N
-646	10606	S-1-5-21-2023024621-2433660191-892785488-22213	2	linuxmuster-10606	\N	\N
-647	10607	S-1-5-21-2023024621-2433660191-892785488-22215	2	linuxmuster-10607	\N	\N
-648	10608	S-1-5-21-2023024621-2433660191-892785488-22217	2	linuxmuster-10608	\N	\N
-649	10609	S-1-5-21-2023024621-2433660191-892785488-22219	2	linuxmuster-10609	\N	\N
-650	10610	S-1-5-21-2023024621-2433660191-892785488-22221	2	linuxmuster-10610	\N	\N
-651	10611	S-1-5-21-2023024621-2433660191-892785488-22223	2	linuxmuster-10611	\N	\N
-652	10612	S-1-5-21-2023024621-2433660191-892785488-22225	2	linuxmuster-10612	\N	\N
-653	10613	S-1-5-21-2023024621-2433660191-892785488-22227	2	linuxmuster-10613	\N	\N
-654	10614	S-1-5-21-2023024621-2433660191-892785488-22229	2	linuxmuster-10614	\N	\N
-655	10615	S-1-5-21-2023024621-2433660191-892785488-22231	2	linuxmuster-10615	\N	\N
-656	10616	S-1-5-21-2023024621-2433660191-892785488-22233	2	linuxmuster-10616	\N	\N
-657	10617	S-1-5-21-2023024621-2433660191-892785488-22235	2	linuxmuster-10617	\N	\N
-995	10955	S-1-5-21-2023024621-2433660191-892785488-22911	2	linuxmuster-10955	\N	\N
-658	10618	S-1-5-21-2023024621-2433660191-892785488-22237	2	linuxmuster-10618	\N	\N
-659	10619	S-1-5-21-2023024621-2433660191-892785488-22239	2	linuxmuster-10619	\N	\N
-1041	11001	S-1-5-21-2023024621-2433660191-892785488-23003	2	linuxmuster-11001	\N	\N
-660	10620	S-1-5-21-2023024621-2433660191-892785488-22241	2	linuxmuster-10620	\N	\N
-661	10621	S-1-5-21-2023024621-2433660191-892785488-22243	2	linuxmuster-10621	\N	\N
-662	10622	S-1-5-21-2023024621-2433660191-892785488-22245	2	linuxmuster-10622	\N	\N
-663	10623	S-1-5-21-2023024621-2433660191-892785488-22247	2	linuxmuster-10623	\N	\N
-664	10624	S-1-5-21-2023024621-2433660191-892785488-22249	2	linuxmuster-10624	\N	\N
-665	10625	S-1-5-21-2023024621-2433660191-892785488-22251	2	linuxmuster-10625	\N	\N
-666	10626	S-1-5-21-2023024621-2433660191-892785488-22253	2	linuxmuster-10626	\N	\N
-667	10627	S-1-5-21-2023024621-2433660191-892785488-22255	2	linuxmuster-10627	\N	\N
-668	10628	S-1-5-21-2023024621-2433660191-892785488-22257	2	linuxmuster-10628	\N	\N
-669	10629	S-1-5-21-2023024621-2433660191-892785488-22259	2	linuxmuster-10629	\N	\N
-670	10630	S-1-5-21-2023024621-2433660191-892785488-22261	2	linuxmuster-10630	\N	\N
-671	10631	S-1-5-21-2023024621-2433660191-892785488-22263	2	linuxmuster-10631	\N	\N
-672	10632	S-1-5-21-2023024621-2433660191-892785488-22265	2	linuxmuster-10632	\N	\N
-673	10633	S-1-5-21-2023024621-2433660191-892785488-22267	2	linuxmuster-10633	\N	\N
-674	10634	S-1-5-21-2023024621-2433660191-892785488-22269	2	linuxmuster-10634	\N	\N
-675	10635	S-1-5-21-2023024621-2433660191-892785488-22271	2	linuxmuster-10635	\N	\N
-676	10636	S-1-5-21-2023024621-2433660191-892785488-22273	2	linuxmuster-10636	\N	\N
-677	10637	S-1-5-21-2023024621-2433660191-892785488-22275	2	linuxmuster-10637	\N	\N
-996	10956	S-1-5-21-2023024621-2433660191-892785488-22913	2	linuxmuster-10956	\N	\N
-678	10638	S-1-5-21-2023024621-2433660191-892785488-22277	2	linuxmuster-10638	\N	\N
-679	10639	S-1-5-21-2023024621-2433660191-892785488-22279	2	linuxmuster-10639	\N	\N
-680	10640	S-1-5-21-2023024621-2433660191-892785488-22281	2	linuxmuster-10640	\N	\N
-681	10641	S-1-5-21-2023024621-2433660191-892785488-22283	2	linuxmuster-10641	\N	\N
-682	10642	S-1-5-21-2023024621-2433660191-892785488-22285	2	linuxmuster-10642	\N	\N
-683	10643	S-1-5-21-2023024621-2433660191-892785488-22287	2	linuxmuster-10643	\N	\N
-684	10644	S-1-5-21-2023024621-2433660191-892785488-22289	2	linuxmuster-10644	\N	\N
-685	10645	S-1-5-21-2023024621-2433660191-892785488-22291	2	linuxmuster-10645	\N	\N
-686	10646	S-1-5-21-2023024621-2433660191-892785488-22293	2	linuxmuster-10646	\N	\N
-687	10647	S-1-5-21-2023024621-2433660191-892785488-22295	2	linuxmuster-10647	\N	\N
-688	10648	S-1-5-21-2023024621-2433660191-892785488-22297	2	linuxmuster-10648	\N	\N
-689	10649	S-1-5-21-2023024621-2433660191-892785488-22299	2	linuxmuster-10649	\N	\N
-690	10650	S-1-5-21-2023024621-2433660191-892785488-22301	2	linuxmuster-10650	\N	\N
-691	10651	S-1-5-21-2023024621-2433660191-892785488-22303	2	linuxmuster-10651	\N	\N
-692	10652	S-1-5-21-2023024621-2433660191-892785488-22305	2	linuxmuster-10652	\N	\N
-693	10653	S-1-5-21-2023024621-2433660191-892785488-22307	2	linuxmuster-10653	\N	\N
-694	10654	S-1-5-21-2023024621-2433660191-892785488-22309	2	linuxmuster-10654	\N	\N
-695	10655	S-1-5-21-2023024621-2433660191-892785488-22311	2	linuxmuster-10655	\N	\N
-696	10656	S-1-5-21-2023024621-2433660191-892785488-22313	2	linuxmuster-10656	\N	\N
-697	10657	S-1-5-21-2023024621-2433660191-892785488-22315	2	linuxmuster-10657	\N	\N
-698	10658	S-1-5-21-2023024621-2433660191-892785488-22317	2	linuxmuster-10658	\N	\N
-997	10957	S-1-5-21-2023024621-2433660191-892785488-22915	2	linuxmuster-10957	\N	\N
-699	10659	S-1-5-21-2023024621-2433660191-892785488-22319	2	linuxmuster-10659	\N	\N
-700	10660	S-1-5-21-2023024621-2433660191-892785488-22321	2	linuxmuster-10660	\N	\N
-701	10661	S-1-5-21-2023024621-2433660191-892785488-22323	2	linuxmuster-10661	\N	\N
-702	10662	S-1-5-21-2023024621-2433660191-892785488-22325	2	linuxmuster-10662	\N	\N
-703	10663	S-1-5-21-2023024621-2433660191-892785488-22327	2	linuxmuster-10663	\N	\N
-704	10664	S-1-5-21-2023024621-2433660191-892785488-22329	2	linuxmuster-10664	\N	\N
-705	10665	S-1-5-21-2023024621-2433660191-892785488-22331	2	linuxmuster-10665	\N	\N
-706	10666	S-1-5-21-2023024621-2433660191-892785488-22333	2	linuxmuster-10666	\N	\N
-707	10667	S-1-5-21-2023024621-2433660191-892785488-22335	2	linuxmuster-10667	\N	\N
-708	10668	S-1-5-21-2023024621-2433660191-892785488-22337	2	linuxmuster-10668	\N	\N
-709	10669	S-1-5-21-2023024621-2433660191-892785488-22339	2	linuxmuster-10669	\N	\N
-710	10670	S-1-5-21-2023024621-2433660191-892785488-22341	2	linuxmuster-10670	\N	\N
-711	10671	S-1-5-21-2023024621-2433660191-892785488-22343	2	linuxmuster-10671	\N	\N
-712	10672	S-1-5-21-2023024621-2433660191-892785488-22345	2	linuxmuster-10672	\N	\N
-713	10673	S-1-5-21-2023024621-2433660191-892785488-22347	2	linuxmuster-10673	\N	\N
-714	10674	S-1-5-21-2023024621-2433660191-892785488-22349	2	linuxmuster-10674	\N	\N
-715	10675	S-1-5-21-2023024621-2433660191-892785488-22351	2	linuxmuster-10675	\N	\N
-716	10676	S-1-5-21-2023024621-2433660191-892785488-22353	2	linuxmuster-10676	\N	\N
-717	10677	S-1-5-21-2023024621-2433660191-892785488-22355	2	linuxmuster-10677	\N	\N
-718	10678	S-1-5-21-2023024621-2433660191-892785488-22357	2	linuxmuster-10678	\N	\N
-998	10958	S-1-5-21-2023024621-2433660191-892785488-22917	2	linuxmuster-10958	\N	\N
-719	10679	S-1-5-21-2023024621-2433660191-892785488-22359	2	linuxmuster-10679	\N	\N
-720	10680	S-1-5-21-2023024621-2433660191-892785488-22361	2	linuxmuster-10680	\N	\N
-721	10681	S-1-5-21-2023024621-2433660191-892785488-22363	2	linuxmuster-10681	\N	\N
-722	10682	S-1-5-21-2023024621-2433660191-892785488-22365	2	linuxmuster-10682	\N	\N
-723	10683	S-1-5-21-2023024621-2433660191-892785488-22367	2	linuxmuster-10683	\N	\N
-724	10684	S-1-5-21-2023024621-2433660191-892785488-22369	2	linuxmuster-10684	\N	\N
-725	10685	S-1-5-21-2023024621-2433660191-892785488-22371	2	linuxmuster-10685	\N	\N
-726	10686	S-1-5-21-2023024621-2433660191-892785488-22373	2	linuxmuster-10686	\N	\N
-727	10687	S-1-5-21-2023024621-2433660191-892785488-22375	2	linuxmuster-10687	\N	\N
-728	10688	S-1-5-21-2023024621-2433660191-892785488-22377	2	linuxmuster-10688	\N	\N
-729	10689	S-1-5-21-2023024621-2433660191-892785488-22379	2	linuxmuster-10689	\N	\N
-730	10690	S-1-5-21-2023024621-2433660191-892785488-22381	2	linuxmuster-10690	\N	\N
-731	10691	S-1-5-21-2023024621-2433660191-892785488-22383	2	linuxmuster-10691	\N	\N
-732	10692	S-1-5-21-2023024621-2433660191-892785488-22385	2	linuxmuster-10692	\N	\N
-733	10693	S-1-5-21-2023024621-2433660191-892785488-22387	2	linuxmuster-10693	\N	\N
-734	10694	S-1-5-21-2023024621-2433660191-892785488-22389	2	linuxmuster-10694	\N	\N
-735	10695	S-1-5-21-2023024621-2433660191-892785488-22391	2	linuxmuster-10695	\N	\N
-736	10696	S-1-5-21-2023024621-2433660191-892785488-22393	2	linuxmuster-10696	\N	\N
-737	10697	S-1-5-21-2023024621-2433660191-892785488-22395	2	linuxmuster-10697	\N	\N
-738	10698	S-1-5-21-2023024621-2433660191-892785488-22397	2	linuxmuster-10698	\N	\N
-739	10699	S-1-5-21-2023024621-2433660191-892785488-22399	2	linuxmuster-10699	\N	\N
-999	10959	S-1-5-21-2023024621-2433660191-892785488-22919	2	linuxmuster-10959	\N	\N
-740	10700	S-1-5-21-2023024621-2433660191-892785488-22401	2	linuxmuster-10700	\N	\N
-741	10701	S-1-5-21-2023024621-2433660191-892785488-22403	2	linuxmuster-10701	\N	\N
-742	10702	S-1-5-21-2023024621-2433660191-892785488-22405	2	linuxmuster-10702	\N	\N
-743	10703	S-1-5-21-2023024621-2433660191-892785488-22407	2	linuxmuster-10703	\N	\N
-744	10704	S-1-5-21-2023024621-2433660191-892785488-22409	2	linuxmuster-10704	\N	\N
-745	10705	S-1-5-21-2023024621-2433660191-892785488-22411	2	linuxmuster-10705	\N	\N
-746	10706	S-1-5-21-2023024621-2433660191-892785488-22413	2	linuxmuster-10706	\N	\N
-747	10707	S-1-5-21-2023024621-2433660191-892785488-22415	2	linuxmuster-10707	\N	\N
-748	10708	S-1-5-21-2023024621-2433660191-892785488-22417	2	linuxmuster-10708	\N	\N
-749	10709	S-1-5-21-2023024621-2433660191-892785488-22419	2	linuxmuster-10709	\N	\N
-750	10710	S-1-5-21-2023024621-2433660191-892785488-22421	2	linuxmuster-10710	\N	\N
-751	10711	S-1-5-21-2023024621-2433660191-892785488-22423	2	linuxmuster-10711	\N	\N
-752	10712	S-1-5-21-2023024621-2433660191-892785488-22425	2	linuxmuster-10712	\N	\N
-753	10713	S-1-5-21-2023024621-2433660191-892785488-22427	2	linuxmuster-10713	\N	\N
-754	10714	S-1-5-21-2023024621-2433660191-892785488-22429	2	linuxmuster-10714	\N	\N
-755	10715	S-1-5-21-2023024621-2433660191-892785488-22431	2	linuxmuster-10715	\N	\N
-756	10716	S-1-5-21-2023024621-2433660191-892785488-22433	2	linuxmuster-10716	\N	\N
-757	10717	S-1-5-21-2023024621-2433660191-892785488-22435	2	linuxmuster-10717	\N	\N
-758	10718	S-1-5-21-2023024621-2433660191-892785488-22437	2	linuxmuster-10718	\N	\N
-759	10719	S-1-5-21-2023024621-2433660191-892785488-22439	2	linuxmuster-10719	\N	\N
-1000	10960	S-1-5-21-2023024621-2433660191-892785488-22921	2	linuxmuster-10960	\N	\N
-760	10720	S-1-5-21-2023024621-2433660191-892785488-22441	2	linuxmuster-10720	\N	\N
-761	10721	S-1-5-21-2023024621-2433660191-892785488-22443	2	linuxmuster-10721	\N	\N
-762	10722	S-1-5-21-2023024621-2433660191-892785488-22445	2	linuxmuster-10722	\N	\N
-763	10723	S-1-5-21-2023024621-2433660191-892785488-22447	2	linuxmuster-10723	\N	\N
-764	10724	S-1-5-21-2023024621-2433660191-892785488-22449	2	linuxmuster-10724	\N	\N
-765	10725	S-1-5-21-2023024621-2433660191-892785488-22451	2	linuxmuster-10725	\N	\N
-766	10726	S-1-5-21-2023024621-2433660191-892785488-22453	2	linuxmuster-10726	\N	\N
-767	10727	S-1-5-21-2023024621-2433660191-892785488-22455	2	linuxmuster-10727	\N	\N
-768	10728	S-1-5-21-2023024621-2433660191-892785488-22457	2	linuxmuster-10728	\N	\N
-769	10729	S-1-5-21-2023024621-2433660191-892785488-22459	2	linuxmuster-10729	\N	\N
-770	10730	S-1-5-21-2023024621-2433660191-892785488-22461	2	linuxmuster-10730	\N	\N
-771	10731	S-1-5-21-2023024621-2433660191-892785488-22463	2	linuxmuster-10731	\N	\N
-772	10732	S-1-5-21-2023024621-2433660191-892785488-22465	2	linuxmuster-10732	\N	\N
-773	10733	S-1-5-21-2023024621-2433660191-892785488-22467	2	linuxmuster-10733	\N	\N
-774	10734	S-1-5-21-2023024621-2433660191-892785488-22469	2	linuxmuster-10734	\N	\N
-775	10735	S-1-5-21-2023024621-2433660191-892785488-22471	2	linuxmuster-10735	\N	\N
-776	10736	S-1-5-21-2023024621-2433660191-892785488-22473	2	linuxmuster-10736	\N	\N
-777	10737	S-1-5-21-2023024621-2433660191-892785488-22475	2	linuxmuster-10737	\N	\N
-778	10738	S-1-5-21-2023024621-2433660191-892785488-22477	2	linuxmuster-10738	\N	\N
-779	10739	S-1-5-21-2023024621-2433660191-892785488-22479	2	linuxmuster-10739	\N	\N
-780	10740	S-1-5-21-2023024621-2433660191-892785488-22481	2	linuxmuster-10740	\N	\N
-1001	10961	S-1-5-21-2023024621-2433660191-892785488-22923	2	linuxmuster-10961	\N	\N
-781	10741	S-1-5-21-2023024621-2433660191-892785488-22483	2	linuxmuster-10741	\N	\N
-782	10742	S-1-5-21-2023024621-2433660191-892785488-22485	2	linuxmuster-10742	\N	\N
-783	10743	S-1-5-21-2023024621-2433660191-892785488-22487	2	linuxmuster-10743	\N	\N
-784	10744	S-1-5-21-2023024621-2433660191-892785488-22489	2	linuxmuster-10744	\N	\N
-785	10745	S-1-5-21-2023024621-2433660191-892785488-22491	2	linuxmuster-10745	\N	\N
-786	10746	S-1-5-21-2023024621-2433660191-892785488-22493	2	linuxmuster-10746	\N	\N
-787	10747	S-1-5-21-2023024621-2433660191-892785488-22495	2	linuxmuster-10747	\N	\N
-788	10748	S-1-5-21-2023024621-2433660191-892785488-22497	2	linuxmuster-10748	\N	\N
-789	10749	S-1-5-21-2023024621-2433660191-892785488-22499	2	linuxmuster-10749	\N	\N
-790	10750	S-1-5-21-2023024621-2433660191-892785488-22501	2	linuxmuster-10750	\N	\N
-791	10751	S-1-5-21-2023024621-2433660191-892785488-22503	2	linuxmuster-10751	\N	\N
-792	10752	S-1-5-21-2023024621-2433660191-892785488-22505	2	linuxmuster-10752	\N	\N
-793	10753	S-1-5-21-2023024621-2433660191-892785488-22507	2	linuxmuster-10753	\N	\N
-794	10754	S-1-5-21-2023024621-2433660191-892785488-22509	2	linuxmuster-10754	\N	\N
-795	10755	S-1-5-21-2023024621-2433660191-892785488-22511	2	linuxmuster-10755	\N	\N
-796	10756	S-1-5-21-2023024621-2433660191-892785488-22513	2	linuxmuster-10756	\N	\N
-797	10757	S-1-5-21-2023024621-2433660191-892785488-22515	2	linuxmuster-10757	\N	\N
-798	10758	S-1-5-21-2023024621-2433660191-892785488-22517	2	linuxmuster-10758	\N	\N
-799	10759	S-1-5-21-2023024621-2433660191-892785488-22519	2	linuxmuster-10759	\N	\N
-800	10760	S-1-5-21-2023024621-2433660191-892785488-22521	2	linuxmuster-10760	\N	\N
-1002	10962	S-1-5-21-2023024621-2433660191-892785488-22925	2	linuxmuster-10962	\N	\N
-801	10761	S-1-5-21-2023024621-2433660191-892785488-22523	2	linuxmuster-10761	\N	\N
-802	10762	S-1-5-21-2023024621-2433660191-892785488-22525	2	linuxmuster-10762	\N	\N
-803	10763	S-1-5-21-2023024621-2433660191-892785488-22527	2	linuxmuster-10763	\N	\N
-804	10764	S-1-5-21-2023024621-2433660191-892785488-22529	2	linuxmuster-10764	\N	\N
-805	10765	S-1-5-21-2023024621-2433660191-892785488-22531	2	linuxmuster-10765	\N	\N
-806	10766	S-1-5-21-2023024621-2433660191-892785488-22533	2	linuxmuster-10766	\N	\N
-807	10767	S-1-5-21-2023024621-2433660191-892785488-22535	2	linuxmuster-10767	\N	\N
-808	10768	S-1-5-21-2023024621-2433660191-892785488-22537	2	linuxmuster-10768	\N	\N
-809	10769	S-1-5-21-2023024621-2433660191-892785488-22539	2	linuxmuster-10769	\N	\N
-810	10770	S-1-5-21-2023024621-2433660191-892785488-22541	2	linuxmuster-10770	\N	\N
-811	10771	S-1-5-21-2023024621-2433660191-892785488-22543	2	linuxmuster-10771	\N	\N
-812	10772	S-1-5-21-2023024621-2433660191-892785488-22545	2	linuxmuster-10772	\N	\N
-813	10773	S-1-5-21-2023024621-2433660191-892785488-22547	2	linuxmuster-10773	\N	\N
-814	10774	S-1-5-21-2023024621-2433660191-892785488-22549	2	linuxmuster-10774	\N	\N
-815	10775	S-1-5-21-2023024621-2433660191-892785488-22551	2	linuxmuster-10775	\N	\N
-816	10776	S-1-5-21-2023024621-2433660191-892785488-22553	2	linuxmuster-10776	\N	\N
-817	10777	S-1-5-21-2023024621-2433660191-892785488-22555	2	linuxmuster-10777	\N	\N
-818	10778	S-1-5-21-2023024621-2433660191-892785488-22557	2	linuxmuster-10778	\N	\N
-819	10779	S-1-5-21-2023024621-2433660191-892785488-22559	2	linuxmuster-10779	\N	\N
-820	10780	S-1-5-21-2023024621-2433660191-892785488-22561	2	linuxmuster-10780	\N	\N
-821	10781	S-1-5-21-2023024621-2433660191-892785488-22563	2	linuxmuster-10781	\N	\N
-1003	10963	S-1-5-21-2023024621-2433660191-892785488-22927	2	linuxmuster-10963	\N	\N
-822	10782	S-1-5-21-2023024621-2433660191-892785488-22565	2	linuxmuster-10782	\N	\N
-823	10783	S-1-5-21-2023024621-2433660191-892785488-22567	2	linuxmuster-10783	\N	\N
-824	10784	S-1-5-21-2023024621-2433660191-892785488-22569	2	linuxmuster-10784	\N	\N
-825	10785	S-1-5-21-2023024621-2433660191-892785488-22571	2	linuxmuster-10785	\N	\N
-826	10786	S-1-5-21-2023024621-2433660191-892785488-22573	2	linuxmuster-10786	\N	\N
-827	10787	S-1-5-21-2023024621-2433660191-892785488-22575	2	linuxmuster-10787	\N	\N
-828	10788	S-1-5-21-2023024621-2433660191-892785488-22577	2	linuxmuster-10788	\N	\N
-829	10789	S-1-5-21-2023024621-2433660191-892785488-22579	2	linuxmuster-10789	\N	\N
-830	10790	S-1-5-21-2023024621-2433660191-892785488-22581	2	linuxmuster-10790	\N	\N
-831	10791	S-1-5-21-2023024621-2433660191-892785488-22583	2	linuxmuster-10791	\N	\N
-832	10792	S-1-5-21-2023024621-2433660191-892785488-22585	2	linuxmuster-10792	\N	\N
-833	10793	S-1-5-21-2023024621-2433660191-892785488-22587	2	linuxmuster-10793	\N	\N
-834	10794	S-1-5-21-2023024621-2433660191-892785488-22589	2	linuxmuster-10794	\N	\N
-835	10795	S-1-5-21-2023024621-2433660191-892785488-22591	2	linuxmuster-10795	\N	\N
-836	10796	S-1-5-21-2023024621-2433660191-892785488-22593	2	linuxmuster-10796	\N	\N
-837	10797	S-1-5-21-2023024621-2433660191-892785488-22595	2	linuxmuster-10797	\N	\N
-838	10798	S-1-5-21-2023024621-2433660191-892785488-22597	2	linuxmuster-10798	\N	\N
-839	10799	S-1-5-21-2023024621-2433660191-892785488-22599	2	linuxmuster-10799	\N	\N
-840	10800	S-1-5-21-2023024621-2433660191-892785488-22601	2	linuxmuster-10800	\N	\N
-841	10801	S-1-5-21-2023024621-2433660191-892785488-22603	2	linuxmuster-10801	\N	\N
-1004	10964	S-1-5-21-2023024621-2433660191-892785488-22929	2	linuxmuster-10964	\N	\N
-842	10802	S-1-5-21-2023024621-2433660191-892785488-22605	2	linuxmuster-10802	\N	\N
-843	10803	S-1-5-21-2023024621-2433660191-892785488-22607	2	linuxmuster-10803	\N	\N
-844	10804	S-1-5-21-2023024621-2433660191-892785488-22609	2	linuxmuster-10804	\N	\N
-845	10805	S-1-5-21-2023024621-2433660191-892785488-22611	2	linuxmuster-10805	\N	\N
-846	10806	S-1-5-21-2023024621-2433660191-892785488-22613	2	linuxmuster-10806	\N	\N
-847	10807	S-1-5-21-2023024621-2433660191-892785488-22615	2	linuxmuster-10807	\N	\N
-848	10808	S-1-5-21-2023024621-2433660191-892785488-22617	2	linuxmuster-10808	\N	\N
-849	10809	S-1-5-21-2023024621-2433660191-892785488-22619	2	linuxmuster-10809	\N	\N
-850	10810	S-1-5-21-2023024621-2433660191-892785488-22621	2	linuxmuster-10810	\N	\N
-851	10811	S-1-5-21-2023024621-2433660191-892785488-22623	2	linuxmuster-10811	\N	\N
-852	10812	S-1-5-21-2023024621-2433660191-892785488-22625	2	linuxmuster-10812	\N	\N
-853	10813	S-1-5-21-2023024621-2433660191-892785488-22627	2	linuxmuster-10813	\N	\N
-854	10814	S-1-5-21-2023024621-2433660191-892785488-22629	2	linuxmuster-10814	\N	\N
-855	10815	S-1-5-21-2023024621-2433660191-892785488-22631	2	linuxmuster-10815	\N	\N
-856	10816	S-1-5-21-2023024621-2433660191-892785488-22633	2	linuxmuster-10816	\N	\N
-857	10817	S-1-5-21-2023024621-2433660191-892785488-22635	2	linuxmuster-10817	\N	\N
-858	10818	S-1-5-21-2023024621-2433660191-892785488-22637	2	linuxmuster-10818	\N	\N
-859	10819	S-1-5-21-2023024621-2433660191-892785488-22639	2	linuxmuster-10819	\N	\N
-860	10820	S-1-5-21-2023024621-2433660191-892785488-22641	2	linuxmuster-10820	\N	\N
-861	10821	S-1-5-21-2023024621-2433660191-892785488-22643	2	linuxmuster-10821	\N	\N
-862	10822	S-1-5-21-2023024621-2433660191-892785488-22645	2	linuxmuster-10822	\N	\N
-1005	10965	S-1-5-21-2023024621-2433660191-892785488-22931	2	linuxmuster-10965	\N	\N
-863	10823	S-1-5-21-2023024621-2433660191-892785488-22647	2	linuxmuster-10823	\N	\N
-864	10824	S-1-5-21-2023024621-2433660191-892785488-22649	2	linuxmuster-10824	\N	\N
-865	10825	S-1-5-21-2023024621-2433660191-892785488-22651	2	linuxmuster-10825	\N	\N
-866	10826	S-1-5-21-2023024621-2433660191-892785488-22653	2	linuxmuster-10826	\N	\N
-867	10827	S-1-5-21-2023024621-2433660191-892785488-22655	2	linuxmuster-10827	\N	\N
-868	10828	S-1-5-21-2023024621-2433660191-892785488-22657	2	linuxmuster-10828	\N	\N
-869	10829	S-1-5-21-2023024621-2433660191-892785488-22659	2	linuxmuster-10829	\N	\N
-870	10830	S-1-5-21-2023024621-2433660191-892785488-22661	2	linuxmuster-10830	\N	\N
-871	10831	S-1-5-21-2023024621-2433660191-892785488-22663	2	linuxmuster-10831	\N	\N
-872	10832	S-1-5-21-2023024621-2433660191-892785488-22665	2	linuxmuster-10832	\N	\N
-873	10833	S-1-5-21-2023024621-2433660191-892785488-22667	2	linuxmuster-10833	\N	\N
-874	10834	S-1-5-21-2023024621-2433660191-892785488-22669	2	linuxmuster-10834	\N	\N
-875	10835	S-1-5-21-2023024621-2433660191-892785488-22671	2	linuxmuster-10835	\N	\N
-876	10836	S-1-5-21-2023024621-2433660191-892785488-22673	2	linuxmuster-10836	\N	\N
-877	10837	S-1-5-21-2023024621-2433660191-892785488-22675	2	linuxmuster-10837	\N	\N
-878	10838	S-1-5-21-2023024621-2433660191-892785488-22677	2	linuxmuster-10838	\N	\N
-879	10839	S-1-5-21-2023024621-2433660191-892785488-22679	2	linuxmuster-10839	\N	\N
-880	10840	S-1-5-21-2023024621-2433660191-892785488-22681	2	linuxmuster-10840	\N	\N
-881	10841	S-1-5-21-2023024621-2433660191-892785488-22683	2	linuxmuster-10841	\N	\N
-882	10842	S-1-5-21-2023024621-2433660191-892785488-22685	2	linuxmuster-10842	\N	\N
-1006	10966	S-1-5-21-2023024621-2433660191-892785488-22933	2	linuxmuster-10966	\N	\N
-883	10843	S-1-5-21-2023024621-2433660191-892785488-22687	2	linuxmuster-10843	\N	\N
-884	10844	S-1-5-21-2023024621-2433660191-892785488-22689	2	linuxmuster-10844	\N	\N
-885	10845	S-1-5-21-2023024621-2433660191-892785488-22691	2	linuxmuster-10845	\N	\N
-886	10846	S-1-5-21-2023024621-2433660191-892785488-22693	2	linuxmuster-10846	\N	\N
-887	10847	S-1-5-21-2023024621-2433660191-892785488-22695	2	linuxmuster-10847	\N	\N
-888	10848	S-1-5-21-2023024621-2433660191-892785488-22697	2	linuxmuster-10848	\N	\N
-889	10849	S-1-5-21-2023024621-2433660191-892785488-22699	2	linuxmuster-10849	\N	\N
-890	10850	S-1-5-21-2023024621-2433660191-892785488-22701	2	linuxmuster-10850	\N	\N
-891	10851	S-1-5-21-2023024621-2433660191-892785488-22703	2	linuxmuster-10851	\N	\N
-892	10852	S-1-5-21-2023024621-2433660191-892785488-22705	2	linuxmuster-10852	\N	\N
-893	10853	S-1-5-21-2023024621-2433660191-892785488-22707	2	linuxmuster-10853	\N	\N
-894	10854	S-1-5-21-2023024621-2433660191-892785488-22709	2	linuxmuster-10854	\N	\N
-895	10855	S-1-5-21-2023024621-2433660191-892785488-22711	2	linuxmuster-10855	\N	\N
-896	10856	S-1-5-21-2023024621-2433660191-892785488-22713	2	linuxmuster-10856	\N	\N
-897	10857	S-1-5-21-2023024621-2433660191-892785488-22715	2	linuxmuster-10857	\N	\N
-898	10858	S-1-5-21-2023024621-2433660191-892785488-22717	2	linuxmuster-10858	\N	\N
-899	10859	S-1-5-21-2023024621-2433660191-892785488-22719	2	linuxmuster-10859	\N	\N
-900	10860	S-1-5-21-2023024621-2433660191-892785488-22721	2	linuxmuster-10860	\N	\N
-901	10861	S-1-5-21-2023024621-2433660191-892785488-22723	2	linuxmuster-10861	\N	\N
-902	10862	S-1-5-21-2023024621-2433660191-892785488-22725	2	linuxmuster-10862	\N	\N
-903	10863	S-1-5-21-2023024621-2433660191-892785488-22727	2	linuxmuster-10863	\N	\N
-1007	10967	S-1-5-21-2023024621-2433660191-892785488-22935	2	linuxmuster-10967	\N	\N
-904	10864	S-1-5-21-2023024621-2433660191-892785488-22729	2	linuxmuster-10864	\N	\N
-905	10865	S-1-5-21-2023024621-2433660191-892785488-22731	2	linuxmuster-10865	\N	\N
-906	10866	S-1-5-21-2023024621-2433660191-892785488-22733	2	linuxmuster-10866	\N	\N
-907	10867	S-1-5-21-2023024621-2433660191-892785488-22735	2	linuxmuster-10867	\N	\N
-908	10868	S-1-5-21-2023024621-2433660191-892785488-22737	2	linuxmuster-10868	\N	\N
-909	10869	S-1-5-21-2023024621-2433660191-892785488-22739	2	linuxmuster-10869	\N	\N
-910	10870	S-1-5-21-2023024621-2433660191-892785488-22741	2	linuxmuster-10870	\N	\N
-911	10871	S-1-5-21-2023024621-2433660191-892785488-22743	2	linuxmuster-10871	\N	\N
-912	10872	S-1-5-21-2023024621-2433660191-892785488-22745	2	linuxmuster-10872	\N	\N
-913	10873	S-1-5-21-2023024621-2433660191-892785488-22747	2	linuxmuster-10873	\N	\N
-914	10874	S-1-5-21-2023024621-2433660191-892785488-22749	2	linuxmuster-10874	\N	\N
-915	10875	S-1-5-21-2023024621-2433660191-892785488-22751	2	linuxmuster-10875	\N	\N
-916	10876	S-1-5-21-2023024621-2433660191-892785488-22753	2	linuxmuster-10876	\N	\N
-917	10877	S-1-5-21-2023024621-2433660191-892785488-22755	2	linuxmuster-10877	\N	\N
-918	10878	S-1-5-21-2023024621-2433660191-892785488-22757	2	linuxmuster-10878	\N	\N
-919	10879	S-1-5-21-2023024621-2433660191-892785488-22759	2	linuxmuster-10879	\N	\N
-920	10880	S-1-5-21-2023024621-2433660191-892785488-22761	2	linuxmuster-10880	\N	\N
-921	10881	S-1-5-21-2023024621-2433660191-892785488-22763	2	linuxmuster-10881	\N	\N
-922	10882	S-1-5-21-2023024621-2433660191-892785488-22765	2	linuxmuster-10882	\N	\N
-923	10883	S-1-5-21-2023024621-2433660191-892785488-22767	2	linuxmuster-10883	\N	\N
-1008	10968	S-1-5-21-2023024621-2433660191-892785488-22937	2	linuxmuster-10968	\N	\N
-924	10884	S-1-5-21-2023024621-2433660191-892785488-22769	2	linuxmuster-10884	\N	\N
-925	10885	S-1-5-21-2023024621-2433660191-892785488-22771	2	linuxmuster-10885	\N	\N
-926	10886	S-1-5-21-2023024621-2433660191-892785488-22773	2	linuxmuster-10886	\N	\N
-927	10887	S-1-5-21-2023024621-2433660191-892785488-22775	2	linuxmuster-10887	\N	\N
-928	10888	S-1-5-21-2023024621-2433660191-892785488-22777	2	linuxmuster-10888	\N	\N
-929	10889	S-1-5-21-2023024621-2433660191-892785488-22779	2	linuxmuster-10889	\N	\N
-930	10890	S-1-5-21-2023024621-2433660191-892785488-22781	2	linuxmuster-10890	\N	\N
-931	10891	S-1-5-21-2023024621-2433660191-892785488-22783	2	linuxmuster-10891	\N	\N
-932	10892	S-1-5-21-2023024621-2433660191-892785488-22785	2	linuxmuster-10892	\N	\N
-933	10893	S-1-5-21-2023024621-2433660191-892785488-22787	2	linuxmuster-10893	\N	\N
-934	10894	S-1-5-21-2023024621-2433660191-892785488-22789	2	linuxmuster-10894	\N	\N
-935	10895	S-1-5-21-2023024621-2433660191-892785488-22791	2	linuxmuster-10895	\N	\N
-936	10896	S-1-5-21-2023024621-2433660191-892785488-22793	2	linuxmuster-10896	\N	\N
-937	10897	S-1-5-21-2023024621-2433660191-892785488-22795	2	linuxmuster-10897	\N	\N
-938	10898	S-1-5-21-2023024621-2433660191-892785488-22797	2	linuxmuster-10898	\N	\N
-939	10899	S-1-5-21-2023024621-2433660191-892785488-22799	2	linuxmuster-10899	\N	\N
-940	10900	S-1-5-21-2023024621-2433660191-892785488-22801	2	linuxmuster-10900	\N	\N
-941	10901	S-1-5-21-2023024621-2433660191-892785488-22803	2	linuxmuster-10901	\N	\N
-942	10902	S-1-5-21-2023024621-2433660191-892785488-22805	2	linuxmuster-10902	\N	\N
-943	10903	S-1-5-21-2023024621-2433660191-892785488-22807	2	linuxmuster-10903	\N	\N
-944	10904	S-1-5-21-2023024621-2433660191-892785488-22809	2	linuxmuster-10904	\N	\N
-1009	10969	S-1-5-21-2023024621-2433660191-892785488-22939	2	linuxmuster-10969	\N	\N
-945	10905	S-1-5-21-2023024621-2433660191-892785488-22811	2	linuxmuster-10905	\N	\N
-946	10906	S-1-5-21-2023024621-2433660191-892785488-22813	2	linuxmuster-10906	\N	\N
-947	10907	S-1-5-21-2023024621-2433660191-892785488-22815	2	linuxmuster-10907	\N	\N
-948	10908	S-1-5-21-2023024621-2433660191-892785488-22817	2	linuxmuster-10908	\N	\N
-949	10909	S-1-5-21-2023024621-2433660191-892785488-22819	2	linuxmuster-10909	\N	\N
-950	10910	S-1-5-21-2023024621-2433660191-892785488-22821	2	linuxmuster-10910	\N	\N
-951	10911	S-1-5-21-2023024621-2433660191-892785488-22823	2	linuxmuster-10911	\N	\N
-952	10912	S-1-5-21-2023024621-2433660191-892785488-22825	2	linuxmuster-10912	\N	\N
-953	10913	S-1-5-21-2023024621-2433660191-892785488-22827	2	linuxmuster-10913	\N	\N
-954	10914	S-1-5-21-2023024621-2433660191-892785488-22829	2	linuxmuster-10914	\N	\N
-955	10915	S-1-5-21-2023024621-2433660191-892785488-22831	2	linuxmuster-10915	\N	\N
-956	10916	S-1-5-21-2023024621-2433660191-892785488-22833	2	linuxmuster-10916	\N	\N
-957	10917	S-1-5-21-2023024621-2433660191-892785488-22835	2	linuxmuster-10917	\N	\N
-958	10918	S-1-5-21-2023024621-2433660191-892785488-22837	2	linuxmuster-10918	\N	\N
-959	10919	S-1-5-21-2023024621-2433660191-892785488-22839	2	linuxmuster-10919	\N	\N
-960	10920	S-1-5-21-2023024621-2433660191-892785488-22841	2	linuxmuster-10920	\N	\N
-961	10921	S-1-5-21-2023024621-2433660191-892785488-22843	2	linuxmuster-10921	\N	\N
-962	10922	S-1-5-21-2023024621-2433660191-892785488-22845	2	linuxmuster-10922	\N	\N
-963	10923	S-1-5-21-2023024621-2433660191-892785488-22847	2	linuxmuster-10923	\N	\N
-964	10924	S-1-5-21-2023024621-2433660191-892785488-22849	2	linuxmuster-10924	\N	\N
-1010	10970	S-1-5-21-2023024621-2433660191-892785488-22941	2	linuxmuster-10970	\N	\N
-\.
+INSERT INTO samba_group_mapping VALUES (47, 512, 'S-1-5-21-2472895434-561457303-1425298838-2025', '2', 'Domain Admins', NULL, NULL);
+INSERT INTO samba_group_mapping VALUES (48, 10001, 'S-1-5-21-2472895434-561457303-1425298838-21003', '2', 'machines', NULL, NULL);
+INSERT INTO samba_group_mapping VALUES (49, 10000, 'S-1-5-21-2472895434-561457303-1425298838-21001', '2', 'linuxmuster', NULL, NULL);
 
 
 --
--- Data for TOC entry 18 (OID 47691)
+-- Data for TOC entry 147 (OID 82448)
 -- Name: organizational_unit; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
-COPY organizational_unit (id, ou, description) FROM stdin;
-5	groups	Gruppen
-1	accounts	PosixAccounts
-\.
+INSERT INTO organizational_unit VALUES (5, 'groups', 'Gruppen');
+INSERT INTO organizational_unit VALUES (1, 'accounts', 'PosixAccounts');
+INSERT INTO organizational_unit VALUES (3, 'machines', 'Maschinen');
 
 
 --
--- Data for TOC entry 19 (OID 47726)
+-- Data for TOC entry 148 (OID 82483)
 -- Name: groups; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
-COPY groups (id, gidnumber, gid) FROM stdin;
-42	10002	linuxmuster-10002
-965	10925	linuxmuster-10925
-1042	30000	lihasmuster
-43	10003	linuxmuster-10003
-985	10945	linuxmuster-10945
-44	10004	linuxmuster-10004
-1043	44444	testheute
-45	10005	linuxmuster-10005
-1005	10965	linuxmuster-10965
-46	10006	linuxmuster-10006
-1025	10985	linuxmuster-10985
-47	10007	linuxmuster-10007
-48	10008	linuxmuster-10008
-49	10009	linuxmuster-10009
-41	10000	linuxmuster
-50	10010	linuxmuster-10010
-51	10011	linuxmuster-10011
-52	10012	linuxmuster-10012
-53	10013	linuxmuster-10013
-54	10014	linuxmuster-10014
-55	10015	linuxmuster-10015
-56	10016	linuxmuster-10016
-57	10017	linuxmuster-10017
-58	10018	linuxmuster-10018
-59	10019	linuxmuster-10019
-60	10020	linuxmuster-10020
-61	10021	linuxmuster-10021
-62	10022	linuxmuster-10022
-63	10023	linuxmuster-10023
-64	10024	linuxmuster-10024
-65	10025	linuxmuster-10025
-66	10026	linuxmuster-10026
-67	10027	linuxmuster-10027
-68	10028	linuxmuster-10028
-69	10029	linuxmuster-10029
-70	10030	linuxmuster-10030
-71	10031	linuxmuster-10031
-72	10032	linuxmuster-10032
-73	10033	linuxmuster-10033
-74	10034	linuxmuster-10034
-75	10035	linuxmuster-10035
-76	10036	linuxmuster-10036
-77	10037	linuxmuster-10037
-78	10038	linuxmuster-10038
-79	10039	linuxmuster-10039
-80	10040	linuxmuster-10040
-81	10041	linuxmuster-10041
-82	10042	linuxmuster-10042
-83	10043	linuxmuster-10043
-84	10044	linuxmuster-10044
-85	10045	linuxmuster-10045
-86	10046	linuxmuster-10046
-87	10047	linuxmuster-10047
-88	10048	linuxmuster-10048
-89	10049	linuxmuster-10049
-966	10926	linuxmuster-10926
-90	10050	linuxmuster-10050
-986	10946	linuxmuster-10946
-91	10051	linuxmuster-10051
-92	10052	linuxmuster-10052
-1006	10966	linuxmuster-10966
-93	10053	linuxmuster-10053
-1026	10986	linuxmuster-10986
-94	10054	linuxmuster-10054
-95	10055	linuxmuster-10055
-96	10056	linuxmuster-10056
-97	10057	linuxmuster-10057
-98	10058	linuxmuster-10058
-99	10059	linuxmuster-10059
-100	10060	linuxmuster-10060
-101	10061	linuxmuster-10061
-102	10062	linuxmuster-10062
-103	10063	linuxmuster-10063
-104	10064	linuxmuster-10064
-105	10065	linuxmuster-10065
-106	10066	linuxmuster-10066
-107	10067	linuxmuster-10067
-108	10068	linuxmuster-10068
-109	10069	linuxmuster-10069
-110	10070	linuxmuster-10070
-111	10071	linuxmuster-10071
-112	10072	linuxmuster-10072
-113	10073	linuxmuster-10073
-114	10074	linuxmuster-10074
-115	10075	linuxmuster-10075
-116	10076	linuxmuster-10076
-117	10077	linuxmuster-10077
-118	10078	linuxmuster-10078
-119	10079	linuxmuster-10079
-120	10080	linuxmuster-10080
-121	10081	linuxmuster-10081
-122	10082	linuxmuster-10082
-123	10083	linuxmuster-10083
-124	10084	linuxmuster-10084
-125	10085	linuxmuster-10085
-126	10086	linuxmuster-10086
-127	10087	linuxmuster-10087
-128	10088	linuxmuster-10088
-129	10089	linuxmuster-10089
-130	10090	linuxmuster-10090
-131	10091	linuxmuster-10091
-132	10092	linuxmuster-10092
-133	10093	linuxmuster-10093
-134	10094	linuxmuster-10094
-135	10095	linuxmuster-10095
-136	10096	linuxmuster-10096
-967	10927	linuxmuster-10927
-137	10097	linuxmuster-10097
-138	10098	linuxmuster-10098
-987	10947	linuxmuster-10947
-139	10099	linuxmuster-10099
-1007	10967	linuxmuster-10967
-140	10100	linuxmuster-10100
-141	10101	linuxmuster-10101
-1027	10987	linuxmuster-10987
-142	10102	linuxmuster-10102
-143	10103	linuxmuster-10103
-144	10104	linuxmuster-10104
-145	10105	linuxmuster-10105
-146	10106	linuxmuster-10106
-147	10107	linuxmuster-10107
-148	10108	linuxmuster-10108
-149	10109	linuxmuster-10109
-150	10110	linuxmuster-10110
-151	10111	linuxmuster-10111
-152	10112	linuxmuster-10112
-153	10113	linuxmuster-10113
-154	10114	linuxmuster-10114
-155	10115	linuxmuster-10115
-156	10116	linuxmuster-10116
-157	10117	linuxmuster-10117
-158	10118	linuxmuster-10118
-159	10119	linuxmuster-10119
-160	10120	linuxmuster-10120
-161	10121	linuxmuster-10121
-162	10122	linuxmuster-10122
-163	10123	linuxmuster-10123
-164	10124	linuxmuster-10124
-165	10125	linuxmuster-10125
-166	10126	linuxmuster-10126
-167	10127	linuxmuster-10127
-168	10128	linuxmuster-10128
-169	10129	linuxmuster-10129
-170	10130	linuxmuster-10130
-171	10131	linuxmuster-10131
-172	10132	linuxmuster-10132
-173	10133	linuxmuster-10133
-174	10134	linuxmuster-10134
-175	10135	linuxmuster-10135
-176	10136	linuxmuster-10136
-177	10137	linuxmuster-10137
-178	10138	linuxmuster-10138
-179	10139	linuxmuster-10139
-180	10140	linuxmuster-10140
-181	10141	linuxmuster-10141
-182	10142	linuxmuster-10142
-183	10143	linuxmuster-10143
-184	10144	linuxmuster-10144
-968	10928	linuxmuster-10928
-185	10145	linuxmuster-10145
-988	10948	linuxmuster-10948
-186	10146	linuxmuster-10146
-187	10147	linuxmuster-10147
-1008	10968	linuxmuster-10968
-188	10148	linuxmuster-10148
-1028	10988	linuxmuster-10988
-189	10149	linuxmuster-10149
-190	10150	linuxmuster-10150
-191	10151	linuxmuster-10151
-192	10152	linuxmuster-10152
-193	10153	linuxmuster-10153
-194	10154	linuxmuster-10154
-195	10155	linuxmuster-10155
-196	10156	linuxmuster-10156
-197	10157	linuxmuster-10157
-198	10158	linuxmuster-10158
-199	10159	linuxmuster-10159
-200	10160	linuxmuster-10160
-201	10161	linuxmuster-10161
-202	10162	linuxmuster-10162
-203	10163	linuxmuster-10163
-204	10164	linuxmuster-10164
-205	10165	linuxmuster-10165
-206	10166	linuxmuster-10166
-207	10167	linuxmuster-10167
-208	10168	linuxmuster-10168
-209	10169	linuxmuster-10169
-210	10170	linuxmuster-10170
-211	10171	linuxmuster-10171
-212	10172	linuxmuster-10172
-213	10173	linuxmuster-10173
-214	10174	linuxmuster-10174
-215	10175	linuxmuster-10175
-216	10176	linuxmuster-10176
-217	10177	linuxmuster-10177
-218	10178	linuxmuster-10178
-219	10179	linuxmuster-10179
-220	10180	linuxmuster-10180
-221	10181	linuxmuster-10181
-222	10182	linuxmuster-10182
-223	10183	linuxmuster-10183
-224	10184	linuxmuster-10184
-225	10185	linuxmuster-10185
-226	10186	linuxmuster-10186
-227	10187	linuxmuster-10187
-228	10188	linuxmuster-10188
-229	10189	linuxmuster-10189
-230	10190	linuxmuster-10190
-231	10191	linuxmuster-10191
-969	10929	linuxmuster-10929
-232	10192	linuxmuster-10192
-989	10949	linuxmuster-10949
-233	10193	linuxmuster-10193
-234	10194	linuxmuster-10194
-1009	10969	linuxmuster-10969
-235	10195	linuxmuster-10195
-1029	10989	linuxmuster-10989
-236	10196	linuxmuster-10196
-237	10197	linuxmuster-10197
-238	10198	linuxmuster-10198
-239	10199	linuxmuster-10199
-240	10200	linuxmuster-10200
-241	10201	linuxmuster-10201
-242	10202	linuxmuster-10202
-243	10203	linuxmuster-10203
-244	10204	linuxmuster-10204
-245	10205	linuxmuster-10205
-246	10206	linuxmuster-10206
-247	10207	linuxmuster-10207
-248	10208	linuxmuster-10208
-249	10209	linuxmuster-10209
-250	10210	linuxmuster-10210
-251	10211	linuxmuster-10211
-252	10212	linuxmuster-10212
-253	10213	linuxmuster-10213
-254	10214	linuxmuster-10214
-255	10215	linuxmuster-10215
-256	10216	linuxmuster-10216
-257	10217	linuxmuster-10217
-258	10218	linuxmuster-10218
-259	10219	linuxmuster-10219
-260	10220	linuxmuster-10220
-261	10221	linuxmuster-10221
-262	10222	linuxmuster-10222
-263	10223	linuxmuster-10223
-264	10224	linuxmuster-10224
-265	10225	linuxmuster-10225
-266	10226	linuxmuster-10226
-267	10227	linuxmuster-10227
-268	10228	linuxmuster-10228
-269	10229	linuxmuster-10229
-270	10230	linuxmuster-10230
-271	10231	linuxmuster-10231
-272	10232	linuxmuster-10232
-273	10233	linuxmuster-10233
-274	10234	linuxmuster-10234
-275	10235	linuxmuster-10235
-276	10236	linuxmuster-10236
-277	10237	linuxmuster-10237
-278	10238	linuxmuster-10238
-970	10930	linuxmuster-10930
-279	10239	linuxmuster-10239
-280	10240	linuxmuster-10240
-990	10950	linuxmuster-10950
-281	10241	linuxmuster-10241
-1010	10970	linuxmuster-10970
-282	10242	linuxmuster-10242
-283	10243	linuxmuster-10243
-1030	10990	linuxmuster-10990
-284	10244	linuxmuster-10244
-285	10245	linuxmuster-10245
-286	10246	linuxmuster-10246
-287	10247	linuxmuster-10247
-288	10248	linuxmuster-10248
-289	10249	linuxmuster-10249
-290	10250	linuxmuster-10250
-291	10251	linuxmuster-10251
-292	10252	linuxmuster-10252
-293	10253	linuxmuster-10253
-294	10254	linuxmuster-10254
-295	10255	linuxmuster-10255
-296	10256	linuxmuster-10256
-297	10257	linuxmuster-10257
-298	10258	linuxmuster-10258
-299	10259	linuxmuster-10259
-300	10260	linuxmuster-10260
-301	10261	linuxmuster-10261
-302	10262	linuxmuster-10262
-303	10263	linuxmuster-10263
-304	10264	linuxmuster-10264
-305	10265	linuxmuster-10265
-306	10266	linuxmuster-10266
-307	10267	linuxmuster-10267
-308	10268	linuxmuster-10268
-309	10269	linuxmuster-10269
-310	10270	linuxmuster-10270
-311	10271	linuxmuster-10271
-312	10272	linuxmuster-10272
-313	10273	linuxmuster-10273
-314	10274	linuxmuster-10274
-315	10275	linuxmuster-10275
-316	10276	linuxmuster-10276
-317	10277	linuxmuster-10277
-318	10278	linuxmuster-10278
-319	10279	linuxmuster-10279
-320	10280	linuxmuster-10280
-321	10281	linuxmuster-10281
-322	10282	linuxmuster-10282
-323	10283	linuxmuster-10283
-324	10284	linuxmuster-10284
-325	10285	linuxmuster-10285
-326	10286	linuxmuster-10286
-971	10931	linuxmuster-10931
-327	10287	linuxmuster-10287
-991	10951	linuxmuster-10951
-328	10288	linuxmuster-10288
-329	10289	linuxmuster-10289
-1011	10971	linuxmuster-10971
-330	10290	linuxmuster-10290
-1031	10991	linuxmuster-10991
-331	10291	linuxmuster-10291
-332	10292	linuxmuster-10292
-333	10293	linuxmuster-10293
-334	10294	linuxmuster-10294
-335	10295	linuxmuster-10295
-336	10296	linuxmuster-10296
-337	10297	linuxmuster-10297
-338	10298	linuxmuster-10298
-339	10299	linuxmuster-10299
-340	10300	linuxmuster-10300
-341	10301	linuxmuster-10301
-342	10302	linuxmuster-10302
-343	10303	linuxmuster-10303
-344	10304	linuxmuster-10304
-345	10305	linuxmuster-10305
-346	10306	linuxmuster-10306
-347	10307	linuxmuster-10307
-348	10308	linuxmuster-10308
-349	10309	linuxmuster-10309
-350	10310	linuxmuster-10310
-351	10311	linuxmuster-10311
-352	10312	linuxmuster-10312
-353	10313	linuxmuster-10313
-354	10314	linuxmuster-10314
-355	10315	linuxmuster-10315
-356	10316	linuxmuster-10316
-357	10317	linuxmuster-10317
-358	10318	linuxmuster-10318
-359	10319	linuxmuster-10319
-360	10320	linuxmuster-10320
-361	10321	linuxmuster-10321
-362	10322	linuxmuster-10322
-363	10323	linuxmuster-10323
-364	10324	linuxmuster-10324
-365	10325	linuxmuster-10325
-366	10326	linuxmuster-10326
-367	10327	linuxmuster-10327
-368	10328	linuxmuster-10328
-369	10329	linuxmuster-10329
-370	10330	linuxmuster-10330
-371	10331	linuxmuster-10331
-372	10332	linuxmuster-10332
-373	10333	linuxmuster-10333
-972	10932	linuxmuster-10932
-374	10334	linuxmuster-10334
-992	10952	linuxmuster-10952
-375	10335	linuxmuster-10335
-376	10336	linuxmuster-10336
-1012	10972	linuxmuster-10972
-377	10337	linuxmuster-10337
-1032	10992	linuxmuster-10992
-378	10338	linuxmuster-10338
-379	10339	linuxmuster-10339
-380	10340	linuxmuster-10340
-381	10341	linuxmuster-10341
-382	10342	linuxmuster-10342
-383	10343	linuxmuster-10343
-384	10344	linuxmuster-10344
-385	10345	linuxmuster-10345
-386	10346	linuxmuster-10346
-387	10347	linuxmuster-10347
-388	10348	linuxmuster-10348
-389	10349	linuxmuster-10349
-390	10350	linuxmuster-10350
-391	10351	linuxmuster-10351
-392	10352	linuxmuster-10352
-393	10353	linuxmuster-10353
-394	10354	linuxmuster-10354
-395	10355	linuxmuster-10355
-396	10356	linuxmuster-10356
-397	10357	linuxmuster-10357
-398	10358	linuxmuster-10358
-399	10359	linuxmuster-10359
-400	10360	linuxmuster-10360
-401	10361	linuxmuster-10361
-402	10362	linuxmuster-10362
-403	10363	linuxmuster-10363
-404	10364	linuxmuster-10364
-405	10365	linuxmuster-10365
-406	10366	linuxmuster-10366
-407	10367	linuxmuster-10367
-408	10368	linuxmuster-10368
-409	10369	linuxmuster-10369
-410	10370	linuxmuster-10370
-411	10371	linuxmuster-10371
-412	10372	linuxmuster-10372
-413	10373	linuxmuster-10373
-414	10374	linuxmuster-10374
-415	10375	linuxmuster-10375
-416	10376	linuxmuster-10376
-417	10377	linuxmuster-10377
-418	10378	linuxmuster-10378
-419	10379	linuxmuster-10379
-420	10380	linuxmuster-10380
-973	10933	linuxmuster-10933
-421	10381	linuxmuster-10381
-422	10382	linuxmuster-10382
-993	10953	linuxmuster-10953
-423	10383	linuxmuster-10383
-1013	10973	linuxmuster-10973
-424	10384	linuxmuster-10384
-425	10385	linuxmuster-10385
-1033	10993	linuxmuster-10993
-426	10386	linuxmuster-10386
-427	10387	linuxmuster-10387
-428	10388	linuxmuster-10388
-429	10389	linuxmuster-10389
-430	10390	linuxmuster-10390
-431	10391	linuxmuster-10391
-432	10392	linuxmuster-10392
-433	10393	linuxmuster-10393
-434	10394	linuxmuster-10394
-435	10395	linuxmuster-10395
-436	10396	linuxmuster-10396
-437	10397	linuxmuster-10397
-438	10398	linuxmuster-10398
-439	10399	linuxmuster-10399
-440	10400	linuxmuster-10400
-441	10401	linuxmuster-10401
-442	10402	linuxmuster-10402
-443	10403	linuxmuster-10403
-444	10404	linuxmuster-10404
-445	10405	linuxmuster-10405
-446	10406	linuxmuster-10406
-447	10407	linuxmuster-10407
-448	10408	linuxmuster-10408
-449	10409	linuxmuster-10409
-450	10410	linuxmuster-10410
-451	10411	linuxmuster-10411
-452	10412	linuxmuster-10412
-453	10413	linuxmuster-10413
-454	10414	linuxmuster-10414
-455	10415	linuxmuster-10415
-456	10416	linuxmuster-10416
-457	10417	linuxmuster-10417
-458	10418	linuxmuster-10418
-459	10419	linuxmuster-10419
-460	10420	linuxmuster-10420
-461	10421	linuxmuster-10421
-462	10422	linuxmuster-10422
-463	10423	linuxmuster-10423
-464	10424	linuxmuster-10424
-465	10425	linuxmuster-10425
-466	10426	linuxmuster-10426
-467	10427	linuxmuster-10427
-468	10428	linuxmuster-10428
-974	10934	linuxmuster-10934
-469	10429	linuxmuster-10429
-994	10954	linuxmuster-10954
-470	10430	linuxmuster-10430
-471	10431	linuxmuster-10431
-1014	10974	linuxmuster-10974
-472	10432	linuxmuster-10432
-1034	10994	linuxmuster-10994
-473	10433	linuxmuster-10433
-474	10434	linuxmuster-10434
-475	10435	linuxmuster-10435
-476	10436	linuxmuster-10436
-477	10437	linuxmuster-10437
-478	10438	linuxmuster-10438
-479	10439	linuxmuster-10439
-480	10440	linuxmuster-10440
-481	10441	linuxmuster-10441
-482	10442	linuxmuster-10442
-483	10443	linuxmuster-10443
-484	10444	linuxmuster-10444
-485	10445	linuxmuster-10445
-486	10446	linuxmuster-10446
-487	10447	linuxmuster-10447
-488	10448	linuxmuster-10448
-489	10449	linuxmuster-10449
-490	10450	linuxmuster-10450
-491	10451	linuxmuster-10451
-492	10452	linuxmuster-10452
-493	10453	linuxmuster-10453
-494	10454	linuxmuster-10454
-495	10455	linuxmuster-10455
-496	10456	linuxmuster-10456
-497	10457	linuxmuster-10457
-498	10458	linuxmuster-10458
-499	10459	linuxmuster-10459
-500	10460	linuxmuster-10460
-501	10461	linuxmuster-10461
-502	10462	linuxmuster-10462
-503	10463	linuxmuster-10463
-504	10464	linuxmuster-10464
-505	10465	linuxmuster-10465
-506	10466	linuxmuster-10466
-507	10467	linuxmuster-10467
-508	10468	linuxmuster-10468
-509	10469	linuxmuster-10469
-510	10470	linuxmuster-10470
-511	10471	linuxmuster-10471
-512	10472	linuxmuster-10472
-513	10473	linuxmuster-10473
-514	10474	linuxmuster-10474
-515	10475	linuxmuster-10475
-975	10935	linuxmuster-10935
-516	10476	linuxmuster-10476
-995	10955	linuxmuster-10955
-517	10477	linuxmuster-10477
-518	10478	linuxmuster-10478
-1015	10975	linuxmuster-10975
-519	10479	linuxmuster-10479
-1035	10995	linuxmuster-10995
-520	10480	linuxmuster-10480
-521	10481	linuxmuster-10481
-522	10482	linuxmuster-10482
-523	10483	linuxmuster-10483
-524	10484	linuxmuster-10484
-525	10485	linuxmuster-10485
-526	10486	linuxmuster-10486
-527	10487	linuxmuster-10487
-528	10488	linuxmuster-10488
-529	10489	linuxmuster-10489
-530	10490	linuxmuster-10490
-531	10491	linuxmuster-10491
-532	10492	linuxmuster-10492
-533	10493	linuxmuster-10493
-534	10494	linuxmuster-10494
-535	10495	linuxmuster-10495
-536	10496	linuxmuster-10496
-537	10497	linuxmuster-10497
-538	10498	linuxmuster-10498
-539	10499	linuxmuster-10499
-540	10500	linuxmuster-10500
-541	10501	linuxmuster-10501
-542	10502	linuxmuster-10502
-543	10503	linuxmuster-10503
-544	10504	linuxmuster-10504
-545	10505	linuxmuster-10505
-546	10506	linuxmuster-10506
-547	10507	linuxmuster-10507
-548	10508	linuxmuster-10508
-549	10509	linuxmuster-10509
-550	10510	linuxmuster-10510
-551	10511	linuxmuster-10511
-552	10512	linuxmuster-10512
-553	10513	linuxmuster-10513
-554	10514	linuxmuster-10514
-555	10515	linuxmuster-10515
-556	10516	linuxmuster-10516
-557	10517	linuxmuster-10517
-558	10518	linuxmuster-10518
-559	10519	linuxmuster-10519
-560	10520	linuxmuster-10520
-561	10521	linuxmuster-10521
-562	10522	linuxmuster-10522
-976	10936	linuxmuster-10936
-563	10523	linuxmuster-10523
-564	10524	linuxmuster-10524
-996	10956	linuxmuster-10956
-565	10525	linuxmuster-10525
-1016	10976	linuxmuster-10976
-566	10526	linuxmuster-10526
-567	10527	linuxmuster-10527
-1036	10996	linuxmuster-10996
-568	10528	linuxmuster-10528
-569	10529	linuxmuster-10529
-570	10530	linuxmuster-10530
-571	10531	linuxmuster-10531
-572	10532	linuxmuster-10532
-573	10533	linuxmuster-10533
-574	10534	linuxmuster-10534
-575	10535	linuxmuster-10535
-576	10536	linuxmuster-10536
-577	10537	linuxmuster-10537
-578	10538	linuxmuster-10538
-579	10539	linuxmuster-10539
-580	10540	linuxmuster-10540
-581	10541	linuxmuster-10541
-582	10542	linuxmuster-10542
-583	10543	linuxmuster-10543
-584	10544	linuxmuster-10544
-585	10545	linuxmuster-10545
-586	10546	linuxmuster-10546
-587	10547	linuxmuster-10547
-588	10548	linuxmuster-10548
-589	10549	linuxmuster-10549
-590	10550	linuxmuster-10550
-591	10551	linuxmuster-10551
-592	10552	linuxmuster-10552
-593	10553	linuxmuster-10553
-594	10554	linuxmuster-10554
-595	10555	linuxmuster-10555
-596	10556	linuxmuster-10556
-597	10557	linuxmuster-10557
-598	10558	linuxmuster-10558
-599	10559	linuxmuster-10559
-600	10560	linuxmuster-10560
-601	10561	linuxmuster-10561
-602	10562	linuxmuster-10562
-603	10563	linuxmuster-10563
-604	10564	linuxmuster-10564
-605	10565	linuxmuster-10565
-606	10566	linuxmuster-10566
-607	10567	linuxmuster-10567
-608	10568	linuxmuster-10568
-609	10569	linuxmuster-10569
-610	10570	linuxmuster-10570
-977	10937	linuxmuster-10937
-611	10571	linuxmuster-10571
-997	10957	linuxmuster-10957
-612	10572	linuxmuster-10572
-613	10573	linuxmuster-10573
-1017	10977	linuxmuster-10977
-614	10574	linuxmuster-10574
-1037	10997	linuxmuster-10997
-615	10575	linuxmuster-10575
-616	10576	linuxmuster-10576
-617	10577	linuxmuster-10577
-618	10578	linuxmuster-10578
-619	10579	linuxmuster-10579
-620	10580	linuxmuster-10580
-621	10581	linuxmuster-10581
-622	10582	linuxmuster-10582
-623	10583	linuxmuster-10583
-624	10584	linuxmuster-10584
-625	10585	linuxmuster-10585
-626	10586	linuxmuster-10586
-627	10587	linuxmuster-10587
-628	10588	linuxmuster-10588
-629	10589	linuxmuster-10589
-630	10590	linuxmuster-10590
-631	10591	linuxmuster-10591
-632	10592	linuxmuster-10592
-633	10593	linuxmuster-10593
-634	10594	linuxmuster-10594
-635	10595	linuxmuster-10595
-636	10596	linuxmuster-10596
-637	10597	linuxmuster-10597
-638	10598	linuxmuster-10598
-639	10599	linuxmuster-10599
-640	10600	linuxmuster-10600
-641	10601	linuxmuster-10601
-642	10602	linuxmuster-10602
-643	10603	linuxmuster-10603
-644	10604	linuxmuster-10604
-645	10605	linuxmuster-10605
-646	10606	linuxmuster-10606
-647	10607	linuxmuster-10607
-648	10608	linuxmuster-10608
-649	10609	linuxmuster-10609
-650	10610	linuxmuster-10610
-651	10611	linuxmuster-10611
-652	10612	linuxmuster-10612
-653	10613	linuxmuster-10613
-654	10614	linuxmuster-10614
-655	10615	linuxmuster-10615
-656	10616	linuxmuster-10616
-657	10617	linuxmuster-10617
-978	10938	linuxmuster-10938
-658	10618	linuxmuster-10618
-998	10958	linuxmuster-10958
-659	10619	linuxmuster-10619
-660	10620	linuxmuster-10620
-1018	10978	linuxmuster-10978
-661	10621	linuxmuster-10621
-1038	10998	linuxmuster-10998
-662	10622	linuxmuster-10622
-663	10623	linuxmuster-10623
-664	10624	linuxmuster-10624
-665	10625	linuxmuster-10625
-666	10626	linuxmuster-10626
-667	10627	linuxmuster-10627
-668	10628	linuxmuster-10628
-669	10629	linuxmuster-10629
-670	10630	linuxmuster-10630
-671	10631	linuxmuster-10631
-672	10632	linuxmuster-10632
-673	10633	linuxmuster-10633
-674	10634	linuxmuster-10634
-675	10635	linuxmuster-10635
-676	10636	linuxmuster-10636
-677	10637	linuxmuster-10637
-678	10638	linuxmuster-10638
-679	10639	linuxmuster-10639
-680	10640	linuxmuster-10640
-681	10641	linuxmuster-10641
-682	10642	linuxmuster-10642
-683	10643	linuxmuster-10643
-684	10644	linuxmuster-10644
-685	10645	linuxmuster-10645
-686	10646	linuxmuster-10646
-687	10647	linuxmuster-10647
-688	10648	linuxmuster-10648
-689	10649	linuxmuster-10649
-690	10650	linuxmuster-10650
-691	10651	linuxmuster-10651
-692	10652	linuxmuster-10652
-693	10653	linuxmuster-10653
-694	10654	linuxmuster-10654
-695	10655	linuxmuster-10655
-696	10656	linuxmuster-10656
-697	10657	linuxmuster-10657
-698	10658	linuxmuster-10658
-699	10659	linuxmuster-10659
-700	10660	linuxmuster-10660
-701	10661	linuxmuster-10661
-702	10662	linuxmuster-10662
-703	10663	linuxmuster-10663
-704	10664	linuxmuster-10664
-979	10939	linuxmuster-10939
-705	10665	linuxmuster-10665
-706	10666	linuxmuster-10666
-999	10959	linuxmuster-10959
-707	10667	linuxmuster-10667
-1019	10979	linuxmuster-10979
-708	10668	linuxmuster-10668
-709	10669	linuxmuster-10669
-1039	10999	linuxmuster-10999
-710	10670	linuxmuster-10670
-711	10671	linuxmuster-10671
-712	10672	linuxmuster-10672
-713	10673	linuxmuster-10673
-714	10674	linuxmuster-10674
-715	10675	linuxmuster-10675
-716	10676	linuxmuster-10676
-717	10677	linuxmuster-10677
-718	10678	linuxmuster-10678
-719	10679	linuxmuster-10679
-720	10680	linuxmuster-10680
-721	10681	linuxmuster-10681
-722	10682	linuxmuster-10682
-723	10683	linuxmuster-10683
-724	10684	linuxmuster-10684
-725	10685	linuxmuster-10685
-726	10686	linuxmuster-10686
-727	10687	linuxmuster-10687
-728	10688	linuxmuster-10688
-729	10689	linuxmuster-10689
-730	10690	linuxmuster-10690
-731	10691	linuxmuster-10691
-732	10692	linuxmuster-10692
-733	10693	linuxmuster-10693
-734	10694	linuxmuster-10694
-735	10695	linuxmuster-10695
-736	10696	linuxmuster-10696
-737	10697	linuxmuster-10697
-738	10698	linuxmuster-10698
-739	10699	linuxmuster-10699
-740	10700	linuxmuster-10700
-741	10701	linuxmuster-10701
-742	10702	linuxmuster-10702
-743	10703	linuxmuster-10703
-744	10704	linuxmuster-10704
-745	10705	linuxmuster-10705
-746	10706	linuxmuster-10706
-747	10707	linuxmuster-10707
-748	10708	linuxmuster-10708
-749	10709	linuxmuster-10709
-750	10710	linuxmuster-10710
-751	10711	linuxmuster-10711
-752	10712	linuxmuster-10712
-980	10940	linuxmuster-10940
-753	10713	linuxmuster-10713
-1000	10960	linuxmuster-10960
-754	10714	linuxmuster-10714
-755	10715	linuxmuster-10715
-1020	10980	linuxmuster-10980
-756	10716	linuxmuster-10716
-1040	11000	linuxmuster-11000
-757	10717	linuxmuster-10717
-758	10718	linuxmuster-10718
-759	10719	linuxmuster-10719
-760	10720	linuxmuster-10720
-761	10721	linuxmuster-10721
-762	10722	linuxmuster-10722
-763	10723	linuxmuster-10723
-764	10724	linuxmuster-10724
-765	10725	linuxmuster-10725
-766	10726	linuxmuster-10726
-767	10727	linuxmuster-10727
-768	10728	linuxmuster-10728
-769	10729	linuxmuster-10729
-770	10730	linuxmuster-10730
-771	10731	linuxmuster-10731
-772	10732	linuxmuster-10732
-773	10733	linuxmuster-10733
-774	10734	linuxmuster-10734
-775	10735	linuxmuster-10735
-776	10736	linuxmuster-10736
-777	10737	linuxmuster-10737
-778	10738	linuxmuster-10738
-779	10739	linuxmuster-10739
-780	10740	linuxmuster-10740
-781	10741	linuxmuster-10741
-782	10742	linuxmuster-10742
-783	10743	linuxmuster-10743
-784	10744	linuxmuster-10744
-785	10745	linuxmuster-10745
-786	10746	linuxmuster-10746
-787	10747	linuxmuster-10747
-788	10748	linuxmuster-10748
-789	10749	linuxmuster-10749
-790	10750	linuxmuster-10750
-791	10751	linuxmuster-10751
-792	10752	linuxmuster-10752
-793	10753	linuxmuster-10753
-794	10754	linuxmuster-10754
-795	10755	linuxmuster-10755
-796	10756	linuxmuster-10756
-797	10757	linuxmuster-10757
-798	10758	linuxmuster-10758
-799	10759	linuxmuster-10759
-981	10941	linuxmuster-10941
-800	10760	linuxmuster-10760
-1001	10961	linuxmuster-10961
-801	10761	linuxmuster-10761
-802	10762	linuxmuster-10762
-1021	10981	linuxmuster-10981
-803	10763	linuxmuster-10763
-1041	11001	linuxmuster-11001
-804	10764	linuxmuster-10764
-805	10765	linuxmuster-10765
-806	10766	linuxmuster-10766
-807	10767	linuxmuster-10767
-808	10768	linuxmuster-10768
-809	10769	linuxmuster-10769
-810	10770	linuxmuster-10770
-811	10771	linuxmuster-10771
-812	10772	linuxmuster-10772
-813	10773	linuxmuster-10773
-814	10774	linuxmuster-10774
-815	10775	linuxmuster-10775
-816	10776	linuxmuster-10776
-817	10777	linuxmuster-10777
-818	10778	linuxmuster-10778
-819	10779	linuxmuster-10779
-820	10780	linuxmuster-10780
-821	10781	linuxmuster-10781
-822	10782	linuxmuster-10782
-823	10783	linuxmuster-10783
-824	10784	linuxmuster-10784
-825	10785	linuxmuster-10785
-826	10786	linuxmuster-10786
-827	10787	linuxmuster-10787
-828	10788	linuxmuster-10788
-829	10789	linuxmuster-10789
-830	10790	linuxmuster-10790
-831	10791	linuxmuster-10791
-832	10792	linuxmuster-10792
-833	10793	linuxmuster-10793
-834	10794	linuxmuster-10794
-835	10795	linuxmuster-10795
-836	10796	linuxmuster-10796
-837	10797	linuxmuster-10797
-838	10798	linuxmuster-10798
-839	10799	linuxmuster-10799
-840	10800	linuxmuster-10800
-841	10801	linuxmuster-10801
-842	10802	linuxmuster-10802
-843	10803	linuxmuster-10803
-844	10804	linuxmuster-10804
-845	10805	linuxmuster-10805
-846	10806	linuxmuster-10806
-982	10942	linuxmuster-10942
-847	10807	linuxmuster-10807
-848	10808	linuxmuster-10808
-1002	10962	linuxmuster-10962
-849	10809	linuxmuster-10809
-1022	10982	linuxmuster-10982
-850	10810	linuxmuster-10810
-851	10811	linuxmuster-10811
-852	10812	linuxmuster-10812
-853	10813	linuxmuster-10813
-854	10814	linuxmuster-10814
-855	10815	linuxmuster-10815
-856	10816	linuxmuster-10816
-857	10817	linuxmuster-10817
-858	10818	linuxmuster-10818
-859	10819	linuxmuster-10819
-860	10820	linuxmuster-10820
-861	10821	linuxmuster-10821
-862	10822	linuxmuster-10822
-863	10823	linuxmuster-10823
-864	10824	linuxmuster-10824
-865	10825	linuxmuster-10825
-866	10826	linuxmuster-10826
-867	10827	linuxmuster-10827
-868	10828	linuxmuster-10828
-869	10829	linuxmuster-10829
-870	10830	linuxmuster-10830
-871	10831	linuxmuster-10831
-872	10832	linuxmuster-10832
-873	10833	linuxmuster-10833
-874	10834	linuxmuster-10834
-875	10835	linuxmuster-10835
-876	10836	linuxmuster-10836
-877	10837	linuxmuster-10837
-878	10838	linuxmuster-10838
-879	10839	linuxmuster-10839
-880	10840	linuxmuster-10840
-881	10841	linuxmuster-10841
-882	10842	linuxmuster-10842
-883	10843	linuxmuster-10843
-884	10844	linuxmuster-10844
-885	10845	linuxmuster-10845
-886	10846	linuxmuster-10846
-887	10847	linuxmuster-10847
-888	10848	linuxmuster-10848
-889	10849	linuxmuster-10849
-890	10850	linuxmuster-10850
-891	10851	linuxmuster-10851
-892	10852	linuxmuster-10852
-893	10853	linuxmuster-10853
-894	10854	linuxmuster-10854
-983	10943	linuxmuster-10943
-895	10855	linuxmuster-10855
-1003	10963	linuxmuster-10963
-896	10856	linuxmuster-10856
-897	10857	linuxmuster-10857
-1023	10983	linuxmuster-10983
-898	10858	linuxmuster-10858
-899	10859	linuxmuster-10859
-900	10860	linuxmuster-10860
-901	10861	linuxmuster-10861
-902	10862	linuxmuster-10862
-903	10863	linuxmuster-10863
-904	10864	linuxmuster-10864
-905	10865	linuxmuster-10865
-906	10866	linuxmuster-10866
-907	10867	linuxmuster-10867
-908	10868	linuxmuster-10868
-909	10869	linuxmuster-10869
-910	10870	linuxmuster-10870
-911	10871	linuxmuster-10871
-912	10872	linuxmuster-10872
-913	10873	linuxmuster-10873
-914	10874	linuxmuster-10874
-915	10875	linuxmuster-10875
-916	10876	linuxmuster-10876
-917	10877	linuxmuster-10877
-918	10878	linuxmuster-10878
-919	10879	linuxmuster-10879
-920	10880	linuxmuster-10880
-921	10881	linuxmuster-10881
-922	10882	linuxmuster-10882
-923	10883	linuxmuster-10883
-924	10884	linuxmuster-10884
-925	10885	linuxmuster-10885
-926	10886	linuxmuster-10886
-927	10887	linuxmuster-10887
-928	10888	linuxmuster-10888
-929	10889	linuxmuster-10889
-930	10890	linuxmuster-10890
-931	10891	linuxmuster-10891
-932	10892	linuxmuster-10892
-933	10893	linuxmuster-10893
-934	10894	linuxmuster-10894
-935	10895	linuxmuster-10895
-936	10896	linuxmuster-10896
-937	10897	linuxmuster-10897
-938	10898	linuxmuster-10898
-939	10899	linuxmuster-10899
-940	10900	linuxmuster-10900
-941	10901	linuxmuster-10901
-984	10944	linuxmuster-10944
-942	10902	linuxmuster-10902
-1004	10964	linuxmuster-10964
-943	10903	linuxmuster-10903
-944	10904	linuxmuster-10904
-1024	10984	linuxmuster-10984
-945	10905	linuxmuster-10905
-946	10906	linuxmuster-10906
-947	10907	linuxmuster-10907
-948	10908	linuxmuster-10908
-949	10909	linuxmuster-10909
-950	10910	linuxmuster-10910
-951	10911	linuxmuster-10911
-952	10912	linuxmuster-10912
-953	10913	linuxmuster-10913
-954	10914	linuxmuster-10914
-955	10915	linuxmuster-10915
-956	10916	linuxmuster-10916
-957	10917	linuxmuster-10917
-958	10918	linuxmuster-10918
-959	10919	linuxmuster-10919
-960	10920	linuxmuster-10920
-961	10921	linuxmuster-10921
-962	10922	linuxmuster-10922
-963	10923	linuxmuster-10923
-964	10924	linuxmuster-10924
-\.
+INSERT INTO groups VALUES (47, 512, 'Domain Admins');
+INSERT INTO groups VALUES (48, 10001, 'machines');
+INSERT INTO groups VALUES (49, 10000, 'linuxmuster');
 
 
 --
--- Data for TOC entry 20 (OID 47734)
+-- Data for TOC entry 149 (OID 82491)
 -- Name: posix_account; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
-COPY posix_account (id, uidnumber, uid, gidnumber, firstname, surname, homedirectory, gecos, loginshell, userpassword, description) FROM stdin;
-\.
+INSERT INTO posix_account VALUES (10000, 70000, 'NextFreeUnixId', 80000, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO posix_account VALUES (10001, 500, 'administrator', 512, 'Administrator', '', '/home/administrator', 'Administrator', '/bin/bash', '{SSHA}sKo2aYa6ZVk6FcpJvP9zIEB7r9JyRnFa', NULL);
+INSERT INTO posix_account VALUES (10002, 501, 'root', 512, 'root', '', '/home/administrator', 'root', '/bin/bash', '{SSHA}R83CRdqjAEVPMjrlDcO06VdUyjdOZWF0', NULL);
+INSERT INTO posix_account VALUES (10003, 1400, 'unstable$', 10001, 'unstable$', '', '/home/unstable$', 'System User', '/bin/bash', '{crypt}x', NULL);
+INSERT INTO posix_account VALUES (10005, 11001, 'testuser', 10000, 'testuser', '', '/home/testuser', 'System User', '/bin/bash', '{SSHA}LFLtu4d+BpeOVnKsEw8ta0SldNFlRG50', NULL);
+INSERT INTO posix_account VALUES (10004, 11000, 'thomash', 10000, 'Thomas', 'Hoth', '/home/ldap/thomash/', 'Thomas Hoth,,,,', '/bin/false', '{SSHA}dDVW+Z7BHdlDiF12Q35YjQY2RIgNmp2D', NULL);
 
 
 --
--- Data for TOC entry 21 (OID 47740)
+-- Data for TOC entry 150 (OID 82497)
 -- Name: samba_sam_account; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
-COPY samba_sam_account (id, sambasid, cn, sambalmpassword, sambantpassword, sambapwdlastset, sambalogontime, sambalogofftime, sambakickofftime, sambapwdcanchange, sambapwdmustchange, sambaacctflags, displayname, sambahomepath, sambahomedrive, sambalogonscript, sambaprofilepath, description, sambauserworkstations, sambaprimarygroupsid, sambadomainname, sambamungeddial, sambabadpasswordcount, sambabadpasswordtime, sambapasswordhistory, sambalogonhours) FROM stdin;
-\.
+INSERT INTO samba_sam_account VALUES (10001, 'S-1-5-21-2472895434-561457303-1425298838-2000', NULL, 'DF1FB627AA2748B6AAD3B435B51404EE', '64E39492A161B94BF8EBDF8CADB72D32', '1122895350', '0', '2147483647', '2147483647', '0', '2147483647', '[UX]', 'Administrator', NULL, NULL, NULL, NULL, 'Administrator', NULL, 'S-1-5-21-2472895434-561457303-1425298838-2025', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO samba_sam_account VALUES (10002, 'S-1-5-21-2472895434-561457303-1425298838-2002', NULL, 'DF1FB627AA2748B6AAD3B435B51404EE', '64E39492A161B94BF8EBDF8CADB72D32', '1122896791', '0', '2147483647', '2147483647', '0', '2147483647', '[UX]', 'root', NULL, NULL, NULL, NULL, 'root', NULL, 'S-1-5-21-2472895434-561457303-1425298838-2025', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO samba_sam_account VALUES (10003, 'S-1-5-21-2472895434-561457303-1425298838-41002', NULL, NULL, 'CB4FDFB8830B93F5FB3E8B3C2717817D', '1122897058', NULL, NULL, NULL, '1122897058', '2147483647', '[W          ]', 'System User', NULL, NULL, NULL, NULL, 'System User', NULL, 'S-1-5-21-2472895434-561457303-1425298838-41001', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO samba_sam_account VALUES (10004, 'S-1-5-21-2472895434-561457303-1425298838-23000', NULL, 'DF1FB627AA2748B6AAD3B435B51404EE', '64E39492A161B94BF8EBDF8CADB72D32', '1122905932', '0', '2147483647', '2147483647', '1122905932', '2147483647', '[UX]', 'Thomas Hoth', NULL, NULL, NULL, '\\\\preciosa\\profiles\\thomash', 'Thomas Hoth', NULL, 'S-1-5-21-2472895434-561457303-1425298838-21001', NULL, NULL, NULL, NULL, '0000000000000000000000000000000000000000000000000000000000000000', NULL);
+INSERT INTO samba_sam_account VALUES (10005, 'S-1-5-21-2472895434-561457303-1425298838-23002', NULL, 'DF1FB627AA2748B6AAD3B435B51404EE', '64E39492A161B94BF8EBDF8CADB72D32', '1122906143', '0', '2147483647', '2147483647', '0', '2147483647', '[UX]', 'System User', NULL, NULL, NULL, NULL, 'System User', NULL, 'S-1-5-21-2472895434-561457303-1425298838-21001', NULL, NULL, NULL, NULL, NULL, NULL);
 
 
 --
--- Data for TOC entry 22 (OID 47747)
+-- Data for TOC entry 151 (OID 82504)
 -- Name: ldap_oc_mappings; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
-COPY ldap_oc_mappings (id, name, keytbl, keycol, create_proc, delete_proc, expect_return) FROM stdin;
-1	organization	institutes	id	\N	\N	0
-4	posixGroup	groups	id	SELECT create_groups()	\N	0
-2	organizationalUnit	organizational_unit	id	SELECT create_organizational_unit()	SELECT delete_organizational_unit(?)	0
-3	inetOrgPerson	posix_account	id	SELECT create_account()	\N	0
-\.
+INSERT INTO ldap_oc_mappings VALUES (1, 'organization', 'institutes', 'id', NULL, NULL, 0);
+INSERT INTO ldap_oc_mappings VALUES (4, 'posixGroup', 'groups', 'id', 'SELECT create_groups()', NULL, 0);
+INSERT INTO ldap_oc_mappings VALUES (2, 'organizationalUnit', 'organizational_unit', 'id', 'SELECT create_organizational_unit()', 'SELECT delete_organizational_unit(?)', 0);
+INSERT INTO ldap_oc_mappings VALUES (6, 'sambaDomain', 'sambadomain', 'id', 'SELECT create_samba_domain()', NULL, 0);
+INSERT INTO ldap_oc_mappings VALUES (3, 'inetOrgPerson', 'posix_account', 'id', 'SELECT create_account()', 'SELECT delete_account(?)', 0);
 
 
 --
--- Data for TOC entry 23 (OID 64526)
+-- Data for TOC entry 152 (OID 82511)
 -- Name: posix_account_details; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
-COPY posix_account_details (id, schoolnumber, schooldatabaseid, birthname, title, gender, birthday, birthpostalcode, birthcity, denomination, "class", classentry, schooltype, chiefinstructor, nationality, relgionparticipation, ethicsparticipation, education, occupation, starttraining, endtraining) FROM stdin;
-\.
 
 
 --
--- TOC entry 2 (OID 47633)
+-- Data for TOC entry 153 (OID 82516)
+-- Name: sambaunixidpool; Type: TABLE DATA; Schema: public; Owner: ldap
+--
+
+INSERT INTO sambaunixidpool VALUES (1, 'NextFreeUnixId');
+
+
+--
+-- Data for TOC entry 154 (OID 82523)
+-- Name: sambadomain; Type: TABLE DATA; Schema: public; Owner: ldap
+--
+
+INSERT INTO sambadomain VALUES (10002, 'MUSTERLOESUNG', 'S-1-5-21-2472895434-561457303-1425298838');
+
+
+--
+-- TOC entry 35 (OID 82627)
+-- Name: ldap_entries_ocmapid; Type: INDEX; Schema: public; Owner: ldap
+--
+
+CREATE INDEX ldap_entries_ocmapid ON ldap_entries USING btree (oc_map_id);
+
+
+--
+-- TOC entry 37 (OID 82628)
+-- Name: ldap_entry_objclasses_ocname; Type: INDEX; Schema: public; Owner: ldap
+--
+
+CREATE INDEX ldap_entry_objclasses_ocname ON ldap_entry_objclasses USING btree (oc_name);
+
+
+--
+-- TOC entry 32 (OID 82629)
+-- Name: ldap_entries_id; Type: INDEX; Schema: public; Owner: ldap
+--
+
+CREATE INDEX ldap_entries_id ON ldap_entries USING btree (id);
+
+
+--
+-- TOC entry 34 (OID 82630)
+-- Name: ldap_entries_keyval; Type: INDEX; Schema: public; Owner: ldap
+--
+
+CREATE INDEX ldap_entries_keyval ON ldap_entries USING btree (keyval);
+
+
+--
+-- TOC entry 40 (OID 82631)
+-- Name: samba_group_mapping_id; Type: INDEX; Schema: public; Owner: ldap
+--
+
+CREATE UNIQUE INDEX samba_group_mapping_id ON samba_group_mapping USING btree (id);
+
+
+--
+-- TOC entry 41 (OID 82632)
+-- Name: samba_group_mapping_id_h; Type: INDEX; Schema: public; Owner: ldap
+--
+
+CREATE INDEX samba_group_mapping_id_h ON samba_group_mapping USING hash (id);
+
+
+--
+-- TOC entry 46 (OID 82633)
+-- Name: groups_id; Type: INDEX; Schema: public; Owner: ldap
+--
+
+CREATE UNIQUE INDEX groups_id ON groups USING btree (id);
+
+
+--
+-- TOC entry 36 (OID 82634)
+-- Name: ldap_entry_objclasses_entry_id; Type: INDEX; Schema: public; Owner: ldap
+--
+
+CREATE INDEX ldap_entry_objclasses_entry_id ON ldap_entry_objclasses USING btree (entry_id);
+
+
+--
+-- TOC entry 50 (OID 82635)
+-- Name: posix_account_id_uidnumber; Type: INDEX; Schema: public; Owner: ldap
+--
+
+CREATE INDEX posix_account_id_uidnumber ON posix_account USING btree (id, uidnumber);
+
+
+--
+-- TOC entry 30 (OID 82636)
+-- Name: ldap_entries_dn; Type: INDEX; Schema: public; Owner: ldap
+--
+
+CREATE INDEX ldap_entries_dn ON ldap_entries USING btree (dn);
+
+
+--
+-- TOC entry 42 (OID 82637)
+-- Name: organizational_unit_id; Type: INDEX; Schema: public; Owner: ldap
+--
+
+CREATE INDEX organizational_unit_id ON organizational_unit USING btree (id);
+
+
+--
+-- TOC entry 38 (OID 82638)
+-- Name: institutesid; Type: INDEX; Schema: public; Owner: ldap
+--
+
+CREATE UNIQUE INDEX institutesid ON institutes USING btree (id);
+
+
+--
+-- TOC entry 31 (OID 82639)
+-- Name: ldap_entries_dnupper; Type: INDEX; Schema: public; Owner: ldap
+--
+
+CREATE INDEX ldap_entries_dnupper ON ldap_entries USING btree (upper((dn)::text));
+
+
+--
+-- TOC entry 45 (OID 82640)
+-- Name: groups_gidnumberup; Type: INDEX; Schema: public; Owner: ldap
+--
+
+CREATE INDEX groups_gidnumberup ON groups USING btree (upper((gidnumber)::text));
+
+
+--
+-- TOC entry 48 (OID 82641)
+-- Name: pac_uidnumberup; Type: INDEX; Schema: public; Owner: ldap
+--
+
+CREATE INDEX pac_uidnumberup ON posix_account USING btree (upper((uidnumber)::text));
+
+
+--
+-- TOC entry 47 (OID 82642)
+-- Name: groups_id_key; Type: CONSTRAINT; Schema: public; Owner: ldap
+--
+
+ALTER TABLE ONLY groups
+    ADD CONSTRAINT groups_id_key UNIQUE (id);
+
+
+--
+-- TOC entry 44 (OID 82644)
+-- Name: groups_gidnumber_key; Type: CONSTRAINT; Schema: public; Owner: ldap
+--
+
+ALTER TABLE ONLY groups
+    ADD CONSTRAINT groups_gidnumber_key UNIQUE (gidnumber);
+
+
+--
+-- TOC entry 43 (OID 82646)
+-- Name: groups_gid_key; Type: CONSTRAINT; Schema: public; Owner: ldap
+--
+
+ALTER TABLE ONLY groups
+    ADD CONSTRAINT groups_gid_key UNIQUE (gid);
+
+
+--
+-- TOC entry 49 (OID 82648)
+-- Name: posix_account_id_key; Type: CONSTRAINT; Schema: public; Owner: ldap
+--
+
+ALTER TABLE ONLY posix_account
+    ADD CONSTRAINT posix_account_id_key UNIQUE (id);
+
+ALTER TABLE posix_account CLUSTER ON posix_account_id_key;
+
+
+--
+-- TOC entry 52 (OID 82650)
+-- Name: posix_account_uidnumber_key; Type: CONSTRAINT; Schema: public; Owner: ldap
+--
+
+ALTER TABLE ONLY posix_account
+    ADD CONSTRAINT posix_account_uidnumber_key UNIQUE (uidnumber);
+
+
+--
+-- TOC entry 51 (OID 82652)
+-- Name: posix_account_uid_key; Type: CONSTRAINT; Schema: public; Owner: ldap
+--
+
+ALTER TABLE ONLY posix_account
+    ADD CONSTRAINT posix_account_uid_key UNIQUE (uid);
+
+
+--
+-- TOC entry 53 (OID 82654)
+-- Name: samba_sam_account_id_key; Type: CONSTRAINT; Schema: public; Owner: ldap
+--
+
+ALTER TABLE ONLY samba_sam_account
+    ADD CONSTRAINT samba_sam_account_id_key UNIQUE (id);
+
+
+--
+-- TOC entry 54 (OID 82656)
+-- Name: ldap_oc_mappings_id_key; Type: CONSTRAINT; Schema: public; Owner: ldap
+--
+
+ALTER TABLE ONLY ldap_oc_mappings
+    ADD CONSTRAINT ldap_oc_mappings_id_key UNIQUE (id);
+
+
+--
+-- TOC entry 33 (OID 82658)
+-- Name: ldap_entries_id_key; Type: CONSTRAINT; Schema: public; Owner: ldap
+--
+
+ALTER TABLE ONLY ldap_entries
+    ADD CONSTRAINT ldap_entries_id_key UNIQUE (id);
+
+
+--
+-- TOC entry 39 (OID 82660)
+-- Name: samba_group_mapping_gidnumber_key; Type: CONSTRAINT; Schema: public; Owner: ldap
+--
+
+ALTER TABLE ONLY samba_group_mapping
+    ADD CONSTRAINT samba_group_mapping_gidnumber_key UNIQUE (gidnumber, id);
+
+
+--
+-- TOC entry 55 (OID 82662)
+-- Name: posix_account_details_uidnumber_key; Type: CONSTRAINT; Schema: public; Owner: ldap
+--
+
+ALTER TABLE ONLY posix_account_details
+    ADD CONSTRAINT posix_account_details_uidnumber_key UNIQUE (id);
+
+
+--
+-- TOC entry 21 (OID 82396)
 -- Name: ldap_attr_mappings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ldap
 --
 
-SELECT pg_catalog.setval('ldap_attr_mappings_id_seq', 110, true);
+SELECT pg_catalog.setval('ldap_attr_mappings_id_seq', 114, true);
 
 
 --
--- TOC entry 3 (OID 47638)
+-- TOC entry 22 (OID 82401)
 -- Name: ldap_entries_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ldap
 --
 
-SELECT pg_catalog.setval('ldap_entries_id_seq', 3639, true);
+SELECT pg_catalog.setval('ldap_entries_id_seq', 3710, true);
 
 
 --
--- TOC entry 4 (OID 47645)
+-- TOC entry 23 (OID 82408)
 -- Name: institutes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ldap
 --
 
-SELECT pg_catalog.setval('institutes_id_seq', 1, true);
+SELECT pg_catalog.setval('institutes_id_seq', 2, true);
 
 
 --
--- TOC entry 5 (OID 47659)
+-- TOC entry 24 (OID 82422)
 -- Name: samba_group_mapping_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ldap
 --
 
@@ -2233,7 +1676,7 @@ SELECT pg_catalog.setval('samba_group_mapping_id_seq', 1, false);
 
 
 --
--- TOC entry 6 (OID 47689)
+-- TOC entry 25 (OID 82446)
 -- Name: organizational_unit_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ldap
 --
 
@@ -2241,26 +1684,44 @@ SELECT pg_catalog.setval('organizational_unit_id_seq', 6, true);
 
 
 --
--- TOC entry 7 (OID 47724)
+-- TOC entry 26 (OID 82481)
 -- Name: groups_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ldap
 --
 
-SELECT pg_catalog.setval('groups_id_seq', 1043, true);
+SELECT pg_catalog.setval('groups_id_seq', 49, true);
 
 
 --
--- TOC entry 8 (OID 47732)
+-- TOC entry 27 (OID 82489)
 -- Name: posix_account_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ldap
 --
 
-SELECT pg_catalog.setval('posix_account_id_seq', 876, true);
+SELECT pg_catalog.setval('posix_account_id_seq', 10006, true);
 
 
 --
--- TOC entry 9 (OID 47745)
+-- TOC entry 28 (OID 82502)
 -- Name: ldap_oc_mappings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ldap
 --
 
 SELECT pg_catalog.setval('ldap_oc_mappings_id_seq', 8, true);
+
+
+--
+-- TOC entry 29 (OID 82521)
+-- Name: sambadomain_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ldap
+--
+
+SELECT pg_catalog.setval('sambadomain_id_seq', 1, false);
+
+
+SET SESSION AUTHORIZATION 'postgres';
+
+--
+-- TOC entry 3 (OID 2200)
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
+--
+
+COMMENT ON SCHEMA public IS 'Standard public schema';
 
 
