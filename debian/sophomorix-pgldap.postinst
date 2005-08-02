@@ -23,6 +23,7 @@ set -e
 #     installation fails and the `postinst' is called with `abort-upgrade',
 #     `abort-remove' or `abort-deconfigure'.
 
+
 # source debconf stuff
 . /usr/share/debconf/confmodule
 # sozrce dbconfig-common stuff
@@ -32,6 +33,8 @@ set -e
 # parameter 2: arguments that were passed to the maintainer script
 dbc_go sophomorix-pgldap $@
 
+
+
 #DEBHELPER#
 
 case "$1" in
@@ -39,6 +42,7 @@ case "$1" in
     # calling the setup-script of sophomorix
     echo "calling sophomorix-setup-pgldap"
     sophomorix-setup-pgldap
+
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

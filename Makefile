@@ -196,7 +196,7 @@ install-vampire:
 
 
 install-developer:
-	##### tset and developement tools
+	##### test and developement tools
 	install -d $(DESTDIR)/usr/sbin
 	install -oroot -groot --mode=0744 sophomorix-developer/scripts/sophomorix-test $(DESTDIR)/usr/sbin
 	install -oroot -groot --mode=0744 sophomorix-developer/scripts/sophomorix-*[a-z1-9] $(DESTDIR)/usr/sbin
