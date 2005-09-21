@@ -1,0 +1,23 @@
+#! /bin/sh
+set -e
+
+# Load the debconf library - this must come FIRST; do not insert any other
+# commands before this
+. /usr/share/debconf/confmodule
+
+if [ "$1" = install -o "$1" = upgrade ]
+then
+
+    # Make sure the administrative user sophomorix exists
+    getent group sophomorix >/dev/null 2>&1 || addgroup --system sophomorix
+    getent passwd sophomorix >/dev/null 2>&1 ||
+	adduser --system --shell /bin/bash --home /home/sophomorix --ingroup sophomorix --gecos "Sophomorix administrator" sophomorix
+
+
+fi # for 'if $1 = install|upgrade' at the top of file
+
+
+
+exit 0
+
+
