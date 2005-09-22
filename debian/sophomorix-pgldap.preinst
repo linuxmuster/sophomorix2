@@ -5,10 +5,21 @@
 
 set -e
 
+
+# ist nicht die richtige stelle
+
+# make sure database exists
+#su --command='createdb  ldap' postgres
+#su --command='createlang  plpgsql ldap' postgres
+
+
 # source debconf stuff
 . /usr/share/debconf/confmodule
-# sozrce dbconfig-common stuff
+# source dbconfig-common stuff
 . /usr/share/dbconfig-common/dpkg/preinst.pgsql
+
+
+
 # do it
 # parameter 1: package name
 # parameter 2: arguments that were passed to the maintainer script
