@@ -69,6 +69,9 @@ TOOLS=$(DESTDIR)/root/sophomorix-developer
 # dbconfig-common/install
 DBINSTALL=$(DESTDIR)/usr/share/dbconfig-common/data/sophomorix-pgldap/install
 
+# dbconfig-common/install
+DBADMININSTALL=$(DESTDIR)/usr/share/dbconfig-common/data/sophomorix-pgldap/install-dbadmin
+
 # dbconfig-common/upgrade
 DBUPGRADE=$(DESTDIR)/usr/share/dbconfig-common/data/sophomorix-pgldap/upgrade
 
@@ -163,6 +166,9 @@ install-pgldap:
 	##### the install script for the database installation
 	install -d -m755 -oroot -groot $(DBINSTALL)/
 	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/sophomorix.sql.generated $(DBINSTALL)/pgsql
+	##### the install-dbadmin script for the database installation
+	install -d -m755 -oroot -groot $(DBADMININSTALL)/
+	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/sophomorix-admin.sql $(DBADMININSTALL)/pgsql
 	##### the install script for the database installation
 	install -d -m755 -oroot -groot $(DBUPGRADE)/
 	##### put the update scripts ino place ()
