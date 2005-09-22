@@ -28,6 +28,10 @@ set -e
 . /usr/share/debconf/confmodule
 # source dbconfig-common stuff
 . /usr/share/dbconfig-common/dpkg/postinst.pgsql
+
+
+dbc_generate_include="perl:/root"
+
 # do it
 # parameter 1: package name
 # parameter 2: arguments that were passed to the maintainer script
