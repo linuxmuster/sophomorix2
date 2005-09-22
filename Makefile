@@ -137,7 +137,7 @@ install-files:
 
 install-pgldap:
 	##### patch sophomorix.sql.template BEFORE installation
-	./buildhelper/sopho-sqldbmod
+	##./buildhelper/sopho-sqldbmod
 	##### lib for managing the user database in pgldap
 	##### scripts
 	install -d $(DESTDIR)/usr/sbin
@@ -154,6 +154,8 @@ install-pgldap:
 	##### Copy the pg config-templates
 	install -d -m755 -oroot -groot $(CTEMPDIR)/pg/
 	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/*.template $(CTEMPDIR)/pg/
+	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/sophomorix.sql $(CTEMPDIR)/pg/
+	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/sophomorix-admin.sql $(CTEMPDIR)/pg/
 	##### Copy the pam config-templates
 	install -d -m755 -oroot -groot $(CTEMPDIR)/pam/
 	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pam/*.template $(CTEMPDIR)/pam/
@@ -165,7 +167,7 @@ install-pgldap:
 	install -oroot -groot --mode=0755 sophomorix-pgldap/config-ldap/samba.schema $(SCHEMA)/
 	##### the install script for the database installation
 	install -d -m755 -oroot -groot $(DBINSTALL)/
-	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/sophomorix.sql.generated $(DBINSTALL)/pgsql
+	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/sophomorix.sql $(DBINSTALL)/pgsql
 	##### the install-dbadmin script for the database installation
 	install -d -m755 -oroot -groot $(DBADMININSTALL)/
 	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/sophomorix-admin.sql $(DBADMININSTALL)/pgsql
