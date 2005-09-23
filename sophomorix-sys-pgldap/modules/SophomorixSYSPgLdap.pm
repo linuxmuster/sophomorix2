@@ -60,6 +60,8 @@ Updates the gecos field of login in /etc/passwd
 
 =cut
 
+
+# OK
 sub update_gecos {
    # update the gocos-fiels in /etc/passwd
    my ($login,$first,$last) = @_;
@@ -80,13 +82,13 @@ directory for good.
 =cut
 
 sub delete_user_from_sys {
-    ($login)=@_;
-    &Sophomorix::SophomorixBase::do_falls_nicht_testen(
-       # aus smbpasswd entfernen
-       "/usr/bin/smbpasswd  -x $login",
-       # Aus Benutzerdatenbank entfernen (-r: Home löschen)
-       "userdel  -r $login",
-    );
+#    ($login)=@_;
+#    &Sophomorix::SophomorixBase::do_falls_nicht_testen(
+#       # aus smbpasswd entfernen
+#       "/usr/bin/smbpasswd  -x $login",
+#       # Aus Benutzerdatenbank entfernen (-r: Home löschen)
+#       "userdel  -r $login",
+#    );
 }
 
 =pod
@@ -99,19 +101,19 @@ Adds the group I<class> to the system database.
 =cut
 
 sub add_class_to_sys {
-    ($class,$gid)=@_;
-    if (not defined $gid){
-        $gid="---";
-    }
-    if ($gid eq "---" or $gid eq ""){
-       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
-          "groupadd $class",
-       );
-   } else {
-       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
-          "groupadd -g $gid $class",
-       );
-   }
+#    ($class,$gid)=@_;
+#    if (not defined $gid){
+#        $gid="---";
+#    }
+#    if ($gid eq "---" or $gid eq ""){
+#       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
+#          "groupadd $class",
+#       );
+#   } else {
+#       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
+#          "groupadd -g $gid $class",
+#       );
+#   }
 }
 
 
@@ -125,32 +127,32 @@ Adds the user I<user> to the system database.
 =cut
 
 sub add_user_to_sys {
-    my ($nachname,
-       $vorname,
-       $gebdat,
-       $class,
-       $login,
-       $pass,
-       $sh,
-       $wunsch_id) = @_;
-
-    my $gec = "$vorname"." "."$nachname";
-    my $home ="";
-    if ($class eq ${DevelConf::teacher}){
-       $home = "${DevelConf::homedir_teacher}/$login";
-    } else {
-       $home = "${DevelConf::homedir_pupil}/$class/$login";
-    }
-    if ($wunsch_id eq "---"){
-       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
-          "useradd -c '$gec' -d $home -m -g $class -p $pass -s $sh $login"
-       );
-    } else {
-       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
-          "useradd -c '$gec' -d $home -m -g $class -p $pass -s $sh $login -u $wunsch_id"
-#         "useradd -c '$gec' -m -g $class -p $pass -s $sh $login"
-    );
-    }
+#    my ($nachname,
+#       $vorname,
+#       $gebdat,
+#       $class,
+#       $login,
+#       $pass,
+#       $sh,
+#       $wunsch_id) = @_;
+#
+#    my $gec = "$vorname"." "."$nachname";
+#    my $home ="";
+#    if ($class eq ${DevelConf::teacher}){
+#       $home = "${DevelConf::homedir_teacher}/$login";
+#    } else {
+#       $home = "${DevelConf::homedir_pupil}/$class/$login";
+#    }
+#    if ($wunsch_id eq "---"){
+#       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
+#          "useradd -c '$gec' -d $home -m -g $class -p $pass -s $sh $login"
+#       );
+#    } else {
+#       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
+#          "useradd -c '$gec' -d $home -m -g $class -p $pass -s $sh $login -u $wunsch_id"
+##         "useradd -c '$gec' -m -g $class -p $pass -s $sh $login"
+#    );
+#    }
 }
 
 
