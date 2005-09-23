@@ -17,6 +17,9 @@ use Sophomorix::SophomorixBase;
 use Time::Local;
 use Time::localtime;
 use Term::ANSIColor qw(:constants); # farbiger Text RED, BLUE, ...
+
+use DBI;
+
 # nach jedem Printbefehl wieder auf Standardfarbe zurücksetzen
 $Term::ANSIColor::AUTORESET = 1;
 
@@ -597,6 +600,10 @@ my ($ref_login,
 %schueler_im_system_account_type = %$ref_account_type;
 
 
+
+#exit;
+
+
 # ===========================================================================
 # Get information from old files
 # ===========================================================================
@@ -970,6 +977,8 @@ if ($Conf::splan_sternchenlkassen_filtern eq "ja") {
 # ===========================================================================
 
 &show_all_hashes();
+
+#exit;
 
 # ===========================================================================
 # Load UNIDS into the Database and System
