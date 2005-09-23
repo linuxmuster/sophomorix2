@@ -12,6 +12,7 @@ Getopt::Long::Configure ("bundling");
 use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
 
+use DBI;
 
 # ===========================================================================
 # Loading the db-Module, list of functions
@@ -25,6 +26,7 @@ use if ${DevelConf::db_backend} eq 'files' ,
                                        );
 use if ${DevelConf::db_backend} eq 'pgldap' , 
     'Sophomorix::SophomorixPgLdap' => qw(show_modulename
+                                        db_connect
                                         create_user_db_entry
                                         backup_user_database
                                         create_class_db_entry
@@ -189,6 +191,7 @@ if ($gruppe ne "") {
 # Start
 ################################################################################
 
+my $dbh=&db_connect();
 
 
 ################################################################################
@@ -443,6 +446,9 @@ if ($Conf::use_quota eq "yes") {
     &titel("NOT setting quota");
 }
 
+
+
+
 &titel("sophomorix-add terminated regularly");
 
 
@@ -542,4 +548,5 @@ sub create_webmin_account {
    }
    close(WEBMINACL);
 }
+
 
