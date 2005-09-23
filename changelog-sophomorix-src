@@ -532,8 +532,73 @@ id	short_status	long_status
 
 
 ############################################################
+TESTSERVER:
+############################################################
+
+install debian sarge
+
+install dbconfig-common 1.8.2
+
+install sophomorix2 sophomorix-developer
+
+  Hit RETURN to all questions
+
+#create a user sopho with access to database ldap:
+#  su postgres
+#  createuser -A -D --pwprompt sopho
+
+emacs /etc/postgres/pg_hba.conf
+
+
+add before: local all postgres ident sameuser
+
+local all postgres ident postgres   
+
+
+emacs /etc/postgres/pg_ident.conf
+
+add :   postgres   root   postgres
+
+
+restart postgresql
+
+
+check access as root:  psql -U postgres ldap
+
+
+
+run sophomorix-minitest
+
+
+
+
+
+############################################################
 RELEASES:
 ############################################################
+
+
+Bootreihenfolge:  postgres -> ldap -> samba, sonst gibts timeout
+                  (mit dpkg-override samba soll 21 weden)
+
+
+vorversion mit ldap: uid mit getnext uid von ldap (tut noch nicht)
+
+endversion, die direkt in die Datenbank schreibt: in der datenbank nachschauen.
+
+
+
+samba 3: netbios name ändern
+       1. name ändern
+       2. restart (samba setzt neue sid)
+       2. net setlocalsid alte sid wieder setzen
+
+
+phpldapadmin:
+
+/etc/phpldapadmin/config.php : basedn und loginname(vorausfüllen)
+
+pgphpadmin konfiguration
 
 Update steps to postgresql-ldap
 
@@ -575,7 +640,6 @@ Update steps to postgresql-ldap
 ???? *.dsc,*.tar.gz,*.changes bei sophomorix-pakete ins source Verzeichnis
 
 
-??? apt-get install db4.2-util         for slapd?   
 
 1.4.0 (2005-)
    - added get_debconf_value to read from the debconf database
