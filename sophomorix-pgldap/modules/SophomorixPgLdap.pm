@@ -534,6 +534,138 @@ Parameter 2: List with Attribute=Value
 # this function changes the fields of the user login
 
 sub update_user_db_entry {
+    my $login=shift;
+    my $admin_class="";
+    my $lastname="";
+    my $firstname="";
+    my $first_pass="";
+    my $birthday="";
+    my $unid="";
+    my $subclass="";
+    my $status="";
+    my $toleration_date="",
+    my $deactivation_date="";
+    my $exit_admin_class="";
+    my $account_type="";
+    my $quota="";
+
+    my @posix=();
+    my @posix_details=();
+
+    # Check of Parameters
+    foreach my $param (@_){
+       ($attr,$value) = split(/=/,$param);
+       printf "   %-18s : %-20s\n",$attr ,$value;
+       if    ($attr eq "AdminClass"){
+	   $admin_class="$value";
+	   push @posix_details, "adminclass = '$admin_class'";
+       }
+       elsif ($attr eq "Name"){
+           $firstname="$value";
+	   push @posix, "firstname = '$firstname'";
+       }
+       elsif ($attr eq "LastName"){
+           $lastname="$value";
+	   push @posix, "surname = '$lastname'";
+       }
+       elsif ($attr eq "FirstPass"){
+           $first_pass="$value";
+           #todo
+       }
+       elsif ($attr eq "Birthday"){
+           $birthday = &date_perl2pg($value);
+	   push @posix_details, "birthday = '$birthday'";
+       }
+       elsif ($attr eq "Unid"){
+           $unid="$value";
+	   push @posix_details, "unid = '$unid'";
+       }
+       elsif ($attr eq "SubClass"){
+           $subclass="$value";
+           # todo
+       }
+       elsif ($attr eq "Status"){
+           $status="$value";
+           # todo
+           }
+       elsif ($attr eq "TolerationDate"){
+           $toleration_date="$value";
+           #todo
+       }
+       elsif ($attr eq "DeactivationDate"){
+           $deactivation_date="$value";
+           # todo
+       }
+       elsif ($attr eq "ExitAdminClass"){
+           $exit_admin_class="$value";
+           push @posix_details, "exitadminclass = '$exit_admin_class'";
+           }
+       elsif ($attr eq "AccountType"){
+           $account_type="$value";
+           # todo
+       }
+       elsif ($attr eq "Quota"){
+           $quota="$value";
+           # todo
+       }
+       else {print "Attribute $attr unknown\n"}
+    }
+
+    my $dbh=&db_connect();
+    my $sql="";
+       $sql="SELECT id FROM userdata 
+             WHERE uid='$login'";
+       print "\nSQL: $sql\n";
+    my ($id)=$dbh->selectrow_array($sql);
+
+    print "Id of $login: $id \n";
+
+    # updating posix_account
+    my $posix=join(", ",@posix);
+    if ($posix ne ""){
+       $sql="UPDATE posix_account
+             SET 
+              $posix
+             WHERE id = $id
+            ";
+
+       print "\nSQL: $sql\n";
+       $dbh->do($sql);
+    }
+
+    # updating posix_account_details
+    my $posix_details=join(", ",@posix_details);
+    if ($posix_details ne ""){
+       $sql="UPDATE posix_account_details
+             SET 
+              $posix_details
+             WHERE id = $id
+            ";
+
+       print "\nSQL: $sql\n";
+       $dbh->do($sql);
+   }
+
+    $dbh->disconnect();
+
+    # ??? besser was sinnvolles
+    return 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sub update_user_db_entry_oldstuff {
     my $param="";
     my $login_file="";
     my $old_line="";
