@@ -77,9 +77,9 @@ sub show_modulename {
 
 # connect to sql database
 sub db_connect {
-    my $dbname="sophomorix";
-    my $dbuser="sophomorix";
-    my $pass_saved="sophomorix";
+    my $dbname="ldap";
+    my $dbuser="postgres";
+    my $pass_saved="";
     print "Connecting to database ...\n";
     # needs at UNIX sockets:   local all all  trust sameuser
     my $dbh = DBI->connect("dbi:Pg:dbname=$dbname", "$dbuser","$pass_saved",
@@ -106,6 +106,122 @@ sub db_disconnect {
 
 # adds a user to the user database
 sub create_user_db_entry {
+    my $dbh=&db_connect();
+
+    my ($nachname,
+       $vorname,
+       $gebdat,
+       $class,
+       $login,
+       $pass,
+       $sh,
+       $quota) = @_;
+    my $gecos = "$vorname"." "."$nachname";
+    my $homedir="$DevelConf::homedir_pupil/$class/$login";
+    my $description="perl-function: create_user_db_entry";
+
+    my $sql="";
+
+
+    if ($DevelConf::testen==0) {
+       # SQL-Funktion aufrufen die Enträge in 
+       #         ldap_entries, 
+       #         ldap_entry_objclasses und 
+       #         NextFreeUnixId 
+       # macht und posix_account_id zurück gibt
+       # der Username muss hier schon übergeben werden.
+
+       $sql="SELECT create_ldap_for_account('$login')";
+       print "\nSQL: $sql\n";
+       my $posix_account_id = $dbh->selectrow_array($sql);
+       print "   --> \$posix_account_id ist $posix_account_id \n\n";
+
+       #Freie UID holen
+       $sql="select get_next_free_uid()";
+       print "SQL: $sql\n";
+       my $uidnumber = $dbh->selectrow_array($sql); 
+       print "   --> \$uidnumber ist $uidnumber \n\n";
+
+       # User anlegen
+       # 1. Tabelle posix_account
+       # Pflichtfelder (laut Datenbank): id,uidnumber,uid,gidnumber,firstname
+
+       $sql="INSERT INTO posix_account 
+	  (id,uidnumber,uid,gidnumber,firstname,surname,homedirectory,gecos,loginshell,userpassword,description)
+	VALUES
+	($posix_account_id,
+         $uidnumber,
+         '$login',
+         1000,
+         '$vorname',
+         '$nachname',
+         '$homedir',
+         '$gecos',
+         '$sh',
+         '$pass',
+         '$description'
+        )
+	";
+        print "SQL: $sql\n";
+        $dbh->do($sql);
+
+       # 2. Tabelle samba_sam_account
+       # Pflichtfelder (laut Datenbank): id
+
+       $sql="INSERT INTO samba_sam_account
+	 (id,sambasid,cn,sambalmpassword,sambantpassword,sambapwdlastset,sambalogontime,sambalogofftime,sambakickofftime,sambapwdcanchange,sambapwdmustchange,sambaacctflags,displayname,sambahomepath,sambahomedrive,sambalogonscript,sambaprofilepath,description,sambauserworkstations,sambaprimarygroupsid,sambadomainname,sambamungeddial,sambabadpasswordcount,sambabadpasswordtime,sambapasswordhistory,sambalogonhours)
+	VALUES
+	($posix_account_id)
+	";
+       print "SQL: $sql\n";
+#  later
+#       $dbh->do($sql);
+
+       # 3. Tabelle posix_account_details
+       # Pflichtfelder (laut Datenbank); id
+
+       $sql="INSERT INTO posix_account_details
+	   ( id,schoolnumber,unid,birthname,title,gender,birthday,birthpostalcode,birthcity,denomination,class,classentry,schooltype,chiefinstructor,nationality,religionparticipation,ethicsparticipation,education,occupation,starttraining,endtraining)
+	VALUES
+	($posix_account_id,
+         1,
+         333,
+         '',
+         '',
+         '', 
+         '19880101',
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         TRUE,
+         FALSE,
+         '',
+         '',
+         '19700101',
+         '19700101')
+	";
+       print "SQL: $sql\n";
+       $dbh->do($sql);
+
+      $dbh->disconnect();
+
+  } else {
+       print "Test:   Writing entry in database\n";
+  }
+
+}
+
+
+
+
+
+# adds a user to the user database
+sub create_user_db_entry_oldstuff {
     my ($nachname,
        $vorname,
        $gebdat,
@@ -161,6 +277,261 @@ sub create_class_db_entry {
 # reads the user database into perl hashes.
 # the scripts all work with the perl hashes (instead of the database itself)
 sub get_sys_users {
+   my $number=1;
+   my $login="";
+   my $admin_class="";
+   my $identifier="";
+   my $unid="";
+   my $subclass="";
+   my $status="";
+   my $toleration_date="";
+   my $deactivation_date="";
+   my $exit_admin_class="";
+   my $account_type="",
+   my $name_pro="";
+   my $vorname_pro="";
+   my $nachname_pro="";
+   my $password_pro="";
+   # Result-hashes
+   my %identifier_adminclass=();
+   my %identifier_login=();  
+   my %identifier_subclass=();
+   my %identifier_status=();
+   my %identifier_toleration_date=();
+   my %identifier_deactivation_date=();
+   my %unid_identifier=();
+   my %identifier_exit_adminclass=();
+   my %identifier_account_type=();
+
+# user_db   einlesen
+open(USERIMSYSTEM, 
+     ">${DevelConf::ergebnis_pfad}/sophomorix.system")
+     || die "Fehler: $!";
+open(USERPROTOKOLL,
+     "<${DevelConf::protokoll_datei}") 
+     || die "Fehler: $!";
+
+system ("chmod 600 $DevelConf::protokoll_datei");
+
+ while(<USERPROTOKOLL>){
+    chomp($_); # Newline abschneiden
+
+    # Protokolldatei bearbeiten
+   ($admin_class, 
+    $name_pro,
+    $login,
+    $password_pro,
+    $geburtsdatum_protokoll,
+    $unid,
+    $subclass,
+    $status,
+    $toleration_date,
+    $deactivation_date,
+    $exit_admin_class,
+    $account_type
+   )=split(/;/);
+
+   # Name aufsplitten
+   ($vorname_pro,$nachname_pro)=split(/ /,$name_pro);
+   # Zusammenhängen zu identifier
+   $identifier=join("",
+         ($nachname_pro,";",
+          $vorname_pro,";",
+          $geburtsdatum_protokoll));
+
+   # Abfragen der /etc/passwd
+   ($loginname_passwd,
+    $passwort,
+    $uid_passwd,
+    $gid_passwd,
+    $quota_passwd,
+    $name_passwd,
+    $gcos_passwd, # Hier steht "Vorname Nachname"
+   )=getpwnam("$login");
+   # GCOS-Feld aufsplitten
+   if (defined $gcos_passwd){
+       ($vorname_passwd,$nachname_passwd)=split(/ /,$gcos_passwd);
+   # Zusammenhängen zu identifier
+   $identifier_passwd=join("",
+                             ($nachname_passwd,
+                              ";",
+                              $vorname_passwd,
+                              ";",
+                              $geburtsdatum_protokoll));
+   } else {
+       $identifier_passwd="not found";
+   }
+   # In Hash schreiben: mit Klasse als Wert (um Versetzen herauszufinden)
+   $schueler_im_system_hash{$identifier}="$admin_class";
+   # In Hash schreiben: mit loginnamen als Wert (um Löschen herauszufinden)
+   $schueler_im_system_loginname{$identifier}="$login";
+   # In Hash schreiben: mit Zeile als Wert (beim Löschen zu entfernen)
+   $schueler_im_system_protokoll_linie{$identifier}="$_";
+  
+   if ($DevelConf::kompatibel eq "ja"){
+      # Nehme den identifier aus schueler.protokoll, da dort OK 
+      # (van,von-Bug in versetzen.pl)
+      print USERIMSYSTEM "$identifier\n";
+   } else {
+      # Folgender Teil ist besser, da er auf identische Daten
+      # aus /etc/passwd und schueler.protokoll wert legt 
+      if ($identifier_passwd eq $identifier){
+          print USERIMSYSTEM "$identifier_passwd\n";
+       } else {
+          print "\n\n\n\n PROGRAMMABBRUCH: ",
+                "$DevelConf::protokoll_datei inkonsistent:\n";
+          print "Aus passwd:     $identifier_passwd\n";
+          print "Aus protokoll:  $identifier\n";
+          print  "Beheben Sie diesen Fehler manuell durch editieren von \n";
+          print  "   $DevelConf::protokoll_datei\n";
+          exit;
+       }
+   }
+
+   # exclude the admin-account
+   # better: admin should also have the attributes as the other users
+   if ($login eq "admin"){
+       next;
+   }       
+
+
+   if (not defined $unid){$unid=""}
+   if (not defined $subclass){$subclass=""}
+   if (not defined $status){$status=""}
+   if (not defined $toleration_date){$toleration_date=""}
+   if (not defined $deactivation_date){$deactivation_date=""}
+   if (not defined $exit_admin_class){$exit_admin_class=""}
+   if (not defined $account_type){$account_type=""}
+
+   if($Conf::log_level>=3){
+      print "\n";
+      print "Line $number(user_db):  ",$_,"\n";
+      print "User $number  Attributes (MUST): \n";
+      print "  Login       :   $login \n"; 
+      print "  AdminClass  :   $admin_class \n";
+      print "  Identifier  :   $identifier \n";
+
+      print "User Attributes (MAY): \n";
+
+      # unid is optional
+      if ($unid ne "") {
+         print "  Unid              :   $unid \n" ;
+      } else {
+         print "  Unid              :   --- \n" ;
+      }
+
+      # subclass is optional
+      if ($subclass ne "") {
+         print "  SubClass          :   $subclass \n" ;
+      } else {
+         print "  SubClass          :   --- \n" ;
+      }
+
+      # Status
+      if ($status ne "") {
+         print "  Status            :   $status \n" ;
+      } else {
+         print "  Status            :   --- \n" ;
+      }
+
+      # TolerationDate is optional
+      if ($toleration_date ne "") {
+         print "  TolerationDate    :   $toleration_date \n" ;
+      } else {
+         print "  TolerationDate    :   --- \n" ;
+      }
+
+      # DeactivationDate is optional
+      if ($deactivation_date ne "") {
+         print "  DeactivationDate  :   $deactivation_date \n" ;
+      } else {
+         print "  DeactivationDate  :   --- \n" ;
+      }
+
+      # ExitAdminClass is optional
+      if ($exit_admin_class ne "") {
+         print "  ExitAdminClass    :   $exit_admin_class \n" ;
+      } else {
+         print "  ExitAdminClass    :   --- \n" ;
+      }
+
+      # AccountType is optional
+      if ($account_type ne "") {
+         print "  AccountType       :   $account_type \n" ;
+      } else {
+         print "  AccountType       :   --- \n" ;
+      }
+
+          print "\n";
+   }# end loglevel
+ 
+   # add the user to the hashes
+   $identifier_adminclass{$identifier} = "$admin_class";
+   $identifier_login{$identifier} = "$login";
+   $identifier_status{$identifier} = "$status";
+
+   # unid is optional
+   if ($unid ne "") {        
+      $unid_identifier{$unid} = "$identifier";
+   }
+
+   # subclass is optional
+   if ($subclass ne "") {        
+      $identifier_subclass{$identifier} = "$subclass";
+   }
+
+   # TolerationDate is optional
+   if ($toleration_date ne "") {        
+      $identifier_toleration_date{$identifier} = "$toleration_date";
+   }
+
+   # DeactivationDate is optional
+   if ($deactivation_date ne "") {        
+      $identifier_deactivation_date{$identifier} = "$deactivation_date";
+   }
+
+   # ExitAdminClass is optional
+   if ($exit_admin_class ne "") {        
+      $identifier_exit_adminclass{$identifier} = "$exit_admin_class";
+   }
+
+   # AccountType is optional
+   if ($account_type ne "") {        
+      $identifier_account_type{$identifier} = "$account_type";
+   }
+
+   # increase counter for users
+   $number++;
+ }
+ close(USERPROTOKOLL);
+ close(USERIMSYSTEM);
+
+   # returns some Hashes, as a list
+   # 1:  identifier - login
+   # 2:  identifier - sophomorixAdminClass
+   # 3:  identifier - sophomorixStatus
+   # 4:  identifier - sophomorixSubClass
+   # 5:  identifier - sophomorixTolerationDate
+   # 6:  identifier - sophomorixDeaktivationDate
+   # 7:  unid - sophomorixIdentifier
+   return(\%identifier_login, 
+          \%identifier_adminclass, 
+          \%identifier_status,
+          \%identifier_subclass,
+          \%identifier_toleration_date,
+          \%identifier_deactivation_date,
+          \%unid_identifier,
+          \%identifier_exit_adminclass,
+          \%identifier_account_type
+         );
+}
+
+
+
+
+# reads the user database into perl hashes.
+# the scripts all work with the perl hashes (instead of the database itself)
+sub get_sys_users_oldstuff {
    my $number=1;
    my $login="";
    my $admin_class="";
