@@ -21,6 +21,9 @@ use Sophomorix::SophomorixBase qw ( titel
                                     do_falls_nicht_testen
                                   );
 
+use Sophomorix::SophomorixPgLdap qw ( update_user_db_entry
+                                  );
+
 
 
 =head1 Documentation of SophomorixSYSPgLdap.pm
@@ -61,7 +64,10 @@ sub update_gecos {
    # update the gocos-fiels in /etc/passwd
    my ($login,$first,$last) = @_;
    my $gecos="$first"." "."$last";
-   system("usermod -c '$gecos' $login");
+#   system("usermod -c '$gecos' $login");
+   &Sophomorix::SophomorixPgLdap::update_user_db_entry($login,
+                      "Gecos=$gecos");
+
 }
 
 =pod

@@ -538,6 +538,7 @@ sub update_user_db_entry {
     my $admin_class="";
     my $lastname="";
     my $firstname="";
+    my $gecos="";
     my $first_pass="";
     my $birthday="";
     my $unid="";
@@ -567,6 +568,10 @@ sub update_user_db_entry {
        elsif ($attr eq "LastName"){
            $lastname="$value";
 	   push @posix, "surname = '$lastname'";
+       }
+       elsif ($attr eq "Gecos"){
+           $gecos="$value";
+	   push @posix, "gecos = '$gecos'";
        }
        elsif ($attr eq "FirstPass"){
            $first_pass="$value";
