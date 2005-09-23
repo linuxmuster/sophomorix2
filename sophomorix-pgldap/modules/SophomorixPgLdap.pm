@@ -575,7 +575,7 @@ sub update_user_db_entry {
        }
        elsif ($attr eq "FirstPass"){
            $first_pass="$value";
-           #todo
+	   push @posix_details, "firstpassword = '$first_pass'";
        }
        elsif ($attr eq "Birthday"){
            $birthday = &date_perl2pg($value);
@@ -585,21 +585,21 @@ sub update_user_db_entry {
            $unid="$value";
 	   push @posix_details, "unid = '$unid'";
        }
-       elsif ($attr eq "SubClass"){
+       elsif ($attr eq "SubClass" or $attr eq "Subclass"){
            $subclass="$value";
-           # todo
+	   push @posix_details, "subclass = '$subclass'";
        }
        elsif ($attr eq "Status"){
            $status="$value";
-           # todo
+	   push @posix_details, "sophomorixstatus = '$status'";
            }
        elsif ($attr eq "TolerationDate"){
-           $toleration_date="$value";
-           #todo
+           $toleration_date=&date_perl2pg($value);
+	   push @posix_details, "tolerationdate = '$toleration_date'";
        }
        elsif ($attr eq "DeactivationDate"){
-           $deactivation_date="$value";
-           # todo
+           $deactivation_date=&date_perl2pg($value);
+	   push @posix_details, "deactivationdate = '$deactivation_date'";
        }
        elsif ($attr eq "ExitAdminClass"){
            $exit_admin_class="$value";
@@ -611,7 +611,7 @@ sub update_user_db_entry {
        }
        elsif ($attr eq "Quota"){
            $quota="$value";
-           # todo
+           push @posix_details, "quota = '$quota'";
        }
        else {print "Attribute $attr unknown\n"}
     }
