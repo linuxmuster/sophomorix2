@@ -108,16 +108,22 @@ sub db_disconnect {
 sub create_user_db_entry {
     my $dbh=&db_connect();
 
+    my $today=`date +%d.%m.%Y`;
+    chomp($today);
+    my $today_pg=&date_perl2pg($today);
+ 
     my ($nachname,
        $vorname,
        $birthday_perl,
-       $class,
+       $admin_class,
        $login,
        $pass,
        $sh,
-       $quota) = @_;
+       $quota,
+       $unid) = @_;
+
     my $gecos = "$vorname"." "."$nachname";
-    my $homedir="$DevelConf::homedir_pupil/$class/$login";
+    my $homedir="$DevelConf::homedir_pupil/$admin_class/$login";
     my $description="perl-function: create_user_db_entry";
 
     my $sql="";
@@ -182,13 +188,18 @@ sub create_user_db_entry {
        # Pflichtfelder (laut Datenbank); id
 
        $sql="INSERT INTO posix_account_details
-	   ( id,schoolnumber,unid,adminclass,exitadminclass,birthname,title,gender,birthday,birthpostalcode,birthcity,denomination,class,classentry,schooltype,chiefinstructor,nationality,religionparticipation,ethicsparticipation,education,occupation,starttraining,endtraining)
+	   ( id,schoolnumber,unid,adminclass,exitadminclass,subclass,creationdate,sophomorixstatus,quota,firstpassword,birthname,title,gender,birthday,birthpostalcode,birthcity,denomination,class,classentry,schooltype,chiefinstructor,nationality,religionparticipation,ethicsparticipation,education,occupation,starttraining,endtraining)
 	VALUES
 	($posix_account_id,
          1,
-         333,
-         '$class',
+         '$unid',
+         '$admin_class',
          '',
+         '',
+         '$today_pg',
+         'U',
+         '$quota',
+         '$pass',
          '',
          '',
          '', 
@@ -255,8 +266,11 @@ sub create_class_db_entry {
 # convert dates from 1988-12-01 to 01.12.1988
 sub date_pg2perl {
     my ($string) = @_;
-    my ($year,$month,$day)=split(/-/,$string);
-    my $perl="$day"."."."$month"."."."$year";
+    my $perl="";
+    if ($string ne ""){
+       my ($year,$month,$day)=split(/-/,$string);
+       $perl="$day"."."."$month"."."."$year";
+    }
     return $perl;
 }
 
@@ -265,8 +279,11 @@ sub date_pg2perl {
 # convert dates from 01.12.1988 to 1988-12-01
 sub date_perl2pg {
     my ($string) = @_;
-    my ($day,$month,$year)=split(/\./,$string);
-    my $pg="$year"."-"."$month"."-"."$day";
+    my $pg="";
+    if ($string ne ""){
+       my ($day,$month,$year)=split(/\./,$string);
+       $pg="$year"."-"."$month"."-"."$day";
+    }
     return $pg;
 }
 
@@ -292,7 +309,7 @@ my $dbh=&db_connect();
 
 
 # select the columns that i need
-my $sth= $dbh->prepare( "SELECT uid, firstname, surname, birthday, adminclass, exitadminclass, unid FROM userdata" );
+my $sth= $dbh->prepare( "SELECT uid, firstname, surname, birthday, adminclass, exitadminclass, unid, subclass, tolerationdate, deactivationdate, sophomorixstatus FROM userdata" );
 $sth->execute();
 
 my $array_ref = $sth->fetchall_arrayref();
@@ -300,11 +317,6 @@ my $array_ref = $sth->fetchall_arrayref();
 foreach my $row (@$array_ref){
     # split the array, to give better names
     # or use numbers and look in the SELECT statement
-   # todo
-   my $subclass="";
-   my $status="";
-   my $toleration_date="";
-   my $deactivation_date="";
    my $account_type="",
 
     my ($login,
@@ -314,16 +326,34 @@ foreach my $row (@$array_ref){
         $admin_class,
         $exit_admin_class,
         $unid,
+        $subclass,
+        $toleration_date_pg,
+        $deactivation_date_pg,
+        $status,
         ) = @$row;
+
+
+   # date strings must be defined
+   if (not defined $toleration_date_pg){
+       $toleration_date_pg="";
+   }
+   if (not defined $deactivation_date_pg){
+       $deactivation_date_pg="";
+   }
+
 
    # exclude one user ????????ß
    if ($login eq "NextFreeUnixId"){
        next;
    }       
 
-#    print "\nEntry:   @{ $row }\n";
+#    print "\nEntry:   @{ $row }\n";   # todo
 
-    my $birthday=&date_pg2perl($birthday_pg);
+
+    my $birthday = &date_pg2perl($birthday_pg);
+    my $toleration_date = &date_pg2perl($toleration_date_pg);
+    my $deactivation_date = &date_pg2perl($deactivation_date_pg);
+
     my $identifier=join("",
          ($surname,";",
           $firstname,";",
@@ -514,11 +544,41 @@ sub get_teach_in_sys_users{
 
 sub get_print_data {
     my @lines=();
-    open(USERPROTOKOLL,"$DevelConf::protokoll_datei") 
-        || die "Fehler:  $DevelConf::protokoll_datei nicht gefunden!  $!";
-    while(<USERPROTOKOLL>){
-	push @lines, $_;
-    }
+
+    my $dbh=&db_connect();
+
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT uid, firstname, 
+                                    surname, birthday, 
+                                    adminclass, firstpassword 
+                             FROM userdata" );
+$sth->execute();
+
+my $array_ref = $sth->fetchall_arrayref();
+
+foreach my $row (@$array_ref){
+    # split the array, to give better names
+
+    my ($login,
+        $firstname,
+        $surname,
+        $birthday_pg,
+        $admin_class,
+        $firstpass,
+        ) = @$row;
+
+    my $birthday = &date_pg2perl($birthday_pg);
+
+    # assemble string
+    my $string="$admin_class".";".
+               "$firstname $surname".";".
+               "$login".";".
+               "$firstpass".";".
+               "$birthday".";"."\n";    
+
+    push @lines, $string;
+
+}
     return @lines;
 }
 
