@@ -110,7 +110,7 @@ sub create_user_db_entry {
 
     my ($nachname,
        $vorname,
-       $gebdat,
+       $birthday_perl,
        $class,
        $login,
        $pass,
@@ -122,6 +122,7 @@ sub create_user_db_entry {
 
     my $sql="";
 
+    my $birthday_pg = &date_perl2pg($birthday_perl);
 
     if ($DevelConf::testen==0) {
        # SQL-Funktion aufrufen die Enträge in 
@@ -181,15 +182,17 @@ sub create_user_db_entry {
        # Pflichtfelder (laut Datenbank); id
 
        $sql="INSERT INTO posix_account_details
-	   ( id,schoolnumber,unid,birthname,title,gender,birthday,birthpostalcode,birthcity,denomination,class,classentry,schooltype,chiefinstructor,nationality,religionparticipation,ethicsparticipation,education,occupation,starttraining,endtraining)
+	   ( id,schoolnumber,unid,adminclass,exitadminclass,birthname,title,gender,birthday,birthpostalcode,birthcity,denomination,class,classentry,schooltype,chiefinstructor,nationality,religionparticipation,ethicsparticipation,education,occupation,starttraining,endtraining)
 	VALUES
 	($posix_account_id,
          1,
          333,
+         '$class',
+         '',
          '',
          '',
          '', 
-         '19880101',
+         '$birthday_pg',
          0,
          0,
          0,
@@ -274,24 +277,31 @@ sub create_class_db_entry {
 ###########################################################################
 
 
+
+# convert dates from 1988-12-01 to 01.12.1988
+sub date_pg2perl {
+    my ($string) = @_;
+    my ($year,$month,$day)=split(/-/,$string);
+    my $perl="$day"."."."$month"."."."$year";
+    return $perl;
+}
+
+
+
+# convert dates from 01.12.1988 to 1988-12-01
+sub date_perl2pg {
+    my ($string) = @_;
+    my ($day,$month,$year)=split(/\./,$string);
+    my $pg="$year"."-"."$month"."-"."$day";
+    return $pg;
+}
+
+
 # reads the user database into perl hashes.
 # the scripts all work with the perl hashes (instead of the database itself)
 sub get_sys_users {
    my $number=1;
-   my $login="";
-   my $admin_class="";
-   my $identifier="";
-   my $unid="";
-   my $subclass="";
-   my $status="";
-   my $toleration_date="";
-   my $deactivation_date="";
-   my $exit_admin_class="";
-   my $account_type="",
-   my $name_pro="";
-   my $vorname_pro="";
-   my $nachname_pro="";
-   my $password_pro="";
+
    # Result-hashes
    my %identifier_adminclass=();
    my %identifier_login=();  
@@ -304,111 +314,55 @@ sub get_sys_users {
    my %identifier_account_type=();
 
 # user_db   einlesen
-open(USERIMSYSTEM, 
-     ">${DevelConf::ergebnis_pfad}/sophomorix.system")
-     || die "Fehler: $!";
-open(USERPROTOKOLL,
-     "<${DevelConf::protokoll_datei}") 
-     || die "Fehler: $!";
+my $dbh=&db_connect();
 
-system ("chmod 600 $DevelConf::protokoll_datei");
 
- while(<USERPROTOKOLL>){
-    chomp($_); # Newline abschneiden
+# select the columns that i need
+my $sth= $dbh->prepare( "SELECT uid, firstname, surname, birthday, adminclass, exitadminclass, unid FROM userdata" );
+$sth->execute();
 
-    # Protokolldatei bearbeiten
-   ($admin_class, 
-    $name_pro,
-    $login,
-    $password_pro,
-    $geburtsdatum_protokoll,
-    $unid,
-    $subclass,
-    $status,
-    $toleration_date,
-    $deactivation_date,
-    $exit_admin_class,
-    $account_type
-   )=split(/;/);
+my $array_ref = $sth->fetchall_arrayref();
 
-   # Name aufsplitten
-   ($vorname_pro,$nachname_pro)=split(/ /,$name_pro);
-   # Zusammenhängen zu identifier
-   $identifier=join("",
-         ($nachname_pro,";",
-          $vorname_pro,";",
-          $geburtsdatum_protokoll));
+foreach my $row (@$array_ref){
+    # split the array, to give better names
+    # or use numbers and look in the SELECT statement
+   # todo
+   my $subclass="";
+   my $status="";
+   my $toleration_date="";
+   my $deactivation_date="";
+   my $account_type="",
 
-   # Abfragen der /etc/passwd
-   ($loginname_passwd,
-    $passwort,
-    $uid_passwd,
-    $gid_passwd,
-    $quota_passwd,
-    $name_passwd,
-    $gcos_passwd, # Hier steht "Vorname Nachname"
-   )=getpwnam("$login");
-   # GCOS-Feld aufsplitten
-   if (defined $gcos_passwd){
-       ($vorname_passwd,$nachname_passwd)=split(/ /,$gcos_passwd);
-   # Zusammenhängen zu identifier
-   $identifier_passwd=join("",
-                             ($nachname_passwd,
-                              ";",
-                              $vorname_passwd,
-                              ";",
-                              $geburtsdatum_protokoll));
-   } else {
-       $identifier_passwd="not found";
-   }
-   # In Hash schreiben: mit Klasse als Wert (um Versetzen herauszufinden)
-   $schueler_im_system_hash{$identifier}="$admin_class";
-   # In Hash schreiben: mit loginnamen als Wert (um Löschen herauszufinden)
-   $schueler_im_system_loginname{$identifier}="$login";
-   # In Hash schreiben: mit Zeile als Wert (beim Löschen zu entfernen)
-   $schueler_im_system_protokoll_linie{$identifier}="$_";
-  
-   if ($DevelConf::kompatibel eq "ja"){
-      # Nehme den identifier aus schueler.protokoll, da dort OK 
-      # (van,von-Bug in versetzen.pl)
-      print USERIMSYSTEM "$identifier\n";
-   } else {
-      # Folgender Teil ist besser, da er auf identische Daten
-      # aus /etc/passwd und schueler.protokoll wert legt 
-      if ($identifier_passwd eq $identifier){
-          print USERIMSYSTEM "$identifier_passwd\n";
-       } else {
-          print "\n\n\n\n PROGRAMMABBRUCH: ",
-                "$DevelConf::protokoll_datei inkonsistent:\n";
-          print "Aus passwd:     $identifier_passwd\n";
-          print "Aus protokoll:  $identifier\n";
-          print  "Beheben Sie diesen Fehler manuell durch editieren von \n";
-          print  "   $DevelConf::protokoll_datei\n";
-          exit;
-       }
-   }
+    my ($login,
+        $firstname,
+        $surname,
+        $birthday_pg,
+        $admin_class,
+        $exit_admin_class,
+        $unid,
+        ) = @$row;
 
-   # exclude the admin-account
-   # better: admin should also have the attributes as the other users
-   if ($login eq "admin"){
+   # exclude one user ????????ß
+   if ($login eq "NextFreeUnixId"){
        next;
    }       
 
+#    print "\nEntry:   @{ $row }\n";
 
-   if (not defined $unid){$unid=""}
-   if (not defined $subclass){$subclass=""}
-   if (not defined $status){$status=""}
-   if (not defined $toleration_date){$toleration_date=""}
-   if (not defined $deactivation_date){$deactivation_date=""}
-   if (not defined $exit_admin_class){$exit_admin_class=""}
-   if (not defined $account_type){$account_type=""}
+    my $birthday=&date_pg2perl($birthday_pg);
+    my $identifier=join("",
+         ($surname,";",
+          $firstname,";",
+          $birthday));
 
+   # print what was selected
    if($Conf::log_level>=3){
       print "\n";
-      print "Line $number(user_db):  ",$_,"\n";
       print "User $number  Attributes (MUST): \n";
       print "  Login       :   $login \n"; 
       print "  AdminClass  :   $admin_class \n";
+      print "  Birthday(pg):   $birthday_pg \n";
+      print "  Birthday(pl):   $birthday \n";
       print "  Identifier  :   $identifier \n";
 
       print "User Attributes (MAY): \n";
@@ -464,6 +418,22 @@ system ("chmod 600 $DevelConf::protokoll_datei");
 
           print "\n";
    }# end loglevel
+
+   # In Hash schreiben: mit Klasse als Wert (um Versetzen herauszufinden)
+#   $schueler_im_system_hash{$identifier}="$admin_class";
+   # In Hash schreiben: mit loginnamen als Wert (um Löschen herauszufinden)
+#   $schueler_im_system_loginname{$identifier}="$login";
+   # In Hash schreiben: mit Zeile als Wert (beim Löschen zu entfernen)
+#   $schueler_im_system_protokoll_linie{$identifier}="$_";
+
+   if (not defined $unid){$unid=""}
+   if (not defined $subclass){$subclass=""}
+   if (not defined $status){$status=""}
+   if (not defined $toleration_date){$toleration_date=""}
+   if (not defined $deactivation_date){$deactivation_date=""}
+   if (not defined $exit_admin_class){$exit_admin_class=""}
+   if (not defined $account_type){$account_type=""}
+
  
    # add the user to the hashes
    $identifier_adminclass{$identifier} = "$admin_class";
@@ -500,11 +470,13 @@ system ("chmod 600 $DevelConf::protokoll_datei");
       $identifier_account_type{$identifier} = "$account_type";
    }
 
+
    # increase counter for users
    $number++;
- }
- close(USERPROTOKOLL);
- close(USERIMSYSTEM);
+
+}
+
+    $dbh->disconnect();
 
    # returns some Hashes, as a list
    # 1:  identifier - login
