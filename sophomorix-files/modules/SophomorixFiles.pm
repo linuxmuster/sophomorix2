@@ -78,12 +78,18 @@ sub create_user_db_entry {
        $login,
        $pass,
        $sh,
-       $quota) = @_;
+       $quota,
+       $unid) = @_;
+
+    if (not defined $unid){
+	$unid="";
+    }
+
     my $gec = "$vorname"." "."$nachname";
     if ($DevelConf::testen==0) {
        open(PROTOKOLL,">>$DevelConf::protokoll_datei");
        # zeile anh‰ngen
-       print PROTOKOLL "$class;$gec;$login;$pass;$gebdat;;;;;;;;$quota;\n";
+       print PROTOKOLL "$class;$gec;$login;$pass;$gebdat;$unid;;;;;;;$quota;\n";
        # Datei Schlieﬂen, damit Schreiben erzwingen (Falls Programmabsturz)
        close(PROTOKOLL);
   } else {
