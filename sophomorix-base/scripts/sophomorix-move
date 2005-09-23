@@ -12,6 +12,8 @@ use Sophomorix::SophomorixBase;
 #use Sophomorix::SophomorixFiles;
 Getopt::Long::Configure ("bundling");
 
+use DBI;
+
 # ===========================================================================
 # Loading the db-Module, list of functions
 # ===========================================================================
@@ -65,7 +67,7 @@ my $altes_www="";
 my $neues_www="";
 my $www_link="";
 
-my %protokoll_hash;
+#my %protokoll_hash;
 
 my $k;
 my $v;
@@ -195,16 +197,17 @@ print ("sophomorix-move startet ...\n");
 # sophomorix.move mitloggen
 &backup_amk_file($zeit,"move","before");
 
-# Protokolldatei lesen
-%protokoll_hash=&protokoll_linien();
 
-if($Conf::log_level>=3){
-   # Nur zum ausgeben  
-   while (($key) = each %protokoll_hash){
-      printf "%-40s\n","$key";
-   }
-}
 
+## Protokolldatei lesen
+#%protokoll_hash=&protokoll_linien();
+#
+#if($Conf::log_level>=3){
+#   # Nur zum ausgeben  
+#   while (($key) = each %protokoll_hash){
+#      printf "%-40s\n","$key";
+#   }
+#}
 
 
 
