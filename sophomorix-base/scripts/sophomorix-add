@@ -66,6 +66,7 @@ my $wunsch_login;
 my $wunsch_passwort;
 my $wunsch_id;
 my $wunsch_gid;
+my $unid;
 my $login_teil_1="";
 my $login_teil_2="";
 my $login_name_to_check="";
@@ -141,12 +142,13 @@ if ($info==1) {
    # Ausgabe der Anlegbaren user
    print "\nThe following users can be added:\n";
    print "(Fields with --- are automatically created by sophomorix-add):\n\n";
-   printf "%-10s %-6s %-10s %-4s %-10s %-35s\n",
+   printf "%-10s %-6s %-10s %-4s %-10s %-10s %-35s\n",
           "login",
           "id",
           "AdminClass",
           "gid",
           "Old-Pass",
+          "unid",
           "Identifier";
    &linie;
 
@@ -158,13 +160,15 @@ if ($info==1) {
          $wunsch_login,
          $wunsch_passwort,
          $wunsch_id,
-         $wunsch_gid)=split("::");
-        printf "%-10s %-6s %-10s %-4s %-10s %-35s\n",
+         $wunsch_gid,
+         $unid)=split("::");
+        printf "%-10s %-6s %-10s %-4s %-10s %-10s %-35s\n",
                "$wunsch_login",
                "$wunsch_id", 
                "$new_admin_group",
 	       "$wunsch_gid",
-               "$wunsch_passwort", 
+               "$wunsch_passwort",
+               "$unid", 
                "$identifier";
      }
    close(USERHINZU);
@@ -248,7 +252,12 @@ while(<USERHINZU>){
     $wunsch_login,
     $wunsch_passwort,
     $wunsch_id,
-    $wunsch_gid)=split("::");
+    $wunsch_gid,
+    $unid)=split("::");
+
+   if (not defined $unid){
+       $unid="";
+   }
 
    ($nachname,$vorname,$gebdat)=split(";", $identifier);
    # GECOS-Feld:
@@ -358,7 +367,8 @@ while(<USERHINZU>){
                          $login_name_ok,
                          $klartext_passwort,
                          $shell,
-                         "");
+                         "",
+                         $unid);
 
   # 2. Add the class (db and dirs,links, ...)
   &create_class_db_entry($new_admin_group);
