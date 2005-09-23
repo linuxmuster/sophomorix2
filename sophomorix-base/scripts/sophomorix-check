@@ -348,6 +348,7 @@ my %schueler_im_system_loginname=();
 my %schueler_im_system_protokoll_linie=();
 my %schueler_ok_hash=();
 my %unid_ok_file=();
+my %schueler_ok_unid=();
 my %unid_ok_system=();
 my %schueler_ok_wunsch_login_hash=();
 my %wunsch_login_seen=();
@@ -2035,6 +2036,8 @@ if (not exists $schueler_ok_hash{$identifier}){
     if ($unid ne ""){
        # Eintrag in die Hash-Tabelle, falls identifier noch nicht vorhanden
        $unid_ok_file{$unid}="$identifier";
+       $schueler_ok_unid{$identifier}="$unid";
+
     } elsif ($unid eq ""){
        #	print "UNID is empty\n";
        # nix tun, da leer
@@ -2834,6 +2837,7 @@ sub generate_add_file {
     my $password="";
     my $id="";
     my $gid="";
+    my $unid="";
     open(SOPHOMORIXADD, 
           ">${DevelConf::ergebnis_pfad}/sophomorix.add") 
          || die "Fehler: $!";
@@ -2857,7 +2861,10 @@ sub generate_add_file {
             } else {
               $string=$string."---"."::";
             }
-            $string=$string."---"."::"."---"."\n";
+            $string=$string."---"."::"."---"."::";
+
+
+
 	 } else {
             # Use old data
 	    if (exists $old_id_login{$identifier}){
@@ -2884,12 +2891,30 @@ sub generate_add_file {
                 $gid="---";
             }
 
+            if (exists $schueler_ok_unid{$identifier}){
+                $unid=$schueler_ok_unid{$identifier};
+            } else {
+                $unid="---";
+            }
+
             $string="$identifier"."::".
                     "$login"."::".
                     "$password"."::".
                     "$id"."::".
-                    "$gid"."\n";
+                    "$gid"."::";
          }
+
+
+         # use old data or not: append unid
+         if (exists $schueler_ok_unid{$identifier}){
+              $unid=$schueler_ok_unid{$identifier};
+         } else {
+                $unid="---";
+         }
+
+	 $string=$string."$unid"."\n";
+
+
 
          print "  $string";
 
@@ -3057,7 +3082,7 @@ if($Conf::log_level>=3){
 
    # Print all users in the files - Wunschlogin
    print("User in sophomorix.ok (schueler_ok_wunsch_login_hash):",
-         "                    Wunsch-Logins:\n");
+         "       Wunsch-Logins:\n");
    &linie();
    while (($k,$v) = each %schueler_ok_wunsch_login_hash){
      printf "%-60s %3s\n","$k","$v";
