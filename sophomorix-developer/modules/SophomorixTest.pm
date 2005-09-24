@@ -22,6 +22,7 @@ use DBI;
               check_account
               run_command
               fetch_single_account
+              fetch_login
               );
 
 use Sophomorix::SophomorixPgLdap qw ( db_connect
@@ -403,6 +404,52 @@ sub fetch_single_account {
     } else {
 
        return %hash;
+    }
+
+}
+
+
+
+
+
+
+
+
+sub fetch_login {
+    my ($where) = @_;
+    if (not defined $where or $where eq ""){
+	$where="";
+    } else {   
+        $where="WHERE $where";
+    }
+    my %hash=();
+    my $count=0;
+    my $ref;
+    my $lastref;
+
+    my $dbh=&Sophomorix::SophomorixPgLdap::db_connect();
+    my $sql="SELECT * FROM userdata $where";
+    print $sql."\n";
+
+    my $sth=$dbh->prepare ($sql);
+
+    $sth->execute();
+
+    while ( $ref = $sth->fetchrow_hashref ){
+	$count++;
+	#print $ref->{uid},"\n";
+        $lastref=$ref;
+    } 
+
+    ok($count==1, "($count database entries found!)");    
+
+    if ($count==1){
+       %hash=%$lastref;  
+       print "   Login is: $hash{'uid'} \n";
+       return $hash{'uid'};
+    } else {
+
+      return "";
     }
 
 }
