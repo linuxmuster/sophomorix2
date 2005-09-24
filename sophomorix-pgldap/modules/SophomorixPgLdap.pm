@@ -718,11 +718,21 @@ sub update_user_db_entry {
 
 
 
+# this function removes a user entry in the database 
+sub remove_user_db_entry {
+    my ($login) = @_;
+    my $dbh=&db_connect();
+    my $sql="";
 
+    # what to do
+
+
+
+}
 
 
 # this function removes a user entry in the database 
-sub remove_user_db_entry {
+sub remove_user_db_entry_oldstuff {
     my ($login) = @_;
     my $login_file="";
     my $file="${DevelConf::protokoll_pfad}/user_db";
