@@ -672,22 +672,22 @@ SQL-DBI related:
    NEXT: samba entries
          delete a user
 
-         get_tech_in-sys-users 
          create groups
          in SophomorixPgLdap.pm
 
 
+   - sophomorix-teach-in rewritten to use postgresql
+         function get_tech_in-sys-users in SophomorixPgLdap.pm
+   - sophomorix-test rewritten to use postgresql
+     (130 Tests are OK)
    - sophomorix-add add unid at once, if existent in schueler.txt
-
    - Replaced/New functions in SophomorixPgLdap.pm
       - connect and disconnect to database
       - create user
       - update user
       - get_sys_users
       - get_print_data
-
    - use postgresql database instead of files
-
    - added get_debconf_value to read from the debconf database
    - create packages sophomorix-pgldap and sophomorix-sys-pgldap
    - use module pgldap, when it is set in sophomorix.conf 
