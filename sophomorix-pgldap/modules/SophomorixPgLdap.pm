@@ -304,7 +304,6 @@ sub get_sys_users {
    my %identifier_exit_adminclass=();
    my %identifier_account_type=();
 
-# user_db   einlesen
 my $dbh=&db_connect();
 
 
