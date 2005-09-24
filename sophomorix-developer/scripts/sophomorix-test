@@ -21,6 +21,8 @@ use Sophomorix::SophomorixTest;
 use Test::More "no_plan";
 Getopt::Long::Configure ("bundling");
 
+use DBI;
+
 # Einlesen der Konfigurationsdatei für Entwickler
 #{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
 
@@ -32,9 +34,15 @@ system("install -d /root/sophomorix-test");
 ############################################################
 
 my $today=`date +%d.%m.%Y`;
-print "\nToday is $today\n";
+my $today_pg=`date +%Y-%m-%d`;
 chomp($today);
+chomp($today_pg);
+
+print "\nToday is $today (pg: $today_pg)\n";
 my $verbose=0;
+
+my %account=();
+
 
 &run_command("sophomorix-check",$verbose);
 
@@ -105,6 +113,9 @@ print "Adding $#users_to_add users to schueler.txt\n";
 # user anlegen
 &run_command("sophomorix-add",$verbose);
 
+# doppelt, wegen bug
+&run_command("sophomorix-add",$verbose);
+
 
 ###########################################################################
 # Ergebnisdateien prüfen
@@ -135,27 +146,76 @@ print "Adding $#users_to_add users to schueler.txt\n";
 
 ###########################################################################
 # Datenbank prüfen
-&check_line_in_file(":joerg maier:","/etc/passwd");
-&check_line_in_file(
-  "m4kb;joerg maier;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982",
-  "$DevelConf::protokoll_pfad/user_db");
 
-&check_line_in_file(":mohammed oeztuerk:","/etc/passwd");
-&check_line_in_file(
-  "7a;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982",
-  "$DevelConf::protokoll_pfad/user_db");
-
-&check_line_in_file(":larry wall:","/etc/passwd");
-&check_line_in_file(
-  "2c;larry wall;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1972",
-  "$DevelConf::protokoll_pfad/user_db");
-
-&check_line_in_file(":oliver mahn:","/etc/passwd");
-&check_line_in_file(
-  "m1kb;oliver mahn;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982",
-  "$DevelConf::protokoll_pfad/user_db");
+%account = &fetch_single_account("surname='maier' 
+                                  AND firstname='joerg'
+                                  AND birthday='1982-10-12'
+                                  AND adminclass='m4kb'",
+                      );
+&ok_account("sophomorixstatus", "U");
+&ok_account("creationdate", $today_pg);
 
 
+
+%account = &fetch_single_account("surname='oeztuerk' 
+                                  AND firstname='mohammed'
+                                  AND birthday='1982-04-02'
+                                  AND adminclass='7a'",
+                      );
+&ok_account("sophomorixstatus", "U");
+&ok_account("creationdate", $today_pg);
+
+
+
+%account = &fetch_single_account("surname='wall' 
+                                  AND firstname='larry'
+                                  AND birthday='1972-04-02'
+                                  AND adminclass='2c'",
+                      );
+&ok_account("sophomorixstatus", "U");
+&ok_account("creationdate", $today_pg);
+
+
+
+%account = &fetch_single_account("surname='mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1982-10-12'
+                                  AND adminclass='m1kb'",
+                      );
+&ok_account("sophomorixstatus", "U");
+&ok_account("creationdate", $today_pg);
+
+
+
+
+
+
+
+
+
+#????????????????????
+#&check_line_in_file(":joerg maier:","/etc/passwd");
+#&check_line_in_file(
+#  "m4kb;joerg maier;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982",
+#  "$DevelConf::protokoll_pfad/user_db");
+
+#&check_line_in_file(":mohammed oeztuerk:","/etc/passwd");
+#&check_line_in_file(
+#  "7a;mohammed oeztuerk;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1982",
+#  "$DevelConf::protokoll_pfad/user_db");
+
+#&check_line_in_file(":larry wall:","/etc/passwd");
+#&check_line_in_file(
+#  "2c;larry wall;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1972",
+#  "$DevelConf::protokoll_pfad/user_db");
+
+#&check_line_in_file(":oliver mahn:","/etc/passwd");
+#&check_line_in_file(
+#  "m1kb;oliver mahn;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982",
+#  "$DevelConf::protokoll_pfad/user_db");
+
+
+exit;
 
 print '
 ###########################################################################
@@ -177,7 +237,10 @@ print '
 &check_emptyness("sophomorix.kill");
 
 # Is toleration set
-&check_line_in_file(":joerg maier:","/etc/passwd");
+#&check_line_in_file(":joerg maier:","/etc/passwd");
+
+
+# ??????
 &check_line_in_file(
   "m4kb;joerg maier;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982;[A-Za-z0-9]*;[A-D]?;T;$today;[\.0-9]*;[a-z0-9]*;[A-Z]*;",
   "$DevelConf::protokoll_pfad/user_db");
@@ -598,6 +661,18 @@ $login=&remove_line(
 
 
 
+
+
+
+
+
+
+
+sub ok_account{
+    # Hash must be in %account
+    my ($col, $v) = @_;
+    is( $account{$col},$v, "checking if $v is $col of user $account{uid}");
+}
 
 
 
