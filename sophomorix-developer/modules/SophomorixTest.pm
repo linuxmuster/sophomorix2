@@ -5,6 +5,8 @@ use Test::More;
 #use Time::Local;
 #use Time::localtime;
 
+use DBI;
+
 @ISA = qw(Exporter);
 
 @EXPORT_OK = qw( );
@@ -19,7 +21,12 @@ use Test::More;
               kill_user
               check_account
               run_command
+              fetch_single_account
               );
+
+use Sophomorix::SophomorixPgLdap qw ( db_connect
+                                  );
+
 
 # Dieses Modul (SophomorixTest.pm) wurde von Rüdiger Beck erstellt
 # Es ist freie Software
@@ -212,6 +219,10 @@ sub kill_user {
     # andere dinge müssen noch gemacht werden
 }
 
+
+
+
+
 sub check_account {
     my ($login,$type) = @_;
     # 2: no account
@@ -350,6 +361,58 @@ sub run_command {
 	system("$command >/dev/null");
     }
 }
+
+
+
+
+
+
+
+sub fetch_single_account {
+    my ($where) = @_;
+    if (not defined $where or $where eq ""){
+	$where="";
+    } else {   
+        $where="WHERE $where";
+    }
+    my %hash=();
+    my $count=0;
+    my $ref;
+    my $lastref;
+
+    my $dbh=&Sophomorix::SophomorixPgLdap::db_connect();
+    my $sql="SELECT * FROM userdata $where";
+    print $sql."\n";
+
+    my $sth=$dbh->prepare ($sql);
+
+    $sth->execute();
+
+    while ( $ref = $sth->fetchrow_hashref ){
+	$count++;
+	#print $ref->{uid},"\n";
+        $lastref=$ref;
+    } 
+
+    ok($count==1, "($count database entries found!)");    
+
+    if ($count==1){
+       %hash=%$lastref;  
+       print "   Login is: $hash{'uid'} \n";
+       return %hash;
+    } else {
+
+       return %hash;
+    }
+
+}
+
+
+
+
+
+
+
 
 # EOF
 1;
