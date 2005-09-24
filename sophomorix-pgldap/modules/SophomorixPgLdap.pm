@@ -507,37 +507,8 @@ foreach my $row (@$array_ref){
 
 
 
-
-
-# returns users in the system that are not in schueler.txt/lehrer.txt
-# i.e. the users for  teach-in
-
 # returns a list of users with status D,T,S,A
-
-sub get_teach_in_sys_users_oldstuff{
-   open(TOLERATION,"<${DevelConf::dyn_config_pfad}/user_db");
-   while(<TOLERATION>){
-     my @line=split(/;/);
-     if(defined $line[7] and ($line[7] eq "D" or 
-                              $line[7] eq "T" or
-                              $line[7] eq "S" or
-                              $line[7] eq "A")){
-       #print "Element: $line[7] \n";
-       if ($line[7]){
-         my $gecos=$line[1];
-         my ($first,$last)=split(/ /,$gecos);
-         my $identifier=$last.";".$first.";".$line[4];
-         #print $identifier."\n";
-         push @toleration, $identifier;
-       }	    
-     }
-   }
-   close(TOLERATION);
-   return @toleration;
-}
-
-
-
+# i.e. the users for  teach-in
 sub get_teach_in_sys_users {
    my @toleration=();
    my $dbh=&db_connect();
