@@ -3123,11 +3123,31 @@ if($Conf::log_level>=3){
 
 
 
-   # print allStatus-Information 
+   # print alle Status-Information 
    print("Identifier (sophomorix_status): ",
          "         Status:\n");
    &linie();
    while (($k,$v) = each %sophomorix_status){
+     printf "%-40s %-3s\n","$k","$v";
+   }
+   &linie();
+
+
+   # print alle Duldungs-Data 
+   print("Identifier (user_duldungsbeginn): ",
+         "         TolerationDate:\n");
+   &linie();
+   while (($k,$v) = each %user_duldungsbeginn){
+     printf "%-40s %-3s\n","$k","$v";
+   }
+   &linie();
+
+
+   # print alle Deaktivierungs-Data 
+   print("Identifier (user_deaktivierungsbeginn): ",
+         "         DeactivationDate:\n");
+   &linie();
+   while (($k,$v) = each %user_deaktivierungsbeginn){
      printf "%-40s %-3s\n","$k","$v";
    }
    &linie();
