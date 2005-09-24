@@ -18,6 +18,8 @@ use Term::ANSIColor qw(:constants); # farbiger Text RED, BLUE, ...
 # nach jedem Printbefehl wieder auf Standardfarbe zurücksetzen
 $Term::ANSIColor::AUTORESET = 1;
 
+use DBI;
+
 # ===========================================================================
 # Loading the db-Module, list of functions
 # ===========================================================================
@@ -262,6 +264,11 @@ if ($undo_login ne ""){
 
 &titel("sophomorix-teach-in starts with $match_fehlertoleranz % amatch");
 
+my $today=`date +%d.%m.%Y`;
+my $today_pg=`date +%Y-%m-%d`;
+chomp($today);
+chomp($today_pg);
+
 # ===========================================================================
 # Schüler-Hinzu-Hash erstellen
 # ===========================================================================
@@ -420,10 +427,15 @@ foreach $identifier (@toleration){
 #      print "\nfirst: $first";
 #      print "\nbirth: $birth\n\n";
       # updating the database
+
+ 
+
       &update_user_db_entry($login, 
                             "Name=$first",
                             "LastName=$last",
-                            "Birthday=$birth");
+                            "Birthday=$birth",
+                            "Status=E",
+                            "TolerationDate=");
       # log
       &append_teach_in_log("man-teach-in",
                                 $login,
