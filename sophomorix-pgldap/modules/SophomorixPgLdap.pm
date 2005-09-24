@@ -267,10 +267,10 @@ sub create_class_db_entry {
 sub date_pg2perl {
     my ($string) = @_;
     my $perl="";
-    if ($string ne ""){
+    if ($string ne "" and $string ne "3333-03-03"){
        my ($year,$month,$day)=split(/-/,$string);
        $perl="$day"."."."$month"."."."$year";
-    }
+   }
     return $perl;
 }
 
@@ -283,6 +283,9 @@ sub date_perl2pg {
     if ($string ne ""){
        my ($day,$month,$year)=split(/\./,$string);
        $pg="$year"."-"."$month"."-"."$day";
+    } else {
+        # what should be saved, when nothing should be saved
+	$pg="3333-03-03";
     }
     return $pg;
 }
