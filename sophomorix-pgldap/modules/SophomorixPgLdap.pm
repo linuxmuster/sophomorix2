@@ -514,7 +514,7 @@ foreach my $row (@$array_ref){
 
 # returns a list of users with status D,T,S,A
 
-sub get_teach_in_sys_users{
+sub get_teach_in_sys_users_oldstuff{
    open(TOLERATION,"<${DevelConf::dyn_config_pfad}/user_db");
    while(<TOLERATION>){
      my @line=split(/;/);
@@ -536,6 +536,41 @@ sub get_teach_in_sys_users{
    return @toleration;
 }
 
+
+
+sub get_teach_in_sys_users {
+   my @toleration=();
+   my $dbh=&db_connect();
+
+   # select the columns that i need
+   my $sth= $dbh->prepare( "SELECT uid, firstname, surname, 
+                                   birthday, sophomorixstatus 
+                            FROM userdata 
+                            WHERE sophomorixstatus='T' 
+                               OR sophomorixstatus='S' 
+                               OR sophomorixstatus='D' 
+                               OR sophomorixstatus='A'" );
+   $sth->execute();
+
+   my $array_ref = $sth->fetchall_arrayref();
+
+   foreach my $row (@$array_ref){
+       # split the array, to give better names
+       my $identifier="";
+       my ($login,
+           $first,
+           $last,
+           $birth,
+           $status)=@$row;
+
+       my $birthday_perl = &date_pg2perl($birth);
+
+       $identifier=$last.";".$first.";".$birthday_perl;
+       push @toleration, $identifier;
+
+   }
+   return @toleration;
+}
 
 
 
