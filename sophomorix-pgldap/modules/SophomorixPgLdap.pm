@@ -11,6 +11,8 @@ require Exporter;
              db_connect
              db_disconnect
 	     create_user_db_entry
+             date_perl2pg
+             date_pg2perl
              create_class_db_entry
              user_deaktivieren
              user_reaktivieren
