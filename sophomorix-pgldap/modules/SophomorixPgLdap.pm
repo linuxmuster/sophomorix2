@@ -45,6 +45,8 @@ use Sophomorix::SophomorixBase qw ( titel
                                     print_forward
                                   );
 
+use Crypt::SmbHash;
+
 
 # ===========================================================================
 # Loading the sys-db-Module, list of functions
@@ -109,7 +111,6 @@ sub db_disconnect {
 # adds a user to the user database
 sub create_user_db_entry {
     my $dbh=&db_connect();
-
     my $today=`date +%d.%m.%Y`;
     chomp($today);
     my $today_pg=&date_perl2pg($today);
@@ -131,6 +132,11 @@ sub create_user_db_entry {
     my $sql="";
 
     my $birthday_pg = &date_perl2pg($birthday_perl);
+
+    # create crypted passwords for samba
+    my ($lmpassword,$ntpassword) = ntlmgen $pass;
+
+    print "$lmpassword \n$ntpassword from $pass\n";
 
     if ($DevelConf::testen==0) {
        # SQL-Funktion aufrufen die Enträge in 
@@ -180,7 +186,33 @@ sub create_user_db_entry {
        $sql="INSERT INTO samba_sam_account
 	 (id,sambasid,cn,sambalmpassword,sambantpassword,sambapwdlastset,sambalogontime,sambalogofftime,sambakickofftime,sambapwdcanchange,sambapwdmustchange,sambaacctflags,displayname,sambahomepath,sambahomedrive,sambalogonscript,sambaprofilepath,description,sambauserworkstations,sambaprimarygroupsid,sambadomainname,sambamungeddial,sambabadpasswordcount,sambabadpasswordtime,sambapasswordhistory,sambalogonhours)
 	VALUES
-	($posix_account_id)
+	($posix_account_id,
+         NULL,
+         NULL,
+         '$lmpassword',
+         '$ntpassword',
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL,
+         NULL
+        )
 	";
        print "SQL: $sql\n";
 #  later
