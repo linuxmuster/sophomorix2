@@ -10,10 +10,13 @@ use strict;
 use Getopt::Long;
 use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
-use Sophomorix::SophomorixFiles;
+#use Sophomorix::SophomorixFiles;
+use Sophomorix::SophomorixPgLdap;
 use Sophomorix::SophomorixTest;
 use Test::More "no_plan";
 Getopt::Long::Configure ("bundling");
+
+use DBI;
 
 # Einlesen der Konfigurationsdatei für Entwickler
 #{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
@@ -43,35 +46,39 @@ my $testopt=GetOptions(
 # Start
 ############################################################
 
+# ACHTUNG:
+#  -  Keine Sonderzeichen
+#  -  Korrektes Datumsformat
+
 # the schueler
 my @userlist=(
-  "12C;Thurau;Dietrich;12.10.1982;==.*;dietrich thurau;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1982",
-  "12C;Altig;Rudi;12.10.1981;==.*;rudi altig;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1981",
-  "12C;Bartali;Gino;14.12.1972;==.*;gino bartali;[a-z0-9]{2,};[a-z0-9]{3,};14.12.1972",
-  "12C;Coppi;Fausto;12.01.1972;==.*;fausto coppi;[a-z0-9]{2,};[a-z0-9]{3,};12.01.1972",
-  "12C;Merckx;Eddy;12.01.1972;==.*;eddy merckx;[a-z0-9]{2,};[a-z0-9]{3,};12.01.1972",
-  "12C;Raas;Jan;12.01.1972;==.*;jan raas;[a-z0-9]{2,};[a-z0-9]{3,};12.01.1972",
-  "12C;De Vlaminck;Roger;12.01.1972;==.*;roger devlaminck;[a-z0-9]{2,};[a-z0-9]{3,};12.01.1972",
-  "12C;Hinault;Bernard;12.01.1972;==.*;bernard hinault;[a-z0-9]{2,};[a-z0-9]{3,};12.01.1972",
-  "12C;Kübler;Ferdi;12.01.1972;==.*;ferdi kuebler;[a-z0-9]{2,};[a-z0-9]{3,};12.01.1972",
-  "11A;Gillan;Ian;12.01.1972;==.*;ian gillan;[a-z0-9]{2,};[a-z0-9]{3,};12.01.1972",
-  "11A;Blackmore;Ritchie;12.01.1978;==.*;ritchie blackmore;[a-z0-9]{2,};[a-z0-9]{3,};12.01.1978",
-  "11A;Glover;Roger;14.01.1972;==.*;roger glover;[a-z0-9]{2,};[a-z0-9]{3,};14.01.1972",
-  "11A;Lord;Jon;12.02.1972;==.*;jon lord;[a-z0-9]{2,};[a-z0-9]{3,};12.02.1972",
-  "11A;Paice;Ian;12.04.1974;==.*;ian paice;[a-z0-9]{2,};[a-z0-9]{3,};12.04.1974",
-  "11A;Plant;Robert;12.05.1974;==.*;robert plant;[a-z0-9]{2,};[a-z0-9]{3,};12.05.1974",
-  "11A;Page;Jimmy;12.08.1974;==.*;jimmy page;[a-z0-9]{2,};[a-z0-9]{3,};12.08.1974",
-  "11A;Jones;John Paul;12.04.1976;==.*;johnpaul jones;[a-z0-9]{2,};[a-z0-9]{3,};12.04.1976",
-  "11A;Bonham;John;02.04.1974;==.*;john bonham;[a-z0-9]{2,};[a-z0-9]{3,};02.04.1974",
+  "12C;Thurau;Dietrich;12.10.1982;",
+  "12C;Altig;Rudi;12.10.1981;",
+  "12C;Bartali;Gino;14.12.1972;",
+  "12C;Coppi;Fausto;12.01.1972;",
+  "12C;Merckx;Eddy;12.01.1972;",
+  "12C;Raas;Jan;12.01.1972;",
+  "12C;DeVlaminck;Roger;12.01.1972;",
+  "12C;Hinault;Bernard;12.01.1972;",
+  "12C;Kuebler;Ferdi;12.01.1972;",
+  "11A;Gillan;Ian;12.01.1972;",
+  "11A;Blackmore;Ritchie;12.01.1978;",
+  "11A;Glover;Roger;14.01.1972;",
+  "11A;Lord;Jon;12.02.1972;",
+  "11A;Paice;Ian;12.04.1974;",
+  "11A;Plant;Robert;12.05.1974;",
+  "11A;Page;Jimmy;12.08.1974;",
+  "11A;Jones;JohnPaul;12.04.1976;",
+  "11A;Bonham;John;02.04.1974;",
 );
 
 # the lehrer
 my @teacherlist=(
-  "lehrer;Galilei;Galileo;12.10.1982;galli;==.*;galileo galilei;galli;[a-z0-9]{3,};12.10.1982",
-  "lehrer;Bruno;Giordano;12.10.1981;bruno;==.*;giordano bruno;bruno;[a-z0-9]{3,};12.10.1981",
-  "lehrer;Kepler;Johannes;12.10.1970;hannes;==.*;johannes kepler;hannes;[a-z0-9]{3,};12.10.1970",
-  "lehrer;Kopernikus;Nikolaus;12.10.1976;niko;==.*;nikolaus kopernikus;niko;[a-z0-9]{3,};12.10.1976",
-  "lehrer;Brahe;Tycho;12.10.1986;tycho;==.*;tycho brahe;tycho;[a-z0-9]{3,};12.10.1986",
+  "lehrer;Galilei;Galileo;12.10.1982;galli;",
+  "lehrer;Bruno;Giordano;12.10.1981;bruno;",
+  "lehrer;Kepler;Johannes;12.10.1970;hannes;",
+  "lehrer;Kopernikus;Nikolaus;12.10.1976;niko;",
+  "lehrer;Brahe;Tycho;12.10.1986;tycho;",
 );
 
 # the loginnames of the lehrer
@@ -100,23 +107,21 @@ if ($add==1 and not -e "/root/sophomorix-test/bunchofusers"){
 #                                                                         #
 ###########################################################################
     ';
-    foreach $user (@userlist){
-       my ($txt,$proto)=split(/==/, $user);
-#       print "TXT       :  $txt \n";
-#       print "PROTOKOLL :  $proto \n";
-       &append_line("$txt","${DevelConf::users_pfad}/schueler.txt");
+    foreach my $user (@userlist){
+       #my ($txt,$proto)=split(/==/, $user);
+       &append_line("$user","${DevelConf::users_pfad}/schueler.txt");
     }
 
     print "Adding students ...\n";
     &run_command("sophomorix-check",$verbose);
     &run_command("sophomorix-add",$verbose);
+    # 2x add bug in db ????????
+    &run_command("sophomorix-add",$verbose);
 
 
-    foreach $teacher (@teacherlist){
-       my ($txt,$proto)=split(/==/, $teacher);
-#       print "TXT       :  $txt \n";
-#       print "PROTOKOLL :  $proto \n";
-       &append_line("$txt","${DevelConf::users_pfad}/lehrer.txt");
+    foreach my $teacher (@teacherlist){
+       #my ($txt,$proto)=split(/==/, $teacher);
+       &append_line("$teacher","${DevelConf::users_pfad}/lehrer.txt");
     }
 
     print "Adding teachers ...\n";
@@ -124,20 +129,17 @@ if ($add==1 and not -e "/root/sophomorix-test/bunchofusers"){
     &run_command("sophomorix-add",$verbose);
 
 
-    foreach $user (@userlist){
-       my ($txt,$proto)=split(/==/, $user);
-#       print "TXT       :  $txt \n";
-#       print "PROTOKOLL :  $proto \n";
-       my $login=&get_login_name("$proto");
-       &check_account($login,"enabled");
+    foreach my $user (@userlist){
+       my $login=&get_login_from_user($user);    
+       # todo ??????
+       #&check_account($login,"enabled");
     }
 
-    foreach $teacher (@teacherlist){
-       my ($txt,$proto)=split(/==/, $teacher);
-#       print "TXT       :  $txt \n";
-#       print "PROTOKOLL :  $proto \n";
-       my $login=&get_login_name("$proto");
-       &check_account($login,"enabled");
+
+    foreach my $teacher (@teacherlist){
+       my $login=&get_login_from_user($teacher);    
+       # todo ??????
+       #&check_account($login,"enabled");
     }
 
     # Marking the added users
@@ -147,6 +149,9 @@ if ($add==1 and not -e "/root/sophomorix-test/bunchofusers"){
 } else {
     print "Not adding users!\n";
 }
+
+
+
 
 
 ###########################################################################
@@ -162,34 +167,29 @@ if ($remove==1 and -e "/root/sophomorix-test/bunchofusers"){
 ###########################################################################
     ';
 
-    foreach $user (@userlist){
-        my ($txt,$proto)=split(/==/, $user);
+    foreach my $user (@userlist){
         &remove_line(
-                "$txt",
+                "$user",
                 "${DevelConf::users_pfad}/schueler.txt");
     }
 
 
-
-
-    foreach $login (@loginlist){
-        #my ($txt,$proto)=split(/==/, $teacher);
+    foreach my $teacher (@loginlist){
         &remove_line(
-                ";$login",
+                ";$teacher",
                 "${DevelConf::users_pfad}/lehrer.txt");
     }
 
+
     &run_command("sophomorix-check",$verbose);
 
-    foreach $user (@userlist){
-        my ($txt,$proto)=split(/==/, $user);
-        my $login=&get_login_name("$proto");
+    foreach my $user (@userlist){
+        my $login=&get_login_from_user($user);    
         &update_user_db_entry($login,"TolerationDate=01.01.1970");
     }
 
-    foreach $teacher (@teacherlist){
-        my ($txt,$proto)=split(/==/, $teacher);
-        my $login=&get_login_name("$proto");
+    foreach my $teacher (@teacherlist){
+        my $login=&get_login_from_user($teacher);    
         &update_user_db_entry($login,"TolerationDate=01.01.1970");
     }
 
@@ -197,20 +197,19 @@ if ($remove==1 and -e "/root/sophomorix-test/bunchofusers"){
     &run_command("sophomorix-move",$verbose);
 
 
-    foreach $user (@userlist){
-        my ($txt,$proto)=split(/==/, $user);
-        my $login=&get_login_name("$proto");
+    foreach my $user (@userlist){
+        my $login=&get_login_from_user($user);    
         &update_user_db_entry($login,"DeactivationDate=01.01.1971");
     }
 
-    foreach $teacher (@teacherlist){
-        my ($txt,$proto)=split(/==/, $teacher);
-        my $login=&get_login_name("$proto");
+    foreach my $teacher (@teacherlist){
+        my $login=&get_login_from_user($teacher);    
         &update_user_db_entry($login,"DeactivationDate=01.01.1971");
     }
 
     &run_command("sophomorix-check",$verbose);
-    &run_command("sophomorix-kill",$verbose);
+# todo ?????
+#    &run_command("sophomorix-kill",$verbose);
 
     system("rm /root/sophomorix-test/bunchofusers");
 } elsif($remove==1 and not -e "/root/sophomorix-test/bunchofusers") {
@@ -218,4 +217,35 @@ if ($remove==1 and -e "/root/sophomorix-test/bunchofusers"){
 
 } else {
     print "Not removing users!\n";
+}
+
+
+
+
+
+
+############################################################
+# SUB
+############################################################
+
+
+sub get_login_from_user {
+    my ($user) = @_;
+    my $login="";
+    my ($class,$last,$first,$birth)=split(/;/,$user);
+    $class=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
+    if ($class eq "lehrer"){
+        $class="teachers",
+    }
+    $last=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
+    $first=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
+
+    $birth=&date_perl2pg($birth);
+
+    # Fetch login of user
+    $login = &fetch_login("surname='$last' 
+                          AND firstname='$first'
+                          AND birthday='$birth'",
+                         );
+    return $login;
 }
