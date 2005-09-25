@@ -216,7 +216,7 @@ sub create_user_db_entry {
 	";
        print "SQL: $sql\n";
 #  later
-#       $dbh->do($sql);
+       $dbh->do($sql);
 
        # 3. Tabelle posix_account_details
        # Pflichtfelder (laut Datenbank); id
