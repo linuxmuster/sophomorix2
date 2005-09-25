@@ -67,7 +67,7 @@ my @users_to_add=(
      "m4kb;Maier;Jörg;12.10.1982;",
      "7A;Öztürk;Mohammed;2.4.82;",
      "2C;Wall;Larry;2.4.72;",
-     "m1kb;M\203hn;\223liver;12.10.1982;",
+     "m1kb;M\203hn;\223liver;12.10.1982;987654321;",
    );
 
 
@@ -188,6 +188,8 @@ print "Adding $#users_to_add users to schueler.txt\n";
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "oliver mahn");
+&ok_account("unid", "987654321");
+
 
 
 print '
@@ -334,31 +336,24 @@ print '
 
 &run_command("sophomorix-check",$verbose);
 
+
+
 # Test
-&check_emptyness("sophomorix.add");
-
-# ??? weshalb sollt move leer sein, kommt doch in den dachboden
-# Warum ist der Test trotzdem OK???
-#&check_emptyness("sophomorix.move");
-
-
-# Fetch login of user
 $login = &fetch_login("surname='oeztuerk' 
                        AND firstname='mohammed'
                        AND birthday='1982-04-02'
                        AND adminclass='7a'",
                      );
-
-
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.kill");
+# Fetch login of user
 &check_line_in_file(
   "${login}::7a::dachboden",
   "${DevelConf::ergebnis_pfad}/sophomorix.move");
 
 
-&check_emptyness("sophomorix.kill");
 
-
-# Is toleration set
+# Is user tolerated?
 %account = &fetch_single_account("surname='oeztuerk' 
                                   AND firstname='mohammed'
                                   AND birthday='1982-04-02'
@@ -370,6 +365,7 @@ $login = &fetch_login("surname='oeztuerk'
 
 
 
+
 # The users shows up again in schueler.txt in a different class
 &append_line("7C;Öztürk;Mohammed;2.4.82;","${DevelConf::users_pfad}/schueler.txt");
 
@@ -378,8 +374,6 @@ $login = &fetch_login("surname='oeztuerk'
 # Test
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.kill");
-
-
 &check_line_in_file(
   "${login}::7a::7c",
   "${DevelConf::ergebnis_pfad}/sophomorix.move");
@@ -398,6 +392,20 @@ $login = &fetch_login("surname='oeztuerk'
 
 
 &run_command("sophomorix-move",$verbose);
+
+
+# Move OK?
+%account = &fetch_single_account("surname='oeztuerk' 
+                                  AND firstname='mohammed'
+                                  AND birthday='1982-04-02'
+                                  AND adminclass='7c'",
+                      );
+&ok_account("sophomorixstatus", "E");
+&ok_account("tolerationdate", "");
+&ok_account("gecos", "mohammed oeztuerk");
+
+
+
 
 
 # todo ???????????
@@ -420,22 +428,34 @@ print '
 &run_command("sophomorix-check",$verbose);
 #&run_command("sophomorix-check",$verbose);
 
+
+
+# Is user tolerated now? 
+%account = &fetch_single_account("surname='wall' 
+                                  AND firstname='larry'
+                                  AND birthday='1972-04-02'
+                                  AND adminclass='2c'",
+                      );
+&ok_account("sophomorixstatus", "T");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", $today_pg);
+&ok_account("gecos", "larry wall");
+
+
+
 # Test
-&check_emptyness("sophomorix.add");
-&check_emptyness("sophomorix.kill");
-
-
-
-# Fetch login of user
 $login = &fetch_login("surname='wall' 
                        AND firstname='larry'
                        AND birthday='1972-04-02'
                        AND adminclass='2c'",
                      );
-
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.kill");
 &check_line_in_file(
   "${login}::2c::dachboden",
   "${DevelConf::ergebnis_pfad}/sophomorix.move");
+
+
 
 &run_command("sophomorix-move",$verbose);
 
@@ -445,7 +465,22 @@ $login = &fetch_login("surname='wall'
 
 &run_command("sophomorix-check",$verbose);
 
-# user should be deactivated now
+
+# Is user deactivated now? 
+%account = &fetch_single_account("surname='wall' 
+                                  AND firstname='larry'
+                                  AND birthday='1972-04-02'
+                                  AND adminclass='dachboden'",
+                      );
+&ok_account("sophomorixstatus", "D");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", $today_pg);
+&ok_account("gecos", "larry wall");
+&ok_account("exitadminclass", "2c");
+
+
+
 
 
 # todo ????????
@@ -467,6 +502,8 @@ $login = &fetch_login("surname='wall'
 
 &run_command("sophomorix-move",$verbose);
 
+
+# Is user Moved and Enabled
 %account = &fetch_single_account("surname='wall' 
                                   AND firstname='larry'
                                   AND birthday='1972-04-02'
@@ -566,7 +603,7 @@ print '
 ###########################################################################
 ';
 
-# updating the unid
+# updating the unid automatically
 &exchange_line_in_file("3C;Wall;Larry;2.4.72;*",
    "/etc/sophomorix/user/schueler.txt",
    "3C;Wall;Larry;2.4.72;123456789;");
@@ -608,6 +645,42 @@ print '
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "richard stallman");
 &ok_account("unid", "123456789");
+
+
+
+
+print '
+###########################################################################
+#                                                                         #
+#                      UNID ENTFERNEN - DATEN ÄNDERN                      #
+#                                                                         #
+###########################################################################
+';
+
+
+
+# removing the unid from userfile
+&exchange_line_in_file("m1kb;M\203hn;\223liver;12.10.1982;987654321;",
+   "/etc/sophomorix/user/schueler.txt",
+   "m1kb;M\203hn;\223liver;12.10.1982;");
+
+
+
+&run_command("sophomorix-check",$verbose);
+
+# check if unid is now removed
+%account = &fetch_single_account("surname='mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1982-10-12'
+                                  AND adminclass='m1kb'",
+                      );
+&ok_account("sophomorixstatus", "U");
+&ok_account("creationdate", $today_pg);
+&ok_account("gecos", "oliver mahn");
+&ok_account("unid", "");
+
+
+
 
 
 
