@@ -267,7 +267,8 @@ sub create_class_db_entry {
 sub date_pg2perl {
     my ($string) = @_;
     my $perl="";
-    if ($string ne "" and $string ne "3333-03-03"){
+#    if ($string ne "" and $string ne "3333-03-03"){
+    if ($string ne ""){
        my ($year,$month,$day)=split(/-/,$string);
        $perl="$day"."."."$month"."."."$year";
    }
@@ -285,7 +286,8 @@ sub date_perl2pg {
        $pg="$year"."-"."$month"."-"."$day";
     } else {
         # what should be saved, when nothing should be saved
-	$pg="3333-03-03";
+#	$pg="3333-03-03";
+	$pg="NULL";
     }
     return $pg;
 }
@@ -663,11 +665,17 @@ sub update_user_db_entry {
            }
        elsif ($attr eq "TolerationDate"){
            $toleration_date=&date_perl2pg($value);
-	   push @posix_details, "tolerationdate = '$toleration_date'";
+           if ($toleration_date ne "NULL"){
+	       $toleration_date="'".$toleration_date."'";
+           }
+	   push @posix_details, "tolerationdate = $toleration_date";
        }
        elsif ($attr eq "DeactivationDate"){
            $deactivation_date=&date_perl2pg($value);
-	   push @posix_details, "deactivationdate = '$deactivation_date'";
+           if ($deactivation_date ne "NULL"){
+	       $deactivation_date="'".$deactivation_date."'";
+           }
+	   push @posix_details, "deactivationdate = $deactivation_date";
        }
        elsif ($attr eq "ExitAdminClass"){
            $exit_admin_class="$value";
