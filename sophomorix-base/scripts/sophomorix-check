@@ -984,7 +984,15 @@ if ($Conf::splan_sternchenlkassen_filtern eq "ja") {
 # ===========================================================================
 # Load UNIDS into the Database and System
 # ===========================================================================
-&update_ids();
+&update_unids();
+
+
+# ===========================================================================
+# Remove UNIDS from the Database and System
+# ===========================================================================
+&remove_unids();
+
+
 
 # ===========================================================================
 # Load new data into the Database and System by use of AI
@@ -2259,7 +2267,7 @@ sub auto_teach_in {
 
 
 
-sub update_ids {
+sub update_unids {
    my $count=0;
    my $identifier_file = "";
    my $identifier_sys = "";
@@ -2268,7 +2276,7 @@ sub update_ids {
    my $first="";
    my $birthday="";
    my $gecos="";
-   &titel("update_ids: Modifying the following accounts:");
+   &titel("update_unids: Modifying the following accounts:");
    # walk through all UNID's
    while ( my ($unid_file, $identifier_file) = each %unid_ok_file ) { 
      if (exists $unid_ok_system{$unid_file}) {
@@ -2311,7 +2319,7 @@ sub update_ids {
                                            "Name=$first",
                                            "Birthday=$birthday");
              # log
-             &append_teach_in_log("update_ids",
+             &append_teach_in_log("update_unids",
                                        $login,
                                        $identifier_sys,
                                        $identifier_file,
@@ -2355,8 +2363,50 @@ sub update_ids {
 	}
      }
    }
-   &titel("update_ids: ... $count accounts updated.");
+   &titel("update_unids: ... $count accounts updated.");
 }
+
+
+
+sub remove_unids {
+   my $count=0;
+   my $login="";
+   &titel("remove_unids: Modifying the following accounts:");
+   while ( my ($unid_system, $identifier_system) = each %unid_ok_system ) { 
+       if ($unid_system eq "---"){
+	   next;
+       }
+       if($Conf::log_level>=3){
+          print "Working on $unid_system from  $identifier_system\n";
+       }
+     if (exists $unid_ok_file{$unid_system}) {
+         if($Conf::log_level>=3){
+            print "   UNID $unid_system exists in the System and Files:",
+                  " Nothing to do.\n";
+         }
+     } else {
+        if($Conf::log_level>=3){
+  	   print "   UNID $unid_system of $identifier_system missing in files\n";
+        }
+        if (exists $schueler_ok_hash{ $identifier_system } ){
+             $login=$schueler_im_system_loginname{$identifier_system};
+             if($Conf::log_level>=3){
+	        print "      ... and $identifier_system is OK in files\n";
+	     }
+                &update_user_db_entry($login,"Unid=");
+                print "   Removing UNID $unid_system from account $login\n"; 
+                $count++;
+	 } else {
+             if($Conf::log_level>=3){
+                print "      ... and $identifier_system also missing.\n";
+	    }
+         }
+     }
+   }
+   &titel("remove_unids: ... $count unid in system removed.");
+}
+
+
 
 
 
