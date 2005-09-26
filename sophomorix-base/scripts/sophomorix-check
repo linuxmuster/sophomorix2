@@ -1318,6 +1318,11 @@ sub d_e_check {
       if ($status eq "D" or $status eq "T" or $status eq "R"){
          my $date=$user_deaktivierungsbeginn{$identifier};
          my $login=$schueler_im_system_loginname{$identifier};
+         my $unid="";
+         # check if there is a unid
+         if (defined $schueler_ok_unid{$identifier} ){
+	     $unid=$schueler_ok_unid{$identifier};
+         }
          # Check if user reappears in files
          if (exists $schueler_ok_hash{$identifier}) {
             # taucht wieder auf -> d
@@ -1325,7 +1330,8 @@ sub d_e_check {
             &update_user_db_entry($login, 
                                   "Status=E",
                                   "TolerationDate=",
-                                  "DeactivationDate=",);
+                                  "DeactivationDate=",
+                                  "Unid=$unid");
             &user_reaktivieren("$login");
             $count++;
          }
@@ -2388,19 +2394,21 @@ sub remove_unids {
         if($Conf::log_level>=3){
   	   print "   UNID $unid_system of $identifier_system missing in files\n";
         }
-        if (exists $schueler_ok_hash{ $identifier_system } ){
+# commented: delete only when identifier is still in schueler.txt
+#        if (exists $schueler_ok_hash{ $identifier_system } ){
              $login=$schueler_im_system_loginname{$identifier_system};
-             if($Conf::log_level>=3){
-	        print "      ... and $identifier_system is OK in files\n";
-	     }
-                &update_user_db_entry($login,"Unid=");
+    #         if($Conf::log_level>=3){
+    #	        print "      ... and $identifier_system is OK in files\n";
+    #	     }
+                &update_user_db_entry($login,"Unid=","ExitUnid=$unid_system");
                 print "   Removing UNID $unid_system from account $login\n"; 
                 $count++;
-	 } else {
-             if($Conf::log_level>=3){
-                print "      ... and $identifier_system also missing.\n";
-	    }
-         }
+#	 } else {
+#             if($Conf::log_level>=3){
+#                print "      ... and $identifier_system also missing.\n";
+#	     }
+#         }
+
      }
    }
    &titel("remove_unids: ... $count unid in system removed.");
