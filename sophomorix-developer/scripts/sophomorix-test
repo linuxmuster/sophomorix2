@@ -71,8 +71,18 @@ my @users_to_add=(
    );
 
 
-foreach $user (@users_to_add){
+my @teachers_to_add=(
+     "",
+     "lehrer;Darwin;Charles;12.10.1942;darwin;",
+   );
+
+
+foreach my $user (@users_to_add){
    &append_line("$user","${DevelConf::users_pfad}/schueler.txt");
+}
+
+foreach my $teacher (@teachers_to_add){
+   &append_line("$teacher","${DevelConf::users_pfad}/lehrer.txt");
 }
 
 
@@ -101,6 +111,10 @@ print "Adding $#users_to_add users to schueler.txt\n";
 # Test
 &check_line_in_file(
   "m1kb::mahn;oliver;12.10.1982::[-a-z]{2,}::[-a-z]{3,}",
+  "${DevelConf::ergebnis_pfad}/sophomorix.add");
+# Test
+&check_line_in_file(
+  "teachers::darwin;charles;12.10.1942::darwin::[-a-z]{3,}",
   "${DevelConf::ergebnis_pfad}/sophomorix.add");
 
 # Test
@@ -137,6 +151,9 @@ print "Adding $#users_to_add users to schueler.txt\n";
                     "${DevelConf::druck_pfad}/add.tex");
 &check_line_in_file("oliver mahn",
                     "${DevelConf::druck_pfad}/add.tex");
+&check_line_in_file("charles darwin",
+                    "${DevelConf::druck_pfad}/add.tex");
+
 # andere
 &check_existence("${DevelConf::druck_pfad}/add.dvi");
 &check_existence("${DevelConf::druck_pfad}/add.ps");
@@ -189,6 +206,17 @@ print "Adding $#users_to_add users to schueler.txt\n";
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "987654321");
+
+
+%account = &fetch_single_account("surname='darwin' 
+                                  AND firstname='charles'
+                                  AND birthday='1942-10-12'
+                                  AND adminclass='teachers'",
+                      );
+&ok_account("sophomorixstatus", "U");
+&ok_account("creationdate", $today_pg);
+&ok_account("gecos", "charles darwin");
+&ok_account("unid", "");
 
 
 
