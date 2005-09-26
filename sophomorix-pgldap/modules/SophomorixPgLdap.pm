@@ -126,7 +126,17 @@ sub create_user_db_entry {
        $unid) = @_;
 
     my $gecos = "$vorname"." "."$nachname";
-    my $homedir="$DevelConf::homedir_pupil/$admin_class/$login";
+
+    my $homedir="";
+    if ($admin_class eq ${DevelConf::teacher}){
+        # teachers
+        $homedir = "${DevelConf::homedir_teacher}/$login";
+    } else {
+        # students
+        $homedir = "${DevelConf::homedir_pupil}/$admin_class/$login";
+    }
+#    $homedir=$DevelConf::homedir_pupil/$admin_class/$login";
+
     my $description="perl-function: create_user_db_entry";
 
     my $sql="";
@@ -1025,6 +1035,186 @@ Creates a line.
 sub search_user {
   # database dependent
   my ($string) = @_;
+  my $str="'\%$string\%'";
+
+  my ($class,$gec_user,$login,$first_pass,$birth,$unid,
+      $subclass,$status,$tol,$deact,$ex_admin,$acc_type,$quota)=();
+
+  my ($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,
+     $quota_passwd,$name_passwd,$gcos_passwd,$home,$shell)=();
+
+  my $group_string="";
+  my @group_list=();
+  my $pri_group_string="";
+  my $grp_string="";
+  my $home_ex="---";
+
+  &Sophomorix::SophomorixBase::titel("I'm looking for $str in postgresql ...");
+
+
+
+    my $dbh=&db_connect();
+
+    my $sql="";
+
+
+# select the columns that i need
+my $sth= $dbh->prepare( "SELECT uid, firstname, surname, 
+                            birthday, adminclass, exitadminclass, 
+                            unid, subclass, tolerationdate, 
+                            deactivationdate, sophomorixstatus,
+                            gecos,homedirectory,firstpassword 
+                         FROM userdata
+                         WHERE firstname LIKE $str" );
+$sth->execute();
+
+my $array_ref = $sth->fetchall_arrayref();
+
+
+
+
+foreach my $row (@$array_ref){
+
+
+    my ($login,
+        $firstname,
+        $surname,
+        $birthday_pg,
+        $admin_class,
+        $exit_admin_class,
+        $unid,
+        $subclass,
+        $toleration_date_pg,
+        $deactivation_date_pg,
+        $status,
+        $gecos,
+        $home,
+        $first_pass,
+        ) = @$row;
+    
+    my $birthday=&date_pg2perl($birthday_pg);
+    my $tol=&date_pg2perl($toleration_date_pg);
+    my $deact=&date_pg2perl($deactivation_date_pg);
+
+       if (defined $login){
+	     print "($login exists in the system) \n";
+       } else {
+	     print "(ERROR: $login is not in the system) \n";
+       }
+       print "=======================================";
+       print "=======================================\n";
+
+       printf "  AdminClass       : %-47s %-11s\n",$admin_class,$login;
+       printf "  PrimaryGroup     : %-47s %-11s\n",$pri_group_string,$login;
+
+# todo
+       foreach my $gr (@group_list){
+	   $grp_string= $grp_string." ".$gr;
+	  #print $gr," ";
+       }
+       printf "  SecondaryGroups  :%-48s %-11s\n",$grp_string,$login;
+       printf "  Gecos            : %-47s %-11s\n", $gecos,$login;
+  
+#       if (defined $loginname_passwd){
+#          printf "  SystemGecos      : %-47s %-11s\n",$gcos_passwd, $login;
+#       }
+
+       if (-e $home){
+          $home_ex=$home."  (existing)";
+	  #print "(existing) \n";
+       } else {
+          #print "(ERROR: non-existing!) \n";
+          $home_ex=$home."  (ERROR: non-existing)";
+       }
+       if (defined $home){
+          printf "  Home             : %-47s %-11s\n",$home_ex,$login;
+       }
+
+       if (defined $shell){
+          printf "  LoginShell       : %-47s %-11s\n",$shell,$login;
+       }
+
+       printf "  FirstPassword    : %-47s %-11s\n",$first_pass,$login;
+       printf "  Birthday         : %-47s %-11s\n",$birthday,$login;
+
+       if (defined $unid){
+          printf "  Unid             : %-47s %-11s\n",$unid,$login;
+       }
+
+       if (defined $subclass){
+	  printf "  SubClass         : %-47s %-11s\n",$subclass,$login;
+       }
+
+       if (defined $status){
+	  printf "  Status           : %-47s %-11s\n",$status,$login;
+       }
+
+       if (defined $tol){
+          printf "  TolerationDate   : %-47s %-11s\n",$tol,$login;
+       }
+
+       if (defined $deact){
+          printf "  DeactivationDate : %-47s %-11s\n",$deact,$login;
+       }
+
+       if (defined $ex_admin){
+	  printf "  ExitAdminClass   : %-47s %-11s\n",$ex_admin,$login;
+       }
+
+       if (defined $acc_type){
+	  printf "  AccountType      : %-47s %-11s\n",$acc_type,$login;
+       }
+
+       if($Conf::use_quota eq "yes"){
+          if (defined $quota){
+	     printf "  Quota (MB)       : %-47s %-11s\n",$quota,$login;
+          } else {
+	     print  "  Quota (MB)       : --- \n";
+          }
+          if (-e "/usr/bin/quota"){
+#	     print "  "; # indent output of following command
+             # -l show only local quota, no nfs
+             # -v show quota on unused filesystems          
+#             system("quota -l -v $login");
+             my $show=`quota -l -v $login`;
+	     print "  "; # indent output of following command
+             $show =~ s/\n  /\n/g; # remove indent partially
+             print $show;
+          }
+       }
+       # samba, database independent
+#       &Sophomorix::SophomorixBase::print_user_samba_data($login);
+       # webmin, database independent
+#       &Sophomorix::SophomorixBase::print_user_webmin_data($login);
+
+       if($Conf::log_level>=2){
+          # history, database independent
+          print "History of $login:\n";
+          &Sophomorix::SophomorixBase::get_user_history($login);
+          print "Mail forwarding of $login:\n";
+          &Sophomorix::SophomorixBase::print_forward($login, $home);
+       }
+       print "\n";
+
+       ($class,$gec_user,$login,$first_pass,$birth,$unid,
+        $subclass,$status,$tol,$deact,$ex_admin,$acc_type,$quota)=(
+        "","","","","","","","","","","","");
+
+
+    print $firstname."\n";
+
+  }
+}
+
+
+
+
+
+
+
+sub search_user_oldstuff {
+  # database dependent
+  my ($string) = @_;
   my ($class,$gec_user,$login,$first_pass,$birth,$unid,
       $subclass,$status,$tol,$deact,$ex_admin,$acc_type,$quota)=();
 
@@ -1161,6 +1351,23 @@ sub search_user {
   }
   close(PROTOKOLL);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
