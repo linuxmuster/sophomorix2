@@ -646,6 +646,7 @@ sub update_user_db_entry {
     my $first_pass="";
     my $birthday="";
     my $unid="";
+    my $exitunid="";
     my $subclass="";
     my $status="";
     my $toleration_date="",
@@ -688,6 +689,10 @@ sub update_user_db_entry {
        elsif ($attr eq "Unid"){
            $unid="$value";
 	   push @posix_details, "unid = '$unid'";
+       }
+       elsif ($attr eq "ExitUnid"){
+           $exit_unid="$value";
+	   push @posix_details, "exitunid = '$exit_unid'";
        }
        elsif ($attr eq "SubClass" or $attr eq "Subclass"){
            $subclass="$value";
