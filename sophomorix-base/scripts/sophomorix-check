@@ -2379,7 +2379,7 @@ sub remove_unids {
    my $login="";
    &titel("remove_unids: Modifying the following accounts:");
    while ( my ($unid_system, $identifier_system) = each %unid_ok_system ) { 
-       if ($unid_system eq "---"){
+       if ($unid_system eq ""){
 	   next;
        }
        if($Conf::log_level>=3){
@@ -2952,7 +2952,7 @@ sub generate_add_file {
             if (exists $schueler_ok_unid{$identifier}){
                 $unid=$schueler_ok_unid{$identifier};
             } else {
-                $unid="---";
+                $unid="";
             }
 
             $string="$identifier"."::".
@@ -2967,7 +2967,7 @@ sub generate_add_file {
          if (exists $schueler_ok_unid{$identifier}){
               $unid=$schueler_ok_unid{$identifier};
          } else {
-                $unid="---";
+                $unid="";
          }
 
 	 $string=$string."$unid"."\n";
