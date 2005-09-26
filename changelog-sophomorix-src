@@ -30,7 +30,7 @@ packaging:
    - sophomorix-base depends on libdbd-csv-perl
      change that to *-files or so
    -run sophomorix-setup-pgldap is not working (locking problem)
-
+   -smbldap tools dependeny fallenlassen?
 
 dokumentation:
    * grafik workflow aktualisieren
@@ -189,7 +189,10 @@ sophomorix-class
 
 sophomorix-test
    - include reactivation by sophomrix-user -A
-  
+   - include testing the log file.
+      - log in different file while testing
+      - check this file for correctness
+      - remove this file
 
 sophomorix-vampire:
    * create config-files (perl-syntax):
@@ -667,12 +670,20 @@ SQL-DBI related:
 
 
 
-   NEXT: samba entries
+   NEXT: samba fields
          delete a user
-
          create groups
-         in SophomorixPgLdap.pm
-   
+         create a crypted userpassword for linux
+         add lehrer to test
+         look in SophomorixPgLdap what has to be done
+
+   - test for Bugfixes:
+      - update unid at once, when user reappears with unid
+      - delete unid, when user disappears in files or unid is empty   
+   - added creation af passwords, still to check, if they work
+   - added principal support for samba_sam_account table (fields still empty)
+   - delete unid from sys, when entry in files is present, but
+     has an empty unid field (test added) 
    - deactivationdate and reactivationdate are emptied
      when not used (NULL)
    - sophomorix-teach-in rewritten to use postgresql
