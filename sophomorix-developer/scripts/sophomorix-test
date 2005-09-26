@@ -652,33 +652,82 @@ print '
 print '
 ###########################################################################
 #                                                                         #
-#                               DELETE UNIT                               #
+#                               DELETE UNID                               #
 #                                                                         #
 ###########################################################################
 ';
 
-
-
-# removing the unid from userfile
-&exchange_line_in_file("m1kb;M\203hn;\223liver;12.10.1982;987654321;",
-   "/etc/sophomorix/user/schueler.txt",
-   "m1kb;M\203hn;\223liver;12.10.1982;");
-
+# removing the whole line should delete UNID
+&remove_line(
+  "m1kb;M\203hn;\223liver;12.10.1982;",
+  "${DevelConf::users_pfad}/schueler.txt");
 
 
 &run_command("sophomorix-check",$verbose);
 
-# check if unid is now removed
+
+
+# check if user is tolerated and unid is removed
 %account = &fetch_single_account("surname='mahn' 
                                   AND firstname='oliver'
                                   AND birthday='1982-10-12'
                                   AND adminclass='m1kb'",
                       );
-&ok_account("sophomorixstatus", "U");
+&ok_account("sophomorixstatus", "T");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", $today_pg);
+&ok_account("gecos", "oliver mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+
+
+# User comes back with correction (Birthday), but same unid as in system
+&append_line("m1kb;M\203hn;\223liver;12.10.1984;987654321;",
+              "${DevelConf::users_pfad}/schueler.txt");
+
+
+
+&run_command("sophomorix-check",$verbose);
+
+
+
+# check if data is uploaded
+%account = &fetch_single_account("surname='mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='m1kb'",
+                      );
+&ok_account("sophomorixstatus", "E");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "");
+&ok_account("gecos", "oliver mahn");
+&ok_account("unid", "987654321");
+&ok_account("exitunid", "987654321");
+
+
+
+
+
+# removing the unid from userfile
+&exchange_line_in_file("m1kb;M\203hn;\223liver;12.10.1984;987654321;",
+   "/etc/sophomorix/user/schueler.txt",
+   "m1kb;M\203hn;\223liver;12.10.1984;");
+
+
+
+&run_command("sophomorix-check",$verbose);
+
+
+# check if unid is removed
+%account = &fetch_single_account("surname='mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='m1kb'",
+                      );
+&ok_account("sophomorixstatus", "E");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "");
-
 
 
 
@@ -701,7 +750,7 @@ print '
   "3C;Stallman;Richard;2.4.62;",
   "${DevelConf::users_pfad}/schueler.txt");
 &remove_line(
-  "m1kb;M\203hn;\223liver;12.10.1982;",
+  "m1kb;M\203hn;\223liver;12.10.1984;",
   "${DevelConf::users_pfad}/schueler.txt");
 
 
@@ -727,7 +776,7 @@ push @logins, $login;
 
 $login = &fetch_login("surname='mahn' 
                        AND firstname='oliver'
-                       AND birthday='1982-10-12'
+                       AND birthday='1984-10-12'
                        AND adminclass='m1kb'",
                      );
 push @logins, $login;
