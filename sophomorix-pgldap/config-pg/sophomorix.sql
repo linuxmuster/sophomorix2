@@ -288,7 +288,7 @@ SELECT max(id) FROM groups
 -- Name: create_ldap_for_account(character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
-CREATE FUNCTION create_ldap_for_account(character varying) RETURNS integer
+CREATE FUNCTION manual_create_ldap_for_account(character varying) RETURNS integer
     AS ' 
     DECLARE
      username ALIAS FOR $1;
@@ -320,8 +320,8 @@ CREATE FUNCTION manual_delete_account(varchar) RETURNS integer
      get_uidnumber INTEGER;
      ldap_entries_id INTEGER;
     BEGIN
-     SELECT INTO posix_account_id id FROM posix_account WHERE uid=''username'';
-     SELECT INTO get_uidnumber uidnumber FROM posix_account WHERE uid=''username'';
+     SELECT INTO posix_account_id id FROM posix_account WHERE uid=username;
+     SELECT INTO get_uidnumber uidnumber FROM posix_account WHERE uid=username;
      SELECT INTO ldap_entries_id id FROM ldap_entries WHERE keyval=posix_account_id AND oc_map_id=3;
 
      DELETE FROM ldap_entries WHERE id=ldap_entries_id;
@@ -740,7 +740,7 @@ CREATE FUNCTION delete_organizational_unit(integer) RETURNS integer
 -- Name: get_next_free_uid(); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
-CREATE FUNCTION get_next_free_uid() RETURNS integer
+CREATE FUNCTION manual_get_next_free_uid() RETURNS integer
     AS ' 
     DECLARE
      get_uidnumber INTEGER;
