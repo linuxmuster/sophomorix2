@@ -331,7 +331,7 @@ while(<USERVERSETZEN>){
        } elsif ($old_status eq "A") {
           &update_user_db_entry($login_versetzen,
                       "AdminClass=$neue_klasse",
-                      "Status=E",
+                      "Status=A",
                       "TolerationDate=",
                       "DeactivationDate=");
        } else {
