@@ -1250,8 +1250,10 @@ sub a_u_check {
          my $login=$schueler_im_system_loginname{$identifier};
          my $new=$schueler_im_system_exit_admin_class{$identifier};
          my $old=$schueler_im_system_hash{$identifier};
-         &append_move_entry($identifier,$old,$new,"A");
-	 $count++;
+         if ($old ne $new){
+            &append_move_entry($identifier,$old,$new,"A");
+	    $count++;
+         }
       }
    }
    &titel("a_u_check:  ... $count aktivierte User wurden enabled");
