@@ -238,10 +238,6 @@ print '
 
 &run_command("sophomorix-check",$verbose);
 
-# Test, nothing to do
-&check_emptyness("sophomorix.add");
-&check_emptyness("sophomorix.move");
-&check_emptyness("sophomorix.kill");
 
 # Is toleration set
 %account = &fetch_single_account("surname='maier' 
@@ -257,10 +253,10 @@ print '
 # Test if user is moveable to dachboden
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.kill");
-
 &check_line_in_file(
   "${login}::m4kb::dachboden",
   "${DevelConf::ergebnis_pfad}/sophomorix.move");
+
 
 # move user
 &run_command("sophomorix-move",$verbose);
@@ -294,6 +290,7 @@ $login = &fetch_login("surname='maier'
                       );
 &ok_account("sophomorixstatus", "T");
 &ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "");
 &ok_account("gecos", "joerg maier");
 
 &run_command("sophomorix-check",$verbose);
@@ -379,7 +376,7 @@ $login = &fetch_login("surname='oeztuerk'
                        AND adminclass='7a'",
                      );
 &check_emptyness("sophomorix.add");
-&check_emptyness("sophomorix.kill");
+
 # Fetch login of user
 &check_line_in_file(
   "${login}::7a::dachboden",
@@ -407,7 +404,7 @@ $login = &fetch_login("surname='oeztuerk'
 
 # Test
 &check_emptyness("sophomorix.add");
-&check_emptyness("sophomorix.kill");
+
 &check_line_in_file(
   "${login}::7a::7c",
   "${DevelConf::ergebnis_pfad}/sophomorix.move");
@@ -484,7 +481,7 @@ $login = &fetch_login("surname='wall'
                        AND adminclass='2c'",
                      );
 &check_emptyness("sophomorix.add");
-&check_emptyness("sophomorix.kill");
+#&check_emptyness("sophomorix.kill");
 &check_line_in_file(
   "${login}::2c::dachboden",
   "${DevelConf::ergebnis_pfad}/sophomorix.move");
@@ -528,7 +525,7 @@ $login = &fetch_login("surname='wall'
 
 # Test
 &check_emptyness("sophomorix.add");
-&check_emptyness("sophomorix.kill");
+#&check_emptyness("sophomorix.kill");
 
 &check_line_in_file(
   "${login}::dachboden::3c",
@@ -572,7 +569,7 @@ print '
 # Test
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.move");
-&check_emptyness("sophomorix.kill");
+#&check_emptyness("sophomorix.kill");
 
 %account = &fetch_single_account("surname='oetztuerk' 
                                   AND firstname='mohammed'
@@ -593,7 +590,7 @@ print '
 # Test
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.move");
-&check_emptyness("sophomorix.kill");
+#&check_emptyness("sophomorix.kill");
 
 
 
@@ -616,7 +613,7 @@ print '
 # Test
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.move");
-&check_emptyness("sophomorix.kill");
+#&check_emptyness("sophomorix.kill");
 
 %account = &fetch_single_account("surname='oetztuerk' 
                                   AND firstname='mohammad'
@@ -647,7 +644,7 @@ print '
 # Test
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.move");
-&check_emptyness("sophomorix.kill");
+#&check_emptyness("sophomorix.kill");
 
 %account = &fetch_single_account("surname='wall' 
                                   AND firstname='larry'
@@ -957,8 +954,8 @@ $login = &fetch_login("surname='mahn'
                       );
 &ok_account("sophomorixstatus", "P");
 &ok_account("creationdate", $today_pg);
-&ok_account("tolerationdate", "");
-&ok_account("deactivationdate", "");
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
@@ -979,8 +976,8 @@ $login = &fetch_login("surname='mahn'
                       );
 &ok_account("sophomorixstatus", "K");
 &ok_account("creationdate", $today_pg);
-&ok_account("tolerationdate", "");
-&ok_account("deactivationdate", "");
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
@@ -991,7 +988,7 @@ $login = &fetch_login("surname='mahn'
 # Ergebnisdateien prüfen
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.move");
-&check_emptyness("sophomorix.kill");
+#&check_emptyness("sophomorix.kill");
 
 
 
@@ -1003,8 +1000,8 @@ $login = &fetch_login("surname='mahn'
                       );
 &ok_account("sophomorixstatus", "K");
 &ok_account("creationdate", $today_pg);
-&ok_account("tolerationdate", "");
-&ok_account("deactivationdate", "");
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
@@ -1022,8 +1019,8 @@ $login = &fetch_login("surname='mahn'
                       );
 &ok_account("sophomorixstatus", "F");
 &ok_account("creationdate", $today_pg);
-&ok_account("tolerationdate", "");
-&ok_account("deactivationdate", "");
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
@@ -1035,7 +1032,7 @@ $login = &fetch_login("surname='mahn'
 # Ergebnisdateien prüfen
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.move");
-&check_emptyness("sophomorix.kill");
+#&check_emptyness("sophomorix.kill");
 
 
 # check if still Frozen
@@ -1046,8 +1043,8 @@ $login = &fetch_login("surname='mahn'
                       );
 &ok_account("sophomorixstatus", "F");
 &ok_account("creationdate", $today_pg);
-&ok_account("tolerationdate", "");
-&ok_account("deactivationdate", "");
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
@@ -1078,7 +1075,7 @@ $login = &fetch_login("surname='mahn'
 
 # Ergebnisdateien prüfen
 &check_emptyness("sophomorix.add");
-&check_emptyness("sophomorix.kill");
+#&check_emptyness("sophomorix.kill");
 
 &check_line_in_file(
   "${login}::dachboden::m1kb",
@@ -1095,7 +1092,7 @@ $login = &fetch_login("surname='mahn'
                                   AND birthday='1984-10-12'
                                   AND adminclass='m1kb'",
                       );
-&ok_account("sophomorixstatus", "E");
+&ok_account("sophomorixstatus", "A");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "");
 &ok_account("deactivationdate", "");
@@ -1113,7 +1110,6 @@ $login = &fetch_login("surname='mahn'
 
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.move");
-&check_emptyness("sophomorix.kill");
 
 
 # Move the account
@@ -1126,7 +1122,7 @@ $login = &fetch_login("surname='mahn'
                                   AND birthday='1984-10-12'
                                   AND adminclass='m1kb'",
                       );
-&ok_account("sophomorixstatus", "E");
+&ok_account("sophomorixstatus", "A");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "");
 &ok_account("deactivationdate", "");
@@ -1135,9 +1131,6 @@ $login = &fetch_login("surname='mahn'
 &ok_account("exitunid", "987654321");
 
 
-
-
-exit;
 
 
 # make the account removeable again
@@ -1180,6 +1173,9 @@ exit;
 
 # todo ?????????ß
 #&run_command("sophomorix-kill",$verbose);
+
+# todo ??????
+#&check_emptyness("sophomorix.kill");
 
 
 foreach my $login (@logins){
