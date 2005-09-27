@@ -1132,6 +1132,13 @@ $login = &fetch_login("surname='mahn'
 
 
 
+####
+####
+####  Todo Mahnol should reappear and be merged
+####
+####
+
+
 
 # make the account removeable again
 
@@ -1155,24 +1162,12 @@ $login = &fetch_login("surname='mahn'
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+&run_command("sophomorix-user -K $login",$verbose);
+&run_command("sophomorix-check",$verbose);
 
 
 # todo ?????????ß
-#&run_command("sophomorix-kill",$verbose);
+&run_command("sophomorix-kill",$verbose);
 
 # todo ??????
 #&check_emptyness("sophomorix.kill");
