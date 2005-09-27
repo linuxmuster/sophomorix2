@@ -215,8 +215,11 @@ print "Adding $#users_to_add users to schueler.txt\n";
                       );
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "");
+&ok_account("deactivationdate", "");
 &ok_account("gecos", "charles darwin");
 &ok_account("unid", "");
+&ok_account("exitunid", "");
 
 
 
@@ -324,10 +327,13 @@ $login = &fetch_login("surname='maier'
                                   AND adminclass='dachboden'",
                       );
 &ok_account("sophomorixstatus", "D");
+&ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
 &ok_account("exitadminclass", "m4kb");
 &ok_account("gecos", "joerg maier");
+&ok_account("unid", "");
+&ok_account("exitunid", "");
 
 
 &run_command("sophomorix-check",$verbose);
@@ -714,7 +720,6 @@ print '
               "${DevelConf::users_pfad}/schueler.txt");
 
 
-
 &run_command("sophomorix-check",$verbose);
 
 
@@ -765,12 +770,12 @@ print '
 print '
 ###########################################################################
 #                                                                         #
-#                              REMOVING USERS                             #
+#                   MAKE ALL USERS REMOVEABLE                             #
 #                                                                         #
 ###########################################################################
 ';
 
-
+# remove the lines
 &remove_line(
   "7C;Ötztürk;Mohammad;2.4.83;",
   "${DevelConf::users_pfad}/schueler.txt");
@@ -780,6 +785,10 @@ print '
 &remove_line(
   "m1kb;M\203hn;\223liver;12.10.1984;",
   "${DevelConf::users_pfad}/schueler.txt");
+
+&remove_line(
+  "lehrer\\s*;Darwin\\s*;Charles\\s*;12.10.1942.*",
+  "${DevelConf::users_pfad}/lehrer.txt");
 
 
 &run_command("sophomorix-check",$verbose);
@@ -809,6 +818,13 @@ $login = &fetch_login("surname='mahn'
                      );
 push @logins, $login;
 
+$login = &fetch_login("surname='darwin' 
+                       AND firstname='charles'
+                       AND birthday='1942-10-12'
+                       AND adminclass='teachers'",
+                     );
+push @logins, $login;
+
 
 
 
@@ -835,8 +851,331 @@ foreach my $login (@logins){
 }
 
 
-
 &run_command("sophomorix-check",$verbose);
+
+
+
+# check if users are removeable (R)
+%account = &fetch_single_account("surname='maier' 
+                                  AND firstname='joerg'
+                                  AND birthday='1982-10-12'
+                                  AND adminclass='dachboden'",
+                      );
+&ok_account("sophomorixstatus", "R");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
+&ok_account("exitadminclass", "m4kb");
+&ok_account("gecos", "joerg maier");
+&ok_account("unid", "");
+&ok_account("exitunid", "");
+
+
+%account = &fetch_single_account("surname='oetztuerk' 
+                                  AND firstname='mohammad'
+                                  AND birthday='1983-04-02'
+                                  AND adminclass='dachboden'",
+                      );
+&ok_account("sophomorixstatus", "R");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
+&ok_account("gecos", "mohammad oetztuerk");
+&ok_account("unid", "");
+&ok_account("exitunid", "");
+
+
+%account = &fetch_single_account("surname='stallman' 
+                                  AND firstname='richard'
+                                  AND birthday='1962-04-02'
+                                  AND adminclass='dachboden'",
+                      );
+&ok_account("sophomorixstatus", "R");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
+&ok_account("gecos", "richard stallman");
+&ok_account("unid", "");
+&ok_account("exitunid", "123456789");
+
+
+# 
+%account = &fetch_single_account("surname='mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='dachboden'",
+                      );
+&ok_account("sophomorixstatus", "R");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
+&ok_account("gecos", "oliver mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+
+
+%account = &fetch_single_account("surname='darwin' 
+                                  AND firstname='charles'
+                                  AND birthday='1942-10-12'
+                                  AND adminclass='speicher'",
+                      );
+&ok_account("sophomorixstatus", "R");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
+&ok_account("gecos", "charles darwin");
+&ok_account("unid", "");
+&ok_account("exitunid", "");
+
+
+
+print '
+###########################################################################
+#                                                                         #
+#                     MANUALLY CHANGE USERSTATUS                          #
+#                                                                         #
+###########################################################################
+';
+
+# user the user Mahn
+$login = &fetch_login("surname='mahn' 
+                       AND firstname='oliver'
+                       AND birthday='1984-10-12'
+                       AND adminclass='dachboden'",
+                     );
+
+
+# Make the account Permanent
+&run_command("sophomorix-user -P $login",$verbose);
+
+
+# check if permanent 
+%account = &fetch_single_account("surname='mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='dachboden'",
+                      );
+&ok_account("sophomorixstatus", "P");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "");
+&ok_account("deactivationdate", "");
+&ok_account("gecos", "oliver mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+
+# todo?????? check_account
+
+# Make the account Killable
+&run_command("sophomorix-user -K $login",$verbose);
+
+
+#?????
+
+# check if Killable 
+%account = &fetch_single_account("surname='mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='dachboden'",
+                      );
+&ok_account("sophomorixstatus", "K");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "");
+&ok_account("deactivationdate", "");
+&ok_account("gecos", "oliver mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+
+# This should not change anything
+&run_command("sophomorix-check",$verbose);
+
+# Ergebnisdateien prüfen
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+&check_emptyness("sophomorix.kill");
+
+
+
+# check if still Killable 
+%account = &fetch_single_account("surname='mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='dachboden'",
+                      );
+&ok_account("sophomorixstatus", "K");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "");
+&ok_account("deactivationdate", "");
+&ok_account("gecos", "oliver mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+
+
+# Make the account Freeze
+&run_command("sophomorix-user -F $login",$verbose);
+
+
+# check if Frozen 
+%account = &fetch_single_account("surname='mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='dachboden'",
+                      );
+&ok_account("sophomorixstatus", "F");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "");
+&ok_account("deactivationdate", "");
+&ok_account("gecos", "oliver mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+
+# This should not change anything
+&run_command("sophomorix-check",$verbose);
+
+
+# Ergebnisdateien prüfen
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+&check_emptyness("sophomorix.kill");
+
+
+# check if still Frozen
+%account = &fetch_single_account("surname='mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='dachboden'",
+                      );
+&ok_account("sophomorixstatus", "F");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "");
+&ok_account("deactivationdate", "");
+&ok_account("gecos", "oliver mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+
+
+
+# Activate the Account
+&run_command("sophomorix-user -A $login",$verbose);
+
+
+# check 
+%account = &fetch_single_account("surname='mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='dachboden'",
+                      );
+&ok_account("sophomorixstatus", "A");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "$today_pg");
+&ok_account("deactivationdate", "");
+&ok_account("gecos", "oliver mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+
+
+# Check if the account can be moved to exitadminclass
+&run_command("sophomorix-check",$verbose);
+
+# Ergebnisdateien prüfen
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.kill");
+
+&check_line_in_file(
+  "${login}::dachboden::m1kb",
+  "${DevelConf::ergebnis_pfad}/sophomorix.move");
+
+
+# Move the account
+&run_command("sophomorix-move",$verbose);
+
+
+# check movement and activation 
+%account = &fetch_single_account("surname='mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='m1kb'",
+                      );
+&ok_account("sophomorixstatus", "E");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "");
+&ok_account("deactivationdate", "");
+&ok_account("gecos", "oliver mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+
+
+# since it was manually activated it should not be moved
+
+
+# Check if the account can be moved to exitadminclass
+&run_command("sophomorix-check ",$verbose);
+
+
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+&check_emptyness("sophomorix.kill");
+
+
+# Move the account
+&run_command("sophomorix-move",$verbose);
+
+
+# check that account stays activated and was NOT moved to dachboden
+%account = &fetch_single_account("surname='mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='m1kb'",
+                      );
+&ok_account("sophomorixstatus", "E");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "");
+&ok_account("deactivationdate", "");
+&ok_account("gecos", "oliver mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+
+
+
+
+exit;
+
+
+# make the account removeable again
+
+
+# make user tolerated for a looooong time
+&update_user_db_entry($login,"TolerationDate=01.01.1970");
+
+# make account disabled
+&run_command("sophomorix-check",$verbose);
+
+
+
+# make user deactivated for a looooong time
+&update_user_db_entry($login,"DeactivationDate=01.01.1971");
+
+# make account removeable
+&run_command("sophomorix-check",$verbose);
+
+
+#check account again
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # todo ?????????ß
