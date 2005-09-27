@@ -58,6 +58,7 @@ my $user_nummer=0;
 my $alte_klasse;
 my $neue_klasse;
 my $login_versetzen;
+my $old_status;
 my $identifier;
 my $alte_zeile="";
 my $neue_zeile="";
@@ -169,15 +170,17 @@ if ($info==1) {
      || die "Fehler: $!";
 
       print "\nFolgende User können versetzt werden:\n\n";
-      printf "%-12s %-18s %-18s \n","Loginname","Alte Klasse","Neue Klasse";
+      printf "%-12s %-18s %-18s %-18s \n","Loginname",
+             "Alte Klasse","Neue Klasse","Alter Status";
       &linie;
     while(<USERVERSETZEN>){
       chomp();
       $user_nummer++;
-      ($login_versetzen, $alte_klasse, $neue_klasse)=split(/::/);
+      ($login_versetzen, $alte_klasse, $neue_klasse,$old_status)=split(/::/);
+      if (not defined $old_status){$old_status=""};
       # Ausgabe
-      printf "%-12s %-18s %-18s \n",
-             "$login_versetzen","$alte_klasse","$neue_klasse";
+      printf "%-12s %-18s %-18s %-18s \n",
+             "$login_versetzen","$alte_klasse","$neue_klasse", $old_status;
      }
      print "\n";
     exit;
@@ -221,8 +224,8 @@ open(USERVERSETZEN,"${DevelConf::ergebnis_pfad}/sophomorix.move")
 while(<USERVERSETZEN>){
    chomp();
    $user_nummer++;
-   ($login_versetzen, $alte_klasse, $neue_klasse)=split(/::/);
-
+   ($login_versetzen, $alte_klasse, $neue_klasse,$old_status)=split(/::/);
+   if (not defined $old_status){$old_status=""};
    # Home ermitteln
    if ($neue_klasse eq ${DevelConf::teacher}) {
       # in klasse lehrer versetzten
@@ -271,6 +274,7 @@ while(<USERVERSETZEN>){
       print("Linux-Gruppe (Alt):    $alte_klasse\n");
       print("Linux-Gruppe (Neu):    $neue_klasse\n");
       print("Neues Home:            $neues_home\n");
+      print("Alter Status:          $old_status\n");
 #      print("Protokollzeile (Alt):  $alte_zeile\n");
 #      print("Protokollzeile (Neu):  $neue_zeile\n");
     }
@@ -324,6 +328,12 @@ while(<USERVERSETZEN>){
           &update_user_db_entry($login_versetzen,
                       "AdminClass=$neue_klasse",
                       "ExitAdminClass=$alte_klasse");
+       } elsif ($old_status eq "A") {
+          &update_user_db_entry($login_versetzen,
+                      "AdminClass=$neue_klasse",
+                      "Status=E",
+                      "TolerationDate=",
+                      "DeactivationDate=");
        } else {
           &update_user_db_entry($login_versetzen,
                       "AdminClass=$neue_klasse");

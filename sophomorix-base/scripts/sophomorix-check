@@ -1119,7 +1119,8 @@ print RED "Sie sollten sophomorix-teach-in aufrufen!\n";
 sub append_move_entry {
     
     # appends a line to sophomorix.move
-    my ($identifier, $old_class, $new_class)=@_;
+    my ($identifier, $old_class, $new_class,$old_status)=@_;
+    if (not defined $old_status){$old_status=""};
     my $login=$schueler_im_system_loginname{$identifier};
     my $move_line = ();
     my $move_message = "";
@@ -1128,9 +1129,9 @@ sub append_move_entry {
         $new_class="speicher";
     } 
 
-    $move_line="$login"."::".$old_class."::"."$new_class"."\n";
+    $move_line="$login"."::".$old_class."::"."$new_class"."::"."$old_status\n";
     $move_message="   $identifier (Login: $login)  $old_class ".
-                  "---> $new_class\n";
+                  "---> $new_class ($old_status)\n";
 
     #print REPORTADMIN "$move_message";
     print "$move_message";
@@ -1223,7 +1224,6 @@ sub u_t_check {
      }
    }
    &titel("u_t_check:  ... $count User wurden toleriert/-> dachboden/speicher");
-
 }
 
 
@@ -1243,6 +1243,18 @@ sub t_e_check {
 
 sub a_u_check {
    # Activated(A) -> Usable(U)  .move (aktive klasse -> neue klasse)
+   my $count=0;
+   &titel("a_u_check: Suche aktivierte User zum enablen  machen ...");
+   while ( my ($identifier, $status) = each %sophomorix_status ){
+      if ($status eq "A"){
+         my $login=$schueler_im_system_loginname{$identifier};
+         my $new=$schueler_im_system_exit_admin_class{$identifier};
+         my $old=$schueler_im_system_hash{$identifier};
+         &append_move_entry($identifier,$old,$new,"A");
+	 $count++;
+      }
+   }
+   &titel("a_u_check:  ... $count aktivierte User wurden enabled");
 }
 
 
