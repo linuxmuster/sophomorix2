@@ -142,8 +142,9 @@ if ($freeze ne""){
     # doing the freeze
     &update_user_db_entry($freeze, 
                           "Status=F",
-                          "TolerationDate=",
-                          "DeactivationDate=");
+       #                   "TolerationDate=",
+       #                   "DeactivationDate="
+                         );
     &user_deaktivieren($freeze);
     exit;
 }
@@ -163,8 +164,9 @@ if ($permanent ne""){
     # making the account permanent
     &update_user_db_entry($permanent, 
                           "Status=P",
-                          "TolerationDate=",
-                          "DeactivationDate=");
+    #                      "TolerationDate=",
+    #                      "DeactivationDate="
+                         );
     &user_reaktivieren($permanent);
     exit;
 }
@@ -207,8 +209,9 @@ if ($killable ne""){
     # doing the killable
     &update_user_db_entry($killable, 
                           "Status=K",
-                          "TolerationDate=01.01.1970",
-                          "DeactivationDate=01.01.1970");
+ #                         "TolerationDate=01.01.1970",
+ #                         "DeactivationDate=01.01.1970"
+                         );
     &user_deaktivieren($killable);
     exit;
 }
