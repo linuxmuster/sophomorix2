@@ -156,13 +156,13 @@ sub create_user_db_entry {
        # macht und posix_account_id zurück gibt
        # der Username muss hier schon übergeben werden.
 
-       $sql="SELECT create_ldap_for_account('$login')";
+       $sql="SELECT manual_create_ldap_for_account('$login')";
        print "\nSQL: $sql\n";
        my $posix_account_id = $dbh->selectrow_array($sql);
        print "   --> \$posix_account_id ist $posix_account_id \n\n";
 
        #Freie UID holen
-       $sql="select get_next_free_uid()";
+       $sql="select manual_get_next_free_uid()";
        print "SQL: $sql\n";
        my $uidnumber = $dbh->selectrow_array($sql); 
        print "   --> \$uidnumber ist $uidnumber \n\n";
@@ -791,8 +791,10 @@ sub remove_user_db_entry {
     my $sql="";
 
     # what to do
-
-
+    $sql="SELECT manual_delete_account('$login')";
+    print "SQL: $sql\n";
+    my $uidnumber = $dbh->selectrow_array($sql);
+    print "Deleted User $login ($uidnumber);";
 
 }
 
