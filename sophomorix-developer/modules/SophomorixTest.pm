@@ -179,9 +179,12 @@ sub remove_line {
 
 sub check_emptyness{
     my ($file) = @_;
+    my $exists=0;
     $file="${DevelConf::ergebnis_pfad}/$file";
-    ok(-z "$file",
-       "$file ist leer/nonexistent");
+    if (-s $file){
+        $exists=1;
+    }
+    is("$exists",0,"Check that $file ist leer/nonexistent");
 }
 
 sub check_existence{
