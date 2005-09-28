@@ -359,7 +359,7 @@ sub check_links {
 
 sub run_command {
     my ($command,$verbose)=@_;
-    print "Running $command \n";
+    print "   *** Running $command \n";
     if ($verbose==1){
 	system("$command");
     } else {
@@ -387,8 +387,9 @@ sub fetch_single_account {
 
     my $dbh=&Sophomorix::SophomorixPgLdap::db_connect();
     my $sql="SELECT * FROM userdata $where";
-    print $sql."\n";
-
+    if($Conf::log_level>=3){
+       print $sql."\n";
+    }
     my $sth=$dbh->prepare ($sql);
 
     $sth->execute();
@@ -402,8 +403,10 @@ sub fetch_single_account {
     ok($count==1, "($count database entries found!)");    
 
     if ($count==1){
-       %hash=%$lastref;  
-       print "   Login is: $hash{'uid'} \n";
+       %hash=%$lastref;
+       if($Conf::log_level>=3){
+          print "   Login is: $hash{'uid'} \n";
+       }
        return %hash;
     } else {
 
@@ -433,8 +436,9 @@ sub fetch_login {
 
     my $dbh=&Sophomorix::SophomorixPgLdap::db_connect();
     my $sql="SELECT * FROM userdata $where";
-    print $sql."\n";
-
+    if($Conf::log_level>=3){
+       print $sql."\n";
+    }
     my $sth=$dbh->prepare ($sql);
 
     $sth->execute();

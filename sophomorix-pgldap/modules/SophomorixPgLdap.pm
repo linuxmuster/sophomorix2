@@ -84,13 +84,17 @@ sub db_connect {
     my $dbname="ldap";
     my $dbuser="postgres";
     my $pass_saved="";
-    print "Connecting to database ...\n";
+    if($Conf::log_level>=3){
+       print "Connecting to database ...\n";
+    }
     # needs at UNIX sockets:   local all all  trust sameuser
     my $dbh = DBI->connect("dbi:Pg:dbname=$dbname", "$dbuser","$pass_saved",
                { RaiseError => 1, PrintError => 0, AutoCommit => 1 });
     if (defined $dbh){
-       print "   Connection with password $pass_saved successful!\n";
-       print "   Database $dbname ready for user $dbuser!\n";
+       if($Conf::log_level>=3){
+          print "   Connection with password $pass_saved successful!\n";
+          print "   Database $dbname ready for user $dbuser!\n";
+       }
     } else {
        print "   Could not connect to database with password $pass_saved!\n";
     }
@@ -145,9 +149,9 @@ sub create_user_db_entry {
 
     # create crypted passwords for samba
     my ($lmpassword,$ntpassword) = ntlmgen $pass;
-
-    print "$lmpassword \n$ntpassword from $pass\n";
-
+    if($Conf::log_level>=3){
+       print "$lmpassword \n$ntpassword from $pass\n";
+    }
     if ($DevelConf::testen==0) {
        # SQL-Funktion aufrufen die Enträge in 
        #         ldap_entries, 
@@ -157,16 +161,23 @@ sub create_user_db_entry {
        # der Username muss hier schon übergeben werden.
 
        $sql="SELECT manual_create_ldap_for_account('$login')";
-       print "\nSQL: $sql\n";
-       my $posix_account_id = $dbh->selectrow_array($sql);
-       print "   --> \$posix_account_id ist $posix_account_id \n\n";
 
+       if($Conf::log_level>=3){
+          print "\nSQL: $sql\n";
+       }
+       my $posix_account_id = $dbh->selectrow_array($sql);
+       if($Conf::log_level>=3){
+          print "   --> \$posix_account_id ist $posix_account_id \n\n";
+       }
        #Freie UID holen
        $sql="select manual_get_next_free_uid()";
-       print "SQL: $sql\n";
-       my $uidnumber = $dbh->selectrow_array($sql); 
-       print "   --> \$uidnumber ist $uidnumber \n\n";
-
+       if($Conf::log_level>=3){
+          print "SQL: $sql\n";
+       }
+       my $uidnumber = $dbh->selectrow_array($sql);
+       if($Conf::log_level>=3){
+          print "   --> \$uidnumber ist $uidnumber \n\n";
+       }
        # User anlegen
        # 1. Tabelle posix_account
        # Pflichtfelder (laut Datenbank): id,uidnumber,uid,gidnumber,firstname
@@ -187,7 +198,9 @@ sub create_user_db_entry {
          '$description'
         )
 	";
-        print "SQL: $sql\n";
+        if($Conf::log_level>=3){
+           print "SQL: $sql\n";
+        }
         $dbh->do($sql);
 
        # 2. Tabelle samba_sam_account
@@ -224,8 +237,9 @@ sub create_user_db_entry {
          NULL
         )
 	";
-       print "SQL: $sql\n";
-#  later
+       if($Conf::log_level>=3){
+          print "SQL: $sql\n";
+       }
        $dbh->do($sql);
 
        # 3. Tabelle posix_account_details
@@ -263,13 +277,17 @@ sub create_user_db_entry {
          '19700101',
          '19700101')
 	";
-       print "SQL: $sql\n";
-       $dbh->do($sql);
+      if($Conf::log_level>=3){
+         print "SQL: $sql\n";
+      }
+      $dbh->do($sql);
 
       $dbh->disconnect();
 
   } else {
-       print "Test:   Writing entry in database\n";
+      if($Conf::log_level>=3){
+         print "Test:   Wrote entry into database\n";
+      }
   }
 
 }
@@ -671,7 +689,9 @@ sub update_user_db_entry {
     # Check of Parameters
     foreach my $param (@_){
        ($attr,$value) = split(/=/,$param);
-       printf "   %-18s : %-20s\n",$attr ,$value;
+       if($Conf::log_level>=2){
+          printf "   %-18s : %-20s\n",$attr ,$value;
+       }
        if    ($attr eq "AdminClass"){
 	   $admin_class="$value";
 	   push @posix_details, "adminclass = '$admin_class'";
@@ -745,11 +765,13 @@ sub update_user_db_entry {
     my $sql="";
        $sql="SELECT id FROM userdata 
              WHERE uid='$login'";
-       print "\nSQL: $sql\n";
+    if($Conf::log_level>=3){
+        print "\nSQL: $sql\n";
+    }
     my ($id)=$dbh->selectrow_array($sql);
-
-    print "Id of $login: $id \n";
-
+    if($Conf::log_level>=3){
+       print "Retrieved Id of $login: $id \n";
+    }
     # updating posix_account
     my $posix=join(", ",@posix);
     if ($posix ne ""){
@@ -758,8 +780,9 @@ sub update_user_db_entry {
               $posix
              WHERE id = $id
             ";
-
+    if($Conf::log_level>=3){
        print "\nSQL: $sql\n";
+    }
        $dbh->do($sql);
     }
 
@@ -771,8 +794,9 @@ sub update_user_db_entry {
               $posix_details
              WHERE id = $id
             ";
-
-       print "\nSQL: $sql\n";
+       if($Conf::log_level>=3){
+          print "\nSQL: $sql\n";
+       }
        $dbh->do($sql);
    }
 
@@ -792,7 +816,9 @@ sub remove_user_db_entry {
 
     # what to do
     $sql="SELECT manual_delete_account('$login')";
-    print "SQL: $sql\n";
+    if($Conf::log_level>=3){
+       print "SQL: $sql\n";
+    }
     my $uidnumber = $dbh->selectrow_array($sql);
     print "Deleted User $login ($uidnumber);";
 
