@@ -102,6 +102,8 @@ sophomorix-add
    * add windows-group when unix-group is added
      Command: net groupmap ...
    - add standard linux GUI (kde3 (configurable))
+   - when using -l option: login-card could not be created is missleading
+     that something went wrong
 
 sophomorix-move
    - move Data from share into home, even if 'hidden' in another owners directory
@@ -671,6 +673,16 @@ SQL-DBI/OpenLDAP related:
        - use proxy user in /etc/libnss-ldap.conf 
          (binddn, bindpw)
 
+- make ldap available to other hosts
+- samba: what has to be added?
+  make a dump before a user is added with smbldaptools and after.
+- view userdata:  gidnumber of primary group
+
+- additional Fields for groups(and projects)
+- view groupdata
+
+
+
 1.4.5 (2005-?)
 
 
@@ -682,6 +694,11 @@ SQL-DBI/OpenLDAP related:
          add lehrer to test
          look in SophomorixPgLdap what has to be done
          linux_gruppe_to_kill in sophomorix-kill korrigieren
+         move set_sophomorix-passwd  from SophomorixBase nach Files or Ldap
+            - write new function for posgres 
+         test correct group, when view is changed
+         test login
+
 
    - print sql commands on console only in logleve 3 (-vv)
    - sophomorix-test leaves database without modifications (still to test)
