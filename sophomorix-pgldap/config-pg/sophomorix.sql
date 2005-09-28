@@ -337,6 +337,37 @@ CREATE FUNCTION manual_delete_account(varchar) RETURNS integer
     LANGUAGE plpgsql;
 
 
+CREATE FUNCTION manual_create_ldap_for_group(varchar) RETURNS integer
+    AS '
+    DECLARE
+     groupname ALIAS FOR $1;
+     groups_id INTEGER;
+     ldap_entries_id INTEGER;
+     BEGIN
+     SELECT INTO groups_id nextval(''groups_id_seq'');
+     SELECT INTO ldap_entries_id nextval(''ldap_entries_id_seq'');
+
+     INSERT INTO ldap_entries (id,dn,oc_map_id,parent,keyval) VALUES (ldap_entries_id,''cn=''||groupname||'',ou=groups,dc=linuxmuster,dc=de'',4,5,groups_id);
+
+     INSERT INTO ldap_entry_objclasses (entry_id,oc_name) VALUES (ldap_entries_id,''sambaGroupMapping'');
+
+     RETURN groups_id;
+    END;
+    '
+    LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION manual_get_next_free_gid() RETURNS integer
+    AS '
+    DECLARE
+     get_gidnumber INTEGER;
+     BEGIN
+     SELECT INTO get_gidnumber gidnumber from posix_account WHERE uid=''NextFreeUnixId'';
+     UPDATE posix_account set gidnumber=get_gidnumber+1 WHERE uid=''NextFreeUnixId'';
+
+     RETURN get_gidnumber;
+    END;
+    '
+    LANGUAGE plpgsql;
 
 
 --
