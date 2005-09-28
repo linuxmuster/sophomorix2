@@ -178,6 +178,10 @@ sub create_user_db_entry {
        if($Conf::log_level>=3){
           print "   --> \$uidnumber ist $uidnumber \n\n";
        }
+
+       # neue gruppe anlegen und gidnumber holen, falls erforderlich
+       my $gidnumber=&create_class_db_entry($admin_class);
+
        # User anlegen
        # 1. Tabelle posix_account
        # Pflichtfelder (laut Datenbank): id,uidnumber,uid,gidnumber,firstname
@@ -188,7 +192,7 @@ sub create_user_db_entry {
 	($posix_account_id,
          $uidnumber,
          '$login',
-         1000,
+         $gidnumber,
          '$vorname',
          '$nachname',
          '$homedir',
@@ -294,10 +298,78 @@ sub create_user_db_entry {
 
 
 
+# adds a class to the user database
+sub create_class_db_entry {
+    my ($class_to_add) = @_;
+    my %classes=();
+    my ($class,$dept,$type,$mail,$quota) = ("","","","","");
+    my $sql="";
+    my $gidnumber;
+    # SQL-Funktion aufrufen die Enträge in ldap_entries, ldap_entry_objclasses
+    # und NextFreeUnixId macht und groups_id zurück gibt
+    # der Username muss hier schon übergeben werden.
+    my $dbh=&db_connect();
+
+    # exists class already? 
+    my ($gid_sys)= $dbh->selectrow_array( "SELECT gidnumber 
+                                         FROM groups 
+                                         WHERE gid='$class_to_add'" );
+    if (not defined $gid_sys){
+       $gid_sys="";
+    }
+
+    # check if group exists
+    if ($gid_sys ne ""){
+        # gidnumber found
+        $gidnumber=$gid_sys;
+        print "group $class_to_add exists already ($gidnumber)\n";
+    } else {
+        # begin adding group
+        print "group does not exist -> adding $class_to_add\n";
+
+    #Freie GID holen
+    $sql="select manual_get_next_free_gid()";
+    print "\nSQL: $sql\n";
+    $gidnumber = $dbh->selectrow_array($sql);
+    print "Received $gidnumber as next free gidnumber\n";
+    $sql="SELECT manual_create_ldap_for_group('$class_to_add')";
+    print "\nSQL: $sql\n";
+    my $groups_id = $dbh->selectrow_array($sql);
+
+    #Gruppe anlegen (2Tabellen)
+    #1. Tabelle groups
+    #Pflichtfelder (laut Datenbank): alle
+
+    $sql="INSERT INTO groups
+         (id,gidnumber,gid)
+	 VALUES
+	 ($groups_id,$gidnumber,'$class_to_add')";	
+    print "\nSQL: $sql\n";
+    $dbh->do($sql);
+
+    #2. Tabelle samba_group_mapping
+    #Pflichtfelder (laut Datenbank) id
+    $sql="INSERT INTO samba_group_mapping
+	 (id,gidnumber,sambasid,sambagrouptype,displayname,description,sambasidlist)
+	 VALUES
+	 ($groups_id,
+          $gidnumber,
+          NULL,
+          NULL,
+          NULL,
+          NULL,
+          NULL)";	
+    print "\nSQL: $sql\n";
+    $dbh->do($sql);
+    } # end adding group
+    return $gidnumber;
+}
+
+
 
 
 # adds a class to the user database
-sub create_class_db_entry {
+sub create_class_db_entry_oldstuff {
     my ($class_to_add) = @_;
     my %classes=();
     my ($class,$dept,$type,$mail,$quota) = ("","","","","");
@@ -308,7 +380,6 @@ sub create_class_db_entry {
        $classes{$class}="some info";
     }
     close(CLASS);
-    
     # append if nonexistent
     if (not exists $classes{$class_to_add}){
     open(CLASS,">>${DevelConf::protokoll_pfad}/class_db");
