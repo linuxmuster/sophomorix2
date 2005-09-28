@@ -367,29 +367,6 @@ sub create_class_db_entry {
 
 
 
-
-# adds a class to the user database
-sub create_class_db_entry_oldstuff {
-    my ($class_to_add) = @_;
-    my %classes=();
-    my ($class,$dept,$type,$mail,$quota) = ("","","","","");
-    # which classes exist
-    open(CLASS,"<${DevelConf::protokoll_pfad}/class_db");
-    while (<CLASS>) {
-       ($class,$dept,$type,$mail,$quota)=split(/;/);
-       $classes{$class}="some info";
-    }
-    close(CLASS);
-    # append if nonexistent
-    if (not exists $classes{$class_to_add}){
-    open(CLASS,">>${DevelConf::protokoll_pfad}/class_db");
-    print CLASS "$class_to_add".";;;;quota;\n";
-    close(CLASS);
-    }
-}
-
-
-
 ###########################################################################
 # CHECKED, NEW
 ###########################################################################
