@@ -368,11 +368,15 @@ while(<USERHINZU>){
                          $klartext_passwort,
                          $shell,
                          "",
-                         $unid);
+                         $unid,
+                        );
 
   # 2. Add the class (db and dirs,links, ...)
-  &create_class_db_entry($new_admin_group);
-  &add_class_to_sys($new_admin_group,$wunsch_gid); # VOR add_user_to_sys !
+  if (${DevelConf::db_backend} ne "pgldap"){
+     # this is done already with create_user_db_entry, when using postgres
+     &create_class_db_entry($new_admin_group);
+     &add_class_to_sys($new_admin_group,$wunsch_gid); # VOR add_user_to_sys !
+  }
   &provide_class_files($new_admin_group);
 
   # 3. Add  user to db
