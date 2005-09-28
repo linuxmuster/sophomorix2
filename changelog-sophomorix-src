@@ -112,18 +112,19 @@ sophomorix-kill
 
 
 sophomorix-user 
-   - wenn user is reactivated, then add her automatically in her ExitAdminClass, 
+   - wenn user is activated, then add her automatically in her ExitAdminClass, 
      if she is in dachboden 
      or in the class specified by  -c class option
-   - Changing a state of a user(make Permanent, Killable, ...)
+   - Changing a state of a user (make Permanent, Killable, ...)
      by using function create_userlist, i.e. make all pupils killable
    - option --move moves a pupil at once in the new class 
      i.e. (calls sophomorix-move -l loginname)
-   - user with status U,E must not be reactivated?
-   - option -i : shows all users (should be used with | less)
-   - option --reactivatable (or -i -D -T shows info about Disabled snd Tolerated)
+   - user with status U,E must not be activated?
+   - option -i : shows all selected users (should be used with | less)
+   - option --activatable (or -i -D -T shows info about Disabled or Tolerated users)
    - when reactivating a user, set a date in the future to keep her longer acctive 
-     (optional parameter)
+     (optional parameter, configurable)
+   - option --newest shows/modifies users added on the latest day/latest run
    - nicely format (looong) modulelist, when displaying webmin info
 
 sophomorix-split
@@ -644,7 +645,7 @@ Update steps to postgresql-ldap
 
 
 
-SQL-DBI related:
+SQL-DBI/OpenLDAP related:
 
 - Performance: conneect once in every script (not in every function)
 - Transaction: combine inserts in create_user_entry 
@@ -664,7 +665,11 @@ SQL-DBI related:
     
 - dont create /var/lib/sophomorix/database when using pgsql
 
-
+- /etc/nsswitch.conf:    ldap compat OR compat ldap
+- /etc/ldap/slapd.conf:  
+       - add a proxy user, used by 
+       - use proxy user in /etc/libnss-ldap.conf 
+         (binddn, bindpw)
 
 1.4.5 (2005-?)
 
@@ -678,6 +683,7 @@ SQL-DBI related:
          look in SophomorixPgLdap what has to be done
          linux_gruppe_to_kill in sophomorix-kill korrigieren
 
+   - print sql commands on console only in logleve 3 (-vv)
    - sophomorix-test leaves database without modifications (still to test)
    - sophomorix-kill removes users (not homedir)
    - function to killl a user in database and pgldap-module
