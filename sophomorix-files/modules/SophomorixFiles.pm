@@ -10,6 +10,7 @@ require Exporter;
 @EXPORT = qw(show_modulename
 	     create_user_db_entry
              create_class_db_entry
+             set_sophomorix_passwd
              user_deaktivieren
              user_reaktivieren
 	     update_user_db_entry
@@ -121,6 +122,37 @@ sub create_class_db_entry {
     close(CLASS);
     }
 }
+
+
+
+
+=pod
+
+=item I<set_sophomorix_passwd(login,string)>
+
+Setzt das Passwort string in linux, samba, ...
+
+=cut
+
+
+sub set_sophomorix_passwd {
+    my ($login,$pass) = @_;
+    if ($DevelConf::testen==0) {
+       # Passwort verschlüsseln
+       open(PASSWD,"| /usr/sbin/chpasswd");
+          print PASSWD "$login:$pass\n";     
+       close(PASSWD);
+       # Passwort in smbpasswd setzen
+       open(SMBPASSWD,"| /usr/bin/smbpasswd -s -a $login");
+          print SMBPASSWD "$pass\n$pass\n"; 
+       close(SMBPASSWD);
+  } else {
+     print "Test: Setting password \n";
+  }
+}
+
+
+
 
 
 

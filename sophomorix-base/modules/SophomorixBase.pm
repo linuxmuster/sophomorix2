@@ -49,7 +49,6 @@ use Time::localtime;
               get_passwd_charlist
               get_random_password
               get_plain_password
-              set_sophomorix_passwd
               create_share_link
               remove_share_link
               zeit
@@ -1794,30 +1793,6 @@ sub get_plain_password {
 }
 
 
-
-=pod
-
-=item I<set_sophomorix_passwd(login,string)>
-
-Setzt das Passwort string in linux, samba, ...
-
-=cut
-
-sub set_sophomorix_passwd {
-    my ($login,$pass) = @_;
-    if ($DevelConf::testen==0) {
-       # Passwort verschlüsseln
-       open(PASSWD,"| /usr/sbin/chpasswd");
-          print PASSWD "$login:$pass\n";     
-       close(PASSWD);
-       # Passwort in smbpasswd setzen
-       open(SMBPASSWD,"| /usr/bin/smbpasswd -s -a $login");
-          print SMBPASSWD "$pass\n$pass\n"; 
-       close(SMBPASSWD);
-  } else {
-     print "Test: Setting password \n";
-  }
-}
 
 
 =pod

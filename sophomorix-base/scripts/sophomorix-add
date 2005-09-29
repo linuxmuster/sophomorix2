@@ -22,6 +22,7 @@ use if ${DevelConf::db_backend} eq 'files' ,
     'Sophomorix::SophomorixFiles' => qw(show_modulename
                                         create_user_db_entry
                                         backup_user_database
+                                        set_sophomorix_passwd
                                         create_class_db_entry
                                        );
 use if ${DevelConf::db_backend} eq 'pgldap' , 
@@ -29,6 +30,7 @@ use if ${DevelConf::db_backend} eq 'pgldap' ,
                                         db_connect
                                         create_user_db_entry
                                         backup_user_database
+                                        set_sophomorix_passwd
                                         create_class_db_entry
                                        );
 

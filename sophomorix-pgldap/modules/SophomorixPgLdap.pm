@@ -14,6 +14,7 @@ require Exporter;
              date_perl2pg
              date_pg2perl
              create_class_db_entry
+             set_sophomorix_passwd
              user_deaktivieren
              user_reaktivieren
 	     update_user_db_entry
@@ -147,10 +148,19 @@ sub create_user_db_entry {
 
     my $birthday_pg = &date_perl2pg($birthday_perl);
 
+    # create crypt password for liux
+    my $crypt_salt_format = '%s';
+    my $salt = sprintf($crypt_salt_format,make_salt());
+    my $linux_pass = "{CRYPT}" . crypt($pass,$salt);
+
     # create crypted passwords for samba
     my ($lmpassword,$ntpassword) = ntlmgen $pass;
+
     if($Conf::log_level>=3){
-       print "$lmpassword \n$ntpassword from $pass\n";
+       print "Encrypted Password $pass : \n";
+       print "   Samba NT: $ntpassword \n";
+       print "   Samba LM: $lmpassword \n";
+       print "   Linux   : $linux_pass \n";
     }
     if ($DevelConf::testen==0) {
        # SQL-Funktion aufrufen die Enträge in 
@@ -198,7 +208,7 @@ sub create_user_db_entry {
          '$homedir',
          '$gecos',
          '$sh',
-         '$pass',
+         '$linux_pass',
          '$description'
         )
 	";
@@ -294,6 +304,100 @@ sub create_user_db_entry {
       }
   }
 
+}
+
+
+
+
+=pod
+
+=item I<set_sophomorix_passwd(login,string)>
+
+Setzt das Passwort string in linux, samba, ...
+
+=cut
+
+sub set_sophomorix_passwd {
+    my ($login,$pass) = @_;
+       # create crypt password for liux
+       my $crypt_salt_format = '%s';
+       my $salt = sprintf($crypt_salt_format,make_salt());
+       my $linux_pass = "{CRYPT}" . crypt($pass,$salt);
+       # create crypted passwords for samba
+       my ($lmpassword,$ntpassword) = ntlmgen $pass;
+       my $dbh=&db_connect();
+       my $sql="";
+       $sql="SELECT id FROM userdata WHERE uid='$login'";
+          print "\nSQL: $sql\n";
+
+       my ($id)= $dbh->selectrow_array($sql);
+    if (not defined $id){
+       $id="";
+       print "ERROR: User $login not found in database to set password!\n";
+       $return=0;
+    } else {
+
+       if($Conf::log_level>=2){
+          print "Setting password of user $login (Database ID: $id)...\n";
+       }
+       $sql="UPDATE posix_account SET userpassword='$linux_pass' 
+            WHERE id = $id";
+       if($Conf::log_level>=3){
+          print "\nSQL: $sql\n";
+       }
+       if ($DevelConf::testen==0) {
+          print "Test: setting password part 1\n";
+       } else {
+          $dbh->do($sql);
+       }
+       # todo sambapwlastset  ????????? 
+       $sql="UPDATE samba_sam_account 
+              SET sambalmpassword='$lmpassword', sambantpassword='$ntpassword'
+              WHERE id = $id";
+       if($Conf::log_level>=3){
+          print "SQL: $sql\n";
+       }
+       if ($DevelConf::testen==0) {
+          print "Test: setting password part 2\n";
+      } else {
+          $dbh->do($sql);
+      }
+    }
+
+    $dbh->disconnect();
+}
+
+
+
+
+
+sub make_salt {
+   my $length=32;
+   $length = $_[0] if exists($_[0]);
+
+   my @tab = ('.', '/', 0..9, 'A'..'Z', 'a'..'z');
+   return join "",@tab[map {rand 64} (1..$length)];
+}
+
+
+
+
+
+
+sub set_sophomorix_passwd_oldstuff {
+    my ($login,$pass) = @_;
+    if ($DevelConf::testen==0) {
+       # Passwort verschlüsseln
+       open(PASSWD,"| /usr/sbin/chpasswd");
+          print PASSWD "$login:$pass\n";     
+       close(PASSWD);
+       # Passwort in smbpasswd setzen
+       open(SMBPASSWD,"| /usr/bin/smbpasswd -s -a $login");
+          print SMBPASSWD "$pass\n$pass\n"; 
+       close(SMBPASSWD);
+  } else {
+     print "Test: Setting password \n";
+  }
 }
 
 
