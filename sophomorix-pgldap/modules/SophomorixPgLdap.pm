@@ -820,6 +820,8 @@ Parameter 2: List with Attribute=Value
 sub update_user_db_entry {
     my $login=shift;
     my $admin_class="";
+    my $gid_name="";
+    my $gid_number;
     my $lastname="";
     my $firstname="";
     my $gecos="";
@@ -838,6 +840,9 @@ sub update_user_db_entry {
     my @posix=();
     my @posix_details=();
 
+    my $dbh=&db_connect();
+    my $sql="";
+    
     # Check of Parameters
     foreach my $param (@_){
        ($attr,$value) = split(/=/,$param);
@@ -883,7 +888,7 @@ sub update_user_db_entry {
        elsif ($attr eq "Status"){
            $status="$value";
 	   push @posix_details, "sophomorixstatus = '$status'";
-           }
+       }
        elsif ($attr eq "TolerationDate"){
            $toleration_date=&date_perl2pg($value);
            if ($toleration_date ne "NULL"){
@@ -902,6 +907,16 @@ sub update_user_db_entry {
            $exit_admin_class="$value";
            push @posix_details, "exitadminclass = '$exit_admin_class'";
            }
+       elsif ($attr eq "Gid"){
+           $gid_name="$value";
+           # neue gruppe anlegen und gidnumber holen, falls erforderlich
+           $gid_number=&create_class_db_entry($gid_name);
+           # gid_number ermitteln
+#           $sql="SELECT gidnumber FROM groups 
+#                 WHERE gid='$gid_name'";
+#           $gid_number = $dbh->selectrow_array($sql);
+           push @posix, "gidnumber = '$gid_number'";
+       }
        elsif ($attr eq "AccountType"){
            $account_type="$value";
            # todo
@@ -913,10 +928,10 @@ sub update_user_db_entry {
        else {print "Attribute $attr unknown\n"}
     }
 
-    my $dbh=&db_connect();
-    my $sql="";
-       $sql="SELECT id FROM userdata 
-             WHERE uid='$login'";
+
+
+    $sql="SELECT id FROM userdata 
+          WHERE uid='$login'";
     if($Conf::log_level>=3){
         print "\nSQL: $sql\n";
     }
@@ -924,6 +939,8 @@ sub update_user_db_entry {
     if($Conf::log_level>=3){
        print "Retrieved Id of $login: $id \n";
     }
+
+
     # updating posix_account
     my $posix=join(", ",@posix);
     if ($posix ne ""){
@@ -1230,9 +1247,6 @@ sub search_user {
   my $home_ex="---";
 
   &Sophomorix::SophomorixBase::titel("I'm looking for $str in postgresql ...");
-
-
-
     my $dbh=&db_connect();
 
     my $sql="";
