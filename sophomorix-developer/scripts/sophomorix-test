@@ -172,6 +172,7 @@ print "Adding $#users_to_add users to schueler.txt\n";
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "joerg maier");
+&ok_account("gid", "m4kb");
 
 
 
@@ -183,6 +184,7 @@ print "Adding $#users_to_add users to schueler.txt\n";
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "mohammed oeztuerk");
+&ok_account("gid", "7a");
 
 
 
@@ -194,6 +196,7 @@ print "Adding $#users_to_add users to schueler.txt\n";
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "larry wall");
+&ok_account("gid", "2c");
 
 
 
@@ -206,6 +209,7 @@ print "Adding $#users_to_add users to schueler.txt\n";
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "987654321");
+&ok_account("gid", "m1kb");
 
 
 %account = &fetch_single_account("surname='darwin' 
@@ -220,6 +224,7 @@ print "Adding $#users_to_add users to schueler.txt\n";
 &ok_account("gecos", "charles darwin");
 &ok_account("unid", "");
 &ok_account("exitunid", "");
+&ok_account("gid", "teachers");
 
 
 
@@ -248,6 +253,7 @@ print '
 &ok_account("sophomorixstatus", "T");
 &ok_account("tolerationdate", $today_pg);
 &ok_account("gecos", "joerg maier");
+&ok_account("gid", "m4kb");
 
 
 # Test if user is moveable to dachboden
@@ -269,6 +275,7 @@ print '
                               );
 &ok_account("exitadminclass", "m4kb");
 &ok_account("gecos", "joerg maier");
+&ok_account("gid", "dachboden");
 
 
 
@@ -292,6 +299,7 @@ $login = &fetch_login("surname='maier'
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "");
 &ok_account("gecos", "joerg maier");
+&ok_account("gid", "dachboden");
 
 &run_command("sophomorix-check",$verbose);
 
@@ -308,6 +316,7 @@ $login = &fetch_login("surname='maier'
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("exitadminclass", "m4kb");
 &ok_account("gecos", "joerg maier");
+&ok_account("gid", "dachboden");
 
 
 # todo ???????????????ßßß
@@ -331,6 +340,7 @@ $login = &fetch_login("surname='maier'
 &ok_account("gecos", "joerg maier");
 &ok_account("unid", "");
 &ok_account("exitunid", "");
+&ok_account("gid", "dachboden");
 
 
 &run_command("sophomorix-check",$verbose);
@@ -393,6 +403,7 @@ $login = &fetch_login("surname='oeztuerk'
 &ok_account("sophomorixstatus", "T");
 &ok_account("tolerationdate", $today_pg);
 &ok_account("gecos", "mohammed oeztuerk");
+&ok_account("gid", "7a");
 
 
 
@@ -420,6 +431,7 @@ $login = &fetch_login("surname='oeztuerk'
 &ok_account("sophomorixstatus", "E");
 &ok_account("tolerationdate", "");
 &ok_account("gecos", "mohammed oeztuerk");
+&ok_account("gid", "7a");
 
 
 &run_command("sophomorix-move",$verbose);
@@ -434,6 +446,7 @@ $login = &fetch_login("surname='oeztuerk'
 &ok_account("sophomorixstatus", "E");
 &ok_account("tolerationdate", "");
 &ok_account("gecos", "mohammed oeztuerk");
+&ok_account("gid", "7c");
 
 
 
@@ -471,6 +484,7 @@ print '
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", $today_pg);
 &ok_account("gecos", "larry wall");
+&ok_account("gid", "2c");
 
 
 
@@ -509,6 +523,7 @@ $login = &fetch_login("surname='wall'
 &ok_account("deactivationdate", $today_pg);
 &ok_account("gecos", "larry wall");
 &ok_account("exitadminclass", "2c");
+&ok_account("gid", "dachboden");
 
 
 
@@ -545,6 +560,7 @@ $login = &fetch_login("surname='wall'
 &ok_account("exitadminclass", "2c");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "larry wall");
+&ok_account("gid", "3c");
 
 
 # todo ????????ß
@@ -578,6 +594,7 @@ print '
                       );
 &ok_account("sophomorixstatus", "E");
 &ok_account("gecos", "mohammed oetztuerk");
+&ok_account("gid", "7c");
 
 
 # updating the first Mohhammed -> Mohammad
@@ -601,6 +618,7 @@ print '
                       );
 &ok_account("sophomorixstatus", "E");
 &ok_account("gecos", "mohammad oetztuerk");
+&ok_account("gid", "7c");
 
 
 # updating birth 82 -> 83
@@ -622,6 +640,7 @@ print '
                       );
 &ok_account("sophomorixstatus", "E");
 &ok_account("gecos", "mohammad oetztuerk");
+&ok_account("gid", "7c");
 
 
 
@@ -655,6 +674,7 @@ print '
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "larry wall");
 &ok_account("unid", "123456789");
+&ok_account("gid", "3c");
 
 
 # new name, first, birth
@@ -676,6 +696,7 @@ print '
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "richard stallman");
 &ok_account("unid", "123456789");
+&ok_account("gid", "3c");
 
 
 
@@ -710,6 +731,7 @@ print '
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
+&ok_account("gid", "m1kb");
 
 
 # User comes back with correction (Birthday), but same unid as in system
@@ -733,6 +755,7 @@ print '
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "987654321");
 &ok_account("exitunid", "987654321");
+&ok_account("gid", "m1kb");
 
 
 
@@ -758,6 +781,7 @@ print '
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "");
+&ok_account("gid", "m1kb");
 
 
 
@@ -866,6 +890,7 @@ foreach my $login (@logins){
 &ok_account("gecos", "joerg maier");
 &ok_account("unid", "");
 &ok_account("exitunid", "");
+&ok_account("gid", "dachboden");
 
 
 %account = &fetch_single_account("surname='oetztuerk' 
@@ -880,6 +905,7 @@ foreach my $login (@logins){
 &ok_account("gecos", "mohammad oetztuerk");
 &ok_account("unid", "");
 &ok_account("exitunid", "");
+&ok_account("gid", "dachboden");
 
 
 %account = &fetch_single_account("surname='stallman' 
@@ -894,6 +920,7 @@ foreach my $login (@logins){
 &ok_account("gecos", "richard stallman");
 &ok_account("unid", "");
 &ok_account("exitunid", "123456789");
+&ok_account("gid", "dachboden");
 
 
 # 
@@ -909,6 +936,7 @@ foreach my $login (@logins){
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
+&ok_account("gid", "dachboden");
 
 
 %account = &fetch_single_account("surname='darwin' 
@@ -923,6 +951,7 @@ foreach my $login (@logins){
 &ok_account("gecos", "charles darwin");
 &ok_account("unid", "");
 &ok_account("exitunid", "");
+&ok_account("gid", "speicher");
 
 
 
@@ -959,6 +988,7 @@ $login = &fetch_login("surname='mahn'
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
+&ok_account("gid", "dachboden");
 
 # todo?????? check_account
 
@@ -981,6 +1011,7 @@ $login = &fetch_login("surname='mahn'
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
+&ok_account("gid", "dachboden");
 
 # This should not change anything
 &run_command("sophomorix-check",$verbose);
@@ -1005,6 +1036,7 @@ $login = &fetch_login("surname='mahn'
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
+&ok_account("gid", "dachboden");
 
 
 # Make the account Freeze
@@ -1024,6 +1056,7 @@ $login = &fetch_login("surname='mahn'
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
+&ok_account("gid", "dachboden");
 
 # This should not change anything
 &run_command("sophomorix-check",$verbose);
@@ -1048,6 +1081,7 @@ $login = &fetch_login("surname='mahn'
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
+&ok_account("gid", "dachboden");
 
 
 
@@ -1068,6 +1102,7 @@ $login = &fetch_login("surname='mahn'
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
+&ok_account("gid", "dachboden");
 
 
 # Check if the account can be moved to exitadminclass
@@ -1099,6 +1134,7 @@ $login = &fetch_login("surname='mahn'
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
+&ok_account("gid", "m1kb");
 
 
 # since it was manually activated it should not be moved
@@ -1129,6 +1165,7 @@ $login = &fetch_login("surname='mahn'
 &ok_account("gecos", "oliver mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
+&ok_account("gid", "m1kb");
 
 
 
