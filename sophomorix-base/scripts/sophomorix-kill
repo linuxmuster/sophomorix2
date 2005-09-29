@@ -124,8 +124,6 @@ if ($info==1) {
        chomp();
        ($identifier_to_kill, $login_name_to_kill)=split(/::/);
        # Klasse ermitteln
-# oldstuff
-#       $linux_gruppe_to_kill="Todo";
        ($linux_gruppe_to_kill)=&get_group_list($login_name_to_kill);
        printf "%-11s %-12s %-40s\n",
               "$login_name_to_kill","$linux_gruppe_to_kill","$identifier_to_kill";
@@ -187,8 +185,6 @@ while(<KILL>){
      chomp();
      ($identifier_to_kill, $login_name_to_kill)=split(/::/);
      # Klasse ermitteln
-# oldstuff
-#     $linux_gruppe_to_kill="Todo";
      ($linux_gruppe_to_kill)=&get_group_list($login_name_to_kill);
      # Home-Verzeichnis ermitteln
      ($a,$a,$a,$a,$a,$a,$a,$home_verzeichnis_to_kill,$a)=
