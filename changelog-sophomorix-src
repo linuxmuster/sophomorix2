@@ -689,17 +689,20 @@ SQL-DBI/OpenLDAP related:
 
    NEXT: sophomorix-user -s in multiple fields
          samba fields
-         create groups
-         create a crypted userpassword for linux
          add lehrer to test
          look in SophomorixPgLdap what has to be done
-         linux_gruppe_to_kill in sophomorix-kill korrigieren
-         move set_sophomorix-passwd  from SophomorixBase nach Files or Ldap
-            - write new function for posgres 
-         test correct group, when view is changed
          test login
+         /var/lib/ldap/DB_CONFIG (für den pcache proxy)
 
-
+   - function update_user_db_entry extended to "Gid=groupname"
+   - update gid when moving a user
+   - create groups when adding users an group doesn't exist
+   - created a salted, crypted userpassword for linux
+     (checked that linux login works)
+   - linux_gruppe_to_kill in sophomorix-kill is now working
+   - checked that View userdata shows gid from primary group
+   - moved set_sophomorix-passwd  from SophomorixBase nach Files and Ldap modules
+   - wrote new function set_sophomorix-passwd for postgres 
    - print sql commands on console only in logleve 3 (-vv)
    - sophomorix-test leaves database without modifications (still to test)
    - sophomorix-kill removes users (not homedir)
