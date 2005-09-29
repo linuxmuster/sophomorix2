@@ -327,16 +327,19 @@ while(<USERVERSETZEN>){
        if ($neue_klasse eq "dachboden"){
           &update_user_db_entry($login_versetzen,
                       "AdminClass=$neue_klasse",
+                      "Gid=$neue_klasse",
                       "ExitAdminClass=$alte_klasse");
        } elsif ($old_status eq "A") {
           &update_user_db_entry($login_versetzen,
                       "AdminClass=$neue_klasse",
+                      "Gid=$neue_klasse",
                       "Status=A",
                       "TolerationDate=",
                       "DeactivationDate=");
        } else {
           &update_user_db_entry($login_versetzen,
-                      "AdminClass=$neue_klasse");
+                      "AdminClass=$neue_klasse",
+                      "Gid=$neue_klasse");
        }
    } else {
       print "Nur Test: Daten in $DevelConf::protokoll_datei schreiben\n";
