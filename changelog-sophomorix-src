@@ -66,7 +66,7 @@ sophomorix-shell
    - change the login-shell of a user
    - configuration files like quota
      (quota.txt, lehrer.txt, class, ...)
-   - think about putting this into sophomorix-user as an option
+   - think about putting this into sophomorix-user as an option (YES)
 
 
 sophomorix-check
@@ -126,8 +126,17 @@ sophomorix-user
    - option --activatable (or -i -D -T shows info about Disabled or Tolerated users)
    - when reactivating a user, set a date in the future to keep her longer acctive 
      (optional parameter, configurable)
+   - option --clean-account: remove all data from the account, without removing
+     the account, password, ... itself (usefol for guest accounts)
    - option --newest shows/modifies users added on the latest day/latest run
    - nicely format (looong) modulelist, when displaying webmin info
+   - without option: prnt userlist:
+              num    U,E
+              num    T,A
+              num    ... D
+              -------------
+              num    total
+
 
 sophomorix-split
    - interrupt if class to split is nonexistent
@@ -147,6 +156,7 @@ sophomorix-split
 sophomorix-passwd
    - generate login-cards with changed passwords automatically
      (passwd_change.pdf)
+   - make this an option to sophomorix-user
 
 sophomorix-print
    - print subclass on login-card?
