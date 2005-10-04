@@ -129,7 +129,7 @@ sub create_user_db_entry {
        $pass,
        $sh,
        $quota,
-       $unid) = @_;
+       $unid,$unix_epoc) = @_;
 
     my $gecos = "$vorname"." "."$nachname";
 
@@ -250,7 +250,7 @@ print "GROUP-SID: ---$group_sid--- \n";
          NULL,
          '$lmpassword',
          '$ntpassword',
-         '$epoche_jetzt',
+         '$unix_epoc',
          '0',
          '2147483647',
          '2147483647',
