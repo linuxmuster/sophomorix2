@@ -85,26 +85,27 @@
 
 # You may wish to use password encryption.  See the section on
 # 'encrypt passwords' in the smb.conf(5) manpage before enabling.
-   encrypt passwords = yes
+   encrypt passwords = true
 
-# If you are using encrypted passwords, Samba will need to know what
-# password database type you are using.  
-   passdb backend = tdbsam guest
-
+   ldap replication sleep = 5000
+   ldap admin dn = cn=admin,@@basename@@
+   ldap suffix = @@basename@@
+   ldap group suffix = ou=groups
+   ldap user suffix = ou=accounts
+   ldap machine suffix = ou=machines
+   passdb backend = ldapsam:ldap://localhost
    obey pam restrictions = yes
-
    guest account = nobody
-;   invalid users = root
 
 # This boolean parameter controls whether Samba attempts to sync the Unix
 # password with the SMB password when the encrypted SMB password in the
 # passdb is changed.
-   unix password sync = yes
+#   unix password sync = yes
 
 # For Unix password sync to work on a Debian GNU/Linux system, the following
 # parameters must be set (thanks to Augustin Luton <aluton@hybrigenics.fr> for
 # sending the correct chat script for the passwd program in Debian Potato).
-   passwd program = /usr/bin/passwd %u
+   passwd program = /usr/sbin/smbldap-passwd %u
    passwd chat = *Enter\snew\sUNIX\spassword:* %n\n *Retype\snew\sUNIX\spassword:* %n\n .
 
 # This boolean controls whether PAM will be used for password changes
