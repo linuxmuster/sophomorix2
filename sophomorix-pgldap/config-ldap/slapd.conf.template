@@ -90,24 +90,24 @@ has_ldapinfo_dn_ru      no
 #######################################################################
 #pcache Proxy for faster access
 
-overlay       pcache
-proxycache    bdb 100000 3 1000 100
-
-proxyAttrset  0 uid userPassword uidNumber gidNumber cn homeDirectory loginShell gecos description objectClass
-proxyTemplate (&(objectClass=)(uidNumber=)) 0 36000
-proxyTemplate (&(objectClass=)(uid=)) 0 36000
-proxyTemplate (&(objectClass=)(memberUid=)) 0 36000
-
-proxyAttrset  1 cn userPassword memberUid uniqueMember gidNumber
-proxyTemplate (&(objectClass=)) 1 36000
-proxyTemplate (&(objectClass=)(gidNumber=)) 1 36000
-
-sizelimit       unlimited
-
-cachesize 20000
-dbcachesize 20000
-dbnosync
-
-directory /var/lib/ldap/
-index   objectClass,uid,uidNumber,gidNumber,memberUid     eq
-index   cn,mail,surname,givenname               eq,subinitial
+#overlay       pcache
+#proxycache    bdb 100000 3 1000 100
+#
+#proxyAttrset  0 uid userPassword uidNumber gidNumber cn homeDirectory loginShell gecos description objectClass
+#proxyTemplate (&(objectClass=)(uidNumber=)) 0 36000
+#proxyTemplate (&(objectClass=)(uid=)) 0 36000
+#proxyTemplate (&(objectClass=)(memberUid=)) 0 36000
+#
+#proxyAttrset  1 cn userPassword memberUid uniqueMember gidNumber
+#proxyTemplate (&(objectClass=)) 1 36000
+#proxyTemplate (&(objectClass=)(gidNumber=)) 1 36000
+#
+#sizelimit       unlimited
+#
+#cachesize 20000
+#dbcachesize 20000
+#dbnosync
+#
+#directory /var/lib/ldap/
+#index   objectClass,uid,uidNumber,gidNumber,memberUid     eq
+#index   cn,mail,surname,givenname               eq,subinitial
