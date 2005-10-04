@@ -174,6 +174,9 @@ install-pgldap:
 	##### the install script for the database installation
 	install -d -m755 -oroot -groot $(DBUPGRADE)/
 	##### put the update scripts ino place ()
+	##### Copy the bdb example file
+	install -d -m755 -oroot -groot $(CTEMPDIR)/bdb/
+	install -oroot -groot --mode=0644 sophomorix-pgldap/config-bdb/DB_CONFIG $(CTEMPDIR)/bdb/
 
 
 install-sys-files:
