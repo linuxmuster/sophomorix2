@@ -279,9 +279,21 @@ print "   SID from the system         :   $sid \n";
 #print "---$sid---\n";
 
 
+# change the great replacement string (with new sid)
+$replace= " -e 's/\@\@basename\@\@/${basename}/g'". 
+          " -e 's/\@\@servername\@\@/${servername}/g'". 
+          " -e 's/\@\@internip\@\@/${internip}/g'". 
+          " -e 's/\@\@sid\@\@/${sid}/g'". 
+          " -e 's/\@\@workgroup\@\@/${smbworkgroup}/g'". 
+          " -e 's/\@\@smbserverstring\@\@/${smbserverstring}/g'". 
+          " -e 's/\@\@ldappassword\@\@/${ldappassword}/g'". 
+          " -e 's/\@\@dbpassword\@\@/${dbpassword}/g'". 
+          " -e 's/\@\@dbname\@\@/${dbname}/g'". 
+          " -e 's/\@\@message1\@\@/${message1}/g'". 
+          " -e 's/\@\@message2\@\@/${message2}/g'"; 
+
 
 # patch smbtools
-
 system("sed $replace ${template}/ldap/smbldap.conf.template > $smb_ldap_conf"); 
 system("sed $replace ${template}/ldap/smbldap_bind.conf.template > $smb_ldap_bind_conf"); 
 
