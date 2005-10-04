@@ -29,6 +29,7 @@ require Exporter;
              check_sophomorix_user
              show_project_list
              show_class_list
+             get_smb_sid
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
@@ -192,6 +193,18 @@ sub create_user_db_entry {
        # neue gruppe anlegen und gidnumber holen, falls erforderlich
        my $gidnumber=&create_class_db_entry($admin_class);
 
+       # get_sid
+       my $sid = &get_smb_sid();
+
+       # smb user sid
+       my $user_sid = &smb_user_sid($uidnumber,$sid);
+print "USER-SID: ---$user_sid--- \n";
+       # smb group sid
+       my $group_sid = &smb_group_sid($gidnumber,$sid);
+print "GROUP-SID: ---$group_sid--- \n";
+
+       my $smb_homepath="\\\\\\\\server\\\\$login";
+
        # User anlegen
        # 1. Tabelle posix_account
        # Pflichtfelder (laut Datenbank): id,uidnumber,uid,gidnumber,firstname
@@ -220,29 +233,38 @@ sub create_user_db_entry {
        # 2. Tabelle samba_sam_account
        # Pflichtfelder (laut Datenbank): id
 
+
+
        $sql="INSERT INTO samba_sam_account
-	 (id,sambasid,cn,sambalmpassword,sambantpassword,sambapwdlastset,sambalogontime,sambalogofftime,sambakickofftime,sambapwdcanchange,sambapwdmustchange,sambaacctflags,displayname,sambahomepath,sambahomedrive,sambalogonscript,sambaprofilepath,description,sambauserworkstations,sambaprimarygroupsid,sambadomainname,sambamungeddial,sambabadpasswordcount,sambabadpasswordtime,sambapasswordhistory,sambalogonhours)
+	 (id,sambasid,cn,sambalmpassword,sambantpassword,
+          sambapwdlastset,sambalogontime,sambalogofftime,sambakickofftime,
+          sambapwdcanchange,sambapwdmustchange,sambaacctflags,
+          displayname,sambahomepath,sambahomedrive,sambalogonscript,
+          sambaprofilepath,description,sambauserworkstations,
+          sambaprimarygroupsid,sambadomainname,sambamungeddial,
+          sambabadpasswordcount,sambabadpasswordtime,
+          sambapasswordhistory,sambalogonhours)
 	VALUES
 	($posix_account_id,
-         NULL,
+         '$user_sid',
          NULL,
          '$lmpassword',
          '$ntpassword',
+         '$epoche_jetzt',
+         '0',
+         '2147483647',
+         '2147483647',
+         '0',
+         '2147483647',
+         '[UX]',
+         '$gecos',
+         '$smb_homepath',
+         'H:',
          NULL,
          NULL,
          NULL,
          NULL,
-         NULL,
-         NULL,
-         NULL,
-         NULL,
-         NULL,
-         NULL,
-         NULL,
-         NULL,
-         NULL,
-         NULL,
-         NULL,
+         '$group_sid',
          NULL,
          NULL,
          NULL,
@@ -451,16 +473,24 @@ sub create_class_db_entry {
     print "\nSQL: $sql\n";
     $dbh->do($sql);
 
+    # get_sid
+    my $sid = &get_smb_sid();
+
+    # smb group sid
+    my $group_sid = &smb_group_sid($gidnumber,$sid);
+    print "GROUP-SID: ---$group_sid--- \n";
+
     #2. Tabelle samba_group_mapping
     #Pflichtfelder (laut Datenbank) id
+    # sambagrouptype (2=domaingroup(defaultgroup), 4=localgroup, 5=builtingroup)
     $sql="INSERT INTO samba_group_mapping
 	 (id,gidnumber,sambasid,sambagrouptype,displayname,description,sambasidlist)
 	 VALUES
 	 ($groups_id,
           $gidnumber,
-          NULL,
-          NULL,
-          NULL,
+          '$group_sid',
+          '2',
+          '$class_to_add',
           NULL,
           NULL)";	
     print "\nSQL: $sql\n";
@@ -1702,8 +1732,29 @@ sub show_class_list {
 }
 
 
+sub smb_user_sid {
+    my ($uidnumber,$sid) = @_;
+    my $user_sid = 2*$uidnumber+1000;
+    $user_sid = "$sid"."-"."$user_sid"; 
+    return $user_sid;
+}
 
 
+sub smb_group_sid {
+    # when adding a user
+    my ($gidnumber,$sid) = @_;
+    my $group_sid=2*$gidnumber+1001;
+    $group_sid="$sid"."-"."$group_sid";
+    return $group_sid;
+}
+
+
+sub get_smb_sid {
+    $sid_string=`net getlocalsid`;
+    chomp($sid_string);
+    my ($rubbish,$sid) = split(/: /,$sid_string);
+    return $sid;
+}
 
 
 
