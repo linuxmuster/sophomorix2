@@ -696,11 +696,11 @@ SQL-DBI/OpenLDAP related:
 
 
 -- ldapsearch -x -D "cn=admin,dc=linuxmuster,dc=de" -W
--- smbclient -U user%password -L localhost   (account checken, siehe Mail Hoth)
--- smbclient -N -L localhost    (wozu?)
+-- smbclient -U user%password -L localhost   (check smb account, see Mail Hoth)
+-- smbclient -N -L localhost    (what for?)
 
--- pdbedit -L
--- pdbedit -Lv
+-- pdbedit -L         all users
+-- pdbedit -Lv        ausführlich alle user
 
 
 1.4.5 (2005-?)
