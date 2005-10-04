@@ -864,16 +864,19 @@ sub provide_user_files {
 
         # Eigentümer von ${DevelConf::homedir_pupil}/klasse/name REKURSIV 
         # aendern in:   user:lehrer
-        &do_falls_nicht_testen(
-             "chown -R $login:${DevelConf::teacher} $home"
-        );
+     #   &do_falls_nicht_testen(
+     #        "chown -R $login:${DevelConf::teacher} $home"
+     #   );
 
         if ($DevelConf::testen==0) {
            &setup_verzeichnis("\$homedir_pupil/\$klassen",
                               "$home_class");
+
            &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler",
                               "$home",
                               "$login");
+           system("chown -R $login:${DevelConf::teacher} $home");
+
            &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/windows",
                               "$home/windows",
                               "$login");
