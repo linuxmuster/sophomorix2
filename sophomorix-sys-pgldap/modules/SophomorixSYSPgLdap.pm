@@ -82,13 +82,21 @@ directory for good.
 =cut
 
 sub delete_user_from_sys {
-#    ($login)=@_;
+    my ($login) = @_;
 #    &Sophomorix::SophomorixBase::do_falls_nicht_testen(
 #       # aus smbpasswd entfernen
 #       "/usr/bin/smbpasswd  -x $login",
 #       # Aus Benutzerdatenbank entfernen (-r: Home löschen)
 #       "userdel  -r $login",
 #    );
+    my @pwnam = getpwnam("$login");
+    my $home="$pwnam[7]";
+
+    &Sophomorix::SophomorixBase::do_falls_nicht_testen(
+       # delete home of $login
+       "rm -rf $home",
+    );
+    
 }
 
 =pod
