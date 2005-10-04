@@ -691,7 +691,7 @@ SQL-DBI/OpenLDAP related:
 - additional Fields for groups(and projects)
 - view groupdata
 - config in /var/lib/ldap/DB_CONFIG
-
+- enable user/disable user
 
 
 
@@ -699,13 +699,24 @@ SQL-DBI/OpenLDAP related:
 
 
 
-   NEXT: sophomorix-user -s in multiple fields
+   NEXT: sophomorix-quota
+         sophomorix-user -s in multiple fields
          samba fields
-         add lehrer to test
          look in SophomorixPgLdap what has to be done
+           enable user
+           disable user
+           backup_user_database
+           get_first_password
+           check_sophomorix_user
+           show_project_list
+           show_class_list
+           create_project_db
+           use password_charlist to limit chracters for passwords
          test login
          /var/lib/ldap/DB_CONFIG (für den pcache proxy)
 
+   - fixed Bug move old home to new home
+   - removed errors from sophomorix-test
    - function update_user_db_entry extended to "Gid=groupname"
    - update gid when moving a user
    - create groups when adding users an group doesn't exist
@@ -716,6 +727,7 @@ SQL-DBI/OpenLDAP related:
    - moved set_sophomorix-passwd  from SophomorixBase nach Files and Ldap modules
    - wrote new function set_sophomorix-passwd for postgres 
    - print sql commands on console only in logleve 3 (-vv)
+   - added a teacher to sophomorix-test
    - sophomorix-test leaves database without modifications (still to test)
    - sophomorix-kill removes users (not homedir)
    - function to killl a user in database and pgldap-module
