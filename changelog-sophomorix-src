@@ -659,19 +659,14 @@ Update steps to postgresql-ldap
 
 SQL-DBI/OpenLDAP related:
 
-- Performance: conneect once in every script (not in every function)
+- Performance: connect once in every script (not in every function)
 - Transaction: combine inserts in create_user_entry 
 - Load DBI (use:DBI;) only if necessary
 - update database: combine select and updates to transaction
 - NextFreeUnidId beim update ausnehmen
 - add new values to users:
     status (account oder sophomorix)
-    tolerationdate
-    deactivationdate
-    subclass
     accountstatus/type
-    quota
-    firstpass
 
 - typ sophomorixstatus,subclass: Nur 1 Buchstabe
     
@@ -683,10 +678,14 @@ SQL-DBI/OpenLDAP related:
        - use proxy user in /etc/libnss-ldap.conf 
          (binddn, bindpw)
 
+- make creationdate a timestamp
+
 - make ldap available to other hosts
 - samba: what has to be added?
   make a dump before a user is added with smbldaptools and after.
 - view userdata:  gidnumber of primary group
+- error when adding users the first time
+
 
 - additional Fields for groups(and projects)
 - view groupdata
@@ -714,6 +713,8 @@ SQL-DBI/OpenLDAP related:
            use password_charlist to limit chracters for passwords
          test login
          /var/lib/ldap/DB_CONFIG (für den pcache proxy)
+         $server muss gepatched werden in PgLdap.pm
+         smbpasswd -w server setzt ldap-password
 
    - added tests for the correct homedirectory in sophomorix-test 
    - reformatted sophomorix-test output

@@ -121,9 +121,11 @@ my $template="/usr/share/sophomorix/config-templates";
 my $ldap_conf="/etc/ldap/ldap.conf";
 my $slapd_conf="/etc/ldap/slapd.conf";
 my $smbldap_conf="/etc/smbldap-tools/smbldap.conf";
-my $ldap_secret="/etc/ldap/ldap.secret";
+my $ldap_secret="/etc/ldap.secret";
 my $nsswitch_conf="/etc/nsswitch.conf";
 my $libnssldap_conf="/etc/libnss-ldap.conf";
+my $smb_ldap_conf="/etc/smbldap-tools/smbldap.conf";
+my $smb_ldap_bind_conf="/etc/smbldap-tools/smbldap_bind.conf";
 
 # pg
 my $odbc_ini="/etc/odbc.ini";
@@ -139,6 +141,9 @@ my $pam_ldap_conf="/etc/pam_ldap.conf";
 
 # samba
 my $smb_conf="/etc/samba/smb.conf";
+
+# bdb
+my $db_config="/var/lib/ldap/DB_CONFIG";
 
 
 ############################################################
@@ -158,15 +163,6 @@ foreach my $value (@domains) {
 }
 $basename = join "," , @ldapdomains;
 
-############################################################
-# SID
-############################################################
-$sid=`net getlocalsid`;
-($a,$sid)=split(/:/,$sid);
-$sid=~s/ //g;
-chomp($sid);
-print "   SID from the system         :   $sid \n";
-#print "---$sid---\n";
 
 ############################################################
 # SMB server string
@@ -210,7 +206,7 @@ system("sed $replace ${template}/pg/odbcinst.ini.template > $odbcinst_ini");
 # 3x basename
 # 1x sid
 # ... 
-system("sed $replace ${template}/pg/sophomorix.sql.template > $sophomorix_db"); 
+#system("sed $replace ${template}/pg/sophomorix.sql.template > $sophomorix_db"); 
 
 # do it, pam
 system("sed $replace ${template}/pam/common-account.template > $common_account"); 
@@ -222,6 +218,15 @@ system("sed $replace ${template}/pam/pam_ldap.conf.template > $pam_ldap_conf");
 # do it, samba
 system("sed $replace ${template}/samba/smb.conf.template > $smb_conf"); 
 
+# do it, bdb
+system("sed $replace ${template}/bdb/DB_CONFIG > $db_config"); 
+
+
+
+# Set password in /var/lib/samba/secrets.tdb
+# Todo ??????
+# smbpasswd -w server
+
 
 
 
@@ -230,23 +235,66 @@ system("sed $replace ${template}/samba/smb.conf.template > $smb_conf");
 ############################################################
 
 # stop samba
-#system("/etc/init.d/samba");
+system("/etc/init.d/samba stop");
+sleep 2;
+system("killall smbd");
+system("killall nmbd");
+
 
 # stop ldap
+system("/etc/init.d/slapd stop");
+sleep 2;
+system("killall slapd");
+
 
 # stop postgres
-
-
+system("/etc/init.d/postgresql stop");
+sleep 5;
+system("killall postmaster");
 
 
 
 
 # starting postgres
+system("/etc/init.d/postgresql start");
 
+sleep 2;
 
 # starting ldap
+system("/etc/init.d/slapd start");
+
+sleep 2;
+
+
+
+
+############################################################
+# SID
+############################################################
+$sid=`net getlocalsid`;
+($a,$sid)=split(/:/,$sid);
+$sid=~s/ //g;
+chomp($sid);
+print "   SID from the system         :   $sid \n";
+#print "---$sid---\n";
+
+
+
+# patch smbtools
+
+system("sed $replace ${template}/ldap/smbldap.conf.template > $smb_ldap_conf"); 
+system("sed $replace ${template}/ldap/smbldap_bind.conf.template > $smb_ldap_bind_conf"); 
+
+
+
+
 
 # starting samba
+system("/etc/init.d/samba start");
+
+# nscd
+system("/etc/init.d/nscd restart");
+
 
 
 
