@@ -74,7 +74,7 @@ sub exchange_line_in_file {
     }
     close(OLD);
     close(NEW);
-    print "   exchange_line_in_file: ";
+    print "   *** Exchange_line_in_file: ";
     if ($count>=2){
        print "Could not exchange lines, I found $count lines! \n";
        $result="  I found $count lines";
@@ -158,7 +158,7 @@ sub remove_line {
       chomp();
       if (/$regex/){
           $found=1;
-          print "   Removing $_ in $file!\n";
+          print "   *** Removing $_ in $file!\n";
           # remember the login
           @fields=split(/;/);
 	  $login=$fields[2];
@@ -453,7 +453,7 @@ sub fetch_login {
 
     if ($count==1){
        %hash=%$lastref;  
-       print "   Login is: $hash{'uid'} \n";
+       #print "   Login is: $hash{'uid'} \n";
        return $hash{'uid'};
     } else {
 
