@@ -346,9 +346,9 @@ sub set_sophomorix_passwd {
           print "\nSQL: $sql\n";
        }
        if ($DevelConf::testen==0) {
-          print "Test: setting password part 1\n";
-       } else {
           $dbh->do($sql);
+       } else {
+          print "Test: setting password part 1\n";
        }
        # todo sambapwlastset  ????????? 
        $sql="UPDATE samba_sam_account 
@@ -358,9 +358,9 @@ sub set_sophomorix_passwd {
           print "SQL: $sql\n";
        }
        if ($DevelConf::testen==0) {
-          print "Test: setting password part 2\n";
-      } else {
           $dbh->do($sql);
+      } else {
+          print "Test: setting password part 2\n";
       }
     }
 
@@ -822,6 +822,7 @@ sub update_user_db_entry {
     my $admin_class="";
     my $gid_name="";
     my $gid_number;
+    my $home_dir="";
     my $lastname="";
     my $firstname="";
     my $gecos="";
@@ -911,11 +912,16 @@ sub update_user_db_entry {
            $gid_name="$value";
            # neue gruppe anlegen und gidnumber holen, falls erforderlich
            $gid_number=&create_class_db_entry($gid_name);
-           # gid_number ermitteln
-#           $sql="SELECT gidnumber FROM groups 
-#                 WHERE gid='$gid_name'";
-#           $gid_number = $dbh->selectrow_array($sql);
+           # homedirectory
+           if ($gid_name eq ${DevelConf::teacher}) {
+              # in klasse lehrer versetzten
+              $home_dir="${DevelConf::homedir_teacher}/${login}";
+           } else {
+              # in andere Klasse versetzten (auch dachboden/speicher)
+              $home_dir="${DevelConf::homedir_pupil}/${gid_name}/${login}";
+           } 
            push @posix, "gidnumber = '$gid_number'";
+           push @posix, "homedirectory = '$home_dir'";
        }
        elsif ($attr eq "AccountType"){
            $account_type="$value";
@@ -1030,8 +1036,10 @@ sub user_deaktivieren {
    my $samba_string="smbpasswd -d $loginname >/dev/null";
    system("$samba_string");
    # linux
-   my $linux_string="usermod -L $loginname >/dev/null";
-   system("$linux_string");
+
+# Todo ???????????ß
+#   my $linux_string="usermod -L $loginname >/dev/null";
+#   system("$linux_string");
    if($Conf::log_level>=2){
       print "User $loginname wird deaktiviert:\n";
       print "  Samba:  $samba_string\n";
@@ -1064,8 +1072,9 @@ sub user_reaktivieren {
    my $samba_string="smbpasswd -e $loginname >/dev/null";
    system("$samba_string");
    # linux
-   my $linux_string="usermod -U $loginname >/dev/null";
-   system("$linux_string");
+# Todo ???????????????
+#   my $linux_string="usermod -U $loginname >/dev/null";
+#   system("$linux_string");
    if($Conf::log_level>=2){
       print "User $loginname wird reaktiviert:\n";
       print "  Samba:  $samba_string\n";
