@@ -896,6 +896,7 @@ sub update_user_db_entry {
        elsif ($attr eq "Gecos"){
            $gecos="$value";
 	   push @posix, "gecos = '$gecos'";
+	   push @samba, "displayname = '$gecos'";
        }
        elsif ($attr eq "FirstPass"){
            $first_pass="$value";
