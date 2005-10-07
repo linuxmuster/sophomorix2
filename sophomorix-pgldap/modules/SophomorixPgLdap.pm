@@ -870,7 +870,8 @@ sub update_user_db_entry {
 
     my @posix=();
     my @posix_details=();
-
+    my @samba=();
+  
     my $dbh=&db_connect();
     my $sql="";
     
@@ -950,8 +951,13 @@ sub update_user_db_entry {
               # in andere Klasse versetzten (auch dachboden/speicher)
               $home_dir="${DevelConf::homedir_pupil}/${gid_name}/${login}";
            } 
+           # groupsid
+           my $sid = &get_smb_sid();
+           my $group_sid = &smb_group_sid($gid_number,$sid);
+           # add to SQL
            push @posix, "gidnumber = '$gid_number'";
            push @posix, "homedirectory = '$home_dir'";
+           push @samba, "sambaprimarygroupsid = '$group_sid'";
        }
        elsif ($attr eq "AccountType"){
            $account_type="$value";
@@ -1003,8 +1009,20 @@ sub update_user_db_entry {
           print "\nSQL: $sql\n";
        }
        $dbh->do($sql);
-   }
-
+    }
+    # updating samba_sam_account
+    my $samba=join(", ",@samba);
+    if ($samba ne ""){
+       $sql="UPDATE samba_sam_account
+             SET 
+              $samba
+             WHERE id = $id
+            ";
+       if($Conf::log_level>=3){
+          print "\nSQL: $sql\n";
+       }
+       $dbh->do($sql);
+    }
     $dbh->disconnect();
 
     # ??? besser was sinnvolles
