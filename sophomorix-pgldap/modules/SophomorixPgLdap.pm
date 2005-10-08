@@ -195,13 +195,12 @@ sub create_user_db_entry {
 
        # get_sid
        my $sid = &get_smb_sid();
-
        # smb user sid
        my $user_sid = &smb_user_sid($uidnumber,$sid);
-print "USER-SID: ---$user_sid--- \n";
+       print "USER-SID:        $user_sid\n";
        # smb group sid
        my $group_sid = &smb_group_sid($gidnumber,$sid);
-print "GROUP-SID: ---$group_sid--- \n";
+       print "GROUP-SID:       $group_sid\n";
 
        my $smb_homepath="\\\\\\\\server\\\\$login";
 
