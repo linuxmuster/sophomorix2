@@ -1721,6 +1721,21 @@ Returns the FirstPassword of the user login
 # (can be implemented later)
 
 sub get_first_password {
+   my ($login) = @_;
+   my $dbh=&db_connect();
+   my $sql="";
+   $sql="SELECT firstpassword FROM userdata WHERE uid='$login'";
+   if($Conf::log_level>=3){
+      print "\nSQL: $sql\n";
+   }
+   my ($first_pass)= $dbh->selectrow_array($sql);
+   print "   First password: $first_pass\n";
+   return $first_pass;
+}
+
+
+
+sub get_first_password_oldstuff {
   my ($username) = @_;
   open(PASSPROT, "$DevelConf::dyn_config_pfad/user_db");
   while(<PASSPROT>) {
