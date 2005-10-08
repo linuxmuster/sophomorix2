@@ -349,8 +349,9 @@ sub set_sophomorix_passwd {
        my $dbh=&db_connect();
        my $sql="";
        $sql="SELECT id FROM userdata WHERE uid='$login'";
+       if($Conf::log_level>=3){
           print "\nSQL: $sql\n";
-
+       }
        my ($id)= $dbh->selectrow_array($sql);
     if (not defined $id){
        $id="";
@@ -1492,11 +1493,11 @@ Makes a backup of the sophomorix user database
 # this function can be left empty so far
 
 sub backup_user_database {
-    my ($time, $string) = @_;
-    &do_falls_nicht_testen(
-      "cp ${DevelConf::protokoll_pfad}/user_db ${DevelConf::log_pfad}/${time}.user_db-${string}",
-      "chmod 600 ${DevelConf::log_pfad}/${time}.user_db-${string}"
-    );
+#    my ($time, $string) = @_;
+#    &do_falls_nicht_testen(
+#      "cp ${DevelConf::protokoll_pfad}/user_db ${DevelConf::log_pfad}/${time}.user_db-${string}",
+#      "chmod 600 ${DevelConf::log_pfad}/${time}.user_db-${string}"
+#    );
 }
 
 
@@ -1510,8 +1511,6 @@ Returns the FirstPassword of the user login
 
 
 # query the datadase for a users initial password 
-# (can be implemented later)
-
 sub get_first_password {
    my ($login) = @_;
    my $dbh=&db_connect();
@@ -1536,9 +1535,30 @@ Returns 1, if  login is in the sophomorix database.
 
 =cut
 
-# (can be implemented later)
 
 sub check_sophomorix_user {
+  my ($login) = @_;
+  my $result=0;
+  my $dbh=&db_connect();
+  my $sql="";
+  $sql="SELECT id FROM userdata WHERE uid='$login'";
+  if($Conf::log_level>=3){
+     print "\nSQL: $sql\n";
+  }
+  my ($id)= $dbh->selectrow_array($sql);
+  if (defined $id){
+     $result=1;
+  }
+  return $result;
+}
+
+
+
+
+
+
+
+sub check_sophomorix_user_oldstuff {
   my ($username) = @_;
   my $result=0;
   open(PASSPROT, "$DevelConf::dyn_config_pfad/user_db");
