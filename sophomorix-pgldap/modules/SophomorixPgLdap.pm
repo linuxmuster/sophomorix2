@@ -1474,9 +1474,6 @@ sub search_user {
        ($class,$gec_user,$login,$first_pass,$birth,$unid,
         $subclass,$status,$tol,$deact,$ex_admin,$acc_type,$quota)=(
         "","","","","","","","","","","","");
-
-    #print $firstname."\n";
-
   }
 }
 
