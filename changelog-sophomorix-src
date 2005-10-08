@@ -710,8 +710,6 @@ SQL-DBI/OpenLDAP related:
    NEXT: sophomorix-quota
          sophomorix-user -s in multiple fields
          look in SophomorixPgLdap what has to be done
-           enable user
-           disable user (unix: password lesen, anhängen, updaten.)
            backup_user_database
            get_first_password
            check_sophomorix_user
@@ -723,13 +721,15 @@ SQL-DBI/OpenLDAP related:
          $server muss gepatched werden in PgLdap.pm
          smbpasswd -w server setzt ldap-password
          smbpasswd -e/-d tut, einkommentieren in Scripte
-         sophomorix-move: update samba stuff in all relevant places
          make sid available in ldap
          save sid in database
 
-
+   - disable/enable unix-account of a user 
+     (append ! to encrypted password/remove ! from encrypted password)
+   - added samba tests
    - /etc/nsswitch.conf: compat ldap for quick logins, when sldap is down
    - checked that bdb package is not needed
+   - sophomorix-move: update samba stuff in all relevant places
    - added samba fields for a working login
    - install DB_CONFIG into system, cp at setup to /var/lib/ldap
    - added tests for the correct homedirectory in sophomorix-test 

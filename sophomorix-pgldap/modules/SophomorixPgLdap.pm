@@ -1079,19 +1079,55 @@ sub remove_user_db_entry_oldstuff {
 # deactivate a users login, ...
 
 sub user_deaktivieren {
-   my ($loginname) = @_;
-   # samba
-   my $samba_string="smbpasswd -d $loginname >/dev/null";
-   system("$samba_string");
-   # linux
+   my ($login) = @_;
+   if($Conf::log_level>=2){
+      print "Deactivating $login ...\n";
+   }
 
-# Todo ???????????ß
-#   my $linux_string="usermod -L $loginname >/dev/null";
+   # samba
+   my $samba_string="smbpasswd -d $login >/dev/null";
+   if($Conf::log_level>=2){
+      print "   Disabling samba login of $login:  $samba_string\n";
+   }
+   system("$samba_string");
+
+   # linux
+   # fetch the old crypted password
+   my $dbh=&db_connect();
+   my $sql="";
+   $sql="SELECT userpassword FROM userdata WHERE uid='$login'";
+   if($Conf::log_level>=3){
+      print "\nSQL: $sql\n";
+   }
+   my ($crypt_pass)= $dbh->selectrow_array($sql);
+   print "   Unix password: $crypt_pass\n";
+
+   if (not defined $crypt_pass){
+       print "   User $login not found in database to disable unix-account!\n";
+   } elsif ($crypt_pass=~m/!$/) {
+       print "   Unix account of $login is already disabled!\n";
+   } else {
+       print "   Disabling unix account of $login!\n";
+       # append ! to pasword
+       $crypt_pass="$crypt_pass"."!";
+       # replace password
+       print "Replacing password with --$crypt_pass-- \n";
+       $sql="UPDATE posix_account
+             SET 
+             userpassword = '$crypt_pass'
+             WHERE uid = '$login'
+            ";
+       if($Conf::log_level>=3){
+          print "\nSQL: $sql\n";
+       }
+          $dbh->do($sql);
+ 
+   }
+   &db_disconnect($dbh);
+#   my $linux_string="usermod -L $login >/dev/null";
 #   system("$linux_string");
    if($Conf::log_level>=2){
-      print "User $loginname wird deaktiviert:\n";
-      print "  Samba:  $samba_string\n";
-      print "  Linux:  $linux_string\n";
+      print "Samba:  $samba_string\n";
     }
    # ToDo
    # mailabruf
@@ -1115,30 +1151,59 @@ sub user_deaktivieren {
 # enables a users login, ...
 
 sub user_reaktivieren {
-   my ($loginname) = @_;
-   # samba
-   my $samba_string="smbpasswd -e $loginname >/dev/null";
-   system("$samba_string");
-   # linux
-# Todo ???????????????
-#   my $linux_string="usermod -U $loginname >/dev/null";
-#   system("$linux_string");
+   my ($login) = @_;
    if($Conf::log_level>=2){
-      print "User $loginname wird reaktiviert:\n";
-      print "  Samba:  $samba_string\n";
-      print "  Linux:  $linux_string\n";
+      print "Reactivating $login ...\n";
    }
-   system("smbpasswd -e $loginname >/dev/null");
-   # linux-login
+
+   # samba
+   my $samba_string="smbpasswd -e $login >/dev/null";
+   if($Conf::log_level>=2){
+      print "   Enabling samba login of $login:  $samba_string\n";
+   }
+   system("$samba_string");
+
+   # linux
+   # fetch the old crypted password
+   my $dbh=&db_connect();
+   my $sql="";
+   $sql="SELECT userpassword FROM userdata WHERE uid='$login'";
+   if($Conf::log_level>=3){
+      print "\nSQL: $sql\n";
+   }
+   my ($crypt_pass)= $dbh->selectrow_array($sql);
+   if($Conf::log_level>=3){
+      print "   Unix password: $crypt_pass\n";
+   }
+
+   if (not defined $crypt_pass){
+       print "   User $login not found in database to enable unix-account!\n";
+   } elsif (not $crypt_pass=~m/!/) {
+       print "   Unix account of $login is already enabled!\n";
+   } else {
+       print "   Enabling unix account of $login!\n";
+       # remove ! from pasword
+       $crypt_pass=~s/!$//g;
+       # replace password
+       print "Replacing password with --$crypt_pass-- \n";
+       $sql="UPDATE posix_account
+             SET 
+             userpassword = '$crypt_pass'
+             WHERE uid = '$login'
+            ";
+       if($Conf::log_level>=3){
+          print "\nSQL: $sql\n";
+       }
+          $dbh->do($sql);
+ 
+   }
+   &db_disconnect($dbh);
+
    # ToDo
    # mailabruf
    # ToDo
    # public:html:
       # NICHT entsperren
-   # Ende des Eintrags
-   if($Conf::log_level>=2){
-      print "\n";
-   }
 }
 
 
