@@ -705,27 +705,34 @@ SQL-DBI/OpenLDAP related:
 
 1.4.5 (2005-?)
 
-
+   
 
    NEXT: sophomorix-quota
-         sophomorix-user -s in multiple fields
+            - what about the admin account
+            - project and class quota 
+            - project add quota
+            - class add quota
          look in SophomorixPgLdap what has to be done
-           backup_user_database
-           get_first_password
-           check_sophomorix_user
            show_project_list
            show_class_list
            create_project_db
-           use password_charlist to limit chracters for passwords
          test login
          $server muss gepatched werden in PgLdap.pm
          smbpasswd -w server setzt ldap-password
-         smbpasswd -e/-d tut, einkommentieren in Scripte
          make sid available in ldap
          save sid in database
 
+   - done a lot in sophomorix quota. sets quota again 
+   - uncommented 'checking is user is in system' in sophomorix-user  
+   - sophomorix-passwd seems to work now (setting a password of a user)
+   - function:  check_sophomorix_user (should work with postgres now)
+   - function: backup_user_database (does nothing now)
+   - Bugfix: sophomorix-user shows stange errors when webmin is not installed
+   - sophomorix-user -s -> search in multiple fields, without doubling
+   - get_first_password uses postgres now
    - disable/enable unix-account of a user 
      (append ! to encrypted password/remove ! from encrypted password)
+     smbpasswd -e/-d works, use it in scripts.
    - added samba tests
    - /etc/nsswitch.conf: compat ldap for quick logins, when sldap is down
    - checked that bdb package is not needed
