@@ -133,12 +133,12 @@ Please see the sophomorix-user(8) man pages for full documentation
 if ($freeze ne""){
     print "Freezing the account of $freeze:\n";
     # check if it is really an account
-#    if (getpwnam("$freeze")){
-#	print "   - $freeze is a valid username.\n";
-#    } else {
-#	print "   - $freeze is not a valid username.\n";
-#        exit;
-#    }
+    if (getpwnam("$freeze")){
+	print "   - $freeze is a valid username.\n";
+    } else {
+	print "   - $freeze is not a valid username.\n";
+        exit;
+    }
     # doing the freeze
     &update_user_db_entry($freeze, 
                           "Status=F",
@@ -155,12 +155,12 @@ if ($freeze ne""){
 if ($permanent ne""){
     print "Making the account of $permanent permanent:\n";
     # check if it is really an account
-#    if (getpwnam("$permanent")){
-#	print "   - $permanent is a valid username.\n";
-#    } else {
-#	print "   - $permanent is not a valid username.\n";
-#        exit;
-#    }
+    if (getpwnam("$permanent")){
+	print "   - $permanent is a valid username.\n";
+    } else {
+	print "   - $permanent is not a valid username.\n";
+        exit;
+    }
     # making the account permanent
     &update_user_db_entry($permanent, 
                           "Status=P",
@@ -178,12 +178,12 @@ if ($permanent ne""){
 if ($removable ne""){
     print "Making the account of $removable removable by sophomorix-kill:\n";
     # check if it is really an account
-#    if (getpwnam("$removable")){
-#	print "   - $removable is a valid username.\n";
-#    } else {
-#	print "   - $removable is not a valid username.\n";
-#        exit;
-#    }
+    if (getpwnam("$removable")){
+	print "   - $removable is a valid username.\n";
+    } else {
+	print "   - $removable is not a valid username.\n";
+        exit;
+    }
     # doing the removable
     &update_user_db_entry($removable, 
                           "Status=R",
@@ -200,12 +200,12 @@ if ($removable ne""){
 if ($killable ne""){
     print "Making the account of $killable killable by sophomorix-kill:\n";
     # check if it is really an account
-#    if (getpwnam("$killable")){
-#	print "   - $killable is a valid username.\n";
-#    } else {
-#	print "   - $killable is not a valid username.\n";
-#        exit;
-#    }
+    if (getpwnam("$killable")){
+	print "   - $killable is a valid username.\n";
+    } else {
+	print "   - $killable is not a valid username.\n";
+        exit;
+    }
     # doing the killable
     &update_user_db_entry($killable, 
                           "Status=K",
@@ -223,12 +223,12 @@ if ($killable ne""){
 if ($activate ne""){
     print "Actvating the account of $activate:\n";
     # check if it is really an account
-#    if (getpwnam("$activate")){
-#	print "   - $activate is a valid username.\n";
-#    } else {
-#	print "   - $activate is not a valid username.\n";
-#        exit;
-#    }
+    if (getpwnam("$activate")){
+	print "   - $activate is a valid username.\n";
+    } else {
+	print "   - $activate is not a valid username.\n";
+        exit;
+    }
     # activating the account
     &update_user_db_entry($activate, 
                           "Status=A",
