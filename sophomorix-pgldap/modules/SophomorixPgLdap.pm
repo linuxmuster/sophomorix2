@@ -490,8 +490,10 @@ sub create_class_db_entry {
 # convert dates from 1988-12-01 to 01.12.1988
 sub date_pg2perl {
     my ($string) = @_;
+    if (not defined $string){
+	$string="";
+    }
     my $perl="";
-#    if ($string ne "" and $string ne "3333-03-03"){
     if ($string ne ""){
        my ($year,$month,$day)=split(/-/,$string);
        $perl="$day"."."."$month"."."."$year";
@@ -1326,48 +1328,46 @@ sub search_user {
   my $home_ex="---";
 
   &Sophomorix::SophomorixBase::titel("I'm looking for $str in postgresql ...");
-    my $dbh=&db_connect();
+  my $dbh=&db_connect();
 
-    my $sql="";
+  my $sql="";
 
-
-# select the columns that i need
-my $sth= $dbh->prepare( "SELECT uid, firstname, surname, 
+  # select the columns that i need
+  my $sth= $dbh->prepare( "SELECT DISTINCT uid, firstname, surname, 
                             birthday, adminclass, exitadminclass, 
                             unid, subclass, tolerationdate, 
                             deactivationdate, sophomorixstatus,
                             gecos,homedirectory,firstpassword 
                          FROM userdata
-                         WHERE firstname LIKE $str" );
-$sth->execute();
+                         WHERE uid LIKE $str
+                            OR firstname LIKE $str
+                            OR surname LIKE $str
+                            OR gecos LIKE $str
+                            OR displayname LIKE $str" );
+  $sth->execute();
 
-my $array_ref = $sth->fetchall_arrayref();
+  my $array_ref = $sth->fetchall_arrayref();
 
+  foreach my $row (@$array_ref){
+     my ($login,
+         $firstname,
+         $surname,
+         $birthday_pg,
+         $admin_class,
+         $exit_admin_class,
+         $unid,
+         $subclass,
+         $toleration_date_pg,
+         $deactivation_date_pg,
+         $status,
+         $gecos,
+         $home,
+         $first_pass,
+         ) = @$row;
 
-
-
-foreach my $row (@$array_ref){
-
-
-    my ($login,
-        $firstname,
-        $surname,
-        $birthday_pg,
-        $admin_class,
-        $exit_admin_class,
-        $unid,
-        $subclass,
-        $toleration_date_pg,
-        $deactivation_date_pg,
-        $status,
-        $gecos,
-        $home,
-        $first_pass,
-        ) = @$row;
-    
-    my $birthday=&date_pg2perl($birthday_pg);
-    my $tol=&date_pg2perl($toleration_date_pg);
-    my $deact=&date_pg2perl($deactivation_date_pg);
+     my $birthday=&date_pg2perl($birthday_pg);
+     my $tol=&date_pg2perl($toleration_date_pg);
+     my $deact=&date_pg2perl($deactivation_date_pg);
 
        if (defined $login){
 	     print "($login exists in the system) \n";
@@ -1456,9 +1456,9 @@ foreach my $row (@$array_ref){
           }
        }
        # samba, database independent
-#       &Sophomorix::SophomorixBase::print_user_samba_data($login);
+       &Sophomorix::SophomorixBase::print_user_samba_data($login);
        # webmin, database independent
-#       &Sophomorix::SophomorixBase::print_user_webmin_data($login);
+       &Sophomorix::SophomorixBase::print_user_webmin_data($login);
 
        if($Conf::log_level>=2){
           # history, database independent
