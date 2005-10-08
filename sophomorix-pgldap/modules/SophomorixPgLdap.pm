@@ -404,25 +404,6 @@ sub make_salt {
 
 
 
-
-sub set_sophomorix_passwd_oldstuff {
-    my ($login,$pass) = @_;
-    if ($DevelConf::testen==0) {
-       # Passwort verschlüsseln
-       open(PASSWD,"| /usr/sbin/chpasswd");
-          print PASSWD "$login:$pass\n";     
-       close(PASSWD);
-       # Passwort in smbpasswd setzen
-       open(SMBPASSWD,"| /usr/bin/smbpasswd -s -a $login");
-          print SMBPASSWD "$pass\n$pass\n"; 
-       close(SMBPASSWD);
-  } else {
-     print "Test: Setting password \n";
-  }
-}
-
-
-
 # adds a class to the user database
 sub create_class_db_entry {
     my ($class_to_add) = @_;
@@ -1048,30 +1029,6 @@ sub remove_user_db_entry {
 }
 
 
-# this function removes a user entry in the database 
-sub remove_user_db_entry_oldstuff {
-    my ($login) = @_;
-    my $login_file="";
-    my $file="${DevelConf::protokoll_pfad}/user_db";
-    open(TMP, ">$file.tmp");
-    open(FILE, "<$file");
-    while(<FILE>){
-        ($a,$a,$login_file)=split(/;/);
-        if ($login eq $login_file){
-           # found the line, dont use it
-        } else {
-	   print TMP $_;
-        }
-    }
-    close(TMP);
-    close(FILE);
-    system("mv $file.tmp $file");  
-}
-
-
-
-
-
 # ===========================================================================
 # User DE-aktivieren
 # ===========================================================================
@@ -1527,7 +1484,6 @@ foreach my $row (@$array_ref){
 
 
 
-
 sub search_user_oldstuff {
   # database dependent
   my ($string) = @_;
@@ -1731,23 +1687,6 @@ sub get_first_password {
    my ($first_pass)= $dbh->selectrow_array($sql);
    print "   First password: $first_pass\n";
    return $first_pass;
-}
-
-
-
-sub get_first_password_oldstuff {
-  my ($username) = @_;
-  open(PASSPROT, "$DevelConf::dyn_config_pfad/user_db");
-  while(<PASSPROT>) {
-      chomp(); # Returnzeichen abschneiden
-      s/\s//g; # Spezialzeichen raus
-      if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
-      my ($gruppe, $nax, $login, $pass) = split(/;/);
-      if ($username eq $login) {
-        return $pass;
-      }
-  }
-  close(PASSPROT);
 }
 
 
