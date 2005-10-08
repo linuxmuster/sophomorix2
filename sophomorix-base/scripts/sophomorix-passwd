@@ -12,6 +12,7 @@ use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
 use Sophomorix::SophomorixAPI;
 
+use DBI;
 
 # ===========================================================================
 # Loading the db-Module, list of functions
@@ -30,6 +31,7 @@ use if ${DevelConf::db_backend} eq 'pgldap' ,
                                         get_first_password
                                         update_user_db_entry
                                         check_sophomorix_user
+                                        set_sophomorix_passwd
                                        );
 
 
