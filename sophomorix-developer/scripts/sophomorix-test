@@ -34,6 +34,18 @@ system("install -d /root/sophomorix-test");
 # Start
 ############################################################
 
+my $server="server";
+my $win_magic="2147483647";
+
+# sid
+my $sid_string=`net getlocalsid`;
+chomp($sid_string);
+my ($rubbish,$sid) = split(/: /,$sid_string);
+
+my $usid;
+my $gsid;
+
+
 my $today=`date +%d.%m.%Y`;
 my $today_pg=`date +%Y-%m-%d`;
 chomp($today);
@@ -172,8 +184,20 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 &ok_account("gecos", "joerg maier");
 &ok_account("gid", "m4kb");
 &ok_account("homedirectory", "/home/students/m4kb/$account{'uid'}");
-
-
+# samba
+&ok_account("displayname", "joerg maier");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 
@@ -189,6 +213,20 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 &ok_account("gecos", "mohammed oeztuerk");
 &ok_account("gid", "7a");
 &ok_account("homedirectory", "/home/students/7a/$account{'uid'}");
+# samba
+&ok_account("displayname", "mohammed oeztuerk");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 
@@ -202,6 +240,20 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 &ok_account("gecos", "larry wall");
 &ok_account("gid", "2c");
 &ok_account("homedirectory", "/home/students/2c/$account{'uid'}");
+# samba
+&ok_account("displayname", "larry wall");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 
@@ -216,6 +268,20 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 &ok_account("unid", "987654321");
 &ok_account("gid", "m1kb");
 &ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 %account = &fetch_single_account("surname='darwin' 
@@ -232,6 +298,20 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 &ok_account("exitunid", "");
 &ok_account("gid", "teachers");
 &ok_account("homedirectory", "/home/teachers/$account{'uid'}");
+# samba
+&ok_account("displayname", "charles darwin");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 
@@ -262,6 +342,20 @@ print '
 &ok_account("gecos", "joerg maier");
 &ok_account("gid", "m4kb");
 &ok_account("homedirectory", "/home/students/m4kb/$account{'uid'}");
+# samba
+&ok_account("displayname", "joerg maier");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 # Test if user is moveable to dachboden
@@ -285,6 +379,20 @@ print '
 &ok_account("gecos", "joerg maier");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
+# samba
+&ok_account("displayname", "joerg maier");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 
@@ -310,6 +418,20 @@ $login = &fetch_login("surname='maier'
 &ok_account("gecos", "joerg maier");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
+# samba
+&ok_account("displayname", "joerg maier");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 
@@ -330,6 +452,20 @@ $login = &fetch_login("surname='maier'
 &ok_account("gecos", "joerg maier");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
+# samba
+&ok_account("displayname", "joerg maier");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DU]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 # todo ???????????????ßßß
@@ -355,6 +491,20 @@ $login = &fetch_login("surname='maier'
 &ok_account("exitunid", "");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
+# samba
+&ok_account("displayname", "joerg maier");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DU]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 &run_command("sophomorix-check",$verbose);
@@ -419,6 +569,20 @@ $login = &fetch_login("surname='oeztuerk'
 &ok_account("gecos", "mohammed oeztuerk");
 &ok_account("gid", "7a");
 &ok_account("homedirectory", "/home/students/7a/$account{'uid'}");
+# samba
+&ok_account("displayname", "mohammed oeztuerk");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 
@@ -448,6 +612,20 @@ $login = &fetch_login("surname='oeztuerk'
 &ok_account("gecos", "mohammed oeztuerk");
 &ok_account("gid", "7a");
 &ok_account("homedirectory", "/home/students/7a/$account{'uid'}");
+# samba
+&ok_account("displayname", "mohammed oeztuerk");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[U]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 &run_command("sophomorix-move",$verbose);
@@ -463,6 +641,20 @@ $login = &fetch_login("surname='oeztuerk'
 &ok_account("tolerationdate", "");
 &ok_account("gecos", "mohammed oeztuerk");
 &ok_account("gid", "7c");
+# samba
+&ok_account("displayname", "mohammed oeztuerk");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[U]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 
@@ -502,6 +694,20 @@ print '
 &ok_account("gecos", "larry wall");
 &ok_account("gid", "2c");
 &ok_account("homedirectory", "/home/students/2c/$account{'uid'}");
+# samba
+&ok_account("displayname", "larry wall");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 
@@ -542,6 +748,20 @@ $login = &fetch_login("surname='wall'
 &ok_account("exitadminclass", "2c");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
+# samba
+&ok_account("displayname", "larry wall");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DU]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 
@@ -580,6 +800,20 @@ $login = &fetch_login("surname='wall'
 &ok_account("gecos", "larry wall");
 &ok_account("gid", "3c");
 &ok_account("homedirectory", "/home/students/3c/$account{'uid'}");
+# samba
+&ok_account("displayname", "larry wall");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[U]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 # todo ????????ß
@@ -615,6 +849,20 @@ print '
 &ok_account("gecos", "mohammed oetztuerk");
 &ok_account("gid", "7c");
 &ok_account("homedirectory", "/home/students/7c/$account{'uid'}");
+# samba
+&ok_account("displayname", "mohammed oetztuerk");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[U]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 # updating the first Mohhammed -> Mohammad
@@ -640,6 +888,20 @@ print '
 &ok_account("gecos", "mohammad oetztuerk");
 &ok_account("gid", "7c");
 &ok_account("homedirectory", "/home/students/7c/$account{'uid'}");
+# samba
+&ok_account("displayname", "mohammad oetztuerk");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[U]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 # updating birth 82 -> 83
@@ -663,6 +925,20 @@ print '
 &ok_account("gecos", "mohammad oetztuerk");
 &ok_account("gid", "7c");
 &ok_account("homedirectory", "/home/students/7c/$account{'uid'}");
+# samba
+&ok_account("displayname", "mohammad oetztuerk");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[U]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 
@@ -698,6 +974,20 @@ print '
 &ok_account("unid", "123456789");
 &ok_account("gid", "3c");
 &ok_account("homedirectory", "/home/students/3c/$account{'uid'}");
+# samba
+&ok_account("displayname", "larry wall");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[U]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 # new name, first, birth
@@ -721,6 +1011,20 @@ print '
 &ok_account("unid", "123456789");
 &ok_account("gid", "3c");
 &ok_account("homedirectory", "/home/students/3c/$account{'uid'}");
+# samba
+&ok_account("displayname", "richard stallman");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[U]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 
@@ -757,6 +1061,20 @@ print '
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "m1kb");
 &ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 # User comes back with correction (Birthday), but same unid as in system
@@ -782,6 +1100,20 @@ print '
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "m1kb");
 &ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[U]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 
@@ -809,6 +1141,20 @@ print '
 &ok_account("unid", "");
 &ok_account("gid", "m1kb");
 &ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[U]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 
@@ -919,6 +1265,20 @@ foreach my $login (@logins){
 &ok_account("exitunid", "");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
+# samba
+&ok_account("displayname", "joerg maier");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DU]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 %account = &fetch_single_account("surname='oetztuerk' 
@@ -935,6 +1295,20 @@ foreach my $login (@logins){
 &ok_account("exitunid", "");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
+# samba
+&ok_account("displayname", "mohammad oetztuerk");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DU]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 %account = &fetch_single_account("surname='stallman' 
@@ -951,6 +1325,20 @@ foreach my $login (@logins){
 &ok_account("exitunid", "123456789");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
+# samba
+&ok_account("displayname", "richard stallman");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DU]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 # 
@@ -968,6 +1356,20 @@ foreach my $login (@logins){
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DU]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 %account = &fetch_single_account("surname='darwin' 
@@ -984,6 +1386,20 @@ foreach my $login (@logins){
 &ok_account("exitunid", "");
 &ok_account("gid", "speicher");
 &ok_account("homedirectory", "/home/students/speicher/$account{'uid'}");
+# samba
+&ok_account("displayname", "charles darwin");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DU]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 
@@ -1022,6 +1438,20 @@ $login = &fetch_login("surname='mahn'
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[U]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 # todo?????? check_account
 
@@ -1046,6 +1476,20 @@ $login = &fetch_login("surname='mahn'
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DU]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 # This should not change anything
 &run_command("sophomorix-check",$verbose);
@@ -1072,6 +1516,20 @@ $login = &fetch_login("surname='mahn'
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DU]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 # Make the account Freeze
@@ -1093,6 +1551,20 @@ $login = &fetch_login("surname='mahn'
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DU]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 # This should not change anything
 &run_command("sophomorix-check",$verbose);
@@ -1119,6 +1591,20 @@ $login = &fetch_login("surname='mahn'
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DU]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 
@@ -1141,6 +1627,20 @@ $login = &fetch_login("surname='mahn'
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[U]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 # Check if the account can be moved to exitadminclass
@@ -1174,6 +1674,20 @@ $login = &fetch_login("surname='mahn'
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "m1kb");
 &ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[U]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 # since it was manually activated it should not be moved
@@ -1206,6 +1720,20 @@ $login = &fetch_login("surname='mahn'
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "m1kb");
 &ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[U]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
 
@@ -1272,7 +1800,12 @@ sub ok_account{
     if (not defined $account{$col} ){
 	$account{$col}="";
     };
-    is( $account{$col},$v, "checking if $v is $col of user $account{uid}");
+    # repace spaces in the sambaaccountflags
+    if ($col eq "sambaacctflags"){
+       $account{$col}=~s/ //g;
+    }
+
+    is( $account{$col},$v, "checking if $v is $col of $account{uid}");
 }
 
 
