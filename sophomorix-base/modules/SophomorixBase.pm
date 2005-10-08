@@ -1603,30 +1603,39 @@ sub print_user_webmin_data {
     my $miniserv_line="No line with $login found!";
     my $webacl="/etc/webmin/webmin.acl";
     my $webacl_line="No line with $login found!";
-    open(MINISERV, $miniserv);
-    while (<MINISERV>){
-        if (/^$login:/){
-            chomp();
-            $miniserv_line=$_;
-        } 
-    }
-    close(MINISERV);
-
-
-    open(WEBACL, $webacl);
-    while (<WEBACL>){
-        if (/^$login:/){
-            chomp();
-            $webacl_line=$_;
-        } 
-    }
-    close(WEBACL);
-
-    # output
     print "Webmin:\n";
-    printf "  miniserv.users   : %-47s \n", $miniserv_line;    
-    printf "  webmin.acl       : %-47s \n", $webacl_line;    
 
+    # miniserv.users
+    if (not -e $miniserv){
+       print "  $miniserv does not exist (webmin not installed?)\n";
+    } else {
+       open(MINISERV, $miniserv);
+       while (<MINISERV>){
+           if (/^$login:/){
+               chomp();
+               $miniserv_line=$_;
+           } 
+       }
+       close(MINISERV);
+       # output
+       printf "  miniserv.users   : %-47s \n", $miniserv_line;    
+    }
+
+    # webmin.acl
+    if (not -e $webacl){
+       print "  $webacl does not exist (webmin not installed?)\n";
+    } else {
+       open(WEBACL, $webacl);
+       while (<WEBACL>){
+           if (/^$login:/){
+               chomp();
+               $webacl_line=$_;
+           } 
+       }
+       close(WEBACL);
+       # output
+       printf "  webmin.acl       : %-47s \n", $webacl_line;    
+    }
 }
 
 
