@@ -1338,7 +1338,7 @@ sub search_user {
                             birthday, adminclass, exitadminclass, 
                             unid, subclass, tolerationdate, 
                             deactivationdate, sophomorixstatus,
-                            gecos,homedirectory,firstpassword 
+                            gecos,homedirectory,firstpassword,quota 
                          FROM userdata
                          WHERE uid LIKE $str
                             OR firstname LIKE $str
@@ -1364,6 +1364,7 @@ sub search_user {
          $gecos,
          $home,
          $first_pass,
+         $quota,
          ) = @$row;
 
      my $birthday=&date_pg2perl($birthday_pg);
@@ -1449,7 +1450,7 @@ sub search_user {
 #	     print "  "; # indent output of following command
              # -l show only local quota, no nfs
              # -v show quota on unused filesystems          
-             system("quota -l -v $login");
+             #system("quota -l -v $login");
              my $show=`quota -l -v $login`;
 	     print "  "; # indent output of following command
              $show =~ s/\n  /\n/g; # remove indent partially
@@ -1474,7 +1475,7 @@ sub search_user {
         $subclass,$status,$tol,$deact,$ex_admin,$acc_type,$quota)=(
         "","","","","","","","","","","","");
 
-    print $firstname."\n";
+    #print $firstname."\n";
 
   }
 }
