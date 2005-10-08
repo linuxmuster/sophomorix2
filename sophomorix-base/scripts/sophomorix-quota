@@ -14,6 +14,8 @@ use Sophomorix::SophomorixAPI;
 Getopt::Long::Configure ("bundling");
 #use Schedule::at;
 
+use DBI;
+
 # ===========================================================================
 # Loading the db-Module, list of functions
 # ===========================================================================
@@ -32,6 +34,7 @@ use if ${DevelConf::db_backend} eq 'pgldap' ,
                                         update_user_db_entry
                                         user_reaktivieren
                                         user_deaktivieren
+                                        db_connect
                                        );
 
 
@@ -233,30 +236,37 @@ my %login_type = &login_type();
 #    print "$login:   $type \n";
 #}
 
+
+
 my %db_quota = &get_db_quota();
 #while( my ($login, $quota) = each(%db_quota)) {
 #    print "$login:   $quota \n";
 #}
+
+
 
 my %teacher_quota=&get_teacher_quota();
 #while ( my ($k, $v) = each(%teacher_quota)) {
 #    print "$k:  $v \n";
 #}
 
+
 my %quota_txt = &get_quota_txt();
 #while ( my ($k, $v) = each(%quota_txt)) {
 #    print "$k:  $v \n";
 #}
 
+
 my %class_quota = &get_class_quota();
-#while ( my ($k, $v) = each(%class_quota)) {
-#    print "$k:  $v \n";
-#}
+while ( my ($k, $v) = each(%class_quota)) {
+    print "$k:  $v \n";
+}
 
 my %projects_add_quota = &get_projects_add_quota();
-#while ( my ($k, $v) = each(%projects_add_quota)) {
-#    print "$k:  $v \n";
-#}
+while ( my ($k, $v) = each(%projects_add_quota)) {
+    print "$k:  $v \n";
+}
+
 
 
 if ($loginname ne "" or $classes ne "" or $pupil!=0 or $rooms ne "" or $ws!=0){
@@ -512,6 +522,14 @@ sub get_quota{
 # hash login -> additional quota
 sub get_projects_add_quota {
     my %projects_add_quota=();
+# todo ????????
+    return %projects_add_quota;
+}
+
+
+# hash login -> additional quota
+sub get_projects_add_quota_oldstuff {
+    my %projects_add_quota=();
     my %users=();
     open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects_db");
     while(<PROJECT>){
@@ -540,6 +558,18 @@ sub get_projects_add_quota {
 
 # hash: class -> quota 
 sub get_class_quota {
+    my $class="";
+    my $quotastring="";
+# todo ?????????
+    my %class_quota=();
+    return %class_quota;
+}
+
+
+
+
+# hash: class -> quota 
+sub get_class_quota_oldstuff {
     my $class="";
     my $quotastring="";
     my %class_quota=();
@@ -589,6 +619,29 @@ sub get_quota_txt {
 
 # hash: login -> quotastring in the sophomorix database(user_db)
 sub get_db_quota {
+    my $login="";
+    my $quotastring="";
+    my %db_quota=();
+    $db_quota{"admin"}=0;
+
+    my $dbh=&db_connect();
+
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT uid,quota FROM userdata" );
+    $sth->execute();
+
+    my $array_ref = $sth->fetchall_arrayref();
+
+    foreach my $row (@$array_ref){
+       my ($login,$quotastring) = @$row;
+       $db_quota{$login}=$quotastring;
+    }
+    return %db_quota;
+}
+
+
+# hash: login -> quotastring in the sophomorix database(user_db)
+sub get_db_quota_oldstuff {
     my $login="";
     my $quotastring="";
     my %db_quota=();
