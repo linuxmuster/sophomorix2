@@ -1341,40 +1341,32 @@ sub search_user {
   my $array_ref = $sth->fetchall_arrayref();
 
   foreach my $row (@$array_ref){
-     my ($login,
-         $firstname,
-         $surname,
-         $birthday_pg,
-         $admin_class,
-         $exit_admin_class,
-         $unid,
-         $subclass,
-         $toleration_date_pg,
-         $deactivation_date_pg,
-         $status,
-         $gecos,
-         $home,
-         $first_pass,
-         $quota,
-         ) = @$row;
+       my ($login,
+           $firstname,
+           $surname,
+           $birthday_pg,
+           $admin_class,
+           $exit_admin_class,
+           $unid,
+           $subclass,
+           $toleration_date_pg,
+           $deactivation_date_pg,
+           $status,
+           $gecos,
+           $home,
+           $first_pass,
+           $quota,
+           ) = @$row;
 
-     my $birthday=&date_pg2perl($birthday_pg);
-     my $tol=&date_pg2perl($toleration_date_pg);
-     my $deact=&date_pg2perl($deactivation_date_pg);
-
-
+       my $birthday=&date_pg2perl($birthday_pg);
+       my $tol=&date_pg2perl($toleration_date_pg);
+       my $deact=&date_pg2perl($deactivation_date_pg);
 
        # Gruppen-Zugehoerigkeit
        $pri_group_string="";
        $grp_string="";
        @group_list=&Sophomorix::SophomorixBase::get_group_list($login);
-
        $pri_group_string=$group_list[0];
-       
-
-
-
-
 
        if (defined $login){
 	     print "($login exists in the system) \n";
