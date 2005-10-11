@@ -116,7 +116,9 @@ sub db_disconnect {
 
 # adds a user to the user database
 sub create_user_db_entry {
-    my $dbh=&db_connect();
+    my $sql="";
+
+    # prepare data
     my $today=`date +%d.%m.%Y`;
     chomp($today);
     my $today_pg=&date_perl2pg($today);
@@ -132,7 +134,6 @@ sub create_user_db_entry {
        $unid,$unix_epoc) = @_;
 
     my $gecos = "$vorname"." "."$nachname";
-
     my $homedir="";
     if ($admin_class eq ${DevelConf::teacher}){
         # teachers
@@ -141,38 +142,29 @@ sub create_user_db_entry {
         # students
         $homedir = "${DevelConf::homedir_pupil}/$admin_class/$login";
     }
-#    $homedir=$DevelConf::homedir_pupil/$admin_class/$login";
 
-    my $description="perl-function: create_user_db_entry";
-
-    my $sql="";
-
+    my $description="perl: create_user_db_entry";
     my $birthday_pg = &date_perl2pg($birthday_perl);
 
     # create crypt password for liux
     my $crypt_salt_format = '%s';
     my $salt = sprintf($crypt_salt_format,make_salt());
     my $linux_pass = "{CRYPT}" . crypt($pass,$salt);
-
     # create crypted passwords for samba
     my ($lmpassword,$ntpassword) = ntlmgen $pass;
-
     if($Conf::log_level>=3){
        print "Encrypted Password $pass : \n";
        print "   Samba NT: $ntpassword \n";
        print "   Samba LM: $lmpassword \n";
        print "   Linux   : $linux_pass \n";
     }
+
+    my $dbh=&db_connect();
+
     if ($DevelConf::testen==0) {
-       # SQL-Funktion aufrufen die Enträge in 
-       #         ldap_entries, 
-       #         ldap_entry_objclasses und 
-       #         NextFreeUnixId 
-       # macht und posix_account_id zurück gibt
-       # der Username muss hier schon übergeben werden.
+
 
        $sql="SELECT manual_create_ldap_for_account('$login')";
-
        if($Conf::log_level>=3){
           print "\nSQL: $sql\n";
        }
@@ -180,6 +172,7 @@ sub create_user_db_entry {
        if($Conf::log_level>=3){
           print "   --> \$posix_account_id ist $posix_account_id \n\n";
        }
+
        #Freie UID holen
        $sql="select manual_get_next_free_uid()";
        if($Conf::log_level>=3){
@@ -209,21 +202,20 @@ sub create_user_db_entry {
        # Pflichtfelder (laut Datenbank): id,uidnumber,uid,gidnumber,firstname
 
        $sql="INSERT INTO posix_account 
-	  (id,uidnumber,uid,gidnumber,firstname,surname,homedirectory,gecos,loginshell,userpassword,description)
-	VALUES
-	($posix_account_id,
-         $uidnumber,
-         '$login',
-         $gidnumber,
-         '$vorname',
-         '$nachname',
-         '$homedir',
-         '$gecos',
-         '$sh',
-         '$linux_pass',
-         '$description'
-        )
-	";
+	  (id,uidnumber,uid,gidnumber,firstname,surname,
+           homedirectory,gecos,loginshell,userpassword,description)
+	  VALUES
+	   ($posix_account_id,
+            $uidnumber,
+           '$login',
+            $gidnumber,
+           '$vorname',
+           '$nachname',
+           '$homedir',
+           '$gecos',
+           '$sh',
+           '$linux_pass',
+           '$description')";
         if($Conf::log_level>=3){
            print "SQL: $sql\n";
         }
@@ -231,9 +223,6 @@ sub create_user_db_entry {
 
        # 2. Tabelle samba_sam_account
        # Pflichtfelder (laut Datenbank): id
-
-
-
        $sql="INSERT INTO samba_sam_account
 	 (id,sambasid,cn,sambalmpassword,sambantpassword,
           sambapwdlastset,sambalogontime,sambalogofftime,sambakickofftime,
@@ -281,50 +270,52 @@ sub create_user_db_entry {
        # Pflichtfelder (laut Datenbank); id
 
        $sql="INSERT INTO posix_account_details
-	   ( id,schoolnumber,unid,adminclass,exitadminclass,subclass,creationdate,sophomorixstatus,quota,firstpassword,birthname,title,gender,birthday,birthpostalcode,birthcity,denomination,class,classentry,schooltype,chiefinstructor,nationality,religionparticipation,ethicsparticipation,education,occupation,starttraining,endtraining)
-	VALUES
-	($posix_account_id,
-         1,
-         '$unid',
-         '$admin_class',
-         '',
-         '',
-         '$today_pg',
-         'U',
-         '$quota',
-         '$pass',
-         '',
-         '',
-         '', 
-         '$birthday_pg',
-         0,
-         0,
-         0,
-         0,
-         0,
-         0,
-         0,
-         0,
-         TRUE,
-         FALSE,
-         '',
-         '',
-         '19700101',
-         '19700101')
-	";
+	   ( id,schoolnumber,unid,adminclass,exitadminclass,subclass,
+             creationdate,sophomorixstatus,quota,firstpassword,
+             birthname,title,gender,birthday,birthpostalcode,
+             birthcity,denomination,class,classentry,schooltype,
+             chiefinstructor,nationality,religionparticipation,
+             ethicsparticipation,education,occupation,
+             starttraining,endtraining)
+	 VALUES
+	  ($posix_account_id,
+           1,
+           '$unid',
+           '$admin_class',
+           '',
+           '',
+           '$today_pg',
+           'U',
+           '$quota',
+           '$pass',
+           '',
+           '',
+           '', 
+           '$birthday_pg',
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           TRUE,
+           FALSE,
+           '',
+           '',
+           '19700101',
+           '19700101')";
       if($Conf::log_level>=3){
          print "SQL: $sql\n";
       }
       $dbh->do($sql);
-
       $dbh->disconnect();
-
   } else {
       if($Conf::log_level>=3){
          print "Test:   Wrote entry into database\n";
       }
   }
-
 }
 
 
