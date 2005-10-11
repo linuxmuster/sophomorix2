@@ -1362,6 +1362,20 @@ sub search_user {
      my $tol=&date_pg2perl($toleration_date_pg);
      my $deact=&date_pg2perl($deactivation_date_pg);
 
+
+
+       # Gruppen-Zugehoerigkeit
+       $pri_group_string="";
+       $grp_string="";
+       @group_list=&Sophomorix::SophomorixBase::get_group_list($login);
+
+       $pri_group_string=$group_list[0];
+       
+
+
+
+
+
        if (defined $login){
 	     print "($login exists in the system) \n";
        } else {
@@ -1373,23 +1387,15 @@ sub search_user {
        printf "  AdminClass       : %-47s %-11s\n",$admin_class,$login;
        printf "  PrimaryGroup     : %-47s %-11s\n",$pri_group_string,$login;
 
-# todo
        foreach my $gr (@group_list){
 	   $grp_string= $grp_string." ".$gr;
-	  #print $gr," ";
        }
        printf "  SecondaryGroups  :%-48s %-11s\n",$grp_string,$login;
        printf "  Gecos            : %-47s %-11s\n", $gecos,$login;
-  
-#       if (defined $loginname_passwd){
-#          printf "  SystemGecos      : %-47s %-11s\n",$gcos_passwd, $login;
-#       }
 
        if (-e $home){
           $home_ex=$home."  (existing)";
-	  #print "(existing) \n";
        } else {
-          #print "(ERROR: non-existing!) \n";
           $home_ex=$home."  (ERROR: non-existing)";
        }
        if (defined $home){
