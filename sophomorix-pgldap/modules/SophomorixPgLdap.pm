@@ -427,11 +427,15 @@ sub create_class_db_entry {
 
     #Freie GID holen
     $sql="select manual_get_next_free_gid()";
-    print "\nSQL: $sql\n";
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
     $gidnumber = $dbh->selectrow_array($sql);
     print "Received $gidnumber as next free gidnumber\n";
     $sql="SELECT manual_create_ldap_for_group('$class_to_add')";
-    print "\nSQL: $sql\n";
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
     my $groups_id = $dbh->selectrow_array($sql);
 
     #Gruppe anlegen (2Tabellen)
@@ -442,7 +446,9 @@ sub create_class_db_entry {
          (id,gidnumber,gid)
 	 VALUES
 	 ($groups_id,$gidnumber,'$class_to_add')";	
-    print "\nSQL: $sql\n";
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
     $dbh->do($sql);
 
     # get_sid
@@ -450,7 +456,6 @@ sub create_class_db_entry {
 
     # smb group sid
     my $group_sid = &smb_group_sid($gidnumber,$sid);
-    print "GROUP-SID: ---$group_sid--- \n";
 
     #2. Tabelle samba_group_mapping
     #Pflichtfelder (laut Datenbank) id
@@ -465,7 +470,9 @@ sub create_class_db_entry {
           '$class_to_add',
           NULL,
           NULL)";	
-    print "\nSQL: $sql\n";
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
     $dbh->do($sql);
     } # end adding group
     return $gidnumber;
