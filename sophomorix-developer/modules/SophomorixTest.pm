@@ -23,6 +23,8 @@ use DBI;
               run_command
               fetch_single_account
               fetch_login
+              check_file
+              check_provided_files
               );
 
 use Sophomorix::SophomorixPgLdap qw ( db_connect
@@ -459,6 +461,89 @@ sub fetch_login {
 
       return "";
     }
+
+}
+
+
+
+
+# check all files/directorys/links of a account 
+sub check_provided_files {
+    my ($login,$class) = @_;
+    &check_file("",$login,$class,
+                 $login,
+                 "teachers",
+                 "0700");
+    &check_file("windows",$login,$class,
+                 $login,
+                 "teachers",
+                 "0700");
+    if ($class eq ${DevelConf::teacher}){
+       &check_file("$Language::task_dir",$login,$class,
+                    $login,
+                    ${DevelConf::teacher},
+                    "1755");
+    } else {
+       &check_file("$Language::task_dir",$login,$class,
+                    "root",
+                    "root",
+                    "1755");
+    }
+
+    if ($class eq ${DevelConf::teacher}){
+       &check_file("$Language::collect_dir",$login,$class,
+                    $login,
+                    ${DevelConf::teacher},
+                    "1755");
+    } else {
+       &check_file("$Language::collect_dir",$login,$class,
+                    $login,
+                    "root",
+                    "1755");
+
+    }   
+
+    &check_file("$Language::share_dir",$login,$class,
+                 "root",
+                 "root",
+                 "1755");
+}
+
+
+
+
+
+
+
+
+
+# check a files/directories permissions and owner
+sub check_file {
+    my ($rel_path,$login,$class,$owner,$gowner,$perm) = @_;
+
+    my $file;
+    if ($class eq ${DevelConf::teacher}) {
+       $file="/home/${DevelConf::teacher}/$login/$rel_path";
+    } else {
+       $file="/home/${DevelConf::student}/$class/$login/$rel_path";
+    }
+
+    ok(-e $file,"$file  exists");
+    my ($dev,$ino,$mode,$nlink,$uid,$gid) = stat(${file});
+    # Umwandeln in übliche Schreibweise
+    $mode &=07777;
+    $mode=sprintf "%04o",$mode;
+
+    my ($group)=getgrgid($gid);
+    my ($name)=getpwuid($uid);
+
+    # print "Permissions of $file are $mode, $uid, $gid\n";
+    # print "Gruppe: $group \n";
+    # print "Login: $name \n";
+
+    is($mode, $perm, "    permissions of $file are $perm");
+    is($name, $owner, "    Owner of $file is $owner");
+    is($group, $gowner, "    Group owner of $file is $gowner");
 
 }
 
