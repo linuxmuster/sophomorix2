@@ -433,18 +433,24 @@ sub setup_verzeichnis {
       # $webserver ersetzen
       $pfad=~s/\/\$webserver/$DevelConf::apache_root/;
 
-      # user einbinden
+      # group override
       if (defined $user) {
-          $owner=$user;
+          # owner ersetzen, falls $schueler, $leher
+          $owner=~s/\$schueler/$user/;
+          $owner=~s/\$lehrer/$user/;
+          $owner=~s/\$workstation/$user/;
+
+          #$owner=$user;
       }
 
-      # user einbinden
+      # user override
       if (defined $gruppe) {
+          # group is ALWAYS overridden, when specified in function 
           $gowner=$gruppe;
       }
 
     if($Conf::log_level>=3){
-      print "Using Dato of:      $verzeichnis\n";
+      print "Using Data of:      $verzeichnis\n";
       print "Owner to set:       $owner\n";
       print "Group owner to set: $gowner\n";
       print "Permissions to set: $permissions\n";
@@ -455,7 +461,7 @@ sub setup_verzeichnis {
     # vorhandene Daten prüfen
    if (not -e $pfad) {
       if($Conf::log_level>=2){
-        print "Lege $pfad an.\n";
+        print "Creating $pfad \n";
       }
       &do_falls_nicht_testen(
         "mkdir $pfad"
@@ -475,7 +481,7 @@ sub setup_verzeichnis {
    # Rechte und Owner setzen   
    if ($DevelConf::testen==0) {
      if($Conf::log_level>=2){
-        print "Setting $pfad to $permissions $owner.$gowner\n\n";
+        print "$pfad becomes $permissions $owner.$gowner\n\n";
       }
      system("chown ${owner}.${gowner} $pfad");
      system("chmod $permissions $pfad");
@@ -833,6 +839,7 @@ sub provide_user_files {
                   "\$homedir_teacher/\$lehrer/\$task_dir",
                   "$home/${Language::task_dir}",
                   "$login");
+
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$collect_dir",
                   "$home/${Language::collect_dir}",
@@ -880,10 +887,6 @@ sub provide_user_files {
            &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/windows",
                               "$home/windows",
                               "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_pupil/\$klassen/\$schueler/windows/sammelordner",
-#                  "$home/windows/sammelordner",
-#                  "$login");
            &setup_verzeichnis(
                   "\$homedir_pupil/\$klassen/\$schueler/\$task_dir",
                   "$home/${Language::task_dir}",
