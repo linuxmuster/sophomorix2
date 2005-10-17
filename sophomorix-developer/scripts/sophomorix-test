@@ -200,6 +200,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 &check_provided_files($account{ 'uid' },"m4kb");
+&check_groups($account{ 'uid' },"m4kb");
 
 
 
@@ -230,6 +231,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 &check_provided_files($account{ 'uid' },"7a");
+&check_groups($account{ 'uid' },"7a");
 
 
 
@@ -259,6 +261,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 &check_provided_files($account{ 'uid' },"2c");
+&check_groups($account{ 'uid' },"2c");
 
 
 
@@ -289,6 +292,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 &check_provided_files($account{ 'uid' },"m1kb");
+&check_groups($account{ 'uid' },"m1kb");
 
 
 %account = &fetch_single_account("surname='darwin' 
@@ -321,6 +325,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 &check_provided_files($account{ 'uid' },"teachers");
+&check_groups($account{ 'uid' },"teachers");
 
 
 

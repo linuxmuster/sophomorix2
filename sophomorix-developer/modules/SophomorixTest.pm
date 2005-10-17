@@ -25,6 +25,7 @@ use DBI;
               fetch_login
               check_file
               check_provided_files
+              check_groups
               );
 
 use Sophomorix::SophomorixPgLdap qw ( db_connect
@@ -545,6 +546,108 @@ sub check_file {
     is($name, $owner, "    Owner of $file is $owner");
     is($group, $gowner, "    Group owner of $file is $gowner");
 
+}
+
+
+
+
+
+
+
+
+sub check_groups {
+    # param 1 : login
+    # param 2 : pri group
+    # param 3,4,5,... sec groups
+    my $login=shift;
+    my @must_groups = @_;
+    my $admin_class=$must_groups[0];
+    my $share_dir;
+    my %is_groups = ( );
+    my %is_links = ( );
+
+    # calculate where the dir  with the links is
+    if ($admin_class eq ${DevelConf::teacher}) {
+       $share_dir="/home/${DevelConf::teacher}/$login/${Language::share_dir}";
+    } else {
+       $share_dir="/home/${DevelConf::student}".
+                  "/$admin_class/$login/${Language::share_dir}";
+    }
+
+    # the actual groups
+    my $is_groups=`id -nG $login`;
+    chomp($is_groups);
+    my @is_groups=split(/ /,$is_groups);
+
+
+    # build hash of actual groups of users
+    foreach my $is (@is_groups) { $is_groups{$is} = 1 }
+
+    # build hash of actual links
+    opendir SHARE, $share_dir or die "Cannot open $share_dir: $!";
+    foreach my $file (readdir SHARE) {
+       if ($file eq ".."){next;}
+       if ($file eq "."){next;}
+       $is_links{$file} = 1;
+    }
+    closedir SHARE;
+    # add share school if necessary if configured in sophomorix.conf
+    my $share_school="${Language::share_string}"."-"."${Language::school}";
+    if (${Conf::schulweit_tauschen} eq "yes") {
+        $is_links{$share_school} = 1;
+    }
+
+
+    # go through must_groups , and check this
+    foreach my $must (@must_groups) {
+          # check membership
+          ok(exists $is_groups{$must}, "checking if  $login is in group $must");
+          delete $is_groups{$must};
+
+          # check link
+          my $link_goal_rel="${Language::share_string}-$must";
+          my $link_goal="${share_dir}/$link_goal_rel";
+
+          ok(-l $link_goal, "checking if  $link_goal is a link");
+          delete $is_links{$link_goal_rel};
+
+          if (-l $link_goal){ 
+             my $is_source = readlink $link_goal;
+             my $must_source="";
+
+             # exists the source of the link
+             ok(-e $is_source, "checking if source $is_source exists");
+
+             # is the source correct
+             if ($must eq ${DevelConf::teacher}){    
+                 $must_source="${DevelConf::share_teacher}";
+	     } else {
+                 $must_source="${DevelConf::share_classes}/$must";
+             }
+             is($is_source,
+                $must_source,
+                "Checking if link source is correct"); 
+          }
+    }
+
+    # are there groups the user is in but shouldn't 
+    while (my ($group,$v) = each %is_groups){
+       # 1==2 is always wrong
+       ok (1==2,"$login is in $group but shouldnt be!");
+    }
+
+    # are there links or other files in share but shouldn't
+    while (my ($file,$v) = each %is_links){
+	if ($file eq $share_school){
+	   my $abs_file="${share_dir}"."/"."${file}";
+           ok(-l $abs_file, "checking if $abs_file is a link");
+           my $is_source = readlink $abs_file;
+           # exists the source of the link
+           ok(-e $is_source, "checking if source $is_source exists");
+       } else {
+           ok (1==2,"$file is in $share_dir but shouldnt be!");
+       }
+    }
 }
 
 
