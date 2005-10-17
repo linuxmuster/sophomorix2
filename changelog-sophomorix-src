@@ -738,7 +738,15 @@ SQL-DBI/OpenLDAP related:
          save sid in database
          use transactions to modify the database
          (this is more complicated, than I thought)
+         add tests to sophomorix-test (check groups, check_provided_files)
+         add replacements for pgldap for:
+           groupadd
+           groupdel
+           adduser
 
+   - adding a test function to check 
+       - if group membership is exactly correct
+       - if the collection of links to the exchange directories is correct
    - adding first tests to test directory stucture of a user
      (windows, share, collect, and task)
    - Bugfix in SophomorixBase.pm: using loginname in setup_verzeichnis
