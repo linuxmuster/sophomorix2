@@ -173,7 +173,10 @@ sophomorix-print
      to save time (ps, pdf,csv,...)
    - put school-logo on login-card, watermark, ...
    - generate a onepage-printout for teachers (help, mail, webmin-login, ...)
-   
+   - root can allow teachers to move his students in a special permanent class
+     i.e. to allow some of its students to participate in a wiki permanently
+     admin should be able to define an 'veteran project', i.e. 
+     m4kb2t --> mkb-veterans
 
 sophomorix-project
    - create exchange directories automatically, when the project is created
@@ -325,6 +328,30 @@ sophomorix-teacher
    - how should it be managed to clear a  _Collect directory?
      (dont do this at all?)
    ** update man page
+
+   --common nameing with windows,novell ZEN:
+     Naming:
+       Menu: Klassenarbeiten
+             Klassenarbeitsmodus (aktiviert=green, deaktiviert=red)
+     - teachers aktivates modus
+     - pc-based login (reason: limited gruppenrichtlinien, if used)
+     - relogin is impossible
+     - no internet   (make it choosable in linux)
+     - no exchange dir
+     - no mail
+     - collect data in a special dir
+     austeilen: - cp data 
+                - change the owner
+                - 'save' button after editing
+     vorlagen:  - use links to share data 
+                - data is readonly  
+                - 'save as ...' is necessary
+
+     new features: - select data to distribute 
+                     (different groups in one room, exams!)
+                   - use empty or known password, 
+                     loginscript changes password to arbitrary
+                   - after login, student has to type in his name
 
 sophomorix-endofyear (new script)
    - remove content of share-directories
