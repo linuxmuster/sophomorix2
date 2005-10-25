@@ -215,6 +215,11 @@ my @line=();
                     "local;all;postgres;ident;sameuser",
                     "/etc/postgresql/pg_hba.conf");
 
+&insert_line_before("local;all;ldap;ident;ldap",
+                    "local;all;postgres;ident;sameuser",
+                    "/etc/postgresql/pg_hba.conf");
+
+
 &insert_line_before("local;ldap;ldap;password;",
                     "local;all;all;ident;sameuser",
                     "/etc/postgresql/pg_hba.conf");
@@ -225,7 +230,8 @@ my @line=();
 
 
 # pg_ident.conf
-my $seen_ident=0;
+my $seen_ident_postgres=0;
+my $seen_ident_ldap=0;
 my $file_ident="/etc/postgresql/pg_ident.conf";
 my $file_ident_tmp="/etc/postgresql/pg_ident.conf.tmp";
 print "Working on pg-ident.conf\n";
@@ -239,14 +245,24 @@ while (<IDENT>) {
     if ($line[0] eq "postgres" and
        $line[1] eq "root" and
        $line[2] eq "postgres") {
-       $seen_ident=1;
+       $seen_ident_postgres=1;
+       print "   Found line to add, ...\n";
+    }
+    if ($line[0] eq "ldap" and
+       $line[1] eq "root" and
+       $line[2] eq "ldap") {
+       $seen_ident_ldap=1;
        print "   Found line to add, ...\n";
     }
     print IDENTMP $_,"\n";
 }
 
-if ($seen_ident==0){
+if ($seen_ident_postgres==0){
     print IDENTMP "postgres       root      postgres\n";
+}
+
+if ($seen_ident_ldap==0){
+    print IDENTMP "ldap           root      ldap\n";
 }
 
 
@@ -275,10 +291,9 @@ system("sed $replace ${template}/samba/smb.conf.template > $smb_conf");
 system("sed $replace ${template}/bdb/DB_CONFIG > $db_config"); 
 
 
-
 # Set password in /var/lib/samba/secrets.tdb
-# Todo ??????
-# smbpasswd -w server
+system("smbpasswd -w server");
+# Set password in /var/lib/samba/secrets.tdb
 
 
 
@@ -312,6 +327,13 @@ system("killall postmaster");
 system("/etc/init.d/postgresql start");
 
 sleep 2;
+
+system("psql -U postgres template1 < /usr/share/dbconfig-common/data/sophomorix-pgldap/install-dbadmin/pgsql");
+
+sleep 1;
+
+system("psql -U ldap ldap < /usr/share/dbconfig-common/data/sophomorix-pgldap/install/pgsql");
+
 
 # starting ldap
 system("/etc/init.d/slapd start");
@@ -356,7 +378,6 @@ system("sed $replace ${template}/ldap/smbldap_bind.conf.template > $smb_ldap_bin
 
 
 
-system("smbpasswd -w server");
 
 
 # starting samba
