@@ -202,6 +202,59 @@ system("sed $replace ${template}/ldap/libnss-ldap.conf.template > $libnssldap_co
 system("sed $replace ${template}/pg/odbc.ini.template > $odbc_ini"); 
 system("sed $replace ${template}/pg/odbcinst.ini.template > $odbcinst_ini");
 
+
+# pg_hba.conf
+my $seen_postgres=0;
+my $seen_local_ldap=0;
+my $seen_host_ldap=0;
+my @line=();
+
+
+
+&insert_line_before("local;all;postgres;ident;postgres",
+                    "local;all;postgres;ident;sameuser",
+                    "/etc/postgresql/pg_hba.conf");
+
+&insert_line_before("local;ldap;ldap;password;",
+                    "local;all;all;ident;sameuser",
+                    "/etc/postgresql/pg_hba.conf");
+
+&insert_line_before("host;ldap;ldap;127.0.0.1;255.255.255.255;password",
+                    "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
+                    "/etc/postgresql/pg_hba.conf");
+
+
+# pg_ident.conf
+my $seen_ident=0;
+my $file_ident="/etc/postgresql/pg_ident.conf";
+my $file_ident_tmp="/etc/postgresql/pg_ident.conf.tmp";
+print "Working on pg-ident.conf\n";
+open(IDENT, "<$file_ident") || die "Fehler: $!";
+open(IDENTMP, ">$file_ident_tmp") || die "Fehler: $!";
+while (<IDENT>) {
+    chomp(); # Returnzeichen abschneiden
+    if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+    #if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+    my (@line) = split(/\s+/);
+    if ($line[0] eq "postgres" and
+       $line[1] eq "root" and
+       $line[2] eq "postgres") {
+       $seen_ident=1;
+       print "   Found line to add, ...\n";
+    }
+    print IDENTMP $_,"\n";
+}
+
+if ($seen_ident==0){
+    print IDENTMP "postgres       root      postgres\n";
+}
+
+
+close(IDENT);
+close(IDENTMP);
+system("mv /etc/postgresql/pg_ident.conf.tmp /etc/postgresql/pg_ident.conf");
+
+
 # what to do:
 # 3x basename
 # 1x sid
@@ -299,6 +352,11 @@ system("sed $replace ${template}/ldap/smbldap_bind.conf.template > $smb_ldap_bin
 
 
 
+
+
+
+
+system("smbpasswd -w server");
 
 
 # starting samba
@@ -444,6 +502,79 @@ print "\n##### sophomorix-setup-pgldap is configuring openldap for sophomorix-pg
 ############################################################
 # sub
 ############################################################
+
+
+sub insert_line_before {
+    my ($insert_line,$before,$file) = @_;
+    my $file_tmp=$file.".tmp";
+    my $seen_line=0;
+    my @insert_line = split(/;/,$insert_line);
+    my @before = split(/;/,$before);
+    print "Inserting in $file:\n";
+    print "   Insert_Line: $insert_line[0]  ",
+                          "$insert_line[1]  ",
+                          "$insert_line[2]  ",
+                          "$insert_line[3]  ",
+                          "$insert_line[4]  ",
+                          "$insert_line[5]  ",
+                          "$insert_line[6]  \n";
+
+    print "   Before:      $before[0]  " ,
+                          "$before[1]  ",
+                          "$before[2]  ",
+                          "$before[3]  ",
+                          "$before[4]  ",
+                          "$before[5]  ",
+                          "$before[6]  \n";
+
+    open(HBA, "<$file") || die "Fehler: $!";
+    open(HBATMP, ">$file_tmp") || die "Fehler: $!";
+    while (<HBA>) {
+      chomp(); # Returnzeichen abschneiden
+#      if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+#      if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+      my (@line) = split(/\s+/);
+      if ($line[0] eq $insert_line[0] and
+          $line[1] eq $insert_line[1] and
+          $line[2] eq $insert_line[2] and
+          $line[3] eq $insert_line[3] and
+          $line[4] eq $insert_line[4] and
+          $line[5] eq $insert_line[5] and
+          $line[6] eq $insert_line[6]
+         ){
+          $seen_line=1;
+          # doing nothing
+          print "   Line is in $file already ...  doing nothing.\n";
+          #print HBATMP $_,"\n",
+          #next;
+      }
+      if ($before[0] eq $line[0] and
+          $before[1] eq $line[1] and
+          $before[2] eq $line[2] and
+          $before[3] eq $line[3] and
+          $before[4] eq $line[4] and
+          $before[5] eq $line[5] and
+          $before[6] eq $line[6] and
+          $seen_line==0
+         ){
+          print "   Inserting new line, ...\n";
+          print HBATMP "$insert_line[0]   ",
+                       "$insert_line[1]        ",
+                       "$insert_line[2]         ",
+                       "$insert_line[3]      ",
+                       "$insert_line[4]      ",
+                       "$insert_line[5]      ",
+	               "$insert_line[6]\n";
+    }
+        print HBATMP "$_","\n",
+  }
+  close(HBA);
+  close(HBATMP);
+  system("mv $file_tmp $file");
+}
+
+
+
 
 sub save_password {
     my ($password,$file)=@_;
