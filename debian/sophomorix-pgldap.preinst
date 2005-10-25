@@ -7,16 +7,16 @@ set -e
 
 
 # source debconf stuff
-. /usr/share/debconf/confmodule
+#. /usr/share/debconf/confmodule
 # source dbconfig-common stuff
-. /usr/share/dbconfig-common/dpkg/preinst.pgsql
+#. /usr/share/dbconfig-common/dpkg/preinst.pgsql
 
 
 
 # do it
 # parameter 1: package name
 # parameter 2: arguments that were passed to the maintainer script
-dbc_go sophomorix-pgldap $@
+#dbc_go sophomorix-pgldap $@
 
 
 #DEBHELPER#
