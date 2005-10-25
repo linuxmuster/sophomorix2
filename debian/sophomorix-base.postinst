@@ -30,6 +30,15 @@ case "$1" in
     sophomorix-samba
     ;;
 
+    install)
+    # option install is necessary to avoid errors ???
+
+    # calling the setup-script of sophomorix
+    sophomorix-setup
+    sophomorix-samba
+    ;;
+
+
     abort-upgrade|abort-remove|abort-deconfigure)
 
     ;;
