@@ -29,8 +29,10 @@ packaging:
      wie macht man das?
    - sophomorix-base depends on libdbd-csv-perl
      change that to *-files or so
-   -run sophomorix-setup-pgldap is not working (locking problem)
-   -smbldap tools dependeny fallenlassen?
+   - run sophomorix-setup-pgldap is not working (locking problem)
+   - smbldap tools dependeny fallenlassen?
+   - optionen in postinst-scripten upgrade)
+
 
 dokumentation:
    * grafik workflow aktualisieren
@@ -337,7 +339,9 @@ sophomorix-teacher
      - pc-based login (reason: limited gruppenrichtlinien, if used)
      - relogin is impossible
      - no internet   (make it choosable in linux-ml)
-     - no exchange dir
+     - no exchange dir 
+         - users can exchange on writeable programm share
+           when bad software must be used thar requires write access
      - no mail
      - collect data in a special dir
      austeilen (homeverzeichnis): - cp data 
@@ -605,44 +609,11 @@ TESTSERVER:
 
 install debian sarge
 
-install dbconfig-common 1.8.2
+
 
 install sophomorix2 sophomorix-developer
 
   Hit RETURN to all questions
-
-#create a user sopho with access to database ldap:
-#  su postgres
-#  createuser -A -D --pwprompt sopho
-
-emacs /etc/postgres/pg_hba.conf
-
-
-add before: local all postgres ident sameuser
-
-local all postgres ident postgres   
-
-
-emacs /etc/postgres/pg_ident.conf
-
-add :   postgres   root   postgres
-
-
-restart postgresql
-
-
-Creating an empty database
-
-# remove old database
-psql -U postgres template1
-drop database ldap;
- 
-
-createdb -U postgres --owner ldap ldap 
-
-psql -U postgres ldap < /usr/share/dbconfig-common/data/sophomorix-pgldap/install-admin/pgsql
-                       
-psql -U ldap ldap < /usr/share/dbconfig-common/data/sophomorix-pgldap/install/pgsql                       
 
 
 ############################################################
@@ -766,7 +737,7 @@ SQL-DBI/OpenLDAP related:
 
    NEXT: 
          Hoth: view classdata
-            - combine group_details and 
+            - combine group_details and group
          sophomorix-quota
             - what about the admin account
             - project and class quota 
@@ -790,6 +761,10 @@ SQL-DBI/OpenLDAP related:
            groupdel
            adduser
 
+   - package 1.4.4-4 is working on an empty debian system
+     (postgres, slapd and samba freshly installed)
+   - modified sophomorix-setup-pgldap to modify
+     pg_hba.conf and pg_ident.conf
    - adding a test function to check 
        - if group membership is exactly correct
        - if the collection of links to the exchange directories is correct
