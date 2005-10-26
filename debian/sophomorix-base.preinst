@@ -31,12 +31,6 @@ case "$1" in
     getent group sophomorix >/dev/null 2>&1 || addgroup --system sophomorix
     getent passwd sophomorix >/dev/null 2>&1 ||
 	adduser --system --shell /bin/bash --home /var/lib/sophomorix --ingroup sophomorix --gecos "Sophomorix administrator" sophomorix
-#    # Make sure the administrative user ldap exists
-#    getent group ldap >/dev/null 2>&1 || addgroup --system ldap
-#    getent passwd ldap >/dev/null 2>&1 ||
-#	adduser --system --shell /bin/bash --home /var/lib/ldapuser --ingroup ldap --gecos "ldap administrator" ldap
-
-
 
     sophomorix-setup
     sophomorix-samba
@@ -44,17 +38,9 @@ case "$1" in
 
 
     install)
-#    # option install is necessary to avoid errors
-#    # Make sure the administrative user sophomorix exists
-#    getent group sophomorix >/dev/null 2>&1 || addgroup --system sophomorix
-#    getent passwd sophomorix >/dev/null 2>&1 ||
-#	adduser --system --shell /bin/bash --home /var/lib/sophomorix --ingroup sophomorix --gecos "Sophomorix administrator" sophomorix
-#    # Make sure the administrative user ldap exists
-#    getent group ldap >/dev/null 2>&1 || addgroup --system ldap
-#    getent passwd ldap >/dev/null 2>&1 ||
-#	adduser --system --shell /bin/bash --home /var/lib/ldapuser --ingroup ldap --gecos "ldap administrator" ldap
+    ;;
 
-
+    upgrade)
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
