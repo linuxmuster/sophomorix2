@@ -39,6 +39,14 @@ case "$1" in
     ;;
 
 
+    upgrade)
+    # option upgrade is necessary to avoid errors ???
+    # calling the setup-script of sophomorix
+    sophomorix-setup
+    sophomorix-samba
+    ;;
+
+
     abort-upgrade|abort-remove|abort-deconfigure)
 
     ;;
