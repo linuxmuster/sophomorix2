@@ -149,7 +149,6 @@ my $db_config="/var/lib/ldap/DB_CONFIG";
 ############################################################
 # message
 ############################################################
-#my $message="# Do not change this file! \n# This configuration file was automatically created";
 my $message1="Do not change this file! It will be overwritten!";
 my $message2="This configuration file was automatically created by sophomorix-setup-pgldap";
 
@@ -298,6 +297,8 @@ system("smbpasswd -w server");
 
 
 
+
+
 ############################################################
 # restarting services 
 ############################################################
@@ -326,13 +327,15 @@ system("killall postmaster");
 # starting postgres
 system("/etc/init.d/postgresql start");
 
-sleep 2;
+sleep 5;
 
-system("psql -U postgres template1 < /usr/share/dbconfig-common/data/sophomorix-pgldap/install-dbadmin/pgsql");
+#system("su --command='createdb -U postgres ldap' postgres");
+#system("createdb -U postgres ldap");
 
-sleep 1;
+system("psql -U postgres template1 < /usr/share/sophomorix/config-templates/pg/sophomorix-admin.sql");
+system("psql -U postgres ldap < /usr/share/sophomorix/config-templates/pg/sophomorix-lang.sql");
+system("psql -U ldap ldap < /usr/share/sophomorix/config-templates/pg/sophomorix.sql");
 
-system("psql -U ldap ldap < /usr/share/dbconfig-common/data/sophomorix-pgldap/install/pgsql");
 
 
 # starting ldap
@@ -417,70 +420,8 @@ exit;
 # (when user moodle is added (adduser), then it works ->  pg-hba.conf:  ident)
 
 
-print "##### sophomorix-setup-pgldap is configuring postres for sophomorix-pgldap ...\n";
-
-
-
-
-
-
-my $dbname="sopo12";
-my $dbuser=$dbname;
-my $pass_file="/etc/sophomorix/pgldap.secret";
-my $pass="server77";
-my $dbh;
-
-
-
-# use password from option, when given
-# else: create long random password
-
-
-
-
-
-
-# make sure database exists
-system("su --command='createuser $dbuser -A -D' postgres");
-# make sure database exists
-system("su --command='createdb $dbname' postgres");
-
-
-
-
-# check if I can connect without password
-print "\nChecking if you have a password set for the sophomorix user ...\n"; 
-
-my $dbh = DBI->connect("dbi:Pg:dbname=$dbname", "$dbuser","",
-               { RaiseError => 1, PrintError => 0, AutoCommit => 1 });
-
-if (defined $dbh){
-    print "   Connection without password was succesful!\n";
-    print "   I'm setting a random password ($pass_file)!\n";
-    # todo
-
-} else {
-    print "   Could not connect to database without password!\n";
-}
-
-
-
-# sql-command to create user
-
-# CREATE USER $dbname WITH PASSWORD $password
-
-# include the following line to /etc/postgresql/pg_hba.conf:
-# local   all   all    passwd
-# local   sophmorix   sophomorix    passwd
-
-
-# datenbank uploaden
-# su postgres; psql < datenbank.sql
-
-
-
-# check if I can connect with saved password
-print "\nChecking if I can connect with ramdom password from $pass_file ...\n"; 
+my $pass_file="";
+my $dbuser="";
 
 # read the password
 if (-e $pass_file){

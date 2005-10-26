@@ -561,6 +561,19 @@ vmware image:
 
 
 
+imap:  call
+system("su --command='mkmaildir' postgres")
+
+check if dir exists /var/lib/imap
+
+paket: cyrus21-imapd
+
+siehe script: /usr/lib/linuxmuster/bin/cyrus-user.pl
+aus paket linuxmuster-base
+
+quota for mail
+
+
 ############################################################
 STANDARDS:
 ############################################################

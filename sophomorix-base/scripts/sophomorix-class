@@ -14,7 +14,7 @@ Getopt::Long::Configure ("bundling");
 use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
 use Sophomorix::SophomorixAPI;
-use Sophomorix::SophomorixFiles;
+use Sophomorix::SophomorixPgLdap;
 use DBI;
 #use Schedule::at;
 
@@ -68,13 +68,16 @@ Please see the sophomorix-class-dbi(8) man pages for full documentation
 # config values
 ############################################################
 
-my $dbh = DBI->connect("DBI:CSV:f_dir=${DevelConf::protokoll_pfad};csv_eol=\n;"
-                      . "csv_sep_char=\\;csv_quote_char=;"
-                      . "csv_escape_char=;skip_first_row");
+my $dbh=&db_connect();
 
-$dbh->{'csv_tables'}->{'class_db'} = {
-        'col_names' => ["AdminClass", "Department", "Type", "Mail", "Quota"]
-           };
+
+#my $dbh = DBI->connect("DBI:CSV:f_dir=${DevelConf::protokoll_pfad};csv_eol=\n;"
+#                      . "csv_sep_char=\\;csv_quote_char=;"
+#                      . "csv_escape_char=;skip_first_row");
+
+#$dbh->{'csv_tables'}->{'class_db'} = {
+#        'col_names' => ["AdminClass", "Department", "Type", "Mail", "Quota"]
+#           };
 
 
 my $sth;
