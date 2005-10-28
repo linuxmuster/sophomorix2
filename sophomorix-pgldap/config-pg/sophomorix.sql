@@ -1339,27 +1339,6 @@ CREATE TABLE groups_managers (
 );
 
 
---
--- Data for TOC entry 144 (OID 41079)
--- Name: groups; Type: TABLE DATA; Schema: public; Owner: ldap
---
-
-INSERT INTO groups VALUES (1, 1000, 'linuxmuster');
-
-
---
--- Data for TOC entry 145 (OID 41085)
--- Name: groups_groups; Type: TABLE DATA; Schema: public; Owner: ldap
---
-
-
---
--- Data for TOC entry 147 (OID 41091)
--- Name: institutes; Type: TABLE DATA; Schema: public; Owner: ldap
---
-
-INSERT INTO institutes VALUES (1, 'linuxmuster');
-
 
 --
 -- Data for TOC entry 148 (OID 41096)
