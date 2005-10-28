@@ -1753,3 +1753,6 @@ INSERT INTO posix_account VALUES (1, 1000, 'NextFreeUnixId', 1000, '', 'NextFree
                                      ');
 
 
+CREATE VIEW projectdata AS SELECT project_details.id, project_details.addquota, project_details.schooltype, project_details.department, project_details.status, project_details.enddate, project_details.longname, project_details.maxmebers, project_details.type, groups.gid, groups.gidnumber, samba_group_mapping.sambasid, samba_group_mapping.sambagrouptype, samba_group_mapping.displayname, samba_group_mapping.description, samba_group_mapping.sambasidlist FROM project_details FULL JOIN groups ON project_details.id = groups.id FULL JOIN samba_group_mapping ON samba_group_mapping.id=groups.id
+
+CREATE VIEW classdata AS SELECT class_details.id, class_details.quota, class_details.schooltype, class_details.department, class_details.status, class_details.enddate, class_details.longname, class_details.maxmebers, class_details.type, groups.gid, groups.gidnumber, samba_group_mapping.sambasid, samba_group_mapping.sambagrouptype, samba_group_mapping.displayname, samba_group_mapping.description, samba_group_mapping.sambasidlist FROM class_details FULL JOIN groups ON class_details.id = groups.id FULL JOIN samba_group_mapping ON samba_group_mapping.id=groups.id
