@@ -474,6 +474,22 @@ sub create_class_db_entry {
        print "\nSQL: $sql\n";
     }
     $dbh->do($sql);
+
+    #3. Tabelle class_details
+    $sql="INSERT INTO class_details
+	 (id,quota,schooltype,department,mailalias,type)
+	 VALUES
+	 ($groups_id,
+          'quota',
+          NULL,
+          NULL,
+          FALSE,
+          NULL)";	
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    $dbh->do($sql);
+
     } # end adding group
     return $gidnumber;
 }
