@@ -375,7 +375,10 @@ sub set_quota {
    }
    # was gemacht wurde zusammensetzen
    my $quotastring=join "+", @$q_list;
-   &update_user_db_entry($user,"Quota=$quotastring");
+   # skip updating postgres, when user is admin ?????????
+   if ($user ne "admin"){
+      &update_user_db_entry($user,"Quota=$quotastring");
+   }
 }
 
 
