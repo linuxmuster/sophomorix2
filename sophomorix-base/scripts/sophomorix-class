@@ -97,14 +97,14 @@ if ($info==1){
    $sth->execute();
 
    print "\n";
-   printf "%-14s %-14s %-6s %-10s %-12s \n",
-          "AdminClass:", "Quota:", "Type:" , "Mail:", "Department:";
+   printf "%-13s %-11s %-10s %-4s %-11s \n",
+          "AdminClass", "Quota", "SchoolType" , "Mail", "Department";
 
    print "=======================================",
          "=======================================\n";
    while (my $row = $sth->fetchrow_hashref) {
  
-       printf "%-14s %-14s %-5s %-10s %-12s\n",
+       printf "%-13s %-11s %-10s %-4s %-11s\n",
               $row->{'gid'}, 
               $row->{'quota'},
               $row->{'schooltype'},
