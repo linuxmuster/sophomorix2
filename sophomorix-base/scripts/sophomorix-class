@@ -92,7 +92,7 @@ my $sth;
 # --info
 if ($info==1){
 
-   $sth = $dbh->prepare("SELECT * FROM class_db");
+   $sth = $dbh->prepare("SELECT * FROM classdata");
    
    $sth->execute();
 
@@ -105,11 +105,11 @@ if ($info==1){
    while (my $row = $sth->fetchrow_hashref) {
  
        printf "%-14s %-14s %-5s %-10s %-12s\n",
-              $row->{'AdminClass'}, 
-              $row->{'Quota'},
-              $row->{'Type'},
-              $row->{'Mail'},
-              $row->{'Department'}; 
+              $row->{'gid'}, 
+              $row->{'quota'},
+              $row->{'schooltype'},
+              $row->{'mailalias'},
+              $row->{'department'}; 
     }
     $sth->finish();
     print "\n";
@@ -123,8 +123,12 @@ if ($info==1){
 
 # --info
 if ($quota ne "" and $class ne ""){
-    print "Updating quota of $class to $quota ...";
-    $dbh->do("UPDATE class_db SET Quota = '$quota' WHERE AdminClass = '$class' ");
+    # fetch id of admin_class
+    my ($gid_sys,$id)= $dbh->selectrow_array( "SELECT gidnumber,id
+                                         FROM groups 
+                                         WHERE gid='$class'" );
+    print "Updating quota of AdminClass $class (gidnumber=$gid_sys,id=$id) to $quota ...";
+    $dbh->do("UPDATE class_details SET quota = '$quota' WHERE id = $id ");
     print "    done.\n";
 }
 
