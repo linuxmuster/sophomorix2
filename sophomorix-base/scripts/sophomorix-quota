@@ -232,41 +232,48 @@ if ($info==1) {
 &titel("Calculating usrquota ... (this may take a while)");
 
 my %login_type = &login_type();
-#while( my ($login, $type) = each(%login_type)) {
-#    print "$login:   $type \n";
-#}
-
+if($Conf::log_level>=3){
+   while( my ($login, $type) = each(%login_type)) {
+     print "$login:   $type \n";
+   }
+}
 
 
 my %db_quota = &get_db_quota();
-#while( my ($login, $quota) = each(%db_quota)) {
-#    print "$login:   $quota \n";
-#}
-
+if($Conf::log_level>=3){
+   while( my ($login, $quota) = each(%db_quota)) {
+     print "$login:   $quota \n";
+   }
+}
 
 
 my %teacher_quota=&get_teacher_quota();
-#while ( my ($k, $v) = each(%teacher_quota)) {
-#    print "$k:  $v \n";
-#}
-
+if($Conf::log_level>=3){
+   while ( my ($k, $v) = each(%teacher_quota)) {
+     print "$k:  $v \n";
+   }
+}
 
 my %quota_txt = &get_quota_txt();
-#while ( my ($k, $v) = each(%quota_txt)) {
-#    print "$k:  $v \n";
-#}
-
+if($Conf::log_level>=3){
+   while ( my ($k, $v) = each(%quota_txt)) {
+     print "$k:  $v \n";
+   }
+}
 
 my %class_quota = &get_class_quota();
-while ( my ($k, $v) = each(%class_quota)) {
-    print "$k:  $v \n";
+if($Conf::log_level>=3){
+   while ( my ($k, $v) = each(%class_quota)) {
+     print "$k:  $v \n";
+   }
 }
 
 my %projects_add_quota = &get_projects_add_quota();
-while ( my ($k, $v) = each(%projects_add_quota)) {
-    print "$k:  $v \n";
+if($Conf::log_level>=3){
+   while ( my ($k, $v) = each(%projects_add_quota)) {
+     print "$k:  $v \n";
+   }
 }
-
 
 
 if ($loginname ne "" or $classes ne "" or $pupil!=0 or $rooms ne "" or $ws!=0){
@@ -562,9 +569,17 @@ sub get_projects_add_quota_oldstuff {
 # hash: class -> quota 
 sub get_class_quota {
     my $class="";
-    my $quotastring="";
-# todo ?????????
     my %class_quota=();
+    my $dbh=&db_connect();
+    my $sth;
+    $sth = $dbh->prepare("SELECT gid,quota FROM classdata");
+    $sth->execute();
+    while (my $row = $sth->fetchrow_hashref) {
+       if($row->{'quota'} ne "quota"){
+          $class_quota{ $row->{'gid'} } = $row->{'quota'}; 
+       }
+    }
+    $sth->finish();
     return %class_quota;
 }
 
