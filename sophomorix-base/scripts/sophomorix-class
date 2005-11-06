@@ -127,7 +127,8 @@ if ($quota ne "" and $class ne ""){
     my ($gid_sys,$id)= $dbh->selectrow_array( "SELECT gidnumber,id
                                          FROM groups 
                                          WHERE gid='$class'" );
-    print "Updating quota of AdminClass $class (gidnumber=$gid_sys,id=$id) to $quota ...";
+    print "Updating quota of AdminClass $class (gidnumber=$gid_sys,id=$id)",
+          " to $quota ...";
     $dbh->do("UPDATE class_details SET quota = '$quota' WHERE id = $id ");
     print "    done.\n";
 }

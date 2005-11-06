@@ -720,8 +720,6 @@ SQL-DBI/OpenLDAP related:
 
 - additional Fields for groups(and projects)
 
-- view groupdata
-
 
 -- ldapsearch -x -D "cn=admin,dc=linuxmuster,dc=de" -W
 -- smbclient -U user%password -L localhost   (check smb account, see Mail Hoth)
@@ -733,21 +731,20 @@ SQL-DBI/OpenLDAP related:
 1.4.x (2005-?-?)
 
    NEXT: 
+         check problems with sophomorix-test-bunchofusers
+
+         counting the users when sophomorix-class -i
+         SophomorixAPI to select users and groups
+            --
          max_groups
-         Hoth: view classdata
-            - combine group_details and group
          sophomorix-quota
-            - what about the admin account
-            - project and class quota 
             - project add quota
-            - class add quota
          look in SophomorixPgLdap what has to be done
            show_project_list
-           show_class_list
+ ???          show_class_list
            create_project_db
          test login
          $server muss gepatched werden in PgLdap.pm
-         smbpasswd -w server setzt ldap-password
          make sid available in ldap
          save sid in database
          use transactions to modify the database
@@ -760,10 +757,19 @@ SQL-DBI/OpenLDAP related:
            adduser
 
 
-1.4.4 (2005-10-26)
+   - view projectdata added
 
+   - view classdata added and checked
+   - sophomorix-class displays adminclasses correctly
+   - sophomorix-quota
+            - is setting quota for admin account on each run correctly
+            - does NOT update the database for admin data (admin is in files)
+
+
+1.4.4 (2005-10-26)
    - package 1.4.4-4 is working on an empty debian system
      (postgres, slapd and samba freshly installed)
+   - smbpasswd -w server is setting ldap-password in sophomorix-setup-pgldap
    - modified sophomorix-setup-pgldap to modify
      pg_hba.conf and pg_ident.conf
    - adding a test function to check 
