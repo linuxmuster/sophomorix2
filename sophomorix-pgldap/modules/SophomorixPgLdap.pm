@@ -481,10 +481,10 @@ sub create_class_db_entry {
 	 VALUES
 	 ($groups_id,
           'quota',
-          NULL,
-          NULL,
+          '',
+          '',
           FALSE,
-          NULL)";	
+          '')";	
     if($Conf::log_level>=3){
        print "\nSQL: $sql\n";
     }
