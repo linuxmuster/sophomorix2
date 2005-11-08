@@ -148,6 +148,11 @@ sophomorix-user
    - group display: separate primary groups from secondary (more logical) or not 
                     (like id -nG user) 
 
+   - create lists of users (move to sophomorix-print)
+       - one or more classes, projects, ... or the whole school
+       - csv,xls,pdf, ....
+
+
 sophomorix-split
    - interrupt if class to split is nonexistent
    - check if exchange dir is created
@@ -181,6 +186,9 @@ sophomorix-print
      m4kb2t --> mkb-veterans
 
 sophomorix-project
+   - allow secret or open project(standard)
+     secret=no teachers can add himself to a project
+     open=teachers can add themselves to a project
    - create exchange directories automatically, when the project is created
    - option -p astro -i should display info about group astro (6users in a row, ...)
    - add status stuff/lifetime stuff to projects
@@ -313,6 +321,7 @@ sophomorix-mail
    - Eintrag der lehrer in /etc/aliases mit vorname.nachname@...
      wenn das in sophomorix.conf so steht.
      (... wird sich noch ändern (SQL))
+   - aliases in postgres (zusätzlich zu /etc/aliases) ????????
 
 sophomorix-teacher
   ** write new script to distribute data, collect data, ...
@@ -626,6 +635,12 @@ Datenbank-Anbindung
 						SophomorixAPI.pm verwendbar
 			ml-Sprache		ml-Sprache
 
+Versionsänderungen:
+->Funktionsänderungen
+                        root-rechte erzielbar
+
+
+Disadvantage Mono/C#:   compiled
 
 
 ############################################################
