@@ -205,8 +205,20 @@ sophomorix-project
        - delete links from users to exchange dir
        - move data back to homedir of user?
    - check if loginname is valid before adding user to a project
-   - allow teachers to add a project (if no AddQuota is involved)
 
+   - allow teachers to add a project (if no AddQuota is involved)
+     - (maximum of Projects is configurable for each teacher: standard 30)
+     - standard final date: one year from now or schoolyears end (if configured)
+     - maximum length is 3 years
+     - extension of length is possible
+     - deleten of a project is only possible as the creator (-> field in database) 
+
+   - allow admin:
+     - projects with additional quota
+     - permanente projekte
+     - delete a project at once
+     - push a project ino the deletion cycle (send mail,deactivate,autom. deletion)
+     
 
 sophomorix-class
    - show classes in alphabetical order (use list insted of hash, when fetching)   
