@@ -1,5 +1,32 @@
 --
--- TOC entry 5 (OID 41079)
+-- PostgreSQL database dump
+--
+
+SET client_encoding = 'LATIN9';
+SET check_function_bodies = false;
+
+SET search_path = public, pg_catalog;
+
+--
+-- TOC entry 58 (OID 21420)
+-- Name: plpgsql_call_handler(); Type: FUNC PROCEDURAL LANGUAGE; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION plpgsql_call_handler() RETURNS language_handler
+    AS '$libdir/plpgsql', 'plpgsql_call_handler'
+    LANGUAGE c;
+
+
+--
+-- TOC entry 57 (OID 21421)
+-- Name: plpgsql; Type: PROCEDURAL LANGUAGE; Schema: public; Owner: 
+--
+
+CREATE TRUSTED PROCEDURAL LANGUAGE plpgsql HANDLER plpgsql_call_handler;
+
+
+--
+-- TOC entry 5 (OID 64393)
 -- Name: groups; Type: TABLE; Schema: public; Owner: ldap
 --
 
@@ -11,7 +38,7 @@ CREATE TABLE groups (
 
 
 --
--- TOC entry 6 (OID 41085)
+-- TOC entry 6 (OID 64399)
 -- Name: groups_groups; Type: TABLE; Schema: public; Owner: ldap
 --
 
@@ -22,7 +49,7 @@ CREATE TABLE groups_groups (
 
 
 --
--- TOC entry 7 (OID 41087)
+-- TOC entry 7 (OID 64401)
 -- Name: groups_users; Type: TABLE; Schema: public; Owner: ldap
 --
 
@@ -33,7 +60,7 @@ CREATE TABLE groups_users (
 
 
 --
--- TOC entry 8 (OID 41091)
+-- TOC entry 8 (OID 64405)
 -- Name: institutes; Type: TABLE; Schema: public; Owner: ldap
 --
 
@@ -44,7 +71,7 @@ CREATE TABLE institutes (
 
 
 --
--- TOC entry 9 (OID 41096)
+-- TOC entry 9 (OID 64410)
 -- Name: ldap_attr_mappings; Type: TABLE; Schema: public; Owner: ldap
 --
 
@@ -64,7 +91,7 @@ CREATE TABLE ldap_attr_mappings (
 
 
 --
--- TOC entry 10 (OID 41101)
+-- TOC entry 10 (OID 64415)
 -- Name: ldap_entries; Type: TABLE; Schema: public; Owner: ldap
 --
 
@@ -78,7 +105,7 @@ CREATE TABLE ldap_entries (
 
 
 --
--- TOC entry 11 (OID 41104)
+-- TOC entry 11 (OID 64418)
 -- Name: ldap_entry_objclasses; Type: TABLE; Schema: public; Owner: ldap
 --
 
@@ -89,7 +116,7 @@ CREATE TABLE ldap_entry_objclasses (
 
 
 --
--- TOC entry 12 (OID 41108)
+-- TOC entry 12 (OID 64422)
 -- Name: ldap_oc_mappings; Type: TABLE; Schema: public; Owner: ldap
 --
 
@@ -105,7 +132,7 @@ CREATE TABLE ldap_oc_mappings (
 
 
 --
--- TOC entry 13 (OID 41111)
+-- TOC entry 13 (OID 64425)
 -- Name: ldap_referrals; Type: TABLE; Schema: public; Owner: ldap
 --
 
@@ -117,7 +144,7 @@ CREATE TABLE ldap_referrals (
 
 
 --
--- TOC entry 14 (OID 41115)
+-- TOC entry 14 (OID 64429)
 -- Name: posix_account; Type: TABLE; Schema: public; Owner: ldap
 --
 
@@ -137,7 +164,7 @@ CREATE TABLE posix_account (
 
 
 --
--- TOC entry 15 (OID 41123)
+-- TOC entry 15 (OID 64437)
 -- Name: organizational_unit; Type: TABLE; Schema: public; Owner: ldap
 --
 
@@ -149,7 +176,7 @@ CREATE TABLE organizational_unit (
 
 
 --
--- TOC entry 16 (OID 41126)
+-- TOC entry 16 (OID 64440)
 -- Name: posix_account_details; Type: TABLE; Schema: public; Owner: ldap
 --
 
@@ -194,7 +221,7 @@ CREATE TABLE posix_account_details (
 
 
 --
--- TOC entry 17 (OID 41133)
+-- TOC entry 17 (OID 64447)
 -- Name: samba_domain; Type: TABLE; Schema: public; Owner: ldap
 --
 
@@ -206,7 +233,7 @@ CREATE TABLE samba_domain (
 
 
 --
--- TOC entry 18 (OID 41141)
+-- TOC entry 18 (OID 64455)
 -- Name: samba_group_mapping; Type: TABLE; Schema: public; Owner: ldap
 --
 
@@ -222,7 +249,7 @@ CREATE TABLE samba_group_mapping (
 
 
 --
--- TOC entry 19 (OID 41147)
+-- TOC entry 19 (OID 64461)
 -- Name: samba_sam_account; Type: TABLE; Schema: public; Owner: ldap
 --
 
@@ -257,7 +284,7 @@ CREATE TABLE samba_sam_account (
 
 
 --
--- TOC entry 56 (OID 41152)
+-- TOC entry 59 (OID 64466)
 -- Name: create_account(); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -270,7 +297,7 @@ SELECT max(id) FROM posix_account'
 
 
 --
--- TOC entry 57 (OID 41153)
+-- TOC entry 60 (OID 64467)
 -- Name: create_groups(); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -284,7 +311,7 @@ SELECT max(id) FROM groups
 
 
 --
--- TOC entry 58 (OID 41154)
+-- TOC entry 61 (OID 64468)
 -- Name: manual_create_ldap_for_account(character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -312,7 +339,7 @@ CREATE FUNCTION manual_create_ldap_for_account(character varying) RETURNS intege
 
 
 --
--- TOC entry 59 (OID 41155)
+-- TOC entry 62 (OID 64469)
 -- Name: manual_delete_account(character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -342,7 +369,7 @@ CREATE FUNCTION manual_delete_account(character varying) RETURNS integer
 
 
 --
--- TOC entry 60 (OID 41156)
+-- TOC entry 63 (OID 64470)
 -- Name: manual_create_ldap_for_group(character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -367,7 +394,7 @@ CREATE FUNCTION manual_create_ldap_for_group(character varying) RETURNS integer
 
 
 --
--- TOC entry 61 (OID 41157)
+-- TOC entry 64 (OID 64471)
 -- Name: manual_get_next_free_gid(); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -386,7 +413,7 @@ CREATE FUNCTION manual_get_next_free_gid() RETURNS integer
 
 
 --
--- TOC entry 62 (OID 41158)
+-- TOC entry 65 (OID 64472)
 -- Name: create_organizational_unit(); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -401,7 +428,7 @@ CREATE FUNCTION create_organizational_unit() RETURNS integer
 
 
 --
--- TOC entry 63 (OID 41159)
+-- TOC entry 66 (OID 64473)
 -- Name: create_samba_domain(); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -412,7 +439,7 @@ SELECT max(id) FROM samba_domain'
 
 
 --
--- TOC entry 64 (OID 41160)
+-- TOC entry 67 (OID 64474)
 -- Name: del_account_description(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -422,7 +449,7 @@ CREATE FUNCTION del_account_description(integer, character varying) RETURNS inte
 
 
 --
--- TOC entry 65 (OID 41161)
+-- TOC entry 68 (OID 64475)
 -- Name: del_account_displayname(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -432,7 +459,7 @@ CREATE FUNCTION del_account_displayname(integer, character varying) RETURNS inte
 
 
 --
--- TOC entry 66 (OID 41162)
+-- TOC entry 69 (OID 64476)
 -- Name: del_account_firstname(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -443,7 +470,7 @@ SELECT $1 AS RETURN'
 
 
 --
--- TOC entry 67 (OID 41163)
+-- TOC entry 70 (OID 64477)
 -- Name: del_account_gecos(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -454,7 +481,7 @@ SELECT $1 AS RETURN'
 
 
 --
--- TOC entry 68 (OID 41164)
+-- TOC entry 71 (OID 64478)
 -- Name: del_account_gidnumber(integer, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -466,7 +493,7 @@ CREATE FUNCTION del_account_gidnumber(integer, integer) RETURNS integer
 
 
 --
--- TOC entry 69 (OID 41165)
+-- TOC entry 72 (OID 64479)
 -- Name: del_account_homedirectory(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -477,7 +504,7 @@ SELECT $1 AS RETURN'
 
 
 --
--- TOC entry 70 (OID 41166)
+-- TOC entry 73 (OID 64480)
 -- Name: del_account_loginshell(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -488,7 +515,7 @@ SELECT $1 AS RETURN'
 
 
 --
--- TOC entry 71 (OID 41167)
+-- TOC entry 74 (OID 64481)
 -- Name: del_account_sambaacctflags(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -498,7 +525,7 @@ CREATE FUNCTION del_account_sambaacctflags(integer, character varying) RETURNS i
 
 
 --
--- TOC entry 72 (OID 41168)
+-- TOC entry 75 (OID 64482)
 -- Name: del_account_sambabadpasswordcount(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -508,7 +535,7 @@ CREATE FUNCTION del_account_sambabadpasswordcount(integer, character varying) RE
 
 
 --
--- TOC entry 73 (OID 41169)
+-- TOC entry 76 (OID 64483)
 -- Name: del_account_sambabadpasswordtime(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -518,7 +545,7 @@ CREATE FUNCTION del_account_sambabadpasswordtime(integer, character varying) RET
 
 
 --
--- TOC entry 74 (OID 41170)
+-- TOC entry 77 (OID 64484)
 -- Name: del_account_sambadomainname(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -528,7 +555,7 @@ CREATE FUNCTION del_account_sambadomainname(integer, character varying) RETURNS 
 
 
 --
--- TOC entry 75 (OID 41171)
+-- TOC entry 78 (OID 64485)
 -- Name: del_account_sambahomedrive(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -538,7 +565,7 @@ CREATE FUNCTION del_account_sambahomedrive(integer, character varying) RETURNS i
 
 
 --
--- TOC entry 76 (OID 41172)
+-- TOC entry 79 (OID 64486)
 -- Name: del_account_sambahomepath(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -548,7 +575,7 @@ CREATE FUNCTION del_account_sambahomepath(integer, character varying) RETURNS in
 
 
 --
--- TOC entry 77 (OID 41173)
+-- TOC entry 80 (OID 64487)
 -- Name: del_account_sambakickofftime(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -558,7 +585,7 @@ CREATE FUNCTION del_account_sambakickofftime(integer, character varying) RETURNS
 
 
 --
--- TOC entry 78 (OID 41174)
+-- TOC entry 81 (OID 64488)
 -- Name: del_account_sambalmpassword(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -569,7 +596,7 @@ SELECT $1 AS RETURN'
 
 
 --
--- TOC entry 79 (OID 41175)
+-- TOC entry 82 (OID 64489)
 -- Name: del_account_sambalogofftime(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -579,7 +606,7 @@ CREATE FUNCTION del_account_sambalogofftime(integer, character varying) RETURNS 
 
 
 --
--- TOC entry 80 (OID 41176)
+-- TOC entry 83 (OID 64490)
 -- Name: del_account_sambalogonhours(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -589,7 +616,7 @@ CREATE FUNCTION del_account_sambalogonhours(integer, character varying) RETURNS 
 
 
 --
--- TOC entry 81 (OID 41177)
+-- TOC entry 84 (OID 64491)
 -- Name: del_account_sambalogonscript(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -599,7 +626,7 @@ CREATE FUNCTION del_account_sambalogonscript(integer, character varying) RETURNS
 
 
 --
--- TOC entry 82 (OID 41178)
+-- TOC entry 85 (OID 64492)
 -- Name: del_account_sambalogontime(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -609,7 +636,7 @@ CREATE FUNCTION del_account_sambalogontime(integer, character varying) RETURNS i
 
 
 --
--- TOC entry 83 (OID 41179)
+-- TOC entry 86 (OID 64493)
 -- Name: del_account_sambamungeddial(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -619,7 +646,7 @@ CREATE FUNCTION del_account_sambamungeddial(integer, character varying) RETURNS 
 
 
 --
--- TOC entry 84 (OID 41180)
+-- TOC entry 87 (OID 64494)
 -- Name: del_account_sambantpassword(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -630,7 +657,7 @@ SELECT $1 AS RETURN'
 
 
 --
--- TOC entry 85 (OID 41181)
+-- TOC entry 88 (OID 64495)
 -- Name: del_account_sambapasswordhistory(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -640,7 +667,7 @@ CREATE FUNCTION del_account_sambapasswordhistory(integer, character varying) RET
 
 
 --
--- TOC entry 86 (OID 41182)
+-- TOC entry 89 (OID 64496)
 -- Name: del_account_sambaprimarygroupsid(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -650,7 +677,7 @@ CREATE FUNCTION del_account_sambaprimarygroupsid(integer, character varying) RET
 
 
 --
--- TOC entry 87 (OID 41183)
+-- TOC entry 90 (OID 64497)
 -- Name: del_account_sambaprofilepath(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -660,7 +687,7 @@ CREATE FUNCTION del_account_sambaprofilepath(integer, character varying) RETURNS
 
 
 --
--- TOC entry 88 (OID 41184)
+-- TOC entry 91 (OID 64498)
 -- Name: del_account_sambapwdcanchange(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -670,7 +697,7 @@ CREATE FUNCTION del_account_sambapwdcanchange(integer, character varying) RETURN
 
 
 --
--- TOC entry 89 (OID 41185)
+-- TOC entry 92 (OID 64499)
 -- Name: del_account_sambapwdlastset(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -681,7 +708,7 @@ SELECT $1 AS RETURN'
 
 
 --
--- TOC entry 90 (OID 41186)
+-- TOC entry 93 (OID 64500)
 -- Name: del_account_sambapwdmustchange(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -691,7 +718,7 @@ CREATE FUNCTION del_account_sambapwdmustchange(integer, character varying) RETUR
 
 
 --
--- TOC entry 91 (OID 41187)
+-- TOC entry 94 (OID 64501)
 -- Name: del_account_sambasid(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -701,7 +728,7 @@ CREATE FUNCTION del_account_sambasid(integer, character varying) RETURNS integer
 
 
 --
--- TOC entry 92 (OID 41188)
+-- TOC entry 95 (OID 64502)
 -- Name: del_account_sambauserworkstations(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -711,7 +738,7 @@ CREATE FUNCTION del_account_sambauserworkstations(integer, character varying) RE
 
 
 --
--- TOC entry 93 (OID 41189)
+-- TOC entry 96 (OID 64503)
 -- Name: del_account_sn(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -722,7 +749,7 @@ SELECT $1 AS RETURN'
 
 
 --
--- TOC entry 94 (OID 41190)
+-- TOC entry 97 (OID 64504)
 -- Name: del_account_uid(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -734,7 +761,7 @@ SELECT $1 AS RETURN
 
 
 --
--- TOC entry 95 (OID 41191)
+-- TOC entry 98 (OID 64505)
 -- Name: del_account_uidnumber(integer, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -746,7 +773,7 @@ SELECT $2 AS RETURN
 
 
 --
--- TOC entry 96 (OID 41192)
+-- TOC entry 99 (OID 64506)
 -- Name: del_account_userpassword(integer, character varying); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -757,7 +784,7 @@ SELECT $1 AS RETURN'
 
 
 --
--- TOC entry 97 (OID 41193)
+-- TOC entry 100 (OID 64507)
 -- Name: delete_account(integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -769,7 +796,7 @@ SELECT max(id) FROM posix_account'
 
 
 --
--- TOC entry 98 (OID 41194)
+-- TOC entry 101 (OID 64508)
 -- Name: delete_organizational_unit(integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -782,7 +809,7 @@ CREATE FUNCTION delete_organizational_unit(integer) RETURNS integer
 
 
 --
--- TOC entry 99 (OID 41195)
+-- TOC entry 102 (OID 64509)
 -- Name: manual_get_next_free_uid(); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -801,7 +828,7 @@ CREATE FUNCTION manual_get_next_free_uid() RETURNS integer
 
 
 --
--- TOC entry 100 (OID 41196)
+-- TOC entry 103 (OID 64510)
 -- Name: set_account_cn(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -822,7 +849,7 @@ select $2 as return'
 
 
 --
--- TOC entry 101 (OID 41197)
+-- TOC entry 104 (OID 64511)
 -- Name: set_account_description(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -832,7 +859,7 @@ CREATE FUNCTION set_account_description(character varying, integer) RETURNS inte
 
 
 --
--- TOC entry 102 (OID 41198)
+-- TOC entry 105 (OID 64512)
 -- Name: set_account_displayname(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -842,7 +869,7 @@ CREATE FUNCTION set_account_displayname(character varying, integer) RETURNS inte
 
 
 --
--- TOC entry 103 (OID 41199)
+-- TOC entry 106 (OID 64513)
 -- Name: set_account_firstname(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -855,7 +882,7 @@ CREATE FUNCTION set_account_firstname(character varying, integer) RETURNS intege
 
 
 --
--- TOC entry 104 (OID 41200)
+-- TOC entry 107 (OID 64514)
 -- Name: set_account_gecos(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -865,7 +892,7 @@ CREATE FUNCTION set_account_gecos(character varying, integer) RETURNS integer
 
 
 --
--- TOC entry 105 (OID 41201)
+-- TOC entry 108 (OID 64515)
 -- Name: set_account_gidnumber(integer, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -878,7 +905,7 @@ CREATE FUNCTION set_account_gidnumber(integer, integer) RETURNS integer
 
 
 --
--- TOC entry 106 (OID 41202)
+-- TOC entry 109 (OID 64516)
 -- Name: set_account_homedirectory(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -891,7 +918,7 @@ CREATE FUNCTION set_account_homedirectory(character varying, integer) RETURNS in
 
 
 --
--- TOC entry 107 (OID 41203)
+-- TOC entry 110 (OID 64517)
 -- Name: set_account_loginshell(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -904,7 +931,7 @@ CREATE FUNCTION set_account_loginshell(character varying, integer) RETURNS integ
 
 
 --
--- TOC entry 108 (OID 41204)
+-- TOC entry 111 (OID 64518)
 -- Name: set_account_sambaacctflags(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -914,7 +941,7 @@ CREATE FUNCTION set_account_sambaacctflags(character varying, integer) RETURNS i
 
 
 --
--- TOC entry 109 (OID 41205)
+-- TOC entry 112 (OID 64519)
 -- Name: set_account_sambabadpasswordcount(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -924,7 +951,7 @@ CREATE FUNCTION set_account_sambabadpasswordcount(character varying, integer) RE
 
 
 --
--- TOC entry 110 (OID 41206)
+-- TOC entry 113 (OID 64520)
 -- Name: set_account_sambabadpasswordtime(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -934,7 +961,7 @@ CREATE FUNCTION set_account_sambabadpasswordtime(character varying, integer) RET
 
 
 --
--- TOC entry 111 (OID 41207)
+-- TOC entry 114 (OID 64521)
 -- Name: set_account_sambadomainname(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -944,7 +971,7 @@ CREATE FUNCTION set_account_sambadomainname(character varying, integer) RETURNS 
 
 
 --
--- TOC entry 112 (OID 41208)
+-- TOC entry 115 (OID 64522)
 -- Name: set_account_sambahomedrive(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -954,7 +981,7 @@ CREATE FUNCTION set_account_sambahomedrive(character varying, integer) RETURNS i
 
 
 --
--- TOC entry 113 (OID 41209)
+-- TOC entry 116 (OID 64523)
 -- Name: set_account_sambahomepath(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -964,7 +991,7 @@ CREATE FUNCTION set_account_sambahomepath(character varying, integer) RETURNS in
 
 
 --
--- TOC entry 114 (OID 41210)
+-- TOC entry 117 (OID 64524)
 -- Name: set_account_sambakickofftime(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -974,7 +1001,7 @@ CREATE FUNCTION set_account_sambakickofftime(character varying, integer) RETURNS
 
 
 --
--- TOC entry 115 (OID 41211)
+-- TOC entry 118 (OID 64525)
 -- Name: set_account_sambalmpassword(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -984,7 +1011,7 @@ CREATE FUNCTION set_account_sambalmpassword(character varying, integer) RETURNS 
 
 
 --
--- TOC entry 116 (OID 41212)
+-- TOC entry 119 (OID 64526)
 -- Name: set_account_sambalogofftime(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -994,7 +1021,7 @@ CREATE FUNCTION set_account_sambalogofftime(character varying, integer) RETURNS 
 
 
 --
--- TOC entry 117 (OID 41213)
+-- TOC entry 120 (OID 64527)
 -- Name: set_account_sambalogonhours(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1004,7 +1031,7 @@ CREATE FUNCTION set_account_sambalogonhours(character varying, integer) RETURNS 
 
 
 --
--- TOC entry 118 (OID 41214)
+-- TOC entry 121 (OID 64528)
 -- Name: set_account_sambalogonscript(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1014,7 +1041,7 @@ CREATE FUNCTION set_account_sambalogonscript(character varying, integer) RETURNS
 
 
 --
--- TOC entry 119 (OID 41215)
+-- TOC entry 122 (OID 64529)
 -- Name: set_account_sambalogontime(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1024,7 +1051,7 @@ CREATE FUNCTION set_account_sambalogontime(character varying, integer) RETURNS i
 
 
 --
--- TOC entry 120 (OID 41216)
+-- TOC entry 123 (OID 64530)
 -- Name: set_account_sambamungeddial(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1034,7 +1061,7 @@ CREATE FUNCTION set_account_sambamungeddial(character varying, integer) RETURNS 
 
 
 --
--- TOC entry 121 (OID 41217)
+-- TOC entry 124 (OID 64531)
 -- Name: set_account_sambantpassword(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1044,7 +1071,7 @@ CREATE FUNCTION set_account_sambantpassword(character varying, integer) RETURNS 
 
 
 --
--- TOC entry 122 (OID 41218)
+-- TOC entry 125 (OID 64532)
 -- Name: set_account_sambapasswordhistory(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1054,7 +1081,7 @@ CREATE FUNCTION set_account_sambapasswordhistory(character varying, integer) RET
 
 
 --
--- TOC entry 123 (OID 41219)
+-- TOC entry 126 (OID 64533)
 -- Name: set_account_sambaprimarygroupsid(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1064,7 +1091,7 @@ CREATE FUNCTION set_account_sambaprimarygroupsid(character varying, integer) RET
 
 
 --
--- TOC entry 124 (OID 41220)
+-- TOC entry 127 (OID 64534)
 -- Name: set_account_sambaprofilepath(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1074,7 +1101,7 @@ CREATE FUNCTION set_account_sambaprofilepath(character varying, integer) RETURNS
 
 
 --
--- TOC entry 125 (OID 41221)
+-- TOC entry 128 (OID 64535)
 -- Name: set_account_sambapwdcanchange(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1084,7 +1111,7 @@ CREATE FUNCTION set_account_sambapwdcanchange(character varying, integer) RETURN
 
 
 --
--- TOC entry 126 (OID 41222)
+-- TOC entry 129 (OID 64536)
 -- Name: set_account_sambapwdlastset(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1094,7 +1121,7 @@ CREATE FUNCTION set_account_sambapwdlastset(character varying, integer) RETURNS 
 
 
 --
--- TOC entry 127 (OID 41223)
+-- TOC entry 130 (OID 64537)
 -- Name: set_account_sambapwdmustchange(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1104,7 +1131,7 @@ CREATE FUNCTION set_account_sambapwdmustchange(character varying, integer) RETUR
 
 
 --
--- TOC entry 128 (OID 41224)
+-- TOC entry 131 (OID 64538)
 -- Name: set_account_sambasid(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1116,7 +1143,7 @@ SELECT $2 AS RETURN '
 
 
 --
--- TOC entry 129 (OID 41225)
+-- TOC entry 132 (OID 64539)
 -- Name: set_account_sambauserworkstations(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1126,7 +1153,7 @@ CREATE FUNCTION set_account_sambauserworkstations(character varying, integer) RE
 
 
 --
--- TOC entry 130 (OID 41226)
+-- TOC entry 133 (OID 64540)
 -- Name: set_account_sn(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1138,7 +1165,7 @@ CREATE FUNCTION set_account_sn(character varying, integer) RETURNS integer
 
 
 --
--- TOC entry 131 (OID 41227)
+-- TOC entry 134 (OID 64541)
 -- Name: set_account_uid(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1151,7 +1178,7 @@ CREATE FUNCTION set_account_uid(character varying, integer) RETURNS integer
 
 
 --
--- TOC entry 132 (OID 41228)
+-- TOC entry 135 (OID 64542)
 -- Name: set_account_uidnumber(integer, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1163,7 +1190,7 @@ SELECT $2 AS RETURN
 
 
 --
--- TOC entry 133 (OID 41229)
+-- TOC entry 136 (OID 64543)
 -- Name: set_account_userpassword(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1176,7 +1203,7 @@ CREATE FUNCTION set_account_userpassword(character varying, integer) RETURNS int
 
 
 --
--- TOC entry 134 (OID 41230)
+-- TOC entry 137 (OID 64544)
 -- Name: set_groups_cn(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1188,7 +1215,7 @@ SELECT $2 AS RETURN
 
 
 --
--- TOC entry 135 (OID 41231)
+-- TOC entry 138 (OID 64545)
 -- Name: set_groups_description(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1200,7 +1227,7 @@ CREATE FUNCTION set_groups_description(character varying, integer) RETURNS integ
 
 
 --
--- TOC entry 136 (OID 41232)
+-- TOC entry 139 (OID 64546)
 -- Name: set_groups_displayname(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1212,7 +1239,7 @@ CREATE FUNCTION set_groups_displayname(character varying, integer) RETURNS integ
 
 
 --
--- TOC entry 137 (OID 41233)
+-- TOC entry 140 (OID 64547)
 -- Name: set_groups_gidnumber(integer, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1225,7 +1252,7 @@ SELECT $2 AS RETURN
 
 
 --
--- TOC entry 138 (OID 41234)
+-- TOC entry 141 (OID 64548)
 -- Name: set_groups_sambagrouptype(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1237,7 +1264,7 @@ CREATE FUNCTION set_groups_sambagrouptype(character varying, integer) RETURNS in
 
 
 --
--- TOC entry 139 (OID 41235)
+-- TOC entry 142 (OID 64549)
 -- Name: set_groups_sambasid(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1250,7 +1277,7 @@ SELECT $2 AS RETURN
 
 
 --
--- TOC entry 140 (OID 41236)
+-- TOC entry 143 (OID 64550)
 -- Name: set_groups_sambasidlist(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1262,7 +1289,7 @@ CREATE FUNCTION set_groups_sambasidlist(character varying, integer) RETURNS inte
 
 
 --
--- TOC entry 141 (OID 41237)
+-- TOC entry 144 (OID 64551)
 -- Name: set_organizational_unit_ou(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1275,7 +1302,7 @@ CREATE FUNCTION set_organizational_unit_ou(character varying, integer) RETURNS i
 
 
 --
--- TOC entry 142 (OID 41238)
+-- TOC entry 145 (OID 64552)
 -- Name: set_samba_domain_name(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1285,7 +1312,7 @@ CREATE FUNCTION set_samba_domain_name(character varying, integer) RETURNS intege
 
 
 --
--- TOC entry 143 (OID 41239)
+-- TOC entry 146 (OID 64553)
 -- Name: set_samba_domain_sid(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
 --
 
@@ -1295,7 +1322,7 @@ CREATE FUNCTION set_samba_domain_sid(character varying, integer) RETURNS integer
 
 
 --
--- TOC entry 20 (OID 41242)
+-- TOC entry 20 (OID 64556)
 -- Name: userdata; Type: VIEW; Schema: public; Owner: ldap
 --
 
@@ -1303,30 +1330,41 @@ CREATE VIEW userdata AS
     SELECT posix_account.id, posix_account.uidnumber, posix_account.uid, posix_account.gidnumber, posix_account.firstname, posix_account.surname, posix_account.homedirectory, posix_account.gecos, posix_account.loginshell, posix_account.userpassword, posix_account.description, samba_sam_account.sambasid, samba_sam_account.cn, samba_sam_account.sambalmpassword, samba_sam_account.sambantpassword, samba_sam_account.sambapwdlastset, samba_sam_account.sambalogontime, samba_sam_account.sambalogofftime, samba_sam_account.sambakickofftime, samba_sam_account.sambapwdcanchange, samba_sam_account.sambapwdmustchange, samba_sam_account.sambaacctflags, samba_sam_account.displayname, samba_sam_account.sambahomepath, samba_sam_account.sambahomedrive, samba_sam_account.sambalogonscript, samba_sam_account.sambaprofilepath, samba_sam_account.sambauserworkstations, samba_sam_account.sambaprimarygroupsid, samba_sam_account.sambadomainname, samba_sam_account.sambamungeddial, samba_sam_account.sambabadpasswordcount, samba_sam_account.sambabadpasswordtime, samba_sam_account.sambapasswordhistory, samba_sam_account.sambalogonhours, posix_account_details.schoolnumber, posix_account_details.unid, posix_account_details.exitunid, posix_account_details.birthname, posix_account_details.title, posix_account_details.gender, posix_account_details.birthday, posix_account_details.birthpostalcode, posix_account_details.birthcity, posix_account_details.denomination, posix_account_details."class", posix_account_details.adminclass, posix_account_details.exitadminclass, posix_account_details.subclass, posix_account_details.creationdate, posix_account_details.tolerationdate, posix_account_details.deactivationdate, posix_account_details.sophomorixstatus, posix_account_details.accountstatus, posix_account_details.quota, posix_account_details.firstpassword, posix_account_details.internetstatus, posix_account_details.emailstatus, posix_account_details.lastlogin, posix_account_details.lastgid, posix_account_details.classentry, posix_account_details.schooltype, posix_account_details.chiefinstructor, posix_account_details.nationality, posix_account_details.religionparticipation, posix_account_details.ethicsparticipation, posix_account_details.education, posix_account_details.occupation, posix_account_details.starttraining, posix_account_details.endtraining, groups.gid FROM (((posix_account FULL JOIN samba_sam_account ON ((posix_account.id = samba_sam_account.id))) FULL JOIN posix_account_details ON ((posix_account_details.id = posix_account.id))) FULL JOIN groups ON ((posix_account.gidnumber = groups.gidnumber))) WHERE ((posix_account.uid)::text <> 'NextFreeUnixId'::text);
 
 
-CREATE TABLE class_details (
-id integer NOT NULL,
-quota character varying(255),
-schooltype character varying(255),
-department character varying(255),
-mailalias boolean,
-"type" character varying(255)
-);
+--
+-- TOC entry 21 (OID 64558)
+-- Name: class_details; Type: TABLE; Schema: public; Owner: ldap
+--
 
-CREATE TABLE project_details (
-id integer NOT NULL,
-addquota character varying(255),
-schooltype character varying(255),
-department character varying(255),
-status boolean,
-enddate date,
-longname character varying(255),
-maxmebers integer,
-"type" integer
+CREATE TABLE class_details (
+    id integer NOT NULL,
+    quota character varying(255),
+    schooltype character varying(255),
+    department character varying(255),
+    mailalias boolean,
+    "type" character varying(255)
 );
 
 
 --
--- TOC entry 22 (OID 53755)
+-- TOC entry 22 (OID 64560)
+-- Name: project_details; Type: TABLE; Schema: public; Owner: ldap
+--
+
+CREATE TABLE project_details (
+    id integer NOT NULL,
+    addquota character varying(255),
+    schooltype character varying(255),
+    department character varying(255),
+    status boolean,
+    enddate date,
+    longname character varying(255),
+    maxmebers integer,
+    "type" integer
+);
+
+
+--
+-- TOC entry 23 (OID 64562)
 -- Name: groups_managers; Type: TABLE; Schema: public; Owner: ldap
 --
 
@@ -1336,63 +1374,83 @@ CREATE TABLE groups_managers (
 );
 
 
+--
+-- TOC entry 24 (OID 64660)
+-- Name: projectdata; Type: VIEW; Schema: public; Owner: ldap
+--
+
+CREATE VIEW projectdata AS
+    SELECT project_details.id, project_details.addquota, project_details.schooltype, project_details.department, project_details.status, project_details.enddate, project_details.longname, project_details.maxmebers, project_details."type", groups.gid, groups.gidnumber, samba_group_mapping.sambasid, samba_group_mapping.sambagrouptype, samba_group_mapping.displayname, samba_group_mapping.description, samba_group_mapping.sambasidlist FROM ((project_details FULL JOIN groups ON ((project_details.id = groups.id))) FULL JOIN samba_group_mapping ON ((samba_group_mapping.id = groups.id)));
+
 
 --
--- Data for TOC entry 148 (OID 41096)
+-- TOC entry 25 (OID 64663)
+-- Name: classdata; Type: VIEW; Schema: public; Owner: ldap
+--
+
+CREATE VIEW classdata AS
+    SELECT class_details.id, class_details.quota, class_details.schooltype, class_details.department, class_details."type", class_details.mailalias, groups.gid, groups.gidnumber, samba_group_mapping.sambasid, samba_group_mapping.sambagrouptype, samba_group_mapping.displayname, samba_group_mapping.description, samba_group_mapping.sambasidlist FROM ((class_details FULL JOIN groups ON ((class_details.id = groups.id))) FULL JOIN samba_group_mapping ON ((samba_group_mapping.id = groups.id)));
+
+
+INSERT INTO institutes VALUES (1, 'linuxmuster');
+
+
+--
+-- Data for TOC entry 151 (OID 64410)
 -- Name: ldap_attr_mappings; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
-INSERT INTO ldap_attr_mappings VALUES (5, 1, 'o', 'institutes.name', NULL, 'institutes', NULL, NULL, NULL, 0, 0);
-INSERT INTO ldap_attr_mappings VALUES (106, 3, 'gn', 'posix_account.firstname', NULL, 'posix_account', NULL, NULL, NULL, 0, 0);
-INSERT INTO ldap_attr_mappings VALUES (113, 6, 'sambaDomainName', 'samba_domain.sambadomainname', NULL, 'samba_domain', NULL, '{ call set_samba_domain_name(?,?) }', NULL, 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (7, 1, 'dc', 'lower(institutes.name)', NULL, 'institutes,ldap_entries AS dcObject,ldap_entry_objclasses as auxObjectClass', 'institutes.id=dcObject.keyval AND dcObject.oc_map_id=1 AND dcObject.id=auxObjectClass.entry_id AND auxObjectClass.oc_name=''dcObject''', NULL, NULL, 0, 0);
-INSERT INTO ldap_attr_mappings VALUES (14, 4, 'cn', 'groups.gid', NULL, 'groups', NULL, '{ call set_groups_cn(?,?) }', NULL, 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (13, 4, 'gidNumber', 'groups.gidnumber', NULL, 'groups', NULL, '{ call set_groups_gidnumber(?,?) }', NULL, 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (11, 3, 'homeDirectory', 'posix_account.homedirectory', NULL, 'posix_account', NULL, '{ call set_account_homedirectory(?,?) }', '{ call del_account_homedirectory(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (16, 3, 'loginShell', 'posix_account.loginshell', NULL, 'posix_account', NULL, '{ call set_account_loginshell(?,?) }', '{ call del_account_loginshell(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (10, 3, 'gidNumber', 'posix_account.gidnumber', NULL, 'posix_account', NULL, '{ call set_account_gidnumber(?,?) }', '{ call del_account_gidnumber(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (9, 3, 'uid', 'posix_account.uid', NULL, 'posix_account', NULL, '{ call set_account_uid(?,?) }', '{ call del_account_uid(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (8, 2, 'ou', 'organizational_unit.ou', NULL, 'organizational_unit', NULL, '{ call set_organizational_unit_ou(?,?) }', NULL, 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (1, 3, 'cn', 'posix_account.firstname || '' '' || posix_account.surname', NULL, 'posix_account', NULL, '{ call set_account_cn(?,?) }', NULL, 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (97, 4, 'displayName', 'samba_group_mapping.displayname', 'samba_group_mapping.displayname', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_displayname(?,?) }', '', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (81, 3, 'displayName', 'samba_sam_account.displayname', 'samba_sam_account.displayname', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_displayname(?,?) }', '{ call del_account_displayname(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (71, 3, 'sambaSID', 'samba_sam_account.sambasid', 'samba_sam_account.sambasid', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambasid(?,?) }', '{ call del_account_sambasid(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (114, 6, 'sambaSID', 'samba_domain.sambasid', 'samba_domain.sambasid', 'samba_domain', NULL, '{ call set_samba_domain_sid(?,?) }', NULL, 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (95, 4, 'sambaSID', 'samba_group_mapping.sambasid', 'samba_group_mapping.sambasid', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_sambasid(?,?) }', '', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (99, 4, 'sambaSIDList', 'samba_group_mapping.sambasidlist', 'samba_group_mapping.sambasidlist', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_sambasidlist(?,?) }', '', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (98, 4, 'description', 'samba_group_mapping.description', 'samba_group_mapping.description', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_description(?,?) }', '', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (96, 4, 'sambaGroupType', 'samba_group_mapping.sambagrouptype', 'samba_group_mapping.sambagrouptype', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_sambagrouptype(?,?) }', '', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (94, 3, 'sambaLogonHours', 'samba_sam_account.sambalogonhours', 'samba_sam_account.sambalogonhours', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambalogonhours(?,?) }', '{ call del_account_sambalogonhours(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (78, 3, 'sambaPwdCanChange', 'samba_sam_account.sambapwdcanchange', 'samba_sam_account.sambalogonhours', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambapwdcanchange(?,?) }', '{ call del_account_sambapwdcanchange(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (87, 3, 'sambaUserWorkstations', 'samba_sam_account.sambauserworkstations', 'samba_sam_account.sambauserworkstations', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambauserworkstations(?,?) }', '{ call del_account_sambauserworkstations(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (72, 3, 'sambaLMPassword', 'samba_sam_account.sambalmpassword', 'samba_sam_account.sambalmpassword', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambalmpassword(?,?) }', '{ call del_account_sambalmpassword(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (93, 3, 'sambaPasswordHistory', 'samba_sam_account.sambapasswordhistory', 'samba_sam_account.sambalmpassword', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambapasswordhistory(?,?) }', '{ call del_account_sambapasswordhistory(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (92, 3, 'sambaBadPasswordTime', 'samba_sam_account.sambabadpasswordtime', 'samba_sam_account.sambalmpassword', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambabadpasswordtime(?,?) }', '{ call del_account_sambabadpasswordtime(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (91, 3, 'sambaBadPasswordCount', 'samba_sam_account.sambabadpasswordcount', 'samba_sam_account.sambabadpasswordcount', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambabadpasswordcount(?,?) }', '{ call del_account_sambabadpasswordcount(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (90, 3, 'sambaMungedDial', 'samba_sam_account.sambamungeddial', 'samba_sam_account.sambamungeddial', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambamungeddial(?,?) }', '{ call del_account_sambamungeddial(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (89, 3, 'sambaDomainName', 'samba_sam_account.sambadomainname', 'samba_sam_account.sambadomainname', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambadomainname(?,?) }', '{ call del_account_sambadomainname(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (88, 3, 'sambaPrimaryGroupSID', 'samba_sam_account.sambaprimarygroupsid', 'samba_sam_account.sambaprimarygroupsid', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambaprimarygroupsid(?,?) }', '{ call del_account_sambaprimarygroupsid(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (85, 3, 'sambaProfilePath', 'samba_sam_account.sambaprofilepath', 'samba_sam_account.sambaprofilepath', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambaprofilepath(?,?) }', '{ call del_account_sambaprofilepath(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (84, 3, 'sambaLogonScript', 'samba_sam_account.sambalogonscript', 'samba_sam_account.sambalogonscript', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambalogonscript(?,?) }', '{ call del_account_sambalogonscript(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (83, 3, 'sambaHomeDrive', 'samba_sam_account.sambahomedrive', 'samba_sam_account.sambahomedrive', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambahomedrive(?,?) }', '{ call del_account_sambahomedrive(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (82, 3, 'sambaHomePath', 'samba_sam_account.sambahomepath', 'samba_sam_account.sambahomepath', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambahomepath(?,?) }', '{ call del_account_sambahomepath(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (80, 3, 'sambaAcctFlags', 'samba_sam_account.sambaacctflags', 'samba_sam_account.sambaacctflags', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambaacctflags(?,?) }', '{ call del_account_sambaacctflags(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (79, 3, 'sambaPwdMustChange', 'samba_sam_account.sambapwdmustchange', 'samba_sam_account.sambapwdmustchange', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambapwdmustchange(?,?) }', '{ call del_account_sambapwdmustchange(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (77, 3, 'sambaKickoffTime', 'samba_sam_account.sambakickofftime', 'samba_sam_account.sambakickofftime', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambakickofftime(?,?) }', '{ call del_account_sambakickofftime(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (76, 3, 'sambaLogoffTime', 'samba_sam_account.sambalogofftime', 'samba_sam_account.sambalogofftime', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambalogofftime(?,?) }', '{ call del_account_sambalogofftime(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (75, 3, 'sambaLogonTime', 'samba_sam_account.sambalogontime', 'samba_sam_account.sambalogontime', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambalogontime(?,?) }', '{ call del_account_sambalogontime(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (74, 3, 'sambaPwdLastSet', 'samba_sam_account.sambapwdlastset', 'samba_sam_account.sambapwdlastset', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambapwdlastset(?,?) }', '{ call del_account_sambapwdlastset(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (73, 3, 'sambaNTPassword', 'samba_sam_account.sambantpassword', 'samba_sam_account.sambantpassword', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambantpassword(?,?) }', '{ call del_account_sambantpassword(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (113, 6, 'sambaDomainName', 'samba_domain.sambadomainname', 'samba_domain.sambadomainname', 'samba_domain', NULL, '{ call set_samba_domain_name(?,?) }', NULL, 1, 0);
 INSERT INTO ldap_attr_mappings VALUES (105, 3, 'sn', 'posix_account.surname', NULL, 'posix_account', NULL, '{ call set_account_sn(?,?) }', '{ call del_account_sn(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (15, 4, 'memberUid', 'posix_account.uid', NULL, 'posix_account,groups_users,groups', 'groups_users.memberuid=posix_account.uidnumber AND groups_users.gidnumber=groups.gidnumber', NULL, NULL, 0, 0);
-INSERT INTO ldap_attr_mappings VALUES (73, 3, 'sambaNTPassword', 'samba_sam_account.sambantpassword', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambantpassword(?,?) }', '{ call del_account_sambantpassword(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (74, 3, 'sambaPwdLastSet', 'samba_sam_account.sambapwdlastset', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambapwdlastset(?,?) }', '{ call del_account_sambapwdlastset(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (4, 3, 'userPassword', 'posix_account.userpassword', NULL, 'posix_account', NULL, '{ call set_account_userpassword(?,?) }', '{ call del_account_userpassword(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (75, 3, 'sambaLogonTime', 'samba_sam_account.sambalogontime', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambalogontime(?,?) }', '{ call del_account_sambalogontime(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (71, 3, 'sambaSID', 'samba_sam_account.sambasid', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambasid(?,?) }', '{ call del_account_sambasid(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (114, 6, 'sambaSID', 'samba_domain.sambasid', NULL, 'samba_domain', NULL, '{ call set_samba_domain_sid(?,?) }', NULL, 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (76, 3, 'sambaLogoffTime', 'samba_sam_account.sambalogofftime', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambalogofftime(?,?) }', '{ call del_account_sambalogofftime(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (77, 3, 'sambaKickoffTime', 'samba_sam_account.sambakickofftime', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambakickofftime(?,?) }', '{ call del_account_sambakickofftime(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (79, 3, 'sambaPwdMustChange', 'samba_sam_account.sambapwdmustchange', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambapwdmustchange(?,?) }', '{ call del_account_sambapwdmustchange(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (80, 3, 'sambaAcctFlags', 'samba_sam_account.sambaacctflags', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambaacctflags(?,?) }', '{ call del_account_sambaacctflags(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (81, 3, 'displayName', 'samba_sam_account.displayname', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_displayname(?,?) }', '{ call del_account_displayname(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (82, 3, 'sambaHomePath', 'samba_sam_account.sambahomepath', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambahomepath(?,?) }', '{ call del_account_sambahomepath(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (83, 3, 'sambaHomeDrive', 'samba_sam_account.sambahomedrive', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambahomedrive(?,?) }', '{ call del_account_sambahomedrive(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (84, 3, 'sambaLogonScript', 'samba_sam_account.sambalogonscript', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambalogonscript(?,?) }', '{ call del_account_sambalogonscript(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (85, 3, 'sambaProfilePath', 'samba_sam_account.sambaprofilepath', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambaprofilepath(?,?) }', '{ call del_account_sambaprofilepath(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (88, 3, 'sambaPrimaryGroupSID', 'samba_sam_account.sambaprimarygroupsid', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambaprimarygroupsid(?,?) }', '{ call del_account_sambaprimarygroupsid(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (89, 3, 'sambaDomainName', 'samba_sam_account.sambadomainname', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambadomainname(?,?) }', '{ call del_account_sambadomainname(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (90, 3, 'sambaMungedDial', 'samba_sam_account.sambamungeddial', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambamungeddial(?,?) }', '{ call del_account_sambamungeddial(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (91, 3, 'sambaBadPasswordCount', 'samba_sam_account.sambabadpasswordcount', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambabadpasswordcount(?,?) }', '{ call del_account_sambabadpasswordcount(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (92, 3, 'sambaBadPasswordTime', 'samba_sam_account.sambabadpasswordtime', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambabadpasswordtime(?,?) }', '{ call del_account_sambabadpasswordtime(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (93, 3, 'sambaPasswordHistory', 'samba_sam_account.sambapasswordhistory', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambapasswordhistory(?,?) }', '{ call del_account_sambapasswordhistory(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (72, 3, 'sambaLMPassword', 'samba_sam_account.sambalmpassword', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambalmpassword(?,?) }', '{ call del_account_sambalmpassword(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (87, 3, 'sambaUserWorkstations', 'samba_sam_account.sambauserworkstations', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambauserworkstations(?,?) }', '{ call del_account_sambauserworkstations(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (78, 3, 'sambaPwdCanChange', 'samba_sam_account.sambapwdcanchange', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambapwdcanchange(?,?) }', '{ call del_account_sambapwdcanchange(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (94, 3, 'sambaLogonHours', 'samba_sam_account.sambalogonhours', 'NULL', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambalogonhours(?,?) }', '{ call del_account_sambalogonhours(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (9, 3, 'uid', 'posix_account.uid', NULL, 'posix_account', NULL, '{ call set_account_uid(?,?) }', '{ call del_account_uid(?,?) }', 1, 0);
 INSERT INTO ldap_attr_mappings VALUES (12, 3, 'uidNumber', 'posix_account.uidnumber', NULL, 'posix_account', NULL, '{ call set_account_uidnumber(?,?) }', '{ call del_account_uidnumber(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (86, 3, 'description', 'posix_account.description', NULL, 'posix_account', NULL, '{ call set_account_description(?,?) }', '{ call del_account_description(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (106, 3, 'gn', 'posix_account.firstname', NULL, 'posix_account', NULL, NULL, NULL, 0, 0);
+INSERT INTO ldap_attr_mappings VALUES (5, 1, 'o', 'institutes.name', NULL, 'institutes', NULL, NULL, NULL, 0, 0);
 INSERT INTO ldap_attr_mappings VALUES (17, 3, 'gecos', 'posix_account.gecos', NULL, 'posix_account', NULL, '{ call set_account_gecos(?,?) }', '{ call del_account_gecos(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (95, 4, 'sambaSID', 'samba_group_mapping.sambasid', 'NULL', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_sambasid(?,?) }', '', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (97, 4, 'displayName', 'samba_group_mapping.displayname', 'NULL', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_displayname(?,?) }', '', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (96, 4, 'sambaGroupType', 'samba_group_mapping.sambagrouptype', 'NULL', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_sambagrouptype(?,?) }', '', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (99, 4, 'sambaSIDList', 'samba_group_mapping.sambasidlist', 'NULL', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_sambasidlist(?,?) }', '', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (98, 4, 'description', 'samba_group_mapping.description', 'NULL', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_description(?,?) }', '', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (86, 3, 'description', 'posix_account.description', 'NULL', 'posix_account', NULL, '{ call set_account_description(?,?) }', '{ call del_account_description(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (4, 3, 'userPassword', 'posix_account.userpassword', NULL, 'posix_account', NULL, '{ call set_account_userpassword(?,?) }', '{ call del_account_userpassword(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (15, 4, 'memberUid', 'posix_account.uid', NULL, 'posix_account,groups_users,groups', 'groups_users.memberuid=posix_account.uidnumber AND groups_users.gidnumber=groups.gidnumber', NULL, NULL, 0, 0);
+INSERT INTO ldap_attr_mappings VALUES (8, 2, 'ou', 'organizational_unit.ou', NULL, 'organizational_unit', NULL, '{ call set_organizational_unit_ou(?,?) }', NULL, 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (10, 3, 'gidNumber', 'posix_account.gidnumber', NULL, 'posix_account', NULL, '{ call set_account_gidnumber(?,?) }', '{ call del_account_gidnumber(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (16, 3, 'loginShell', 'posix_account.loginshell', NULL, 'posix_account', NULL, '{ call set_account_loginshell(?,?) }', '{ call del_account_loginshell(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (11, 3, 'homeDirectory', 'posix_account.homedirectory', NULL, 'posix_account', NULL, '{ call set_account_homedirectory(?,?) }', '{ call del_account_homedirectory(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (1, 3, 'cn', 'posix_account.firstname || '' '' || posix_account.surname', NULL, 'posix_account', NULL, '{ call set_account_cn(?,?) }', NULL, 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (13, 4, 'gidNumber', 'groups.gidnumber', NULL, 'groups', NULL, '{ call set_groups_gidnumber(?,?) }', NULL, 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (14, 4, 'cn', 'groups.gid', NULL, 'groups', NULL, '{ call set_groups_cn(?,?) }', NULL, 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (7, 1, 'dc', 'institutes.name', NULL, 'institutes,ldap_entries AS dcObject,ldap_entry_objclasses as auxObjectClass', 'institutes.id=dcObject.keyval AND dcObject.oc_map_id=1 AND dcObject.id=auxObjectClass.entry_id AND auxObjectClass.oc_name=''dcObject''', NULL, NULL, 0, 0);
 
 
 --
--- Data for TOC entry 149 (OID 41101)
+-- Data for TOC entry 152 (OID 64415)
 -- Name: ldap_entries; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
@@ -1402,18 +1460,15 @@ INSERT INTO ldap_entries VALUES (2, 'ou=accounts,dc=linuxmuster,dc=de', 2, 1, 1)
 INSERT INTO ldap_entries VALUES (3, 'ou=machines,dc=linuxmuster,dc=de', 2, 1, 3);
 INSERT INTO ldap_entries VALUES (4, 'cn=NextFreeUnixId,dc=linuxmuster,dc=de', 3, 1, 1);
 
-
-
 --
--- Data for TOC entry 150 (OID 41104)
+-- Data for TOC entry 153 (OID 64418)
 -- Name: ldap_entry_objclasses; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
 INSERT INTO ldap_entry_objclasses VALUES (4, 'sambaUnixIdPool');
 
-
 --
--- Data for TOC entry 151 (OID 41108)
+-- Data for TOC entry 154 (OID 64422)
 -- Name: ldap_oc_mappings; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
@@ -1425,7 +1480,7 @@ INSERT INTO ldap_oc_mappings VALUES (6, 'sambaDomain', 'samba_domain', 'id', 'SE
 
 
 --
--- Data for TOC entry 152 (OID 41111)
+-- Data for TOC entry 155 (OID 64425)
 -- Name: ldap_referrals; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
@@ -1433,7 +1488,13 @@ INSERT INTO ldap_referrals VALUES (1, 'Referral                                 
 
 
 --
--- Data for TOC entry 154 (OID 41123)
+-- Data for TOC entry 156 (OID 64429)
+-- Name: posix_account; Type: TABLE DATA; Schema: public; Owner: ldap
+--
+
+INSERT INTO posix_account VALUES (1, 10013, 'NextFreeUnixId', 10000, '', 'NextFreeUnixId', '', '', '', '', '                                                                                                                                                                                                                                                               ');
+--
+-- Data for TOC entry 157 (OID 64437)
 -- Name: organizational_unit; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
@@ -1443,29 +1504,7 @@ INSERT INTO organizational_unit VALUES (3, 'machines', 'Maschinen');
 
 
 --
--- Data for TOC entry 155 (OID 41126)
--- Name: posix_account_details; Type: TABLE DATA; Schema: public; Owner: ldap
---
-
-
-
---
--- Data for TOC entry 156 (OID 41133)
--- Name: samba_domain; Type: TABLE DATA; Schema: public; Owner: ldap
---
-
-INSERT INTO samba_domain VALUES (1509, 'LML', 'S-1-5-21-1179238129-1969579340-547094959');
-
-
---
--- Data for TOC entry 160 (OID 53755)
--- Name: groups_managers; Type: TABLE DATA; Schema: public; Owner: ldap
---
-
-
-
---
--- TOC entry 34 (OID 41309)
+-- TOC entry 37 (OID 64627)
 -- Name: groups_id; Type: INDEX; Schema: public; Owner: ldap
 --
 
@@ -1473,7 +1512,7 @@ CREATE UNIQUE INDEX groups_id ON groups USING btree (id);
 
 
 --
--- TOC entry 36 (OID 41310)
+-- TOC entry 39 (OID 64628)
 -- Name: institutesid; Type: INDEX; Schema: public; Owner: ldap
 --
 
@@ -1481,7 +1520,7 @@ CREATE UNIQUE INDEX institutesid ON institutes USING btree (id);
 
 
 --
--- TOC entry 41 (OID 41316)
+-- TOC entry 44 (OID 64629)
 -- Name: ldap_entry_objclasses_entry_id; Type: INDEX; Schema: public; Owner: ldap
 --
 
@@ -1489,7 +1528,7 @@ CREATE INDEX ldap_entry_objclasses_entry_id ON ldap_entry_objclasses USING btree
 
 
 --
--- TOC entry 42 (OID 41317)
+-- TOC entry 45 (OID 64630)
 -- Name: ldap_entry_objclasses_ocname; Type: INDEX; Schema: public; Owner: ldap
 --
 
@@ -1497,7 +1536,7 @@ CREATE INDEX ldap_entry_objclasses_ocname ON ldap_entry_objclasses USING btree (
 
 
 --
--- TOC entry 48 (OID 41318)
+-- TOC entry 51 (OID 64631)
 -- Name: organizational_unit_id; Type: INDEX; Schema: public; Owner: ldap
 --
 
@@ -1505,7 +1544,7 @@ CREATE INDEX organizational_unit_id ON organizational_unit USING btree (id);
 
 
 --
--- TOC entry 44 (OID 41319)
+-- TOC entry 47 (OID 64632)
 -- Name: pac_uidnumberup; Type: INDEX; Schema: public; Owner: ldap
 --
 
@@ -1515,7 +1554,7 @@ ALTER TABLE posix_account CLUSTER ON pac_uidnumberup;
 
 
 --
--- TOC entry 51 (OID 41321)
+-- TOC entry 54 (OID 64633)
 -- Name: samba_group_mapping_id; Type: INDEX; Schema: public; Owner: ldap
 --
 
@@ -1523,7 +1562,7 @@ CREATE UNIQUE INDEX samba_group_mapping_id ON samba_group_mapping USING btree (i
 
 
 --
--- TOC entry 52 (OID 41322)
+-- TOC entry 55 (OID 64634)
 -- Name: samba_group_mapping_id_h; Type: INDEX; Schema: public; Owner: ldap
 --
 
@@ -1531,7 +1570,7 @@ CREATE INDEX samba_group_mapping_id_h ON samba_group_mapping USING hash (id);
 
 
 --
--- TOC entry 37 (OID 43794)
+-- TOC entry 40 (OID 64635)
 -- Name: ldap_entries_dn; Type: INDEX; Schema: public; Owner: ldap
 --
 
@@ -1539,7 +1578,7 @@ CREATE UNIQUE INDEX ldap_entries_dn ON ldap_entries USING btree (dn);
 
 
 --
--- TOC entry 38 (OID 43795)
+-- TOC entry 41 (OID 64636)
 -- Name: ldap_entries_id; Type: INDEX; Schema: public; Owner: ldap
 --
 
@@ -1547,7 +1586,7 @@ CREATE UNIQUE INDEX ldap_entries_id ON ldap_entries USING btree (id);
 
 
 --
--- TOC entry 40 (OID 44226)
+-- TOC entry 43 (OID 64637)
 -- Name: ldap_entries_keyval; Type: INDEX; Schema: public; Owner: ldap
 --
 
@@ -1555,7 +1594,7 @@ CREATE INDEX ldap_entries_keyval ON ldap_entries USING btree (keyval);
 
 
 --
--- TOC entry 46 (OID 44235)
+-- TOC entry 49 (OID 64638)
 -- Name: posix_account_id; Type: INDEX; Schema: public; Owner: ldap
 --
 
@@ -1563,7 +1602,7 @@ CREATE UNIQUE INDEX posix_account_id ON posix_account USING btree (id);
 
 
 --
--- TOC entry 32 (OID 44236)
+-- TOC entry 35 (OID 64639)
 -- Name: groups_gid_upper; Type: INDEX; Schema: public; Owner: ldap
 --
 
@@ -1573,7 +1612,7 @@ ALTER TABLE groups CLUSTER ON groups_gid_upper;
 
 
 --
--- TOC entry 45 (OID 45643)
+-- TOC entry 48 (OID 64640)
 -- Name: posix_account_gidnumber_upper; Type: INDEX; Schema: public; Owner: ldap
 --
 
@@ -1581,7 +1620,7 @@ CREATE INDEX posix_account_gidnumber_upper ON posix_account USING btree (upper((
 
 
 --
--- TOC entry 33 (OID 41325)
+-- TOC entry 36 (OID 64641)
 -- Name: groups_gidnumber_key; Type: CONSTRAINT; Schema: public; Owner: ldap
 --
 
@@ -1590,7 +1629,7 @@ ALTER TABLE ONLY groups
 
 
 --
--- TOC entry 35 (OID 41327)
+-- TOC entry 38 (OID 64643)
 -- Name: groups_id_key; Type: CONSTRAINT; Schema: public; Owner: ldap
 --
 
@@ -1599,7 +1638,7 @@ ALTER TABLE ONLY groups
 
 
 --
--- TOC entry 39 (OID 41329)
+-- TOC entry 42 (OID 64645)
 -- Name: ldap_entries_id_key; Type: CONSTRAINT; Schema: public; Owner: ldap
 --
 
@@ -1608,7 +1647,7 @@ ALTER TABLE ONLY ldap_entries
 
 
 --
--- TOC entry 43 (OID 41331)
+-- TOC entry 46 (OID 64647)
 -- Name: ldap_oc_mappings_id_key; Type: CONSTRAINT; Schema: public; Owner: ldap
 --
 
@@ -1617,7 +1656,7 @@ ALTER TABLE ONLY ldap_oc_mappings
 
 
 --
--- TOC entry 49 (OID 41333)
+-- TOC entry 52 (OID 64649)
 -- Name: posix_account_details_uidnumber_key; Type: CONSTRAINT; Schema: public; Owner: ldap
 --
 
@@ -1626,7 +1665,7 @@ ALTER TABLE ONLY posix_account_details
 
 
 --
--- TOC entry 47 (OID 41339)
+-- TOC entry 50 (OID 64651)
 -- Name: posix_account_uidnumber_key; Type: CONSTRAINT; Schema: public; Owner: ldap
 --
 
@@ -1635,7 +1674,7 @@ ALTER TABLE ONLY posix_account
 
 
 --
--- TOC entry 50 (OID 41341)
+-- TOC entry 53 (OID 64653)
 -- Name: samba_group_mapping_gidnumber_key; Type: CONSTRAINT; Schema: public; Owner: ldap
 --
 
@@ -1644,7 +1683,7 @@ ALTER TABLE ONLY samba_group_mapping
 
 
 --
--- TOC entry 53 (OID 41343)
+-- TOC entry 56 (OID 64655)
 -- Name: samba_sam_account_id_key; Type: CONSTRAINT; Schema: public; Owner: ldap
 --
 
@@ -1653,15 +1692,15 @@ ALTER TABLE ONLY samba_sam_account
 
 
 --
--- TOC entry 23 (OID 41077)
+-- TOC entry 26 (OID 64391)
 -- Name: groups_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ldap
 --
 
-SELECT pg_catalog.setval('groups_id_seq', 96, true);
+SELECT pg_catalog.setval('groups_id_seq', 105, true);
 
 
 --
--- TOC entry 24 (OID 41089)
+-- TOC entry 27 (OID 64403)
 -- Name: institutes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ldap
 --
 
@@ -1669,7 +1708,7 @@ SELECT pg_catalog.setval('institutes_id_seq', 3, true);
 
 
 --
--- TOC entry 25 (OID 41094)
+-- TOC entry 28 (OID 64408)
 -- Name: ldap_attr_mappings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ldap
 --
 
@@ -1677,15 +1716,15 @@ SELECT pg_catalog.setval('ldap_attr_mappings_id_seq', 115, true);
 
 
 --
--- TOC entry 26 (OID 41099)
+-- TOC entry 29 (OID 64413)
 -- Name: ldap_entries_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ldap
 --
 
-SELECT pg_catalog.setval('ldap_entries_id_seq', 1625, true);
+SELECT pg_catalog.setval('ldap_entries_id_seq', 1659, true);
 
 
 --
--- TOC entry 27 (OID 41106)
+-- TOC entry 30 (OID 64420)
 -- Name: ldap_oc_mappings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ldap
 --
 
@@ -1693,15 +1732,15 @@ SELECT pg_catalog.setval('ldap_oc_mappings_id_seq', 6, true);
 
 
 --
--- TOC entry 28 (OID 41113)
+-- TOC entry 31 (OID 64427)
 -- Name: posix_account_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ldap
 --
 
-SELECT pg_catalog.setval('posix_account_id_seq', 1509, true);
+SELECT pg_catalog.setval('posix_account_id_seq', 19, true);
 
 
 --
--- TOC entry 29 (OID 41121)
+-- TOC entry 32 (OID 64435)
 -- Name: organizational_unit_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ldap
 --
 
@@ -1709,7 +1748,7 @@ SELECT pg_catalog.setval('organizational_unit_id_seq', 6, true);
 
 
 --
--- TOC entry 30 (OID 41131)
+-- TOC entry 33 (OID 64445)
 -- Name: samba_domain_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ldap
 --
 
@@ -1717,16 +1756,9 @@ SELECT pg_catalog.setval('samba_domain_id_seq', 1, false);
 
 
 --
--- TOC entry 31 (OID 41139)
+-- TOC entry 34 (OID 64453)
 -- Name: samba_group_mapping_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ldap
 --
 
 SELECT pg_catalog.setval('samba_group_mapping_id_seq', 1, false);
 
-
-INSERT INTO posix_account VALUES (1, 10000, 'NextFreeUnixId', 10000, '', 'NextFreeUnixId', '', '', '', '', '');
-
-
-CREATE VIEW projectdata AS SELECT project_details.id, project_details.addquota, project_details.schooltype, project_details.department, project_details.status, project_details.enddate, project_details.longname, project_details.maxmebers, project_details.type, groups.gid, groups.gidnumber, samba_group_mapping.sambasid, samba_group_mapping.sambagrouptype, samba_group_mapping.displayname, samba_group_mapping.description, samba_group_mapping.sambasidlist FROM project_details FULL JOIN groups ON project_details.id = groups.id FULL JOIN samba_group_mapping ON samba_group_mapping.id=groups.id;
-
-CREATE VIEW classdata AS SELECT class_details.id, class_details.quota, class_details.schooltype, class_details.department, class_details.type, class_details.mailalias, groups.gid, groups.gidnumber, samba_group_mapping.sambasid, samba_group_mapping.sambagrouptype, samba_group_mapping.displayname, samba_group_mapping.description, samba_group_mapping.sambasidlist FROM class_details FULL JOIN groups ON class_details.id = groups.id FULL JOIN samba_group_mapping ON samba_group_mapping.id=groups.id;
