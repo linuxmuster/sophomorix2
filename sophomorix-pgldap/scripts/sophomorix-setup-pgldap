@@ -32,6 +32,58 @@ my $ldappassword="";
 my $dbpassword="";
 my $dbname="";
 
+my $help=0;
+my $new_database=0;
+my $keep_database=0;
+
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "help|h" => \$help,
+           "new-database" => \$new_database,
+           "keep-database" => \$keep_database,
+          );
+
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
+
+
+
+
+
+
+
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlbeschreibung
+   print "\n$scriptname configures sophomorix, postgresql, slapd and samba \n";
+   print('
+Options
+  -h  / --help
+  --new-database    deletes the database and creates a new one (Dangerous!!)
+  --keep-database   do not drop the database, keep it
+');
+   print "\n";
+   exit;
+}
+
+
+
+
+# print $keep_database,"\n";
+# print $new_database,"\n";
+# print $help,"\n";
+
+
+
+
+
+
 print "Using the following values to configure the system\n";
 ############################################################
 # read the values from the config file
@@ -332,9 +384,31 @@ sleep 5;
 #system("su --command='createdb -U postgres ldap' postgres");
 #system("createdb -U postgres ldap");
 
-system("psql -U postgres template1 < /usr/share/sophomorix/config-templates/pg/sophomorix-admin.sql");
-system("psql -U postgres ldap < /usr/share/sophomorix/config-templates/pg/sophomorix-lang.sql");
-system("psql -U ldap ldap < /usr/share/sophomorix/config-templates/pg/sophomorix.sql");
+
+
+
+
+if ($new_database==1){
+    print "\nWARNING: I will drop your database ldap in 5 seconds!\n";
+    print "\n Hit Control-C to abort, ...!\n\n";
+    sleep 5;
+    system("droplang -U postgres plpgsql ldap");
+    system("dropdb -U postgres ldap");
+    system("dropuser -U postgres ldap");
+    sleep 2;
+}
+
+# create new database if necessary
+if ($keep_database==0 or $new_database==1){
+    &create_database();
+} else {
+    print "\nKeeping the old database ldap \n\n";
+}
+
+
+
+
+
 
 
 
@@ -464,6 +538,15 @@ print "\n##### sophomorix-setup-pgldap is configuring openldap for sophomorix-pg
 ############################################################
 # sub
 ############################################################
+
+sub create_database {
+    print "Creating database ldap \n";
+    system("psql -U postgres template1 < /usr/share/sophomorix/config-templates/pg/sophomorix-admin.sql");
+    system("psql -U postgres ldap < /usr/share/sophomorix/config-templates/pg/sophomorix-lang.sql");
+    system("psql -U ldap ldap < /usr/share/sophomorix/config-templates/pg/sophomorix.sql");
+
+
+}
 
 
 sub insert_line_before {
