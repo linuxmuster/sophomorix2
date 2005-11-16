@@ -1140,7 +1140,6 @@ sub update_user_db_entry {
        print "Retrieved Id of $login: $id \n";
     }
 
-
     # updating posix_account
     my $posix=join(", ",@posix);
     if ($posix ne ""){
