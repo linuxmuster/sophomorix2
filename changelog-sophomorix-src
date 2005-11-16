@@ -789,35 +789,42 @@ SQL-DBI/OpenLDAP related:
          Database fields for cups (what is needed?)
 
          counting the users when sophomorix-class -i
+
          SophomorixAPI to select users and groups
 
          sophomorix-quota
             - project add quota
+
          look in SophomorixPgLdap what has to be done
            show_project_list
            create_project_db
          test login
+
          $server must be patched in PgLdap.pm
+
          make sid available in ldap
+
          save sid in database
+
          use transactions to modify the database
          (this is more complicated, than I thought)
-         add tests to sophomorix-test (check groups, check_provided_files)
 
-         add replacements for pgldap for:
-           groupadd
-           groupdel
-           adduser
-         
+         add tests to sophomorix-test (check groups, check_provided_files)
 
          mailbox anlegen siehe sophomorix-add 
          Zeile von Thomas
-         
-         when killing a user, remove all ist secondary group memberships
-
-         sophomoorix-kill is very slow
 
 
+1.4.5 (2005-11-16)
+
+   - Bug: ids (like 10007) in gid (where names are) -> fixed
+   - Bugfix: fetch classlist: new function using pg 
+   - added replacements for pgldap for:
+           groupadd -> create_class_db_entry with second parameter 1 (add subclass)
+           adduser  -> pg_adduser
+   -  replaced get_group_list (use id) with faster pg_get_group_list(query database)
+   - speeded up sophomorix-kill -i accessing pg instead of using id
+   - checked that: when killing a user, remove all secondary group memberships
    - show_class_list is deprecated in SophomorixPgLdap.pm
    - function login-type in sophomorix-quota modified for new group-names
 
