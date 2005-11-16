@@ -29,11 +29,11 @@ require Exporter;
              get_first_password
              check_sophomorix_user
              show_project_list
-             show_class_list
              get_smb_sid
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
+#                         show_class_list
 
 
 # ??????????
@@ -1636,7 +1636,7 @@ sub show_project_list {
 
 
 
-# (can be implemented later)
+# (deprecated)
 
 sub show_class_list {
    open(CLASS,"<${DevelConf::dyn_config_pfad}/class_db") || die "Fehler: $!";
