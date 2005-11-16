@@ -18,6 +18,7 @@ require Exporter;
              remove_class_db_entry
              pg_adduser
              pg_remove_all_secusers
+             pg_get_group_list
              set_sophomorix_passwd
              user_deaktivieren
              user_reaktivieren
@@ -45,7 +46,6 @@ require Exporter;
 use Sophomorix::SophomorixBase qw ( titel
                                     do_falls_nicht_testen
                                     provide_class_files
-                                    get_group_list
                                     print_user_samba_data
                                     get_user_history
                                     print_forward
@@ -565,6 +565,7 @@ sub remove_class_db_entry {
 
 
 sub pg_adduser {
+    # add a user to a group
     my ($user,$group) = @_;
     my $sql="";
     my $dbh=&db_connect();
@@ -598,6 +599,7 @@ sub pg_adduser {
 
 
 sub pg_remove_all_secusers {
+    # remove users from a group (only secondary memberships) 
     my ($group) = @_;
     my $sql="";
     my $dbh=&db_connect();
@@ -619,7 +621,39 @@ sub pg_remove_all_secusers {
 
 
 
+sub pg_get_group_list {
+    my ($user) = @_;
+    my $sql="";
+    my @grp_list=();
+    my $dbh=&db_connect();
 
+    $sql="SELECT gid,uidnumber FROM userdata WHERE uid='$user'";
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    my ($gid,$uidnumber)= $dbh->selectrow_array($sql);
+
+    push @grp_list, $gid;
+
+    my $sth= $dbh->prepare( "SELECT userdata.uid,groups.gid 
+                             FROM groups_users,userdata,groups 
+                             WHERE groups_users.memberuid=userdata.uidnumber 
+                               AND groups_users.gidnumber=groups.gidnumber
+                               AND userdata.uid='$user'
+                             ORDER BY groups.gid" );
+      $sth->execute();
+
+    my $array_ref = $sth->fetchall_arrayref();
+
+    my $i=0;
+    foreach ( @{ $array_ref } ) {
+        my $sec_gid=${$array_ref}[$i][1];
+        push @grp_list, $sec_gid;
+        $i++;
+    }   
+
+    return @grp_list;
+}
 
 
 ###########################################################################
@@ -1514,7 +1548,8 @@ sub search_user {
        # Gruppen-Zugehoerigkeit
        $pri_group_string="";
        $grp_string="";
-       @group_list=&Sophomorix::SophomorixBase::get_group_list($login);
+#       @group_list=&Sophomorix::SophomorixBase::get_group_list($login);
+       @group_list=&Sophomorix::SophomorixPgLdap::pg_get_group_list($login);
        $pri_group_string=$group_list[0];
 
        if (defined $login){
