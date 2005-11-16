@@ -785,14 +785,10 @@ SQL-DBI/OpenLDAP related:
 
          Database fields for cups (what is needed?)
          sophomorix-quota:  funktion login-type
-         add option to sophomorix-setup-pgldap 
-           --drop-database
-         to create a new and empty database         
 
          counting the users when sophomorix-class -i
          SophomorixAPI to select users and groups
             --
-         max_groups
          sophomorix-quota
             - project add quota
          look in SophomorixPgLdap what has to be done
@@ -816,6 +812,11 @@ SQL-DBI/OpenLDAP related:
          mailbox anlegen siehe sophomorix-add 
          Zeile von Thomas
 
+   - added options to sophomorix-setup-pgldap: 
+           --keep-database 
+           --new-database (drops the database and creates an new empty one)
+   - added function that exits from script when postgres or
+     slapd are not available 
    - view projectdata added
 
    - view classdata added and checked
