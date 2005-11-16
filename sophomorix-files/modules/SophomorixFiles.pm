@@ -8,6 +8,7 @@ package Sophomorix::SophomorixFiles;
 require Exporter;
 @ISA =qw(Exporter);
 @EXPORT = qw(show_modulename
+             check_connections
 	     create_user_db_entry
              create_class_db_entry
              set_sophomorix_passwd
@@ -59,6 +60,11 @@ use if ${DevelConf::sys_db} eq 'files' ,
 
 
 =cut
+
+
+sub check_connections {
+   # nothing to do
+}
 
 
 sub show_modulename {
