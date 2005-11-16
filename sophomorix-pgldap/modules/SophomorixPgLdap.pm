@@ -1122,6 +1122,7 @@ sub update_user_db_entry {
            }
        elsif ($attr eq "Gid"){
            $gid_name="$value";
+           print " ****adding $gid_name\n";
            # neue gruppe anlegen und gidnumber holen, falls erforderlich
            $gid_number=&create_class_db_entry($gid_name);
            # homedirectory
