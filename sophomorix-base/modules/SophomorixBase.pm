@@ -2084,6 +2084,9 @@ sub get_workstations_in_schule_hash {
 # ===========================================================================
 # dito, aber im hash
 # ===========================================================================
+
+
+# deprecated: succesor: pg_get_adminclasses in SophomorixPgLdap.pm
 sub get_klassen_in_schule_hash {
     my @pwliste;
     my %klassen_hash=();
@@ -2266,7 +2269,8 @@ sub check_lehrer {
 # ===========================================================================
 sub make_hash_lehrer_in_klassen {
    # key: klasse Value=Liste unterrichtender Lehrer
-   %lehrer_in_klassen=&get_klassen_in_schule_hash();
+#   %lehrer_in_klassen=&get_klassen_in_schule_hash();
+   %lehrer_in_klassen=&Sophomorix::SophomorixPgLdap::pg_get_adminclasses();
 
    # Hash mit leerer Liste füllen (sonst tuts nicht)
    while (($key,$value) = each %lehrer_in_klassen){

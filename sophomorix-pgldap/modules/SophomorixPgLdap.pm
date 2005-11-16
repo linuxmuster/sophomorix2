@@ -19,6 +19,7 @@ require Exporter;
              pg_adduser
              pg_remove_all_secusers
              pg_get_group_list
+             pg_get_adminclasses
              set_sophomorix_passwd
              user_deaktivieren
              user_reaktivieren
@@ -654,6 +655,28 @@ sub pg_get_group_list {
 
     return @grp_list;
 }
+
+
+sub pg_get_adminclasses {
+    # fetch all entries with type adminclasses
+    my ($group) = @_;
+    my %classes=();
+    my $sql="";
+    my $dbh=&db_connect();
+    my $sth= $dbh->prepare( "SELECT gid from classdata WHERE type='adminclass'" );
+      $sth->execute();
+
+    my $array_ref = $sth->fetchall_arrayref();
+
+    my $i=0;
+    foreach ( @{ $array_ref } ) {
+        my $gid=${$array_ref}[$i][0];
+        $classes{$gid}="";
+        $i++;
+    }   
+    return %classes;
+}
+
 
 
 ###########################################################################
