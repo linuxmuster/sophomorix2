@@ -21,6 +21,7 @@ use Term::ANSIColor qw(:constants); # farbiger Text RED, BLUE, ...
 $Term::ANSIColor::AUTORESET = 1;
 
 use DBI;
+use Net::LDAP;
 
 # ===========================================================================
 # Loading the db-Module, list of functions
@@ -28,6 +29,7 @@ use DBI;
 # list of functions to load if db is 'files'
 use if ${DevelConf::db_backend} eq 'files' , 
     'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                        check_connections
                                         search_user
                                         update_user_db_entry
                                         user_deaktivieren
@@ -37,6 +39,7 @@ use if ${DevelConf::db_backend} eq 'files' ,
 # list of functions to load if db is 'pgldap'
 use if ${DevelConf::db_backend} eq 'pgldap' , 
     'Sophomorix::SophomorixPgLdap' => qw(show_modulename
+                                        check_connections
                                         search_user
                                         update_user_db_entry
                                         user_deaktivieren
@@ -62,7 +65,7 @@ use if ${DevelConf::sys_db} eq 'pgldap' ,
 # show the Database Modules that are loaded
 &show_modulename();
 &show_sys_modulename();
-
+&check_connections();
 
 my $today=`date +%d.%m.%Y`;
 chomp($today);

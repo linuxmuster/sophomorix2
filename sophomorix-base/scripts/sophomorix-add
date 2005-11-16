@@ -13,6 +13,7 @@ use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
 
 use DBI;
+use Net::LDAP;
 
 # ===========================================================================
 # Loading the db-Module, list of functions
@@ -20,6 +21,7 @@ use DBI;
 # list of functions to load if db is 'files'
 use if ${DevelConf::db_backend} eq 'files' , 
     'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                        check_connections
                                         create_user_db_entry
                                         backup_user_database
                                         set_sophomorix_passwd
@@ -27,6 +29,7 @@ use if ${DevelConf::db_backend} eq 'files' ,
                                        );
 use if ${DevelConf::db_backend} eq 'pgldap' , 
     'Sophomorix::SophomorixPgLdap' => qw(show_modulename
+                                        check_connections
                                         db_connect
                                         create_user_db_entry
                                         backup_user_database
@@ -52,9 +55,6 @@ use if ${DevelConf::sys_db} eq 'pgldap' ,
 
 
 
-# show the Database Modules that are loaded
-&show_modulename();
-&show_sys_modulename();
 
 my $zeit=&zeit_stempel;
 my $user_nummer=0;
@@ -199,6 +199,13 @@ if ($gruppe ne "") {
 my $epoche_jetzt=time;
    print "Epochenzeit:                                 ",
          "$epoche_jetzt (right now)\n";
+
+
+
+# show the Database Modules that are loaded
+&show_modulename();
+&show_sys_modulename();
+&check_connections();
 
 
 my $dbh=&db_connect();

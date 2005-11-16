@@ -15,6 +15,7 @@ use Sophomorix::SophomorixBase;
 #use Schedule::at;
 
 use DBI;
+use Net::LDAP;
 
 # ===========================================================================
 # Loading the db-Module, list of functions
@@ -22,12 +23,14 @@ use DBI;
 # list of functions to load if db is 'files'
 use if ${DevelConf::db_backend} eq 'files' , 
     'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                        check_connections
                                         backup_user_database
                                         remove_user_db_entry
                                        );
 
 use if ${DevelConf::db_backend} eq 'pgldap' , 
     'Sophomorix::SophomorixPgLdap' => qw(show_modulename
+                                        check_connections
                                         backup_user_database
                                         remove_user_db_entry
                                        );
@@ -112,6 +115,27 @@ Please see the sophomorix-kill(8) man pages for full documentation
 }
 
 
+
+# --loginname
+if ($loginname ne "") {
+  #
+  print "Loginname $loginname angegeben.\n";
+}
+
+
+# ===========================================================================
+# Abbruch, wenn sophomorix.kill fehlt oder leer
+# ===========================================================================
+if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.kill")) {
+  print "\n  Die Datei\n\n";
+  print "    ${DevelConf::ergebnis_pfad}/sophomorix.kill\n\n";
+  print "  ist leer oder wurde nicht gefunden.\n\n";
+  print "  Es sind keine User zu löschen\n\n";
+  print "   sophomorix-kill beendet sich deshalb!\n\n";
+  exit; 
+}
+
+
 # --info
 if ($info==1) {
    # Ausgabe der loeschbaren user
@@ -133,27 +157,11 @@ if ($info==1) {
    exit;
 }
 
-# --loginname
-if ($loginname ne "") {
-  #
-  print "Loginname $loginname angegeben.\n";
-}
 
 # show the Database Modules that are loaded
 &show_modulename();
 &show_sys_modulename();
-
-# ===========================================================================
-# Abbruch, wenn sophomorix.kill fehlt oder leer
-# ===========================================================================
-if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.kill")) {
-  print "\n  Die Datei\n\n";
-  print "    ${DevelConf::ergebnis_pfad}/sophomorix.kill\n\n";
-  print "  ist leer oder wurde nicht gefunden.\n\n";
-  print "  Es sind keine User zu löschen\n\n";
-  print "   sophomorix-kill beendet sich deshalb!\n\n";
-  exit; 
-}
+&check_connections();
 
 # sophomorix database sichern
 &backup_user_database($zeit, "before.kill");

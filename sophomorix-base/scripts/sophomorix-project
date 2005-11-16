@@ -17,6 +17,9 @@ use Sophomorix::SophomorixAPI;
 use Sophomorix::SophomorixFiles;
 #use Schedule::at;
 
+use DBI;
+use Net::LDAP;
+
 # ===========================================================================
 # Optionen verarbeiten
 # ==========================================================================
@@ -91,6 +94,15 @@ Please see the sophomorix-project(8) man pages for full documentation
    print "\n";
    exit;
 }
+
+
+
+# show the Database Modules that are loaded
+&show_modulename();
+&show_sys_modulename();
+&check_connections();
+
+
 
 # --info
 if ($project eq "" or $info==1){

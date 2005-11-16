@@ -16,6 +16,7 @@ use Sophomorix::SophomorixBase;
 use Sophomorix::SophomorixAPI;
 use Sophomorix::SophomorixPgLdap;
 use DBI;
+use Net::LDAP;
 #use Schedule::at;
 
 # ===========================================================================
@@ -67,6 +68,8 @@ Please see the sophomorix-class-dbi(8) man pages for full documentation
 ############################################################
 # config values
 ############################################################
+
+&check_connections();
 
 my $dbh=&db_connect();
 

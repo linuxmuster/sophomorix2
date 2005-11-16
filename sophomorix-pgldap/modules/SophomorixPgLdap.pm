@@ -10,6 +10,7 @@ require Exporter;
 @EXPORT = qw(show_modulename
              db_connect
              db_disconnect
+             check_connections
 	     create_user_db_entry
              date_perl2pg
              date_pg2perl
@@ -110,6 +111,31 @@ sub db_disconnect {
     $dbh->disconnect();
     print "Disconnecting ...\n";
 }
+
+
+
+
+sub check_connections {
+    # check postgres and slapd. exit when they are not running
+    # postgres
+    my $dbname="ldap";
+    my $dbuser="ldap";
+    my $pass_saved="";
+    # needs at UNIX sockets:   local all all  trust sameuser
+    if($Conf::log_level>=3){
+       print "   Checking postgres connection... \n";
+    }
+    my $dbh = DBI->connect("dbi:Pg:dbname=$dbname", "$dbuser","$pass_saved",
+              { RaiseError => 1, PrintError => 1});
+
+    # ldap
+    if($Conf::log_level>=3){
+       print "   Checking ldap connection... \n";
+    }
+    my $ldap = Net::LDAP->new( '127.0.0.1' ) or die "$@";
+}
+
+
 
 
 

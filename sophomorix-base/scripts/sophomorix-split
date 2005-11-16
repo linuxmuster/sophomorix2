@@ -21,8 +21,44 @@ Getopt::Long::Configure ("bundling");
 use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
 use Sophomorix::SophomorixAPI;
+
+
+
+
+
+
 use Sophomorix::SophomorixFiles;
+
+use DBI;
+use Net::LDAP;
 #use Schedule::at;
+
+
+
+# ===========================================================================
+# Loading the db-Module, list of functions
+# ===========================================================================
+# list of functions to load if db is 'files'
+use if ${DevelConf::db_backend} eq 'files' , 
+    'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                        update_user_db_entry
+                                        check_connections
+                                       );
+# list of functions to load if db is 'pgldap'
+use if ${DevelConf::db_backend} eq 'pgldap' , 
+    'Sophomorix::SophomorixPgLdap' => qw(show_modulename
+                                        update_user_db_entry
+                                        check_connections
+                                       );
+
+
+
+
+
+
+
+
+
 
 # ===========================================================================
 # Optionen verarbeiten
@@ -100,6 +136,14 @@ Please see the sophomorix-add(8) man pages for full documentation
    print "\n";
    exit;
 }
+
+
+# show the Database Modules that are loaded
+&show_modulename();
+&show_sys_modulename();
+&check_connections();
+
+
 
 
 # --info

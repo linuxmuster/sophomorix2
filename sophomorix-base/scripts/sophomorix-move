@@ -13,6 +13,7 @@ use Sophomorix::SophomorixBase;
 Getopt::Long::Configure ("bundling");
 
 use DBI;
+use Net::LDAP;
 
 # ===========================================================================
 # Loading the db-Module, list of functions
@@ -20,6 +21,7 @@ use DBI;
 # list of functions to load if db is 'files'
 use if ${DevelConf::db_backend} eq 'files' , 
     'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                        check_connections
                                         update_user_db_entry
                                         backup_user_database
                                         create_class_db_entry
@@ -28,6 +30,7 @@ use if ${DevelConf::db_backend} eq 'files' ,
 # list of functions to load if db is 'pgldap'
 use if ${DevelConf::db_backend} eq 'pgldap' , 
     'Sophomorix::SophomorixPgLdap' => qw(show_modulename
+                                        check_connections
                                         update_user_db_entry
                                         backup_user_database
                                         create_class_db_entry
@@ -51,6 +54,8 @@ use if ${DevelConf::sys_db} eq 'pgldap' ,
 # show the Database Modules that are loaded
 &show_modulename();
 &show_sys_modulename();
+&check_connections();
+
 
 my $zeit=&zeit_stempel;
 my $user_nummer=0;

@@ -25,6 +25,7 @@ Getopt::Long::Configure ("bundling");
 #use Schedule::at;
 
 use DBI;
+use Net::LDAP;
 
 # ===========================================================================
 # Loading the db-Module, list of functions
@@ -32,12 +33,14 @@ use DBI;
 # list of functions to load if db is 'files'
 use if ${DevelConf::db_backend} eq 'files' , 
     'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                        check_connections
                                         get_print_data
                                        );
 
 # list of functions to load if db is 'pgldap'
 use if ${DevelConf::db_backend} eq 'pgldap' , 
     'Sophomorix::SophomorixPgLdap' => qw(show_modulename
+                                        check_connections
                                         get_print_data
                                        );
 
@@ -62,6 +65,7 @@ use if ${DevelConf::sys_db} eq 'pgldap' ,
 # show the Database Modules that are loaded
 &show_modulename();
 &show_sys_modulename();
+&check_connections(),
 
 # jeffbecks Bibliothek und
 # Einlesen der Konfigurationsdatei
