@@ -33,6 +33,7 @@ use if ${DevelConf::db_backend} eq 'pgldap' ,
                                         check_connections
                                         backup_user_database
                                         remove_user_db_entry
+                                        pg_get_group_list
                                        );
 
 # ===========================================================================
@@ -148,7 +149,7 @@ if ($info==1) {
        chomp();
        ($identifier_to_kill, $login_name_to_kill)=split(/::/);
        # Klasse ermitteln
-       ($linux_gruppe_to_kill)=&get_group_list($login_name_to_kill);
+       ($linux_gruppe_to_kill)=&pg_get_group_list($login_name_to_kill);
        printf "%-11s %-12s %-40s\n",
               "$login_name_to_kill","$linux_gruppe_to_kill","$identifier_to_kill";
      }
@@ -193,7 +194,8 @@ while(<KILL>){
      chomp();
      ($identifier_to_kill, $login_name_to_kill)=split(/::/);
      # Klasse ermitteln
-     ($linux_gruppe_to_kill)=&get_group_list($login_name_to_kill);
+#     ($linux_gruppe_to_kill)=&get_group_list($login_name_to_kill);
+     ($linux_gruppe_to_kill)=&pg_get_group_list($login_name_to_kill);
      # Home-Verzeichnis ermitteln
      ($a,$a,$a,$a,$a,$a,$a,$home_verzeichnis_to_kill,$a)=
       getpwnam($login_name_to_kill);
