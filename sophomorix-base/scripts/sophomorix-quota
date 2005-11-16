@@ -578,7 +578,9 @@ sub get_class_quota {
     $sth = $dbh->prepare("SELECT gid,quota FROM classdata");
     $sth->execute();
     while (my $row = $sth->fetchrow_hashref) {
-       if($row->{'quota'} ne "quota"){
+       if(not defined $row->{'quota'}){
+           next;
+       } elsif($row->{'quota'} ne "quota"){
           $class_quota{ $row->{'gid'} } = $row->{'quota'}; 
        }
     }
