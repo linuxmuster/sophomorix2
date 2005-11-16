@@ -61,6 +61,7 @@ sophomorix-quota
    - check if quota isreally set (how?, grep through 'quota user' ?)
    - find users without quota, report them
    - find users that approch their quota, send mail, ...
+   - speedup function login_type using sql instead of getent... 
 
 sophomorix-teach-in (seems ok so far)
 
@@ -774,6 +775,8 @@ SQL-DBI/OpenLDAP related:
 
    NEXT: 
 
+        function remove_class_db_entry
+
         testix:
           make installieren
           sources.list cvs.bszleo.de
@@ -784,19 +787,17 @@ SQL-DBI/OpenLDAP related:
          $name = $data{'name'};
 
          Database fields for cups (what is needed?)
-         sophomorix-quota:  funktion login-type
 
          counting the users when sophomorix-class -i
          SophomorixAPI to select users and groups
-            --
+
          sophomorix-quota
             - project add quota
          look in SophomorixPgLdap what has to be done
            show_project_list
- ???          show_class_list
            create_project_db
          test login
-         $server muss gepatched werden in PgLdap.pm
+         $server must be patched in PgLdap.pm
          make sid available in ldap
          save sid in database
          use transactions to modify the database
@@ -811,6 +812,14 @@ SQL-DBI/OpenLDAP related:
 
          mailbox anlegen siehe sophomorix-add 
          Zeile von Thomas
+         
+         when killing a user, remove all ist secondary group memberships
+
+         sophomoorix-kill is very slow
+
+
+   - show_class_list is deprecated in SophomorixPgLdap.pm
+   - function login-type in sophomorix-quota modified for new group-names
 
    - added options to sophomorix-setup-pgldap: 
            --keep-database 

@@ -95,7 +95,9 @@ my $sth;
 # --info
 if ($info==1){
 
-   $sth = $dbh->prepare("SELECT * FROM classdata");
+   $sth = $dbh->prepare("SELECT * 
+                         FROM classdata
+                         WHERE type='adminclass'");
    
    $sth->execute();
 
