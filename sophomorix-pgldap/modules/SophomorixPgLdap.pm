@@ -15,6 +15,9 @@ require Exporter;
              date_perl2pg
              date_pg2perl
              create_class_db_entry
+             remove_class_db_entry
+             pg_adduser
+             pg_remove_all_secusers
              set_sophomorix_passwd
              user_deaktivieren
              user_reaktivieren
@@ -76,7 +79,7 @@ use if ${DevelConf::sys_db} eq 'pgldap' ,
 
 sub show_modulename {
 #    if($Conf::log_level>=2){
-       &titel("DB-Backend-Module:   SophomorixPgLdap.pm");
+       &Sophomorix::SophomorixBase::titel("DB-Backend-Module:   SophomorixPgLdap.pm");
 #   }
 }
 
@@ -424,9 +427,18 @@ sub make_salt {
 
 # adds a class to the user database
 sub create_class_db_entry {
-    my ($class_to_add) = @_;
-    my %classes=();
+    my ($class_to_add,$sub) = @_;
     my ($class,$dept,$type,$mail,$quota) = ("","","","","");
+    if (not defined $sub){
+        # standard: no subclass
+	$sub=0;
+        $type="adminclass";
+    } elsif ($sub==0) {
+        $type="adminclass";
+    } else {
+        $type="subclass";
+    }
+    my %classes=();
     my $sql="";
     my $gidnumber;
     # SQL-Funktion aufrufen die Enträge in ldap_entries, ldap_entry_objclasses
@@ -501,24 +513,112 @@ sub create_class_db_entry {
     }
     $dbh->do($sql);
 
-    #3. Tabelle class_details
-    $sql="INSERT INTO class_details
-	 (id,quota,schooltype,department,mailalias,type)
-	 VALUES
-	 ($groups_id,
-          'quota',
-          '',
-          '',
-          FALSE,
-          '')";	
+
+    if ($sub==1){
+        # adding a subclass
+        #3. Tabelle class_details
+        $sql="INSERT INTO class_details
+	    (id,quota,schooltype,department,mailalias,type)
+	    VALUES
+  	    ($groups_id,
+             NULL,
+             '',
+             '',
+             FALSE,
+             '$type')";	
+        if($Conf::log_level>=3){
+           print "\nSQL: $sql\n";
+        }
+        $dbh->do($sql);
+
+
+    } else {
+        # adding a adminclass
+        #3. Tabelle class_details
+        $sql="INSERT INTO class_details
+	    (id,quota,schooltype,department,mailalias,type)
+	    VALUES
+  	    ($groups_id,
+             'quota',
+             '',
+             '',
+             FALSE,
+             '$type')";	
+        if($Conf::log_level>=3){
+           print "\nSQL: $sql\n";
+        }
+        $dbh->do($sql);
+    }
+    
+    } # end adding group
+    return $gidnumber;
+}
+
+
+
+# adds a class to the user database
+sub remove_class_db_entry {
+   # todo ????????????????
+
+}
+
+
+
+sub pg_adduser {
+    my ($user,$group) = @_;
+    my $sql="";
+    my $dbh=&db_connect();
+
+    $sql="SELECT uidnumber FROM userdata WHERE uid='$user'";
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    my ($uidnumber)= $dbh->selectrow_array($sql);
+
+    $sql="SELECT gidnumber FROM classdata WHERE gid='$group'";
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    my ($gidnumber)= $dbh->selectrow_array($sql);
+
+    if($Conf::log_level>=2){
+       print "   User $user has id  $uidnumber\n";
+       print "   Group $group has id  $gidnumber\n";
+       print "   Adding user $uidnumber to group $gidnumber\n";
+    }
+
+    print "Adding user $user to group $group\n";
+    # todo ??????? make sure entry doesnt exist
+    $sql="INSERT INTO groups_users VALUES ($gidnumber,$uidnumber);";
     if($Conf::log_level>=3){
        print "\nSQL: $sql\n";
     }
     $dbh->do($sql);
-
-    } # end adding group
-    return $gidnumber;
 }
+
+
+sub pg_remove_all_secusers {
+    my ($group) = @_;
+    my $sql="";
+    my $dbh=&db_connect();
+
+    $sql="SELECT gidnumber FROM classdata WHERE gid='$group'";
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    my ($gidnumber)= $dbh->selectrow_array($sql);
+    if($Conf::log_level>=2){
+       print "   Removing $group with id  $gidnumber\n";
+    }
+    $sql="DELETE FROM groups_users WHERE gidnumber='$gidnumber'";
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    $dbh->do($sql);
+}
+
+
+
 
 
 

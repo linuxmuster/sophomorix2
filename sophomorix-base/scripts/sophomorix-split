@@ -21,13 +21,7 @@ Getopt::Long::Configure ("bundling");
 use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
 use Sophomorix::SophomorixAPI;
-
-
-
-
-
-
-use Sophomorix::SophomorixFiles;
+#use Sophomorix::SophomorixFiles;
 
 use DBI;
 use Net::LDAP;
@@ -47,12 +41,28 @@ use if ${DevelConf::db_backend} eq 'files' ,
 # list of functions to load if db is 'pgldap'
 use if ${DevelConf::db_backend} eq 'pgldap' , 
     'Sophomorix::SophomorixPgLdap' => qw(show_modulename
+                                        db_connect
                                         update_user_db_entry
                                         check_connections
+                                        create_class_db_entry
+                                        pg_adduser
+                                        pg_remove_all_secusers
                                        );
 
 
 
+# ===========================================================================
+# Loading the sys-db-Module, list of functions
+# ===========================================================================
+# list of functions to load if sys_db is 'files'
+use if ${DevelConf::sys_db} eq 'files' , 
+    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
+                                          );
+
+# list of functions to load if sys_db is 'pgldap'
+use if ${DevelConf::sys_db} eq 'pgldap' , 
+    'Sophomorix::SophomorixSYSPgLdap' => qw(show_sys_modulename
+                                          );
 
 
 
@@ -93,6 +103,7 @@ my @d_members="";
 
 # Parsen der Optionen
 my $testopt=GetOptions(
+           "verbose|v+" => \$Conf::log_level,
            "klasse|class|c|k=s" => \$class,
            "lastchange|l=s" => \$lch,
            "help|h" => \$help,
@@ -174,9 +185,9 @@ if ($class eq "" or $class eq ${DevelConf::teacher}){
 # repair.directories einlesen
 my %alle_verzeichnis_rechte = &get_alle_verzeichnis_rechte();
 
-while (my ($k,$v) = each %alle_verzeichnis_rechte){
-    print $k , " ", $v, "\n";
-}
+#while (my ($k,$v) = each %alle_verzeichnis_rechte){
+#    print $k , " ", $v, "\n";
+#}
 
 
 # Step 1
@@ -201,9 +212,11 @@ if ($noninteractive==1){
 
 # Step 2
 # write the subclass-projects-line
+# not needed with pgldap
 &create_subclass_db($class);
 
 # step 3
+# works with pgldap
 &provide_subclass_files($class);
 
 # step 4
@@ -224,20 +237,20 @@ if ($noninteractive==1){
 ###########################################################################
 
 # returns an ascibetical list of users in an AdminClass
-sub get_users_admin_class {
-    my ($class)=@_;
-    my @admin_class_list=();
-    open(PROTO,"<${DevelConf::dyn_config_pfad}/user_db");
-    while(<PROTO>){
-       my @line=split(/;/);
-       if ($line[0] eq $class){
-         push @admin_class_list, $line[2] 
-       }
-    }
-    close(PROTO);
-    @admin_class_list = sort @admin_class_list;
-    return @admin_class_list;
-}
+#sub get_users_admin_class {
+#    my ($class)=@_;
+#    my @admin_class_list=();
+#    open(PROTO,"<${DevelConf::dyn_config_pfad}/user_db");
+#    while(<PROTO>){
+#       my @line=split(/;/);
+#       if ($line[0] eq $class){
+#         push @admin_class_list, $line[2] 
+#       }
+#    }
+#    close(PROTO);
+#    @admin_class_list = sort @admin_class_list;
+#    return @admin_class_list;
+#}
 
 
 sub create_subclass{
@@ -253,18 +266,24 @@ sub create_subclass{
     my @sub_c=();
     my @sub_d=();
 
-    # get the users and push them in they subclass
-    open(USERDB,"<${DevelConf::dyn_config_pfad}/user_db");
-    while (<USERDB>){
-        if (/^$class/){
-            my @line = split(/;/);
-            my $login=$line[2];
-            my $sub="";
-            $sub=$line[6];
-            if (not defined $sub or $sub eq ""){$sub="---"}
-            #if ($sub eq ""){$sub="---"}
-            #print "$login is in subclass $sub\n";
-            # push the user in the list
+
+   my $dbh=&db_connect();
+   # select the columns that i need
+   my $sth= $dbh->prepare( "SELECT uid,gecos,subclass  
+                             FROM userdata
+                             WHERE adminclass='$class'
+                             ORDER BY uid" );
+      $sth->execute();
+
+   my $i=0;
+   my $array_ref = $sth->fetchall_arrayref();
+   foreach ( @{ $array_ref } ) {
+   
+       my $login = ${$array_ref}[$i][0];
+       my $gecos = ${$array_ref}[$i][1];
+       my $sub=${$array_ref}[$i][2];
+
+
             if ($sub eq "A"){
 		push @sub_a, $login;
             } elsif ($sub eq "B"){
@@ -274,43 +293,50 @@ sub create_subclass{
             } elsif ($sub eq "D"){
 		push @sub_d, $login;
             }
-        }
-    }
-    close(USERDB);
-    print "A: @sub_a \n";
-    print "B: @sub_b \n";
-    print "C: @sub_c \n";
-    print "D: @sub_d \n";
 
+#    print "A: @sub_a \n";
+#    print "B: @sub_b \n";
+#    print "C: @sub_c \n";
+#    print "D: @sub_d \n";
+
+       $i++;
+   }
     # Adding the 4 groups without users
     foreach $suffix (@suffix){
        print "Working on Group $class-$suffix \n";
        ($a,$a,$gid,$old_members)=getgrnam("$class-$suffix");
        if (defined $gid){
           # gpasswd -d/-a user group
-          print "groupdel  $class-$suffix\n";
-          system("groupdel $class-$suffix");
+          print "   removing  all users from $class-$suffix \n";
+          &pg_remove_all_secusers("$class-$suffix");
+ #         print "groupdel  $class-$suffix\n";
+ #         system("groupdel $class-$suffix");
           # add the group if it has users
-          system("groupadd -g $gid $class-$suffix");
+ #         system("groupadd -g $gid $class-$suffix");
 
        } else { 
-          print "$class-$suffix does not exist, will be created.\n",
-          system("groupadd $class-$suffix");
+          print "   $class-$suffix does not exist, will be created.\n",
+          &create_class_db_entry("$class-$suffix",1);
+#         system("groupadd $class-$suffix");
        }
     }
 
     # adding the users to their subclass
     foreach $user (@sub_a) {
-       system("adduser $user $class-A");
+        &pg_adduser($user, "$class-A");
+#       system("adduser $user $class-A");
     }
     foreach $user (@sub_b) {
-       system("adduser $user $class-B");
+        &pg_adduser($user, "$class-B");
+#       system("adduser $user $class-B");
     }
     foreach $user (@sub_c) {
-       system("adduser $user $class-C");
+        &pg_adduser($user, "$class-C");
+#       system("adduser $user $class-C");
     }
     foreach $user (@sub_d) {
-       system("adduser $user $class-D");
+        &pg_adduser($user, "$class-D");
+#       system("adduser $user $class-D");
     }
 }
 
@@ -388,13 +414,20 @@ sub interactive_change_subclass {
    my ($class)=@_;
    my $user_antwort="";
    my %auswahl=qw( a a A A b b B B c c C C d d D D o o 0 0);
-   open(PROTO,"<${DevelConf::dyn_config_pfad}/user_db");
-   while(<PROTO>){
-     my @line=split(/;/);
-     if ($line[0] eq $class){
-       my $gecos=$line[1];
-       my $login=$line[2];
-       my $old_subclass=$line[6];
+   my $dbh=&db_connect();
+   # select the columns that i need
+   my $sth= $dbh->prepare( "SELECT uid,gecos,subclass  
+                             FROM userdata
+                             WHERE adminclass='$class'
+                             ORDER BY uid" );
+      $sth->execute();
+
+   my $i=0;
+   my $array_ref = $sth->fetchall_arrayref();
+   foreach ( @{ $array_ref } ) {
+       my $login = ${$array_ref}[$i][0];
+       my $gecos = ${$array_ref}[$i][1];
+       my $old_subclass=${$array_ref}[$i][2];
        print "\nEditing SubClass of $login:\n";
        print "=======================================",
 	     "=======================================\n";
@@ -402,7 +435,7 @@ sub interactive_change_subclass {
        if ($old_subclass eq ""){
 	   print "$gecos is no subclass (choose a, b, c, d ,0)\n";
        } else {
-	   print "$gecos is in subclass $old_subclass\n";
+	   print "$gecos is in subclass $old_subclass\nNew subclass:  ";
        }
            while(){# Endlosschleife für die Eingabe
                $user_antwort= <STDIN>; # Lesen von Tastatur
@@ -422,14 +455,13 @@ sub interactive_change_subclass {
                   last; # Ausstieg aus Endlosschleife
                } else {
                   # Endlosschleife, Eingabe wiederholen
-                  print "Fehlerhafte Eingabe. Bitte wiederholen!".
-                        " Zuerst die a,b,c,d oder 0 ",
-                        "(keine subclass) dann <RETURN>\n";
+                  print "\n You made a mistake:  $user_antwort is no subclass\n".
+                        " Hit key a,b,c,d or 0 (no subclass)",
+                        " and confirm with <RETURN>\nNew subclass:  ";
 	       }
            }
-     }	    
-   }
-   close(PROTO);
+      $i++;
+    }
 }
 
 

@@ -14,6 +14,7 @@ package Sophomorix::SophomorixAPI;
 require Exporter;
 use Time::Local;
 use Time::localtime;
+use Sophomorix::SophomorixPgLdap;
 use Sophomorix::SophomorixBase qw ( 
                                     create_share_link
                                     remove_share_link
@@ -151,14 +152,34 @@ AdminClass is the class of a pupil in the school administration
 software.
 
 If you need a list of teachers then use their primary group
-(i.e. lehrer) as AdminClass
+(i.e. teachers) as AdminClass
 
 If no pupil is in this class, an empty list will be returned.
 
 =cut
 
-
 sub get_user_adminclass {
+    my ($class) = @_;
+    my @userliste=();
+    my $dbh=&db_connect();
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT uid  
+                             FROM userdata
+                             WHERE adminclass='$class'
+                             ORDER BY uid" );
+       $sth->execute();
+    my $i=0;
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach ( @{ $array_ref } ) {
+       push @userliste, ${$array_ref}[$i][0];
+       $i++;
+    }
+    return @userliste;
+}
+
+
+
+sub get_user_adminclass_oldstuff {
     my ($klasse) = @_;
     my @pwliste=();
     my @userliste=();
