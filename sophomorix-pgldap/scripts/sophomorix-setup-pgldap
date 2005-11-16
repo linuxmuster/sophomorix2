@@ -460,8 +460,12 @@ system("sed $replace ${template}/ldap/smbldap_bind.conf.template > $smb_ldap_bin
 # starting samba
 system("/etc/init.d/samba start");
 
+# ssh 
+system("/etc/init.d/ssh restart");
+
 # nscd
 system("/etc/init.d/nscd restart");
+
 
 
 
