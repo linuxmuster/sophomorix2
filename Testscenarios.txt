@@ -1,2 +1,94 @@
 Was soll im Beta-Test getestet werden:
 
+
+
+##################################################
+Schulverwaltungsprogramme
+##################################################
+
+je 1 Test/Schulverwaltungsprogramm
+
+
+
+- Funktion testen mit realen, generierten 
+      schueler.txt
+      lehrer.txt
+
+- nicht gefundene Sonderzeichen in report.secretary
+
+- Erstellungsbeschreibung von 
+      schueler.txt 
+      lehrer.txt
+  mit screenshots
+
+
+
+##################################################
+Durchspielen eines Schuljahres
+##################################################
+
+- mindestens 1000 Schüler
+
+- Lesen der manpages und Doku (Verständlichkeit)
+
+- Schuljahr mit Konsolenbefehlen durchspielen
+
+- mehrere echte schueler.txt in Folge
+
+- extraschueler.txt testen
+    incl. - leerzeichen, 
+          - unerlaubten Zeichen (Sonderzeichen)
+
+- extrakurse.txt
+    incl. - llerzeichen,
+          - unerlaubten Zeichen (Sonderzeichen)
+
+- user.add.pdf jedesmal visuell prüfen (Formatierung, korrekter Inhalt)
+
+- Quotaanpassungen:
+     - ändern der Standardquota (schueler, lehrer, workstation)
+     - andern von Klassenquota
+     - ändern von einzelquota
+
+     Testen ob änderungen real vorgenommen wurden 
+         (als user anmelden, Dateien speichern, ab wann gibts Probleme)
+
+- Logfile beobachten
+
+
+
+
+##################################################
+Projekte
+##################################################
+
+- Projekte ohne Quotaänderungen
+    - anlegen als lehrer
+    - Projektende testen (systemzeit verstellen)
+
+
+- Projekte mit Quotaänderungen
+    - anlegen als admin
+    - maxusers testen als lehrer
+
+- austeilen, einsammeln
+
+- tauschverzeichnisse nutzen
+
+- Link ins Tauschverzeichnis vorhanden
+
+
+##################################################
+Austeilen/Einsammeln Klassenarbeit
+##################################################
+
+- Klassenarbeit komplett durchspielen (als Lehrer UND Schüler)
+
+- sind Dateien da?
+- Dateirechte OK?
+- Abgeben und Archivieren
+- Unterschiedliche dateien austeilen in einer Klasse
+
+- Klassenarbeit
+   - eine Klasse in einem Raum
+   - mehrere Klassen in einem Raum (unterschiedliche dateien in einer Klasse)
