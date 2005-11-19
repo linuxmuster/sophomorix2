@@ -1,20 +1,59 @@
 This is the todo/changelog for the sophomorix sourcecode
 
-############################################################
-Todo
-############################################################
 **= this is next
 * = high priority
 - = do that when time comes
 
-** include pdldap modules
-   - update calls in the scripts
-     still to do:
-          sophomorix-class
-          sophomorix-project
-          sophomorix-samba (still needed ??)
-          sophomorix-split
 
+
+============================================================
+============================================================
+Next meeting
+============================================================
+============================================================
+
+Bootorder:  postgres -> ldap -> samba, sonst gibts timeout
+            (mit dpkg-override samba soll 21 weden)
+
+??? seems to work
+
+
+??? samba von thomas:    prepatch   templates modifizieren   postpatch
+
+
+
+
+============================================================
+============================================================
+Todo
+============================================================
+============================================================
+
+
+############################################################
+KNOWN BUGS
+############################################################
+Bug: a user in dachboden is reactivated by a similar
+     (=must be identical) new user
+
+
+
+############################################################
+DOKUMENTATION To do
+############################################################
+
+dokumentation:
+   * grafik workflow aktualisieren
+   * write how to test sophomorix
+      - sophomorix2
+      - sophomorix-doc-html
+      - perldoc Sophomorix::SophpmorixAPI
+   * logging   
+
+
+############################################################
+PACKAGING for DEBIAN To do
+############################################################
 
 packaging:
    - Makefile creates directories with correct permissions, 
@@ -34,13 +73,16 @@ packaging:
    - optionen in postinst-scripten upgrade)
 
 
-dokumentation:
-   * grafik workflow aktualisieren
-   * write how to test sophomorix
-      - sophomorix2
-      - sophomorix-doc-html
-      - perldoc Sophomorix::SophpmorixAPI
-   * logging   
+
+???? *.dsc,*.tar.gz,*.changes bei sophomorix-pakete ins source Verzeichnis
+
+
+Think about: using dbconfig-common
+
+
+############################################################
+SCRIPTS To do
+############################################################
 
 sophomorix-repair
    * repair permissions of subclasses and projects 
@@ -63,7 +105,9 @@ sophomorix-quota
    - find users that approch their quota, send mail, ...
    - speedup function login_type using sql instead of getent... 
 
+
 sophomorix-teach-in (seems ok so far)
+
 
 sophomorix-shell 
    - change the login-shell of a user
@@ -98,6 +142,7 @@ sophomorix-check
    - include filter-file for different school-administration-sofware
    - throw error, when unid is double in schueler.txt 
 
+
 sophomorix-add
    - add call sophomorix-quota --noninteractive
    - add user to cyrus (dont't know how to do)
@@ -118,6 +163,7 @@ sophomorix-move
    - quick-move of a user(move user with a command, and keep him somehow out of 
      way, when calling sophomorix-move)
    - option -i: group users to add by classes alphabetical, users alphabetical
+
 
 sophomorix-kill
    - option -i: group users to add by classes alphabetical, users alphabetical
@@ -174,6 +220,7 @@ sophomorix-passwd
      (passwd_change.pdf)
    - make this an option to sophomorix-user
 
+
 sophomorix-print
    - print subclass on login-card?
    - what about projects, show project membership?
@@ -185,6 +232,7 @@ sophomorix-print
      i.e. to allow some of its students to participate in a wiki permanently
      admin should be able to define an 'veteran project', i.e. 
      m4kb2t --> mkb-veterans
+
 
 sophomorix-project
    - allow secret or open project(standard)
@@ -240,6 +288,13 @@ sophomorix-test
       - log in different file while testing
       - check this file for correctness
       - remove this file
+
+
+sophomorix-test-bunchofusers
+   - option --exam (distribute, collect, exams)
+   - option --split (split a class)
+   - option --project (create a project, check members, exam, ...)
+
 
 sophomorix-vampire:
    * create config-files (perl-syntax):
@@ -336,6 +391,7 @@ sophomorix-mail
      (... wird sich noch ändern (SQL))
    - aliases in postgres (zusätzlich zu /etc/aliases) ????????
 
+
 sophomorix-teacher
   ** write new script to distribute data, collect data, ...
       --handout -i shows what to hand out
@@ -384,6 +440,7 @@ sophomorix-end-of-year (new script)
    - remove content of share-directories
    - exclude classes of type extra
 
+
 sophomorix-cron (new script) (runs at night)
    - zip files in /var/log/sophomorix/exam
    - update timestamps
@@ -395,9 +452,12 @@ Functions in SophomorixBase:
 
 
 SophomorixAPI: 
+   - use more complicated data structures to return data (speed)
 
+############################################################
+ALL SCRIPTS To do
+############################################################
 
-All Scripts:
    * convert pupil stuff to student
    - if a class is to be added and the groupname is given to a project already
      make something correct
@@ -448,68 +508,130 @@ All Scripts:
 
 
 
+############################################################
+DATABASE To do
+############################################################
 
 postgres-integration:
-
-        Packaging:
-            - Beispielpaket für postgres: moodle, imp3
-        Dependencies:
-            - tho sends list of packages and config-files
-
         Postres:
-            - modify/check /etc/postgres/pg_hba.conf
-            - try to connect as user sophomorix to sophomorix
-               YES:
              - dump old database, merge it
-                 pg_dump sophomorix > file.sql
+                 pg_dump ldap > file.sql
 
-               NO:
-               - create user sophomorix (CL S. 147) if nonexisting
-                 (save password in a file, root.root 600)
-               - create empty Database if nonexisting
-                 create_db -T template0 sophomorix
-               - insert data into sophomorix 
-                 psql sophomorix < file.sql
             Questions:
             - Paswort/Access (random password/fixed password)
-            - use other port than postgres standard
 
-        LDAP:
-            - Table ldap_entries with dc=xxx
-            - /etc/ldap/slapd.conf
-            - /etc/ldap/ldap.conf
+SQL-DBI/OpenLDAP related:
 
-            - pam_ldap 
-            - /etc/pam_ldap.conf
-            - /etc/libnss-ldap.conf
-            - /etc/nssswitch.conf        
-              /etc/pam.d/*
+- Performance: connect once in every script (not in every function)
+- Transaction: combine inserts in create_user_entry 
+- Load DBI (use:DBI;) only if necessary
+- update database: combine select and updates to transaction
+- NextFreeUnidId beim update ausnehmen
 
+- typ sophomorixstatus,subclass: Nur 1 Buchstabe(performance ?)(tho)
+    
+- dont create /var/lib/sophomorix/database when using pgsql
+
+
+- make creationdate a timestamp (not a date)
+
+- additional Fields for projects
+
+- avoid inserting an identical,existing line once again
+  --using SQL
+
+############################################################
+DATABASE Tips
+############################################################
+
+
+
+############################################################
+LDAP To do
+############################################################
         Passwort in /etc/ldap.secret   (Zugriff 600)
 
-        ldap:
-            - user anlegen mit smbldap-useradd (statt )
+
+############################################################
+LDAP Tips
+############################################################
+
+ldapsearch -x -D "cn=admin,dc=linuxmuster,dc=de" -W
 
 
-        Functions in sophomorix-files.pm
-            - jeffbeck comments this file and tho replaces 
-              it with fuctions that read/write to postgres
-            - tho adds new functions that connect/disconnect 
-              to the database.
-              this functions are called 
-                  - at the begin of a sophomorix-script
-                    (two scripts readonly read/write)
-                  - at the end of a sophomorix-script
+############################################################
+SAMBA To do
+############################################################
 
-              
+Samba net Befehl ansehen
 
 
-        Client /etc/pam/ldap
+############################################################
+SAMBA Tips
+############################################################
+samba 3: netbios name ändern
+       1. name ändern
+       2. restart (samba setzt neue sid)
+       2. net setlocalsid alte sid wieder setzen
+
+show info
+  -- pdbedit -L         all users
+  -- pdbedit -Lv        ausführlich alle user
+
+check samba
+  -- smbclient -U user%password -L localhost   (check smb account, see Mail Hoth)
+  -- smbclient -N -L localhost    (what for?)
+
+
+
+############################################################
+IMAP To do
+############################################################
+
+imap:  call
+system("su --command='mkmaildir' postgres")
+
+check if dir exists /var/lib/imap
+
+paket: cyrus21-imapd
+
+siehe script: /usr/lib/linuxmuster/bin/cyrus-user.pl
+aus paket linuxmuster-base
+
+quota for mail
+
+
+mailbox anlegen siehe sophomorix-add 
+Zeile von Thomas
+
+
+############################################################
+IMAP Tips
+############################################################
+
+
+
+############################################################
+MOODLE To do
+############################################################
+
+############################################################
+MOODLE Tips
+############################################################
+
+Moodle-Integration:
+
+- authentification method ldap.
+- firstname, surname, mailaddress from ldap.(do not update ldap)  
+- make group of teachers to creators of new courses per ldap
+- make miniteachers not creators, but totors of one course 
 
 
 
 ============================================================
+============================================================
 Think about:
+============================================================
 ============================================================
    - cups 
    - moodle (add users to classes, add teachers to admins)
@@ -570,41 +692,19 @@ Software Vendors:
    - LUSD (mandatory in Hessen, Germany)
    - Schulkartei
 
-Samba net Befehl ansehen
 
 libpamount
 
-CD-Installation:
-  - boot with option    auto26 or expert26
-  - reboot without CD
-  - internal NIC: eth1
-  - externel NIC  eth0
-    (vmware: eth0 is the card on top: briged)
-    (vmware: eth1 is the card on the bottom: host only)
-
-vmware image:
-  - add in /etc/hosts:   10.1.23.4  rix.bszleo  rix
-
-
-
-imap:  call
-system("su --command='mkmaildir' postgres")
-
-check if dir exists /var/lib/imap
-
-paket: cyrus21-imapd
-
-siehe script: /usr/lib/linuxmuster/bin/cyrus-user.pl
-aus paket linuxmuster-base
-
-quota for mail
 
 
 ############################################################
 STANDARDS:
 ############################################################
+SCHULKONSOLE:
+   - we are using perl (Nov,2005)
 
-Nummern für Dinge:
+
+Nummern für Dinge(unused at the moment):
 
 0 - unused
 1 - highest value first (z.b admin=1, ...user=4)
@@ -626,149 +726,50 @@ id	short_status	long_status
 
 
 ############################################################
-TESTSERVER:
+INSTALLATION TESTSERVER:
 ############################################################
 
-install debian sarge
+openldap 2.3.x is necessary (use our package)
 
 
+A) Installation from Debian CD's
+==================================================
 
-install sophomorix2 sophomorix-developer
+1. install debian sarge
+
+2. edit /etc/apt-sources.list
+
+   add deb cvs.bszleo.de/sophomorix ./ 
+
+3. apt-get update   
+
+4. apt-get install sophomorix2 sophomorix-developer
 
   Hit RETURN to all questions
 
-
-############################################################
-SCHULKONSOLE:
-############################################################
-php			perl			perl-webmin
-						optimale integration
-						(ein interface, einloggen)
-Datenbank-Anbindung
-						SophomorixAPI.pm verwendbar
-			ml-Sprache		ml-Sprache
-
-Versionsänderungen:
-->Funktionsänderungen
-                        root-rechte erzielbar
+5. run tho following script:
+       sophomorix-test
+   this will test your system
+   (if all test are ok, you are ready to use your server,
+    if not: send mail)
 
 
-Disadvantage Mono/C#:   compiled
+
+B) Installation from LMZ CD's
+==================================================
+
+CD-Installation:
+  - boot with option    auto26 or expert26
+  - reboot without CD
+  - internal NIC: eth1
+  - externel NIC  eth0
+    (vmware: eth0 is the card on top: briged)
+    (vmware: eth1 is the card on the bottom: host only)
 
 
 ############################################################
 RELEASES:
 ############################################################
-
-
-Bootreihenfolge:  postgres -> ldap -> samba, sonst gibts timeout
-                  (mit dpkg-override samba soll 21 weden)
-
-
-vorversion mit ldap: uid mit getnext uid von ldap (tut noch nicht)
-
-endversion, die direkt in die Datenbank schreibt: in der datenbank nachschauen.
-
-
-
-samba 3: netbios name ändern
-       1. name ändern
-       2. restart (samba setzt neue sid)
-       2. net setlocalsid alte sid wieder setzen
-
-
-phpldapadmin:
-
-/etc/phpldapadmin/config.php : basedn und loginname(vorausfüllen)
-
-pgphpadmin konfiguration
-
-Update steps to postgresql-ldap
-
-     step 1: write functions to store in postgresql 
-             instead of user_db, ...
-             system users still in files
-
-     step 2: incude stuff from files (shell, homedir, ...)
-      
-
-     step 3: configure ldap to replace files
-             dont add system users in files
-
-     step 4: configure samba and fill data in it via ldap 
-
-
-???? openldap 2.3.4 notwendig
-
-??? postgres \d tabellenname
-
-??? samba von thomas:    prepatch   templates modifizieren   postpatch
-
-??? script sophomorix-user zum shell anpassen /bin/bash, ...
-
-??? Backup vom svn auf lml.mine.nu nach cvs.bszleo.de
-??? und andersherum
-
-
-??? 2x password:  
-
-????? next: create links in Tausch, when user is put in subclass
-
-???? Bug: a user in dachboden is reactivated by a similar(=must be identical) 
-     new user
-
-
-???? *.dsc,*.tar.gz,*.changes bei sophomorix-pakete ins source Verzeichnis
-
-
-Moodle-Integration:
-
-- authentification method ldap.
-- firstname, surname, mailaddress from ldap.(do not update ldap)  
-- make group of teachers to creators of new courses per ldap
-- make miniteachers not creators, but totors of one course 
-
-
-SQL-DBI/OpenLDAP related:
-
-- Performance: connect once in every script (not in every function)
-- Transaction: combine inserts in create_user_entry 
-- Load DBI (use:DBI;) only if necessary
-- update database: combine select and updates to transaction
-- NextFreeUnidId beim update ausnehmen
-- add new values to users:
-    status (account oder sophomorix)
-    accountstatus/type
-
-- typ sophomorixstatus,subclass: Nur 1 Buchstabe
-    
-- dont create /var/lib/sophomorix/database when using pgsql
-
-- use NULL instead of 0 to create user with empty field?
-
-- /etc/ldap/slapd.conf:  
-       - add a proxy user, used by 
-       - use proxy user in /etc/libnss-ldap.conf 
-         (binddn, bindpw)
-?? check again
-
-
-- make creationdate a timestamp
-
-- error when adding users the first time
-
-
-- additional Fields for groups(and projects)
-
-
--- ldapsearch -x -D "cn=admin,dc=linuxmuster,dc=de" -W
--- smbclient -U user%password -L localhost   (check smb account, see Mail Hoth)
--- smbclient -N -L localhost    (what for?)
-
--- pdbedit -L         all users
--- pdbedit -Lv        ausführlich alle user
-
-
 
 
 1.4.x (2005-?-?)
@@ -777,8 +778,8 @@ SQL-DBI/OpenLDAP related:
 
         function remove_class_db_entry
 
-        testix:
-         quota einrichten
+????? next: create links in Tausch, when user is put in subclass
+
 
         Funktionen für API:
          %data=get_userdata(user);
@@ -810,8 +811,6 @@ SQL-DBI/OpenLDAP related:
 
          add tests to sophomorix-test (check groups, check_provided_files)
 
-         mailbox anlegen siehe sophomorix-add 
-         Zeile von Thomas
 
 
 1.4.5 (2005-11-16)
