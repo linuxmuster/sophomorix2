@@ -1355,11 +1355,18 @@ CREATE TABLE project_details (
     addquota character varying(255),
     schooltype character varying(255),
     department character varying(255),
-    status boolean,
+    sophomorixstatus character varying(255),
     enddate date,
     longname character varying(255),
     maxmebers integer,
-    "type" integer
+    "type" integer,
+    teachers character varying(255),
+    members character varying(255),
+    membergroups character varying(255),
+    maxmembers integer,
+    creationdate date,
+    tolerationdate date,
+    deactivationdate date
 );
 
 
@@ -1380,7 +1387,7 @@ CREATE TABLE groups_managers (
 --
 
 CREATE VIEW projectdata AS
-    SELECT project_details.id, project_details.addquota, project_details.schooltype, project_details.department, project_details.status, project_details.enddate, project_details.longname, project_details.maxmebers, project_details."type", groups.gid, groups.gidnumber, samba_group_mapping.sambasid, samba_group_mapping.sambagrouptype, samba_group_mapping.displayname, samba_group_mapping.description, samba_group_mapping.sambasidlist FROM ((project_details FULL JOIN groups ON ((project_details.id = groups.id))) FULL JOIN samba_group_mapping ON ((samba_group_mapping.id = groups.id)));
+    SELECT project_details.id, project_details.addquota, project_details.schooltype, project_details.department, project_details.sophomorixstatus, project_details.enddate, project_details.longname, project_details.maxmebers, project_details."type", project_details.teachers, project_details.members, project_details.membergroups, maxmembers, project_details.creationdate, project_details.tolerationdate, project_details.deactivationdate, groups.gid, groups.gidnumber, samba_group_mapping.sambasid, samba_group_mapping.sambagrouptype, samba_group_mapping.displayname, samba_group_mapping.description, samba_group_mapping.sambasidlist FROM ((project_details FULL JOIN groups ON ((project_details.id = groups.id))) FULL JOIN samba_group_mapping ON ((samba_group_mapping.id = groups.id)));
 
 
 --
