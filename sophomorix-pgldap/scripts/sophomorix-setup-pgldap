@@ -20,6 +20,7 @@ use Sophomorix::SophomorixBase;
 use Sophomorix::SophomorixPgLdap qw(
                                     check_connections
                                     db_connect
+                                    get_smb_sid
                                    );
 
 my $replace="";
@@ -400,9 +401,6 @@ sleep 5;
 #system("createdb -U postgres ldap");
 
 
-# replacing dn=x
-&set_ldap_suffix_pg($basename);
-
 
 
 if ($new_database==1){
@@ -423,9 +421,17 @@ if ($keep_database==0 or $new_database==1){
 }
 
 
+# setting the ldap suffix dn=x
+&set_ldap_suffix_pg($basename);
+
+
+# setting the SID for existing users/groups
+# ???????
+#&set_samba_sid();
 
 
 
+sleep 5;
 
 
 
@@ -560,42 +566,87 @@ print "\n##### sophomorix-setup-pgldap is configuring openldap for sophomorix-pg
 # sub
 ############################################################
 
-sub set_ldap_suffix_pg {
-    my ($suffix) = @_;
+sub set_samba_sid {
+    my $sid=&get_smb_sid();
     my $dbh=&db_connect();
     my $sql="";
-    print "\nUpdating sldap suffix in the postgres databast to $suffix \n";
-    
-    $sql="SELECT dn FROM ldap_entries";
+    print "\nSetting SID in the database to $sid \n";
 
-
-    my $sth= $dbh->prepare( "SELECT dn,id FROM ldap_entries" );
-      $sth->execute();
+    my $sth= $dbh->prepare( "SELECT sambasid,sambaprimarygroupsid,id 
+                             FROM samba_sam_account" );
+       $sth->execute();
 
     my $array_ref = $sth->fetchall_arrayref();
 
     my $i=0;
     foreach ( @{ $array_ref } ) {
-        my $old_dn=${$array_ref}[$i][0];
-        my $id=${$array_ref}[$i][1];
-	print " OLD dn:  $old_dn \n";
-        # split at first 'dn'
-        my ($old_cn)=split(/dc=/,$old_dn);
-        #print "  $old_cn \n";
-        my $new_dn=$old_cn.$suffix;
-        print " NEW dn:  $new_dn \n";
-        $sql="UPDATE ldap_entries SET dn='$new_dn' WHERE id=$id";
+       my $user_sid=${$array_ref}[$i][0];
+       my $group_sid=${$array_ref}[$i][1];
+       my $id=${$array_ref}[$i][2];
 
-        print $sql,"\n";
+       print " OLD user-sid :  $user_sid  \n";
+       print " OLD group-sid:  $group_sid \n";
 
-        $dbh->do($sql);
+       my $new_user_sid=&new_sid($sid,$user_sid);
+       my $new_group_sid=&new_sid($sid,$group_sid);
 
-        $i++;
+       print " NEW user-sid :  $new_user_sid  \n";
+       print " NEW group-sid:  $new_group_sid \n";
+
+       $sql="UPDATE samba_sam_account 
+             SET 
+             sambasid='$new_user_sid', sambaprimarygroupsid='$new_group_sid'
+             WHERE id=$id";
+       print $sql,"\n";
+       #$dbh->do($sql);
+       $i++;
     }   
+}
+
+
+
+sub new_sid {
+    my ($sid,$old) = @_;
+    my (@list) = split(/-/,$old);
+    my $last = pop @list;
+    my $new = $sid."-".$last
+
+}
 
 
 
 
+
+
+sub set_ldap_suffix_pg {
+    my ($suffix) = @_;
+    if (not defined $suffix or $suffix eq ""){
+        print "I won't set a emty ldap suffix!\n "
+    } else {
+       my $dbh=&db_connect();
+       my $sql="";
+       print "\nUpdating sldap suffix in the postgres databast to $suffix \n";
+    
+       my $sth= $dbh->prepare( "SELECT dn,id FROM ldap_entries" );
+          $sth->execute();
+
+       my $array_ref = $sth->fetchall_arrayref();
+
+       my $i=0;
+       foreach ( @{ $array_ref } ) {
+          my $old_dn=${$array_ref}[$i][0];
+          my $id=${$array_ref}[$i][1];
+          print " OLD dn:  $old_dn \n";
+          # split at first 'dn'
+          my ($old_cn)=split(/dc=/,$old_dn);
+          my $new_dn=$old_cn.$suffix;
+          print "  NEW dn: $new_dn \n";
+          $sql="UPDATE ldap_entries SET dn='$new_dn' WHERE id=$id";
+          #print $sql,"\n";
+          $dbh->do($sql);
+          $i++;
+       }   
+    }
 }
 
 
