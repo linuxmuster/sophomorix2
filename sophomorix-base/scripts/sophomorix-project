@@ -14,11 +14,44 @@ Getopt::Long::Configure ("bundling");
 use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
 use Sophomorix::SophomorixAPI;
-use Sophomorix::SophomorixFiles;
+#use Sophomorix::SophomorixFiles;
 #use Schedule::at;
 
 use DBI;
 use Net::LDAP;
+
+
+# ===========================================================================
+# Loading the db-Module, list of functions
+# ===========================================================================
+# list of functions to load if db is 'files'
+use if ${DevelConf::db_backend} eq 'files' , 
+    'Sophomorix::SophomorixFiles' => qw(show_modulename
+                                        check_connections
+                                        show_project_list
+                                       );
+# list of functions to load if db is 'pgldap'
+use if ${DevelConf::db_backend} eq 'pgldap' , 
+    'Sophomorix::SophomorixPgLdap' => qw(show_modulename
+                                        check_connections
+                                        show_project_list
+                                       );
+
+
+# ===========================================================================
+# Loading the sys-db-Module, list of functions
+# ===========================================================================
+# list of functions to load if sys_db is 'files'
+use if ${DevelConf::sys_db} eq 'files' , 
+    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
+                                          );
+
+# list of functions to load if sys_db is 'pgldap'
+use if ${DevelConf::sys_db} eq 'pgldap' , 
+    'Sophomorix::SophomorixSYSPgLdap' => qw(show_sys_modulename
+                                          );
+
+
 
 # ===========================================================================
 # Optionen verarbeiten
