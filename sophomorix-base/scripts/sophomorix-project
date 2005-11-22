@@ -29,12 +29,14 @@ use if ${DevelConf::db_backend} eq 'files' ,
     'Sophomorix::SophomorixFiles' => qw(show_modulename
                                         check_connections
                                         show_project_list
+                                        create_project_db
                                        );
 # list of functions to load if db is 'pgldap'
 use if ${DevelConf::db_backend} eq 'pgldap' , 
     'Sophomorix::SophomorixPgLdap' => qw(show_modulename
                                         check_connections
                                         show_project_list
+                                        create_project_db
                                        );
 
 
