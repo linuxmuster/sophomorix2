@@ -661,7 +661,6 @@ sub pg_get_adminclasses {
     # fetch all entries with type adminclasses
     my ($group) = @_;
     my %classes=();
-    my $sql="";
     my $dbh=&db_connect();
     my $sth= $dbh->prepare( "SELECT gid from classdata WHERE type='adminclass'" );
       $sth->execute();
@@ -1774,6 +1773,40 @@ sub check_sophomorix_user_oldstuff {
 # (can be implemented later)
 
 sub show_project_list {
+   print "The following projects exist already:\n\n";
+   printf "%-16s %-16s %-9s %-40s\n","Name:", "Teachers", "AddQuota", "LongName:";
+   print "=======================================",
+         "=======================================\n";
+    my $dbh=&db_connect();
+    my $sth= $dbh->prepare( "SELECT gid,teachers,addquota,longname 
+                             FROM projectdata" );
+      $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+
+    my $i=0;
+    foreach ( @{ $array_ref } ) {
+        my $gid=${$array_ref}[$i][0];
+        my $teachers=${$array_ref}[$i][1];
+        my $addquota=${$array_ref}[$i][2];
+        my $longname=${$array_ref}[$i][3];
+        if (not defined $teachers){
+	    $teachers="";
+        }
+        if (not defined $addquota){
+	    $addquota="";
+        }
+        if (not defined $longname){
+	    $longname="";
+        }
+        printf "%-16s %-16s %-9s %-40s\n",$gid, $teachers,
+                                          $addquota, $longname;
+        $i++;
+    }   
+}
+
+
+
+sub show_project_list_oldstuff {
    open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects_db") || die "Fehler: $!";
    print "The following projects exist already:\n\n";
    printf "%-16s %-16s %-9s %-40s\n","Name:", "Teachers", "AddQuota", "LongName:";
