@@ -282,6 +282,7 @@ my @line=();
 
 # pg_ident.conf
 my $seen_ident_postgres=0;
+my $seen_ident_postgres_pg=0;
 my $seen_ident_ldap=0;
 my $file_ident="/etc/postgresql/pg_ident.conf";
 my $file_ident_tmp="/etc/postgresql/pg_ident.conf.tmp";
@@ -299,6 +300,12 @@ while (<IDENT>) {
        $seen_ident_postgres=1;
        print "   Found line to add, ...\n";
     }
+    if ($line[0] eq "postgres" and
+       $line[1] eq "postgres" and
+       $line[2] eq "postgres") {
+       $seen_ident_postgres_pg=1;
+       print "   Found line to add, ...\n";
+    }
     if ($line[0] eq "ldap" and
        $line[1] eq "root" and
        $line[2] eq "ldap") {
@@ -309,11 +316,15 @@ while (<IDENT>) {
 }
 
 if ($seen_ident_postgres==0){
-    print IDENTMP "postgres       root      postgres\n";
+    print IDENTMP "postgres       root       postgres\n";
+}
+
+if ($seen_ident_postgres_pg==0){
+    print IDENTMP "postgres       postgres   postgres\n";
 }
 
 if ($seen_ident_ldap==0){
-    print IDENTMP "ldap           root      ldap\n";
+    print IDENTMP "ldap           root       ldap\n";
 }
 
 
