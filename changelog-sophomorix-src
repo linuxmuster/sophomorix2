@@ -1010,27 +1010,20 @@ RELEASES:
 
 1.2.0 (2005-03-09)
    - fixed bugs in sophomorix-test-extra 
-
    - sophomorix-webmin: added option --auto-logout
-
    - fixed sopho-man2html: 
          - use man pages of sophomorix-vampire
          - use manpages of scripts with multiple - in their names
-
    - SophomorixAPI
      - funktion zum schreiben der eingetragenen klassen
      - dito zum lesen, ascibetisch
      - funktion get_all_admin_classes (liest class_db aus)
-
-  
    - sophomorix-teacher: first release
      adding, removing class from MyAdminClasses
-
    - sophomorix-webmin: make webmin accessable for every workstation
      /etc/webmin/miniserv.conf
        --all-hosts     
        --localhost     
-
    - sophomorix-vampire
      - workaround with numerical group id not needed anymore:
         every user and every group gets a new numerical id
@@ -1038,116 +1031,83 @@ RELEASES:
      - fetching a list of files works
      - adding users works
      - rsync homes works
-
    - sophomorix-check
      added option --use-uid
      added option --use-gid
      if you want to use the same numerical ids together with 
      --get-info-from-old-files
-
    - sophomorix-quota
      option --noninteractive added
-
    - first uncomplete sophomorix-vampire verion
      - distributed in package sophomorix-vampire
      - pushing a key and fetching files
-
    - Fixed Bug where sophomorix-print generated files in the directory 
      in wich it was called. This made the script abort without producing an error,
      when executed in a nfs mounted read-only filesystem.
-
    - sophomorix-user -s username
      added options zo the underlying quota command to
        - not show remote filesystems
        - show also unused filesystems
-
    - rename print-data 
         hinzu.*  -> add.* and others
-
    - made the database names comply with DBI (sql database table names 
      cannot have a point in them)
      i.e.  user.protokoll -> user_db
            projects.db    -> projects_db
            class.db       -> class_db
            subclasses     -> subclasses_db
-
    - made the directories under /var/lib/sophomorix international (names)
      i.e.:
       drucken   -> print-data
       pruefen   -> tmp  (because it is created on each run of sophomorix-check)
       dynconfig -> database
       ergebnis  -> check-result
-     
    - added new script sophomorix-class and man page: 
       - -i shows all classes with info
       - --class classname --quota 200+20  sets the quota in database
-
    - function zeit_stempel: made easier(use ticks), instead of first 
                             writing to a tmp-file and rereading
-
    - renamed schulinfo.txt to class.db and moved it to the database files
      (renamed again later, see above)     
-
    - Bugfixes to sophomorix-project: 
          - Don't create links to root
          - Don't add root to unix-group of project
-
    - complete rewrite of sophomorix-quota to acommodate AddQuota of projects
      (option --sum still missing)
      Quotastring syntax simplified to gain speed:  i.e. 23+45
      (minus sign (-) or x is NOT SUPPORTED ANYMORE)
-
    - limit sophomorix-quota to (option names as in sophomotix-add) 
        - class(-c), 
        - login ...
        - room
        - ...
-
    - new function create_userlist($login,$class,$room, ...)
           function can be used in:
                - sophomorix-passwd
                - sophomorix-quota
-
    - replaced /home/schueler, ... with variables in sophomorix-quota
-
    - new command sophomorix-passwd (for root)
       - new passwords for all teacher, pupils
       - new password for classes, rooms
       - single users
-
    - moved all query function of sophomorix-repair to SophomorixAPI and 
      renaming them international
-
    - added a switch (--no-sync) in sophomorix-check to do/do not an auto-teach-in
-
    - replacement for sophomorix-teach-in finished
-
    - show login, admin-class and exit-admin-class when teaching-in
-
    - include/check new script sophomorix-repair
-
    - removed variable $samba_dir in repair.directories, ...(not used anymore)
-
    - The Filesystem under /home is controlled by variables in sophomorix-devel.conf
      repair.directories uses this variable to identify permissions
-
    - added a few directories under /home/samba
-
    - sophomorix-setup uses repair.directories to get permissions of directories
-
    - sophomorix-check with option get-info-from-old-files, that uses data from 
      a previous installation to add users with a former id, gid and login name.
-
    - option no-kclass disbles removing k from classnames in old group
-
 1.1.6 (2005-01-21)
-
    - A lot of Bugfixes 
 
-
-
 1.1.5 (2005-01-18)
-
    - First tagged release in the cvs
 
 
