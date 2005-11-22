@@ -1770,7 +1770,6 @@ sub check_sophomorix_user_oldstuff {
 
 
 
-# (can be implemented later)
 
 sub show_project_list {
    print "The following projects exist already:\n\n";
