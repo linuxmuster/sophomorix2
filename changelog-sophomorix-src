@@ -790,6 +790,9 @@ RELEASES:
 
    NEXT: 
 
+        sophomorix-setup-pgldap: database connot be dropped, if user is connected
+        (throw out users or what?)
+
         function remove_class_db_entry
 
 ????? next: create links in Tausch, when user is put in subclass
@@ -812,8 +815,14 @@ RELEASES:
             - project add quota
 
          look in SophomorixPgLdap what has to be done
-           show_project_list
            create_project_db
+
+###      continue:  
+           1. removing writing into project.db when creating a project
+           2. change code to update a project
+           3. check if its ok when each project is in class_details
+
+
          test login
 
          $server must be patched in PgLdap.pm
@@ -826,6 +835,12 @@ RELEASES:
          (this is more complicated, than I thought)
 
          add tests to sophomorix-test (check groups, check_provided_files)
+
+   - adding projects to the database seems to work now
+   - modified database for the use of projects
+   - dn is updated in the database for existing objects when 
+       calling sophomorix-setup-pgldap
+   - function show_project_list modified for pgldap
 
 
 
