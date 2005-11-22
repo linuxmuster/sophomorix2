@@ -17,6 +17,10 @@ Getopt::Long::Configure ("bundling");
 
 #use Sophomorix::SophomorixConfig; 
 use Sophomorix::SophomorixBase; 
+use Sophomorix::SophomorixPgLdap qw(
+                                    check_connections
+                                    db_connect
+                                   );
 
 my $replace="";
 
@@ -298,19 +302,19 @@ while (<IDENT>) {
        $line[1] eq "root" and
        $line[2] eq "postgres") {
        $seen_ident_postgres=1;
-       print "   Found line to add, ...\n";
+       print "   Line is in $file_ident already ...  doing nothing.\n";
     }
     if ($line[0] eq "postgres" and
        $line[1] eq "postgres" and
        $line[2] eq "postgres") {
        $seen_ident_postgres_pg=1;
-       print "   Found line to add, ...\n";
+       print "   Line is in $file_ident already ...  doing nothing.\n";
     }
     if ($line[0] eq "ldap" and
        $line[1] eq "root" and
        $line[2] eq "ldap") {
        $seen_ident_ldap=1;
-       print "   Found line to add, ...\n";
+       print "   Line is in $file_ident already ...  doing nothing.\n";
     }
     print IDENTMP $_,"\n";
 }
@@ -396,6 +400,8 @@ sleep 5;
 #system("createdb -U postgres ldap");
 
 
+# replacing dn=x
+&set_ldap_suffix_pg($basename);
 
 
 
@@ -554,6 +560,45 @@ print "\n##### sophomorix-setup-pgldap is configuring openldap for sophomorix-pg
 # sub
 ############################################################
 
+sub set_ldap_suffix_pg {
+    my ($suffix) = @_;
+    my $dbh=&db_connect();
+    my $sql="";
+    print "\nUpdating sldap suffix in the postgres databast to $suffix \n";
+    
+    $sql="SELECT dn FROM ldap_entries";
+
+
+    my $sth= $dbh->prepare( "SELECT dn,id FROM ldap_entries" );
+      $sth->execute();
+
+    my $array_ref = $sth->fetchall_arrayref();
+
+    my $i=0;
+    foreach ( @{ $array_ref } ) {
+        my $old_dn=${$array_ref}[$i][0];
+        my $id=${$array_ref}[$i][1];
+	print " OLD dn:  $old_dn \n";
+        # split at first 'dn'
+        my ($old_cn)=split(/dc=/,$old_dn);
+        #print "  $old_cn \n";
+        my $new_dn=$old_cn.$suffix;
+        print " NEW dn:  $new_dn \n";
+        $sql="UPDATE ldap_entries SET dn='$new_dn' WHERE id=$id";
+
+        print $sql,"\n";
+
+        $dbh->do($sql);
+
+        $i++;
+    }   
+
+
+
+
+}
+
+
 sub create_database {
     print "Creating database ldap \n";
     system("psql -U postgres template1 < /usr/share/sophomorix/config-templates/pg/sophomorix-admin.sql");
@@ -570,22 +615,16 @@ sub insert_line_before {
     my $seen_line=0;
     my @insert_line = split(/;/,$insert_line);
     my @before = split(/;/,$before);
-    print "Inserting in $file:\n";
-    print "   Insert_Line: $insert_line[0]  ",
-                          "$insert_line[1]  ",
-                          "$insert_line[2]  ",
-                          "$insert_line[3]  ",
-                          "$insert_line[4]  ",
-                          "$insert_line[5]  ",
-                          "$insert_line[6]  \n";
+    print "Checking if line is to be inserted into $file:\n";
+#    print "   Insert_Line: $insert_line[0]  ","$insert_line[1]  ",
+#                          "$insert_line[2]  ","$insert_line[3]  ",
+#                          "$insert_line[4]  ","$insert_line[5]  ",
+#                          "$insert_line[6]  \n";
 
-    print "   Before:      $before[0]  " ,
-                          "$before[1]  ",
-                          "$before[2]  ",
-                          "$before[3]  ",
-                          "$before[4]  ",
-                          "$before[5]  ",
-                          "$before[6]  \n";
+#    print "   Before:      $before[0]  " ,"$before[1]  ",
+#                          "$before[2]  ","$before[3]  ",
+#                          "$before[4]  ","$before[5]  ",
+#                          "$before[6]  \n";
 
     open(HBA, "<$file") || die "Fehler: $!";
     open(HBATMP, ">$file_tmp") || die "Fehler: $!";
