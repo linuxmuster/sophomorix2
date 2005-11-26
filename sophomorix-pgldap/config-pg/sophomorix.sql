@@ -196,7 +196,7 @@ CREATE TABLE posix_account_details (
     adminclass character varying(255),
     exitadminclass character varying(255),
     subclass character varying(255),
-    creationdate date,
+    creationdate timestamp without time zone,
     tolerationdate date,
     deactivationdate date,
     sophomorixstatus character varying(255),
@@ -1364,7 +1364,7 @@ CREATE TABLE project_details (
     members character varying(255),
     membergroups character varying(255),
     maxmembers integer,
-    creationdate date,
+    creationdate timestamp without time zone,
     tolerationdate date,
     deactivationdate date
 );
