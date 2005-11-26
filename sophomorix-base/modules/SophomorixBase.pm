@@ -52,6 +52,7 @@ use Time::localtime;
               create_share_link
               remove_share_link
               zeit
+              pg_timestamp
               append_teach_in_log
               archive_log_entry
               backup_amk_file
@@ -1902,6 +1903,22 @@ sub zeit {
   #print "$string\n";
   return $string;
 }
+
+=pod
+
+=item I<zeit(epoche)>
+
+Erzeugt Datum für den Postgresql-Datentyp 'timestamp without time zone' 
+aus der momentanen Zeit.
+
+=cut
+sub pg_timestamp {
+  my $timestamp = `date '+%Y-%m-%d %H:%M:%S'`;
+  chomp($timestamp);
+  return $timestamp;
+}
+
+
 
 
 

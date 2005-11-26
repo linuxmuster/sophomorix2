@@ -56,7 +56,8 @@ use if ${DevelConf::sys_db} eq 'pgldap' ,
 
 
 
-my $zeit=&zeit_stempel;
+my $zeit=&zeit_stempel();
+my $pg_timestamp=&pg_timestamp();
 my $user_nummer=0;
 
 my $identifier;
@@ -383,6 +384,7 @@ while(<USERHINZU>){
                          "",
                          $unid,
                          $epoche_jetzt,
+                         $pg_timestamp
                         );
 
   # 2. Add the class (db and dirs,links, ...)

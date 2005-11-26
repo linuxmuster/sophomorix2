@@ -161,7 +161,13 @@ sub create_user_db_entry {
        $pass,
        $sh,
        $quota,
-       $unid,$unix_epoc) = @_;
+       $unid,
+       $unix_epoc,
+       $pg_timestamp) = @_;
+
+    if (not defined $pg_timestamp){
+       $pg_timestamp=$today_pg;
+    }
 
     my $gecos = "$vorname"." "."$nachname";
     my $homedir="";
@@ -314,7 +320,7 @@ sub create_user_db_entry {
            '$admin_class',
            '',
            '',
-           '$today_pg',
+           '$pg_timestamp',
            'U',
            '$quota',
            '$pass',
