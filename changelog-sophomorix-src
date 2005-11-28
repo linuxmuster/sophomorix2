@@ -538,17 +538,6 @@ SQL-DBI/OpenLDAP related:
 - dont create /var/lib/sophomorix/database when using pgsql
 
 
-- make creationdate a timestamp (not a date)
-
-
-    2005-11-23 09:44:52.641214
-
-und
-
-CREATE TABLE test (
-      "timestamp" timestamp without time zone
-);
-
 
 
 - additional Fields for projects
@@ -847,6 +836,8 @@ RELEASES:
 
          add tests to sophomorix-test (check groups, check_provided_files)
 
+   - make creationdate a timestamp (datatype: timestamp without time zone)
+      like: 2005-11-23 09:44:52.641214
    - adding projects to the database seems to work now
    - modified database for the use of projects
    - dn is updated in the database for existing objects when 
