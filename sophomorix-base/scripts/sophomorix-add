@@ -155,8 +155,8 @@ if ($info==1) {
           "Identifier";
    &linie;
 
-   open(USERHINZU,"${DevelConf::ergebnis_pfad}/sophomorix.add") || die "Fehler: $!";
-      while(<USERHINZU>){
+   open(SOPHOMORIXADD,"${DevelConf::ergebnis_pfad}/sophomorix.add") || die "Fehler: $!";
+      while(<SOPHOMORIXADD>){
         chomp();
         ($new_admin_group,
          $identifier,
@@ -174,7 +174,7 @@ if ($info==1) {
                "$unid", 
                "$identifier";
      }
-   close(USERHINZU);
+   close(SOPHOMORIXADD);
    print "\n";
    exit;
 }
@@ -251,13 +251,12 @@ my @passwort_zeichen=&get_passwd_charlist();
 # ===========================================================================
 %user_login_hash=&user_login_hash();
 
-
 # Datei mit den Schülern, die nicht angelegt wurden
-open(NOCHANLEGEN,">${DevelConf::ergebnis_pfad}/sophomorix.add.new") || die "Fehler: $!";
-
-
-open(USERHINZU,"${DevelConf::ergebnis_pfad}/sophomorix.add") || die "Fehler: $!";
-while(<USERHINZU>){
+open(NOCHANLEGEN,">${DevelConf::ergebnis_pfad}/sophomorix.add.new") 
+    || die "Fehler: $!";
+open(SOPHOMORIXADD,"${DevelConf::ergebnis_pfad}/sophomorix.add") 
+    || die "Fehler: $!";
+while(<SOPHOMORIXADD>){
    $user_nummer++;
    chomp();
    # absplitten von Wunschlogin und Wunschpasswort
@@ -413,7 +412,7 @@ while(<USERHINZU>){
   &provide_user_files($login_name_ok,$new_admin_group);
 }
 
-close(USERHINZU);
+close(SOPHOMORIXADD);
 close(NOCHANLEGEN);
 
 # webmin
