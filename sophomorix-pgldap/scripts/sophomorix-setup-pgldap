@@ -276,13 +276,27 @@ my @line=();
                     "/etc/postgresql/pg_hba.conf");
 
 
+&insert_line_before("local;template1;ldap;password;",
+                    "local;all;all;ident;sameuser",
+                    "/etc/postgresql/pg_hba.conf");
+
 &insert_line_before("local;ldap;ldap;password;",
                     "local;all;all;ident;sameuser",
+                    "/etc/postgresql/pg_hba.conf");
+
+&insert_line_before("host;template1;ldap;127.0.0.1;255.255.255.255;password",
+                    "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
                     "/etc/postgresql/pg_hba.conf");
 
 &insert_line_before("host;ldap;ldap;127.0.0.1;255.255.255.255;password",
                     "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
                     "/etc/postgresql/pg_hba.conf");
+
+
+# sollte raus ???
+# local all all ident sameuser     sollte raus
+# host all all 127.0.0.1 255.255.255.255 ident sameuser
+
 
 
 # pg_ident.conf
