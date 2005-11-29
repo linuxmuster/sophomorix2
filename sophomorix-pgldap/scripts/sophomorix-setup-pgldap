@@ -501,10 +501,21 @@ system("/etc/init.d/samba start");
 system("/etc/init.d/ssh restart");
 
 # nscd
-system("/etc/init.d/nscd restart");
+if (-e "/etc/init.d/nscd"){
+   system("/etc/init.d/nscd stop");
+   sleep 2;
+   system("killall nscd");
+   sleep 2;
+   system("killall -9 nscd");
+   system("/etc/init.d/nscd start");
+}
 
 
 
+# evtl. noch anders
+system("smbldap-populate a admin");
+
+# todo /etc/rc2.d smba auf 21 erhöhen
 
 
 

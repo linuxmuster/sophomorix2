@@ -822,9 +822,7 @@ Test am 29.11.2005:
         -- Beim Netbiosnamen ändern wird  
            vom linuxmuster Setup script
 
-
            linuxmuster/sambasid   
-
 
         -- Option --force-sid (forced die sid auch in schon 
                vorhandene Usereinträge in pg)
@@ -846,9 +844,9 @@ Test am 29.11.2005:
    SOPHOMORIX:
 
         sophomorix-check versucht Maschinenaccounts zu entfernen
-        root
-        Administrator
-        nobody
+        root                   id 0
+        Administrator          id 998
+        nobody                 id 65534
         
         Workstation Accounts: erkennbar am $ am Ende
 
@@ -859,8 +857,30 @@ Test am 29.11.2005:
 
         problem: user werden nicht mit genügend Feldern angelegt
 
-        Lösung:
+        Lösung 1:
         sophomorix : unter 10000 keinen löschen, ...
+        (Problem: nobody hat 65534, ...)
+        (Problem: manche Felder unbenutzt)
+
+
+        Lösung 2:
+        A) sophomorix-check parst Zusatzdatei in /usr/share/sophomorix/devel
+           in der die Dauerhaft im System befindlichen user sind
+        B) mit sophomorix-add werden sie angelegt. Zusatzparameter, um bestimmte 
+           Eigenschaften einzutragen.
+
+
+
+        Lösung 3:
+
+        sophomorix-add so ausbauen, dass per Parameter user angelegt 
+        werden können, die den Status P haben (Permanent).
+        (oder mit '--line string' eine Zeile übergeben)
+
+        Nur anlegen, falls username noch nicht existiert. ansonst übergehen.
+        (Installscript soll mehrmals aufrufbar sein)
+
+        Diese Optionen als 'nur vom Setup-script ausführbar in manpage angeben'
 
         smbldap-populate
 
