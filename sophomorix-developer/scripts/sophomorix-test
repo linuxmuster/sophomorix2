@@ -1818,8 +1818,13 @@ sub ok_account{
     if ($col eq "sambaacctflags"){
        $account{$col}=~s/ //g;
     }
-
-    is( $account{$col},$v, "checking if $v is $col of $account{uid}");
+    if ($col eq "creationdate"){
+       # use a special regex
+       like( $account{$col},qr/^$v.*/, "checking if $v is $col of $account{uid}");
+    } else {
+       # check for equality
+       is( $account{$col},$v, "checking if $v is $col of $account{uid}");
+    }
 }
 
 
