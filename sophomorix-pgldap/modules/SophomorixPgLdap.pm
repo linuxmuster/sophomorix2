@@ -90,6 +90,8 @@ sub show_modulename {
 sub db_connect {
     my $dbname="ldap";
     my $dbuser="postgres";
+    # password not needed because of postgres configuration
+    # in pg_hba.conf pg_ident.conf
     my $pass_saved="";
     if($Conf::log_level>=3){
        print "Connecting to database ...\n";
