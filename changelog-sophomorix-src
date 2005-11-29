@@ -809,14 +809,6 @@ RELEASES:
 
 Test am 29.11.2005:
 
-
-   sophomorix-test  creationdate test sollte regex 
-
-   postgres lässt nicht ungültige Datum
-   
-   use Date::Calc   :  Datum auf gültigkeit Prüfen (in sophomorix-check)
-
-
    sophomorix-setup-pgldap
 
    Options --deb         (debconf-datenbank)
@@ -922,22 +914,21 @@ Test am 29.11.2005:
 
          add tests to sophomorix-test (check groups, check_provided_files)
 
-sophomorix-test use regluar expression to verify creationdate 
 
-libdate-calc-perl
-
+   postgres lässt nicht ungültiges Datum zu
+   libdate-calc-perl
    use Date::Calc;
    check_date($year,$month,$day);
- 
    return 1 when valid
    return 0 when invalid
-
 
    smbpasswd -w password 
        should use cleartest-password from ldap.secret
        (password from )
 
 
+   - fixed sophomorix-test to use regex to verify first part (day) 
+     of creationdate timestamp
    - added entries in pg_hba.conf
    - checked that: 
      a root script can connect to the database, because it has access 
