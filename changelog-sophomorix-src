@@ -19,12 +19,9 @@ Bootorder:  postgres -> ldap -> samba, sonst gibts timeout
 
 
 ??? samba von thomas:    prepatch   templates modifizieren   postpatch
+    schauen was drinstehtund evtl. berücksichtigen
 
-
-tho:  cleartext-password of postgres-database:  
-    where to save ?
-      cleartext-pasword of slapd?
-    where to save?
+??? pg_hba.conf so, dass auch phpgadmin tut 
 
 
 
@@ -525,6 +522,10 @@ postgres-integration:
             Questions:
             - Paswort/Access (random password/fixed password)
 
+            ldap.secret: wird gebraucht um luma,ldapadmin, ... zu benutzen
+            prüfen, ob konfigurierbar
+
+
 SQL-DBI/OpenLDAP related:
 
 - Performance: connect once in every script (not in every function)
@@ -537,10 +538,7 @@ SQL-DBI/OpenLDAP related:
     
 - dont create /var/lib/sophomorix/database when using pgsql
 
-
-
-
-- additional Fields for projects
+- mail quota in database
 
 - avoid inserting an identical,existing line once again
   --using SQL
@@ -548,6 +546,25 @@ SQL-DBI/OpenLDAP related:
 - create table my_classes
      uidnumber  -- gidnumber
    (fast access)
+
+
+sekundäre Gruppenmitgliedschaften ermitteln:
+
+select groups_users.gidnumber,memberuid,uid from groups_users,posix_account where posix_account.gidnumber=(select groups.gidnumber from groups where gid='teachers') AND posix_account.uidnumber=groups_users.memberuid; 
+
+
+
+Table groups_managers
+
+Zusatzeintrag, wenn sich lehrer zum admin (manager) einer Gruppe macht.
+
+
+project_details Attribut: teachers wird auch in groups_managers eingetragen.
+
+
+(evtl. Driites Feld um festzuhalten wie diese Mitgliedschaft zustande kam)
+
+
 
 
 ############################################################
@@ -788,6 +805,75 @@ RELEASES:
 
 1.4.x (2005-?-?)
 
+
+
+Test am 29.11.2005:
+
+
+   sophomorix-test  creationdate test sollte regex 
+
+   postgres lässt nicht ungültige Datum
+   
+   use Date::Calc   :  Datum auf gültigkeit Prüfen (in sophomorix-check)
+
+
+   sophomorix-setup-pgldap
+
+   Options --deb         (debconf-datenbank)
+           --file        (/etc/sophomorix/pgldap/pgldap.conf)
+
+           --Kommandozeilenoptionen
+
+
+
+   SID: -- Beim erstanlegen in debconf-Datenbank wird SID gespeichert
+        -- Beim Netbiosnamen ändern wird  
+           vom linuxmuster Setup script
+
+
+           linuxmuster/sambasid   
+
+
+        -- Option --force-sid (forced die sid auch in schon 
+               vorhandene Usereinträge in pg)
+
+
+   NETBIOS Name:
+
+         muss von sophomorix-pgldap-setup angepasst werden
+         (evtl. mit --new-netbiosname)
+
+
+
+   backpgsql zusätzlich im slapd -lml paket von Thomas S.
+
+
+   SAMBA: user.map-datei nach /etc/samba
+
+
+   SOPHOMORIX:
+
+        sophomorix-check versucht Maschinenaccounts zu entfernen
+        root
+        Administrator
+        nobody
+        
+        Workstation Accounts: erkennbar am $ am Ende
+
+
+        sophomorix-search -s pc$ ergibt use of initialized values
+                             nobody
+
+
+        problem: user werden nicht mit genügend Feldern angelegt
+
+        Lösung:
+        sophomorix : unter 10000 keinen löschen, ...
+
+        smbldap-populate
+
+
+
    NEXT: 
 
         sophomorix-setup-pgldap: database connot be dropped, if user is connected
@@ -835,6 +921,30 @@ RELEASES:
          (this is more complicated, than I thought)
 
          add tests to sophomorix-test (check groups, check_provided_files)
+
+sophomorix-test use regluar expression to verify creationdate 
+
+libdate-calc-perl
+
+   use Date::Calc;
+   check_date($year,$month,$day);
+ 
+   return 1 when valid
+   return 0 when invalid
+
+
+   smbpasswd -w password 
+       should use cleartest-password from ldap.secret
+       (password from )
+
+
+   - added entries in pg_hba.conf
+   - checked that: 
+     a root script can connect to the database, because it has access 
+     via pg_hba.conf and pg_ident.conf
+
+1.4.5-4 (2005-11-29)
+   This is the Version tested at the lmz on 2005-11-29    
 
    - make creationdate a timestamp (datatype: timestamp without time zone)
       like: 2005-11-23 09:44:52.641214
