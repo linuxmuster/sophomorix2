@@ -188,12 +188,16 @@ sophomorix-user
      the account, password, ... itself (usefol for guest accounts)
    - option --newest shows/modifies users added on the latest day/latest run
    - nicely format (looong) modulelist, when displaying webmin info
-   - without option: prnt userlist:
-              num    U,E
-              num    T,A
-              num    ... D
+   - without option (or option -i or --all): print userlist:
+            group1 (2 users):
+              user1    group1 U,E
+              user2    group1 T,A
+            group2 (1 users)
+              user1    group2 ... D
               -------------
               num    total
+
+       print all users with option -v
    - group display: separate primary groups from secondary (more logical) or not 
                     (like id -nG user) 
 
@@ -856,13 +860,13 @@ Test am 29.11.2005:
 
         problem: user werden nicht mit genügend Feldern angelegt
 
-        Lösung 1:
+    VERWORFEN    Lösung 1: 
         sophomorix : unter 10000 keinen löschen, ...
         (Problem: nobody hat 65534, ...)
         (Problem: manche Felder unbenutzt)
 
 
-        Lösung 2:
+    VERWORFEN    Lösung 2:
         A) sophomorix-check parst Zusatzdatei in /usr/share/sophomorix/devel
            in der die Dauerhaft im System befindlichen user sind
         B) mit sophomorix-add werden sie angelegt. Zusatzparameter, um bestimmte 
@@ -876,6 +880,8 @@ Test am 29.11.2005:
         werden können, die den Status P haben (Permanent).
         (oder mit '--line string' eine Zeile übergeben)
 
+
+???? Todo
         Nur anlegen, falls username noch nicht existiert. ansonst übergehen.
         (Installscript soll mehrmals aufrufbar sein)
 
@@ -893,11 +899,8 @@ Test am 29.11.2005:
         instead of root:  Administrator or smbroot
         (less error prone)
 
-        all rm -rf's should limit themselves to /home or so
 
-        sophomorix-user -s string : show samba data from the database
-
-        sophomorix-setup-pgldap: database connot be dropped, if user is connected
+        sophomorix-setup-pgldap: database cannot be dropped, if user is connected
         (throw out users or what?)
 
         function remove_class_db_entry
@@ -945,6 +948,10 @@ Test am 29.11.2005:
        should use cleartest-password from ldap.secret
        (password from )
 
+   
+   take care that smbroot cannot be added twice or another user with uid 998   
+
+   - limit rm -rf dir to paths beginning with /home/ when killing users
    - added options smbroot,password to sophomorix-add manpage 
    - Bugfix: loginShell not displayed
    - sophomorix-user displays samba stuff
