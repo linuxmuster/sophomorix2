@@ -47,7 +47,6 @@ require Exporter;
 use Sophomorix::SophomorixBase qw ( titel
                                     do_falls_nicht_testen
                                     provide_class_files
-                                    print_user_samba_data
                                     get_user_history
                                     print_forward
                                   );
@@ -1902,8 +1901,6 @@ sub search_user {
           printf "  sambaProfilePath : %-47s %-11s\n",$sambaprofilepath,$login;
        }
 
-       # samba, database independent
-#       &Sophomorix::SophomorixBase::print_user_samba_data($login);
        # webmin, database independent
        &Sophomorix::SophomorixBase::print_user_webmin_data($login);
 
