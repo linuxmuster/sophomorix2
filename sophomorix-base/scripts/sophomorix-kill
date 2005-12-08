@@ -234,7 +234,7 @@ while(<KILL>){
       # Jetzt wird gelöscht
       &delete_user_from_sys($login_name_to_kill);
       
-      if ($home_verzeichnis_to_kill=~/^\/home/){
+      if ($home_verzeichnis_to_kill=~/^\/home\//){
           if ($DevelConf::testen==0) {
 	    print "Removing recursively $home_verzeichnis_to_kill \n";
             system("rm -rf $home_verzeichnis_to_kill");
