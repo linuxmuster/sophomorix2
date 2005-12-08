@@ -41,7 +41,6 @@ use Time::localtime;
               check_config_template
               check_datei_touch
               check_verzeichnis_mkdir
-              print_user_samba_data
               print_user_webmin_data
               get_user_history
               get_group_list
@@ -1551,49 +1550,7 @@ sub check_verzeichnis_mkdir {
 # ===========================================================================
 # User Account Information
 # ===========================================================================
-=pod
 
-=item I<print_user_samba_data(login)>
-
-Druckt wichtige Samba Daten des users login
-
-=cut
-sub print_user_samba_data {
-    my ($login) = @_;
-    my $samba="";
-    my @samba_lines="";
-
-          # samba
-          # database independent
-          print "Samba:\n";
-          $samba=`pdbedit -v -u $login`;
-          @samba_lines=split(/\n/,$samba);
-	  foreach (@samba_lines){
-#            s/\s//g;
-            # ??? nur am ersten auftreten von : splitten
-            my ($attr,$value)=split(/: /);
-            $value=~s/\s//g;
-
-	    if (/^Account Flags/){
-              printf "  Account Flags    : %-47s %-11s\n",$value,$login;    
-            }
-	    if (/^Home Directory/){
-              printf "  Home Directory   : %-47s %-11s\n",$value,$login;    
-            }
-            if($Conf::log_level>=3){
-               if (/^Password last set/){
-                  printf "  Pwd last set     : %-47s %-11s\n",$value,$login;    
-               }
-	       if (/^Password can change/){
-                  printf "  Pwd can change   : %-47s %-11s\n",$value,$login;    
-               }
-	       if (/^Password must change/){
-                  printf "  Pwd must change  : %-47s %-11s\n",$value,$login;    
-               }
-	    }
-	  }
-
-}
 =pod
 
 =item I<print_user_samba_data(login)>
