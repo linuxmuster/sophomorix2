@@ -34,6 +34,7 @@ use if ${DevelConf::db_backend} eq 'files' ,
                                         update_user_db_entry
                                         user_deaktivieren
                                         user_reaktivieren     
+                                        check_sophomorix_user
                                        );
 
 # list of functions to load if db is 'pgldap'
@@ -44,6 +45,7 @@ use if ${DevelConf::db_backend} eq 'pgldap' ,
                                         update_user_db_entry
                                         user_deaktivieren
                                         user_reaktivieren     
+                                        check_sophomorix_user
                                        );
 
 
@@ -203,7 +205,8 @@ if ($removable ne""){
 if ($killable ne""){
     print "Making the account of $killable killable by sophomorix-kill:\n";
     # check if it is really an account
-    if (getpwnam("$killable")){
+#    if (getpwnam("$killable")){
+    if (&check_sophomorix_user("$killable")==1){
 	print "   - $killable is a valid username.\n";
     } else {
 	print "   - $killable is not a valid username.\n";

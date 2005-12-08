@@ -1948,7 +1948,6 @@ sub archive_log_entry {
     my $today=`date +%d.%m.%Y`;
     chomp($today);
 
-    print $today;
     &check_datei_touch($archive);
 
     open(LOG,"<$file");

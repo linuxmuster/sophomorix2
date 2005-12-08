@@ -286,6 +286,7 @@ my $klasse_unerlaubtes_zeichen=0;
 my $nachname_unerlaubtes_zeichen=0;
 my $vorname_unerlaubtes_zeichen=0;
 my $datum_unrealistisch=0;
+my $date_nonexistent=0;
 my $schueler_sternchenklasse=0;
 
 # Zähler für fehlerhafte Daten
@@ -301,6 +302,7 @@ my $klasse_unerlaubtes_zeichen_anzahl=0;
 my $nachname_unerlaubtes_zeichen_anzahl=0;
 my $vorname_unerlaubtes_zeichen_anzahl=0;
 my $datum_unrealistisch_anzahl=0;
+my $date_nonexistent_count=0;
 my $schueler_gesperrt_anzahl=0;
 my $schueler_entfernt_anzahl=0;
 # 0 unbedingt lassen bei Sternchenklassen (SPLAN):
@@ -699,6 +701,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
        $nachname_unerlaubtes_zeichen=0;
        $vorname_unerlaubtes_zeichen=0;
        $datum_unrealistisch=0;
+       $date_nonexistent=0;
 
        $schueler_sternchenklasse=0;
 
@@ -864,6 +867,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
          +$nachname_unerlaubtes_zeichen
          +$vorname_unerlaubtes_zeichen
          +$datum_unrealistisch
+         +$date_nonexistent
          +$vorname_unerlaubtes_zeichen
          +$datensatz_korrupt
          +$datum_korrupt
@@ -1773,7 +1777,9 @@ sub birthdate_usable {
                print " ... $punkte_anzahl Punkte im Datum gefunden ... OK\n";
 	     }
        } elsif ($date eq ""){
-            print "... Datum ist leer, Datensatz nicht korrupt ...\n";
+           if($Conf::log_level>=3){
+              print " ... Datum ist leer, Datensatz nicht korrupt ...\n";
+	   }
        } else {
 	    $datum_korrupt=1;
             print " ... $punkte_anzahl Punkte im Datum gefunden ... FEHLER\n";
@@ -1782,7 +1788,7 @@ sub birthdate_usable {
             # Eintrag in report.admin
             push (@admin_list_corrupt, "Korrupter Datensatz (" , $punkte_anzahl ,
                               " Punkte im Datum):\n" , $_ , "\n\n");
-            # Abbruch
+            # Set tag for Abbruch
             $tag = "0"  
        }
 
@@ -1811,11 +1817,10 @@ sub birthdate_usable {
 sub syntax_check_entry {
     my ($class, $surname, $name, $day, $month, $year, 
         $birthdate, $wish_login, $filename) = @_;
-    # check for emty fields
+    # check for empty fields
     if($class eq ""){$feld_klasse_leer=1;}
     if($surname eq ""){$feld_nachname_leer=1;}
     if($name eq ""){$feld_vorname_leer=1;}
-    if($birthdate eq ""){$feld_geburt_leer=1;}
     # Pruefen nach nichterlaubten Zeichen
 
     # Klasse
@@ -1859,49 +1864,52 @@ sub syntax_check_entry {
        }
     }
 
-    #Datum
-    # Tag: von 1, bzw 01 bis 31, siehe Hash-Tabelle %tage_erlaubt
-    if (exists($tage_erlaubt{$day})){# ist Tag im hash zu finden
-        if($Conf::log_level>=3){
-           print " ... Tag      OK ...\n";
-        }
-        $day=$tage_erlaubt{$day};
+
+    if($birthdate eq ""){
+       # empty, dont check for other errors
+       $feld_geburt_leer=1
     } else {
-        print " ... Tag FEHLER ...\n";
-        $datum_unrealistisch=1;
+       # check if date exists
+       # return 1 when valid
+       # return 0 when invalid
+       my $return=check_date($year,$month,$day);
+       if ($return==0){
+          if($Conf::log_level>=3){
+             print " ... Datum    FEHLER ... existiert nicht\n";
+	  }
+          $date_nonexistent=1;
+       } else {
+          if($Conf::log_level>=3){
+             print " ... Datum    OK (Day exists) ...\n";
+	  }
+       }
+
+       # Geburtsjahreszahl von bis
+       if ((exists($geburts_jahreszahl_erlaubt{$year})) &&
+          ($filename eq $schueler_to_check_dateien[0]))# Schülerdatei
+       {
+           # Wenn Geburtsjahreszahl im hash zu finden ist
+           # Ersetze den Key(z. B. 97) mit dem Value (1997)
+           $year=$geburts_jahreszahl_erlaubt{$year};
+           if($Conf::log_level>=3){
+              print " ... Jahr     OK in $filename ...\n";
+           }
+       } elsif ((not exists($geburts_jahreszahl_erlaubt{$year})) &&
+           ($filename eq $schueler_to_check_dateien[0])) {
+           if($Conf::log_level>=3){
+               print " ... Jahr     Fehler ...\n";
+           }
+           $datum_unrealistisch=1;
+       } elsif (($year>=1900) && ($year<=2100)) {
+           if($Conf::log_level>=3){
+              print " ... Jahr     OK in $filename ...\n";
+           }
+       } else {
+           print " ... Jahr FEHLER ...\n";
+           $datum_unrealistisch=1;
+       }
     }
-    # Monat: von 1 bis 12, bzw 01 bis 12, siehe Hash-Tabelle %monate_erlaubt
-    if (exists($monate_erlaubt{$month})){# ist Monat im hash zu finden
-        if($Conf::log_level>=3){
-	   print " ... Monat    OK ...\n";
-        }
-        $month=$monate_erlaubt{$month};
-    } else {
-        print " ... Monat FEHLER ...\n";
-        $datum_unrealistisch=1;
-    }
-    # Geburtsjahreszahl von bis
-    if ((exists($geburts_jahreszahl_erlaubt{$year})) &&
-       ($filename eq $schueler_to_check_dateien[0]))# Schülerdatei
-    {
-        # Wenn Geburtsjahreszahl im hash zu finden ist
-        # Ersetze den Key(z. B. 97) mit dem Value (1997)
-        $year=$geburts_jahreszahl_erlaubt{$year};
-        if($Conf::log_level>=3){
-           print " ... Jahr     OK in $filename ...\n";
-        }
-    } elsif ((not exists($geburts_jahreszahl_erlaubt{$year})) &&
-        ($filename eq $schueler_to_check_dateien[0])) {
-        print " ... Jahr     Fehler ...\n";
-        $datum_unrealistisch=1;
-    } elsif (($year>=1900) && ($year<=2100)) {
-        if($Conf::log_level>=3){
-           print " ... Jahr     OK in $filename ...\n";
-        }
-    } else {
-        print " ... Jahr FEHLER ...\n";
-        $datum_unrealistisch=1;
-    }
+
     
     # Wunschloginnamen checken
     # Zulassen: a-z  sowie 0-9
@@ -2559,11 +2567,16 @@ sub report_error {
 	$vorname_unerlaubtes_zeichen_anzahl++;
     };
     if ($datum_unrealistisch==1){
-	print REPORTSEKRETARIAT "   - Datum ist unrealistisch" , 
-                                "/unerlaubtes Zeichen/leer\n";
-	print "   - Datum ist unrealistisch/unerlaubtes ",
-              "Zeichen/leer\n";
+	print REPORTSEKRETARIAT "   - Jahr ist unrealistisch" , 
+                                "/Datum mit unerlaubtem Zeichen oder leer\n";
+	print "   - Jahr ist unrealistisch/Datum mit unerlaubtem ",
+              "Zeichen oder leer\n";
 	$datum_unrealistisch_anzahl++;
+    };
+    if ($date_nonexistent==1){
+	print REPORTSEKRETARIAT "   - Datum existiert nicht\n";
+	print "   - Datum existiert nicht\n";
+	$date_nonexistent_count++;
     };
 #    print "\n";
 }
@@ -2698,8 +2711,11 @@ sub generate_admin_report {
                        "  Unerlaubtes Zeichen im Vornamen", 
                        $vorname_unerlaubtes_zeichen_anzahl;
     printf REPORTADMIN "%-50s:%6s\n", 
-                       "  Datum unrealistisch/unerlaubtes Zeichen/leer", 
+                       "  Jahr unrealistisch/Datum mit unerlaubtem Zeichen oder leer", 
                        $datum_unrealistisch_anzahl;
+    printf REPORTADMIN "%-50s:%6s\n", 
+                       "  Datum existiert nicht", 
+                       $date_nonexistent_count;
     print REPORTADMIN "\n";
 
 

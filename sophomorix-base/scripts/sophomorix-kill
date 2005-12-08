@@ -34,6 +34,8 @@ use if ${DevelConf::db_backend} eq 'pgldap' ,
                                         backup_user_database
                                         remove_user_db_entry
                                         pg_get_group_list
+                                        db_connect
+                                        db_disconnect
                                        );
 
 # ===========================================================================
@@ -197,8 +199,15 @@ while(<KILL>){
 #     ($linux_gruppe_to_kill)=&get_group_list($login_name_to_kill);
      ($linux_gruppe_to_kill)=&pg_get_group_list($login_name_to_kill);
      # Home-Verzeichnis ermitteln
-     ($a,$a,$a,$a,$a,$a,$a,$home_verzeichnis_to_kill,$a)=
-      getpwnam($login_name_to_kill);
+
+     my $dbh=&db_connect();
+     my $sql="";
+     $sql="SELECT homedirectory FROM userdata WHERE uid='$login_name_to_kill'";
+     if($Conf::log_level>=3){
+        print "\nSQL: $sql\n";
+     }
+     my ($home_verzeichnis_to_kill)= $dbh->selectrow_array($sql);
+     &db_disconnect($dbh);
 
      # Abbruch, wenn nicht der richtige loginname entfernt wird
      if ($loginname ne "") {
@@ -225,12 +234,21 @@ while(<KILL>){
       # Jetzt wird gelöscht
       &delete_user_from_sys($login_name_to_kill);
       
+      if ($home_verzeichnis_to_kill=~/^\/home/){
+          if ($DevelConf::testen==0) {
+	    print "Removing recursively $home_verzeichnis_to_kill \n";
+            system("rm -rf $home_verzeichnis_to_kill");
+	} else {
+	    print "Test: Removing recursively $home_verzeichnis_to_kill \n";
+        }
+      }
+
       # Zeile aus user_db entfernen
       if ($DevelConf::testen==0) {
          &remove_user_db_entry($login_name_to_kill);
          &archive_log_entry($login_name_to_kill);
       } else {
-        print "Test:        Removing $login_name_to_kill from the",
+        print "Test: Removing $login_name_to_kill from the",
               " sophomorix database.\n"
       }
  

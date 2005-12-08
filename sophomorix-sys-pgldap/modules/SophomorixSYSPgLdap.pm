@@ -89,13 +89,13 @@ sub delete_user_from_sys {
 #       # Aus Benutzerdatenbank entfernen (-r: Home löschen)
 #       "userdel  -r $login",
 #    );
-    my @pwnam = getpwnam("$login");
-    my $home="$pwnam[7]";
-
-    &Sophomorix::SophomorixBase::do_falls_nicht_testen(
-       # delete home of $login
-       "rm -rf $home",
-    );
+#    my @pwnam = getpwnam("$login");
+#    my $home="$pwnam[7]";
+#
+#    &Sophomorix::SophomorixBase::do_falls_nicht_testen(
+#       # delete home of $login
+#       "rm -rf $home",
+#    );
     
 }
 

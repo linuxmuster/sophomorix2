@@ -16,7 +16,7 @@ Bootorder:  postgres -> ldap -> samba, sonst gibts timeout
             (mit dpkg-override samba soll 21 weden)
 
 ??? seems to work
-
+    (but has a time delay)
 
 ??? samba von thomas:    prepatch   templates modifizieren   postpatch
     schauen was drinstehtund evtl. berücksichtigen
@@ -806,7 +806,6 @@ RELEASES:
 1.4.x (2005-?-?)
 
 
-
 Test am 29.11.2005:
 
    sophomorix-setup-pgldap
@@ -888,15 +887,22 @@ Test am 29.11.2005:
 
    NEXT: 
 
+        ask T.Hoth about pg_hba.conf for phppgadmin
+
+        uid of "Netbios Domain Administrator":
+        instead of root:  Administrator or smbroot
+        (less error prone)
+
+        all rm -rf's should limit themselves to /home or so
+
+        sophomorix-user -s string : show samba data from the database
+
         sophomorix-setup-pgldap: database connot be dropped, if user is connected
         (throw out users or what?)
 
         function remove_class_db_entry
 
 ????? next: create links in Tausch, when user is put in subclass
-
-        dont show output uid=--- gid=--- when 
-        uid,gid is not forced from a vampire file.
 
         Funktionen für API:
          %data=get_userdata(user);
@@ -935,18 +941,21 @@ Test am 29.11.2005:
          add tests to sophomorix-test (check groups, check_provided_files)
 
 
-   postgres lässt nicht ungültiges Datum zu
-   libdate-calc-perl
-   use Date::Calc;
-   check_date($year,$month,$day);
-   return 1 when valid
-   return 0 when invalid
-
    smbpasswd -w password 
        should use cleartest-password from ldap.secret
        (password from )
 
-
+   - added options smbroot,password to sophomorix-add manpage 
+   - Bugfix: loginShell not displayed
+   - sophomorix-user displays samba stuff
+   - don't show output uid=--- gid=--- in sophomorix-add when 
+        uid,gid is not forced from the sophomorix-add file.
+   - Differ empty date / year unrealistic / date nonexisting 
+     in stdout description and report.office
+   - check birthdate for existence with debian package libdate-calc-perl :
+       use Date::Calc;
+       check_date($year,$month,$day);
+     since postgres allows only existing days
    - fixed sophomorix-test to use regex to verify first part (day) 
      of creationdate timestamp
    - added entries in pg_hba.conf

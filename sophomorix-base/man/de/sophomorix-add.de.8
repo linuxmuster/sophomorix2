@@ -57,6 +57,19 @@ sophomorix-add läuft möglichst normal ab, ohne die Accounts
 tatsächlich zu erzeugen. Es kann zu unsinnigen Fehlermeldungen kommen,
 da einige Schritte beim Anlegen auf anderen aufbauen.
 .TP
+.SH Manuelles anlegen von usern
+.TP
+Die folgenden Optionen werden nur als Schnittstelle zu anderen \
+Scripten (Installation, Anlegen von Workstationaccounts ...) benötigt.
+.TP
+Die Optionen sollten nur benutzt werden, wenn sie genau wissen, was sie tun!
+.TP
+.B --smbroot??Administrator --password passwort
+Legt einen Account für den Netbios Domain Administrator an (falls noch
+nicht vorhanden). Dieser hat den username "smbroot??Administrator" und
+die uidnumber 998. Mit diesem Account kann ein Rechner in die
+samba-Domäne aufgenommen werden
+.TP
 .SH SEE ALSO
 .BR sophomorix (8),
 .BR sophomorix-teach-in (8),

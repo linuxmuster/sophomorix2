@@ -165,10 +165,16 @@ sub create_user_db_entry {
        $quota,
        $unid,
        $unix_epoc,
-       $pg_timestamp) = @_;
+       $pg_timestamp,
+       $sophomorix_status,
+       $id_force,
+       $homedir_force) = @_;
 
     if (not defined $pg_timestamp){
        $pg_timestamp=$today_pg;
+    }
+    if (not defined $sophomorix_status){
+       $sophomorix_status="U";
     }
 
     my $gecos = "$vorname"." "."$nachname";
@@ -179,6 +185,10 @@ sub create_user_db_entry {
     } else {
         # students
         $homedir = "${DevelConf::homedir_pupil}/$admin_class/$login";
+    }
+
+    if (defined $homedir_force){
+        $homedir=$homedir_force;
     }
 
     my $description="perl: create_user_db_entry";
@@ -217,6 +227,10 @@ sub create_user_db_entry {
           print "SQL: $sql\n";
        }
        my $uidnumber = $dbh->selectrow_array($sql);
+       if (defined $id_force){
+           # force the id if given as parameter
+	   $uidnumber=$id_force;
+       }
        if($Conf::log_level>=3){
           print "   --> \$uidnumber ist $uidnumber \n\n";
        }
@@ -323,7 +337,7 @@ sub create_user_db_entry {
            '',
            '',
            '$pg_timestamp',
-           'U',
+           '$sophomorix_status',
            '$quota',
            '$pass',
            '',
@@ -771,7 +785,7 @@ my $array_ref = $sth->fetchall_arrayref();
 foreach my $row (@$array_ref){
     # split the array, to give better names
     # or use numbers and look in the SELECT statement
-   my $account_type="",
+    my $account_type="",
 
     my ($login,
         $firstname,
@@ -889,10 +903,10 @@ foreach my $row (@$array_ref){
    if (not defined $status){$status=""}
    if (not defined $toleration_date){$toleration_date=""}
    if (not defined $deactivation_date){$deactivation_date=""}
+   if (not defined $admin_class){$admin_class=""}
    if (not defined $exit_admin_class){$exit_admin_class=""}
    if (not defined $account_type){$account_type=""}
 
- 
    # add the user to the hashes
    $identifier_adminclass{$identifier} = "$admin_class";
    $identifier_login{$identifier} = "$login";
@@ -1250,7 +1264,7 @@ sub remove_user_db_entry {
        print "SQL: $sql\n";
     }
     my $uidnumber = $dbh->selectrow_array($sql);
-    print "Deleted User $login ($uidnumber);";
+    print "Deleted User $login ($uidnumber)\n";
 
 }
 
@@ -1728,11 +1742,13 @@ sub search_user {
   my $sql="";
 
   # select the columns that i need
-  my $sth= $dbh->prepare( "SELECT DISTINCT uid, firstname, surname, 
+  my $sth= $dbh->prepare( "SELECT DISTINCT uid, firstname, surname, loginshell, 
                             birthday, adminclass, exitadminclass, 
-                            unid, subclass, tolerationdate, 
+                            unid, subclass, creationdate,tolerationdate, 
                             deactivationdate, sophomorixstatus,
-                            gecos,homedirectory,firstpassword,quota 
+                            gecos, homedirectory, firstpassword, quota,
+                            sambaacctflags, sambahomepath, sambahomedrive,
+                            sambalogonscript,sambaprofilepath 
                          FROM userdata
                          WHERE uid LIKE $str
                             OR firstname LIKE $str
@@ -1747,11 +1763,13 @@ sub search_user {
        my ($login,
            $firstname,
            $surname,
+           $loginshell,
            $birthday_pg,
            $admin_class,
            $exit_admin_class,
            $unid,
            $subclass,
+           $cre,
            $toleration_date_pg,
            $deactivation_date_pg,
            $status,
@@ -1759,6 +1777,11 @@ sub search_user {
            $home,
            $first_pass,
            $quota,
+           $sambaacctflags, 
+           $sambahomepath,
+           $sambahomedrive,
+           $sambalogonscript,
+           $sambaprofilepath, 
            ) = @$row;
 
        my $birthday=&date_pg2perl($birthday_pg);
@@ -1798,9 +1821,11 @@ sub search_user {
           printf "  Home             : %-47s %-11s\n",$home_ex,$login;
        }
 
-       if (defined $shell){
-          printf "  LoginShell       : %-47s %-11s\n",$shell,$login;
+       if (defined $loginshell){
+          printf "  loginShell       : %-47s %-11s\n",$loginshell,$login;
        }
+
+       print "Sophomorix:\n";
 
        printf "  FirstPassword    : %-47s %-11s\n",$first_pass,$login;
        printf "  Birthday         : %-47s %-11s\n",$birthday,$login;
@@ -1815,6 +1840,10 @@ sub search_user {
 
        if (defined $status){
 	  printf "  Status           : %-47s %-11s\n",$status,$login;
+       }
+
+       if (defined $tol){
+          printf "  CreationDate    : %-47s %-11s\n",$cre,$login;
        }
 
        if (defined $tol){
@@ -1850,8 +1879,31 @@ sub search_user {
              print $show;
           }
        }
+
+       print "Samba:\n";
+
+       if (defined $sambaacctflags){
+          printf "  sambaAcctFlags   : %-47s %-11s\n",$sambaacctflags,$login;
+       }
+
+       if (defined $sambahomepath){
+          printf "  sambaHomePath    : %-47s %-11s\n",$sambahomepath,$login;
+       }
+
+       if (defined $sambahomedrive){
+          printf "  sambaHomeDrive   : %-47s %-11s\n",$sambahomedrive,$login;
+       }
+
+       if (defined $sambalogonscript){
+          printf "  sambaLogonScript : %-47s %-11s\n",$sambalogonscript,$login;
+       }
+
+       if (defined $sambaprofilepath){
+          printf "  sambaProfilePath : %-47s %-11s\n",$sambaprofilepath,$login;
+       }
+
        # samba, database independent
-       &Sophomorix::SophomorixBase::print_user_samba_data($login);
+#       &Sophomorix::SophomorixBase::print_user_samba_data($login);
        # webmin, database independent
        &Sophomorix::SophomorixBase::print_user_webmin_data($login);
 
@@ -1920,26 +1972,33 @@ sub get_first_password {
 
 =pod
 
-=item  I<check_sophomorix_user(login)>
+=item  I<check_sophomorix_user(login,uidnumber)>
 
-Returns 1, if  login is in the sophomorix database.
+Returns 1, if login is in the sophomorix database, and if it has
+uidnumber uidnumber.
 
 =cut
 
 
 sub check_sophomorix_user {
-  my ($login) = @_;
+  my ($login,$id) = @_;
   my $result=0;
   my $dbh=&db_connect();
   my $sql="";
-  $sql="SELECT id FROM userdata WHERE uid='$login'";
+  $sql="SELECT id,uidnumber FROM userdata WHERE uid='$login'";
   if($Conf::log_level>=3){
      print "\nSQL: $sql\n";
   }
-  my ($id)= $dbh->selectrow_array($sql);
-  if (defined $id){
-     $result=1;
+  my ($uid,$uidnumber)= $dbh->selectrow_array($sql);
+  if (defined $id and $uidnumber!=$id){
+      print "$login ($uidnumber) exists but uidnumber is not $id\n";
+      $result=0;
+  } elsif (defined $uid) {
+      $result=1;
+  } else {
+      $result=0;
   }
+  &db_disconnect($dbh);
   return $result;
 }
 

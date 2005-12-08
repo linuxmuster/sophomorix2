@@ -513,7 +513,9 @@ if (-e "/etc/init.d/nscd"){
 
 
 # evtl. noch anders
-system("smbldap-populate a admin");
+#system("smbldap-populate -a admin");
+
+system("sophomorix-add --smbroot --password server");
 
 # todo /etc/rc2.d smba auf 21 erhöhen
 

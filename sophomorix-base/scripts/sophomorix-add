@@ -100,6 +100,8 @@ my $help=0;
 my $info=0;
 my $loginname="";
 my $gruppe="";
+my $smbroot=0;
+my $password="";
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -108,6 +110,8 @@ my $testopt=GetOptions(
            "group|class|klasse|g|c|k=s" => \$gruppe,
            "verbose|v+" => \$Conf::log_level,
            "system|s" => \$DevelConf::system,
+           "smbroot" => \$smbroot,
+           "password" => \$password,
            "info|i" => \$info,
            "help|h" => \$help
           );
@@ -132,6 +136,10 @@ Options
   -l  loginname /   --loginame loginname / -u loginname --user loginname
   -g class / --group class / -c class / --class class / -k class / --klasse class
   -t  / --test
+
+adding system accounts
+  --smbroot --password password
+
 
 Please see the sophomorix-add(8) man pages for full documentation
 ');
@@ -194,6 +202,7 @@ if ($gruppe ne "") {
 
 
 
+
 ################################################################################
 # Start
 ################################################################################
@@ -203,10 +212,93 @@ my $epoche_jetzt=time;
 
 
 
+
+
+
+
+
 # show the Database Modules that are loaded
 &show_modulename();
 &show_sys_modulename();
 &check_connections();
+
+
+
+
+
+
+
+# --smbroot
+if ($smbroot==1) {
+   my $nachname = "Domain Administrator";
+   my $vorname = "Netbios";
+   my $date = "01.01.1970";
+   my $group = "smbroot";
+   my $login = "root";
+   my $shell = "/bin/false";
+   my $quota = "";
+   my $unid = "";
+   my $id =998; # finally 998
+   my $sophomorixstatus="P";
+   my $homedir="/dev/null";
+   if ($password eq ""){
+       print "\nERROR: You must specify a password for $login\n\n";
+       exit;
+   }   
+
+   print "##### Adding $vorname $nachname with login $login\n";
+# check for existance
+# what to do with quota
+# what to do with unid
+# check wunsch_id
+
+   # 1. Entry in sophomorix database
+   &create_user_db_entry($nachname,
+                         $vorname,
+                         $date,
+                         $group,
+                         $login,
+                         $password,
+                         $shell,
+                         $quota,
+                         $unid,
+                         $date,
+                         $date,
+                         $sophomorixstatus,
+                         $id,
+                         $homedir,
+                        );
+
+  # 2. Add the class (db and dirs,links, ...)
+  if (${DevelConf::db_backend} ne "pgldap"){
+     # this is done already with create_user_db_entry, when using postgres
+     &create_class_db_entry($group);
+
+     # doesnt do anything, only for compatibility
+     &add_class_to_sys($group); # VOR add_user_to_sys !
+  }
+
+  # not necessary
+  #  &provide_class_files($new_admin_group);
+
+  # 3. Add  user to db
+  &add_user_to_sys($nachname,
+                   $vorname,
+                   $date,
+                   $group,
+                   $login,
+                   $password,
+                   $shell,
+                   $id);
+  &set_sophomorix_passwd($login,$password);
+
+  # 4. Creating dirs, links for the user
+  # not necessary
+  #&provide_user_files($login_name_ok,$new_admin_group);
+
+  exit
+}
+
 
 
 my $dbh=&db_connect();
@@ -355,12 +447,16 @@ while(<SOPHOMORIXADD>){
       print("Geburtsdatum:     $gebdat\n");
       print("Identifier:       $identifier\n");
       print("AdminClass:       $new_admin_group\n"); # lehrer oder klasse
-      print("Unix-gid:         $wunsch_gid\n"); # lehrer oder klasse
+      if ($wunsch_gid ne "---"){
+         print("Unix-gid:         $wunsch_gid\n"); # lehrer oder klasse
+      }
       print("GECOS:            $gecos\n");
       print("Login (prüfen):   $login_name_to_check\n");
       print("Login (OK):       $login_name_ok\n");
       print("Passwort:         $klartext_passwort\n");
-      print("Unix-id:          $wunsch_id\n");
+      if ($wunsch_id ne "---"){
+         print("Unix-id:          $wunsch_id\n");
+      }
       if ($new_admin_group eq ${DevelConf::teacher}) {
          # Es ist ein Lehrer
          print("Shell (teachers):  $shell\n"); 
