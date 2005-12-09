@@ -1987,7 +1987,7 @@ sub check_sophomorix_user {
      print "\nSQL: $sql\n";
   }
   my ($uid,$uidnumber)= $dbh->selectrow_array($sql);
-  if (defined $id and $uidnumber!=$id){
+  if (defined $uidnumber and defined $id and $uidnumber!=$id){
       print "$login ($uidnumber) exists but uidnumber is not $id\n";
       $result=0;
   } elsif (defined $uid) {

@@ -31,6 +31,7 @@ use if ${DevelConf::db_backend} eq 'pgldap' ,
     'Sophomorix::SophomorixPgLdap' => qw(show_modulename
                                         check_connections
                                         db_connect
+                                        db_disconnect
                                         create_user_db_entry
                                         backup_user_database
                                         set_sophomorix_passwd
@@ -234,7 +235,7 @@ if ($smbroot==1) {
    my $vorname = "Netbios";
    my $date = "01.01.1970";
    my $group = "smbroot";
-   my $login = "root";
+   my $login = "root2";
    my $shell = "/bin/false";
    my $quota = "";
    my $unid = "";
@@ -252,22 +253,57 @@ if ($smbroot==1) {
 # what to do with unid
 # check wunsch_id
 
-   # 1. Entry in sophomorix database
-   &create_user_db_entry($nachname,
-                         $vorname,
-                         $date,
-                         $group,
-                         $login,
-                         $password,
-                         $shell,
-                         $quota,
-                         $unid,
-                         $date,
-                         $date,
-                         $sophomorixstatus,
-                         $id,
-                         $homedir,
-                        );
+  my $dbh=&db_connect();
+  my $sql="";
+  $sql="SELECT id,uidnumber FROM userdata WHERE uid='$login'";
+  if($Conf::log_level>=3){
+     print "\nSQL: $sql\n";
+  }
+  my ($uid,$uidnumber)= $dbh->selectrow_array($sql);
+  if (defined $uid and defined $uidnumber){
+      # user exists correctly
+      print "   $login ($uidnumber) exist already with correct uidnumber\n";
+      print "   Cannot add user $login with id $id\n";
+      print "   Everything looks OK\n";
+      exit;
+  } elsif (defined $uid and $uidnumber!=$id){
+      # user exists with wrong id
+      print "$login ($uidnumber) exists but uidnumber is not $id\n";
+      print "   Somethings wrong. Delete user manually.\n";
+      exit;
+  } 
+  $sql="SELECT id,uidnumber FROM userdata WHERE uidnumber=id";
+  if($Conf::log_level>=3){
+     print "\nSQL: $sql\n";
+  }
+  ($uid,$uidnumber)= $dbh->selectrow_array($sql);
+  if (defined $uidnumber and $uid ne $login){
+      # id exists with wrong user
+      print "   $uidnumber ($uid) exist already\n";
+      print "   Cannot add user $login with id $id\n";
+      exit;
+  }
+
+  &db_disconnect($dbh);
+
+
+
+  # 1. Entry in sophomorix database
+  &create_user_db_entry($nachname,
+                        $vorname,
+                        $date,
+                        $group,
+                        $login,
+                        $password,
+                        $shell,
+                        $quota,
+                        $unid,
+                        $date,
+                        $date,
+                        $sophomorixstatus,
+                        $id,
+                        $homedir,
+                       );
 
   # 2. Add the class (db and dirs,links, ...)
   if (${DevelConf::db_backend} ne "pgldap"){
