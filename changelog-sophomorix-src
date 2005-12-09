@@ -951,6 +951,14 @@ Test am 29.11.2005:
    
    take care that smbroot cannot be added twice or another user with uid 998   
 
+
+!!!!! insert deleted hash tables again in sophomorix add,
+      wich convert 4 to 04 and so on
+
+!!!!! Bug: script that comes with package and reads a config file which comes 
+           with this package is run in postinst:
+           Error: could not find config file
+
    - limit rm -rf dir to paths beginning with /home/ when killing users
    - added options smbroot,password to sophomorix-add manpage 
    - Bugfix: loginShell not displayed
