@@ -807,7 +807,7 @@ RELEASES:
 ############################################################
 
 
-1.4.x (2005-?-?)
+1.4.x (2005-12-?)
 
 
 Test am 29.11.2005:
@@ -895,10 +895,6 @@ Test am 29.11.2005:
 
         ask T.Hoth about pg_hba.conf for phppgadmin
 
-        uid of "Netbios Domain Administrator":
-        instead of root:  Administrator or smbroot
-        (less error prone)
-
 
         sophomorix-setup-pgldap: database cannot be dropped, if user is connected
         (throw out users or what?)
@@ -943,22 +939,25 @@ Test am 29.11.2005:
 
          add tests to sophomorix-test (check groups, check_provided_files)
 
-
    smbpasswd -w password 
        should use cleartest-password from ldap.secret
        (password from )
 
+        uid of "Netbios Domain Administrator":
+        instead of root:  Administrator or smbroot
+        (less error prone)
+
+
+
    
-   take care that smbroot cannot be added twice or another user with uid 998   
-
-
-!!!!! insert deleted hash tables again in sophomorix add,
-      wich convert 4 to 04 and so on
-
-!!!!! Bug: script that comes with package and reads a config file which comes 
-           with this package is run in postinst:
-           Error: could not find config file
-
+   - sophomorix-add
+          - smbroot cannot be created twice 
+          - smbroot cannot be created with wrong uidnumber
+   - added dependencies in the debian packages to take care that
+     sophomorix.conf is installed before sophomorix-setup-pgldap is run
+   - put back code into sophomorix-check that converted 1 -> 01 in
+     the date. code was accidentally removed when adding 
+     date checking with Date::Calc
    - limit rm -rf dir to paths beginning with /home/ when killing users
    - added options smbroot,password to sophomorix-add manpage 
    - Bugfix: loginShell not displayed
