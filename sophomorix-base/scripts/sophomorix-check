@@ -193,8 +193,8 @@ my $epoche_loeschen_ab=0;
 
 
 # Erlaubte Werte für das Geburtsdatum in folgenden Variablen ablegen
-my %tage_erlaubt=();
-my %monate_erlaubt=();
+my %convert_days=();
+my %convert_month=();
 my %geburts_jahreszahl_erlaubt=();
 my $geburts_jahreszahl_stop=0; 
 # Laufvariable für Geburtsjahreszahl
@@ -1883,28 +1883,11 @@ sub syntax_check_entry {
              print " ... Datum    OK (Day exists) ...\n";
 	  }
        }
-       #Datum
-       # Tag: von 1, bzw 01 bis 31, siehe Hash-Tabelle %tage_erlaubt
-#       if (exists($tage_erlaubt{$day})){# ist Tag im hash zu finden
-#           if($Conf::log_level>=3){
-#              print " ... Tag      OK ...\n";
-#           }
-           $day=$tage_erlaubt{$day};
-#       } else {
-#           print " ... Tag FEHLER ...\n";
-#           $datum_unrealistisch=1;
-#       }
-       # Monat: von 1 bis 12, bzw 01 bis 12, siehe Hash-Tabelle %monate_erlaubt
-#       if (exists($monate_erlaubt{$month})){# ist Monat im hash zu finden
-#           if($Conf::log_level>=3){
-#	      print " ... Monat    OK ...\n";
-#           }
-           $month=$monate_erlaubt{$month};
-#       } else {
-#           print " ... Monat FEHLER ...\n";
-#           $datum_unrealistisch=1;
-#       }
 
+       # convert Day 1 -> 01, ....
+       $day=$convert_days{$day};
+       # Monat: von 1 bis 12, bzw 01 bis 12, siehe Hash-Tabelle %convert_month
+       $month=$convert_month{$month};
 
        # Geburtsjahreszahl von bis
        if ((exists($geburts_jahreszahl_erlaubt{$year})) &&
@@ -2885,7 +2868,7 @@ sub close_report_files {
 # Erlaubte Zeichen für das Datum erzeugen
 sub year_ok {
 # erlaubte Zeichen für die Tage
-%tage_erlaubt = qw(
+%convert_days = qw(
      1     01          01    01
      2     02          02    02
      3     03          03    03
@@ -2909,7 +2892,7 @@ sub year_ok {
 );
 
 # erlaubte Zeichen für die Monate
-%monate_erlaubt = qw(
+%convert_month = qw(
      1     01          01    01
      2     02          02    02
      3     03          03    03
