@@ -235,7 +235,7 @@ if ($smbroot==1) {
    my $vorname = "Netbios";
    my $date = "01.01.1970";
    my $group = "smbroot";
-   my $login = "root2";
+   my $login = "smbroot";
    my $shell = "/bin/false";
    my $quota = "";
    my $unid = "";
@@ -248,45 +248,46 @@ if ($smbroot==1) {
    }   
 
    print "##### Adding $vorname $nachname with login $login\n";
-# check for existance
 # what to do with quota
 # what to do with unid
-# check wunsch_id
 
   my $dbh=&db_connect();
   my $sql="";
-  $sql="SELECT id,uidnumber FROM userdata WHERE uid='$login'";
+  $sql="SELECT uid,uidnumber FROM userdata WHERE uid='$login'";
   if($Conf::log_level>=3){
      print "\nSQL: $sql\n";
   }
   my ($uid,$uidnumber)= $dbh->selectrow_array($sql);
   if (defined $uid and defined $uidnumber){
-      # user exists correctly
-      print "   $login ($uidnumber) exist already with correct uidnumber\n";
-      print "   Cannot add user $login with id $id\n";
-      print "   Everything looks OK\n";
-      exit;
-  } elsif (defined $uid and $uidnumber!=$id){
-      # user exists with wrong id
-      print "$login ($uidnumber) exists but uidnumber is not $id\n";
-      print "   Somethings wrong. Delete user manually.\n";
-      exit;
-  } 
-  $sql="SELECT id,uidnumber FROM userdata WHERE uidnumber=id";
+      if ($uidnumber==$id){
+        # user exists exists, uidnumber correct 
+        print "   $login exist already with correct uidnumber $uidnumber\n";
+        print "   Everything looks OK\n";
+        exit;
+      } else {
+        # user exists, uidnumber wrong
+        print "ERROR: \n";
+        print "   $login exist already, but has wrong uidnumber $uidnumber",
+                 " (should be $id) \n";
+        print "   Something is wrong. Delete user manually.\n";
+        exit;
+      }
+  }
+
+  $sql="SELECT uid,uidnumber FROM userdata WHERE uidnumber=$id";
   if($Conf::log_level>=3){
      print "\nSQL: $sql\n";
   }
   ($uid,$uidnumber)= $dbh->selectrow_array($sql);
   if (defined $uidnumber and $uid ne $login){
       # id exists with wrong user
-      print "   $uidnumber ($uid) exist already\n";
+      print "ERROR: \n";
+      print "   uidnumber $uidnumber is used by $uid already\n";
       print "   Cannot add user $login with id $id\n";
       exit;
   }
 
   &db_disconnect($dbh);
-
-
 
   # 1. Entry in sophomorix database
   &create_user_db_entry($nachname,
@@ -332,8 +333,10 @@ if ($smbroot==1) {
   # not necessary
   #&provide_user_files($login_name_ok,$new_admin_group);
 
-  exit
+  exit;
 }
+
+
 
 
 
