@@ -61,7 +61,7 @@ packaging:
    - Makefile creates directories with correct permissions, 
      how can I package this directories with its permissions?
    - run sophomorix-samba when installing
-     (how to get the servername into sophomoeix.conf (netbios-name)??)
+     (how to get the servername into sophomorix.conf (netbios-name)??)
    - include common.bat with comments?
    - zusammenspiel mit Thomas cd
    - sophomorix-vampire version x.x braucht sophomorix2 1.2.2
@@ -809,6 +809,47 @@ RELEASES:
 
 1.4.x (2005-12-??)
 
+    Thomas Fragen:
+      cyrus-Eintrag ist schon im CVS??
+      siehe src/dsophomorix2/debeian ...    Thomass source paket 
+      sophomorix-add  -kill
+
+    --groupadd mit name mit bestimmter gidnumber
+
+    Gruppe   mit gid 515
+    
+    smbldap-usearadd -w -g 515 -c "Domain Machine Account" 
+                     -d /dev/null -s /bin/false j1010p03 
+
+    wird mit $ angelegt (da -w)
+
+    exakter Befehl folgt von Thomas Schmitt
+
+    entsprechende user für samba von smbldap populate 
+
+    user in sekundäre gruppe hinzunehmen (mehrere in der admin-Gruppe eintragen)
+
+
+
+  UND 
+
+    smbldap-usearadd -a -g -c "Klassenarbeitsbenutzer name" 
+                     -d /home/workstations... -s /bin/false j1010p03 
+
+   -a unix und win
+   ohne    nur unix
+
+
+   Group "Domain Admins" must exist, and uid must be 512
+
+
+   sophomorix-add :
+
+      sekundäre Gruppen auch möglich (etwas später)
+      syntax wie smbldap-useradd 
+
+    
+
 
 Test am 29.11.2005:
 
@@ -892,6 +933,9 @@ Test am 29.11.2005:
 
 
    NEXT: 
+        extend create_class_db_entry to add a group and force the gidnumber
+        (if gidnumber does not exist)
+
 
         ask T.Hoth about pg_hba.conf for phppgadmin
 
@@ -941,11 +985,12 @@ Test am 29.11.2005:
 
    smbpasswd -w password 
        should use cleartest-password from ldap.secret
-       (password from )
+       (password from)
 
         uid of "Netbios Domain Administrator":
         instead of root:  Administrator or smbroot
         (less error prone)
+
 
 
 
