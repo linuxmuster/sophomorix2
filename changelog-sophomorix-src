@@ -806,18 +806,19 @@ CD-Installation:
 RELEASES:
 ############################################################
 
+? gidnumber Domain Admins 512 or 515
+? Hoth: view projectdata zeigt auch gruppen an
+   (soll nur für die Einträge sein, die in project_details)
 
-1.4.x (2005-12-??)
 
     Thomas Fragen:
       cyrus-Eintrag ist schon im CVS??
       siehe src/dsophomorix2/debeian ...    Thomass source paket 
       sophomorix-add  -kill
 
-    --groupadd mit name mit bestimmter gidnumber
 
-    Gruppe   mit gid 515
-    
+sophomorix-add
+
     smbldap-usearadd -w -g 515 -c "Domain Machine Account" 
                      -d /dev/null -s /bin/false j1010p03 
 
@@ -830,7 +831,6 @@ RELEASES:
     user in sekundäre gruppe hinzunehmen (mehrere in der admin-Gruppe eintragen)
 
 
-
   UND 
 
     smbldap-usearadd -a -g -c "Klassenarbeitsbenutzer name" 
@@ -840,7 +840,6 @@ RELEASES:
    ohne    nur unix
 
 
-   Group "Domain Admins" must exist, and uid must be 512
 
 
    sophomorix-add :
@@ -901,17 +900,6 @@ Test am 29.11.2005:
 
         problem: user werden nicht mit genügend Feldern angelegt
 
-    VERWORFEN    Lösung 1: 
-        sophomorix : unter 10000 keinen löschen, ...
-        (Problem: nobody hat 65534, ...)
-        (Problem: manche Felder unbenutzt)
-
-
-    VERWORFEN    Lösung 2:
-        A) sophomorix-check parst Zusatzdatei in /usr/share/sophomorix/devel
-           in der die Dauerhaft im System befindlichen user sind
-        B) mit sophomorix-add werden sie angelegt. Zusatzparameter, um bestimmte 
-           Eigenschaften einzutragen.
 
 
 
@@ -991,8 +979,17 @@ Test am 29.11.2005:
         instead of root:  Administrator or smbroot
         (less error prone)
 
+   - beim gruppenanlegen das Feld description nutzen
 
 
+
+1.4.7 (2006-01-26)
+
+   - added script sophomorix-groupadd to add groups
+     - added option to faorce gid
+     - limit gid to minimum 200
+     - dont ad group if groupname or gidnumber exists alredy  
+   - Group "Domain Admins" is created, and gidnumber must be 512
 
 
 1.4.6 (2005-12-10)
