@@ -806,7 +806,6 @@ CD-Installation:
 RELEASES:
 ############################################################
 
-? gidnumber Domain Admins 512 or 515
 ? Hoth: view projectdata zeigt auch gruppen an
    (soll nur für die Einträge sein, die in project_details)
 
@@ -814,11 +813,14 @@ RELEASES:
    view für workstationaccounts (mit $)
    view für workstationuser
 
+? Einziger User 'Administrator', das andere nur Gruppen
 
     Thomas Fragen:
       cyrus-Eintrag ist schon im CVS??
       siehe src/dsophomorix2/debeian ...    Thomass source paket 
       sophomorix-add  -kill
+
+? ask T.Hoth about pg_hba.conf for phppgadmin
 
 
 sophomorix-add
@@ -827,8 +829,6 @@ sophomorix-add
                      -d /dev/null -s /bin/false j1010p03 
 
     wird mit $ angelegt (da -w)
-
-    exakter Befehl folgt von Thomas Schmitt
 
     entsprechende user für samba von smbldap populate 
 
@@ -843,15 +843,10 @@ sophomorix-add
    -a unix und win
    ohne    nur unix
 
-
-
-
    sophomorix-add :
 
       sekundäre Gruppen auch möglich (etwas später)
       syntax wie smbldap-useradd 
-
-    
 
 
 Test am 29.11.2005:
@@ -918,18 +913,9 @@ Test am 29.11.2005:
         Nur anlegen, falls username noch nicht existiert. ansonst übergehen.
         (Installscript soll mehrmals aufrufbar sein)
 
-        Diese Optionen als 'nur vom Setup-script ausführbar in manpage angeben'
-
-        smbldap-populate
 
 
 
-   NEXT: 
-        extend create_class_db_entry to add a group and force the gidnumber
-        (if gidnumber does not exist)
-
-
-        ask T.Hoth about pg_hba.conf for phppgadmin
 
 
         sophomorix-setup-pgldap: database cannot be dropped, if user is connected
@@ -987,7 +973,7 @@ Test am 29.11.2005:
    - remove options smbroot in sophomorix-add
 
 
-1.4.7 (2006-01-xxx)
+1.4.6-5 (2006-01-xxx)
 
    - added script sophomorix-groupadd to add groups
      - added option to faorce gid
