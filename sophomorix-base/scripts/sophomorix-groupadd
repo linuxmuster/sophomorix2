@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# Dieses Script (sophomorix-add) wurde von Rüdiger Beck erstellt
+# Dieses Script (sophomorix-groupadd) wurde von Rüdiger Beck erstellt
 # Es ist freie Software
 # Bei Fehlern wenden Sie sich bitte an mich.
 # jeffbeck@web.de  oder  jeffbeck@gmx.de
@@ -97,19 +97,10 @@ sophomorix-groupadd adds groups to the sophomorix database and the authentificat
 usage: sophomorix-groupadd groupname
 
 Options
-  -h  / --help
-  -v  / --verbose
-  -vv / --verbose --verbose
-  -i  / --info
-  -l  loginname /   --loginame loginname / -u loginname --user loginname
-  -g class / --group class / -c class / --class class / -k class / --klasse class
-  -t  / --test
-
-adding system accounts
-  --smbroot --password password
+  -g gidnumber / --gidnumber gidnumber
 
 
-Please see the sophomorix-add(8) man pages for full documentation
+Please see the sophomorix-groupadd(8) man pages for full documentation
 ');
    print "\n";
    exit;
@@ -119,7 +110,7 @@ Please see the sophomorix-add(8) man pages for full documentation
 # exit if arguments are bad
 if (not defined $ARGV[0] or defined $ARGV[1]){
     print "ERROR\n";
-    print "\n   sophomorix groupadd needs exaktly ONE argument\n\n";
+    print "\n   sophomorix-groupadd needs exactly ONE argument\n\n";
     exit;
 }
 
