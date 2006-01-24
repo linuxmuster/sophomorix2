@@ -517,6 +517,8 @@ if (-e "/etc/init.d/nscd"){
 
 system("sophomorix-add --smbroot --password server");
 
+system("sophomorix-groupadd -g 512 'Domain Admins'");
+
 # todo /etc/rc2.d smba auf 21 erhöhen
 
 
