@@ -222,14 +222,12 @@ if($Conf::log_level>=1){
 
 
 
-# Abbruch Testen
-
-
-
-
-
-
-#exit;
+# Exit if must opttions are not given
+if ($login eq "" or $password eq "" or $homedir eq "" or
+    $gecos eq "" or $group eq ""){
+    print "\n ERROR: MUST Options are missing!\n\n";
+    exit;
+}
 
 
    # Nun wird der User angelegt
