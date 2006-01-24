@@ -148,12 +148,11 @@ sub check_connections {
 # adds a user to the user database
 sub create_user_db_entry {
     my $sql="";
-
     # prepare data
     my $today=`date +%d.%m.%Y`;
     chomp($today);
     my $today_pg=&date_perl2pg($today);
- 
+    my $gecos;
     my ($nachname,
        $vorname,
        $birthday_perl,
@@ -167,7 +166,8 @@ sub create_user_db_entry {
        $pg_timestamp,
        $sophomorix_status,
        $id_force,
-       $homedir_force) = @_;
+       $homedir_force,
+       $gecos_force) = @_;
 
     if (not defined $pg_timestamp){
        $pg_timestamp=$today_pg;
@@ -175,8 +175,11 @@ sub create_user_db_entry {
     if (not defined $sophomorix_status){
        $sophomorix_status="U";
     }
-
-    my $gecos = "$vorname"." "."$nachname";
+    if (not defined $gecos_force or $gecos_force eq ""){
+       $gecos = "$vorname"." "."$nachname";
+    } else {
+       $gecos = $gecos_force;
+    }
     my $homedir="";
     if ($admin_class eq ${DevelConf::teacher}){
         # teachers
@@ -207,9 +210,39 @@ sub create_user_db_entry {
     }
 
     my $dbh=&db_connect();
+    my $uid_sys;
+    my $uid_name_sys;
 
+    # exists uid of user already? 
+    ($uid_sys)= $dbh->selectrow_array( "SELECT uidnumber 
+                                         FROM userdata 
+                                         WHERE uid='$login'");
+    # exists uidnumber of user already?
+    if (defined $id_force and $id_force ne ""){ 
+       ($uid_name_sys)= $dbh->selectrow_array( "SELECT uid 
+                                  FROM userdata 
+                                  WHERE uidnumber=$id_force");
+    }
+
+    if (not defined $uid_sys){
+       $uid_sys="";
+    }
+    if (not defined $uid_name_sys){
+       $uid_name_sys="";
+    }
+
+
+    # check if user exists
+    if ($uid_sys ne ""){
+        # uidnumber found
+        my $uidnumber=$uid_sys;
+        print "user $login already exists ($uidnumber)\n";
+    } elsif ($uid_name_sys ne ""){
+        # uid found
+        my $uidname=$uid_name_sys;
+        print "uidnumber $id_force exists already ($uidname)\n";
+    } else {
     if ($DevelConf::testen==0) {
-
 
        $sql="SELECT manual_create_ldap_for_account('$login')";
        if($Conf::log_level>=3){
@@ -226,7 +259,7 @@ sub create_user_db_entry {
           print "SQL: $sql\n";
        }
        my $uidnumber = $dbh->selectrow_array($sql);
-       if (defined $id_force){
+       if (defined $id_force and $id_force ne ""){
            # force the id if given as parameter
 	   $uidnumber=$id_force;
        }
@@ -367,6 +400,8 @@ sub create_user_db_entry {
          print "Test:   Wrote entry into database\n";
       }
   }
+  } # end 
+
 }
 
 
@@ -449,7 +484,8 @@ sub make_salt {
 
 # adds a class to the user database
 sub create_class_db_entry {
-    my ($class_to_add,$sub) = @_;
+    my $smallest_gidnumber=200;
+    my ($class_to_add,$sub,$gid_force_number) = @_;
     my ($class,$dept,$type,$mail,$quota) = ("","","","","");
     if (not defined $sub){
         # standard: no subclass
@@ -459,9 +495,15 @@ sub create_class_db_entry {
         $type="adminclass";
     } elsif ($sub==2) {
         $type="project";
+    } elsif ($sub==3) {
+        $type="manualgroup";
     } else {
         $type="subclass";
     }
+    if (not defined $gid_force_number){
+        $gid_force_number=-1;
+    }
+
     my %classes=();
     my $sql="";
     my $gidnumber;
@@ -469,13 +511,26 @@ sub create_class_db_entry {
     # und NextFreeUnixId macht und groups_id zurück gibt
     # der Username muss hier schon übergeben werden.
     my $dbh=&db_connect();
+    my $gid_sys;
+    my $gid_name_sys;
 
-    # exists class already? 
-    my ($gid_sys)= $dbh->selectrow_array( "SELECT gidnumber 
+    # exists gid of class already? 
+    ($gid_sys)= $dbh->selectrow_array( "SELECT gidnumber 
                                          FROM groups 
                                          WHERE gid='$class_to_add'" );
+    # exists gidnumber of class already?
+    if ($gid_force_number!=-1){ 
+       ($gid_name_sys)= $dbh->selectrow_array( "SELECT gid 
+                                  FROM groups 
+                                  WHERE gidnumber = $gid_force_number");
+    }
     if (not defined $gid_sys){
+       # gid does not exist (has no gidnumber)
        $gid_sys="";
+    }
+    if (not defined $gid_name_sys){
+       # gidnumber does not exist (has no gidnumber)
+       $gid_name_sys="";
     }
 
     # check if group exists
@@ -483,20 +538,35 @@ sub create_class_db_entry {
         # gidnumber found
         $gidnumber=$gid_sys;
         print "group $class_to_add exists already ($gidnumber)\n";
+    } elsif ($gid_name_sys ne ""){
+        # gid found
+        $gidname=$gid_name_sys;
+        print "gidnumber $gid_force_number exists already ($gidname)\n";
+    } elsif ($gid_force_number<$smallest_gidnumber and $gid_force_number!=-1){
+        # gidnumber to small
+        print "gidnumber $gid_force_number is to small ",
+              "(limit: $smallest_gidnumber)\n";
     } else {
         # begin adding group
         print "group does not exist -> adding $class_to_add\n";
 
-    #Freie GID holen
-    $sql="select manual_get_next_free_gid()";
-    if($Conf::log_level>=3){
-       print "\nSQL: $sql\n";
-    }
-    $gidnumber = $dbh->selectrow_array($sql);
-    print "Received $gidnumber as next free gidnumber\n";
+        if ($gid_force_number!=-1){
+	    $gidnumber=$gid_force_number;
+            print "Forcing nonexisting $gidnumber as gidnumber\n";
+        } else {
+           #Freie GID holen
+           $sql="select manual_get_next_free_gid()";
+           if($Conf::log_level>=3){
+              print "\nSQL: $sql\n";
+           }
+           $gidnumber = $dbh->selectrow_array($sql);
+           print "Received $gidnumber as next free gidnumber\n";
+       }
+
+    # Gruppe anlegen, Funktion
     $sql="SELECT manual_create_ldap_for_group('$class_to_add')";
     if($Conf::log_level>=3){
-       print "\nSQL: $sql\n";
+      print "\nSQL: $sql\n";
     }
     my $groups_id = $dbh->selectrow_array($sql);
 

@@ -517,7 +517,22 @@ if (-e "/etc/init.d/nscd"){
 
 system("sophomorix-add --smbroot --password server");
 
+
+# adding groups
 system("sophomorix-groupadd -g 512 'Domain Admins'");
+system("sophomorix-groupadd -g 544 'Administrators'");
+system("sophomorix-groupadd -g 551 'Backup Operators'");
+system("sophomorix-groupadd -g 515 'Domain Computers'");
+system("sophomorix-groupadd -g 514 'Domain Guests'");
+system("sophomorix-groupadd -g 550 'Print Operators'");
+system("sophomorix-groupadd -g 552 'Replicators'");
+system("sophomorix-groupadd -g 550 'Print Operators'");
+system("sophomorix-groupadd -g 550 'Print Operators'");
+
+# adding users
+system("sophomorix-useradd --gecos --homedir /home/Administrator --group 'Domain Admins' --password geheim Administrator");
+
+
 
 # todo /etc/rc2.d smba auf 21 erhöhen
 
