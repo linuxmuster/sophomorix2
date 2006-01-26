@@ -806,6 +806,11 @@ CD-Installation:
 RELEASES:
 ############################################################
 
+Wichtig: BUGlist: im svn, modul anleitungen
+
+? speedup: loginnamen /etc/passwd durchgreppen und aus sql auslesen 
+?          ist schneller als getent passwd 
+
 ? Hoth: view projectdata zeigt auch gruppen an
    (soll nur für die Einträge sein, die in project_details)
 
@@ -813,14 +818,53 @@ RELEASES:
    view für workstationaccounts (mit $)
    view für workstationuser
 
-? Einziger User 'Administrator', das andere nur Gruppen
+sophomorix soll diese accounts als Permanent ansehen
+
+
+Einziger User 'Administrator', das andere sind nur Gruppen!
 
     Thomas Fragen:
       cyrus-Eintrag ist schon im CVS??
       siehe src/dsophomorix2/debeian ...    Thomass source paket 
       sophomorix-add  -kill
 
+Gruppennamen ohne Leerzeichen:
+   Regel:  unix-gruppe: klein, ohne leerzeichen
+
+   Windows             Linux       unix-id
+==================================================
+domain:
+   Domain Admins       domadmins     gid 512
+   Domain Users        domusers     gid 513
+   Domain Guests       domguests
+   Domain Computers    
+
+lokal:
+   Administrators                           (lokale admins ?)
+   Print Operators
+  
+
+
+
+
+
+Manuelles anlegen von gruppen (sophomorix-groupadd):
+
+1. unix-gruppe anlegen (z.b. domusers)
+2. groupmapping:   net groupmap add unixgroup=domusers ntgroup="Domain Users"
+   (add, wenn ntgroup nicht existiert, mod, wenn ntgroup schon existiert)
+   ohne parameter --ntgroup  linuxgruppe=wingruppe
+   mit  parameter --ntgroup wingruppe
+
+
+
+
+
+
 ? ask T.Hoth about pg_hba.conf for phppgadmin
+
+
+
 
 
 sophomorix-add
@@ -972,6 +1016,16 @@ Test am 29.11.2005:
    - beim gruppenanlegen das Feld description nutzen
    - remove options smbroot in sophomorix-add
    - option gidnumber in sophomorix-useradd tut noch nicht
+   - strichpunkt an schueler.txt intelligent anhängen
+     (bisher in sophomorix.conf)
+
+   - Aufruf von sophomorix-webmin raus aus sophomorix-add
+   - sophomorix-usermod  ( wie smbldap-usermod -G Gruppe User) 
+   - sophomorix-userdel ()
+   - smbldap-usershow entspricht in etwa sophomorix-user
+   - crypt zu md5 (Passwort-decription)
+   - system() in perl mit sysrun tauschen (oder noch besseres)
+
 
 1.4.6-5 (2006-01-xxx)
 
