@@ -2242,6 +2242,8 @@ sub auto_teach_in {
                     $go[3]);
          # varying the parameters of the matcheswith difference
          # of class-names (old class - new class) 
+         # abbruch mit use of uninitiale ....
+
          if ($go[3] eq $come[3]) {
             # class names are identical
             if($Conf::log_level>=3){
