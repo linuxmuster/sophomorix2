@@ -515,26 +515,49 @@ if (-e "/etc/init.d/nscd"){
 # evtl. noch anders
 #system("smbldap-populate -a admin");
 
-system("sophomorix-add --smbroot --password server");
+#system("sophomorix-add --smbroot --password server");
 
 
 # adding groups
-system("sophomorix-groupadd -g 512 'Domain Admins'");
-system("sophomorix-groupadd -g 544 'Administrators'");
-system("sophomorix-groupadd -g 551 'Backup Operators'");
-system("sophomorix-groupadd -g 515 'Domain Computers'");
-system("sophomorix-groupadd -g 514 'Domain Guests'");
-system("sophomorix-groupadd -g 550 'Print Operators'");
-system("sophomorix-groupadd -g 552 'Replicators'");
-system("sophomorix-groupadd -g 550 'Print Operators'");
-system("sophomorix-groupadd -g 550 'Print Operators'");
+#system("sophomorix-groupadd -g 512 'Domain Admins'");
+##? system("sophomorix-groupadd -g 544 'Administrators'");
+##? system("sophomorix-groupadd -g 551 'Backup Operators'");
+#system("sophomorix-groupadd -g 515 'Domain Computers'");
+#system("sophomorix-groupadd -g 514 'Domain Guests'");
+#system("sophomorix-groupadd -g 550 'Print Operators'");
+#system("sophomorix-groupadd -g 552 'Replicators'");
 
 # adding users
-system("sophomorix-useradd --gecos Administrator --homedir /home/Administrator --group 'Domain Admins' --password geheim Administrator");
+#system("sophomorix-useradd --gecos Administrator --homedir /home/Administrator --group 'Domain Admins' --password server Administrator");
+
+
+# adding groups with smbldap-tools
+system("smbldap-groupadd -g 512 'domadmins'");
+system("net groupmap add unixgroup=domadmins ntgroup='Domain Admins'");
+
+system("smbldap-groupadd -g 513 'domusers'");
+system("net groupmap add unixgroup=domusers ntgroup='Domain Users'");
+
+system("smbldap-groupadd -g 514 'domguests'");
+system("net groupmap add unixgroup=domguests ntgroup='Domain Guests'");
+
+system("smbldap-groupadd -g 515 'domcomputers'");
+system("net groupmap add unixgroup=domcomputers ntgroup='Domain Computers'");
+
+system("smbldap-groupadd -g 550 'printoperators'");
+system("net groupmap add unixgroup=printoperators ntgroup='Print Operators'");
+
+system("smbldap-groupadd -g 552 'replicators'");
+system("net groupmap add unixgroup=replicators ntgroup='Replicators'");
+
+
+# adding users
+system("smbldap-useradd -a  -c Administrator -m -d /home/Administrator -g 'domadmins' -s /bin/false Administrator");
 
 
 
-# todo /etc/rc2.d smba auf 21 erhöhen
+
+# todo /etc/rc2.d samba auf 21 erhöhen
 
 
 
