@@ -842,8 +842,7 @@ sub get_sys_users {
    my %identifier_exit_adminclass=();
    my %identifier_account_type=();
 
-my $dbh=&db_connect();
-
+   my $dbh=&db_connect();
 
 # select the columns that i need
 my $sth= $dbh->prepare( "SELECT uid, firstname, surname, birthday, adminclass, exitadminclass, unid, subclass, tolerationdate, deactivationdate, sophomorixstatus FROM userdata" );
@@ -877,6 +876,17 @@ foreach my $row (@$array_ref){
    if (not defined $deactivation_date_pg){
        $deactivation_date_pg="";
    }
+
+   # status have only sophomorix users, 
+   # others (smbldap-useadd, ...) are considered permanent
+   if (not defined $status){$status="P"}
+   if (not defined $admin_class){$admin_class=""}
+   if (not defined $birthday_pg){$birthday_pg="1970-01-01"}
+   if (not defined $unid){$unid=""}
+   if (not defined $subclass){$subclass=""}
+   if (not defined $exit_admin_class){$exit_admin_class=""}
+
+ 
 
 
    # exclude one user ????????ß
@@ -967,19 +977,14 @@ foreach my $row (@$array_ref){
    # In Hash schreiben: mit Zeile als Wert (beim Löschen zu entfernen)
 #   $schueler_im_system_protokoll_linie{$identifier}="$_";
 
-   if (not defined $unid){$unid=""}
-   if (not defined $subclass){$subclass=""}
-   if (not defined $status){$status=""}
    if (not defined $toleration_date){$toleration_date=""}
    if (not defined $deactivation_date){$deactivation_date=""}
-   if (not defined $admin_class){$admin_class=""}
-   if (not defined $exit_admin_class){$exit_admin_class=""}
    if (not defined $account_type){$account_type=""}
 
    # add the user to the hashes
    $identifier_adminclass{$identifier} = "$admin_class";
    $identifier_login{$identifier} = "$login";
-   $identifier_status{$identifier} = "$status";
+
 
    # unid is optional
    if ($unid ne "") {        
@@ -989,6 +994,10 @@ foreach my $row (@$array_ref){
    # subclass is optional
    if ($subclass ne "") {        
       $identifier_subclass{$identifier} = "$subclass";
+   }
+
+   if ($status ne ""){
+      $identifier_status{$identifier} = "$status";
    }
 
    # TolerationDate is optional
@@ -1864,6 +1873,12 @@ sub search_user {
        @group_list=&Sophomorix::SophomorixPgLdap::pg_get_group_list($login);
        $pri_group_string=$group_list[0];
 
+       # standard Values for nonsophomorix users
+       if (not defined $admin_class){$admin_class=""}
+       if (not defined $first_pass){$first_pass=""}
+       if (not defined $cre){$cre=""}
+
+
        if (defined $login){
 	     print "($login exists in the system) \n";
        } else {
@@ -1912,7 +1927,7 @@ sub search_user {
        }
 
        if (defined $tol){
-          printf "  CreationDate    : %-47s %-11s\n",$cre,$login;
+          printf "  CreationDate     : %-47s %-11s\n",$cre,$login;
        }
 
        if (defined $tol){

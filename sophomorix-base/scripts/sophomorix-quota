@@ -420,6 +420,11 @@ sub check_quotastring {
 sub set_quota_if_needed {
     my $new_quota="";
     while ( my ($login, $type) = each(%login_type)) {
+        if ($type eq "domcomp" or "workstation"){
+            # not setting quota for machine accounts and workstation accounts
+	    next;
+        }
+
         $new_quota=&get_quota($login);
         if ($new_quota eq $db_quota{$login}){
            #do nothing
@@ -483,6 +488,8 @@ sub login_type {
            $login_type{$login}="workstation";
         } elsif($home=~/^$DevelConf::homedir_teacher/){
            $login_type{$login}="teacher";
+        } elsif($home=~/dev\/null/){
+           $login_type{$login}="domcomp";
         }
     }
     endpwent();
@@ -644,20 +651,25 @@ sub get_quota_txt {
 sub get_db_quota {
     my $login="";
     my $quotastring="";
+    my $sophomorixstatus="";
     my %db_quota=();
     $db_quota{"admin"}=0;
 
     my $dbh=&db_connect();
 
     # select the columns that i need
-    my $sth= $dbh->prepare( "SELECT uid,quota FROM userdata" );
+    my $sth= $dbh->prepare( "SELECT uid,quota,sophomorixstatus FROM userdata" );
     $sth->execute();
 
     my $array_ref = $sth->fetchall_arrayref();
 
     foreach my $row (@$array_ref){
-       my ($login,$quotastring) = @$row;
-       $db_quota{$login}=$quotastring;
+       my ($login,$quotastring,$sophomorixstatus) = @$row;
+       if (defined $sophomorixstatus){
+          $db_quota{$login}=$quotastring;
+       } else {
+          # not a sophomorix user
+       }
     }
     return %db_quota;
 }
