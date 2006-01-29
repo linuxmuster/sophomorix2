@@ -823,6 +823,8 @@ sophomorix soll diese accounts als Permanent ansehen
 
 Einziger User 'Administrator', das andere sind nur Gruppen!
 
+?? muss Administrator einer bestimmte uid haben
+
     Thomas Fragen:
       cyrus-Eintrag ist schon im CVS??
       siehe src/dsophomorix2/debeian ...    Thomass source paket 
@@ -834,43 +836,42 @@ Gruppennamen ohne Leerzeichen:
    Windows             Linux       unix-id
 ==================================================
 domain:
-   Domain Admins       domadmins     gid 512
+   Domain Admins       domadmins    gid 512
    Domain Users        domusers     gid 513
    Domain Guests       domguests
    Domain Computers    
+
+??? What about the others
+
 
 lokal:
    Administrators                           (lokale admins ?)
    Print Operators
   
 
+    smbldap-usearadd -w -g 515 -c "Domain Machine Account" 
+                     -d /dev/null -s /bin/false j1010p03 
 
 
-
-
-Manuelles anlegen von gruppen (sophomorix-groupadd):
-
-1. unix-gruppe anlegen (z.b. domusers)
-2. groupmapping:   net groupmap add unixgroup=domusers ntgroup="Domain Users"
-   (add, wenn ntgroup nicht existiert, mod, wenn ntgroup schon existiert)
-   ohne parameter --ntgroup  linuxgruppe=wingruppe
-   mit  parameter --ntgroup wingruppe
+Gecos Feld ist immer Computer, also nicht "Domain Machine Account" Wieso?
+  (Wo steht, dass -w -> gecos = Computer)
 
 
 
 
 
+##################################################
+Folgendes machen die smbldaptools
 
-? ask T.Hoth about pg_hba.conf for phppgadmin
-
-
-
-
-
-sophomorix-add
+#1. unix-gruppe anlegen (z.b. domusers)
+#2. groupmapping:   net groupmap add unixgroup=domusers ntgroup="Domain Users"
+#   (add, wenn ntgroup nicht existiert, mod, wenn ntgroup schon existiert)
+#   ohne parameter --ntgroup  linuxgruppe=wingruppe
+#   mit  parameter --ntgroup wingruppe
 
     smbldap-usearadd -w -g 515 -c "Domain Machine Account" 
                      -d /dev/null -s /bin/false j1010p03 
+
 
     wird mit $ angelegt (da -w)
 
@@ -881,8 +882,8 @@ sophomorix-add
 
   UND 
 
-    smbldap-usearadd -a -g -c "Klassenarbeitsbenutzer name" 
-                     -d /home/workstations... -s /bin/false j1010p03 
+    smbldap-usearadd -a -g uid/uidnumber -c "Klassenarbeitsbenutzer name" 
+                     -m -d /home/workstations/user -s /bin/false j1010p03 
 
    -a unix und win
    ohne    nur unix
@@ -891,6 +892,11 @@ sophomorix-add
 
       sekundäre Gruppen auch möglich (etwas später)
       syntax wie smbldap-useradd 
+
+Vorhergehendes  machen die smbldaptools
+##################################################
+
+
 
 
 Test am 29.11.2005:
