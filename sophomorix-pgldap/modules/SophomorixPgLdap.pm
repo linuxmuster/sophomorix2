@@ -1102,7 +1102,8 @@ sub get_print_data {
     # select the columns that i need
     my $sth= $dbh->prepare( "SELECT uid, firstname, 
                                     surname, birthday, 
-                                    adminclass, firstpassword 
+                                    adminclass, firstpassword,
+                                    sophomorixstatus 
                              FROM userdata" );
 $sth->execute();
 
@@ -1111,13 +1112,19 @@ my $array_ref = $sth->fetchall_arrayref();
 foreach my $row (@$array_ref){
     # split the array, to give better names
 
+
     my ($login,
         $firstname,
         $surname,
         $birthday_pg,
         $admin_class,
         $firstpass,
+        $sophomorixstatus
         ) = @$row;
+
+    if (not defined $sophomorixstatus){
+        next;
+    }
 
     my $birthday = &date_pg2perl($birthday_pg);
 
@@ -1127,6 +1134,9 @@ foreach my $row (@$array_ref){
                "$login".";".
                "$firstpass".";".
                "$birthday".";"."\n";    
+
+
+    
 
     push @lines, $string;
 
