@@ -814,95 +814,35 @@ Wichtig: BUGlist: im svn, modul anleitungen
    view für workstationaccounts (mit $)
    view für workstationuser
 
-sophomorix soll diese accounts als Permanent ansehen
 
-
-Einziger User 'Administrator', das andere sind nur Gruppen!
-
-?? muss Administrator einer bestimmte uid haben
-
-    Thomas Fragen:
-      cyrus-Eintrag ist schon im CVS??
-      siehe src/dsophomorix2/debeian ...    Thomass source paket 
-      sophomorix-add  -kill
-
+mailquota stuff
+------------------------------
 mailquota.txt
 lehrer.txt zusatzfeld
-sophomorix.sql  zusatzfeld mailquota
+
+change quota with cyrus-user.pl -u user -q quota
 
 
-Gruppennamen ohne Leerzeichen:
-   Regel:  unix-gruppe: klein, ohne leerzeichen
-
-   Windows             Linux       unix-id
-==================================================
-domain:
-   Domain Admins       domadmins    gid 512
-   Domain Users        domusers     gid 513
-   Domain Guests       domguests
-   Domain Computers    
-
-??? What about the others
 
 
-lokal:
-   Administrators                           (lokale admins ?)
-   Print Operators
-  
-
-    smbldap-usearadd -w -g 515 -c "Domain Machine Account" 
-                     -d /dev/null -s /bin/false j1010p03 
+??? nwberater oder Administrator
 
 
-Gecos Feld ist immer Computer, also nicht "Domain Machine Account" Wieso?
+??? Gecos Feld ist immer Computer, also nicht "Domain Machine Account" Wieso?
   (Wo steht, dass -w -> gecos = Computer)
 
 
 
 
 
-##################################################
-Folgendes machen die smbldaptools
-
-#1. unix-gruppe anlegen (z.b. domusers)
-#2. groupmapping:   net groupmap add unixgroup=domusers ntgroup="Domain Users"
-#   (add, wenn ntgroup nicht existiert, mod, wenn ntgroup schon existiert)
-#   ohne parameter --ntgroup  linuxgruppe=wingruppe
-#   mit  parameter --ntgroup wingruppe
-
-    smbldap-usearadd -w -g 515 -c "Domain Machine Account" 
-                     -d /dev/null -s /bin/false j1010p03 
-
-
-    wird mit $ angelegt (da -w)
-
-    entsprechende user für samba von smbldap populate 
-
-    user in sekundäre gruppe hinzunehmen (mehrere in der admin-Gruppe eintragen)
-
-
-  UND 
-
-    smbldap-usearadd -a -g uid/uidnumber -c "Klassenarbeitsbenutzer name" 
-                     -m -d /home/workstations/user -s /bin/false j1010p03 
-
-   -a unix und win
-   ohne    nur unix
-
-   sophomorix-add :
-
-      sekundäre Gruppen auch möglich (etwas später)
-      syntax wie smbldap-useradd 
-
-Vorhergehendes  machen die smbldaptools
-##################################################
 
 
 
 
-Test am 29.11.2005:
 
    sophomorix-setup-pgldap
+
+   ??? folgendes ist eher schlecht
 
    Options --deb         (debconf-datenbank)
            --file        (/etc/sophomorix/pgldap/pgldap.conf)
@@ -934,45 +874,17 @@ Test am 29.11.2005:
    SAMBA: user.map-datei nach /etc/samba
 
 
-   SOPHOMORIX:
-
-        sophomorix-check versucht Maschinenaccounts zu entfernen
-        root                   id 0
-        Administrator          id 998
-        nobody                 id 65534
-        
-        Workstation Accounts: erkennbar am $ am Ende
-
-
-        sophomorix-search -s pc$ ergibt use of initialized values
-                             nobody
-
-
-        problem: user werden nicht mit genügend Feldern angelegt
-
-
-
-
-        Lösung 3:
-
-        sophomorix-add so ausbauen, dass per Parameter user angelegt 
-        werden können, die den Status P haben (Permanent).
-        (oder mit '--line string' eine Zeile übergeben)
-
-
-???? Todo
-        Nur anlegen, falls username noch nicht existiert. ansonst übergehen.
-        (Installscript soll mehrmals aufrufbar sein)
-
-
-
 
 
 
         sophomorix-setup-pgldap: database cannot be dropped, if user is connected
         (throw out users or what?)
+        ldap vorher beenden.
 
-        function remove_class_db_entry
+
+        In Arbeit (tho)
+        function  manual_delete_group (deletes a group altogether from the database)
+
 
 ????? next: create links in Tausch, when user is put in subclass
 
@@ -984,6 +896,9 @@ Test am 29.11.2005:
          Database fields for cups (what is needed?)
 
          counting the users when sophomorix-class -i
+         SELECT count(uid) FROM posix_account;
+                 * alle Zeilen
+                 uid alles wo uid NOT NULL
 
          SophomorixAPI to select users and groups
 
@@ -1001,7 +916,6 @@ Test am 29.11.2005:
 
          test login
 
-         $server must be patched in PgLdap.pm
 
          make sid available in ldap
 
@@ -1012,14 +926,9 @@ Test am 29.11.2005:
 
          add tests to sophomorix-test (check groups, check_provided_files)
 
-   smbpasswd -w password 
-       should use cleartest-password from ldap.secret
-       (password from)
-
-        uid of "Netbios Domain Administrator":
-        instead of root:  Administrator or smbroot
-        (less error prone)
-
+   smbpasswd -w password in sophomorix-setup-pgldap checken ob 
+      password aus debconf geholt wird
+           
    - beim gruppenanlegen das Feld description nutzen
    - remove options smbroot in sophomorix-add
    - option gidnumber in sophomorix-useradd tut noch nicht
@@ -1032,6 +941,44 @@ Test am 29.11.2005:
    - smbldap-usershow entspricht in etwa sophomorix-user
    - crypt zu md5 (Passwort-decription)
    - system() in perl mit sysrun tauschen (oder noch besseres)
+
+
+
+
+
+
+
+
+
+1.4.8-1 (2006-02-xx)
+
+   - smbpasswd -w password in sophomorix-setup-pgldap
+     holt ldappassword aus /etc/sophomorix/pgldap/pgldap.conf
+     (holen aus debconf noch testen)
+       
+   - added field mailquota
+   - added table projects_groups
+   - added table projects_admins
+
+
+   - Windows user Administrator added
+
+
+   - Windows groupnames without blanks:
+     unix-group: non capital letters
+
+     Windows             Linux       unix-id
+     ==================================================
+     domain:
+       Domain Admins       domadmins    gid 512
+       Domain Users        domusers     gid 513
+       Domain Guests       domguests
+       Domain Computers    
+       ...
+
+   - sophomorix sees all accounts with NULL sophomorixstatus as
+     permanent accounts (i.e. all users added by smbldaptools, ...)
+
 
 
 1.4.7-1 (2006-01-29)

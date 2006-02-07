@@ -172,6 +172,20 @@ if ($internip_debconf ne 0){
 }
 
 
+# ldap password
+#------------------------------------------------------------
+my $internip_debconf=&get_debconf_value("linuxmuster-base", "ldapadminpw",0);
+# process debconf data
+if ($internip_debconf ne 0){
+    # from debconf
+    $ldappassword=$internip_debconf;    
+    print "   Internal IP from debconf    :   $ldappassword \n";
+} else {
+    # from config file
+    print "   Internal IP from pgldap.conf:   $ldappassword \n";
+}
+
+
 
 } # end $config_file==0
 
@@ -397,7 +411,8 @@ system("sed $replace ${template}/bdb/DB_CONFIG > $db_config");
 
 
 # Set password in /var/lib/samba/secrets.tdb
-system("smbpasswd -w server");
+#system("smbpasswd -w server");
+system("smbpasswd -w $ldappassword");
 # Set password in /var/lib/samba/secrets.tdb
 
 
@@ -729,6 +744,8 @@ sub set_ldap_suffix_pg {
        my $sql="";
        print "\nUpdating sldap suffix in the postgres databast to $suffix \n";
     
+
+       # updating ldap_entries
        my $sth= $dbh->prepare( "SELECT dn,id FROM ldap_entries" );
           $sth->execute();
 
@@ -747,7 +764,13 @@ sub set_ldap_suffix_pg {
           #print $sql,"\n";
           $dbh->do($sql);
           $i++;
-       }   
+       }
+       
+       # updating institutes
+       # what about bsz.local.domain.de or so?
+
+
+   
     }
 }
 
