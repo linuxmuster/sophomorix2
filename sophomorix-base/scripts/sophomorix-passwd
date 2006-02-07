@@ -103,7 +103,7 @@ my $info_line="";
 my $testopt=GetOptions(
            "login|user|u|l=s" => \$loginname,
            "class|klasse|c|k=s" => \$classes,
-           "pupil|pupils" => \$pupil,
+           "students" => \$pupil,
            "room|=s" => \$rooms,
            "workstations|workstation|ws" => \$ws,
            "password|p=s" => \$password,
@@ -143,7 +143,7 @@ Options
   --plength number
   -l  login1, ... / --login login1, .../ -u login1, ... / --user login1, ...
   -c class / --class class 
-  --pupils
+  --students
   -r room / --room room
   --workstations
 
