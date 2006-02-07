@@ -207,7 +207,7 @@ CREATE TABLE posix_account_details (
     sophomorixstatus character varying(255),
     accountstatus boolean,
     quota character varying(255),
-    mailquota character integer,
+    mailquota integer,
     firstpassword character varying(255),
     internetstatus boolean,
     emailstatus boolean,
