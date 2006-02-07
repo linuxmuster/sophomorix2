@@ -37,14 +37,17 @@ my $ldappassword="";
 my $dbpassword="";
 my $dbname="";
 
+my $info=0;
 my $help=0;
 my $new_database=0;
 my $keep_database=0;
-
+my $config_file=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
            "help|h" => \$help,
+           "info|i" => \$info,
+           "configfile" => \$config_file,
            "new-database" => \$new_database,
            "keep-database" => \$keep_database,
           );
@@ -70,6 +73,8 @@ if ($help==1) {
    print('
 Options
   -h  / --help
+  -i  / --info      show values used for configuration, do nothing
+  --configfile      use values from /etc/sophomorix/pgldap/pgldap.conf
   --new-database    deletes the database and creates a new one (Dangerous!!)
   --keep-database   do not drop the database, keep it unmodified
 ');
@@ -109,6 +114,8 @@ if (-e $config_file) {
 ############################################################
 # get debconf data, one by one
 ############################################################
+
+if ($config_file==0){
 
 # domainname
 #------------------------------------------------------------
@@ -165,6 +172,23 @@ if ($internip_debconf ne 0){
 }
 
 
+
+} # end $config_file==0
+
+
+
+
+
+
+
+
+
+
+
+if ($info==1){
+    # show values only
+    exit;
+}
 
 
 
