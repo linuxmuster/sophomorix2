@@ -231,6 +231,11 @@ while(<KILL>){
         print("Klasse:              $linux_gruppe_to_kill\n\n");
       } 
 
+      # tschmitt: delete cyrus user
+      if (-s "/usr/lib/linuxmuster/bin/cyrus-user.pl") {
+        system("/usr/lib/linuxmuster/bin/cyrus-user.pl -u $login_name_to_kill -d");
+      }
+
       # Jetzt wird gelöscht
       &delete_user_from_sys($login_name_to_kill);
       
