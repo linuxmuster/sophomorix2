@@ -35,6 +35,7 @@ my $sid="";
 my $smbserverstring="";
 my $dbpassword="";
 my $dbname="";
+my $ldappw="";
 
 my $info=0;
 my $help=0;
@@ -43,14 +44,6 @@ my $keep_database=0;
 my $config_file=0;
 
 
-my $ldappassword="";
-# Zufallsnummer erzeugen
-$random = int( rand(51)) + 25;
-
-print $random,"\n";
-
-exit;
-
 
 
 # Parsen der Optionen
@@ -58,6 +51,7 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
            "configfile" => \$config_file,
+           "ldappw|ldappassword=s" => \$ldappw,
            "new-database" => \$new_database,
            "keep-database" => \$keep_database,
           );
@@ -67,9 +61,15 @@ my $testopt=GetOptions(
 &check_options($testopt);
 
 
+my $ldappassword = "";
 
-
-
+if ($ldappw ne ""){
+    # use password given as option
+    $ldappassword = $ldappw;
+} else {
+    # Zufallsnummer als password erzeugen
+    $ldappassword = int( rand(9999999999)) + 9999999999;
+}
 
 
 
@@ -84,9 +84,17 @@ if ($help==1) {
 Options
   -h  / --help
   -i  / --info      show values used for configuration, do nothing
+
+What settings to use:
   --configfile      use values from /etc/sophomorix/pgldap/pgldap.conf
+
+How to handle the database
   --new-database    deletes the database and creates a new one (Dangerous!!)
   --keep-database   do not drop the database, keep it unmodified
+
+What passwords to use:
+  --ldappw string   use string as ldap rootdn password 
+    (Standard password is a random 10 digit number)
 ');
    print "\n";
    exit;
@@ -116,6 +124,7 @@ if (-e $config_file) {
    $smbworkgroup=$PgLdapConf::smbworkgroup;
    $smbserverstring=$PgLdapConf::smbserverstring;
    $internip=$PgLdapConf::internip;
+# $ldappassword is a generated number now
 #   $ldappassword=$PgLdapConf::ldappassword;
    $dbpassword=$PgLdapConf::dbpassword;
    $dbname=$PgLdapConf::dbname;
@@ -183,6 +192,9 @@ if ($internip_debconf ne 0){
 
 
 } # end $config_file==0
+
+
+    print "   ldappasword (random number) :   ********** \n";
 
 
 
