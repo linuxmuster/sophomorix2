@@ -58,6 +58,11 @@ CREATE TABLE groups_users (
     memberuid integer NOT NULL
 );
 
+CREATE TABLE projects_groups (
+    projectid integer NOT NULL,
+    gidnumber integer NOT NULL
+);
+
 
 --
 -- TOC entry 8 (OID 64405)
@@ -202,6 +207,7 @@ CREATE TABLE posix_account_details (
     sophomorixstatus character varying(255),
     accountstatus boolean,
     quota character varying(255),
+    mailquota character integer,
     firstpassword character varying(255),
     internetstatus boolean,
     emailstatus boolean,
