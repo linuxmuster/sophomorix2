@@ -558,14 +558,10 @@ select groups_users.gidnumber,memberuid,uid from groups_users,posix_account wher
 
 
 
-Table groups_managers
+Table projects_admins
 
-Zusatzeintrag, wenn sich lehrer zum admin (manager) einer Gruppe macht.
-
-
+Zusatzeintrag, wenn sich lehrer zum admin (manager) einer Gruppe macht.?
 project_details Attribut: teachers wird auch in groups_managers eingetragen.
-
-
 (evtl. Driites Feld um festzuhalten wie diese Mitgliedschaft zustande kam)
 
 
@@ -620,9 +616,9 @@ IMAP To do
 ############################################################
 
 imap:  call
-system("su --command='mkmaildir' postgres")
-
-check if dir exists /var/lib/imap
+system("su --command='mkmaildir' postgres")   ????????
+ 
+check if dir exists /var/lib/cyrus  ??? kommt mit paket
 
 paket: cyrus21-imapd
 
