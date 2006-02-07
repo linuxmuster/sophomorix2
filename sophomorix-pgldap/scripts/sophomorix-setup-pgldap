@@ -33,7 +33,6 @@ my $smbworkgroup="";
 my $internip="";
 my $sid="";
 my $smbserverstring="";
-my $ldappassword="";
 my $dbpassword="";
 my $dbname="";
 
@@ -42,6 +41,17 @@ my $help=0;
 my $new_database=0;
 my $keep_database=0;
 my $config_file=0;
+
+
+my $ldappassword="";
+# Zufallsnummer erzeugen
+$random = int( rand(51)) + 25;
+
+print $random,"\n";
+
+exit;
+
+
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -106,7 +116,7 @@ if (-e $config_file) {
    $smbworkgroup=$PgLdapConf::smbworkgroup;
    $smbserverstring=$PgLdapConf::smbserverstring;
    $internip=$PgLdapConf::internip;
-   $ldappassword=$PgLdapConf::ldappassword;
+#   $ldappassword=$PgLdapConf::ldappassword;
    $dbpassword=$PgLdapConf::dbpassword;
    $dbname=$PgLdapConf::dbname;
 }
@@ -170,21 +180,6 @@ if ($internip_debconf ne 0){
     # from config file
     print "   Internal IP from pgldap.conf:   $internip \n";
 }
-
-
-# ldap password
-#------------------------------------------------------------
-my $internip_debconf=&get_debconf_value("linuxmuster-base", "ldapadminpw",0);
-# process debconf data
-if ($internip_debconf ne 0){
-    # from debconf
-    $ldappassword=$internip_debconf;    
-    print "   Internal IP from debconf    :   $ldappassword \n";
-} else {
-    # from config file
-    print "   Internal IP from pgldap.conf:   $ldappassword \n";
-}
-
 
 
 } # end $config_file==0
