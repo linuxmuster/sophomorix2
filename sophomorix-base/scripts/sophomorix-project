@@ -34,6 +34,8 @@ use if ${DevelConf::db_backend} eq 'files' ,
 # list of functions to load if db is 'pgldap'
 use if ${DevelConf::db_backend} eq 'pgldap' , 
     'Sophomorix::SophomorixPgLdap' => qw(show_modulename
+                                        db_connect
+                                        db_disconnect
                                         check_connections
                                         show_project_list
                                         create_project_db
@@ -200,29 +202,21 @@ sub create_project {
     my @new_teachers=();
     my @new_groups=();
     my %seen=();
-    open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects_db");
-    while(<PROJECT>){
-       my @line=split(/;/);
-       if ($line[0] eq $project){
-           $found=1;
-	   $project_data{"Name"} = $line[0];
-	   $project_data{"LongName"} = $line[1];
-	   $project_data{"Teachers"} = $line[2];
-	   $project_data{"Members"} = $line[3];
-	   $project_data{"MemberGroups"} = $line[4];
-	   $project_data{"AddQuota"} = $line[5];
-	   $project_data{"MaxMembers"} = $line[6];
-       }
-    }
-    close(PROJECT);
-    # exit, if not found
-    if ($found==0){
+    my $dbh=&db_connect();
+    my (@line)= $dbh->selectrow_array( 
+                                        "SELECT gid,displayname,teachers,
+                                                members,membergroups,addquota,
+                                                maxmembers 
+                                         FROM projectdata 
+                                         WHERE gid='$project'
+                                        ");
+    if (not defined $line[0]){
         print "Could not find project $project.\n";
 	exit;
     }
     print "\nCreating/Updating Project $project: \n";
     #make sure that group exists
-    system("groupadd $project");
+#    system("groupadd $project");
     # make sure that the share die exists
 #    &check_verzeichnis_mkdir("/home/tausch/projects");
 #    &check_verzeichnis_mkdir("/home/tausch/projects/${project}");
@@ -237,11 +231,22 @@ sub create_project {
     print "   Old users: @old_users\n";
 
     # Adding all users from project.db into a hash
-    %users_to_add=&get_user_project($project,
-                                    $project_data{"Teachers"},
-                                    $project_data{"Members"},
-                                    $project_data{"MemberGroups"}
-                                   );
+
+    my @new_members=split(/,/,$p_members);
+
+    foreach my $memb (@new_members){
+	$users_to_add{$memb};
+      #  print $memb,"\n";
+    }
+
+#    %users_to_add=&get_user_project($project,
+#                                    $project_data{"Teachers"},
+#                                    $project_data{"Members"},
+#                                    $project_data{"MemberGroups"}
+#                                   );
+
+    &db_disconnect($dbh);
+
 
     # show the hash
     if($Conf::log_level>=3){
