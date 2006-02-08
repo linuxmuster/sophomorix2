@@ -832,7 +832,7 @@ change quota with cyrus-user.pl -u user -q quota
   (Wo steht, dass -w -> gecos = Computer)
 
 
-
+??? Funktion get_pupils_school mit get_students_school ersetzen.
 
 
 
@@ -871,7 +871,6 @@ change quota with cyrus-user.pl -u user -q quota
    backpgsql zusätzlich im slapd -lml paket von Thomas S.
 
 
-   SAMBA: user.map-datei nach /etc/samba
 
 
 
@@ -882,7 +881,7 @@ change quota with cyrus-user.pl -u user -q quota
         ldap vorher beenden.
 
 
-        In Arbeit (tho)
+        In Arbeit (tho):
         function  manual_delete_group (deletes a group altogether from the database)
 
 
@@ -942,7 +941,8 @@ change quota with cyrus-user.pl -u user -q quota
    - crypt zu md5 (Passwort-decription)
    - system() in perl mit sysrun tauschen (oder noch besseres)
 
-
+   - updating sophomorix-user -i to show workstations and get not 
+     confused by them
 
 
 
@@ -952,9 +952,12 @@ change quota with cyrus-user.pl -u user -q quota
 
 1.4.8-1 (2006-02-xx)
 
+   - counting students,teachers,and others when using sophomorix-user -i
+
    - smbpasswd -w password in sophomorix-setup-pgldap
-     holt ldappassword aus /etc/sophomorix/pgldap/pgldap.conf
-     (holen aus debconf noch testen)
+     - creates random rootdn password
+     - or user password given with option ldappw
+     (the ldap password is not stored in debconf anymore)
        
    - added field mailquota
    - added table projects_groups
@@ -975,6 +978,10 @@ change quota with cyrus-user.pl -u user -q quota
        Domain Guests       domguests
        Domain Computers    
        ...
+
+     this is working now. 
+       possibility of user.map-datei refered in smb.conf was dropped
+
 
    - sophomorix sees all accounts with NULL sophomorixstatus as
      permanent accounts (i.e. all users added by smbldaptools, ...)
