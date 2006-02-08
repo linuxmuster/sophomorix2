@@ -1500,9 +1500,7 @@ sub user_reaktivieren {
 sub create_project_db {
     # fist argument is options
     my $project=shift;
-
     my $sql="";
-
     my $create=0;
     my $param="";
 #    my $login_file="";
@@ -1510,89 +1508,54 @@ sub create_project_db {
     my $old_line="";
     my $new_line="";
     my $count=0;
-    my ($p_name,$p_long_name,$p_teachers,$p_members,$p_member_groups,
-        $p_add_quota,$p_max_members)=(),
-
     my $file="${DevelConf::protokoll_pfad}/projects_db";
-
     foreach $param (@_){
        ($attr,$value) = split(/=/,$param);
        if ($attr eq "File"){$file="$value"}
        if ($attr eq "Create"){$create=1}
     } 
 
+    my $dbh=&db_connect();
 
-#####
-    open(TMP, ">$file.tmp");
-    open(FILE, "<$file");
-    while(<FILE>){
-        $old_line=$_;
-	($project_name_file)=split(/;/);
-#####
+    my ($id_db,$p_name,$p_long_name,$p_teachers,$p_members,$p_member_groups,
+    $p_add_quota,$p_max_members)= $dbh->selectrow_array( 
+                                        "SELECT id,gid,displayname,teachers,
+                                                members,membergroups,addquota,
+                                                maxmembers 
+                                         FROM projectdata 
+                                         WHERE gid='$project'
+                                        ");
 
+# if project exists
+if (defined $id_db and defined $p_name){
+    print "Project $project is an existing project -> UPDATING\n";
+    printf "   %-18s : %-20s\n","Name" ,$project;
+    if (not defined $p_name){$p_name=$project}
+    if (not defined $p_long_name){$p_long_name=$p_name}
+    if (not defined $p_teachers){$p_teachers=""}
+    if (not defined $p_members){$p_members=""}
+    if (not defined $p_member_groups){$p_member_groups=""}
+    if (not defined $p_add_quota){$p_add_quota=""}
+    if (not defined $p_max_members){$p_max_members=""}
+    $count++;
 
-            # exists project
-        if ($project eq $project_name_file){
-           # found the line
-	    chomp();
-	    print "Project $project is an existing project -> UPDATING\n";
-            printf "   %-18s : %-20s\n","Name" ,$project;
-           ($p_name,$p_long_name,$p_teachers,$p_members,$p_member_groups,
-            $p_add_quota,$p_max_members)=split(/;/);
-           if (not defined $p_name){$p_name=$project}
-           if (not defined $p_long_name){$p_long_name=$p_name}
-           if (not defined $p_teachers){$p_teachers=""}
-           if (not defined $p_members){$p_members=""}
-           if (not defined $p_member_groups){$p_member_groups=""}
-           if (not defined $p_add_quota){$p_add_quota=""}
-           if (not defined $p_max_members){$p_max_members=""}
-           $count++;
-           # Check of Parameters
-           foreach $param (@_){
-              ($attr,$value) = split(/=/,$param);
-              printf "   %-18s : %-20s\n",$attr ,$value;
-              if    ($attr eq "Name"){$p_name="$value"}
-              elsif ($attr eq "LongName"){$p_long_name="$value"}
-              elsif ($attr eq "Teachers"){$p_teachers="$value"}
-              elsif ($attr eq "Members"){$p_members="$value"}
-              elsif ($attr eq "MemberGroups"){$p_member_groups="$value"}
-              elsif ($attr eq "AddQuota"){$p_add_quota="$value"}
-              elsif ($attr eq "MaxMembers"){$p_max_members="$value"}
-              elsif ($attr eq "File"){$file="$value"}
-              elsif ($attr eq "Create"){$create=1}
-              else {print "Attribute $attr unknown\n"}
-	  }
-
-
-
-#####
-          # change the Line
-          $new_line=$p_name.";".$p_long_name.";".$p_teachers.";".
-                    $p_members.";".$p_member_groups.";".$p_add_quota.";".
-                    $p_max_members.";\n";
-          print "OLD Line:   $old_line";
-          print "NEW Line:   $new_line";
-          print TMP "$new_line";         
-#####^
-
-
-        } else {
-#####
-            print TMP "$old_line";
-#####^
-        }
+    # Check of Parameters
+    foreach $param (@_){
+       ($attr,$value) = split(/=/,$param);
+       printf "   %-18s : %-20s\n",$attr ,$value;
+       if    ($attr eq "Name"){$p_name="$value"}
+       elsif ($attr eq "LongName"){$p_long_name="$value"}
+       elsif ($attr eq "Teachers"){$p_teachers="$value"}
+       elsif ($attr eq "Members"){$p_members="$value"}
+       elsif ($attr eq "MemberGroups"){$p_member_groups="$value"}
+       elsif ($attr eq "AddQuota"){$p_add_quota="$value"}
+       elsif ($attr eq "MaxMembers"){$p_max_members="$value"}
+       elsif ($attr eq "File"){$file="$value"}
+       elsif ($attr eq "Create"){$create=1}
+       else {print "Attribute $attr unknown\n"}
     }
-    # new file is in *.tmp
-    if ($count==1){
-        # one line found -> updating the project
-	close(FILE);
-	close(TMP);
-       system("mv $file.tmp $file");  
-    } elsif ($count==0 and $create==1){ 
-
-
-
-        # 0 lines found -> creating the project
+} else {
+# project doesnt exist -> creating the project
         print "Project $project is nonexisting -> CREATING\n";
         $p_name=$project;
         printf "   %-18s : %-20s\n","Name" ,$project;
@@ -1618,12 +1581,8 @@ sub create_project_db {
         if (not defined $p_max_members){$p_max_members="NULL"}
 
         # insert new project
-
         my $gidnumber=&create_class_db_entry($project,2);
-
-        my $dbh=&db_connect();
-
-        # fetching tha table id
+        # fetching the table id
         my ($id)= $dbh->selectrow_array( "SELECT id 
                                           FROM groups 
                                           WHERE gidnumber=$gidnumber" );
@@ -1643,22 +1602,8 @@ sub create_project_db {
            print "SQL: $sql\n";
         }
         $dbh->do($sql);
-
-        &db_disconnect($dbh);
-
-        $new_line=$p_name.";".$p_long_name.";".$p_teachers.";".
-                  $p_members.";".$p_member_groups.";".$p_add_quota.";".
-                  $p_max_members.";\n";
-        print "OLD Line:   $old_line";
-        print "NEW Line:   $new_line";
-        print TMP "$new_line";         
-	close(FILE);
-        close(TMP);
-        system("mv $file.tmp $file");  
-    } elsif ($count==0){
-        print "Project $project is nonexisting -> I do nothing\n";
-        print "Use --create to create the project\n";
-    }
+} # end creating the project
+    &db_disconnect($dbh);
     return $count;
 }
 
