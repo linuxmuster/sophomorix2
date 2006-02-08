@@ -178,45 +178,6 @@ sub get_user_adminclass {
 }
 
 
-
-sub get_user_adminclass_oldstuff {
-    my ($klasse) = @_;
-    my @pwliste=();
-    my @userliste=();
-    if ($klasse eq "" or not defined $klasse){
-        print "No class given\n",
-	return @userliste;
-    } else {
-      # Group-ID ermitteln
-      my ($a,$b,$gid) = getgrnam $klasse; 
-      #print"Info: Group-ID der Gruppe $klasse ist $gid<p>\n";
-      if (not defined $gid){
-        return @userliste;
-      } else {
-        # alle Schüler in dieser Gruppe heraussuchen
-        setpwent();
-        while (@pwliste=getpwent()) {
-        #print"$pwliste[7]\n";  # Das 8. Element ist das Home-Verzeichnis
-
-#         if (($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/pupil\// ) or
-#             ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/teacher\// )) {
-         if (($pwliste[3] eq $gid && $pwliste[7]=~/^$DevelConf::homedir_pupil/) or
-             ($pwliste[3] eq $gid && $pwliste[7]=~/^$DevelConf::homedir_teacher/)) {
-             push(@userliste, $pwliste[0]);
-             #print "$pwliste[3]";
-         }
-        }
-        endpwent();
-
-        # Alphabetisch ordnen
-        @userliste=sort @userliste;
-        return @userliste;
-      } 
-  }
-}
-
-
-
 =pod
 
 =item I<@list = get_pupils_school()>
