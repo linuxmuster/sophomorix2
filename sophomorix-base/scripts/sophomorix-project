@@ -226,8 +226,10 @@ sub create_project {
 #    &check_verzeichnis_mkdir("${DevelConf::share_projects}/${project}");
  
     # the old users
-    ($a,$a,$a,$old_users)=getgrnam("$project");
-    @old_users=split(/ /, $old_users);
+    #($a,$a,$a,$old_users)=getgrnam("$project");
+    #@old_users=split(/ /, $old_users);
+    @old_users=&fetchuser_pgldap($project);
+
     print "   Old users: @old_users\n";
 
     # Adding all users from project.db into a hash
@@ -235,8 +237,8 @@ sub create_project {
     my @new_members=split(/,/,$p_members);
 
     foreach my $memb (@new_members){
-	$users_to_add{$memb};
-      #  print $memb,"\n";
+	$users_to_add{ $memb }="";
+        # print $memb,"\n";
     }
 
 #    %users_to_add=&get_user_project($project,
@@ -254,7 +256,7 @@ sub create_project {
        print "Login:          Listed in:\n";
        print "=======================================",
              "=======================================\n";
-       while (($k,$v) = each %users_to_add){
+       while (my ($k,$v) = each %users_to_add){
           printf "%-14s %-40s\n","$k","$v";
        }
     }
@@ -273,7 +275,8 @@ sub create_project {
             print "     User $user has left Project $project,",
                   " removing $user\n";
          }
-         system("gpasswd -d $user $project");
+         #system("gpasswd -d $user $project");
+	 &deleteuser_pgldap($user,$project);
          &remove_share_link($user,$project);
        } 
     }    
@@ -288,7 +291,8 @@ sub create_project {
     # adding the users
     foreach my $user (@users_to_add) {
        if ($user eq "root"){next;}
-       system("adduser $user $project");
+       &adduser_pgldap($user,$project);
+
        # create a link
        &create_share_link($user,$project);
     }
@@ -296,3 +300,83 @@ sub create_project {
 }
 
 
+
+sub fetchuser_pgldap {
+    my ($group) = @_;
+    my @userlist=();
+    my $dbh=&db_connect();
+ 
+    # fetching gid
+    my ($gidnumber_sys)= $dbh->selectrow_array( "SELECT gidnumber 
+                                         FROM groups 
+                                         WHERE gid='$group'");
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT memberuid 
+                            FROM groups_users 
+                            WHERE gidnumber=$gidnumber_sys 
+                           " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+       # split the array, to give better names
+       my ($uidnumber)=@$row;
+       # fetching uid
+       my ($uid_sys)= $dbh->selectrow_array( "SELECT uid 
+                                         FROM posix_account 
+                                         WHERE uidnumber=$uidnumber");
+       push @userlist, $uid_sys;
+    }
+    &db_disconnect($dbh);
+    return @userlist;
+}
+
+
+
+sub deleteuser_pgldap {
+    my ($user,$project)=@_;
+    my $dbh=&db_connect();
+    # fetching gidnumber
+    my ($gidnumber_sys)= $dbh->selectrow_array( "SELECT gidnumber 
+                                         FROM groups 
+                                         WHERE gid='$project'");
+    # fetching uidnumber
+    my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
+                                         FROM posix_account 
+                                         WHERE uid='$user'");
+    print "   Removing user $user($uidnumber_sys) from $project($gidnumber_sys) \n";
+    my $sql="DELETE FROM groups_users 
+             WHERE memberuid=$uidnumber_sys ";	
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    $dbh->do($sql);
+    &db_disconnect($dbh);
+
+}
+
+
+
+sub adduser_pgldap {
+    my ($user,$project)=@_;
+    my $dbh=&db_connect();
+    # fetching gidnumber
+    my ($gidnumber_sys)= $dbh->selectrow_array( "SELECT gidnumber 
+                                         FROM groups 
+                                         WHERE gid='$project'");
+    # fetching uidnumber
+    my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
+                                         FROM posix_account 
+                                         WHERE uid='$user'");
+
+    print "   Adding user $user($uidnumber_sys) to $project($gidnumber_sys) \n";
+    my $sql="INSERT INTO groups_users
+            (gidnumber,memberuid)
+	    VALUES
+	    ($gidnumber_sys,'$uidnumber_sys')";	
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    $dbh->do($sql);
+
+    &db_disconnect($dbh);
+}
