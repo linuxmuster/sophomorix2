@@ -98,14 +98,12 @@ my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
            "Name|project|p=s" => \$project,
            "LongName=s" => \$long_name,
-           "Teachers=s" => \$p_admins,
+           "Admins=s" => \$p_admins,
            "Members=s" => \$p_members,
            "MemberGroups=s" => \$p_groups,
            "AddQuota=s" => \$p_add_quota,
            "MaxMembers=s" => \$p_max_members,
           );
-
-print "p_members:  $p_members \n";
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
@@ -129,7 +127,7 @@ Options
   -p projectname, / --project projectname 
   -- create 
   --LongName projectname(long)
-  --Teachers user1,user2,user3, ... 
+  --Admins user1,user2,user3, ... 
   --Members user1,user2,user3, ... 
   --MemberGroups group1,group2,group3, ... 
   --AddQuota quotastring
@@ -160,7 +158,7 @@ if ($project eq "" or $info==1){
 # Options-Liste Füllen, falls angegeben
 push @options, $project;
 if (defined $long_name){push @options, "LongName=$long_name"}
-if (defined $p_admins){push @options, "Teachers=$p_admins"}
+if (defined $p_admins){push @options, "Admins=$p_admins"}
 if (defined $p_members){push @options, "Members=$p_members"}
 if (defined $p_groups){push @options, "MemberGroups=$p_groups"}
 if (defined $p_add_quota){push @options, "AddQuota=$p_add_quota"}
@@ -202,7 +200,7 @@ sub create_project {
     # reads from projects_db and creates the project in the system
     my ($project) = @_;
     my $found=0;
-    my %project_data=();
+#    my %project_data=();
     my %users_to_add=();
     my %admins_to_add=();
     my @users_to_add=();
@@ -210,10 +208,14 @@ sub create_project {
     my $old_users="";
     my @old_users=();
     my @old_admins=();
-    my @new_users=();
     my @new_teachers=();
     my @new_groups=();
     my %seen=();
+
+    my @new_members=();
+    my @new_admins=();
+    my @new_users=();
+
     my $dbh=&db_connect();
     my (@line)= $dbh->selectrow_array( 
                                         "SELECT gid,displayname,teachers,
@@ -248,11 +250,21 @@ sub create_project {
 
     # Adding all users from project.db into a hash
 
-    my @new_members=split(/,/,$p_members);
-    my @new_admins=split(/,/,$p_admins);
-    my @new_users=(@new_members,@new_admins);
 
-    print @new_users,"\n";
+    if (defined $p_members){
+        @new_members=split(/,/,$p_members);
+    } else {
+	@new_members=@old_users;
+    }
+ 
+    if (defined $p_admins){
+        @new_admins=split(/,/,$p_admins);
+    } else {
+        @new_admins=@old_admins;          
+    }
+
+    @new_users=(@new_members,@new_admins);
+
 
 #    foreach my $memb (@new_members){
     foreach my $memb (@new_users){
@@ -262,7 +274,7 @@ sub create_project {
 
     foreach my $admin (@new_admins){
 	$admins_to_add{ $admin }="";
-         print $admin,"\n";
+        # print $admin,"\n";
     }
 
 #    %users_to_add=&get_user_project($project,

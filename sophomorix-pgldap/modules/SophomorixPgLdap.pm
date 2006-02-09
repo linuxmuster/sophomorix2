@@ -256,7 +256,7 @@ sub deleteadmin_from_project {
                                          FROM posix_account 
                                          WHERE uid='$user'");
     print "   Removing admin $user($uidnumber_sys) from ",
-          "$project($gidnumber_sys) \n";
+          "$project($project_id_sys) \n";
     my $sql="DELETE FROM projects_admins 
              WHERE (uidnumber=$uidnumber_sys AND projectid=$project_id_sys) 
              ";	
@@ -1767,7 +1767,7 @@ if (defined $id_db and defined $p_name){
        printf "   %-18s : %-20s\n",$attr ,$value;
        if    ($attr eq "Name"){$p_name="$value"}
        elsif ($attr eq "LongName"){$p_long_name="$value"}
-       elsif ($attr eq "Teachers"){$p_teachers="$value"}
+       elsif ($attr eq "Admins"){$p_teachers="$value"}
        elsif ($attr eq "Members"){$p_members="$value"}
        elsif ($attr eq "MemberGroups"){$p_member_groups="$value"}
        elsif ($attr eq "AddQuota"){$p_add_quota="$value"}
@@ -1785,7 +1785,7 @@ if (defined $id_db and defined $p_name){
            ($attr,$value) = split(/=/,$param);
            printf "   %-18s : %-20s\n",$attr ,$value;
            if ($attr eq "LongName"){$p_long_name="$value"}
-           elsif ($attr eq "Teachers"){$p_teachers="$value"}
+           elsif ($attr eq "Admins"){$p_teachers="$value"}
            elsif ($attr eq "Members"){$p_members="$value"}
            elsif ($attr eq "MemberGroups"){$p_member_groups="$value"}
            elsif ($attr eq "AddQuota"){$p_add_quota="$value"}
@@ -1880,7 +1880,7 @@ sub create_project_db_oldstuff {
               printf "   %-18s : %-20s\n",$attr ,$value;
               if    ($attr eq "Name"){$p_name="$value"}
               elsif ($attr eq "LongName"){$p_long_name="$value"}
-              elsif ($attr eq "Teachers"){$p_teachers="$value"}
+              elsif ($attr eq "Admins"){$p_teachers="$value"}
               elsif ($attr eq "Members"){$p_members="$value"}
               elsif ($attr eq "MemberGroups"){$p_member_groups="$value"}
               elsif ($attr eq "AddQuota"){$p_add_quota="$value"}
@@ -1915,7 +1915,7 @@ sub create_project_db_oldstuff {
            ($attr,$value) = split(/=/,$param);
            printf "   %-18s : %-20s\n",$attr ,$value;
            if ($attr eq "LongName"){$p_long_name="$value"}
-           elsif ($attr eq "Teachers"){$p_teachers="$value"}
+           elsif ($attr eq "Admins"){$p_teachers="$value"}
            elsif ($attr eq "Members"){$p_members="$value"}
            elsif ($attr eq "MemberGroups"){$p_member_groups="$value"}
            elsif ($attr eq "AddQuota"){$p_add_quota="$value"}
@@ -2289,7 +2289,7 @@ sub check_sophomorix_user_oldstuff {
 
 sub show_project_list {
    print "The following projects exist already:\n\n";
-   printf "%-16s %-16s %-9s %-40s\n","Name:", "Teachers", "AddQuota", "LongName:";
+   printf "%-16s %-16s %-9s %-40s\n","Name:", "Admins", "AddQuota", "LongName:";
    print "=======================================",
          "=======================================\n";
     my $dbh=&db_connect();
@@ -2333,7 +2333,7 @@ sub show_project_list {
 sub show_project_list_oldstuff {
    open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects_db") || die "Fehler: $!";
    print "The following projects exist already:\n\n";
-   printf "%-16s %-16s %-9s %-40s\n","Name:", "Teachers", "AddQuota", "LongName:";
+   printf "%-16s %-16s %-9s %-40s\n","Name:", "Admins", "AddQuota", "LongName:";
 
    print "=======================================",
          "=======================================\n";
