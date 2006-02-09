@@ -63,6 +63,11 @@ CREATE TABLE projects_groups (
     gidnumber integer NOT NULL
 );
 
+CREATE TABLE projects_admins (
+    projectid integer NOT NULL,
+    uidnumber integer NOT NULL
+);
+
 
 --
 -- TOC entry 8 (OID 64405)
