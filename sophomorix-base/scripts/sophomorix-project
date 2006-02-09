@@ -102,8 +102,11 @@ my $testopt=GetOptions(
            "MaxMembers=s" => \$p_max_members,
           );
 
+print "p_members:  $p_members \n";
+
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
+
 
 # --help
 if ($help==1) {
@@ -302,104 +305,3 @@ sub create_project {
 
 }
 
-
-
-sub fetchuser_from_project {
-    my ($group) = @_;
-    my @userlist=();
-    my $dbh=&db_connect();
- 
-    # fetching gid
-    my ($gidnumber_sys)= $dbh->selectrow_array( "SELECT gidnumber 
-                                         FROM groups 
-                                         WHERE gid='$group'");
-    # select the columns that i need
-    my $sth= $dbh->prepare( "SELECT memberuid 
-                            FROM groups_users 
-                            WHERE gidnumber=$gidnumber_sys 
-                           " );
-    $sth->execute();
-    my $array_ref = $sth->fetchall_arrayref();
-    foreach my $row (@$array_ref){
-       # split the array, to give better names
-       my ($uidnumber)=@$row;
-       # fetching uid
-       my ($uid_sys)= $dbh->selectrow_array( "SELECT uid 
-                                         FROM posix_account 
-                                         WHERE uidnumber=$uidnumber");
-       push @userlist, $uid_sys;
-    }
-    &db_disconnect($dbh);
-    return @userlist;
-}
-
-
-
-sub deleteuser_from_project {
-    my ($user,$project)=@_;
-    my $dbh=&db_connect();
-    # fetching gidnumber
-    my ($gidnumber_sys)= $dbh->selectrow_array( "SELECT gidnumber 
-                                         FROM groups 
-                                         WHERE gid='$project'");
-    # fetching uidnumber
-    my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
-                                         FROM posix_account 
-                                         WHERE uid='$user'");
-    print "   Removing user $user($uidnumber_sys) from $project($gidnumber_sys) \n";
-    my $sql="DELETE FROM groups_users 
-             WHERE (memberuid=$uidnumber_sys AND gidnumber=$gidnumber_sys) 
-             ";	
-    if($Conf::log_level>=3){
-       print "\nSQL: $sql\n";
-    }
-    $dbh->do($sql);
-    &db_disconnect($dbh);
-
-}
-
-
-
-sub deleteuser_from_all_projects {
-    my ($user)=@_;
-    my $dbh=&db_connect();
-    # fetching uidnumber
-    my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
-                                         FROM posix_account 
-                                         WHERE uid='$user'");
-    print "   Removing user $user($uidnumber_sys) from all projects \n";
-    my $sql="DELETE FROM groups_users 
-             WHERE memberuid=$uidnumber_sys ";	
-    if($Conf::log_level>=3){
-       print "\nSQL: $sql\n";
-    }
-    $dbh->do($sql);
-    &db_disconnect($dbh);
-}
-
-
-
-sub adduser_to_project {
-    my ($user,$project)=@_;
-    my $dbh=&db_connect();
-    # fetching gidnumber
-    my ($gidnumber_sys)= $dbh->selectrow_array( "SELECT gidnumber 
-                                         FROM groups 
-                                         WHERE gid='$project'");
-    # fetching uidnumber
-    my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
-                                         FROM posix_account 
-                                         WHERE uid='$user'");
-
-    print "   Adding user $user($uidnumber_sys) to $project($gidnumber_sys) \n";
-    my $sql="INSERT INTO groups_users
-            (gidnumber,memberuid)
-	    VALUES
-	    ($gidnumber_sys,'$uidnumber_sys')";	
-    if($Conf::log_level>=3){
-       print "\nSQL: $sql\n";
-    }
-    $dbh->do($sql);
-
-    &db_disconnect($dbh);
-}
