@@ -12,8 +12,11 @@ require Exporter;
              db_disconnect
              check_connections
              adduser_to_project
+             addadmin_to_project
              fetchuser_from_project
+             fetchadmin_from_project
              deleteuser_from_project
+             deleteadmin_from_project
              deleteuser_from_all_project
 	     create_user_db_entry
              date_perl2pg
@@ -160,9 +163,43 @@ sub fetchuser_from_project {
                                          FROM groups 
                                          WHERE gid='$group'");
     # select the columns that i need
-    my $sth= $dbh->prepare( "SELECT memberuid 
+    my $sth= $dbh->prepare( "SELECT memberuidnumber 
                             FROM groups_users 
                             WHERE gidnumber=$gidnumber_sys 
+                           " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+       # split the array, to give better names
+       my ($uidnumber)=@$row;
+       # fetching uid
+       my ($uid_sys)= $dbh->selectrow_array( "SELECT uid 
+                                         FROM posix_account 
+                                         WHERE uidnumber=$uidnumber");
+       push @userlist, $uid_sys;
+    }
+    &db_disconnect($dbh);
+    return @userlist;
+}
+
+
+
+
+sub fetchadmin_from_project {
+    # return a list of uid of admins of the given project
+    my ($group) = @_;
+    my @userlist=();
+    my $dbh=&db_connect();
+ 
+    # fetching project_id
+    my ($pro_id_sys)= $dbh->selectrow_array( "SELECT id 
+                                         FROM groups 
+                                         WHERE gid='$group'");
+
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT uidnumber 
+                            FROM projects_admins 
+                            WHERE projectid=$pro_id_sys 
                            " );
     $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
@@ -195,7 +232,33 @@ sub deleteuser_from_project {
                                          WHERE uid='$user'");
     print "   Removing user $user($uidnumber_sys) from $project($gidnumber_sys) \n";
     my $sql="DELETE FROM groups_users 
-             WHERE (memberuid=$uidnumber_sys AND gidnumber=$gidnumber_sys) 
+             WHERE (memberuidnumber=$uidnumber_sys AND gidnumber=$gidnumber_sys) 
+             ";	
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    $dbh->do($sql);
+    &db_disconnect($dbh);
+
+}
+
+
+sub deleteadmin_from_project {
+    # remove admin from project
+    my ($user,$project)=@_;
+    my $dbh=&db_connect();
+    # fetching gidnumber
+    my ($project_id_sys)= $dbh->selectrow_array( "SELECT id 
+                                         FROM groups 
+                                         WHERE gid='$project'");
+    # fetching uidnumber
+    my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
+                                         FROM posix_account 
+                                         WHERE uid='$user'");
+    print "   Removing admin $user($uidnumber_sys) from ",
+          "$project($gidnumber_sys) \n";
+    my $sql="DELETE FROM projects_admins 
+             WHERE (uidnumber=$uidnumber_sys AND projectid=$project_id_sys) 
              ";	
     if($Conf::log_level>=3){
        print "\nSQL: $sql\n";
@@ -217,7 +280,7 @@ sub deleteuser_from_all_projects {
                                          WHERE uid='$user'");
     print "   Removing user $user($uidnumber_sys) from all projects \n";
     my $sql="DELETE FROM groups_users 
-             WHERE memberuid=$uidnumber_sys ";	
+             WHERE memberuidnumber=$uidnumber_sys ";	
     if($Conf::log_level>=3){
        print "\nSQL: $sql\n";
     }
@@ -243,7 +306,7 @@ sub adduser_to_project {
     if (defined $uidnumber_sys and defined $gidnumber_sys){
         print "   Adding user $user($uidnumber_sys) to $project($gidnumber_sys) \n";
         my $sql="INSERT INTO groups_users
-                (gidnumber,memberuid)
+                (gidnumber,memberuidnumber)
 	        VALUES
 	        ($gidnumber_sys,'$uidnumber_sys')";	
         if($Conf::log_level>=3){
@@ -256,6 +319,44 @@ sub adduser_to_project {
         }
         if (not defined $gidnumber_sys){
            print "   Group $project does not exist, doing nothing. \n";
+        }
+    }
+    &db_disconnect($dbh);
+}
+
+
+
+
+sub addadmin_to_project {
+    # add an admin to a project(group)
+    my ($user,$project)=@_;
+    my $dbh=&db_connect();
+    # fetching gidnumber
+    my ($project_id_sys)= $dbh->selectrow_array( "SELECT id 
+                                         FROM groups 
+                                         WHERE gid='$project'");
+    # fetching uidnumber
+    my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
+                                         FROM posix_account 
+                                         WHERE uid='$user'");
+
+    if (defined $uidnumber_sys and defined $project_id_sys){
+        print "   Adding user $user($uidnumber_sys) ", 
+              "to $project(id=$project_id_sys) as admin\n";
+        my $sql="INSERT INTO projects_admins
+                (projectid,uidnumber)
+	        VALUES
+	        ($project_id_sys,'$uidnumber_sys')";	
+        if($Conf::log_level>=3){
+           print "\nSQL: $sql\n";
+        }
+        $dbh->do($sql);
+    } else {
+        if (not defined $uidnumber_sys){
+           print "   User $user does not exist, doing nothing. \n";
+        }
+        if (not defined $project_id_sys){
+           print "   Project $project does not exist, doing nothing. \n";
         }
     }
     &db_disconnect($dbh);
@@ -869,7 +970,7 @@ sub pg_get_group_list {
 
     my $sth= $dbh->prepare( "SELECT userdata.uid,groups.gid 
                              FROM groups_users,userdata,groups 
-                             WHERE groups_users.memberuid=userdata.uidnumber 
+                             WHERE groups_users.memberuidnumber=userdata.uidnumber 
                                AND groups_users.gidnumber=groups.gidnumber
                                AND userdata.uid='$user'
                              ORDER BY groups.gid" );

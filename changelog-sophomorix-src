@@ -948,10 +948,25 @@ change quota with cyrus-user.pl -u user -q quota
 
 
 
+   - uninitialized value: when removing a user as admin from a project
+   - handle it to keep users, admins, when --Members are not given
+   - change option --Teachers to admin, change manpage, change help, 
+     and variable names
+
+   - when killing a user delete him from projects_admins also
+     function delete_from_all_projects?
+
+   - rename memberuid... (Mail T. Hoth)
+   - verify views
+
+   - use groups_admin in display
+  
+   - remove fields for members, teachers, ... in project_details  
+
 
 
 1.4.8-1 (2006-02-xx)
-
+   - added stuff to ad a user as admin into a project
 
    - added stuff to sophomorix-project to add,change,modify users 
      (--Members name) to a project, i.e. insert/modify/delete 
