@@ -1784,35 +1784,39 @@ sub create_share_link {
     if (not defined $type or $type eq ""){
 	$type="project";
     }
-    my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
-       $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
-#    my $link_name=$home."/${Language::share_dir}/Tausch-${share_name}";   
-    my $link_name=$home."/${Language::share_dir}/${Language::share_string}-${share_name}";   
-    print "Creating a link for user $login to $type $share_name.\n";
 
 
-    if ($type eq "project"){
-        # project
-        # my $link_dir="${DevelConf::share_projects}/${share_name}/";
-        $link_target="${DevelConf::share_projects}/${share_name}/";
-   } elsif ($type eq "class"){
-        # subclass
-        $link_target="${DevelConf::share_classes}/${share_name}/";
-    }elsif ($type eq "subclass"){
-        # subclass
-        $link_target="${DevelConf::share_subclasses}/${share_name}/";
-    } else {
-        print "Unknown type $type\n\n";
-	return 0;
-    }
+    # Only act if uid is valid
+    if (getpwnam("$login")){
+       my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
+          $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
+       my $link_name=$home.
+          "/${Language::share_dir}/${Language::share_string}-${share_name}";   
+       print "Creating a link for user $login to $type $share_name.\n";
 
-
-
-    print "   Link name : $link_name\n";
-    print "   Target    : $link_target\n";
+       if ($type eq "project"){
+          # project
+          # my $link_dir="${DevelConf::share_projects}/${share_name}/";
+          $link_target="${DevelConf::share_projects}/${share_name}/";
+       } elsif ($type eq "class"){
+          # subclass
+          $link_target="${DevelConf::share_classes}/${share_name}/";
+       }elsif ($type eq "subclass"){
+          # subclass
+          $link_target="${DevelConf::share_subclasses}/${share_name}/";
+       } else {
+          print "Unknown type $type\n\n";
+	  return 0;
+       }
+       print "   Link name : $link_name\n";
+       print "   Target    : $link_target\n";
     
-    # create the link
-    symlink $link_target, $link_name;
+       # create the link
+       symlink $link_target, $link_name;
+
+    } else {
+	print "   create_share_link: $login is not a valid username.\n";
+    }
 }
 
 =pod
