@@ -228,7 +228,7 @@ sub create_project {
     # the old users
     #($a,$a,$a,$old_users)=getgrnam("$project");
     #@old_users=split(/ /, $old_users);
-    @old_users=&fetchuser_pgldap($project);
+    @old_users=&fetchuser_from_project($project);
 
     print "   Old users: @old_users\n";
 
@@ -276,7 +276,7 @@ sub create_project {
                   " removing $user\n";
          }
          #system("gpasswd -d $user $project");
-	 &deleteuser_pgldap($user,$project);
+	 &deleteuser_from_project($user,$project);
          &remove_share_link($user,$project);
        } 
     }    
@@ -291,7 +291,7 @@ sub create_project {
     # adding the users
     foreach my $user (@users_to_add) {
        if ($user eq "root"){next;}
-       &adduser_pgldap($user,$project);
+       &adduser_to_project($user,$project);
 
        # create a link
        &create_share_link($user,$project);
@@ -301,7 +301,7 @@ sub create_project {
 
 
 
-sub fetchuser_pgldap {
+sub fetchuser_from_project {
     my ($group) = @_;
     my @userlist=();
     my $dbh=&db_connect();
@@ -332,7 +332,7 @@ sub fetchuser_pgldap {
 
 
 
-sub deleteuser_pgldap {
+sub deleteuser_from_project {
     my ($user,$project)=@_;
     my $dbh=&db_connect();
     # fetching gidnumber
@@ -356,7 +356,7 @@ sub deleteuser_pgldap {
 
 
 
-sub adduser_pgldap {
+sub adduser_to_project {
     my ($user,$project)=@_;
     my $dbh=&db_connect();
     # fetching gidnumber
