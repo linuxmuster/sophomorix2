@@ -36,6 +36,9 @@ use if ${DevelConf::db_backend} eq 'pgldap' ,
     'Sophomorix::SophomorixPgLdap' => qw(show_modulename
                                         db_connect
                                         db_disconnect
+                                        adduser_to_project
+                                        fetchuser_from_project
+                                        deleteuser_from_project
                                         check_connections
                                         show_project_list
                                         create_project_db
@@ -345,13 +348,33 @@ sub deleteuser_from_project {
                                          WHERE uid='$user'");
     print "   Removing user $user($uidnumber_sys) from $project($gidnumber_sys) \n";
     my $sql="DELETE FROM groups_users 
-             WHERE memberuid=$uidnumber_sys ";	
+             WHERE (memberuid=$uidnumber_sys AND gidnumber=$gidnumber_sys) 
+             ";	
     if($Conf::log_level>=3){
        print "\nSQL: $sql\n";
     }
     $dbh->do($sql);
     &db_disconnect($dbh);
 
+}
+
+
+
+sub deleteuser_from_all_projects {
+    my ($user)=@_;
+    my $dbh=&db_connect();
+    # fetching uidnumber
+    my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
+                                         FROM posix_account 
+                                         WHERE uid='$user'");
+    print "   Removing user $user($uidnumber_sys) from all projects \n";
+    my $sql="DELETE FROM groups_users 
+             WHERE memberuid=$uidnumber_sys ";	
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    $dbh->do($sql);
+    &db_disconnect($dbh);
 }
 
 
