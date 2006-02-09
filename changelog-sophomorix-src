@@ -952,6 +952,14 @@ change quota with cyrus-user.pl -u user -q quota
 
 1.4.8-1 (2006-02-xx)
 
+
+   - added stuff to sophomorix-project to add,change,modify users 
+     (--Members name) to a project, i.e. insert/modify/delete 
+     the user into groups_users.
+     - do nothing in the database and throw an error  if a 
+       nonexisting username is given 
+ 
+
    - counting students,teachers,and others when using sophomorix-user -i
 
    - smbpasswd -w password in sophomorix-setup-pgldap
