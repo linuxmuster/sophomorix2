@@ -34,7 +34,7 @@ verwaltetes Projekt hat folgende Eigenschaften:
 .br
                        z.B.:  Astronomie-AG-2004
 .br
-     Teachers:      User mit Verwaltungsaufgaben im Projekt
+     Admins:      User mit Verwaltungsaufgaben im Projekt
 .br
                        z.B.:  bz,kj,roes
 .br
@@ -52,7 +52,7 @@ verwaltetes Projekt hat folgende Eigenschaften:
                        z.B.:  40
 .br
      MaxMembers:    Maximale Anzahl von Mitgliedern, die ein User mit
-                    Verwaltungsaufgaben (siehe Teachers) einem Projekt 
+                    Verwaltungsaufgaben (siehe Admins) einem Projekt 
                     hinzufügen kann. 
                     Diese Grenze gilt nur, wenn AddQuota gesetzt ist.
 .br
@@ -83,10 +83,10 @@ Aktualiesiert, bzw. legt das Projekt mit dem LongName Projektname
 an. Wird bei einem neuen Projekt kein LongName angegeben, so wird Name
 als LongName eingetragen.
 .TP
-.B \-\-Teachers user1,user2,user3, ... 
+.B \-\-Admins user1,user2,user3, ... 
 Trägt die übergebenen User als Verwalter in das Projekt ein. Bisher
 vorhandene User werden wieder entfernt. Werden bei einem neuen Projekt
-keine Teachers angegeben, so wird root eingetragen.
+keine Admins angegeben, so wird root eingetragen.
 .TP
 .B \-\-Members user1,user2,user3, ... 
 Trägt die übergebenen User als Mitglieder in das Projekt ein. Bisher
