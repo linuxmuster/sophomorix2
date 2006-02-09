@@ -558,14 +558,6 @@ select groups_users.gidnumber,memberuid,uid from groups_users,posix_account wher
 
 
 
-Table projects_admins
-
-Zusatzeintrag, wenn sich lehrer zum admin (manager) einer Gruppe macht.?
-project_details Attribut: teachers wird auch in groups_managers eingetragen.
-(evtl. Driites Feld um festzuhalten wie diese Mitgliedschaft zustande kam)
-
-
-
 
 ############################################################
 DATABASE Tips
@@ -947,16 +939,14 @@ change quota with cyrus-user.pl -u user -q quota
 
 
 
-
-   - uninitialized value: when removing a user as admin from a project
-   - handle it to keep users, admins, when --Members are not given
-   - change option --Teachers to admin, change manpage, change help, 
-     and variable names
+   - function rewrite: get_users_project
 
    - when killing a user delete him from projects_admins also
      function delete_from_all_projects?
 
    - rename memberuid... (Mail T. Hoth)
+   - groups_managers ?? what for? replaced by projects_admins
+
    - verify views
 
    - use groups_admin in display
@@ -965,7 +955,16 @@ change quota with cyrus-user.pl -u user -q quota
 
 
 
+
 1.4.8-1 (2006-02-xx)
+
+   - handle it to keep users, admins, when --Members are not given
+
+   - Bugfix:uninitialized value: when removing an admin from a project
+
+   - change option --Teachers to admin, change manpage, change help, 
+     and variable names
+
    - added stuff to ad a user as admin into a project
 
    - added stuff to sophomorix-project to add,change,modify users 
@@ -974,7 +973,6 @@ change quota with cyrus-user.pl -u user -q quota
      - do nothing in the database and throw an error  if a 
        nonexisting username is given 
  
-
    - counting students,teachers,and others when using sophomorix-user -i
 
    - smbpasswd -w password in sophomorix-setup-pgldap
@@ -986,9 +984,7 @@ change quota with cyrus-user.pl -u user -q quota
    - added table projects_groups
    - added table projects_admins
 
-
    - Windows user Administrator added
-
 
    - Windows groupnames without blanks:
      unix-group: non capital letters
@@ -1004,7 +1000,6 @@ change quota with cyrus-user.pl -u user -q quota
 
      this is working now. 
        possibility of user.map-datei refered in smb.conf was dropped
-
 
    - sophomorix sees all accounts with NULL sophomorixstatus as
      permanent accounts (i.e. all users added by smbldaptools, ...)
