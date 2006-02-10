@@ -941,20 +941,26 @@ change quota with cyrus-user.pl -u user -q quota
 
    - function rewrite: get_users_project
 
-
-   - rename memberuid... (Mail T. Hoth)
    - groups_managers ?? what for? replaced by projects_admins
-
-   - verify views
 
    - use groups_admin in display
   
-   - remove fields for members, teachers, ... in project_details  
+   - verify views
+
+   - view memberdata:
+      - sophomorixstatus: table is there but shown empty
+      - adminclass: should show name instead of number
+      - displayname: not needed
+      - add project_details.longname AFTER gid
+      - sorted by gid
 
 
 
 
 1.4.8-1 (2006-02-xx)
+
+   - remove fields for members, teachers, ... in project_details  
+
    - when killing a user, delete the user from 
      - secondary group memberships
      - project admin membership
@@ -965,6 +971,8 @@ change quota with cyrus-user.pl -u user -q quota
 
    - change option --Teachers to admin, change manpage, change help, 
      and variable names
+
+   - renamed memberuid to memberuidnumber
 
    - added stuff to ad a user as admin into a project
 

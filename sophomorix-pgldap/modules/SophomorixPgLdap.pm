@@ -1752,24 +1752,21 @@ sub create_project_db {
 
     my $dbh=&db_connect();
 
-    my ($id_db,$p_name,$p_long_name,$p_teachers,$p_members,$p_member_groups,
-    $p_add_quota,$p_max_members)= $dbh->selectrow_array( 
-                                        "SELECT id,gid,displayname,teachers,
-                                                members,membergroups,addquota,
-                                                maxmembers 
-                                         FROM projectdata 
-                                         WHERE gid='$project'
-                                        ");
-
+    my ($id_db,$p_name,$p_long_name,$p_add_quota,
+        $p_max_members)= $dbh->selectrow_array( 
+                         "SELECT id,gid,displayname,addquota,maxmembers 
+                          FROM projectdata 
+                          WHERE gid='$project'
+                         ");
 # if project exists
 if (defined $id_db and defined $p_name){
     print "Project $project is an existing project -> UPDATING\n";
     printf "   %-18s : %-20s\n","Name" ,$project;
     if (not defined $p_name){$p_name=$project}
     if (not defined $p_long_name){$p_long_name=$p_name}
-    if (not defined $p_teachers){$p_teachers=""}
-    if (not defined $p_members){$p_members=""}
-    if (not defined $p_member_groups){$p_member_groups=""}
+#    if (not defined $p_teachers){$p_teachers=""}
+#    if (not defined $p_members){$p_members=""}
+#    if (not defined $p_member_groups){$p_member_groups=""}
     if (not defined $p_add_quota){$p_add_quota=""}
     if (not defined $p_max_members){$p_max_members=""}
     $count++;
@@ -1780,9 +1777,9 @@ if (defined $id_db and defined $p_name){
        printf "   %-18s : %-20s\n",$attr ,$value;
        if    ($attr eq "Name"){$p_name="$value"}
        elsif ($attr eq "LongName"){$p_long_name="$value"}
-       elsif ($attr eq "Admins"){$p_teachers="$value"}
-       elsif ($attr eq "Members"){$p_members="$value"}
-       elsif ($attr eq "MemberGroups"){$p_member_groups="$value"}
+#       elsif ($attr eq "Admins"){$p_teachers="$value"}
+#       elsif ($attr eq "Members"){$p_members="$value"}
+#       elsif ($attr eq "MemberGroups"){$p_member_groups="$value"}
        elsif ($attr eq "AddQuota"){$p_add_quota="$value"}
        elsif ($attr eq "MaxMembers"){$p_max_members="$value"}
        elsif ($attr eq "File"){$file="$value"}
@@ -1798,9 +1795,9 @@ if (defined $id_db and defined $p_name){
            ($attr,$value) = split(/=/,$param);
            printf "   %-18s : %-20s\n",$attr ,$value;
            if ($attr eq "LongName"){$p_long_name="$value"}
-           elsif ($attr eq "Admins"){$p_teachers="$value"}
-           elsif ($attr eq "Members"){$p_members="$value"}
-           elsif ($attr eq "MemberGroups"){$p_member_groups="$value"}
+#           elsif ($attr eq "Admins"){$p_teachers="$value"}
+#           elsif ($attr eq "Members"){$p_members="$value"}
+#           elsif ($attr eq "MemberGroups"){$p_member_groups="$value"}
            elsif ($attr eq "AddQuota"){$p_add_quota="$value"}
            elsif ($attr eq "MaxMembers"){$p_max_members="$value"}
            elsif ($attr eq "File"){$file="$value"}
@@ -1809,9 +1806,9 @@ if (defined $id_db and defined $p_name){
         }
         # Enough Information to create the Project?
         if (not defined $p_long_name){$p_long_name=$project}
-        if (not defined $p_teachers){$p_teachers="root"}
-        if (not defined $p_members){$p_members=""}
-        if (not defined $p_member_groups){$p_member_groups=""}
+#        if (not defined $p_teachers){$p_teachers="root"}
+#        if (not defined $p_members){$p_members=""}
+#        if (not defined $p_member_groups){$p_member_groups=""}
         if (not defined $p_add_quota){$p_add_quota=""}
         if (not defined $p_max_members){$p_max_members="NULL"}
 
@@ -1823,13 +1820,10 @@ if (defined $id_db and defined $p_name){
                                           WHERE gidnumber=$gidnumber" );
 
        $sql="INSERT INTO project_details 
-	  (id,longname,teachers,members,membergroups,addquota,maxmembers)
+	  (id,longname,addquota,maxmembers)
 	  VALUES
 	   ($id,
            '$p_long_name',
-           '$p_teachers',
-           '$p_members',
-           '$p_member_groups',
            '$p_add_quota',
             $p_max_members
           )";
@@ -2302,11 +2296,11 @@ sub check_sophomorix_user_oldstuff {
 
 sub show_project_list {
    print "The following projects exist already:\n\n";
-   printf "%-16s %-16s %-9s %-40s\n","Name:", "Admins", "AddQuota", "LongName:";
+   printf "%-22s %-10s %-40s\n","Name:", "AddQuota", "LongName:";
    print "=======================================",
          "=======================================\n";
     my $dbh=&db_connect();
-    my $sth= $dbh->prepare( "SELECT gid,teachers,addquota,longname 
+    my $sth= $dbh->prepare( "SELECT gid,addquota,longname 
                              FROM projectdata" );
       $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
@@ -2315,28 +2309,23 @@ sub show_project_list {
     foreach ( @{ $array_ref } ) {
         my $gid=${$array_ref}[$i][0];
 	#chomp($gid);
-        my $teachers=${$array_ref}[$i][1];
-        my $addquota=${$array_ref}[$i][2];
-        my $longname=${$array_ref}[$i][3];
+#        my $teachers=${$array_ref}[$i][1];
+        my $addquota=${$array_ref}[$i][1];
+        my $longname=${$array_ref}[$i][2];
         if (not defined $gid){
 	    $gid="";
         }
-        if (not defined $teachers){
-	    $teachers="";
-        }
+#        if (not defined $teachers){
+#	    $teachers="";
+#        }
         if (not defined $addquota){
 	    $addquota="";
         }
         if (not defined $longname){
 	    $longname="";
         }
-#	print "---$gid---\n";
-#	print "---$longname---\n";
-#	print "---$addquota---\n";
-#	print "---$teachers---\n";
 
-        printf "%-16s %-16s %-9s %-40s\n",$gid, $teachers,
-                                          $addquota, $longname;
+        printf "%-22s %-10s %-40s\n",$gid,$addquota,$longname;
         $i++;
     }   
 }

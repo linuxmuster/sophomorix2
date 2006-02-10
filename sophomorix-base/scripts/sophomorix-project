@@ -218,12 +218,10 @@ sub create_project {
 
     my $dbh=&db_connect();
     my (@line)= $dbh->selectrow_array( 
-                                        "SELECT gid,displayname,teachers,
-                                                members,membergroups,addquota,
-                                                maxmembers 
-                                         FROM projectdata 
-                                         WHERE gid='$project'
-                                        ");
+                              "SELECT gid,displayname,addquota,maxmembers 
+                               FROM projectdata 
+                               WHERE gid='$project'
+                              ");
     if (not defined $line[0]){
         print "Could not find project $project.\n";
 	exit;
