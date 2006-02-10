@@ -31,6 +31,7 @@ use if ${DevelConf::db_backend} eq 'files' ,
 use if ${DevelConf::db_backend} eq 'pgldap' , 
     'Sophomorix::SophomorixPgLdap' => qw(show_modulename
                                         check_connections
+                                        deleteuser_from_all_projects
                                         backup_user_database
                                         remove_user_db_entry
                                         pg_get_group_list
@@ -237,6 +238,9 @@ while(<KILL>){
       }
 
       # Jetzt wird gelöscht
+      # memberships
+      &deleteuser_from_all_projects($login_name_to_kill);
+      # user itself
       &delete_user_from_sys($login_name_to_kill);
       
       if ($home_verzeichnis_to_kill=~/^\/home\//){

@@ -17,7 +17,7 @@ require Exporter;
              fetchadmin_from_project
              deleteuser_from_project
              deleteadmin_from_project
-             deleteuser_from_all_project
+             deleteuser_from_all_projects
 	     create_user_db_entry
              date_perl2pg
              date_pg2perl
@@ -281,6 +281,13 @@ sub deleteuser_from_all_projects {
     print "   Removing user $user($uidnumber_sys) from all projects \n";
     my $sql="DELETE FROM groups_users 
              WHERE memberuidnumber=$uidnumber_sys ";	
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    $dbh->do($sql);
+    print "   Removing admin $user($uidnumber_sys) from all projects \n";
+    $sql="DELETE FROM projects_admins 
+          WHERE uidnumber=$uidnumber_sys ";	
     if($Conf::log_level>=3){
        print "\nSQL: $sql\n";
     }
