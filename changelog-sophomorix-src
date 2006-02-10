@@ -917,8 +917,6 @@ change quota with cyrus-user.pl -u user -q quota
 
          add tests to sophomorix-test (check groups, check_provided_files)
 
-   smbpasswd -w password in sophomorix-setup-pgldap checken ob 
-      password aus debconf geholt wird
            
    - beim gruppenanlegen das Feld description nutzen
    - remove options smbroot in sophomorix-add
@@ -938,6 +936,12 @@ change quota with cyrus-user.pl -u user -q quota
 
 
 
+   - when performance of groups_groups is OK:
+      insert MemberGroups (primary) into groups_groups
+
+
+      update memberships recursively 
+
 
    - function rewrite: get_users_project
 
@@ -948,6 +952,7 @@ change quota with cyrus-user.pl -u user -q quota
    - verify views
 
    - view memberdata:
+      ToDo:
       - sophomorixstatus: table is there but shown empty
       - adminclass: should show name instead of number
       - displayname: not needed
@@ -955,9 +960,17 @@ change quota with cyrus-user.pl -u user -q quota
       - sorted by gid
 
 
+  NEXT: update manpage s*-project --MemberProjects
+        insert MemberProjects into table project_groups
+
+        unite create_projects and create_projects_db
+
 
 
 1.4.8-1 (2006-02-xx)
+
+
+   - created Option --MemberProjects (s*-project), does nothing so far
 
    - remove fields for members, teachers, ... in project_details  
 
