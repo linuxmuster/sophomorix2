@@ -941,8 +941,6 @@ change quota with cyrus-user.pl -u user -q quota
 
    - function rewrite: get_users_project
 
-   - when killing a user delete him from projects_admins also
-     function delete_from_all_projects?
 
    - rename memberuid... (Mail T. Hoth)
    - groups_managers ?? what for? replaced by projects_admins
@@ -957,6 +955,9 @@ change quota with cyrus-user.pl -u user -q quota
 
 
 1.4.8-1 (2006-02-xx)
+   - when killing a user, delete the user from 
+     - secondary group memberships
+     - project admin membership
 
    - handle it to keep users, admins, when --Members are not given
 
