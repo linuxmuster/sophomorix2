@@ -1510,7 +1510,6 @@ sub update_user_db_entry {
     }
 
 
-
     $sql="SELECT id FROM userdata 
           WHERE uid='$login'";
     if($Conf::log_level>=3){
@@ -1521,48 +1520,55 @@ sub update_user_db_entry {
        print "Retrieved Id of $login: $id \n";
     }
 
-    # updating posix_account
-    my $posix=join(", ",@posix);
-    if ($posix ne ""){
-       $sql="UPDATE posix_account
-             SET 
-              $posix
-             WHERE id = $id
-            ";
-    if($Conf::log_level>=3){
-       print "\nSQL: $sql\n";
-    }
-       $dbh->do($sql);
+
+    if (defined $id){
+       # if user found in database
+       # updating posix_account
+       my $posix=join(", ",@posix);
+       if ($posix ne ""){
+          $sql="UPDATE posix_account
+                SET 
+                $posix
+                WHERE id = $id
+               ";
+       if($Conf::log_level>=3){
+          print "\nSQL: $sql\n";
+       }
+          $dbh->do($sql);
+       }
+
+       # updating posix_account_details
+       my $posix_details=join(", ",@posix_details);
+       if ($posix_details ne ""){
+          $sql="UPDATE posix_account_details
+                SET 
+                $posix_details
+                WHERE id = $id
+               ";
+          if($Conf::log_level>=3){
+             print "\nSQL: $sql\n";
+          }
+          $dbh->do($sql);
+       }
+       # updating samba_sam_account
+       my $samba=join(", ",@samba);
+       if ($samba ne ""){
+          $sql="UPDATE samba_sam_account
+                SET 
+                 $samba
+                WHERE id = $id
+               ";
+          if($Conf::log_level>=3){
+             print "\nSQL: $sql\n";
+          }
+          $dbh->do($sql);
+       }
+    } else {
+        print "Could not retrieve id of $login \n";
+        print "I cannot update the entry of $login \n";
     }
 
-    # updating posix_account_details
-    my $posix_details=join(", ",@posix_details);
-    if ($posix_details ne ""){
-       $sql="UPDATE posix_account_details
-             SET 
-              $posix_details
-             WHERE id = $id
-            ";
-       if($Conf::log_level>=3){
-          print "\nSQL: $sql\n";
-       }
-       $dbh->do($sql);
-    }
-    # updating samba_sam_account
-    my $samba=join(", ",@samba);
-    if ($samba ne ""){
-       $sql="UPDATE samba_sam_account
-             SET 
-              $samba
-             WHERE id = $id
-            ";
-       if($Conf::log_level>=3){
-          print "\nSQL: $sql\n";
-       }
-       $dbh->do($sql);
-    }
     $dbh->disconnect();
-
     # ??? besser was sinnvolles
     return 1;
 }
