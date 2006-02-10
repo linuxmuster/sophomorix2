@@ -82,6 +82,7 @@ my $v;
 my $long_name;
 my $p_admins;
 my $p_members;
+my $p_projects;
 my $p_groups;
 my $p_add_quota;
 my $p_max_members;
@@ -101,6 +102,7 @@ my $testopt=GetOptions(
            "Admins=s" => \$p_admins,
            "Members=s" => \$p_members,
            "MemberGroups=s" => \$p_groups,
+           "MemberProjects=s" => \$p_projects,
            "AddQuota=s" => \$p_add_quota,
            "MaxMembers=s" => \$p_max_members,
           );
@@ -130,6 +132,7 @@ Options
   --Admins user1,user2,user3, ... 
   --Members user1,user2,user3, ... 
   --MemberGroups group1,group2,group3, ... 
+  --MemberProjects project1,project2,project3, ... 
   --AddQuota quotastring
   --MaxMembers number
 
@@ -282,8 +285,6 @@ sub create_project {
 #                                   );
 
     &db_disconnect($dbh);
-
-
     # show the hash
     if($Conf::log_level>=3){
        print "\n\nAll Users which will be members in project $project:\n";
@@ -332,9 +333,6 @@ sub create_project {
     }
 
 
-
-
-
     # show the hash
     if($Conf::log_level>=3){
        print "\n\nAll Users which will be admins in project $project:\n";
@@ -381,16 +379,5 @@ sub create_project {
        # create a link
        &create_share_link($user,$project);
     }
-
-
-
-
-
-
-
-
-
-
-
 }
 
