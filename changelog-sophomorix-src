@@ -813,6 +813,8 @@ mailquota stuff
 mailquota.txt
 lehrer.txt zusatzfeld
 lehrer.txt zusatzfeld 'comment' (Platz in Datenbank suchen)
+in projects: addmailquota
+
 
 change quota with cyrus-user.pl -u user -q quota
 
@@ -954,7 +956,13 @@ change quota with cyrus-user.pl -u user -q quota
   
    - verify views
 
-   - view memberdata:
+   - removing a project:
+      - remove also project_memberships
+      - ..
+
+
+
+   - SQL-View memberdata:
       ToDo:
       - sophomorixstatus: table is there but shown empty
       - adminclass: should show name instead of number
@@ -963,15 +971,19 @@ change quota with cyrus-user.pl -u user -q quota
       - sorted by gid
 
 
-  NEXT: update manpage s*-project --MemberProjects
-        insert MemberProjects into table project_groups
-
+  NEXT: 
         unite create_projects and create_projects_db
 
 
 
 1.4.8-1 (2006-02-xx)
+   - new functions fetch/add/deleteproject_from_project
+     which fetch/add/remove MemberProjects from/to table project_membergroups
+    
+   - renamed project_groups to project_memberprojects
 
+
+   - updated manpage of sophomorix-project (--Memberprojects)
 
    - created Option --MemberProjects (s*-project), does nothing so far
 
