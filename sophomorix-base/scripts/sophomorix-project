@@ -70,6 +70,8 @@ use if ${DevelConf::sys_db} eq 'pgldap' ,
 # Optionen verarbeiten
 # ==========================================================================
 
+my $pg_timestamp=&pg_timestamp();
+
 # Variablen für Optionen
 $Conf::log_level=1;
 my $help=0;
@@ -89,6 +91,7 @@ my $p_projects;
 my $p_add_quota;
 my $p_add_mail_quota;
 my $p_max_members;
+my $p_status;
 
 #my @options=();
 
@@ -181,7 +184,9 @@ if ($project ne "" and $info==1){
 &get_alle_verzeichnis_rechte();
 
 # create/update project
-&create_project($project,$create,$p_long_name,$p_add_quota,$p_add_mail_quota,
+&create_project($project,$create,$p_long_name,
+                $p_add_quota,$p_add_mail_quota,
+                $p_status,$pg_timestamp,
                 $p_max_members,$p_members,$p_admins,$p_projects);
 
 

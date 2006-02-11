@@ -477,7 +477,7 @@ sub addproject_to_project {
         $dbh->do($sql);
     } else {
         if (not defined $m_project_id_sys){
-           print "   MemberProject $m_project_id_sys does not exist,",
+           print "   MemberProject $m_project does not exist,",
                  " doing nothing. \n";
         }
         if (not defined $project_id_sys){
@@ -1851,16 +1851,18 @@ sub user_reaktivieren {
 
 sub create_project {
     # reads from projects_db and creates the project in the system
-    my ($project,$create,$p_long_name,$p_add_quota,$p_add_mail_quota,
+    my ($project,$create,$p_long_name,
+        $p_add_quota,$p_add_mail_quota,
+        $p_status,$pg_timestamp,
         $p_max_members,$p_members,$p_admins,$p_projects) = @_;
 
     # check if unix group exists and if its a project
     my $dbh=&db_connect();
     # fetch old data
     my ($old_id,$old_name,$old_long_name,$old_add_quota,$old_add_mail_quota,
-        $old_max_members)= $dbh->selectrow_array( 
+        $old_max_members,$old_status)= $dbh->selectrow_array( 
                          "SELECT id,gid,displayname,addquota,
-                                 addmailquota,maxmembers 
+                                 addmailquota,maxmembers,sophomorixstatus 
                           FROM projectdata 
                           WHERE gid='$project'
                          ");
@@ -1901,12 +1903,23 @@ sub create_project {
         }
     }
 
+    # SophomorixStatus
+    if (not defined $p_status){
+	if (defined $old_status){
+           $p_status=$old_status;          
+        } else {
+	    $p_status="U";
+        }
+    }
+
 
     print "1) Data for the Project:\n";
-    print "   LongName:     $p_long_name\n";
-    print "   AddQuota:     $p_add_quota MB\n";
-    print "   AddMailQuota: $p_add_quota MB\n";
-    print "   MaxMembers:   $p_max_members\n";
+    print "   LongName:         $p_long_name\n";
+    print "   AddQuota:         $p_add_quota MB\n";
+    print "   AddMailQuota:     $p_add_quota MB\n";
+    print "   MaxMembers:       $p_max_members\n";
+    print "   SophomorixStatus: $p_status\n";
+    print "   PG Timestamp:     $pg_timestamp\n";
 
     # what to do if group doesnt exist
     if (not defined $old_id){
@@ -1918,9 +1931,11 @@ sub create_project {
                                              FROM groups 
                                              WHERE gidnumber=$gidnumber" );
            $sql="INSERT INTO project_details 
-	     (id,longname,addquota,addmailquota,maxmembers)
+	     (id,longname,addquota,addmailquota,maxmembers,
+              creationdate,sophomorixstatus)
 	      VALUES
-	      ($id,'$p_long_name',$p_add_quota,$p_add_mail_quota,$p_max_members)";
+	      ($id,'$p_long_name',$p_add_quota,$p_add_mail_quota,
+               $p_max_members,'$pg_timestamp','$p_status')";
            if($Conf::log_level>=3){
               print "SQL: $sql\n";
            }
@@ -1934,7 +1949,8 @@ sub create_project {
            # update
            $sql="UPDATE project_details 
                  SET longname='$p_long_name', addquota=$p_add_quota,
-                     addmailquota=$p_add_mail_quota, maxmembers='$p_max_members'
+                     addmailquota=$p_add_mail_quota, 
+                     maxmembers='$p_max_members',sophomorixstatus='$p_status'
                  WHERE id = $old_id";
            if($Conf::log_level>=3){
               print "SQL: $sql\n";
@@ -2476,13 +2492,13 @@ sub check_sophomorix_user_oldstuff {
 
 sub show_project_list {
    print "The following projects exist already:\n\n";
-   printf "%-22s|%6s|%6s|%4s|%-35s \n","Project",
-          "AddQ", "AddMQ","MaxM","LongName";
-   print "----------------------+------+------+----+",
-         "------------------------------------\n";
+   printf "%-22s|%6s|%6s|%4s|%1s|%-35s \n","Project",
+          "AddQ", "AddMQ","MaxM","S","LongName";
+   print "----------------------+------+------+----",
+         "+-+----------------------------------\n";
     my $dbh=&db_connect();
     my $sth= $dbh->prepare( "SELECT gid,addquota,addmailquota,
-                                    longname,maxmembers 
+                                    longname,maxmembers,sophomorixstatus 
                              FROM projectdata" );
       $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
@@ -2493,6 +2509,7 @@ sub show_project_list {
         my $addmailquota=${$array_ref}[$i][2];
         my $longname=${$array_ref}[$i][3];
         my $maxmembers=${$array_ref}[$i][4];
+        my $status=${$array_ref}[$i][5];
         if (not defined $gid){
 	    $gid="";
         }
@@ -2508,12 +2525,15 @@ sub show_project_list {
         if (not defined $maxmembers){
 	    $maxmembers="";
         }
-        printf "%-22s|%6s|%6s|%4s|%-35s\n",$gid,
-                $addquota,$addmailquota,$maxmembers,$longname;
+        if (not defined $status){
+	    $status="";
+        }
+        printf "%-22s|%6s|%6s|%4s|%1s|%-35s\n",$gid,
+                $addquota,$addmailquota,$maxmembers,$status,$longname;
         $i++;
     }   
-   print "----------------------+------+------+----+",
-         "------------------------------------\n";
+   print "----------------------+------+------+----",
+         "+-+----------------------------------\n";
     &db_disconnect($dbh);
 }
 
