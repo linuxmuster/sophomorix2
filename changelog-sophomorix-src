@@ -901,9 +901,6 @@ change quota with cyrus-user.pl -u user -q quota
          sophomorix-quota
             - project add quota
 
-         look in SophomorixPgLdap what has to be done
-           create_project_db
-
 ###      continue:  
            1. removing writing into project.db when creating a project
            2. change code to update a project
@@ -950,8 +947,6 @@ change quota with cyrus-user.pl -u user -q quota
 
    - function rewrite: get_users_project
 
-   - groups_managers ?? what for? replaced by projects_admins
-
    - use groups_admin in display
   
    - verify views
@@ -976,61 +971,45 @@ change quota with cyrus-user.pl -u user -q quota
       - add project_details.longname AFTER gid
       - sorted by gid
 
+   NEXT: remove create_project_db and oldstuff
+
 
 1.4.8-1 (2006-02-xx)
 
-
+   - unified create_project and create_project_db
+   - added AddMailQuota to project_details
    - moved create_project to SophomorixPgLdap.pm
-
    - new functions fetch/add/deleteproject_from_project
      which fetch/add/remove MemberProjects from/to table project_membergroups
-    
    - renamed project_groups to project_memberprojects
-
-
    - updated manpage of sophomorix-project (--Memberprojects)
-
    - created Option --MemberProjects (s*-project), does nothing so far
-
    - remove fields for members, teachers, ... in project_details  
-
    - when killing a user, delete the user from 
      - secondary group memberships
      - project admin membership
-
    - handle it to keep users, admins, when --Members are not given
-
    - Bugfix:uninitialized value: when removing an admin from a project
-
    - change option --Teachers to admin, change manpage, change help, 
      and variable names
-
    - renamed memberuid to memberuidnumber
-
    - added stuff to ad a user as admin into a project
-
    - added stuff to sophomorix-project to add,change,modify users 
      (--Members name) to a project, i.e. insert/modify/delete 
      the user into groups_users.
      - do nothing in the database and throw an error  if a 
        nonexisting username is given 
- 
    - counting students,teachers,and others when using sophomorix-user -i
-
    - smbpasswd -w password in sophomorix-setup-pgldap
      - creates random rootdn password
      - or user password given with option ldappw
      (the ldap password is not stored in debconf anymore)
-       
    - added field mailquota
    - added table projects_groups
    - added table projects_admins
-
    - Windows user Administrator added
-
    - Windows groupnames without blanks:
      unix-group: non capital letters
-
      Windows             Linux       unix-id
      ==================================================
      domain:
@@ -1039,13 +1018,10 @@ change quota with cyrus-user.pl -u user -q quota
        Domain Guests       domguests
        Domain Computers    
        ...
-
-     this is working now. 
-       possibility of user.map-datei refered in smb.conf was dropped
-
+     - this is working now. 
+         possibility of user.map-datei refered in smb.conf was dropped
    - sophomorix sees all accounts with NULL sophomorixstatus as
      permanent accounts (i.e. all users added by smbldaptools, ...)
-
 
 
 1.4.7-1 (2006-01-29)
