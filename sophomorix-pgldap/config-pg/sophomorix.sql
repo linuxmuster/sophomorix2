@@ -1383,17 +1383,6 @@ CREATE TABLE project_details (
 
 
 --
--- TOC entry 23 (OID 64562)
--- Name: groups_managers; Type: TABLE; Schema: public; Owner: ldap
---
-
-CREATE TABLE groups_managers (
-    gidnumber integer NOT NULL,
-    uidnumber integer NOT NULL
-);
-
-
---
 -- TOC entry 24 (OID 64660)
 -- Name: projectdata; Type: VIEW; Schema: public; Owner: ldap
 --
