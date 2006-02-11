@@ -971,11 +971,12 @@ change quota with cyrus-user.pl -u user -q quota
       - add project_details.longname AFTER gid
       - sorted by gid
 
-   NEXT: remove create_project_db and oldstuff
-
 
 1.4.8-1 (2006-02-xx)
-
+   - using creationdate and sophomorixstatus when adding a project
+   - added option sophomorix -i -p project, displays info
+     about project
+   - remove create_project_db and oldstuff
    - unified create_project and create_project_db
    - added AddMailQuota to project_details
    - moved create_project to SophomorixPgLdap.pm
