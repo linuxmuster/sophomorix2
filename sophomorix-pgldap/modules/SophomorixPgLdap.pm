@@ -44,6 +44,7 @@ require Exporter;
              get_first_password
              check_sophomorix_user
              show_project_list
+             show_project
              get_smb_sid
 );
 # deprecated:             move_user_db_entry
@@ -60,6 +61,7 @@ use Sophomorix::SophomorixBase qw ( titel
                                     provide_project_files
                                     get_user_history
                                     print_forward
+                                    print_list_column
                                   );
 
 use Crypt::SmbHash;
@@ -2474,7 +2476,7 @@ sub check_sophomorix_user_oldstuff {
 
 sub show_project_list {
    print "The following projects exist already:\n\n";
-   printf "%-22s|%6s|%6s|%4s|%-35s \n","Name",
+   printf "%-22s|%6s|%6s|%4s|%-35s \n","Project",
           "AddQ", "AddMQ","MaxM","LongName";
    print "----------------------+------+------+----+",
          "------------------------------------\n";
@@ -2510,28 +2512,37 @@ sub show_project_list {
                 $addquota,$addmailquota,$maxmembers,$longname;
         $i++;
     }   
+   print "----------------------+------+------+----+",
+         "------------------------------------\n";
+    &db_disconnect($dbh);
 }
 
 
+sub show_project {
+    my ($project) = @_;
+    my $dbh=&db_connect();
+  
+    my @user=&fetchuser_from_project($project);
+    &Sophomorix::SophomorixBase::linie();
+    &Sophomorix::SophomorixBase::print_list_column(4,"Members of $project",@user);
+    &Sophomorix::SophomorixBase::linie();
 
-sub show_project_list_oldstuff {
-   open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects_db") || die "Fehler: $!";
-   print "The following projects exist already:\n\n";
-   printf "%-16s %-16s %-9s %-40s\n","Name:", "Admins", "AddQuota", "LongName:";
+    my @admins=&fetchadmin_from_project($project);
+    &Sophomorix::SophomorixBase::linie();
+    &Sophomorix::SophomorixBase::print_list_column(4,"Admins of $project",@admins);
+    &Sophomorix::SophomorixBase::linie();
 
-   print "=======================================",
-         "=======================================\n";
-   while(<PROJECT>){
-       chomp();
-       my @line=split(/;/);
-       if (not defined $line[1]){$line[1]="---"}
-       if (not defined $line[2]){$line[2]="---"}
-       if (not defined $line[5]){$line[5]="---"}
-       printf "%-16s %-16s %-9s %-40s\n",$line[0], $line[2], $line[5], $line[1];
-   }
-   close(PROJECT);
-   print "\n";
+
+    my @pro=&fetchprojects_from_project($project);
+    &Sophomorix::SophomorixBase::linie();
+    &Sophomorix::SophomorixBase::print_list_column(4,
+      "Memberprojects of $project",@pro);
+    &Sophomorix::SophomorixBase::linie();
+
+
+    &db_disconnect($dbh);
 }
+
 
 
 
