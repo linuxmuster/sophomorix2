@@ -92,21 +92,21 @@ als LongName eingetragen.
 .TP
 .B \-\-Admins user1,user2,user3, ... 
 Trägt die übergebenen User als Verwalter in das Projekt ein. Bisher
-vorhandene User werden wieder entfernt. Werden bei einem neuen Projekt
-keine Admins angegeben, so wird root eingetragen.
+vorhandene User werden ersetzt. Werden bei einem neuen Projekt keine
+Admins angegeben, so wird root eingetragen.
 .br
 Wollen sie aus einem Projekt alle Admins entfernen, Müssen sie --Admins "" angeben.
 .TP
 .B \-\-Members user1,user2,user3, ... 
 Trägt die übergebenen User als Mitglieder in das Projekt ein. Bisher
-vorhandene User werden wieder entfernt. Werden bei einem neuen Projekt
-keine Members angegeben, so wird nichts eingetragen.
+vorhandene User werden ersetzt. Werden bei einem neuen Projekt keine
+Members angegeben, so wird nichts eingetragen.
 .br
 Wollen sie aus einem Projekt alle User entfernen, Müssen sie --Members "" angeben.
 .TP
 .B \-\-MemberGroups group1,group2,group3, ... 
 Trägt die Mitglieder der übergebenen Gruppen als Mitglieder in das
-Projekt ein. Bisher vorhandene Gruppen werden wieder entfernt. Werden
+Projekt ein. Bisher vorhandene Gruppen werden ersetzt. Werden
 bei einem neuen Projekt keine MemberGroups angegeben, so wird nichts
 eingetragen.
 .br
@@ -119,7 +119,7 @@ Wollen sie aus einem Projekt alle Gruppen entfernen, Müssen sie
 .TP
 .B \-\-MemberProjects project1,project2,project3, ... 
 Trägt die Mitglieder der übergebenen Projekte als Mitglieder in das
-Projekt ein. Bisher vorhandene Projekte werden wieder entfernt. Werden
+Projekt ein. Bisher vorhandene Projekte werden ersetzt. Werden
 bei einem neuen Projekt keine MemberProjects angegeben, so wird nichts
 eingetragen.
 .br
@@ -128,8 +128,8 @@ Wollen sie aus einem Projekt alle MemberProjects entfernen, Müssen sie \
 .TP
 .B \-\-AddQuota quotastring
 Trägt den übergebenen quotastring als Zusatzquota in das Projekt
-ein. Der bisher vorhandene quotastring wird wieder entfernt. Wird bei einem
-neuen Projekt kein AddQuota angegeben, so wird nichts eingetragen.
+ein. Der bisher vorhandene quotastring wird ersetzt. Wird bei einem
+neuen Projekt kein AddQuota angegeben, so wird 0 MB eingetragen.
 .br
 Um die Quotaänderung ins System zu übertragen, muss anschließend sophomorix-quota 
 aufgerufen werden.
@@ -137,14 +137,24 @@ aufgerufen werden.
 Wie der quotastring aussehen kann siehe:  
 .B man sophomorix-quota
 .TP
+.TP
+.B \-\-AddMailQuota number
+Trägt die übergebene Zahl(integer) als zusätzliches Mail Quota (in MB)
+in das Projekt ein. Die bisher vorhandene Zahl wird ersetzt. Wird bei
+einem neuen Projekt kein AddMailQuota angegeben, so wird 0 MB
+eingetragen.
+.br
+Um die Quotaänderung ins System zu übertragen, muss anschließend sophomorix-quota 
+aufgerufen werden.
+.TP
 .B \-\-MaxMembers anzahl
 Trägt anzahl als MaxMembers in das Projekt ein. Die bisher vorhandene
-anzahl wird wieder entfernt. Wird bei einem neuen Projekt keine
-MaxMembers angegeben, so wird nichts eingetragen.
+anzahl wird ersetzt. Wird bei einem neuen Projekt keine
+MaxMembers angegeben, so wird 0 eingetragen.
 .br
 Der Eintrag MaxMembers dient zur Begrenzung der vergebenen AddQuota, und ist
-nur wirksam, wenn ein AddQuota angegeben ist. Projekte, die mit denen
-kein AddQuota gekoppelt ist, sind in ihrer Mitgliederanzahl praktisch
+nur wirksam, wenn AddQuota nicht 0  ist. Projekte, die mit denen
+kein AddQuota gekoppelt ist (AddQuota=0), sind in ihrer Mitgliederanzahl praktisch
 unbeschränkt (nur durch eine im Betriebsystem vohandene maximale
 Gruppenmitgliedschaftanzahl)
 .TP

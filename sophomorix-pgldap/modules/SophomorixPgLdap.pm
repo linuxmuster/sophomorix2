@@ -1858,9 +1858,6 @@ sub create_project_db {
     my $sql="";
     my $create=0;
     my $param="";
-    my $project_name_file="";
-    my $old_line="";
-    my $new_line="";
     my $count=0;
     foreach $param (@_){
        ($attr,$value) = split(/=/,$param);
@@ -1937,7 +1934,6 @@ if (defined $id_db and defined $p_name){
 } # end creating the project
 
 
-    &db_disconnect($dbh);
 
     return $count;
 }
@@ -1949,8 +1945,104 @@ if (defined $id_db and defined $p_name){
 
 sub create_project {
     # reads from projects_db and creates the project in the system
-    my ($project,$p_members,$p_admins,$p_projects) = @_;
-    my $found=0;
+    my ($project,$create,$p_long_name,$p_add_quota,$p_add_mail_quota,
+        $p_max_members,$p_members,$p_admins,$p_projects) = @_;
+
+    # check if unix group exists and if its a project
+    my $dbh=&db_connect();
+    # fetch old data
+    my ($old_id,$old_name,$old_long_name,$old_add_quota,$old_add_mail_quota,
+        $old_max_members)= $dbh->selectrow_array( 
+                         "SELECT id,gid,displayname,addquota,
+                                 addmailquota,maxmembers 
+                          FROM projectdata 
+                          WHERE gid='$project'
+                         ");
+    # Merging information:
+    # LongName
+    if (not defined $p_long_name){
+	if (defined $old_long_name){
+           $p_long_name=$old_long_name;          
+        } else {
+	    $p_long_name=$project; # use short name
+        }
+    }
+
+    # AddQuota
+    if (not defined $p_add_quota){
+	if (defined $old_add_quota){
+           $p_add_quota=$old_add_quota;          
+        } else {
+	    $p_add_quota=0;
+        }
+    }
+
+    # AddMailQuota
+    if (not defined $p_add_mail_quota){
+	if (defined $old_add_mail_quota){
+           $p_add_mail_quota=$old_add_mail_quota;          
+        } else {
+	    $p_add_mail_quota=0;
+        }
+    }
+
+    # MaxMambers
+    if (not defined $p_max_members){
+	if (defined $old_max_members){
+           $p_max_members=$old_max_members;          
+        } else {
+	    $p_max_members=0;
+        }
+    }
+
+
+    print "1) Data for the Project:\n";
+    print "   LongName:     $p_long_name\n";
+    print "   AddQuota:     $p_add_quota MB\n";
+    print "   AddMailQuota: $p_add_quota MB\n";
+    print "   MaxMembers:   $p_max_members\n";
+
+    # what to do if group doesnt exist
+    if (not defined $old_id){
+        if ($create==1){
+           # create the group
+           my $gidnumber=&create_class_db_entry($project,2);
+           # fetching the table id
+           my ($id)= $dbh->selectrow_array( "SELECT id 
+                                             FROM groups 
+                                             WHERE gidnumber=$gidnumber" );
+           $sql="INSERT INTO project_details 
+	     (id,longname,addquota,addmailquota,maxmembers)
+	      VALUES
+	      ($id,'$p_long_name',$p_add_quota,$p_add_mail_quota,$p_max_members)";
+           if($Conf::log_level>=3){
+              print "SQL: $sql\n";
+           }
+           $dbh->do($sql);
+        } else {
+           print "Project $project doesnt exist, use --create to create it. \n";
+	   exit;
+        }
+    } else {
+        if ($create==0){
+           # update
+           $sql="UPDATE project_details 
+                 SET longname='$p_long_name', addquota=$p_add_quota,
+                     addmailquota=$p_add_mail_quota, maxmembers='$p_max_members'
+                 WHERE id = $old_id";
+           if($Conf::log_level>=3){
+              print "SQL: $sql\n";
+           }
+           $dbh->do($sql);
+        } else {
+           print "\nProject $project exist already. \n";
+           print "If you want to update $project do NOT use --create. \n\n";
+	   exit;
+        }
+    }
+
+    print "2) Exchange Directories:\n";
+
     my %users_to_add=();
     my %admins_to_add=();
     my %projects_to_add=();
@@ -1971,17 +2063,6 @@ sub create_project {
     my @new_projects=();
     my @new_users=();
 
-    my $dbh=&db_connect();
-    my (@line)= $dbh->selectrow_array( 
-                              "SELECT gid,displayname,addquota,maxmembers 
-                               FROM projectdata 
-                               WHERE gid='$project'
-                              ");
-    if (not defined $line[0]){
-        print "Could not find project $project.\n";
-	exit;
-    }
-    print "\nCreating/Updating Project $project: \n";
     &Sophomorix::SophomorixBase::provide_project_files($project);
 
     # get old values
@@ -1990,9 +2071,6 @@ sub create_project {
     @old_admins=&fetchadmin_from_project($project);
     @old_projects=&fetchprojects_from_project($project);
 
-    print "   Old users: @old_users\n";
-    print "   Old admins: @old_admins\n";
-    print "   Old projects: @old_projects\n";
 
     # Adding all users/admins/projects from options to lists
     if (defined $p_members){
@@ -2015,38 +2093,35 @@ sub create_project {
 
     foreach my $memb (@new_users){
 	$users_to_add{ $memb }="";
-        # print $memb,"\n";
     }
 
     foreach my $admin (@new_admins){
 	$admins_to_add{ $admin }="";
-        # print $admin,"\n";
     }
 
     foreach my $project (@new_projects){
 	$projects_to_add{ $project }="";
-        # print $project,"\n";
     }
-
-#    %users_to_add=&get_user_project($project,
-#                                    $project_data{"Teachers"},
-#                                    $project_data{"Members"},
-#                                    $project_data{"MemberGroups"}
-#                                   );
 
     &db_disconnect($dbh);
-    # users
-    # ========================================
-    if($Conf::log_level>=3){
-       print "\n\nAll Users which will be members in project $project:\n";
-       print "Login:          Listed in:\n";
-       print "=======================================",
-             "=======================================\n";
-       while (my ($k,$v) = each %users_to_add){
-          printf "%-14s %-40s\n","$k","$v";
-       }
+
+
+    print "3) Managing memberships:\n";
+    if($Conf::log_level>=2){
+       print "What to compare:\n";
+       print "   Old users: @old_users\n";
+       print "   Old admins: @old_admins\n";
+       print "   Old projects: @old_projects\n";
+       print "   New users: @new_users\n";
+       print "   New admins: @new_admins\n";
+       print "   New projects: @new_projects\n";
+
     }
 
+    print "What to do:\n";
+
+    # users
+    # ========================================
     # calculating which users to add
     foreach my $user (@old_users){
        if (exists $users_to_add{$user}){
@@ -2063,7 +2138,7 @@ sub create_project {
          }
          #system("gpasswd -d $user $project");
 	 &deleteuser_from_project($user,$project);
-         &remove_share_link($user,$project);
+         &Sophomorix::SophomorixBase::remove_share_link($user,$project);
        } 
     }    
     
@@ -2086,16 +2161,6 @@ sub create_project {
 
     # admins
     # ========================================
-    if($Conf::log_level>=3){
-       print "\n\nAll Users which will be admins in project $project:\n";
-       print "Login:          Listed in:\n";
-       print "=======================================",
-             "=======================================\n";
-       while (my ($k,$v) = each %admins_to_add){
-          printf "%-14s %-40s\n","$k","$v";
-       }
-    }
-
     # calculating which users to add as admins
     foreach my $user (@old_admins){
        if (exists $admins_to_add{$user}){
@@ -2112,7 +2177,7 @@ sub create_project {
          }
          #system("gpasswd -d $user $project");
 	 &deleteadmin_from_project($user,$project);
-         &remove_share_link($user,$project);
+         &Sophomorix::SophomorixBase::remove_share_link($user,$project);
        } 
     }    
     
@@ -2134,16 +2199,6 @@ sub create_project {
 
     # projects
     # ========================================
-    if($Conf::log_level>=3){
-       print "\n\nAll Projects which will be members in project $project:\n";
-       print "Projects:          Listed in:\n";
-       print "=======================================",
-             "=======================================\n";
-       while (my ($k,$v) = each %projects_to_add){
-          printf "%-14s %-40s\n","$k","$v";
-       }
-    }
-
     # calculating which m_projects to add 
     foreach my $m_project (@old_projects){
        if (exists $projects_to_add{$m_project}){
@@ -2170,7 +2225,6 @@ sub create_project {
     print "     Projects to add as members: @projects_to_add\n";
     # adding the projects
     foreach my $m_project (@projects_to_add) {
-
        &addproject_to_project($m_project,$project);
     }
 }

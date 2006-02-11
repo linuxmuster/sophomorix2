@@ -83,14 +83,15 @@ my $project="";
 my $k;
 my $v;
 
-my $long_name;
+my $p_long_name;
 my $p_admins;
 my $p_members;
 my $p_projects;
 my $p_add_quota;
+my $p_add_mail_quota;
 my $p_max_members;
 
-my @options=();
+#my @options=();
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -99,11 +100,12 @@ my $testopt=GetOptions(
            "create" => \$create,
            "verbose|v+" => \$Conf::log_level,
            "Name|project|p=s" => \$project,
-           "LongName=s" => \$long_name,
+           "LongName=s" => \$p_long_name,
            "Admins=s" => \$p_admins,
            "Members=s" => \$p_members,
            "MemberProjects=s" => \$p_projects,
            "AddQuota=s" => \$p_add_quota,
+           "AddMailQuota=s" => \$p_add_mail_quota,
            "MaxMembers=s" => \$p_max_members,
           );
 
@@ -127,13 +129,14 @@ Options
   -vv / --verbose --verbose
   -i  / --info
   -p projectname, / --project projectname 
-  -- create 
+  --create 
   --LongName projectname(long)
   --Admins user1,user2,user3, ... 
   --Members user1,user2,user3, ... 
   --MemberGroups group1,group2,group3, ... 
   --MemberProjects project1,project2,project3, ... 
   --AddQuota quotastring
+  --AddMailQuota number
   --MaxMembers number
 
 Please see the sophomorix-project(8) man pages for full documentation
@@ -159,11 +162,11 @@ if ($project eq "" or $info==1){
 
 
 # Options-Liste Füllen, falls angegeben
-push @options, $project;
-if (defined $long_name){push @options, "LongName=$long_name"}
-if (defined $p_add_quota){push @options, "AddQuota=$p_add_quota"}
-if (defined $p_max_members){push @options, "MaxMembers=$p_max_members"}
-if ($create==1){push @options, "Create=yes"}
+#push @options, $project;
+#if (defined $p_long_name){push @options, "LongName=$p_long_name"}
+#if (defined $p_add_quota){push @options, "AddQuota=$p_add_quota"}
+#if (defined $p_max_members){push @options, "MaxMembers=$p_max_members"}
+#if ($create==1){push @options, "Create=yes"}
 
 
 
@@ -174,27 +177,18 @@ if ($create==1){push @options, "Create=yes"}
 
 &check_datei_touch("${DevelConf::dyn_config_pfad}/projects_db");
 
-
 # repair.directories einlesen
 &get_alle_verzeichnis_rechte();
 
 
 # Step 1
 # write the projects-line
-&create_project_db(@options);
+#&create_project_db(@options);
 
 # step 2
 # Read the database  
 # and change the system accordingly
-&create_project($project,$p_members,$p_admins,$p_projects);
-
-
-
-
-
-###########################################################################
-# Sub
-###########################################################################
-
+&create_project($project,$create,$p_long_name,$p_add_quota,$p_add_mail_quota,
+                $p_max_members,$p_members,$p_admins,$p_projects);
 
 
