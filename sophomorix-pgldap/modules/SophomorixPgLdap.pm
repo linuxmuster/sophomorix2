@@ -36,6 +36,7 @@ require Exporter;
 	     update_user_db_entry
 	     remove_user_db_entry
              create_project_db
+             create_project
              get_sys_users
              get_teach_in_sys_users
              get_print_data
@@ -57,6 +58,7 @@ require Exporter;
 use Sophomorix::SophomorixBase qw ( titel
                                     do_falls_nicht_testen
                                     provide_class_files
+                                    provide_project_files
                                     get_user_history
                                     print_forward
                                   );
@@ -320,7 +322,6 @@ sub deleteproject_from_project {
     my ($m_project_id_sys)= $dbh->selectrow_array( "SELECT id 
                                          FROM groups 
                                          WHERE gid='$m_project'");
-
     if (defined $m_project_id_sys and defined $project_id_sys){
        print "   Removing Project $m_project($m_project_id_sys) from ",
              "$project($project_id_sys) \n";
@@ -1009,6 +1010,8 @@ sub create_class_db_entry {
     } # end adding group
     return $gidnumber;
 }
+
+
 
 
 
@@ -1851,23 +1854,22 @@ sub user_reaktivieren {
 sub create_project_db {
     # fist argument is options
     my $project=shift;
+
     my $sql="";
     my $create=0;
     my $param="";
-#    my $login_file="";
     my $project_name_file="";
     my $old_line="";
     my $new_line="";
     my $count=0;
-    my $file="${DevelConf::protokoll_pfad}/projects_db";
     foreach $param (@_){
        ($attr,$value) = split(/=/,$param);
-       if ($attr eq "File"){$file="$value"}
        if ($attr eq "Create"){$create=1}
     } 
 
     my $dbh=&db_connect();
 
+    # fetch old data
     my ($id_db,$p_name,$p_long_name,$p_add_quota,
         $p_max_members)= $dbh->selectrow_array( 
                          "SELECT id,gid,displayname,addquota,maxmembers 
@@ -1878,11 +1880,6 @@ sub create_project_db {
 if (defined $id_db and defined $p_name){
     print "Project $project is an existing project -> UPDATING\n";
     printf "   %-18s : %-20s\n","Name" ,$project;
-    if (not defined $p_name){$p_name=$project}
-    if (not defined $p_long_name){$p_long_name=$p_name}
-#    if (not defined $p_teachers){$p_teachers=""}
-#    if (not defined $p_members){$p_members=""}
-#    if (not defined $p_member_groups){$p_member_groups=""}
     if (not defined $p_add_quota){$p_add_quota=""}
     if (not defined $p_max_members){$p_max_members=""}
     $count++;
@@ -1893,12 +1890,9 @@ if (defined $id_db and defined $p_name){
        printf "   %-18s : %-20s\n",$attr ,$value;
        if    ($attr eq "Name"){$p_name="$value"}
        elsif ($attr eq "LongName"){$p_long_name="$value"}
-#       elsif ($attr eq "Admins"){$p_teachers="$value"}
-#       elsif ($attr eq "Members"){$p_members="$value"}
-#       elsif ($attr eq "MemberGroups"){$p_member_groups="$value"}
+       elsif ($attr eq "Admins"){$p_long_name="$value"}
        elsif ($attr eq "AddQuota"){$p_add_quota="$value"}
        elsif ($attr eq "MaxMembers"){$p_max_members="$value"}
-       elsif ($attr eq "File"){$file="$value"}
        elsif ($attr eq "Create"){$create=1}
        else {print "Attribute $attr unknown\n"}
     }
@@ -1911,20 +1905,13 @@ if (defined $id_db and defined $p_name){
            ($attr,$value) = split(/=/,$param);
            printf "   %-18s : %-20s\n",$attr ,$value;
            if ($attr eq "LongName"){$p_long_name="$value"}
-#           elsif ($attr eq "Admins"){$p_teachers="$value"}
-#           elsif ($attr eq "Members"){$p_members="$value"}
-#           elsif ($attr eq "MemberGroups"){$p_member_groups="$value"}
            elsif ($attr eq "AddQuota"){$p_add_quota="$value"}
            elsif ($attr eq "MaxMembers"){$p_max_members="$value"}
-           elsif ($attr eq "File"){$file="$value"}
            elsif ($attr eq "Create"){$create=1}
            else {print "Attribute $attr unknown\n"}
         }
         # Enough Information to create the Project?
         if (not defined $p_long_name){$p_long_name=$project}
-#        if (not defined $p_teachers){$p_teachers="root"}
-#        if (not defined $p_members){$p_members=""}
-#        if (not defined $p_member_groups){$p_member_groups=""}
         if (not defined $p_add_quota){$p_add_quota=""}
         if (not defined $p_max_members){$p_max_members="NULL"}
 
@@ -1948,9 +1935,253 @@ if (defined $id_db and defined $p_name){
         }
         $dbh->do($sql);
 } # end creating the project
+
+
     &db_disconnect($dbh);
+
     return $count;
 }
+
+
+
+
+
+
+sub create_project {
+    # reads from projects_db and creates the project in the system
+    my ($project,$p_members,$p_admins,$p_projects) = @_;
+    my $found=0;
+    my %users_to_add=();
+    my %admins_to_add=();
+    my %projects_to_add=();
+
+    my @users_to_add=();
+    my @admins_to_add=();
+    my @projects_to_add=();
+
+    my $old_users="";
+    my @old_users=();
+    my @old_admins=();
+    my @old_projects=();
+
+    my %seen=();
+
+    my @new_members=();
+    my @new_admins=();
+    my @new_projects=();
+    my @new_users=();
+
+    my $dbh=&db_connect();
+    my (@line)= $dbh->selectrow_array( 
+                              "SELECT gid,displayname,addquota,maxmembers 
+                               FROM projectdata 
+                               WHERE gid='$project'
+                              ");
+    if (not defined $line[0]){
+        print "Could not find project $project.\n";
+	exit;
+    }
+    print "\nCreating/Updating Project $project: \n";
+    &Sophomorix::SophomorixBase::provide_project_files($project);
+
+    # get old values
+
+    @old_users=&fetchuser_from_project($project);
+    @old_admins=&fetchadmin_from_project($project);
+    @old_projects=&fetchprojects_from_project($project);
+
+    print "   Old users: @old_users\n";
+    print "   Old admins: @old_admins\n";
+    print "   Old projects: @old_projects\n";
+
+    # Adding all users/admins/projects from options to lists
+    if (defined $p_members){
+        @new_members=split(/,/,$p_members);
+    } else {
+	@new_members=@old_users;
+    }
+     if (defined $p_admins){
+        @new_admins=split(/,/,$p_admins);
+    } else {
+        @new_admins=@old_admins;          
+    }
+    if (defined $p_projects){
+        @new_projects=split(/,/,$p_projects);
+    } else {
+        @new_projects=@old_projects;          
+    }
+
+    @new_users=(@new_members,@new_admins);
+
+    foreach my $memb (@new_users){
+	$users_to_add{ $memb }="";
+        # print $memb,"\n";
+    }
+
+    foreach my $admin (@new_admins){
+	$admins_to_add{ $admin }="";
+        # print $admin,"\n";
+    }
+
+    foreach my $project (@new_projects){
+	$projects_to_add{ $project }="";
+        # print $project,"\n";
+    }
+
+#    %users_to_add=&get_user_project($project,
+#                                    $project_data{"Teachers"},
+#                                    $project_data{"Members"},
+#                                    $project_data{"MemberGroups"}
+#                                   );
+
+    &db_disconnect($dbh);
+    # users
+    # ========================================
+    if($Conf::log_level>=3){
+       print "\n\nAll Users which will be members in project $project:\n";
+       print "Login:          Listed in:\n";
+       print "=======================================",
+             "=======================================\n";
+       while (my ($k,$v) = each %users_to_add){
+          printf "%-14s %-40s\n","$k","$v";
+       }
+    }
+
+    # calculating which users to add
+    foreach my $user (@old_users){
+       if (exists $users_to_add{$user}){
+          # remove user from users_to_add
+          if($Conf::log_level>=3){
+             print "     User $user does not need to be added\n";
+	  }
+          delete $users_to_add{$user}; 
+       } elsif (not exists $users_to_add{$user}) {
+         # remove user
+          if($Conf::log_level>=3){
+            print "     User $user has left Project $project,",
+                  " removing $user\n";
+         }
+         #system("gpasswd -d $user $project");
+	 &deleteuser_from_project($user,$project);
+         &remove_share_link($user,$project);
+       } 
+    }    
+    
+    while (my ($user) = each %users_to_add){
+       #print "$user must be added\n";
+       push @users_to_add, $user;
+    }
+    # sorting
+    @users_to_add = sort @users_to_add;
+    print "     Users to add: @users_to_add\n";
+    # adding the users
+    foreach my $user (@users_to_add) {
+       if ($user eq "root"){next;}
+       &adduser_to_project($user,$project);
+
+       # create a link
+       &Sophomorix::SophomorixBase::create_share_link($user,$project);
+    }
+
+
+    # admins
+    # ========================================
+    if($Conf::log_level>=3){
+       print "\n\nAll Users which will be admins in project $project:\n";
+       print "Login:          Listed in:\n";
+       print "=======================================",
+             "=======================================\n";
+       while (my ($k,$v) = each %admins_to_add){
+          printf "%-14s %-40s\n","$k","$v";
+       }
+    }
+
+    # calculating which users to add as admins
+    foreach my $user (@old_admins){
+       if (exists $admins_to_add{$user}){
+          # remove user from admins_to_add
+          if($Conf::log_level>=3){
+             print "     User $user does not need to be added as admin\n";
+	  }
+          delete $admins_to_add{$user}; 
+       } elsif (not exists $admins_to_add{$user}) {
+         # remove user
+          if($Conf::log_level>=3){
+            print "     Admin $user has left Project $project,",
+                  " removing $user\n";
+         }
+         #system("gpasswd -d $user $project");
+	 &deleteadmin_from_project($user,$project);
+         &remove_share_link($user,$project);
+       } 
+    }    
+    
+    while (my ($user) = each %admins_to_add){
+       #print "$user must be added\n";
+       push @admins_to_add, $user;
+    }
+    # sorting
+    @admins_to_add = sort @admins_to_add;
+    print "     Users to add as admins: @admins_to_add\n";
+    # adding the users
+    foreach my $user (@admins_to_add) {
+       if ($user eq "root"){next;}
+       &addadmin_to_project($user,$project);
+
+       # create a link
+       &Sophomorix::SophomorixBase::create_share_link($user,$project);
+    }
+
+    # projects
+    # ========================================
+    if($Conf::log_level>=3){
+       print "\n\nAll Projects which will be members in project $project:\n";
+       print "Projects:          Listed in:\n";
+       print "=======================================",
+             "=======================================\n";
+       while (my ($k,$v) = each %projects_to_add){
+          printf "%-14s %-40s\n","$k","$v";
+       }
+    }
+
+    # calculating which m_projects to add 
+    foreach my $m_project (@old_projects){
+       if (exists $projects_to_add{$m_project}){
+          # remove m_project from projectss_to_add
+          if($Conf::log_level>=3){
+             print "     Project $m_project does not need to be added\n";
+	  }
+          delete $projects_to_add{$m_project}; 
+       } elsif (not exists $projects_to_add{$m_project}) {
+         # remove m_project
+          if($Conf::log_level>=3){
+            print "     Project $m_project has left Project $project,",
+                  " removing $m_project\n";
+         }
+	 &deleteproject_from_project($m_project,$project);
+       } 
+    }    
+    
+    while (my ($m_project) = each %projects_to_add){
+       push @projects_to_add, $m_project;
+    }
+    # sorting
+    @projects_to_add = sort @projects_to_add;
+    print "     Projects to add as members: @projects_to_add\n";
+    # adding the projects
+    foreach my $m_project (@projects_to_add) {
+
+       &addproject_to_project($m_project,$project);
+    }
+}
+
+
+
+
+
+
+
+
 
 
 
