@@ -801,8 +801,8 @@ sub provide_project_files {
     my ($project) = @_;
     my $project_tausch="${DevelConf::share_projects}/$project";
     my $project_aufgaben="${DevelConf::tasks_projects}/$project";
-    print "$project_tausch\n";
-    print "$project_aufgaben\n";
+    print "   $project_tausch\n";
+    print "   $project_aufgaben\n";
     &setup_verzeichnis("\$share_projects/\$klassen",
                        "$project_tausch");
     &setup_verzeichnis("\$tasks_projects/\$klassen",
