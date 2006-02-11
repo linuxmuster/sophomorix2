@@ -1368,6 +1368,7 @@ CREATE TABLE class_details (
 CREATE TABLE project_details (
     id integer NOT NULL,
     addquota character varying(255),
+    addmailquota integer,
     schooltype character varying(255),
     department character varying(255),
     sophomorixstatus character varying(255),
