@@ -13,10 +13,13 @@ require Exporter;
              check_connections
              adduser_to_project
              addadmin_to_project
+             addproject_to_project
              fetchuser_from_project
              fetchadmin_from_project
+             fetchprojects_from_project
              deleteuser_from_project
              deleteadmin_from_project
+             deleteproject_from_project
              deleteuser_from_all_projects
 	     create_user_db_entry
              date_perl2pg
@@ -218,6 +221,41 @@ sub fetchadmin_from_project {
 
 
 
+sub fetchprojects_from_project {
+    # return a list of member projects of the given project
+    my ($group) = @_;
+    my @project_list=();
+    my $dbh=&db_connect();
+     # fetching project_id
+    my ($pro_id_sys)= $dbh->selectrow_array( "SELECT id 
+                                         FROM groups 
+                                         WHERE gid='$group'");
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT memberprojectid 
+                            FROM projects_memberprojects 
+                            WHERE projectid=$pro_id_sys 
+                           " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+       # split the array, to give better names
+       my ($memberpro_id)=@$row;
+       # fetching name of memberproject
+       my ($id_sys)= $dbh->selectrow_array( "SELECT id 
+                                         FROM project_details 
+                                         WHERE id=$memberpro_id");
+    my ($m_project)= $dbh->selectrow_array( "SELECT gid 
+                                         FROM groups 
+                                         WHERE id='$memberpro_id'");
+
+       push @project_list, $m_project;
+    }
+    &db_disconnect($dbh);
+    return @project_list;
+}
+
+
+
 sub deleteuser_from_project {
     # remove user from its secondary membership in project(group)
     my ($user,$project)=@_;
@@ -266,6 +304,44 @@ sub deleteadmin_from_project {
     $dbh->do($sql);
     &db_disconnect($dbh);
 
+}
+
+
+
+sub deleteproject_from_project {
+    # remove memberproject from project
+    my ($m_project,$project)=@_;
+    my $dbh=&db_connect();
+    # fetching project id
+    my ($project_id_sys)= $dbh->selectrow_array( "SELECT id 
+                                         FROM groups 
+                                         WHERE gid='$project'");
+    # fetching m_project id
+    my ($m_project_id_sys)= $dbh->selectrow_array( "SELECT id 
+                                         FROM groups 
+                                         WHERE gid='$m_project'");
+
+    if (defined $m_project_id_sys and defined $project_id_sys){
+       print "   Removing Project $m_project($m_project_id_sys) from ",
+             "$project($project_id_sys) \n";
+       my $sql="DELETE FROM projects_memberprojects 
+                WHERE (memberprojectid=$m_project_id_sys 
+                  AND projectid=$project_id_sys) 
+               ";	
+       if($Conf::log_level>=3){
+          print "\nSQL: $sql\n";
+       }
+       $dbh->do($sql);
+    } else {
+        if (not defined $m_project_id_sys){
+           print "   MemberProject $m_project_id_sys does not exist,",
+                 " doing nothing. \n";
+        }
+        if (not defined $project_id_sys){
+           print "   Project $project does not exist, doing nothing. \n";
+        }
+    }
+    &db_disconnect($dbh);
 }
 
 
@@ -361,6 +437,46 @@ sub addadmin_to_project {
     } else {
         if (not defined $uidnumber_sys){
            print "   User $user does not exist, doing nothing. \n";
+        }
+        if (not defined $project_id_sys){
+           print "   Project $project does not exist, doing nothing. \n";
+        }
+    }
+    &db_disconnect($dbh);
+}
+
+
+
+
+
+sub addproject_to_project {
+    # add a project to a project(group)
+    my ($m_project,$project)=@_;
+    my $dbh=&db_connect();
+    # fetching project id
+    my ($project_id_sys)= $dbh->selectrow_array( "SELECT id 
+                                         FROM groups 
+                                         WHERE gid='$project'");
+    # fetching m_project id
+    my ($m_project_id_sys)= $dbh->selectrow_array( "SELECT id 
+                                         FROM groups 
+                                         WHERE gid='$m_project'");
+
+    if (defined $m_project_id_sys and defined $project_id_sys){
+        print "   Adding project $m_project(id=$m_project_id_sys) ", 
+              "to $project(id=$project_id_sys)\n";
+        my $sql="INSERT INTO projects_memberprojects
+                (projectid,memberprojectid)
+	        VALUES
+	        ($project_id_sys,'$m_project_id_sys')";	
+        if($Conf::log_level>=3){
+           print "\nSQL: $sql\n";
+        }
+        $dbh->do($sql);
+    } else {
+        if (not defined $m_project_id_sys){
+           print "   MemberProject $m_project_id_sys does not exist,",
+                 " doing nothing. \n";
         }
         if (not defined $project_id_sys){
            print "   Project $project does not exist, doing nothing. \n";
