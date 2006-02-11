@@ -29,7 +29,6 @@ use if ${DevelConf::db_backend} eq 'files' ,
     'Sophomorix::SophomorixFiles' => qw(show_modulename
                                         check_connections
                                         show_project_list
-                                        create_project_db
                                        );
 # list of functions to load if db is 'pgldap'
 use if ${DevelConf::db_backend} eq 'pgldap' , 
@@ -47,7 +46,6 @@ use if ${DevelConf::db_backend} eq 'pgldap' ,
                                         deleteproject_from_project
                                         check_connections
                                         show_project_list
-                                        create_project_db
                                         create_project
                                        );
 
@@ -161,16 +159,6 @@ if ($project eq "" or $info==1){
 }
 
 
-# Options-Liste Füllen, falls angegeben
-#push @options, $project;
-#if (defined $p_long_name){push @options, "LongName=$p_long_name"}
-#if (defined $p_add_quota){push @options, "AddQuota=$p_add_quota"}
-#if (defined $p_max_members){push @options, "MaxMembers=$p_max_members"}
-#if ($create==1){push @options, "Create=yes"}
-
-
-
-
 # ===========================================================================
 # Programmbeginn
 # ===========================================================================
@@ -180,14 +168,7 @@ if ($project eq "" or $info==1){
 # repair.directories einlesen
 &get_alle_verzeichnis_rechte();
 
-
-# Step 1
-# write the projects-line
-#&create_project_db(@options);
-
-# step 2
-# Read the database  
-# and change the system accordingly
+# create/update project
 &create_project($project,$create,$p_long_name,$p_add_quota,$p_add_mail_quota,
                 $p_max_members,$p_members,$p_admins,$p_projects);
 
