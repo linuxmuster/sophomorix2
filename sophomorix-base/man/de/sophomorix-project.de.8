@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-PROJECT 8 "November 16, 2004"
+.TH SOPHOMORIX-PROJECT 8 "February 11, 2006"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -26,37 +26,44 @@ sophomorix-project \- Projekte anlegen und verwalten
 .B sophomorix-project
 verwaltetes Projekt hat folgende Eigenschaften:
 .br
-     Name:          Der Name des Projekts, 
+     Name:           Der Name des Projekts (unix groupname), 
 .br
-                       z.B.:  astro 
+                         z.B.:  astro 
 .br
-     LongName:      Der ausführliche Name des Projekts,  
+     LongName:       Der ausführliche Name des Projekts,  
 .br
-                       z.B.:  Astronomie-AG-2004
+                         z.B.:  Astronomie-AG-2004
 .br
-     Admins:      User mit Verwaltungsaufgaben im Projekt
+     Admins:         User mit Verwaltungsaufgaben im Projekt
 .br
-                       z.B.:  bz,kj,roes
+                         z.B.:  bz,kj,roes
 .br
-     Members:       User, die dem Projekt angehören
+     Members:        User, die dem Projekt angehören (Admins gehören 
+                     automatisch dazu)
 .br
-                       z.B.:  muellepe,maierjo
+                         z.B.:  muellepe,maierjo
 .br
-     MemberGroups:  Gruppen, deren Mitglieder dem Projekt angehören.
+     MemberGroups:   Primäre Gruppen (AdminClass, also Schulklassen und teachers), 
+                     deren Mitglieder dem Projekt angehören.
 .br
-                       z.B.:  12c,7a
+                         z.B.:  12c,7a,teachers
 .br
-     AddQuota:      Zuätzliches Quota in MB, das Mitglieder des Projekts
-                    bekommen.
+     MemberProjects: Sekundäre Gruppen (Projekte), deren Mitglieder dem Projekt 
+angehören.
 .br
-                       z.B.:  40
+                         z.B.:  12c,7a,teachers
 .br
-     MaxMembers:    Maximale Anzahl von Mitgliedern, die ein User mit
-                    Verwaltungsaufgaben (siehe Admins) einem Projekt 
-                    hinzufügen kann. 
-                    Diese Grenze gilt nur, wenn AddQuota gesetzt ist.
+     AddQuota:       Zuätzliches Festplatten-Quota in MB, das Mitglieder 
+                     des Projekts bekommen.
 .br
-                       z.B.:  16
+                         z.B.:  40
+.br
+     MaxMembers:     Maximale Anzahl von Mitgliedern, die ein User mit
+                     Verwaltungsaufgaben (siehe Admins) einem Projekt 
+                     hinzufügen kann. 
+                     Diese Grenze gilt nur, wenn AddQuota gesetzt ist.
+.br
+                         z.B.:  16
 .PP
 .SH OPTIONS
 .B sophomorix-project
@@ -87,6 +94,8 @@ als LongName eingetragen.
 Trägt die übergebenen User als Verwalter in das Projekt ein. Bisher
 vorhandene User werden wieder entfernt. Werden bei einem neuen Projekt
 keine Admins angegeben, so wird root eingetragen.
+.br
+Wollen sie aus einem Projekt alle Admins entfernen, Müssen sie --Admins "" angeben.
 .TP
 .B \-\-Members user1,user2,user3, ... 
 Trägt die übergebenen User als Mitglieder in das Projekt ein. Bisher
@@ -100,6 +109,22 @@ Trägt die Mitglieder der übergebenen Gruppen als Mitglieder in das
 Projekt ein. Bisher vorhandene Gruppen werden wieder entfernt. Werden
 bei einem neuen Projekt keine MemberGroups angegeben, so wird nichts
 eingetragen.
+.br
+Als Gruppen können nur primäre Gruppen angegeben werden, also
+sogenannte AdminClasses, die in schueler.txt vorkommen (Also alle vom
+Schulverwaltungsprogramm angelegten Klassen)
+.br
+Wollen sie aus einem Projekt alle Gruppen entfernen, Müssen sie
+--MemberGroups "" angeben.
+.TP
+.B \-\-MemberProjects project1,project2,project3, ... 
+Trägt die Mitglieder der übergebenen Projekte als Mitglieder in das
+Projekt ein. Bisher vorhandene Projekte werden wieder entfernt. Werden
+bei einem neuen Projekt keine MemberProjects angegeben, so wird nichts
+eingetragen.
+.br
+Wollen sie aus einem Projekt alle MemberProjects entfernen, Müssen sie \
+--MemberProjects "" angeben.
 .TP
 .B \-\-AddQuota quotastring
 Trägt den übergebenen quotastring als Zusatzquota in das Projekt
@@ -117,11 +142,11 @@ Trägt anzahl als MaxMembers in das Projekt ein. Die bisher vorhandene
 anzahl wird wieder entfernt. Wird bei einem neuen Projekt keine
 MaxMembers angegeben, so wird nichts eingetragen.
 .br
-Die MaxMembers dienen zur Begrenzung der vergebenen AddQuota, und ist
+Der Eintrag MaxMembers dient zur Begrenzung der vergebenen AddQuota, und ist
 nur wirksam, wenn ein AddQuota angegeben ist. Projekte, die mit denen
-kein AddQuota gekoppelt ist sind in ihrer Mitgliederanzahl praktisch
+kein AddQuota gekoppelt ist, sind in ihrer Mitgliederanzahl praktisch
 unbeschränkt (nur durch eine im Betriebsystem vohandene maximale
-Gruppenmitgliedschaft)
+Gruppenmitgliedschaftanzahl)
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
