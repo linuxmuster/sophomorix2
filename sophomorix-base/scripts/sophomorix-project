@@ -46,6 +46,7 @@ use if ${DevelConf::db_backend} eq 'pgldap' ,
                                         deleteproject_from_project
                                         check_connections
                                         show_project_list
+                                        show_project
                                         create_project
                                        );
 
@@ -111,6 +112,7 @@ my $testopt=GetOptions(
 &check_options($testopt);
 
 
+
 # --help
 if ($help==1) {
    # Scriptname ermitteln
@@ -126,6 +128,7 @@ Options
   -v  / --verbose
   -vv / --verbose --verbose
   -i  / --info
+  -i -p projectname
   -p projectname, / --project projectname 
   --create 
   --LongName projectname(long)
@@ -153,10 +156,19 @@ Please see the sophomorix-project(8) man pages for full documentation
 
 
 # --info
-if ($project eq "" or $info==1){
+if ($project eq "" and $info==1){
     &show_project_list();
     exit;
 }
+
+
+if ($project ne "" and $info==1){
+    &show_project($project);
+    exit;
+}
+
+
+
 
 
 # ===========================================================================
