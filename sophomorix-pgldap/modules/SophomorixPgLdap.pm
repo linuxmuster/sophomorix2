@@ -2474,36 +2474,40 @@ sub check_sophomorix_user_oldstuff {
 
 sub show_project_list {
    print "The following projects exist already:\n\n";
-   printf "%-22s %-10s %-40s\n","Name:", "AddQuota", "LongName:";
-   print "=======================================",
-         "=======================================\n";
+   printf "%-22s|%6s|%6s|%4s|%-35s \n","Name",
+          "AddQ", "AddMQ","MaxM","LongName";
+   print "----------------------+------+------+----+",
+         "------------------------------------\n";
     my $dbh=&db_connect();
-    my $sth= $dbh->prepare( "SELECT gid,addquota,longname 
+    my $sth= $dbh->prepare( "SELECT gid,addquota,addmailquota,
+                                    longname,maxmembers 
                              FROM projectdata" );
       $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
-
     my $i=0;
     foreach ( @{ $array_ref } ) {
         my $gid=${$array_ref}[$i][0];
-	#chomp($gid);
-#        my $teachers=${$array_ref}[$i][1];
         my $addquota=${$array_ref}[$i][1];
-        my $longname=${$array_ref}[$i][2];
+        my $addmailquota=${$array_ref}[$i][2];
+        my $longname=${$array_ref}[$i][3];
+        my $maxmembers=${$array_ref}[$i][4];
         if (not defined $gid){
 	    $gid="";
         }
-#        if (not defined $teachers){
-#	    $teachers="";
-#        }
         if (not defined $addquota){
 	    $addquota="";
+        }
+        if (not defined $addmailquota){
+	    $addmailquota="";
         }
         if (not defined $longname){
 	    $longname="";
         }
-
-        printf "%-22s %-10s %-40s\n",$gid,$addquota,$longname;
+        if (not defined $maxmembers){
+	    $maxmembers="";
+        }
+        printf "%-22s|%6s|%6s|%4s|%-35s\n",$gid,
+                $addquota,$addmailquota,$maxmembers,$longname;
         $i++;
     }   
 }
