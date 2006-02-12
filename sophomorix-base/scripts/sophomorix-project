@@ -35,15 +35,6 @@ use if ${DevelConf::db_backend} eq 'pgldap' ,
     'Sophomorix::SophomorixPgLdap' => qw(show_modulename
                                         db_connect
                                         db_disconnect
-                                        adduser_to_project
-                                        addadmin_to_project
-                                        addproject_to_project
-                                        fetchuser_from_project
-                                        fetchadmin_from_project
-                                        fetchprojects_from_project
-                                        deleteuser_from_project
-                                        deleteadmin_from_project
-                                        deleteproject_from_project
                                         check_connections
                                         show_project_list
                                         show_project
@@ -86,6 +77,7 @@ my $v;
 
 my $p_long_name;
 my $p_admins;
+my $p_groups;
 my $p_members;
 my $p_projects;
 my $p_add_quota;
@@ -103,6 +95,7 @@ my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
            "Name|project|p=s" => \$project,
            "LongName=s" => \$p_long_name,
+           "MemberGroups=s" => \$p_groups,
            "Admins=s" => \$p_admins,
            "Members=s" => \$p_members,
            "MemberProjects=s" => \$p_projects,
@@ -187,6 +180,6 @@ if ($project ne "" and $info==1){
 &create_project($project,$create,$p_long_name,
                 $p_add_quota,$p_add_mail_quota,
                 $p_status,$pg_timestamp,
-                $p_max_members,$p_members,$p_admins,$p_projects);
+                $p_max_members,$p_members,$p_admins,$p_groups,$p_projects);
 
 
