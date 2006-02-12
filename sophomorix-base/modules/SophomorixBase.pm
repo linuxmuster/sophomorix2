@@ -262,28 +262,33 @@ sub print_list_column {
       #print "$all divided by $number is $left left, add $to_add\n";
 
       # add the missing elements
-      for ($i = 1; $i <= $to_add; $i++) {  # count from 1 to 10
-         push @list, "";
+      if ($all!=$number){
+         for ($i = 1; $i <= $to_add; $i++) {  # count from 1 to 10
+            push @list, "";
+         }
       }
-      print "$title ($all) ...\n";
+      my $head = $title." (".$all."):";
+
+      printf "######### %-60s #########\n", $head;
       foreach my $user (@list){
           push @linelist, $user;
           if ($#linelist==$index_number){
               if ($number==2){
-                 
     	         printf "%-36s %-36s\n", 
-                  @linelist;
+                 @linelist;
 	     } elsif ($number==4){
-	      printf "%-18s %-18s %-18s %-18s\n", 
-                  @linelist;
-	  } elsif ($number==6){
-	      printf "%-12s %-12s %-12s %-12s %-12s %-12s\n", 
-                  @linelist;
+ 	         printf "%-18s %-18s %-18s %-18s\n", 
+                 @linelist;
+
+	     } elsif ($number==6){
+	         printf "%-12s %-12s %-12s %-12s %-12s %-12s\n", 
+                 @linelist;
           }
           @linelist=();
           } 
       }
-      print "... $title ($all)\n";
+      print "----------------------------------------",
+            "----------------------------------------\n";
    }
 }
 
