@@ -938,9 +938,6 @@ change quota with cyrus-user.pl -u user -q quota
 
 
 
-   - when performance of groups_groups is OK:
-      insert MemberGroups (primary) into groups_groups
-
 
       update memberships recursively 
 
@@ -953,7 +950,61 @@ change quota with cyrus-user.pl -u user -q quota
 
    - removing a project:
       - remove also project_memberships
+      - remove all links to this project
       - ..
+
+
+   - Disabling a project:
+      - remove users,admins,groups,projects from this projects
+               (Make the empty -> nobody is user in this project anymore)
+        backup this membership data in a log-file
+               to reactivate the group, issue sophomorix-project ...
+               using this Data
+
+   Managing links in home to project:
+   ==============================
+   A) Users:
+     - user is added:
+       look at groups of the user, create all links
+     - user is moved:
+       look at groups of the user, recreate all links
+       (if a user is moved, he could be added to a project as group
+        membership, so just deleting the old adminclass link and creting 
+        the new link is NOT sufficient)
+     - user is killed: no problem
+
+     ==> when modifiing a user, delet the links and recreate them
+   B) Projects
+     1) it is difficult to do it the small way:
+     --Members: add:    add a link, if nonexisting
+                delete: delete the link only,
+                        if:
+                           - user is NOT an admin 
+                                 AND NOT in Membergroup 
+                                 AND NOT in Memberproject
+     --Admin:  like Members
+
+     --MemberGroups:
+                add:    add a link to all users in this group, if nonexisting
+                delete: delete the link only ... 
+                           - user is NOT an Admin 
+                                 AND NOT in Members 
+                                 AND NOT in Memberproject
+                        
+     --MemberProjects:
+            split into Members and MemberGroups, then handle them
+
+     2) Do it the Big Way:
+            when a project is modified(Memberships):
+                - build a list of users BEFORE Modification
+                  (expand MemberGroups and MemberProjects to users)
+                - build a list of users AFTER Modification
+                  (expand MemberGroups and MemberProjects to users)
+                - unite the lists, removing doubles
+                - go through the list and recreate the links for all users
+
+     3) sophomorix-repair:   repair links af user xyz
+                             repair all links of all users
 
 
    - SQL-View projectdata:
@@ -971,8 +1022,12 @@ change quota with cyrus-user.pl -u user -q quota
       - add project_details.longname AFTER gid
       - sorted by gid
 
+NEXT: groups_groups is NOT working (THO)
+
 
 1.4.8-1 (2006-02-xx)
+   - insert MemberGroups (primary) into groups_groups
+     (Table looks ok, but seems not to be working)
    - using creationdate and sophomorixstatus when adding a project
    - added option sophomorix -i -p project, displays info
      about project
