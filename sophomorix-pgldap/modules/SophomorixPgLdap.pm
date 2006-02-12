@@ -13,12 +13,15 @@ require Exporter;
              check_connections
              adduser_to_project
              addadmin_to_project
+             addgroup_to_project
              addproject_to_project
-             fetchuser_from_project
-             fetchadmin_from_project
+             fetchusers_from_project
+             fetchadmins_from_project
+             fetchgroups_from_project
              fetchprojects_from_project
              deleteuser_from_project
              deleteadmin_from_project
+             deletegroup_from_project
              deleteproject_from_project
              deleteuser_from_all_projects
 	     create_user_db_entry
@@ -157,7 +160,7 @@ sub check_connections {
 
 
 
-sub fetchuser_from_project {
+sub fetchusers_from_project {
     # return a list of uid of users of the given project
     # linux: wich users are secondary members of group
     my ($group) = @_;
@@ -191,7 +194,7 @@ sub fetchuser_from_project {
 
 
 
-sub fetchadmin_from_project {
+sub fetchadmins_from_project {
     # return a list of uid of admins of the given project
     my ($group) = @_;
     my @userlist=();
@@ -204,9 +207,9 @@ sub fetchadmin_from_project {
 
     # select the columns that i need
     my $sth= $dbh->prepare( "SELECT uidnumber 
-                            FROM projects_admins 
-                            WHERE projectid=$pro_id_sys 
-                           " );
+                             FROM projects_admins 
+                             WHERE projectid=$pro_id_sys 
+                            " );
     $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
     foreach my $row (@$array_ref){
@@ -220,6 +223,39 @@ sub fetchadmin_from_project {
     }
     &db_disconnect($dbh);
     return @userlist;
+}
+
+
+
+sub fetchgroups_from_project {
+    # return a list of gid of groups of the given project
+    my ($project) = @_;
+    my @grouplist=();
+    my $dbh=&db_connect();
+ 
+    # fetching gidnumber of project
+    my ($gidnumber_sys)= $dbh->selectrow_array( "SELECT gidnumber 
+                                         FROM groups 
+                                         WHERE gid='$project'");
+
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT membergid 
+                             FROM groups_groups 
+                             WHERE gidnumber=$gidnumber_sys 
+                            " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+       # split the array, to give better names
+       my ($member_gidnumber)=@$row;
+       # fetching gid
+       my ($gid_sys)= $dbh->selectrow_array( "SELECT gid 
+                                         FROM groups 
+                                         WHERE gidnumber=$member_gidnumber");
+       push @grouplist, $gid_sys;
+    }
+    &db_disconnect($dbh);
+    return @grouplist;
 }
 
 
@@ -300,6 +336,32 @@ sub deleteadmin_from_project {
           "$project($project_id_sys) \n";
     my $sql="DELETE FROM projects_admins 
              WHERE (uidnumber=$uidnumber_sys AND projectid=$project_id_sys) 
+             ";	
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    $dbh->do($sql);
+    &db_disconnect($dbh);
+
+}
+
+
+sub deletegroup_from_project {
+    # remove group from project
+    my ($group,$project)=@_;
+    my $dbh=&db_connect();
+    # fetching gidnumber of project
+    my ($project_gidnumber)= $dbh->selectrow_array( "SELECT gidnumber 
+                                         FROM groups 
+                                         WHERE gid='$project'");
+    # fetching gidnumber of group
+    my ($group_gidnumber)= $dbh->selectrow_array( "SELECT gidnumber 
+                                         FROM groups 
+                                         WHERE gid='$group'");
+    print "   Removing group $group($group_gidnumber) from ",
+          "$project($project_gidnumber) \n";
+    my $sql="DELETE FROM groups_groups 
+             WHERE (gidnumber=$project_gidnumber AND membergid=$group_gidnumber) 
              ";	
     if($Conf::log_level>=3){
        print "\nSQL: $sql\n";
@@ -441,6 +503,43 @@ sub addadmin_to_project {
            print "   User $user does not exist, doing nothing. \n";
         }
         if (not defined $project_id_sys){
+           print "   Project $project does not exist, doing nothing. \n";
+        }
+    }
+    &db_disconnect($dbh);
+}
+
+
+
+sub addgroup_to_project {
+    # add a group to a project(group)
+    my ($group,$project)=@_;
+    my $dbh=&db_connect();
+    # fetching gidnumber of project
+    my ($project_gidnumber)= $dbh->selectrow_array( "SELECT gidnumber 
+                                         FROM groups 
+                                         WHERE gid='$project'");
+    # fetching gidnumber of group
+    my ($group_gidnumber)= $dbh->selectrow_array( "SELECT gidnumber 
+                                         FROM groups 
+                                         WHERE gid='$group'");
+
+    if (defined $group_gidnumber and defined $project_gidnumber){
+        print "   Adding group $group($group_gidnumber) ", 
+              "to $project($project_gidnumber)\n";
+        my $sql="INSERT INTO groups_groups
+                (gidnumber,membergid)
+	        VALUES
+	        ($project_gidnumber,$group_gidnumber)";	
+        if($Conf::log_level>=3){
+           print "\nSQL: $sql\n";
+        }
+        $dbh->do($sql);
+    } else {
+        if (not defined $group_gidnumber){
+           print "   Group $group does not exist, doing nothing. \n";
+        }
+        if (not defined $project_gidnumber){
            print "   Project $project does not exist, doing nothing. \n";
         }
     }
@@ -1854,7 +1953,7 @@ sub create_project {
     my ($project,$create,$p_long_name,
         $p_add_quota,$p_add_mail_quota,
         $p_status,$pg_timestamp,
-        $p_max_members,$p_members,$p_admins,$p_projects) = @_;
+        $p_max_members,$p_members,$p_admins,$p_groups,$p_projects) = @_;
 
     # check if unix group exists and if its a project
     my $dbh=&db_connect();
@@ -1971,17 +2070,20 @@ sub create_project {
 
     my @users_to_add=();
     my @admins_to_add=();
+    my @groups_to_add=();
     my @projects_to_add=();
 
     my $old_users="";
     my @old_users=();
     my @old_admins=();
+    my @old_groups=();
     my @old_projects=();
 
     my %seen=();
 
     my @new_members=();
     my @new_admins=();
+    my @new_groups=();
     my @new_projects=();
     my @new_users=();
 
@@ -1989,8 +2091,9 @@ sub create_project {
 
     # get old values
 
-    @old_users=&fetchuser_from_project($project);
-    @old_admins=&fetchadmin_from_project($project);
+    @old_users=&fetchusers_from_project($project);
+    @old_admins=&fetchadmins_from_project($project);
+    @old_groups=&fetchgroups_from_project($project);
     @old_projects=&fetchprojects_from_project($project);
 
 
@@ -2004,6 +2107,11 @@ sub create_project {
         @new_admins=split(/,/,$p_admins);
     } else {
         @new_admins=@old_admins;          
+    }
+     if (defined $p_groups){
+        @new_groups=split(/,/,$p_groups);
+    } else {
+        @new_groups=@old_groups;          
     }
     if (defined $p_projects){
         @new_projects=split(/,/,$p_projects);
@@ -2021,6 +2129,10 @@ sub create_project {
 	$admins_to_add{ $admin }="";
     }
 
+    foreach my $group (@new_groups){
+	$groups_to_add{ $group }="";
+    }
+
     foreach my $project (@new_projects){
 	$projects_to_add{ $project }="";
     }
@@ -2033,9 +2145,11 @@ sub create_project {
        print "What to compare:\n";
        print "   Old users: @old_users\n";
        print "   Old admins: @old_admins\n";
+       print "   Old groups: @old_groups\n";
        print "   Old projects: @old_projects\n";
        print "   New users: @new_users\n";
        print "   New admins: @new_admins\n";
+       print "   New groups: @new_groups\n";
        print "   New projects: @new_projects\n";
 
     }
@@ -2118,6 +2232,47 @@ sub create_project {
        # create a link
        &Sophomorix::SophomorixBase::create_share_link($user,$project);
     }
+
+
+    # groups
+    # ========================================
+    # calculating which groups to add to project
+    foreach my $group (@old_groups){
+       if (exists $groups_to_add{$group}){
+          # remove group from groups_to_add
+          if($Conf::log_level>=3){
+             print "     Group $group does not need to be added\n";
+	  }
+          delete $groups_to_add{$group}; 
+       } elsif (not exists $groups_to_add{$group}) {
+         # remove user
+          if($Conf::log_level>=3){
+            print "     Group $group has left Project $project,",
+                  " removing $group\n";
+         }
+         #system("gpasswd -d $user $project");
+	 &deletegroup_from_project($group,$project);
+         # do this for all users ????????
+         #&Sophomorix::SophomorixBase::remove_share_link($user,$project);
+       } 
+    }    
+    
+    while (my ($group) = each %groups_to_add){
+       print "$group must be added\n";
+       push @groups_to_add, $group;
+    }
+    # sorting
+    @groups_to_add = sort @groups_to_add;
+    print "     Groups to add: @groups_to_add\n";
+    # adding the groups
+    foreach my $group (@groups_to_add) {
+       &addgroup_to_project($group,$project);
+
+       # do this for all users
+       # create a link
+       #&Sophomorix::SophomorixBase::create_share_link($user,$project);
+    }
+
 
     # projects
     # ========================================
@@ -2541,25 +2696,18 @@ sub show_project_list {
 sub show_project {
     my ($project) = @_;
     my $dbh=&db_connect();
-  
-    my @user=&fetchuser_from_project($project);
-    &Sophomorix::SophomorixBase::linie();
+    my @user=&fetchusers_from_project($project);
     &Sophomorix::SophomorixBase::print_list_column(4,"Members of $project",@user);
-    &Sophomorix::SophomorixBase::linie();
-
-    my @admins=&fetchadmin_from_project($project);
-    &Sophomorix::SophomorixBase::linie();
+    print "\n";
+    my @admins=&fetchadmins_from_project($project);
     &Sophomorix::SophomorixBase::print_list_column(4,"Admins of $project",@admins);
-    &Sophomorix::SophomorixBase::linie();
-
-
+    print "\n";
+    my @groups=&fetchgroups_from_project($project);
+    &Sophomorix::SophomorixBase::print_list_column(4,"Groups of $project",@groups);
+    print "\n";
     my @pro=&fetchprojects_from_project($project);
-    &Sophomorix::SophomorixBase::linie();
     &Sophomorix::SophomorixBase::print_list_column(4,
-      "Memberprojects of $project",@pro);
-    &Sophomorix::SophomorixBase::linie();
-
-
+      "MemberProjects of $project",@pro);
     &db_disconnect($dbh);
 }
 
