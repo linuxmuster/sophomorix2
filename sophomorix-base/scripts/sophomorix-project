@@ -84,6 +84,8 @@ my $p_add_quota;
 my $p_add_mail_quota;
 my $p_max_members;
 my $p_status;
+my $join=1; # 0,1
+my $p_join="TRUE"; # FALSE,TRUE
 
 #my @options=();
 
@@ -93,6 +95,7 @@ my $testopt=GetOptions(
            "info|i" => \$info,
            "create" => \$create,
            "verbose|v+" => \$Conf::log_level,
+           "join!" => \$join,
            "Name|project|p=s" => \$project,
            "LongName=s" => \$p_long_name,
            "MemberGroups=s" => \$p_groups,
@@ -127,6 +130,8 @@ Options
   -i -p projectname
   -p projectname, / --project projectname 
   --create 
+  --join
+  --nojoin
   --LongName projectname(long)
   --Admins user1,user2,user3, ... 
   --Members user1,user2,user3, ... 
@@ -164,6 +169,12 @@ if ($project ne "" and $info==1){
 }
 
 
+if ($join==0){
+    $p_join="FALSE"; 
+} else {
+    $p_join="TRUE";
+}
+
 
 
 
@@ -179,7 +190,7 @@ if ($project ne "" and $info==1){
 # create/update project
 &create_project($project,$create,$p_long_name,
                 $p_add_quota,$p_add_mail_quota,
-                $p_status,$pg_timestamp,
+                $p_status,$p_join,$pg_timestamp,
                 $p_max_members,$p_members,$p_admins,$p_groups,$p_projects);
 
 

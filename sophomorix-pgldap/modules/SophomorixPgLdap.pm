@@ -232,16 +232,14 @@ sub fetchgroups_from_project {
     my ($project) = @_;
     my @grouplist=();
     my $dbh=&db_connect();
- 
-    # fetching gidnumber of project
-    my ($gidnumber_sys)= $dbh->selectrow_array( "SELECT gidnumber 
+    # fetching id from project  
+    my ($pro_id_sys)= $dbh->selectrow_array( "SELECT id 
                                          FROM groups 
                                          WHERE gid='$project'");
-
     # select the columns that i need
     my $sth= $dbh->prepare( "SELECT membergid 
-                             FROM groups_groups 
-                             WHERE gidnumber=$gidnumber_sys 
+                             FROM project_groups 
+                             WHERE projectid=$pro_id_sys 
                             " );
     $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
@@ -350,8 +348,8 @@ sub deletegroup_from_project {
     # remove group from project
     my ($group,$project)=@_;
     my $dbh=&db_connect();
-    # fetching gidnumber of project
-    my ($project_gidnumber)= $dbh->selectrow_array( "SELECT gidnumber 
+    # fetching project_id
+    my ($pro_id_sys)= $dbh->selectrow_array( "SELECT id 
                                          FROM groups 
                                          WHERE gid='$project'");
     # fetching gidnumber of group
@@ -359,9 +357,9 @@ sub deletegroup_from_project {
                                          FROM groups 
                                          WHERE gid='$group'");
     print "   Removing group $group($group_gidnumber) from ",
-          "$project($project_gidnumber) \n";
-    my $sql="DELETE FROM groups_groups 
-             WHERE (gidnumber=$project_gidnumber AND membergid=$group_gidnumber) 
+          "$project(id=$pro_id_sys) \n";
+    my $sql="DELETE FROM project_groups 
+             WHERE (projectid=$pro_id_sys AND membergid=$group_gidnumber) 
              ";	
     if($Conf::log_level>=3){
        print "\nSQL: $sql\n";
@@ -515,22 +513,21 @@ sub addgroup_to_project {
     # add a group to a project(group)
     my ($group,$project)=@_;
     my $dbh=&db_connect();
-    # fetching gidnumber of project
-    my ($project_gidnumber)= $dbh->selectrow_array( "SELECT gidnumber 
+    # fetching project_id
+    my ($pro_id_sys)= $dbh->selectrow_array( "SELECT id 
                                          FROM groups 
                                          WHERE gid='$project'");
     # fetching gidnumber of group
     my ($group_gidnumber)= $dbh->selectrow_array( "SELECT gidnumber 
                                          FROM groups 
                                          WHERE gid='$group'");
-
-    if (defined $group_gidnumber and defined $project_gidnumber){
+    if (defined $group_gidnumber and defined $pro_id_sys){
         print "   Adding group $group($group_gidnumber) ", 
-              "to $project($project_gidnumber)\n";
-        my $sql="INSERT INTO groups_groups
-                (gidnumber,membergid)
+              "to $project(id=$pro_id_sys)\n";
+        my $sql="INSERT INTO project_groups
+                (projectid,membergid)
 	        VALUES
-	        ($project_gidnumber,$group_gidnumber)";	
+	        ($pro_id_sys,$group_gidnumber)";	
         if($Conf::log_level>=3){
            print "\nSQL: $sql\n";
         }
@@ -539,7 +536,7 @@ sub addgroup_to_project {
         if (not defined $group_gidnumber){
            print "   Group $group does not exist, doing nothing. \n";
         }
-        if (not defined $project_gidnumber){
+        if (not defined $pro_id_sys){
            print "   Project $project does not exist, doing nothing. \n";
         }
     }
@@ -1952,16 +1949,17 @@ sub create_project {
     # reads from projects_db and creates the project in the system
     my ($project,$create,$p_long_name,
         $p_add_quota,$p_add_mail_quota,
-        $p_status,$pg_timestamp,
+        $p_status,$p_join,$pg_timestamp,
         $p_max_members,$p_members,$p_admins,$p_groups,$p_projects) = @_;
 
     # check if unix group exists and if its a project
     my $dbh=&db_connect();
     # fetch old data
     my ($old_id,$old_name,$old_long_name,$old_add_quota,$old_add_mail_quota,
-        $old_max_members,$old_status)= $dbh->selectrow_array( 
+        $old_max_members,$old_status,$old_join)= $dbh->selectrow_array( 
                          "SELECT id,gid,displayname,addquota,
-                                 addmailquota,maxmembers,sophomorixstatus 
+                                 addmailquota,maxmembers,sophomorixstatus,
+                                 joinable 
                           FROM projectdata 
                           WHERE gid='$project'
                          ");
@@ -2011,6 +2009,15 @@ sub create_project {
         }
     }
 
+    # Joinable
+    if (not defined $p_join){
+	if (defined $old_join){
+           $p_join=$old_join;          
+        } else {
+	    $p_join="TRUE";
+        }
+    }
+
 
     print "1) Data for the Project:\n";
     print "   LongName:         $p_long_name\n";
@@ -2018,6 +2025,7 @@ sub create_project {
     print "   AddMailQuota:     $p_add_quota MB\n";
     print "   MaxMembers:       $p_max_members\n";
     print "   SophomorixStatus: $p_status\n";
+    print "   Join:             $p_join\n";
     print "   PG Timestamp:     $pg_timestamp\n";
 
     # what to do if group doesnt exist
@@ -2031,10 +2039,10 @@ sub create_project {
                                              WHERE gidnumber=$gidnumber" );
            $sql="INSERT INTO project_details 
 	     (id,longname,addquota,addmailquota,maxmembers,
-              creationdate,sophomorixstatus)
+              creationdate,sophomorixstatus,joinable)
 	      VALUES
 	      ($id,'$p_long_name',$p_add_quota,$p_add_mail_quota,
-               $p_max_members,'$pg_timestamp','$p_status')";
+               $p_max_members,'$pg_timestamp','$p_status',$p_join)";
            if($Conf::log_level>=3){
               print "SQL: $sql\n";
            }
@@ -2049,7 +2057,8 @@ sub create_project {
            $sql="UPDATE project_details 
                  SET longname='$p_long_name', addquota=$p_add_quota,
                      addmailquota=$p_add_mail_quota, 
-                     maxmembers='$p_max_members',sophomorixstatus='$p_status'
+                     maxmembers='$p_max_members',sophomorixstatus='$p_status',
+                     joinable=$p_join
                  WHERE id = $old_id";
            if($Conf::log_level>=3){
               print "SQL: $sql\n";
