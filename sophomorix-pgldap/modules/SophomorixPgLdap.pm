@@ -166,11 +166,16 @@ sub fetchusers_from_project {
     my ($group) = @_;
     my @userlist=();
     my $dbh=&db_connect();
- 
     # fetching gid
     my ($gidnumber_sys)= $dbh->selectrow_array( "SELECT gidnumber 
                                          FROM groups 
-                                         WHERE gid='$group'");
+                                         WHERE gid='$group'
+                                        ");
+    if (not defined $gidnumber_sys){
+        print "WARNING: $group not found\n";
+	return @userlist;
+        exit;
+    }
     # select the columns that i need
     my $sth= $dbh->prepare( "SELECT memberuidnumber 
                             FROM groups_users 
@@ -204,7 +209,11 @@ sub fetchadmins_from_project {
     my ($pro_id_sys)= $dbh->selectrow_array( "SELECT id 
                                          FROM groups 
                                          WHERE gid='$group'");
-
+    if (not defined $pro_id_sys){
+        print "WARNING: $group not found\n";
+	return @userlist;
+        exit;
+    }
     # select the columns that i need
     my $sth= $dbh->prepare( "SELECT uidnumber 
                              FROM projects_admins 
@@ -236,6 +245,11 @@ sub fetchgroups_from_project {
     my ($pro_id_sys)= $dbh->selectrow_array( "SELECT id 
                                          FROM groups 
                                          WHERE gid='$project'");
+    if (not defined $pro_id_sys){
+        print "WARNING: $project not found\n";
+	return @userlist;
+        exit;
+    }
     # select the columns that i need
     my $sth= $dbh->prepare( "SELECT membergid 
                              FROM project_groups 
@@ -267,6 +281,11 @@ sub fetchprojects_from_project {
     my ($pro_id_sys)= $dbh->selectrow_array( "SELECT id 
                                          FROM groups 
                                          WHERE gid='$group'");
+    if (not defined $pro_id_sys){
+        print "WARNING: $group not found\n";
+	return @userlist;
+        exit;
+    }
     # select the columns that i need
     my $sth= $dbh->prepare( "SELECT memberprojectid 
                             FROM projects_memberprojects 
