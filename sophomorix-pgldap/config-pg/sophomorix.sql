@@ -294,6 +294,32 @@ CREATE TABLE samba_sam_account (
 );
 
 
+
+CREATE FUNCTION manual_delete_groups(character varying) RETURNS integer
+AS '
+DECLARE
+groupname ALIAS FOR $1;
+groups_id INTEGER;
+get_gidnumber INTEGER;
+ldap_entries_id INTEGER;
+BEGIN
+SELECT INTO groups_id id FROM groups WHERE gid=groupname;
+SELECT INTO get_gidnumber gidnumber FROM groups WHERE gid=groupname;
+SELECT INTO ldap_entries_id id FROM ldap_entries WHERE keyval=groups_id AND oc_map_id=4;
+
+DELETE FROM ldap_entries WHERE id=ldap_entries_id;
+DELETE FROM groups_users WHERE gidnumber=get_gidnumber;
+DELETE FROM ldap_entry_objclasses WHERE entry_id=ldap_entries_id;
+DELETE FROM groups WHERE id=groups_id;
+DELETE FROM samba_group_mapping WHERE id=groups_id;
+
+RETURN get_gidnumber;
+END;
+'
+LANGUAGE plpgsql;
+
+
+
 --
 -- TOC entry 59 (OID 64466)
 -- Name: create_account(); Type: FUNCTION; Schema: public; Owner: ldap
