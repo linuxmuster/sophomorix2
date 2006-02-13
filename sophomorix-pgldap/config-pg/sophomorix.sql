@@ -37,13 +37,8 @@ CREATE TABLE groups (
 );
 
 
---
--- TOC entry 6 (OID 64399)
--- Name: groups_groups; Type: TABLE; Schema: public; Owner: ldap
---
-
-CREATE TABLE groups_groups (
-    gidnumber integer NOT NULL,
+CREATE TABLE project_groups (
+    projectid integer NOT NULL,
     membergid integer NOT NULL
 );
 
@@ -1462,6 +1457,7 @@ CREATE TABLE project_details (
     maxmembers integer,
     creationdate timestamp without time zone,
     tolerationdate date,
+    "open" boolean,
     deactivationdate date
 );
 
