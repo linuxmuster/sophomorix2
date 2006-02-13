@@ -1322,6 +1322,63 @@ CREATE FUNCTION set_samba_domain_name(character varying, integer) RETURNS intege
     LANGUAGE sql;
 
 
+
+CREATE FUNCTION delete_groups(integer) RETURNS integer
+AS 'delete from groups where id=$1;
+delete from samba_group_mapping where id=$1;
+SELECT max(id) FROM groups'
+LANGUAGE sql;
+
+
+CREATE FUNCTION del_groups_displayname(integer, character varying) RETURNS integer
+AS '
+UPDATE samba_group_mapping SET displayname=NULL WHERE id=CAST($1 AS INT);
+SELECT $1 AS RETURN
+'
+LANGUAGE sql;
+
+CREATE FUNCTION del_groups_sambasid(integer, character varying) RETURNS integer
+AS '
+UPDATE samba_group_mapping SET sambasid=NULL WHERE id=CAST($1 AS INT);
+SELECT $1 AS RETURN
+'
+LANGUAGE sql;
+
+CREATE FUNCTION del_groups_sambasidlist(integer, character varying) RETURNS integer
+AS '
+UPDATE samba_group_mapping SET sambasidlist=NULL WHERE id=CAST($1 AS INT);
+SELECT $1 AS RETURN
+'
+LANGUAGE sql;
+
+CREATE FUNCTION del_groups_description(integer, character varying) RETURNS integer
+AS '
+UPDATE samba_group_mapping SET description=NULL WHERE id=CAST($1 AS INT);
+SELECT $1 AS RETURN
+'
+LANGUAGE sql;
+
+CREATE FUNCTION del_groups_sambagrouptype(integer, character varying) RETURNS integer
+AS '
+UPDATE samba_group_mapping SET sambagrouptype=NULL WHERE id=CAST($1 AS INT);
+SELECT $1 AS RETURN
+'
+LANGUAGE sql;
+
+CREATE FUNCTION del_groups_gidnumber(integer, character varying) RETURNS integer
+AS '
+UPDATE groups SET gidnumber=0 WHERE id=CAST($1 AS INT);
+SELECT $1 AS RETURN
+'
+LANGUAGE sql;
+
+CREATE FUNCTION del_groups_cn(integer, character varying) RETURNS integer
+AS '
+UPDATE groups SET gid=''delete'' WHERE id=CAST($1 AS INT);
+SELECT $1 AS RETURN
+'
+LANGUAGE sql;
+
 --
 -- TOC entry 146 (OID 64553)
 -- Name: set_samba_domain_sid(character varying, integer); Type: FUNCTION; Schema: public; Owner: ldap
@@ -1409,14 +1466,14 @@ INSERT INTO institutes VALUES (1, 'linuxmuster');
 -- Name: ldap_attr_mappings; Type: TABLE DATA; Schema: public; Owner: ldap
 --
 
-INSERT INTO ldap_attr_mappings VALUES (97, 4, 'displayName', 'samba_group_mapping.displayname', 'samba_group_mapping.displayname', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_displayname(?,?) }', '', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (97, 4, 'displayName', 'samba_group_mapping.displayname', 'samba_group_mapping.displayname', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_displayname(?,?) }', '{ call del_groups_displayname(?,?) }', 1, 0);
 INSERT INTO ldap_attr_mappings VALUES (81, 3, 'displayName', 'samba_sam_account.displayname', 'samba_sam_account.displayname', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_displayname(?,?) }', '{ call del_account_displayname(?,?) }', 1, 0);
 INSERT INTO ldap_attr_mappings VALUES (71, 3, 'sambaSID', 'samba_sam_account.sambasid', 'samba_sam_account.sambasid', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambasid(?,?) }', '{ call del_account_sambasid(?,?) }', 1, 0);
 INSERT INTO ldap_attr_mappings VALUES (114, 6, 'sambaSID', 'samba_domain.sambasid', 'samba_domain.sambasid', 'samba_domain', NULL, '{ call set_samba_domain_sid(?,?) }', NULL, 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (95, 4, 'sambaSID', 'samba_group_mapping.sambasid', 'samba_group_mapping.sambasid', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_sambasid(?,?) }', '', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (99, 4, 'sambaSIDList', 'samba_group_mapping.sambasidlist', 'samba_group_mapping.sambasidlist', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_sambasidlist(?,?) }', '', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (98, 4, 'description', 'samba_group_mapping.description', 'samba_group_mapping.description', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_description(?,?) }', '', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (96, 4, 'sambaGroupType', 'samba_group_mapping.sambagrouptype', 'samba_group_mapping.sambagrouptype', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_sambagrouptype(?,?) }', '', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (95, 4, 'sambaSID', 'samba_group_mapping.sambasid', 'samba_group_mapping.sambasid', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_sambasid(?,?) }', '{ call del_groups_sambasid(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (99, 4, 'sambaSIDList', 'samba_group_mapping.sambasidlist', 'samba_group_mapping.sambasidlist', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_sambasidlist(?,?) }', '{ call del_groups_sambasidlist(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (98, 4, 'description', 'samba_group_mapping.description', 'samba_group_mapping.description', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_description(?,?) }', '{ call del_groups_description(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (96, 4, 'sambaGroupType', 'samba_group_mapping.sambagrouptype', 'samba_group_mapping.sambagrouptype', 'samba_group_mapping,groups', 'samba_group_mapping.id=groups.id', '{ call set_groups_sambagrouptype(?,?) }', '{ call del_groups_sambagrouptype(?,?) }', 1, 0);
 INSERT INTO ldap_attr_mappings VALUES (94, 3, 'sambaLogonHours', 'samba_sam_account.sambalogonhours', 'samba_sam_account.sambalogonhours', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambalogonhours(?,?) }', '{ call del_account_sambalogonhours(?,?) }', 1, 0);
 INSERT INTO ldap_attr_mappings VALUES (78, 3, 'sambaPwdCanChange', 'samba_sam_account.sambapwdcanchange', 'samba_sam_account.sambalogonhours', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambapwdcanchange(?,?) }', '{ call del_account_sambapwdcanchange(?,?) }', 1, 0);
 INSERT INTO ldap_attr_mappings VALUES (87, 3, 'sambaUserWorkstations', 'samba_sam_account.sambauserworkstations', 'samba_sam_account.sambauserworkstations', 'samba_sam_account,posix_account', 'samba_sam_account.id=posix_account.id', '{ call set_account_sambauserworkstations(?,?) }', '{ call del_account_sambauserworkstations(?,?) }', 1, 0);
@@ -1453,8 +1510,8 @@ INSERT INTO ldap_attr_mappings VALUES (10, 3, 'gidNumber', 'posix_account.gidnum
 INSERT INTO ldap_attr_mappings VALUES (16, 3, 'loginShell', 'posix_account.loginshell', NULL, 'posix_account', NULL, '{ call set_account_loginshell(?,?) }', '{ call del_account_loginshell(?,?) }', 1, 0);
 INSERT INTO ldap_attr_mappings VALUES (11, 3, 'homeDirectory', 'posix_account.homedirectory', NULL, 'posix_account', NULL, '{ call set_account_homedirectory(?,?) }', '{ call del_account_homedirectory(?,?) }', 1, 0);
 INSERT INTO ldap_attr_mappings VALUES (1, 3, 'cn', 'posix_account.firstname || '' '' || posix_account.surname', NULL, 'posix_account', NULL, '{ call set_account_cn(?,?) }', NULL, 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (13, 4, 'gidNumber', 'groups.gidnumber', NULL, 'groups', NULL, '{ call set_groups_gidnumber(?,?) }', NULL, 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (14, 4, 'cn', 'groups.gid', NULL, 'groups', NULL, '{ call set_groups_cn(?,?) }', NULL, 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (13, 4, 'gidNumber', 'groups.gidnumber', NULL, 'groups', NULL, '{ call set_groups_gidnumber(?,?) }', '{ call del_groups_gidnumber(?,?) }', 1, 0);
+INSERT INTO ldap_attr_mappings VALUES (14, 4, 'cn', 'groups.gid', NULL, 'groups', NULL, '{ call set_groups_cn(?,?) }', '{ call del_groups_cn(?,?) }', 1, 0);
 INSERT INTO ldap_attr_mappings VALUES (7, 1, 'dc', 'institutes.name', NULL, 'institutes,ldap_entries AS dcObject,ldap_entry_objclasses as auxObjectClass', 'institutes.id=dcObject.keyval AND dcObject.oc_map_id=1 AND dcObject.id=auxObjectClass.entry_id AND auxObjectClass.oc_name=''dcObject''', NULL, NULL, 0, 0);
 
 
@@ -1482,7 +1539,7 @@ INSERT INTO ldap_entry_objclasses VALUES (4, 'sambaUnixIdPool');
 --
 
 INSERT INTO ldap_oc_mappings VALUES (1, 'organization', 'institutes', 'id', NULL, NULL, 0);
-INSERT INTO ldap_oc_mappings VALUES (4, 'posixGroup', 'groups', 'id', 'SELECT create_groups()', NULL, 0);
+INSERT INTO ldap_oc_mappings VALUES (4, 'posixGroup', 'groups', 'id', 'SELECT create_groups()', 'SELECT delete_groups(?)', 0);
 INSERT INTO ldap_oc_mappings VALUES (2, 'organizationalUnit', 'organizational_unit', 'id', 'SELECT create_organizational_unit()', 'SELECT delete_organizational_unit(?)', 0);
 INSERT INTO ldap_oc_mappings VALUES (3, 'inetOrgPerson', 'posix_account', 'id', 'SELECT create_account()', 'SELECT delete_account(?)', 0);
 INSERT INTO ldap_oc_mappings VALUES (6, 'sambaDomain', 'samba_domain', 'id', 'SELECT create_samba_domain()', NULL, 0);
