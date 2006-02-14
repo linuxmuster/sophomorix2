@@ -946,7 +946,6 @@ sub user_links {
   my $tausch_klasse="";
   my $user_home = "";
 
-
   if ($gruppe ne ${DevelConf::teacher}){
     # pupil
     $tausch_klasse="${DevelConf::share_classes}/$gruppe";
@@ -961,7 +960,6 @@ sub user_links {
   if (defined $alt_gruppe) {
      &do_falls_nicht_testen(
           "rm -rf $user_home/${Language::share_dir}"
-#          "rm -rf $user_home/Tauschverzeichnisse"
      );
   } else {
       $alt_gruppe="";
@@ -973,22 +971,14 @@ sub user_links {
   else {
      # normales Versetzen (auch lehrer -> speicher)
      # sicherstellen dass Verzeichnis Tauschverzeichnisse existiert
-#     &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/Tauschverzeichnisse",
-#                      "$user_home/Tauschverzeichnisse");
      &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/\$share_dir",
                       "$user_home/${Language::share_dir}");
 
      # Links zu Tauschverzeichnissen anlegen
      &do_falls_nicht_testen(
          # Link auf Klassentausch anlegen
-#          "ln -sf  $tausch_klasse $user_home/Tauschverzeichnisse/Tausch-$gruppe",
-#          "ln -sf  $tausch_klasse $user_home/${Language::share_dir}/Tausch-$gruppe",
           "ln -sf  $tausch_klasse $user_home/${Language::share_dir}/${Language::share_string}-$gruppe",
           # Link auf Schülertausch anlegen
-#          "ln -sf /home/tausch/schueler $user_home/Tauschverzeichnisse/Tausch-Schule"
-#          "ln -sf $DevelConf::share_school $user_home/Tauschverzeichnisse/Tausch-Schule"
-#          "ln -sf $DevelConf::share_school $user_home/${Language::share_dir}/Tausch-Schule"
-#          "ln -sf $DevelConf::share_school $user_home/${Language::share_dir}/${Language::share_string}-Schule"
           "ln -sf $DevelConf::share_school $user_home/${Language::share_dir}/${Language::share_string}-${Language::school}"
      );
 

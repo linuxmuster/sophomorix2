@@ -430,7 +430,8 @@ sub deleteproject_from_project {
 
 sub deleteuser_from_all_projects {
     # remove user from all secondary project-memberships(group-membership)
-    my ($user)=@_;
+    # if admin is
+    my ($user,$admin)=@_;
     my $dbh=&db_connect();
     # fetching uidnumber
     my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
@@ -443,19 +444,17 @@ sub deleteuser_from_all_projects {
        print "\nSQL: $sql\n";
     }
     $dbh->do($sql);
-    print "   Removing admin $user($uidnumber_sys) from all projects \n";
-    $sql="DELETE FROM projects_admins 
-          WHERE uidnumber=$uidnumber_sys ";	
-    if($Conf::log_level>=3){
-       print "\nSQL: $sql\n";
+    if (not defined $admin){
+       print "   Removing admin $user($uidnumber_sys) from all projects \n";
+       $sql="DELETE FROM projects_admins 
+             WHERE uidnumber=$uidnumber_sys ";	
+       if($Conf::log_level>=3){
+          print "\nSQL: $sql\n";
+       }
+       $dbh->do($sql);
     }
-    $dbh->do($sql);
     &db_disconnect($dbh);
 }
-
-
-
-
 
 
 

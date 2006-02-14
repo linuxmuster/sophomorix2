@@ -34,6 +34,8 @@ use if ${DevelConf::db_backend} eq 'pgldap' ,
                                         update_user_db_entry
                                         backup_user_database
                                         create_class_db_entry
+                                        deleteuser_from_all_projects
+                                        add_newuser_to_her_projects
                                        );
 
 # ===========================================================================
@@ -278,7 +280,6 @@ while(<USERVERSETZEN>){
    #####################################
    if($Conf::log_level>=1){
       print("\n##### Moving User $user_nummer to different class: \n");
-#      print("Identifier:            $identifier\n");
       print("Login:                 $login_versetzen\n");
       print("Linux-Gruppe (Alt):    $alte_klasse\n");
       print("Linux-Gruppe (Neu):    $neue_klasse\n");
@@ -286,8 +287,6 @@ while(<USERVERSETZEN>){
       print("Neues Home:            $new_home\n");
       print("Neues Homedir:         $new_homedir_above\n");
       print("Alter Status:          $old_status\n");
-#      print("Protokollzeile (Alt):  $alte_zeile\n");
-#      print("Protokollzeile (Neu):  $neue_zeile\n");
     }
 
    if ($neue_klasse eq ${DevelConf::teacher} && not $alte_klasse eq "speicher") {
@@ -306,8 +305,6 @@ while(<USERVERSETZEN>){
      &provide_class_files($neue_klasse);
      &create_class_db_entry($neue_klasse);
      &add_class_to_sys($neue_klasse);
-     # veraltet
-     #&neue_linux_gruppe_schueler($neue_klasse);
    }
    # Benutzerdatenbank ändern
    # LDAP
@@ -342,6 +339,9 @@ while(<USERVERSETZEN>){
 
    # links 
    &user_links($login_versetzen, $neue_klasse, $alte_klasse);
+
+   &deleteuser_from_all_projects($login_versetzen,0);
+   &add_newuser_to_her_projects($login_versetzen,$neue_klasse);
 
    # Protokoll-Hash ändern
    # Alte Linie aus dem Hash löschen
