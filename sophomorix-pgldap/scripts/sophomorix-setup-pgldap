@@ -20,6 +20,7 @@ use Sophomorix::SophomorixBase;
 use Sophomorix::SophomorixPgLdap qw(
                                     check_connections
                                     db_connect
+                                    db_disconnect
                                     get_smb_sid
                                    );
 
@@ -103,14 +104,6 @@ What passwords to use:
 
 
 
-# print $keep_database,"\n";
-# print $new_database,"\n";
-# print $help,"\n";
-
-
-
-
-
 
 print "Using the following values to configure the system\n";
 ############################################################
@@ -148,6 +141,15 @@ if ($domainname_debconf ne 0){
     # from config file
     print "   Domainname from pgldap.conf :   $domainname \n";
 }
+
+
+# institutes
+#------------------------------------------------------------
+############################################################
+# basename
+############################################################
+
+
 
 
 # servername
@@ -195,6 +197,13 @@ if ($internip_debconf ne 0){
 
 
     print "   ldappassword (random number):   ********** \n";
+
+my (@institutes)= split(/\./,$domainname);
+# take away the last
+pop @institutes;
+
+my $institutes = join "." , @institutes;
+    print "   String for institutes(ldap) :   $institutes \n";
 
 
 
@@ -482,6 +491,10 @@ if ($keep_database==0 or $new_database==1){
 &set_ldap_suffix_pg($basename);
 
 
+# setting institutes
+&set_ldap_institutes($institutes);
+
+
 # setting the SID for existing users/groups
 # ???????
 #&set_samba_sid();
@@ -722,6 +735,7 @@ sub set_samba_sid {
        #$dbh->do($sql);
        $i++;
     }   
+    &db_disconnect($dbh);
 }
 
 
@@ -737,6 +751,18 @@ sub new_sid {
 
 
 
+sub set_ldap_institutes {
+    # what about bsz.local.domain.de or so???????
+    my $dbh=&db_connect();
+    my $sql="";
+    print "\nUpdating institutes to $institutes \n";
+    $sql="UPDATE institutes SET name='$institutes' WHERE id=1";
+    print $sql,"\n";
+    $dbh->do($sql);
+
+    &db_disconnect($dbh);
+}
+
 
 
 sub set_ldap_suffix_pg {
@@ -747,7 +773,6 @@ sub set_ldap_suffix_pg {
        my $dbh=&db_connect();
        my $sql="";
        print "\nUpdating sldap suffix in the postgres databast to $suffix \n";
-    
 
        # updating ldap_entries
        my $sth= $dbh->prepare( "SELECT dn,id FROM ldap_entries" );
@@ -769,12 +794,8 @@ sub set_ldap_suffix_pg {
           $dbh->do($sql);
           $i++;
        }
-       
-       # updating institutes
-       # what about bsz.local.domain.de or so?
+       &db_disconnect($dbh);
 
-
-   
     }
 }
 
