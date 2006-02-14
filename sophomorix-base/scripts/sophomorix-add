@@ -36,6 +36,7 @@ use if ${DevelConf::db_backend} eq 'pgldap' ,
                                         backup_user_database
                                         set_sophomorix_passwd
                                         create_class_db_entry
+                                        add_newuser_to_her_projects
                                        );
 
 # ===========================================================================
@@ -547,7 +548,10 @@ while(<SOPHOMORIXADD>){
   # 5. Creating dirs, links for the user
   &provide_user_files($login_name_ok,$new_admin_group);
 
-  # 6. tschmitt: create cyrus user with 10mb quota
+  # 6. Add user to all groups she is in (files must exist to create links)
+  &add_newuser_to_her_projects($login_name_ok,$new_admin_group);
+
+  # 7. tschmitt: create cyrus user with 10mb quota
   if (-s "/usr/lib/linuxmuster/bin/cyrus-user.pl") {
     system("/usr/lib/linuxmuster/bin/cyrus-user.pl -u $login_name_ok -c -q 10m");
   }

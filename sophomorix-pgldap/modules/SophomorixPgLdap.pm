@@ -11,6 +11,7 @@ require Exporter;
              db_connect
              db_disconnect
              check_connections
+             add_newuser_to_her_projects
              adduser_to_project
              addadmin_to_project
              addgroup_to_project
@@ -451,6 +452,111 @@ sub deleteuser_from_all_projects {
     $dbh->do($sql);
     &db_disconnect($dbh);
 }
+
+
+
+
+
+
+
+
+# add a new user to projects she is in because of her adminclass
+sub add_newuser_to_her_projects {
+    my ($login,$adminclass) = @_;
+    my @memberships=();
+    print "New Group of $login is: $adminclass\n";    
+    my $dbh=&db_connect();
+    # fetching uidnumber
+    my ($uidnumber)= $dbh->selectrow_array( "SELECT uidnumber 
+                                         FROM userdata 
+                                         WHERE uid='$login'
+                                        ");
+    if (not defined $uidnumber){
+        print "WARNING: Cannot add user $login to projects\n";
+        print "         No uidnumber found!\n";
+        exit;
+    }    
+    # fetching gidnumber of adminclass
+    my $sth= $dbh->prepare( "SELECT projectid
+                             FROM project_groups 
+                             WHERE membergid=( SELECT gidnumber 
+                                               FROM groups 
+                                               WHERE gid='$adminclass') 
+                            " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+       # split the array, to give better names
+       my ($pro_id)=@$row;
+       # fetching gid
+       my ($gid_sys)= $dbh->selectrow_array( "SELECT gidnumber 
+                                         FROM groups 
+                                         WHERE id=$pro_id");
+       print "$adminclass is member of Project with ID ",
+             "$pro_id(gidnumber=$gid_sys) \n";
+       push @memberships, $gid_sys;
+
+       # look if project is member in other projects
+       my $sth2= $dbh->prepare( "SELECT projectid
+                                 FROM projects_memberprojects 
+                                 WHERE memberprojectid=$pro_id
+                            " );
+       $sth2->execute();
+       my $array_ref2 = $sth2->fetchall_arrayref();
+       foreach my $row (@$array_ref2){
+           my ($pro_id2)=@$row;
+           # fetching gid
+           my ($gid_sys)= $dbh->selectrow_array( "SELECT gidnumber 
+                                                  FROM groups 
+                                                  WHERE id=$pro_id2
+                                                 ");
+           print "Project with ID $pro_id is member of Project with ID ",
+                 "$pro_id2(gidnumber=$gid_sys) \n";
+
+           push @memberships, $gid_sys;
+       }
+    }
+
+    # Result
+    @memberships = sort @memberships;
+
+    # Do it!
+    print "Adding user $login to the projects ...\n";
+    foreach my $group_gidnumber (@memberships){
+        # check if it exists already.
+        my ($gid,$uid)= $dbh->selectrow_array( "SELECT gidnumber,memberuidnumber 
+                                         FROM groups_users 
+                                         WHERE (gidnumber=$group_gidnumber
+                                         AND memberuidnumber=$uidnumber)
+                                        ");
+        if (defined $gid and defined $uid){
+            print "    Not adding $login($uidnumber) to group $group_gidnumber",
+                  " (exists already)\n";
+        } else {
+            print "    Adding $login($uidnumber) to group $group_gidnumber \n";
+            my $sql="INSERT INTO groups_users
+                    (gidnumber,memberuidnumber)
+	             VALUES
+	            ($group_gidnumber,'$uidnumber')";	
+            if($Conf::log_level>=3){
+                print "\nSQL: $sql\n";
+            }
+            $dbh->do($sql);
+            my ($project)= $dbh->selectrow_array( "SELECT gid 
+                                                  FROM groups 
+                                                  WHERE gidnumber=$group_gidnumber
+                                                 ");
+            # create a link
+            &Sophomorix::SophomorixBase::create_share_link($login,$project);
+        }
+    }
+    print "... done!\n";
+    &db_disconnect($dbh);
+}
+
+
+
+
 
 
 
