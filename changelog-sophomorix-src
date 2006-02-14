@@ -1007,6 +1007,13 @@ change quota with cyrus-user.pl -u user -q quota
                              repair all links of all users
 
 
+
+  BUGS: adding 3000 users:
+          owner of some /home/teachers/name is root.root
+                of som ist teachername.teachers
+
+
+
    - SQL-View projectdata:
       - show only entries from project_details
 
@@ -1022,11 +1029,22 @@ change quota with cyrus-user.pl -u user -q quota
       - add project_details.longname AFTER gid
       - sorted by gid
 
-NEXT: groups_groups is NOT working (THO)
+
+      new table adminclass_admins: teacher join a class 
+           (replaces .sophomorix)
+
+
+
+NEXT: 
+
 
 1.4.9-1 (2006-02-xx)
-
-
+   - new options to sophomorix-project
+          --joinable
+          --notjoinable
+   - new field for projects: joinable (true/false): can a teacher join or not
+   - groups_groups is NOT working (THO)
+     groups_groups -> project_groups (only to store data)
 
 1.4.8-1 (2006-02-12)
    - insert MemberGroups (primary) into groups_groups
