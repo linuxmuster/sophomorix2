@@ -143,14 +143,6 @@ if ($domainname_debconf ne 0){
 }
 
 
-# institutes
-#------------------------------------------------------------
-############################################################
-# basename
-############################################################
-
-
-
 
 # servername
 #------------------------------------------------------------
@@ -198,6 +190,9 @@ if ($internip_debconf ne 0){
 
     print "   ldappassword (random number):   ********** \n";
 
+
+# institutes
+#------------------------------------------------------------
 my (@institutes)= split(/\./,$domainname);
 # take away the last
 pop @institutes;
@@ -492,7 +487,7 @@ if ($keep_database==0 or $new_database==1){
 
 
 # setting institutes
-&set_ldap_institutes($institutes);
+#&set_ldap_institutes($institutes);
 
 
 # setting the SID for existing users/groups
