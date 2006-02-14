@@ -1010,7 +1010,7 @@ change quota with cyrus-user.pl -u user -q quota
 
   BUGS: adding 3000 users:
           owner of some /home/teachers/name is root.root
-                of som ist teachername.teachers
+                of some it is teachername.teachers
 
 
 
@@ -1039,6 +1039,12 @@ NEXT:
 
 
 1.4.9-1 (2006-02-xx)
+   - adding links to the share directories of all projects
+   - adding a user (sophomorix-add) puts them in all groups
+     its adminclass is a member
+   - if nonsense is given as MemberGroups or MemberProjects, show errors
+   - sorting usernames when displaying info
+   - adding groups to projects
    - new options to sophomorix-project
           --joinable
           --notjoinable
