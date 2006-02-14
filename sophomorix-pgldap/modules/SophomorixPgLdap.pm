@@ -539,14 +539,16 @@ sub addgroup_to_project {
     # is $group really a adminclass
     my ($group_id_sys)= $dbh->selectrow_array( "SELECT id 
                                          FROM classdata 
-                                         WHERE (id='$pro_id_sys'
+                                         WHERE (id=(SELECT id 
+                                         FROM groups 
+                                         WHERE gid='$group')
                                          AND type='adminclass')");
     # fetching gidnumber of group
     my ($group_gidnumber)= $dbh->selectrow_array( "SELECT gidnumber 
                                          FROM groups 
                                          WHERE gid='$group'");
     if (defined $group_gidnumber and defined $pro_id_sys 
-                                 and defined $pro_id_groups){
+                                 and defined $group_id_sys){
         print "   Adding group $group($group_gidnumber) ", 
               "to $project(id=$pro_id_sys)\n";
         my $sql="INSERT INTO project_groups
