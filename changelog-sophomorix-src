@@ -927,20 +927,12 @@ change quota with cyrus-user.pl -u user -q quota
      (bisher in sophomorix.conf)
 
    - Aufruf von sophomorix-webmin raus aus sophomorix-add
-   - sophomorix-usermod  ( wie smbldap-usermod -G Gruppe User) 
-   - sophomorix-userdel ()
    - smbldap-usershow entspricht in etwa sophomorix-user
    - crypt zu md5 (Passwort-decription)
    - system() in perl mit sysrun tauschen (oder noch besseres)
 
    - updating sophomorix-user -i to show workstations and get not 
      confused by them
-
-
-
-
-      update memberships recursively 
-
 
    - function rewrite: get_users_project
 
@@ -960,52 +952,6 @@ change quota with cyrus-user.pl -u user -q quota
         backup this membership data in a log-file
                to reactivate the group, issue sophomorix-project ...
                using this Data
-
-   Managing links in home to project:
-   ==============================
-   A) Users:
-     - user is added:
-       look at groups of the user, create all links
-     - user is moved:
-       look at groups of the user, recreate all links
-       (if a user is moved, he could be added to a project as group
-        membership, so just deleting the old adminclass link and creting 
-        the new link is NOT sufficient)
-     - user is killed: no problem
-
-     ==> when modifiing a user, delet the links and recreate them
-   B) Projects
-     1) it is difficult to do it the small way:
-     --Members: add:    add a link, if nonexisting
-                delete: delete the link only,
-                        if:
-                           - user is NOT an admin 
-                                 AND NOT in Membergroup 
-                                 AND NOT in Memberproject
-     --Admin:  like Members
-
-     --MemberGroups:
-                add:    add a link to all users in this group, if nonexisting
-                delete: delete the link only ... 
-                           - user is NOT an Admin 
-                                 AND NOT in Members 
-                                 AND NOT in Memberproject
-                        
-     --MemberProjects:
-            split into Members and MemberGroups, then handle them
-
-     2) Do it the Big Way:
-            when a project is modified(Memberships):
-                - build a list of users BEFORE Modification
-                  (expand MemberGroups and MemberProjects to users)
-                - build a list of users AFTER Modification
-                  (expand MemberGroups and MemberProjects to users)
-                - unite the lists, removing doubles
-                - go through the list and recreate the links for all users
-
-     3) sophomorix-repair:   repair links af user xyz
-                             repair all links of all users
-
 
 
   BUGS: adding 3000 users:
