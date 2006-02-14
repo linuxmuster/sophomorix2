@@ -2788,15 +2788,19 @@ sub show_project {
     my ($project) = @_;
     my $dbh=&db_connect();
     my @user=&fetchusers_from_project($project);
+    @user = sort @user;
     &Sophomorix::SophomorixBase::print_list_column(4,"Members of $project",@user);
     print "\n";
     my @admins=&fetchadmins_from_project($project);
+    @admins = sort @admins;
     &Sophomorix::SophomorixBase::print_list_column(4,"Admins of $project",@admins);
     print "\n";
     my @groups=&fetchgroups_from_project($project);
+    @groups = sort @groups;
     &Sophomorix::SophomorixBase::print_list_column(4,"Groups of $project",@groups);
     print "\n";
     my @pro=&fetchprojects_from_project($project);
+    @pro = sort @pro;
     &Sophomorix::SophomorixBase::print_list_column(4,
       "MemberProjects of $project",@pro);
     &db_disconnect($dbh);
