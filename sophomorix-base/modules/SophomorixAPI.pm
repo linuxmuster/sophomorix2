@@ -165,7 +165,7 @@ sub get_user_adminclass {
     # select the columns that i need
     my $sth= $dbh->prepare( "SELECT uid  
                              FROM userdata
-                             WHERE adminclass='$class'
+                             WHERE gid='$class'
                              ORDER BY uid" );
        $sth->execute();
     my $i=0;
