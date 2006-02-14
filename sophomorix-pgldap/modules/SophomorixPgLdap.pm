@@ -536,11 +536,17 @@ sub addgroup_to_project {
     my ($pro_id_sys)= $dbh->selectrow_array( "SELECT id 
                                          FROM groups 
                                          WHERE gid='$project'");
+    # is $group really a adminclass
+    my ($group_id_sys)= $dbh->selectrow_array( "SELECT id 
+                                         FROM classdata 
+                                         WHERE (id='$pro_id_sys'
+                                         AND type='adminclass')");
     # fetching gidnumber of group
     my ($group_gidnumber)= $dbh->selectrow_array( "SELECT gidnumber 
                                          FROM groups 
                                          WHERE gid='$group'");
-    if (defined $group_gidnumber and defined $pro_id_sys){
+    if (defined $group_gidnumber and defined $pro_id_sys 
+                                 and defined $pro_id_groups){
         print "   Adding group $group($group_gidnumber) ", 
               "to $project(id=$pro_id_sys)\n";
         my $sql="INSERT INTO project_groups
@@ -557,6 +563,9 @@ sub addgroup_to_project {
         }
         if (not defined $pro_id_sys){
            print "   Project $project does not exist, doing nothing. \n";
+        }
+        if (not defined $group_id_sys){
+           print "   Group $group is not a primary group, doing nothing. \n";
         }
     }
     &db_disconnect($dbh);
@@ -578,8 +587,17 @@ sub addproject_to_project {
     my ($m_project_id_sys)= $dbh->selectrow_array( "SELECT id 
                                          FROM groups 
                                          WHERE gid='$m_project'");
+    my $pro_id;
+    if (defined $m_project_id_sys){
+      # is $m_project really a project
+      ($pro_id)= $dbh->selectrow_array( "SELECT id 
+                                         FROM classdata 
+                                         WHERE (id='$m_project_id_sys'
+                                         AND type='project')");
+    }
 
-    if (defined $m_project_id_sys and defined $project_id_sys){
+    if (defined $m_project_id_sys and defined $project_id_sys
+                                  and defined $pro_id){
         print "   Adding project $m_project(id=$m_project_id_sys) ", 
               "to $project(id=$project_id_sys)\n";
         my $sql="INSERT INTO projects_memberprojects
@@ -597,6 +615,9 @@ sub addproject_to_project {
         }
         if (not defined $project_id_sys){
            print "   Project $project does not exist, doing nothing. \n";
+        }
+        if (not defined $pro_id){
+           print "   $m_project is not a project, doing nothing. \n";
         }
     }
     &db_disconnect($dbh);
@@ -2113,7 +2134,7 @@ sub create_project {
     my @new_admins=();
     my @new_groups=();
     my @new_projects=();
-    my @new_users=();
+#    my @new_users=();
 
     &Sophomorix::SophomorixBase::provide_project_files($project);
 
@@ -2147,12 +2168,12 @@ sub create_project {
         @new_projects=@old_projects;          
     }
 
-    @new_users=(@new_members,@new_admins);
+ #   @new_users=(@new_members,@new_admins);
 
     # Add the users in the groups
     foreach my $group (@new_groups){
         my @new_users_pri=();
-        my @new_users_sec=();
+#        my @new_users_sec=();
 
         # check if group must be skipped
         # A) group seen
@@ -2173,15 +2194,15 @@ sub create_project {
         # select the primary users
         @new_users_pri=&Sophomorix::SophomorixBase::get_user_adminclass($group);
 
-        # select the secondary users
-        @new_users_sec=&fetchusers_from_project($group);
+#        # select the secondary users
+#        @new_users_sec=&fetchusers_from_project($group);
 
         if($Conf::log_level>=2){
              &Sophomorix::SophomorixBase::print_list_column(4,
                 "primary members of $group",@new_users_pri);
-             print "\n";
-             &Sophomorix::SophomorixBase::print_list_column(4,
-                "secondary members of $group",@new_users_sec);
+#             print "\n";
+#             &Sophomorix::SophomorixBase::print_list_column(4,
+#                "secondary members of $group",@new_users_sec);
         }
 
         # removing doubles
@@ -2190,12 +2211,75 @@ sub create_project {
        	      $users_to_add{$user}="$group(primary)";
            }
         }
+#        foreach my $user (@new_users_sec){        
+#           if (not exists $users_to_add{$user}){
+#       	      $users_to_add{$user}="$group(secondary)";
+#           }
+#        }
+    }
+
+
+
+
+
+    # Add the users in the projects
+    foreach my $m_project (@new_projects){
+        #my @new_users_pri=();
+        my @new_users_sec=();
+
+        # check if project must be skipped
+        # A) project seen
+        if (exists $seen{$m_project}){
+	    print "Aaaargh, I have seen group $m_project! \n",
+                  "Are you using recursive/multiple groups ...?\n";
+            next;
+        }
+        # remember the project
+        $seen{$m_project}="seen";
+        # B) avoid circles
+        if ($m_project eq $project){
+            print "It's nonsense to have a group as its MemberGroups\n",
+	          "... skipping $m_project as MemberGroups in $project\n";
+	    next;
+        }
+
+#      # select the primary users
+#      @new_users_pri=&Sophomorix::SophomorixBase::get_user_adminclass($m_project);
+
+        # select the secondary users
+        @new_users_sec=&fetchusers_from_project($m_project);
+
+        if($Conf::log_level>=2){
+#             &Sophomorix::SophomorixBase::print_list_column(4,
+#                "primary members of $m_project",@new_users_pri);
+#             print "\n";
+             &Sophomorix::SophomorixBase::print_list_column(4,
+                "secondary members of $m_project",@new_users_sec);
+        }
+
+        # removing doubles
+#        foreach my $user (@new_users_pri){        
+#           if (not exists $users_to_add{$user}){
+#       	      $users_to_add{$user}="$m_project(primary)";
+#           }
+#        }
         foreach my $user (@new_users_sec){        
            if (not exists $users_to_add{$user}){
-       	      $users_to_add{$user}="$group(secondary)";
+       	      $users_to_add{$user}="$m_project(secondary)";
            }
         }
     }
+
+
+
+
+
+
+
+
+
+
+
 
     foreach my $memb (@new_members){
 	$users_to_add{ $memb }="member";
@@ -2233,7 +2317,7 @@ sub create_project {
        print "   Old admins: @old_admins\n";
        print "   Old groups: @old_groups\n";
        print "   Old projects: @old_projects\n";
-       print "   New users: @new_users\n";
+       print "   New members: @new_members\n";
        print "   New admins: @new_admins\n";
        print "   New groups: @new_groups\n";
        print "   New projects: @new_projects\n";
