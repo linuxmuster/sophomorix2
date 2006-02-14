@@ -2149,24 +2149,82 @@ sub create_project {
 
     @new_users=(@new_members,@new_admins);
 
-    foreach my $memb (@new_users){
-	$users_to_add{ $memb }="";
+    # Add the users in the groups
+    foreach my $group (@new_groups){
+        my @new_users_pri=();
+        my @new_users_sec=();
+
+        # check if group must be skipped
+        # A) group seen
+        if (exists $seen{$group}){
+	    print "Aaaargh, I have seen group $group! \n",
+                  "Are you using recursive/multiple groups ...?\n";
+            next;
+        }
+        # remember the group
+        $seen{$group}="seen";
+        # B) avoid circles
+        if ($group eq $project){
+            print "It's nonsense to have a group as its MemberGroups\n",
+	          "... skipping $group as MemberGroups in $project\n";
+	    next;
+        }
+
+        # select the primary users
+        @new_users_pri=&Sophomorix::SophomorixBase::get_user_adminclass($group);
+
+        # select the secondary users
+        @new_users_sec=&fetchusers_from_project($group);
+
+        if($Conf::log_level>=2){
+             &Sophomorix::SophomorixBase::print_list_column(4,
+                "primary members of $group",@new_users_pri);
+             print "\n";
+             &Sophomorix::SophomorixBase::print_list_column(4,
+                "secondary members of $group",@new_users_sec);
+        }
+
+        # removing doubles
+        foreach my $user (@new_users_pri){        
+           if (not exists $users_to_add{$user}){
+       	      $users_to_add{$user}="$group(primary)";
+           }
+        }
+        foreach my $user (@new_users_sec){        
+           if (not exists $users_to_add{$user}){
+       	      $users_to_add{$user}="$group(secondary)";
+           }
+        }
+    }
+
+    foreach my $memb (@new_members){
+	$users_to_add{ $memb }="member";
+    }
+
+    foreach my $memb (@new_admins){
+	$users_to_add{ $memb }="admin";
+    }
+
+    if($Conf::log_level>=2){
+       print "\nThis users will be members of project $project\n";
+       printf "   %-20s %-20s \n","User:","Group:";
+       print "------------------------------------------------------------\n";
+       while (($k,$v) = each %users_to_add){
+          printf "   %-20s %-20s \n",$k,$v;
+       }
+       print "------------------------------------------------------------\n";
     }
 
     foreach my $admin (@new_admins){
 	$admins_to_add{ $admin }="";
     }
-
     foreach my $group (@new_groups){
 	$groups_to_add{ $group }="";
     }
-
     foreach my $project (@new_projects){
 	$projects_to_add{ $project }="";
     }
-
     &db_disconnect($dbh);
-
 
     print "3) Managing memberships:\n";
     if($Conf::log_level>=2){
@@ -2294,11 +2352,12 @@ sub create_project {
     print "     Groups to add: @groups_to_add\n";
     # adding the groups
     foreach my $group (@groups_to_add) {
-       &addgroup_to_project($group,$project);
+       	if ($group ne $project){
+           &addgroup_to_project($group,$project);
+        } else {
+            print "WARNING: Not adding $group to itself!\n";
+        }
 
-       # do this for all users
-       # create a link
-       #&Sophomorix::SophomorixBase::create_share_link($user,$project);
     }
 
 
@@ -2330,7 +2389,11 @@ sub create_project {
     print "     Projects to add as members: @projects_to_add\n";
     # adding the projects
     foreach my $m_project (@projects_to_add) {
-       &addproject_to_project($m_project,$project);
+	if ($m_project ne $project){
+            &addproject_to_project($m_project,$project);
+        } else {
+            print "WARNING: Not adding $project to itself!\n";
+        }
     }
 }
 
