@@ -2929,10 +2929,10 @@ sub check_sophomorix_user_oldstuff {
 
 sub show_project_list {
    print "The following projects exist already:\n\n";
-   printf "%-22s|%6s|%6s|%4s|%1s|%1s|%-35s \n","Project",
+   printf "%-17s |%6s |%6s | %4s |%1s|%1s| %-22s \n","Project",
           "AddQ", "AddMQ","MaxM","S","J","LongName";
-   print "----------------------+------+------+----",
-         "+-+----------------------------------\n";
+   print "------------------+-------+-------+------",
+         "+-+-+----------------------------------\n";
     my $dbh=&db_connect();
     my $sth= $dbh->prepare( "SELECT gid,addquota,addmailquota,
                                     longname,maxmembers,sophomorixstatus,
@@ -2970,13 +2970,13 @@ sub show_project_list {
         if (not defined $joinable){
 	    $joinable="";
         }
-        printf "%-22s|%6s|%6s|%4s|%1s|%1s|%-35s\n",$gid,
+        printf "%-17s | %5s | %5s | %4s |%1s|%1s| %-22s\n",$gid,
                 $addquota,$addmailquota,$maxmembers,
                 $status,$joinable,$longname;
         $i++;
     }   
    print "----------------------+------+------+----",
-         "+-+----------------------------------\n";
+         "+-+------------------------------------\n";
     &db_disconnect($dbh);
 }
 
