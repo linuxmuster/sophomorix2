@@ -6,7 +6,7 @@ Build-Depends: debhelper (>> 3.0.0), perl-base (>=5.8.4), man2html (>=1.5), docb
 Standards-Version: 3.5.2
 
 Package: sophomorix2
-Architecture: any
+Architecture: all
 Suggests: sophomorix-doc-html
 Depends:  sophomorix-base (>=1.4.6-1), sophomorix-sys-pgldap (>=1.4.6-1), sophomorix-pgldap (>=1.4.6-1)
 Description: sophomorix user adminitration meta package
@@ -15,7 +15,7 @@ Description: sophomorix user adminitration meta package
 
 
 Package: sophomorix-base
-Architecture: any
+Architecture: all
 Suggests: sophomorix-doc-html
 Depends:  sophomorix-db, sophomorix-sysdb, libdbd-csv-perl (>=0.21), libdate-calc-perl, quota (>=3.12), perl-base (>=5.8.4), perl-suid (>=5.8.4), libquota-perl (>= 1.4.9), samba (>= 3.0.7), libstring-approx-perl (>=3.23), tetex-base (>=2.0.2), tetex-bin (>=2.0.2), tetex-extra (>=2.0.2), gs-common (>=0.3.6), rsync (>=2.6.3)
 Description: scripts for sophomorix
@@ -26,7 +26,7 @@ Description: scripts for sophomorix
 
 
 Package: sophomorix-files
-Architecture: any
+Architecture: all
 Suggests: sophomorix-doc-html
 Depends:  
 Provides: sophomorix-db
@@ -34,7 +34,7 @@ Description: database (plain files) for sophomorix
  Database module to store the Sophomorix database in files
 
 Package: sophomorix-sys-files
-Architecture: any
+Architecture: all
 Suggests: sophomorix-doc-html
 Depends:
 Provides: sophomorix-sysdb
@@ -43,7 +43,7 @@ Description: module to write to plain linux files
  to /etc/passwd, /etc/shadow, /etc/group, /etc/gshadow, ...
  
 Package: sophomorix-pgldap
-Architecture: any
+Architecture: all
 Suggests: sophomorix-doc-html
 Depends:  sophomorix-base, slapd (>=2.3.11-lml3), libpam-ldap (>=178), ldap-utils (>=2.2.23), libnss-ldap (>=238), odbc-postgresql, unixodbc (>=2.2.4), odbcinst1 (>=2.2.4), libiodbc2 (>=3.52.2), iodbc (>=3.52.2), smbldap-tools (>=0.8.7), libcrypt-smbhash-perl (>=0.02), libdbd-pg-perl (>=1.41), postgresql (>=7.4.7)
 Provides: sophomorix-db
@@ -52,7 +52,7 @@ Description: postgresql database with ldap access for sophomorix
  the database available in openldap.
 
 Package: sophomorix-sys-pgldap
-Architecture: any
+Architecture: all
 Suggests: sophomorix-doc-html
 Depends:
 Provides: sophomorix-sysdb
@@ -60,7 +60,7 @@ Description: compatibility module for sophomorix
  this module provides compatibility with 'files'
  
 Package: sophomorix-vampire
-Architecture: any
+Architecture: all
 Depends: sophomorix2 (>=1.4.6-1), rsync (>=2.6.3), ssh (>=3.8.1)
 Description: script to such data to a new server
  This script is run on a new sophomorix server. It pushes a ssh-key to an 
@@ -70,7 +70,7 @@ Description: script to such data to a new server
  
 
 Package: sophomorix-developer
-Architecture: any
+Architecture: all
 Suggests: perl-doc
 Depends:  sophomorix2 (>=1.4.6-1)
 Description: Test suite for sophomorix
@@ -78,7 +78,7 @@ Description: Test suite for sophomorix
  your server!
 
 Package: sophomorix-doc-html
-Architecture: any
+Architecture: all
 Depends: 
 Description: Html documentation for sophomorix
  This Package contains the complete documentation for sophomorix
