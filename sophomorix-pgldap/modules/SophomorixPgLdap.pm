@@ -2929,13 +2929,14 @@ sub check_sophomorix_user_oldstuff {
 
 sub show_project_list {
    print "The following projects exist already:\n\n";
-   printf "%-22s|%6s|%6s|%4s|%1s|%-35s \n","Project",
-          "AddQ", "AddMQ","MaxM","S","LongName";
+   printf "%-22s|%6s|%6s|%4s|%1s|%1s|%-35s \n","Project",
+          "AddQ", "AddMQ","MaxM","S","J","LongName";
    print "----------------------+------+------+----",
          "+-+----------------------------------\n";
     my $dbh=&db_connect();
     my $sth= $dbh->prepare( "SELECT gid,addquota,addmailquota,
-                                    longname,maxmembers,sophomorixstatus 
+                                    longname,maxmembers,sophomorixstatus,
+                                    joinable 
                              FROM projectdata" );
       $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
@@ -2947,6 +2948,7 @@ sub show_project_list {
         my $longname=${$array_ref}[$i][3];
         my $maxmembers=${$array_ref}[$i][4];
         my $status=${$array_ref}[$i][5];
+        my $joinable=${$array_ref}[$i][6];
         if (not defined $gid){
 	    $gid="";
         }
@@ -2965,8 +2967,12 @@ sub show_project_list {
         if (not defined $status){
 	    $status="";
         }
-        printf "%-22s|%6s|%6s|%4s|%1s|%-35s\n",$gid,
-                $addquota,$addmailquota,$maxmembers,$status,$longname;
+        if (not defined $joinable){
+	    $joinable="";
+        }
+        printf "%-22s|%6s|%6s|%4s|%1s|%1s|%-35s\n",$gid,
+                $addquota,$addmailquota,$maxmembers,
+                $status,$joinable,$longname;
         $i++;
     }   
    print "----------------------+------+------+----",
