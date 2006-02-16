@@ -763,7 +763,7 @@ sub set_ldap_institutes {
 sub set_ldap_suffix_pg {
     my ($suffix) = @_;
     if (not defined $suffix or $suffix eq ""){
-        print "I won't set a emty ldap suffix!\n "
+        print "I won't set a empty ldap suffix!\n "
     } else {
        my $dbh=&db_connect();
        my $sql="";
