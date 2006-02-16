@@ -563,14 +563,15 @@ close(SOPHOMORIXADD);
 close(NOCHANLEGEN);
 
 # webmin
-# dont restart webmin (this is done later)
-&do_falls_nicht_testen("sophomorix-webmin --modules --no-restart");
+# dont restart webmin
+# this is not needed anymore
+#&do_falls_nicht_testen("sophomorix-webmin --modules --no-restart");
 
 
 # Webmin neu starten
-if (-e "/etc/init.d/webmin"){
-   &do_falls_nicht_testen("/etc/init.d/webmin restart");
-}
+#if (-e "/etc/init.d/webmin"){
+#   &do_falls_nicht_testen("/etc/init.d/webmin restart");
+#}
 
 
 # ?????

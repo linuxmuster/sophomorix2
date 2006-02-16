@@ -320,7 +320,8 @@ if ($DevelConf::testen==0) {
 
 # webmin
 # dont restart webmin (this is done later)
-&do_falls_nicht_testen("sophomorix-webmin --modules --no-restart");
+# webmin not needed anymore
+#&do_falls_nicht_testen("sophomorix-webmin --modules --no-restart");
 
 
 print ("\nsophomorix-kill terminated regularly ...\n");

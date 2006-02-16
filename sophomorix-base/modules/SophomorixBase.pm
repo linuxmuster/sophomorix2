@@ -41,7 +41,6 @@ use Time::localtime;
               check_config_template
               check_datei_touch
               check_verzeichnis_mkdir
-              print_user_webmin_data
               get_user_history
               get_group_list
               print_forward
@@ -67,8 +66,6 @@ use Time::localtime;
               check_lehrer
               make_hash_lehrer_in_klassen
               get_lehrer_in_klasse
-              get_raum_buchung
-              get_config_datei_meine_klassen
               get_link_pfad
               datum_loeschen_schueler
               daten_loeschen_ich_lehrer
@@ -1550,9 +1547,12 @@ sub check_verzeichnis_mkdir {
 
 =item I<print_user_samba_data(login)>
 
-Druckt wichtige Webmin Daten des users login
+Druckt wichtige Webmin Daten des users login (Obsolet)
 
 =cut
+
+
+# This is obsolete
 sub print_user_webmin_data {
     my ($login) = @_;
     my $miniserv="/etc/webmin/miniserv.users";
