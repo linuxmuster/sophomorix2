@@ -1410,6 +1410,22 @@ CREATE FUNCTION set_samba_domain_sid(character varying, integer) RETURNS integer
     LANGUAGE sql;
 
 
+CREATE FUNCTION set_account_memberuid(character varying, integer) RETURNS integer
+AS '
+INSERT INTO groups_users (gidnumber,memberuidnumber) VALUES ((SELECT gidnumber FROM groups WHERE id=$2), (SELECT uidnumber from posix_account WHERE uid=$1));
+SELECT $2 AS RETURN
+'
+LANGUAGE sql;
+
+
+CREATE FUNCTION del_account_memberuid(integer,character varying) RETURNS integer
+AS '
+DELETE FROM groups_users WHERE gidnumber=(SELECT gidnumber FROM groups WHERE id=$1) AND memberuidnumber=(SELECT uidnumber from posix_account WHERE uid=$2);
+SELECT $1 AS RETURN
+'
+LANGUAGE sql;
+
+
 
 CREATE VIEW memberdata AS SELECT posix_account.uid, posix_account.uidnumber as uidnum, posix_account.gecos,posix_account.gidnumber as adminclass, samba_sam_account.displayname,posix_account_details.sophomorixstatus as s,groups.gid FROM posix_account FULL JOIN samba_sam_account on posix_account.id = samba_sam_account.id FULL JOIN posix_account_details on posix_account.id=posix_account_details.sophomorixstatus INNER JOIN groups_users on groups_users.memberuidnumber=posix_account.uidnumber INNER JOIN groups on groups.gidnumber=groups_users.gidnumber;
 
@@ -1525,7 +1541,7 @@ INSERT INTO ldap_attr_mappings VALUES (106, 3, 'gn', 'posix_account.firstname', 
 INSERT INTO ldap_attr_mappings VALUES (5, 1, 'o', 'institutes.name', NULL, 'institutes', NULL, NULL, NULL, 0, 0);
 INSERT INTO ldap_attr_mappings VALUES (17, 3, 'gecos', 'posix_account.gecos', NULL, 'posix_account', NULL, '{ call set_account_gecos(?,?) }', '{ call del_account_gecos(?,?) }', 1, 0);
 INSERT INTO ldap_attr_mappings VALUES (4, 3, 'userPassword', 'posix_account.userpassword', NULL, 'posix_account', NULL, '{ call set_account_userpassword(?,?) }', '{ call del_account_userpassword(?,?) }', 1, 0);
-INSERT INTO ldap_attr_mappings VALUES (15, 4, 'memberUid', 'posix_account.uid', NULL, 'posix_account,groups_users,groups', 'groups_users.memberuidnumber=posix_account.uidnumber AND groups_users.gidnumber=groups.gidnumber', NULL, NULL, 0, 0);
+INSERT INTO ldap_attr_mappings VALUES (15, 4, 'memberUid', 'posix_account.uid', NULL, 'posix_account,groups_users,groups', 'groups_users.memberuidnumber=posix_account.uidnumber AND groups_users.gidnumber=groups.gidnumber', '{ call set_account_memberuid(?,?) }', '{ call del_account_memberuid(?,?) }', 1, 0);
 INSERT INTO ldap_attr_mappings VALUES (8, 2, 'ou', 'organizational_unit.ou', NULL, 'organizational_unit', NULL, '{ call set_organizational_unit_ou(?,?) }', NULL, 1, 0);
 INSERT INTO ldap_attr_mappings VALUES (10, 3, 'gidNumber', 'posix_account.gidnumber', NULL, 'posix_account', NULL, '{ call set_account_gidnumber(?,?) }', '{ call del_account_gidnumber(?,?) }', 1, 0);
 INSERT INTO ldap_attr_mappings VALUES (16, 3, 'loginShell', 'posix_account.loginshell', NULL, 'posix_account', NULL, '{ call set_account_loginshell(?,?) }', '{ call del_account_loginshell(?,?) }', 1, 0);
