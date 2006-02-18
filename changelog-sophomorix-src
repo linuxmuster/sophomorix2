@@ -922,11 +922,9 @@ change quota with cyrus-user.pl -u user -q quota
            
    - beim gruppenanlegen das Feld description nutzen
    - remove options smbroot in sophomorix-add
-   - option gidnumber in sophomorix-useradd tut noch nicht
    - strichpunkt an schueler.txt intelligent anhängen
      (bisher in sophomorix.conf)
 
-   - Aufruf von sophomorix-webmin raus aus sophomorix-add
    - smbldap-usershow entspricht in etwa sophomorix-user
    - crypt zu md5 (Passwort-decription)
    - system() in perl mit sysrun tauschen (oder noch besseres)
@@ -957,11 +955,8 @@ change quota with cyrus-user.pl -u user -q quota
   BUGS: adding 3000 users:
           owner of some /home/teachers/name is root.root
                 of some it is teachername.teachers
-
-
-
-   - SQL-View projectdata:
-      - show only entries from project_details
+  has not reappeared when testing again.
+   
 
    - SQL-View classdata:
       - show only entries from class_details
@@ -978,13 +973,25 @@ change quota with cyrus-user.pl -u user -q quota
 
       new table adminclass_admins: teacher join a class 
            (replaces .sophomorix)
+      (or put this stuff in another place)
 
 
 
-NEXT: 
+
+NEXT: allow a-zA-Z0-9_- as LongName of project  
+
+   
 
 
-1.4.9-1 (2006-02-xx)
+1.6.0-1 (2006-02-xx)
+   - Linkname to project is Longname of project
+   - all members Linkname is updated, when the LongName of a project
+     is changed
+   - formatting of s*-project -i changed     
+   - SQL-View projectdata:
+      - shows only entries from project_details
+
+1.4.9-1 (2006-02-16)
    - recreating links when moving a user
    - adding links to the share directories of all projects
    - adding a user (sophomorix-add) puts them in all groups
