@@ -16,6 +16,7 @@ require Exporter;
              addadmin_to_project
              addgroup_to_project
              addproject_to_project
+             fetchinfo_from_project
              fetchusers_from_project
              fetchadmins_from_project
              fetchgroups_from_project
@@ -157,6 +158,21 @@ sub check_connections {
        print "   Checking ldap connection... \n";
     }
     my $ldap = Net::LDAP->new( '127.0.0.1' ) or die "$@";
+}
+
+
+sub fetchinfo_from_project {
+    my ($project) = @_;
+    my $dbh=&db_connect();
+    my ($longname,$addquota,$add_mail_quota,$status,$join,$time,
+        $max_members) = $dbh->selectrow_array( "SELECT longname,addquota,
+           addmailquota,sophomorixstatus,joinable,creationdate,maxmembers
+                          FROM projectdata 
+                          WHERE gid='$project'");
+    # Merging information:
+    &db_disconnect($dbh);
+    return ($longname,$addquota,$add_mail_quota,
+            $status,$join,$time,$max_members);    
 }
 
 
@@ -2957,7 +2973,19 @@ sub show_project_list {
 
 sub show_project {
     my ($project) = @_;
-    my $dbh=&db_connect();
+    #my $dbh=&db_connect();
+    my ($longname,$addquota,$add_mail_quota,
+        $status,$join,$time,$max_members)=&fetchinfo_from_project($project);
+    if (defined $longname){
+       print "Project:          $project\n";
+       print "   LongName:         $longname\n";
+       print "   AddQuota:         $addquota\n";
+       print "   AddMailQuota:     $add_mail_quota\n";
+       print "   SophomorixStatus: $status\n";
+       print "   Joinable:         $join\n";
+       print "   MaxMembers:       $max_members\n";
+       print "   CreationTime:     $time\n";
+    }
     my @user=&fetchusers_from_project($project);
     @user = sort @user;
     &Sophomorix::SophomorixBase::print_list_column(4,"Members of $project",@user);
@@ -2974,7 +3002,7 @@ sub show_project {
     @pro = sort @pro;
     &Sophomorix::SophomorixBase::print_list_column(4,
       "MemberProjects of $project",@pro);
-    &db_disconnect($dbh);
+    #&db_disconnect($dbh);
 }
 
 
