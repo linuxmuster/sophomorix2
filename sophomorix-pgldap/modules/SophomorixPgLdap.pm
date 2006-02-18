@@ -2883,17 +2883,17 @@ sub check_sophomorix_user_oldstuff {
 
 
 sub show_project_list {
-   print "The following projects exist already:\n\n";
-   printf "%-17s |%6s |%6s | %4s |%1s|%1s| %-22s \n","Project",
-          "AddQ", "AddMQ","MaxM","S","J","LongName";
-   print "------------------+-------+-------+------",
-         "+-+-+----------------------------------\n";
+    print "The following projects exist already:\n\n";
+    printf "%-17s |%6s |%6s | %4s |%1s|%1s| %-22s \n","Project",
+           "AddQ", "AddMQ","MaxM","S","J","LongName";
+    print "------------------+-------+-------+------",
+          "+-+-+----------------------------------\n";
     my $dbh=&db_connect();
     my $sth= $dbh->prepare( "SELECT gid,addquota,addmailquota,
                                     longname,maxmembers,sophomorixstatus,
                                     joinable 
                              FROM projectdata" );
-      $sth->execute();
+    $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
     my $i=0;
     foreach ( @{ $array_ref } ) {
@@ -2930,8 +2930,8 @@ sub show_project_list {
                 $status,$joinable,$longname;
         $i++;
     }   
-   print "----------------------+------+------+----",
-         "+-+------------------------------------\n";
+    print "------------------+-------+-------+------",
+          "+-+-+----------------------------------\n";
     &db_disconnect($dbh);
 }
 
