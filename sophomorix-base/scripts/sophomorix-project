@@ -112,6 +112,7 @@ my $testopt=GetOptions(
 
 
 
+
 # --help
 if ($help==1) {
    # Scriptname ermitteln
@@ -130,8 +131,7 @@ Options
   -i -p projectname
   -p projectname, / --project projectname 
   --create 
-  --join
-  --nojoin
+  --join,  --nojoin
   --LongName projectname(long)
   --Admins user1,user2,user3, ... 
   --Members user1,user2,user3, ... 
@@ -149,6 +149,8 @@ Please see the sophomorix-project(8) man pages for full documentation
 
 
 
+
+
 # show the Database Modules that are loaded
 &show_modulename();
 &show_sys_modulename();
@@ -163,16 +165,35 @@ if ($project eq "" and $info==1){
 }
 
 
-if ($project ne "" and $info==1){
-    &show_project($project);
-    exit;
-}
-
-
 if ($join==0){
     $p_join="FALSE"; 
 } else {
     $p_join="TRUE";
+}
+
+
+# parse arguments
+if (defined $p_long_name) {
+   unless ($p_long_name =~ m/^([\w-]+)$/) { 
+       print "\nArgument of --LongName contains invalid characters. \n\n";
+       exit;
+   }
+}
+
+if (defined $project) {
+   unless ($project =~ m/^([\w-]+)$/) { 
+       print "\nArgument of --project contains invalid characters. \n\n";
+       exit;
+   }
+}
+
+
+
+
+# --info --project name
+if ($project ne "" and $info==1){
+    &show_project($project);
+    exit;
 }
 
 
