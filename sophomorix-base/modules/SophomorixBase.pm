@@ -1765,7 +1765,7 @@ sub get_plain_password {
 
 =pod
 
-=item I<create_share_link(login,project,type)>
+=item I<create_share_link(login,project,project_long_name,type)>
 
 Legt ein Link an in das Tauschverzeichnis des Projekts an. Der type
 kann sein: project oder subclass
@@ -1773,22 +1773,20 @@ kann sein: project oder subclass
 =cut
 # this should be true for all db and auth-systems
 sub create_share_link {
-    my ($login,$share_name,$type) = @_;
+    my ($login,$share_name,$share_long_name,$type) = @_;
     my $link_target="";
     # project is standard
     if (not defined $type or $type eq ""){
 	$type="project";
     }
 
-
     # Only act if uid is valid
     if (getpwnam("$login")){
        my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
           $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
        my $link_name=$home.
-          "/${Language::share_dir}/${Language::share_string}-${share_name}";   
+          "/${Language::share_dir}/${Language::share_string}-${share_long_name}";   
        print "Creating a link for user $login to $type $share_name.\n";
-
        if ($type eq "project"){
           # project
           # my $link_dir="${DevelConf::share_projects}/${share_name}/";
@@ -1816,14 +1814,14 @@ sub create_share_link {
 
 =pod
 
-=item I<remove_share_link(login,project)>
+=item I<remove_share_link(login,project,project_long_name)>
 
 Löscht den Link an in das Tauschverzeichnis des Projekts.
 
 =cut
 # this should be true for all db and auth-systems
 sub remove_share_link {
-    my ($login,$share_name,$type) = @_;
+    my ($login,$share_name,$share_long_name,$type) = @_;
     if (not defined $type or $type eq ""){
 	$type="project";
     }
@@ -1831,7 +1829,7 @@ sub remove_share_link {
        $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
 #    my $link_name=$home."/${Language::share_dir}/Tausch-${project}";   
 #    my $link_name=$home."/${Language::share_dir}/${Language::share_string}-${project}";   
-    my $link_name=$home."/${Language::share_dir}/${Language::share_string}-${share_name}";   
+    my $link_name=$home."/${Language::share_dir}/${Language::share_string}-${share_long_name}";   
     print "Removing link: $link_name\n";
     # remove the link
     unlink $link_name;

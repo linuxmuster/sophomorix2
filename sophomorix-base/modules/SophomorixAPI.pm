@@ -764,7 +764,7 @@ sub add_my_adminclass {
     system("mv $file.tmp $file");
 
     # create link
-    &Sophomorix::SophomorixBase::create_share_link($login,$class,"class");
+    &Sophomorix::SophomorixBase::create_share_link($login,$class,$class,"class");
 
     # create dirs in tasks and collect
     my $task_dir=$homedir."/".${Language::task_dir}."/".$class;
@@ -836,7 +836,7 @@ sub remove_my_adminclass {
     system("mv $file.tmp $file");
 
     # remove link
-    &Sophomorix::SophomorixBase::remove_share_link($login,$class,"class");
+    &Sophomorix::SophomorixBase::remove_share_link($login,$class,$class,"class");
 
     # remove dirs in tasks and collect
     my $task_dir=$homedir."/".${Language::task_dir}."/".$class;
