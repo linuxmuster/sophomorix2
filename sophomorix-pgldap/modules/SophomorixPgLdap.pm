@@ -2165,7 +2165,6 @@ sub create_project {
         }
     }
 
-
     print "1) Data for the Project:\n";
     print "   LongName:         $p_long_name\n";
     print "   AddQuota:         $p_add_quota MB\n";
@@ -2241,7 +2240,6 @@ sub create_project {
     my @new_admins=();
     my @new_groups=();
     my @new_projects=();
-#    my @new_users=();
 
     &Sophomorix::SophomorixBase::provide_project_files($project);
 
@@ -2275,13 +2273,9 @@ sub create_project {
         @new_projects=@old_projects;          
     }
 
- #   @new_users=(@new_members,@new_admins);
-
     # Add the users in the groups
     foreach my $group (@new_groups){
         my @new_users_pri=();
-#        my @new_users_sec=();
-
         # check if group must be skipped
         # A) group seen
         if (exists $seen{$group}){
@@ -2301,15 +2295,9 @@ sub create_project {
         # select the primary users
         @new_users_pri=&Sophomorix::SophomorixBase::get_user_adminclass($group);
 
-#        # select the secondary users
-#        @new_users_sec=&fetchusers_from_project($group);
-
         if($Conf::log_level>=2){
              &Sophomorix::SophomorixBase::print_list_column(4,
                 "primary members of $group",@new_users_pri);
-#             print "\n";
-#             &Sophomorix::SophomorixBase::print_list_column(4,
-#                "secondary members of $group",@new_users_sec);
         }
 
         # removing doubles
@@ -2318,20 +2306,10 @@ sub create_project {
        	      $users_to_add{$user}="$group(primary)";
            }
         }
-#        foreach my $user (@new_users_sec){        
-#           if (not exists $users_to_add{$user}){
-#       	      $users_to_add{$user}="$group(secondary)";
-#           }
-#        }
     }
-
-
-
-
 
     # Add the users in the projects
     foreach my $m_project (@new_projects){
-        #my @new_users_pri=();
         my @new_users_sec=();
 
         # check if project must be skipped
@@ -2349,44 +2327,21 @@ sub create_project {
 	          "... skipping $m_project as MemberGroups in $project\n";
 	    next;
         }
-
-#      # select the primary users
-#      @new_users_pri=&Sophomorix::SophomorixBase::get_user_adminclass($m_project);
-
         # select the secondary users
         @new_users_sec=&fetchusers_from_project($m_project);
 
         if($Conf::log_level>=2){
-#             &Sophomorix::SophomorixBase::print_list_column(4,
-#                "primary members of $m_project",@new_users_pri);
-#             print "\n";
              &Sophomorix::SophomorixBase::print_list_column(4,
                 "secondary members of $m_project",@new_users_sec);
         }
 
         # removing doubles
-#        foreach my $user (@new_users_pri){        
-#           if (not exists $users_to_add{$user}){
-#       	      $users_to_add{$user}="$m_project(primary)";
-#           }
-#        }
         foreach my $user (@new_users_sec){        
            if (not exists $users_to_add{$user}){
        	      $users_to_add{$user}="$m_project(secondary)";
            }
         }
     }
-
-
-
-
-
-
-
-
-
-
-
 
     foreach my $memb (@new_members){
 	$users_to_add{ $memb }="member";
