@@ -545,8 +545,15 @@ sub add_newuser_to_her_projects {
                                                   FROM groups 
                                                   WHERE gidnumber=$group_gidnumber
                                                  ");
+
+            my ($longname)= $dbh->selectrow_array( "SELECT longname 
+                                                  FROM projectdata 
+                                                  WHERE gidnumber=$group_gidnumber
+                                                 ");
+
             # create a link
-            &Sophomorix::SophomorixBase::create_share_link($login,$project);
+            &Sophomorix::SophomorixBase::create_share_link($login,
+                                                $project,$longname);
         }
     }
     print "... done!\n";
@@ -2098,13 +2105,15 @@ sub create_project {
         $p_add_quota,$p_add_mail_quota,
         $p_status,$p_join,$pg_timestamp,
         $p_max_members,$p_members,$p_admins,$p_groups,$p_projects) = @_;
+    # switch if longname has changed
+    my $longname_changed=0;
 
     # check if unix group exists and if its a project
     my $dbh=&db_connect();
     # fetch old data
     my ($old_id,$old_name,$old_long_name,$old_add_quota,$old_add_mail_quota,
         $old_max_members,$old_status,$old_join)= $dbh->selectrow_array( 
-                         "SELECT id,gid,displayname,addquota,
+                         "SELECT id,gid,longname,addquota,
                                  addmailquota,maxmembers,sophomorixstatus,
                                  joinable 
                           FROM projectdata 
@@ -2118,6 +2127,8 @@ sub create_project {
         } else {
 	    $p_long_name=$project; # use short name
         }
+    } else {
+	$longname_changed=1;
     }
 
     # AddQuota
@@ -2244,12 +2255,10 @@ sub create_project {
     &Sophomorix::SophomorixBase::provide_project_files($project);
 
     # get old values
-
     @old_users=&fetchusers_from_project($project);
     @old_admins=&fetchadmins_from_project($project);
     @old_groups=&fetchgroups_from_project($project);
     @old_projects=&fetchprojects_from_project($project);
-
 
     # Adding all users/admins/projects from options to lists
     if (defined $p_members){
@@ -2392,6 +2401,12 @@ sub create_project {
     # ========================================
     # calculating which users to add
     foreach my $user (@old_users){
+       if ($longname_changed==1){
+            &Sophomorix::SophomorixBase::remove_share_link($user,
+                                       $project,$old_long_name);
+            &Sophomorix::SophomorixBase::create_share_link($user,
+                                       $project,$p_long_name);
+       }
        if (exists $users_to_add{$user}){
           # remove user from users_to_add
           if($Conf::log_level>=3){
@@ -2406,7 +2421,8 @@ sub create_project {
          }
          #system("gpasswd -d $user $project");
 	 &deleteuser_from_project($user,$project);
-         &Sophomorix::SophomorixBase::remove_share_link($user,$project);
+         &Sophomorix::SophomorixBase::remove_share_link($user,
+                                         $project,$p_long_name);
        } 
     }    
     
@@ -2423,7 +2439,8 @@ sub create_project {
        &adduser_to_project($user,$project);
 
        # create a link
-       &Sophomorix::SophomorixBase::create_share_link($user,$project);
+       &Sophomorix::SophomorixBase::create_share_link($user,
+                                        $project,$p_long_name);
     }
 
 
@@ -2445,7 +2462,8 @@ sub create_project {
          }
          #system("gpasswd -d $user $project");
 	 &deleteadmin_from_project($user,$project);
-         &Sophomorix::SophomorixBase::remove_share_link($user,$project);
+         &Sophomorix::SophomorixBase::remove_share_link($user,
+                                          $project,$p_long_name);
        } 
     }    
     
@@ -2462,7 +2480,8 @@ sub create_project {
        &addadmin_to_project($user,$project);
 
        # create a link
-       &Sophomorix::SophomorixBase::create_share_link($user,$project);
+       &Sophomorix::SophomorixBase::create_share_link($user,
+                                         $project,$p_long_name);
     }
 
 
