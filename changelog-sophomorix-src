@@ -921,7 +921,6 @@ change quota with cyrus-user.pl -u user -q quota
 
            
    - beim gruppenanlegen das Feld description nutzen
-   - remove options smbroot in sophomorix-add
    - strichpunkt an schueler.txt intelligent anhängen
      (bisher in sophomorix.conf)
 
@@ -934,7 +933,7 @@ change quota with cyrus-user.pl -u user -q quota
 
    - function rewrite: get_users_project
 
-   - use groups_admin in display
+   - use groups_admin in display ???
   
    - verify views
 
@@ -950,6 +949,9 @@ change quota with cyrus-user.pl -u user -q quota
         backup this membership data in a log-file
                to reactivate the group, issue sophomorix-project ...
                using this Data
+
+     /var/log/sophomorix/project-modify.log
+     /var/log/sophomorix/project-modify-archive.log
 
 
   BUGS: adding 3000 users:
@@ -976,14 +978,13 @@ change quota with cyrus-user.pl -u user -q quota
       (or put this stuff in another place)
 
 
-
-
-NEXT: allow a-zA-Z0-9_- as LongName of project  
-
+NEXT: 
    
 
 
 1.6.0-1 (2006-02-xx)
+   - removed options smbroot in sophomorix-add
+   - allow only a-zA-Z0-9_- as LongName/name of project  
    - Linkname to project is Longname of project
    - all members Linkname is updated, when the LongName of a project
      is changed
