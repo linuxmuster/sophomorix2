@@ -586,6 +586,7 @@ if (-e "/etc/init.d/nscd"){
 system("smbldap-groupadd -g 512 'domadmins'");
 system("net groupmap add rid=512 unixgroup=domadmins ntgroup='Domain Admins'");
 
+
 system("smbldap-groupadd -g 513 'domusers'");
 system("net groupmap add rid=513 unixgroup=domusers ntgroup='Domain Users'");
 
@@ -595,20 +596,26 @@ system("net groupmap add rid=514 unixgroup=domguests ntgroup='Domain Guests'");
 system("smbldap-groupadd -g 515 'domcomputers'");
 system("net groupmap add rid=515 unixgroup=domcomputers ntgroup='Domain Computers'");
 
+# local group
 system("smbldap-groupadd -g 550 'printoperators'");
-system("net groupmap add rid=550 unixgroup=printoperators ntgroup='Print Operators'");
+system("net groupmap add sid='S-1-5-32-550' rid=550 unixgroup=printoperators ntgroup='Print Operators' type=local");
 
+# local group
 system("smbldap-groupadd -g 552 'replicators'");
-system("net groupmap add rid=552 unixgroup=replicators ntgroup='Replicators'");
+system("net groupmap add sid='S-1-5-32-552' rid=552 unixgroup=replicators ntgroup='Replicators' type=local");
 
+
+# local group
 system("smbldap-groupadd -g 544 'administrators'");
-system("net groupmap add rid=544 unixgroup=administrators ntgroup='Administrators'");
+system("net groupmap add sid='S-1-5-32-544' rid=544 unixgroup=administrators ntgroup='Administrators' type=local");
 
+# local group
 system("smbldap-groupadd -g 548 'accountoperators'");
-system("net groupmap add rid=548 unixgroup=accountoperators ntgroup='Account Operators'");
+system("net groupmap add sid='S-1-5-32-548' rid=548 unixgroup=accountoperators ntgroup='Account Operators' type=local");
 
+# local group
 system("smbldap-groupadd -g 551 'backupoperators'");
-system("net groupmap add rid=551 unixgroup=backupoperators ntgroup='Backup Operators'");
+system("net groupmap add sid='S-1-5-32-551' rid=551 unixgroup=backupoperators ntgroup='Backup Operators' type=local");
 
 
 
