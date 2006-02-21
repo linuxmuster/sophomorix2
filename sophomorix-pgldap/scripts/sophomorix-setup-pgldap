@@ -598,24 +598,24 @@ system("net groupmap add rid=515 unixgroup=domcomputers ntgroup='Domain Computer
 
 # local group
 system("smbldap-groupadd -g 550 'printoperators'");
-system("net groupmap add sid='S-1-5-32-550' rid=550 unixgroup=printoperators ntgroup='Print Operators' type=local");
+system("net groupmap add sid='S-1-5-32-550' unixgroup=printoperators ntgroup='Print Operators' type=local");
 
 # local group
 system("smbldap-groupadd -g 552 'replicators'");
-system("net groupmap add sid='S-1-5-32-552' rid=552 unixgroup=replicators ntgroup='Replicators' type=local");
+system("net groupmap add sid='S-1-5-32-552' unixgroup=replicators ntgroup='Replicators' type=local");
 
 
 # local group
 system("smbldap-groupadd -g 544 'administrators'");
-system("net groupmap add sid='S-1-5-32-544' rid=544 unixgroup=administrators ntgroup='Administrators' type=local");
+system("net groupmap add sid='S-1-5-32-544' unixgroup=administrators ntgroup='Administrators' type=local");
 
 # local group
 system("smbldap-groupadd -g 548 'accountoperators'");
-system("net groupmap add sid='S-1-5-32-548' rid=548 unixgroup=accountoperators ntgroup='Account Operators' type=local");
+system("net groupmap add sid='S-1-5-32-548' unixgroup=accountoperators ntgroup='Account Operators' type=local");
 
 # local group
 system("smbldap-groupadd -g 551 'backupoperators'");
-system("net groupmap add sid='S-1-5-32-551' rid=551 unixgroup=backupoperators ntgroup='Backup Operators' type=local");
+system("net groupmap add sid='S-1-5-32-551' unixgroup=backupoperators ntgroup='Backup Operators' type=local");
 
 
 
