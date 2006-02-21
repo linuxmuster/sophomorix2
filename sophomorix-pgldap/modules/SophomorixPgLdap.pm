@@ -179,7 +179,7 @@ sub fetchinfo_from_project {
 
 sub fetchusers_from_project {
     # return a list of uid of users of the given project
-    # linux: wich users are secondary members of group
+    # linux: which users are secondary members of group
     my ($group) = @_;
     my @userlist=();
     my $dbh=&db_connect();
