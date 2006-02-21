@@ -236,8 +236,10 @@ if ($info==1) {
 
 my %login_type = &login_type();
 if($Conf::log_level>=3){
+   printf "%-20s %-30s \n","Login:","Typ:";
+   print "--------------------------------(%login_type)-----\n";
    while( my ($login, $type) = each(%login_type)) {
-     print "$login:   $type \n";
+     printf "%-20s %-30s \n",$login,$type;
    }
 }
 
