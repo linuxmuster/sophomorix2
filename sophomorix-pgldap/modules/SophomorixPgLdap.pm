@@ -2179,7 +2179,7 @@ sub create_project {
 	if (defined $old_status){
            $p_status=$old_status;          
         } else {
-	    $p_status="U";
+	    $p_status="P";
         }
     }
 
