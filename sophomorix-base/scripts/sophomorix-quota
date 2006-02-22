@@ -38,6 +38,7 @@ use if ${DevelConf::db_backend} eq 'pgldap' ,
                                         user_reaktivieren
                                         user_deaktivieren
                                         db_connect
+                                        db_disconnect
                                        );
 
 
@@ -236,48 +237,34 @@ if ($info==1) {
 
 my %login_type = &login_type();
 if($Conf::log_level>=3){
-   printf "%-20s %-30s \n","Login:","Typ:";
-   print "--------------------------------(%login_type)-----\n";
-   while( my ($login, $type) = each(%login_type)) {
-     printf "%-20s %-30s \n",$login,$type;
-   }
+   &print_hash(\%login_type,"","Login:","Type:")
 }
 
 
 my %db_quota = &get_db_quota();
 if($Conf::log_level>=3){
-   while( my ($login, $quota) = each(%db_quota)) {
-     print "$login:   $quota \n";
-   }
+    &print_hash(\%db_quota,"","Login:","Quota in DB:");
 }
 
 
 my %teacher_quota=&get_teacher_quota();
 if($Conf::log_level>=3){
-   while ( my ($k, $v) = each(%teacher_quota)) {
-     print "$k:  $v \n";
-   }
+    &print_hash(\%teacher_quota,"","Teacher:","Quota in DB:");
 }
 
 my %quota_txt = &get_quota_txt();
 if($Conf::log_level>=3){
-   while ( my ($k, $v) = each(%quota_txt)) {
-     print "$k:  $v \n";
-   }
+    &print_hash(\%quota_txt,"","quota.txt:","Quota:");
 }
 
 my %class_quota = &get_class_quota();
 if($Conf::log_level>=3){
-   while ( my ($k, $v) = each(%class_quota)) {
-     print "$k:  $v \n";
-   }
+    &print_hash(\%class_quota,"","Adminclass:","Quota:");
 }
 
 my %projects_add_quota = &get_projects_add_quota();
 if($Conf::log_level>=3){
-   while ( my ($k, $v) = each(%projects_add_quota)) {
-     print "$k:  $v \n";
-   }
+    &print_hash(\%projects_add_quota,"","Project:","AddQuota:");
 }
 
 
@@ -422,12 +409,15 @@ sub check_quotastring {
 sub set_quota_if_needed {
     my $new_quota="";
     while ( my ($login, $type) = each(%login_type)) {
-        if ($type eq "domcomp" or "workstation"){
-            # not setting quota for machine accounts and workstation accounts
-	    next;
-        }
+	print "$login is type $type \n";
+   #     if ($type eq "domcomp" or "workstation"){
+   #         print "   Not setting quota for $login\n";
+   #         # not setting quota for machine accounts and workstation accounts
+#	    next;
+#        }
 
         $new_quota=&get_quota($login);
+	print "New Quota: $new_quota \n";
         if ($new_quota eq $db_quota{$login}){
            #do nothing
         } else {
@@ -544,7 +534,19 @@ sub get_quota{
 # hash login -> additional quota
 sub get_projects_add_quota {
     my %projects_add_quota=();
-# todo ????????
+    my $dbh=&db_connect();
+    my $sth;
+    $sth = $dbh->prepare("SELECT gid,addquota FROM projectdata");
+    $sth->execute();
+    while (my $row = $sth->fetchrow_hashref) {
+       if(not defined $row->{'addquota'}){
+           next;
+       } elsif($row->{'addquota'} ne "quota" or $row->{'addquota'} ne "0"){
+          $projects_add_quota{ $row->{'gid'} } = $row->{'addquota'}; 
+       }
+    }
+    $sth->finish();
+    &db_disconnect($dbh);
     return %projects_add_quota;
 }
 
@@ -594,6 +596,7 @@ sub get_class_quota {
        }
     }
     $sth->finish();
+    &db_disconnect($dbh);
     return %class_quota;
 }
 
@@ -673,6 +676,7 @@ sub get_db_quota {
           # not a sophomorix user
        }
     }
+    &db_disconnect($dbh);
     return %db_quota;
 }
 
