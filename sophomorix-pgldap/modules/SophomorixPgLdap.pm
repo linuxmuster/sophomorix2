@@ -2214,7 +2214,7 @@ sub create_project {
 	     (id,longname,addquota,addmailquota,maxmembers,
               creationdate,sophomorixstatus,joinable)
 	      VALUES
-	      ($id,'$p_long_name',$p_add_quota,$p_add_mail_quota,
+	      ($id,'$p_long_name','$p_add_quota',$p_add_mail_quota,
                $p_max_members,'$pg_timestamp','$p_status',$p_join)";
            if($Conf::log_level>=3){
               print "SQL: $sql\n";
@@ -2228,7 +2228,7 @@ sub create_project {
         if ($create==0){
            # update
            $sql="UPDATE project_details 
-                 SET longname='$p_long_name', addquota=$p_add_quota,
+                 SET longname='$p_long_name', addquota='$p_add_quota',
                      addmailquota=$p_add_mail_quota, 
                      maxmembers='$p_max_members',sophomorixstatus='$p_status',
                      joinable=$p_join
