@@ -981,10 +981,13 @@ change quota with cyrus-user.pl -u user -q quota
 NEXT: 
    format logleve 3 output of sophomorix quota
    why is quota not set at all
+   s-project --Addquota adds 220+23 to 246
 
 
 1.6.0-1 (2006-02-xx)
-   - adging clients local wingroups with type=local and SID=S-1-5-32-*
+   - s-quota: show quota of project works with pgldap
+   - Bugfix: store 2000+200 in AddQuota as a String instead of calculating 2200 
+   - adding clients local wingroups with type=local and SID=S-1-5-32-*
    - removed options smbroot in sophomorix-add
    - allow only a-zA-Z0-9_- as LongName/name of project  
    - Linkname to project is Longname of project
