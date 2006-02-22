@@ -23,6 +23,7 @@ use Time::localtime;
               titel
               print_list 
               print_list_column 
+              print_hash
                formatiere_liste
               get_alle_verzeichnis_rechte
               get_v_rechte
@@ -226,6 +227,33 @@ sub print_list {
        print "End: $name ($number)\n\n";
 
    }
+}
+
+=pod
+
+=item I<print_list(name,@liste)>
+
+prints every element of a list on a single line, if loglevel is 3
+(option -vv) and shows the header name.
+
+=cut
+sub print_hash {
+   my ($hashref,$titel,$key,$value,$key_length,$value_length)= @_;
+   
+   printf "+---------------------------+---------------------------+\n",$titel;
+   if ($titel ne ""){
+       printf "+ %-53s +\n",$titel;
+       printf "+---------------------------+---------------------------+\n",$titel;
+   }
+   %hash = %$hashref;
+   printf "| %-25s | %-25s |\n",$key,$value;
+   printf "+ %-25s + %-25s +\n","-------------------------",
+          "-------------------------";
+   while( my ($k, $v) = each(%hash)) {
+     printf "| %-25s | %-25s |\n",$k,$v;
+   }
+   printf "+ %-25s + %-25s +\n","-------------------------",
+          "-------------------------";
 }
 
 =pod
