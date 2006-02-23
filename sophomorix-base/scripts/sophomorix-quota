@@ -412,6 +412,7 @@ sub check_quotastring {
 sub set_quota_if_needed {
     my ($all) = @_; 
     my $new_quota="";
+    my $count=0;
     while ( my ($login, $type) = each(%login_type)) {
 	print "$login is type $type \n";
         if ($type eq "domcomp" or $type eq "workstation"){
@@ -424,7 +425,8 @@ sub set_quota_if_needed {
         if ($new_quota eq $db_quota{$login} and $all==0){
            #do nothing
         } else {
-           print "User $login:\n";
+           $count++;
+           print "User $count: $login \n";
            print "  New quota: $new_quota \n";
            print "  Database : $db_quota{$login}\n";
            # check the new quotastring
