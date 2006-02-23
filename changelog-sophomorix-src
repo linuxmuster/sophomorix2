@@ -105,7 +105,6 @@ sophomorix-quota
    - check if quota is really set (how?, grep through 'quota user' ?)
    - find users without quota, report them
    - find users that approch their quota, send mail, ...
-   - speedup function login_type using sql instead of getent... 
 
 
 sophomorix-teach-in (seems ok so far)
@@ -973,25 +972,30 @@ change quota with cyrus-user.pl -u user -q quota
            (replaces .sophomorix)
       (or put this stuff in another place)
 
+
 Performance bug:
+Reactivation is very slow (when a user reappears in schueler.txt)
 
-Reactivation geht sehr langsam (wenn user herausgefallen ist)
 
-
-admin nwberater:
+admin or nwberater:
 
 ? name 
 ? ldap or files
 
-field mailquota in classes
-
 
 
 NEXT: 
-   test: showing new version in postinst
+- database-upgrade
+- mailquota
+- man pages
 
+quota: dont show anything when not setting quota of a user
 
-1.5.0-1 (2006-02-xx)
+1.5.0-1 (2006-02-23)
+   - speeded up function login_type in sophomorix-quota using SQL
+     instead of getent
+   - added field mailquota to class_details
+   - showing new version in sophomorix-pgldap.postinst works
    - formatting s*-project -i modified for 
    - quota is working now
    - checked output from sophomorix-quota in different loglevels
