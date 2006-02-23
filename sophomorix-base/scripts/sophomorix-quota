@@ -37,6 +37,7 @@ use if ${DevelConf::db_backend} eq 'pgldap' ,
                                         update_user_db_entry
                                         user_reaktivieren
                                         user_deaktivieren
+                                        pg_get_group_list
                                         db_connect
                                         db_disconnect
                                        );
@@ -102,6 +103,7 @@ my $ws=0;
 my $force=0;
 my $sum=0;
 my $system=0;
+my $all=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -111,6 +113,7 @@ my $testopt=GetOptions(
            "room|=s" => \$rooms,
            "workstations|workstation|ws" => \$ws,
            "force" => \$force,
+           "all|allusers" => \$all,
            "test|t" => \$DevelConf::testen,
            "sum" => \$sum,
            "verbose|v+" => \$Conf::log_level,
@@ -236,34 +239,34 @@ if ($info==1) {
 &titel("Calculating usrquota ... (this may take a while)");
 
 my %login_type = &login_type();
-if($Conf::log_level>=3){
+if($Conf::log_level>=2){
    &print_hash(\%login_type,"","Login:","Type:")
 }
 
 
 my %db_quota = &get_db_quota();
-if($Conf::log_level>=3){
+if($Conf::log_level>=2){
     &print_hash(\%db_quota,"","Login:","Quota in DB:");
 }
 
 
 my %teacher_quota=&get_teacher_quota();
-if($Conf::log_level>=3){
+if($Conf::log_level>=2){
     &print_hash(\%teacher_quota,"","Teacher:","Quota in DB:");
 }
 
 my %quota_txt = &get_quota_txt();
-if($Conf::log_level>=3){
+if($Conf::log_level>=2){
     &print_hash(\%quota_txt,"","quota.txt:","Quota:");
 }
 
 my %class_quota = &get_class_quota();
-if($Conf::log_level>=3){
+if($Conf::log_level>=2){
     &print_hash(\%class_quota,"","Adminclass:","Quota:");
 }
 
 my %projects_add_quota = &get_projects_add_quota();
-if($Conf::log_level>=3){
+if($Conf::log_level>=2){
     &print_hash(\%projects_add_quota,"","Project:","AddQuota:");
 }
 
@@ -296,7 +299,7 @@ if ($loginname ne "" or $classes ne "" or $pupil!=0 or $rooms ne "" or $ws!=0){
     }
 } else {
    # ohne optionen
-   &set_quota_if_needed();
+   &set_quota_if_needed($all);
 }
 
 
@@ -407,18 +410,18 @@ sub check_quotastring {
 # check for which users quota must be updated in the database. 
 # if yes: call set_quota for each user
 sub set_quota_if_needed {
+    my ($all) = @_; 
     my $new_quota="";
     while ( my ($login, $type) = each(%login_type)) {
 	print "$login is type $type \n";
-   #     if ($type eq "domcomp" or "workstation"){
-   #         print "   Not setting quota for $login\n";
-   #         # not setting quota for machine accounts and workstation accounts
-#	    next;
-#        }
-
+        if ($type eq "domcomp" or $type eq "workstation"){
+            print "   Not setting quota for $login\n";
+            # not setting quota for machine accounts and workstation accounts
+	    next;
+        }
         $new_quota=&get_quota($login);
-	print "New Quota: $new_quota \n";
-        if ($new_quota eq $db_quota{$login}){
+	print "   New Quota: $new_quota \n";
+        if ($new_quota eq $db_quota{$login} and $all==0){
            #do nothing
         } else {
            print "User $login:\n";
@@ -494,21 +497,33 @@ sub login_type {
 # calculates the quota of the user login
 sub get_quota{
     my ($login) = @_;
-    my $grname = `id -n -g $login`;
-    chomp($grname);
+    my @groups = &pg_get_group_list($login);
+    my $pri_group=shift(@groups);
+    if (not defined $pri_group){
+       # ????? necessary when admin is in ldap
+       # for admin, ...
+       $pri_group = `id -n -g $login`;
+       chomp($pri_group);
+    }
+    if($Conf::log_level>=2){
+        print "   Primary Group:    $pri_group \n";
+        print "   Secondary Groups: @groups \n";
+    }
+
     my $quotastring="";
     if (exists $quota_txt{$login}){
         # look in quota.txt
         $quotastring=$quota_txt{$login};
-	#print "Found quota.txt quota: $quotastring\n";
+	print "   Found quota.txt quota: $quotastring\n" if($Conf::log_level>=2);
     } elsif (exists $teacher_quota{$login}){
         # look in teacher.txt
         $quotastring=$teacher_quota{$login};
-	#print "Found lehrer.txt quota: $quotastring\n";
-    } elsif (exists $class_quota{$grname}){
+	print "   Found lehrer.txt quota: $quotastring\n" if($Conf::log_level>=2);
+    } elsif (exists $class_quota{$pri_group}){
         # look in class
-        $quotastring=$class_quota{$grname};
-	#print "Found quota for class $grname: $quotastring\n";
+        $quotastring=$class_quota{$pri_group};
+	print "   Found quota for class $pri_group: $quotastring\n" 
+        if($Conf::log_level>=2);
     } else {
         # take standard values
         if ($login_type{$login} eq "student"){
@@ -519,10 +534,13 @@ sub get_quota{
 	    $quotastring=$quota_txt{"workstation-lehrer"};
         }
     }
-    
-    if (exists $projects_add_quota{$login}){
-        #print "Adding $projects_add_quota{$login}\n";
-	$quotastring = &quota_addition($projects_add_quota{$login},$quotastring);
+    foreach my $group (@groups){
+        print "   Checking for additional quota of ",
+              "project $group \n" if($Conf::log_level>=2);
+        if (exists $projects_add_quota{$group}){
+        print "   Adding $projects_add_quota{$group}\n" if($Conf::log_level>=2);
+        $quotastring = &quota_addition($projects_add_quota{$group},$quotastring)
+        }
     }
     return $quotastring;
 }
@@ -541,7 +559,7 @@ sub get_projects_add_quota {
     while (my $row = $sth->fetchrow_hashref) {
        if(not defined $row->{'addquota'}){
            next;
-       } elsif($row->{'addquota'} ne "quota" or $row->{'addquota'} ne "0"){
+       } elsif($row->{'addquota'} ne "quota" and $row->{'addquota'} ne "0"){
           $projects_add_quota{ $row->{'gid'} } = $row->{'addquota'}; 
        }
     }
