@@ -472,24 +472,47 @@ sub get_teacher_quota {
 # hash: login -> type(pupil,teacher,workstation)
 sub login_type {
     my %login_type=();
+    my %login_type_new=();
     my $login="";
     my $home="";
+
     # add admin, because it is not in user_db
     $login_type{"admin"}="admin";
     # others
-    setpwent();
-    while(($login,$a,$a,$a,$a,$a,$a,$home)=getpwent()) {
-        if($home=~/^$DevelConf::homedir_pupil/){
-           $login_type{$login}="student";
-        } elsif($home=~/^$DevelConf::homedir_ws/){
-           $login_type{$login}="workstation";
-        } elsif($home=~/^$DevelConf::homedir_teacher/){
-           $login_type{$login}="teacher";
-        } elsif($home=~/dev\/null/){
-           $login_type{$login}="domcomp";
-        }
+    my $dbh=&db_connect();
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT uid,homedirectory
+                            FROM userdata 
+                           " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+       # split the array, to give better names
+       my ($uid,$home)=@$row;
+       if($home=~/^$DevelConf::homedir_pupil/){
+          $login_type{$uid}="student";
+       } elsif($home=~/^$DevelConf::homedir_ws/){
+          $login_type{$uid}="workstation";
+       } elsif($home=~/^$DevelConf::homedir_teacher/){
+          $login_type{$uid}="teacher";
+       } elsif($home=~/dev\/null/){
+          $login_type{$uid}="domcomp";
+       }
     }
-    endpwent();
+    &db_disconnect($dbh);
+#    setpwent();
+#    while(($login,$a,$a,$a,$a,$a,$a,$home)=getpwent()) {
+#        if($home=~/^$DevelConf::homedir_pupil/){
+#           $login_type{$login}="student";
+#        } elsif($home=~/^$DevelConf::homedir_ws/){
+#           $login_type{$login}="workstation";
+#        } elsif($home=~/^$DevelConf::homedir_teacher/){
+#           $login_type{$login}="teacher";
+#        } elsif($home=~/dev\/null/){
+#           $login_type{$login}="domcomp";
+#        }
+#    }
+#    endpwent();
     return %login_type;
 }
 
