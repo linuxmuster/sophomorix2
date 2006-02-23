@@ -41,9 +41,12 @@ set -e
 # $1 configure (also when upgrading)
 # $2 oldversion, when upgrading
 
-#new_version=dpkg -l sophomorix-pgldap | grep 'sophomorix-pg' | { read status name version desc; echo "$version";}
+new_version=`dpkg -l sophomorix-pgldap | grep 'sophomorix-pg' | { read status name version desc; echo "$version";}`
 
-#echo "New Version: $new_version"
+echo "New Version: $new_version"
+echo "Old Version: $1"
+
+
 echo "Parameter 1: $1"
 echo "Parameter 2: $2"
 echo "Parameter 3: $3"
