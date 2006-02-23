@@ -44,7 +44,7 @@ set -e
 new_version=`dpkg -l sophomorix-pgldap | grep 'sophomorix-pg' | { read status name version desc; echo "$version";}`
 
 echo "New Version: $new_version"
-echo "Old Version: $1"
+echo "Old Version: $2"
 
 
 echo "Parameter 1: $1"
