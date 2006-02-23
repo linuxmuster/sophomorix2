@@ -1348,6 +1348,8 @@ sub pg_remove_all_secusers {
 
 
 sub pg_get_group_list {
+    # returns a list of membergroups of the user, 
+    # first value in list is primary group
     my ($user) = @_;
     my $sql="";
     my @grp_list=();
@@ -2152,7 +2154,7 @@ sub create_project {
 	if (defined $old_add_quota){
            $p_add_quota=$old_add_quota;          
         } else {
-	    $p_add_quota=0;
+	    $p_add_quota="quota";
         }
     }
 
@@ -2676,7 +2678,6 @@ sub search_user {
        # Gruppen-Zugehoerigkeit
        $pri_group_string="";
        $grp_string="";
-#       @group_list=&Sophomorix::SophomorixBase::get_group_list($login);
        @group_list=&Sophomorix::SophomorixPgLdap::pg_get_group_list($login);
        $pri_group_string=$group_list[0];
 
@@ -2919,9 +2920,9 @@ sub check_sophomorix_user_oldstuff {
 
 sub show_project_list {
     print "The following projects exist already:\n\n";
-    printf "%-17s |%6s |%6s | %4s |%1s|%1s| %-22s \n","Project",
-           "AddQ", "AddMQ","MaxM","S","J","LongName";
-    print "------------------+-------+-------+------",
+    printf "%-15s | %9s |%6s | %4s |%1s|%1s| %-22s \n","Project",
+           "AddQuota", "AddMQ","MaxM","S","J","LongName";
+    print "----------------+-----------+-------+------",
           "+-+-+----------------------------------\n";
     my $dbh=&db_connect();
     my $sth= $dbh->prepare( "SELECT gid,addquota,addmailquota,
@@ -2960,12 +2961,12 @@ sub show_project_list {
         if (not defined $joinable){
 	    $joinable="";
         }
-        printf "%-17s | %5s | %5s | %4s |%1s|%1s| %-22s\n",$gid,
+        printf "%-16s|%10s |%6s |%5s |%1s|%1s| %-22s\n",$gid,
                 $addquota,$addmailquota,$maxmembers,
                 $status,$joinable,$longname;
         $i++;
     }   
-    print "------------------+-------+-------+------",
+    print "----------------+-----------+-------+------",
           "+-+-+----------------------------------\n";
     &db_disconnect($dbh);
 }
