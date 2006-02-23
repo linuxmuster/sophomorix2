@@ -102,7 +102,7 @@ sophomorix-quota
    - option --school(=pupil, teacher, workstation)
      Use this option in sophomorix-passwd also?
        -> include in function create_userlist
-   - check if quota isreally set (how?, grep through 'quota user' ?)
+   - check if quota is really set (how?, grep through 'quota user' ?)
    - find users without quota, report them
    - find users that approch their quota, send mail, ...
    - speedup function login_type using sql instead of getent... 
@@ -241,11 +241,6 @@ sophomorix-print
 
 
 sophomorix-project
-   - allow secret or open project(standard)
-     secret=no teachers can add himself to a project
-     open=teachers can add themselves to a project
-   - create exchange directories automatically, when the project is created
-   - option -p astro -i should display info about group astro (6users in a row, ...)
    - add status stuff/lifetime stuff to projects
       P= Permanent, will not be automatically removed
       ... see drawing in doku
@@ -259,7 +254,6 @@ sophomorix-project
        - delete exchange dir
        - delete links from users to exchange dir
        - move data back to homedir of user?
-   - check if loginname is valid before adding user to a project
 
    - allow teachers to add a project (if no AddQuota is involved)
      - (maximum of Projects is configurable for each teacher: standard 30)
@@ -270,9 +264,9 @@ sophomorix-project
 
    - allow admin:
      - projects with additional quota
-     - permanente projekte
+     - permanent projects
      - delete a project at once
-     - push a project ino the deletion cycle (send mail,deactivate,autom. deletion)
+     - push a project into the deletion cycle (send mail,deactivate,autom. deletion)
      
 
 sophomorix-class
@@ -356,7 +350,7 @@ sophomorix-vampire:
 
 
 
-sophomorix-webmin
+sophomorix-webmin (obsolete in ml 3.0)
    - totally configure webmin
    - option --noninteractive 
 
@@ -464,6 +458,8 @@ SophomorixAPI:
 ALL SCRIPTS To do
 ############################################################
 
+   - show quota values larger than 9999MB as GB
+     9999 -> 10G  (what about accuracy?)
    * convert pupil stuff to student
    - if a class is to be added and the groupname is given to a project already
      make something correct
@@ -977,14 +973,28 @@ change quota with cyrus-user.pl -u user -q quota
            (replaces .sophomorix)
       (or put this stuff in another place)
 
+Performance bug:
+
+Reactivation geht sehr langsam (wenn user herausgefallen ist)
+
+
+admin nwberater:
+
+? name 
+? ldap or files
+
+field mailquota in classes
+
+
 
 NEXT: 
-   format logleve 3 output of sophomorix quota
-   why is quota not set at all
-   s-project --Addquota adds 220+23 to 246
+   test: showing new version in postinst
 
 
-1.6.0-1 (2006-02-xx)
+1.5.0-1 (2006-02-xx)
+   - formatting s*-project -i modified for 
+   - quota is working now
+   - checked output from sophomorix-quota in different loglevels
    - s-quota: show quota of project works with pgldap
    - Bugfix: store 2000+200 in AddQuota as a String instead of calculating 2200 
    - adding clients local wingroups with type=local and SID=S-1-5-32-*
