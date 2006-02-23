@@ -24,12 +24,19 @@ sophomorix-quota \- Quota setzen (usrquota)
 .SH DESCRIPTION
 .B sophomorix-quota
 .br
-sophomorix-quota liest Quotaangaben aus Konfigurationsdateien ein und
-berechnet daraus die Quota jedes einzelnen users. Das ermittelte Quota
-wird in die sophomorix-Datenbank eingetragen und die Quota werden im
-System gesetzt.
+sophomorix-quota liest Quotaangaben aus Konfigurationsdateien und der
+Datenbank ein und berechnet daraus die Quota jedes einzelnen users.
+.br
+Das ermittelte Quota wird dann in die sophomorix-Datenbank eingetragen
+(userdata.quota) und die Quota werden (wenn sich der Datenbank-Wert
+verändert hat) im System gesetzt.
+.br
+Wenn sich der Quotawert in der Datenbank (userdata.quota) nicht
+ändert, dann werden die quota im system NICHT upgedatet (siehe auch Option
+--all)
+
 .TP
-Folgende Dateien dienen zur Konfiguration von Quotaangaben:
+Folgende Dateien/Befehle dienen zur Konfiguration von Quotaangaben:
 .TP
 .B 1. Generelles Einschalten bzw. ausschalten von Quota
 Datei:  /etc/sophomorix/user/sophomorix.conf
@@ -44,8 +51,8 @@ Datei:  /etc/sophomorix/user/quota.txt
 Datei:  /etc/sophomorix/user/lehrer.txt
 .TP
 .B 5. Quotaangaben für Klassen (AdminClass):
-Datei  /etc/sophomorix/user/schulinfo.txt
-(Diese Datei wird wahrscheinlich in Kürze umbenannt)
+Diese Quotaangaben werden mit dem Befehl
+sophomorix-class direkt in die sophomorix-Datenbank eingetragen.
 .TP
 .B 6. Quotaangaben für Projekte: 
 Diese Quotaangaben werden mit dem Befehl
@@ -53,8 +60,10 @@ sophomorix-project direkt in die sophomorix-Datenbank eingetragen.
 .br
 Achtung: Bei diesen Quotaangaben handelt es sich um zusätzliche Quota
 (AddQuota), die zu den aus obigen Dateien ermittelten Quota DAZUKOMMEN.
-.br
-Dieses Feature ist im Moment noch nicht enthalten!!!
+.PP
+Wird eine dieser Dateien verändert oder einer dieser Befehle zur
+Quotaänderung ausgeführt, dann muss sophomorix-quota aufgerufen
+werden, um diese Angaben ins System zu übertragen.
 .PP
 .SH Syntax von Quotaangaben
 Quotaangaben haben z.B. bei 3 Filesystemen mit 'usrquota' folgende Syntax:
@@ -105,7 +114,7 @@ Filesysteme(Windows-Begriff: Partitionen) übereinstimmt (siehe Syntax
 der Quotaangaben).
 .TP
 7. Rufen Sie folgenden Befehl auf, um Quota für alle user zu setzen:
-   sophomorix-quota
+   sophomorix-quota --all
 .PP
 .B Kernel 2.6.x:
 .TP
@@ -113,7 +122,32 @@ der Quotaangaben).
 Dies ist schon erledigt, wenn sie das paket sophomorix-base
 installiert haben.
 .TP
-2. ??????
+2. Editieren Sie /etc/fstab 
+Tragen sie in /etc/fstab für diejenigen Filesysteme die mountoption
+usrquota ein, die sie quotieren wollen. Prüfen sie durch einen reboot,
+ob die Einstellung dauerhaft funktionieren.
+.TP
+3. quotacheck
+Erzeugen sie eine passende Quotadatei aquota.user mit dem Befehl:
+   quotacheck -ucvm -a
+.TP
+4. Schalten sie Quota ein
+   quotaon -avu
+.TP
+5. Quota in sophomorix einschalten 
+Damit sophomorix beim Anlegen von Usern Quota setzt, setzen sie in sophomorix.conf 
+folgende Variable:
+   use_quota="yes"
+.TP
+6. Setzen von Standard-Werten für Quota Setzen Sie in den obigen
+Dateien die Standard-Werte für Quota auf passende Werte. Beachten sie,
+dass die Quotaangaben mit der Anzahl der quotierten
+Filesysteme(Windows-Begriff: Partitionen) übereinstimmt (siehe Syntax
+der Quotaangaben).
+.TP
+7. Rufen Sie folgenden Befehl auf, um Quota für alle user zu setzen:
+   sophomorix-quota --all
+.PP
 .PP
 .SH OPTIONS
 .B sophomorix-quota
@@ -138,6 +172,14 @@ verändern.
 sophomorix-quota läuft möglichst normal ab, ohne Quota tatsächlich zu
 verändern. Es kann zu unsinnigen Fehlermeldungen kommen, da einige
 Schritte beim setzten von Quota auf anderen aufbauen.
+.TP
+.B --all
+prüft nicht, ob sich das Quota verändert hat, sondern setzt es auf
+jeden Fall.
+.br
+Dies ist zum Beispiel notwendig, wenn die Quotainformationen im System
+verlorengegangen sind (aquota.user gelöscht, ...) und sie neu gesetzt
+werden müssen.
 .TP
 .B --force
 prüft nicht, ob die übergebenen loginnamen sinnvoll sind. 
