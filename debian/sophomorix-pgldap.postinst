@@ -61,17 +61,20 @@ case "$1" in
     configure)
     # calling the setup-script of sophomorix to create a new database
     echo "calling sophomorix-setup-pgldap"
-    sophomorix-setup-pgldap
+    sophomorix-setup-pgldap --oldversion "$2" --newversion "$new_version"
 
     ;;
 
-    upgrade)
-    # dont touch the database when upgrading
-    sophomorix-setup-pgldap --keep-database
-   
-    ;;
+# This option will exist in etch or so?!
+#    upgrade)
+#    # dont touch the database when upgrading
+#    sophomorix-setup-pgldap --keep-database
+#   
+#    ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
+    echo "I'm not doing anything (option: $1)"
+
 
     ;;
 
