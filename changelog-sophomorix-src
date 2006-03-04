@@ -985,11 +985,23 @@ admin or nwberater:
 
 
 NEXT: 
-- database-upgrade
+manual for packaging:
+   1. update versions in control (apt-get update sophomorix2 updates all)
+   ... 
+
+
 - mailquota
 - man pages
 
 quota: dont show anything when not setting quota of a user
+
+1.6.0-1 (2006-03-xx)
+   - database-upgrade seems working
+   - added parameters to sophomorix-setup-pgldap --oldversion, --newversion
+     call them correctly from the sophomorix-pgldap.postist file
+   - makefile installs all *.sql upgrade files and the debian
+     package installs them in the sophomorix-pgldap package
+   - sophomorix-setup-pgldap can list files to upgrade in correct order
 
 1.5.0-1 (2006-02-23)
    - speeded up function login_type in sophomorix-quota using SQL
