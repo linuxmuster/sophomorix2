@@ -44,7 +44,11 @@ my $new_database=0;
 my $keep_database=0;
 my $config_file=0;
 
-
+my $upgrade_path="/usr/share/sophomorix/config-templates/pg/upgrade/";
+my $old_version="1.4.1-2";
+my $new_version="1.5.1-3";
+my @upgrade_files_id=();
+my %upgrade_files_id_filename=();
 
 
 # Parsen der Optionen
@@ -207,6 +211,81 @@ my $institutes = join "." , @institutes;
 
 
 
+# db upgrade
+my @all_db_upgrades=();
+opendir(UPGRADE, $upgrade_path) or die "can't opendir $upgrade_path: $!";
+while (defined(my $filename = readdir(UPGRADE))) {
+    # do something with "$dirname/$file"
+    if ($filename=~m/.sql$/){
+       #print "$filename \n";
+       push @all_db_upgrades, $filename;
+
+    }
+}
+closedir(UPGRADE);
+
+
+print "Checking upgrade files:\n";
+foreach my $file (@all_db_upgrades){
+    my $version="";
+    # extract Version from filename
+    if ($file=~m/sophomorix_(.*).sql/){
+        $version=$1;
+    }
+    my @old = split(/[\.-]/,$old_version);
+    my @new = split(/[\.-]/,$new_version);
+    my @file = split(/[\.-]/,$version);
+
+    # print "Old: ", @old, "\n";
+    # print "New: ", @new, "\n";
+    # print "File:", @file, "\n";
+
+    # calculating number
+    my $file_number=$file[3]*1000
+                   +$file[2]*1000*1000
+                   +$file[1]*1000*1000*1000
+                   +$file[0]*1000*1000*1000*1000;
+    my $old_number=$old[3]*1000
+                  +$old[2]*1000*1000
+                  +$old[1]*1000*1000*1000
+                  +$old[0]*1000*1000*1000*1000;
+    my $new_number=$new[3]*1000
+                  +$new[2]*1000*1000
+                  +$new[1]*1000*1000*1000
+                  +$new[0]*1000*1000*1000*1000;
+
+    #print $file_number,"\n";
+    #print $old_number,"\n";
+    #print $new_number,"\n";
+
+    #           - To old
+    #  old ...  - To old
+    #           + Run
+    #           + Run 
+    #  new ...  + Run
+    #           - To new
+    #           - To new
+
+    if ($file_number > $old_number and $file_number <= $new_number){
+        print "      ***Run $file as upgrade\n";
+        push @upgrade_files_id, $file_number;
+        $upgrade_files_id_filename{$file_number}=$file;        
+    } elsif ($file_number <= $old_number){
+        print "      File $file is to old\n";
+    } elsif ($file_number > $new_number){
+        print "      File $file is to new\n";
+    }
+}
+
+
+@upgrade_files_id= sort @upgrade_files_id;
+
+
+print "Files to run for upgrade of database in correct order: \n";
+
+foreach my $file_id (@upgrade_files_id){
+    print "   $file_id:  $upgrade_files_id_filename{$file_id}  \n";
+}
 
 
 
@@ -216,6 +295,12 @@ if ($info==1){
 }
 
 
+
+
+
+
+
+#exit;
 
 ############################################################
 # Replace the following config-files
