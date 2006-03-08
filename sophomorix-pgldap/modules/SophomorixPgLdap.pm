@@ -782,6 +782,10 @@ sub create_user_db_entry {
        $homedir_force,
        $gecos_force) = @_;
 
+    if (not defined $mailquota){
+       $mailquota=0;
+    }
+
     if (not defined $pg_timestamp){
        $pg_timestamp=$today_pg;
     }
@@ -968,7 +972,7 @@ sub create_user_db_entry {
 
        $sql="INSERT INTO posix_account_details
 	   ( id,schoolnumber,unid,adminclass,exitadminclass,subclass,
-             creationdate,sophomorixstatus,quota,firstpassword,
+             creationdate,sophomorixstatus,quota,mailquota,firstpassword,
              birthname,title,gender,birthday,birthpostalcode,
              birthcity,denomination,class,classentry,schooltype,
              chiefinstructor,nationality,religionparticipation,
@@ -984,6 +988,7 @@ sub create_user_db_entry {
            '$pg_timestamp',
            '$sophomorix_status',
            '$quota',
+           $mailquota,
            '$pass',
            '',
            '',
