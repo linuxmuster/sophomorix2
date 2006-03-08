@@ -1,20 +1,33 @@
-# sophomorix-Konfigurationsdatei
-# quota.txt           Kommentarzeilen beginnen mit #
-# Alle Zahlenwerte sind in MB
+##############################################################################
+# This is a comment                                                          #
+# sophomorix configuration file quota.txt                                    #
+# All Values are in MB                                                       #
+##############################################################################
 
-# Standardwert für die Workstation-Quota
+
+# 1) Standard Values
+
+# standard quota for workstations
 standard-workstations:
 
-# Standardwert für die Schüler-Quota
+# standard quota for students
 standard-schueler:
 
-# Standardwert für die Lehrer-Quota
-standard-lehrer: 
+# standard quota for teachers
+standard-lehrer:
 
-# Sonderquota für KLASSEN sind in schulinfo.txt einzutragen
-# Sonderquota für LEHRER sind in lehrer.txt einzutragen
 
-# Quotas einzelner User (NICHT Lehrer)
-# Quota des administrators:
+
+# 2) Other Values
+#
+# add quota for classes with the command:
+#   sophomorix-class
+#
+# add quota for teachers in lehrer.txt !
+
+
+# quota for single users (NOT teachers)
+
+# quota of administrator:
 admin:
 
