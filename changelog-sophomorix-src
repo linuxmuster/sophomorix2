@@ -80,6 +80,29 @@ packaging:
 
 
 Think about: using dbconfig-common
+Thia was abandoned, because 
+- it didn't work in a decent amount of time
+- its changing rapidly (not good for such a sensitive Database)
+- unstable
+- postinst script needed 'update' Option (which doesnt exist in stable)
+
+
+############################################################
+MAKING a Package
+############################################################
+
+
+1. update versions in debian/control
+   (so that apt-get update sophomorix2 updates all sophomorix-* packages)
+
+2. cd cvs/sophomorix2
+
+3. dch -i 
+   add a comment to the changelog
+
+4. dpkg-buildpackage -rfakeroot
+
+5. Tag all files in the cvs repository with the tag 'Version-x-y-z'
 
 
 ############################################################
@@ -985,17 +1008,29 @@ admin or nwberater:
 
 
 NEXT: 
-manual for packaging:
-   1. update versions in control (apt-get update sophomorix2 updates all)
-   ... 
 
-
-- mailquota
 - man pages
+
+mailquota: 
+
+- go on with fething mailquota values from db in sophomorix-quota
+
+- sophomorix-class modifies mailquota
+
+- Begriffe 'standard-lehrer', standard-schueler aus quota.txt,mailquota.txt
+  raus.
+
+- create_user_db_entry: parameter mailquota
+- add it to update function
 
 quota: dont show anything when not setting quota of a user
 
+
+
+
+
 1.6.0-1 (2006-03-xx)
+   - added mailquota.txt
    - database-upgrade seems working
    - added parameters to sophomorix-setup-pgldap --oldversion, --newversion
      call them correctly from the sophomorix-pgldap.postist file
