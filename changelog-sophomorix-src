@@ -1004,11 +1004,14 @@ admin or nwberater:
 
 NEXT: 
 
+CHECK if database exists. make it better than now
+
 - man pages
 
 mailquota: 
 
-- go on with fething mailquota values from db in sophomorix-quota
+- go on with fetching mailquota values from db in sophomorix-quota
+
 
 - sophomorix-class modifies mailquota
   bei -i where type= classdata raus, wenn classdata tut
@@ -1018,14 +1021,7 @@ mailquota:
   raus.
 
 - create_user_db_entry: parameter mailquota
-
-
-quota: dont show anything when not setting quota of a user
-
-mailquota/quota: 
-
--1 -> Standard Quota (according to quota ('mailquota' is not integer))
-0    -> unlimited Quota
+  (is this necessary ?)
 
 what about setting quota/mailquota for domcomp,workstation, ...
 
@@ -1035,6 +1031,13 @@ create_userlist in SophomorixAPI.pm checken
 
 
 1.6.0-1 (2006-03-xx)
+   - sophomorix-setup-pgldap checks if database exists and 
+     connection is possible (should be left out)
+   - modified manpage of sophomorix-class
+   - mailquota    0=unlimited   -1=unused
+     quota        0=unlimited   'quota'= unused
+   - modify class quota and mailquota with sophomorix-class
+     (remove quota with empty string )
    - updating mailquota in database works
    - added field mailquota to lehrer.txt
    - added mailquota.txt

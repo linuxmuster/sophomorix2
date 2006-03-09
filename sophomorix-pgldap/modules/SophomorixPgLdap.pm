@@ -30,6 +30,7 @@ require Exporter;
              date_perl2pg
              date_pg2perl
              create_class_db_entry
+             update_class_db_entry
              remove_class_db_entry
              pg_adduser
              pg_remove_all_secusers
@@ -1286,6 +1287,83 @@ sub create_class_db_entry {
     } # end adding group
     return $gidnumber;
 }
+
+
+
+
+# updates a class in the user database
+sub update_class_db_entry {
+    my $class=shift;
+    my $quota="";
+    foreach my $param (@_){
+       ($attr,$value) = split(/=/,$param);
+       if($Conf::log_level>=2){
+          printf "   %-18s : %-20s\n",$attr ,$value;
+       }
+
+       # quota
+       if ($attr eq "Quota"){
+	   $quota="$value";
+           if ($quota eq ""){
+             # accept empty quota
+             print "   Quotastring is correct (empty). -> updating\n";
+             push @class_details, "quota = ''";
+           } else {
+             # verify quota
+             my $num=&Sophomorix::SophomorixBase::get_quota_fs_num();
+             my @q_list = 
+               &Sophomorix::SophomorixBase::check_quotastring($num,$quota);
+             if ($q_list[0]!=-3){
+                print "   Quotastring is correct. -> updating\n";
+                push @class_details, "quota = '$quota'";
+             } else {
+                print "\nERROR ($q_list[0]): $quota is not correct",
+                      " as quotastring.\n\n";
+             }
+	 }
+       }
+
+       # mailquota
+       if    ($attr eq "MailQuota"){
+	   $mailquota="$value";
+           if ($mailquota eq "-1"){
+             print "   MailQuota is correct (-1). -> updating\n";
+	     push @class_details, "mailquota = $mailquota";
+	   } else {
+              # check if mailquota is positiv integer
+              if ($mailquota=~/^[0-9]+$/){
+                 print "   MailQuota is correct. -> updating\n";
+	         push @class_details, "mailquota = $mailquota";
+	      } else {
+                 print "   MailQuota $mailquota not correct. -> must be integer\n";
+              }
+	   }
+       }
+    }
+
+    # update
+    my $dbh=&db_connect();
+    my ($class_id)= $dbh->selectrow_array( "SELECT id 
+                                         FROM groups 
+                                         WHERE gid='$class'
+                                        ");
+
+    my $class_options=join(", ",@class_details);
+
+    $sql="UPDATE class_details SET $class_options
+            WHERE id = $class_id";
+    if($Conf::log_level>=3){
+          print "\nSQL: $sql\n";
+
+    }
+    if ($class_options ne ""){
+       $dbh->do($sql);
+    }
+    $dbh->disconnect();
+
+}
+
+
 
 
 
@@ -2991,10 +3069,10 @@ sub show_project_list {
 
 sub show_class_list {
     print "The following adminclasses exist already:\n\n";
-    printf "%-14s | %5s |%4s |%1s| %-22s| %-22s\n","AdminClass",
+    printf "%-14s | %8s |%4s |%1s| %-21s| %-20s\n","AdminClass",
            "Quota", "MQ","M","SchoolType","Department";
-    print "---------------+-------+-----",
-          "+-+-----------------------+-----------------------\n";
+    print "---------------+----------+-----",
+          "+-+----------------------+---------------------\n";
     my $dbh=&db_connect();
     my $sth= $dbh->prepare( "SELECT gid,quota,mailquota,mailalias,
                                     schooltype,department
@@ -3025,13 +3103,13 @@ sub show_class_list {
         if (not defined $department){
 	    $department="";
         }
-        printf "%-15s|%6s |%4s |%1s| %-22s| %-22s\n",$gid,
+        printf "%-15s|%10s|%4s |%1s| %-21s| %-20s\n",$gid,
                 $quota,$mailquota,$mailalias,
                 $schooltype,$department;
         $i++;
     }   
-    print "---------------+-------+-----",
-          "+-+-----------------------+-----------------------\n";
+    print "---------------+----------+-----",
+          "+-+----------------------+---------------------\n";
     &db_disconnect($dbh);
 }
 
