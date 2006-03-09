@@ -828,19 +828,14 @@ Wichtig: BUGlist: im svn, modul anleitungen
 
 mailquota stuff
 ------------------------------
-mailquota.txt
-lehrer.txt zusatzfeld
 lehrer.txt zusatzfeld 'comment' (Platz in Datenbank suchen)
-in projects: addmailquota
-
 
 change quota with cyrus-user.pl -u user -q quota
 
-
-
-
-
 ??? nwberater oder Administrator
+
+admin wird beim quotasetzen ausgenommen, da er nicht in der db ist
+falls nwberater, admin, ... in db, dann quota updaten
 
 
 ??? Gecos Feld ist immer Computer, also nicht "Domain Machine Account" Wieso?
@@ -1016,20 +1011,32 @@ mailquota:
 - go on with fething mailquota values from db in sophomorix-quota
 
 - sophomorix-class modifies mailquota
+  bei -i where type= classdata raus, wenn classdata tut
+
 
 - Begriffe 'standard-lehrer', standard-schueler aus quota.txt,mailquota.txt
   raus.
 
 - create_user_db_entry: parameter mailquota
-- add it to update function
+
 
 quota: dont show anything when not setting quota of a user
 
+mailquota/quota: 
 
+-1 -> Standard Quota (according to quota ('mailquota' is not integer))
+0    -> unlimited Quota
 
+what about setting quota/mailquota for domcomp,workstation, ...
+
+Bug: when sophomorix-quota -l galli
+     dann : manchmal galli is not a sophomorix user
+create_userlist in SophomorixAPI.pm checken
 
 
 1.6.0-1 (2006-03-xx)
+   - updating mailquota in database works
+   - added field mailquota to lehrer.txt
    - added mailquota.txt
    - database-upgrade seems working
    - added parameters to sophomorix-setup-pgldap --oldversion, --newversion
