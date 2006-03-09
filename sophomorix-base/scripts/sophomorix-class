@@ -94,30 +94,8 @@ my $sth;
 
 # --info
 if ($info==1){
-
-   $sth = $dbh->prepare("SELECT * 
-                         FROM classdata
-                         WHERE type='adminclass'");
-   
-   $sth->execute();
-
-   print "\n";
-   printf "%-13s %-11s %-10s %-4s %-11s \n",
-          "AdminClass", "Quota", "SchoolType" , "Mail", "Department";
-
-   print "=======================================",
-         "=======================================\n";
-   while (my $row = $sth->fetchrow_hashref) {
- 
-       printf "%-13s %-11s %-10s %-4s %-11s\n",
-              $row->{'gid'}, 
-              $row->{'quota'},
-              $row->{'schooltype'},
-              $row->{'mailalias'},
-              $row->{'department'}; 
-    }
-    $sth->finish();
-    print "\n";
+   &show_class_list();
+   exit;
 }
 
 
