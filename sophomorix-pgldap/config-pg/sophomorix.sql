@@ -353,11 +353,13 @@ CREATE FUNCTION manual_create_ldap_for_account(character varying) RETURNS intege
      username ALIAS FOR $1;
      posix_account_id INTEGER;
      ldap_entries_id INTEGER;
+     getdn VARCHAR;
     BEGIN
      SELECT INTO posix_account_id nextval(''posix_account_id_seq'');
      SELECT INTO ldap_entries_id nextval(''ldap_entries_id_seq'');
+     SELECT INTO getdn dn FROM ldap_entries WHERE id=1;
      
-     INSERT INTO ldap_entries (id,dn,oc_map_id,parent,keyval) VALUES (ldap_entries_id,''uid=''||username||'',ou=accounts,dc=linuxmuster,dc=de'',3,2,posix_account_id);
+     INSERT INTO ldap_entries (id,dn,oc_map_id,parent,keyval) VALUES (ldap_entries_id,''uid=''||username||'',ou=accounts,''||getdn,3,2,posix_account_id);
      
      INSERT INTO ldap_entry_objclasses (entry_id,oc_name) VALUES (ldap_entries_id,''top'');
      INSERT INTO ldap_entry_objclasses (entry_id,oc_name) VALUES (ldap_entries_id,''posixAccount'');
@@ -411,11 +413,13 @@ CREATE FUNCTION manual_create_ldap_for_group(character varying) RETURNS integer
      groupname ALIAS FOR $1;
      groups_id INTEGER;
      ldap_entries_id INTEGER;
+     getdn VARCHAR;
      BEGIN
      SELECT INTO groups_id nextval(''groups_id_seq'');
      SELECT INTO ldap_entries_id nextval(''ldap_entries_id_seq'');
+     SELECT INTO getdn dn FROM ldap_entries WHERE id=1;
 
-     INSERT INTO ldap_entries (id,dn,oc_map_id,parent,keyval) VALUES (ldap_entries_id,''cn=''||groupname||'',ou=groups,dc=linuxmuster,dc=de'',4,5,groups_id);
+     INSERT INTO ldap_entries (id,dn,oc_map_id,parent,keyval) VALUES (ldap_entries_id,''cn=''||groupname||'',ou=groups,''||getdn,4,5,groups_id);
 
      INSERT INTO ldap_entry_objclasses (entry_id,oc_name) VALUES (ldap_entries_id,''sambaGroupMapping'');
 
