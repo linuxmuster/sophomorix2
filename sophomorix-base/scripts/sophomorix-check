@@ -2055,13 +2055,13 @@ sub add_user_to_queue {
     if (not $wunsch_login eq "---" and exists $wunsch_login_seen{$wunsch_login}){
         my $old_number=1;
         print "\nWARNING: Users will not be added!\n\n";
-	print "   Loginname    $wunsch_login    in    $filename_map{ $file  }  ",
+	print "   Loginname    $wunsch_login  in  $filename_map{ $file }  ",
               "is double ($identifier)!\n";
-	print "   I have seen  $wunsch_login    in ",
-              "   $filename_map{ $wunsch_login_seen{ $wunsch_login } } ",
+	print "   I have seen  $wunsch_login  in ",
+              " $filename_map{ $wunsch_login_seen{ $wunsch_login } } ",
               " already!\n\n";
-	print "   Please edit these files and correct this error ",
-              "to add this users. \n\n";
+	print "   Please edit $filename_map{$file} and correct this error ",
+              "to add this user. \n\n";
         if (exists $wunsch_login_forbidden{$wunsch_login}){
 #	   print "$wunsch_login is old ($wunsch_login_forbidden{$wunsch_login})\n";
            $old_number=$wunsch_login_forbidden{$wunsch_login};
