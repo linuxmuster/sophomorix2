@@ -27,7 +27,8 @@ $Conf::log_level=1;
 my $help=0;
 my $info=0;
 my $class="";
-my $quota="";
+my $quota;
+my $mailquota;
 $Conf::log_level=1;
 
 # Parsen der Optionen
@@ -35,12 +36,23 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
            "class|c=s" => \$class,
-           "quota|q=s" => \$quota,
+           "quota=s" => \$quota,
+           "mailquota=i" => \$mailquota,
            "verbose|v+" => \$Conf::log_level,
           );
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
+
+
+
+if (not defined $quota 
+    and not defined $mailquota
+    and $info==0 
+    and $class eq ""){
+    $help=1;
+}
+
 
 # --help
 if ($help==1) {
@@ -58,8 +70,9 @@ Options
   -vv / --verbose --verbose
   -i  / --info
   -c AdminClass, / --class AdminClass 
-  -q value / --quota value
-Please see the sophomorix-class-dbi(8) man pages for full documentation
+  --quota quotastring
+  --mailquota number
+Please see the sophomorix-class(8) man pages for full documentation
 ');
    print "\n";
    exit;
@@ -70,25 +83,6 @@ Please see the sophomorix-class-dbi(8) man pages for full documentation
 ############################################################
 
 &check_connections();
-
-my $dbh=&db_connect();
-
-
-#my $dbh = DBI->connect("DBI:CSV:f_dir=${DevelConf::protokoll_pfad};csv_eol=\n;"
-#                      . "csv_sep_char=\\;csv_quote_char=;"
-#                      . "csv_escape_char=;skip_first_row");
-
-#$dbh->{'csv_tables'}->{'class_db'} = {
-#        'col_names' => ["AdminClass", "Department", "Type", "Mail", "Quota"]
-#           };
-
-
-my $sth;
-
-
-# select something
-
-#$sth = $dbh->prepare("SELECT * FROM class_db WHERE AdminClass LIKE 'wg1%' ");
 
 
 
@@ -104,16 +98,16 @@ if ($info==1){
 
 
 
-# --info
-if ($quota ne "" and $class ne ""){
-    # fetch id of admin_class
-    my ($gid_sys,$id)= $dbh->selectrow_array( "SELECT gidnumber,id
-                                         FROM groups 
-                                         WHERE gid='$class'" );
-    print "Updating quota of AdminClass $class (gidnumber=$gid_sys,id=$id)",
-          " to $quota ...";
-    $dbh->do("UPDATE class_details SET quota = '$quota' WHERE id = $id ");
-    print "    done.\n";
+# --quota
+if (defined $quota and $class ne ""){
+       &update_class_db_entry($class,"Quota=$quota");
+}
+
+
+# --mailquota
+#if ($mailquota!=-1 and $class ne ""){
+if (defined $mailquota and $class ne ""){
+    &update_class_db_entry($class,"MailQuota=$mailquota");
 }
 
 

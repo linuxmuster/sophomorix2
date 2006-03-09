@@ -66,24 +66,13 @@ use if ${DevelConf::sys_db} eq 'pgldap' ,
 
 
 # Liste der Filesysteme auf denen Quota gesetzt werden
-my @quota_fs=();
+my @quota_fs=&get_quota_fs_liste();
 
 
 # ===========================================================================
-# Quotierte Dateisysteme ermitteln
+# Anzahl quotierte Dateisysteme ermitteln
 # ==========================================================================
-
-if ($Conf::quota_filesystems[0] eq "auto" && 
-   not $Conf::quota_filesystems[2] ) {
-   # AUTOMATISCH bei String "auto" in sophomorix.conf
-   @quota_fs=&get_quota_fs_liste();
-} else {# NICHT AUTOMATISCH falls Vorgabe in sophomorix.conf
-   @quota_fs=@Conf::quota_filesystems;
-}
-
-
-# Anzahl der zu quotierenden Dateisysteme ermitteln
-my $quota_fs_num=$#quota_fs+1;
+my $quota_fs_num = &get_quota_fs_num();
 
 
 # ===========================================================================
@@ -311,8 +300,8 @@ if ($loginname ne "" or $classes ne "" or $pupil!=0 or $rooms ne "" or $ws!=0){
     foreach my $user (@userlist){
         my ($new_quota,$mailquota)=&get_quota($user);
         ##### quota
-        my @q_list = &check_quotastring($new_quota);
-        if (not $q_list[0]==0){
+        my @q_list = &check_quotastring($quota_fs_num,$new_quota);
+        if ($q_list[0]!=-3){
             print "Setting quota of user $user to @q_list\n";
 	    &set_quota($system,$user,\@quota_fs,\@q_list);
         } else {
@@ -411,25 +400,6 @@ sub set_quota {
 
 
 
-# check if the given string is correct
-sub check_quotastring {
-    my ($quotastring) = @_;
-    my @list = split(/\+/, $quotastring);
-    my $item=$#list+1;
-    if (not $item==$quota_fs_num){
-	print "$item quotas for $quota_fs_num filesystems\n";
-       return (0);
-    }
-    foreach my $quo (@list){
-      if (not $quo=~/[0-9]/){
-	  print "Checking $quo \n";
-        return (0);
-      }
-    }
-    return @list;
-}
-
-
 
 
 # check for which users quota must be updated in the database. 
@@ -460,8 +430,8 @@ sub set_quota_if_needed {
            print "  New quota: $new_quota \n";
            print "  Database : $db_quota{$login}\n";
            # check the new quotastring
-           my @q_list = &check_quotastring($new_quota);
-           if (not $q_list[0]==0){
+           my @q_list = &check_quotastring($quota_fs_num,$new_quota);
+           if ($q_list[0]!=-3){
                print "Setting quota of user $login to @q_list\n";
 		   &set_quota(0,$login,\@quota_fs,\@q_list);
            } else {
