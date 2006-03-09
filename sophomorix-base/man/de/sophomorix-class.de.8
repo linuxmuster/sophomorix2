@@ -36,9 +36,11 @@ verwaltete Klasse hat folgende Eigenschaften:
 .br
      Type:          Typ der Klasse (nicht genutzt)
 .br
-     Mail:          Maileinstallungen der Klasse (nicht genutzt)
+     Mail:          Maileinstellungen der Klasse (nicht genutzt)
 .br
      Quota:         Quotaeinstellungen, die alle user diese Klasse haben sollen
+.br
+     MailQuota:     Mail-Quotaeinstellungen, die alle user diese Klasse haben sollen
 .br
 .PP
 .SH OPTIONS
@@ -57,8 +59,21 @@ Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .B \-c AdminClass, --class AdminClass
 Bearbeitet die Klasse AdminClass
 .TP
-.B -q quota, --quota quota 
-setzt das Quotafeld für die Klasse in der sophomorix Datenbank auf den Wert quota. Um diese Quotaangaben ins System zu übertragen muss anschließend der Befehl sophomorix-quota aufgerufen werden.
+.B --quota quotastring
+setzt das Quotafeld für die Klasse in der sophomorix Datenbank auf den
+Wert quotastring. Wie quotastring aussehen muss siehe sophomorix-quota.
+.br
+Um diese Quotaangaben ins System zu übertragen muss
+anschließend der Befehl sophomorix-quota aufgerufen werden.
+.br
+Um einen leeren Wert zu setzten gibt man --quota "" an.
+.TP
+.B --mailquota number 
+setzt das MailQuotafeld für die Klasse in der sophomorix Datenbank auf
+den Wert mailquota. Um diese Quotaangaben ins System zu übertragen
+muss anschließend der Befehl sophomorix-quota aufgerufen werden.
+.br
+Um einen leeren Wert zu setzten gibt man --quota -1 an.
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
