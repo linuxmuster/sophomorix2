@@ -783,7 +783,7 @@ sub create_user_db_entry {
        $gecos_force) = @_;
 
     if (not defined $mailquota){
-       $mailquota=0;
+       $mailquota=-1;
     }
 
     if (not defined $pg_timestamp){
@@ -1104,7 +1104,7 @@ sub make_salt {
 sub create_class_db_entry {
     my $smallest_gidnumber=200;
     my ($class_to_add,$sub,$gid_force_number) = @_;
-    my ($class,$dept,$type,$mail,$quota) = ("","","","","");
+    my ($class,$dept,$type,$mail,$quota,$mailquota) = ("","","","","",-1);
     if (not defined $sub){
         # standard: no subclass
 	$sub=0;
@@ -1230,9 +1230,10 @@ sub create_class_db_entry {
         # adding a subclass
         #3. Tabelle class_details
         $sql="INSERT INTO class_details
-	    (id,quota,schooltype,department,mailalias,type)
+	    (id,quota,mailquota,schooltype,department,mailalias,type)
 	    VALUES
   	    ($groups_id,
+             NULL,
              NULL,
              '',
              '',
@@ -1247,9 +1248,10 @@ sub create_class_db_entry {
         # adding a project
         #3. Tabelle class_details
         $sql="INSERT INTO class_details
-	    (id,quota,schooltype,department,mailalias,type)
+	    (id,quota,mailquota,schooltype,department,mailalias,type)
 	    VALUES
   	    ($groups_id,
+             NULL,
              NULL,
              '',
              '',
@@ -1265,10 +1267,11 @@ sub create_class_db_entry {
         # adding a adminclass
         #3. Tabelle class_details
         $sql="INSERT INTO class_details
-	    (id,quota,schooltype,department,mailalias,type)
+	    (id,quota,mailquota,schooltype,department,mailalias,type)
 	    VALUES
   	    ($groups_id,
              'quota',
+             -1,
              '',
              '',
              FALSE,
@@ -1797,6 +1800,7 @@ sub update_user_db_entry {
     my $exit_admin_class="";
     my $account_type="";
     my $quota="";
+    my $mailquota=-1;
 
     my @posix=();
     my @posix_details=();
@@ -1898,6 +1902,14 @@ sub update_user_db_entry {
        elsif ($attr eq "Quota"){
            $quota="$value";
            push @posix_details, "quota = '$quota'";
+       }
+       elsif ($attr eq "MailQuota"){
+           $mailquota="$value";
+           if (not defined $mailquota or $mailquota eq ""){
+               push @posix_details, "mailquota = -1";
+           } else {
+               push @posix_details, "mailquota = '$mailquota'";
+           }
        }
        else {print "Attribute $attr unknown\n"}
     }

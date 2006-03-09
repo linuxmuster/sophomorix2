@@ -1215,6 +1215,7 @@ sub lehrer_ordnen {
    my $erst_passwort="";
    my $lehrer_kuerzel="";
    my $quota="";
+   my $mailquota="";
 
    my $identifier="";
 
@@ -1265,7 +1266,8 @@ sub lehrer_ordnen {
       $wunsch_login,
       $erst_passwort,
       $lehrer_kuerzel,
-      $quota)=split(/;/);
+      $quota,
+      $mailquota)=split(/;/);
 
       # identifier erzeugen
       $identifier=join("",
@@ -1342,9 +1344,13 @@ sub lehrer_ordnen {
          $quota="quota";
      }
 
+     if (not defined $mailquota or $mailquota eq "") {
+         $mailquota="mailquota";
+     }
+
 
      # geordnete Zeile ausgeben
-     printf LEHRERTMP ("%-6s %-14s %-14s %-11s %-8s %-8s %-4s %-6s",
+     printf LEHRERTMP ("%-6s %-14s %-14s %-11s %-8s %-8s %-4s %-6s %-11s",
            "$typ",
            ";$nachname",
            ";$vorname",
@@ -1352,7 +1358,9 @@ sub lehrer_ordnen {
            ";$wunsch_login",
            ";$erst_passwort",
            ";$lehrer_kuerzel",
-           ";$quota");
+           ";$quota",
+           ";$mailquota"
+           );
      print LEHRERTMP (";\n");
    }
   

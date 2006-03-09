@@ -247,7 +247,6 @@ if($Conf::log_level>=2){
 
 
 my ($ref_db_quota,$ref_db_quota_mail) = &get_db_quota();
-#my %db_quota = &get_db_quota();
 my %db_quota = %$ref_db_quota;
 my %db_quota_mail = %$ref_db_quota_mail;
 if($Conf::log_level>=2){
@@ -256,25 +255,40 @@ if($Conf::log_level>=2){
 }
 
 
-
-my %teacher_quota=&get_teacher_quota();
+my ($ref_teacher_quota,$ref_teacher_quota_mail) = &get_teacher_quota();
+my %teacher_quota = %$ref_teacher_quota;
+my %teacher_quota_mail = %$ref_teacher_quota_mail;
 if($Conf::log_level>=2){
     &print_hash(\%teacher_quota,"","Teacher:","Quota in DB:");
+    &print_hash(\%teacher_quota_mail,"","Teacher:","MailQuota in DB:");
 }
+
 
 my %quota_txt = &get_quota_txt();
 if($Conf::log_level>=2){
     &print_hash(\%quota_txt,"","quota.txt:","Quota:");
 }
-
-my %class_quota = &get_class_quota();
+my %mail_quota_txt = &get_mail_quota_txt();
 if($Conf::log_level>=2){
-    &print_hash(\%class_quota,"","Adminclass:","Quota:");
+    &print_hash(\%mail_quota_txt,"","mailquota.txt:","MailQuota:");
 }
 
-my %projects_add_quota = &get_projects_add_quota();
+
+my ($ref_class_quota,$ref_class_quota_mail) = &get_class_quota();
+my %class_quota = %$ref_class_quota;
+my %class_quota_mail = %$ref_class_quota_mail;
+if($Conf::log_level>=2){
+    &print_hash(\%class_quota,"","Adminclass:","Quota:");
+    &print_hash(\%class_quota_mail,"","Adminclass:","MailQuota:");
+}
+
+my ($ref_projects_add_quota,$ref_projects_add_quota_mail) 
+    = &get_projects_add_quota();
+my %projects_add_quota = %$ref_projects_add_quota;
+my %projects_add_quota_mail = %$ref_projects_add_quota_mail;
 if($Conf::log_level>=2){
     &print_hash(\%projects_add_quota,"","Project:","AddQuota:");
+    &print_hash(\%projects_add_quota_mail,"","Project:","AddMailQuota:");
 }
 
 
@@ -295,7 +309,8 @@ if ($loginname ne "" or $classes ne "" or $pupil!=0 or $rooms ne "" or $ws!=0){
     &titel("Setting Quota for users in the userlist ...");
     # setting quota for every user
     foreach my $user (@userlist){
-        my $new_quota=&get_quota($user);
+        my ($new_quota,$mailquota)=&get_quota($user);
+        ##### quota
         my @q_list = &check_quotastring($new_quota);
         if (not $q_list[0]==0){
             print "Setting quota of user $user to @q_list\n";
@@ -303,6 +318,9 @@ if ($loginname ne "" or $classes ne "" or $pupil!=0 or $rooms ne "" or $ws!=0){
         } else {
 	    print "ERROR: $new_quota is not correct, skipping ...\n";
         }
+        ##### mailquota
+        # check the new quotastring ???? must be integer
+	&set_mail_quota($user,$mailquota);
     }
 } else {
    # ohne optionen
@@ -419,15 +437,20 @@ sub check_quotastring {
 sub set_quota_if_needed {
     my ($all) = @_; 
     my $new_quota="";
+    my $mailquota;
     my $count=0;
     while ( my ($login, $type) = each(%login_type)) {
 	print "$login is type $type \n";
         if ($type eq "domcomp" or $type eq "workstation"){
+            # ????????????????????
             print "   Not setting quota for $login\n";
             # not setting quota for machine accounts and workstation accounts
 	    next;
         }
-        $new_quota=&get_quota($login);
+        ($new_quota,$mailquota)=&get_quota($login);
+
+
+        ##### quota
 	print "   New Quota: $new_quota \n";
         if ($new_quota eq $db_quota{$login} and $all==0){
            #do nothing
@@ -445,10 +468,51 @@ sub set_quota_if_needed {
 	       print "ERROR: $new_quota is not correct, skipping ...\n";
            }
         }
+
+
+        ##### mailquota
+	print "   New MailQuota: $mailquota \n";
+        if ($mailquota eq $db_quota_mail{$login} and $all==0){
+           #do nothing
+        } else {
+           $count++;
+           print "User $count: $login \n";
+           print "  New mailquota: $mailquota \n";
+           print "  Database : $db_quota_mail{$login}\n";
+           # check the new quotastring ???? must be integer
+	   &set_mail_quota($login,$mailquota);
+        }
+        # mailquota
     }
 }
 
 
+
+
+sub set_mail_quota {
+    my ($login,$mailquota) = @_;
+    my $cyrus=0;
+    print "Setting MailQuota of $login to $mailquota MB\n";
+    if (-s "/usr/lib/linuxmuster/bin/cyrus-user.pl") {
+       # if it is bw musterloesung
+       $cyrus=1;
+       system("/usr/lib/linuxmuster/bin/cyrus-user.pl -u $login -q ${mailquota}m");
+# ????????
+#    } elsif (-s "/usr/lib/linuxmuster/bin/cyrus-user.pl") {
+#       # other systems with cyrus
+#       $cyrus=1;
+#       system("/usr/lib/linuxmuster/bin/cyrus-user.pl -u $login -q ${mailquota}m");
+    }
+
+    if ($cyrus==0){
+	print "No cyrus-imap found. Cannot set mailquota! \n";
+    }
+
+    # update the database
+    if ($login ne "admin"){
+       &update_user_db_entry($login,"MailQuota=$mailquota");
+    }
+} 
 
 
 
@@ -456,21 +520,26 @@ sub set_quota_if_needed {
 sub get_teacher_quota {
    my $login="";
    my $quotastring="";
+   my $mailquota="";
    my %teacher_quota=();
+   my %teacher_quota_mail=();
    open(TEACHER,"${DevelConf::users_pfad}/lehrer.txt") || die "Fehler: $!";
    while(<TEACHER>){
       chomp();
       s/\s//g; # Whitespace Entfernen
       if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
       if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
-      ($a,$a,$a,$a,$login,$a,$a,$quotastring)=split(/;/);
+      ($a,$a,$a,$a,$login,$a,$a,$quotastring,$mailquota)=split(/;/);
       # Wenn Quotaangabe vorhanden, dann benutzen
       if($quotastring ne "quota"){
          $teacher_quota{$login}=$quotastring;
-     }
+      }
+      if($mailquota ne "mailquota"){
+         $teacher_quota_mail{$login}=$mailquota;
+      }
    }
    close(TEACHER);
-   return %teacher_quota;
+   return (\%teacher_quota,\%teacher_quota_mail);
 }
 
 
@@ -542,6 +611,8 @@ sub get_quota{
         print "   Secondary Groups: @groups \n";
     }
 
+
+    ##### quota
     my $quotastring="";
     if (exists $quota_txt{$login}){
         # look in quota.txt
@@ -563,7 +634,7 @@ sub get_quota{
         } elsif ($login_type{$login} eq "teacher"){
 	    $quotastring=$quota_txt{"standard-lehrer"};
         } elsif ($login_type{$login} eq "workstation"){
-	    $quotastring=$quota_txt{"workstation-lehrer"};
+	    $quotastring=$quota_txt{"standard-workstations"};
         }
     }
     foreach my $group (@groups){
@@ -571,10 +642,45 @@ sub get_quota{
               "project $group \n" if($Conf::log_level>=2);
         if (exists $projects_add_quota{$group}){
         print "   Adding $projects_add_quota{$group}\n" if($Conf::log_level>=2);
-        $quotastring = &quota_addition($projects_add_quota{$group},$quotastring)
+        $quotastring = &quota_addition($projects_add_quota{$group},$quotastring);
         }
     }
-    return $quotastring;
+
+
+    #####  mailquota
+    my $mailquota=0; 
+    if (exists $mail_quota_txt{$login}){
+        # look in mailquota.txt
+        $mailquota=$mail_quota_txt{$login};
+	print "   Found mailquota.txt mailquota: $mailquota\n" if($Conf::log_level>=2);
+    } elsif (exists $teacher_quota_mail{$login}){
+        # look in teacher.txt
+        $mailquota=$teacher_quota_mail{$login};
+	print "   Found lehrer.txt mailquota: $mailquota\n" if($Conf::log_level>=2);
+    } elsif (exists $class_quota_mail{$pri_group}){
+        # look in class
+        $mailquota=$class_quota_mail{$pri_group};
+	print "   Found mailquota for class $pri_group: $mailquota\n" 
+        if($Conf::log_level>=2);
+    } else {
+        # take standard values
+        if ($login_type{$login} eq "student"){
+	    $mailquota=$mail_quota_txt{"standard-schueler"};
+        } elsif ($login_type{$login} eq "teacher"){
+	    $mailquota=$mail_quota_txt{"standard-lehrer"};
+        } elsif ($login_type{$login} eq "workstation"){
+	    $mailquota=$mail_quota_txt{"standard-workstations"};
+        }
+    }
+    foreach my $group (@groups){
+        print "   Checking for additional mailquota of ",
+              "project $group \n" if($Conf::log_level>=2);
+        if (exists $projects_add_quota_mail{$group}){
+        print "   Adding $projects_add_quota_mail{$group}\n" if($Conf::log_level>=2);
+        $mailquota = $mailquota+$projects_add_quota_mail{$group};
+        }
+    }
+    return ($quotastring,$mailquota);
 }
 
 
@@ -584,9 +690,10 @@ sub get_quota{
 # hash login -> additional quota
 sub get_projects_add_quota {
     my %projects_add_quota=();
+    my %projects_add_quota_mail=();
     my $dbh=&db_connect();
     my $sth;
-    $sth = $dbh->prepare("SELECT gid,addquota FROM projectdata");
+    $sth = $dbh->prepare("SELECT gid,addquota,addmailquota FROM projectdata");
     $sth->execute();
     while (my $row = $sth->fetchrow_hashref) {
        if(not defined $row->{'addquota'}){
@@ -594,10 +701,16 @@ sub get_projects_add_quota {
        } elsif($row->{'addquota'} ne "quota" and $row->{'addquota'} ne "0"){
           $projects_add_quota{ $row->{'gid'} } = $row->{'addquota'}; 
        }
+       if(not defined $row->{'addmailquota'}){
+           next;
+       } elsif($row->{'addmailquota'} ne "quota" and $row->{'addmailquota'} ne "0"){
+          # ????????????????????
+          $projects_add_quota_mail{ $row->{'gid'} } = $row->{'addmailquota'}; 
+       }
     }
     $sth->finish();
     &db_disconnect($dbh);
-    return %projects_add_quota;
+    return (\%projects_add_quota,\%projects_add_quota_mail);
 }
 
 
@@ -634,9 +747,10 @@ sub get_projects_add_quota_oldstuff {
 sub get_class_quota {
     my $class="";
     my %class_quota=();
+    my %class_quota_mail=();
     my $dbh=&db_connect();
     my $sth;
-    $sth = $dbh->prepare("SELECT gid,quota FROM classdata");
+    $sth = $dbh->prepare("SELECT gid,quota,mailquota FROM classdata");
     $sth->execute();
     while (my $row = $sth->fetchrow_hashref) {
        if(not defined $row->{'quota'}){
@@ -644,10 +758,16 @@ sub get_class_quota {
        } elsif($row->{'quota'} ne "quota"){
           $class_quota{ $row->{'gid'} } = $row->{'quota'}; 
        }
+       if(not defined $row->{'mailquota'}){
+           next;
+       } elsif($row->{'mailquota'} ne "quota"){
+          # ??????? not defined means standard ??????????
+          $class_quota_mail{ $row->{'gid'} } = $row->{'mailquota'}; 
+       }
     }
     $sth->finish();
     &db_disconnect($dbh);
-    return %class_quota;
+    return (\%class_quota,\%class_quota_mail);
 }
 
 
@@ -701,6 +821,28 @@ sub get_quota_txt {
 
 
 
+# hash: login -> quota  (login can be also: standard-*) 
+sub get_mail_quota_txt {
+   my %mail_quota_txt=();
+   my $user="";
+   my $quotastring="",
+   open(MAILQUOTATXT,"${DevelConf::config_pfad}/mailquota.txt") || die "Fehler: $!";
+   while(<MAILQUOTATXT>){
+      chomp();
+      s/\s//g; # Whitespace Entfernen
+      if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+      if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+      # user von sollquota splitten
+      ($user,$quotastring)=split(/:/);
+      $mail_quota_txt{$user}=$quotastring;
+   }
+   close(MAILQUOTATXT);
+   # Rückgabe-Hash enthält standard-quota UND Einzel-Quota
+   return %mail_quota_txt;
+}
+
+
+
 
 # hash: login -> quotastring in the sophomorix database(user_db)
 sub get_db_quota {
@@ -731,7 +873,6 @@ sub get_db_quota {
        }
     }
     &db_disconnect($dbh);
-#    return %db_quota;
     return (\%db_quota,\%db_quota_mail);
 }
 
