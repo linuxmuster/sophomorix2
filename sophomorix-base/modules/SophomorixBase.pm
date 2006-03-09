@@ -14,6 +14,7 @@ package Sophomorix::SophomorixBase;
 require Exporter;
 use Time::Local;
 use Time::localtime;
+use Quota;
 #use Sophomorix::SophomorixConfig;
 
 @ISA = qw(Exporter);
@@ -84,6 +85,8 @@ use Time::localtime;
               get_lehrer_quota
               get_klassen_quota
               get_quota_fs_liste
+              get_quota_fs_num
+              check_quotastring
               sophomorix_passwd
               get_erst_passwd
               check_internet_status
@@ -3236,6 +3239,63 @@ sub get_quota_fs_liste {
    return @quota_fs;
 }
 
+
+
+sub get_quota_fs_num {
+   # get number of quoted filesystems
+   if ($Conf::quota_filesystems[0] eq "auto" && 
+      not $Conf::quota_filesystems[2] ) {
+      # AUTOMATISCH bei String "auto" in sophomorix.conf
+      @quota_fs=&get_quota_fs_liste();
+   } else {# NICHT AUTOMATISCH falls Vorgabe in sophomorix.conf
+      @quota_fs=@Conf::quota_filesystems;
+   }
+   # Anzahl der zu quotierenden Dateisysteme ermitteln
+   my $quota_fs_num=$#quota_fs+1;
+   return $quota_fs_num;
+}
+
+
+
+# check if the given string is correct
+sub check_quotastring {
+    my @result=(-2); 
+    # if $result[0] stays -2 its OK
+    # if $result[0] gets -3 its NOT OK
+
+    # how many filesystems
+    my $quota_fs_num=shift;
+    # the quotastring to check
+    my ($quotastring) = @_;
+    my @list = split(/\+/, $quotastring);
+    my $item=$#list+1;
+    if($Conf::log_level>=2){
+       print "   Checking $quotastring \n";
+    }
+    if (not $item==$quota_fs_num){
+	print "$item quotas for $quota_fs_num filesystems\n";
+        @result=(-3);
+    }
+    foreach my $quo (@list){
+      if($Conf::log_level>=2){
+         print "   Checking $quo ";
+      }
+      if ($quo=~/^[0-9]+$/){
+         if($Conf::log_level>=2){
+             print " OK\n";
+         }    
+      } else {
+        if($Conf::log_level>=2){
+            print " NOT OK\n";
+        }
+        @result=(-3);    
+      }
+    }
+    if (not $result[0]==-3){
+	@result=@list;
+    }
+    return @result;
+}
 
 
 
