@@ -49,6 +49,7 @@ require Exporter;
              get_first_password
              check_sophomorix_user
              show_project_list
+             show_class_list
              show_project
              get_smb_sid
 );
@@ -2940,7 +2941,7 @@ sub show_project_list {
     printf "%-15s | %9s |%6s | %4s |%1s|%1s| %-22s \n","Project",
            "AddQuota", "AddMQ","MaxM","S","J","LongName";
     print "----------------+-----------+-------+------",
-          "+-+-+----------------------------------\n";
+          "+-+-+--------------------------------\n";
     my $dbh=&db_connect();
     my $sth= $dbh->prepare( "SELECT gid,addquota,addmailquota,
                                     longname,maxmembers,sophomorixstatus,
@@ -2984,7 +2985,53 @@ sub show_project_list {
         $i++;
     }   
     print "----------------+-----------+-------+------",
-          "+-+-+----------------------------------\n";
+          "+-+-+--------------------------------\n";
+    &db_disconnect($dbh);
+}
+
+sub show_class_list {
+    print "The following adminclasses exist already:\n\n";
+    printf "%-14s | %5s |%4s |%1s| %-22s| %-22s\n","AdminClass",
+           "Quota", "MQ","M","SchoolType","Department";
+    print "---------------+-------+-----",
+          "+-+-----------------------+-----------------------\n";
+    my $dbh=&db_connect();
+    my $sth= $dbh->prepare( "SELECT gid,quota,mailquota,mailalias,
+                                    schooltype,department
+                             FROM classdata
+                             WHERE type='adminclass'" );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    my $i=0;
+    foreach ( @{ $array_ref } ) {
+        my $gid=${$array_ref}[$i][0];
+        my $quota=${$array_ref}[$i][1];
+        my $mailquota=${$array_ref}[$i][2];
+        my $mailalias=${$array_ref}[$i][3];
+        my $schooltype=${$array_ref}[$i][4];
+        my $department=${$array_ref}[$i][5];
+        if (not defined $gid){
+	    $gid="";
+        }
+        if (not defined $quota or $quota eq "quota"){
+	    $quota="";
+        }
+        if (not defined $mailquota or $mailquota==-1){
+	    $mailquota="";
+        }
+        if (not defined $schooltype){
+	    $schooltype="";
+        }
+        if (not defined $department){
+	    $department="";
+        }
+        printf "%-15s|%6s |%4s |%1s| %-22s| %-22s\n",$gid,
+                $quota,$mailquota,$mailalias,
+                $schooltype,$department;
+        $i++;
+    }   
+    print "---------------+-------+-----",
+          "+-+-----------------------+-----------------------\n";
     &db_disconnect($dbh);
 }
 
@@ -3025,30 +3072,6 @@ sub show_project {
 
 
 
-
-# (deprecated)
-
-sub show_class_list {
-   open(CLASS,"<${DevelConf::dyn_config_pfad}/class_db") || die "Fehler: $!";
-   print "The following AdminClasses exist:\n\n";
-   printf "%-14s %-14s %-5s %-10s %-12s %-14s \n",
-          "AdminClass:", "Dept.:", "Typ" , "Mail:", "Quota", "AdminClass";
-
-   print "=======================================",
-         "=======================================\n";
-   while(<CLASS>){
-       chomp();
-       my @line=split(/;/);
-       if (not defined $line[1]){$line[1]="---"}
-       if (not defined $line[2]){$line[2]="---"}
-       if (not defined $line[3]){$line[3]="---"}
-       if (not defined $line[4]){$line[4]="---"}
-       printf "%-14s %-14s %-5s %-10s %-12s %-14s\n",
-              $line[0], $line[1],$line[2], $line[3], $line[4], $line[0];
-   }
-   close(CLASS);
-   print "\n";
-}
 
 
 sub smb_user_sid {
