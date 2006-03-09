@@ -588,8 +588,14 @@ if ($new_database==1){
     sleep 2;
 }
 
+
+
+my $dbh = DBI->connect("dbi:Pg:dbname=ldap", "ldap","pass",
+          { RaiseError => 0, PrintError => 0});
+
 # create new database if necessary
-if ($old_version eq "0.0.0-0" or $new_database==1){
+if ( ($old_version eq "0.0.0-0" and not defined $dbh) or $new_database==1){
+    print "\ncreating the postgresql database ldap \n\n";
     &create_database();
 } else {
     print "\nNot creating the postgresql database ldap \n\n";
