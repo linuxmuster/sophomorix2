@@ -53,8 +53,8 @@ Sagt, was das Programm gerade macht (verbose)
 .B -vv, --verbose --verbose
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
-.B --klasse klasse, -k klasse
-Splittet die Klasse klasse
+.B --class class, -c class
+Splittet die Klasse class
 .TP
 .B --lastchange login, -l login
 Information, dass der User login als letztes die Subklassenzuteilung
@@ -68,8 +68,10 @@ Frägt nicht nach Gruppenzugekörigkeiten der User ab, sondern erwartet
 --Amembers, --Bmembers, ...
 .TP
 .B --Amembers user1,user2, ... --Dmembers user1,user2,user,...
-Userzugehörigkeiten zu den Subclassen A,B,C,D per Option (wird nur bei
---noninteractive ausgewertet)
+Userzugehörigkeiten zu den Subclassen A,B,C,D,O per Option (wird nur bei
+--noninteractive ausgewertet).
+.br
+Bei Angabe der Subclasse O werden user1,user2,... aus allen Subclassen entfernt. 
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
