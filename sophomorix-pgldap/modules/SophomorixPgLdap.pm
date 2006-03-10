@@ -3024,7 +3024,8 @@ sub show_project_list {
     my $sth= $dbh->prepare( "SELECT gid,addquota,addmailquota,
                                     longname,maxmembers,sophomorixstatus,
                                     joinable 
-                             FROM projectdata" );
+                             FROM projectdata 
+                             ORDER BY gid");
     $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
     my $i=0;
@@ -3077,7 +3078,8 @@ sub show_class_list {
     my $sth= $dbh->prepare( "SELECT gid,quota,mailquota,mailalias,
                                     schooltype,department
                              FROM classdata
-                             WHERE type='adminclass'" );
+                             WHERE type='adminclass'
+                             ORDER BY gid" );
     $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
     my $i=0;
