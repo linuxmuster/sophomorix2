@@ -61,9 +61,6 @@ use if ${DevelConf::sys_db} eq 'pgldap' ,
 
 
 
-
-
-
 # ===========================================================================
 # Optionen verarbeiten
 # ==========================================================================
@@ -242,11 +239,6 @@ if ($noninteractive==1){
 }
 
 
-# Step 2
-# write the subclass-projects-line
-# not needed with pgldap
-#&create_subclass_db($class);
-
 # step 2
 # works with pgldap
 &provide_subclass_files($class);
@@ -263,22 +255,6 @@ if ($noninteractive==1){
 ###########################################################################
 # Sub
 ###########################################################################
-
-# returns an ascibetical list of users in an AdminClass
-#sub get_users_admin_class {
-#    my ($class)=@_;
-#    my @admin_class_list=();
-#    open(PROTO,"<${DevelConf::dyn_config_pfad}/user_db");
-#    while(<PROTO>){
-#       my @line=split(/;/);
-#       if ($line[0] eq $class){
-#         push @admin_class_list, $line[2] 
-#       }
-#    }
-#    close(PROTO);
-#    @admin_class_list = sort @admin_class_list;
-#    return @admin_class_list;
-#}
 
 
 sub update_subclass_links {
@@ -369,73 +345,6 @@ sub create_subclass{
         &pg_adduser($user, "$class-D");
     }
 }
-
-
-
-sub get_project_db {
-    my $project = @_;
-    my %project_data=();
-    open(PROTO,"<${DevelConf::dyn_config_pfad}/subclass_db");
-    while(<PROTO>){
-	print $_,"\n";
-       my @line=split(/;/);
-       if ($line[0] eq $class){
-	   $project_data{"ProjectName"} = $line[0];
-	   $project_data{"ProjectNameLong"} = $line[1];
-	   $project_data{"ProjectTeachers"} = $line[2];
-	   $project_data{"ProjectUsers"} = $line[3];
-	   $project_data{"ProjectAdminClasses"} = $line[4];
-	   $project_data{"ProjectQuota"} = $line[5];
-       }
-    }
-    close(PROTO);
-    return %project_data;
-}
-
-
-
-sub create_subclass_db {
-    # create 4 entries in the database
-    my ($class) = @_;
-
-    my $line_a="";
-    my $line_b="";
-    my $line_c="";
-    my $line_d="";
-
-    if ($a_append ne ""){$a_append="-".$a_append}
-    if ($b_append ne ""){$b_append="-".$b_append}
-    if ($c_append ne ""){$c_append="-".$c_append}
-    if ($d_append ne ""){$d_append="-".$d_append}
-
-    $line_a="$class"."-A;".$class."-Gruppe-A".$a_append.";".$lch.";\n";
-    $line_b="$class"."-B;".$class."-Gruppe-B".$b_append.";".$lch.";\n";
-    $line_c="$class"."-C;".$class."-Gruppe-C".$c_append.";".$lch.";\n";
-    $line_d="$class"."-D;".$class."-Gruppe-D".$d_append.";".$lch.";\n";
-
-    # die mit Klasse- beginnen entfernen  
-    open(SUBCLASSTMP,">${DevelConf::dyn_config_pfad}/subclass_db.tmp");
-    open(SUBCLASS,"<${DevelConf::dyn_config_pfad}/subclass_db");
-
-    while (<SUBCLASS>){
-        if (not /^$class-/){
-           # bisherige Zeilen anderer Klassen beibehalten
-	   print SUBCLASSTMP $_;
-        }
-    }
-
-    # bearbeitete Zeilen anhängen
-    print SUBCLASSTMP $line_a;
-    print SUBCLASSTMP $line_b;
-    print SUBCLASSTMP $line_c;
-    print SUBCLASSTMP $line_d;
-
-    close(SUBCLASS);
-    close(SUBCLASSTMP);
-
-    system("mv ${DevelConf::dyn_config_pfad}/subclass_db.tmp ${DevelConf::dyn_config_pfad}/subclass_db");
-}# end sub
-
 
 
 
