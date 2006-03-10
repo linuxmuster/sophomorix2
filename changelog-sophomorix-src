@@ -60,8 +60,6 @@ PACKAGING for DEBIAN To do
 packaging:
    - Makefile creates directories with correct permissions, 
      how can I package this directories with its permissions?
-   - run sophomorix-samba when installing
-     (how to get the servername into sophomorix.conf (netbios-name)??)
    - include common.bat with comments?
    - zusammenspiel mit Thomas cd
    - sophomorix-vampire version x.x braucht sophomorix2 1.2.2
@@ -70,10 +68,8 @@ packaging:
      wie macht man das?
    - sophomorix-base depends on libdbd-csv-perl
      change that to *-files or so
-   - run sophomorix-setup-pgldap is not working (locking problem)
-   - smbldap tools dependeny fallenlassen?
    - optionen in postinst-scripten upgrade)
-
+   - create only necessary packages
 
 
 ???? *.dsc,*.tar.gz,*.changes bei sophomorix-pakete ins source Verzeichnis
@@ -168,19 +164,15 @@ sophomorix-check
 
 
 sophomorix-add
-   - add call sophomorix-quota --noninteractive
-   - add user to cyrus (dont't know how to do)
-   * dont add group lehrer to class_db
-   * add windows-group when unix-group is added
-     Command: net groupmap ...
    - add standard linux GUI (kde3 (configurable))
-   - when using -l option: login-card could not be created is missleading
-     that something went wrong
    - option -i: group users to add by classes alphabetical, users alphabetical
    - create file forbidden.logins which loginnames that are no to be generated
      (root1, root2, root3, ...mysql, ...)
      (All systemusers that could be possible, when installing additional packages) 
 
+
+
+???????????????????
 
 sophomorix-move
    - move Data from share into home, even if 'hidden' in another owners directory
@@ -1031,6 +1023,15 @@ create_userlist in SophomorixAPI.pm checken
 
 
 1.6.0-1 (2006-03-xx)
+   - order classes,projects alphabetically when displaying
+   - condensed output of sophomorix-quota
+      - show only users wich quota is changed
+      - counting users corrected
+   - condensed output of sophomorix-add 
+      - printout messages only when users are added
+      - setting quota only if users are added
+   - removed sophomorix-usearadd
+            sophomorix-groupadd from Package
    - sophomorix-setup-pgldap checks if database exists and 
      connection is possible (should be left out)
    - modified manpage of sophomorix-class
