@@ -259,7 +259,6 @@ open(NOCHANLEGEN,">${DevelConf::ergebnis_pfad}/sophomorix.add.new")
 open(SOPHOMORIXADD,"${DevelConf::ergebnis_pfad}/sophomorix.add") 
     || die "Fehler: $!";
 while(<SOPHOMORIXADD>){
-   $user_nummer++;
    chomp();
    # absplitten von Wunschlogin und Wunschpasswort
    ($new_admin_group,
@@ -348,6 +347,9 @@ while(<SOPHOMORIXADD>){
      }
    }
 
+   # Nun wird der User angelegt
+   $user_nummer++;
+
    # Ermittelte Daten ausgeben
    if($Conf::log_level>=1){
       print "\n";
@@ -376,8 +378,6 @@ while(<SOPHOMORIXADD>){
       }
    }
 
-   # Nun wird der User angelegt
-  
    # 1. Entry in sophomorix database
    &create_user_db_entry($nachname,
                          $vorname,
@@ -449,7 +449,12 @@ if (${DevelConf::debian} ne "yes") {
 }
 
 # später ???
-&print();
+if ($user_nummer==0){ 
+    &titel("NOT creating userlists (0 users added)");
+} else {
+    &print();
+}
+
 
 # sophomorix.add moven, damit sie nicht nochmal eingelesen werden kann
 &backup_amk_file($zeit,"add","after","mv");
@@ -480,26 +485,18 @@ if ($DevelConf::testen==0) {
    system("rm -f ${DevelConf::ergebnis_pfad}/sophomorix.add.new > /dev/null");
 }
 
-# Nur root darf lesen
-#system ("chown root:root $DevelConf::protokoll_datei");
-#system ("chmod 600 $DevelConf::protokoll_datei");
 
-
-
-if ($Conf::use_quota eq "yes") {
+if ($Conf::use_quota eq "yes" and $user_nummer>0) {
     system("sophomorix-quota --noninteractive");
 } else {
-    &titel("NOT setting quota");
+    if ($user_nummer==0){ 
+        &titel("NOT setting quota (0 users added)");
+    } else {
+        &titel("NOT setting quota");
+    }
 }
 
-
-
-
-&titel("sophomorix-add terminated regularly");
-
-
-
-
+&titel("sophomorix-add terminated regularly ($user_nummer users added)");
 
 
 

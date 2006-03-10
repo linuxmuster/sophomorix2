@@ -473,10 +473,7 @@ if ($gruppe eq "" && $alle==0 && $lehrer==0) {
          $schueler_protokoll_zeile=$schueler_im_system_hash{$identifier};
        } else {
          # keine Protokoll-Zeile gefunden, Schüler ist noch nicht im System
-         # also nicht drucken
-         print ("Entry for $identifier in the sophomarix database is missing!\n"); 
-         print ("Could not create login card (user not in the system?!)\n\n"); 
-
+         print ("   NO login card ($identifier not in the system)\n"); 
          next;
        }
 

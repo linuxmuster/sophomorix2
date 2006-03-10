@@ -68,6 +68,8 @@ use if ${DevelConf::sys_db} eq 'pgldap' ,
 # Liste der Filesysteme auf denen Quota gesetzt werden
 my @quota_fs=&get_quota_fs_liste();
 
+# last user that was modified
+my $last_user="";
 
 # ===========================================================================
 # Anzahl quotierte Dateisysteme ermitteln
@@ -225,7 +227,7 @@ if ($info==1) {
 
 
 
-&titel("Calculating usrquota ... (this may take a while)");
+&titel("Calculating usrquota/mailquota ... (this may take a while)");
 
 # 
 my %login_type = &login_type();
@@ -281,6 +283,9 @@ if($Conf::log_level>=2){
 }
 
 
+&titel("Searching for users with changed quota/mailquota...");
+
+
 if ($loginname ne "" or $classes ne "" or $pupil!=0 or $rooms ne "" or $ws!=0){
     # create the list of users
     my @userlist=();
@@ -302,7 +307,9 @@ if ($loginname ne "" or $classes ne "" or $pupil!=0 or $rooms ne "" or $ws!=0){
         ##### quota
         my @q_list = &check_quotastring($quota_fs_num,$new_quota);
         if ($q_list[0]!=-3){
-            print "Setting quota of user $user to @q_list\n";
+            if($Conf::log_level==1){
+                print "   Setting quota of user $user to @q_list\n";
+            }
 	    &set_quota($system,$user,\@quota_fs,\@q_list);
         } else {
 	    print "ERROR: $new_quota is not correct, skipping ...\n";
@@ -373,8 +380,8 @@ sub set_quota {
             # test
             print "  Test (quota are not set!): \n";
          }
-         print "   Setting quota ($fs, uid $uid): "; 
-         print "${q_opt1}000 ${quota}000 $q_opt3 $q_opt4 \n";
+            print "   Setting quota ($fs, uid $uid): "; 
+            print "${q_opt1}000 ${quota}000 $q_opt3 $q_opt4 \n";
       } else {
          # Systembefehl benutzten
          $quota_befehl="setquota -u ${user} ${q_opt1}000 ".
@@ -410,7 +417,9 @@ sub set_quota_if_needed {
     my $mailquota;
     my $count=0;
     while ( my ($login, $type) = each(%login_type)) {
-	print "$login is type $type \n";
+        if($Conf::log_level>=2){
+            print "$login is type $type \n";
+        }
         if ($type eq "domcomp" or $type eq "workstation"){
             # ????????????????????
             print "   Not setting quota for $login\n";
@@ -421,19 +430,24 @@ sub set_quota_if_needed {
 
 
         ##### quota
-	print "   New Quota: $new_quota \n";
+        if($Conf::log_level>=2){
+	    print "   New Quota: $new_quota \n";
+        }
         if ($new_quota eq $db_quota{$login} and $all==0){
            #do nothing
         } else {
            $count++;
            print "User $count: $login \n";
-           print "  New quota: $new_quota \n";
-           print "  Database : $db_quota{$login}\n";
+           if($Conf::log_level>=2){
+               print "  New quota: $new_quota \n";
+               print "  Database : $db_quota{$login}\n";
+           }
            # check the new quotastring
            my @q_list = &check_quotastring($quota_fs_num,$new_quota);
            if ($q_list[0]!=-3){
-               print "Setting quota of user $login to @q_list\n";
-		   &set_quota(0,$login,\@quota_fs,\@q_list);
+	       &set_quota(0,$login,\@quota_fs,\@q_list);
+               # remember login of user
+	       $last_user=$login;
            } else {
 	       print "ERROR: $new_quota is not correct, skipping ...\n";
            }
@@ -441,14 +455,20 @@ sub set_quota_if_needed {
 
 
         ##### mailquota
-	print "   New MailQuota: $mailquota \n";
+        if($Conf::log_level>=2){
+	    print "   New MailQuota: $mailquota \n";
+        }
         if ($mailquota eq $db_quota_mail{$login} and $all==0){
            #do nothing
         } else {
-           $count++;
-           print "User $count: $login \n";
-           print "  New mailquota: $mailquota \n";
-           print "  Database : $db_quota_mail{$login}\n";
+	   if ($login ne $last_user){
+              $count++;
+              print "User $count: $login \n";
+	   }
+           if($Conf::log_level>=2){
+               print "   New MailQuota: $mailquota \n";
+               print "   Database : $db_quota_mail{$login}\n";
+           }
            # check the new quotastring ???? must be integer
 	   &set_mail_quota($login,$mailquota);
         }
@@ -462,7 +482,7 @@ sub set_quota_if_needed {
 sub set_mail_quota {
     my ($login,$mailquota) = @_;
     my $cyrus=0;
-    print "Setting MailQuota of $login to $mailquota MB\n";
+    print "   Setting MailQuota of $login to $mailquota MB\n";
     if (-s "/usr/lib/linuxmuster/bin/cyrus-user.pl") {
        # if it is bw musterloesung
        $cyrus=1;
@@ -475,7 +495,7 @@ sub set_mail_quota {
     }
 
     if ($cyrus==0){
-	print "No cyrus-imap found. Cannot set mailquota! \n";
+	print "   ERROR: No cyrus-imap script to set mailquota. Skipping ...\n";
     }
 
     # update the database
