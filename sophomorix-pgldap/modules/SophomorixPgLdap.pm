@@ -51,6 +51,7 @@ require Exporter;
              check_sophomorix_user
              show_project_list
              show_class_list
+             show_subclass_list
              show_project
              get_smb_sid
 );
@@ -3068,6 +3069,11 @@ sub show_project_list {
     &db_disconnect($dbh);
 }
 
+
+
+
+
+
 sub show_class_list {
     print "The following adminclasses exist already:\n\n";
     printf "%-14s | %8s |%4s |%1s| %-21s| %-20s\n","AdminClass",
@@ -3114,6 +3120,67 @@ sub show_class_list {
           "+-+----------------------+---------------------\n";
     &db_disconnect($dbh);
 }
+
+
+
+sub show_subclass_list {
+    print "The following adminclasses have members in subclasses:\n\n";
+    printf "%-20s | %5s |  %1s  |  %1s  |  %1s  |  %1s  |\n",
+           "AdminClass","Total","A","B","C","D";
+    print "---------------------+-------+-----+-----+-----+-----+\n";
+
+    my $dbh=&db_connect();
+    my $sth= $dbh->prepare( "SELECT gid,COUNT(*) AS num
+                             FROM userdata 
+                             WHERE (subclass='A'
+                                 OR subclass='B'
+                                 OR subclass='C'
+                                 OR subclass='D')
+                                 GROUP BY gid" );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    my $i=0;
+    my $sub_a=0;
+    my $sub_b=0;
+    my $sub_c=0;
+    my $sub_d=0;
+    my $total=0;
+
+    foreach ( @{ $array_ref } ) {
+        my $gid=${$array_ref}[$i][0];
+        my $total=${$array_ref}[$i][1];
+
+        $sub_a = $dbh->selectrow_array( "SELECT COUNT(*) AS num
+                                     FROM userdata 
+                                     WHERE (subclass='A'
+                                       AND gid='$gid')
+                                    " );
+        $sub_b = $dbh->selectrow_array( "SELECT COUNT(*) AS num
+                                     FROM userdata 
+                                     WHERE (subclass='B'
+                                       AND gid='$gid')
+                                    " );
+        $sub_c = $dbh->selectrow_array( "SELECT COUNT(*) AS num
+                                     FROM userdata 
+                                     WHERE (subclass='C'
+                                       AND gid='$gid')
+                                    " );
+        $sub_d = $dbh->selectrow_array( "SELECT COUNT(*) AS num
+                                     FROM userdata 
+                                     WHERE (subclass='D'
+                                       AND gid='$gid')
+                                    " );
+        printf "%-20s |  %3s  | %3s | %3s | %3s | %3s |\n",
+        $gid,$total,$sub_a,$sub_b,$sub_c,$sub_d;
+
+        $i++;
+    }   
+    print "---------------------+-------+-----+-----+-----+-----+\n";
+    &db_disconnect($dbh);
+}
+
+
+
 
 
 sub show_project {

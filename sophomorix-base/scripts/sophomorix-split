@@ -41,6 +41,7 @@ use if ${DevelConf::db_backend} eq 'pgldap' ,
                                         create_class_db_entry
                                         pg_adduser
                                         pg_remove_all_secusers
+                                        show_subclass_list
                                        );
 
 
@@ -150,17 +151,12 @@ Please see the sophomorix-add(8) man pages for full documentation
 &check_connections();
 
 
-
-
 # --info
 if ($info==1){
-    my @list=&get_adminclasses_sub_school();
-    print "Classes with subclasses are: \n";
-    foreach my $item (@list){
-	print "   $item \n";
-    }
+    &show_subclass_list();
     exit;
 }
+
 
 
 # Abbruch wenn als klasse lehrer abgegeben
@@ -171,6 +167,7 @@ if ($class eq "" or $class eq ${DevelConf::teacher}){
     }
     exit;
 }
+
 
 
 # Abbruch, wenn Klasse nicht existiert
