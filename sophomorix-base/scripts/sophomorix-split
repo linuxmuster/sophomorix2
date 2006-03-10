@@ -5,13 +5,6 @@
 # jeffbeck@web.de  oder  jeffbeck@gmx.de
 
 
-# To do:
-# 1. &get_users_admin_class("12c") checken und evtl in *pm;
-# 3. ungenutzte funktion ???
-
-
-
-
 # ===========================================================================
 # Bibliotheken
 # ===========================================================================
@@ -42,6 +35,7 @@ use if ${DevelConf::db_backend} eq 'files' ,
 use if ${DevelConf::db_backend} eq 'pgldap' , 
     'Sophomorix::SophomorixPgLdap' => qw(show_modulename
                                         db_connect
+                                        db_disconnect
                                         update_user_db_entry
                                         check_connections
                                         create_class_db_entry
@@ -94,17 +88,19 @@ my $a_members="";
 my $b_members="";
 my $c_members="";
 my $d_members="";
+my $o_members="";
 
 # die Liste
 my @a_members="";
 my @b_members="";
 my @c_members="";
 my @d_members="";
+my @o_members="";
 
 # Parsen der Optionen
 my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
-           "klasse|class|c|k=s" => \$class,
+           "class|c=s" => \$class,
            "lastchange|l=s" => \$lch,
            "help|h" => \$help,
            "info|i" => \$info,
@@ -117,6 +113,7 @@ my $testopt=GetOptions(
            "Bmembers=s" => \$b_members,
            "Cmembers=s" => \$c_members,
            "Dmembers=s" => \$d_members,
+           "0members|Omembers=s" => \$o_members,
           );
 
 # Prüfen, ob Optionen erkannt wurden
@@ -136,10 +133,11 @@ Options
   -v  / --verbose
   -vv / --verbose --verbose
   -i  / --info
-  -k klasse / --klasse klasse
+  -c class  / --class class
   -l login / --lastchange login
   -A comment -B comment -C comment -D comment
   -Amemebers user 1,user2, ... -Bmembers -user1.user2, ... ...
+  -0memebers user 1,user2
   --noninteractive
 
 Please see the sophomorix-add(8) man pages for full documentation
@@ -178,6 +176,23 @@ if ($class eq "" or $class eq ${DevelConf::teacher}){
 }
 
 
+# Abbruch, wenn Klasse nicht existiert
+my $dbh=&db_connect();
+# fetching gidnumber
+my ($found)= $dbh->selectrow_array( "SELECT gid 
+                                         FROM classdata 
+                                         WHERE (type='adminclass'
+                                         AND gid='$class' )" );
+&db_disconnect($dbh);
+
+if (not defined $found){
+    print "\n$class is not an AdminClass\n";
+    print "You can only split AdminClasses\n\n";
+    exit;
+}
+
+
+
 # ===========================================================================
 # Programmbeginn
 # ===========================================================================
@@ -199,11 +214,28 @@ if ($noninteractive==1){
     @b_members=split(/,/,$b_members);
     @c_members=split(/,/,$c_members);
     @d_members=split(/,/,$d_members);
+    @o_members=split(/,/,$o_members);
    # db aktualisieren 
-    foreach $login (@a_members){&update_user_db_entry($login,"SubClass=A")}
-    foreach $login (@b_members){&update_user_db_entry($login,"SubClass=B")}
-    foreach $login (@c_members){&update_user_db_entry($login,"SubClass=C")}
-    foreach $login (@d_members){&update_user_db_entry($login,"SubClass=D")}
+    foreach $login (@a_members){
+	&update_subclass_links($login,"A");
+	&update_user_db_entry($login,"SubClass=A");
+    }
+    foreach $login (@b_members){
+	&update_subclass_links($login,"B");
+	&update_user_db_entry($login,"SubClass=B");
+    }
+    foreach $login (@c_members){
+	&update_subclass_links($login,"C");
+	&update_user_db_entry($login,"SubClass=C");
+    }
+    foreach $login (@d_members){
+	&update_subclass_links($login,"D");
+	&update_user_db_entry($login,"SubClass=D");
+    }
+    foreach $login (@o_members){
+	&update_subclass_links($login,"");
+	&update_user_db_entry($login,"SubClass=");
+    }
 } else {
    # interaktiv
    &interactive_change_subclass($class);
@@ -213,13 +245,13 @@ if ($noninteractive==1){
 # Step 2
 # write the subclass-projects-line
 # not needed with pgldap
-&create_subclass_db($class);
+#&create_subclass_db($class);
 
-# step 3
+# step 2
 # works with pgldap
 &provide_subclass_files($class);
 
-# step 4
+# step 3
 # Read the database (users and subclasses) 
 # and change the system accordingly
 &create_subclass($class);
@@ -227,10 +259,6 @@ if ($noninteractive==1){
 
 
 
-#my @list=&get_users_admin_class("12c");
-
-
-#print @list,"\n";
 
 ###########################################################################
 # Sub
@@ -253,6 +281,28 @@ if ($noninteractive==1){
 #}
 
 
+sub update_subclass_links {
+    my ($login,$new_sub) = @_;
+    my $dbh=&db_connect();
+    # fetching gidnumber
+    my ($old_sub,$admin_class)= $dbh->selectrow_array( "SELECT subclass,adminclass 
+                                         FROM userdata 
+                                         WHERE uid='$login'");
+    my $target=$admin_class."-".$new_sub;
+    my $old_target=$admin_class."-".$old_sub;
+
+    &Sophomorix::SophomorixBase::remove_share_link($login,
+                                    $old_target,$old_target);
+
+    if ($new_sub ne ""){
+        # add a link, when new subclass is given
+        &Sophomorix::SophomorixBase::create_share_link($login,
+                                   $target,$target,"subclass");
+    }
+    &db_disconnect($dbh);
+}
+
+
 sub create_subclass{
     # creates from the db all subclasses of $class in the system
     my ($class) = @_;
@@ -266,77 +316,57 @@ sub create_subclass{
     my @sub_c=();
     my @sub_d=();
 
-
-   my $dbh=&db_connect();
-   # select the columns that i need
-   my $sth= $dbh->prepare( "SELECT uid,gecos,subclass  
+    my $dbh=&db_connect();
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT uid,gecos,subclass  
                              FROM userdata
                              WHERE adminclass='$class'
                              ORDER BY uid" );
-      $sth->execute();
+    $sth->execute();
 
-   my $i=0;
-   my $array_ref = $sth->fetchall_arrayref();
-   foreach ( @{ $array_ref } ) {
-   
-       my $login = ${$array_ref}[$i][0];
-       my $gecos = ${$array_ref}[$i][1];
-       my $sub=${$array_ref}[$i][2];
+    my $i=0;
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach ( @{ $array_ref } ) {
+        my $login = ${$array_ref}[$i][0];
+        my $gecos = ${$array_ref}[$i][1];
+        my $sub=${$array_ref}[$i][2];
 
-
-            if ($sub eq "A"){
-		push @sub_a, $login;
-            } elsif ($sub eq "B"){
-		push @sub_b, $login;
-            } elsif ($sub eq "C"){
-		push @sub_c, $login;
-            } elsif ($sub eq "D"){
-		push @sub_d, $login;
-            }
-
-#    print "A: @sub_a \n";
-#    print "B: @sub_b \n";
-#    print "C: @sub_c \n";
-#    print "D: @sub_d \n";
-
-       $i++;
-   }
+        if ($sub eq "A"){
+	    push @sub_a, $login;
+        } elsif ($sub eq "B"){
+	    push @sub_b, $login;
+        } elsif ($sub eq "C"){
+	    push @sub_c, $login;
+        } elsif ($sub eq "D"){
+	    push @sub_d, $login;
+        }
+        $i++;
+    }
     # Adding the 4 groups without users
     foreach $suffix (@suffix){
        print "Working on Group $class-$suffix \n";
        ($a,$a,$gid,$old_members)=getgrnam("$class-$suffix");
        if (defined $gid){
-          # gpasswd -d/-a user group
           print "   removing  all users from $class-$suffix \n";
           &pg_remove_all_secusers("$class-$suffix");
- #         print "groupdel  $class-$suffix\n";
- #         system("groupdel $class-$suffix");
-          # add the group if it has users
- #         system("groupadd -g $gid $class-$suffix");
-
        } else { 
           print "   $class-$suffix does not exist, will be created.\n",
           &create_class_db_entry("$class-$suffix",1);
-#         system("groupadd $class-$suffix");
        }
     }
 
     # adding the users to their subclass
     foreach $user (@sub_a) {
         &pg_adduser($user, "$class-A");
-#       system("adduser $user $class-A");
     }
     foreach $user (@sub_b) {
         &pg_adduser($user, "$class-B");
-#       system("adduser $user $class-B");
     }
     foreach $user (@sub_c) {
         &pg_adduser($user, "$class-C");
-#       system("adduser $user $class-C");
     }
     foreach $user (@sub_d) {
         &pg_adduser($user, "$class-D");
-#       system("adduser $user $class-D");
     }
 }
 
@@ -451,7 +481,19 @@ sub interactive_change_subclass {
                      $user_antwort=~tr/a-z/A-Z/;
                      print "Adding $login in $user_antwort\n";
                   }
+             	  &update_subclass_links($login,$user_antwort);
 	          &update_user_db_entry($login,"SubClass=$user_antwort");
+#                  # name of the link
+#                  my $target=$class."-".$user_antwort;
+#                  my $old_target=$class."-".$old_subclass;
+#                  &Sophomorix::SophomorixBase::remove_share_link($login,
+#                                               $old_target,$old_target);
+#
+#                  if ($user_antwort ne ""){
+#                     # add a link, when new subclass is given
+#                     &Sophomorix::SophomorixBase::create_share_link($login,
+#                                             $target,$target,"subclass");
+#	          }
                   last; # Ausstieg aus Endlosschleife
                } else {
                   # Endlosschleife, Eingabe wiederholen
