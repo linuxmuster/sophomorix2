@@ -29,9 +29,13 @@ use DBI;
 # ===========================================================================
 # Optionen verarbeiten
 # ==========================================================================
+#my $gruppe="";
+my $file="/etc/aliases";
+my $file_tmp="/etc/aliases-tmp";
+my $new_aliases="/usr/bin/newaliases";
+
 
 # Variablen für Optionen
-my $testen=0;
 $Conf::log_level=1;
 my $help=0;
 my $info=0;
@@ -39,7 +43,6 @@ my $info=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
-           "test|t" => \$testen,
            "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
            "info|i" => \$info
@@ -56,40 +59,47 @@ if ($help==1) {
    my @list = split(/\//,$0);
    my $scriptname = pop @list;
    # Befehlbeschreibung
-   print "\n$scriptname erzeugt Dateien und Datenbanken für Mail-aliase. \n";
-   print "Jeder lehrer ist unter vorname.nachname\@domain.de ";
-   print "erreichbar.\n\n";
+   print "\n$scriptname modifies $file and runs newaliases.\n\n";
+   print "There will be added:\n";
+   print "    - mailaliases (firstname.surname)\n";
+   print "    - maillists (common mailadress named like group)\n";
+   print "\n";
+   print "The following groups are possible:\n";
+   print "    - adminclass  (edited with sophomorix-class)\n";
+   print "    - subclass (todo)\n";
+   print "    - projects (todo)\n";
+   print('
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -i  / --info
 
-   print "Desweiteren sind unter lehrer\@domain.de alle Lehrer erreichbar.\n\n";
-
-   print "Auch für Klassen kann $scriptname Dateien und Datenbanken für Mail-aliase \n";
-   print "erzeugen. Dazu sind in \n\n"; 
-   print "   ${DevelConf::config_pfad}/schulinfo.txt \n\n";
-   print "die entsprechenden Klassen zu konfigurieren.\n\n";
-
+Please see the sophomorix-mail(8) man pages for full documentation
+');
+   print "\n";
    exit;
 }
 
 
-my $gruppe="";
-#my @mail_klassen=();
-#my @mail_liste_klassen=();
+
 
 
 # classes with aliases vorname.nachname
 my @mail_klassen=&get_mail_alias_classes();
-
 # classes with aliases vorname.nachname
 my @mail_liste_klassen=&get_mail_list_classes();
 
 
+
 # --info
 if ($info==1) {
-   print "Klassen, die einen alias bekommen:\n\n";
-   print "@mail_klassen\n\n";
+   print "\n";
+   print "Groups, which members will have a mailalias:\n";
+   print "  @mail_klassen\n\n";
 
-   print "Klassen, die zusätzlich eine Mail-Empfangsliste bekommen\n\n";
-   print "@mail_liste_klassen\n\n";
+   print "Groups, which have a maillist\n";
+   print "  @mail_liste_klassen\n\n";
 
    exit;
 }
@@ -103,11 +113,6 @@ if ($info==1) {
 # ! Careful ! This string CANNOT be changed!
 my $magic_line="### Add your own entries BEFORE this line ###\n";
 my $magic=0;
-
-my $file="/etc/aliases";
-my $file_tmp="/etc/aliases-tmp";
-
-my $new_aliases="/usr/bin/newaliases";
 
 
 # 1) read until magic line
@@ -138,19 +143,19 @@ if ($magic==0){
 print ALIASESTMP "### Entries after here are managed by sophomorix-mail ###\n";
 
 # aliases of groups
-foreach $gruppe (@mail_klassen) {
+foreach my $gruppe (@mail_klassen) {
    if (${Conf::mail_aliases} eq "vorname.nachname") {
       print ALIASESTMP "\n### Mailaliases for $gruppe \n";
-      print "Generating mailaliases for $gruppe\n";
+      print "   Generating mailaliases for $gruppe\n";
       &generate_mail_aliases("$gruppe"); 
    }
 }
 
 
 # mailinglist of groups
-foreach $gruppe (@mail_liste_klassen) {
+foreach my $gruppe (@mail_liste_klassen) {
       print ALIASESTMP "\n### Mailinglist for $gruppe \n";
-      print "Generating mailinglist for $gruppe\n";
+      print "   Generating mailinglist for $gruppe\n";
       &generate_mail_list("$gruppe"); 
 }
 close(ALIASESTMP);
