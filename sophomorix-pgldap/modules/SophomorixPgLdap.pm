@@ -1233,13 +1233,14 @@ sub create_class_db_entry {
         # adding a subclass
         #3. Tabelle class_details
         $sql="INSERT INTO class_details
-	    (id,quota,mailquota,schooltype,department,mailalias,type)
+	    (id,quota,mailquota,schooltype,department,mailalias,maillist,type)
 	    VALUES
   	    ($groups_id,
              NULL,
              NULL,
              '',
              '',
+             FALSE,
              FALSE,
              '$type')";	
         if($Conf::log_level>=3){
@@ -1251,7 +1252,7 @@ sub create_class_db_entry {
         # adding a project
         #3. Tabelle class_details
         $sql="INSERT INTO class_details
-	    (id,quota,mailquota,schooltype,department,mailalias,type)
+	    (id,quota,mailquota,schooltype,department,mailalias,maillist,type)
 	    VALUES
   	    ($groups_id,
              NULL,
@@ -1259,24 +1260,25 @@ sub create_class_db_entry {
              '',
              '',
              FALSE,
+             FALSE,
              '$type')";	
         if($Conf::log_level>=3){
            print "\nSQL: $sql\n";
         }
         $dbh->do($sql);
 
-
     } else {
         # adding a adminclass
         #3. Tabelle class_details
         $sql="INSERT INTO class_details
-	    (id,quota,mailquota,schooltype,department,mailalias,type)
+	    (id,quota,mailquota,schooltype,department,mailalias,maillist,type)
 	    VALUES
   	    ($groups_id,
              'quota',
              -1,
              '',
              '',
+             FALSE,
              FALSE,
              '$type')";	
         if($Conf::log_level>=3){
@@ -1296,6 +1298,9 @@ sub create_class_db_entry {
 sub update_class_db_entry {
     my $class=shift;
     my $quota="";
+    my $mailquota;
+    my $mailalias;
+    my $maillist;
     foreach my $param (@_){
        ($attr,$value) = split(/=/,$param);
        if($Conf::log_level>=2){
@@ -1340,6 +1345,18 @@ sub update_class_db_entry {
               }
 	   }
        }
+
+       # mailalias
+       if ($attr eq "Mailalias"){
+	   $mailalias="$value";
+	   push @class_details, "mailalias = $mailalias";
+       }
+
+       # mailing list
+       if ($attr eq "Maillist"){
+	   $maillist="$value";
+	   push @class_details, "maillist = $maillist";
+       }
     }
 
     # update
@@ -1349,19 +1366,21 @@ sub update_class_db_entry {
                                          WHERE gid='$class'
                                         ");
 
-    my $class_options=join(", ",@class_details);
+    if (defined $class_id){
+        my $class_options=join(", ",@class_details);
 
-    $sql="UPDATE class_details SET $class_options
-            WHERE id = $class_id";
-    if($Conf::log_level>=3){
-          print "\nSQL: $sql\n";
-
+        $sql="UPDATE class_details SET $class_options
+              WHERE id = $class_id";
+        if($Conf::log_level>=3){
+              print "\nSQL: $sql\n";
+        }
+        if ($class_options ne ""){
+           $dbh->do($sql);
+        }
+        $dbh->disconnect();
+    } else {
+        print "\nERROR: Not updating $class (nonexisting)\n\n";
     }
-    if ($class_options ne ""){
-       $dbh->do($sql);
-    }
-    $dbh->disconnect();
-
 }
 
 
@@ -3076,13 +3095,13 @@ sub show_project_list {
 
 sub show_class_list {
     print "The following adminclasses exist already:\n\n";
-    printf "%-14s | %8s |%4s |%1s| %-21s| %-20s\n","AdminClass",
-           "Quota", "MQ","M","SchoolType","Department";
+    printf "%-14s | %8s |%4s |%2s|%2s| %-19s| %-18s\n","AdminClass",
+           "Quota", "MQ","MA","ML","SchoolType","Department";
     print "---------------+----------+-----",
-          "+-+----------------------+---------------------\n";
+          "+--+--+--------------------+-------------------\n";
     my $dbh=&db_connect();
     my $sth= $dbh->prepare( "SELECT gid,quota,mailquota,mailalias,
-                                    schooltype,department
+                                    maillist,schooltype,department
                              FROM classdata
                              WHERE type='adminclass'
                              ORDER BY gid" );
@@ -3094,8 +3113,9 @@ sub show_class_list {
         my $quota=${$array_ref}[$i][1];
         my $mailquota=${$array_ref}[$i][2];
         my $mailalias=${$array_ref}[$i][3];
-        my $schooltype=${$array_ref}[$i][4];
-        my $department=${$array_ref}[$i][5];
+        my $maillist=${$array_ref}[$i][4];
+        my $schooltype=${$array_ref}[$i][5];
+        my $department=${$array_ref}[$i][6];
         if (not defined $gid){
 	    $gid="";
         }
@@ -3111,13 +3131,13 @@ sub show_class_list {
         if (not defined $department){
 	    $department="";
         }
-        printf "%-15s|%10s|%4s |%1s| %-21s| %-20s\n",$gid,
-                $quota,$mailquota,$mailalias,
+        printf "%-15s|%10s|%4s | %1s| %1s| %-19s| %-18s\n",$gid,
+                $quota,$mailquota,$mailalias,$maillist,
                 $schooltype,$department;
         $i++;
     }   
     print "---------------+----------+-----",
-          "+-+----------------------+---------------------\n";
+          "+--+--+--------------------+-------------------\n";
     &db_disconnect($dbh);
 }
 
