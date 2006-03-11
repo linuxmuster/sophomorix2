@@ -1,0 +1,266 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-mail) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+
+# ===========================================================================
+# Bibliotheken
+# ===========================================================================
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI qw(
+                                  get_user_adminclass
+                                );
+use Sophomorix::SophomorixPgLdap qw(
+                                  show_modulename
+                                  db_connect
+                                  db_disconnect
+                                   );
+
+use DBI;
+
+
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+
+# Variablen für Optionen
+my $testen=0;
+$Conf::log_level=1;
+my $help=0;
+my $info=0;
+
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "test|t" => \$testen,
+           "verbose|v+" => \$Conf::log_level,
+           "help|h" => \$help,
+           "info|i" => \$info
+          );
+
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
+
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlbeschreibung
+   print "\n$scriptname erzeugt Dateien und Datenbanken für Mail-aliase. \n";
+   print "Jeder lehrer ist unter vorname.nachname\@domain.de ";
+   print "erreichbar.\n\n";
+
+   print "Desweiteren sind unter lehrer\@domain.de alle Lehrer erreichbar.\n\n";
+
+   print "Auch für Klassen kann $scriptname Dateien und Datenbanken für Mail-aliase \n";
+   print "erzeugen. Dazu sind in \n\n"; 
+   print "   ${DevelConf::config_pfad}/schulinfo.txt \n\n";
+   print "die entsprechenden Klassen zu konfigurieren.\n\n";
+
+   exit;
+}
+
+
+my $gruppe="";
+my @mail_klassen=();
+my @mail_liste_klassen=();
+
+
+# classes with aliases vorname.nachname
+@mail_klassen=&get_mail_alias_classes();
+
+
+# --info
+if ($info==1) {
+   print "Klassen, die einen alias bekommen:\n\n";
+   print "@mail_klassen\n\n";
+
+   print "Klassen, die zusätzlich eine Mail-Empfangsliste bekommen\n\n";
+   print "@mail_liste_klassen\n\n";
+
+   exit;
+}
+
+
+
+################################################################################
+# Programm
+################################################################################
+
+# ! Careful ! This string CANNOT be changed!
+my $magic_line="### Add your own entries BEFORE this line ###\n";
+my $magic=0;
+
+my $file="/etc/aliases";
+my $file_tmp="/etc/aliases-tmp";
+
+my $new_aliases="/usr/bin/newaliases";
+
+
+# 1) read until magic line
+open(ALIASESTMP, ">$file_tmp");
+open(ALIASES, "<$file");
+while (<ALIASES>) {
+    my $line = $_;
+    print ALIASESTMP "$line";
+    if ($line eq $magic_line){
+        $magic=1;
+        last;
+    }
+}
+close(ALIASES);
+
+
+
+# 2) append magic line if necessary
+if ($magic==0){
+    # append magic line
+    print ALIASESTMP $magic_line;
+}
+
+
+
+# 3) add own stuff
+# additional comment
+print ALIASESTMP "### Entries after here are managed by sophomorix-mail ###\n";
+
+# aliases of groups
+foreach $gruppe (@mail_klassen) {
+   if (${Conf::mail_aliases} eq "vorname.nachname") {
+      print ALIASESTMP "\n### Mailaliases for $gruppe \n";
+      print "Generating mailaliases for $gruppe\n";
+      &generate_mail_aliases("$gruppe"); 
+   }
+}
+
+
+# mailinglist of groups
+foreach $gruppe (@mail_liste_klassen) {
+      print ALIASESTMP "\n### Mailinglist for $gruppe \n";
+      print "Generating mailinglist for $gruppe\n";
+      &generate_mail_list("$gruppe"); 
+}
+close(ALIASESTMP);
+
+
+# replace /etc/aliases
+system("mv $file_tmp $file");
+
+
+# 4) run newaliases
+if (-e "$new_aliases"){
+    print "Running $new_aliases ... ";
+    system("$new_aliases");
+    print "done!\n";
+} else {
+    print "ERROR $new_aliases not found\n";
+
+}
+
+
+
+
+
+
+
+################################################################################
+# Subroutines
+################################################################################
+
+sub get_mail_alias_classes {
+    my @classes=();
+    my $dbh=&db_connect();
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT gid,mailalias 
+                            FROM classdata 
+                            WHERE (mailalias='t'
+                              AND type='adminclass') 
+                           " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+       # split the array, to give better names
+       my ($gid,$mailalias)=@$row;
+       push @classes, $gid;
+    }
+    &db_disconnect($dbh);
+    return @classes;
+}
+
+
+sub get_mail_list_classes {
+    my @classes=();
+    my $dbh=&db_connect();
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT gid,maillist 
+                            FROM classdata 
+                            WHERE (maillist='t'
+                              AND type='adminclass') 
+                           " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+       # split the array, to give better names
+       my ($gid,$maillist)=@$row;
+       push @classes, $gid;
+    }
+    &db_disconnect($dbh);
+    return @classes;
+}
+
+
+
+
+
+sub generate_mail_aliases {
+   # generate mailaliases for all users in adminclass
+   my ($group)=@_;
+   my @user=&get_user_adminclass($group);
+
+   foreach my $user (@user) {
+      # Gecos-Feld ermitteln
+      my ($login,$passwort,$uid,$gid,$quota,$name,$gecos)=getpwnam("$user");
+      $gecos=~s/ /./g; # Spezialzeichen raus
+      #print ALIASESTMP "$gecos:\t\t\t$user\n";
+      printf ALIASESTMP "%-35s %-20s \n",$gecos.":",$user;
+   }
+}
+
+
+
+
+sub generate_mail_list {
+   # generate mailinglist alias for group
+   my ($group)=@_;
+   my $letzter_user="";
+   my $ende="";
+
+   my @user=&get_user_adminclass($group);
+
+   print ALIASESTMP "$group:\n";
+
+   # Gruppen-Mailingliste erzeugen:
+      $ende=$#user;
+      $letzter_user=$user[ $ende ];
+      if($Conf::log_level>=3){
+         print "User $letzter_user hat den index $ende und ist der Letzte.\n";
+       }
+      foreach my $user (@user) {
+        print ALIASESTMP "   $user";
+        if ($user eq $letzter_user){
+           print ALIASESTMP "\n";
+        } else {
+           print ALIASESTMP ",\n"; 
+        }
+      } 
+ }
