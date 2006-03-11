@@ -188,12 +188,10 @@ open(YETTOKILL,">${DevelConf::ergebnis_pfad}/sophomorix.kill.neu") || die "Fehle
 # ===========================================================================
 # Datei mit den zu löschenden Schülern
 # ===========================================================================
-&titel("Löschvorgang beginnt ...");
-print "${DevelConf::ergebnis_pfad}/sophomorix.kill";
+&titel("Beginn deletion ...");
 open(KILL,"${DevelConf::ergebnis_pfad}/sophomorix.kill") || die "Fehler: $!";
 
 while(<KILL>){
-     $user_nummer++;
      chomp();
      ($identifier_to_kill, $login_name_to_kill)=split(/::/);
      # Klasse ermitteln
@@ -213,16 +211,18 @@ while(<KILL>){
      # Abbruch, wenn nicht der richtige loginname entfernt wird
      if ($loginname ne "") {
        if ($login_name_to_kill ne $loginname) {
-          print "\n$login_name_to_kill wird NICHT gelöscht\n";
+          print "$login_name_to_kill will  NOT be deleted.\n";
           # Merken, dass user noch nicht entfernt wird
           print YETTOKILL "$_\n";
           next;
        }
      }
 
+     # Jetzt wird gelöscht
      # Ermittelte Daten ausgeben
-     if($Conf::log_level>=1){
-        print("\nRemoving User $user_nummer:\n");
+     $user_nummer++;
+      if($Conf::log_level>=1){
+        &titel("Removing User $user_nummer:");
         print("Identifier:          $identifier_to_kill\n");
         print("Login-Name:          $login_name_to_kill\n");
         print("Home-Verzeichnis:    $home_verzeichnis_to_kill\n");
@@ -237,7 +237,6 @@ while(<KILL>){
         system("/usr/lib/linuxmuster/bin/cyrus-user.pl -u $login_name_to_kill -d");
       }
 
-      # Jetzt wird gelöscht
       # memberships
       &deleteuser_from_all_projects($login_name_to_kill);
       # user itself
@@ -324,9 +323,34 @@ if ($DevelConf::testen==0) {
 #&do_falls_nicht_testen("sophomorix-webmin --modules --no-restart");
 
 
-print ("\nsophomorix-kill terminated regularly ...\n");
 
 
+
+
+# Setting Quota
+# Should not be necessary,
+# but who knows how to remove user from aquota.usr
+#if ($Conf::use_quota eq "yes" and $user_nummer>0) {
+#    system("sophomorix-quota --noninteractive");
+#} else {
+#    if ($user_nummer==0){ 
+#        &titel("NOT setting quota (0 users removed)");
+#    } else {
+#        &titel("NOT setting quota");
+#    }
+#}
+
+# Creating Mailing Aliases and Lists
+if ($user_nummer>0) {
+    system("sophomorix-mail");
+} else {
+    &titel("NOT creating mailaliases/lists (0 users removed)");
+}
+
+
+
+
+&titel("sophomorix-kill terminated regularly ($user_nummer users removed)");
 
 
 # old, not used anymore
