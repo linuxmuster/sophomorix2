@@ -29,6 +29,8 @@ my $info=0;
 my $class="";
 my $quota;
 my $mailquota;
+my $mailalias;
+my $maillist;
 $Conf::log_level=1;
 
 # Parsen der Optionen
@@ -38,6 +40,8 @@ my $testopt=GetOptions(
            "class|c=s" => \$class,
            "quota=s" => \$quota,
            "mailquota=i" => \$mailquota,
+           "mailalias!" => \$mailalias,
+           "maillist!" => \$maillist,
            "verbose|v+" => \$Conf::log_level,
           );
 
@@ -49,6 +53,8 @@ my $testopt=GetOptions(
 if (not defined $quota 
     and not defined $mailquota
     and $info==0 
+    and not defined $mailalias
+    and not defined $maillist
     and $class eq ""){
     $help=1;
 }
@@ -72,6 +78,8 @@ Options
   -c AdminClass, / --class AdminClass 
   --quota quotastring
   --mailquota number
+  --mailalias, --nomailalias
+  --maillist, --nomaillist
 Please see the sophomorix-class(8) man pages for full documentation
 ');
    print "\n";
@@ -93,9 +101,32 @@ if ($info==1){
 }
 
 
+# --mailalias
+if (defined $mailalias){
+    if ($class eq ""){
+        print "   You must give a class to use --mailalias\n";
+	exit;
+    }
+    if ($mailalias==0){
+        &update_class_db_entry($class,"Mailalias=FALSE");
+    } elsif ($mailalias==1){
+        &update_class_db_entry($class,"Mailalias=TRUE");
+    }
+}
 
 
-
+# --maillist
+if (defined $maillist){
+    if ($class eq ""){
+        print "   You must give a class to use --maillist\n";
+	exit;
+    }
+    if ($maillist==0){
+        &update_class_db_entry($class,"Maillist=FALSE");
+    } elsif ($maillist==1){
+        &update_class_db_entry($class,"Maillist=TRUE");
+    }
+}
 
 
 # --quota
