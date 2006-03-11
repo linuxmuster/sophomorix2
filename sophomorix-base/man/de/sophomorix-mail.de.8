@@ -1,0 +1,96 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH SOPHOMORIX-MAIL 8 "March 11, 2006"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+sophomorix-mail \- Adding aliases and mailing lists to /etc/aliases
+.SH SYNOPSIS
+.B sophomorix-mail
+.RI [ options ] 
+.br
+.SH DESCRIPTION
+.B sophomorix-mail
+.br
+In /etc/aliases können zusätzliche Mailadressen eingetragen werden und an
+welches Mail-Konto diese Mail weitergeleitet wird.
+.TP 
+Das kann genutzt werden, um:
+   - Einem User eine weitere Empfangsadresse zu geben (mailalias)
+   - Eine gemeinsame Mailadresse für eine Gruppe von Usern festzulegen (maillist) 
+.TP
+Sophomorix bietet an, das automatisch für Klassen (später projekte, \
+subclasses) zu nutzen.
+.TP
+Dazu wird das entsprechende Dienstmerkmal (mailalias oder maillist) mit
+   sophomorix-class   (für Klassen)
+   sophomorix-split   (für Subklassen)
+   sophomorix-project (für Projekte)
+.TP
+aktiviert oder deaktiviert.
+.TP
+Danach wird sophomorix-mail aufgerufen, um diese Einstellungen ins \
+System zu übertragen.
+.PP
+.SH OPTIONS
+.B sophomorix-mail
+benützt die GNU command line syntax, mit langen Optionen, die mit zwei
+Bindestrichen (`-') beginnen:
+.TP
+.B -h, --help
+Kurzübersicht über Optionen
+.TP
+.B -v, --verbose
+Sagt, was das Programm gerade macht (verbose)
+.TP
+.B -vv, --verbose --verbose
+Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
+.TP
+.B -i , --info
+Listet alle user auf, die versetzt werden können.
+.TP
+.B -l loginname, -u loginname, --login loginname, --user loginname
+Versetzt nur den User mit dem Loginnamen loginname.
+.TP
+.B -n klasse, --neuklasse klasse, --newclass  klasse
+Es werden nur Schüler versetzt, die aus einer beliebigen Klasse IN die
+angegeben Klasse versetzt werden sollen.
+.TP
+.B -a klasse, --altklasse klasse, --oldclass class, -o  class
+Es werden nur Schüler versetzt, die AUS der angegebenen Klasse
+versetzt werden.
+.TP
+.B -t, --test
+sophomorix-mail läuft möglichst normal ab, ohne die User tatsächlich
+zu versetzen. Es kann zu unsinnigen Fehlermeldungen kommen, da einige
+Schritte beim Versetzen auf anderen aufbauen.
+.TP
+.SH SEE ALSO
+.BR sophomorix (8),
+.BR sophomorix-teach-in (8),
+.BR sophomorix-add (8),
+.BR sophomorix-move (8),
+.BR sophomorix-kill (8),
+.BR sophomorix-print (8),
+.BR sophomorix-user (8),
+.BR sophomorix-split (8),
+.BR sophomorix-project (8),
+.\".BR baz (1).
+.\".br
+.\"You can see the full options of the Programs by calling for example 
+.\".IR "sophomrix-add -h" ,
+.
+.SH AUTHOR
+This manual page was written by <jeffbeck@web.de>.
