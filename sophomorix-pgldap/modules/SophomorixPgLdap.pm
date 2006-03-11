@@ -167,15 +167,17 @@ sub check_connections {
 sub fetchinfo_from_project {
     my ($project) = @_;
     my $dbh=&db_connect();
-    my ($longname,$addquota,$add_mail_quota,$status,$join,$time,
-        $max_members) = $dbh->selectrow_array( "SELECT longname,addquota,
-           addmailquota,sophomorixstatus,joinable,creationdate,maxmembers
+    my ($longname,$addquota,$add_mail_quota,$status,$join,
+        $time,$max_members,$mailalias,
+        $maillist) = $dbh->selectrow_array( "SELECT longname,addquota,
+           addmailquota,sophomorixstatus,joinable,creationdate,maxmembers,
+           mailalias,maillist
                           FROM projectdata 
                           WHERE gid='$project'");
     # Merging information:
     &db_disconnect($dbh);
     return ($longname,$addquota,$add_mail_quota,
-            $status,$join,$time,$max_members);    
+            $status,$join,$time,$max_members,$mailalias,$maillist);    
 }
 
 
@@ -2238,7 +2240,9 @@ sub create_project {
     my ($project,$create,$p_long_name,
         $p_add_quota,$p_add_mail_quota,
         $p_status,$p_join,$pg_timestamp,
-        $p_max_members,$p_members,$p_admins,$p_groups,$p_projects) = @_;
+        $p_max_members,$p_members,$p_admins,
+        $p_groups,$p_projects,
+        $p_mailalias,$p_maillist) = @_;
     # switch if longname has changed
     my $longname_changed=0;
 
@@ -2246,10 +2250,11 @@ sub create_project {
     my $dbh=&db_connect();
     # fetch old data
     my ($old_id,$old_name,$old_long_name,$old_add_quota,$old_add_mail_quota,
-        $old_max_members,$old_status,$old_join)= $dbh->selectrow_array( 
+        $old_max_members,$old_status,$old_join,
+        $old_mailalias,$old_maillist)= $dbh->selectrow_array( 
                          "SELECT id,gid,longname,addquota,
                                  addmailquota,maxmembers,sophomorixstatus,
-                                 joinable 
+                                 joinable,mailalias,maillist 
                           FROM projectdata 
                           WHERE gid='$project'
                          ");
@@ -2309,6 +2314,22 @@ sub create_project {
 	    $p_join="TRUE";
         }
     }
+    # mailalias
+    if (not defined $p_mailalias){
+	if (defined $old_mailalias){
+           $p_mailalias=$old_mailalias;          
+        } else {
+	    $p_mailalias="TRUE";
+        }
+    }
+    # maillist
+    if (not defined $p_maillist){
+	if (defined $old_maillist){
+           $p_maillist=$old_maillist;          
+        } else {
+	    $p_maillist="TRUE";
+        }
+    }
 
     print "1) Data for the Project:\n";
     print "   LongName:         $p_long_name\n";
@@ -2317,6 +2338,8 @@ sub create_project {
     print "   MaxMembers:       $p_max_members\n";
     print "   SophomorixStatus: $p_status\n";
     print "   Join:             $p_join\n";
+    print "   Mailalias:        $p_mailalias\n";
+    print "   Maillist:         $p_maillist\n";
     print "   PG Timestamp:     $pg_timestamp\n";
 
     # what to do if group doesnt exist
@@ -2330,10 +2353,11 @@ sub create_project {
                                              WHERE gidnumber=$gidnumber" );
            $sql="INSERT INTO project_details 
 	     (id,longname,addquota,addmailquota,maxmembers,
-              creationdate,sophomorixstatus,joinable)
+              creationdate,sophomorixstatus,joinable,mailalias,maillist)
 	      VALUES
 	      ($id,'$p_long_name','$p_add_quota',$p_add_mail_quota,
-               $p_max_members,'$pg_timestamp','$p_status',$p_join)";
+               $p_max_members,'$pg_timestamp','$p_status',$p_join,
+               $p_mailalias,$p_maillist)";
            if($Conf::log_level>=3){
               print "SQL: $sql\n";
            }
@@ -2349,7 +2373,8 @@ sub create_project {
                  SET longname='$p_long_name', addquota='$p_add_quota',
                      addmailquota=$p_add_mail_quota, 
                      maxmembers='$p_max_members',sophomorixstatus='$p_status',
-                     joinable=$p_join
+                     joinable=$p_join,mailalias='$p_mailalias',
+                     maillist='$p_maillist'
                  WHERE id = $old_id";
            if($Conf::log_level>=3){
               print "SQL: $sql\n";
@@ -3036,14 +3061,14 @@ sub check_sophomorix_user_oldstuff {
 
 sub show_project_list {
     print "The following projects exist already:\n\n";
-    printf "%-15s | %9s |%6s | %4s |%1s|%1s| %-22s \n","Project",
-           "AddQuota", "AddMQ","MaxM","S","J","LongName";
-    print "----------------+-----------+-------+------",
-          "+-+-+--------------------------------\n";
+    printf "%-16s|%9s |%4s |%3s |%1s|%1s|%1s|%1s| %-22s \n",
+           "Project","AddQuota","AMQ","MM","A","L","S","J","LongName";
+    print "----------------+----------+-----+----+-+-",
+          "+-+-+---------------------------------\n";
     my $dbh=&db_connect();
     my $sth= $dbh->prepare( "SELECT gid,addquota,addmailquota,
                                     longname,maxmembers,sophomorixstatus,
-                                    joinable 
+                                    joinable,mailalias,maillist 
                              FROM projectdata 
                              ORDER BY gid");
     $sth->execute();
@@ -3057,6 +3082,9 @@ sub show_project_list {
         my $maxmembers=${$array_ref}[$i][4];
         my $status=${$array_ref}[$i][5];
         my $joinable=${$array_ref}[$i][6];
+        my $mailalias=${$array_ref}[$i][7];
+        my $maillist=${$array_ref}[$i][8];
+
         if (not defined $gid){
 	    $gid="";
         }
@@ -3072,19 +3100,27 @@ sub show_project_list {
         if (not defined $maxmembers){
 	    $maxmembers="";
         }
+        if (not defined $mailalias){
+	    $mailalias="";
+        }
+        if (not defined $maillist){
+	    $maillist="";
+        }
         if (not defined $status){
 	    $status="";
         }
         if (not defined $joinable){
 	    $joinable="";
         }
-        printf "%-16s|%10s |%6s |%5s |%1s|%1s| %-22s\n",$gid,
-                $addquota,$addmailquota,$maxmembers,
-                $status,$joinable,$longname;
+        printf "%-16s|%9s |%4s |%3s |%1s|%1s|%1s|%1s| %-22s\n",$gid,
+                $addquota,$addmailquota,$maxmembers,$mailalias,
+                $maillist,$status,$joinable,$longname;
         $i++;
     }   
-    print "----------------+-----------+-------+------",
-          "+-+-+--------------------------------\n";
+    print "----------------+----------+-----+----+-+-",
+          "+-+-+---------------------------------\n";
+    print "(AMQ=AddMailQuota, MM=MaxMembers, A=Mailalias,",
+          " L=Mailist, S=Status, J=Joinable)\n";
     &db_disconnect($dbh);
 }
 
@@ -3207,12 +3243,15 @@ sub show_project {
     my ($project) = @_;
     #my $dbh=&db_connect();
     my ($longname,$addquota,$add_mail_quota,
-        $status,$join,$time,$max_members)=&fetchinfo_from_project($project);
+        $status,$join,$time,$max_members,
+        $mailalias,$maillist)=&fetchinfo_from_project($project);
     if (defined $longname){
        print "Project:          $project\n";
        print "   LongName:         $longname\n";
        print "   AddQuota:         $addquota\n";
        print "   AddMailQuota:     $add_mail_quota\n";
+       print "   MailAlias:        $mailalias\n";
+       print "   MailList:         $maillist\n";
        print "   SophomorixStatus: $status\n";
        print "   Joinable:         $join\n";
        print "   MaxMembers:       $max_members\n";
