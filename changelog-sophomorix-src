@@ -929,14 +929,9 @@ admin or nwberater:
 
 NEXT: 
 
-- use mailaliases,mailist in projects and subclasses 
+- check what to do with quota, when removing a user???
 
-- man pages (create sophomorix-mail, put in deb)
-          - run sophomorix-mail             
-
-
-mailquota: 
-- go on with fetching mailquota values from db in sophomorix-quota
+- use mailaliases,mailist in subclasses ???? 
 
 
 - sophomorix-class 
@@ -957,6 +952,12 @@ create_userlist in SophomorixAPI.pm checken
 
 
 1.6.0-1 (2006-03-xx)
+   - sophomorix-mail adds mailalias and maillist to projects
+   - added calls to sophomorix-quota/-mail to
+      sophomorix-add
+      sophomorix-move
+      sophomorix-kill 
+   - added manpage to sophomorix-mail
    - sophomorix-class:
        - edit mailaliases and maillist
    - sophomorix-mail:
