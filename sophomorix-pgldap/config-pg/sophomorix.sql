@@ -1469,6 +1469,8 @@ CREATE TABLE project_details (
     id integer NOT NULL,
     addquota character varying(255),
     addmailquota integer,
+    mailalias boolean,
+    maillist boolean,
     schooltype character varying(255),
     department character varying(255),
     sophomorixstatus character varying(255),
@@ -1490,7 +1492,7 @@ CREATE TABLE project_details (
 --
 
 CREATE VIEW projectdata AS
-SELECT project_details.id, project_details.addquota, project_details.addmailquota, project_details.schooltype, project_details.department, project_details.sophomorixstatus, project_details.joinable, project_details.enddate, project_details.longname, project_details.maxmebers, project_details."type", maxmembers, project_details.creationdate, project_details.tolerationdate, project_details.deactivationdate, groups.gid, groups.gidnumber, samba_group_mapping.sambasid, samba_group_mapping.sambagrouptype, samba_group_mapping.displayname, samba_group_mapping.description, samba_group_mapping.sambasidlist FROM project_details,groups,samba_group_mapping WHERE groups.id=project_details.id AND groups.id=samba_group_mapping.id;
+SELECT project_details.id, project_details.addquota, project_details.addmailquota,project_details.mailalias,project_details.maillist, project_details.schooltype, project_details.department, project_details.sophomorixstatus, project_details.joinable, project_details.enddate, project_details.longname, project_details.maxmebers, project_details."type", maxmembers, project_details.creationdate, project_details.tolerationdate, project_details.deactivationdate, groups.gid, groups.gidnumber, samba_group_mapping.sambasid, samba_group_mapping.sambagrouptype, samba_group_mapping.displayname, samba_group_mapping.description, samba_group_mapping.sambasidlist FROM project_details,groups,samba_group_mapping WHERE groups.id=project_details.id AND groups.id=samba_group_mapping.id;
 
 --
 -- TOC entry 25 (OID 64663)
