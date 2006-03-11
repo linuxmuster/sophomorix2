@@ -486,6 +486,7 @@ if ($DevelConf::testen==0) {
 }
 
 
+# Setting Quota
 if ($Conf::use_quota eq "yes" and $user_nummer>0) {
     system("sophomorix-quota --noninteractive");
 } else {
@@ -495,6 +496,15 @@ if ($Conf::use_quota eq "yes" and $user_nummer>0) {
         &titel("NOT setting quota");
     }
 }
+
+# Creating Mailing Aliases and Lists
+if ($user_nummer>0) {
+    system("sophomorix-mail");
+} else {
+    &titel("NOT creating mailaliases/lists (0 users added)");
+}
+
+
 
 &titel("sophomorix-add terminated regularly ($user_nummer users added)");
 
