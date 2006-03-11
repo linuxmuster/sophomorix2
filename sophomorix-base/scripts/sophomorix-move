@@ -184,7 +184,7 @@ if ($info==1) {
       &linie;
     while(<USERVERSETZEN>){
       chomp();
-      $user_nummer++;
+#      $user_nummer++;
       ($login_versetzen, $alte_klasse, $neue_klasse,$old_status)=split(/::/);
       if (not defined $old_status){$old_status=""};
       # Ausgabe
@@ -232,7 +232,7 @@ open(USERVERSETZEN,"${DevelConf::ergebnis_pfad}/sophomorix.move")
      || die "Fehler: $!";
 while(<USERVERSETZEN>){
    chomp();
-   $user_nummer++;
+#   $user_nummer++;
    ($login_versetzen, $alte_klasse, $neue_klasse,$old_status)=split(/::/);
    if (not defined $old_status){$old_status=""};
    # Home ermitteln
@@ -278,8 +278,9 @@ while(<USERVERSETZEN>){
    #####################################
    # Ermittelte Daten ausgeben
    #####################################
+   $user_nummer++;
    if($Conf::log_level>=1){
-      print("\n##### Moving User $user_nummer to different class: \n");
+      &titel("Moving User $user_nummer to different class:");
       print("Login:                 $login_versetzen\n");
       print("Linux-Gruppe (Alt):    $alte_klasse\n");
       print("Linux-Gruppe (Neu):    $neue_klasse\n");
@@ -409,4 +410,26 @@ if ($DevelConf::testen==0) {
  }
 
 
-print ("\nsophomorix-move endet ...\n");
+
+# Setting Quota
+if ($Conf::use_quota eq "yes" and $user_nummer>0) {
+    system("sophomorix-quota --noninteractive");
+} else {
+    if ($user_nummer==0){ 
+        &titel("NOT setting quota (0 users moved)");
+    } else {
+        &titel("NOT setting quota");
+    }
+}
+
+# Creating Mailing Aliases and Lists
+if ($user_nummer>0) {
+    system("sophomorix-mail");
+} else {
+    &titel("NOT creating mailaliases/lists (0 users moved)");
+}
+
+
+
+&titel("sophomorix-move terminated regularly ($user_nummer users moved)");
+
