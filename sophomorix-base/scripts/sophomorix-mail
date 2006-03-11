@@ -72,12 +72,15 @@ if ($help==1) {
 
 
 my $gruppe="";
-my @mail_klassen=();
-my @mail_liste_klassen=();
+#my @mail_klassen=();
+#my @mail_liste_klassen=();
 
 
 # classes with aliases vorname.nachname
-@mail_klassen=&get_mail_alias_classes();
+my @mail_klassen=&get_mail_alias_classes();
+
+# classes with aliases vorname.nachname
+my @mail_liste_klassen=&get_mail_list_classes();
 
 
 # --info
