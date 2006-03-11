@@ -21,6 +21,7 @@ use Sophomorix::SophomorixPgLdap qw(
                                   show_modulename
                                   db_connect
                                   db_disconnect
+                                  fetchusers_from_project
                                    );
 
 use DBI;
@@ -85,10 +86,16 @@ Please see the sophomorix-mail(8) man pages for full documentation
 
 
 
-# classes with aliases vorname.nachname
+# classes with mailalias vorname.nachname
 my @mail_klassen=&get_mail_alias_classes();
-# classes with aliases vorname.nachname
+# classes with maillist
 my @mail_liste_klassen=&get_mail_list_classes();
+
+
+# projects with mailalias vorname.nachname
+my @mail_projects=&get_mail_alias_projects();
+# projects with maillist
+my @mail_list_projects=&get_mail_list_projects();
 
 
 
@@ -145,23 +152,43 @@ if ($magic==0){
 # additional comment
 print ALIASESTMP "### Entries after here are managed by sophomorix-mail ###\n";
 
-# aliases of groups
+# aliases of adminclasses
 foreach my $gruppe (@mail_klassen) {
    if (${Conf::mail_aliases} eq "vorname.nachname") {
-      print ALIASESTMP "\n### Mailaliases for $gruppe \n";
-      print "   Generating mailaliases for $gruppe\n";
-      &generate_mail_aliases("$gruppe"); 
+      print ALIASESTMP "\n### Mailaliases for adminclass $gruppe \n";
+      print "   Generating mailaliases for adminclass $gruppe\n";
+      &generate_mail_alias_classes("$gruppe"); 
    }
 }
 
 
-# mailinglist of groups
-foreach my $gruppe (@mail_liste_klassen) {
-      print ALIASESTMP "\n### Mailinglist for $gruppe \n";
-      print "   Generating mailinglist for $gruppe\n";
-      &generate_mail_list("$gruppe"); 
+# aliases of projects
+foreach my $gruppe (@mail_projects) {
+   if (${Conf::mail_aliases} eq "vorname.nachname") {
+      print ALIASESTMP "\n### Mailaliases for project $gruppe \n";
+      print "   Generating mailaliases for project $gruppe\n";
+      &generate_mail_alias_projects("$gruppe"); 
+   }
 }
+
+
+# mailinglist of adminclass
+foreach my $gruppe (@mail_liste_klassen) {
+      print ALIASESTMP "\n### Mailinglist for adminclass $gruppe \n";
+      print "   Generating mailinglist for adminclass $gruppe\n";
+      &generate_maillist_classes("$gruppe"); 
+}
+
+
+# mailinglist of projects
+foreach my $gruppe (@mail_list_projects) {
+      print ALIASESTMP "\n### Mailinglist for project $gruppe \n";
+      print "   Generating mailinglist for project $gruppe\n";
+      &generate_maillist_projects("$gruppe"); 
+}
+
 close(ALIASESTMP);
+
 
 
 # replace /etc/aliases
@@ -209,6 +236,26 @@ sub get_mail_alias_classes {
 }
 
 
+sub get_mail_alias_projects {
+    my @projects=();
+    my $dbh=&db_connect();
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT gid,mailalias 
+                            FROM projectdata 
+                            WHERE mailalias='t'
+                            " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+       # split the array, to give better names
+       my ($gid,$mailalias)=@$row;
+       push @projects, $gid;
+    }
+    &db_disconnect($dbh);
+    return @projects;
+}
+
+
 sub get_mail_list_classes {
     my @classes=();
     my $dbh=&db_connect();
@@ -230,13 +277,49 @@ sub get_mail_list_classes {
 }
 
 
+sub get_mail_list_projects {
+    my @projects=();
+    my $dbh=&db_connect();
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT gid,maillist 
+                            FROM projectdata 
+                            WHERE maillist='t'
+                           " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+       # split the array, to give better names
+       my ($gid,$maillist)=@$row;
+       push @projects, $gid;
+    }
+    &db_disconnect($dbh);
+    return @projects;
+}
 
 
 
-sub generate_mail_aliases {
+
+
+sub generate_mail_alias_classes {
    # generate mailaliases for all users in adminclass
    my ($group)=@_;
    my @user=&get_user_adminclass($group);
+   foreach my $user (@user) {
+      # Gecos-Feld ermitteln
+      my ($login,$passwort,$uid,$gid,$quota,$name,$gecos)=getpwnam("$user");
+      $gecos=~s/ /./g; # Spezialzeichen raus
+      #print ALIASESTMP "$gecos:\t\t\t$user\n";
+      printf ALIASESTMP "%-35s %-20s \n",$gecos.":",$user;
+   }
+}
+
+
+
+
+sub generate_mail_alias_projects {
+   # generate mailaliases for all users in project
+   my ($group)=@_;
+   my @user=&fetchusers_from_project($group);
 
    foreach my $user (@user) {
       # Gecos-Feld ermitteln
@@ -250,7 +333,7 @@ sub generate_mail_aliases {
 
 
 
-sub generate_mail_list {
+sub generate_maillist_classes {
    # generate mailinglist alias for group
    my ($group)=@_;
    my $letzter_user="";
@@ -275,3 +358,33 @@ sub generate_mail_list {
         }
       } 
  }
+
+
+
+sub generate_maillist_projects {
+   # generate mailinglist alias for group
+   my ($group)=@_;
+   my $letzter_user="";
+   my $ende="";
+
+   my @user=&fetchusers_from_project($group);
+
+   print ALIASESTMP "$group:\n";
+
+   # Gruppen-Mailingliste erzeugen:
+      $ende=$#user;
+      $letzter_user=$user[ $ende ];
+      if($Conf::log_level>=3){
+         print "User $letzter_user hat den index $ende und ist der Letzte.\n";
+       }
+      foreach my $user (@user) {
+        print ALIASESTMP "   $user";
+        if ($user eq $letzter_user){
+           print ALIASESTMP "\n";
+        } else {
+           print ALIASESTMP ",\n"; 
+        }
+      } 
+ }
+
+
