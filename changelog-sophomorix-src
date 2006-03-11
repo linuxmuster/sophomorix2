@@ -198,16 +198,6 @@ sophomorix-user
    - option --clean-account: remove all data from the account, without removing
      the account, password, ... itself (useful for guest accounts)
    - option --newest shows/modifies users added on the latest day/latest run
-   - without option (or option -i or --all): print userlist:
-            group1 (2 users):
-              user1    group1 U,E
-              user2    group1 T,A
-            group2 (1 users)
-              user1    group2 ... D
-              -------------
-              num    total
-
-       print all users with option -v
    - group display: separate primary groups from secondary (more logical) or not 
                     (like id -nG user) 
 
@@ -245,6 +235,7 @@ sophomorix-print
 
 
 sophomorix-project
+   - count users in projects, display with -i
    - add status stuff/lifetime stuff to projects
       P= Permanent, will not be automatically removed
       ... see drawing in doku
@@ -274,20 +265,14 @@ sophomorix-project
      
 
 sophomorix-class
-   - show classes in alphabetical order (use list insted of hash, when fetching)   
+   - count users in classes, display with -i
    - if no class is found,-> message
-   - class_db:
-     Type:
-       A: AdminClass (creted by schueler.txt entries)
-       X: ExtraClass (created by extrakurse.txt)
-       K: Killable (no users in this class anymore, can be killed)
    --kill  remove a class from database,
            delete the exchange directory
            ...
 
 
 sophomorix-test
-   - include reactivation by sophomrix-user -A
    - include testing the log file.
       - log in different file while testing
       - check this file for correctness
@@ -352,42 +337,6 @@ sophomorix-vampire:
 
 
 
-
-
-sophomorix-webmin (obsolete in ml 3.0)
-   - totally configure webmin
-   - option --noninteractive 
-
-   ** ml_account  : Benutzerkonto  (alle user)
-   ** ml_teacher  : Unterricht (alle)
-   ** ml_admin    : Administration
-
-
-check: is user taken out of webmin, when she is Disabled? Is this necessary or is the !-sign in /etc/shadow enough?
-
-miniserv.users: letztes Feld : hosts von denen man zugreifen darf 
-
-
-   -  Be aware: problem group student would need 1 entrys for every student 
-       (this will be a very loooooooooong line)
-
-     problem: when a module is added to webmin.users only (own script)
-              then this module is NOT added to webmin.acl 
-                 -> the user doesnt see this module
-           better: create webmin.acl from some configuration files
-                   in /usr/sbin (webmin-teacher-modules, ...-admin-, -student-)
-                   which can be overwritten by files in /etc/sophomorix/webmin
-
-   - if users are added without webmin installed, root and admin are missing
-      - create root,admin, when creating files
-      - or better do nothing when they dont exist
-
-
-   - usermin-modules will be converted to webmin by thomas
-       -> usermin is not running on the ml-server
-       -> postinstall-script muss sich in gruppe student, teacher eintragen
-   -abfrage in sophomorix-webmin, ob paket webmin installiert ist
- 
    
 sophomorix-mail
    - Eintrag der lehrer in /etc/aliases mit vorname.nachname@...
@@ -864,20 +813,16 @@ falls nwberater, admin, ... in db, dann quota updaten
 
 
 
-
-
-
-
         sophomorix-setup-pgldap: database cannot be dropped, if user is connected
         (throw out users or what?)
         ldap vorher beenden.
 
 
-        In Arbeit (tho):
-        function  manual_delete_group (deletes a group altogether from the database)
 
-
-????? next: create links in Tausch, when user is put in subclass
+        function  manual_delete_groups 
+        (deletes a group altogether from the database)
+        - check function
+        - intelligently remove groups
 
         Funktionen für API:
          %data=get_userdata(user);
@@ -892,14 +837,6 @@ falls nwberater, admin, ... in db, dann quota updaten
                  uid alles wo uid NOT NULL
 
          SophomorixAPI to select users and groups
-
-         sophomorix-quota
-            - project add quota
-
-###      continue:  
-           1. removing writing into project.db when creating a project
-           2. change code to update a project
-           3. check if its ok when each project is in class_details
 
 
          test login
@@ -955,6 +892,12 @@ falls nwberater, admin, ... in db, dann quota updaten
   has not reappeared when testing again.
    
 
+
+   - SQL-View subclassdata:
+      - todo
+
+
+
    - SQL-View classdata:
       - show only entries from class_details
 
@@ -986,16 +929,17 @@ admin or nwberater:
 
 NEXT: 
 
-CHECK if database exists. make it better than now
+- use mailaliases,mailist in projects and subclasses 
 
-- man pages
+- man pages (create sophomorix-mail, put in deb)
+          - run sophomorix-mail             
+
 
 mailquota: 
-
 - go on with fetching mailquota values from db in sophomorix-quota
 
 
-- sophomorix-class modifies mailquota
+- sophomorix-class 
   bei -i where type= classdata raus, wenn classdata tut
 
 
@@ -1013,6 +957,14 @@ create_userlist in SophomorixAPI.pm checken
 
 
 1.6.0-1 (2006-03-xx)
+   - sophomorix-class:
+       - edit mailaliases and maillist
+   - sophomorix-mail:
+       - added script itself
+       - adds to /etc/aliases
+       - mailaliases and maillist
+       - updated documentation 
+   - Database: added mailalias and maillist to class_details
    - sophomorix-split: show user number in groups when -i
    - sophomorix-split: interrupt when -c class
      is not existing and an adminclass
@@ -1044,6 +996,8 @@ create_userlist in SophomorixAPI.pm checken
    - makefile installs all *.sql upgrade files and the debian
      package installs them in the sophomorix-pgldap package
    - sophomorix-setup-pgldap can list files to upgrade in correct order
+   - function  manual_delete_groups (deletes a group altogether from the database)
+
 
 1.5.0-1 (2006-02-23)
    - speeded up function login_type in sophomorix-quota using SQL
@@ -1479,6 +1433,48 @@ create_userlist in SophomorixAPI.pm checken
 
 
 
+
+############################################################
+Old obsolete stuff
+############################################################
+
+
+
+
+sophomorix-webmin (obsolete in ml 3.0)
+   - totally configure webmin
+   - option --noninteractive 
+
+   ** ml_account  : Benutzerkonto  (alle user)
+   ** ml_teacher  : Unterricht (alle)
+   ** ml_admin    : Administration
+
+
+check: is user taken out of webmin, when she is Disabled? Is this necessary or is the !-sign in /etc/shadow enough?
+
+miniserv.users: letztes Feld : hosts von denen man zugreifen darf 
+
+
+   -  Be aware: problem group student would need 1 entrys for every student 
+       (this will be a very loooooooooong line)
+
+     problem: when a module is added to webmin.users only (own script)
+              then this module is NOT added to webmin.acl 
+                 -> the user doesnt see this module
+           better: create webmin.acl from some configuration files
+                   in /usr/sbin (webmin-teacher-modules, ...-admin-, -student-)
+                   which can be overwritten by files in /etc/sophomorix/webmin
+
+   - if users are added without webmin installed, root and admin are missing
+      - create root,admin, when creating files
+      - or better do nothing when they dont exist
+
+
+   - usermin-modules will be converted to webmin by thomas
+       -> usermin is not running on the ml-server
+       -> postinstall-script muss sich in gruppe student, teacher eintragen
+   -abfrage in sophomorix-webmin, ob paket webmin installiert ist
+ 
 
 
 
