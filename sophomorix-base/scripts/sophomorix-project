@@ -83,6 +83,10 @@ my $p_projects;
 my $p_add_quota;
 my $p_add_mail_quota;
 my $p_max_members;
+my $p_mailalias;
+my $mailalias=0;
+my $p_maillist;
+my $maillist=0;
 my $p_status;
 my $join=1; # 0,1
 my $p_join="TRUE"; # FALSE,TRUE
@@ -105,11 +109,19 @@ my $testopt=GetOptions(
            "AddQuota=s" => \$p_add_quota,
            "AddMailQuota=s" => \$p_add_mail_quota,
            "MaxMembers=s" => \$p_max_members,
+           "mailalias!" => \$mailalias,
+           "maillist!" => \$maillist,
           );
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
 
+
+if ($project eq ""
+    and $info==0
+    ){
+    $help=1;
+}
 
 
 
@@ -164,11 +176,25 @@ if ($project eq "" and $info==1){
     exit;
 }
 
-
+# --join
 if ($join==0){
     $p_join="FALSE"; 
 } else {
     $p_join="TRUE";
+}
+
+# --mailalias
+if ($mailalias==0){
+    $p_mailalias="FALSE"; 
+} else {
+    $p_mailalias="TRUE";
+}
+
+# --maillist
+if ($maillist==0){
+    $p_maillist="FALSE"; 
+} else {
+    $p_maillist="TRUE";
 }
 
 
@@ -208,10 +234,13 @@ if ($project ne "" and $info==1){
 # repair.directories einlesen
 &get_alle_verzeichnis_rechte();
 
+
 # create/update project
 &create_project($project,$create,$p_long_name,
                 $p_add_quota,$p_add_mail_quota,
                 $p_status,$p_join,$pg_timestamp,
-                $p_max_members,$p_members,$p_admins,$p_groups,$p_projects);
+                $p_max_members,$p_members,$p_admins,
+                $p_groups,$p_projects,
+                $p_mailalias,$p_maillist);
 
 
