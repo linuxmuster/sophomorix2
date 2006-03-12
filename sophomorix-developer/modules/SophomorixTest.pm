@@ -563,15 +563,25 @@ sub check_groups {
     my @must_groups = @_;
     my $admin_class=$must_groups[0];
     my $share_dir;
+    my $tasks_dir;
     my %is_groups = ( );
-    my %is_links = ( );
+    my %is_links_share = ( );
+    my %is_links_tasks = ( );
 
-    # calculate where the dir  with the links is
+    # calculate where the dir  with the share links is
     if ($admin_class eq ${DevelConf::teacher}) {
        $share_dir="/home/${DevelConf::teacher}/$login/${Language::share_dir}";
     } else {
        $share_dir="/home/${DevelConf::student}".
                   "/$admin_class/$login/${Language::share_dir}";
+    }
+
+    # calculate where the dir  with the tasks links is
+    if ($admin_class eq ${DevelConf::teacher}) {
+       $tasks_dir="/home/${DevelConf::teacher}/$login/${Language::task_dir}";
+    } else {
+       $tasks_dir="/home/${DevelConf::student}".
+                  "/$admin_class/$login/${Language::task_dir}";
     }
 
     # the actual groups
@@ -583,18 +593,28 @@ sub check_groups {
     # build hash of actual groups of users
     foreach my $is (@is_groups) { $is_groups{$is} = 1 }
 
-    # build hash of actual links
+    # build hash of actual share links
     opendir SHARE, $share_dir or die "Cannot open $share_dir: $!";
     foreach my $file (readdir SHARE) {
        if ($file eq ".."){next;}
        if ($file eq "."){next;}
-       $is_links{$file} = 1;
+       $is_links_share{$file} = 1;
     }
     closedir SHARE;
+
+    # build hash of actual task links
+    opendir TASK, $tasks_dir or die "Cannot open $tasks_dir: $!";
+    foreach my $file (readdir TASK) {
+       if ($file eq ".."){next;}
+       if ($file eq "."){next;}
+       $is_links_tasks{$file} = 1;
+    }
+    closedir TASK;
+
     # add share school if necessary if configured in sophomorix.conf
     my $share_school="${Language::share_string}"."-"."${Language::school}";
     if (${Conf::schulweit_tauschen} eq "yes") {
-        $is_links{$share_school} = 1;
+        $is_links_share{$share_school} = 1;
     }
 
 
@@ -604,12 +624,19 @@ sub check_groups {
           ok(exists $is_groups{$must}, "checking if  $login is in group $must");
           delete $is_groups{$must};
 
-          # check link
-          my $link_goal_rel="${Language::share_string}-$must";
+          # check link to share
+          my $link_goal_rel="";
+
+          if ($must eq ${DevelConf::teacher}){
+             $link_goal_rel="${Language::share_string}-${Language::teacher}";
+	  } else {
+             $link_goal_rel="${Language::share_string}-$must";
+          }
+
           my $link_goal="${share_dir}/$link_goal_rel";
 
           ok(-l $link_goal, "checking if  $link_goal is a link");
-          delete $is_links{$link_goal_rel};
+          delete $is_links_share{$link_goal_rel};
 
           if (-l $link_goal){ 
              my $is_source = readlink $link_goal;
@@ -628,6 +655,39 @@ sub check_groups {
                 $must_source,
                 "Checking if link source is correct"); 
           }
+
+          # check link to tasks
+          my $link_goal_rel_tasks="";
+
+          if ($must eq ${DevelConf::teacher}){
+             $link_goal_rel_tasks="${Language::task_string}-${Language::teacher}";
+	  } else {
+             $link_goal_rel_tasks="${Language::task_string}-$must";
+          }
+
+          my $link_goal_tasks="${tasks_dir}/$link_goal_rel_tasks";
+
+          ok(-l $link_goal_tasks, "checking if  $link_goal_tasks is a link");
+          delete $is_links_tasks{$link_goal_rel_tasks};
+
+          if (-l $link_goal_tasks){ 
+             my $is_source = readlink $link_goal_tasks;
+             my $must_source="";
+
+             # exists the source of the link
+             ok(-e $is_source, "checking if source $is_source exists");
+
+             # is the source correct
+             if ($must eq ${DevelConf::teacher}){    
+                 $must_source="${DevelConf::tasks_teachers}";
+	     } else {
+                 $must_source="${DevelConf::tasks_classes}/$must";
+             }
+             is($is_source,
+                $must_source,
+                "Checking if link source is correct"); 
+          }
+          
     }
 
     # are there groups the user is in but shouldn't 
@@ -637,9 +697,22 @@ sub check_groups {
     }
 
     # are there links or other files in share but shouldn't
-    while (my ($file,$v) = each %is_links){
+    while (my ($file,$v) = each %is_links_share){
 	if ($file eq $share_school){
 	   my $abs_file="${share_dir}"."/"."${file}";
+           ok(-l $abs_file, "checking if $abs_file is a link");
+           my $is_source = readlink $abs_file;
+           # exists the source of the link
+           ok(-e $is_source, "checking if source $is_source exists");
+       } else {
+           ok (1==2,"$file is in $share_dir but shouldnt be!");
+       }
+    }
+
+    # are there links or other files in tasks but shouldn't
+    while (my ($file,$v) = each %is_links_tasks){
+	if ($file eq $share_school){
+	   my $abs_file="${tasks_dir}"."/"."${file}";
            ok(-l $abs_file, "checking if $abs_file is a link");
            my $is_source = readlink $abs_file;
            # exists the source of the link
