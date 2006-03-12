@@ -130,16 +130,54 @@ if (defined $maillist){
 
 
 # --quota
-if (defined $quota and $class ne ""){
-       &update_class_db_entry($class,"Quota=$quota");
+if (defined $quota){
+    if ($class eq ""){
+        print "   You must give a class to use --quota\n";
+	exit;
+    }
+    &update_class_db_entry($class,"Quota=$quota");
 }
 
 
 # --mailquota
-#if ($mailquota!=-1 and $class ne ""){
-if (defined $mailquota and $class ne ""){
+if (defined $mailquota){
+    if ($class eq ""){
+        print "   You must give a class to use --mailquota\n";
+	exit;
+    }
     &update_class_db_entry($class,"MailQuota=$mailquota");
 }
+
+
+
+
+
+# Setting Quota if necessary
+if ($Conf::use_quota eq "yes" 
+    and $class ne "" 
+    and (defined $quota or defined $mailquota)
+    ) {
+    system("sophomorix-quota --noninteractive");
+} else {
+    &titel("NOT setting quota (nothing quota related changed)");
+}
+
+
+
+
+
+# Creating Mailing Aliases and Lists
+if ($class ne ""
+    and (defined $mailalias or defined $maillist)
+   ) {
+    system("sophomorix-mail");
+} else {
+    &titel("NOT creating mailaliases/lists (nothing mail related changed)");
+}
+
+
+
+
 
 
 
