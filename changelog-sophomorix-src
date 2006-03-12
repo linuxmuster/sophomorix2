@@ -926,11 +926,30 @@ admin or nwberater:
 ? ldap or files
 
 
+------------------------------------------------------------
+Code cleanup
+------------------------------------------------------------
+
+- remove option db in sophomorix.conf
+- remove decision for db in all scripts
+
+- make functions in sys-pgldap empty
+- remove all calls to this functions in the scripts
+- remove use of sys-pgldap in all scripts
+- move show ... loaded to higher loglevel
+- move show Language ... loaded to higher loglevel
+
+- use perl tidy
+------------------------------------------------------------
+
 
 NEXT: 
 
 BUG: Check when/why recursive /home/share/classes/11a/11a...
      occur
+
+Stop before giving a project the name of a login
+and vice versa (cannot create a mailinglist)
 
 
 sophomorix-teacher
@@ -940,7 +959,7 @@ decide if both is needed as a teacher in tasks:
 - link (what for?)
 
 
-- add memberships in classe in table
+- add memberships in classes in own table instead of .sophomorix
 
 BUG: /home/share/classes/11a has a loop link
 
@@ -966,9 +985,16 @@ Bug: when sophomorix-quota -l galli
 create_userlist in SophomorixAPI.pm checken
 
 
+
+
 1.6.0-1 (2006-03-xx)
-   - when teacher joins a adminclass:
-      - add het to the group
+   - sophomorix-class calls sophomorix-mail and
+     sophomorix-quota when needed
+   - sophomorix-project calls sophomorix-mail and
+     sophomorix-quota when needed
+   - add longname of project to maillist in sophomorix-mail
+   - when teacher self-joins a adminclass:
+      - add her to the group
       - create links in share, tasks
    - when creating a user, add links in tasks
    - removed function user_links and replaced it with
