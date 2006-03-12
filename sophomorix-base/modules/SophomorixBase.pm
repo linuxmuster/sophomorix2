@@ -951,7 +951,10 @@ sub provide_user_files {
          }
     }
     # Für alle user (lehrer und schueler)
-    &user_links($login, $class);
+#    &user_links($login, $class);
+#    my $long=$class."-new";
+    &create_share_link($login, $class,$class,"class");
+    &create_school_link($login);
 }
 
 
@@ -968,14 +971,14 @@ sub provide_user_files {
 Legt links an für den Schüler.
 
 =cut
-sub user_links {
+sub user_links_oldstuff {
   my($login, $gruppe, $alt_gruppe) = @_;
   # $alt_gruppe beim Versetzen
   my $tausch_klasse="";
   my $user_home = "";
 
   if ($gruppe ne ${DevelConf::teacher}){
-    # pupil
+    # student
     $tausch_klasse="${DevelConf::share_classes}/$gruppe";
     $user_home = "${DevelConf::homedir_pupil}/$gruppe/$login";
   } else {
@@ -1584,7 +1587,7 @@ sub check_verzeichnis_mkdir {
 
 =pod
 
-=item I<print_user_samba_data(login)>
+=item I<print_user_webmin_data(login)>
 
 Druckt wichtige Webmin Daten des users login (Obsolet)
 
@@ -1801,19 +1804,46 @@ sub get_plain_password {
 
 
 
+sub create_school_link {
+    my ($login) = @_;
+    if (getpwnam("$login")){
+       my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
+          $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
+       my $link_name=$home.
+        "/${Language::share_dir}/${Language::share_string}-${Language::school}";
+
+       my $link_target=$DevelConf::share_school;
+
+       # Link to school
+       print "   Link name (school): $link_name\n";
+       print "   Target    (school): $link_target\n";
+       symlink $link_target, $link_name;
+    }
+}
+
 
 =pod
 
 =item I<create_share_link(login,project,project_long_name,type)>
 
-Legt ein Link an in das Tauschverzeichnis des Projekts an. Der type
-kann sein: project oder subclass
+Legt Links an in:
+  - das Tauschverzeichnis
+  - das Aufgabenverzeichnis
+
+Der type kann sein: project, class oder subclass
 
 =cut
 # this should be true for all db and auth-systems
 sub create_share_link {
     my ($login,$share_name,$share_long_name,$type) = @_;
+
+    # replace teachers with language term
+    if ($share_name  eq ${DevelConf::teacher}){
+        $share_long_name=${Language::teacher};     
+    }
+
     my $link_target="";
+    my $link_target_tasks="";
     # project is standard
     if (not defined $type or $type eq ""){
 	$type="project";
@@ -1823,29 +1853,52 @@ sub create_share_link {
     if (getpwnam("$login")){
        my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
           $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
+
        my $link_name=$home.
           "/${Language::share_dir}/${Language::share_string}-${share_long_name}";   
+
+       my $link_name_tasks=$home.
+          "/${Language::task_dir}/${Language::task_string}-${share_long_name}";
+   
        print "Creating a link for user $login to $type $share_name.\n";
+
        if ($type eq "project"){
           # project
-          # my $link_dir="${DevelConf::share_projects}/${share_name}/";
-          $link_target="${DevelConf::share_projects}/${share_name}/";
+          $link_target="${DevelConf::share_projects}/${share_name}";
+          $link_target_tasks="${DevelConf::tasks_projects}/${share_name}";
        } elsif ($type eq "class"){
-          # subclass
-          $link_target="${DevelConf::share_classes}/${share_name}/";
+          # class
+	  if ($share_name  ne ${DevelConf::teacher}){
+             # student
+             $link_target="${DevelConf::share_classes}/${share_name}";
+             $link_target_tasks="${DevelConf::tasks_classes}/${share_name}";
+	  } else {
+             # teacher
+             $link_target="${DevelConf::share_teacher}";
+             $link_target_tasks="${DevelConf::tasks_teachers}";
+	  }
        }elsif ($type eq "subclass"){
           # subclass
-          $link_target="${DevelConf::share_subclasses}/${share_name}/";
+          $link_target="${DevelConf::share_subclasses}/${share_name}";
+          $link_target_tasks="${DevelConf::tasks_subclasses}/${share_name}";
        } else {
           print "Unknown type $type\n\n";
 	  return 0;
        }
-       print "   Link name : $link_name\n";
-       print "   Target    : $link_target\n";
-    
-       # create the link
+
+        # make sure directory exists
+        &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/\$share_dir",
+                      "$home/${Language::share_dir}");
+
+       # Link to share
+       print "   Link name (share): $link_name\n";
+       print "   Target    (share): $link_target\n";
        symlink $link_target, $link_name;
 
+       # Link to tasks
+       print "   Link name (tasks): $link_name_tasks\n";
+       print "   Target    (tasks): $link_target_tasks\n";
+       symlink $link_target_tasks, $link_name_tasks;
     } else {
 	print "   create_share_link: $login is not a valid username.\n";
     }
@@ -1866,12 +1919,18 @@ sub remove_share_link {
     }
     my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
        $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
-#    my $link_name=$home."/${Language::share_dir}/Tausch-${project}";   
-#    my $link_name=$home."/${Language::share_dir}/${Language::share_string}-${project}";   
-    my $link_name=$home."/${Language::share_dir}/${Language::share_string}-${share_long_name}";   
-    print "Removing link: $link_name\n";
+    my $link_name=$home.
+       "/${Language::share_dir}/${Language::share_string}-${share_long_name}";   
+    my $link_name_tasks=$home.
+       "/${Language::task_dir}/${Language::task_string}-${share_long_name}";   
+
     # remove the link
+    print "Removing link (share): $link_name\n";
     unlink $link_name;
+
+    print "Removing link (tasks): $link_name_tasks\n";
+    unlink $link_name_tasks;
+
 }
 
 
@@ -3555,6 +3614,14 @@ sub collect {
   my ($login,$name,$type,$rsync,$exam,$delete) = @_;
   my $date=&zeit_stempel;
 
+   if($Conf::log_level>=2){
+       print "Collect as:         $login\n";
+       print "Collect from type:  $type\n";
+       print "Collect from :      $name\n";
+       print "rsync Options:      $rsync\n";
+       print "Exam (boolean):     $rsync\n";
+       print "Delete (boolean):   $delete\n";
+   }
   # where to get _Task data
   my $tasks_dir = "";
 
