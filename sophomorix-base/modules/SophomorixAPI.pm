@@ -232,6 +232,7 @@ sub get_adminclasses_school {
 
     setpwent();
     while (@pwliste=getpwent()) {
+	print"$pwliste[7]\n";
 #       if ($pwliste[7]=~/^\/home\/pupil\//) {
        if ($pwliste[7]=~/^$DevelConf::homedir_pupil/) {
           $klassen_hash{getgrgid($pwliste[3])}=""; 
@@ -733,14 +734,15 @@ sub add_my_adminclass {
     my $homedir = "$entry[7]";
 
     # check if $class is really a class
-    my @valid_classes=get_adminclasses_school();
+    # old: my @valid_classes=&get_adminclasses_school();
+    my @valid_classes=&pg_get_adminclasses();
     foreach my $item (@valid_classes){
 	if ($item eq $class){
 	    $valid=1;
         }
     }
     if ($valid==0){
-        #print "$class is not a valid AdminClass\n";
+        print "$class is not a valid AdminClass\n";
 	return 0;
     }
 
@@ -766,12 +768,18 @@ sub add_my_adminclass {
     # create link
     &Sophomorix::SophomorixBase::create_share_link($login,$class,$class,"class");
 
+    # join group
+    &pg_adduser($login,$class);
+
     # create dirs in tasks and collect
     my $task_dir=$homedir."/".${Language::task_dir}."/".$class;
+
     #print "Task:    $task_dir\n";
     system("mkdir $task_dir");
+
     my $collect_dir=$homedir."/".${Language::collect_dir}."/".$class;
     #print "Collect: $collect_dir\n";
+
     system("mkdir $collect_dir");
     return 1;
 }
@@ -837,6 +845,7 @@ sub remove_my_adminclass {
 
     # remove link
     &Sophomorix::SophomorixBase::remove_share_link($login,$class,$class,"class");
+    &deleteuser_from_project($login,$class);
 
     # remove dirs in tasks and collect
     my $task_dir=$homedir."/".${Language::task_dir}."/".$class;

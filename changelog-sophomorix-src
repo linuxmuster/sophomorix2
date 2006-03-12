@@ -929,6 +929,21 @@ admin or nwberater:
 
 NEXT: 
 
+BUG: Check when/why recursive /home/share/classes/11a/11a...
+     occur
+
+
+sophomorix-teacher
+decide if both is needed as a teacher in tasks:
+
+- directory for each class/group/project
+- link (what for?)
+
+
+- add memberships in classe in table
+
+BUG: /home/share/classes/11a has a loop link
+
 - check what to do with quota, when removing a user???
 
 - use mailaliases,mailist in subclasses ???? 
@@ -952,6 +967,13 @@ create_userlist in SophomorixAPI.pm checken
 
 
 1.6.0-1 (2006-03-xx)
+   - when teacher joins a adminclass:
+      - add het to the group
+      - create links in share, tasks
+   - when creating a user, add links in tasks
+   - removed function user_links and replaced it with
+     create_share_link
+     remove_share_link
    - sophomorix-mail adds mailalias and maillist to projects
    - added calls to sophomorix-quota/-mail to
       sophomorix-add
