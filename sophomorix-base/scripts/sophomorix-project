@@ -84,9 +84,7 @@ my $p_add_quota;
 my $p_add_mail_quota;
 my $p_max_members;
 my $p_mailalias;
-my $mailalias;
 my $p_maillist;
-my $maillist;
 my $p_status;
 my $join; # 0,1
 my $p_join="TRUE"; # FALSE,TRUE
@@ -109,8 +107,8 @@ my $testopt=GetOptions(
            "AddQuota=s" => \$p_add_quota,
            "AddMailQuota=s" => \$p_add_mail_quota,
            "MaxMembers=s" => \$p_max_members,
-           "mailalias!" => \$mailalias,
-           "maillist!" => \$maillist,
+           "mailalias!" => \$p_mailalias,
+           "maillist!" => \$p_maillist,
           );
 
 # Prüfen, ob Optionen erkannt wurden
@@ -186,18 +184,18 @@ if (not defined $join){
 }
 
 # --mailalias
-if (not defined $mailalias){
+if (not defined $p_mailalias){
     $p_mailalias=""; 
-} elsif ($mailalias==0){
+} elsif ($p_mailalias==0){
     $p_mailalias="FALSE"; 
 } else {
     $p_mailalias="TRUE";
 }
 
 # --maillist
-if (not defined $maillist){
+if (not defined $p_maillist){
     $p_maillist=""; 
-} elsif ($maillist==0){
+} elsif ($p_maillist==0){
     $p_maillist="FALSE"; 
 } else {
     $p_maillist="TRUE";
@@ -249,4 +247,39 @@ if ($project ne "" and $info==1){
                 $p_groups,$p_projects,
                 $p_mailalias,$p_maillist);
 
+
+
+# Setting Quota if necessary
+if ($Conf::use_quota eq "yes" 
+      and (
+         defined $p_admins
+         or defined $p_groups
+         or defined $p_members
+         or defined $p_projects
+         or defined $p_add_quota
+         or defined $p_add_mail_quota
+        ) 
+    ) {
+    system("sophomorix-quota --noninteractive");
+} else {
+    &titel("NOT setting quota (nothing quota related changed)");
+}
+
+
+
+
+
+# Creating Mailing Aliases and Lists
+if (defined $p_admins
+    or defined $p_groups
+    or defined $p_members
+    or defined $p_projects
+    or defined $p_long_name
+    or defined $p_mailalias
+    or defined $p_maillist
+   ) {
+    system("sophomorix-mail");
+} else {
+    &titel("NOT creating mailaliases/lists (nothing mail related changed)");
+}
 
