@@ -64,6 +64,8 @@ angehören.
                      Diese Grenze gilt nur, wenn AddQuota gesetzt ist.
 .br
                          z.B.:  16
+     mailalias:      Mailaliase erzeugen (1) oder nicht (0)
+     maillist:       MailingListe erzeugen (1) oder nicht (0)
 .PP
 .SH OPTIONS
 .B sophomorix-project
@@ -133,12 +135,10 @@ Wollen sie aus einem Projekt alle MemberProjects entfernen, Müssen sie \
 --MemberProjects "" angeben.
 .TP
 .B \-\-AddQuota quotastring
-Trägt den übergebenen quotastring als Zusatzquota in das Projekt
-ein. Der bisher vorhandene quotastring wird ersetzt. Wird bei einem
-neuen Projekt kein AddQuota angegeben, so wird 0 MB eingetragen.
-.br
-Um die Quotaänderung ins System zu übertragen, muss anschließend sophomorix-quota 
-aufgerufen werden.
+Trägt den übergebenen quotastring als Zusatzquota in das Projekt ein
+und überträgt diese Werte ins System. Der bisher vorhandene
+quotastring wird ersetzt. Wird bei einem neuen Projekt kein AddQuota
+angegeben, so wird 0 MB eingetragen.
 .br
 Wie der quotastring aussehen kann siehe:  
 .B man sophomorix-quota
@@ -146,12 +146,18 @@ Wie der quotastring aussehen kann siehe:
 .TP
 .B \-\-AddMailQuota number
 Trägt die übergebene Zahl(integer) als zusätzliches Mail Quota (in MB)
-in das Projekt ein. Die bisher vorhandene Zahl wird ersetzt. Wird bei
-einem neuen Projekt kein AddMailQuota angegeben, so wird 0 MB
-eingetragen.
-.br
-Um die Quotaänderung ins System zu übertragen, muss anschließend sophomorix-quota 
-aufgerufen werden.
+in das Projekt ein, und überträgt den Wert ins System. Die bisher
+vorhandene Zahl wird ersetzt. Wird bei einem neuen Projekt kein
+AddMailQuota angegeben, so wird 0 MB eingetragen.
+.TP
+.B \-\-mailalias
+Trägt für alle Mitglieder dieses Projekts einen Mailalias ein
+(Standardform: vorname.nachname)
+.TP
+.B \-\-maillist
+Trägt alle Mitglieder dieses Projekts in eine Mailingliste ein. Alle
+Mitglieder sind somit unter dem Projektnamen UND dem langen
+Projektnamen (LongName) erreichbar.
 .TP
 .B \-\-MaxMembers anzahl
 Trägt anzahl als MaxMembers in das Projekt ein. Die bisher vorhandene

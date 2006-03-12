@@ -26,22 +26,25 @@ sophomorix-class \- Klassen verwalten
 .B sophomorix-class
 verwaltete Klasse hat folgende Eigenschaften:
 .br
-     AdminClass:    Der Name des Klasse, wie er im Schulverwaltungsprogramm steht. 
+     AdminClass:     Der Name des Klasse, wie er im Schulverwaltungsprogramm steht. 
 .br
-                       z.B.:  7a 
+                        z.B.:  7a 
 .br
-     Department:    Abteilung der Klasse (Feld 6, schueler.txt, nicht genutzt)
+     Department:     Abteilung der Klasse (Feld 6, schueler.txt, nicht genutzt)
 .br
-                       z.B. Grundschule
+                        z.B. Grundschule
 .br
-     Type:          Typ der Klasse (nicht genutzt)
+     Type:           Typ der Klasse (nicht genutzt)
 .br
-     Mail:          Maileinstellungen der Klasse (nicht genutzt)
+     Mail:           Maileinstellungen der Klasse (nicht genutzt)
 .br
-     Quota:         Quotaeinstellungen, die alle user diese Klasse haben sollen
+     Quota:          Quotaeinstellungen, die alle user diese Klasse haben sollen
 .br
-     MailQuota:     Mail-Quotaeinstellungen, die alle user diese Klasse haben sollen
+     MailQuota:      Mail-Quotaeinstellungen, die alle user diese Klasse haben sollen
+                        z.B.:  16
 .br
+     mailalias:      Mailaliase erzeugen (1) oder nicht (0)
+     maillist:       MailingListe erzeugen (1) oder nicht (0)
 .PP
 .SH OPTIONS
 .B sophomorix-class
@@ -61,17 +64,24 @@ Bearbeitet die Klasse AdminClass
 .TP
 .B --quota quotastring
 setzt das Quotafeld für die Klasse in der sophomorix Datenbank auf den
-Wert quotastring. Wie quotastring aussehen muss siehe sophomorix-quota.
-.br
-Um diese Quotaangaben ins System zu übertragen muss
-anschließend der Befehl sophomorix-quota aufgerufen werden.
+Wert quotastring, und überträgt diese Werte ins System. Wie
+quotastring aussehen muss siehe sophomorix-quota.
 .br
 Um einen leeren Wert zu setzten gibt man --quota "" an.
 .TP
 .B --mailquota number 
 setzt das MailQuotafeld für die Klasse in der sophomorix Datenbank auf
-den Wert mailquota. Um diese Quotaangaben ins System zu übertragen
-muss anschließend der Befehl sophomorix-quota aufgerufen werden.
+den Wert mailquota und überträgt diese Werte ins System.
+.TP
+.B --mailalias
+Trägt für alle Mitglieder dieses Klasse einen Mailalias ein
+(Standardform: vorname.nachname)
+.TP
+.B --maillist
+Trägt alle Mitglieder dieser Klasse in eine Mailingliste ein. Alle
+Mitglieder sind somit unter dem Projektnamen UND dem langen
+Projektnamen (LongName) erreichbar.
+.TP
 .br
 Um einen leeren Wert zu setzten gibt man --quota -1 an.
 .TP
