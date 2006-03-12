@@ -336,6 +336,7 @@ sub fetchprojects_from_project {
 
 sub deleteuser_from_project {
     # remove user from its secondary membership in project(group)
+    # (adding a user is pg_adduser)
     my ($user,$project)=@_;
     my $dbh=&db_connect();
     # fetching gidnumber
@@ -1400,7 +1401,8 @@ sub remove_class_db_entry {
 
 
 sub pg_adduser {
-    # add a user to a group
+    # add a user to a secondary group
+    # (removing a user is deleteuser_from_project)
     my ($user,$group) = @_;
     my $sql="";
     my $dbh=&db_connect();
