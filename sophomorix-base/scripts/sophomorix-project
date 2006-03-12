@@ -84,11 +84,11 @@ my $p_add_quota;
 my $p_add_mail_quota;
 my $p_max_members;
 my $p_mailalias;
-my $mailalias=0;
+my $mailalias;
 my $p_maillist;
-my $maillist=0;
+my $maillist;
 my $p_status;
-my $join=1; # 0,1
+my $join; # 0,1
 my $p_join="TRUE"; # FALSE,TRUE
 
 #my @options=();
@@ -177,21 +177,27 @@ if ($project eq "" and $info==1){
 }
 
 # --join
-if ($join==0){
+if (not defined $join){
+    $p_join="";
+} elsif ($join==0) {
     $p_join="FALSE"; 
-} else {
+} elsif ($join==1) {
     $p_join="TRUE";
 }
 
 # --mailalias
-if ($mailalias==0){
+if (not defined $mailalias){
+    $p_mailalias=""; 
+} elsif ($mailalias==0){
     $p_mailalias="FALSE"; 
 } else {
     $p_mailalias="TRUE";
 }
 
 # --maillist
-if ($maillist==0){
+if (not defined $maillist){
+    $p_maillist=""; 
+} elsif ($maillist==0){
     $p_maillist="FALSE"; 
 } else {
     $p_maillist="TRUE";

@@ -2309,27 +2309,41 @@ sub create_project {
     }
 
     # Joinable
-    if (not defined $p_join){
+    if (not defined $p_join or $p_join eq ""){
 	if (defined $old_join){
-           $p_join=$old_join;          
+	    if ($old_join==0){
+               $p_join="FALSE";   
+	    } elsif ($old_join==1){
+               $p_join="TRUE";   
+	    }
         } else {
 	    $p_join="TRUE";
         }
     }
+
     # mailalias
-    if (not defined $p_mailalias){
+    if ($p_mailalias eq ""){
 	if (defined $old_mailalias){
-           $p_mailalias=$old_mailalias;          
+	    if ($old_mailalias==0){
+               $p_mailalias="FALSE";   
+	    } else{
+               $p_mailalias="TRUE";   
+	    }
         } else {
-	    $p_mailalias="TRUE";
+	    $p_mailalias="FALSE";
         }
     }
+
     # maillist
-    if (not defined $p_maillist){
+    if ($p_maillist eq ""){
 	if (defined $old_maillist){
-           $p_maillist=$old_maillist;          
+	    if ($old_maillist==0){
+               $p_maillist="FALSE";   
+	    } else{
+               $p_maillist="TRUE";   
+	    }
         } else {
-	    $p_maillist="TRUE";
+	    $p_maillist="FALSE";
         }
     }
 
