@@ -60,6 +60,9 @@ SAMBADIR=$(DESTDIR)/var/lib/samba
 # Config-templates
 CTEMPDIR=$(DESTDIR)/usr/share/sophomorix/config-templates
 
+# Config-templates
+DEVELOPERDIR=$(DESTDIR)/usr/share/sophomorix-developer
+
 # WEBMINCONFDIR ML und Debian
 #WEBMINCONFDIR=$(DESTDIR)/etc/webmin
 
@@ -223,6 +226,10 @@ install-developer:
 	##### apt
 	install -d $(TOOLS)/apt/s-lists
 	install -oroot -groot --mode=0644 sophomorix-developer/tools/apt/s-lists/*sources.list $(TOOLS)/apt/s-lists
+	##### testfiles
+	install -d $(DEVELOPERDIR)
+	install -d $(DEVELOPERDIR)/testfiles
+	install -oroot -groot --mode=0755 sophomorix-developer/testfiles/*.txt $(DEVELOPERDIR)/testfiles
 	##### script for laptop development
 	install -d $(TOOLS)/scripts/laptop
 	install -oroot -groot --mode=0755 sophomorix-developer/tools/scripts/laptop/*-cvs $(TOOLS)/scripts/laptop
