@@ -26,6 +26,8 @@ system("install -d /root/sophomorix-test");
 
 
 my $file="";
+my @teacher_files=();
+my @userlist_to_check=();
 
 # ===========================================================================
 # Optionen verarbeiten
@@ -89,7 +91,7 @@ my @teacherlist=(
 my @loginlist=("tycho", "hannes", "bruno", "galli", "niko" );
 
 
-my $user="";
+#my $user="";
 my $teacher="";
 my $login="";
 my $today=`date +%d.%m.%Y`;
@@ -164,77 +166,58 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
     print '
 ###########################################################################
 #                                                                         #
-#             DO SOME WORK (DISTRIBUTE,COLLECT)                           #
+#             DO SOME WORK (Vorlagen bereitstellen)                       #
 #                                                                         #
 ###########################################################################
     ';
 
 
-# DISTRIBUTE
-
-# clean up
-
-    print "Cleaning up galli \n";
-# remove galli from 11a
-
-# remove austeilen stuff
-system ("rm -rf /home/teachers/galli/_austeilen/11a"); 
-
-# Working with these files
-my @teacher_files=("testfile_1.txt","testfile_2.txt");
-
-
-# join the class 11a (?????? later do this as galli)
-my $command="sophomorix-teacher --teacher galli --add 11a";
-    system($command);
-
-# was directory created ?
-$file="/home/teachers/galli/_austeilen/11a"; 
-ok(-e $file, "$file existiert");
+   # DISTRIBUTE (Vorlagen)
+   my $vorlagen_teacher="nik";
+   my $vorlagen_gruppe="11a";
+   my $type="class";
 
 
 
-foreach my $testfile (@teacher_files){
-    $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/galli/_austeilen/11a'";
-    system($command);
-}
-
-
-# distribute files(?????? later do this as galli)
-$command="sophomorix-teacher --teacher galli --handout --class 11a";
-    system($command);
 
 
 
-# was file handed out ?
-# later: go through all users of this group
-# check all files
-$file="/home/teachers/galli/_austeilen/11a"; 
-ok(-e $file, "$file existiert");
+   # Working with these files
+   @teacher_files=("testfile_1.txt","testfile_2.txt");
+   @userlist_to_check=("bojo");
+
+   &vorlagen_bereitstellen($vorlagen_teacher,
+                           $vorlagen_gruppe,
+                           $type);
 
 
-foreach my $testfile (@teacher_files){
-    my @users=("blackmri","pageji");
-    foreach my $user (@users){
-        $file="/home/students/11a/${user}/_austeilen/aufgaben-11a/${testfile}"; 
-        ok(-e $file, "$file existiert");
-    }
-}
+    print '
+###########################################################################
+#                                                                         #
+#             DO SOME WORK (Dateien einsammeln)                           #
+#                                                                         #
+###########################################################################
+    ';
 
+
+
+
+
+
+
+exit;
 
 foreach my $testfile (@teacher_files){
 
-my @users_class=("blackmri","pageji");
-foreach my $user (@users_class){
-    $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/students/11a/${user}/_sammelordner'";
-    system($command);
-
+   my @users_class=("blackmri","pageji");
+   foreach my $user (@users_class){
+      my $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/students/11a/${user}/_sammelordner'";
+      system($command);
+   }
 }
-}
-
 
 # collect files(?????? later do this as galli)
-$command="sophomorix-teacher --teacher galli --colletc --class 11a";
+my $command="sophomorix-teacher --teacher galli --colletc --class 11a";
     system($command);
 
 
@@ -340,6 +323,58 @@ if ($remove==1 and -e "/root/sophomorix-test/bunchofusers"){
 ############################################################
 # SUB
 ############################################################
+
+
+sub vorlagen_bereitstellen{
+    my ($teacher,$group,$type) = @_;
+    print "Cleaning up $teacher \n";
+    my $command="";
+    my $file="";
+
+    # what if type $project?
+    $command="sophomorix-teacher --teacher $teacher --remove $group";
+    print "$command \n";
+    system($command);
+
+    $command="rm -rf /home/teachers/${teacher}/${Language::task_dir}/${group}"; 
+    print "$command \n";
+    system($command);
+
+    # join the class 11a (?????? later do this as galli)
+    $command="sophomorix-teacher --teacher $teacher --add $group";
+    print "$command \n";
+    system($command);
+    # was directory created ?
+    $file="/home/teachers/${teacher}/${Language::task_dir}/${group}"; 
+    ok(-e $file, "$file existiert");
+
+
+    foreach my $testfile (@teacher_files){
+        $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::task_dir}/${group}'";
+        print "$command \n";
+        system($command);
+    }
+
+    # distribute files(?????? later do this as galli)
+    $command="sophomorix-teacher --teacher $teacher --handout --class $group";
+    print "$command \n";
+    system($command);
+
+    # was file handed out ?
+    foreach my $testfile (@teacher_files){
+       foreach my $user (@userlist_to_check){
+          $file="/home/students/${group}/${user}/${Language::task_dir}/${Language::task_string}-${group}/${testfile}"; 
+          ok(-e $file, "$file existiert");
+       }
+    }
+
+
+}
+
+
+
+
+
 
 
 sub get_login_from_user {
