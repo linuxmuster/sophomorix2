@@ -396,7 +396,7 @@ sub vorlagen_bereitstellen{
     # was file handed out ?
     foreach my $testfile (@teacher_files){
        foreach my $user (@userlist_to_check){
-          $file="/home/students/${group}/${user}/${Language::task_dir}/${Language::task_string}-${group}/${testfile}"; 
+          $file="/home/students/${group}/${user}/${Language::task_dir}/${Language::task_string}-${group}/${teacher}/${testfile}"; 
           ok(-e $file, "$file existiert");
        }
     }

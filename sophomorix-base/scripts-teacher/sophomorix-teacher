@@ -67,9 +67,12 @@ my $class="";
 my $subclass="";
 my $project="";
 my $copy=0;
+my $move=0;
 my $delete=0;
 my $exam=0;
 my $info=0;
+
+my $rsync="";
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -84,6 +87,7 @@ my $testopt=GetOptions(
            "subclass=s" => \$subclass,
            "project=s" => \$project,
            "copy" => \$copy,
+           "move" => \$move,
            "delete" => \$delete,
            "exam" => \$exam,
            "info|i" => \$info,
@@ -92,6 +96,34 @@ my $testopt=GetOptions(
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
+
+
+# standard option für rsync: --delete
+if ($copy==0 and
+         $move==0 and
+         $delete==0){
+    # standard
+    $rsync="delete"
+} elsif ($copy==0 and
+         $move==1 and
+         $delete==0){
+    $rsync="move"
+} elsif ($copy==1 and
+         $move==0 and
+         $delete==0){
+    $rsync="copy"
+} elsif ($copy==0 and
+         $move==0 and
+         $delete==1){
+    $rsync="delete"
+} else {
+    print "You can only give on of the options:\n";
+    print "    --delete \n";
+    print "    --move \n";
+    print "    --copy \n";
+    exit;
+}
+
 
 # repair.directories einlesen
 &get_alle_verzeichnis_rechte();
@@ -132,7 +164,10 @@ Options
   --remove AdminClass
   --handout
   --collect
+
+  --delete (standard)
   --copy
+  --move
 
 Options for the user root
   --teacher login
@@ -234,11 +269,6 @@ if ($info==1 and $collect==0 and $handout==0){
    exit;
 } elsif ($info==1 and $collect==0 and $handout==1){
    # handout-info
-   #if ()
-
-
-
-
     my $ha_basedir = "${DevelConf::homedir_teacher}/$login/${Language::task_dir}";
     my $handout_dir = ""; 
 
@@ -287,14 +317,14 @@ if ($info==1 and $collect==0 and $handout==0){
 # --handout
 if ($handout==1 and ($class ne "" or $subclass ne "" or $project ne "")){
     my $group_type="";
-    my $rsync="";
-
-    if ($copy==0){
-        $rsync="delete";
-    } else {
-        $rsync="copy";
-    }
-
+#    my $rsync="";
+#
+#    if ($copy==0){
+#        $rsync="delete";
+#    } else {
+#        $rsync="copy";
+#    }
+    print "Calling handout with rsync option $rsync\n";
     if ($class ne ""){
            &handout($login, $class,"class",$rsync);
     }
@@ -320,13 +350,14 @@ if ($handout==1 and ($class ne "" or $subclass ne "" or $project ne "")){
 # --collect
 if ($collect==1 and ($class ne "" or $subclass ne "" or $project ne "")){
     my $group_type="";
-    my $rsync="";
-
-    if ($copy==0){
-        $rsync="delete";
-    } else {
-        $rsync="copy";
-    }
+#    my $rsync="";
+#
+#    if ($copy==0){
+#        $rsync="delete";
+#    } else {
+#        $rsync="copy";
+#    }
+    print "Calling collect with rsync option $rsync\n";
 
     if ($class ne ""){
            &collect($login, $class,"class",$rsync,$exam,$delete);

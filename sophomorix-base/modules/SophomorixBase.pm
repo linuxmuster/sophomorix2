@@ -3548,7 +3548,7 @@ print "<p>";
 
 
 sub handout {
-  # Parameter 1: User that hans out data
+  # Parameter 1: User that hands out data
   # Parameter 2: Name of class/subclass/project
   # Parameter 3: Typ (class,subclass,project,room, ...)
   # Parameter 4: option delete rsync
@@ -3569,11 +3569,11 @@ sub handout {
   }
 
   if ($type eq "class"){
-      $to_dir="${DevelConf::tasks_classes}/$name";
+      $to_dir="${DevelConf::tasks_classes}/${name}/${login}";
   } elsif ($type eq "subclass"){
-      $to_dir="${DevelConf::tasks_subclasses}/$name";
+      $to_dir="${DevelConf::tasks_subclasses}/{$name}/${login}";
   } elsif ($type eq "project"){
-      $to_dir="${DevelConf::tasks_projects}/$name";
+      $to_dir="${DevelConf::tasks_projects}/${name}/${login}";
   }
 
   # ???? make more secure
@@ -3670,13 +3670,10 @@ sub collect {
      die "Bad data in $log_dir"; # Log this somewhere.
   }
  
-
-
   # collect data from all users
   foreach my $user (@users){
       my @entry = getpwnam($user);
       my $homedir = "$entry[7]";
-
       my $from_dir="$homedir/${Language::collect_dir}/";
       # ???? make more secure
       if ($from_dir =~ /(.*)/) {
@@ -3684,7 +3681,6 @@ sub collect {
       }  else {
          die "Bad data in $from_dir"; # Log this somewhere.
       }
-
 
       # ???? make more secure
       if ($to_dir =~ /(.*)/) {
@@ -3711,6 +3707,9 @@ sub collect {
       } elsif ($rsync eq "copy"){
          system("/usr/bin/install -d $to_dir");  
          system("/usr/bin/rsync -tor $from_dir ${to_dir}/${user}");
+      } elsif ($rsync eq "move"){
+         system("/usr/bin/install -d $to_dir");  
+         system("/bin/mv ${from_dir}/* ${to_dir}/${user}");
       } else {
          print "unknown Parameter $rsync";
       }
