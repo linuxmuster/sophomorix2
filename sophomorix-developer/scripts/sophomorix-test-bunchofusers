@@ -171,20 +171,22 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
 ###########################################################################
     ';
 
-
    # DISTRIBUTE (Vorlagen)
-   my $vorlagen_teacher="nik";
+   my $vorlagen_teacher="galli";
    my $vorlagen_gruppe="11a";
    my $type="class";
 
-
-
-
-
-
    # Working with these files
    @teacher_files=("testfile_1.txt","testfile_2.txt");
-   @userlist_to_check=("bojo");
+   @userlist_to_check=("blackmri",
+                       "bonhamjo",
+                       "gillania",
+                       "gloverro",
+                       "jonesjo",
+                       "lordjo",
+                       "pageji",
+                       "paiceia",
+                       "plantro");
 
    &vorlagen_bereitstellen($vorlagen_teacher,
                            $vorlagen_gruppe,
@@ -199,40 +201,17 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
 ###########################################################################
     ';
 
+   # COLLECT (Vorlagen)
+   my $einsammeln_teacher="galli";
+   my $einsammeln_gruppe="11a";
+   my $einsammeln_type="class";
 
+   # Working with these files
+   @teacher_files=("testfile_1.txt","testfile_2.txt");
 
-
-
-
-
-exit;
-
-foreach my $testfile (@teacher_files){
-
-   my @users_class=("blackmri","pageji");
-   foreach my $user (@users_class){
-      my $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/students/11a/${user}/_sammelordner'";
-      system($command);
-   }
-}
-
-# collect files(?????? later do this as galli)
-my $command="sophomorix-teacher --teacher galli --colletc --class 11a";
-    system($command);
-
-
-
-
-
-
-
-
-
-
-# Add some Files as a few student
-
-# Collect this files
-
+   &dateien_einsammeln($einsammeln_teacher,
+                       $einsammeln_gruppe,
+                       $einsammeln_type);
 
 } elsif ($work==1 and not -e "/root/sophomorix-test/bunchofusers"){
     print "The users must be added bofore doing some work!\n";
@@ -323,6 +302,60 @@ if ($remove==1 and -e "/root/sophomorix-test/bunchofusers"){
 ############################################################
 # SUB
 ############################################################
+sub dateien_einsammeln{
+    my ($teacher,$group,$type) = @_;
+    my $command="";
+    print "Cleaning up $teacher \n";
+    $command="rm -rf /home/teachers/${teacher}/${Language::collect_dir}/*"; 
+    print "$command \n";
+    system($command);
+
+    foreach my $user (@userlist_to_check){
+       print "Cleaning up $user \n";
+       $command="rm -rf /home/students/${group}/${user}/${Language::collect_dir}/*"; 
+       print "$command \n";
+       system($command);
+    }
+
+    foreach my $testfile (@teacher_files){
+       foreach my $user (@userlist_to_check){
+          $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/students/${group}/${user}/${Language::collect_dir}'";
+          print "$command \n";
+          system($command);
+       }
+    }
+
+    # collect files(?????? later do this as galli)
+    $command="sophomorix-teacher --teacher $teacher --collect --class $group";
+    print "$command \n";
+    system($command);
+
+    my $collect_dir="";
+    my $collect_parent_dir=
+        "/home/teachers/${teacher}/${Language::collect_dir}/${group}";
+    print "$collect_parent_dir \n";
+    opendir(COLL, $collect_parent_dir) 
+         || die "can't opendir ",
+                "$/home/teachers/${teacher}/${Language::collect_dir}/${group} $!";
+    while (defined(my $filename = readdir(COLL))) {
+        #print "Directory $filename found\n";
+        if ($filename=~m/^${group}.*$/){
+          $collect_dir=$filename
+	  }
+    }
+    closedir(COLL);
+    
+    print "Looking for collected data in $collect_dir \n";
+
+    foreach my $user (@userlist_to_check){
+        foreach my $testfile (@teacher_files){
+           $file="/home/teachers/${teacher}/${Language::collect_dir}/${group}/${collect_dir}/${user}/${testfile}"; 
+           ok(-e $file, "$file existiert");
+	}
+    }
+
+
+}
 
 
 sub vorlagen_bereitstellen{
