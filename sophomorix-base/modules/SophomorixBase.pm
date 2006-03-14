@@ -3650,9 +3650,9 @@ sub collect {
   my $homedir_col = "$entry_col[7]";
   my $to_dir="";
   if ($exam==1){
-      $to_dir = "${homedir_col}/${Language::collect_dir}/EXAM_${name}_${date}";
+      $to_dir = "${homedir_col}/${Language::collect_dir}/${name}/EXAM_${name}_${date}";
   } else {
-      $to_dir = "${homedir_col}/${Language::collect_dir}/${name}_${date}";
+      $to_dir = "${homedir_col}/${Language::collect_dir}/${name}/${name}_${date}";
   }
   # ???? make more secure
   if ($to_dir =~ /(.*)/) {

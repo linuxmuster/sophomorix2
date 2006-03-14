@@ -773,14 +773,14 @@ sub add_my_adminclass {
 
     # create dirs in tasks and collect
     my $task_dir=$homedir."/".${Language::task_dir}."/".$class;
-
-    #print "Task:    $task_dir\n";
-    system("mkdir $task_dir");
+    if (not -e $task_dir){
+        system("mkdir $task_dir");
+    }
 
     my $collect_dir=$homedir."/".${Language::collect_dir}."/".$class;
-    #print "Collect: $collect_dir\n";
-
-    system("mkdir $collect_dir");
+    if (not -e $collect_dir){
+        system("mkdir $collect_dir");
+    }
     return 1;
 }
 

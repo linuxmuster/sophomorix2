@@ -25,15 +25,19 @@ use DBI;
 system("install -d /root/sophomorix-test");
 
 
+my $file="";
+
 # ===========================================================================
 # Optionen verarbeiten
 # ==========================================================================
 my $add=0;
 my $remove=0;
+my $work=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
                 "add" => \$add,
+                "work" => \$work,
     "remove|delete" => \$remove,
           );
 
@@ -149,6 +153,115 @@ if ($add==1 and not -e "/root/sophomorix-test/bunchofusers"){
 } else {
     print "Not adding users!\n";
 }
+
+
+
+
+
+
+
+if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
+    print '
+###########################################################################
+#                                                                         #
+#             DO SOME WORK (DISTRIBUTE,COLLECT)                           #
+#                                                                         #
+###########################################################################
+    ';
+
+
+# DISTRIBUTE
+
+# clean up
+
+    print "Cleaning up galli \n";
+# remove galli from 11a
+
+# remove austeilen stuff
+system ("rm -rf /home/teachers/galli/_austeilen/11a"); 
+
+# Working with these files
+my @teacher_files=("testfile_1.txt","testfile_2.txt");
+
+
+# join the class 11a (?????? later do this as galli)
+my $command="sophomorix-teacher --teacher galli --add 11a";
+    system($command);
+
+# was directory created ?
+$file="/home/teachers/galli/_austeilen/11a"; 
+ok(-e $file, "$file existiert");
+
+
+
+foreach my $testfile (@teacher_files){
+    $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/galli/_austeilen/11a'";
+    system($command);
+}
+
+
+# distribute files(?????? later do this as galli)
+$command="sophomorix-teacher --teacher galli --handout --class 11a";
+    system($command);
+
+
+
+# was file handed out ?
+# later: go through all users of this group
+# check all files
+$file="/home/teachers/galli/_austeilen/11a"; 
+ok(-e $file, "$file existiert");
+
+
+foreach my $testfile (@teacher_files){
+    my @users=("blackmri","pageji");
+    foreach my $user (@users){
+        $file="/home/students/11a/${user}/_austeilen/aufgaben-11a/${testfile}"; 
+        ok(-e $file, "$file existiert");
+    }
+}
+
+
+foreach my $testfile (@teacher_files){
+
+my @users_class=("blackmri","pageji");
+foreach my $user (@users_class){
+    $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/students/11a/${user}/_sammelordner'";
+    system($command);
+
+}
+}
+
+
+# collect files(?????? later do this as galli)
+$command="sophomorix-teacher --teacher galli --colletc --class 11a";
+    system($command);
+
+
+
+
+
+
+
+
+
+
+# Add some Files as a few student
+
+# Collect this files
+
+
+} elsif ($work==1 and not -e "/root/sophomorix-test/bunchofusers"){
+    print "The users must be added bofore doing some work!\n";
+} else {
+    print "Not adding users!\n";
+}
+
+
+
+
+
+
 
 
 
