@@ -42,6 +42,7 @@ require Exporter;
 	     update_user_db_entry
 	     remove_user_db_entry
              create_project
+             remove_project
              get_sys_users
              get_teach_in_sys_users
              get_print_data
@@ -1394,8 +1395,22 @@ sub update_class_db_entry {
 
 # adds a class to the user database
 sub remove_class_db_entry {
-   # todo ????????????????
+    my ($group) = @_;
+    my $dbh=&db_connect();
 
+    # Gruppe loeschen, Funktion
+    my $sql="SELECT manual_delete_groups('$group')";
+    if($Conf::log_level>=3){
+        print "\nSQL: $sql\n";
+    }
+    my $return = $dbh->selectrow_array($sql);
+    if (defined $return){
+        print "Group $return ($group) removed!\n";
+    } else {
+        print "\nERROR: Could not delete group $group \n\n";
+    }
+    &db_disconnect($dbh);
+    return $return;
 }
 
 
@@ -2350,7 +2365,7 @@ sub create_project {
     print "1) Data for the Project:\n";
     print "   LongName:         $p_long_name\n";
     print "   AddQuota:         $p_add_quota MB\n";
-    print "   AddMailQuota:     $p_add_quota MB\n";
+    print "   AddMailQuota:     $p_add_mail_quota MB\n";
     print "   MaxMembers:       $p_max_members\n";
     print "   SophomorixStatus: $p_status\n";
     print "   Join:             $p_join\n";
@@ -2743,6 +2758,33 @@ sub create_project {
         }
     }
 }
+
+
+sub remove_project  {
+    # this removes ONLY entry in project_details
+    # and the share, tasks
+    # to remove group see remove_class_db_entry
+    my ($project) = @_;
+    # project id holen
+    my $dbh=&db_connect();
+    my ($id)= $dbh->selectrow_array( "SELECT id
+                                         FROM groups 
+                                         WHERE gid='$project'
+                                        ");
+    # project_details löschen
+    my $sql="DELETE FROM project_details 
+             WHERE id=$id; 
+             ";	
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    $dbh->do($sql);
+    &db_disconnect($dbh);
+
+    # remove share,task,... files    
+    &Sophomorix::SophomorixBase::remove_project_files($project);
+}
+
 
 
 
@@ -3271,8 +3313,8 @@ sub show_project {
     if (defined $longname){
        print "Project:          $project\n";
        print "   LongName:         $longname\n";
-       print "   AddQuota:         $addquota\n";
-       print "   AddMailQuota:     $add_mail_quota\n";
+       print "   AddQuota:         $addquota MB\n";
+       print "   AddMailQuota:     $add_mail_quota MB\n";
        print "   MailAlias:        $mailalias\n";
        print "   MailList:         $maillist\n";
        print "   SophomorixStatus: $status\n";

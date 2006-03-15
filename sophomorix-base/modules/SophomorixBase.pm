@@ -100,6 +100,7 @@ use Quota;
               provide_class_files
               provide_subclass_files
               provide_project_files
+              remove_project_files
               provide_user_files
               get_debconf_value
               );
@@ -844,6 +845,18 @@ sub provide_project_files {
                        "$project_aufgaben");
 }
 
+
+
+sub remove_project_files {
+    my ($project) = @_;
+    # removing directories
+    my $command="rm -rf ${DevelConf::share_projects}/$project";
+    print $command,"\n";
+    system("$command");  
+    $command="rm -rf ${DevelConf::tasks_projects}/$project";
+    print $command,"\n";
+    system("$command");  
+}
 
 =pod
 

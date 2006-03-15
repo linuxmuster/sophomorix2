@@ -39,6 +39,8 @@ use if ${DevelConf::db_backend} eq 'pgldap' ,
                                         show_project_list
                                         show_project
                                         create_project
+                                        remove_project
+                                        remove_class_db_entry
                                        );
 
 
@@ -68,6 +70,7 @@ $Conf::log_level=1;
 my $help=0;
 my $info=0;
 my $create=0;
+my $kill=0;
 $Conf::log_level=1;
 
 my $project="";
@@ -83,7 +86,9 @@ my $p_projects;
 my $p_add_quota;
 my $p_add_mail_quota;
 my $p_max_members;
+my $mailalias;
 my $p_mailalias;
+my $maillist;
 my $p_maillist;
 my $p_status;
 my $join; # 0,1
@@ -96,6 +101,7 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
            "create" => \$create,
+           "kill" => \$kill,
            "verbose|v+" => \$Conf::log_level,
            "join!" => \$join,
            "Name|project|p=s" => \$project,
@@ -107,8 +113,8 @@ my $testopt=GetOptions(
            "AddQuota=s" => \$p_add_quota,
            "AddMailQuota=s" => \$p_add_mail_quota,
            "MaxMembers=s" => \$p_max_members,
-           "mailalias!" => \$p_mailalias,
-           "maillist!" => \$p_maillist,
+           "mailalias!" => \$mailalias,
+           "maillist!" => \$maillist,
           );
 
 # Prüfen, ob Optionen erkannt wurden
@@ -141,6 +147,7 @@ Options
   -i -p projectname
   -p projectname, / --project projectname 
   --create 
+  --kill
   --join,  --nojoin
   --LongName projectname(long)
   --Admins user1,user2,user3, ... 
@@ -184,18 +191,18 @@ if (not defined $join){
 }
 
 # --mailalias
-if (not defined $p_mailalias){
+if (not defined $mailalias){
     $p_mailalias=""; 
-} elsif ($p_mailalias==0){
+} elsif ($mailalias==0){
     $p_mailalias="FALSE"; 
 } else {
     $p_mailalias="TRUE";
 }
 
 # --maillist
-if (not defined $p_maillist){
+if (not defined $maillist){
     $p_maillist=""; 
-} elsif ($p_maillist==0){
+} elsif ($maillist==0){
     $p_maillist="FALSE"; 
 } else {
     $p_maillist="TRUE";
@@ -240,13 +247,32 @@ if ($project ne "" and $info==1){
 
 
 # create/update project
-&create_project($project,$create,$p_long_name,
-                $p_add_quota,$p_add_mail_quota,
-                $p_status,$p_join,$pg_timestamp,
-                $p_max_members,$p_members,$p_admins,
-                $p_groups,$p_projects,
-                $p_mailalias,$p_maillist);
+if ($kill==0){
+    &create_project($project,$create,$p_long_name,
+                    $p_add_quota,$p_add_mail_quota,
+                    $p_status,$p_join,$pg_timestamp,
+                    $p_max_members,$p_members,$p_admins,
+                    $p_groups,$p_projects,
+                    $p_mailalias,$p_maillist);
+} elsif  ($kill==1){
+    # remove all users from project
+    # (BEFORE removing project)
+    print "Preparin Project to kill (remove users)!\n";
+    &create_project($project,0,"",
+                    0,0,
+                    "K","FALSE",$pg_timestamp,
+                    0,"","",
+                    "","",
+                    0,0);
 
+    # project_details: Eintrag löschen
+    # und files loeschen 
+    # (BEFORE removing group)
+    &remove_project($project);
+
+    # gruppe entfernen
+    &remove_class_db_entry($project);
+}
 
 
 # Setting Quota if necessary
@@ -258,6 +284,7 @@ if ($Conf::use_quota eq "yes"
          or defined $p_projects
          or defined $p_add_quota
          or defined $p_add_mail_quota
+         or $kill==1
         ) 
     ) {
     system("sophomorix-quota --noninteractive");
@@ -275,8 +302,9 @@ if (defined $p_admins
     or defined $p_members
     or defined $p_projects
     or defined $p_long_name
-    or defined $p_mailalias
-    or defined $p_maillist
+    or defined $mailalias
+    or defined $maillist
+    or $kill==1
    ) {
     system("sophomorix-mail");
 } else {
