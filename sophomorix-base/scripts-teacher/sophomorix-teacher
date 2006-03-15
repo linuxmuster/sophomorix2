@@ -63,16 +63,17 @@ my $remove="";
 my $teacher="";
 my $handout=0;
 my $collect=0;
+my $collectcopy=0;
 my $class="";
 my $subclass="";
 my $project="";
-my $copy=0;
-my $move=0;
-my $delete=0;
+
+#my $copy=0;
+#my $move=0;
+#my $delete=0;
+
 my $exam=0;
 my $info=0;
-
-my $rsync="";
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -83,15 +84,18 @@ my $testopt=GetOptions(
            "teacher=s" => \$teacher,
            "handout" => \$handout,
            "collect" => \$collect,
+           "collectcopy" => \$collectcopy,
            "class|c=s" => \$class,
            "subclass=s" => \$subclass,
            "project=s" => \$project,
-           "copy" => \$copy,
-           "move" => \$move,
-           "delete" => \$delete,
            "exam" => \$exam,
            "info|i" => \$info,
           );
+
+#           "copy" => \$copy,
+#           "move" => \$move,
+#           "delete" => \$delete,
+
 
 
 # Prüfen, ob Optionen erkannt wurden
@@ -99,30 +103,30 @@ my $testopt=GetOptions(
 
 
 # standard option für rsync: --delete
-if ($copy==0 and
-         $move==0 and
-         $delete==0){
-    # standard
-    $rsync="delete"
-} elsif ($copy==0 and
-         $move==1 and
-         $delete==0){
-    $rsync="move"
-} elsif ($copy==1 and
-         $move==0 and
-         $delete==0){
-    $rsync="copy"
-} elsif ($copy==0 and
-         $move==0 and
-         $delete==1){
-    $rsync="delete"
-} else {
-    print "You can only give on of the options:\n";
-    print "    --delete \n";
-    print "    --move \n";
-    print "    --copy \n";
-    exit;
-}
+#if ($copy==0 and
+#         $move==0 and
+#         $delete==0){
+#    # standard
+#    $rsync="delete"
+#} elsif ($copy==0 and
+#         $move==1 and
+#         $delete==0){
+#    $rsync="move"
+#} elsif ($copy==1 and
+#         $move==0 and
+#         $delete==0){
+#    $rsync="copy"
+#} elsif ($copy==0 and
+#         $move==0 and
+#         $delete==1){
+#    $rsync="delete"
+#} else {
+#    print "You can only give on of the options:\n";
+#    print "    --delete \n";
+#    print "    --move \n";
+#    print "    --copy \n";
+#    exit;
+#}
 
 
 # repair.directories einlesen
@@ -209,7 +213,8 @@ if ($login eq "root"){
 if ($add eq "" and 
     $remove eq "" and
     $handout==0 and
-    $collect==0
+    $collect==0 and
+    $collectcopy==0
    ){
     $info=1;
 }
@@ -317,13 +322,7 @@ if ($info==1 and $collect==0 and $handout==0){
 # --handout
 if ($handout==1 and ($class ne "" or $subclass ne "" or $project ne "")){
     my $group_type="";
-#    my $rsync="";
-#
-#    if ($copy==0){
-#        $rsync="delete";
-#    } else {
-#        $rsync="copy";
-#    }
+    my $rsync="delete";
     print "Calling handout with rsync option $rsync\n";
     if ($class ne ""){
            &handout($login, $class,"class",$rsync);
@@ -350,23 +349,36 @@ if ($handout==1 and ($class ne "" or $subclass ne "" or $project ne "")){
 # --collect
 if ($collect==1 and ($class ne "" or $subclass ne "" or $project ne "")){
     my $group_type="";
-#    my $rsync="";
-#
-#    if ($copy==0){
-#        $rsync="delete";
-#    } else {
-#        $rsync="copy";
-#    }
+    my $rsync="move";
     print "Calling collect with rsync option $rsync\n";
 
     if ($class ne ""){
-           &collect($login, $class,"class",$rsync,$exam,$delete);
+           &collect($login, $class,"class",$rsync,$exam);
     }
     if ($subclass ne ""){
-           &collect($login, $subclass,"subclass",$rsync,$exam,$delete);
+           &collect($login, $subclass,"subclass",$rsync,$exam);
     }
     if ($project ne ""){
-           &colect($login, $project,"project",$rsync,$exam,$delete);
+           &collect($login, $project,"project",$rsync,$exam);
+    }
+    exit;
+}
+
+
+# --collectcopy
+if ($collectcopy==1 and ($class ne "" or $subclass ne "" or $project ne "")){
+    my $group_type="";
+    my $rsync="copy";
+    print "Calling collect with rsync option $rsync\n";
+
+    if ($class ne ""){
+           &collect($login, $class,"class",$rsync,$exam);
+    }
+    if ($subclass ne ""){
+           &collect($login, $subclass,"subclass",$rsync,$exam);
+    }
+    if ($project ne ""){
+           &colect($login, $project,"project",$rsync,$exam);
     }
     exit;
 }
