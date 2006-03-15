@@ -9,7 +9,6 @@
 
 
 # Bibliotheken
-
 use strict;
 use Getopt::Long;
 use Sophomorix::SophomorixConfig;
@@ -21,6 +20,9 @@ use Sophomorix::SophomorixTest;
 use Test::More "no_plan";
 Getopt::Long::Configure ("bundling");
 
+use DBI;
+use Crypt::SmbHash;
+use Net::LDAP;
 #use DebAux::Debconf;
 
 # Einlesen der Konfigurationsdatei für Entwickler
@@ -32,177 +34,15 @@ system("install -d /root/sophomorix-test");
 ############################################################
 # Start
 ############################################################
+my $login="galli";
 
-my $today=`date +%d.%m.%Y`;
-print "\nToday is $today\n";
-chomp($today);
-my $verbose=0;
+    if (getpwnam("$login")){
+       my($login,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
+          $name_passwd,$gcos_passwd,$homedir,$shell)=getpwnam("$login");
+print "Home: $homedir \n"; 
 
-$Conf::log_level=3;
-
-
-use Sophomorix::SophomorixPgLdap;
-use DBI;
-
-my $dbh=&db_connect();
+    }
 
 
 
 
-#while ( my ($name,$latex) = $sth->fetchrow_array){
-#    print "$name --- $latex \n";
-#}
-
-#while ( my @result = $sth->fetchall_arrayref){
-#    print "$result[0] --- $result[1] \n";
-#}
-
-# fetching competely a table ...
-# beware: 
-#  - the order/colums are choosen by the sql query
-
-
-if (&check_entry_in_database("beck")==1){
-    print "OK: Entry is ONCE in the database";
-} else {
-    print "ERROR:   Entry is NOT or multiple times in the database!\n";
-}
-#&get_all_users();
-
-
-############################################################
-# Example to check one account (for sophomorix-test)
-############################################################
-
-sub check_entry_in_database {
-    my ($uid,$surname) = @_;
-    my $count=0;
-## ??????? weiter: parameter übergeben, account suchen
-my $sth= $dbh->prepare( "SELECT uid, firstname, surname 
-                         FROM posix_account 
-                         WHERE uid='beck'
-                        " );
-$sth->execute();
-
-
-while (my ($uid,$firstname,$surname) = $sth->fetchrow_array() ){
-    $count++;
-#    print "$uid , $firstname $surname  matches ($count)\n";
-    print "$uid, $firstname $surname matches ($count)\n";
-#    print "$uid, $firstname matches \n";
-
-}
-
-#   return $count;
-}
-
-
-
-
-############################################################
-# Example to query all entries (for sophomorix-check)
-############################################################
-sub get_all_users {
-# select the columns that i need
-my $sth= $dbh->prepare( "SELECT uid, firstname, surname FROM posix_account" );
-$sth->execute();
-
-my $array_ref = $sth->fetchall_arrayref();
-
-foreach my $row (@$array_ref){
-    # split the array, to give better names
-    # or use numbers and look in the SELECT statement
-    #my ($id) = @$row;
-
-    # todo
-    my $identifier=join("",
-         (@$row[2],";",
-          @$row[1],";",
-          "leer"));
-
-    # assemble the variables to hashes
-    
-
-    print "    @{ $row }  \n";
-    print "$identifier \n";
-    # return references to hashes
-}
-
-}
-
-
-
-
-exit;
-
-# insert
-
-$dbh->do( " INSERT INTO posix_account (uidnumber,
-                                       uid, 
-                                       gidnumber, 
-                                       firstname,
-                                       surname,
-                                       homedirectory,
-                                       gecos,
-                                       loginshell,
-                                       userpassword,
-                                       description)
-              VALUES ('5555',
-                      'beckle', 
-                      66,
-                      'Ruediger',
-                      'Beck',
-                      '/home/bz',
-                      'Ruediger Beck',
-                      '/bin/bash',
-                      'server',
-                      'Beispieluser' ) ");
-
-
-&db_disconnect($dbh);
-
-
-
-#&archive_log_entry("otuemo");
-
-#my $re=&get_debconf_value("samba","run_mode");
-
-
-#print "$re\n";
-#my $test=DebAux::Debconf::get('passwd/md5');
-
-#DebAux::Debconf::get("samba/tdbsam");
-#ask('medium','samba');
-
-#my @userliste=&get_user_in_adminclass("m1kb2t");
-#&print_list("Liste der Klasse m1kb2t",@userliste);
-
-#@userliste=&get_user_in_adminclass("lehrer");
-#&print_list("Liste der lehrer",@userliste);
-
-
-#my @klassen=&get_adminclasses_school(); 
-#&print_list("The list of every AdminClass:",@klassen);
-
-#my @klassen_sub=&get_adminclasses_sub_school(); 
-#&print_list("The list of every AdminClass with subclasses:",@klassen_sub);
-
-#my @projects=&get_projects_school(); 
-#&print_list("The list of every Project:",@projects);
-
-#my @ws=&get_workstations_room(); 
-#&print_list("The list of every ws:",@ws);
-
-#my %hash=&get_ml_users();
-#
-#while (my ($k,$v) = each %hash){
-#      printf "%-40s %3s\n","$k","$v";
-#}
-
-
-
-#my @list=&create_userlist("","m1kb2t,m2kb2t",0,"",0,1); 
-#&print_list("Userlist:",@list);
-
-#my @list=&get_my_adminclasses("bz");
-#&print_list("MyClasses:",@list);
