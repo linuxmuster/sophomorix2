@@ -67,11 +67,6 @@ my $collectcopy=0;
 my $class="";
 my $subclass="";
 my $project="";
-
-#my $copy=0;
-#my $move=0;
-#my $delete=0;
-
 my $exam=0;
 my $info=0;
 
@@ -92,42 +87,9 @@ my $testopt=GetOptions(
            "info|i" => \$info,
           );
 
-#           "copy" => \$copy,
-#           "move" => \$move,
-#           "delete" => \$delete,
-
-
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
-
-
-# standard option für rsync: --delete
-#if ($copy==0 and
-#         $move==0 and
-#         $delete==0){
-#    # standard
-#    $rsync="delete"
-#} elsif ($copy==0 and
-#         $move==1 and
-#         $delete==0){
-#    $rsync="move"
-#} elsif ($copy==1 and
-#         $move==0 and
-#         $delete==0){
-#    $rsync="copy"
-#} elsif ($copy==0 and
-#         $move==0 and
-#         $delete==1){
-#    $rsync="delete"
-#} else {
-#    print "You can only give on of the options:\n";
-#    print "    --delete \n";
-#    print "    --move \n";
-#    print "    --copy \n";
-#    exit;
-#}
-
 
 # repair.directories einlesen
 &get_alle_verzeichnis_rechte();
@@ -168,10 +130,7 @@ Options
   --remove AdminClass
   --handout
   --collect
-
-  --delete (standard)
-  --copy
-  --move
+  --collectcopy
 
 Options for the user root
   --teacher login
