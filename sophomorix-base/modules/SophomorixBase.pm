@@ -50,7 +50,9 @@ use Quota;
               get_random_password
               get_plain_password
               create_share_link
+              create_share_directory
               remove_share_link
+              remove_share_directory
               zeit
               pg_timestamp
               append_teach_in_log
@@ -1904,6 +1906,32 @@ sub create_share_link {
     }
 }
 
+sub create_share_directory {
+    my ($login,$share_name,$share_long_name,$type) = @_;
+    my $homedir="";
+    # replace teachers with language term
+    if ($share_name  eq ${DevelConf::teacher}){
+        $share_long_name=${Language::teacher};     
+    }
+
+    if (getpwnam("$login")){
+       my($login,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
+          $name_passwd,$gcos_passwd,$home,$shell)=getpwnam("$login");
+       $homedir=$home;
+    }
+
+    # create dirs in tasks and collect
+    my $task_dir=$homedir."/".${Language::task_dir}."/".$share_long_name;
+    if (not -e $task_dir){
+        system("mkdir $task_dir");
+    }
+
+    my $collect_dir=$homedir."/".${Language::collect_dir}."/".$share_long_name;
+    if (not -e $collect_dir){
+        system("mkdir $collect_dir");
+    }
+}
+
 =pod
 
 =item I<remove_share_link(login,project,project_long_name)>
@@ -1932,6 +1960,34 @@ sub remove_share_link {
     unlink $link_name_tasks;
 
 }
+
+sub remove_share_directory {
+    my ($login,$share_name,$share_long_name,$type) = @_;
+    my $homedir="";
+    # replace teachers with language term
+    if ($share_name  eq ${DevelConf::teacher}){
+        $share_long_name=${Language::teacher};     
+    }
+
+    if (getpwnam("$login")){
+       my($login,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
+          $name_passwd,$gcos_passwd,$home,$shell)=getpwnam("$login");
+       $homedir=$home;
+    }
+
+    # remove dirs in tasks and collect
+    my $task_dir=$homedir."/".${Language::task_dir}."/".$share_long_name;
+#    if (not -e $task_dir){
+        system("rmdir $task_dir");
+#    }
+
+    my $collect_dir=$homedir."/".${Language::collect_dir}."/".$share_long_name;
+#    if (not -e $collect_dir){
+        system("rmdir $collect_dir");
+#    }
+}
+
+
 
 
 
@@ -2002,6 +2058,7 @@ sub archive_log_entry {
 
     &check_datei_touch($archive);
 
+    print "File LOG is $file";
     open(LOG,"<$file");
     open(TMPLOG,">$file.tmp");
     open(ARCHIVE,">>$archive");
@@ -3611,7 +3668,7 @@ sub collect {
   # -o Owner beibehalten, -g 
   # TODO: if name is locked for an exam, exit with message
 
-  my ($login,$name,$type,$rsync,$exam,$delete) = @_;
+  my ($login,$name,$type,$rsync,$exam) = @_;
   my $date=&zeit_stempel;
 
    if($Conf::log_level>=2){
@@ -3620,7 +3677,6 @@ sub collect {
        print "Collect from :      $name\n";
        print "rsync Options:      $rsync\n";
        print "Exam (boolean):     $rsync\n";
-       print "Delete (boolean):   $delete\n";
    }
   # where to get _Task data
   my $tasks_dir = "";
@@ -3640,8 +3696,9 @@ sub collect {
       @users=split(/,/, $members);
       $tasks_dir="${DevelConf::tasks_subclasses}/${name}/";
   } elsif ($type eq "project"){
-      my ($name,$passwd,$gid,$members)=getgrname($name);
-      @users=split(/,/, $members);
+#      my ($name,$passwd,$gid,$members)=getgrname($name);
+#      @users=split(/,/, $members);
+      @users=&fetchusers_from_project($name);
       $tasks_dir="${DevelConf::tasks_projects}/${name}/";
   }
 
@@ -3708,7 +3765,7 @@ sub collect {
          system("/usr/bin/install -d $to_dir");  
          system("/usr/bin/rsync -tor $from_dir ${to_dir}/${user}");
       } elsif ($rsync eq "move"){
-         system("/usr/bin/install -d $to_dir");  
+         system("/usr/bin/install -d $to_dir/${user}");  
          system("/bin/mv ${from_dir}/* ${to_dir}/${user}");
       } else {
          print "unknown Parameter $rsync";

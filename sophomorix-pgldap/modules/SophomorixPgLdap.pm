@@ -2616,6 +2616,7 @@ sub create_project {
        # create a link
        &Sophomorix::SophomorixBase::create_share_link($user,
                                         $project,$p_long_name);
+
     }
 
 
@@ -2639,6 +2640,8 @@ sub create_project {
 	 &deleteadmin_from_project($user,$project);
          &Sophomorix::SophomorixBase::remove_share_link($user,
                                           $project,$p_long_name);
+         &Sophomorix::SophomorixBase::remove_share_directory($user,
+                                          $project,$p_long_name);
        } 
     }    
     
@@ -2657,6 +2660,10 @@ sub create_project {
        # create a link
        &Sophomorix::SophomorixBase::create_share_link($user,
                                          $project,$p_long_name);
+       # create directories for admins
+       &Sophomorix::SophomorixBase::create_share_directory($user,
+                                        $project,$p_long_name);
+
     }
 
 
