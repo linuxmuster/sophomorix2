@@ -965,6 +965,8 @@ Stop before giving a project the name of a login
 and vice versa (cannot create a mailinglist)
 
 
+rename sophomorix-split to sophomorix-subclass
+
 sophomorix-teacher
 decide if both is needed as a teacher in tasks:
 
@@ -1002,14 +1004,16 @@ Bug: when sophomorix-quota -l galli
      dann : manchmal galli is not a sophomorix user
 create_userlist in SophomorixAPI.pm checken
 
-
-update manpage of sophomorix-teacher
-
 handout/collect to projects/subclasses
 
+skip empty lines in config files (review that)
 
+new table for teachers in adminclasses
 
 1.6.0-1
+   - updated manpage *-teacher *-project
+   - created option to remove a project completly 
+     (sophomorix-project --kill)
    - create directories for project admins to handout and collect data
    - rewrote some stuff to collect/handout to projects
      (still not finished) 
