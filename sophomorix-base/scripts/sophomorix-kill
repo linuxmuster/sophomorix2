@@ -267,10 +267,10 @@ while(<KILL>){
          # Es ist ein Schüler
          # Klassenverzeichnis in denen die Homes sind löschen, falls leer
          &do_falls_nicht_testen(
-             "rmdir --ignore-fail-on-non-empty ${DevelConf::homedir_pupil}/$linux_gruppe_to_kill",
+             "rmdir --ignore-fail-on-non-empty ${DevelConf::homedir_pupil}/$linux_gruppe_to_kill > /dev/null",
           # Klassentauschverzeichnis löschen, falls leer 
           # (Ist normalerweise nicht Leer)
-          "rmdir --ignore-fail-on-non-empty ${DevelConf::share_classes}/$linux_gruppe_to_kill"
+          "rmdir --ignore-fail-on-non-empty ${DevelConf::share_classes}/$linux_gruppe_to_kill > /dev/null"
           );
        }
 
