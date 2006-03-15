@@ -17,6 +17,7 @@ use DBI;
               remove_line
               check_emptyness
               check_existence
+              check_nonexistence
               get_login_name
               kill_user
               check_account
@@ -193,7 +194,16 @@ sub check_emptyness{
 sub check_existence{
     my ($file) = @_;
     ok(-e $file,
-       "$file existiert");
+       "$file exists");
+}
+
+sub check_nonexistence{
+    my ($file) = @_;
+    my $exists=0;
+    if (-e $file){
+	$exists=1;
+    }
+    is("$exists",0,"$file is nonexistent");
 }
 
 sub get_login_name{
@@ -313,7 +323,7 @@ sub check_dir {
            "Checking group owner of $abs_path to be $group");
     }
 
-    # show result of existance check
+    # show result of existence check
     &is($exists, 1 ,"Checking if  $abs_path exists");
 }
 
@@ -349,7 +359,7 @@ sub check_links {
           }
           # Does Target exist??????ßß
         }
-        # show result of existance check
+        # show result of existence check
         &is($exists, 1 ,"Checking if  $link is link/exists");
     }
 

@@ -10,7 +10,6 @@ use strict;
 use Getopt::Long;
 use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
-#use Sophomorix::SophomorixFiles;
 use Sophomorix::SophomorixPgLdap;
 use Sophomorix::SophomorixTest;
 use Test::More "no_plan";
@@ -148,6 +147,11 @@ if ($add==1 and not -e "/root/sophomorix-test/bunchofusers"){
        #&check_account($login,"enabled");
     }
 
+
+    # creating some projects
+    system("sophomorix-project --create -p astro --Longname Astronomie --Admins tycho,niko --Members altigru,thuraudi,blackmri,pageji");
+
+
     # Marking the added users
     system("touch /root/sophomorix-test/bunchofusers");
 } elsif ($add==1 and -e "/root/sophomorix-test/bunchofusers"){
@@ -155,6 +159,8 @@ if ($add==1 and not -e "/root/sophomorix-test/bunchofusers"){
 } else {
     print "Not adding users!\n";
 }
+
+
 
 
 
@@ -199,19 +205,76 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
 #             DO SOME WORK (Dateien einsammeln)                           #
 #                                                                         #
 ###########################################################################
-    ';
+';
 
-   # COLLECT (Vorlagen)
-   my $einsammeln_teacher="galli";
-   my $einsammeln_gruppe="11a";
+   # COLLECT move (Vorlagen)
+   my $einsammeln_teacher="niko";
+   my $einsammeln_gruppe="12c";
    my $einsammeln_type="class";
+   my $einsammeln_option="collect";
 
    # Working with these files
    @teacher_files=("testfile_1.txt","testfile_2.txt");
+   @userlist_to_check=("altigru",
+                       "bartalgi",
+                       "coppifa",
+                       "devlamro",
+                       "hinaulbe",
+                       "kueblefe",
+                       "merckxed",
+                       "raasja",
+                       "thuraudi");
 
    &dateien_einsammeln($einsammeln_teacher,
                        $einsammeln_gruppe,
-                       $einsammeln_type);
+                       $einsammeln_type,
+                       $einsammeln_option);
+
+   # COLLECT copy (Vorlagen)
+   $einsammeln_teacher="galli";
+   $einsammeln_gruppe="11a";
+   $einsammeln_type="class";
+   $einsammeln_option="collectcopy";
+
+   # Working with these files
+   @teacher_files=("testfile_1.txt","testfile_2.txt");
+   @userlist_to_check=("blackmri",
+                       "bonhamjo",
+                       "gillania",
+                       "gloverro",
+                       "jonesjo",
+                       "lordjo",
+                       "pageji",
+                       "paiceia",
+                       "plantro");
+
+
+   &dateien_einsammeln($einsammeln_teacher,
+                       $einsammeln_gruppe,
+                       $einsammeln_type,
+                       $einsammeln_option);
+
+
+
+
+   # COLLECT copy (Vorlagen) an project
+   $einsammeln_teacher="niko";
+   $einsammeln_gruppe="astro";
+   $einsammeln_type="project";
+   $einsammeln_option="collectcopy";
+
+   # Working with these files
+   @teacher_files=("testfile_1.txt","testfile_2.txt");
+   @userlist_to_check=("altigru",
+                       "blackmri",
+                       "pageji",
+                       "thuraudi");
+
+
+   &dateien_einsammeln($einsammeln_teacher,
+                       $einsammeln_gruppe,
+                       $einsammeln_type,
+                       $einsammeln_option);
 
 } elsif ($work==1 and not -e "/root/sophomorix-test/bunchofusers"){
     print "The users must be added bofore doing some work!\n";
@@ -240,7 +303,7 @@ if ($remove==1 and -e "/root/sophomorix-test/bunchofusers"){
 #                ENTFERNEN ANGELEGTER SCHÜLER, LEHRER                     #
 #                                                                         #
 ###########################################################################
-    ';
+';
 
     foreach my $user (@userlist){
         &remove_line(
@@ -303,10 +366,10 @@ if ($remove==1 and -e "/root/sophomorix-test/bunchofusers"){
 # SUB
 ############################################################
 sub dateien_einsammeln{
-    my ($teacher,$group,$type) = @_;
+    my ($teacher,$group,$type,$option) = @_;
     my $command="";
     print "Cleaning up $teacher \n";
-    $command="rm -rf /home/teachers/${teacher}/${Language::collect_dir}/*"; 
+    $command="rm -rf /home/teachers/${teacher}/${Language::collect_dir}/${group}/*"; 
     print "$command \n";
     system($command);
 
@@ -326,7 +389,8 @@ sub dateien_einsammeln{
     }
 
     # collect files(?????? later do this as galli)
-    $command="sophomorix-teacher --teacher $teacher --collect --class $group";
+    $command="sophomorix-teacher --teacher $teacher --collect --${type} $group";
+
     print "$command \n";
     system($command);
 
@@ -350,11 +414,21 @@ sub dateien_einsammeln{
     foreach my $user (@userlist_to_check){
         foreach my $testfile (@teacher_files){
            $file="/home/teachers/${teacher}/${Language::collect_dir}/${group}/${collect_dir}/${user}/${testfile}"; 
-           ok(-e $file, "$file existiert");
+           &check_existence($file);
+           $file="/home/students/${group}/${user}/${Language::collect_dir}/${testfile}"; 
+
+           if ($option eq "collect"){
+               # data must be moved away
+               &check_nonexistence($file);
+           } elsif ($option eq "collectcopy"){
+               # data must be there
+               &check_nonexistence($file);
+           } else {
+	       print "Bad option $option";
+               exit;
+           }
 	}
     }
-
-
 }
 
 
@@ -374,7 +448,9 @@ sub vorlagen_bereitstellen{
     system($command);
 
     # join the class 11a (?????? later do this as galli)
-    $command="sophomorix-teacher --teacher $teacher --add $group";
+    if ($type eq "class"){
+       $command="sophomorix-teacher --teacher $teacher --add $group";
+    }
     print "$command \n";
     system($command);
     # was directory created ?
@@ -389,7 +465,7 @@ sub vorlagen_bereitstellen{
     }
 
     # distribute files(?????? later do this as galli)
-    $command="sophomorix-teacher --teacher $teacher --handout --class $group";
+    $command="sophomorix-teacher --teacher $teacher --handout --${type} $group";
     print "$command \n";
     system($command);
 
