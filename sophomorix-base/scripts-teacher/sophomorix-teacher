@@ -182,13 +182,10 @@ if ($add eq "" and
 
 # --add class
 if ($add ne ""){
-   my $result = &add_my_adminclass($login,$add);
-   if ($result==0){
-       print "ERROR: $add is not a valid AdminClass\n";
-   } else {
-       # add links
-   }
+   &add_my_adminclass($login,$add);
    $info=1;
+   # Creating Mailing Aliases and Lists
+   system("/usr/sbin/sophomorix-mail");
    exit;
 }
 
@@ -197,13 +194,10 @@ if ($add ne ""){
 
 # --remove class
 if ($remove ne ""){
-   my $result = &remove_my_adminclass($login,$remove);
-   if ($result==0){
-       print "ERROR: $remove is not existing in MyAdminClasses\n";
-   } else {
-       # remove links
-   }
+   &remove_my_adminclass($login,$remove);
    $info=1;
+   # Creating Mailing Aliases and Lists
+   system("/usr/sbin/sophomorix-mail");
    exit;
 }
 
