@@ -31,6 +31,7 @@ use if ${DevelConf::db_backend} eq 'files' ,
 # list of functions to load if db is 'pgldap'
 use if ${DevelConf::db_backend} eq 'pgldap' , 
     'Sophomorix::SophomorixPgLdap' => qw(show_modulename
+                                         fetch_my_adminclasses
                                        );
 
 
@@ -101,12 +102,12 @@ my ($GID_name)=getgrgid($GID);
 my ($EGID_name)=getgrgid($EGID);
 
 
-
-print "UID:  $UID ($UID_name)\n",
-      "EUID: $EUID ($EUID_name)\n",
-      "GID:  $GID ($GID_name)\n", 
-      "EGID: $EGID ($EGID_name)\n\n";
-
+if($Conf::log_level>=3){
+    print "UID:  $UID ($UID_name)\n",
+          "EUID: $EUID ($EUID_name)\n",
+          "GID:  $GID ($GID_name)\n", 
+          "EGID: $EGID ($EGID_name)\n\n";
+}
 
 
 # make calls including path not tainted
@@ -216,7 +217,7 @@ if ($remove ne ""){
 # Display info and exit
  
 if ($info==1 and $collect==0 and $handout==0){
-   my @list=&get_my_adminclasses($login);
+   my @list=&fetch_my_adminclasses($login);
    if ($#list==-1){
       print "\nTeacher $login has no AdminClasses in his list\n";
       print "Add a class with:   --add classname\n";
@@ -238,7 +239,7 @@ if ($info==1 and $collect==0 and $handout==0){
 
     if ($class ne ""){
        $handout_dir = "${ha_basedir}/$class"; 
-       my @list=&get_my_adminclasses($login);
+       my @list=&fetch_my_adminclasses($login);
        my $seen=0;
        foreach my $item (@list){
 	   if ($item eq $class){$seen=1}
