@@ -26,6 +26,10 @@ require Exporter;
              deletegroup_from_project
              deleteproject_from_project
              deleteuser_from_all_projects
+             addadmin_to_adminclass
+             deleteadmin_from_adminclass
+             fetchadmins_from_adminclass
+             fetch_my_adminclasses
 	     create_user_db_entry
              date_perl2pg
              date_pg2perl
@@ -164,6 +168,13 @@ sub check_connections {
     my $ldap = Net::LDAP->new( '127.0.0.1' ) or die "$@";
 }
 
+
+
+##############################################################################
+#                                                                            #
+#  Functions for projects                                                    #
+#                                                                            #
+##############################################################################
 
 sub fetchinfo_from_project {
     my ($project) = @_;
@@ -365,7 +376,7 @@ sub deleteadmin_from_project {
     # remove admin from project
     my ($user,$project)=@_;
     my $dbh=&db_connect();
-    # fetching gidnumber
+    # fetching id
     my ($project_id_sys)= $dbh->selectrow_array( "SELECT id 
                                          FROM groups 
                                          WHERE gid='$project'");
@@ -478,6 +489,9 @@ sub deleteuser_from_all_projects {
     }
     &db_disconnect($dbh);
 }
+
+
+
 
 
 
@@ -762,8 +776,173 @@ sub addproject_to_project {
 
 
 
+##############################################################################
+#                                                                            #
+#  Functions for adminclasses                                                #
+#                                                                            #
+##############################################################################
+
+sub addadmin_to_adminclass {
+    # add an admin to a adminclass(group)
+    my ($user,$adminclass)=@_;
+    my $dbh=&db_connect();
+    # fetching id
+    my ($adminclass_id_sys)= $dbh->selectrow_array( "SELECT id 
+                                         FROM groups 
+                                         WHERE gid='$adminclass'");
+    # fetching uidnumber
+    my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
+                                         FROM posix_account 
+                                         WHERE uid='$user'");
 
 
+
+    if (defined $uidnumber_sys and defined $adminclass_id_sys){
+        # trying to fetch  old entry
+        my ($old_entry)= $dbh->selectrow_array( "SELECT uidnumber 
+                                     FROM classes_admins 
+                                     WHERE (uidnumber=$uidnumber_sys
+                                       AND adminclassid=$adminclass_id_sys)");
+        # adding only if not defined already
+        if (not defined $old_entry){                
+            print "   Adding user $user($uidnumber_sys) ", 
+                  "to $adminclass(id=$adminclass_id_sys) as admin\n";
+            my $sql="INSERT INTO classes_admins
+                     (adminclassid,uidnumber)
+	             VALUES
+	             ($adminclass_id_sys,'$uidnumber_sys')";	
+            if($Conf::log_level>=3){
+                print "\nSQL: $sql\n";
+            }
+            $dbh->do($sql);
+        } else {
+            print "   User $user($uidnumber_sys) is in ", 
+                  "$adminclass(id=$adminclass_id_sys) already\n";
+        }
+    } else {
+        if (not defined $uidnumber_sys){
+           print "   User $user does not exist, doing nothing. \n";
+        }
+        if (not defined $adminclass_id_sys){
+           print "   Adminclass $adminclass does not exist, doing nothing. \n";
+        }
+    }
+    &db_disconnect($dbh);
+}
+
+
+
+
+sub deleteadmin_from_adminclass {
+    # remove admin from adminclass
+    my ($user,$adminclass)=@_;
+    my $dbh=&db_connect();
+    # fetching id
+    my ($adminclass_id_sys)= $dbh->selectrow_array( "SELECT id 
+                                         FROM groups 
+                                         WHERE gid='$adminclass'");
+    # fetching uidnumber
+    my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
+                                         FROM posix_account 
+                                         WHERE uid='$user'");
+    print "   Removing admin $user($uidnumber_sys) from ",
+          "$adminclass($adminclass_id_sys) \n";
+    my $sql="DELETE FROM classes_admins 
+             WHERE (uidnumber=$uidnumber_sys AND adminclassid=$adminclass_id_sys) 
+             ";	
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    $dbh->do($sql);
+    &db_disconnect($dbh);
+
+}
+
+
+
+
+
+
+sub fetchadmins_from_adminclass {
+    # return a list of uid of admins of the given adminclass
+    my ($group) = @_;
+    my @userlist=();
+    my $dbh=&db_connect();
+ 
+    # fetching class_id
+    my ($class_id_sys)= $dbh->selectrow_array( "SELECT id 
+                                         FROM groups 
+                                         WHERE gid='$group'");
+    if (not defined $class_id_sys){
+        print "WARNING: $group not found\n";
+	return @userlist;
+        exit;
+    }
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT uidnumber 
+                             FROM classes_admins 
+                             WHERE adminclassid=$class_id_sys 
+                            " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+       # split the array, to give better names
+       my ($uidnumber)=@$row;
+       # fetching uid
+       my ($uid_sys)= $dbh->selectrow_array( "SELECT uid 
+                                         FROM posix_account 
+                                         WHERE uidnumber=$uidnumber");
+       push @userlist, $uid_sys;
+    }
+    &db_disconnect($dbh);
+    return @userlist;
+}
+
+
+
+
+sub fetch_my_adminclasses {
+    # return a list of adminclasses from a teacher
+    my ($user) = @_;
+    my @userlist=();
+    my $dbh=&db_connect();
+ 
+
+    # fetching uidnumber
+    my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
+                                         FROM posix_account 
+                                         WHERE uid='$user'");
+
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT adminclassid
+                             FROM classes_admins 
+                             WHERE uidnumber=$uidnumber_sys 
+                            " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+       # split the array, to give better names
+       my ($adminclass_id)=@$row;
+       # fetching gid
+       my ($gid_sys)= $dbh->selectrow_array( "SELECT gid 
+                                         FROM groups 
+                                         WHERE id=$adminclass_id");
+       push @userlist, $gid_sys;
+    }
+    &db_disconnect($dbh);
+    return @userlist;
+}
+
+
+
+
+
+
+##############################################################################
+#                                                                            #
+#  Functions for users                                                       #
+#                                                                            #
+##############################################################################
 
 # adds a user to the user database
 sub create_user_db_entry {

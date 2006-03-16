@@ -509,10 +509,6 @@ SQL-DBI/OpenLDAP related:
 - avoid inserting an identical,existing line once again
   --using SQL
 
-- create table my_classes
-     uidnumber  -- gidnumber
-   (fast access)
-
 
 sekundäre Gruppenmitgliedschaften ermitteln:
 
@@ -924,9 +920,6 @@ falls nwberater, admin, ... in db, dann quota updaten
       - sorted by gid
 
 
-      new table adminclass_admins: teacher join a class 
-           (replaces .sophomorix)
-      (or put this stuff in another place)
 
 
 Performance bug:
@@ -974,11 +967,6 @@ decide if both is needed as a teacher in tasks:
 - link (what for?)
 
 
-- add memberships in classes in own table instead of .sophomorix
-  when updating this membership:
-    call sophomorix-mail to add user to to mailinglists
-- when generating mailinglists, add teachers from classes that 
-  have added themselves
 
 
 BUG: /home/share/classes/11a has a loop link
@@ -1008,9 +996,46 @@ handout/collect to projects/subclasses
 
 skip empty lines in config files (review that)
 
-new table for teachers in adminclasses
+
+
+
+sophomorix-teacher
+    call sophomorix-mail to add user to to mailinglists
+- when generating mailinglists, add teachers from classes that 
+  have added themselves
+
+
+remove 
+  get_my_adminclasses
+  provide_my_class_file
+
+
+
+sophomorix-teacher  
+
+    showteachers
+     teacher:  adminclass
+
+    showclasses
+     class:    teacher
+
+
+
+avoid naming a longname of a project like:
+  - another project
+  - another group
+  - anothers project longname
+
+avoid adding a adminclass with the name/longname of a project
+
 
 1.6.0-1
+   - new table for teachers in adminclasses: classes_admins
+     (replaces $HOME/.sophomorix/MyAdminClasses)
+
+   - sophomorix-test-bunchof-users
+     --add: adds some projects
+     --delete:  removes the projects
    - updated manpage *-teacher *-project
    - created option to remove a project completly 
      (sophomorix-project --kill)

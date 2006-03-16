@@ -694,7 +694,10 @@ has added herself. If a class exists multiple times, it is retured only once.
 
 =cut
 
-sub get_my_adminclasses {
+
+# This function is obsolete 
+# replaced by: fetchadmins_from_adminclass
+sub get_my_adminclasses_oldstuff {
     my ($login) = @_;
     my @classes=();
     my %classes=();
@@ -727,7 +730,8 @@ When AdminClass is not an AdminClass nothing is done and 0 returned.
 sub add_my_adminclass {
     my ($login,$class) = @_;
     my $file=&provide_my_class_file($login);
-    my @list=&get_my_adminclasses($login);
+#    my @list=&get_my_adminclasses($login);
+    my @list=&fetch_my_adminclasses($login);
     my $seen=0;
     my $valid=0;
     my @entry = getpwnam($login);
@@ -735,6 +739,7 @@ sub add_my_adminclass {
 
     # check if $class is really a class
     # old: my @valid_classes=&get_adminclasses_school();
+# geht schneller
     my @valid_classes=&pg_get_adminclasses();
     foreach my $item (@valid_classes){
 	if ($item eq $class){
@@ -745,6 +750,9 @@ sub add_my_adminclass {
         print "$class is not a valid AdminClass\n";
 	return 0;
     }
+
+
+
 
     # add class to the list of classes if not already there
     foreach my $item (@list){
@@ -757,13 +765,17 @@ sub add_my_adminclass {
     }
     @list = sort @list;
 
+
     # write the list to the file
-    open(MYCLASS, ">$file.tmp");
-    foreach my $item (@list){
-	print MYCLASS "$item"."\n";
-    }
-    close(MYCLASS);
-    system("mv $file.tmp $file");
+#    open(MYCLASS, ">$file.tmp");
+#    foreach my $item (@list){
+#	print MYCLASS "$item"."\n";
+#    }
+#    close(MYCLASS);
+#    system("mv $file.tmp $file");
+
+    # add my adminclass to database
+    &addadmin_to_adminclass($login,$class);
 
     # create link
     &Sophomorix::SophomorixBase::create_share_link($login,$class,$class,"class");
@@ -823,7 +835,8 @@ MyAdminClasses), 0 is returned.
 sub remove_my_adminclass {
     my ($login,$class) = @_;
     my $file=&provide_my_class_file($login);
-    my @list=&get_my_adminclasses($login);
+#    my @list=&get_my_adminclasses($login);
+    my @list=&fetch_my_adminclasses($login);
     my @new_list=();
     my $removed=0;
     my @entry = getpwnam($login);
@@ -835,13 +848,19 @@ sub remove_my_adminclass {
             $removed=1;
 	}
     }
+
+
+
     # write new list to file
-    open(MYCLASS, ">$file.tmp");
-    foreach my $item (@new_list){
-	print MYCLASS "$item"."\n";
-    }
-    close(MYCLASS);
-    system("mv $file.tmp $file");
+#    open(MYCLASS, ">$file.tmp");
+#    foreach my $item (@new_list){
+#	print MYCLASS "$item"."\n";
+#    }
+#    close(MYCLASS);
+#    system("mv $file.tmp $file");
+
+    # remove my adminclass from database
+    &deleteadmin_from_adminclass($login,$class);
 
     # remove link
     &Sophomorix::SophomorixBase::remove_share_link($login,$class,$class,"class");
