@@ -1875,8 +1875,6 @@ sub create_share_link {
        my $link_name_tasks=$home.
           "/${Language::task_dir}/${Language::task_string}-${share_long_name}";
    
-       print "Creating a link for user $login to $type $share_name.\n";
-
        if ($type eq "project"){
           # project
           $link_target="${DevelConf::share_projects}/${share_name}";
@@ -1906,14 +1904,33 @@ sub create_share_link {
                       "$home/${Language::share_dir}");
 
        # Link to share
-       print "   Link name (share): $link_name\n";
-       print "   Target    (share): $link_target\n";
-       symlink $link_target, $link_name;
+       if($Conf::log_level>=2){
+           print "   Link name (share): $link_name\n";
+           print "   Target    (share): $link_target\n";
+       }
+       if (-e $link_target and -d $link_target){
+            print "   Creating a link for user $login ",
+                  "to $type ${link_target}.\n";
+            symlink $link_target, $link_name;
+       } else {
+           print "   NOT creating Link to ",
+                 "nonexisting/nondirectory $link_target\n";
+       }
+
 
        # Link to tasks
-       print "   Link name (tasks): $link_name_tasks\n";
-       print "   Target    (tasks): $link_target_tasks\n";
-       symlink $link_target_tasks, $link_name_tasks;
+       if($Conf::log_level>=2){
+           print "   Link name (tasks): $link_name_tasks\n";
+           print "   Target    (tasks): $link_target_tasks\n";
+       }
+       if (-e $link_target_tasks and -d $link_target_tasks){
+           print "   Creating a link for user $login ",
+                 "to $type ${link_target_tasks}.\n";
+           symlink $link_target_tasks, $link_name_tasks;
+       } else {
+           print "   NOT creating Link to ",
+                 "nonexisting/nondirectory $link_target_tasks\n";
+       }
     } else {
 	print "   create_share_link: $login is not a valid username.\n";
     }
@@ -1966,10 +1983,10 @@ sub remove_share_link {
        "/${Language::task_dir}/${Language::task_string}-${share_long_name}";   
 
     # remove the link
-    print "Removing link (share): $link_name\n";
+    print "   Removing link (share): $link_name\n";
     unlink $link_name;
 
-    print "Removing link (tasks): $link_name_tasks\n";
+    print "   Removing link (tasks): $link_name_tasks\n";
     unlink $link_name_tasks;
 
 }

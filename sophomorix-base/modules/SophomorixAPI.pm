@@ -730,7 +730,6 @@ When AdminClass is not an AdminClass nothing is done and 0 returned.
 sub add_my_adminclass {
     my ($login,$class) = @_;
     my $file=&provide_my_class_file($login);
-#    my @list=&get_my_adminclasses($login);
     my @list=&fetch_my_adminclasses($login);
     my $seen=0;
     my $valid=0;
@@ -740,20 +739,18 @@ sub add_my_adminclass {
     # check if $class is really a class
     # old: my @valid_classes=&get_adminclasses_school();
 # geht schneller
-    my @valid_classes=&pg_get_adminclasses();
-    foreach my $item (@valid_classes){
-	if ($item eq $class){
-	    $valid=1;
-        }
-    }
-    if ($valid==0){
-        print "$class is not a valid AdminClass\n";
-	return 0;
-    }
+#    my @valid_classes=&pg_get_adminclasses();
+#    foreach my $item (@valid_classes){
+#	if ($item eq $class){
+#	    $valid=1;
+#        }
+#    }
+#    if ($valid==0){
+#        print "$class is not a valid AdminClass\n";
+#	return 0;
+#    }
 
-
-
-
+# ende gehr shneller
     # add class to the list of classes if not already there
     foreach my $item (@list){
 	if ($item eq $class){
@@ -764,15 +761,6 @@ sub add_my_adminclass {
 	push @list, $class;
     }
     @list = sort @list;
-
-
-    # write the list to the file
-#    open(MYCLASS, ">$file.tmp");
-#    foreach my $item (@list){
-#	print MYCLASS "$item"."\n";
-#    }
-#    close(MYCLASS);
-#    system("mv $file.tmp $file");
 
     # add my adminclass to database
     &addadmin_to_adminclass($login,$class);
@@ -835,7 +823,6 @@ MyAdminClasses), 0 is returned.
 sub remove_my_adminclass {
     my ($login,$class) = @_;
     my $file=&provide_my_class_file($login);
-#    my @list=&get_my_adminclasses($login);
     my @list=&fetch_my_adminclasses($login);
     my @new_list=();
     my $removed=0;
@@ -848,16 +835,6 @@ sub remove_my_adminclass {
             $removed=1;
 	}
     }
-
-
-
-    # write new list to file
-#    open(MYCLASS, ">$file.tmp");
-#    foreach my $item (@new_list){
-#	print MYCLASS "$item"."\n";
-#    }
-#    close(MYCLASS);
-#    system("mv $file.tmp $file");
 
     # remove my adminclass from database
     &deleteadmin_from_adminclass($login,$class);
