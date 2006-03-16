@@ -36,7 +36,6 @@ use Sophomorix::SophomorixBase qw (
              get_user_project
              create_userlist
              get_ml_users
-             get_my_adminclasses
              add_my_adminclass
              remove_my_adminclass
             );
@@ -683,42 +682,6 @@ sub get_ml_users {
 
 =pod
 
-=head2 Working with MyAdminClasses (querying, adding, removing, ...)
-
-=over 4
-
-=item I<@list = get_my_adminclasses(Teacher)>
-
-Returns an ascibetical list of adminclasses in which the teacher Teacher
-has added herself. If a class exists multiple times, it is retured only once.
-
-=cut
-
-
-# This function is obsolete 
-# replaced by: fetchadmins_from_adminclass
-sub get_my_adminclasses_oldstuff {
-    my ($login) = @_;
-    my @classes=();
-    my %classes=();
-    my $file=&provide_my_class_file($login);
-    open(MYCLASS, "<$file");
-    while(<MYCLASS>){
-        chomp();
-        $classes{$_}="";
-    }
-    while (my ($key) = each %classes){
-        push @classes, $key;
-    }
-    close(MYCLASS);
-    @classes = sort @classes;
-    return @classes;
-}
-
-
-
-=pod
-
 =item I<$result = add_my_adminclass(Login,AdminClass)>
 
 Adds the valid AdminClass to MyAdminClasses of the user Login and returns 1.
@@ -729,38 +692,23 @@ When AdminClass is not an AdminClass nothing is done and 0 returned.
 
 sub add_my_adminclass {
     my ($login,$class) = @_;
-    my $file=&provide_my_class_file($login);
-    my @list=&fetch_my_adminclasses($login);
+#    my $file=&provide_my_class_file($login);
+#    my @list=&fetch_my_adminclasses($login);
     my $seen=0;
     my $valid=0;
     my @entry = getpwnam($login);
     my $homedir = "$entry[7]";
 
-    # check if $class is really a class
-    # old: my @valid_classes=&get_adminclasses_school();
-# geht schneller
-#    my @valid_classes=&pg_get_adminclasses();
-#    foreach my $item (@valid_classes){
+#    # add class to the list of classes if not already there
+#    foreach my $item (@list){
 #	if ($item eq $class){
-#	    $valid=1;
+#	    $seen=1;
 #        }
 #    }
-#    if ($valid==0){
-#        print "$class is not a valid AdminClass\n";
-#	return 0;
+#    if ($seen==0){
+#	push @list, $class;
 #    }
-
-# ende gehr shneller
-    # add class to the list of classes if not already there
-    foreach my $item (@list){
-	if ($item eq $class){
-	    $seen=1;
-        }
-    }
-    if ($seen==0){
-	push @list, $class;
-    }
-    @list = sort @list;
+#    @list = sort @list;
 
     # add my adminclass to database
     &addadmin_to_adminclass($login,$class);
@@ -787,7 +735,7 @@ sub add_my_adminclass {
 
 
 # zurückgeben, und falls inexistent anlegen
-sub provide_my_class_file {
+sub provide_my_class_file_oldstuff {
     my ($login) = @_;
     my ($home)=${DevelConf::homedir_teacher}."/".$login;
     my ($dotdir)=$home."/.sophomorix";
@@ -822,19 +770,19 @@ MyAdminClasses), 0 is returned.
 
 sub remove_my_adminclass {
     my ($login,$class) = @_;
-    my $file=&provide_my_class_file($login);
-    my @list=&fetch_my_adminclasses($login);
+#    my $file=&provide_my_class_file($login);
+#    my @list=&fetch_my_adminclasses($login);
     my @new_list=();
     my $removed=0;
     my @entry = getpwnam($login);
     my $homedir = "$entry[7]";
-    foreach my $item (@list){
-	if ($item ne $class){
-	    push @new_list, $item;
-        } else {
-            $removed=1;
-	}
-    }
+#    foreach my $item (@list){
+#	if ($item ne $class){
+#	    push @new_list, $item;
+#        } else {
+#            $removed=1;
+#	}
+#    }
 
     # remove my adminclass from database
     &deleteadmin_from_adminclass($login,$class);
