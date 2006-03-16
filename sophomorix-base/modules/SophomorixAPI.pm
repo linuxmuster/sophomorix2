@@ -692,23 +692,10 @@ When AdminClass is not an AdminClass nothing is done and 0 returned.
 
 sub add_my_adminclass {
     my ($login,$class) = @_;
-#    my $file=&provide_my_class_file($login);
-#    my @list=&fetch_my_adminclasses($login);
     my $seen=0;
     my $valid=0;
     my @entry = getpwnam($login);
     my $homedir = "$entry[7]";
-
-#    # add class to the list of classes if not already there
-#    foreach my $item (@list){
-#	if ($item eq $class){
-#	    $seen=1;
-#        }
-#    }
-#    if ($seen==0){
-#	push @list, $class;
-#    }
-#    @list = sort @list;
 
     # add my adminclass to database
     &addadmin_to_adminclass($login,$class);
@@ -734,29 +721,6 @@ sub add_my_adminclass {
 
 
 
-# zurückgeben, und falls inexistent anlegen
-sub provide_my_class_file_oldstuff {
-    my ($login) = @_;
-    my ($home)=${DevelConf::homedir_teacher}."/".$login;
-    my ($dotdir)=$home."/.sophomorix";
-    my ($file)=$dotdir."/MyAdminClasses";
-    # create the dotfile-stuff
-    if (not -e $dotdir){
-	mkdir $dotdir;
-        defined(my $uid = getpwnam $login) or die "bad user";
-        chown $uid, 0, $dotdir;
-    }
-    if (not -e $file){
-	system("touch $file");
-        defined(my $uid = getpwnam $login) or die "bad user";
-        chown $uid, 0, $file;
-    }
-    if($Conf::log_level>=3){
-       print "Extracting data from $file\n";
-   }
-    return $file;
-}
-
 =pod
 
 =item I<$result = remove_my_adminclass(Login,AdminClass)>
@@ -770,19 +734,10 @@ MyAdminClasses), 0 is returned.
 
 sub remove_my_adminclass {
     my ($login,$class) = @_;
-#    my $file=&provide_my_class_file($login);
-#    my @list=&fetch_my_adminclasses($login);
     my @new_list=();
     my $removed=0;
     my @entry = getpwnam($login);
     my $homedir = "$entry[7]";
-#    foreach my $item (@list){
-#	if ($item ne $class){
-#	    push @new_list, $item;
-#        } else {
-#            $removed=1;
-#	}
-#    }
 
     # remove my adminclass from database
     &deleteadmin_from_adminclass($login,$class);
@@ -793,21 +748,15 @@ sub remove_my_adminclass {
 
     # remove dirs in tasks and collect
     my $task_dir=$homedir."/".${Language::task_dir}."/".$class;
-    #print "Task:    $task_dir\n";
     if (-e $task_dir){
        system("rmdir $task_dir");
     }
     my $collect_dir=$homedir."/".${Language::collect_dir}."/".$class;
-    #print "Collect: $collect_dir\n";
     if (-e $collect_dir){
        system("rmdir $collect_dir");
     }
     return $removed;
 }
-
-
-
-
 
 
 
