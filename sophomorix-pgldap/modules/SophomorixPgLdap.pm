@@ -557,7 +557,7 @@ sub add_newuser_to_her_projects {
     @memberships = sort @memberships;
 
     # Do it!
-    print "Adding user $login to the projects ...\n";
+    print "   Adding user $login to the projects ...\n";
     foreach my $group_gidnumber (@memberships){
         # check if it exists already.
         my ($gid,$uid)= $dbh->selectrow_array( "SELECT gidnumber,memberuidnumber 
@@ -1445,10 +1445,10 @@ sub create_class_db_entry {
              FALSE,
              FALSE,
              '$type')";	
-        if($Conf::log_level>=3){
-           print "\nSQL: $sql\n";
-        }
-        $dbh->do($sql);
+#        if($Conf::log_level>=3){
+#           print "\nSQL: $sql\n";
+#        }
+#        $dbh->do($sql);
 
     } else {
         # adding a adminclass
@@ -1613,19 +1613,43 @@ sub pg_adduser {
     }
     my ($gidnumber)= $dbh->selectrow_array($sql);
 
-    if($Conf::log_level>=2){
-       print "   User $user has id  $uidnumber\n";
-       print "   Group $group has id  $gidnumber\n";
-       print "   Adding user $uidnumber to group $gidnumber\n";
+    if (defined $uidnumber and defined $gidnumber){
+        if($Conf::log_level>=2){
+            print "   User $user has id  $uidnumber\n";
+            print "   Group $group has id  $gidnumber\n";
+            print "   Adding user $uidnumber to group $gidnumber\n";
+        }
+        $sql="SELECT memberuidnumber FROM groups_users 
+                                  WHERE (gidnumber=$gidnumber
+                                  AND memberuidnumber=$uidnumber)";
+        if($Conf::log_level>=3){
+            print "\nSQL: $sql\n";
+        }
+        my ($old_id)= $dbh->selectrow_array($sql);
+        if (not defined $old_id){
+            $sql="INSERT INTO groups_users 
+                         VALUES ($gidnumber,$uidnumber);";
+            if($Conf::log_level>=3){
+                print "\nSQL: $sql\n";
+            }
+            print "   Adding user $user (${uidnumber}) to ",
+                  "group $group ($gidnumber)\n";
+            $dbh->do($sql);
+        } else {
+            print "   User $user(${uidnumber})exists ",
+                  "already in $group ($gidnumber)\n";
+        }
+    } else {
+        if (not defined $uidnumber){
+            print "   NOT adding user $user to group ",
+                  "$group: user doesn't exist\n";
+        } elsif (not defined $gidnumber){
+            print "   NOT adding user $user to group ",
+                  "$group: group doesn't exist\n";
+        }
     }
 
-    print "Adding user $user to group $group\n";
-    # todo ??????? make sure entry doesnt exist
-    $sql="INSERT INTO groups_users VALUES ($gidnumber,$uidnumber);";
-    if($Conf::log_level>=3){
-       print "\nSQL: $sql\n";
-    }
-    $dbh->do($sql);
+
 }
 
 
