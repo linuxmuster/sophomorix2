@@ -1851,28 +1851,36 @@ Der type kann sein: project, class oder subclass
 # this should be true for all db and auth-systems
 sub create_share_link {
     my ($login,$share_name,$share_long_name,$type) = @_;
+    my $homedir="";
+    my $link_target="";
+    my $link_target_tasks="";
 
     # replace teachers with language term
     if ($share_name  eq ${DevelConf::teacher}){
         $share_long_name=${Language::teacher};     
     }
 
-    my $link_target="";
-    my $link_target_tasks="";
     # project is standard
     if (not defined $type or $type eq ""){
 	$type="project";
     }
 
-    # Only act if uid is valid
     if (getpwnam("$login")){
-       my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
-          $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
+       my($login,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
+          $name_passwd,$gcos_passwd,$home,$shell)=getpwnam("$login");
+       $homedir=$home;
+    }
 
-       my $link_name=$home.
+    # Only act if uid is valid
+    if ($homedir ne ""){
+#    if (getpwnam("$login")){
+#       my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
+#          $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
+
+       my $link_name=$homedir.
           "/${Language::share_dir}/${Language::share_string}-${share_long_name}";   
 
-       my $link_name_tasks=$home.
+       my $link_name_tasks=$homedir.
           "/${Language::task_dir}/${Language::task_string}-${share_long_name}";
    
        if ($type eq "project"){
@@ -1901,7 +1909,7 @@ sub create_share_link {
 
         # make sure directory exists
         &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/\$share_dir",
-                      "$home/${Language::share_dir}");
+                      "$homedir/${Language::share_dir}");
 
        # Link to share
        if($Conf::log_level>=2){
@@ -1932,7 +1940,10 @@ sub create_share_link {
                  "nonexisting/nondirectory $link_target_tasks\n";
        }
     } else {
-	print "   create_share_link: $login is not a valid username.\n";
+#	print "   create_share_link: $login is not a valid username.\n";
+        print "   NOT removing directories: ",
+              "Home of user $login not known.\n";
+
     }
 }
 
@@ -1950,15 +1961,22 @@ sub create_share_directory {
        $homedir=$home;
     }
 
-    # create dirs in tasks and collect
-    my $task_dir=$homedir."/".${Language::task_dir}."/".$share_long_name;
-    if (not -e $task_dir){
-        system("mkdir $task_dir");
-    }
+    if ($homedir ne ""){
+        # create dirs in tasks and collect
+        my $task_dir=$homedir."/".
+            ${Language::task_dir}."/".$share_long_name;
+        if (not -e $task_dir){
+            system("mkdir $task_dir");
+        }
 
-    my $collect_dir=$homedir."/".${Language::collect_dir}."/".$share_long_name;
-    if (not -e $collect_dir){
-        system("mkdir $collect_dir");
+        my $collect_dir=$homedir."/".
+            ${Language::collect_dir}."/".$share_long_name;
+        if (not -e $collect_dir){
+            system("mkdir $collect_dir");
+        }
+    } else {
+        print "   NOT creating directories: ",
+              "Home of user $login not known.\n";
     }
 }
 
@@ -1972,24 +1990,38 @@ Löscht den Link an in das Tauschverzeichnis des Projekts.
 # this should be true for all db and auth-systems
 sub remove_share_link {
     my ($login,$share_name,$share_long_name,$type) = @_;
+    my $homedir="";
     if (not defined $type or $type eq ""){
 	$type="project";
     }
-    my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
-       $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
-    my $link_name=$home.
-       "/${Language::share_dir}/${Language::share_string}-${share_long_name}";   
-    my $link_name_tasks=$home.
-       "/${Language::task_dir}/${Language::task_string}-${share_long_name}";   
 
-    # remove the link
-    print "   Removing link (share): $link_name\n";
-    unlink $link_name;
+    if (getpwnam("$login")){
+       my($login,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
+          $name_passwd,$gcos_passwd,$home,$shell)=getpwnam("$login");
+       $homedir=$home;
+    }
 
-    print "   Removing link (tasks): $link_name_tasks\n";
-    unlink $link_name_tasks;
+    if ($homedir ne ""){
+        my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
+           $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
+        my $link_name=$home.
+          "/${Language::share_dir}/${Language::share_string}-${share_long_name}";   
+        my $link_name_tasks=$home.
+          "/${Language::task_dir}/${Language::task_string}-${share_long_name}";   
 
+        # remove the link
+        print "   Removing link (share): $link_name\n";
+        unlink $link_name;
+
+        print "   Removing link (tasks): $link_name_tasks\n";
+        unlink $link_name_tasks;
+    } else {
+        print "   NOT removing links: ",
+              "Home of user $login not known.\n";
+    }
 }
+
+
 
 sub remove_share_directory {
     my ($login,$share_name,$share_long_name,$type) = @_;
@@ -2005,16 +2037,21 @@ sub remove_share_directory {
        $homedir=$home;
     }
 
-    # remove dirs in tasks and collect
-    my $task_dir=$homedir."/".${Language::task_dir}."/".$share_long_name;
-#    if (not -e $task_dir){
-        system("rmdir $task_dir");
-#    }
+    if ($homedir ne ""){
+        # remove dirs in tasks and collect
+        my $task_dir=$homedir."/".${Language::task_dir}."/".$share_long_name;
+        if (-e $task_dir){
+            system("rmdir $task_dir");
+        }
 
-    my $collect_dir=$homedir."/".${Language::collect_dir}."/".$share_long_name;
-#    if (not -e $collect_dir){
-        system("rmdir $collect_dir");
-#    }
+        my $collect_dir=$homedir."/".${Language::collect_dir}."/".$share_long_name;
+        if (-e $collect_dir){
+            system("rmdir $collect_dir");
+        }
+    } else {
+        print "   NOT removing directories: ",
+              "Home of user $login not known.\n";
+    }
 }
 
 

@@ -334,7 +334,7 @@ sub fetchprojects_from_project {
        my ($id_sys)= $dbh->selectrow_array( "SELECT id 
                                          FROM project_details 
                                          WHERE id=$memberpro_id");
-    my ($m_project)= $dbh->selectrow_array( "SELECT gid 
+       my ($m_project)= $dbh->selectrow_array( "SELECT gid 
                                          FROM groups 
                                          WHERE id='$memberpro_id'");
 
@@ -359,14 +359,28 @@ sub deleteuser_from_project {
     my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
                                          FROM posix_account 
                                          WHERE uid='$user'");
-    print "   Removing user $user($uidnumber_sys) from $project($gidnumber_sys) \n";
-    my $sql="DELETE FROM groups_users 
-             WHERE (memberuidnumber=$uidnumber_sys AND gidnumber=$gidnumber_sys) 
+
+    if (defined $gidnumber_sys and defined $uidnumber_sys){
+        print "   Removing user $user($uidnumber_sys) ",
+              "from $project($gidnumber_sys) \n";
+        my $sql="DELETE FROM groups_users 
+             WHERE (memberuidnumber=$uidnumber_sys 
+               AND gidnumber=$gidnumber_sys) 
              ";	
-    if($Conf::log_level>=3){
-       print "\nSQL: $sql\n";
+        if($Conf::log_level>=3){
+           print "\nSQL: $sql\n";
+        }
+        $dbh->do($sql);
+    } else {
+        if (not defined $uidnumber_sys){
+            print "   NOT removing user $user from project ",
+                  "$group: user doesn't exist\n";
+        } elsif (not defined $gidnumber_sys){
+            print "   NOT removing user $user from project ",
+                  "$group: group doesn't exist\n";
+        }
     }
-    $dbh->do($sql);
+
     &db_disconnect($dbh);
 
 }
@@ -795,8 +809,6 @@ sub addadmin_to_adminclass {
                                          FROM posix_account 
                                          WHERE uid='$user'");
 
-
-
     if (defined $uidnumber_sys and defined $adminclass_id_sys){
         # trying to fetch  old entry
         my ($old_entry)= $dbh->selectrow_array( "SELECT uidnumber 
@@ -845,17 +857,28 @@ sub deleteadmin_from_adminclass {
     my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
                                          FROM posix_account 
                                          WHERE uid='$user'");
-    print "   Removing admin $user($uidnumber_sys) from ",
-          "$adminclass($adminclass_id_sys) \n";
-    my $sql="DELETE FROM classes_admins 
-             WHERE (uidnumber=$uidnumber_sys AND adminclassid=$adminclass_id_sys) 
-             ";	
-    if($Conf::log_level>=3){
-       print "\nSQL: $sql\n";
-    }
-    $dbh->do($sql);
-    &db_disconnect($dbh);
 
+    if (defined $adminclass_id_sys and defined $uidnumber_sys){
+        print "   Removing admin $user($uidnumber_sys) from ",
+              "$adminclass($adminclass_id_sys) \n";
+        my $sql="DELETE FROM classes_admins 
+                 WHERE (uidnumber=$uidnumber_sys 
+                   AND adminclassid=$adminclass_id_sys) 
+                ";	
+        if($Conf::log_level>=3){
+            print "\nSQL: $sql\n";
+        }
+        $dbh->do($sql);
+    } else {
+        if (not defined $uidnumber_sys){
+            print "   NOT removing user $user from class ",
+                  "$adminclass: user doesn't exist\n";
+        } elsif (not defined $gidnumber_sys){
+            print "   NOT removing user $user from class ",
+                  "$adminclass: adminclass doesn't exist\n";
+        }
+    }
+    &db_disconnect($dbh);
 }
 
 
@@ -907,7 +930,6 @@ sub fetch_my_adminclasses {
     my @userlist=();
     my $dbh=&db_connect();
  
-
     # fetching uidnumber
     my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
                                          FROM posix_account 

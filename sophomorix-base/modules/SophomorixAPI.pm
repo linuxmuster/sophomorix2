@@ -684,18 +684,12 @@ sub get_ml_users {
 
 =item I<$result = add_my_adminclass(Login,AdminClass)>
 
-Adds the valid AdminClass to MyAdminClasses of the user Login and returns 1.
-
-When AdminClass is not an AdminClass nothing is done and 0 returned.
+Adds the valid AdminClass to MyAdminClasses of the user Login.
 
 =cut
 
 sub add_my_adminclass {
     my ($login,$class) = @_;
-    my $seen=0;
-    my $valid=0;
-    my @entry = getpwnam($login);
-    my $homedir = "$entry[7]";
 
     # add my adminclass to database
     &addadmin_to_adminclass($login,$class);
@@ -707,16 +701,8 @@ sub add_my_adminclass {
     &pg_adduser($login,$class);
 
     # create dirs in tasks and collect
-    my $task_dir=$homedir."/".${Language::task_dir}."/".$class;
-    if (not -e $task_dir){
-        system("mkdir $task_dir");
-    }
-
-    my $collect_dir=$homedir."/".${Language::collect_dir}."/".$class;
-    if (not -e $collect_dir){
-        system("mkdir $collect_dir");
-    }
-    return 1;
+    &Sophomorix::SophomorixBase::create_share_directory($login,
+         $class,$class,"class");
 }
 
 
@@ -734,28 +720,17 @@ MyAdminClasses), 0 is returned.
 
 sub remove_my_adminclass {
     my ($login,$class) = @_;
-    my @new_list=();
-    my $removed=0;
-    my @entry = getpwnam($login);
-    my $homedir = "$entry[7]";
 
     # remove my adminclass from database
     &deleteadmin_from_adminclass($login,$class);
 
     # remove link
     &Sophomorix::SophomorixBase::remove_share_link($login,$class,$class,"class");
-    &deleteuser_from_project($login,$class);
+#???    &deleteuser_from_project($login,$class);
 
     # remove dirs in tasks and collect
-    my $task_dir=$homedir."/".${Language::task_dir}."/".$class;
-    if (-e $task_dir){
-       system("rmdir $task_dir");
-    }
-    my $collect_dir=$homedir."/".${Language::collect_dir}."/".$class;
-    if (-e $collect_dir){
-       system("rmdir $collect_dir");
-    }
-    return $removed;
+    &Sophomorix::SophomorixBase::remove_share_directory($login,
+         $class,$class,"class");
 }
 
 
