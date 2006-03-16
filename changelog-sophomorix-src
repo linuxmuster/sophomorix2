@@ -958,7 +958,6 @@ Stop before giving a project the name of a login
 and vice versa (cannot create a mailinglist)
 
 
-rename sophomorix-split to sophomorix-subclass
 
 sophomorix-teacher
 decide if both is needed as a teacher in tasks:
@@ -999,15 +998,13 @@ skip empty lines in config files (review that)
 
 
 
-sophomorix-teacher
-    call sophomorix-mail to add user to to mailinglists
-- when generating mailinglists, add teachers from classes that 
-  have added themselves
 
+avoid naming a longname of a project like:
+  - another project
+  - another group
+  - anothers project longname
 
-remove 
-  get_my_adminclasses
-  provide_my_class_file
+avoid adding a adminclass with the name/longname of a project
 
 
 
@@ -1021,21 +1018,40 @@ sophomorix-teacher
 
 
 
-avoid naming a longname of a project like:
-  - another project
-  - another group
-  - anothers project longname
 
-avoid adding a adminclass with the name/longname of a project
+sophomorix-teacher
+- when generating mailinglists, add teachers from classes that 
+  have added themselves
 
+
+subclasses
+ --split -> subclass
+    option --split
+ table subclass_details
+  class_details.type not necessary
+  dont add to class_details, when adding a subclass
+  view subclassdata
+
+
+deletea_dminfrom_pro : Fehler abfangen
+usw. alle durchguggen
 
 1.6.0-1
+   - sophomorix-teacher calls sophomorix-mail,
+     when adding or removing a teacher to an andminclass
+   - renamed sophomorix-split to sophomorix-subclass
+      - script
+      - man pages
+   - removed provide_my_class_file (provided .sophomorix/...)
+   - removed get_my_adminclasses from sophomorixAPI.pm
+   - made sophomorix-teacher --add --remove 
+        more forgiving, when adding to a class again and again
+   - Bugfix: dont add to class_details, when adding a project
    - new table for teachers in adminclasses: classes_admins
      (replaces $HOME/.sophomorix/MyAdminClasses)
-
    - sophomorix-test-bunchof-users
-     --add: adds some projects
-     --delete:  removes the projects
+       --add: adds some projects
+       --delete:  removes the projects
    - updated manpage *-teacher *-project
    - created option to remove a project completly 
      (sophomorix-project --kill)
