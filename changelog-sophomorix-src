@@ -907,10 +907,6 @@ falls nwberater, admin, ... in db, dann quota updaten
 
 
 
-   - SQL-View classdata:
-      - show only entries from class_details
-
-
    - SQL-View memberdata:
       ToDo:
       - sophomorixstatus: table is there but shown empty
@@ -1010,18 +1006,12 @@ avoid adding a adminclass with the name/longname of a project
 
 sophomorix-teacher  
 
-    showteachers
+    --showteachers
      teacher:  adminclass
 
-    showclasses
+    --showclasses
      class:    teacher
 
-
-
-
-sophomorix-teacher
-- when generating mailinglists, add teachers from classes that 
-  have added themselves
 
 
 subclasses
@@ -1033,10 +1023,25 @@ subclasses
   view subclassdata
 
 
-deletea_dminfrom_pro : Fehler abfangen
+
+
+delete_adminfrom_pro : Fehler abfangen
 usw. alle durchguggen
 
+
+
+code_cleanup 
+API:  get_user_adminclass rasu
+Base: make_hash_lehrer_in_klassen
+
+
+
 1.6.0-1
+   - sophomorix-teacher
+     when generating mailinglists of adminclasses, add teachers which 
+     have added themselves to these classes 
+   - SQL-View classdata:
+      - show only entries from class_details
    - sophomorix-teacher calls sophomorix-mail,
      when adding or removing a teacher to an andminclass
    - renamed sophomorix-split to sophomorix-subclass
