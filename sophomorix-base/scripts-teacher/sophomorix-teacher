@@ -32,6 +32,8 @@ use if ${DevelConf::db_backend} eq 'files' ,
 use if ${DevelConf::db_backend} eq 'pgldap' , 
     'Sophomorix::SophomorixPgLdap' => qw(show_modulename
                                          fetch_my_adminclasses
+                                         show_class_teacher_list
+                                         show_teacher_class_list
                                        );
 
 
@@ -70,6 +72,8 @@ my $subclass="";
 my $project="";
 my $exam=0;
 my $info=0;
+my $show_classes=0;
+my $show_teachers=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -86,6 +90,8 @@ my $testopt=GetOptions(
            "project=s" => \$project,
            "exam" => \$exam,
            "info|i" => \$info,
+           "showclasses" => \$show_classes,
+           "showteachers" => \$show_teachers
           );
 
 
@@ -121,7 +127,8 @@ if ($help==1) {
    my @list = split(/\//,$0);
    my $scriptname = pop @list;
    # Befehlbeschreibung
-   print "\n$scriptname manages your MyAdminClasses and distributes, collects and archives Data used during lessons or exams.\n";
+   print "\n$scriptname manages your MyAdminClasses and distributes", 
+         "collects and archives Data used during lessons or exams.\n";
    print('
 Options
   -h  / --help
@@ -143,16 +150,33 @@ Please see the sophomorix-teacher(1) man pages for full documentation
 }
 
 
+
+
+
+if ($show_classes==1){
+    &show_teacher_class_list();
+    exit;
+}
+
+
+
+if ($show_teachers==1){
+    &show_class_teacher_list();
+    exit;
+}
+
+
+
 # get login name of the user that calls the script
 my $login=getpwuid($UID);
 if ($login eq "root"){
     # if caller is root
     if ($teacher ne ""){
        $login=$teacher;
-   } else {
+    } else {
        print "As root, you must specify a teacher with --teacher login \n";
        exit;
-   }
+    }
 }
 
 

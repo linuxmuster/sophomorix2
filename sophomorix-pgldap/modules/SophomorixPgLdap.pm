@@ -58,6 +58,8 @@ require Exporter;
              check_sophomorix_user
              show_project_list
              show_class_list
+             show_class_teacher_list
+             show_teacher_class_list
              show_subclass_list
              show_project
              get_smb_sid
@@ -3503,6 +3505,21 @@ sub show_class_list {
           "+--+--+--------------------+-------------------\n";
     &db_disconnect($dbh);
 }
+
+
+
+
+sub show_class_teacher_list {
+    print "To do: classes --> teachers \n";
+}
+
+
+
+
+sub show_teacher_class_list {
+    print "To do: teachers --> classes \n";
+}
+
 
 
 
