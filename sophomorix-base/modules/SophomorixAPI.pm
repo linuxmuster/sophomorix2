@@ -25,7 +25,6 @@ use Sophomorix::SophomorixBase qw (
 
 @EXPORT_OK = qw( check_datei_touch );
 @EXPORT = qw( 
-             get_user_adminclass
              get_pupils_school
              get_adminclasses_school
              get_adminclasses_sub_school
@@ -33,7 +32,6 @@ use Sophomorix::SophomorixBase qw (
              get_workstations_room
              get_workstations_school
              get_rooms_school
-             get_user_project
              create_userlist
              get_ml_users
              add_my_adminclass
@@ -157,7 +155,7 @@ If no pupil is in this class, an empty list will be returned.
 
 =cut
 
-sub get_user_adminclass {
+sub get_user_adminclass_oldstuff {
     my ($class) = @_;
     my @userliste=();
     my $dbh=&db_connect();
@@ -175,6 +173,8 @@ sub get_user_adminclass {
     }
     return @userliste;
 }
+
+
 
 
 =pod
@@ -447,7 +447,7 @@ function to get this fields will follow.
 =cut
 
 
-sub get_user_project {
+sub get_user_project_oldstuff {
     my %users=();
     my @group_users=();
     my @users_pri=();

@@ -118,9 +118,8 @@ use Sophomorix::SophomorixSYSFiles qw (
                                   );
 
 
-use Sophomorix::SophomorixAPI qw ( 
-                                    get_user_adminclass
-                                  );
+#use Sophomorix::SophomorixAPI qw ( 
+#                                  );
 
 
 
@@ -2470,7 +2469,8 @@ sub make_hash_lehrer_in_klassen {
    }
 
 #   my @lehrerliste=&get_lehrer_in_schule();
-   my @lehrerliste=&get_user_adminclass(${DevelConf::teacher});
+#   my @lehrerliste=&get_user_adminclass(${DevelConf::teacher});
+   my @lehrerliste=&Sophomorix::SophomorixPgLdap::fetchstudents_from_adminclass(${DevelConf::teacher});
    #   print "@lehrerliste";
 
    my $lehrer="";
@@ -3752,7 +3752,8 @@ sub collect {
   my @users=();
   if ($type eq "class"){
       if ($name ne "${DevelConf::teacher}"){
-         @users=&get_user_adminclass($name);
+#         @users=&get_user_adminclass($name);
+         @users=&Sophomorix::SophomorixPgLdap::fetchstudents_from_adminclass($name);
          $tasks_dir="${DevelConf::tasks_classes}/${name}/";
      } else {
          # nix
@@ -3765,7 +3766,7 @@ sub collect {
   } elsif ($type eq "project"){
 #      my ($name,$passwd,$gid,$members)=getgrname($name);
 #      @users=split(/,/, $members);
-      @users=&fetchusers_from_project($name);
+      @users=&Sophomorix::SophomorixPgLdap::fetchusers_from_project($name);
       $tasks_dir="${DevelConf::tasks_projects}/${name}/";
   }
 
@@ -3978,7 +3979,8 @@ sub unterricht_einsammeln {
   my $lehrer_verzeichnis="${DevelConf::homedir_teacher}/${loginname}/windows/sammelordner/U-${klasse}_${date}";
   my $aufgaben="${DevelConf::tasks_tasks}/${klasse}/${loginname}";
 #  my @klasse = &get_schueler_in_klasse($klasse);
-  my @klasse = &get_user_in_adminclass($klasse);
+#  my @klasse = &get_user_in_adminclass($klasse);
+  my @klasse = &Sophomorix::SophomorixPgLdap::fetchstudents_from_adminclass($klasse);
 
   # Verzeichnis Anlegen
   # repair.directories einlesen

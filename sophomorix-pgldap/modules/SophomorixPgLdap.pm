@@ -28,7 +28,9 @@ require Exporter;
              deleteuser_from_all_projects
              addadmin_to_adminclass
              deleteadmin_from_adminclass
+             fetchstudents_from_adminclass
              fetchadmins_from_adminclass
+             fetchusers_from_adminclass
              fetch_my_adminclasses
 	     create_user_db_entry
              date_perl2pg
@@ -883,6 +885,26 @@ sub deleteadmin_from_adminclass {
 
 
 
+sub fetchstudents_from_adminclass {
+    # only students
+    my ($class) = @_;
+    my @userliste=();
+    my $dbh=&db_connect();
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT uid  
+                             FROM userdata
+                             WHERE gid='$class'
+                             ORDER BY uid" );
+       $sth->execute();
+    my $i=0;
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach ( @{ $array_ref } ) {
+       push @userliste, ${$array_ref}[$i][0];
+       $i++;
+    }
+    return @userliste;
+}
+
 
 
 
@@ -920,6 +942,19 @@ sub fetchadmins_from_adminclass {
     &db_disconnect($dbh);
     return @userlist;
 }
+
+
+
+sub fetchusers_from_adminclass {
+    # return a list of 
+    my ($group) = @_;
+    my @user=&fetchstudents_from_adminclass($group);
+    my @teacher=&fetchadmins_from_adminclass($group);
+    my @all_users = ( @teacher, @user );
+    return @all_users;
+}
+
+
 
 
 
