@@ -25,7 +25,7 @@ use Sophomorix::SophomorixBase qw (
 
 @EXPORT_OK = qw( check_datei_touch );
 @EXPORT = qw( 
-             get_pupils_school
+             fetchstudents_from_school
              get_adminclasses_school
              get_adminclasses_sub_school
              get_projects_school
@@ -139,7 +139,7 @@ are returned
 
 =cut
 
-sub get_pupils_school {
+sub get_pupils_school_oldstuff {
     my @pwliste=();
     my @schuelerliste=();
     
@@ -160,6 +160,30 @@ sub get_pupils_school {
 }
 
 
+# replaces get_students_school
+sub fetchstudents_from_school {
+    my @students=();
+    my $dbh=&db_connect();
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT uid 
+                             FROM userdata 
+                             WHERE (gid!='teachers' 
+                               AND sophomorixstatus!='') 
+                            " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+       # split the array, to give better names
+       my ($uidnumber)=@$row;
+       push @students, $uidnumber;
+    }
+
+    &db_disconnect($dbh);
+    return @students;
+
+}
+
+
 
 
 
@@ -176,7 +200,7 @@ The group of all teachers is NOT included in this list
 =cut
 
 # Diese Funktion liefert eine Liste aller Klassen der Schule zurück
-sub get_adminclasses_school {
+sub get_adminclasses_school_oldstuff {
     my @pwliste;
     my %klassen_hash=();
     my @liste;
@@ -438,14 +462,14 @@ sub create_userlist {
        my @users=();
        my (@classlist)=split(/,/,$classes);
        foreach my $class (@classlist){
-          @users=&get_user_adminclass($class);
+          @users=&fetchstudents_from_adminclass($class);
           push @userlist, @users;
        }
      }
 
      if ($pupil==1) {
         my @users=();
-        @users=&get_pupils_school();
+        @users=&fetchstudents_from_school();
         push @userlist, @users;
      }
 
@@ -510,7 +534,7 @@ Returns an hash with ALL ml login names. This includes:
   - pupil, teachers (sophomorix database)
   - workstations
 
-The value is one of teacher, pupil or workstation
+The value is one of teacher, student or workstation
 
 =cut
 
