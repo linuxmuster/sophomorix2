@@ -1503,10 +1503,7 @@ SELECT project_details.id, project_details.addquota, project_details.addmailquot
 -- TOC entry 25 (OID 64663)
 -- Name: classdata; Type: VIEW; Schema: public; Owner: ldap
 --
-
-CREATE VIEW classdata AS
-    SELECT class_details.id, class_details.quota, class_details.mailquota, class_details.schooltype, class_details.department, class_details."type", class_details.mailalias, class_details.maillist, groups.gid, groups.gidnumber, samba_group_mapping.sambasid, samba_group_mapping.sambagrouptype, samba_group_mapping.displayname, samba_group_mapping.description, samba_group_mapping.sambasidlist FROM ((class_details FULL JOIN groups ON ((class_details.id = groups.id))) FULL JOIN samba_group_mapping ON ((samba_group_mapping.id = groups.id)));
-
+CREATE VIEW classdata AS SELECT class_details.id, class_details.quota, class_details.mailquota, class_details.schooltype, class_details.department, class_details."type", class_details.mailalias, class_details.maillist, groups.gid, groups.gidnumber, samba_group_mapping.sambasid, samba_group_mapping.sambagrouptype, samba_group_mapping.displayname, samba_group_mapping.description, samba_group_mapping.sambasidlist FROM class_details,groups,samba_group_mapping WHERE groups.id=class_details.id AND groups.id=samba_group_mapping.id;
 
 INSERT INTO institutes VALUES (1, 'linuxmuster');
 
