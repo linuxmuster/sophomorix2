@@ -14,15 +14,15 @@ Getopt::Long::Configure ("bundling");
 
 use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
-use Sophomorix::SophomorixAPI qw(
-                                  get_user_adminclass
-                                );
+#use Sophomorix::SophomorixAPI qw(
+#                                );
 use Sophomorix::SophomorixPgLdap qw(
                                   show_modulename
                                   db_connect
                                   db_disconnect
                                   fetchusers_from_project
                                   fetchinfo_from_project
+                                  fetchusers_from_adminclass
                                    );
 
 use DBI;
@@ -300,7 +300,7 @@ sub get_mail_list_projects {
 sub generate_mail_alias_classes {
    # generate mailaliases for all users in adminclass
    my ($group)=@_;
-   my @user=&get_user_adminclass($group);
+   my @user = &fetchusers_from_adminclass($group);
    print ALIASESTMP "\n### Mailaliases for adminclass $group \n";
    foreach my $user (@user) {
       # Gecos-Feld ermitteln
@@ -337,7 +337,8 @@ sub generate_maillist_classes {
    my $letzter_user="";
    my $ende="";
 
-   my @user=&get_user_adminclass($group);
+   my @user = &fetchusers_from_adminclass($group);
+
    print ALIASESTMP "\n### Mailinglist for adminclass $group \n";
    print ALIASESTMP "$group:\n";
 
