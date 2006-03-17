@@ -11,6 +11,7 @@ use Getopt::Long;
 use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
 use Sophomorix::SophomorixAPI;
+use Sophomorix::SophomorixPgLdap;
 Getopt::Long::Configure ("bundling");
 
 # Einlesen der Konfigurationsdatei für Entwickler
@@ -188,7 +189,7 @@ my @schueler=&get_pupils_school();
 # lehrer
 &titel("Creating list of every teacher ...");
 #my @lehrer=&get_lehrer_in_schule();
-my @lehrer=&get_user_adminclass(${DevelConf::teacher});
+my @lehrer=&fetchstudents_from_adminclass(${DevelConf::teacher});
 
 &print_list("The list of every teacher:",@lehrer);
 
@@ -210,7 +211,7 @@ if ($dateirechte==1) {
 # --www
 if ($www==1) {
   if ($lehrer==1) {
-      @www_userliste=&get_user_adminclass(${DevelConf::teacher});
+      @www_userliste=&fetchstudents_from_adminclass(${DevelConf::teacher});
    } elsif ($schueler==1){
       @www_userliste=&get_pupils_school();
    } elsif ($login ne "") {
@@ -426,7 +427,7 @@ sub repair_directory {
          # Userliste evtl. einschränken
 	 if ($path=~/\$klassen/ && $path=~/\$schueler/) {
 #            @userliste=&get_schueler_in_klasse($gruppe);
-            @userliste=&get_user_adminclass($gruppe);
+            @userliste=&fetchstudents_from_adminclass($gruppe);
             #print "Userliste: Nur Klasse\n";
 	 } elsif ($path=~/\$raeume/ && $path=~/\$workstation/) {
             @userliste=&get_workstations_in_raum($gruppe);
