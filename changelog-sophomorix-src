@@ -983,9 +983,24 @@ BUG: /home/share/classes/11a has a loop link
 
 what about setting quota/mailquota for domcomp,workstation, ...
 
+
+
 Bug: when sophomorix-quota -l galli
      dann : manchmal galli is not a sophomorix user
 create_userlist in SophomorixAPI.pm checken
+functions in sophomorixAPI.pm that must be updated
+   get_workstations_room
+   get_workstations_school
+   get_ml_users (is working, but use SQL to speed up ) 
+
+Klassen bisher ohne Lehrer, die mitglied sind
+Projekte ? todo
+
+
+
+
+
+
 
 handout/collect to projects/subclasses
 
@@ -1003,14 +1018,6 @@ avoid naming a longname of a project like:
 avoid adding a adminclass with the name/longname of a project
 
 
-
-sophomorix-teacher  
-
-    --showteachers
-     teacher:  adminclass
-
-    --showclasses
-     class:    teacher
 
 
 
@@ -1030,13 +1037,32 @@ usw. alle durchguggen
 
 
 
-code_cleanup 
-API:  get_user_adminclass rasu
-Base: make_hash_lehrer_in_klassen
+small jobs:
+SophomorixPgLdap.pm
+    functions:
+      show_class_teacher_list
+      show_teacher_class_list
+
+
+
+
+sophomorix-repair doesn't work at all
+
+
+code_cleanup:
+ 
+
+
 
 
 
 1.6.0-1
+   - replaced get_students_school with fetchstudents_from_school
+   - new function get_students_from_school
+   - prepared new functions to fill out:
+      show_class_teacher_list
+      show_teacher_class_list
+   - Bugfix: make sophomorix work with empty classes, projects
    - sophomorix-teacher
      when generating mailinglists of adminclasses, add teachers which 
      have added themselves to these classes 

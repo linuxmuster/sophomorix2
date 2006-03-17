@@ -226,7 +226,7 @@ sub print_list {
    if($Conf::log_level>=3){
        print "\nBegin: $name ($number)\n";
        foreach $element (@list){
-	   print "   ",$element,"\n";
+	   print "   $element \n";
        }
        print "End: $name ($number)\n\n";
 
