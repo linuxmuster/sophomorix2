@@ -100,8 +100,6 @@ webmin modules for sophomorix.
    # where NAME is one of de, en, ...    
    my $directory = $Language::collect_dir;
 
-   # Use function get_user_adminclass 
-   my @list_of_users  = &get_user_adminclass("7a"); 
 
 Note: If you want to use funcions you have to use BOTH packages
 (SophomorixConfig AND SophomorixAPI, in this order)
@@ -130,51 +128,6 @@ Note: If you want to use funcions you have to use BOTH packages
 #{ package Conf ; do "${DevelConf::config_pfad}/sophomorix.conf"}
 # Die in sophomorix.conf als global (ohne my) deklarierten Variablen
 # können nun mit $Conf::Variablenname angesprochen werden
-
-
-
-# ===========================================================================
-# Liste der Schüler einer Klasse ermitteln, alphabetisch
-# ===========================================================================
-# Diese Funktion hat als Argument einen Gruppennamen
-# Sie liefert alle Schüler dieser Klasse zurück
-# Wenn keine Schüler in dieser Gruppe sind wird eine leere Liste zurückgegeben
-
-=pod
-
-=item I<@list = get_user_adminclass(AdminClass)>
-
-Returns an asciibetical list of all users in this AdminClass. The
-AdminClass is the class of a pupil in the school administration
-software.
-
-If you need a list of teachers then use their primary group
-(i.e. teachers) as AdminClass
-
-If no pupil is in this class, an empty list will be returned.
-
-=cut
-
-sub get_user_adminclass_oldstuff {
-    my ($class) = @_;
-    my @userliste=();
-    my $dbh=&db_connect();
-    # select the columns that i need
-    my $sth= $dbh->prepare( "SELECT uid  
-                             FROM userdata
-                             WHERE gid='$class'
-                             ORDER BY uid" );
-       $sth->execute();
-    my $i=0;
-    my $array_ref = $sth->fetchall_arrayref();
-    foreach ( @{ $array_ref } ) {
-       push @userliste, ${$array_ref}[$i][0];
-       $i++;
-    }
-    return @userliste;
-}
-
-
 
 
 =pod
@@ -432,100 +385,6 @@ sub get_workstations_school {
     @workstationliste = sort @workstationliste;
     return @workstationliste;
 }
-
-
-
-=pod
-
-=item I<@list = get_user_project(Project,Teachers,Members,MemberGroups)>
-
-This is not working yet!!!!!!!
-
-Teachers,Members,MemberGroups are the fields in projects_db. A
-function to get this fields will follow.
-
-=cut
-
-
-sub get_user_project_oldstuff {
-    my %users=();
-    my @group_users=();
-    my @users_pri=();
-    my @users_sec=();
-    my %seen=();
-    my ($project,$teachers,$members,$member_groups) = @_;
-    # the new teachers
-    my @new_teachers=split(/,/, $teachers);
-    # the new users (without groups)
-    my @new_users=split(/,/, $members);
-    # the new groups
-    my @new_groups=split(/,/, $member_groups);    
-    if($Conf::log_level>=2){
-       print "Project $project \n";
-       print "   New Teachers      : @new_teachers\n";
-       print "   New Members       : @new_users\n";
-       print "   New MemberGroups  : @new_groups\n";
-
-    }
-
-    # Add the teachers
-    foreach my $teacher (@new_teachers){
-       if (not exists $users{$teacher}){
-	  $users{$teacher}="Teachers";
-       }
-    }
-
-    # Add the users
-    foreach my $user (@new_users){
-       if (not exists $users{$user}){
-          $users{$user}="Members";
-       }
-    }
-
-    # Add the users in the groups
-    foreach my $group (@new_groups){
-        my $group_users="";
-        if (exists $seen{$group}){
-	    print "Aaaargh, I have seen group $group! \n",
-                  "Are you using recursive/multiple groups ...?\n";
-            next;
-        }
-        # remember the group
-        $seen{$group}="seen";
-        if ($group eq $project){
-            print "It's nonsense to have a group as its GroupMembers\n",
-	          "... skipping $group as GroupMembers in $project\n";
-	    next;
-        }
-        # fetching the user-string of the group
-        ($a,$a,$a,$group_users)=getgrnam("$group");
-        if (not defined $group_users){
-            # group nonexisting
-	    print "Coldn't find $group, ... skipping $group\n";
-            next;
-        } else {
-            # group exists
-            @users_pri=&get_user_adminclass($group);
-            @users_sec=split(/ /, $group_users);
-        }
-
-        @group_users = (@users_pri,@users_sec);
-        if($Conf::log_level>=2){
-            print "       Primary Users in group $group: @users_pri\n";
-            print "       Secondary Users in group $group: @users_sec\n";
-            print "     All users in group $group: @group_users\n";
-        }
-        foreach my $user (@group_users){        
-           if (not exists $users{$user}){
-       	      $users{$user}=$group;
-           } else {
-           }
-        }
-    }
-    return %users;
-}
-
-
 
 
 

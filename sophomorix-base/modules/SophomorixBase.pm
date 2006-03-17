@@ -68,7 +68,6 @@ use Quota;
                 get_raeume_in_schule_hash              
               check_raum
               check_lehrer
-              make_hash_lehrer_in_klassen
               get_lehrer_in_klasse
               get_link_pfad
               datum_loeschen_schueler
@@ -2452,60 +2451,6 @@ sub check_lehrer {
 	 }
   }
   return $ergebnis
-}
-
-
-# ===========================================================================
-# Hash mit Klassen und selbst eingetragener Lehrer als Liste
-# ===========================================================================
-sub make_hash_lehrer_in_klassen {
-   # key: klasse Value=Liste unterrichtender Lehrer
-#   %lehrer_in_klassen=&get_klassen_in_schule_hash();
-   %lehrer_in_klassen=&Sophomorix::SophomorixPgLdap::pg_get_adminclasses();
-
-   # Hash mit leerer Liste füllen (sonst tuts nicht)
-   while (($key,$value) = each %lehrer_in_klassen){
-      $lehrer_in_klassen{$key} = [""];
-   }
-
-#   my @lehrerliste=&get_lehrer_in_schule();
-#   my @lehrerliste=&get_user_adminclass(${DevelConf::teacher});
-   my @lehrerliste=&Sophomorix::SophomorixPgLdap::fetchstudents_from_adminclass(${DevelConf::teacher});
-   #   print "@lehrerliste";
-
-   my $lehrer="";
-
-   foreach $lehrer (@lehrerliste) {
-   if($Conf::log_level>=3){
-      print "### Suche bei: $lehrer\n";
-   }
-   if (-e "${DevelConf::homedir_teacher}/$lehrer/.sophomorix/_Meine-Klassen") {
-      open(DOTFILE,"${DevelConf::homedir_teacher}/$lehrer/.sophomorix/_Meine-Klassen") || die "Fehler: $!";
-         while(<DOTFILE>){
-            chomp();
-           s/\s//g; # Whitespace Entfernen
-            if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
-            if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
-            #print "$_\n";
-
-            if($Conf::log_level>=3){
-               print "   Lehrer $lehrer ist in Klasse $_\n";
-            }
-            # Lehrerlogin an die vorhandene Liste im Hash anhängen
-            push(@{ $lehrer_in_klassen{"$_"} }, $lehrer);
-         }
-
-      close(DOTFILE);
-    }
- }
-   if($Conf::log_level>=3){
-      # Login-Typ ausgeben
-      &titel("Gebe Klassen aus und Lehrer, die Darin unterrichten.");
-      while (($key,$value) = each %lehrer_in_klassen){
-        printf "%-10s %3s\n","$key","@{ $lehrer_in_klassen{$key}  }";
-      }
-   }
-
 }
 
 
