@@ -14,6 +14,8 @@ use Sophomorix::SophomorixAPI;
 use Sophomorix::SophomorixPgLdap;
 Getopt::Long::Configure ("bundling");
 
+use DBI;
+
 # Einlesen der Konfigurationsdatei für Entwickler
 #{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
 
@@ -32,6 +34,7 @@ use if ${DevelConf::db_backend} eq 'files' ,
 # list of functions to load if db is 'pgldap'
 use if ${DevelConf::db_backend} eq 'pgldap' , 
     'Sophomorix::SophomorixPgLdap' => qw(show_modulename
+                                         pg_get_adminclasses
                                        );
 
 
@@ -155,7 +158,8 @@ if ($filename ne "") {
 
 # Klassen
 &titel("Creating list of every AdminClass ...");
-my @klassen=&get_adminclasses_school(); 
+#my @klassen=&get_adminclasses_school(); 
+my @klassen=&pg_get_adminclasses(); 
 &print_list("The list of every AdminClass:",@klassen);
 
 
@@ -170,6 +174,8 @@ my @klassen_sub=&get_adminclasses_sub_school();
 my @projects=&get_projects_school(); 
 &print_list("The list of every Project:",@klassen);
 
+print "---$klassen[0]---";
+
 
 # Räume
 &titel("Creating list of every room ...");
@@ -182,8 +188,8 @@ my @raeume=&get_rooms_school();
 
 # schueler
 &titel("Creating list of every pupil ...");
-#my @schueler=&get_schueler_in_schule();
-my @schueler=&get_pupils_school();
+#my @schueler=&get_pupils_school();
+my @schueler=&fetchstudents_from_school();
 &print_list("The list of every pupil:",@schueler);
 
 # lehrer
@@ -213,7 +219,8 @@ if ($www==1) {
   if ($lehrer==1) {
       @www_userliste=&fetchstudents_from_adminclass(${DevelConf::teacher});
    } elsif ($schueler==1){
-      @www_userliste=&get_pupils_school();
+#      @www_userliste=&get_pupils_school();
+      @www_userliste=&fetchstudents_from_school();
    } elsif ($login ne "") {
       @www_userliste=$login;
    }
