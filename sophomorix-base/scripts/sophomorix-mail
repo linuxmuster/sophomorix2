@@ -301,13 +301,15 @@ sub generate_mail_alias_classes {
    # generate mailaliases for all users in adminclass
    my ($group)=@_;
    my @user = &fetchusers_from_adminclass($group);
-   print ALIASESTMP "\n### Mailaliases for adminclass $group \n";
-   foreach my $user (@user) {
-      # Gecos-Feld ermitteln
-      my ($login,$passwort,$uid,$gid,$quota,$name,$gecos)=getpwnam("$user");
-      $gecos=~s/ /./g; # Spezialzeichen raus
-      #print ALIASESTMP "$gecos:\t\t\t$user\n";
-      printf ALIASESTMP "%-35s %-20s \n",$gecos.":",$user;
+   if (defined $user[0]){
+       print ALIASESTMP "\n### Mailaliases for adminclass $group \n";
+       foreach my $user (@user) {
+           # Gecos-Feld ermitteln
+           my ($login,$passwort,$uid,$gid,$quota,$name,$gecos)=getpwnam("$user");
+           $gecos=~s/ /./g; # Spezialzeichen raus
+           #print ALIASESTMP "$gecos:\t\t\t$user\n";
+           printf ALIASESTMP "%-35s %-20s \n",$gecos.":",$user;
+       }
    }
 }
 
@@ -340,22 +342,24 @@ sub generate_maillist_classes {
    my @user = &fetchusers_from_adminclass($group);
 
    print ALIASESTMP "\n### Mailinglist for adminclass $group \n";
-   print ALIASESTMP "$group:\n";
 
-   # Gruppen-Mailingliste erzeugen:
+   if (defined $user[0]){
+      # Gruppen-Mailingliste erzeugen:
+      print ALIASESTMP "$group:\n";
       $ende=$#user;
       $letzter_user=$user[ $ende ];
       if($Conf::log_level>=3){
-         print "User $letzter_user hat den index $ende und ist der Letzte.\n";
-       }
+          print "User $letzter_user hat den index $ende und ist der Letzte.\n";
+      }
       foreach my $user (@user) {
-        print ALIASESTMP "   $user";
-        if ($user eq $letzter_user){
-           print ALIASESTMP "\n";
-        } else {
-           print ALIASESTMP ",\n"; 
-        }
+         print ALIASESTMP "   $user";
+         if ($user eq $letzter_user){
+            print ALIASESTMP "\n";
+         } else {
+            print ALIASESTMP ",\n"; 
+         }
       } 
+   }
  }
 
 
@@ -371,26 +375,29 @@ sub generate_maillist_projects {
 
    print ALIASESTMP "\n### Mailinglist for project ",
                     "$group (LongName: $longname)\n";
-   # create alias from longname to name
-   if ($group ne $longname){
-      printf ALIASESTMP "%-35s %-20s \n",$longname.":",$group;
-   }
-   print ALIASESTMP "$group:\n";
 
-   # Gruppen-Mailingliste erzeugen:
-      $ende=$#user;
-      $letzter_user=$user[ $ende ];
-      if($Conf::log_level>=3){
-         print "User $letzter_user hat den index $ende und ist der Letzte.\n";
+   if (defined $user[0]){
+       # create alias from longname to name
+       if ($group ne $longname){
+          printf ALIASESTMP "%-35s %-20s \n",$longname.":",$group;
        }
-      foreach my $user (@user) {
-        print ALIASESTMP "   $user";
-        if ($user eq $letzter_user){
-           print ALIASESTMP "\n";
-        } else {
-           print ALIASESTMP ",\n"; 
-        }
-      } 
- }
+       print ALIASESTMP "$group:\n";
+
+       # Gruppen-Mailingliste erzeugen:
+       $ende=$#user;
+       $letzter_user=$user[ $ende ];
+       if($Conf::log_level>=3){
+          print "User $letzter_user hat den index $ende und ist der Letzte.\n";
+       }
+       foreach my $user (@user) {
+          print ALIASESTMP "   $user";
+          if ($user eq $letzter_user){
+              print ALIASESTMP "\n";
+          } else {
+              print ALIASESTMP ",\n"; 
+          }
+       } 
+   }
+}
 
 

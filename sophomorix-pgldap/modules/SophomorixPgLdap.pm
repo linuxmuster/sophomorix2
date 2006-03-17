@@ -937,7 +937,9 @@ sub fetchadmins_from_adminclass {
        my ($uid_sys)= $dbh->selectrow_array( "SELECT uid 
                                          FROM posix_account 
                                          WHERE uidnumber=$uidnumber");
-       push @userlist, $uid_sys;
+       if (defined $uid_sys){
+           push @userlist, $uid_sys;
+       }
     }
     &db_disconnect($dbh);
     return @userlist;
