@@ -41,6 +41,9 @@ use if ${DevelConf::db_backend} eq 'pgldap' ,
                                         create_class_db_entry
                                         pg_adduser
                                         pg_remove_all_secusers
+                                        deleteuser_from_project
+                                        fetchadmins_from_adminclass
+                                        fetch_used_subclasses
                                         show_subclass_list
                                        );
 
@@ -200,7 +203,39 @@ my %alle_verzeichnis_rechte = &get_alle_verzeichnis_rechte();
 #}
 
 
-# Step 1
+
+# step 0
+# removing admin teachers of $class to subclasses with users
+my @teachers=&fetchadmins_from_adminclass($class);
+
+my @subclasses=&fetch_used_subclasses($class);
+
+print "Removing all teachers from  subclasses of $class}\n";
+
+foreach my $sub (@subclasses){
+    my $subclass=$class."-".$sub;
+    print "   Subclass $subclass is used\n";
+    foreach my $user (@teachers){
+        # remove the teacher
+        &deleteuser_from_project($user, $subclass);
+        # remove links
+        &Sophomorix::SophomorixBase::remove_share_link($user,
+                                  $subclass,$subclass,"subclass");
+        # remove directories for admins
+        &Sophomorix::SophomorixBase::remove_share_directory($user,
+                                  $subclass,$subclass,"subclass");
+    }
+}
+
+
+
+
+# step 1
+# works with pgldap
+&provide_subclass_files($class);
+
+
+# Step 2
 # Updating the user-Database
 if ($noninteractive==1){
    # noninteractive
@@ -237,9 +272,6 @@ if ($noninteractive==1){
 }
 
 
-# step 2
-# works with pgldap
-&provide_subclass_files($class);
 
 # step 3
 # Read the database (users and subclasses) 
@@ -247,6 +279,28 @@ if ($noninteractive==1){
 &create_subclass($class);
 
 
+# step 4
+# adding admin teachers of $class to subclasses with users
+my @teachers=&fetchadmins_from_adminclass($class);
+
+my @subclasses=&fetch_used_subclasses($class);
+
+print "Adding teachers to subclasses of ${class}\n";
+
+foreach my $sub (@subclasses){
+    my $subclass=$class."-".$sub;
+    print "   Subclass $subclass is used\n";
+    foreach my $user (@teachers){
+        # add the teacher
+        &pg_adduser($user, $subclass);
+        # add links
+        &Sophomorix::SophomorixBase::create_share_link($user,
+                                  $subclass,$subclass,"subclass");
+        # create directories for admins
+        &Sophomorix::SophomorixBase::create_share_directory($user,
+                                  $subclass,$subclass,"subclass");
+    }
+}
 
 
 
@@ -289,6 +343,7 @@ sub create_subclass{
     my @sub_b=();
     my @sub_c=();
     my @sub_d=();
+    my @teachers=();
 
     my $dbh=&db_connect();
     # select the columns that i need
@@ -316,6 +371,7 @@ sub create_subclass{
         }
         $i++;
     }
+
     # Adding the 4 groups without users
     foreach $suffix (@suffix){
        print "Working on Group $class-$suffix \n";
