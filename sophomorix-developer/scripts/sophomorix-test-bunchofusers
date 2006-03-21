@@ -23,6 +23,8 @@ use DBI;
 
 system("install -d /root/sophomorix-test");
 
+my $dirname="";
+my $linkname="";
 
 my $file="";
 my @teacher_files=();
@@ -174,7 +176,7 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
     print '
 ###########################################################################
 #                                                                         #
-#             DO SOME WORK (Vorlagen bereitstellen)                       #
+#             DO SOME WORK (Vorlagen bereitstellen: class)                #
 #                                                                         #
 ###########################################################################
     ';
@@ -199,6 +201,68 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
    &vorlagen_bereitstellen($vorlagen_teacher,
                            $vorlagen_gruppe,
                            $type);
+
+
+    print '
+###########################################################################
+#                                                                         #
+#             DO SOME WORK (Vorlagen bereitstellen: project)              #
+#                                                                         #
+###########################################################################
+    ';
+
+   # DISTRIBUTE (Vorlagen)
+   $vorlagen_teacher="niko";
+   $vorlagen_gruppe="astro";
+   $type="project";
+
+   # Working with these files
+   @teacher_files=("testfile_3.txt","testfile_4.txt");
+   @userlist_to_check=("tycho",
+                       "niko",
+                       "altigru",
+                       "thuraudi",
+                       "blackmri",
+                       "pageji");
+
+   $dirname="Astronomie";
+   $linkname="Astronomie";
+
+   &vorlagen_bereitstellen($vorlagen_teacher,
+                           $vorlagen_gruppe,
+                           $type);
+
+    print '
+###########################################################################
+#                                                                         #
+#             DO SOME WORK (Vorlagen bereitstellen: subclass)             #
+#                                                                         #
+###########################################################################
+    ';
+
+   # DISTRIBUTE (Vorlagen)
+   $vorlagen_teacher="niko";
+   $vorlagen_gruppe="astro";
+   $type="project";
+
+   # Working with these files
+   @teacher_files=("testfile_3.txt","testfile_4.txt");
+   @userlist_to_check=("tycho",
+                       "niko",
+                       "altigru",
+                       "thuraudi",
+                       "blackmri",
+                       "pageji");
+
+   $dirname="Astronomie";
+   $linkname="Astronomie";
+
+   &vorlagen_bereitstellen($vorlagen_teacher,
+                           $vorlagen_gruppe,
+                           $type);
+
+    exit;
+
 
 
     print '
@@ -442,6 +506,13 @@ sub dateien_einsammeln{
 
 
 sub vorlagen_bereitstellen{
+    # howto:
+    # class:   $linkname is $group
+    #          $dirname is $group       
+    # project: $linkname    # must be given before calling
+    #          $dirname     # vorlagen_bereitstellen
+    # subclass:$linkname    # must be given before calling
+    #          $dirname     # vorlagen_bereitstellen
     my ($teacher,$group,$type) = @_;
     print "Cleaning up $teacher \n";
     my $command="";
@@ -460,15 +531,26 @@ sub vorlagen_bereitstellen{
     if ($type eq "class"){
        $command="sophomorix-teacher --teacher $teacher --add $group";
     }
+
+    if ($type eq "project"){
+       # $linkname (global should be given before calling this function) 
+       # $dirname  (global should be given before calling this function) 
+    } elsif ($type eq "subclass"){
+       # $linkname (global should be given before calling this function) 
+       # $dirname  (global should be given before calling this function) 
+    } else {
+       $linkname=$group;  
+       $dirname=$group;  
+    }
+
     print "$command \n";
     system($command);
     # was directory created ?
-    $file="/home/teachers/${teacher}/${Language::task_dir}/${group}"; 
+    $file="/home/teachers/${teacher}/${Language::task_dir}/${dirname}"; 
     ok(-e $file, "$file existiert");
 
-
     foreach my $testfile (@teacher_files){
-        $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::task_dir}/${group}'";
+        $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::task_dir}/${dirname}'";
         print "$command \n";
         system($command);
     }
@@ -481,7 +563,12 @@ sub vorlagen_bereitstellen{
     # was file handed out ?
     foreach my $testfile (@teacher_files){
        foreach my $user (@userlist_to_check){
-          $file="/home/students/${group}/${user}/${Language::task_dir}/${Language::task_string}-${group}/${teacher}/${testfile}"; 
+          # home ermitteln
+          my @entry = getpwnam($user);
+          my $homedir = "$entry[7]";
+
+
+          $file="${homedir}/${Language::task_dir}/${Language::task_string}-${linkname}/${teacher}/${testfile}"; 
           ok(-e $file, "$file existiert");
        }
     }
