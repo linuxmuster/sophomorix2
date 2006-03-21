@@ -206,16 +206,16 @@ my %alle_verzeichnis_rechte = &get_alle_verzeichnis_rechte();
 
 # step 0
 # removing admin teachers of $class to subclasses with users
-my @teachers=&fetchadmins_from_adminclass($class);
+my @old_teachers=&fetchadmins_from_adminclass($class);
 
-my @subclasses=&fetch_used_subclasses($class);
+my @old_subclasses=&fetch_used_subclasses($class);
 
 print "Removing all teachers from  subclasses of $class}\n";
 
-foreach my $sub (@subclasses){
+foreach my $sub (@old_subclasses){
     my $subclass=$class."-".$sub;
     print "   Subclass $subclass is used\n";
-    foreach my $user (@teachers){
+    foreach my $user (@old_teachers){
         # remove the teacher
         &deleteuser_from_project($user, $subclass);
         # remove links
@@ -281,16 +281,16 @@ if ($noninteractive==1){
 
 # step 4
 # adding admin teachers of $class to subclasses with users
-my @teachers=&fetchadmins_from_adminclass($class);
+my @new_teachers=&fetchadmins_from_adminclass($class);
 
-my @subclasses=&fetch_used_subclasses($class);
+my @new_subclasses=&fetch_used_subclasses($class);
 
 print "Adding teachers to subclasses of ${class}\n";
 
-foreach my $sub (@subclasses){
+foreach my $sub (@new_subclasses){
     my $subclass=$class."-".$sub;
     print "   Subclass $subclass is used\n";
-    foreach my $user (@teachers){
+    foreach my $user (@new_teachers){
         # add the teacher
         &pg_adduser($user, $subclass);
         # add links

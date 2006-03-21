@@ -155,6 +155,13 @@ if ($add==1 and not -e "/root/sophomorix-test/bunchofusers"){
     system("sophomorix-project --create -p chemie --Longname Chemie-AG --Admins bruno,tycho --Members altigru,thuraudi,hannes,lordjo,gillania");
     system("sophomorix-project --create -p micro --Longname Mikroskopie --Admins hannes --Members altigru,thuraudi,hinaulbe,raasja");
 
+    # teacher tycho and bruno join a class 
+    system("sophomorix-teacher --teacher bruno --add 11a");
+    system("sophomorix-teacher --teacher tycho --add 11a");
+
+    # creating a 2 subclasses  in class 11a 
+    system("sophomorix-subclass --noninteractive --class 11a  --AMembers gillania,blackmri,gloverro,paiceia,lordjo --BMembers plantro,pageji,jonesjo,bonhamjo");
+
 
     # Marking the added users
     system("touch /root/sophomorix-test/bunchofusers");
@@ -527,10 +534,14 @@ sub vorlagen_bereitstellen{
     print "$command \n";
     system($command);
 
+
+    # do this with add already
     # join the class 11a (?????? later do this as galli)
     if ($type eq "class"){
        $command="sophomorix-teacher --teacher $teacher --add $group";
-    }
+    } elsif ($type eq "subclass"){
+
+   }
 
     if ($type eq "project"){
        # $linkname (global should be given before calling this function) 
