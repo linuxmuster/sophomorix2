@@ -750,7 +750,15 @@ system("net groupmap add sid='S-1-5-32-551' unixgroup=backupoperators ntgroup='B
 
 
 # adding users
-system("smbldap-useradd -a  -c Administrator -m -d /home/Administrator -g 'domadmins' -s /bin/false Administrator");
+# Administrator is equal to admin in ml 2.x
+system("smbldap-useradd -a  -c Administrator -m -d /home/Administrator -g 'domadmins' -G 'administrators' -s /bin/false Administrator");
+
+# pgadmin is to install programs on the win clients
+system("smbldap-useradd -a  -c 'Programm Administrator' -m -d /home/pgmadmin -g 'administrators' -s /bin/false pgmadmin");
+
+
+# wwwadmin for web services (moodle, opengroupware, imp ...   ) NOT a windows user
+system("smbldap-useradd -c 'web Administrator' -m -d /home/wwwadmin -s /bin/false wwwadmin");
 
 
 
