@@ -1871,10 +1871,6 @@ sub create_share_link {
 
     # Only act if uid is valid
     if ($homedir ne ""){
-#    if (getpwnam("$login")){
-#       my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
-#          $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
-
        my $link_name=$homedir.
           "/${Language::share_dir}/${Language::share_string}-${share_long_name}";   
 
@@ -1964,12 +1960,14 @@ sub create_share_directory {
         my $task_dir=$homedir."/".
             ${Language::task_dir}."/".$share_long_name;
         if (not -e $task_dir){
+            print "   Adding directory ${task_dir}\n"; 
             system("mkdir $task_dir");
         }
 
         my $collect_dir=$homedir."/".
             ${Language::collect_dir}."/".$share_long_name;
         if (not -e $collect_dir){
+            print "   Adding directory ${collect_dir}\n"; 
             system("mkdir $collect_dir");
         }
     } else {
@@ -2008,10 +2006,10 @@ sub remove_share_link {
           "/${Language::task_dir}/${Language::task_string}-${share_long_name}";   
 
         # remove the link
-        print "   Removing link (share): $link_name\n";
+        print "   Removing link (share): ${link_name}\n";
         unlink $link_name;
 
-        print "   Removing link (tasks): $link_name_tasks\n";
+        print "   Removing link (tasks): ${link_name_tasks}\n";
         unlink $link_name_tasks;
     } else {
         print "   NOT removing links: ",
@@ -2039,11 +2037,13 @@ sub remove_share_directory {
         # remove dirs in tasks and collect
         my $task_dir=$homedir."/".${Language::task_dir}."/".$share_long_name;
         if (-e $task_dir){
+            print "   Removing $task_dir if empty.\n";
             system("rmdir $task_dir");
         }
 
         my $collect_dir=$homedir."/".${Language::collect_dir}."/".$share_long_name;
         if (-e $collect_dir){
+            print "   Removing $collect_dir if empty.\n";
             system("rmdir $collect_dir");
         }
     } else {
@@ -3627,29 +3627,19 @@ sub handout {
   my @entry = getpwnam($login);
   my $homedir = "$entry[7]";
 
-  my $from_dir = "${homedir}/${Language::task_dir}/${name}/";
-  my $to_dir="";
-
-  # ???? make more secure
-  if ($from_dir =~ /(.*)/) {
-     $from_dir=$1;
-  }  else {
-     die "Bad data in $from_dir"; # Log this somewhere.
-  }
+  my $from_dir = "";
 
   if ($type eq "class"){
+      $from_dir = "${homedir}/${Language::task_dir}/${name}/";
       $to_dir="${DevelConf::tasks_classes}/${name}/${login}";
   } elsif ($type eq "subclass"){
+      $from_dir = "${homedir}/${Language::task_dir}/${name}/";
       $to_dir="${DevelConf::tasks_subclasses}/{$name}/${login}";
   } elsif ($type eq "project"){
+      # get the longname
+      my ($longname)=&Sophomorix::SophomorixPgLdap::fetchinfo_from_project($name);
+      $from_dir = "${homedir}/${Language::task_dir}/${longname}/";
       $to_dir="${DevelConf::tasks_projects}/${name}/${login}";
-  }
-
-  # ???? make more secure
-  if ($to_dir =~ /(.*)/) {
-     $to_dir=$1;
-  }  else {
-     die "Bad data in $to_dir"; # Log this somewhere.
   }
 
   print "   From:  $from_dir \n";

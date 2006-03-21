@@ -1057,7 +1057,7 @@ smbldap-useradd -B 1 user : muss passwort ändern
 nach passwortänderung ist das wieder auf 24...  magic number
 
 
-überlegen, ob zuerst user angelegt werden (adminin ldap ) 
+überlegen, ob zuerst user angelegt werden (admin in ldap ) 
 und dann die Tauschverzeichnisse
 
 tasks in /var/cache/sophomorix/tasks/gruppe/lehrer
@@ -1068,10 +1068,31 @@ Beim Lehrer:  _vorlagen/aktueller_raum-$RAUM
 Beim Schüler: _vorlagen/aktueller_raum
 
 
-Aufrufe fur Schulkonsole bereitstellen
+NOT creating a dir  in galli/_vorlagen when user is added 
+to a nonexisting class
+
+when teacher adds/removes itself to/from a class
+  - add/remove hom from all subclasses
+
+Aufrufe fuer Schulkonsole bereitstellen
+==================================================
+
+rsync to /var/cache/sophomorix/tasks/.../gruppe/lehrer
+
+teacher niko, class 11a project astro subclass 11a-A must exist
+
+sophomorix-teacher --teacher niko --class 11a --handout
+sophomorix-teacher --teacher niko --project astro --handout
+sophomorix-teacher --teacher niko --subclass 11a-A --handout (todo)
+sophomorix-teacher --teacher niko --room A123 --handout  (todo)
+
+
 
 
 1.6.0-1
+   - if a class is split, add teachers to all subclasses which have users
+   - adding a directory to handout data (_vorlagen/projectlongname) added when 
+     admin jons a project
    - view memberdata:
        Bugfix: shows sophomorixstatus
        Bugfix: adminclass shows gid insead of gidnumber
