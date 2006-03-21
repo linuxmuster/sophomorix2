@@ -60,6 +60,7 @@ require Exporter;
              show_class_list
              show_class_teacher_list
              show_teacher_class_list
+             fetch_used_subclasses
              show_subclass_list
              show_project
              get_smb_sid
@@ -402,15 +403,28 @@ sub deleteadmin_from_project {
     my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
                                          FROM posix_account 
                                          WHERE uid='$user'");
-    print "   Removing admin $user($uidnumber_sys) from ",
-          "$project($project_id_sys) \n";
-    my $sql="DELETE FROM projects_admins 
-             WHERE (uidnumber=$uidnumber_sys AND projectid=$project_id_sys) 
-             ";	
-    if($Conf::log_level>=3){
-       print "\nSQL: $sql\n";
+    if (defined $uidnumber_sys and defined $project_id_sys){
+        print "   Removing admin $user($uidnumber_sys) from ",
+              "$project($project_id_sys) \n";
+        my $sql="DELETE FROM projects_admins 
+                 WHERE (uidnumber=$uidnumber_sys AND projectid=$project_id_sys) 
+                ";	
+        if($Conf::log_level>=3){
+           print "\nSQL: $sql\n";
+        }
+        $dbh->do($sql);
+        # remove dirs in tasks and collect
+        my ($project_longname)=&fetchinfo_from_project($project);
+        &Sophomorix::SophomorixBase::remove_share_directory($user,
+             $project,$project_longname,"project");
+    } else {
+        if (not defined $uidnumber_sys){
+           print "   User $user does not exist, doing nothing. \n";
+        }
+        if (not defined $project_id_sys){
+           print "   Project $project does not exist, doing nothing. \n";
+        }
     }
-    $dbh->do($sql);
     &db_disconnect($dbh);
 
 }
@@ -682,6 +696,10 @@ sub addadmin_to_project {
            print "\nSQL: $sql\n";
         }
         $dbh->do($sql);
+        # create dirs in tasks and collect
+        my ($project_longname)=&fetchinfo_from_project($project);
+        &Sophomorix::SophomorixBase::create_share_directory($user,
+             $project,$project_longname,"project");
     } else {
         if (not defined $uidnumber_sys){
            print "   User $user does not exist, doing nothing. \n";
@@ -1653,8 +1671,6 @@ sub remove_class_db_entry {
     return $return;
 }
 
-
-
 sub pg_adduser {
     # add a user to a secondary group
     # (removing a user is deleteuser_from_project)
@@ -1709,8 +1725,6 @@ sub pg_adduser {
                   "$group: group doesn't exist\n";
         }
     }
-
-
 }
 
 
@@ -3518,6 +3532,52 @@ sub show_class_teacher_list {
 
 sub show_teacher_class_list {
     print "To do: teachers --> classes \n";
+}
+
+
+
+
+sub fetch_used_subclasses {
+    my ($class) = @_;
+    my @used_subclasses;
+    my $dbh=&db_connect();
+
+    my $sub_a = $dbh->selectrow_array( "SELECT COUNT(*) AS num
+                                        FROM userdata 
+                                        WHERE (subclass='A'
+                                          AND gid='$class')
+                                       " );
+    my $sub_b = $dbh->selectrow_array( "SELECT COUNT(*) AS num
+                                        FROM userdata 
+                                        WHERE (subclass='B'
+                                          AND gid='$class')
+                                       " );
+    my $sub_c = $dbh->selectrow_array( "SELECT COUNT(*) AS num
+                                        FROM userdata 
+                                        WHERE (subclass='C'
+                                          AND gid='$class')
+                                      " );
+    my $sub_d = $dbh->selectrow_array( "SELECT COUNT(*) AS num
+                                        FROM userdata 
+                                        WHERE (subclass='D'
+                                          AND gid='$class')
+                                       " );
+
+    if ($sub_a > 0){
+        push @used_subclasses, "A";
+    }
+    if ($sub_b > 0){
+        push @used_subclasses, "B";
+    }
+    if ($sub_c > 0){
+        push @used_subclasses, "C";
+    }
+    if ($sub_d > 0){
+        push @used_subclasses, "D";
+    }
+
+    &db_disconnect($dbh);
+    return @used_subclasses;
 }
 
 
