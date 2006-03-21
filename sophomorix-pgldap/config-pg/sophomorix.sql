@@ -1436,7 +1436,7 @@ LANGUAGE sql;
 
 
 
-CREATE VIEW memberdata AS SELECT posix_account.uid, posix_account.uidnumber as uidnum, posix_account.gecos,posix_account.gidnumber as adminclass, samba_sam_account.displayname,posix_account_details.sophomorixstatus as s,groups.gid FROM posix_account FULL JOIN samba_sam_account on posix_account.id = samba_sam_account.id FULL JOIN posix_account_details on posix_account.id=posix_account_details.sophomorixstatus INNER JOIN groups_users on groups_users.memberuidnumber=posix_account.uidnumber INNER JOIN groups on groups.gidnumber=groups_users.gidnumber;
+CREATE VIEW memberdata AS SELECT posix_account.uid, posix_account.uidnumber as uidnum, posix_account.gecos,(SELECT gid from groups where gidnumber=posix_account.gidnumber) as adminclass, samba_sam_account.displayname,posix_account_details.sophomorixstatus as s,groups.gid FROM posix_account FULL JOIN samba_sam_account on posix_account.id = samba_sam_account.id FULL JOIN posix_account_details on posix_account.id=posix_account_details.id INNER JOIN groups_users on groups_users.memberuidnumber=posix_account.uidnumber INNER JOIN groups on groups.gidnumber=groups_users.gidnumber ORDER by gid;
 
 
 --
