@@ -3634,7 +3634,7 @@ sub handout {
       $to_dir="${DevelConf::tasks_classes}/${name}/${login}";
   } elsif ($type eq "subclass"){
       $from_dir = "${homedir}/${Language::task_dir}/${name}/";
-      $to_dir="${DevelConf::tasks_subclasses}/{$name}/${login}";
+      $to_dir="${DevelConf::tasks_subclasses}/${name}/${login}";
   } elsif ($type eq "project"){
       # get the longname
       my ($longname)=&Sophomorix::SophomorixPgLdap::fetchinfo_from_project($name);

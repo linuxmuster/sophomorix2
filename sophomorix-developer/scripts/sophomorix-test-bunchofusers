@@ -248,21 +248,22 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
     ';
 
    # DISTRIBUTE (Vorlagen)
-   $vorlagen_teacher="niko";
-   $vorlagen_gruppe="astro";
-   $type="project";
+   $vorlagen_teacher="bruno";
+   $vorlagen_gruppe="11a-A";
+   $type="subclass";
 
    # Working with these files
    @teacher_files=("testfile_3.txt","testfile_4.txt");
-   @userlist_to_check=("tycho",
-                       "niko",
-                       "altigru",
-                       "thuraudi",
+   @userlist_to_check=("bruno",
+                       "tycho",
+                       "gillania",
                        "blackmri",
-                       "pageji");
+                       "gloverro",
+                       "paiceia",
+                       "lordjo");
 
-   $dirname="Astronomie";
-   $linkname="Astronomie";
+   $dirname="11a-A";
+   $linkname="11a-A";
 
    &vorlagen_bereitstellen($vorlagen_teacher,
                            $vorlagen_gruppe,
