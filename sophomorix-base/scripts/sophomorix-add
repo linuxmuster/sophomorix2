@@ -150,7 +150,7 @@ if ($info==1) {
    # Ausgabe der Anlegbaren user
    print "\nThe following users can be added:\n";
    print "(Fields with --- are automatically created by sophomorix-add):\n\n";
-   printf "%-10s %-6s %-10s %-4s %-10s %-10s %-35s\n",
+   printf "%-10s%-6s%-11s%-4s%-10s%-10s%-29s\n",
           "login",
           "id",
           "AdminClass",
@@ -170,7 +170,7 @@ if ($info==1) {
          $wunsch_id,
          $wunsch_gid,
          $unid)=split("::");
-        printf "%-10s %-6s %-10s %-4s %-10s %-10s %-35s\n",
+        printf "%-10s%-6s%-11s%-4s%-10s%-10s%-29s\n",
                "$wunsch_login",
                "$wunsch_id", 
                "$new_admin_group",
