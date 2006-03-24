@@ -2770,7 +2770,8 @@ sub create_project {
         }
 
         # select the primary users
-        @new_users_pri=&Sophomorix::SophomorixBase::get_user_adminclass($group);
+#        @new_users_pri=&Sophomorix::SophomorixBase::get_user_adminclass($group);
+        @new_users_pri=&fetchstudents_from_adminclass($group);
 
         if($Conf::log_level>=2){
              &Sophomorix::SophomorixBase::print_list_column(4,
