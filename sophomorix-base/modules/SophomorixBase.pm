@@ -1911,7 +1911,7 @@ sub create_share_link {
            print "   Target    (share): $link_target\n";
        }
        if (-e $link_target and -d $link_target){
-            print "   Creating a link for user $login ",
+            print "   Creating link for $login ",
                   "to $type ${link_target}.\n";
             symlink $link_target, $link_name;
        } else {
@@ -1926,7 +1926,7 @@ sub create_share_link {
            print "   Target    (tasks): $link_target_tasks\n";
        }
        if (-e $link_target_tasks and -d $link_target_tasks){
-           print "   Creating a link for user $login ",
+           print "   Creating link user $login ",
                  "to $type ${link_target_tasks}.\n";
            symlink $link_target_tasks, $link_name_tasks;
        } else {
@@ -2006,10 +2006,10 @@ sub remove_share_link {
           "/${Language::task_dir}/${Language::task_string}-${share_long_name}";   
 
         # remove the link
-        print "   Removing link (share): ${link_name}\n";
+        print "   Removing link ${link_name}\n";
         unlink $link_name;
 
-        print "   Removing link (tasks): ${link_name_tasks}\n";
+        print "   Removing link ${link_name_tasks}\n";
         unlink $link_name_tasks;
     } else {
         print "   NOT removing links: ",
