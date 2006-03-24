@@ -3475,10 +3475,10 @@ sub show_project_list {
 
 sub show_class_list {
     print "The following adminclasses exist already:\n\n";
-    printf "%-14s | %8s |%4s |%2s|%2s| %-19s| %-18s\n","AdminClass",
-           "Quota", "MQ","MA","ML","SchoolType","Department";
+    printf "%-14s | %8s |%4s |%1s|%1s| %-19s| %-20s\n","AdminClass",
+           "Quota", "MQ","A","L","SchoolType","Department";
     print "---------------+----------+-----",
-          "+--+--+--------------------+-------------------\n";
+          "+-+-+--------------------+---------------------\n";
     my $dbh=&db_connect();
     my $sth= $dbh->prepare( "SELECT gid,quota,mailquota,mailalias,
                                     maillist,schooltype,department
@@ -3511,13 +3511,15 @@ sub show_class_list {
         if (not defined $department){
 	    $department="";
         }
-        printf "%-15s|%10s|%4s | %1s| %1s| %-19s| %-18s\n",$gid,
+        printf "%-15s|%10s|%4s |%1s|%1s| %-19s| %-18s\n",$gid,
                 $quota,$mailquota,$mailalias,$maillist,
                 $schooltype,$department;
         $i++;
     }   
     print "---------------+----------+-----",
-          "+--+--+--------------------+-------------------\n";
+          "+-+-+--------------------+---------------------\n";
+    print "(MQ=MailQuota, A=Mailalias,",
+          " L=Mailist)\n";
     &db_disconnect($dbh);
 }
 
