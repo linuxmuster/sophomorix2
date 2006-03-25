@@ -3642,8 +3642,8 @@ sub handout {
       $to_dir="${DevelConf::tasks_projects}/${name}/${login}";
   }
 
-  print "   From:  $from_dir \n";
-  print "   To:    $to_dir \n";
+  print "   From: ${from_dir}\n";
+  print "   To:   ${to_dir}\n";
 
   if ($rsync eq "delete") {
      system("rsync -tor --delete $from_dir $to_dir");
