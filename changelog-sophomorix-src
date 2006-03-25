@@ -1045,8 +1045,6 @@ SophomorixPgLdap.pm
 
 sophomorix-repair doesn't work at all
 
-
-code_cleanup:
  
 
 meeting 21.3.2006
@@ -1071,9 +1069,6 @@ Beim Schüler: _vorlagen/aktueller_raum
 NOT creating a dir  in galli/_vorlagen when user is added 
 to a nonexisting class
 
-when teacher adds/removes itself to/from a class
-  - add/remove hom from all subclasses
-
 
 user in sophomorix-setup-pgldap nur anlegen, falls nicht existent
 gruppen " dito "
@@ -1082,12 +1077,22 @@ gruppen " dito "
 root password generieren für Datenbank
 
 
+
+managing admin problem:
+  - make sophomorix-repair work
+  - change owner with sophomorix-repair 
+       i.e admin->Administrator (new owner, group not known at the moment)
+  - move filesystem commands 
+       from sophomorix-setup-files to sophomorix-setup-pgldap
+  - remove dependency sophomorix-base needs sophomorix-files 
+
+
 Aufrufe fuer Schulkonsole bereitstellen
 ==================================================
 
 rsync to /var/cache/sophomorix/tasks/.../gruppe/lehrer
 
-teacher niko, class 11a project astro subclass 11a-A must exist
+Example: teacher niko, class 11a, project astro, subclass 11a-A must exist
 
 sophomorix-teacher --teacher niko --class 11a --handout
 sophomorix-teacher --teacher niko --project astro --handout
@@ -1096,11 +1101,12 @@ sophomorix-teacher --teacher niko --room A123 --handout  (todo)
 
 
 
-BUG: austeilen an subclassen:
-
-Testen mit sophomorix-test-bunchofusers --work -> error
-
 1.6.0-1
+   - Bugfix: handout to subclasses is without errors in 
+     sophomorix-test-bunchofusers 
+   - when joining a class, 
+       make sure to join subclasses and 
+       create directories for subclasses
    - if a class is split, add teachers to all subclasses which have users
    - adding a directory to handout data (_vorlagen/projectlongname) added when 
      admin jons a project
