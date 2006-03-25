@@ -535,15 +535,6 @@ sub vorlagen_bereitstellen{
     print "$command \n";
     system($command);
 
-
-    # do this with add already
-    # join the class 11a (?????? later do this as galli)
-    if ($type eq "class"){
-       $command="sophomorix-teacher --teacher $teacher --add $group";
-    } elsif ($type eq "subclass"){
-
-   }
-
     if ($type eq "project"){
        # $linkname (global should be given before calling this function) 
        # $dirname  (global should be given before calling this function) 
@@ -555,14 +546,24 @@ sub vorlagen_bereitstellen{
        $dirname=$group;  
     }
 
-    print "$command \n";
-    system($command);
+    # do this with add already
+    # join the class 11a (?????? later do this as galli)
+    if ($type eq "class"){
+       $command="sophomorix-teacher --teacher $teacher --add $group";
+       print "$command \n";
+       system($command);
+    } elsif ($type eq "subclass"){
+       $command="sophomorix-teacher --teacher $teacher --add $group";
+       print "$command \n";
+       system($command);
+    }
+
     # was directory created ?
     $file="/home/teachers/${teacher}/${Language::task_dir}/${dirname}"; 
     ok(-e $file, "$file existiert");
 
     foreach my $testfile (@teacher_files){
-        $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::task_dir}/${dirname}'";
+        $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::task_dir}/${dirname}'/";
         print "$command \n";
         system($command);
     }
