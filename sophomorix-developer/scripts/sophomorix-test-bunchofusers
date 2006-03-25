@@ -25,6 +25,7 @@ system("install -d /root/sophomorix-test");
 
 my $dirname="";
 my $linkname="";
+my $mothergroup="";
 
 my $file="";
 my @teacher_files=();
@@ -264,6 +265,7 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
 
    $dirname="11a-A";
    $linkname="11a-A";
+   $mothergroup="11a";
 
    &vorlagen_bereitstellen($vorlagen_teacher,
                            $vorlagen_gruppe,
@@ -526,25 +528,31 @@ sub vorlagen_bereitstellen{
     my $command="";
     my $file="";
 
-    # what if type $project?
-    $command="sophomorix-teacher --teacher $teacher --remove $group";
-    print "$command \n";
-    system($command);
+    if ($type eq "project"){
+       # $linkname (global should be given before calling this function) 
+       # $dirname  (global should be given before calling this function) 
+       # $mothergroup (global should be given before calling this function) 
+    } elsif ($type eq "subclass"){
+       # $linkname (global should be given before calling this function) 
+       # $dirname  (global should be given before calling this function) 
+       # $mothergroup (global should be given before calling this function) 
+    } else {
+       $linkname=$group;  
+       $dirname=$group;  
+       $mothergroup=$group;
+    }
+
+    # romove the teacher from this class
+    if ($type eq "class" or $type eq "subclass"){
+        $command="sophomorix-teacher --teacher $teacher --remove $mothergroup";
+        print "$command \n";
+        system($command);
+    }
 
     $command="rm -rf /home/teachers/${teacher}/${Language::task_dir}/${group}"; 
     print "$command \n";
     system($command);
 
-    if ($type eq "project"){
-       # $linkname (global should be given before calling this function) 
-       # $dirname  (global should be given before calling this function) 
-    } elsif ($type eq "subclass"){
-       # $linkname (global should be given before calling this function) 
-       # $dirname  (global should be given before calling this function) 
-    } else {
-       $linkname=$group;  
-       $dirname=$group;  
-    }
 
     # do this with add already
     # join the class 11a (?????? later do this as galli)
@@ -553,7 +561,7 @@ sub vorlagen_bereitstellen{
        print "$command \n";
        system($command);
     } elsif ($type eq "subclass"){
-       $command="sophomorix-teacher --teacher $teacher --add $group";
+       $command="sophomorix-teacher --teacher $teacher --add $mothergroup";
        print "$command \n";
        system($command);
     }
