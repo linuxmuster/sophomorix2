@@ -578,7 +578,8 @@ sub add_my_adminclass {
     &addadmin_to_adminclass($login,$class);
 
     # create link
-    &Sophomorix::SophomorixBase::create_share_link($login,$class,$class,"class");
+    &Sophomorix::SophomorixBase::create_share_link($login,
+         $class,$class,"class");
 
     # join group
     &pg_adduser($login,$class);
@@ -586,6 +587,20 @@ sub add_my_adminclass {
     # create dirs in tasks and collect
     &Sophomorix::SophomorixBase::create_share_directory($login,
          $class,$class,"class");
+
+    # fetch a list of subclasses
+    my @subs=&Sophomorix::SophomorixPgLdap::fetch_used_subclasses($class);
+    foreach my $sub (@subs){
+	my $subclass=$class."-".$sub;
+        # create link
+        &Sophomorix::SophomorixBase::create_share_link($login,
+            $subclass,$subclass,"subclass");
+        # join group
+        &pg_adduser($login,$subclass);
+        # create dirs in tasks and collect
+        &Sophomorix::SophomorixBase::create_share_directory($login,
+            $subclass,$subclass,"subclass");
+   }
 }
 
 
@@ -608,12 +623,26 @@ sub remove_my_adminclass {
     &deleteadmin_from_adminclass($login,$class);
 
     # remove link
-    &Sophomorix::SophomorixBase::remove_share_link($login,$class,$class,"class");
-#???    &deleteuser_from_project($login,$class);
+    &Sophomorix::SophomorixBase::remove_share_link($login,
+         $class,$class,"class");
 
     # remove dirs in tasks and collect
     &Sophomorix::SophomorixBase::remove_share_directory($login,
          $class,$class,"class");
+
+    # fetch a list of subclasses
+    my @subs=&Sophomorix::SophomorixPgLdap::fetch_used_subclasses($class);
+    foreach my $sub (@subs){
+	my $subclass=$class."-".$sub;
+        # remove link
+        &Sophomorix::SophomorixBase::remove_share_link($login,
+            $subclass,$subclass,"subclass");
+        # join group
+        &pg_adduser($login,$subclass);
+        # remove dirs in tasks and collect
+        &Sophomorix::SophomorixBase::remove_share_directory($login,
+            $subclass,$subclass,"subclass");
+   }
 }
 
 
