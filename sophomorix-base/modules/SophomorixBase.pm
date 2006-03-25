@@ -1878,31 +1878,31 @@ sub create_share_link {
           "/${Language::task_dir}/${Language::task_string}-${share_long_name}";
    
        if ($type eq "project"){
-          # project
-          $link_target="${DevelConf::share_projects}/${share_name}";
-          $link_target_tasks="${DevelConf::tasks_projects}/${share_name}";
+           # project
+           $link_target="${DevelConf::share_projects}/${share_name}";
+           $link_target_tasks="${DevelConf::tasks_projects}/${share_name}";
        } elsif ($type eq "class"){
-          # class
-	  if ($share_name  ne ${DevelConf::teacher}){
-             # student
-             $link_target="${DevelConf::share_classes}/${share_name}";
-             $link_target_tasks="${DevelConf::tasks_classes}/${share_name}";
-	  } else {
-             # teacher
-             $link_target="${DevelConf::share_teacher}";
-             $link_target_tasks="${DevelConf::tasks_teachers}";
-	  }
+           # class
+	   if ($share_name  ne ${DevelConf::teacher}){
+               # student
+               $link_target="${DevelConf::share_classes}/${share_name}";
+               $link_target_tasks="${DevelConf::tasks_classes}/${share_name}";
+	   } else {
+               # teacher
+               $link_target="${DevelConf::share_teacher}";
+               $link_target_tasks="${DevelConf::tasks_teachers}";
+	   }
        }elsif ($type eq "subclass"){
-          # subclass
-          $link_target="${DevelConf::share_subclasses}/${share_name}";
-          $link_target_tasks="${DevelConf::tasks_subclasses}/${share_name}";
+           # subclass
+           $link_target="${DevelConf::share_subclasses}/${share_name}";
+           $link_target_tasks="${DevelConf::tasks_subclasses}/${share_name}";
        } else {
-          print "Unknown type $type\n\n";
-	  return 0;
+           print "Unknown type $type\n\n";
+	   return 0;
        }
 
-        # make sure directory exists
-        &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/\$share_dir",
+       # make sure directory exists
+       &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/\$share_dir",
                       "$homedir/${Language::share_dir}");
 
        # Link to share
