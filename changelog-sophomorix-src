@@ -1072,7 +1072,8 @@ to a nonexisting class
 
 
 managing admin problem:
-  - make sophomorix-repair work
+  - make room and workstation function faster
+  - edit repair.directories
   - change owner with sophomorix-repair 
        i.e admin->Administrator (new owner, group not known at the moment)
   - move filesystem commands 
@@ -1087,7 +1088,7 @@ remove?:  get_adminclasses_sub_school
           pg_get_adminclasses
           get_projects_school
           get_rooms_school (schneller)
-          get_workstations_school
+          get_workstations_school (schneller)
 
 
 Aufrufe fuer Schulkonsole bereitstellen
@@ -1105,6 +1106,8 @@ sophomorix-teacher --teacher niko --room A123 --handout  (todo)
 
 
 1.6.0-1
+   - sophhomorix-repair works a bit
+   - created functions for sophomorix-repair 
    - add groups in sophomrix-setup-pgldap only when necessary
    - generate a random password for postgres access of slapd
    - Bugfix: handout to subclasses is without errors in 
