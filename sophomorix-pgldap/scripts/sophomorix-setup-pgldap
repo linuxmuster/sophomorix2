@@ -37,6 +37,7 @@ my $smbserverstring="";
 my $dbpassword="";
 my $dbname="";
 my $ldappw="";
+my $dbpw="";
 
 my $info=0;
 my $help=0;
@@ -60,6 +61,7 @@ my $testopt=GetOptions(
            "oldversion|=s" => \$old_version,
            "newversion|=s" => \$new_version,
            "ldappw|ldappassword=s" => \$ldappw,
+           "dbpw|dbpassword=s" => \$dbpw,
            "new-database" => \$new_database,
            "keep-database" => \$keep_database,
           );
@@ -77,6 +79,16 @@ if ($ldappw ne ""){
 } else {
     # Zufallsnummer als password erzeugen
     $ldappassword = int( rand(9999999999)) + 9999999999;
+}
+
+my $dbpassword = "";
+
+if ($dbpw ne ""){
+    # use password given as option
+    $dbpassword = $dbpw;
+} else {
+    # Zufallsnummer als password erzeugen
+    $dbpassword = int( rand(9999999999)) + 9999999999;
 }
 
 
@@ -108,6 +120,8 @@ How to handle the database
 What passwords to use:
   --ldappw string   use string as ldap rootdn password 
     (Standard password is a random 10 digit number)
+  --dbpw string   use string as ldap database password 
+    (Standard password is a random 10 digit number)
 ');
    print "\n";
    exit;
@@ -131,7 +145,8 @@ if (-e $config_file) {
    $internip=$PgLdapConf::internip;
 # $ldappassword is a generated number now
 #   $ldappassword=$PgLdapConf::ldappassword;
-   $dbpassword=$PgLdapConf::dbpassword;
+# $dbpassword is a generated number now
+#   $dbpassword=$PgLdapConf::dbpassword;
    $dbname=$PgLdapConf::dbname;
 }
 
@@ -201,6 +216,7 @@ if ($internip_debconf ne 0){
 
 
     print "   ldappassword (random number):   ********** \n";
+    print "   dbpassword (random number)  :   ********** \n";
 
 
 # institutes
@@ -609,6 +625,8 @@ if ($keep_database==1){
     &upgrade_database();
 }
 
+# setting the password
+&set_db_passwd($dbpassword);
 
 
 # setting the ldap suffix dn=x
@@ -758,7 +776,7 @@ system("smbldap-useradd -a  -c 'Programm Administrator' -m -d /home/pgmadmin -g 
 
 
 # wwwadmin for web services (moodle, opengroupware, imp ...   ) NOT a windows user
-system("smbldap-useradd -c 'Web Administrator' -m -d /home/wwwadmin -s /bin/false wwwadmin");
+system("smbldap-useradd -c 'web Administrator' -m -d /home/wwwadmin -s /bin/false wwwadmin");
 
 
 
@@ -903,6 +921,16 @@ sub set_ldap_institutes {
 }
 
 
+sub set_db_passwd {
+    my ($pass) = @_;
+    my $dbh=&db_connect();
+    my $sql="";
+    print "\nUpdating password of user ldap \n";
+    $sql="ALTER USER ldap WITH password '$pass'";
+    print $sql,"\n";
+    $dbh->do($sql);
+    &db_disconnect($dbh);
+}
 
 sub set_ldap_suffix_pg {
     my ($suffix) = @_;
@@ -934,7 +962,6 @@ sub set_ldap_suffix_pg {
           $i++;
        }
        &db_disconnect($dbh);
-
     }
 }
 
