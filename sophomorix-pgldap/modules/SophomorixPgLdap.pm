@@ -42,6 +42,9 @@ require Exporter;
              pg_remove_all_secusers
              pg_get_group_list
              pg_get_adminclasses
+             fetchadminclasses_from_school
+             fetchsubclasses_from_school
+             fetchprojects_from_school
              set_sophomorix_passwd
              user_deaktivieren
              user_reaktivieren
@@ -1804,7 +1807,75 @@ sub pg_get_adminclasses {
         $classes{$gid}="";
         $i++;
     }   
+    &db_disconnect($dbh);
     return %classes;
+}
+
+sub fetchadminclasses_from_school {
+    # fetch all entries with type adminclasses
+    my @admin_classes=();
+    my $dbh=&db_connect();
+    my $sth= $dbh->prepare( "SELECT gid from classdata 
+                              WHERE type='adminclass'
+                              ORDER BY gid" );
+      $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    my $i=0;
+    foreach ( @{ $array_ref } ) {
+        my $gid=${$array_ref}[$i][0];
+        push @admin_classes, $gid;
+        $i++;
+    }   
+    &db_disconnect($dbh);
+    return @admin_classes;
+}
+
+
+sub fetchsubclasses_from_school {
+    # fetch all subclasses
+    my @sub_classes=();
+    my $dbh=&db_connect();
+
+    my $sth= $dbh->prepare( "SELECT gid,COUNT(*) AS num
+                             FROM userdata 
+                             WHERE (subclass='A'
+                                 OR subclass='B'
+                                 OR subclass='C'
+                                 OR subclass='D')
+                                 GROUP BY gid" );
+      $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    my $i=0;
+    foreach ( @{ $array_ref } ) {
+        my $gid=${$array_ref}[$i][0];
+        push @sub_classes, $gid;
+        $i++;
+    }   
+    &db_disconnect($dbh);
+    return @sub_classes;
+}
+
+
+sub fetchprojects_from_school {
+    # fetch all subclasses
+    my @projects=();
+    my $dbh=&db_connect();
+    my $sth= $dbh->prepare( "SELECT gid
+                             FROM projectdata 
+                             ORDER BY gid");
+
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    my $i=0;
+    foreach ( @{ $array_ref } ) {
+        my $gid=${$array_ref}[$i][0];
+	print "PRO $gid \n";
+
+        push @projects, $gid;
+        $i++;
+    }   
+    &db_disconnect($dbh);
+    return @projects;
 }
 
 
