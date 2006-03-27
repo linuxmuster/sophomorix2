@@ -1070,13 +1070,6 @@ NOT creating a dir  in galli/_vorlagen when user is added
 to a nonexisting class
 
 
-user in sophomorix-setup-pgldap nur anlegen, falls nicht existent
-gruppen " dito "
-
-
-root password generieren für Datenbank
-
-
 
 managing admin problem:
   - make sophomorix-repair work
@@ -1085,6 +1078,16 @@ managing admin problem:
   - move filesystem commands 
        from sophomorix-setup-files to sophomorix-setup-pgldap
   - remove dependency sophomorix-base needs sophomorix-files 
+
+- check that config-files are only readable by root
+  (odbc.ini, ...)
+
+cleanup:
+remove?:  get_adminclasses_sub_school
+          pg_get_adminclasses
+          get_projects_school
+          get_rooms_school (schneller)
+          get_workstations_school
 
 
 Aufrufe fuer Schulkonsole bereitstellen
@@ -1102,6 +1105,7 @@ sophomorix-teacher --teacher niko --room A123 --handout  (todo)
 
 
 1.6.0-1
+   - add groups in sophomrix-setup-pgldap only when necessary
    - generate a random password for postgres access of slapd
    - Bugfix: handout to subclasses is without errors in 
      sophomorix-test-bunchofusers 
