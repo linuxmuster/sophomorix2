@@ -159,22 +159,21 @@ if ($filename ne "") {
 # Klassen
 &titel("Creating list of every AdminClass ...");
 #my @klassen=&get_adminclasses_school(); 
-my @klassen=&pg_get_adminclasses(); 
+#my @klassen=&pg_get_adminclasses(); 
+my @klassen=&fetchadminclasses_from_school(); 
 &print_list("The list of every AdminClass:",@klassen);
-
 
 # Subclasses
 &titel("Creating list of every AdminClass with subclasses...");
-my @klassen_sub=&get_adminclasses_sub_school(); 
-&print_list("The list of every AdminClass with subclasses:",@klassen);
-
+#my @klassen_sub=&get_adminclasses_sub_school(); 
+my @klassen_sub=&fetchsubclasses_from_school(); 
+&print_list("The list of every AdminClass with subclasses:",@klassen_sub);
 
 # Projects
 &titel("Creating list of every Project ...");
-my @projects=&get_projects_school(); 
-&print_list("The list of every Project:",@klassen);
-
-print "---$klassen[0]---";
+#my @projects=&get_projects_school(); 
+my @projects=&fetchprojects_from_school(); 
+&print_list("The list of every Project:",@projects);
 
 
 # Räume
@@ -182,6 +181,7 @@ print "---$klassen[0]---";
 #my @raeume=&get_raeume_in_schule(); 
 my @raeume=&get_rooms_school(); 
 &print_list("The list of every room:",@raeume);
+
 
 
 # Userlisten
@@ -192,11 +192,12 @@ my @raeume=&get_rooms_school();
 my @schueler=&fetchstudents_from_school();
 &print_list("The list of every pupil:",@schueler);
 
+
+
 # lehrer
 &titel("Creating list of every teacher ...");
 #my @lehrer=&get_lehrer_in_schule();
 my @lehrer=&fetchstudents_from_adminclass(${DevelConf::teacher});
-
 &print_list("The list of every teacher:",@lehrer);
 
 # workstations
@@ -206,6 +207,7 @@ my @workstations=&get_workstations_school();
 &print_list("The list of every workstation:",@workstations);
 
 my @www_userliste=();
+
 
 
 # --permissions
