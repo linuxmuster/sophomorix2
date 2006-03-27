@@ -963,7 +963,7 @@ sub set_db_passwd {
     my $dbh=&db_connect();
     my $sql="";
     print "\nUpdating password of user ldap \n";
-    $sql="ALTER USER ldap WITH password '$pass'";
+    $sql="ALTER USER ldap WITH ENCRYPTED password '$pass'";
     print $sql,"\n";
     $dbh->do($sql);
     &db_disconnect($dbh);
