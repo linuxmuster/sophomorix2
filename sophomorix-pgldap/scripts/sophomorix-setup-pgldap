@@ -730,39 +730,56 @@ if (-e "/etc/init.d/nscd"){
 
 
 # adding groups with smbldap-tools
-system("smbldap-groupadd -g 512 'domadmins'");
-system("net groupmap add rid=512 unixgroup=domadmins ntgroup='Domain Admins'");
 
+&add_ldap_group("domadmins","Domain Admins",512);
+#system("smbldap-groupadd -g 512 'domadmins'");
+#system("net groupmap add rid=512 unixgroup=domadmins ntgroup='Domain Admins'");
 
-system("smbldap-groupadd -g 513 'domusers'");
-system("net groupmap add rid=513 unixgroup=domusers ntgroup='Domain Users'");
+&add_ldap_group("domusers","Domain Users",513);
+#system("smbldap-groupadd -g 513 'domusers'");
+#system("net groupmap add rid=513 unixgroup=domusers ntgroup='Domain Users'");
 
-system("smbldap-groupadd -g 514 'domguests'");
-system("net groupmap add rid=514 unixgroup=domguests ntgroup='Domain Guests'");
+&add_ldap_group("domguests","Domain Guests",514);
+#system("smbldap-groupadd -g 514 'domguests'");
+#system("net groupmap add rid=514 unixgroup=domguests ntgroup='Domain Guests'");
 
-system("smbldap-groupadd -g 515 'domcomputers'");
-system("net groupmap add rid=515 unixgroup=domcomputers ntgroup='Domain Computers'");
-
-# local group
-system("smbldap-groupadd -g 550 'printoperators'");
-system("net groupmap add sid='S-1-5-32-550' unixgroup=printoperators ntgroup='Print Operators' type=local");
-
-# local group
-system("smbldap-groupadd -g 552 'replicators'");
-system("net groupmap add sid='S-1-5-32-552' unixgroup=replicators ntgroup='Replicators' type=local");
-
+&add_ldap_group("domcomputers","Domain Computers",515);
+#system("smbldap-groupadd -g 515 'domcomputers'");
+#system("net groupmap add rid=515 unixgroup=domcomputers ntgroup='Domain Computers'");
 
 # local group
-system("smbldap-groupadd -g 544 'administrators'");
-system("net groupmap add sid='S-1-5-32-544' unixgroup=administrators ntgroup='Administrators' type=local");
+&add_local_ldap_group("printoperators","Print Operators",550);
+#system("smbldap-groupadd -g 550 'printoperators'");
+#system("net groupmap add sid='S-1-5-32-550' unixgroup=printoperators ntgroup='Print Operators' type=local");
 
 # local group
-system("smbldap-groupadd -g 548 'accountoperators'");
-system("net groupmap add sid='S-1-5-32-548' unixgroup=accountoperators ntgroup='Account Operators' type=local");
+&add_local_ldap_group("replicators","Replicators",552);
+#system("smbldap-groupadd -g 552 'replicators'");
+#system("net groupmap add sid='S-1-5-32-552' unixgroup=replicators ntgroup='Replicators' type=local");
+
 
 # local group
-system("smbldap-groupadd -g 551 'backupoperators'");
-system("net groupmap add sid='S-1-5-32-551' unixgroup=backupoperators ntgroup='Backup Operators' type=local");
+&add_local_ldap_group("administrators","Administrators",544);
+#system("smbldap-groupadd -g 544 'administrators'");
+#system("net groupmap add sid='S-1-5-32-544' unixgroup=administrators ntgroup='Administrators' type=local");
+
+# local group
+&add_local_ldap_group("accountoperators","Account Operators",548);
+#system("smbldap-groupadd -g 548 'accountoperators'");
+#system("net groupmap add sid='S-1-5-32-548' unixgroup=accountoperators ntgroup='Account Operators' type=local");
+
+
+# local group
+&add_local_ldap_group("backupoperators","Backup Operators",551);
+
+#$unix_group="backupoperators";
+#if (defined getgrnam($unix_group)) {
+#    print "Group $unix_group (NT: Backup Operators) exists already.\n";
+#} else {
+#    system("smbldap-groupadd -g 551 '$unix_group'");
+#    system("net groupmap add sid='S-1-5-32-551' unixgroup=$unix_group ntgroup='Backup Operators' type=local");
+#}
+
 
 
 
@@ -856,6 +873,26 @@ print "\n##### sophomorix-setup-pgldap is configuring openldap for sophomorix-pg
 ############################################################
 # sub
 ############################################################
+
+sub add_ldap_group {
+    my ($unix_group,$nt_group,$gid) = @_;
+    if (defined getgrnam($unix_group)) {
+        print "Group $unix_group (NT: $nt_group) exists already.\n";
+    } else {
+        system("smbldap-groupadd -g $gid '$unix_group'");
+        system("net groupmap add rid=$gid unixgroup='$unix_group' ntgroup='$nt_group'");
+    }
+}
+
+sub add_local_ldap_group {
+    my ($unix_group,$nt_group,$gid) = @_;
+    if (defined getgrnam($unix_group)) {
+        print "Group $unix_group (NT: $nt_group) exists already.\n";
+    } else {
+        system("smbldap-groupadd -g $gid '$unix_group'");
+        system("net groupmap add sid='S-1-5-32-$gid' unixgroup='$unix_group' ntgroup='$nt_group' type=local");
+    }
+}
 
 sub set_samba_sid {
     my $sid=&get_smb_sid();
