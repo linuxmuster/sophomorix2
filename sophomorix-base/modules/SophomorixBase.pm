@@ -222,11 +222,10 @@ sub print_list {
    my $name=shift;
    my @list= @_;
    my $number=$#list+1;
-   my $element="";
    if($Conf::log_level>=3){
        print "\nBegin: $name ($number)\n";
-       foreach $element (@list){
-	   print "   $element \n";
+       foreach my $element (@list){
+	   print "   $element\n";
        }
        print "End: $name ($number)\n\n";
 
