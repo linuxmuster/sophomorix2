@@ -12,9 +12,9 @@ SET search_path = public, pg_catalog;
 -- Name: plpgsql_call_handler(); Type: FUNC PROCEDURAL LANGUAGE; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION plpgsql_call_handler() RETURNS language_handler
-    AS '$libdir/plpgsql', 'plpgsql_call_handler'
-    LANGUAGE c;
+--CREATE FUNCTION plpgsql_call_handler() RETURNS language_handler
+--    AS '$libdir/plpgsql', 'plpgsql_call_handler'
+--    LANGUAGE c;
 
 
 --
@@ -22,7 +22,7 @@ CREATE FUNCTION plpgsql_call_handler() RETURNS language_handler
 -- Name: plpgsql; Type: PROCEDURAL LANGUAGE; Schema: public; Owner: 
 --
 
-CREATE TRUSTED PROCEDURAL LANGUAGE plpgsql HANDLER plpgsql_call_handler;
+--CREATE TRUSTED PROCEDURAL LANGUAGE plpgsql HANDLER plpgsql_call_handler;
 
 
 --
@@ -1436,7 +1436,8 @@ LANGUAGE sql;
 
 
 
-CREATE VIEW SELECT posix_account.uid, posix_account.uidnumber as uidnum, posix_account.gecos,(SELECT gid from groups where gidnumber=posix_account.gidnumber) as adminclass, posix_account_details.sophomorixstatus as s,groups.gid FROM posix_account FULL JOIN posix_account_details on posix_account.id=posix_account_details.id INNER JOIN groups_users on groups_users.memberuidnumber=posix_account.uidnumber INNER JOIN groups on groups.gidnumber=groups_users.gidnumber ORDER by gid,uid; 
+CREATE VIEW memberdata AS 
+    SELECT posix_account.uid, posix_account.uidnumber as uidnum, posix_account.gecos,(SELECT gid from groups where gidnumber=posix_account.gidnumber) as adminclass, posix_account_details.sophomorixstatus as s,groups.gid FROM posix_account FULL JOIN posix_account_details on posix_account.id=posix_account_details.id INNER JOIN groups_users on groups_users.memberuidnumber=posix_account.uidnumber INNER JOIN groups on groups.gidnumber=groups_users.gidnumber ORDER by gid,uid; 
 
 
 --
