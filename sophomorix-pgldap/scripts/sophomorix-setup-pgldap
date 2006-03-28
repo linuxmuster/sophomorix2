@@ -15,17 +15,24 @@ Getopt::Long::Configure ("bundling");
 
 # Todo replace debconf calls with thomas values
 
-#use Sophomorix::SophomorixConfig; 
+use Sophomorix::SophomorixConfig; 
 use Sophomorix::SophomorixBase; 
 use Sophomorix::SophomorixPgLdap qw(
                                     check_connections
                                     db_connect
                                     db_disconnect
                                     get_smb_sid
+                                    create_class_db_entry
                                    );
+
+use Sophomorix::SophomorixSYSPgLdap qw(
+                                    add_class_to_sys
+                                   );
+
 
 my $replace="";
 
+$Conf::log_level=1;
 
 my $basename="";
 my $domainname="";
@@ -55,6 +62,7 @@ my %upgrade_files_id_filename=();
 
 # Parsen der Optionen
 my $testopt=GetOptions(
+           "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
            "info|i" => \$info,
            "configfile" => \$config_file,
@@ -780,25 +788,75 @@ if (-e "/etc/init.d/nscd"){
 #    system("net groupmap add sid='S-1-5-32-551' unixgroup=$unix_group ntgroup='Backup Operators' type=local");
 #}
 
+# repair.directories einlesen
+my %permissions=&get_alle_verzeichnis_rechte();
 
 
-
+&setup_verzeichnis("\$homedir_all_admins","$DevelConf::homedir_all_admins");
 
 # adding users
 # Administrator is equal to admin in ml 2.x
-system("smbldap-useradd -a  -c Administrator -m -d /home/Administrator -g 'domadmins' -G 'administrators' -s /bin/false Administrator");
+system("smbldap-useradd -a  -c Administrator -m -d /home/administrators/Administrator -g 'domadmins' -G 'administrators,printoperators' -s /bin/false Administrator");
 
 # pgadmin is to install programs on the win clients
-system("smbldap-useradd -a  -c 'Programm Administrator' -m -d /home/pgmadmin -g 'administrators' -s /bin/false pgmadmin");
+system("smbldap-useradd -a  -c 'Programm Administrator' -m -d /home/administrators/pgmadmin -g 'administrators' -s /bin/false pgmadmin");
 
 
 # wwwadmin for web services (moodle, opengroupware, imp ...   ) NOT a windows user
-system("smbldap-useradd -c 'web Administrator' -m -d /home/wwwadmin -s /bin/false wwwadmin");
+system("smbldap-useradd -c 'web Administrator' -m -d /home/administrators/wwwadmin -s /bin/false wwwadmin");
 
 
+
+
+
+&setup_verzeichnis("\$share_share","$DevelConf::share_share");
+
+
+# this is done already with create_user_db_entry, when using postgres
+&create_class_db_entry(${DevelConf::teacher});
+&add_class_to_sys(${DevelConf::teacher});
+&provide_class_files(${DevelConf::teacher});
 
 
 # todo /etc/rc2.d samba auf 21 erhöhen
+
+
+# Adding directories
+# First Parameter: search for "$homedir_teacher" in repair.directories an do NOT
+#    expand to the variable $homedir_teacher (i.e. dont forget the leading \)
+# Second Parameter: Expand to the contents of $homedir_teacher wich is defined in
+#    sophomorix-devel.conf 
+&setup_verzeichnis("\$homedir_teacher","$DevelConf::homedir_teacher");
+&setup_verzeichnis("\$homedir_pupil","$DevelConf::homedir_pupil");
+&setup_verzeichnis("\$homedir_ws","$DevelConf::homedir_ws");
+
+# samba
+&setup_verzeichnis("\$homedir_samba","$DevelConf::homedir_samba");
+&setup_verzeichnis("\$homedir_samba_netlogon",
+                   "$DevelConf::homedir_samba_netlogon");
+&setup_verzeichnis("\$homedir_samba_progs",
+                   "$DevelConf::homedir_samba_progs");
+&setup_verzeichnis("\$homedir_samba_cds",
+                   "$DevelConf::homedir_samba_cds");
+
+# share
+&setup_verzeichnis("\$share_exams","$DevelConf::share_exams");
+&setup_verzeichnis("\$share_classes","$DevelConf::share_classes");
+&setup_verzeichnis("\$share_subclasses","$DevelConf::share_subclasses");
+&setup_verzeichnis("\$share_projects","$DevelConf::share_projects");
+&setup_verzeichnis("\$share_school","$DevelConf::share_school");
+
+# tasks
+&setup_verzeichnis("\$tasks_tasks","$DevelConf::tasks_tasks");
+&setup_verzeichnis("\$tasks_classes","$DevelConf::tasks_classes");
+&setup_verzeichnis("\$tasks_subclasses","$DevelConf::tasks_subclasses");
+&setup_verzeichnis("\$tasks_projects","$DevelConf::tasks_projects");
+&setup_verzeichnis("\$tasks_teachers","$DevelConf::tasks_teachers");
+
+
+
+# make important data readable by root only
+&setup_verzeichnis("\$var_lib_pfad","$DevelConf::var_lib_pfad");
 
 
 
@@ -848,7 +906,6 @@ if (-e $pass_file){
 } else{
     print "\n There is no saved password, skipping ...\n";
 }
-
 
 
 
@@ -964,7 +1021,8 @@ sub set_db_passwd {
     my $sql="";
     print "\nUpdating password of user ldap \n";
     $sql="ALTER USER ldap WITH ENCRYPTED password '$pass'";
-    print $sql,"\n";
+    # WARNING: The following line prints the password
+    #print $sql,"\n";
     $dbh->do($sql);
     &db_disconnect($dbh);
 }
