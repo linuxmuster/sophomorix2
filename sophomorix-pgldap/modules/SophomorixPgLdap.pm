@@ -1869,8 +1869,6 @@ sub fetchprojects_from_school {
     my $i=0;
     foreach ( @{ $array_ref } ) {
         my $gid=${$array_ref}[$i][0];
-	print "PRO $gid \n";
-
         push @projects, $gid;
         $i++;
     }   
