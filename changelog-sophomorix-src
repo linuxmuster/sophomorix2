@@ -283,7 +283,10 @@ sophomorix-test-bunchofusers
    - option --exam (distribute, collect, exams)
    - option --split (split a class)
    - option --project (create a project, check members, exam, ...)
-
+   - choose uncommon loginnames/groupnames so that it can be 
+     run on a working system
+   - interrupt *-bunchofusers before doing anything 
+     when loginnames that are to be created are present already
 
 sophomorix-vampire:
    * create config-files (perl-syntax):
@@ -772,21 +775,11 @@ lehrer.txt zusatzfeld 'comment' (Platz in Datenbank suchen)
 
 change quota with cyrus-user.pl -u user -q quota
 
-??? nwberater oder Administrator
-
-admin wird beim quotasetzen ausgenommen, da er nicht in der db ist
-falls nwberater, admin, ... in db, dann quota updaten
-
-
 ??? Gecos Feld ist immer Computer, also nicht "Domain Machine Account" Wieso?
   (Wo steht, dass -w -> gecos = Computer)
 
 
 ??? Funktion get_pupils_school mit get_students_school ersetzen.
-
-
-
-
 
 
 
@@ -821,11 +814,9 @@ falls nwberater, admin, ... in db, dann quota updaten
    backpgsql zusätzlich im slapd -lml paket von Thomas S.
 
 
-
         sophomorix-setup-pgldap: database cannot be dropped, if user is connected
         (throw out users or what?)
         ldap vorher beenden.
-
 
 
         function  manual_delete_groups 
@@ -876,8 +867,6 @@ falls nwberater, admin, ... in db, dann quota updaten
 
    - use groups_admin in display ???
   
-   - verify views
-
    - removing a project:
       - remove also project_memberships
       - remove all links to this project
@@ -903,26 +892,15 @@ falls nwberater, admin, ... in db, dann quota updaten
 
 
    - SQL-View subclassdata:
-      - todo
-
-
+      - todo (brauchts nicht)
 
    - SQL-View memberdata:
       ToDo:
-      - displayname: not needed
       - add project_details.longname AFTER gid
-
-
 
 
 Performance bug:
 Reactivation is very slow (when a user reappears in schueler.txt)
-
-
-admin or nwberater:
-
-? name 
-? ldap or files
 
 
 ------------------------------------------------------------
@@ -942,72 +920,47 @@ Code cleanup
 ------------------------------------------------------------
 
 
-NEXT: 
-
-BUG: Check when/why recursive /home/share/classes/11a/11a...
-     occur
-
-Stop before giving a project the name of a login
-and vice versa (cannot create a mailinglist)
-
-
-
-sophomorix-teacher
-decide if both is needed as a teacher in tasks:
-
-- directory for each class/group/project
-- link (what for?)
-
-
-
-
-BUG: /home/share/classes/11a has a loop link
 
 - check what to do with quota, when removing a user???
 
-- use mailaliases,mailist in subclasses ???? 
+
+- use mailaliases,mailist in subclasses ???? (do this later) 
 
 
-- sophomorix-class 
-  bei -i where type= classdata raus, wenn classdata tut
+- Begriffe 'standard-lehrer', standard-schueler aus quota.txt,mailquota.txt 
+  (auch entsprechende Englische zulassen:
+      standard-teacher
+      standard-student
+      standard-workstation
+  )
 
-
-- Begriffe 'standard-lehrer', standard-schueler aus quota.txt,mailquota.txt
-  raus.
 
 - create_user_db_entry: parameter mailquota
   (is this necessary ?)
 
-what about setting quota/mailquota for domcomp,workstation, ...
+
+what about setting quota/mailquota for domcomp,workstation,Administrator ...
 
 
 
 Bug: when sophomorix-quota -l galli
      dann : manchmal galli is not a sophomorix user
+- tritt nicht mehr auf
+
+
 create_userlist in SophomorixAPI.pm checken
 functions in sophomorixAPI.pm that must be updated
    get_workstations_room
    get_workstations_school
    get_ml_users (is working, but use SQL to speed up ) 
 
-Klassen bisher ohne Lehrer, die mitglied sind
-Projekte ? todo
 
 
+BUG: skip empty lines in config files (review that)
 
 
-
-
-
-handout/collect to projects/subclasses
-
-skip empty lines in config files (review that)
-
-
-
-
-
-avoid naming a longname of a project like:
+Name avoidance: (problems with mailinglists):
+avoid naming a longname/name of a project like:
   - another project
   - another group
   - anothers project longname
@@ -1021,29 +974,27 @@ avoid adding a adminclass with the name/longname of a project
 subclasses
  --split -> subclass
     option --split
+sonst -i oder -h
+
+IS THIS REALLY NECESSARY
  table subclass_details
   class_details.type not necessary
   dont add to class_details, when adding a subclass
   view subclassdata
+NO VIEW subclassdata (so far)
 
 
 
-
-delete_adminfrom_pro : Fehler abfangen
-usw. alle durchguggen
-
+deleteadmin_from_pro : Fehler abfangen
+usw. alle fetch_ delete ... durchguggen
 
 
-small jobs:
+
+small isolated jobs:
 SophomorixPgLdap.pm
     functions:
       show_class_teacher_list
       show_teacher_class_list
-
-
-
-
-sophomorix-repair doesn't work at all
 
  
 
@@ -1078,7 +1029,10 @@ managing admin problem:
 - check that config-files are only readable by root
   (odbc.ini, ...)
 
-- remove dbname and dbpasswd fromodbc.ini (not necessary)
+
+- remove dbname and dbpasswd from odbc.ini (not necessary ?)
+
+
 
 
 cleanup:
@@ -1090,11 +1044,20 @@ remove?:  get_adminclasses_sub_school
 
 
 
+
+
+show_....list:
+should call fetch ... and just display the results
+(avoid code doubling)
+
+
+
+
 Aufrufe fuer Schulkonsole bereitstellen
 ==================================================
 
 A) bereitstellen:
-rsync --delete to /var/cache/sophomorix/tasks/.../gruppe/lehrer
+(technisch: rsync --delete to /var/cache/sophomorix/tasks/.../gruppe/lehrer)
 
 Example: teacher niko, class 11a, project astro, subclass 11a-A must exist
 
@@ -1104,7 +1067,7 @@ sophomorix-teacher --teacher niko --subclass 11a-A --handout
 sophomorix-teacher --teacher niko --room A123 --handout  (todo)
 
 B) austeilen
-copy into users home
+(technisch: copy into users home)
 
 sophomorix-teacher --teacher niko --class 11a --handoutcopy
 sophomorix-teacher --teacher niko --project astro --handoutcopy
@@ -1124,19 +1087,30 @@ sophomorix-teacher --teacher niko
                    --users user1,user2, ... 
                    --collectcopy  (todo)
 
-C) einsammeln (Take away)
+D) einsammeln (Take away)
+wie C), jedoch:
+--collect (anstelle von --collectcopy)
 
---collect (instead of --collectcopy)
 
 
 
-- datenbankänderungen hoth testen
+
+sophomorix-setup-pgldap:
+- postgres passwort
+- ldap     passwort
+
+should not be changed automatically on update
+
+
+create a group students with all students (for testing) 
+
 
 
 1.6.1-1  (2006-03-xx)
    -
 
 1.6.0-1  (2006-03-28)
+   - removed displayname from
    - changed repair.directories from admin.admin 
      to Administrator.domadmins  ...
    - create dir /home/administrators for all (3) admins 
