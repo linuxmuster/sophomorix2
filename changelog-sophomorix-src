@@ -1073,15 +1073,13 @@ to a nonexisting class
 
 managing admin problem:
   - make room and workstation function faster
-  - edit repair.directories
-  - change owner with sophomorix-repair 
-       i.e admin->Administrator (new owner, group not known at the moment)
-  - move filesystem commands 
-       from sophomorix-setup-files to sophomorix-setup-pgldap
-  - remove dependency sophomorix-base needs sophomorix-files 
+
 
 - check that config-files are only readable by root
   (odbc.ini, ...)
+
+- remove dbname and dbpasswd fromodbc.ini (not necessary)
+
 
 cleanup:
 remove?:  get_adminclasses_sub_school
@@ -1091,21 +1089,56 @@ remove?:  get_adminclasses_sub_school
           get_workstations_school (schneller)
 
 
+
 Aufrufe fuer Schulkonsole bereitstellen
 ==================================================
 
-rsync to /var/cache/sophomorix/tasks/.../gruppe/lehrer
+A) bereitstellen:
+rsync --delete to /var/cache/sophomorix/tasks/.../gruppe/lehrer
 
 Example: teacher niko, class 11a, project astro, subclass 11a-A must exist
 
 sophomorix-teacher --teacher niko --class 11a --handout
 sophomorix-teacher --teacher niko --project astro --handout
-sophomorix-teacher --teacher niko --subclass 11a-A --handout (todo)
+sophomorix-teacher --teacher niko --subclass 11a-A --handout
 sophomorix-teacher --teacher niko --room A123 --handout  (todo)
+
+B) austeilen
+copy into users home
+
+sophomorix-teacher --teacher niko --class 11a --handoutcopy
+sophomorix-teacher --teacher niko --project astro --handoutcopy
+sophomorix-teacher --teacher niko --subclass 11a-A --handoutcopy
+sophomorix-teacher --teacher niko --room A123 --handoutcopy  (todo)
+sophomorix-teacher --teacher niko 
+                   --users user1,user2, ... 
+                   --files file1,file2,directory1,directory2, ... 
+                   --handoutcopy  (todo)
+
+C) einsammeln (Kopie)
+sophomorix-teacher --teacher niko --class 11a --collectcopy
+sophomorix-teacher --teacher niko --project astro --collectcopy
+sophomorix-teacher --teacher niko --subclass 11a-A --collectcopy
+sophomorix-teacher --teacher niko --room A123 --collectcopy  (todo)
+sophomorix-teacher --teacher niko 
+                   --users user1,user2, ... 
+                   --collectcopy  (todo)
+
+C) einsammeln (Take away)
+
+--collect (instead of --collectcopy)
+
+
 
 
 
 1.6.0-1
+   - changed repair.directories from admin.admin 
+     to Administrator.domadmins  ...
+   - create dir /home/administrators for all (3) admins 
+   - don't create admin anymore
+   - crete group teachers in ldap
+   - added user Administrator to printoperators
    - sophhomorix-repair works a bit
    - created functions for sophomorix-repair 
    - add groups in sophomrix-setup-pgldap only when necessary
