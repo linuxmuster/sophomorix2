@@ -260,7 +260,8 @@ sub repair_directories {
        # replace the first occurence of the string $homedir... 
        # with the value of the variable $homedir...
 
-       s/\$homedir_admin/$DevelConf::homedir_admin/;
+       #s/\$homedir_admin/$DevelConf::homedir_admin/;
+       s/\$homedir_all_admins/$DevelConf::homedir_all_admins/;
        s/\$homedir_pupil/${DevelConf::homedir_pupil}/;     
        s/\$homedir_teacher/$DevelConf::homedir_teacher/; 
        s/\$homedir_ws/$DevelConf::homedir_ws/; 
