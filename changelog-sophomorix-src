@@ -1019,6 +1019,8 @@ nach passwortänderung ist das wieder auf 24...  magic number
 
 tasks in /var/cache/sophomorix/tasks/gruppe/lehrer
 
+rooms that are used for teaching
+(classrooms, or rooms with 1 PC that is used for teaching)
 /etc/linuxmustser/classrooms   (1 Raum pro Zeile)
 
 Beim Lehrer:  _vorlagen/aktueller_raum-$RAUM
@@ -1045,7 +1047,7 @@ managing admin problem:
 Aufrufe fuer Schulkonsole bereitstellen
 ==================================================
 
-A) Bereitstellen:
+1.3) Bereitstellen/Vorlagen:
 (technisch: rsync --delete to /var/cache/sophomorix/tasks/.../gruppe/lehrer)
 
 Example: teacher niko, class 11a, project astro, subclass 11a-A must exist
@@ -1055,7 +1057,10 @@ sophomorix-teacher --teacher niko --project astro --handout
 sophomorix-teacher --teacher niko --subclass 11a-A --handout
 sophomorix-teacher --teacher niko --room A123 --handout  (todo)
 
-B) Austeilen
+sophomorix-teacher --teacher niko --room A123 --exam  (todo)
+
+
+1.4) Austeilen
 (technisch: copy into users home)
 
 sophomorix-teacher --teacher niko --class 11a --handoutcopy
@@ -1063,25 +1068,43 @@ sophomorix-teacher --teacher niko --project astro --handoutcopy
 sophomorix-teacher --teacher niko --subclass 11a-A --handoutcopy
 sophomorix-teacher --teacher niko --room A123 --handoutcopy  (todo)
 sophomorix-teacher --teacher niko 
-                   --users user1,user2, ... 
-                   --files file1,file2,directory1,directory2, ... 
-                   --handoutcopy  (todo)
+              --users user1,user2, ... 
+              --fromroom                                      (aktueller_raum)
+             (--files file1,file2,directory1,directory2, ...) (later) 
+              --handoutcopy  (todo)
 
-C) Einsammeln (Kopie)
+1.5 A) Einsammeln (Kopie)
 sophomorix-teacher --teacher niko --class 11a --collectcopy
 sophomorix-teacher --teacher niko --project astro --collectcopy
 sophomorix-teacher --teacher niko --subclass 11a-A --collectcopy
 sophomorix-teacher --teacher niko --room A123 --collectcopy  (todo)
-sophomorix-teacher --teacher niko 
+sophomorix-teacher --teacher niko
+                   --room name 
                    --users user1,user2, ... 
                    --collectcopy  (todo)
 
-D) Einsammeln (Take away)
-wie C), jedoch:
+1.5 B) Einsammeln (Take away)
+wie 1.5 A), jedoch:
 --collect (anstelle von --collectcopy)
 
+Einsammeln: 
+von    $WORKSTATIONHOME/_einsammeln
+nach:  $HOME/_einsammeln/klassenarbeit/$RAUM-$DAUM-$ZEIT/      
+
+wohin einsammeln soll konfigurierbar sein 
+   A):  loginname
+   B):  vorname.nachname
+   C):  nachname
 
 
+Klassenarbeit:
+
+Lehrer: einstellen in $HOME/_bereitstellen/klassenarbeit
+Workstation: $
+
+
+
+Tauschen /home/students/11a/maier/_tausch  (Verzeichnisrechte ändern um alles tauschen zu unterbinden).
 
 
 sophomorix-setup-pgldap:
@@ -1092,6 +1115,25 @@ should not be changed automatically on update
 
 
 create a group students with all students (for testing) 
+
+NEXT:
+
+_vorlage -> _austeilen
+
+
+Lehrer anlegen:
+_austeilen/aktueller_Raum
+
+
+check collect
+
+handoutcopy
+
+Schulkonsole:
+
+funktion zum Tauschverzeichnis löschen
+funktion zum ALLE links wiederherstellen
+
 
 
 
