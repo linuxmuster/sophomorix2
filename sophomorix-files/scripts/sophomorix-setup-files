@@ -26,7 +26,7 @@ system("groupadd admin");
 #system("groupadd teacher");
 system("groupadd ${DevelConf::teacher}");
 
-# make some scripts owned by leherer
+# make some scripts owned by lehrer
 #system("chown root.lehrer /usr/bin/sophomorix-teacher");
 #system("chown root.teacher /usr/bin/sophomorix-teacher");
 system("chown root.${DevelConf::teacher} /usr/bin/sophomorix-teacher");
