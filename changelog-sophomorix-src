@@ -917,6 +917,19 @@ Code cleanup
 - move show Language ... loaded to higher loglevel
 
 - use perl tidy
+
+- remove?:  get_adminclasses_sub_school
+            pg_get_adminclasses
+            get_projects_school
+            get_rooms_school (schneller)
+            get_workstations_school (schneller)
+
+show_....list:
+should call fetch ... and just display the results
+(avoid code doubling)
+
+odbc.ini and template remove uncommented lines 
+(password and user)
 ------------------------------------------------------------
 
 
@@ -984,10 +997,8 @@ IS THIS REALLY NECESSARY
 NO VIEW subclassdata (so far)
 
 
-
 deleteadmin_from_pro : Fehler abfangen
 usw. alle fetch_ delete ... durchguggen
-
 
 
 small isolated jobs:
@@ -1005,9 +1016,6 @@ smbldap-useradd -B 1 user : muss passwort ändern
 ----> sambapwdmustchange=0
 nach passwortänderung ist das wieder auf 24...  magic number
 
-
-überlegen, ob zuerst user angelegt werden (admin in ldap ) 
-und dann die Tauschverzeichnisse
 
 tasks in /var/cache/sophomorix/tasks/gruppe/lehrer
 
@@ -1030,25 +1038,6 @@ managing admin problem:
   (odbc.ini, ...)
 
 
-- remove dbname and dbpasswd from odbc.ini (not necessary ?)
-
-
-
-
-cleanup:
-remove?:  get_adminclasses_sub_school
-          pg_get_adminclasses
-          get_projects_school
-          get_rooms_school (schneller)
-          get_workstations_school (schneller)
-
-
-
-
-
-show_....list:
-should call fetch ... and just display the results
-(avoid code doubling)
 
 
 
@@ -1056,7 +1045,7 @@ should call fetch ... and just display the results
 Aufrufe fuer Schulkonsole bereitstellen
 ==================================================
 
-A) bereitstellen:
+A) Bereitstellen:
 (technisch: rsync --delete to /var/cache/sophomorix/tasks/.../gruppe/lehrer)
 
 Example: teacher niko, class 11a, project astro, subclass 11a-A must exist
@@ -1066,7 +1055,7 @@ sophomorix-teacher --teacher niko --project astro --handout
 sophomorix-teacher --teacher niko --subclass 11a-A --handout
 sophomorix-teacher --teacher niko --room A123 --handout  (todo)
 
-B) austeilen
+B) Austeilen
 (technisch: copy into users home)
 
 sophomorix-teacher --teacher niko --class 11a --handoutcopy
@@ -1078,7 +1067,7 @@ sophomorix-teacher --teacher niko
                    --files file1,file2,directory1,directory2, ... 
                    --handoutcopy  (todo)
 
-C) einsammeln (Kopie)
+C) Einsammeln (Kopie)
 sophomorix-teacher --teacher niko --class 11a --collectcopy
 sophomorix-teacher --teacher niko --project astro --collectcopy
 sophomorix-teacher --teacher niko --subclass 11a-A --collectcopy
@@ -1087,7 +1076,7 @@ sophomorix-teacher --teacher niko
                    --users user1,user2, ... 
                    --collectcopy  (todo)
 
-D) einsammeln (Take away)
+D) Einsammeln (Take away)
 wie C), jedoch:
 --collect (anstelle von --collectcopy)
 
@@ -1107,7 +1096,7 @@ create a group students with all students (for testing)
 
 
 1.6.1-1  (2006-03-xx)
-   -
+   - removed dbname and dbpasswd from odbc.ini 
 
 1.6.0-1  (2006-03-28)
    - removed displayname from
