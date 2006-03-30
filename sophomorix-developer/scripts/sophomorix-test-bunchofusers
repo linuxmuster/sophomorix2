@@ -589,7 +589,8 @@ sub vorlagen_bereitstellen{
           my $homedir = "$entry[7]";
 
 
-          $file="${homedir}/${Language::task_dir}/${Language::task_string}-${linkname}/${teacher}/${testfile}"; 
+          $file="${homedir}/${Language::task_dir}/${Language::task_string}".
+                "${linkname}/${teacher}/${testfile}"; 
           ok(-e $file, "$file existiert");
        }
     }

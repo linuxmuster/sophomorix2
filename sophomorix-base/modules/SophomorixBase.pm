@@ -717,8 +717,8 @@ sub save_tausch_klasse {
    my $dirname=&zeit_stempel;
    my @entry = getpwnam($login);
    my $homedir = "$entry[7]";
-#   my $dirpath="$homedir"."/windows/"."Klassen-Tausch-"."$dirname"."/";
-   my $dirpath="$homedir"."/"."${Language::share_string}"."-"."$dirname"."/";
+   my $dirpath="$homedir"."/"."${Language::share_string}".
+               "$dirname"."/";
 
    my $tausch_klasse_path = "";
    if ($klasse eq ${DevelConf::teacher}) {
@@ -1023,9 +1023,9 @@ sub user_links_oldstuff {
      # Links zu Tauschverzeichnissen anlegen
      &do_falls_nicht_testen(
          # Link auf Klassentausch anlegen
-          "ln -sf  $tausch_klasse $user_home/${Language::share_dir}/${Language::share_string}-$gruppe",
+          "ln -sf  $tausch_klasse $user_home/${Language::share_dir}/${Language::share_string}$gruppe",
           # Link auf Schülertausch anlegen
-          "ln -sf $DevelConf::share_school $user_home/${Language::share_dir}/${Language::share_string}-${Language::school}"
+          "ln -sf $DevelConf::share_school $user_home/${Language::share_dir}/${Language::share_string}${Language::school}"
      );
 
   }
@@ -1825,7 +1825,8 @@ sub create_school_link {
        my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
           $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
        my $link_name=$home.
-        "/${Language::share_dir}/${Language::share_string}-${Language::school}";
+        "/${Language::share_dir}/${Language::share_string}".
+        "${Language::school}";
 
        my $link_target=$DevelConf::share_school;
 
@@ -1878,10 +1879,12 @@ sub create_share_link {
     # Only act if uid is valid
     if ($homedir ne ""){
        my $link_name=$homedir.
-          "/${Language::share_dir}/${Language::share_string}-${share_long_name}";   
+          "/${Language::share_dir}/${Language::share_string}".
+          "${share_long_name}";   
 
        my $link_name_tasks=$homedir.
-          "/${Language::task_dir}/${Language::task_string}-${share_long_name}";
+          "/${Language::task_dir}/${Language::task_string}".
+          "${share_long_name}";
    
        if ($type eq "project"){
            # project
@@ -2007,9 +2010,11 @@ sub remove_share_link {
         my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
            $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
         my $link_name=$home.
-          "/${Language::share_dir}/${Language::share_string}-${share_long_name}";   
+          "/${Language::share_dir}/${Language::share_string}".
+          "${share_long_name}";   
         my $link_name_tasks=$home.
-          "/${Language::task_dir}/${Language::task_string}-${share_long_name}";   
+          "/${Language::task_dir}/${Language::task_string}".
+          "${share_long_name}";   
 
         # remove the link
         print "   Removing link ${link_name}\n";
