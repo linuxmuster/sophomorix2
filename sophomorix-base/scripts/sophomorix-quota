@@ -704,32 +704,6 @@ sub get_projects_add_quota {
 }
 
 
-# hash login -> additional quota
-sub get_projects_add_quota_oldstuff {
-    my %projects_add_quota=();
-    my %users=();
-    open(PROJECT,"<${DevelConf::dyn_config_pfad}/projects_db");
-    while(<PROJECT>){
-       chomp();
-       my ($name,$lname,$teacher,$member,$member_group,$add_quota)=split(/;/);
-       %users=();
-       %users=&get_user_project($name,$teacher,$member,$member_group);
-       while ( my ($login, $v) = each(%users)) {
-          #print "$login: $add_quota\n";
-          if (exists $projects_add_quota{$login}){
-             # add the quotas
-	      my $sum = &quota_addition($projects_add_quota{$login},$add_quota);
-             $projects_add_quota{$login}=$sum;
-	 } else {
-             # create entry
-             $projects_add_quota{$login}=$add_quota;
-         }
-       }
-    }
-    close(PROJECT);
-    return %projects_add_quota;
-}
-
 
 
 
@@ -758,31 +732,6 @@ sub get_class_quota {
     $sth->finish();
     &db_disconnect($dbh);
     return (\%class_quota,\%class_quota_mail);
-}
-
-
-
-
-# hash: class -> quota 
-sub get_class_quota_oldstuff {
-    my $class="";
-    my $quotastring="";
-    my %class_quota=();
-    open(CLASS,"<${DevelConf::protokoll_pfad}/class_db") || die "Fehler: $!";
-    while(<CLASS>){
-       chomp();
-       s/\s//g; # Whitespace Entfernen
-       if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
-       if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
-       ($class,$a,$a,$a,$quotastring)=split(/;/);
-       # Group-ID der Klasse ermitteln
-       if($quotastring ne "quota"){
-          # wenn Klassen-Quota angegeben dann nutzen
-          $class_quota{$class}=$quotastring;  
-       }
-    }
-    close(CLASS);
-    return %class_quota;
 }
 
 
@@ -864,24 +813,6 @@ sub get_db_quota {
     }
     &db_disconnect($dbh);
     return (\%db_quota,\%db_quota_mail);
-}
-
-
-# hash: login -> quotastring in the sophomorix database(user_db)
-sub get_db_quota_oldstuff {
-    my $login="";
-    my $quotastring="";
-    my %db_quota=();
-    $db_quota{"admin"}=0;
-    open(USERPROTOKOLL,"$DevelConf::protokoll_datei") 
-        || die "Fehler:  $DevelConf::protokoll_datei nicht gefunden!  $!";
-    while(<USERPROTOKOLL>){
-      if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
-      ($a,$a,$login,$a,$a,$a,$a,$a,$a,$a,$a,$a,$quotastring)=split(/;/);
-      #print "$login:  $quotastring \n";
-      $db_quota{$login}=$quotastring;
-    }
-    return %db_quota;
 }
 
 
