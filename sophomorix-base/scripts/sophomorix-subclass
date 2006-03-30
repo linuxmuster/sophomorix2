@@ -76,6 +76,7 @@ my $info=0;
 my $lch="admin";
 my $class="";
 my $noninteractive=0;
+my $split=0;
 
 my $login="";
 
@@ -106,6 +107,7 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
            "noninteractive|n" => \$noninteractive,
+           "split" => \$split,
            "A=s" => \$a_append,
            "B=s" => \$b_append,
            "C=s" => \$c_append,
@@ -119,6 +121,12 @@ my $testopt=GetOptions(
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
+
+if ($class eq ""
+    and $info==0
+    ){
+    $help=1;
+}
 
 # --help
 if ($help==1) {
@@ -141,6 +149,7 @@ Options
   -Amemebers user 1,user2, ... -Bmembers -user1.user2, ... ...
   -0memebers user 1,user2
   --noninteractive
+  --split
 
 Please see the sophomorix-add(8) man pages for full documentation
 ');
@@ -164,11 +173,8 @@ if ($info==1){
 
 
 # Abbruch wenn als klasse lehrer abgegeben
-if ($class eq "" or $class eq ${DevelConf::teacher}){
-    print "Sie müssen die zu teilende Klasse angeben!\n";
-    if ($class eq ${DevelConf::teacher}){
-	print "Die Gruppe lehrer ist keine Klasse!\n";
-    }
+if ($class eq ${DevelConf::teacher}){
+    print "You cannot split the group ${DevelConf::teacher}\n";
     exit;
 }
 
@@ -191,9 +197,18 @@ if (not defined $found){
 
 
 
+
+
 # ===========================================================================
-# Programmbeginn
+# Programmbeginn, SPLIT a class
 # ===========================================================================
+
+# only split, when option --split is set
+if ($split==0){
+    print "Option --split is necessary to split a class\n";
+    exit;
+}
+
 
 # repair.directories einlesen
 my %alle_verzeichnis_rechte = &get_alle_verzeichnis_rechte();
@@ -201,7 +216,6 @@ my %alle_verzeichnis_rechte = &get_alle_verzeichnis_rechte();
 #while (my ($k,$v) = each %alle_verzeichnis_rechte){
 #    print $k , " ", $v, "\n";
 #}
-
 
 
 # step 0
