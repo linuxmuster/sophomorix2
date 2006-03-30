@@ -984,10 +984,6 @@ avoid adding a adminclass with the name/longname of a project
 
 
 
-subclasses
- --split -> subclass
-    option --split
-sonst -i oder -h
 
 IS THIS REALLY NECESSARY
  table subclass_details
@@ -1104,7 +1100,8 @@ Workstation: $
 
 
 
-Tauschen /home/students/11a/maier/_tausch  (Verzeichnisrechte ändern um alles tauschen zu unterbinden).
+Tauschen /home/students/11a/maier/_tausch  
+(Verzeichnisrechte ändern um alles tauschen zu unterbinden).
 
 
 sophomorix-setup-pgldap:
@@ -1133,9 +1130,14 @@ funktion zum ALLE links wiederherstellen
 
 
 
-
-
 1.6.1-1  (2006-03-xx)
+   - sophomorix-subclasses
+         needs --split to actually split a class
+         otherwise -h is assumed
+   - removed creation of projects_db from sophomorix-projects
+   - removed - from code and put it into the language files
+     (possibility to use empty string as prefix)
+     - modified sophomorix-test-bunchofusers to test that
    - created new user directory _bereitstellen (only teachers)
      - create dirs to handout data herein
      - modified sophomorix-test-bunchofusers to test that
