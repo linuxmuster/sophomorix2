@@ -622,7 +622,7 @@ sub check_groups {
     closedir TASK;
 
     # add share school if necessary if configured in sophomorix.conf
-    my $share_school="${Language::share_string}"."-"."${Language::school}";
+    my $share_school="${Language::share_string}"."${Language::school}";
     if (${Conf::schulweit_tauschen} eq "yes") {
         $is_links_share{$share_school} = 1;
     }
@@ -638,9 +638,10 @@ sub check_groups {
           my $link_goal_rel="";
 
           if ($must eq ${DevelConf::teacher}){
-             $link_goal_rel="${Language::share_string}-${Language::teacher}";
+             $link_goal_rel="${Language::share_string}".
+                            "${Language::teacher}";
 	  } else {
-             $link_goal_rel="${Language::share_string}-$must";
+             $link_goal_rel="${Language::share_string}"."$must";
           }
 
           my $link_goal="${share_dir}/$link_goal_rel";
@@ -670,9 +671,10 @@ sub check_groups {
           my $link_goal_rel_tasks="";
 
           if ($must eq ${DevelConf::teacher}){
-             $link_goal_rel_tasks="${Language::task_string}-${Language::teacher}";
+             $link_goal_rel_tasks="${Language::task_string}".
+                                  "${Language::teacher}";
 	  } else {
-             $link_goal_rel_tasks="${Language::task_string}-$must";
+             $link_goal_rel_tasks="${Language::task_string}"."$must";
           }
 
           my $link_goal_tasks="${tasks_dir}/$link_goal_rel_tasks";
