@@ -884,7 +884,10 @@ sub provide_user_files {
                   "\$homedir_teacher/\$lehrer/\$task_dir",
                   "$home/${Language::task_dir}",
                   "$login");
-
+           &setup_verzeichnis(
+                  "\$homedir_teacher/\$lehrer/\$handout_dir",
+                  "$home/${Language::handout_dir}",
+                  "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$collect_dir",
                   "$home/${Language::collect_dir}",
@@ -1849,6 +1852,7 @@ Der type kann sein: project, class oder subclass
 sub create_share_link {
     my ($login,$share_name,$share_long_name,$type) = @_;
     my $homedir="";
+    my $pri_group="";
     my $link_target="";
     my $link_target_tasks="";
 
@@ -1863,9 +1867,12 @@ sub create_share_link {
     }
 
     if (getpwnam("$login")){
-       my($login,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
-          $name_passwd,$gcos_passwd,$home,$shell)=getpwnam("$login");
+       my($login,$passwort,$uid,$gid,$quota,
+          $name,$gcos,$home,$shell)=getpwnam("$login");
+       my ($gname, $passwd, $gidnumber, $members)=getgrgid("$gid");
        $homedir=$home;
+       $pri_group=($gname);
+       print "Group is $pri_group\n\n";
     }
 
     # Only act if uid is valid
@@ -1955,12 +1962,12 @@ sub create_share_directory {
     }
 
     if ($homedir ne ""){
-        # create dirs in tasks and collect
-        my $task_dir=$homedir."/".
-            ${Language::task_dir}."/".$share_long_name;
-        if (not -e $task_dir){
-            print "   Adding directory ${task_dir}\n"; 
-            system("mkdir $task_dir");
+        # create dirs in handout and collect
+        my $handout_dir=$homedir."/".
+            ${Language::handout_dir}."/".$share_long_name;
+        if (not -e $handout_dir){
+            print "   Adding directory ${handout_dir}\n"; 
+            system("mkdir $handout_dir");
         }
 
         my $collect_dir=$homedir."/".
@@ -2034,10 +2041,10 @@ sub remove_share_directory {
 
     if ($homedir ne ""){
         # remove dirs in tasks and collect
-        my $task_dir=$homedir."/".${Language::task_dir}."/".$share_long_name;
-        if (-e $task_dir){
-            print "   Removing $task_dir if empty.\n";
-            system("rmdir $task_dir");
+        my $handout_dir=$homedir."/".${Language::handout_dir}."/".$share_long_name;
+        if (-e $handout_dir){
+            print "   Removing $handout_dir if empty.\n";
+            system("rmdir $handout_dir");
         }
 
         my $collect_dir=$homedir."/".${Language::collect_dir}."/".$share_long_name;
@@ -3629,15 +3636,15 @@ sub handout {
   my $from_dir = "";
 
   if ($type eq "class"){
-      $from_dir = "${homedir}/${Language::task_dir}/${name}/";
+      $from_dir = "${homedir}/${Language::handout_dir}/${name}/";
       $to_dir="${DevelConf::tasks_classes}/${name}/${login}";
   } elsif ($type eq "subclass"){
-      $from_dir = "${homedir}/${Language::task_dir}/${name}/";
+      $from_dir = "${homedir}/${Language::handout_dir}/${name}/";
       $to_dir="${DevelConf::tasks_subclasses}/${name}/${login}";
   } elsif ($type eq "project"){
       # get the longname
       my ($longname)=&Sophomorix::SophomorixPgLdap::fetchinfo_from_project($name);
-      $from_dir = "${homedir}/${Language::task_dir}/${longname}/";
+      $from_dir = "${homedir}/${Language::handout_dir}/${longname}/";
       $to_dir="${DevelConf::tasks_projects}/${name}/${login}";
   }
 

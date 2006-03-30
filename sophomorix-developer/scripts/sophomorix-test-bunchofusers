@@ -549,7 +549,7 @@ sub vorlagen_bereitstellen{
         system($command);
     }
 
-    $command="rm -rf /home/teachers/${teacher}/${Language::task_dir}/${group}"; 
+    $command="rm -rf /home/teachers/${teacher}/${Language::handout_dir}/${group}"; 
     print "$command \n";
     system($command);
 
@@ -567,11 +567,11 @@ sub vorlagen_bereitstellen{
     }
 
     # was directory created ?
-    $file="/home/teachers/${teacher}/${Language::task_dir}/${dirname}"; 
+    $file="/home/teachers/${teacher}/${Language::handout_dir}/${dirname}"; 
     ok(-e $file, "$file existiert");
 
     foreach my $testfile (@teacher_files){
-        $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::task_dir}/${dirname}'/";
+        $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::handout_dir}/${dirname}'/";
         print "$command \n";
         system($command);
     }
