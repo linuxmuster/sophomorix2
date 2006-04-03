@@ -1,3 +1,6 @@
+\set AUTOCOMMIT off
+BEGIN WORK;
+
 --
 -- PostgreSQL database dump
 --
@@ -1876,3 +1879,5 @@ SELECT pg_catalog.setval('samba_domain_id_seq', 1, false);
 
 SELECT pg_catalog.setval('samba_group_mapping_id_seq', 1, false);
 
+COMMIT WORK;
+\set AUTOCOMMIT on
