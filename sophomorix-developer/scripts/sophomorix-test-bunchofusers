@@ -160,8 +160,8 @@ if ($add==1 and not -e "/root/sophomorix-test/bunchofusers"){
     system("sophomorix-teacher --teacher bruno --add 11a");
     system("sophomorix-teacher --teacher tycho --add 11a");
 
-    # creating a 2 subclasses  in class 11a 
-    system("sophomorix-subclass --noninteractive --class 11a  --AMembers gillania,blackmri,gloverro,paiceia,lordjo --BMembers plantro,pageji,jonesjo,bonhamjo");
+    # creating 2 subclasses  in class 11a 
+    system("sophomorix-subclass --split --noninteractive --class 11a  --AMembers gillania,blackmri,gloverro,paiceia,lordjo --BMembers plantro,pageji,jonesjo,bonhamjo");
 
 
     # Marking the added users
