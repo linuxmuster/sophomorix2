@@ -41,7 +41,6 @@ my $smbworkgroup="";
 my $internip="";
 my $sid="";
 my $smbserverstring="";
-my $dbpassword="";
 my $dbname="";
 my $ldappw="";
 my $dbpw="";
@@ -59,6 +58,12 @@ my $new_version="";
 my @upgrade_files_id=();
 my %upgrade_files_id_filename=();
 
+my $ldappassword = "";
+my $dbpassword = "";
+my $ldap_explanation="";
+my $db_explanation="";
+
+my $old_password_file="/etc/ldap/slapd.conf";
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -78,27 +83,45 @@ my $testopt=GetOptions(
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
 
-my ($old_ldappw,$olg_dbpw)=&fetch_ldap_pg_passwords();
 
-my $ldappassword = "";
+# fetch old passwords
+my ($old_ldappw,$old_dbpw)=&fetch_ldap_pg_passwords();
+
+
+
+# ldap password
 
 if ($ldappw ne ""){
     # use password given as option
     $ldappassword = $ldappw;
+    $ldap_explanation="Password from Option";
+} elsif ($old_ldappw ne "") {
+    # reuse old password 
+    $ldappassword = $old_ldappw;
+    $ldap_explanation="reuse old password";
 } else {
-    # Zufallsnummer als password erzeugen
+    # generate random password
     $ldappassword = int( rand(9999999999)) + 9999999999;
+    $ldap_explanation="new random password";
 }
 
-my $dbpassword = "";
+
+# db password
 
 if ($dbpw ne ""){
     # use password given as option
     $dbpassword = $dbpw;
+    $db_explanation="Password from Option";
+} elsif ($old_dbpw ne "") {
+    # reuse old password 
+    $dbpassword = $old_dbpw;
+    $db_explanation="reuse old password";
 } else {
-    # Zufallsnummer als password erzeugen
+    # generate random password
     $dbpassword = int( rand(9999999999)) + 9999999999;
+    $db_explanation="new random password";
 }
+
 
 
 
@@ -128,9 +151,13 @@ How to handle the database
 
 What passwords to use:
   --ldappw string   use string as ldap rootdn password 
-    (Standard password is a random 10 digit number)
+      Standard password is:
+         - if given in /etc/ldap/slapd.conf :reuse old password
+         - else: generate a random 10 digit number as password
   --dbpw string   use string as ldap database password 
-    (Standard password is a random 10 digit number)
+      Standard password is:
+         - if given in /etc/ldap/slapd.conf :reuse old password
+         - else: generate a random 10 digit number as password
 ');
    print "\n";
    exit;
@@ -172,10 +199,10 @@ my $domainname_debconf=&get_debconf_value("linuxmuster-base", "domainname",0);
 if ($domainname_debconf ne 0){
     # from debconf
     $domainname=$domainname_debconf;    
-    print "   Domainname from debconf     :   $domainname \n";
+    print "   Domainname from debconf              : $domainname \n";
 } else {
     # from config file
-    print "   Domainname from pgldap.conf :   $domainname \n";
+    print "   Domainname from pgldap.conf          : $domainname \n";
 }
 
 
@@ -187,10 +214,10 @@ my $servername_debconf=&get_debconf_value("linuxmuster-base", "servername",0);
 if ($servername_debconf ne 0){
     # from debconf
     $servername=$servername_debconf;    
-    print "   Servername from debconf     :   $servername \n";
+    print "   Servername from debconf              : $servername \n";
 } else {
     # from config file
-    print "   Servername from pgldap.conf :   $servername \n";
+    print "   Servername from pgldap.conf          : $servername \n";
 }
 
 
@@ -201,10 +228,10 @@ my $smbworkgroup_debconf=&get_debconf_value("linuxmuster-base", "workgroup",0);
 if ($smbworkgroup_debconf ne 0){
     # from debconf
     $smbworkgroup=$smbworkgroup_debconf;    
-    print "   Workgroup from debconf      :   $smbworkgroup \n";
+    print "   Workgroup from debconf               : $smbworkgroup \n";
 } else {
     # from config file
-    print "   Workgroup from pgldap.conf  :   $smbworkgroup \n";
+    print "   Workgroup from pgldap.conf           : $smbworkgroup \n";
 }
 
 # internal ip
@@ -214,18 +241,18 @@ my $internip_debconf=&get_debconf_value("linuxmuster-base", "internip",0);
 if ($internip_debconf ne 0){
     # from debconf
     $internip=$internip_debconf;    
-    print "   Internal IP from debconf    :   $internip \n";
+    print "   Internal IP from debconf             : $internip \n";
 } else {
     # from config file
-    print "   Internal IP from pgldap.conf:   $internip \n";
+    print "   Internal IP from pgldap.conf         : $internip \n";
 }
 
 
 } # end $config_file==0
 
 
-    print "   ldappassword (random number):   ********** \n";
-    print "   dbpassword (random number)  :   ********** \n";
+    printf "   ldappassword %23s : ********** \n","($ldap_explanation)";
+    printf "   dbpassword   %23s : ********** \n","($db_explanation)";
 
 
 # institutes
@@ -1152,13 +1179,13 @@ sub save_password {
 
 
 sub fetch_ldap_pg_passwords {
-    my $config_file="/etc/ldap/slapd.conf";
+    #my $config_file="/etc/ldap/slapd.conf";
     my $ldap_passwd="";
     my $pg_passwd="";
     print "Fetching old passwords from ${config_file}\n";
-    if (-e $config_file) {
+    if (-e $old_password_file) {
          # looking for password
- 	 open (CONF, $config_file);
+ 	 open (CONF, $old_password_file);
          while (<CONF>){
              chomp();
              if (/(^dbpasswd)\s{1,}?(.*)/){
@@ -1179,7 +1206,7 @@ sub fetch_ldap_pg_passwords {
          close(CONF);
          return ($ldap_passwd,$pg_passwd);
     } else {
-        print "$config_file doesn't exist\n";
+        print "$old_password_file doesn't exist\n";
         return ("","");
     }
 }
