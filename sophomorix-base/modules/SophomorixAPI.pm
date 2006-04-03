@@ -65,7 +65,7 @@ use Sophomorix::SophomorixSYSFiles qw (
 
 
 B<sophomorix> is a user administration tool for a school server. It
-lets you administrate a huge amount of users by exporting all pupils of
+lets you administrate a huge amount of users by exporting all students of
 a school into a file and reading them into a linux system.
 
 B<Sophomorix> will in the future use different backends (files, ldap,
@@ -91,7 +91,7 @@ webmin modules for sophomorix.
    use Sophomorix::SophomorixAPI;
    
    # access variables in sophomorix.conf    
-   my $school = $Conf::school_name;
+   my $school = $Conf::schul_name;
  
    # access variables in sophomorix-devel.conf    
    my $smb_home = $DevelConf::homedir_samba_netlogon;
@@ -106,6 +106,17 @@ Note: If you want to use funcions you have to use BOTH packages
 
 
 
+=pod
+
+=head2 TODO: FUNCTIONS from Sophomorix::SophomorixPgldap to put here:
+  (Top priority is on top)
+
+  function1
+  function2
+
+=cut
+
+=pod
 
 =head2 FUNCTIONS
 
@@ -114,51 +125,14 @@ Note: If you want to use funcions you have to use BOTH packages
 =over 4
 
 =cut
-#    my $develconf="/usr/share/sophomorix/devel/sophomorix-devel.conf";
-#if (not -e $develconf){
-#    print "ERROR: $develconf not found!\n";
-#    exit;
-#}
-
-# Einlesen der Konfigurationsdatei für Entwickler
-#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
-#{ package DevelConf ; do "$develconf"}
-
-# Einlesen der Konfigurationsdatei
-#{ package Conf ; do "${DevelConf::config_pfad}/sophomorix.conf"}
-# Die in sophomorix.conf als global (ohne my) deklarierten Variablen
-# können nun mit $Conf::Variablenname angesprochen werden
 
 
-=pod
+=item I<@list = fetchstudents_from_school()>
 
-=item I<@list = get_pupils_school()>
-
-Returns an asciibetical list of all pupils in the school. No teachers
+Returns an asciibetical list of all students of the school. No teachers
 are returned
 
 =cut
-
-sub get_pupils_school_oldstuff {
-    my @pwliste=();
-    my @schuelerliste=();
-    
-    setpwent();
-    while (@pwliste=getpwent()) {
-    #print"$pwliste[7]";  # Das 8. Element ist das Home-Verzeichnis
- #     if ($pwliste[7]=~/^\/home\/pupil\//) {
-       if ($pwliste[7]=~/^$DevelConf::homedir_pupil/) {
-       push(@schuelerliste, $pwliste[0]);
-         #print "$pwliste[0]<p>";
-      }
-    }
-    endpwent();
-
-    # Alphabetisch ordnen
-    @schuelerliste = sort @schuelerliste;
-    return @schuelerliste;
-}
-
 
 # replaces get_students_school
 sub fetchstudents_from_school {
@@ -186,48 +160,23 @@ sub fetchstudents_from_school {
 
 
 
-
-
-
-
 =pod
 
-=item I<@list = get_adminclasses_school()>
+=item ??? I<@list = get_adminclasses_school()>
 
 Returns an asciibetical list of all AdminClasses in the school. 
 The group of all teachers is NOT included in this list
 
 =cut
 
-# Diese Funktion liefert eine Liste aller Klassen der Schule zurück
-sub get_adminclasses_school_oldstuff {
-    my @pwliste;
-    my %klassen_hash=();
-    my @liste;
-    # Alle Klassen-namen in einen Hash
 
-    setpwent();
-    while (@pwliste=getpwent()) {
-	print"$pwliste[7]\n";
-#       if ($pwliste[7]=~/^\/home\/pupil\//) {
-       if ($pwliste[7]=~/^$DevelConf::homedir_pupil/) {
-          $klassen_hash{getgrgid($pwliste[3])}=""; 
-       }
-    }
-    endpwent();
+# function fetchadminclasses_from_school
 
-    while (my ($k) = each %klassen_hash){
-       # Liste füllen
-       push (@liste, $k);
-    }
-    
-    @liste = sort @liste;
-    return @liste;
-}
+
 
 =pod
 
-=item I<@list = get_adminclasses_sub_school()>
+=item ??? I<@list = get_adminclasses_sub_school()>
 
 Returns an asciibetical list of all AdminClasses with subclasses in the school. 
 The group of all teachers is NOT included in this list
@@ -270,7 +219,7 @@ sub get_adminclasses_sub_school {
 
 =pod
 
-=item I<@list = get_projects_school()>
+=item ??? I<@list = get_projects_school()>
 
 Returns an asciibetical list (short name = linux name) of all projects
 in the school.
@@ -307,7 +256,7 @@ sub get_projects_school {
 
 =over 4
 
-=item I<@list = get_workstations_room(Room)>
+=item ??? I<@list = get_workstations_room(Room)>
 
 Returns an asciibetical list of all workstations in the room Room. 
 
@@ -320,8 +269,6 @@ sub get_workstations_room {
     my @workstations=();
     # Group-ID ermitteln
     my ($a,$b,$gid) = getgrnam $room; 
-    #print"Info: Group-ID der Gruppe $room ist $gid<p>\n";
-
     
     if (not defined $gid){
         return @workstations;
@@ -330,10 +277,8 @@ sub get_workstations_room {
        setpwent();
        while (@pwliste=getpwent()) {
        #print"$pwliste[7]\n";  # Das 8. Element ist das Home-Verzeichnis
-#        if ($pwliste[3] eq $gid && $pwliste[7]=~/^\/home\/workstations\//) {
          if ($pwliste[3] eq $gid && $pwliste[7]=~/^$DevelConf::homedir_ws/) {
              push(@workstations, $pwliste[0]);
-             #print "$pwliste[3]";
          }
        }
        endpwent();
@@ -347,7 +292,7 @@ sub get_workstations_room {
 
 =pod
 
-=item I<@list = get_adminclasses_school()>
+=item ??? I<@list = get_adminclasses_school()>
 
 Returns an asciibetical list of all AdminClasses in the school. 
 The group of all teachers is NOT included in this list
@@ -364,7 +309,6 @@ sub get_rooms_school {
 
     setpwent();
     while (@pwliste=getpwent()) {
-#       if ($pwliste[7]=~/^\/home\/workstations\//) {
        if ($pwliste[7]=~/^$DevelConf::homedir_ws/) {
           $raeume_hash{getgrgid($pwliste[3])}=""; 
        }
@@ -383,7 +327,7 @@ sub get_rooms_school {
 
 =pod
 
-=item I<@list = get_workstations_school()>
+=item ??? I<@list = get_workstations_school()>
 
 Returns an asciibetical list of all Workstations in the school. 
 
@@ -415,22 +359,22 @@ sub get_workstations_school {
 
 =pod
 
-=item I<@list = create_userlist(logins,classes,pupil,rooms,workstations,check)>
+=item ??? May not work: I<@list = create_userlist(logins,classes,students,rooms,workstations,check)>
 
 Creates a ascibetical list of users, that are specified with the
 parameters. The parameters are:
 
 logins:       comma seperated list of logins
 
-classes:      comma seperated list of AdminClasses, (can also be lehrer)
+classes:      comma seperated list of AdminClasses, (can also be teachers)
 
-pupil:        add the list of all pupils (1), or not (0)
+students:     add the list of all students (1), or not (0)
 
 rooms:        comma seperated list of rooms
 
 workstations: add the list of all workstations (1), or not (0)
 
-check:        check (1) every loginname if it is a valid pupil,teacher 
+check:        check (1) every loginname if it is a valid student,teacher 
 
               or workstation or not (0)
 
@@ -528,7 +472,7 @@ sub create_userlist {
 
 =pod
 
-=item I<%hash = get_ml_users()>
+=item ??? I<%hash = get_ml_users()>
 
 Returns an hash with ALL ml login names. This includes:
   - pupil, teachers (sophomorix database)
@@ -565,7 +509,7 @@ sub get_ml_users {
 
 =pod
 
-=item I<$result = add_my_adminclass(Login,AdminClass)>
+=item I<add_my_adminclass(Login,AdminClass)>
 
 Adds the valid AdminClass to MyAdminClasses of the user Login.
 
@@ -607,7 +551,7 @@ sub add_my_adminclass {
 
 =pod
 
-=item I<$result = remove_my_adminclass(Login,AdminClass)>
+=item I<remove_my_adminclass(Login,AdminClass)>
 
 Removes AdminClass from the classes of the user Login and returns 1;.
 

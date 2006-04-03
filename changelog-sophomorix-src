@@ -897,13 +897,8 @@ change quota with cyrus-user.pl -u user -q quota
   has not reappeared when testing again.
    
 
-
-   - SQL-View subclassdata:
-      - todo (brauchts nicht)
-
    - SQL-View memberdata:
       ToDo:
-      - show project_details.longname (still empty)
       - order: uid, ...gid,gidnumber,longname
 
 
@@ -1139,7 +1134,57 @@ funktion zum ALLE links wiederherstellen
 beim cp von netlogon stimmt was nicht
 
 
+
+zusammenarbeit mit Schulkonsole:
+
+variablen nutzen
+
+siehe perldoc Sophomorix::SophomorixAPI
+
+
+funktionen nutzen
+
+1) alles was aus SophomorixPgLdap gebraucht wird in
+   SophomorixAPI eintragen
+
+   Liste function1,function2, ...
+
+   Reihenfolge ergibt wichtigkeit
+
+
+2) jeffbeck verschiebt die Funktionen und dokumentiert sie
+
+   problem beim verschieben
+       function wird in anderem paket gesucht
+
+
+   gibt es tools die funktionsaufrufe suchen und in einem script 
+   zeigen, welche funktionen aus anderen Paketen verwendet werden??
+
+
+   perl-tidy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 1.6.1-1  (2006-03-xx)
+   - view memberdata: 
+        order 
+        project_details.longname is also shown
+   - sophomorix-setup-pgldap reuses paswords for rootdn and dbpasswd
+     if it can find a passwdord
+   - made sophomorix.sql install the database as a transaction
+     (if an error ocurs, create no database entries at all) 
    - modified sophomorix-test to test correctly
    - modified manpage of sophomorix-subclass
    - sophomorix-subclasses
