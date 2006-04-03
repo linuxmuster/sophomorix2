@@ -78,6 +78,7 @@ my $testopt=GetOptions(
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
 
+my ($old_ldappw,$olg_dbpw)=&fetch_ldap_pg_passwords();
 
 my $ldappassword = "";
 
@@ -868,7 +869,7 @@ exit;
 
 
 
-# sophomorix-databas is a persistent database
+# sophomorix-database is a persistent database
 # should be in /var/lib/sophomorix
 # database type is postgresql -> no choice
 # connection: unix socket or tcp/ip ??? automatically
@@ -887,37 +888,29 @@ exit;
 # (when user moodle is added (adduser), then it works ->  pg-hba.conf:  ident)
 
 
-my $pass_file="";
-my $dbuser="";
+#my $pass_file="";
+#my $dbuser="";
 
-# read the password
-if (-e $pass_file){
-   my $pass_saved=&get_password($pass_file);
-   print "   Trying to connect as $dbuser to $dbname with password $pass_saved!\n";
-
-   my $dbh = DBI->connect("dbi:Pg:dbname=$dbname", "$dbuser","$pass_saved",
-               { RaiseError => 1, PrintError => 0, AutoCommit => 1 });
-   if (defined $dbh){
-    print "   Connection with password $pass_saved successful!\n";
-    print "   Database $dbname ready for user $dbuser!\n";
-  } else {
-      print "   Could not connect to database with password $pass_saved!\n";
-  }
-} else{
-    print "\n There is no saved password, skipping ...\n";
-}
-
-
-
-print "\n##### sophomorix-setup-pgldap is configuring openldap for sophomorix-pgldap ...\n";
-
-
-
-
-
-
-
-
+## read the password
+#if (-e $pass_file){
+#   my $pass_saved=&get_password($pass_file);
+#   print "   Trying to connect as $dbuser to $dbname with password $pass_saved!\n";
+#
+#   my $dbh = DBI->connect("dbi:Pg:dbname=$dbname", "$dbuser","$pass_saved",
+#               { RaiseError => 1, PrintError => 0, AutoCommit => 1 });
+#   if (defined $dbh){
+#    print "   Connection with password $pass_saved successful!\n";
+#    print "   Database $dbname ready for user $dbuser!\n";
+#  } else {
+#      print "   Could not connect to database with password $pass_saved!\n";
+#  }
+#} else{
+#    print "\n There is no saved password, skipping ...\n";
+#}
+#
+#
+#
+#print "\n##### sophomorix-setup-pgldap is configuring openldap for sophomorix-pgldap ...\n";
 
 # phppgadmin: edit /etc/phppgadmin/apache.conf
 #             restart apache
@@ -1158,15 +1151,51 @@ sub save_password {
 }
 
 
-sub get_password {
-    my ($file)=@_;
-    my $password;
-    open (FILE, "<$file");
-    while (<FILE>){
-        #print "Line: $_ \n";
-	$password=$_;
+sub fetch_ldap_pg_passwords {
+    my $config_file="/etc/ldap/slapd.conf";
+    my $ldap_passwd="";
+    my $pg_passwd="";
+    print "Fetching old passwords from ${config_file}\n";
+    if (-e $config_file) {
+         # looking for password
+ 	 open (CONF, $config_file);
+         while (<CONF>){
+             chomp();
+             if (/(^dbpasswd)\s{1,}?(.*)/){
+                 # whitespace entfernen
+                 my $dbpasswd=$2;
+                 $dbpasswd=~s/\s//g;
+                 #print "---$dbpasswd---\n";
+                 $pg_passwd=$dbpasswd;
+	     }
+             if (/(^rootpw)\s{1,}?(.*)/){
+                 # whitespace entfernen
+                 my $rootpw=$2;
+                 $rootpw=~s/\s//g;
+                 #print "---$rootpw---\n";
+                 $ldap_passwd=$rootpw;
+	     }
+         }
+         close(CONF);
+         return ($ldap_passwd,$pg_passwd);
+    } else {
+        print "$config_file doesn't exist\n";
+        return ("","");
     }
-    close (FILE);
-    return $password;
 }
+
+
+
+
+#sub get_password {
+#    my ($file)=@_;
+#    my $password;
+#    open (FILE, "<$file");
+#    while (<FILE>){
+#        #print "Line: $_ \n";
+#	$password=$_;
+#    }
+#    close (FILE);
+#    return $password;
+#}
 
