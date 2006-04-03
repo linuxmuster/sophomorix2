@@ -1489,7 +1489,7 @@ CREATE TABLE project_details (
 );
 
 
-CREATE VIEW memberdata AS SELECT posix_account.uid, posix_account.uidnumber as uidnum, posix_account.gecos,(SELECT gid from groups where gidnumber=posix_account.gidnumber) as adminclass, posix_account_details.sophomorixstatus as s,groups.gid,groups.gidnumber,project_details.longname FROM posix_account FULL JOIN posix_account_details on posix_account.id=posix_account_details.id LEFT OUTER JOIN groups_users on groups_users.memberuidnumber=posix_account.uidnumber LEFT OUTER JOIN groups on groups.gidnumber=groups_users.gidnumber LEFT OUTER JOIN project_groups on project_groups.membergid=groups.gidnumber LEFT OUTER JOIN project_details on project_details.id=project_groups.projectid ORDER by gid,uid;
+CREATE VIEW memberdata AS SELECT groups.gidnumber, posix_account.uid, posix_account.uidnumber as uidnum, posix_account.gecos,(SELECT gid from groups where gidnumber=posix_account.gidnumber) as adminclass, posix_account_details.sophomorixstatus as s,groups.gid,project_details.longname FROM posix_account FULL JOIN posix_account_details on posix_account.id=posix_account_details.id LEFT OUTER JOIN groups_users on groups_users.memberuidnumber=posix_account.uidnumber LEFT OUTER JOIN groups on groups.gidnumber=groups_users.gidnumber LEFT OUTER JOIN project_details on project_details.id=groups.id ORDER by gid,uid;
 
 
 --
