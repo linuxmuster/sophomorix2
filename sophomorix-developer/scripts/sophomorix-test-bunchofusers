@@ -169,7 +169,7 @@ if ($add==1 and not -e "/root/sophomorix-test/bunchofusers"){
 } elsif ($add==1 and -e "/root/sophomorix-test/bunchofusers"){
     print "The users are added already!\n";
 } else {
-    print "Not adding users!\n";
+    print "INFO: Not adding users!\n";
 }
 
 
@@ -355,7 +355,7 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
 } elsif ($work==1 and not -e "/root/sophomorix-test/bunchofusers"){
     print "The users must be added bofore doing some work!\n";
 } else {
-    print "Not adding users!\n";
+    print "INFO: Not doing any work the users!\n";
 }
 
 
@@ -437,7 +437,7 @@ if ($remove==1 and -e "/root/sophomorix-test/bunchofusers"){
     print "The users are removed already!\n";
 
 } else {
-    print "Not removing users!\n";
+    print "INFO: Not removing users!\n";
 }
 
 
