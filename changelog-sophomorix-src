@@ -1135,6 +1135,7 @@ beim cp von netlogon stimmt was nicht
 
 
 
+
 zusammenarbeit mit Schulkonsole:
 
 variablen nutzen
@@ -1151,6 +1152,8 @@ funktionen nutzen
 
    Reihenfolge ergibt wichtigkeit
 
+   -- bisher noch nichts
+
 
 2) jeffbeck verschiebt die Funktionen und dokumentiert sie
 
@@ -1158,19 +1161,34 @@ funktionen nutzen
        function wird in anderem paket gesucht
 
 
+   -- später
+
    gibt es tools die funktionsaufrufe suchen und in einem script 
    zeigen, welche funktionen aus anderen Paketen verwendet werden??
 
-
-   perl-tidy
-
+   etags, ctags für perl?
 
 
+   perl-tidy ?????
+
+   Klasse Error 
+   /usr/share/schulkonsole
+   use Schulkonsole::Error;
+
+   Info: Rückgabewerte scripte 0-127 (evtl. 255) (ab 2 benutzen)
+   z.B. mit exit 7;
 
 
 
+   zuerst linuxmuster-base, svn auschecken, debian paket machen
+   URL:  https://hostname/schulkonsole/
 
 
+
+NEXT:
+
+make all options of sophomorix teacher valid that schulkonsole calls.
+sophomorix-teacher --share|noshare --users user1,user2,...
 
 
 
