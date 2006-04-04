@@ -92,6 +92,7 @@ use Quota;
               get_erst_passwd
               check_internet_status
               austeilen_manager
+              share_access
               handout
               collect
                  ka_einsammeln
@@ -3623,6 +3624,39 @@ sub austeilen_manager{
 print "<p>";
 
 }
+
+
+
+
+sub share_access {
+    # first parameter: 0=off, 1=on
+    # second parameter: list of users (also works for teachers)
+    my ($share) = shift;
+    my $on_off="";
+    my $permission="";
+    if ($share==0){
+	$on_off="off";
+        # change repair.directories permissions also, if you change here
+        $permission="1750";
+    } else {
+	$on_off="on";
+        # change repair.directories permissions also, if you change here
+        $permission="1755";
+    }
+    my @users = @_;
+    foreach my $user (@users){
+        if (getpwnam($user)){
+           my($login,$passwort,$uid,$gid,$quota,
+              $name,$gcos,$home,$shell)=getpwnam("$user");
+           my $share_path=$home."/".${Language::share_dir};
+           print "   Setting  permissions of $share_path to $on_off($permission)\n";
+           chmod oct($permission), $share_path;
+       } else {
+           print "$user is not a valid user\n";
+       }
+    }
+}
+
 
 
 

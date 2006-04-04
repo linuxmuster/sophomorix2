@@ -11,14 +11,15 @@ use Getopt::Long;
 # use log names of perl variables, i.e. $UID
 use English;
 use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixAPI;
 use DBI;
 use Sophomorix::SophomorixBase qw( check_options 
                                    linie
+                                   share_access
                                    handout
                                    collect
                                    get_alle_verzeichnis_rechte
                                  );
-use Sophomorix::SophomorixAPI;
 Getopt::Long::Configure ("bundling");
 
 # ===========================================================================
@@ -74,6 +75,10 @@ my $exam=0;
 my $info=0;
 my $show_classes=0;
 my $show_teachers=0;
+my $shares;
+
+my $users="";
+my @users=();
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -91,7 +96,9 @@ my $testopt=GetOptions(
            "exam" => \$exam,
            "info|i" => \$info,
            "showclasses" => \$show_classes,
-           "showteachers" => \$show_teachers
+           "showteachers" => \$show_teachers,
+           "shares!" => \$shares,
+           "users=s" => \$users,
           );
 
 
@@ -150,7 +157,9 @@ Please see the sophomorix-teacher(1) man pages for full documentation
 }
 
 
-
+if ($users ne ""){
+    (@users) = split(/,/,$users);
+}
 
 
 if ($show_classes==1){
@@ -198,10 +207,24 @@ if ($add eq "" and
     $remove eq "" and
     $handout==0 and
     $collect==0 and
-    $collectcopy==0
+    $collectcopy==0 and
+    not defined $shares
    ){
     $info=1;
 }
+
+
+if (defined $shares and not @users){
+    print "You must give users to switch shares on/off\n";
+    exit;
+}
+
+
+
+
+
+
+
 
 
 # --add class
@@ -267,9 +290,9 @@ if ($info==1 and $collect==0 and $handout==0){
           &linie();
           system("ls $handout_dir");
           print "\n";
-      } else {
+       } else {
           print "$class is not in MyAdmiClasses (add a class with:  --add class)\n";
-      }
+       }
     }
     if ($subclass ne ""){
        $handout_dir = "${ha_basedir}/$subclass"; 
@@ -286,10 +309,10 @@ if ($info==1 and $collect==0 and $handout==0){
        print "\n";
     }
 
+print "Test";
+
    exit;
 }
-
-
 
 ############################################################
 # Handout
@@ -314,6 +337,21 @@ if ($handout==1 and ($class ne "" or $subclass ne "" or $project ne "")){
     exit;
 }
 
+
+
+
+############################################################
+# Enable/Disable all shares
+############################################################
+
+# --share/--noshare
+if (defined $shares){
+    if ($shares==1){
+	&share_access(1,@users);
+    } else {
+	&share_access(0,@users);
+    }
+}
 
 
 
@@ -354,7 +392,7 @@ if ($collectcopy==1 and ($class ne "" or $subclass ne "" or $project ne "")){
            &collect($login, $subclass,"subclass",$rsync,$exam);
     }
     if ($project ne ""){
-           &colect($login, $project,"project",$rsync,$exam);
+           &collect($login, $project,"project",$rsync,$exam);
     }
     exit;
 }
