@@ -229,7 +229,7 @@ while(<KILL>){
 #        print("public_html:         $www_to_kill\n");
 #        print("public_html-link:    $www_link_to_kill\n");
 #        print("Protokolllinie:      $linie_to_kill\n");
-        print("Klasse:              $linux_gruppe_to_kill\n\n");
+        print("Klasse:              $linux_gruppe_to_kill\n");
       } 
 
       # tschmitt: delete cyrus user
@@ -244,7 +244,7 @@ while(<KILL>){
       
       if ($home_verzeichnis_to_kill=~/^\/home\//){
           if ($DevelConf::testen==0) {
-	    print "Removing recursively $home_verzeichnis_to_kill \n";
+	    print "   Removing recursively $home_verzeichnis_to_kill \n";
             system("rm -rf $home_verzeichnis_to_kill");
 	} else {
 	    print "Test: Removing recursively $home_verzeichnis_to_kill \n";
