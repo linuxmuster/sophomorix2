@@ -898,8 +898,8 @@ sub provide_user_files {
                   "$home/${Language::handout_done_dir}",
                   "$login");
            &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$task_dir/\$task_current_room",
-                  "$home/${Language::task_dir}/${Language::task_current_room}",
+                  "\$homedir_teacher/\$lehrer/\$handout_dir/\$handout_current_room",
+                  "$home/${Language::handout_dir}/${Language::handout_current_room}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$collect_dir",
@@ -908,6 +908,10 @@ sub provide_user_files {
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$collect_dir/\$collect_current_room",
                   "$home/${Language::collect_dir}/${Language::collect_current_room}",
+                  "$login");
+           &setup_verzeichnis(
+                  "\$homedir_teacher/\$lehrer/\$collect_dir/\$collect_exam",
+                  "$home/${Language::collect_dir}/${Language::collect_exam}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$share_dir",
@@ -1881,7 +1885,7 @@ sub create_share_link {
        my ($gname, $passwd, $gidnumber, $members)=getgrgid("$gid");
        $homedir=$home;
        $pri_group=($gname);
-       print "Group is $pri_group\n\n";
+       print "   Group is $pri_group\n";
     }
 
     # Only act if uid is valid

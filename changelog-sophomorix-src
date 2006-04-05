@@ -1187,11 +1187,26 @@ funktionen nutzen
 
 NEXT:
 
+Klären:
+_verteilt/klasse1,2,3... muss existieren ???
+
+BUG: teacher: in _vorlagen ist aktueller raum (sollten nur links sein)
+
 make all options of sophomorix teacher valid that schulkonsole calls.
+
+tests:
+- existence of new dirs from 1.6.1-1
+- switching shares on/off
 
 
 1.6.1-1  (2006-04-xx)
+   - renamed link managing dir from _austeilen to _vorlagen
+        _austeilen contains directories
+        _vorlagen contains links
    - When creating a user:
+     create $HOME_LEHRER/_einsammeln/aktueller_raum
+     create $HOME_LEHRER/_einsammeln/klassenarbeit
+     create $HOME_LEHRER/_bereitstellen/klassenarbeit
      create $HOME_LEHRER/_austeilen/aktueller_raum
      create $HOME_LEHRER/_verteilt
    - added parameters for sophomorix-teacher:
