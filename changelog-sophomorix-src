@@ -12,6 +12,19 @@ Next meeting
 ============================================================
 ============================================================
 
+
+Vorschlag:
+klassenarbeit -> _klassenarbeit
+aktueller_raum -> _aktueller_raum
+
+Diese beiden Verzeichnisse befinden sich zusammen mit allen 
+Klassen, projekten, ... in einem Verzeichnis.
+
+Es ist besser wenn _klassenarbeit und _aktuller_raum oben 
+und zusammen da sind
+
+
+
 Bootorder:  postgres -> ldap -> samba, sonst gibts timeout
             (mit dpkg-override samba soll 21 weden)
 
@@ -507,19 +520,8 @@ SQL-DBI/OpenLDAP related:
 - update database: combine select and updates to transaction
 - NextFreeUnidId beim update ausnehmen
 
-- typ sophomorixstatus,subclass: Nur 1 Buchstabe(performance ?)(tho)
-    
-- dont create /var/lib/sophomorix/database when using pgsql
-
-- mail quota in database
-
 - avoid inserting an identical,existing line once again
   --using SQL
-
-
-sekundäre Gruppenmitgliedschaften ermitteln:
-
-select groups_users.gidnumber,memberuid,uid from groups_users,posix_account where posix_account.gidnumber=(select groups.gidnumber from groups where gid='teachers') AND posix_account.uidnumber=groups_users.memberuid; 
 
 
 
@@ -898,9 +900,6 @@ change quota with cyrus-user.pl -u user -q quota
   has not reappeared when testing again.
    
 
-   - SQL-View memberdata:
-      ToDo:
-      - order: uid, ...gid,gidnumber,longname
 
 
 Performance bug:
@@ -1199,7 +1198,16 @@ tests:
 - switching shares on/off
 
 
-1.6.1-1  (2006-04-xx)
+
+
+
+1.6.2-1  (2006-04-xx)
+
+
+
+
+1.6.1-1  (2006-04-05)
+   - dont create /var/lib/sophomorix/database anymore (tested)
    - renamed link managing dir from _austeilen to _vorlagen
         _austeilen contains directories
         _vorlagen contains links
@@ -1214,7 +1222,8 @@ tests:
       --userlist
      to set shares to access/no access  
    - view memberdata: 
-        order 
+   - SQL-View memberdata:
+        order is OK 
         project_details.longname is also shown
    - sophomorix-setup-pgldap reuses paswords for rootdn and dbpasswd
      if it can find a passwdord
