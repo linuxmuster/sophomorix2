@@ -535,7 +535,7 @@ sub deleteuser_from_all_projects {
 sub add_newuser_to_her_projects {
     my ($login,$adminclass) = @_;
     my @memberships=();
-    print "New Group of $login is: $adminclass\n";    
+    print "   New Group of $login is: $adminclass\n";    
     my $dbh=&db_connect();
     # fetching uidnumber
     my ($uidnumber)= $dbh->selectrow_array( "SELECT uidnumber 
