@@ -3349,7 +3349,7 @@ sub search_user {
        }
 
        # webmin, database independent
-       &Sophomorix::SophomorixBase::print_user_webmin_data($login);
+       #&Sophomorix::SophomorixBase::print_user_webmin_data($login);
 
        if($Conf::log_level>=2){
           # history, database independent
