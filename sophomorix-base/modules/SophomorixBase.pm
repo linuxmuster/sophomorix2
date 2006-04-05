@@ -890,6 +890,10 @@ sub provide_user_files {
                   "$home/${Language::handout_dir}",
                   "$login");
            &setup_verzeichnis(
+                  "\$homedir_teacher/\$lehrer/\$handout_done_dir",
+                  "$home/${Language::handout_done_dir}",
+                  "$login");
+           &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$task_dir/\$task_current_room",
                   "$home/${Language::task_dir}/${Language::task_current_room}",
                   "$login");
