@@ -890,6 +890,10 @@ sub provide_user_files {
                   "$home/${Language::handout_dir}",
                   "$login");
            &setup_verzeichnis(
+                  "\$homedir_teacher/\$lehrer/\$handout_dir/\$handout_exam",
+                  "$home/${Language::handout_dir}/${Language::handout_exam}",
+                  "$login");
+           &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$handout_done_dir",
                   "$home/${Language::handout_done_dir}",
                   "$login");
@@ -900,6 +904,10 @@ sub provide_user_files {
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$collect_dir",
                   "$home/${Language::collect_dir}",
+                  "$login");
+           &setup_verzeichnis(
+                  "\$homedir_teacher/\$lehrer/\$collect_dir/\$collect_current_room",
+                  "$home/${Language::collect_dir}/${Language::collect_current_room}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$share_dir",
@@ -1609,17 +1617,8 @@ sub check_verzeichnis_mkdir {
 # User Account Information
 # ===========================================================================
 
-=pod
-
-=item I<print_user_webmin_data(login)>
-
-Druckt wichtige Webmin Daten des users login (Obsolet)
-
-=cut
-
-
 # This is obsolete
-sub print_user_webmin_data {
+sub print_user_webmin_data_oldstuff {
     my ($login) = @_;
     my $miniserv="/etc/webmin/miniserv.users";
     my $miniserv_line="No line with $login found!";
@@ -2143,7 +2142,7 @@ sub archive_log_entry {
 
     &check_datei_touch($archive);
 
-    print "File LOG is $file";
+    print "File LOG is $file\n";
     open(LOG,"<$file");
     open(TMPLOG,">$file.tmp");
     open(ARCHIVE,">>$archive");
