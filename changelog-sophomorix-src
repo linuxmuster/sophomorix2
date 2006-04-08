@@ -114,6 +114,27 @@ MAKING a Package
 5. Tag all files in the cvs repository with the tag 'Version-x-y-z'
 
 
+
+############################################################
+MODIFY directries when user is created or repaired
+############################################################
+
+1. To make it possible to rename such a dir:
+   add variables in sophomorix-lang.de, ...
+2. SophomorixBase has a function provide user files:
+     A) decide if teacher or student
+     B) create a setup_verzeichnis entry
+3. create an entry in repair.directories with permissions, 
+   owners and groupowners
+4. To make sophomorix-repair replce the placeholders
+   in repair.directories:
+   - insert replacement string in function repair_directories
+
+(If unsure where to find tho correct place in the scripts, 
+ grep for 'handout')
+
+
+
 ############################################################
 SCRIPTS To do
 ############################################################
