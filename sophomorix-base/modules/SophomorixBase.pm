@@ -870,7 +870,9 @@ sub provide_user_files {
     my $share_class = "";
     my $dev_null="1>/dev/null 2>/dev/null";
     if ($class eq ${DevelConf::teacher}){
-        # lehrer
+        ####################
+        # teacher
+        ####################
         $home = "${DevelConf::homedir_teacher}/$login";
         $www_home = "${DevelConf::homedir_teacher}/$login/www";
         $share_class = "${DevelConf::share_teacher}";
@@ -890,6 +892,10 @@ sub provide_user_files {
                   "$home/${Language::handout_dir}",
                   "$login");
            &setup_verzeichnis(
+                  "\$homedir_teacher/\$lehrer/\$handoutcopy_dir",
+                  "$home/${Language::handoutcopy_dir}",
+                  "$login");
+           &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$handout_dir/\$handout_exam",
                   "$home/${Language::handout_dir}/${Language::handout_exam}",
                   "$login");
@@ -900,6 +906,10 @@ sub provide_user_files {
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$handout_dir/\$handout_current_room",
                   "$home/${Language::handout_dir}/${Language::handout_current_room}",
+                  "$login");
+           &setup_verzeichnis(
+                  "\$homedir_teacher/\$lehrer/\$handoutcopy_dir/\$handout_current_room",
+                  "$home/${Language::handoutcopy_dir}/${Language::handout_current_room}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$collect_dir",
@@ -932,7 +942,9 @@ sub provide_user_files {
            "cd ${DevelConf::homedir_teacher}/$login; ln -s www/public_html public_html"
         );
     } else { 
-        # schueler
+        ####################
+        # student
+        ####################
         $home_class = "${DevelConf::homedir_pupil}/$class";
         $home = "${DevelConf::homedir_pupil}/$class/$login";
         $www_home = "${DevelConf::homedir_pupil}/$class/$login/www";
@@ -963,6 +975,14 @@ sub provide_user_files {
            &setup_verzeichnis(
                   "\$homedir_pupil/\$klassen/\$schueler/\$collect_dir",
                   "$home/${Language::collect_dir}",
+                  "$login");
+           &setup_verzeichnis(
+                  "\$homedir_pupil/\$klassen/\$schueler/\$handoutcopy_dir",
+                  "$home/${Language::handoutcopy_dir}",
+                  "$login");
+           &setup_verzeichnis(
+                  "\$homedir_pupil/\$klassen/\$schueler/\$handoutcopy_dir/\$handout_current_room",
+                  "$home/${Language::handoutcopy_dir}/${Language::handout_current_room}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_pupil/\$klassen/\$schueler/\$share_dir",
