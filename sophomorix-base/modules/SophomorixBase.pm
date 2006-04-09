@@ -3740,52 +3740,69 @@ sub handoutcopy {
     # Parameter 1: User that hands out data
     # Parameter 2: Name of class/subclass/project
     # Parameter 3: Typ (class,subclass,project,room, ...)
-    # Parameter 4: option delete rsync
+    # Parameter 4: option delete rsync (unused)
     # Parameter 5: userliste, commaseparated
-    my ($login, $name, $type, $rsync, $users) = @_;
-
+    my ($login, $name, $type, $rsync,$users) = @_;
+    my $from_dir = "";
+    my $to_dir = "";
     my @userlist=();
 
     # home des austeilenden ermitteln
     my @entry = getpwnam($login);
     my $homedir = "$entry[7]";
 
-    my $from_dir = "";
-    my $to_dir = "";
-
     if ($type eq "class"){
-       $from_dir = "${homedir}/${Language::handoutcopy_dir}/${name}/";
+       $from_dir = "${homedir}/${Language::handoutcopy_dir}/${name}";
     } elsif ($type eq "subclass"){
-       $from_dir = "${homedir}/${Language::handoutcopy_dir}/${name}/";
+       $from_dir = "${homedir}/${Language::handoutcopy_dir}/${name}";
     } elsif ($type eq "project"){
        # get the longname
        my ($longname) =
          &Sophomorix::SophomorixPgLdap::fetchinfo_from_project($name);
-       $from_dir = "${homedir}/${Language::handoutcopy_dir}/${longname}/";
+       $from_dir = "${homedir}/${Language::handoutcopy_dir}/${longname}";
     } elsif ($type eq "current room"){
        $from_dir = "${homedir}/${Language::handoutcopy_dir}".
-                   "/${Language::handoutcopy_current_room}/";
+                   "/${Language::handoutcopy_current_room}";
        @userlist=split(/,/,$users);
     }
 
     print "   From: ${from_dir}\n";
-    foreach my $user (@userlist){
-        #??? abbruch wenn user nonexistent
-        # home des austeilenden ermitteln
-        my @entry = getpwnam($user);
-        my $homedir = "$entry[7]";
-        $to_dir = "${homedir}/${Language::handoutcopy_dir}".
-                  "/${Language::handoutcopy_current_room}/";
-        print "   To:   ${to_dir}\n";
+    # check if there could be files found to handout
+    my $found=0;
+    opendir DIR, $from_dir or die "Cannot open $from_dir: $!";
+    foreach my $file (readdir DIR) {
+        if ($file eq "." or $file eq ".."){
+	    next;
+        }
+        $found=1;
+        print "      handout: $file\n";
     }
+    closedir DIR;
 
-#  if ($rsync eq "delete") {
-#     system("rsync -tor --delete $from_dir $to_dir");
-#  } elsif ($rsync eq "copy"){
-#     system("rsync -tor $from_dir $to_dir");
-#  } else {
-#      print "unknown Parameter $rsync";
-#  }
+    if ($found==1){
+       foreach my $user (@userlist){
+           if (not defined getpwnam($user)){
+               print "WARNING: User $user does not exist (cannot handout)\n";
+	       next;
+           }
+           # home des austeilenden ermitteln
+           my @entry = getpwnam($user);
+           my $homedir = "$entry[7]";
+           if ($type eq "current room"){
+                $to_dir = "${homedir}/${Language::handoutcopy_dir}".
+                          "/${Language::handoutcopy_current_room}";
+           } else {
+                $to_dir = "${homedir}/${Language::handoutcopy_dir}".
+                          "/${name}";
+           }
+           print "   To:   ${to_dir}\n";
+           system ("cp -a $from_dir/* $to_dir");
+           system ("chown -R $user:root $to_dir/*");
+           system ("chmod -R 0755 $to_dir/*");
+        }
+    } else {
+       print "   No files found to handout\n";    
+    }
 }
 
 

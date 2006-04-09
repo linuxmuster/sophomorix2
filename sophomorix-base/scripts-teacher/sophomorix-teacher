@@ -17,6 +17,7 @@ use Sophomorix::SophomorixBase qw( check_options
                                    linie
                                    share_access
                                    handout
+                                   handoutcopy
                                    collect
                                    get_alle_verzeichnis_rechte
                                  );
@@ -66,18 +67,20 @@ my $add="";
 my $remove="";
 my $teacher="";
 my $handout=0;
+my $handoutcopy=0;
 my $collect=0;
 my $collectcopy=0;
 my $class="";
 my $subclass="";
 my $project="";
+my $users="";
+my $fromroom=0;
 my $exam=0;
 my $info=0;
 my $show_classes=0;
 my $show_teachers=0;
 my $shares;
 
-my $users="";
 my @users=();
 
 # Parsen der Optionen
@@ -88,11 +91,13 @@ my $testopt=GetOptions(
            "remove=s" => \$remove,
            "teacher=s" => \$teacher,
            "handout" => \$handout,
+           "handoutcopy" => \$handoutcopy,
            "collect" => \$collect,
            "collectcopy" => \$collectcopy,
            "class|c=s" => \$class,
            "subclass=s" => \$subclass,
            "project=s" => \$project,
+           "fromroom" => \$fromroom,
            "exam" => \$exam,
            "info|i" => \$info,
            "showclasses" => \$show_classes,
@@ -206,6 +211,7 @@ if ($login eq "root"){
 if ($add eq "" and 
     $remove eq "" and
     $handout==0 and
+    $handoutcopy==0 and
     $collect==0 and
     $collectcopy==0 and
     not defined $shares
@@ -333,6 +339,29 @@ if ($handout==1 and ($class ne "" or $subclass ne "" or $project ne "")){
     }
     if ($project ne ""){
            &handout($login, $project,"project",$rsync);
+    }
+    exit;
+}
+
+
+############################################################
+# Handoutcopy
+############################################################
+
+
+
+# --handoutcopy
+if ($handoutcopy==1 and ($users ne "" and $fromroom==1)){
+    my $type="";
+    my $rsync="unused";
+    if ($fromroom==1){
+	$type="current room";
+
+    }
+
+    if ($users ne ""){
+    print "Calling handoutcopy\n";
+           &handoutcopy($login, $class,$type,"unused",$users);
     }
     exit;
 }
