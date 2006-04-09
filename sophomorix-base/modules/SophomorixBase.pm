@@ -94,6 +94,7 @@ use Quota;
               austeilen_manager
               share_access
               handout
+              handoutcopy
               collect
                  ka_einsammeln
                  unterricht_einsammeln
@@ -3731,6 +3732,63 @@ sub handout {
 
 
 }
+
+
+
+
+sub handoutcopy {
+    # Parameter 1: User that hands out data
+    # Parameter 2: Name of class/subclass/project
+    # Parameter 3: Typ (class,subclass,project,room, ...)
+    # Parameter 4: option delete rsync
+    # Parameter 5: userliste, commaseparated
+    my ($login, $name, $type, $rsync, $users) = @_;
+
+    my @userlist=();
+
+    # home des austeilenden ermitteln
+    my @entry = getpwnam($login);
+    my $homedir = "$entry[7]";
+
+    my $from_dir = "";
+    my $to_dir = "";
+
+    if ($type eq "class"){
+       $from_dir = "${homedir}/${Language::handoutcopy_dir}/${name}/";
+    } elsif ($type eq "subclass"){
+       $from_dir = "${homedir}/${Language::handoutcopy_dir}/${name}/";
+    } elsif ($type eq "project"){
+       # get the longname
+       my ($longname) =
+         &Sophomorix::SophomorixPgLdap::fetchinfo_from_project($name);
+       $from_dir = "${homedir}/${Language::handoutcopy_dir}/${longname}/";
+    } elsif ($type eq "current room"){
+       $from_dir = "${homedir}/${Language::handoutcopy_dir}".
+                   "/${Language::handoutcopy_current_room}/";
+       @userlist=split(/,/,$users);
+    }
+
+    print "   From: ${from_dir}\n";
+    foreach my $user (@userlist){
+        #??? abbruch wenn user nonexistent
+        # home des austeilenden ermitteln
+        my @entry = getpwnam($user);
+        my $homedir = "$entry[7]";
+        $to_dir = "${homedir}/${Language::handoutcopy_dir}".
+                  "/${Language::handoutcopy_current_room}/";
+        print "   To:   ${to_dir}\n";
+    }
+
+#  if ($rsync eq "delete") {
+#     system("rsync -tor --delete $from_dir $to_dir");
+#  } elsif ($rsync eq "copy"){
+#     system("rsync -tor $from_dir $to_dir");
+#  } else {
+#      print "unknown Parameter $rsync";
+#  }
+}
+
+
 
 
 sub collect {
