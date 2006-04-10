@@ -75,6 +75,7 @@ my $subclass="";
 my $project="";
 my $users="";
 my $fromroom=0;
+my $room="";
 my $exam=0;
 my $info=0;
 my $show_classes=0;
@@ -98,6 +99,7 @@ my $testopt=GetOptions(
            "subclass=s" => \$subclass,
            "project=s" => \$project,
            "fromroom" => \$fromroom,
+           "room=s" => \$room,
            "exam" => \$exam,
            "info|i" => \$info,
            "showclasses" => \$show_classes,
@@ -356,7 +358,6 @@ if ($handoutcopy==1 and ($users ne "" and $fromroom==1)){
     my $rsync="unused";
     if ($fromroom==1){
 	$type="current room";
-
     }
 
     if ($users ne ""){
@@ -390,7 +391,10 @@ if (defined $shares){
 
 
 # --collect
-if ($collect==1 and ($class ne "" or $subclass ne "" or $project ne "")){
+if ($collect==1 and ($class ne "" 
+                  or $subclass ne "" 
+                  or $project ne ""
+                  or $room ne "")){
     my $group_type="";
     my $rsync="move";
     print "Calling collect with rsync option $rsync\n";
@@ -404,12 +408,24 @@ if ($collect==1 and ($class ne "" or $subclass ne "" or $project ne "")){
     if ($project ne ""){
            &collect($login, $project,"project",$rsync,$exam);
     }
+    if ($room ne "" and $users ne ""){
+        #  collect from userlist (current room)
+print "Here\n";   
+        &collect($login, $room,"current room",$rsync,$exam,$users);
+    }
+    if ($room ne "" and $exam==1){
+        #  collect from a room
+        &collect($login, $room,"room",$rsync,1);
+    }
     exit;
 }
 
 
 # --collectcopy
-if ($collectcopy==1 and ($class ne "" or $subclass ne "" or $project ne "")){
+if ($collectcopy==1 and ($class ne "" 
+                      or $subclass ne "" 
+                      or $project ne ""
+                      or $room ne "")){
     my $group_type="";
     my $rsync="copy";
     print "Calling collect with rsync option $rsync\n";
@@ -422,6 +438,14 @@ if ($collectcopy==1 and ($class ne "" or $subclass ne "" or $project ne "")){
     }
     if ($project ne ""){
            &collect($login, $project,"project",$rsync,$exam);
+    }
+    if ($room ne "" and $users ne ""){
+        #  collect from userlist (current room)   
+        &collect($login, $room,"current room",$rsync,$exam,$users);
+    }
+    if ($room ne "" and $exam==1){
+        #  collect from a room
+        &collect($login, $room,"room",$rsync,1);
     }
     exit;
 }

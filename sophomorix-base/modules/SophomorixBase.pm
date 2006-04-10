@@ -3811,9 +3811,10 @@ sub handoutcopy {
 sub collect {
   # Parameter 1: User that collects data
   # Parameter 2: Name of class/subclass/project
-  # Parameter 3: Typ (class,subclass,project,room, ...)
+  # Parameter 3: Typ (class,subclass,project,room,current room, ...)
   # Parameter 4: options for rsync
   # Parameter 5: exam(0,1) 
+  # Parameter 6: users commaseperated
 
   # rsync
   # -t Datum belassen
@@ -3821,16 +3822,16 @@ sub collect {
   # -o Owner beibehalten, -g 
   # TODO: if name is locked for an exam, exit with message
 
-  my ($login,$name,$type,$rsync,$exam) = @_;
+  my ($login,$name,$type,$rsync,$exam,$users) = @_;
   my $date=&zeit_stempel;
-
-   if($Conf::log_level>=2){
+  if($Conf::log_level>=2){
        print "Collect as:         $login\n";
        print "Collect from type:  $type\n";
        print "Collect from :      $name\n";
        print "rsync Options:      $rsync\n";
        print "Exam (boolean):     $rsync\n";
-   }
+  }
+
   # where to get _Task data
   my $tasks_dir = "";
 
@@ -3838,11 +3839,11 @@ sub collect {
   my @users=();
   if ($type eq "class"){
       if ($name ne "${DevelConf::teacher}"){
-#         @users=&get_user_adminclass($name);
          @users=&Sophomorix::SophomorixPgLdap::fetchstudents_from_adminclass($name);
          $tasks_dir="${DevelConf::tasks_classes}/${name}/";
      } else {
          # nix
+         # make collection from teachers possible ???????
      }
   } elsif ($type eq "subclass"){
       # gruppenmitglieder 
@@ -3850,20 +3851,24 @@ sub collect {
       @users=split(/,/, $members);
       $tasks_dir="${DevelConf::tasks_subclasses}/${name}/";
   } elsif ($type eq "project"){
-#      my ($name,$passwd,$gid,$members)=getgrname($name);
-#      @users=split(/,/, $members);
       @users=&Sophomorix::SophomorixPgLdap::fetchusers_from_project($name);
       $tasks_dir="${DevelConf::tasks_projects}/${name}/";
+  } elsif ($type eq "current room"){
+      @users=split(/,/,$users);
+      # no tasks dir
   }
 
   # where to save the collected data
   my @entry_col = getpwnam($login);
   my $homedir_col = "$entry_col[7]";
   my $to_dir="";
+
   if ($exam==1){
-      $to_dir = "${homedir_col}/${Language::collect_dir}/${name}/EXAM_${name}_${date}";
+      $to_dir = "${homedir_col}/${Language::collect_dir}/".
+                "${name}/EXAM_${name}_${date}";
   } else {
-      $to_dir = "${homedir_col}/${Language::collect_dir}/${name}/${name}_${date}";
+      $to_dir = "${homedir_col}/${Language::collect_dir}/".
+                "${name}/${name}_${date}";
   }
   # ???? make more secure
   if ($to_dir =~ /(.*)/) {
@@ -3928,26 +3933,30 @@ sub collect {
   
 
   # collect tasks
-  # ???? make more secure
-  if ($tasks_dir =~ /(.*)/) {
-     $tasks_dir=$1;
-  }  else {
-     die "Bad data in $tasks_dir";   # Log this somewhere.
-  }
 
-  print "TASKS:\n";
-  print "  From: $tasks_dir\n";
-  print "  To:   ${to_dir}/${Language::task_dir}\n";
-  &linie();
+  if ($type eq "current room"){
+      # do nothing
+  } else {
+      # ???? make more secure
+      if ($tasks_dir =~ /(.*)/) {
+         $tasks_dir=$1;
+      }  else {
+         die "Bad data in $tasks_dir";   # Log this somewhere.
+      }
+      print "TASKS:\n";
+      print "  From: $tasks_dir\n";
+      print "  To:   ${to_dir}/${Language::task_dir}\n";
+      &linie();
 
-  system("ls $tasks_dir");
-  system("/usr/bin/rsync -tor $tasks_dir ${to_dir}/${Language::task_dir}");
+      system("ls $tasks_dir");
+      system("/usr/bin/rsync -tor $tasks_dir ${to_dir}/${Language::task_dir}");
 
-  # exam
-  if ($exam==1){
-     system("/usr/bin/install -d $log_dir");  
-     system("/usr/bin/rsync -tr $tasks_dir ${log_dir}/${Language::task_dir}");
-     system("/bin/chown -R root.root ${log_dir}");
+      # exam
+      if ($exam==1){
+          system("/usr/bin/install -d $log_dir");  
+          system("/usr/bin/rsync -tr $tasks_dir ${log_dir}/${Language::task_dir}");
+          system("/bin/chown -R root.root ${log_dir}");
+      }
   }
 
 
