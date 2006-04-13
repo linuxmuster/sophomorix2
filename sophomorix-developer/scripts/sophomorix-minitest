@@ -34,15 +34,61 @@ system("install -d /root/sophomorix-test");
 ############################################################
 # Start
 ############################################################
-my $login="galli";
 
-    if (getpwnam("$login")){
-       my($login,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
-          $name_passwd,$gcos_passwd,$homedir,$shell)=getpwnam("$login");
-print "Home: $homedir \n"; 
+$Conf::log_level=1;
 
+
+# repair.directories einlesen
+&get_alle_verzeichnis_rechte();
+
+
+
+my $user1 = "galli";
+my $user2 = "blackmri";
+
+&cleanup_user($user1);
+&cleanup_user($user2);
+
+#my ($type,$longname)=&pg_get_group_type("11a-A");
+
+#print "Typ: $type \n";
+#print "Name: $longname \n";
+
+
+
+sub cleanup_user {
+    my ($user) = @_;
+    print "Cleaning up user $user\n";
+    if (not defined getpwnam($user)){
+        print "   ERROR: Cannot determine Homedirectory of user $user\n";
+        print "   ... doing nothing!\n";
+    } else {
+        # do some work
+        my @entry = getpwnam($user);
+        my $homedir = "$entry[7]";
+
+        my (@groups) = &pg_get_group_list($user);
+
+        if (-e $homedir){
+            print "   Removing contents of $homedir\n";
+            system("rm -rf ${homedir}/*"); 
+            
+            print "Creating directories in $homedir\n";
+            &provide_user_files($user,$groups[0]);
+            # secondary memberships
+            foreach my $group (@groups){
+                print "   Creating Links for secondary group $group\n";
+
+                print "   Creating Directories for secondary group $group\n";
+                my ($type,$longname)=&pg_get_group_type($group);
+                &create_share_directory($user,$group,$longname)
+            }
+        } else {
+            print "Directory $homedir does not exist\n";
+        }
     }
 
 
 
 
+}
