@@ -32,6 +32,7 @@ require Exporter;
              fetchadmins_from_adminclass
              fetchusers_from_adminclass
              fetch_my_adminclasses
+             fetchdata_from_account
 	     create_user_db_entry
              date_perl2pg
              date_pg2perl
@@ -41,6 +42,7 @@ require Exporter;
              pg_adduser
              pg_remove_all_secusers
              pg_get_group_list
+             pg_get_group_type
              pg_get_adminclasses
              fetchadminclasses_from_school
              fetchsubclasses_from_school
@@ -175,6 +177,7 @@ sub check_connections {
     }
     my $ldap = Net::LDAP->new( '127.0.0.1' ) or die "$@";
 }
+
 
 
 
@@ -1026,6 +1029,34 @@ sub fetch_my_adminclasses {
 #                                                                            #
 ##############################################################################
 
+
+sub fetchdata_from_account {
+    my ($login) = @_;
+    my $dbh=&db_connect();
+    my ($home,$group)= $dbh->selectrow_array( "SELECT homedirectory,gid 
+                                         FROM userdata 
+                                         WHERE uid='$login'
+                                        ");
+    if ($group  eq ${DevelConf::teacher}){
+	$type="teacher";
+    } elsif ($group eq "administrators"){
+        $type="administrator";
+    } elsif ($home=~/\/workstation\//){
+        $type="workstation";
+    } else {
+        $type="student";
+    }
+    &db_disconnect($dbh);
+    if (defined $home){
+        return ($home,$type);
+    } else {
+	return ("","");
+    }
+}
+
+
+
+
 # adds a user to the user database
 sub create_user_db_entry {
     my $sql="";
@@ -1788,6 +1819,42 @@ sub pg_get_group_list {
     }   
 
     return @grp_list;
+}
+
+
+sub pg_get_group_type {
+    my ($gid) = @_;
+    my $return="";
+    my $dbh=&db_connect();
+    # fetching project_id
+    my ($id_sys)= $dbh->selectrow_array( "SELECT id 
+                                         FROM groups 
+                                         WHERE gid='$gid'");
+
+    my ($type)= $dbh->selectrow_array( "SELECT type 
+                                          FROM classdata 
+                                          WHERE id='$id_sys'");
+    if (not defined $type){
+        # not adminclass, not subclass
+        
+        my ($longname)= $dbh->selectrow_array( "SELECT longname
+                                          FROM projectdata 
+                                          WHERE id='$id_sys'");
+        if (defined $longname){
+            return ("project",$longname);
+        } else {
+           # todo: check if it is a room ?????
+
+        }
+    } elsif ($type eq "subclass"){
+        # subclass
+        return ("subclass",$gid);
+    } elsif ($type eq "adminclass"){
+        # adminclass
+        return ("adminclass",$gid);
+    }
+
+
 }
 
 

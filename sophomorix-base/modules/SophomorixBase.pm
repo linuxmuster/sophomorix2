@@ -32,7 +32,7 @@ use Quota;
               get_old_info 
               user_login_hash
               save_tausch_klasse
-              user_links
+                 user_links
               protokoll_linien
               extra_kurs_schueler
               lehrer_ordnen
@@ -976,6 +976,10 @@ sub provide_user_files {
            &setup_verzeichnis(
                   "\$homedir_pupil/\$klassen/\$schueler/\$collect_dir",
                   "$home/${Language::collect_dir}",
+                  "$login");
+           &setup_verzeichnis(
+                  "\$homedir_pupil/\$klassen/\$schueler/\$collect_dir/\$collect_current_room",
+                  "$home/${Language::collect_dir}/${Language::collect_current_room}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_pupil/\$klassen/\$schueler/\$handoutcopy_dir",
@@ -1984,28 +1988,39 @@ sub create_share_link {
 }
 
 sub create_share_directory {
-    my ($login,$share_name,$share_long_name,$type) = @_;
-    my $homedir="";
+    my ($login,$share_name,$share_long_name) = @_;
+#    my $homedir="";
     # replace teachers with language term
     if ($share_name  eq ${DevelConf::teacher}){
         $share_long_name=${Language::teacher};     
     }
 
-    if (getpwnam("$login")){
-       my($login,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
-          $name_passwd,$gcos_passwd,$home,$shell)=getpwnam("$login");
-       $homedir=$home;
-    }
+#    if (getpwnam("$login")){
+#       my($login,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
+#          $name_passwd,$gcos_passwd,$home,$shell)=getpwnam("$login");
+#       $homedir=$home;
+#    }
+    my ($homedir,$account_type)=
+       &Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
 
     if ($homedir ne ""){
         # create dirs in handout and collect
-        my $handout_dir=$homedir."/".
-            ${Language::handout_dir}."/".$share_long_name;
-        if (not -e $handout_dir){
-            print "   Adding directory ${handout_dir}\n"; 
-            system("mkdir $handout_dir");
+
+        if ($account_type eq "teacher"){
+            ##############################
+            # teacher
+            ##############################
+            my $handout_dir=$homedir."/".
+                ${Language::handout_dir}."/".$share_long_name;
+            if (not -e $handout_dir){
+                print "   Adding directory ${handout_dir}\n"; 
+                system("mkdir $handout_dir");
+            }
         }
 
+        ##############################
+        # all users
+        ##############################
         my $collect_dir=$homedir."/".
             ${Language::collect_dir}."/".$share_long_name;
         if (not -e $collect_dir){
