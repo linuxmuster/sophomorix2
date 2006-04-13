@@ -714,6 +714,11 @@ Software Vendors:
 
 libpamount
 
+publichtml: Mail vom 12.04.06
+
+
+
+
 
 
 ############################################################
@@ -1247,7 +1252,58 @@ einsammeln geschieht nie in den aktuellen raum????
    -> _einsammeln/aktueller_raum kann verschwinden????
 
 
-todo: _verteilt receives no data
+
+
+
+Letzter Stand:
+
+__austeilen      [/aktueller raum, $klassen, $subkl, $projekte  /$lehrer]
+
+status:
+     __austeilen:               OK
+            /aktueller_raum     OK
+     TODO:
+         andere Verzeichnisse entstehen beim austeilen ?
+         $klasse sollte schon da sein (da pri-group-membership)
+         Subclasse,$projekte
+         ebenso: lehrer sollte schon da sein
+
+__einsammeln     [/aktueller Raum, $lehrer]
+
+status:
+     __einsammeln:
+            /aktueller_raum     OK
+
+TODO: bei lehrern /klassenarbeit zu viel?
+            $lehrer lehrer sollte schon da sein?         
+
+__tauschen       [/$klassen, $subkl, $projekte, lehrer, schule]
+      alles links,  OK
+
+__vorlagen       [/$klassen, $subkl, $projekte   /$lehrer]
+(bei workstations: __vorlagen/klassenarbeit )
+
+__vorlagen       [/$klassen, $subkl, $projekte   /$lehrer]
+(bei workstations: __vorlagen/klassenarbeit )
+
+
+_auszuteilen   [/aktueller raum, $klassen, $subkl, $projekte]
+_bereitstellen [/klassenarbeit, $klassen, $subkl, $projekte]
+_eingesammelt  [/klassenarbeit, aktueller raum, $klassen, $subkl, 
+$projekte  /$datum-$uhrzeit  /$schüler]
+
+
+
+
+problems: a teacher cann fill the HD space easily with handing out lots of data
+
+
+cleanup_function: nicht um administratoren zu cleanen
+
+
+everywhere where homedir was fetched by getpwnam:
+   replace it with fetchdata_from_account
+
 
 
 NEXT: collect fromroom, room 121a
