@@ -11,6 +11,15 @@ This is the todo/changelog for the sophomorix sourcecode
 Next meeting
 ============================================================
 ============================================================
+Working together: sophomorix and linuxmuster_base
+
+- smb.conf
+- who creates directory structure for workstation accounts
+- fetching the type of a workstation (does it work)
+- 
+
+
+
 
 
 Vorschlag:
@@ -1277,14 +1286,16 @@ status:
 TODO: bei lehrern /klassenarbeit zu viel?
             $lehrer lehrer sollte schon da sein?         
 
+
+### Done!
 __tauschen       [/$klassen, $subkl, $projekte, lehrer, schule]
       alles links,  OK
+### Done!
+
+
 
 __vorlagen       [/$klassen, $subkl, $projekte   /$lehrer]
-(bei workstations: __vorlagen/klassenarbeit )
-
-__vorlagen       [/$klassen, $subkl, $projekte   /$lehrer]
-(bei workstations: __vorlagen/klassenarbeit )
+Todo: (bei workstations: __vorlagen/klassenarbeit )
 
 
 _auszuteilen   [/aktueller raum, $klassen, $subkl, $projekte]
@@ -1305,8 +1316,20 @@ everywhere where homedir was fetched by getpwnam:
    replace it with fetchdata_from_account
 
 
+what to do in remove_share_directory, when dir is not empty?
+
+
+sophomorix-minitest: develop function that cleanes account
+
 
 NEXT: collect fromroom, room 121a
+
+- add create_share_directory to all places where create_share_link is given
+ 
+
+
+
+
 
 
 1.6.2-1  (2006-04-xx)
