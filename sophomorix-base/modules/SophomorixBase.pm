@@ -2005,7 +2005,6 @@ sub create_share_directory {
 
     if ($homedir ne ""){
         # create dirs in handout and collect
-
         if ($account_type eq "teacher"){
             ##############################
             # teacher
@@ -2017,7 +2016,6 @@ sub create_share_directory {
                 system("mkdir $handout_dir");
             }
         }
-
         ##############################
         # all users
         ##############################
@@ -2080,26 +2078,35 @@ sub remove_share_link {
 
 sub remove_share_directory {
     my ($login,$share_name,$share_long_name,$type) = @_;
-    my $homedir="";
+#    my $homedir="";
     # replace teachers with language term
     if ($share_name  eq ${DevelConf::teacher}){
         $share_long_name=${Language::teacher};     
     }
 
-    if (getpwnam("$login")){
-       my($login,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
-          $name_passwd,$gcos_passwd,$home,$shell)=getpwnam("$login");
-       $homedir=$home;
-    }
+#    if (getpwnam("$login")){
+#       my($login,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
+#          $name_passwd,$gcos_passwd,$home,$shell)=getpwnam("$login");
+#       $homedir=$home;
+#    }
+    my ($homedir,$account_type)=
+       &Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
 
     if ($homedir ne ""){
         # remove dirs in tasks and collect
-        my $handout_dir=$homedir."/".${Language::handout_dir}."/".$share_long_name;
-        if (-e $handout_dir){
-            print "   Removing $handout_dir if empty.\n";
-            system("rmdir $handout_dir");
+        if ($account_type eq "teacher"){
+            ##############################
+            # teacher
+            ##############################
+            my $handout_dir=$homedir."/".${Language::handout_dir}."/".$share_long_name;
+            if (-e $handout_dir){
+                print "   Removing $handout_dir if empty.\n";
+                system("rmdir $handout_dir");
+            }
         }
-
+        ##############################
+        # all users
+        ##############################
         my $collect_dir=$homedir."/".${Language::collect_dir}."/".$share_long_name;
         if (-e $collect_dir){
             print "   Removing $collect_dir if empty.\n";
