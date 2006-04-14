@@ -289,15 +289,14 @@ sub repair_directories {
 
        s/\$share_dir/$Language::share_dir/;     
        s/\$task_dir/$Language::task_dir/;     
-       s/\$to_handout_dir/$Language::to_handout_dir/;     
+       s/\$to_handoutcopy_dir/$Language::to_handoutcopy_dir/;     
        s/\$handout_dir/$Language::handout_dir/;     
        s/\$handoutcopy_dir/$Language::handoutcopy_dir/;     
        s/\$handout_exam/$Language::handout_exam/;     
-       s/\$handout_current_room/$Language::handout_current_room/;     
        s/\$collect_dir/$Language::collect_dir/;     
        s/\$collected_dir/$Language::collected_dir/;     
-       s/\$collect_current_room/$Language::collect_current_room/;     
        s/\$collect_exam/$Language::collect_exam/;     
+       s/\$current_room/$Language::current_room/;     
        
        &titel("Line: $_");
        # Zeile zerlegen

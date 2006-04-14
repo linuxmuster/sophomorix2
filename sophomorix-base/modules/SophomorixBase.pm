@@ -879,11 +879,11 @@ sub provide_user_files {
         $share_class = "${DevelConf::share_teacher}";
         if ($DevelConf::testen==0) {
            &setup_verzeichnis("\$homedir_teacher/\$lehrer",
-                      "$home",
-                      "$login");
+                  "$home",
+                  "$login");
            &setup_verzeichnis("\$homedir_teacher/\$lehrer/windows",
-                      "$home/windows",
-                      "$login");
+                  "$home/windows",
+                  "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$task_dir",
                   "$home/${Language::task_dir}",
@@ -897,6 +897,10 @@ sub provide_user_files {
                   "$home/${Language::to_handoutcopy_dir}",
                   "$login");
            &setup_verzeichnis(
+                  "\$homedir_teacher/\$lehrer/\$to_handoutcopy_dir/\$current_room",
+                  "$home/${Language::to_handoutcopy_dir}/${Language::current_room}",
+                  "$login");
+           &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$handoutcopy_dir",
                   "$home/${Language::handoutcopy_dir}",
                   "$login");
@@ -905,24 +909,28 @@ sub provide_user_files {
                   "$home/${Language::handout_dir}/${Language::handout_exam}",
                   "$login");
            &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$handout_dir/\$handout_current_room",
-                  "$home/${Language::handout_dir}/${Language::handout_current_room}",
+                  "\$homedir_teacher/\$lehrer/\$handout_dir/\$current_room",
+                  "$home/${Language::handout_dir}/${Language::current_room}",
                   "$login");
            &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$handoutcopy_dir/\$handout_current_room",
-                  "$home/${Language::handoutcopy_dir}/${Language::handout_current_room}",
+                  "\$homedir_teacher/\$lehrer/\$handoutcopy_dir/\$current_room",
+                  "$home/${Language::handoutcopy_dir}/${Language::current_room}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$collected_dir",
                   "$home/${Language::collected_dir}",
                   "$login");
            &setup_verzeichnis(
+                  "\$homedir_teacher/\$lehrer/\$collected_dir/\$current_room",
+                  "$home/${Language::collected_dir}/${Language::current_room}",
+                  "$login");
+           &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$collect_dir",
                   "$home/${Language::collect_dir}",
                   "$login");
            &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$collect_dir/\$collect_current_room",
-                  "$home/${Language::collect_dir}/${Language::collect_current_room}",
+                  "\$homedir_teacher/\$lehrer/\$collect_dir/\$current_room",
+                  "$home/${Language::collect_dir}/${Language::current_room}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$collect_dir/\$collect_exam",
@@ -982,16 +990,16 @@ sub provide_user_files {
                   "$home/${Language::collect_dir}",
                   "$login");
            &setup_verzeichnis(
-                  "\$homedir_pupil/\$klassen/\$schueler/\$collect_dir/\$collect_current_room",
-                  "$home/${Language::collect_dir}/${Language::collect_current_room}",
+                  "\$homedir_pupil/\$klassen/\$schueler/\$collect_dir/\$current_room",
+                  "$home/${Language::collect_dir}/${Language::current_room}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_pupil/\$klassen/\$schueler/\$handoutcopy_dir",
                   "$home/${Language::handoutcopy_dir}",
                   "$login");
            &setup_verzeichnis(
-                  "\$homedir_pupil/\$klassen/\$schueler/\$handoutcopy_dir/\$handout_current_room",
-                  "$home/${Language::handoutcopy_dir}/${Language::handout_current_room}",
+                  "\$homedir_pupil/\$klassen/\$schueler/\$handoutcopy_dir/\$current_room",
+                  "$home/${Language::handoutcopy_dir}/${Language::current_room}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_pupil/\$klassen/\$schueler/\$share_dir",
@@ -1999,12 +2007,6 @@ sub create_share_directory {
     if ($share_name  eq ${DevelConf::teacher}){
         $share_long_name=${Language::teacher};     
     }
-
-#    if (getpwnam("$login")){
-#       my($login,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
-#          $name_passwd,$gcos_passwd,$home,$shell)=getpwnam("$login");
-#       $homedir=$home;
-#    }
     my ($homedir,$account_type)=
        &Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
 
@@ -2019,6 +2021,18 @@ sub create_share_directory {
             if (not -e $handout_dir){
                 print "   Adding directory ${handout_dir}\n"; 
                 system("mkdir $handout_dir");
+            }
+            my $to_handoutcopy_dir=$homedir."/".
+                ${Language::to_handoutcopy_dir}."/".$share_long_name;
+            if (not -e $to_handoutcopy_dir){
+                print "   Adding directory ${to_handoutcopy_dir}\n"; 
+                system("mkdir $to_handoutcopy_dir");
+            }
+            my $collected_dir=$homedir."/".
+                ${Language::collected_dir}."/".$share_long_name;
+            if (not -e $collected_dir){
+                print "   Adding directory ${collected_dir}\n"; 
+                system("mkdir $collected_dir");
             }
         }
         ##############################
@@ -2095,12 +2109,6 @@ sub remove_share_directory {
     if ($share_name  eq ${DevelConf::teacher}){
         $share_long_name=${Language::teacher};     
     }
-
-#    if (getpwnam("$login")){
-#       my($login,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
-#          $name_passwd,$gcos_passwd,$home,$shell)=getpwnam("$login");
-#       $homedir=$home;
-#    }
     my ($homedir,$account_type)=
        &Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
 
@@ -2110,10 +2118,23 @@ sub remove_share_directory {
             ##############################
             # teacher
             ##############################
-            my $handout_dir=$homedir."/".${Language::handout_dir}."/".$share_long_name;
+            my $handout_dir=$homedir."/".
+               ${Language::handout_dir}."/".$share_long_name;
             if (-e $handout_dir){
                 print "   Removing $handout_dir if empty.\n";
                 system("rmdir $handout_dir");
+            }
+            my $to_handoutcopy_dir=$homedir."/".
+               ${Language::to_handoutcopy_dir}."/".$share_long_name;
+            if (-e $to_handoutcopy_dir){
+                print "   Removing $to_handoutcopy_dir if empty.\n";
+                system("rmdir $to_handoutcopy_dir");
+            }
+            my $collected_dir=$homedir."/".
+               ${Language::collected_dir}."/".$share_long_name;
+            if (-e $collected_dir){
+                print "   Removing $collected_dir if empty.\n";
+                system("rmdir $collected_dir");
             }
         }
         ##############################
