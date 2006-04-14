@@ -261,23 +261,23 @@ if ($noninteractive==1){
     @o_members=split(/,/,$o_members);
    # db aktualisieren 
     foreach $login (@a_members){
-	&update_subclass_links($login,"A");
+	&update_subclass_links_and_dirs($login,"A");
 	&update_user_db_entry($login,"SubClass=A");
     }
     foreach $login (@b_members){
-	&update_subclass_links($login,"B");
+	&update_subclass_links_and_dirs($login,"B");
 	&update_user_db_entry($login,"SubClass=B");
     }
     foreach $login (@c_members){
-	&update_subclass_links($login,"C");
+	&update_subclass_links_and_dirs($login,"C");
 	&update_user_db_entry($login,"SubClass=C");
     }
     foreach $login (@d_members){
-	&update_subclass_links($login,"D");
+	&update_subclass_links_and_dirs($login,"D");
 	&update_user_db_entry($login,"SubClass=D");
     }
     foreach $login (@o_members){
-	&update_subclass_links($login,"");
+	&update_subclass_links_and_dirs($login,"");
 	&update_user_db_entry($login,"SubClass=");
     }
 } else {
@@ -323,7 +323,7 @@ foreach my $sub (@new_subclasses){
 ###########################################################################
 
 
-sub update_subclass_links {
+sub update_subclass_links_and_dirs {
     my ($login,$new_sub) = @_;
     my $dbh=&db_connect();
     # fetching gidnumber
@@ -460,7 +460,7 @@ sub interactive_change_subclass {
                      $user_antwort=~tr/a-z/A-Z/;
                      print "Adding $login in $user_antwort\n";
                   }
-             	  &update_subclass_links($login,$user_antwort);
+             	  &update_subclass_links_and_dirs($login,$user_antwort);
 	          &update_user_db_entry($login,"SubClass=$user_antwort");
 #                  # name of the link
 #                  my $target=$class."-".$user_antwort;
