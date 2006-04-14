@@ -340,6 +340,8 @@ sub update_subclass_links {
         # add a link, when new subclass is given
         &Sophomorix::SophomorixBase::create_share_link($login,
                                    $target,$target,"subclass");
+        &Sophomorix::SophomorixBase::create_share_directory($login,
+                                   $target,$target,"subclass");
     }
     &db_disconnect($dbh);
 }

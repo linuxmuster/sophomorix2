@@ -625,9 +625,11 @@ sub add_newuser_to_her_projects {
                                                   FROM projectdata 
                                                   WHERE gidnumber=$group_gidnumber
                                                  ");
-
             # create a link
             &Sophomorix::SophomorixBase::create_share_link($login,
+                                                $project,$longname);
+            # create directories 
+            &Sophomorix::SophomorixBase::create_share_directory($login,
                                                 $project,$longname);
         }
     }
@@ -3011,6 +3013,11 @@ sub create_project {
                                        $project,$old_long_name);
             &Sophomorix::SophomorixBase::create_share_link($user,
                                        $project,$p_long_name);
+            &Sophomorix::SophomorixBase::remove_share_directory($user,
+                                       $project,$old_long_name);
+            &Sophomorix::SophomorixBase::create_share_directory($user,
+                                       $project,$p_long_name);
+
        }
        if (exists $users_to_add{$user}){
           # remove user from users_to_add
@@ -3046,7 +3053,9 @@ sub create_project {
        # create a link
        &Sophomorix::SophomorixBase::create_share_link($user,
                                         $project,$p_long_name);
-
+       # create directories 
+       &Sophomorix::SophomorixBase::create_share_directory($user,
+                                        $project,$p_long_name);
     }
 
 
@@ -3090,7 +3099,7 @@ sub create_project {
        # create a link
        &Sophomorix::SophomorixBase::create_share_link($user,
                                          $project,$p_long_name);
-       # create directories for admins
+       # create directories
        &Sophomorix::SophomorixBase::create_share_directory($user,
                                         $project,$p_long_name);
 

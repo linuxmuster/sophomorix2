@@ -1015,6 +1015,7 @@ sub provide_user_files {
 #    &user_links($login, $class);
 #    my $long=$class."-new";
     &create_share_link($login, $class,$class,"class");
+    &create_share_directory($login, $class,$class,"class");
     &create_school_link($login);
 }
 
