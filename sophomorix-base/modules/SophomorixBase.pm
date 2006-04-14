@@ -893,6 +893,10 @@ sub provide_user_files {
                   "$home/${Language::handout_dir}",
                   "$login");
            &setup_verzeichnis(
+                  "\$homedir_teacher/\$lehrer/\$to_handoutcopy_dir",
+                  "$home/${Language::to_handoutcopy_dir}",
+                  "$login");
+           &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$handoutcopy_dir",
                   "$home/${Language::handoutcopy_dir}",
                   "$login");
@@ -901,16 +905,16 @@ sub provide_user_files {
                   "$home/${Language::handout_dir}/${Language::handout_exam}",
                   "$login");
            &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$handout_done_dir",
-                  "$home/${Language::handout_done_dir}",
-                  "$login");
-           &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$handout_dir/\$handout_current_room",
                   "$home/${Language::handout_dir}/${Language::handout_current_room}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$handoutcopy_dir/\$handout_current_room",
                   "$home/${Language::handoutcopy_dir}/${Language::handout_current_room}",
+                  "$login");
+           &setup_verzeichnis(
+                  "\$homedir_teacher/\$lehrer/\$collected_dir",
+                  "$home/${Language::collected_dir}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$collect_dir",
@@ -2026,6 +2030,13 @@ sub create_share_directory {
             print "   Adding directory ${collect_dir}\n"; 
             system("mkdir $collect_dir");
         }
+        my $handoutcopy_dir=$homedir."/".
+            ${Language::handoutcopy_dir}."/".$share_long_name;
+        if (not -e $handoutcopy_dir){
+            print "   Adding directory ${handoutcopy_dir}\n"; 
+            system("mkdir $handoutcopy_dir");
+        }
+
     } else {
         print "   NOT creating directories: ",
               "Home of user $login not known.\n";
@@ -2108,10 +2119,17 @@ sub remove_share_directory {
         ##############################
         # all users
         ##############################
-        my $collect_dir=$homedir."/".${Language::collect_dir}."/".$share_long_name;
+        my $collect_dir=$homedir."/".
+           ${Language::collect_dir}."/".$share_long_name;
         if (-e $collect_dir){
             print "   Removing $collect_dir if empty.\n";
             system("rmdir $collect_dir");
+        }
+        my $handoutcopy_dir=$homedir."/".
+           ${Language::handoutcopy_dir}."/".$share_long_name;
+        if (-e $handoutcopy_dir){
+            print "   Removing $handoutcopy_dir if empty.\n";
+            system("rmdir $handoutcopy_dir");
         }
     } else {
         print "   NOT removing directories: ",
