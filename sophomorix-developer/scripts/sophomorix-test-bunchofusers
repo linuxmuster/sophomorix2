@@ -35,14 +35,18 @@ my @userlist_to_check=();
 # Optionen verarbeiten
 # ==========================================================================
 my $add=0;
+my $wsadd=0;
 my $remove=0;
+my $wsremove=0;
 my $work=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
                 "add" => \$add,
+                "wsadd" => \$wsadd,
                 "work" => \$work,
-    "remove|delete" => \$remove,
+                "remove|delete" => \$remove,
+                "wsremove|wsdelete" => \$wsremove,
           );
 
 
@@ -175,6 +179,80 @@ if ($add==1 and not -e "/root/sophomorix-test/bunchofusers"){
 
 
 
+my $workstationhome="/home/workstations";
+my $room1="134a";
+my $room2="717b";
+
+my @hostnames1=("pc0001","pc0002","pc0003","pc0004");
+my @hostnames2=("Rechner1","Rechner2","Rechner3","Rechner4",
+                "Rechner5","Rechner6","Rechner7","Rechner8");
+
+
+if ($wsadd==1){
+    print '
+###########################################################################
+#                                                                         #
+#                    ANLEGEN EINIGER WORKSTATION-ACCOUNTS                 #
+#                                                                         #
+###########################################################################
+';
+   system("smbldap-groupadd -a $room1");
+   system("smbldap-groupadd -a $room2");
+   system("mkdir -p $workstationhome/$room1");
+   system("mkdir -p $workstationhome/$room2");
+   foreach my $hostname (@hostnames1){
+      print "Adding $hostname to $room1\n";
+      my $command=
+         "smbldap-useradd -a -d $workstationhome/$room1/$hostname".
+         " -c 'workstation account' -g $room1 -m -s /bin/false $hostname";
+      #print "$command\n";
+      system("$command");
+   }
+   foreach my $hostname (@hostnames2){
+      print "Adding $hostname to $room2\n";
+      my $command=
+         "smbldap-useradd -a -d $workstationhome/$room2/$hostname".
+         " -c 'workstation account' -g $room2 -m -s /bin/false $hostname";
+      #print "$command\n";
+      system("$command");
+   }
+} else {
+    print "INFO: Not adding workstation users!\n";
+}
+
+
+
+
+
+if ($wsremove==1){
+    print '
+###########################################################################
+#                                                                         #
+#                    LÖSCHEN EINIGER WORKSTATION-ACCOUNTS                 #
+#                                                                         #
+###########################################################################
+';
+   foreach my $hostname (@hostnames1){
+      print "Deleting $hostname\n";
+      my $command=
+         "smbldap-userdel -r $hostname";
+      #print "$command\n";
+      system("$command");
+   }
+   foreach my $hostname (@hostnames2){
+      print "Deleting $hostname\n";
+      my $command=
+         "smbldap-userdel -r $hostname";
+      #print "$command\n";
+      system("$command");
+   }
+   system("smbldap-groupdel $room1");
+   system("smbldap-groupdel $room2");
+   system("rmdir $workstationhome/$room1");
+   system("rmdir $workstationhome/$room2");
+} else {
+    print "INFO: Not removing workstation users!\n";
+}
 
 
 

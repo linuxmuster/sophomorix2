@@ -38,60 +38,42 @@ system("install -d /root/sophomorix-test");
 $Conf::log_level=1;
 
 
-# repair.directories einlesen
-&get_alle_verzeichnis_rechte();
-
-
-
-my $user1 = "tycho";
-my $user2 = "blackmri";
-
-&cleanup_user($user1);
-&cleanup_user($user2);
-
-#my ($type,$longname)=&pg_get_group_type("11a-A");
-
-#print "Typ: $type \n";
-#print "Name: $longname \n";
-
-
-
-sub cleanup_user {
-    my ($user) = @_;
-    print "Cleaning up user $user\n";
-    if (not defined getpwnam($user)){
-        print "   ERROR: Cannot determine Homedirectory of user $user\n";
-        print "   ... doing nothing!\n";
-    } else {
-        # do some work
-        my @entry = getpwnam($user);
-        my $homedir = "$entry[7]";
-
-        my (@groups) = &pg_get_group_list($user);
-
-        if (-e $homedir){
-            print "   Removing contents of $homedir\n";
-            system("rm -rf ${homedir}/*"); 
-            
-            print "Creating directories in $homedir\n";
-            &provide_user_files($user,$groups[0]);
-            # secondary memberships
-            foreach my $group (@groups){
-
-                print "Login $user is in $group\n";
-
-                my ($type,$longname)=&pg_get_group_type($group);
-                print "   Creating Links for secondary group $group\n";
-                &create_share_link($user,$group,$longname,$type);
-                print "   Creating Directories for secondary group $group\n";
-                &create_share_directory($user,$group,$longname,$type);
-            }
-        } else {
-            print "Directory $homedir does not exist\n";
-        }
-    }
 
 
 
 
+
+my $workstationhome="/home/workstations";
+my $room1="134a";
+my $room2="717b";
+
+
+my @hostnames1=("pc1","pc2","pc3","pc4");
+my @hostnames2=("Rechner1","Rechner2","Rechner3","Rechner4",
+                "Rechner5","Rechner6","Rechner7","Rechner8");
+
+system("smbldap-groupadd -a $room1");
+system("smbldap-groupadd -a $room2");
+
+system("mkdir -p $workstationhome/$room1");
+system("mkdir -p $workstationhome/$room2");
+
+foreach my $hostname (@hostnames1){
+    print "Adding $hostname to $room1\n";
+    my $command=
+       "smbldap-useradd -a -d $workstationhome/$room1/$hostname".
+       " -c 'workstation account' -g $room1 -m -s /bin/false $hostname";
+    #print "$command\n";
+   system("$command");
 }
+
+foreach my $hostname (@hostnames2){
+    print "Adding $hostname to $room2\n";
+    my $command=
+       "smbldap-useradd -a -d $workstationhome/$room2/$hostname".
+       " -c 'workstation account' -g $room2 -m -s /bin/false $hostname";
+    #print "$command\n";
+    system("$command");
+}
+
+
