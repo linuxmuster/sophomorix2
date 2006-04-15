@@ -45,6 +45,11 @@ Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 Sucht nach string in der sophomorix User Database und zeigt die Daten
 aller passenden User an.
 .TP
+.B -reset-user loginname
+Löscht alle Dateien im homedirectory und erzeugt darin eine neue
+Verzeichnisstruktur. Daten in den Tauschverzeichnissen werden nicht
+entfernt. Der Status des users wird NICHT verändert.
+.TP
 .B -F loginname, --freeze loginame
 Friert den Account unbenutzbar ein. Der Account kann nicht mehr von
 sophomorix-kill entfernt werden.

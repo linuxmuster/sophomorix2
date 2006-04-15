@@ -85,7 +85,7 @@ my $permanent="";
 my $removable="";
 my $killable="";
 my $activate="";
-
+my $reset_user="";
 my $search="";
 
 # Parsen der Optionen
@@ -99,6 +99,7 @@ my $testopt=GetOptions(
        "R|removable=s" => \$removable,
        "K|killable=s" => \$killable,
        "A|activate=s" => \$activate,
+       "reset-user=s" => \$reset_user,
           );
 
 
@@ -127,6 +128,7 @@ Options
   -R loginname   /   --removable loginname
   -K loginname   /   --killable loginname
   -A loginname   /   --activate loginname
+  --reset-user loginname
 
 Please see the sophomorix-user(8) man pages for full documentation
 ');
@@ -468,6 +470,24 @@ if ($activate ne""){
                           "TolerationDate=$today",
                           "DeactivationDate=");
     &user_reaktivieren($activate);
+    exit;
+}
+
+
+# --reset-user
+if ($reset_user ne""){
+    print "Resetting the account of $reset_user:\n";
+    # check if it is really an account
+    if (getpwnam("$reset_user")){
+	print "   - $reset_user is a valid username.\n";
+    } else {
+	print "   - $reset_user is not a valid username.\n";
+        exit;
+    }
+    # reset the account
+    # repair.directories einlesen
+    &get_alle_verzeichnis_rechte();
+    &reset_user($reset_user);
     exit;
 }
 

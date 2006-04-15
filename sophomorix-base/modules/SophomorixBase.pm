@@ -49,6 +49,7 @@ use Quota;
               get_passwd_charlist
               get_random_password
               get_plain_password
+              reset_user
               create_share_link
               create_share_directory
               remove_share_link
@@ -1886,6 +1887,50 @@ sub create_school_link {
        symlink $link_target, $link_name;
     }
 }
+
+
+
+
+
+sub reset_user {
+    # call &get_alle_verzeichnis_rechte();
+    # before reset_user
+    my ($user) = @_;
+    print "Cleaning up user $user\n";
+    if (not defined getpwnam($user)){
+        print "   ERROR: Cannot determine Homedirectory of user $user\n";
+        print "   ... doing nothing!\n";
+    } else {
+        # do some work
+        my @entry = getpwnam($user);
+        my $homedir = "$entry[7]";
+        my (@groups) = 
+           &Sophomorix::SophomorixPgLdap::pg_get_group_list($user);
+        if (-e $homedir){
+            print "   Removing contents of $homedir\n";
+            system("rm -rf ${homedir}/*"); 
+            print "Creating directories in $homedir\n";
+            &provide_user_files($user,$groups[0]);
+            # secondary memberships
+            foreach my $group (@groups){
+
+                print "Login $user is in $group\n";
+
+                my ($type,$longname)=
+                   &Sophomorix::SophomorixPgLdap::pg_get_group_type($group);
+                print "   Creating Links for secondary group $group\n";
+                &create_share_link($user,$group,$longname,$type);
+                print "   Creating Directories for secondary group $group\n";
+                &create_share_directory($user,$group,$longname,$type);
+            }
+        } else {
+            print "Directory $homedir does not exist\n";
+        }
+    }
+}
+
+
+
 
 
 =pod
