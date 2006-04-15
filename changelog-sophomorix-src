@@ -1036,10 +1036,13 @@ usw. alle fetch_ delete ... durchguggen
 
 
 small isolated jobs:
+------------------------------
 SophomorixPgLdap.pm
     functions:
       show_class_teacher_list
       show_teacher_class_list
+
+sophomorix-user: make options accept a userLIST
 
  
 
@@ -1151,6 +1154,13 @@ should not be changed automatically on update
 
 create a group students with all students (for testing) 
 
+
+
+sysrun needs package libsysadm-install-perl
+and use Sysadm::Install qw(:all);
+
+
+
 NEXT:
 
 create function to clean up an account:
@@ -1228,10 +1238,6 @@ funktionen nutzen
 
 NEXT:
 
-Klären:
-_verteilt/klasse1,2,3... muss existieren ???
-
-BUG: teacher: in _vorlagen ist aktueller raum (sollten nur links sein)
 
 make all options of sophomorix teacher valid that schulkonsole calls.
 
@@ -1303,18 +1309,17 @@ everywhere where homedir was fetched by getpwnam:
 what to do in remove_share_directory, when dir is not empty?
 
 
-sophomorix-minitest: develop function that cleanes account
-
-
 NEXT: collect fromroom, room 121a
-
-
-soph
 
 
 
 
 1.6.2-1  (2006-04-xx)
+   - pg_get_group_type knows type 'room' and type 'administrator'
+   - sophomorix-test-bunchofusers: adds/removes workstationaccounts
+   - Fixed Bug: teacher: in _vorlagen is 'aktueller raum'
+   - sophomorix-user --reset-user user1,user2,...
+     cleans up a users homedirectory (deletes data and creates new dirs)  
    - changed type "class" to "adminclass" throughout all scripte
    - added create_share_directory to all calls to create_share_link
    - sophomorix-teacher --teacher xx --users user1,usre2,... \ 
