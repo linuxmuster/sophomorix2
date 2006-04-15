@@ -1832,7 +1832,6 @@ sub pg_get_group_type {
     my ($id_sys)= $dbh->selectrow_array( "SELECT id 
                                          FROM groups 
                                          WHERE gid='$gid'");
-
     my ($type)= $dbh->selectrow_array( "SELECT type 
                                           FROM classdata 
                                           WHERE id='$id_sys'");

@@ -1026,8 +1026,8 @@ sub provide_user_files {
     # Für alle user (lehrer und schueler)
 #    &user_links($login, $class);
 #    my $long=$class."-new";
-    &create_share_link($login, $class,$class,"class");
-    &create_share_directory($login, $class,$class,"class");
+    &create_share_link($login, $class,$class,"adminclass");
+    &create_share_directory($login, $class,$class,"adminclass");
     &create_school_link($login);
 }
 
@@ -1940,7 +1940,7 @@ sub create_share_link {
            # project
            $link_target="${DevelConf::share_projects}/${share_name}";
            $link_target_tasks="${DevelConf::tasks_projects}/${share_name}";
-       } elsif ($type eq "class"){
+       } elsif ($type eq "adminclass"){
            # class
 	   if ($share_name  ne ${DevelConf::teacher}){
                # student
@@ -3768,7 +3768,7 @@ sub handout {
 
   my $from_dir = "";
 
-  if ($type eq "class"){
+  if ($type eq "adminclass"){
       $from_dir = "${homedir}/${Language::handout_dir}/${name}/";
       $to_dir="${DevelConf::tasks_classes}/${name}/${login}";
   } elsif ($type eq "subclass"){
@@ -3813,7 +3813,7 @@ sub handoutcopy {
     my @entry = getpwnam($login);
     my $homedir = "$entry[7]";
 
-    if ($type eq "class"){
+    if ($type eq "adminclass"){
        $from_dir = "${homedir}/${Language::handoutcopy_dir}/${name}";
     } elsif ($type eq "subclass"){
        $from_dir = "${homedir}/${Language::handoutcopy_dir}/${name}";
@@ -3899,7 +3899,7 @@ sub collect {
 
   # create a list of user to collect data from
   my @users=();
-  if ($type eq "class"){
+  if ($type eq "adminclass"){
       if ($name ne "${DevelConf::teacher}"){
          @users=&Sophomorix::SophomorixPgLdap::fetchstudents_from_adminclass($name);
          $tasks_dir="${DevelConf::tasks_classes}/${name}/";

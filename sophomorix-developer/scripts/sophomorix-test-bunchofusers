@@ -192,7 +192,7 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
    # DISTRIBUTE (Vorlagen)
    my $vorlagen_teacher="galli";
    my $vorlagen_gruppe="11a";
-   my $type="class";
+   my $type="adminclass";
 
    # Working with these files
    @teacher_files=("testfile_1.txt","testfile_2.txt");
@@ -285,7 +285,7 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
    # COLLECT move (Vorlagen)
    my $einsammeln_teacher="niko";
    my $einsammeln_gruppe="12c";
-   my $einsammeln_type="class";
+   my $einsammeln_type="adminclass";
    my $einsammeln_option="collect";
 
    # Working with these files
@@ -318,7 +318,7 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
    # COLLECT copy (Vorlagen)
    $einsammeln_teacher="galli";
    $einsammeln_gruppe="11a";
-   $einsammeln_type="class";
+   $einsammeln_type="adminclass";
    $einsammeln_option="collectcopy";
 
    # Working with these files
@@ -601,7 +601,7 @@ sub vorlagen_bereitstellen{
     }
 
     # romove the teacher from this class
-    if ($type eq "class" or $type eq "subclass"){
+    if ($type eq "adminclass" or $type eq "subclass"){
         $command="sophomorix-teacher --teacher $teacher --remove $mothergroup";
         print "$command \n";
         system($command);
@@ -614,7 +614,7 @@ sub vorlagen_bereitstellen{
 
     # do this with add already
     # join the class 11a (?????? later do this as galli)
-    if ($type eq "class"){
+    if ($type eq "adminclass"){
        $command="sophomorix-teacher --teacher $teacher --add $group";
        print "$command \n";
        system($command);

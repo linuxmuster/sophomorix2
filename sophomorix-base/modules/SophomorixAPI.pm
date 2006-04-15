@@ -523,14 +523,14 @@ sub add_my_adminclass {
 
     # create link
     &Sophomorix::SophomorixBase::create_share_link($login,
-         $class,$class,"class");
+         $class,$class,"adminclass");
 
     # join group
     &pg_adduser($login,$class);
 
     # create dirs in tasks and collect
     &Sophomorix::SophomorixBase::create_share_directory($login,
-         $class,$class,"class");
+         $class,$class,"adminclass");
 
     # fetch a list of subclasses
     my @subs=&Sophomorix::SophomorixPgLdap::fetch_used_subclasses($class);
@@ -568,11 +568,11 @@ sub remove_my_adminclass {
 
     # remove link
     &Sophomorix::SophomorixBase::remove_share_link($login,
-         $class,$class,"class");
+         $class,$class,"adminclass");
 
     # remove dirs in tasks and collect
     &Sophomorix::SophomorixBase::remove_share_directory($login,
-         $class,$class,"class");
+         $class,$class,"adminclass");
 
     # fetch a list of subclasses
     my @subs=&Sophomorix::SophomorixPgLdap::fetch_used_subclasses($class);

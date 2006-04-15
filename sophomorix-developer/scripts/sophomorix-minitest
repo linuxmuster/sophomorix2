@@ -43,7 +43,7 @@ $Conf::log_level=1;
 
 
 
-my $user1 = "galli";
+my $user1 = "tycho";
 my $user2 = "blackmri";
 
 &cleanup_user($user1);
@@ -77,11 +77,14 @@ sub cleanup_user {
             &provide_user_files($user,$groups[0]);
             # secondary memberships
             foreach my $group (@groups){
-                print "   Creating Links for secondary group $group\n";
 
-                print "   Creating Directories for secondary group $group\n";
+                print "Login $user is in $group\n";
+
                 my ($type,$longname)=&pg_get_group_type($group);
-                &create_share_directory($user,$group,$longname)
+                print "   Creating Links for secondary group $group\n";
+                &create_share_link($user,$group,$longname,$type);
+                print "   Creating Directories for secondary group $group\n";
+                &create_share_directory($user,$group,$longname,$type);
             }
         } else {
             print "Directory $homedir does not exist\n";

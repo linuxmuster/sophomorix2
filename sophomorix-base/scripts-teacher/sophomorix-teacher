@@ -334,7 +334,7 @@ if ($handout==1 and ($class ne "" or $subclass ne "" or $project ne "")){
     my $rsync="delete";
     print "Calling handout with rsync option $rsync\n";
     if ($class ne ""){
-           &handout($login, $class,"class",$rsync);
+           &handout($login, $class,"adminclass",$rsync);
     }
     if ($subclass ne ""){
            &handout($login, $subclass,"subclass",$rsync);
@@ -400,7 +400,7 @@ if ($collect==1 and ($class ne ""
     print "Calling collect with rsync option $rsync\n";
 
     if ($class ne ""){
-           &collect($login, $class,"class",$rsync,$exam);
+           &collect($login, $class,"adminclass",$rsync,$exam);
     }
     if ($subclass ne ""){
            &collect($login, $subclass,"subclass",$rsync,$exam);
@@ -431,7 +431,7 @@ if ($collectcopy==1 and ($class ne ""
     print "Calling collect with rsync option $rsync\n";
 
     if ($class ne ""){
-           &collect($login, $class,"class",$rsync,$exam);
+           &collect($login, $class,"adminclass",$rsync,$exam);
     }
     if ($subclass ne ""){
            &collect($login, $subclass,"subclass",$rsync,$exam);
