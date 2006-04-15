@@ -128,7 +128,7 @@ Options
   -R loginname   /   --removable loginname
   -K loginname   /   --killable loginname
   -A loginname   /   --activate loginname
-  --reset-user loginname
+  --reset-user user1,user2,...
 
 Please see the sophomorix-user(8) man pages for full documentation
 ');
@@ -476,18 +476,21 @@ if ($activate ne""){
 
 # --reset-user
 if ($reset_user ne""){
-    print "Resetting the account of $reset_user:\n";
-    # check if it is really an account
-    if (getpwnam("$reset_user")){
-	print "   - $reset_user is a valid username.\n";
-    } else {
-	print "   - $reset_user is not a valid username.\n";
-        exit;
-    }
-    # reset the account
+    my @users=split(/,/, $reset_user);
     # repair.directories einlesen
     &get_alle_verzeichnis_rechte();
-    &reset_user($reset_user);
+    foreach my $user (@users){
+        print "Resetting the account of $user:\n";
+        # check if it is really an account
+        if (getpwnam("$user")){
+	    print "   - $user is a valid username.\n";
+        } else {
+	    print "   - $user is not a valid username.\n";
+            exit;
+        }
+        # reset the account
+        &reset_user($user);
+    }
     exit;
 }
 
