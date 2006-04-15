@@ -871,6 +871,8 @@ sub provide_user_files {
     my $home_class="";
     my $share_class = "";
     my $dev_null="1>/dev/null 2>/dev/null";
+    my ($type,$longname)=
+       &Sophomorix::SophomorixPgLdap::pg_get_group_type($class);
     if ($class eq ${DevelConf::teacher}){
         ####################
         # teacher
@@ -955,7 +957,10 @@ sub provide_user_files {
            # Link von Linux aus
            "cd ${DevelConf::homedir_teacher}/$login; ln -s www/public_html public_html"
         );
-    } else { 
+        &create_share_link($login, $class,$class,"adminclass");
+        &create_share_directory($login, $class,$class,"adminclass");
+        &create_school_link($login);
+    } elsif ($type eq "adminclass") { 
         ####################
         # student
         ####################
@@ -963,13 +968,6 @@ sub provide_user_files {
         $home = "${DevelConf::homedir_pupil}/$class/$login";
         $www_home = "${DevelConf::homedir_pupil}/$class/$login/www";
         $share_class = "${DevelConf::share_classes}/$class";
-
-        # Eigentümer von ${DevelConf::homedir_pupil}/klasse/name REKURSIV 
-        # aendern in:   user:lehrer
-     #   &do_falls_nicht_testen(
-     #        "chown -R $login:${DevelConf::teacher} $home"
-     #   );
-
         if ($DevelConf::testen==0) {
            &setup_verzeichnis("\$homedir_pupil/\$klassen",
                               "$home_class");
@@ -978,7 +976,6 @@ sub provide_user_files {
                               "$home",
                               "$login");
            system("chown -R $login:${DevelConf::teacher} $home");
-
            &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/windows",
                               "$home/windows",
                               "$login");
@@ -1020,16 +1017,40 @@ sub provide_user_files {
               # Link von Linux aus
               "cd $home; ln -s www/public_html public_html"
            );
-
-
+           &create_share_link($login, $class,$class,"adminclass");
+           &create_share_directory($login, $class,$class,"adminclass");
+           &create_school_link($login);
+         }
+    } elsif ($type eq "room"){
+        ####################
+        # workstation
+        ####################
+        if ($DevelConf::testen==0) {
+           $home_ws = "${DevelConf::homedir_ws}/$class";
+           $home = "${DevelConf::homedir_ws}/$class/$login";
+           &setup_verzeichnis("\$homedir_ws/\$raeume",
+                              "$home_ws");
+           &setup_verzeichnis("\$homedir_ws/\$raeume/\$workstation",
+                              "$home",
+                              "$login");
+           system("chown -R $login:${DevelConf::teacher} $home");
+           &setup_verzeichnis("\$homedir_ws/\$raeume/\$workstation/windows",
+                              "$home/windows",
+                              "$login");
+           &setup_verzeichnis(
+                  "\$homedir_ws/\$raeume/\$workstation/\$task_dir",
+                  "$home/${Language::task_dir}",
+                  "$login");
+           &setup_verzeichnis(
+                  "\$homedir_ws/\$raeume/\$workstation/\$collect_dir",
+                  "$home/${Language::collect_dir}",
+                  "$login");
+           &setup_verzeichnis(
+                  "\$homedir_ws/\$raeume/\$workstation/\$handoutcopy_dir",
+                  "$home/${Language::handoutcopy_dir}",
+                  "$login");
          }
     }
-    # Für alle user (lehrer und schueler)
-#    &user_links($login, $class);
-#    my $long=$class."-new";
-    &create_share_link($login, $class,$class,"adminclass");
-    &create_share_directory($login, $class,$class,"adminclass");
-    &create_school_link($login);
 }
 
 
@@ -1910,12 +1931,11 @@ sub reset_user {
             print "   Removing contents of $homedir\n";
             system("rm -rf ${homedir}/*"); 
             print "Creating directories in $homedir\n";
-            &provide_user_files($user,$groups[0]);
+            my $pri_group=shift(@groups);
+            &provide_user_files($user,$pri_group);
             # secondary memberships
             foreach my $group (@groups){
-
                 print "Login $user is in $group\n";
-
                 my ($type,$longname)=
                    &Sophomorix::SophomorixPgLdap::pg_get_group_type($group);
                 print "   Creating Links for secondary group $group\n";
