@@ -292,10 +292,9 @@ sub repair_directories {
        s/\$to_handoutcopy_dir/$Language::to_handoutcopy_dir/;     
        s/\$handout_dir/$Language::handout_dir/;     
        s/\$handoutcopy_dir/$Language::handoutcopy_dir/;     
-       s/\$handout_exam/$Language::handout_exam/;     
+       s/\$exam/$Language::exam/;     
        s/\$collect_dir/$Language::collect_dir/;     
        s/\$collected_dir/$Language::collected_dir/;     
-       s/\$collect_exam/$Language::collect_exam/;     
        s/\$current_room/$Language::current_room/;     
        
        &titel("Line: $_");
