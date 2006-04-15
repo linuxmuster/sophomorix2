@@ -1829,9 +1829,13 @@ sub pg_get_group_type {
     my $return="";
     my $dbh=&db_connect();
     # fetching project_id
-    my ($id_sys)= $dbh->selectrow_array( "SELECT id 
+    my ($id_sys,$gidnumber_sys)= $dbh->selectrow_array( "SELECT id,gidnumber 
                                          FROM groups 
                                          WHERE gid='$gid'");
+    if (not defined $id_sys){
+        # if not in pgldap
+	return ("unknown",$gid);
+    }    
     my ($type)= $dbh->selectrow_array( "SELECT type 
                                           FROM classdata 
                                           WHERE id='$id_sys'");
@@ -1844,8 +1848,20 @@ sub pg_get_group_type {
         if (defined $longname){
             return ("project",$longname);
         } else {
-           # todo: check if it is a room ?????
+           # look at a users home
 
+           my ($home)= $dbh->selectrow_array( "SELECT homedirectory 
+                                          FROM userdata 
+                                          WHERE gidnumber=$gidnumber_sys");
+           if ($home=~/^\/home\/workstations\//){
+               # identify a workstation 
+	       return ("room",$gid);
+           } elsif ($home=~/^\/home\/administrators\//){
+               # identify an administrator
+               return ("administrators",$gid);
+           } else {
+               return ("unknown",$gid);
+           }
         }
     } elsif ($type eq "subclass"){
         # subclass
