@@ -1858,7 +1858,7 @@ sub pg_get_group_type {
 	       return ("room",$gid);
            } elsif ($home=~/^\/home\/administrators\//){
                # identify an administrator
-               return ("administrators",$gid);
+               return ("administrator",$gid);
            } else {
                return ("unknown",$gid);
            }
