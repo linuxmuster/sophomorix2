@@ -1262,53 +1262,29 @@ einsammeln geschieht nie in den aktuellen raum????
 
 
 
-
-
-Letzter Stand:
-
-
-### Done!
 __austeilen      [/aktueller raum, $klassen, $subkl, $projekte  /$lehrer]
      TODO: $lehrer entsteht beim austeilen
-### Done!
-
 
 
 __einsammeln     [/aktueller Raum, $lehrer]
-
-status:
-     __einsammeln:
-            /aktueller_raum     OK
-
-TODO: bei lehrern /klassenarbeit zu viel?
-            $lehrer lehrer sollte schon da sein?         
+     TODO: $lehrer entsteht beim gruppenbeitritt
 
 
-### Done!
 __tauschen       [/$klassen, $subkl, $projekte, lehrer, schule]
-### Done!
-
-
 
 
 __vorlagen       [/$klassen, $subkl, $projekte   /$lehrer]
 Todo: (bei workstations: __vorlagen/klassenarbeit )
 
 
-### Done!
 _auszuteilen   [/aktueller raum, $klassen, $subkl, $projekte]
-### Done!
 
 
-### Done!
 _bereitstellen [/klassenarbeit, $klassen, $subkl, $projekte]
-### Done!
 
 
-### Done!
 _eingesammelt  [/klassenarbeit, aktueller raum, $klassen, $subkl, 
 $projekte  /$datum-$uhrzeit  /$schüler]
-### Done!
 
 
 
@@ -1332,15 +1308,12 @@ sophomorix-minitest: develop function that cleanes account
 
 NEXT: collect fromroom, room 121a
 
-- add create_share_directory to all places where create_share_link is given
- 
-
-
 
 
 
 
 1.6.2-1  (2006-04-xx)
+   - added create_share_directory to all calls to create_share_link
    - sophomorix-teacher --teacher xx --users user1,usre2,... \ 
      --fromroom --handoutcopy
    works and ist tested
