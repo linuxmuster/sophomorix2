@@ -905,8 +905,8 @@ sub provide_user_files {
                   "$home/${Language::handoutcopy_dir}",
                   "$login");
            &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$handout_dir/\$handout_exam",
-                  "$home/${Language::handout_dir}/${Language::handout_exam}",
+                  "\$homedir_teacher/\$lehrer/\$handout_dir/\$exam",
+                  "$home/${Language::handout_dir}/${Language::exam}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$handout_dir/\$current_room",
@@ -933,8 +933,8 @@ sub provide_user_files {
                   "$home/${Language::collect_dir}/${Language::current_room}",
                   "$login");
            &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$collect_dir/\$collect_exam",
-                  "$home/${Language::collect_dir}/${Language::collect_exam}",
+                  "\$homedir_teacher/\$lehrer/\$collected_dir/\$exam",
+                  "$home/${Language::collected_dir}/${Language::exam}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$share_dir",
