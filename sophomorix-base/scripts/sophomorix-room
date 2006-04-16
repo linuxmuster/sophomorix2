@@ -26,18 +26,28 @@ use Net::LDAP;
 $Conf::log_level=1;
 my $help=0;
 my $info=0;
+my $reset_room="";
+my $reset_all_rooms=0;
 $Conf::log_level=1;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
+           "reset-room=s" => \$reset_room,
+           "reset-all-rooms" => \$reset_all_rooms,
            "verbose|v+" => \$Conf::log_level,
           );
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
 
+
+if ($reset_room eq ""
+    and $info==0
+    and $reset_all_rooms==0){
+    $help=1;
+}
 
 
 
@@ -56,6 +66,7 @@ Options
   -vv / --verbose --verbose
   -i  / --info
   --reset-room room
+  --reset-all-rooms
 Please see the sophomorix-room(8) man pages for full documentation
 ');
    print "\n";
@@ -77,3 +88,27 @@ if ($info==1){
 }
 
 
+
+# --reset-room
+if ($reset_room ne ""){
+    print "Resetting room ${reset_room}:\n";
+    my @workstations=&fetchworkstations_from_room($reset_room);
+    &get_alle_verzeichnis_rechte();
+    foreach my $ws (@workstations){
+	print "   Resetting $ws\n";
+        &reset_user($ws);
+    }
+}
+
+
+
+# --reset-all-rooms
+if ($reset_all_rooms==1){
+    print "Resetting all rooms:\n";
+    my @workstations=&fetchworkstations_from_school();
+    &get_alle_verzeichnis_rechte();
+    foreach my $ws (@workstations){
+	print "   Resetting $ws\n";
+        &reset_user($ws);
+    }
+}
