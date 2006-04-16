@@ -1288,6 +1288,13 @@ NEXT: collect fromroom, room 121a
 
 
 1.6.2-1  (2006-04-xx)
+   - Fixed Bugs: two lines in repair.directories were not replaced 
+     correctly from sopomorix-repair
+   - removed option --www from sophomorix-repair (was deprecated)
+   - added option --command-number in sophomorix-repair
+     (allows to specify only one command (= line in repair.directories)
+      to be executed)
+     commands can be shown with option -i
    - replaced the following getpw*-calls (via ldap) in SophomorixAPI 
      with postgres databse queries:
         get_rooms_school
