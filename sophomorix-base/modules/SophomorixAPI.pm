@@ -26,12 +26,6 @@ use Sophomorix::SophomorixBase qw (
 @EXPORT_OK = qw( check_datei_touch );
 @EXPORT = qw( 
              fetchstudents_from_school
-             get_adminclasses_school
-             get_adminclasses_sub_school
-             get_projects_school
-             get_workstations_room
-             get_workstations_school
-             get_rooms_school
              create_userlist
              get_ml_users
              add_my_adminclass
@@ -183,7 +177,7 @@ The group of all teachers is NOT included in this list
 
 =cut
 
-sub get_adminclasses_sub_school {
+sub get_adminclasses_sub_school_oldstuff {
     # this is database-dependant ?????????????
     my $file="$DevelConf::protokoll_datei";
     my %klassen_hash=();
@@ -227,7 +221,7 @@ in the school.
 =cut
 
 # Diese Funktion liefert eine Liste aller Klassen der Schule zurück
-sub get_projects_school {
+sub get_projects_school_oldstuff {
     # this is database-dependant ?????????????
     my $file="${DevelConf::protokoll_pfad}/projects_db";
     my %projects=();
@@ -262,7 +256,7 @@ Returns an asciibetical list of all workstations in the room Room.
 
 =cut
 
-sub get_workstations_room {
+sub get_workstations_room_old_stuff {
     my ($room)=@_;
     #print "$room<p>";
     my @pwliste=();
@@ -301,7 +295,7 @@ The group of all teachers is NOT included in this list
 
 
 
-sub get_rooms_school {
+sub get_rooms_school_oldstuff {
     my @pwliste;
     my %raeume_hash=();
     my @liste;
@@ -334,7 +328,7 @@ Returns an asciibetical list of all Workstations in the school.
 =cut
 
 
-sub get_workstations_school {
+sub get_workstations_school_oldstuff {
     my @pwliste=();
     my @workstationliste=();
     
@@ -421,14 +415,16 @@ sub create_userlist {
         my @users=();
         my (@roomlist)=split(/,/,$rooms);
         foreach my $room (@roomlist){
-           @users=&get_workstations_room($room);
+#           @users=&get_workstations_room($room);
+           @users=&fetchworkstations_from_room($room);
            push @userlist, @users;
         }
       }
 
       if ($ws==1) {
         my @users=();
-        @users=&get_workstations_school();
+#        @users=&get_workstations_school();
+        @users=&fetchworkstations_from_school();
         push @userlist, @users;
       }
 

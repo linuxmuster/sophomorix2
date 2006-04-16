@@ -179,7 +179,7 @@ my @projects=&fetchprojects_from_school();
 # Räume
 &titel("Creating list of every room ...");
 #my @raeume=&get_raeume_in_schule(); 
-my @raeume=&get_rooms_school(); 
+my @raeume=&fetchrooms_from_school(); 
 &print_list("The list of every room:",@raeume);
 
 
@@ -203,11 +203,14 @@ my @lehrer=&fetchstudents_from_adminclass(${DevelConf::teacher});
 # workstations
 &titel("Creating list of every workstation ...");
 #my @workstations=&get_workstations_in_schule();
-my @workstations=&get_workstations_school();
+#my @workstations=&get_workstations_school();
+my @workstations=&fetchworkstations_from_school();
 &print_list("The list of every workstation:",@workstations);
 
 my @www_userliste=();
 
+
+exit;
 
 
 # --permissions

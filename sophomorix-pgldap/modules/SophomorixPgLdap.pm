@@ -47,6 +47,9 @@ require Exporter;
              fetchadminclasses_from_school
              fetchsubclasses_from_school
              fetchprojects_from_school
+             fetchrooms_from_school
+             fetchworkstations_from_school
+             fetchworkstations_from_room
              set_sophomorix_passwd
              user_deaktivieren
              user_reaktivieren
@@ -1959,6 +1962,77 @@ sub fetchprojects_from_school {
     &db_disconnect($dbh);
     return @projects;
 }
+
+
+
+sub fetchrooms_from_school {
+    # fetch all subclasses
+    my @rooms=();
+    my $dbh=&db_connect();
+    my $sth= $dbh->prepare( "SELECT DISTINCT gid
+                             FROM userdata 
+                             WHERE homedirectory LIKE '/home/workstations/%'
+                             ORDER BY gid");
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    my $i=0;
+    foreach ( @{ $array_ref } ) {
+        my $gid=${$array_ref}[$i][0];
+        push @rooms, $gid;
+        $i++;
+    }   
+    &db_disconnect($dbh);
+    return @rooms;
+}
+
+
+
+sub fetchworkstations_from_school {
+    # fetch all subclasses
+    my @rooms=();
+    my $dbh=&db_connect();
+    my $sth= $dbh->prepare( "SELECT uid
+                             FROM userdata 
+                             WHERE homedirectory LIKE '/home/workstations/%'
+                             ORDER BY uid");
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    my $i=0;
+    foreach ( @{ $array_ref } ) {
+        my $gid=${$array_ref}[$i][0];
+        push @rooms, $gid;
+        $i++;
+    }   
+    &db_disconnect($dbh);
+    return @rooms;
+}
+
+
+
+sub fetchworkstations_from_room {
+    # fetch all subclasses
+    my ($gid) = @_;
+    my @rooms=();
+    my $dbh=&db_connect();
+    my $sth= $dbh->prepare( "SELECT uid
+                             FROM userdata 
+                             WHERE homedirectory LIKE '/home/workstations/%'
+                             AND gid='$gid'
+                             ORDER BY uid");
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    my $i=0;
+    foreach ( @{ $array_ref } ) {
+        my $gid=${$array_ref}[$i][0];
+        push @rooms, $gid;
+        $i++;
+    }   
+    &db_disconnect($dbh);
+    return @rooms;
+}
+
+
+
 
 
 
