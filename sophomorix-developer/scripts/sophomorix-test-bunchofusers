@@ -308,7 +308,6 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
                            $vorlagen_gruppe,
                            $type);
 
-
     print '
 ###########################################################################
 #                                                                         #
@@ -337,7 +336,7 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
    &vorlagen_bereitstellen($vorlagen_teacher,
                            $vorlagen_gruppe,
                            $type);
-
+    exit;
     print '
 ###########################################################################
 #                                                                         #
@@ -597,7 +596,8 @@ sub dateien_einsammeln{
     my ($teacher,$group,$type,$option) = @_;
     my $command="";
     print "Cleaning up $teacher \n";
-    $command="rm -rf /home/teachers/${teacher}/${Language::collect_dir}/${group}/*"; 
+#    $command="rm -rf /home/teachers/${teacher}/${Language::collect_dir}/${group}/*"; 
+    $command="sophomorix-user --reset-user $teacher";
     print "$command \n";
     system($command);
 
@@ -610,7 +610,8 @@ sub dateien_einsammeln{
        my $homedir = "$entry[7]";
 
 #       $command="rm -rf /home/students/${dirname}/${user}/${Language::collect_dir}/*"; 
-       $command="rm -rf $homedir/${Language::collect_dir}/*"; 
+#       $command="rm -rf $homedir/${Language::collect_dir}/*"; 
+       $command="sophomorix-user --reset-user $user";
        print "$command \n";
        system($command);
     }
@@ -705,7 +706,9 @@ sub vorlagen_bereitstellen{
         system($command);
     }
 
-    $command="rm -rf /home/teachers/${teacher}/${Language::handout_dir}/${group}"; 
+    #$command="rm -rf /home/teachers/${teacher}/${Language::handout_dir}/${group}"; 
+
+    $command="sophomorix-user --reset-user $teacher";
     print "$command \n";
     system($command);
 
