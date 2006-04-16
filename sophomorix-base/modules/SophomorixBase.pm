@@ -1930,12 +1930,15 @@ sub reset_user {
         if (-e $homedir){
             print "   Removing contents of $homedir\n";
             system("rm -rf ${homedir}/*"); 
-            print "Creating directories in $homedir\n";
+            print "   Creating directories in $homedir\n";
             my $pri_group=shift(@groups);
             &provide_user_files($user,$pri_group);
+            my ($pri_type,$pri_longname)=
+               &Sophomorix::SophomorixPgLdap::pg_get_group_type($pri_group);
+            &create_share_link($user,$pri_group,$pri_longname,$pri_type);
             # secondary memberships
             foreach my $group (@groups){
-                print "Login $user is in $group\n";
+                print "   $user is in secondary $group\n";
                 my ($type,$longname)=
                    &Sophomorix::SophomorixPgLdap::pg_get_group_type($group);
                 print "   Creating Links for secondary group $group\n";
@@ -1988,7 +1991,7 @@ sub create_share_link {
        my ($gname, $passwd, $gidnumber, $members)=getgrgid("$gid");
        $homedir=$home;
        $pri_group=($gname);
-       print "   Group is $pri_group\n";
+       #print "   Group is $pri_group\n";
     }
 
     # Only act if uid is valid
@@ -2018,37 +2021,46 @@ sub create_share_link {
 	   }
        }elsif ($type eq "subclass"){
            # subclass
-           $link_target="${DevelConf::share_subclasses}/${share_name}";
            $link_target_tasks="${DevelConf::tasks_subclasses}/${share_name}";
+       }elsif ($type eq "room"){
+           # room
+           $link_target_tasks="${DevelConf::tasks_rooms}/${share_name}";
        } else {
            print "Unknown type $type\n\n";
 	   return 0;
        }
 
        # make sure directory exists
-       &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/\$share_dir",
-                      "$homedir/${Language::share_dir}");
+#       &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/\$share_dir",
+#                      "$homedir/${Language::share_dir}");
 
-       # Link to share
-       if($Conf::log_level>=2){
-           print "   Link name (share): $link_name\n";
-           print "   Target    (share): $link_target\n";
+       # Link to share (all but workstations)
+       if ($type ne "room"){
+           if($Conf::log_level>=2){
+               print "   Link name (share): $link_name\n";
+               print "   Target    (share): $link_target\n";
+           }
+           if (-e $link_target and -d $link_target){
+               print "   Creating link for $login ",
+                     "to $type ${link_target}.\n";
+               symlink $link_target, $link_name;
+           } else {
+               print "   NOT creating Link to ",
+                     "nonexisting/nondirectory $link_target\n";
+           }
        }
-       if (-e $link_target and -d $link_target){
-            print "   Creating link for $login ",
-                  "to $type ${link_target}.\n";
-            symlink $link_target, $link_name;
-       } else {
-           print "   NOT creating Link to ",
-                 "nonexisting/nondirectory $link_target\n";
-       }
 
-
-       # Link to tasks
+       # Link to tasks (all users)
        if($Conf::log_level>=2){
            print "   Link name (tasks): $link_name_tasks\n";
            print "   Target    (tasks): $link_target_tasks\n";
        }
+       if ($type eq "room"){
+          # create the share_dir on the fly
+          &setup_verzeichnis("\$tasks_rooms/\$raeume",
+                             "$link_target_tasks");
+       }
+
        if (-e $link_target_tasks and -d $link_target_tasks){
            print "   Creating link user $login ",
                  "to $type ${link_target_tasks}.\n";
@@ -2058,7 +2070,6 @@ sub create_share_link {
                  "nonexisting/nondirectory $link_target_tasks\n";
        }
     } else {
-#	print "   create_share_link: $login is not a valid username.\n";
         print "   NOT removing directories: ",
               "Home of user $login not known.\n";
 
