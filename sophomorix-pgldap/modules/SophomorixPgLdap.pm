@@ -71,6 +71,7 @@ require Exporter;
              fetch_used_subclasses
              show_subclass_list
              show_project
+             show_room_list
              get_smb_sid
 );
 # deprecated:             move_user_db_entry
@@ -3915,6 +3916,30 @@ sub show_project {
     &Sophomorix::SophomorixBase::print_list_column(4,
       "MemberProjects of $project",@pro);
     #&db_disconnect($dbh);
+}
+
+
+
+sub show_room_list {
+    my @rooms = &fetchrooms_from_school();
+    my $number=0;
+    my $sum=0;
+    my $dbh=&db_connect();
+    print "The following rooms exist already:\n\n";
+    printf "%-16s | %-13s|\n","Room","workstations";
+    print "-----------------+--------------+\n";
+    foreach my $room (@rooms){
+        my $number = $dbh->selectrow_array( "SELECT COUNT(*) AS num
+                                             FROM userdata 
+                                             WHERE (gid='$room')
+                                            " );
+        printf "%-16s | %8s     |\n",$room,$number;
+        $sum=$sum+$number;
+    }
+    print "-----------------+--------------+\n";
+    printf "%-16s | %8s     |\n","All workstations",$sum;
+    print "-----------------+--------------+\n";
+    &db_disconnect($dbh);
 }
 
 
