@@ -1,0 +1,79 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-room) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+
+# ===========================================================================
+# Bibliotheken
+# ===========================================================================
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
+use Sophomorix::SophomorixPgLdap;
+use DBI;
+use Net::LDAP;
+#use Schedule::at;
+
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+# Variablen für Optionen
+$Conf::log_level=1;
+my $help=0;
+my $info=0;
+$Conf::log_level=1;
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "help|h" => \$help,
+           "info|i" => \$info,
+           "verbose|v+" => \$Conf::log_level,
+          );
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
+
+
+
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlbeschreibung
+   print('
+sophomorix-room shows rooms and resets the workstation accounts
+
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -i  / --info
+  --reset-room room
+Please see the sophomorix-room(8) man pages for full documentation
+');
+   print "\n";
+   exit;
+}
+
+############################################################
+# config values
+############################################################
+
+&check_connections();
+
+
+
+# --info
+if ($info==1){
+   &show_room_list();
+   exit;
+}
+
+
