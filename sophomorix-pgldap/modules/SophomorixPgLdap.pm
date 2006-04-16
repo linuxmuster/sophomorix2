@@ -1820,7 +1820,10 @@ sub pg_get_group_list {
     my $i=0;
     foreach ( @{ $array_ref } ) {
         my $sec_gid=${$array_ref}[$i][1];
-        push @grp_list, $sec_gid;
+        # add secondary group only when not eq to primary 
+        if ($grp_list[0] ne $sec_gid){     
+           push @grp_list, $sec_gid;
+        }
         $i++;
     }   
 
