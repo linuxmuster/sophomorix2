@@ -1281,6 +1281,10 @@ everywhere where homedir was fetched by getpwnam:
 
 ??? what to do in remove_share_directory, when dir is not empty?
 
+??? smbldap-useradd adds user also in the secondary group ??? check this
+
+
+
 
 NEXT: collect fromroom, room 121a
 
@@ -1288,6 +1292,9 @@ NEXT: collect fromroom, room 121a
 
 
 1.6.2-1  (2006-04-xx)
+   - create task links for workstation users
+   - fixed function pg_get_group_list:
+     returned primary group double
    - Fixed Bugs: two lines in repair.directories were not replaced 
      correctly from sopomorix-repair
    - removed option --www from sophomorix-repair (was deprecated)
