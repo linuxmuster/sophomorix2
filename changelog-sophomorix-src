@@ -1001,8 +1001,6 @@ Bug: when sophomorix-quota -l galli
 
 create_userlist in SophomorixAPI.pm checken
 functions in sophomorixAPI.pm that must be updated
-   get_workstations_room
-   get_workstations_school
    get_ml_users (is working, but use SQL to speed up ) 
 
 
@@ -1140,22 +1138,10 @@ Lehrer: einstellen in $HOME/_bereitstellen/klassenarbeit
 Workstation: $
 
 
-
-Tauschen /home/students/11a/maier/_tausch  
-(Verzeichnisrechte ändern um alles tauschen zu unterbinden).
-
-
-sophomorix-setup-pgldap:
-- postgres passwort
-- ldap     passwort
-
-should not be changed automatically on update
-
-
 create a group students with all students (for testing) 
 
 
-
+invent sysrun??:
 sysrun needs package libsysadm-install-perl
 and use Sysadm::Install qw(:all);
 
@@ -1168,10 +1154,7 @@ create function to clean up an account:
   - provide user files
 clean up a room for klassenarbeit (parameter room)
 
-name _dirs like rainers latest mail (11.04.2006) 
 
-Lehrer anlegen:
-_austeilen/aktueller_Raum
 
 
 check collect
@@ -1182,6 +1165,7 @@ Schulkonsole:
 
 funktion zum Tauschverzeichnis löschen
 funktion zum ALLE links wiederherstellen
+
 
 beim cp von netlogon stimmt was nicht
 
@@ -1221,8 +1205,6 @@ funktionen nutzen
    etags, ctags für perl?
 
 
-   perl-tidy ?????
-
    Klasse Error 
    /usr/share/schulkonsole
    use Schulkonsole::Error;
@@ -1247,21 +1229,12 @@ tests:
 
 
 
-
-new function to fetch only members of a project, not admins ?
-(needed when collecting data)
-
-
 sophomorix-test-bunchofusers hat Fehler bein Test:
 
 collecting data from project has no errors, but collecting from a admin 
 doesn't work, because its directory structure differs (or other reason) 
 
 
-problems with directory structure:
-  _austeilen(taecher) is not the same as _austeilen(students)
-  _verteilt should be replaced by _austeilen (teacher)
- 
 einsammeln geschieht nie in den aktuellen raum????
   sondern es wird immer der raumname als parameter übergeben
    -> _einsammeln/aktueller_raum kann verschwinden????
@@ -1306,7 +1279,7 @@ everywhere where homedir was fetched by getpwnam:
    replace it with fetchdata_from_account
 
 
-what to do in remove_share_directory, when dir is not empty?
+??? what to do in remove_share_directory, when dir is not empty?
 
 
 NEXT: collect fromroom, room 121a
@@ -1315,6 +1288,12 @@ NEXT: collect fromroom, room 121a
 
 
 1.6.2-1  (2006-04-xx)
+   - replaced the following getpw*-calls (via ldap) in SophomorixAPI 
+     with postgres databse queries:
+        get_rooms_school
+        get_workstations_school
+        get_workstations_room
+     (only get_ml_users is left)  
    - made sophomorix-user --reset-user work with workstation users
    - pg_get_group_type knows type 'room' and type 'administrator'
    - sophomorix-test-bunchofusers: adds/removes workstationaccounts
