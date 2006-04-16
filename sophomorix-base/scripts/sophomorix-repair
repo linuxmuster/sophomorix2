@@ -69,12 +69,13 @@ my $gruppe="";
 
 
 my $help=0;
+my $info=0;
 my $filename="";
 my $dateirechte=0;
-my $www=0;
 my $schueler=0;
 my $lehrer=0;
 my $login="";
+my $command_number=0;
 $Conf::log_level=1;
 
 
@@ -88,11 +89,12 @@ my $repair_directories="$DevelConf::devel_pfad/repair.directories";
 # Parsen der Optionen
 my $testopt=GetOptions(
            "help|h" => \$help,
+           "info|i" => \$info,
            "verbose|v+" => \$Conf::log_level,
            "permissions|p" => \$dateirechte,
-#           "www|public_html" => \$www,
 #           "schueler" => \$schueler,
 #           "lehrer" => \$lehrer,
+           "command-number=n" => \$command_number,
            "login|l=s" => \$login,
            "file|f=s" => \$filename
           );
@@ -101,10 +103,11 @@ my $testopt=GetOptions(
 &check_options($testopt);
 
 
-if ($www==0 && $dateirechte==0) {
+if ($dateirechte==0 and $info==0 and $command_number==0) {
    # Es muss eine Option angegeben werden, sonst hilfe
    $help=1;
-   print "\nFehler: Fehlende Option!\n";
+#   print "\nYou must specify one of the following options:\n";
+#   print "\n   -p\n";
 }
 
 
@@ -121,10 +124,11 @@ Options
   -h  / --help
   -v  / --verbose
   -vv / --verbose --verbose
+  -i
   -f filename / --file filename
+  --command-number number
   -p  / --permissions
   --acl (Todo)
-  --www / --public_html (deprecated)
   --login user (Todo)
   --schueler (Todo)
   --lehrer (Todo)
@@ -207,39 +211,12 @@ my @lehrer=&fetchstudents_from_adminclass(${DevelConf::teacher});
 my @workstations=&fetchworkstations_from_school();
 &print_list("The list of every workstation:",@workstations);
 
-my @www_userliste=();
-
-
-exit;
-
 
 # --permissions
-if ($dateirechte==1) {
+if ($dateirechte==1 or $info==1) {
    &repair_directories();
    exit;
 }
-
-# --www
-if ($www==1) {
-  if ($lehrer==1) {
-      @www_userliste=&fetchstudents_from_adminclass(${DevelConf::teacher});
-   } elsif ($schueler==1){
-#      @www_userliste=&get_pupils_school();
-      @www_userliste=&fetchstudents_from_school();
-   } elsif ($login ne "") {
-      @www_userliste=$login;
-   }
-
-   # print "@www_userliste\n";
-   # exit;
-  
-   foreach my $user (@www_userliste) {
-      &move_public_html($user);
-   }
-   
-   exit;
-}
-
 
 
 
@@ -251,7 +228,12 @@ sub repair_directories {
    # Liste mit einem Element, dass die Schleifen EINMAL durchlaufen werden
    my @gruppen=("");
    my @user=("");
-
+   my $num=0;
+   if ($info==1){
+      print "\nThe following commands can be selected with the option\n",
+            "    --command-number number\n",
+            "Otherwise all commands are executed (this takes time)\n\n";
+   }
    open(DIRS, "<${repair_directories}")|| die "Fehler: $!";
    while (<DIRS>) {
        my $gruppen_anzahl=0;
@@ -260,10 +242,12 @@ sub repair_directories {
        if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
        if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
 
+       $num++;
        # replace the first occurence of the string $homedir... 
        # with the value of the variable $homedir...
 
        #s/\$homedir_admin/$DevelConf::homedir_admin/;
+       s/\$var_lib_pfad/$DevelConf::var_lib_pfad/;
        s/\$homedir_all_admins/$DevelConf::homedir_all_admins/;
        s/\$homedir_pupil/${DevelConf::homedir_pupil}/;     
        s/\$homedir_teacher/$DevelConf::homedir_teacher/; 
@@ -285,10 +269,12 @@ sub repair_directories {
        s/\$share_subclasses/$DevelConf::share_subclasses/;     
        s/\$share_projects/$DevelConf::share_projects/;     
 
-       s/\$tasks_tasks/$DevelConf::tasks_tasks/;     
+       s/\$tasks_tasks/$DevelConf::tasks_tasks/;
+       s/\$tasks_teachers/$DevelConf::tasks_teachers/;     
        s/\$tasks_classes/$DevelConf::tasks_classes/;     
        s/\$tasks_subclasses/$DevelConf::tasks_subclasses/;     
        s/\$tasks_projects/$DevelConf::tasks_projects/;     
+       s/\$tasks_rooms/$DevelConf::tasks_rooms/;     
 
        s/\$share_dir/$Language::share_dir/;     
        s/\$task_dir/$Language::task_dir/;     
@@ -300,11 +286,24 @@ sub repair_directories {
        s/\$collected_dir/$Language::collected_dir/;     
        s/\$current_room/$Language::current_room/;     
        
-       &titel("Line: $_");
+       # print only number of command when --info
+       if ($info==1){
+           print "Nr. $num: $_\n";
+	   next;
+       }
+
+       # act only on specific lines
+       if ($command_number!=0 and $command_number!=$num){
+           next;    
+       }
+
+       # show what command is processed
+       &titel("Command number ${num}:");
+       print "$_\n";
+
+
        # Zeile zerlegen
        my ($path, $owner, $groupowner, $permission) = split(/::/);
-
-
 
        # Gruppen auswählen
        if (/\$klassen/) {
@@ -353,12 +352,12 @@ sub repair_directories {
            if($Conf::log_level>=3){
               print "\$lehrer found (Userplatzhalter: $user_anzahl)\n";
 	   }
-       }elsif (/\$workstations/) {
+       }elsif (/\$workstation/) {
            # Liste ist Workstationliste
            @user=@workstations;
            $user_anzahl++;
            if($Conf::log_level>=3){
-              print "\$workstations found (Userplatzhalter: $user_anzahl)\n";
+              print "\$workstation found (Userplatzhalter: $user_anzahl)\n";
 	   }
        } else {
            if($Conf::log_level>=3){
@@ -373,9 +372,6 @@ sub repair_directories {
              print "\nFehler: User-Platzhalter-Anzahl:  $user_anzahl. ABBRUCH.\n\n";
              exit;
        }
-
-       #print "@gruppen\n";
-       #print "@user\n";
          
        # Verzeichnis reparieren
        if($Conf::log_level>=3){
@@ -443,7 +439,8 @@ sub repair_directory {
             @userliste=&fetchstudents_from_adminclass($gruppe);
             #print "Userliste: Nur Klasse\n";
 	 } elsif ($path=~/\$raeume/ && $path=~/\$workstation/) {
-            @userliste=&get_workstations_in_raum($gruppe);
+#            @userliste=&get_workstations_in_raum($gruppe);
+            @userliste=&fetchworkstations_from_room($gruppe);
             #print "Userliste: Nur Workstations\n";
 	 } else {
             my $zahl=@$user;
@@ -482,11 +479,11 @@ sub repair_directory {
          # Ersetzungen vornehmen von Usern
          $path=~s/\$schueler/$user/g; 
          $path=~s/\$lehrer/$user/g; 
-         $path=~s/\$workstations/$user/g; 
+         $path=~s/\$workstation/$user/g; 
 
          $owner=~s/\$schueler/$user/g; 
          $owner=~s/\$lehrer/$user/g;
-         $owner=~s/\$workstations/$user/g; 
+         $owner=~s/\$workstation/$user/g; 
 
          if (not defined ($ownerid = getpwnam $owner)) {
             print "Benutzer $owner gibt es nicht!\n";
@@ -520,7 +517,8 @@ sub repair_directory {
              if($Conf::log_level>=2){
                 print "Permissions are $mode  (Permitted: $permission)\n";
 	     }
-             # Falls Verzeichnisrechte gesetzt werden müssen, auf den ersten Wert setzten 
+             # Falls Verzeichnisrechte gesetzt werden müssen, 
+             # auf den ersten Wert setzten 
              $permission_to_set=$permission_list[0];
              # Sind die Verzeichnisrechte OK
 	     foreach my $perm (@permission_list){
@@ -539,12 +537,12 @@ sub repair_directory {
          if ($korrigieren==1) {
             chmod oct($permission_to_set), $path;
             chown $ownerid, $gid, $path;
-            print "   Repairing: $path $owner($ownerid) ",
+            print "  * $path $owner($ownerid) ",
                   "$groupowner($gid) $permission_to_set\n";
          } else {
             # Verzeichnisrechte nicht korrigieren
             chown $ownerid, $gid, $path;
-            print "   Repairing: $path $owner($ownerid) ",
+            print "  * $path $owner($ownerid) ",
                   "$groupowner($gid) Rechte: OK\n";
             # Korrigier-Variable zurücksetzten
             $korrigieren=1;
@@ -565,216 +563,4 @@ sub repair_directory {
 }
 
 
-
-
-
-
-################################################################################
-# Setup der user
-################################################################################
-sub set_sophomorix_users {
-
-   #system("useradd -u 500 -g admin -G lehrer -d /home/admin -s /bin/bash -c Windows_Systemverwalter -p admin!  admin");
-
-   # gruppe admin anlegen
-   system("groupadd -g 1000 admin > /dev/null");
-   # gruppe lehrer anlegen
-   system("groupadd -g 1002 lehrer > /dev/null");
-
-   # admin muss in der Gruppe lehrer Mitglied sein
-   # (primäre Gruppe bleibt admin)
-   system("usermod -G lehrer admin");
-
- }
-
-
-
-
-################################################################################
-# public_html-Verschieben, falls im home
-################################################################################
-sub move_public_html {
-   # Parameter:  Loginname
-   my ($loginname)=@_;
-   my $klasse="";
-   my $linux_home="";
-   # Klasse ermitteln
-   $klasse=&get_klasse_von_login($loginname); 
-   &titel("$loginname ist in der Klasse $klasse"); 
-   my $mode=0;
-
-   if ($klasse eq ${DevelConf::teacher}) {
-      # lehrer ALT
-      $string_link="${DevelConf::homedir_teacher}/${loginname}/windows/public_html";
-      # lehrer NEU
-      $string_public_html="${DevelConf::homedir_teacher}/${loginname}/www/public_html";
-      # lehrer LINUX-HOME
-      $linux_home="${DevelConf::homedir_teacher}/${loginname}";
-
-      &setup_verzeichnis("\$homedir_teacher/\$lehrer/www",
-                   "${DevelConf::homedir_teacher}/$loginname/www");
-
-      &setup_verzeichnis("\$homedir_teacher/\$lehrer/www/public_html",
-                   "${DevelConf::homedir_teacher}/$loginname/www/public_html",
-                   "$loginname");
-
-
-   } else { 
-      # schueler ALT
-      $string_link="${DevelConf::homedir_pupil}/${klasse}/${loginname}/windows/public_html";
-      # schueler NEU
-      $string_public_html="${DevelConf::homedir_pupil}/${klasse}/${loginname}/www/public_html";
-      # schueler LINUX-HOME
-      $linux_home="${DevelConf::homedir_pupil}/${klasse}/${loginname}";
-
-      &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/www",
-                         "${DevelConf::homedir_pupil}/$klasse/$loginname/www");
-
-      &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/www/public_html",
-                         "${DevelConf::homedir_pupil}/$klasse/$loginname/www/public_html",
-                         "$loginname");
-
-
-   }
-
-   # Pfad zum NEUEN pubic_html-Verzeichnis ermitteln
-   #$string_public_html="${DevelConf::apache_root}/userdata/${klasse}/${loginname}";
-
-
-   # Home-Verzeichnis bearbeiten
-   # www anlegen
-   #
-#   if (not -e "$linux_home/www") {
-#       # anlegen
-#       system("mkdir $linux_home/www");
-#   }
-   
-   # Eigentümer richtig setzten
-#    system("chown $DevelConf::apache_user.root $linux_home/www");
-
-   # Rechte setzen
-#   my ($a,$b,$mode2) = stat("${linux_home}/www");
-   # Umwandeln in übliche Schreibweise
-#   $mode2 &=07777;
-#   $mode2=sprintf "%04o",$mode;
-#   if ($mode2==2751 || $mode2==2750) {
-#      # nix tun
-#   } else {
-#      system("chmod 2750 $linux_home/www");
-#   }
-
-   # public_html-Verzeichnis anlegen
-   #
-#   if (not -e "$linux_home/www/public_html") {
-#       # anlegen
-#       system("mkdir $linux_home/www/public_html");
-#   }
-#   # Eigentümer richtig setzten
-#   system("chown ${loginname}.lehrer $linux_home/www/public_html");
-#   system("chmod 2755 $linux_home/www/public_html");
-
-
-
-   # Link auffrischen
-   if (-l "$string_link") {
-      # falls Link, Link erneuern/reparieren
-      system("rm $string_link");
-      #system("ln -s ${string_public_html}/public_html $string_link");
-      # Windows-Link neu anlegen
-      system("cd $linux_home/windows; ln -s ../www/public_html public_html");
-      print "Windows-Link erneuern/reparieren\n";
-
-   } elsif (-d "$string_link") {
-
-      # Verzeichnis für NEUES public_html anlegen
-      # Klassen-Verzeichnis
-      #system ("install -d -m501 -o$DevelConf::apache_user -groot ${DevelConf::apache_root}/userdata/${klasse}");
-      # User-Verzeichnis im Klassen-Verzeichnis 
-      #system ("install -d -m001 -o$DevelConf::apache_user -groot ${string_public_html}");
-      # public_html-Verzeichnis im User-Verzeichnis
-      #system ("install -d -m755 -o$loginname -g$klasse ${string_public_html}/public_html");
-
-      # Kopieren von ALT nach NEU
-      system("cp -a --force $string_link $linux_home/www/");
-      # Entfernen von ALT
-      system("rm -rf $string_link");
-      # Windows-Link anlegen
-      system("cd $linux_home/windows; ln -s ../www/public_html public_html");
-      #system("ln -s ${string_public_html}/public_html $string_link");
-      print "public_html wird verschoben\n";
-
-   } elsif (not -e $string_link) {
-      # Falls nix mehr vorhanden -> reparieren
-      print "Windows-Link neu anlegen\n";
-      #system("ln -s ${string_public_html}/public_html/ $string_link");
-      system("cd $linux_home/windows; ln -s ../www/public_html public_html");
-   } else {
-      # Nichts von alledem
-      print "Diese Fehler sollte nicht auftreten\n";
-   }
-
-
-   # Linux-Link auffrischen
-   if (-l "$linux_home/public_html") {
-     system("rm $linux_home/public_html");
-     system("cd $linux_home; ln -s www/public_html public_html"); 
-     print "Linux-Link erneuern/reparieren\n\n";
-   } else {
-     system("cd $linux_home; ln -s www/public_html public_html");
-     print "Linux-Link anlegen\n\n";
-   }
-
-
-
-   # NEUES public_html-Verzeichnis bearbeiten
-   # Eigentümer anpassen
-   #system("chown $loginname.lehrer ${string_public_html}/public_html");
-   # Dateirecte anpassen
-   #system("chmod 2755 ${string_public_html}/public_html");
-
-   # Wenn auf 001 oder 501 UND DevelConf::apache_user.root, nix tun sonst auffrischen
-   #system("chown $DevelConf::apache_user.root ${string_public_html}");
-   # Rechte anschauen
-   #($a,$a,$mode) = stat(${string_public_html});;
-   #print "${string_public_html}  $mode\n";
-   # Wenn 001(gesperrt) oder 501(freigeschaltet), dann  nix tun
-   #if ($mode==16385 || $mode==16705) {
-   #   print "Dateirechte OK\n";
-   # } else {
-   #   # Andere Rechte -> reparieren (gesperrter Zustand) 
-   #   print "Dateirechte reparieren in ${string_public_html}";
-   #   system("chmod  001 ${string_public_html}");
-   #}
-
-}
-
-
-
- 
-################################################################################
-# links zu public_html erzeugen
-################################################################################
-
-
-# NICHT MEHR IN VERWENDUNG
-
-#sub link_to_public_html {
-#  # alte links löschen
-#  system ("rm $DevelConf::apache_root/users/* 1>/dev/null 2>/dev/null");
-#
-#  # neue schueler-links erzeugen
-#  my %hash=get_schueler_in_schule_hash();
-#
-#  while (my ($schueler,$klasse) = each %hash){
-#      &add_public_html_link("$schueler","$klasse");
-#    }
-#
-#  # neue lehrer-links erzeugen
-#  my %lehrer_hash=get_lehrer_in_schule_hash();
-#
-#  while (my ($schueler) = each %lehrer_hash){
-#      &add_public_html_link("$schueler",${DevelConf::teacher});
-#    }
-#
-#}
 
