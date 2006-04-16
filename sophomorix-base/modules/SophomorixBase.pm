@@ -1903,8 +1903,10 @@ sub create_school_link {
        my $link_target=$DevelConf::share_school;
 
        # Link to school
-       print "   Link name (school): $link_name\n";
-       print "   Target    (school): $link_target\n";
+       if($Conf::log_level>=2){
+           print "   Link name (school): $link_name\n";
+           print "   Target    (school): $link_target\n";
+       }
        symlink $link_target, $link_name;
     }
 }
@@ -1938,12 +1940,18 @@ sub reset_user {
             &create_share_link($user,$pri_group,$pri_longname,$pri_type);
             # secondary memberships
             foreach my $group (@groups){
-                print "   $user is in secondary $group\n";
+                if($Conf::log_level>=2){
+                    print "   $user is in secondary $group\n";
+                }
                 my ($type,$longname)=
                    &Sophomorix::SophomorixPgLdap::pg_get_group_type($group);
-                print "   Creating Links for secondary group $group\n";
+                if($Conf::log_level>=2){
+                    print "   Creating Links for secondary group $group\n";
+                }    
                 &create_share_link($user,$group,$longname,$type);
-                print "   Creating Directories for secondary group $group\n";
+                if($Conf::log_level>=2){
+                    print "   Creating Directories for secondary group $group\n";
+                }
                 &create_share_directory($user,$group,$longname,$type);
             }
         } else {
@@ -2021,6 +2029,7 @@ sub create_share_link {
 	   }
        }elsif ($type eq "subclass"){
            # subclass
+           $link_target="${DevelConf::share_subclasses}/${share_name}";
            $link_target_tasks="${DevelConf::tasks_subclasses}/${share_name}";
        }elsif ($type eq "room"){
            # room
@@ -2041,8 +2050,10 @@ sub create_share_link {
                print "   Target    (share): $link_target\n";
            }
            if (-e $link_target and -d $link_target){
-               print "   Creating link for $login ",
-                     "to $type ${link_target}.\n";
+               if($Conf::log_level>=2){
+                   print "   Creating link for $login ",
+                         "to $type ${link_target}.\n";
+               }
                symlink $link_target, $link_name;
            } else {
                print "   NOT creating Link to ",
@@ -2062,8 +2073,10 @@ sub create_share_link {
        }
 
        if (-e $link_target_tasks and -d $link_target_tasks){
-           print "   Creating link user $login ",
-                 "to $type ${link_target_tasks}.\n";
+           if($Conf::log_level>=2){
+               print "   Creating link user $login ",
+                     "to $type ${link_target_tasks}.\n";
+           }    
            symlink $link_target_tasks, $link_name_tasks;
        } else {
            print "   NOT creating Link to ",
@@ -2095,19 +2108,25 @@ sub create_share_directory {
             my $handout_dir=$homedir."/".
                 ${Language::handout_dir}."/".$share_long_name;
             if (not -e $handout_dir){
-                print "   Adding directory ${handout_dir}\n"; 
+                if($Conf::log_level>=2){
+                    print "   Adding directory ${handout_dir}\n"; 
+	        }
                 system("mkdir $handout_dir");
             }
             my $to_handoutcopy_dir=$homedir."/".
                 ${Language::to_handoutcopy_dir}."/".$share_long_name;
             if (not -e $to_handoutcopy_dir){
-                print "   Adding directory ${to_handoutcopy_dir}\n"; 
+                if($Conf::log_level>=2){
+                    print "   Adding directory ${to_handoutcopy_dir}\n"; 
+	        }
                 system("mkdir $to_handoutcopy_dir");
             }
             my $collected_dir=$homedir."/".
                 ${Language::collected_dir}."/".$share_long_name;
             if (not -e $collected_dir){
-                print "   Adding directory ${collected_dir}\n"; 
+                if($Conf::log_level>=2){
+                    print "   Adding directory ${collected_dir}\n"; 
+	        }
                 system("mkdir $collected_dir");
             }
         }
@@ -2117,13 +2136,17 @@ sub create_share_directory {
         my $collect_dir=$homedir."/".
             ${Language::collect_dir}."/".$share_long_name;
         if (not -e $collect_dir){
-            print "   Adding directory ${collect_dir}\n"; 
+            if($Conf::log_level>=2){
+                print "   Adding directory ${collect_dir}\n"; 
+	    }
             system("mkdir $collect_dir");
         }
         my $handoutcopy_dir=$homedir."/".
             ${Language::handoutcopy_dir}."/".$share_long_name;
         if (not -e $handoutcopy_dir){
-            print "   Adding directory ${handoutcopy_dir}\n"; 
+            if($Conf::log_level>=2){
+                print "   Adding directory ${handoutcopy_dir}\n"; 
+            }
             system("mkdir $handoutcopy_dir");
         }
 
