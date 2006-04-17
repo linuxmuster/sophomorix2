@@ -2091,7 +2091,6 @@ sub create_share_link {
 
 sub create_share_directory {
     my ($login,$share_name,$share_long_name) = @_;
-#    my $homedir="";
     # replace teachers with language term
     if ($share_name  eq ${DevelConf::teacher}){
         $share_long_name=${Language::teacher};     
@@ -2129,6 +2128,26 @@ sub create_share_directory {
 	        }
                 system("mkdir $collected_dir");
             }
+            
+            # adding subdirs with the name of $teacher to __einsammeln
+#            my ($type,$longname)=
+#                &Sophomorix::SophomorixPgLdap::pg_get_group_type($share_name);
+#            my @groupmembers =
+#                &Sophomorix::SophomorixPgLdap::pg_get_group_members($share_name);
+#            foreach my $member (@groupmembers){
+#                print "Adding dirs for $member ($share_name)\n";
+#                my ($homedir,$account_type)=
+#                   &Sophomorix::SophomorixPgLdap::fetchdata_from_account($member);
+#                my $dir=$homedir."/".$Language::collect_dir."/".
+#                        $longname."/".$login;
+#                print "Adding $dir to $member ($share_name)\n";
+#                if (not -e $dir){
+#                    if($Conf::log_level>=2){
+#                        print "   Adding directory ${dir}\n"; 
+#	            }
+#                    system("mkdir $dir");
+#                }
+#            }     
         }
         ##############################
         # all users
@@ -2188,10 +2207,13 @@ sub remove_share_link {
           "${share_long_name}";   
 
         # remove the link
-        print "   Removing link ${link_name}\n";
+        if($Conf::log_level>=2){
+            print "   Removing link ${link_name}\n";
+        }
         unlink $link_name;
-
-        print "   Removing link ${link_name_tasks}\n";
+        if($Conf::log_level>=2){
+            print "   Removing link ${link_name_tasks}\n";
+        }
         unlink $link_name_tasks;
     } else {
         print "   NOT removing links: ",
@@ -2203,7 +2225,6 @@ sub remove_share_link {
 
 sub remove_share_directory {
     my ($login,$share_name,$share_long_name,$type) = @_;
-#    my $homedir="";
     # replace teachers with language term
     if ($share_name  eq ${DevelConf::teacher}){
         $share_long_name=${Language::teacher};     
@@ -2220,21 +2241,46 @@ sub remove_share_directory {
             my $handout_dir=$homedir."/".
                ${Language::handout_dir}."/".$share_long_name;
             if (-e $handout_dir){
-                print "   Removing $handout_dir if empty.\n";
+                if($Conf::log_level>=2){
+                    print "   Removing $handout_dir if empty.\n";
+                }
                 system("rmdir $handout_dir");
             }
             my $to_handoutcopy_dir=$homedir."/".
                ${Language::to_handoutcopy_dir}."/".$share_long_name;
             if (-e $to_handoutcopy_dir){
-                print "   Removing $to_handoutcopy_dir if empty.\n";
+                if($Conf::log_level>=2){
+                    print "   Removing $to_handoutcopy_dir if empty.\n";
+                }
                 system("rmdir $to_handoutcopy_dir");
             }
             my $collected_dir=$homedir."/".
                ${Language::collected_dir}."/".$share_long_name;
             if (-e $collected_dir){
-                print "   Removing $collected_dir if empty.\n";
+                if($Conf::log_level>=2){
+                    print "   Removing $collected_dir if empty.\n";
+                }
                 system("rmdir $collected_dir");
             }
+
+            # removing subdirs with the name of $teacher from __einsammeln
+#            my ($type,$longname)=
+#                &Sophomorix::SophomorixPgLdap::pg_get_group_type($share_name);
+#            my @groupmembers =
+#                &Sophomorix::SophomorixPgLdap::pg_get_group_members($share_name);
+#            foreach my $member (@groupmembers){
+#                print "Removing dirs from $member ($share_name)\n";
+#                my ($homedir,$account_type)=
+#                   &Sophomorix::SophomorixPgLdap::fetchdata_from_account($member);
+#                my $dir=$homedir."/".$Language::collect_dir."/".
+#                        $longname."/".$login;
+#                if (not -e $dir){
+#                    if($Conf::log_level>=2){
+#                        print "   Removing directory ${dir}\n"; 
+#	            }
+#                    system("rmdir $dir");
+#                }
+#            }     
         }
         ##############################
         # all users
@@ -2242,13 +2288,17 @@ sub remove_share_directory {
         my $collect_dir=$homedir."/".
            ${Language::collect_dir}."/".$share_long_name;
         if (-e $collect_dir){
-            print "   Removing $collect_dir if empty.\n";
+            if($Conf::log_level>=2){
+                print "   Removing $collect_dir if empty.\n";
+            }
             system("rmdir $collect_dir");
         }
         my $handoutcopy_dir=$homedir."/".
            ${Language::handoutcopy_dir}."/".$share_long_name;
         if (-e $handoutcopy_dir){
-            print "   Removing $handoutcopy_dir if empty.\n";
+            if($Conf::log_level>=2){
+                print "   Removing $handoutcopy_dir if empty.\n";
+            }
             system("rmdir $handoutcopy_dir");
         }
     } else {
@@ -3923,11 +3973,11 @@ sub handoutcopy {
        $from_dir = "${homedir}/${Language::handoutcopy_dir}/${longname}";
     } elsif ($type eq "current room"){
        $from_dir = "${homedir}/${Language::handoutcopy_dir}".
-                   "/${Language::handoutcopy_current_room}";
+                   "/${Language::current_room}";
        @userlist=split(/,/,$users);
     }
 
-    print "   From: ${from_dir}\n";
+    print "   From($type): ${from_dir}\n";
     # check if there could be files found to handout
     my $found=0;
     opendir DIR, $from_dir or die "Cannot open $from_dir: $!";
@@ -3951,7 +4001,7 @@ sub handoutcopy {
            my $homedir = "$entry[7]";
            if ($type eq "current room"){
                 $to_dir = "${homedir}/${Language::handoutcopy_dir}".
-                          "/${Language::handoutcopy_current_room}";
+                          "/${Language::current_room}";
            } else {
                 $to_dir = "${homedir}/${Language::handoutcopy_dir}".
                           "/${name}";
