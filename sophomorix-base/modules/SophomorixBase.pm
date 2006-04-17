@@ -4074,13 +4074,24 @@ sub collect {
   my $homedir_col = "$entry_col[7]";
   my $to_dir="";
 
-  if ($exam==1){
-      $to_dir = "${homedir_col}/${Language::collect_dir}/".
-                "${name}/EXAM_${name}_${date}";
+
+  if (defined $users){ 
+         $to_dir = "${homedir_col}/${Language::collected_dir}/".
+                   "${Language::current_room}/${name}_${date}";
   } else {
-      $to_dir = "${homedir_col}/${Language::collect_dir}/".
-                "${name}/${name}_${date}";
+     if ($exam==1){
+         $to_dir = "${homedir_col}/${Language::collected_dir}/".
+                   "${name}/EXAM_${name}_${date}";
+     } else {
+         $to_dir = "${homedir_col}/${Language::collected_dir}/".
+                   "${name}/${name}_${date}";
+     }
+
+
   }
+
+
+
   # ???? make more secure
   if ($to_dir =~ /(.*)/) {
       $to_dir=$1;

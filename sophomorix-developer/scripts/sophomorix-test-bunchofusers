@@ -410,6 +410,30 @@ if ($tasks==1 and -e "/root/sophomorix-test/bunchofusers"){
 
 
 if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
+
+    print '
+###########################################################################
+#                                                                         #
+#      CHECK COLLECT (Dateien einsammeln: tych von room, collectcopy)     #
+#                                                                         #
+###########################################################################
+';
+   # COLLECT copy (Vorlagen) from project
+   my $einsammeln_teacher="tycho";
+   my $einsammeln_gruppe="134a";
+   my $einsammeln_type="room";
+   my $einsammeln_option="collectcopy";
+
+   # Working with these files
+   @teacher_files=("testfile_1.txt","testfile_2.txt");
+   @userlist_to_check=("altigru",
+                       "blackmri",
+                       "pageji",
+                       "thuraudi");
+   &dateien_einsammeln($einsammeln_teacher,
+                       $einsammeln_gruppe,
+                       $einsammeln_type,
+                       $einsammeln_option);
     print '
 ###########################################################################
 #                                                                         #
@@ -418,10 +442,10 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
 ###########################################################################
 ';
    # COLLECT move (Vorlagen)
-   my $einsammeln_teacher="niko";
-   my $einsammeln_gruppe="12c";
-   my $einsammeln_type="adminclass";
-   my $einsammeln_option="collect";
+   $einsammeln_teacher="niko";
+   $einsammeln_gruppe="12c";
+   $einsammeln_type="adminclass";
+   $einsammeln_option="collect";
 
    # Working with these files
    @teacher_files=("testfile_1.txt","testfile_2.txt");
@@ -623,55 +647,68 @@ sub dateien_einsammeln{
     my ($teacher,$group,$type,$option) = @_;
     my $command="";
     print "Cleaning up $teacher \n";
-#    $command="rm -rf /home/teachers/${teacher}/${Language::collect_dir}/${group}/*"; 
     $command="sophomorix-user --reset-user $teacher";
     print "$command \n";
     system($command);
-
-
-
-
     foreach my $user (@userlist_to_check){
        print "Cleaning up $user \n";
        my @entry = getpwnam($user);
        my $homedir = "$entry[7]";
-
-#       $command="rm -rf /home/students/${dirname}/${user}/${Language::collect_dir}/*"; 
-#       $command="rm -rf $homedir/${Language::collect_dir}/*"; 
        $command="sophomorix-user --reset-user $user";
        print "$command \n";
        system($command);
     }
-
     foreach my $testfile (@teacher_files){
        foreach my $user (@userlist_to_check){
-       my @entry = getpwnam($user);
-       my $homedir = "$entry[7]";
-       my $create_this="${homedir}/${Language::collect_dir}/${teacher}";
-          $command="su --command='mkdir ${create_this}' $user";
+           my $create_this="";
+           my @entry = getpwnam($user);
+           my $homedir = "$entry[7]";
+   
+           if ($type eq "adminclass" or $type eq "project" or $type eq "subclass"){
+              $create_this="${homedir}/${Language::collect_dir}/${teacher}";
+              $command="su --command='mkdir ${create_this}' $user";
+              if (not -e $create_this){
+                print "$command \n";
+                system($command);
+              }
+           } elsif ($type eq "room"){
+              $create_this=
+              "${homedir}/${Language::collect_dir}/${Language::current_room}";
+           }
 
-       if (not -e $create_this){
-          print "$command \n";
-          system($command);
-       }
-       $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} ${create_this}' $user";
-          print "$command \n";
-          system($command);
+           $command="su --command='cp /usr/share/sophomorix-developer".
+                    "/testfiles/${testfile} ${create_this}' $user";
+           print "$command \n";
+           system($command);
        }
     }
     # collect files(?????? later do this as galli)
-    $command="sophomorix-teacher --teacher $teacher --collect --${type} $group";
-
+    if ($type eq "adminclass" or $type eq "project" or $type eq "subclass"){
+        $command = "sophomorix-teacher --teacher".
+                   " $teacher --collect --${type} $group";
+    } elsif ($type eq "room"){
+	my $users=join(",",@userlist_to_check);
+        $command="sophomorix-teacher --teacher $teacher ".
+                 "--collectcopy --${type} $group --users $users";
+    }
     print "$command \n";
     system($command);
 
     my $collect_dir="";
-    my $collect_parent_dir=
-        "/home/teachers/${teacher}/${Language::collect_dir}/${group}";
+    my $collect_parent_dir="";
+    if ($type eq "adminclass" or $type eq "project" or $type eq "subclass"){
+    $collect_parent_dir=
+        "/home/teachers/${teacher}/${Language::collected_dir}/${group}";
+    } elsif ($type eq "room"){
+    $collect_parent_dir = "/home/teachers/${teacher}".
+               "/${Language::collected_dir}/${Language::current_room}";
+    }
+
     print "$collect_parent_dir \n";
+
     opendir(COLL, $collect_parent_dir) 
          || die "can't opendir ",
-                "$/home/teachers/${teacher}/${Language::collect_dir}/${group} $!";
+                "$collect_parent_dir $!";
     while (defined(my $filename = readdir(COLL))) {
         #print "Directory $filename found\n";
         if ($filename=~m/^${group}.*$/){
@@ -681,13 +718,19 @@ sub dateien_einsammeln{
     closedir(COLL);
     
     print "Looking for collected data in $collect_dir \n";
-
     foreach my $user (@userlist_to_check){
         foreach my $testfile (@teacher_files){
-           $file="/home/teachers/${teacher}/${Language::collect_dir}/${group}/${collect_dir}/${user}/${testfile}"; 
+           if ($type eq "adminclass" or $type eq "project" or $type eq "subclass"){
+               $file="/home/teachers/${teacher}/${Language::collected_dir}".
+                     "/${group}/${collect_dir}/${user}/${testfile}"; 
+           } elsif ($type eq "room"){
+               $file="/home/teachers/${teacher}/${Language::collected_dir}".
+                     "/${Language::current_room}/${collect_dir}".
+                     "/${user}/${testfile}"; 
+           }
            &check_existence($file);
-           $file="/home/students/${group}/${user}/${Language::collect_dir}/${testfile}"; 
-
+           $file="/home/students/${group}/${user}".
+                 "/${Language::collect_dir}/${testfile}"; 
            if ($option eq "collect"){
                # data must be moved away
                &check_nonexistence($file);
@@ -701,6 +744,8 @@ sub dateien_einsammeln{
 	}
     }
 }
+
+
 
 
 sub vorlagen_bereitstellen{
