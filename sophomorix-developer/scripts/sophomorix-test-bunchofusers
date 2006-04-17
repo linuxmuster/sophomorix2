@@ -39,7 +39,6 @@ my $add=0;
 my $wsadd=0;
 my $remove=0;
 my $wsremove=0;
-my $work=0;
 my $tasks=0;
 my $collect=0;
 my $handout=0;
@@ -49,7 +48,6 @@ my $testopt=GetOptions(
                 "help|h" => \$help,
                 "add" => \$add,
                 "wsadd" => \$wsadd,
-                "work" => \$work,
                 "tasks" => \$tasks,
                 "collect" => \$collect,
                 "handout" => \$handout,
@@ -403,6 +401,10 @@ if ($tasks==1 and -e "/root/sophomorix-test/bunchofusers"){
    &vorlagen_bereitstellen($vorlagen_teacher,
                            $vorlagen_gruppe,
                            $type);
+} elsif ($tasks==1 and not -e "/root/sophomorix-test/bunchofusers"){
+    print "The users must be added bofore checking tasks!\n";
+} else {
+    print "INFO: Not checking tasks!\n";
 }
 
 
@@ -410,7 +412,6 @@ if ($tasks==1 and -e "/root/sophomorix-test/bunchofusers"){
 
 
 if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
-
     print '
 ###########################################################################
 #                                                                         #
@@ -513,7 +514,12 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
                        $einsammeln_gruppe,
                        $einsammeln_type,
                        $einsammeln_option);
+} elsif ($collect==1 and not -e "/root/sophomorix-test/bunchofusers"){
+    print "The users must be added bofore checking collect!\n";
+} else {
+    print "INFO: Not checking collect!\n";
 }
+
 
 
 
@@ -551,10 +557,10 @@ if ($handout==1 and -e "/root/sophomorix-test/bunchofusers"){
 
 
 
-} elsif ($work==1 and not -e "/root/sophomorix-test/bunchofusers"){
-    print "The users must be added bofore doing some work!\n";
+} elsif ($handout==1 and not -e "/root/sophomorix-test/bunchofusers"){
+    print "The users must be added bofore checking handout!\n";
 } else {
-    print "INFO: Not doing any work the users!\n";
+    print "INFO: Not checking handout!\n";
 }
 
 
