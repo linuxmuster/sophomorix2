@@ -438,7 +438,6 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
                        $einsammeln_gruppe,
                        $einsammeln_type,
                        $einsammeln_option);
-    exit;
     print '
 ###########################################################################
 #                                                                         #
@@ -649,13 +648,15 @@ sub dateien_einsammeln{
        my @entry = getpwnam($user);
        my $homedir = "$entry[7]";
 
-          $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/students/${dirname}/${user}/${Language::collect_dir}'";
-          $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} ${homedir}/${Language::collect_dir}'";
+          $command="su --command='mkdir ${homedir}/${Language::collect_dir}/${teacher}' $user";
+          print "$command \n";
+          system($command);
+ 
+          $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} ${homedir}/${Language::collect_dir}/${teacher}' $user";
           print "$command \n";
           system($command);
        }
     }
-
     # collect files(?????? later do this as galli)
     $command="sophomorix-teacher --teacher $teacher --collect --${type} $group";
 

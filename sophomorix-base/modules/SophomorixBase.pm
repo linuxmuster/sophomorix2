@@ -4101,7 +4101,12 @@ sub collect {
   foreach my $user (@users){
       my @entry = getpwnam($user);
       my $homedir = "$entry[7]";
-      my $from_dir="$homedir/${Language::collect_dir}/";
+      my $from_dir="";
+      if ($type eq "current room"){
+          $from_dir="$homedir/${Language::collect_dir}/${Language::current_room}/";
+      } else {
+          $from_dir="$homedir/${Language::collect_dir}/${login}/";
+      }
       # ???? make more secure
       if ($from_dir =~ /(.*)/) {
          $from_dir=$1;
