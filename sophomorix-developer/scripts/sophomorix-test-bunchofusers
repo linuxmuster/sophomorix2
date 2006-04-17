@@ -647,12 +647,14 @@ sub dateien_einsammeln{
        foreach my $user (@userlist_to_check){
        my @entry = getpwnam($user);
        my $homedir = "$entry[7]";
+       my $create_this="${homedir}/${Language::collect_dir}/${teacher}";
+          $command="su --command='mkdir ${create_this}' $user";
 
-          $command="su --command='mkdir ${homedir}/${Language::collect_dir}/${teacher}' $user";
+       if (not -e $create_this){
           print "$command \n";
           system($command);
- 
-          $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} ${homedir}/${Language::collect_dir}/${teacher}' $user";
+       }
+       $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} ${create_this}' $user";
           print "$command \n";
           system($command);
        }
