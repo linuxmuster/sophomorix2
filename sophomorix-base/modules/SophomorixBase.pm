@@ -4121,35 +4121,37 @@ sub collect {
          die "Bad data in $to_dir";   # Log this somewhere.
       }
 
-      print "$user   From: $from_dir\n";
-      print "          To: ${to_dir}/${user}\n";
       &linie();
+      print "$user   From: ${from_dir}\n";
+      print "          To: ${to_dir}/${user}\n";
 
-      system("ls $from_dir");
+      # collect the data
+      system("/usr/bin/install -d $to_dir/${user}");  
 
-      if ($rsync eq "delete") {
-         # sync to user 
-         system("/usr/bin/install -d $to_dir");  
-         system("/usr/bin/rsync -tor --delete $from_dir ${to_dir}/${user}");
-         # exam
-         if ($exam==1){
-            system("/usr/bin/install -d $log_dir");  
-            system("/usr/bin/rsync -tr --delete $from_dir ${log_dir}/${user}");
-         }
-      } elsif ($rsync eq "copy"){
-         system("/usr/bin/install -d $to_dir");  
-         system("/usr/bin/rsync -tor $from_dir ${to_dir}/${user}");
-      } elsif ($rsync eq "move"){
-         system("/usr/bin/install -d $to_dir/${user}");  
-         system("/bin/mv ${from_dir}/* ${to_dir}/${user}");
+      if (-e $from_dir and -d $from_dir){
+          system("ls $from_dir");
+          if ($rsync eq "delete") {
+              # sync to user 
+              system("/usr/bin/rsync -tor --delete $from_dir ${to_dir}/${user}");
+              # exam
+              if ($exam==1){
+                 system("/usr/bin/install -d $log_dir");  
+                 system("/usr/bin/rsync -tr --delete $from_dir ${log_dir}/${user}");
+              }
+          } elsif ($rsync eq "copy"){
+              system("/usr/bin/rsync -tor $from_dir ${to_dir}/${user}");
+          } elsif ($rsync eq "move"){
+              system("/bin/mv ${from_dir}/* ${to_dir}/${user}");
+          } else {
+              print "unknown Parameter $rsync";
+          }
       } else {
-         print "unknown Parameter $rsync";
+	  print "WARNING: $from_dir nonexisting/not a directory\n";
       }
   }
   
 
   # collect tasks
-
   if ($type eq "current room"){
       # do nothing
   } else {
@@ -4159,20 +4161,26 @@ sub collect {
       }  else {
          die "Bad data in $tasks_dir";   # Log this somewhere.
       }
-      print "TASKS:\n";
-      print "  From: $tasks_dir\n";
-      print "  To:   ${to_dir}/${Language::task_dir}\n";
+      my $from_dir=${tasks_dir}.${login}."/";
       &linie();
+      print "TASKS:\n";
+      print "  From: ${from_dir}\n";
+      print "  To:   ${to_dir}/${Language::task_dir}\n";
 
-      system("ls $tasks_dir");
-      system("/usr/bin/rsync -tor $tasks_dir ${to_dir}/${Language::task_dir}");
+      if (-e $from_dir and -d $from_dir){
+          system("ls $from_dir");
+          system("/usr/bin/rsync -tor ${from_dir} ${to_dir}/${Language::task_dir}");
 
-      # exam
-      if ($exam==1){
-          system("/usr/bin/install -d $log_dir");  
-          system("/usr/bin/rsync -tr $tasks_dir ${log_dir}/${Language::task_dir}");
-          system("/bin/chown -R root.root ${log_dir}");
+          # exam
+          if ($exam==1){
+            system("/usr/bin/install -d $log_dir");  
+            system("/usr/bin/rsync -tr $from_dir ${log_dir}/${Language::task_dir}");
+            system("/bin/chown -R root.root ${log_dir}");
+          }
+      } else {
+	  print "WARNING: $from_dir nonexisting/not a directory\n";
       }
+      &linie();
   }
 
 
