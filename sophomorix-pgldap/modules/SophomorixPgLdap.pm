@@ -43,6 +43,7 @@ require Exporter;
              pg_remove_all_secusers
              pg_get_group_list
              pg_get_group_type
+             pg_get_group_members
              pg_get_adminclasses
              fetchadminclasses_from_school
              fetchsubclasses_from_school
@@ -1043,6 +1044,8 @@ sub fetchdata_from_account {
                                          FROM userdata 
                                          WHERE uid='$login'
                                         ");
+    &db_disconnect($dbh);
+    if (defined $home){
     if ($group  eq ${DevelConf::teacher}){
 	$type="teacher";
     } elsif ($group eq "administrators"){
@@ -1052,8 +1055,6 @@ sub fetchdata_from_account {
     } else {
         $type="student";
     }
-    &db_disconnect($dbh);
-    if (defined $home){
         return ($home,$type);
     } else {
 	return ("","");
@@ -1877,9 +1878,31 @@ sub pg_get_group_type {
         # adminclass
         return ("adminclass",$gid);
     }
-
-
 }
+
+
+sub pg_get_group_members {
+    # fetch all users from a group (pri or sec)
+    my ($group) = @_; 
+    my @members=();
+    my $dbh=&db_connect();
+    my $sth= $dbh->prepare( "SELECT DISTINCT uid
+                             FROM memberdata 
+                             WHERE gid='$group'
+                                OR adminclass='$group'
+                             ORDER BY uid");
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    my $i=0;
+    foreach ( @{ $array_ref } ) {
+        my $uid=${$array_ref}[$i][0];
+        push @members, $uid;
+        $i++;
+    }   
+    &db_disconnect($dbh);
+    return @members;
+}
+
 
 
 sub pg_get_adminclasses {

@@ -34,17 +34,25 @@ my @userlist_to_check=();
 # ===========================================================================
 # Optionen verarbeiten
 # ==========================================================================
+my $help=0;
 my $add=0;
 my $wsadd=0;
 my $remove=0;
 my $wsremove=0;
 my $work=0;
+my $tasks=0;
+my $collect=0;
+my $handout=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
+                "help|h" => \$help,
                 "add" => \$add,
                 "wsadd" => \$wsadd,
                 "work" => \$work,
+                "tasks" => \$tasks,
+                "collect" => \$collect,
+                "handout" => \$handout,
                 "remove|delete" => \$remove,
                 "wsremove|wsdelete" => \$wsremove,
           );
@@ -52,6 +60,44 @@ my $testopt=GetOptions(
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
+
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlbeschreibung
+   print('
+sophomorix-test-bunchofusers adds users, performs tests and removes users
+
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -i  / --info
+  
+Adding users:
+  --add
+  --wsadd
+
+Removing users:
+  --remove
+  --wsremove
+
+Performing tests
+  --tasks
+  --collect
+  --handout
+
+Please see the sophomorix-test-bunchofusers(8) man pages for full documentation
+');
+   print "\n";
+   exit;
+}
+
+
+
 
 
 ############################################################
@@ -278,15 +324,14 @@ if ($wsremove==1){
 
 
 
-if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
+if ($tasks==1 and -e "/root/sophomorix-test/bunchofusers"){
     print '
 ###########################################################################
 #                                                                         #
-#             DO SOME WORK (Vorlagen bereitstellen: class)                #
+#              CHECK TASKS (Vorlagen bereitstellen: class)                #
 #                                                                         #
 ###########################################################################
     ';
-
    # DISTRIBUTE (Vorlagen)
    my $vorlagen_teacher="galli";
    my $vorlagen_gruppe="11a";
@@ -303,19 +348,16 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
                        "pageji",
                        "paiceia",
                        "plantro");
-
    &vorlagen_bereitstellen($vorlagen_teacher,
                            $vorlagen_gruppe,
                            $type);
-
     print '
 ###########################################################################
 #                                                                         #
-#             DO SOME WORK (Vorlagen bereitstellen: project)              #
+#              CHECK TASKS (Vorlagen bereitstellen: project)              #
 #                                                                         #
 ###########################################################################
     ';
-
    # DISTRIBUTE (Vorlagen)
    $vorlagen_teacher="niko";
    $vorlagen_gruppe="astro";
@@ -329,22 +371,18 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
                        "thuraudi",
                        "blackmri",
                        "pageji");
-
    $dirname="Astronomie";
    $linkname="Astronomie";
-
    &vorlagen_bereitstellen($vorlagen_teacher,
                            $vorlagen_gruppe,
                            $type);
-    exit;
     print '
 ###########################################################################
 #                                                                         #
-#             DO SOME WORK (Vorlagen bereitstellen: subclass)             #
+#              CHECK TASKS (Vorlagen bereitstellen: subclass)             #
 #                                                                         #
 ###########################################################################
     ';
-
    # DISTRIBUTE (Vorlagen)
    $vorlagen_teacher="bruno";
    $vorlagen_gruppe="11a-A";
@@ -359,26 +397,26 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
                        "gloverro",
                        "paiceia",
                        "lordjo");
-
    $dirname="11a-A";
    $linkname="11a-A";
    $mothergroup="11a";
-
    &vorlagen_bereitstellen($vorlagen_teacher,
                            $vorlagen_gruppe,
                            $type);
+}
 
 
 
 
+
+if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
     print '
 ###########################################################################
 #                                                                         #
-#       DO SOME WORK (Dateien einsammeln: niko von 12c, moven)            #
+#       CHECK COLLECT (Dateien einsammeln: niko von 12c, moven)           #
 #                                                                         #
 ###########################################################################
 ';
-
    # COLLECT move (Vorlagen)
    my $einsammeln_teacher="niko";
    my $einsammeln_gruppe="12c";
@@ -396,22 +434,18 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
                        "merckxed",
                        "raasja",
                        "thuraudi");
-
    &dateien_einsammeln($einsammeln_teacher,
                        $einsammeln_gruppe,
                        $einsammeln_type,
                        $einsammeln_option);
-
-
-
+    exit;
     print '
 ###########################################################################
 #                                                                         #
-#    DO SOME WORK (Dateien einsammeln: galli von 11a, collectcopy)        #
+#    CHECK COLLECT (Dateien einsammeln: galli von 11a, collectcopy)       #
 #                                                                         #
 ###########################################################################
 ';
-
    # COLLECT copy (Vorlagen)
    $einsammeln_teacher="galli";
    $einsammeln_gruppe="11a";
@@ -429,25 +463,17 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
                        "pageji",
                        "paiceia",
                        "plantro");
-
-
    &dateien_einsammeln($einsammeln_teacher,
                        $einsammeln_gruppe,
                        $einsammeln_type,
                        $einsammeln_option);
-
-
-
-
     print '
 ###########################################################################
 #                                                                         #
-# DO SOME WORK (Dateien einsammeln: galli von project astro, collectcopy) #
+# CHECK COLLECT (Dateien einsammeln: galli von project astro, collectcopy)#
 #                                                                         #
 ###########################################################################
 ';
-
-
    # COLLECT copy (Vorlagen) from project
    $einsammeln_teacher="niko";
    $einsammeln_gruppe="astro";
@@ -460,20 +486,22 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
                        "blackmri",
                        "pageji",
                        "thuraudi");
-
    &dateien_einsammeln($einsammeln_teacher,
                        $einsammeln_gruppe,
                        $einsammeln_type,
                        $einsammeln_option);
+}
 
+
+
+if ($handout==1 and -e "/root/sophomorix-test/bunchofusers"){
     print '
 ###########################################################################
 #                                                                         #
-#            DO SOME WORK (Dateien austeilen an userliste)                #
+#           CHECK HANDOUT (Dateien austeilen an userliste)                #
 #                                                                         #
 ###########################################################################
 ';
-
    # COLLECT copy (Vorlagen) from project
    my $handout_teacher="niko";
 
@@ -495,7 +523,7 @@ if ($work==1 and -e "/root/sophomorix-test/bunchofusers"){
 
 
    # Distribute copy to userlist
-   $einsammeln_teacher="niko";
+   my $einsammeln_teacher="niko";
 
 
 
@@ -699,18 +727,26 @@ sub vorlagen_bereitstellen{
        $mothergroup=$group;
     }
 
-    # romove the teacher from this class
+    #$command="rm -rf /home/teachers/${teacher}/${Language::handout_dir}/${group}"; 
+
+    $command="sophomorix-user --reset-user $teacher";
+    print "$command \n";
+    system($command);
+
+    foreach my $user (@userlist_to_check){
+        $command="sophomorix-user --reset-user $user";
+        print "$command \n";
+        system($command);
+    }
+
+
+    # remove the teacher from this class
     if ($type eq "adminclass" or $type eq "subclass"){
         $command="sophomorix-teacher --teacher $teacher --remove $mothergroup";
         print "$command \n";
         system($command);
     }
 
-    #$command="rm -rf /home/teachers/${teacher}/${Language::handout_dir}/${group}"; 
-
-    $command="sophomorix-user --reset-user $teacher";
-    print "$command \n";
-    system($command);
 
 
     # do this with add already
@@ -767,7 +803,9 @@ sub handout_files_room {
     my $command="";
 
     # clean up
-    $command="rm -rf /home/teachers/${teacher}/${Language::handoutcopy_dir}/aktueller_raum/*"; 
+#    $command="rm -rf /home/teachers/${teacher}/${Language::handoutcopy_dir}/aktueller_raum/*"; 
+    $command="sophomorix-user --reset-user $teacher";
+
     print "$command \n";
     system($command);
  
@@ -775,7 +813,8 @@ sub handout_files_room {
        print "$user","\n";
        my @entry = getpwnam($user);
        my $homedir = "$entry[7]";
-       $command="rm -rf ${homedir}/${Language::handoutcopy_dir}/aktueller_raum/*"; 
+#       $command="rm -rf ${homedir}/${Language::handoutcopy_dir}/aktueller_raum/*"; 
+       $command="sophomorix-user --reset-user $user";
        print "$command \n";
        system($command);
     } 
