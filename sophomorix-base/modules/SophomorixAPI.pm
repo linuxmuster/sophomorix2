@@ -40,9 +40,9 @@ use Sophomorix::SophomorixBase qw (
 # &Sophomorix::SophomorixBase::titel() angegeben werden.
 # Es wir nach der Funktion in Sophomorix::SophomorixSYSFiles::titel gesucht
 
-use Sophomorix::SophomorixSYSFiles qw ( 
-                                    get_user_auth_data
-                                  );
+#use Sophomorix::SophomorixSYSFiles qw ( 
+#                                    get_user_auth_data
+#                                  );
 
 
 

@@ -115,9 +115,9 @@ use Quota;
 # &Sophomorix::SophomorixBase::titel() angegeben werden.
 # Es wir nach der Funktion in Sophomorix::SophomorixSYSFiles::titel gesucht
 
-use Sophomorix::SophomorixSYSFiles qw ( 
-                                    get_user_auth_data
-                                  );
+#use Sophomorix::SophomorixSYSFiles qw ( 
+#                                    get_user_auth_data
+#                                  );
 
 
 #use Sophomorix::SophomorixAPI qw ( 
@@ -1898,8 +1898,9 @@ sub get_plain_password {
 sub create_school_link {
     my ($login) = @_;
     if (getpwnam("$login")){
-       my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
-          $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
+      # my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
+      #    $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
+       my ($home)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
        my $link_name=$home.
         "/${Language::share_dir}/${Language::share_string}".
         "${Language::school}";
@@ -2201,8 +2202,9 @@ sub remove_share_link {
     }
 
     if ($homedir ne ""){
-        my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
-           $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
+       # my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
+       #    $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
+        my ($home)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
         my $link_name=$home.
           "/${Language::share_dir}/${Language::share_string}".
           "${share_long_name}";   
