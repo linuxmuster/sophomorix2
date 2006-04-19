@@ -1046,6 +1046,10 @@ sub provide_user_files {
                   "$home/${Language::collect_dir}",
                   "$login");
            &setup_verzeichnis(
+                  "\$homedir_ws/\$raeume/\$workstation/\$collect_dir/\$current_room",
+                  "$home/${Language::collect_dir}/${Language::current_room}",
+                  "$login");
+           &setup_verzeichnis(
                   "\$homedir_ws/\$raeume/\$workstation/\$handoutcopy_dir",
                   "$home/${Language::handoutcopy_dir}",
                   "$login");
@@ -4026,13 +4030,11 @@ sub collect {
   # Parameter 4: options for rsync
   # Parameter 5: exam(0,1) 
   # Parameter 6: users commaseperated
-
   # rsync
   # -t Datum belassen
   # -r Rekursiv
   # -o Owner beibehalten, -g 
   # TODO: if name is locked for an exam, exit with message
-
   my ($login,$name,$type,$rsync,$exam,$users) = @_;
   my $date=&zeit_stempel;
   if($Conf::log_level>=2){
@@ -4040,7 +4042,7 @@ sub collect {
        print "Collect from type:  $type\n";
        print "Collect from :      $name\n";
        print "rsync Options:      $rsync\n";
-       print "Exam (boolean):     $rsync\n";
+       print "Exam (boolean):     $exam\n";
   }
 
   # where to get _Task data
@@ -4064,6 +4066,9 @@ sub collect {
   } elsif ($type eq "project"){
       @users=&Sophomorix::SophomorixPgLdap::fetchusers_from_project($name);
       $tasks_dir="${DevelConf::tasks_projects}/${name}/";
+  } elsif ($type eq "room"){
+      @users=&Sophomorix::SophomorixPgLdap::fetchworkstations_from_room($name);
+      # no tasks dir
   } elsif ($type eq "current room"){
       @users=split(/,/,$users);
       # no tasks dir
@@ -4074,23 +4079,18 @@ sub collect {
   my $homedir_col = "$entry_col[7]";
   my $to_dir="";
 
-
   if (defined $users){ 
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
                    "${Language::current_room}/${name}_${date}";
   } else {
      if ($exam==1){
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
-                   "${name}/EXAM_${name}_${date}";
+                   "${Language::exam}/EXAM_${name}_${date}";
      } else {
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
                    "${name}/${name}_${date}";
      }
-
-
   }
-
-
 
   # ???? make more secure
   if ($to_dir =~ /(.*)/) {
@@ -4114,6 +4114,8 @@ sub collect {
       my $homedir = "$entry[7]";
       my $from_dir="";
       if ($type eq "current room"){
+          $from_dir="$homedir/${Language::collect_dir}/${Language::current_room}/";
+      } elsif ($type eq "room") {
           $from_dir="$homedir/${Language::collect_dir}/${Language::current_room}/";
       } else {
           $from_dir="$homedir/${Language::collect_dir}/${login}/";
@@ -4165,7 +4167,9 @@ sub collect {
   # collect tasks
   if ($type eq "current room"){
       # do nothing
-  } else {
+  } elsif ($type eq "room") {
+      # do nothing
+  }else {
       # ???? make more secure
       if ($tasks_dir =~ /(.*)/) {
          $tasks_dir=$1;

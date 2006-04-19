@@ -265,7 +265,11 @@ if ($remove ne ""){
 #
 # Display info and exit
  
-if ($info==1 and $collect==0 and $handout==0){
+if ($info==1 
+    and $collect==0 
+    and $collectcopy==0 
+    and $handout==0 
+    and $exam==0){
    my @list=&fetch_my_adminclasses($login);
    if ($#list==-1){
       print "\nTeacher $login has no AdminClasses in his list\n";
@@ -325,7 +329,6 @@ print "Test";
 ############################################################
 # Handout
 ############################################################
-
 
 
 # --handout
@@ -397,8 +400,6 @@ if ($collect==1 and ($class ne ""
                   or $room ne "")){
     my $group_type="";
     my $rsync="move";
-    print "Calling collect with rsync option $rsync\n";
-
     if ($class ne ""){
            &collect($login, $class,"adminclass",$rsync,$exam);
     }
@@ -415,7 +416,7 @@ print "Here\n";
     }
     if ($room ne "" and $exam==1){
         #  collect from a room
-        &collect($login, $room,"room",$rsync,1);
+        &collect($login, $room,"room",$rsync,$exam);
     }
     exit;
 }
@@ -428,8 +429,6 @@ if ($collectcopy==1 and ($class ne ""
                       or $room ne "")){
     my $group_type="";
     my $rsync="copy";
-    print "Calling collect with rsync option $rsync\n";
-
     if ($class ne ""){
            &collect($login, $class,"adminclass",$rsync,$exam);
     }
@@ -445,7 +444,7 @@ if ($collectcopy==1 and ($class ne ""
     }
     if ($room ne "" and $exam==1){
         #  collect from a room
-        &collect($login, $room,"room",$rsync,1);
+        &collect($login, $room,"room",$rsync,$exam);
     }
     exit;
 }

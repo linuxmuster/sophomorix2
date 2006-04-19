@@ -42,12 +42,14 @@ my $wsremove=0;
 my $tasks=0;
 my $collect=0;
 my $handout=0;
+my $work=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
                 "help|h" => \$help,
                 "add" => \$add,
                 "wsadd" => \$wsadd,
+                "work" => \$work,
                 "tasks" => \$tasks,
                 "collect" => \$collect,
                 "handout" => \$handout,
@@ -94,6 +96,12 @@ Please see the sophomorix-test-bunchofusers(8) man pages for full documentation
    exit;
 }
 
+
+if ($work==1){
+    $handout=1;
+    $collect=1;
+    $tasks=1;
+}
 
 
 
@@ -415,7 +423,7 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
     print '
 ###########################################################################
 #                                                                         #
-#     CHECK COLLECT (Dateien einsammeln: tycho von room, collectcopy)     #
+#     CHECK COLLECT (Dat. einsammeln: tycho von room,exam collect)    #
 #                                                                         #
 ###########################################################################
 ';
@@ -423,7 +431,58 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
    my $einsammeln_teacher="tycho";
    my $einsammeln_gruppe="134a";
    my $einsammeln_type="room";
-   my $einsammeln_option="collectcopy";
+   my $einsammeln_option="collect";
+   my $einsammeln_exam="--exam";
+
+   # Working with these files
+   @teacher_files=("testfile_4.txt","testfile_5.txt");
+   @userlist_to_check=("pc0001",
+                       "pc0002",
+                       "pc0003",
+                       "pc0004");
+   &dateien_einsammeln($einsammeln_teacher,
+                       $einsammeln_gruppe,
+                       $einsammeln_type,
+                       $einsammeln_option,
+                       $einsammeln_exam);
+    print '
+###########################################################################
+#                                                                         #
+#     CHECK COLLECT (Dat. einsammeln: tycho von room,exam collectcopy)    #
+#                                                                         #
+###########################################################################
+';
+   # COLLECT copy (Vorlagen) from project
+   $einsammeln_teacher="tycho";
+   $einsammeln_gruppe="134a";
+   $einsammeln_type="room";
+   $einsammeln_option="collectcopy";
+   $einsammeln_exam="--exam";
+
+   # Working with these files
+   @teacher_files=("testfile_3.txt","testfile_4.txt");
+   @userlist_to_check=("pc0001",
+                       "pc0002",
+                       "pc0003",
+                       "pc0004");
+   &dateien_einsammeln($einsammeln_teacher,
+                       $einsammeln_gruppe,
+                       $einsammeln_type,
+                       $einsammeln_option,
+                       $einsammeln_exam);
+    print '
+###########################################################################
+#                                                                         #
+#     CHECK COLLECT (Dateien einsammeln: tycho von room, collectcopy)     #
+#                                                                         #
+###########################################################################
+';
+   # COLLECT copy (Vorlagen) from project
+   $einsammeln_teacher="tycho";
+   $einsammeln_gruppe="134a";
+   $einsammeln_type="room";
+   $einsammeln_option="collectcopy";
+   $einsammeln_exam="";
 
    # Working with these files
    @teacher_files=("testfile_1.txt","testfile_2.txt");
@@ -434,7 +493,8 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
    &dateien_einsammeln($einsammeln_teacher,
                        $einsammeln_gruppe,
                        $einsammeln_type,
-                       $einsammeln_option);
+                       $einsammeln_option,
+                       $einsammeln_exam);
     print '
 ###########################################################################
 #                                                                         #
@@ -447,6 +507,7 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
    $einsammeln_gruppe="134a";
    $einsammeln_type="room";
    $einsammeln_option="collect";
+   $einsammeln_exam="";
 
    # Working with these files
    @teacher_files=("testfile_1.txt","testfile_2.txt");
@@ -457,7 +518,8 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
    &dateien_einsammeln($einsammeln_teacher,
                        $einsammeln_gruppe,
                        $einsammeln_type,
-                       $einsammeln_option);
+                       $einsammeln_option,
+                       $einsammeln_exam);
     print '
 ###########################################################################
 #                                                                         #
@@ -470,6 +532,7 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
    $einsammeln_gruppe="12c";
    $einsammeln_type="adminclass";
    $einsammeln_option="collect";
+   $einsammeln_exam="";
 
    # Working with these files
    @teacher_files=("testfile_1.txt","testfile_2.txt");
@@ -485,7 +548,8 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
    &dateien_einsammeln($einsammeln_teacher,
                        $einsammeln_gruppe,
                        $einsammeln_type,
-                       $einsammeln_option);
+                       $einsammeln_option,
+                       $einsammeln_exam);
     print '
 ###########################################################################
 #                                                                         #
@@ -498,6 +562,7 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
    $einsammeln_gruppe="11a";
    $einsammeln_type="adminclass";
    $einsammeln_option="collectcopy";
+   $einsammeln_exam="";
 
    # Working with these files
    @teacher_files=("testfile_1.txt","testfile_2.txt");
@@ -513,7 +578,9 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
    &dateien_einsammeln($einsammeln_teacher,
                        $einsammeln_gruppe,
                        $einsammeln_type,
-                       $einsammeln_option);
+                       $einsammeln_option,
+                       $einsammeln_exam);
+
     print '
 ###########################################################################
 #                                                                         #
@@ -526,6 +593,7 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
    $einsammeln_gruppe="astro";
    $einsammeln_type="project";
    $einsammeln_option="collectcopy";
+   $einsammeln_exam="";
 
    # Working with these files
    @teacher_files=("testfile_1.txt","testfile_2.txt");
@@ -536,7 +604,9 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
    &dateien_einsammeln($einsammeln_teacher,
                        $einsammeln_gruppe,
                        $einsammeln_type,
-                       $einsammeln_option);
+                       $einsammeln_option,
+                       $einsammeln_exam);
+
 } elsif ($collect==1 and not -e "/root/sophomorix-test/bunchofusers"){
     print "The users must be added bofore checking collect!\n";
 } else {
@@ -673,8 +743,10 @@ if ($remove==1 and -e "/root/sophomorix-test/bunchofusers"){
 # SUB
 ############################################################
 sub dateien_einsammeln{
-    my ($teacher,$group,$type,$option) = @_;
+    my ($teacher,$group,$type,$option,$exam) = @_;
     my $command="";
+    my $user_option="";
+    my $users="";
     print "Cleaning up $teacher \n";
     $command="sophomorix-user --reset-user $teacher";
     print "$command \n";
@@ -692,7 +764,6 @@ sub dateien_einsammeln{
            my $create_this="";
            my @entry = getpwnam($user);
            my $homedir = "$entry[7]";
-   
            print "Creating user Data\n";
            if ($type eq "adminclass" or $type eq "project" or $type eq "subclass"){
               $create_this="${homedir}/${Language::collect_dir}/${teacher}";
@@ -705,11 +776,14 @@ sub dateien_einsammeln{
               $create_this=
               "${homedir}/${Language::collect_dir}/${Language::current_room}";
            }
-
            $command="su --command='cp /usr/share/sophomorix-developer".
-                    "/testfiles/${testfile} ${create_this}' $user";
+                    "/testfiles/${testfile} ${create_this}' root";
            print "$command \n";
            system($command);
+           $command="chown ${user}.root ${create_this}/${testfile}";
+           print "$command \n";
+           system($command);
+
        }
     }
 
@@ -718,12 +792,18 @@ sub dateien_einsammeln{
         $command = "sophomorix-teacher --teacher".
                    " $teacher --${option} --${type} $group";
     } elsif ($type eq "room"){
-	my $users=join(",",@userlist_to_check);
+        if ($exam eq ""){
+            $user_option=join(",",@userlist_to_check);
+            $user_option="--users ".$user_option;
+        } elsif ($exam eq "--exam") {
+            $user_option="";
+        }
         $command="sophomorix-teacher --teacher $teacher ".
-                 "--${option} --${type} $group --users $users";
+                 "--${option} --${type} $group $user_option $exam";
     }
-
+    print "##################################################\n";
     print "$command \n";
+    print "##################################################\n";
     system($command);
 
     my $collect_dir="";
@@ -731,18 +811,21 @@ sub dateien_einsammeln{
     if ($type eq "adminclass" or $type eq "project" or $type eq "subclass"){
     $collect_parent_dir=
         "/home/teachers/${teacher}/${Language::collected_dir}/${group}";
-    } elsif ($type eq "room"){
+    } elsif ($type eq "room" and $exam eq ""){
     $collect_parent_dir = "/home/teachers/${teacher}".
                "/${Language::collected_dir}/${Language::current_room}";
+    } elsif ($type eq "room" and $exam eq "--exam"){
+    $collect_parent_dir = "/home/teachers/${teacher}".
+               "/${Language::collected_dir}/${Language::exam}";
     }
 
-    print "$collect_parent_dir \n";
+    print "Collect parent dir is: $collect_parent_dir \n";
     opendir(COLL, $collect_parent_dir) 
          || die "can't opendir ",
                 "$collect_parent_dir $!";
     while (defined(my $filename = readdir(COLL))) {
-        #print "Directory $filename found\n";
-        if ($filename=~m/^${group}.*$/){
+        #print "     Directory $filename found\n";
+        if ($filename=~m/${group}.*$/){
           $collect_dir=$filename
 	  }
     }
@@ -760,9 +843,16 @@ sub dateien_einsammeln{
                      "/${group}/${collect_dir}/${user}/${testfile}"; 
               $file_nonexist="${homedir}".
                      "/${Language::collect_dir}/${teacher}/${testfile}"; 
-           } elsif ($type eq "room"){
+           } elsif ($type eq "room" and $exam eq ""){
                $file="/home/teachers/${teacher}/${Language::collected_dir}".
                      "/${Language::current_room}/${collect_dir}".
+                     "/${user}/${testfile}"; 
+               $file_nonexist="${homedir}".
+                     "/${Language::collect_dir}/${Language::current_room}".
+                     "/${testfile}"; 
+           } elsif ($type eq "room" and $exam eq "--exam"){
+               $file="/home/teachers/${teacher}/${Language::collected_dir}".
+                     "/${Language::exam}/${collect_dir}".
                      "/${user}/${testfile}"; 
                $file_nonexist="${homedir}".
                      "/${Language::collect_dir}/${Language::current_room}".

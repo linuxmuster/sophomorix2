@@ -22,9 +22,11 @@ Working together: sophomorix and linuxmuster_base
 - public_html in $HOME
 
 
+
 Other Question_
 - decide if dir when colllecting data contains the teachers 
   loginname 
+- problems: a teacher cann fill the HD space easily with handing out lots of data
 
 
 Bootorder:  postgres -> ldap -> samba, sonst gibts timeout
@@ -1262,11 +1264,9 @@ $projekte  /$datum-$uhrzeit  /$schüler]
 
 
 
-problems: a teacher cann fill the HD space easily with handing out lots of data
 
 
 cleanup_function: nicht um administratoren zu cleanen
-
 
 everywhere where homedir was fetched by getpwnam:
    replace it with fetchdata_from_account
@@ -1282,7 +1282,8 @@ NEXT: collect fromroom, room 121ariablen in SophomorixPgldap scheine global zu g
 
 
 
-1.6.2-1  (2006-04-xx)
+1.7.1-1  (2006-04-19)
+   - All tests for handout/collect/tasks are working (Werkvertrag 4) 
    - Bugfix: create_share_link does not create links into subclasses
    - moved prints to higher log_level when resetting a user 
    - create task links for workstation users
