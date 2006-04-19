@@ -16,22 +16,15 @@ Working together: sophomorix and linuxmuster_base
 - smb.conf
 - who creates directory structure for workstation accounts
 - fetching the type of a workstation (does it work)
-- 
+- what to do in remove_share_directory, when dir is not empty?
+- directories in /etc/skel. whats left
+- cups-pdf dir in $HOME (owner? undeleteable for user)
+- public_html in $HOME
 
 
-
-
-
-Vorschlag:
-klassenarbeit -> _klassenarbeit
-aktueller_raum -> _aktueller_raum
-
-Diese beiden Verzeichnisse befinden sich zusammen mit allen 
-Klassen, projekten, ... in einem Verzeichnis.
-
-Es ist besser wenn _klassenarbeit und _aktuller_raum oben 
-und zusammen da sind
-
+Other Question_
+- decide if dir when colllecting data contains the teachers 
+  loginname 
 
 
 Bootorder:  postgres -> ldap -> samba, sonst gibts timeout
@@ -98,7 +91,7 @@ packaging:
 
 
 Think about: using dbconfig-common
-Thia was abandoned, because 
+This was abandoned, because 
 - it didn't work in a decent amount of time
 - its changing rapidly (not good for such a sensitive Database)
 - unstable
@@ -1279,11 +1272,9 @@ everywhere where homedir was fetched by getpwnam:
    replace it with fetchdata_from_account
 
 
-??? what to do in remove_share_directory, when dir is not empty?
 
 ??? smbldap-useradd adds user also in the secondary group ??? check this
 
-??? V
 
 
 NEXT: collect fromroom, room 121ariablen in SophomorixPgldap scheine global zu gelten.
