@@ -29,39 +29,47 @@ $Term::ANSIColor::AUTORESET = 1;
 # Loading the db-Module, list of functions
 # ===========================================================================
 # list of functions to load if db is 'files'
-use if ${DevelConf::db_backend} eq 'files' , 
-    'Sophomorix::SophomorixFiles' => qw(show_modulename
-                                        get_sys_users
-                                        update_user_db_entry
-                                        user_reaktivieren
-                                        user_deaktivieren
-                                        check_connections
-                                       );
+#use if ${DevelConf::db_backend} eq 'files' , 
+#    'Sophomorix::SophomorixFiles' => qw(show_modulename
+#                                        get_sys_users
+#                                        update_user_db_entry
+#                                        user_reaktivieren
+#                                        user_deaktivieren
+#                                        check_connections
+#                                       );
 # list of functions to load if db is 'pgldap'
-use if ${DevelConf::db_backend} eq 'pgldap' , 
-    'Sophomorix::SophomorixPgLdap' => qw(show_modulename
-                                        get_sys_users
-                                        update_user_db_entry
-                                        user_reaktivieren
-                                        user_deaktivieren
-                                        check_connections
-                                       );
+#use if ${DevelConf::db_backend} eq 'pgldap' , 
+#    'Sophomorix::SophomorixPgLdap' => qw(show_modulename
+#                                        get_sys_users
+#                                        update_user_db_entry
+#                                        user_reaktivieren
+#                                        user_deaktivieren
+#                                        check_connections
+#                                       );
+
+use Sophomorix::SophomorixPgLdap qw(show_modulename
+                                    get_sys_users
+                                    update_user_db_entry
+                                    user_reaktivieren
+                                    user_deaktivieren
+                                    check_connections
+                                   );
 
 
 # ===========================================================================
 # Loading the sys-db-Module, list of functions
 # ===========================================================================
 # list of functions to load if sys_db is 'files'
-use if ${DevelConf::sys_db} eq 'files' , 
-    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
-                                           update_gecos
-                                          );
+#use if ${DevelConf::sys_db} eq 'files' , 
+#    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
+#                                           update_gecos
+#                                          );
 
 # list of functions to load if sys_db is 'pgldap'
-use if ${DevelConf::sys_db} eq 'pgldap' , 
-    'Sophomorix::SophomorixSYSPgLdap' => qw(show_sys_modulename
-                                           update_gecos
-                                          );
+#use if ${DevelConf::sys_db} eq 'pgldap' , 
+#    'Sophomorix::SophomorixSYSPgLdap' => qw(show_sys_modulename
+#                                           update_gecos
+#                                          );
 
 
 # Es wird eine Datei sophomorix.ok (schueler+lehrer) erzeugt 
@@ -163,7 +171,7 @@ Please see the sophomorix-check(8) man pages for full documentation
 
 # show the Database Modules that are loaded
 &show_modulename();
-&show_sys_modulename();
+#&show_sys_modulename();
 &check_connections();
 
 # Die Einzelnen Dateien werden unter folgenden Variable benutzt

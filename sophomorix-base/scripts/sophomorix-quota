@@ -18,29 +18,39 @@ use DBI;
 use Net::LDAP;
 
 # ===========================================================================
-# Loading the db-Module, list of functions
+# Loading the db-Module, list of f#unctions
 # ===========================================================================
 # list of functions to load if db is 'files'
-use if ${DevelConf::db_backend} eq 'files' , 
-    'Sophomorix::SophomorixFiles' => qw(show_modulename
-                                        check_connections
-                                        get_sys_users
-                                        update_user_db_entry
-                                        user_reaktivieren
-                                        user_deaktivieren
-                                       );
+#use if ${DevelConf::db_backend} eq 'files' , 
+#    'Sophomorix::SophomorixFiles' => qw(show_modulename
+#                                        check_connections
+#                                        get_sys_users
+#                                        update_user_db_entry
+#                                        user_reaktivieren
+#                                        user_deaktivieren
+#                                       );
 
-use if ${DevelConf::db_backend} eq 'pgldap' , 
-    'Sophomorix::SophomorixPgLdap' => qw(show_modulename
-                                        check_connections
-                                        get_sys_users
-                                        update_user_db_entry
-                                        user_reaktivieren
-                                        user_deaktivieren
-                                        pg_get_group_list
-                                        db_connect
-                                        db_disconnect
-                                       );
+#use if ${DevelConf::db_backend} eq 'pgldap' , 
+#    'Sophomorix::SophomorixPgLdap' => qw(show_modulename
+#                                        check_connections
+#                                        get_sys_users
+#                                        update_user_db_entry
+#                                        user_reaktivieren
+#                                        user_deaktivieren
+#                                        pg_get_group_list
+#                                        db_connect
+#                                        db_disconnect
+#                                       );
+use Sophomorix::SophomorixPgLdap qw(show_modulename
+                                    check_connections
+                                    get_sys_users
+                                    update_user_db_entry
+                                    user_reaktivieren
+                                    user_deaktivieren
+                                    pg_get_group_list
+                                    db_connect
+                                    db_disconnect
+                                   );
 
 
 
@@ -48,20 +58,20 @@ use if ${DevelConf::db_backend} eq 'pgldap' ,
 # Loading the sys-db-Module, list of functions
 # ===========================================================================
 # list of functions to load if sys_db is 'files'
-use if ${DevelConf::sys_db} eq 'files' , 
-    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
-                                           update_gecos
-                                          );
+#use if ${DevelConf::sys_db} eq 'files' , 
+#    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
+#                                           update_gecos
+#                                          );
 
 # list of functions to load if sys_db is 'pgldap'
-use if ${DevelConf::sys_db} eq 'pgldap' , 
-    'Sophomorix::SophomorixSYSPgLdap' => qw(show_sys_modulename
-                                           update_gecos
-                                          );
+#use if ${DevelConf::sys_db} eq 'pgldap' , 
+#    'Sophomorix::SophomorixSYSPgLdap' => qw(show_sys_modulename
+#                                           update_gecos
+#                                          );
 
 # show the Database Modules that are loaded
-&show_modulename();
-&show_sys_modulename();
+#&show_modulename();
+#&show_sys_modulename();
 &check_connections();
 
 
