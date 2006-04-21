@@ -13,61 +13,17 @@ use Sophomorix::SophomorixBase;
 use Sophomorix::SophomorixAPI;
 use Sophomorix::SophomorixPgLdap;
 Getopt::Long::Configure ("bundling");
-
 use DBI;
-
-# Einlesen der Konfigurationsdatei für Entwickler
-#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
-
-# jeffbecks Bibliothek und
-# Einlesen der Konfigurationsdatei
-#require "${DevelConf::library_pfad}/sophomorix-lib";
-
-
-# ===========================================================================
-# Loading the db-Module, list of functions
-# ===========================================================================
-# list of functions to load if db is 'files'
-#use if ${DevelConf::db_backend} eq 'files' , 
-#    'Sophomorix::SophomorixFiles' => qw(show_modulename
-#                                       );
-# list of functions to load if db is 'pgldap'
-#use if ${DevelConf::db_backend} eq 'pgldap' , 
-#    'Sophomorix::SophomorixPgLdap' => qw(show_modulename
-#                                         pg_get_adminclasses
-#                                       );
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     pg_get_adminclasses
                                    );
 
-# ===========================================================================
-# Loading the sys-db-Module, list of functions
-# ===========================================================================
-# list of functions to load if sys_db is 'files'
-#use if ${DevelConf::sys_db} eq 'files' , 
-#    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
-#                                          );
-
-# list of functions to load if sys_db is 'pgldap'
-#use if ${DevelConf::sys_db} eq 'pgldap' , 
-#    'Sophomorix::SophomorixSYSPgLdap' => qw(show_sys_modulename
-#                                          );
-
-
-# show the Database Modules that are loaded
-#&show_modulename();
-#&show_sys_modulename();
-
-
 my $string_link="";
 my $string_public_html="";
-
 
 my $user="";
 my $klasse="";
 my $gruppe="";
-
-
 
 my $help=0;
 my $info=0;
@@ -78,7 +34,6 @@ my $lehrer=0;
 my $login="";
 my $command_number=0;
 $Conf::log_level=1;
-
 
 ################################################################################
 # Beginn

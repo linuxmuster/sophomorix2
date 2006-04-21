@@ -19,35 +19,8 @@ use Time::localtime;
 use Term::ANSIColor qw(:constants); # farbiger Text RED, BLUE, ...
 # nach jedem Printbefehl wieder auf Standardfarbe zurücksetzen
 $Term::ANSIColor::AUTORESET = 1;
-
 use DBI;
 use Net::LDAP;
-
-# ===========================================================================
-# Loading the db-Module, list of functions
-# ===========================================================================
-# list of functions to load if db is 'files'
-#use if ${DevelConf::db_backend} eq 'files' , 
-#    'Sophomorix::SophomorixFiles' => qw(show_modulename
-#                                        check_connections
-#                                        search_user
-#                                        update_user_db_entry
-#                                        user_deaktivieren
-#                                        user_reaktivieren     
-#                                        check_sophomorix_user
-#                                       );
-
-# list of functions to load if db is 'pgldap'
-#use if ${DevelConf::db_backend} eq 'pgldap' , 
-#    'Sophomorix::SophomorixPgLdap' => qw(show_modulename
-#                                        db_connect
-#                                        check_connections
-#                                        search_user
-#                                        update_user_db_entry
-#                                        user_deaktivieren
-#                                        user_reaktivieren     
-#                                        check_sophomorix_user
-#                                       );
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     db_connect
                                     check_connections
@@ -58,30 +31,10 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     check_sophomorix_user
                                    );
 
-
-# ===========================================================================
-# Loading the sys-db-Module, list of functions
-# ===========================================================================
-# list of functions to load if db is 'files'
-#use if ${DevelConf::sys_db} eq 'files' , 
-#    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
-#                                          );
-#
-# list of functions to load if db is 'pgldap'
-#use if ${DevelConf::sys_db} eq 'pgldap' , 
-#    'Sophomorix::SophomorixSYSPgLdap' => qw(show_sys_modulename
-#                                          );
-
-
-
-# show the Database Modules that are loaded
-#&show_modulename();
-#&show_sys_modulename();
 &check_connections();
 
 my $today=`date +%d.%m.%Y`;
 chomp($today);
-
 
 # ===========================================================================
 # Optionen verarbeiten

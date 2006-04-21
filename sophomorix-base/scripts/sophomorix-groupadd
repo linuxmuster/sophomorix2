@@ -11,32 +11,8 @@ use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
-
 use DBI;
 use Net::LDAP;
-
-# ===========================================================================
-# Loading the db-Module, list of functions
-# ===========================================================================
-# list of functions to load if db is 'files'
-#use if ${DevelConf::db_backend} eq 'files' , 
-#    'Sophomorix::SophomorixFiles' => qw(show_modulename
-#                                        check_connections
-#                                        create_user_db_entry
-#                                        backup_user_database
-#                                        set_sophomorix_passwd
-#                                        create_class_db_entry
-#                                       );
-#use if ${DevelConf::db_backend} eq 'pgldap' , 
-#    'Sophomorix::SophomorixPgLdap' => qw(show_modulename
-#                                        check_connections
-#                                        db_connect
-#                                        db_disconnect
-#                                        create_user_db_entry
-#                                        backup_user_database
-#                                        set_sophomorix_passwd
-#                                        create_class_db_entry
-#                                       );
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     check_connections
                                     db_connect
@@ -46,25 +22,6 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     set_sophomorix_passwd
                                     create_class_db_entry
                                    );
-
-# ===========================================================================
-# Loading the sys-db-Module, list of functions
-# ===========================================================================
-# list of functions to load if db is 'files'
-#use if ${DevelConf::sys_db} eq 'files' , 
-#    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
-#                                           add_class_to_sys
-#                                           add_user_to_sys
-#                                          );
-
-#use if ${DevelConf::sys_db} eq 'pgldap' , 
-#    'Sophomorix::SophomorixSYSPgLdap' => qw(show_sys_modulename
-#                                            add_class_to_sys
-#                                            add_user_to_sys
-#                                           );
-
-
-
 
 my $zeit=&zeit_stempel();
 my $pg_timestamp=&pg_timestamp();

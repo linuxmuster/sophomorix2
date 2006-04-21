@@ -14,39 +14,8 @@ Getopt::Long::Configure ("bundling");
 use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
 use Sophomorix::SophomorixAPI;
-#use Sophomorix::SophomorixFiles;
-
 use DBI;
 use Net::LDAP;
-#use Schedule::at;
-
-
-
-# ===========================================================================
-# Loading the db-Module, list of functions
-# ===========================================================================
-# list of functions to load if db is 'files'
-#use if ${DevelConf::db_backend} eq 'files' , 
-#    'Sophomorix::SophomorixFiles' => qw(show_modulename
-#                                        update_user_db_entry
-#                                        check_connections
-#                                       );
-# list of functions to load if db is 'pgldap'
-#use if ${DevelConf::db_backend} eq 'pgldap' , 
-#    'Sophomorix::SophomorixPgLdap' => qw(show_modulename
-#                                        db_connect
-#                                        db_disconnect
-#                                        update_user_db_entry
-#                                        check_connections
-#                                        create_class_db_entry
-#                                        pg_adduser
-#                                        pg_remove_all_secusers
-#                                        deleteuser_from_project
-#                                        fetchadmins_from_adminclass
-#                                        fetch_used_subclasses
-#                                        show_subclass_list
-#                                       );
-
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     db_connect
                                     db_disconnect
@@ -60,24 +29,6 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     fetch_used_subclasses
                                     show_subclass_list
                                    );
-
-
-
-# ===========================================================================
-# Loading the sys-db-Module, list of functions
-# ===========================================================================
-# list of functions to load if sys_db is 'files'
-#use if ${DevelConf::sys_db} eq 'files' , 
-#    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
-#                                          );
-
-# list of functions to load if sys_db is 'pgldap'
-#use if ${DevelConf::sys_db} eq 'pgldap' , 
-#    'Sophomorix::SophomorixSYSPgLdap' => qw(show_sys_modulename
-#                                          );
-
-
-
 
 # ===========================================================================
 # Optionen verarbeiten
