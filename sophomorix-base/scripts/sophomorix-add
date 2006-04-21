@@ -24,6 +24,10 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     create_class_db_entry
                                     add_newuser_to_her_projects
                                    );
+use Sophomorix::SophomorixSYSPgLdap qw(show_sys_modulename
+                                       add_class_to_sys
+                                       add_user_to_sys
+                                      );
 
 my $zeit=&zeit_stempel();
 my $pg_timestamp=&pg_timestamp();
@@ -355,11 +359,11 @@ while(<SOPHOMORIXADD>){
                         );
 
   # 2. Add the class (db and dirs,links, ...)
-  if (${DevelConf::db_backend} ne "pgldap"){
-     # this is done already with create_user_db_entry, when using postgres
-     &create_class_db_entry($new_admin_group);
-     &add_class_to_sys($new_admin_group,$wunsch_gid); # VOR add_user_to_sys !
-  }
+#  if (${DevelConf::db_backend} ne "pgldap"){
+#     # this is done already with create_user_db_entry, when using postgres
+#     &create_class_db_entry($new_admin_group);
+#     &add_class_to_sys($new_admin_group,$wunsch_gid); # VOR add_user_to_sys !
+#  }
   &provide_class_files($new_admin_group);
 
   # 3. Add  user to db

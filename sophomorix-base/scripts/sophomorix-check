@@ -24,7 +24,6 @@ use Net::LDAP;
 
 # nach jedem Printbefehl wieder auf Standardfarbe zurücksetzen
 $Term::ANSIColor::AUTORESET = 1;
-
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     get_sys_users
                                     update_user_db_entry
@@ -32,6 +31,9 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     user_deaktivieren
                                     check_connections
                                    );
+use Sophomorix::SophomorixSYSPgLdap qw(show_sys_modulename
+                                       update_gecos
+                                      );
 
 # Es wird eine Datei sophomorix.ok (schueler+lehrer) erzeugt 
 # Welche Dateien mit Userdaten sollen verarbeitet werden
