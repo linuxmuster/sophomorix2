@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id$
+# $Id$ 
 # Dieses Modul (SophomorixPgLdap) wurde von Rüdiger Beck erstellt
 # Es ist freie Software
 # Bei Fehlern wenden Sie sich bitte an mich.
