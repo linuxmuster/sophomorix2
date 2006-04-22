@@ -94,20 +94,9 @@ use Sophomorix::SophomorixBase qw ( titel
 
 use Crypt::SmbHash;
 
-
-# ===========================================================================
-# Loading the sys-db-Module, list of functions
-# ===========================================================================
-# list of functions to load if sys_db is 'files'
-use if ${DevelConf::sys_db} eq 'files' , 
-    'Sophomorix::SophomorixSYSFiles' => qw( add_class_to_sys
-                                            get_user_auth_data
-                                          );
-
-use if ${DevelConf::sys_db} eq 'pgldap' , 
-    'Sophomorix::SophomorixSYSPgLdap' => qw( add_class_to_sys
-                                            get_user_auth_data
-                                          );
+use Sophomorix::SophomorixSYSPgLdap qw( add_class_to_sys
+                                        get_user_auth_data
+                                      );
 
 
 =head1 Documentation of SophomorixPgLdap.pm

@@ -23,11 +23,11 @@ Working together: sophomorix and linuxmuster_base
 
 
 
-Other Question_
+Other Questions
 - decide if dir when colllecting data contains the teachers 
   loginname 
 - problems: a teacher cann fill the HD space easily with handing out lots of data
-
+- nscd (was started and stopped on ML 2.x: what to do now?)
 
 Bootorder:  postgres -> ldap -> samba, sonst gibts timeout
             (mit dpkg-override samba soll 21 weden)
@@ -1282,6 +1282,8 @@ NEXT: collect fromroom, room 121ariablen in SophomorixPgldap scheine global zu g
 
 1.8.1-1  (2006-04-xx)
    CODE Cleanup:
+   - removed loading SophomorixPgLdap or SophomorixFiles 
+     --> load always Sophomorix-Pgldap
    - dropped dependancy from package: sophomorix-sys-files not needed anymore
 
 
