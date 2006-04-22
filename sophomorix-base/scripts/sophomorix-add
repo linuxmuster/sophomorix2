@@ -205,12 +205,6 @@ if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.add")) {
 # sophomorix.add mitloggen
 &backup_amk_file($zeit,"add","before");
 
-# Verbessern, siehe idealx
-if (${DevelConf::debian} ne "yes") {
-   &do_falls_nicht_testen("rcnscd stop"); # Wozu?
-}
-
-
 my @passwort_zeichen=&get_passwd_charlist();
 
 
@@ -407,12 +401,6 @@ close(NOCHANLEGEN);
 #if (-e "/etc/init.d/webmin"){
 #   &do_falls_nicht_testen("/etc/init.d/webmin restart");
 #}
-
-
-# ?????
-if (${DevelConf::debian} ne "yes") {
-   &do_falls_nicht_testen("rcnscd start");
-}
 
 # später ???
 if ($user_nummer==0){ 
