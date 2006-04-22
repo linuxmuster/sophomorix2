@@ -1,6 +1,6 @@
 #!/usr/bin/make
-# Dies ist das sophomorix Makefile bis zur Version 0.9.x
-
+# This is the sophomorix Makefile
+# $Id$
 # Zur Erstellung des Debian-Pakets notwendig (make DESTDIR=/root/sophomorix)
 DESTDIR=
 
