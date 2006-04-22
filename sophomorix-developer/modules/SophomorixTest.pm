@@ -1,4 +1,5 @@
 #!/usr/bin/perl -w
+# $Id$
 package Sophomorix::SophomorixTest;
 require Exporter;
 use Test::More;

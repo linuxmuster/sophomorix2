@@ -1,4 +1,5 @@
 #!/usr/bin/perl -w
+# $Id$
 # Dieses Modul (SophomorixAPI.pm) wurde von Rüdiger Beck erstellt
 # Es ist freie Software
 # Bei Fehlern wenden Sie sich bitte an mich.
