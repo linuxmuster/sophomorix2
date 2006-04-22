@@ -22,6 +22,10 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     db_connect
                                     db_disconnect
                                    );
+use Sophomorix::SophomorixSYSPgLdap qw(show_sys_modulename
+                                       delete_user_from_sys
+				      );
+
 my $zeit=&zeit_stempel;
 my $user_nummer=0;
 

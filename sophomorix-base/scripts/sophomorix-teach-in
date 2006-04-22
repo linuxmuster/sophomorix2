@@ -25,6 +25,9 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     update_user_db_entry
                                     get_sys_users
                                    );
+use Sophomorix::SophomorixSYSPgLdap qw(update_gecos      
+                                      );
+
 
 &check_connections();
 

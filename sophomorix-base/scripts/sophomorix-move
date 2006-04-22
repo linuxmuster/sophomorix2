@@ -21,6 +21,10 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     add_newuser_to_her_projects
                                    );
 
+use Sophomorix::SophomorixSYSPgLdap qw(show_sys_modulename
+                                       add_class_to_sys
+                                      );
+
 &check_connections();
 
 my $zeit=&zeit_stempel;
@@ -276,11 +280,11 @@ while(<USERVERSETZEN>){
    # usermod:
    # -d -m: home verschieben
    # -g : gruppe ändern
-       if (${DevelConf::db_backend} ne "pgldap"){
-          &do_falls_nicht_testen(
-            "usermod -d $new_home -m -g $neue_klasse $login_versetzen"
-	    );
-       } else {
+#       if (${DevelConf::db_backend} ne "pgldap"){
+#          &do_falls_nicht_testen(
+#            "usermod -d $new_home -m -g $neue_klasse $login_versetzen"
+#	    );
+#       } else {
           # move home directory
           &do_falls_nicht_testen(
             "mkdir -p $new_homedir_above",
@@ -293,7 +297,7 @@ while(<USERVERSETZEN>){
                           "Gid=$neue_klasse",
                          );
 
-       }
+#       }
 
    # Dateien im neuen home gehoeren nun der Klassengruppe.
    # Muss angepasst werden an Eigentümer lehrer
