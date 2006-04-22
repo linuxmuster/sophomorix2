@@ -1061,15 +1061,12 @@ NOT creating a dir  in galli/_vorlagen when user is added
 to a nonexisting class
 
 
-
 managing admin problem:
   - make room and workstation function faster
 
 
 - check that config-files are only readable by root
   (odbc.ini, ...)
-
-
 
 
 
@@ -1127,15 +1124,6 @@ wohin einsammeln soll konfigurierbar sein
    C):  nachname
 
 
-Klassenarbeit:
-
-Lehrer: einstellen in $HOME/_bereitstellen/klassenarbeit
-Workstation: $
-
-
-create a group students with all students (for testing) 
-
-
 invent sysrun??:
 sysrun needs package libsysadm-install-perl
 and use Sysadm::Install qw(:all);
@@ -1144,17 +1132,8 @@ and use Sysadm::Install qw(:all);
 
 NEXT:
 
-create function to clean up an account:
-  - delete data
-  - provide user files
-clean up a room for klassenarbeit (parameter room)
+create a group students with all students (for testing) 
 
-
-
-
-check collect
-
-handoutcopy
 
 Schulkonsole:
 
@@ -1282,6 +1261,7 @@ NEXT: collect fromroom, room 121ariablen in SophomorixPgldap scheine global zu g
 
 1.8.1-1  (2006-04-xx)
    CODE Cleanup:
+   - removed 3 unneeded variables from sophomorix-devel.conf
    - removed loading SophomorixPgLdap or SophomorixFiles 
      --> load always Sophomorix-Pgldap
    - dropped dependancy from package: sophomorix-sys-files not needed anymore
