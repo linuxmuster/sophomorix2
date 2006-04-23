@@ -56,7 +56,8 @@ KNOWN BUGS
 Bug: a user in dachboden is reactivated by a similar
      (=must be identical) new user
 
-
+Bug?: when in lehrer.txt a ; is missing, the sophomorix-check 
+runs and tries to add the user with unforeseen consequences
 
 ############################################################
 DOKUMENTATION To do
@@ -576,6 +577,9 @@ LDAP Tips
 ############################################################
 
 ldapsearch -x -D "cn=admin,dc=linuxmuster,dc=de" -W
+
+ldap-cache auf client einrichten (index-dateien, die 
+uid,uinumber, ... cachen)
 
 
 ############################################################
@@ -1255,7 +1259,9 @@ variablen in SophomorixPgldap scheine global zu gelten.
 
 1.8.1-1  (2006-04-xx)
    CODE Cleanup:
-   - added $Id$-Keyword to all relevant files 
+   - removed unneeded testscripts and their manpages from
+     the package sophomorix-developer 
+   - added CVS-Id-Keyword to all relevant files 
    - removed 3 unneeded variables from sophomorix-devel.conf
    - removed loading SophomorixPgLdap or SophomorixFiles 
      --> load always Sophomorix-Pgldap

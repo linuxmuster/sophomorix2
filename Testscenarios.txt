@@ -10,8 +10,6 @@ Schulverwaltungsprogramme
 
 je 1 Test/Schulverwaltungsprogramm
 
-
-
 - Funktion testen mit realen, generierten 
       schueler.txt
       lehrer.txt
@@ -21,7 +19,7 @@ je 1 Test/Schulverwaltungsprogramm
 - Erstellungsbeschreibung von 
       schueler.txt 
       lehrer.txt
-  mit screenshots
+  mit screenshots des Schulverwaltungsprogramms
 
 
 
@@ -42,10 +40,11 @@ Durchspielen eines Schuljahres
           - unerlaubten Zeichen (Sonderzeichen)
 
 - extrakurse.txt
-    incl. - llerzeichen,
+    incl. - leerzeichen,
           - unerlaubten Zeichen (Sonderzeichen)
 
-- user.add.pdf jedesmal visuell prüfen (Formatierung, korrekter Inhalt)
+- user.add.pdf jedesmal visuell/ausdruck prüfen 
+  (Formatierung, korrekter Inhalt)
 
 - Quotaanpassungen:
      - ändern der Standardquota (schueler, lehrer, workstation)
@@ -59,9 +58,59 @@ Durchspielen eines Schuljahres
 
 
 
+Gezielte Aufgaben:
+----------------------------------------
+- Folgende Aufgaben gezielt erledigen.
+
+
+A) Wie es gemacht wird selbst herausfinden:
+
+  1.Welcher sophomorix-Befehl kommt in Frage: 
+    als root:   sophomorix-<tab> 
+  2. Man sophomorix-*
+  3. Ändeung vornehmen
+  4. Prüfen ob resultat wie gewünscht ist
+
+B) Mitprotokollieren so, dass Test wiederholt werden kann:
+
+   1. Vorgehensweise
+   2. Probleme bei den Manpages
+   3. Probleme bei den Rückmeldungen des Scriptes
+      (zu viel, zu wenig)
+   4. Wie wurde getestet, ob das gewünschte Resultat eingetreten ist?
+
+
+
+
+  Aufgaben:
+  1. Ein Schüler hat die Schule verlassen (fehlt in schueler.txt) 
+     und soll sofort restlos incl. home entfernt werden.
+
+  2. A) Der login eines Schülers soll vorübergehend verhindert 
+        werden. Alle Daten, Mail, ... soll erhalten bleiben.
+
+     B) Der Account des Schüler soll wieder vollständig funktionieren.
+
+     
+  3. A) Einem pensionierten Lehrer soll ein dauerhafter Account 
+        eingerrichtet werden. Auch bei entfernen aus lehrer.txt soll
+        der Account erhalten bleiben.
+
+     B) Der Account aus A) soll endgültig gelöscht werden.
+
+  5. A) Der Account eines Schülers soll dauerhaft erhalten bleiben,
+        da er die HomePage als Student weiterbetreut. Er taucht nicht 
+        mehr in der schueler.txt auf.
+
+     B) Der  Account aus A) soll endgültig gelöscht werden.
+
+
+
+
+
 
 ##################################################
-Projekte
+Projekte/Subclassen
 ##################################################
 
 - Projekte ohne Quotaänderungen
@@ -73,11 +122,38 @@ Projekte
     - anlegen als admin
     - maxusers testen als lehrer
 
+- Projekte aus gruppen (klassen) bilden.
+    - neue Schüler in diesen Klassen hinzunehmen
+       (Sind sie im Projekt?)
+    - Schüler versetzetn (fallen sie aus dem Projekt?)
+    - Schüler löschen (fallen sie aus dem Projekt)
+
 - austeilen, einsammeln
 
 - tauschverzeichnisse nutzen
 
 - Link ins Tauschverzeichnis vorhanden
+
+
+
+
+- Projekt/Subklasse-mitgliedschaft:
+
+A) Datenbank (Beisiel: user galli,10042): 
+
+Gruppenmitgliedschaft: 
+
+SELECT * from memberdata where uid='galli'; 
+(adminclass=primary group, gid=secondary group, 
+longname=langer Name des projekts)
+
+
+B) LDAP (Beispiel: user galli,10042):
+
+id galli
+
+
+C) Verzeichnisstruktur
 
 
 ##################################################
