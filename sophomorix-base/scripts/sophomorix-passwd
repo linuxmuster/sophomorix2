@@ -205,7 +205,7 @@ if ($info==1) {
 # Setting the passwords
 foreach my $user (@users){
     # gruppe ermitteln
-    my $group=&get_klasse_von_login($user);
+    my ($home,$group)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
     # which password to set
     if ($password_given==1){
          # use $password, do nothing
