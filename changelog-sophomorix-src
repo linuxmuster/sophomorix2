@@ -22,6 +22,9 @@ Working together: sophomorix and linuxmuster_base
 - cups-pdf dir in $HOME (owner? undeleteable for user)
 - public_html in $HOME
 
+Gibts folgende Datei immer?
+/etc/linuxmustser/classrooms   (1 Raum pro Zeile)
+
 
 
 Other Questions
@@ -29,6 +32,9 @@ Other Questions
   loginname 
 - problems: a teacher cann fill the HD space easily with handing out lots of data
 - nscd (was started and stopped on ML 2.x: what to do now?)
+
+
+
 
 Bootorder:  postgres -> ldap -> samba, sonst gibts timeout
             (mit dpkg-override samba soll 21 weden)
@@ -1051,12 +1057,8 @@ Beim Lehrer:  _vorlagen/aktueller_raum-$RAUM
 Beim Schüler: _vorlagen/aktueller_raum
 
 
-NOT creating a dir  in galli/_vorlagen when user is added 
+NOT creating a dir  in galli/_vorlagen and others, when user is added 
 to a nonexisting class
-
-
-managing admin problem:
-  - make room and workstation function faster
 
 
 - check that config-files are only readable by root
@@ -1142,12 +1144,7 @@ beim cp von netlogon stimmt was nicht
 
 zusammenarbeit mit Schulkonsole:
 
-variablen nutzen
-
-siehe perldoc Sophomorix::SophomorixAPI
-
-
-funktionen nutzen
+variablen nutzen siehe perldoc Sophomorix::SophomorixAPI
 
 1) alles was aus SophomorixPgLdap gebraucht wird in
    SophomorixAPI eintragen
@@ -1186,13 +1183,6 @@ funktionen nutzen
 
 
 
-NEXT:
-
-
-tests:
-- existence of new dirs from 1.6.1-1
-- switching shares on/off
-- creating data in tausch an being moved. Is data moved with user in home?
 
 
 einsammeln geschieht nie in den aktuellen raum????
@@ -1229,8 +1219,6 @@ $projekte  /$datum-$uhrzeit  /$schüler]
 
 
 
-
-
 cleanup_function: nicht um administratoren zu cleanen
 
 
@@ -1240,12 +1228,24 @@ cleanup_function: nicht um administratoren zu cleanen
 
 
 
+TESTS:
+- existence of new dirs from 1.6.1-1
+- switching shares on/off
+- creating data in tausch an being moved. Is data moved with user in home?
+
+
+
+
 NEXT:
 variablen in SophomorixPgldap scheinen global zu gelten.
 SphomorixBase: remove unused functions
 
 
+
+
+
 1.8.1-1  (2006-04-xx)
+   Bugfix: fetchdata_from_account shows wrong account-type for workstations 
    CODE Cleanup:
    - everywhere where homedir was fetched by getpwnam:
      replaced it with fetchdata_from_account
