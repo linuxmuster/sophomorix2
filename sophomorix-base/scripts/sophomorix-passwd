@@ -205,17 +205,18 @@ if ($info==1) {
 # Setting the passwords
 foreach my $user (@users){
     # gruppe ermitteln
-    my ($home,$group)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
+    my ($home,$type,$gecos,$group)=
+        &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
     # which password to set
     if ($password_given==1){
-         # use $password, do nothing
+        # use $password, do nothing
     } elsif ($reset==1){
-         # lookup old password
+        # lookup old password
         $password=&get_first_password($user);
     } elsif ($common==1){
        # set password
        if ($group eq ${DevelConf::teacher}){ 
-	   $password=$password_lehrer;
+           $password=$password_lehrer;
        } else {
 	   $password=$password_other;
        }
@@ -228,14 +229,16 @@ foreach my $user (@users){
        $password=&get_plain_password($group,@chars)
     }
     if ($hide==1){
-       print "  Setting password for user $user in $group to xxxxxxxx ...\n";
+       print "  Setting password for user $user in ".
+             "$group ($type) to xxxxxxxx ...\n";
     } else {
-       print "  Setting password for user $user in $group to $password ...\n";
+       print "  Setting password for user $user in ".
+             "$group ($type) to $password ...\n";
     }
-       # Passwort für user setzten
-       &set_sophomorix_passwd($user,$password);
-       # updating the database
-       &update_user_db_entry($user,"FirstPass=$password");
+    # Passwort für user setzten
+    &set_sophomorix_passwd($user,$password);
+    # updating the database
+    &update_user_db_entry($user,"FirstPass=$password");
 }
 
 
