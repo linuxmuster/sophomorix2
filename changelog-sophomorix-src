@@ -255,7 +255,7 @@ sophomorix-split
         split half-half
         split a class into projects(is this necessary?)
    - add change long name of subclass
-   - make sophomorix-split files-independant
+   - make sophomorix-split files-independent
 
 
 sophomorix-passwd
@@ -512,7 +512,7 @@ ALL SCRIPTS To do
    * creating database file from sophomorix-setup-files??
        removing it from sophomorix-check??
    * remove old stuff: ${schueler_oder_user}.protokoll";
-   - remove database/sys dependant code
+   - remove database/sys dependent code
    * set/check file-permissions at the and of each sophomorix-* run. 
    - shorter verbosity when no verbosity option is given
    * remove old subclass stuff (extrafile to specify subclass)
@@ -529,22 +529,13 @@ ALL SCRIPTS To do
 ############################################################
 DATABASE To do
 ############################################################
-
-postgres-integration:
-        Postres:
-             - dump old database, merge it
+Postres:
+   - dump old database, before doing anything
                  pg_dump ldap > file.sql
-
-            Questions:
-            - Paswort/Access (random password/fixed password)
-
-            ldap.secret: wird gebraucht um luma,ldapadmin, ... zu benutzen
-            prüfen, ob konfigurierbar
 
 
 SQL-DBI/OpenLDAP related:
 
-- Performance: connect once in every script (not in every function)
 - Transaction: combine inserts in create_user_entry 
 - Load DBI (use:DBI;) only if necessary
 - update database: combine select and updates to transaction
@@ -552,7 +543,11 @@ SQL-DBI/OpenLDAP related:
 
 - avoid inserting an identical,existing line once again
   --using SQL
+  (SQL can't do that)
 
+############################################################
+DATABASE Tips
+############################################################
 
 
 
@@ -562,10 +557,6 @@ Tips
 
 Errors and output in a file:
    command  2&>1  > logfile
-
-############################################################
-DATABASE Tips
-############################################################
 
 
 
@@ -581,7 +572,7 @@ LDAP Tips
 
 ldapsearch -x -D "cn=admin,dc=linuxmuster,dc=de" -W
 
-ldap-cache auf client einrichten (index-dateien, die 
+???: ldap-cache auf client einrichten (index-dateien, die 
 uid,uinumber, ... cachen)
 
 
@@ -625,11 +616,6 @@ siehe script: /usr/lib/linuxmuster/bin/cyrus-user.pl
 aus paket linuxmuster-base
 
 quota for mail
-
-
-mailbox anlegen siehe sophomorix-add 
-Zeile von Thomas
-
 
 ############################################################
 IMAP Tips
@@ -1206,7 +1192,7 @@ NEXT:
 tests:
 - existence of new dirs from 1.6.1-1
 - switching shares on/off
-
+- creating data in tausch an being moved. Is data moved with user in home?
 
 
 einsammeln geschieht nie in den aktuellen raum????
@@ -1247,8 +1233,6 @@ $projekte  /$datum-$uhrzeit  /$schüler]
 
 cleanup_function: nicht um administratoren zu cleanen
 
-everywhere where homedir was fetched by getpwnam:
-   replace it with fetchdata_from_account
 
 
 
@@ -1257,12 +1241,18 @@ everywhere where homedir was fetched by getpwnam:
 
 
 NEXT:
-variablen in SophomorixPgldap scheine global zu gelten.
+variablen in SophomorixPgldap scheinen global zu gelten.
+SphomorixBase: remove unused functions
 
 
 1.8.1-1  (2006-04-xx)
    CODE Cleanup:
+   - everywhere where homedir was fetched by getpwnam:
+     replaced it with fetchdata_from_account
    - SophomorixBase:
+      - removed function get_ka_raeume_in_schule
+      - removed function check_raum
+      - removed function get_raeume_in_schule_hash
       - removed function get_lehrer_in_klasse
       - removed function check_leher
       - removed function get_klasse_von_login 
@@ -1274,7 +1264,7 @@ variablen in SophomorixPgldap scheine global zu gelten.
    - removed 3 unneeded variables from sophomorix-devel.conf
    - removed loading SophomorixPgLdap or SophomorixFiles 
      --> load always Sophomorix-Pgldap
-   - dropped dependancy from package: sophomorix-sys-files not needed anymore
+   - dropped dependency from package: sophomorix-sys-files not needed anymore
 
 
 

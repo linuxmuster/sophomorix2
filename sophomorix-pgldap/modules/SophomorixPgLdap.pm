@@ -1030,7 +1030,9 @@ sub fetch_my_adminclasses {
 sub fetchdata_from_account {
     my ($login) = @_;
     my $dbh=&db_connect();
-    my ($home,$group)= $dbh->selectrow_array( "SELECT homedirectory,gid 
+    my ($home,
+        $group,
+        $gecos)= $dbh->selectrow_array( "SELECT homedirectory,gid 
                                          FROM userdata 
                                          WHERE uid='$login'
                                         ");
@@ -1045,9 +1047,9 @@ sub fetchdata_from_account {
     } else {
         $type="student";
     }
-        return ($home,$type);
+        return ($home,$type,$gecos);
     } else {
-	return ("","");
+	return ("","","");
     }
 }
 

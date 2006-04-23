@@ -206,8 +206,8 @@ while(<USERVERSETZEN>){
    if (not defined $old_status){$old_status=""};
    # Home ermitteln
    # altes home ermiteln
-   my @pwnam = getpwnam("$login_versetzen");
-   $old_home="$pwnam[7]";
+   my ($old_home)=
+       &Sophomorix::SophomorixPgLdap::fetchdata_from_account($login_versetzen);
    if ($neue_klasse eq ${DevelConf::teacher}) {
       # in klasse lehrer versetzten
       $new_home="${DevelConf::homedir_teacher}/${login_versetzen}";

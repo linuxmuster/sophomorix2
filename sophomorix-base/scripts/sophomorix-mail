@@ -306,7 +306,8 @@ sub generate_mail_alias_classes {
        print ALIASESTMP "\n### Mailaliases for adminclass $group \n";
        foreach my $user (@user) {
            # Gecos-Feld ermitteln
-           my ($login,$passwort,$uid,$gid,$quota,$name,$gecos)=getpwnam("$user");
+           my ($home,$type,$gecos)=
+             &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
            $gecos=~s/ /./g; # Spezialzeichen raus
            #print ALIASESTMP "$gecos:\t\t\t$user\n";
            printf ALIASESTMP "%-35s %-20s \n",$gecos.":",$user;
@@ -324,7 +325,8 @@ sub generate_mail_alias_projects {
    print ALIASESTMP "\n### Mailaliases for project $group \n";
    foreach my $user (@user) {
       # Gecos-Feld ermitteln
-      my ($login,$passwort,$uid,$gid,$quota,$name,$gecos)=getpwnam("$user");
+           my ($home,$type,$gecos)=
+             &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
       $gecos=~s/ /./g; # Spezialzeichen raus
       #print ALIASESTMP "$gecos:\t\t\t$user\n";
       printf ALIASESTMP "%-35s %-20s \n",$gecos.":",$user;

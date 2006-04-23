@@ -62,9 +62,6 @@ use Quota;
                 get_workstations_in_schule_hash
                 get_klassen_in_schule_hash
               check_klasse
-              get_ka_raeume_in_schule              
-                get_raeume_in_schule_hash              
-              check_raum
               get_link_pfad
               datum_loeschen_schueler
               daten_loeschen_ich_lehrer
@@ -713,8 +710,7 @@ Daten aus Klassen-Tauschverzeichnis ins home des Schülers kopieren
 sub save_tausch_klasse {
    my ($login, $klasse) = @_;
    my $dirname=&zeit_stempel;
-   my @entry = getpwnam($login);
-   my $homedir = "$entry[7]";
+   my ($homedir)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
    my $dirpath="$homedir"."/"."${Language::share_string}".
                "$dirname"."/";
 
@@ -1835,10 +1831,7 @@ sub get_plain_password {
 sub create_school_link {
     my ($login) = @_;
     my ($home)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
-
-    if (defined $home){
-#    if (getpwnam("$login")){
-#       my ($home)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
+    if ($home ne ""){
        my $link_name=$home.
         "/${Language::share_dir}/${Language::share_string}".
         "${Language::school}";
@@ -1863,14 +1856,12 @@ sub reset_user {
     # before reset_user
     my ($user) = @_;
     print "Cleaning up user $user\n";
-    if (not defined getpwnam($user)){
+    my ($homedir)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
+    if ($homedir eq ""){
         print "   ERROR: Cannot determine Homedirectory of user $user\n";
         print "   ... doing nothing!\n";
     } else {
         # do some work
-        #my @entry = getpwnam($user);
-        #my $homedir = "$entry[7]";
-        my ($homedir)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
         my (@groups) = 
            &Sophomorix::SophomorixPgLdap::pg_get_group_list($user);
         if (-e $homedir){
@@ -1922,10 +1913,10 @@ Der type kann sein: project, class oder subclass
 # this should be true for all db and auth-systems
 sub create_share_link {
     my ($login,$share_name,$share_long_name,$type) = @_;
-    my $homedir="";
-    my $pri_group="";
     my $link_target="";
     my $link_target_tasks="";
+    my ($homedir,$pri_group)=
+        &Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
 
     # replace teachers with language term
     if ($share_name  eq ${DevelConf::teacher}){
@@ -1935,17 +1926,6 @@ sub create_share_link {
     # project is standard
     if (not defined $type or $type eq ""){
 	$type="project";
-    }
-
-    if (getpwnam("$login")){
-
-       #my($login,$passwort,$uid,$gid,$quota,
-       #   $name,$gcos,$home,$shell)=getpwnam("$login");
-       #my ($gname, $passwd, $gidnumber, $members)=getgrgid("$gid");
-       #$homedir=$home;
-       ($homedir,$gname)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
-       $pri_group=($gname);
-       #print "   Group is $pri_group\n";
     }
 
     # Only act if uid is valid
@@ -2131,21 +2111,11 @@ Löscht den Link an in das Tauschverzeichnis des Projekts.
 # this should be true for all db and auth-systems
 sub remove_share_link {
     my ($login,$share_name,$share_long_name,$type) = @_;
-    my $homedir="";
     if (not defined $type or $type eq ""){
 	$type="project";
     }
-
-    if (getpwnam("$login")){
-        my ($home)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
-#       my($login,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
-#          $name_passwd,$gcos_passwd,$home,$shell)=getpwnam("$login");
-       $homedir=$home;
-    }
-
+    my ($homedir)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
     if ($homedir ne ""){
-       # my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
-       #    $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
         my ($home)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
         my $link_name=$home.
           "/${Language::share_dir}/${Language::share_string}".
@@ -2540,7 +2510,7 @@ sub check_klasse {
 
 # wird mit neuer raum-datenbank anders
 
-sub get_ka_raeume_in_schule{
+sub get_ka_raeume_in_schule_oldstuff{
   my @ka_raum_liste=();
   if (-e "$DevelConf::config_pfad/ka-raeume.txt") {
      open(KARM,"$DevelConf::config_pfad/ka-raeume.txt");
@@ -2563,7 +2533,7 @@ sub get_ka_raeume_in_schule{
 # ===========================================================================
 # dito, aber im hash
 # ===========================================================================
-sub get_raeume_in_schule_hash {
+sub get_raeume_in_schule_hash_oldstuff {
     my @pwliste;
     my %raeume_hash=();
     my @liste;
@@ -2588,7 +2558,7 @@ sub get_raeume_in_schule_hash {
 # ===========================================================================
 # Prüfen,ob der übergebene Gruppenname(String) ein Raum ist
 # ===========================================================================
-sub check_raum {
+sub check_raum_oldstuff {
     my ($raum_to_check) = @_;
     # print "Prüfe, ob $raum_to_check ein Raum ist.";
     my @pwliste;
@@ -3829,9 +3799,8 @@ sub share_access {
     }
     my @users = @_;
     foreach my $user (@users){
-        if (getpwnam($user)){
-           my($login,$passwort,$uid,$gid,$quota,
-              $name,$gcos,$home,$shell)=getpwnam("$user");
+        my ($home)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
+        if ($home ne ""){
            my $share_path=$home."/".${Language::share_dir};
            print "   Setting  permissions of $share_path to $on_off($permission)\n";
            chmod oct($permission), $share_path;
@@ -3853,9 +3822,7 @@ sub handout {
   my ($login, $name, $type, $rsync) = @_;
 
   # home ermitteln
-  my @entry = getpwnam($login);
-  my $homedir = "$entry[7]";
-
+  my ($homedir)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
   my $from_dir = "";
 
   if ($type eq "adminclass"){
@@ -3900,8 +3867,7 @@ sub handoutcopy {
     my @userlist=();
 
     # home des austeilenden ermitteln
-    my @entry = getpwnam($login);
-    my $homedir = "$entry[7]";
+    my ($homedir)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
 
     if ($type eq "adminclass"){
        $from_dir = "${homedir}/${Language::handoutcopy_dir}/${name}";
@@ -3917,7 +3883,6 @@ sub handoutcopy {
                    "/${Language::current_room}";
        @userlist=split(/,/,$users);
     }
-
     print "   From($type): ${from_dir}\n";
     # check if there could be files found to handout
     my $found=0;
@@ -3930,27 +3895,27 @@ sub handoutcopy {
         print "      handout: $file\n";
     }
     closedir DIR;
-
     if ($found==1){
        foreach my $user (@userlist){
-           if (not defined getpwnam($user)){
+           # home des austeilenden ermitteln
+           my ($homedir)=
+              &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
+           if ($homedir eq ""){
                print "WARNING: User $user does not exist (cannot handout)\n";
 	       next;
-           }
-           # home des austeilenden ermitteln
-           my @entry = getpwnam($user);
-           my $homedir = "$entry[7]";
-           if ($type eq "current room"){
-                $to_dir = "${homedir}/${Language::handoutcopy_dir}".
-                          "/${Language::current_room}";
            } else {
-                $to_dir = "${homedir}/${Language::handoutcopy_dir}".
-                          "/${name}";
+              if ($type eq "current room"){
+                   $to_dir = "${homedir}/${Language::handoutcopy_dir}".
+                             "/${Language::current_room}";
+              } else {
+                   $to_dir = "${homedir}/${Language::handoutcopy_dir}".
+                             "/${name}";
+              }
+              print "   To:   ${to_dir}\n";
+              system ("cp -a $from_dir/* $to_dir");
+              system ("chown -R $user:root $to_dir/*");
+              system ("chmod -R 0755 $to_dir/*");
            }
-           print "   To:   ${to_dir}\n";
-           system ("cp -a $from_dir/* $to_dir");
-           system ("chown -R $user:root $to_dir/*");
-           system ("chmod -R 0755 $to_dir/*");
         }
     } else {
        print "   No files found to handout\n";    
@@ -4012,8 +3977,7 @@ sub collect {
   }
 
   # where to save the collected data
-  my @entry_col = getpwnam($login);
-  my $homedir_col = "$entry_col[7]";
+  my ($homedir_col)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
   my $to_dir="";
 
   if (defined $users){ 
@@ -4047,8 +4011,7 @@ sub collect {
  
   # collect data from all users
   foreach my $user (@users){
-      my @entry = getpwnam($user);
-      my $homedir = "$entry[7]";
+      my ($homedir)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
       my $from_dir="";
       if ($type eq "current room"){
           $from_dir="$homedir/${Language::collect_dir}/${Language::current_room}/";
