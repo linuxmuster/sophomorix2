@@ -25,9 +25,9 @@ use Sophomorix::SophomorixBase;
 Getopt::Long::Configure ("bundling");
 use DBI;
 use Net::LDAP;
-use Sophomorix::SophomorixPgLdap qw(show_modulename
-                                    check_connections
+use Sophomorix::SophomorixPgLdap qw(check_connections
                                     get_print_data
+                                    fetchadmins_from_adminclass
                                    );
 
 &titel("sophomorix-print is creating output ...");
@@ -694,8 +694,8 @@ foreach $eintrag (@drucken_reihenfolge) {
        # Verantwortlicher Lehrer ermitteln
 
        # $edv_lehrer_foot 
-       my @lehrerliste=&get_lehrer_in_klasse($klasse_protokoll);
-       $edv_lehrer_foot=&formatiere_liste(", ",@lehrerliste);
+       my @lehrerliste = &Sophomorix::SophomorixPgLdap::fetchadmins_from_adminclass($klasse_protokoll);
+       $edv_lehrer_foot = join(", ",@lehrerliste);
 
        print LATEX ('\cfoot{\bf ',
                          "$edv_lehrer_foot",
@@ -775,8 +775,8 @@ if($eintrag_typ_alt==0){
 
 
       # $edv_lehrer_rand
-      my @lehrerliste=&get_lehrer_in_klasse($klasse_protokoll);
-      $edv_lehrer_rand=&formatiere_liste(",",@lehrerliste);
+      my @lehrerliste = &Sophomorix::SophomorixPgLdap::fetchadmins_from_adminclass($klasse_protokoll);
+      $edv_lehrer_rand = join(",",@lehrerliste);
 
       # Verantwortlichen Lehrer einsetzten
       print LATEX ("\n",
