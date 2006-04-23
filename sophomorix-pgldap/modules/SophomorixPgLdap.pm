@@ -1032,7 +1032,7 @@ sub fetchdata_from_account {
     my $dbh=&db_connect();
     my ($home,
         $group,
-        $gecos)= $dbh->selectrow_array( "SELECT homedirectory,gid 
+        $gecos)= $dbh->selectrow_array( "SELECT homedirectory,gid,gecos 
                                          FROM userdata 
                                          WHERE uid='$login'
                                         ");
@@ -1042,12 +1042,12 @@ sub fetchdata_from_account {
 	$type="teacher";
     } elsif ($group eq "administrators"){
         $type="administrator";
-    } elsif ($home=~/\/workstation\//){
+    } elsif ($home=~/\/workstations\//){
         $type="workstation";
     } else {
         $type="student";
     }
-        return ($home,$type,$gecos);
+        return ($home,$type,$gecos,$group);
     } else {
 	return ("","","");
     }
