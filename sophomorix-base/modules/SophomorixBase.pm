@@ -16,7 +16,6 @@ require Exporter;
 use Time::Local;
 use Time::localtime;
 use Quota;
-#use Sophomorix::SophomorixConfig;
 
 @ISA = qw(Exporter);
 
@@ -26,14 +25,12 @@ use Quota;
               print_list 
               print_list_column 
               print_hash
-               formatiere_liste
               get_alle_verzeichnis_rechte
               get_v_rechte
               setup_verzeichnis
               get_old_info 
               user_login_hash
               save_tausch_klasse
-                 user_links
               protokoll_linien
               extra_kurs_schueler
               lehrer_ordnen
@@ -60,7 +57,6 @@ use Quota;
               append_teach_in_log
               archive_log_entry
               backup_amk_file
-              get_klasse_von_login
                 get_schueler_in_schule_hash
                 get_lehrer_in_schule_hash
                 get_workstations_in_schule_hash
@@ -69,8 +65,6 @@ use Quota;
               get_ka_raeume_in_schule              
                 get_raeume_in_schule_hash              
               check_raum
-              check_lehrer
-              get_lehrer_in_klasse
               get_link_pfad
               datum_loeschen_schueler
               daten_loeschen_ich_lehrer
@@ -330,7 +324,7 @@ sub print_list_column {
 # Beliebige Liste mit beliebigem Trennzeichen in einen String schreiben
 # ===========================================================================
 
-sub formatiere_liste {
+sub formatiere_liste_oldstuff {
    my ($trenner,@liste) = @_;
    # print "Trenner $trenner  Liste: -@liste-\n\n";
    my $on_off=0;
@@ -1058,64 +1052,6 @@ sub provide_user_files {
     }
 }
 
-
-
-
-
-# ===========================================================================
-# Links für neuen User anlegen
-# ===========================================================================
-=pod
-
-=item I<%hash = user_links(login, klasse, klasse-alt)>
-
-Legt links an für den Schüler.
-
-=cut
-sub user_links_oldstuff {
-  my($login, $gruppe, $alt_gruppe) = @_;
-  # $alt_gruppe beim Versetzen
-  my $tausch_klasse="";
-  my $user_home = "";
-
-  if ($gruppe ne ${DevelConf::teacher}){
-    # student
-    $tausch_klasse="${DevelConf::share_classes}/$gruppe";
-    $user_home = "${DevelConf::homedir_pupil}/$gruppe/$login";
-  } else {
-    # teacher
-    $tausch_klasse="${DevelConf::share_teacher}";
-    $user_home = "${DevelConf::homedir_teacher}/$login";
-  }
-
-  # Verzeichnis Tauschverzeichnisse löschen
-  if (defined $alt_gruppe) {
-     &do_falls_nicht_testen(
-          "rm -rf $user_home/${Language::share_dir}"
-     );
-  } else {
-      $alt_gruppe="";
-  }
-  
-  if ($gruppe eq ${DevelConf::teacher} && $alt_gruppe eq "speicher") {
-      # nichts tun
-  }
-  else {
-     # normales Versetzen (auch lehrer -> speicher)
-     # sicherstellen dass Verzeichnis Tauschverzeichnisse existiert
-     &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/\$share_dir",
-                      "$user_home/${Language::share_dir}");
-
-     # Links zu Tauschverzeichnissen anlegen
-     &do_falls_nicht_testen(
-         # Link auf Klassentausch anlegen
-          "ln -sf  $tausch_klasse $user_home/${Language::share_dir}/${Language::share_string}$gruppe",
-          # Link auf Schülertausch anlegen
-          "ln -sf $DevelConf::share_school $user_home/${Language::share_dir}/${Language::share_string}${Language::school}"
-     );
-
-  }
-}
 
 
 
@@ -1898,10 +1834,11 @@ sub get_plain_password {
 
 sub create_school_link {
     my ($login) = @_;
-    if (getpwnam("$login")){
-      # my($loginname_passwd,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
-      #    $name_passwd,$gcos_passwd,$home,$shell)=&get_user_auth_data($login);
-       my ($home)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
+    my ($home)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
+
+    if (defined $home){
+#    if (getpwnam("$login")){
+#       my ($home)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
        my $link_name=$home.
         "/${Language::share_dir}/${Language::share_string}".
         "${Language::school}";
@@ -1931,8 +1868,9 @@ sub reset_user {
         print "   ... doing nothing!\n";
     } else {
         # do some work
-        my @entry = getpwnam($user);
-        my $homedir = "$entry[7]";
+        #my @entry = getpwnam($user);
+        #my $homedir = "$entry[7]";
+        my ($homedir)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
         my (@groups) = 
            &Sophomorix::SophomorixPgLdap::pg_get_group_list($user);
         if (-e $homedir){
@@ -2000,10 +1938,12 @@ sub create_share_link {
     }
 
     if (getpwnam("$login")){
-       my($login,$passwort,$uid,$gid,$quota,
-          $name,$gcos,$home,$shell)=getpwnam("$login");
-       my ($gname, $passwd, $gidnumber, $members)=getgrgid("$gid");
-       $homedir=$home;
+
+       #my($login,$passwort,$uid,$gid,$quota,
+       #   $name,$gcos,$home,$shell)=getpwnam("$login");
+       #my ($gname, $passwd, $gidnumber, $members)=getgrgid("$gid");
+       #$homedir=$home;
+       ($homedir,$gname)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
        $pri_group=($gname);
        #print "   Group is $pri_group\n";
     }
@@ -2197,8 +2137,9 @@ sub remove_share_link {
     }
 
     if (getpwnam("$login")){
-       my($login,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
-          $name_passwd,$gcos_passwd,$home,$shell)=getpwnam("$login");
+        my ($home)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
+#       my($login,$passwort,$uid_passwd,$gid_passwd,$quota_passwd,
+#          $name_passwd,$gcos_passwd,$home,$shell)=getpwnam("$login");
        $homedir=$home;
     }
 
@@ -2440,14 +2381,7 @@ sub backup_amk_file {
 }
 
 
-=pod
-
-=item I<get_klasse_von_login(login)>
-
-liefert die primäre Gruppe des übergebenen loginnamens (Ändert sich)
-
-=cut
-sub get_klasse_von_login {
+sub get_klasse_von_login_oldstuff {
   my ($loginname) = @_;
   my $gid=0;
   my $grname="";
@@ -2698,7 +2632,7 @@ sub check_raum {
 # ===========================================================================
 # Prüfen,ob der übergebene Name ein Lehrer ist
 # ===========================================================================
-sub check_lehrer {
+sub check_lehrer_oldstuff {
   my $ergebnis=0;
   my ($name_to_check)=@_;
   if (&get_klasse_von_login($name_to_check) eq ${DevelConf::teacher}) {  
@@ -2716,7 +2650,7 @@ sub check_lehrer {
 }
 
 
-sub get_lehrer_in_klasse {
+sub get_lehrer_in_klasse_oldstuff {
  # wenn kein lehrer in dieser Klasse ist, 
  # oder die Klasse nicht im Hash vorkommt,
  # dann leere Liste zurück
