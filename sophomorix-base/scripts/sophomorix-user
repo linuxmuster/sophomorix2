@@ -397,7 +397,6 @@ if ($removable ne""){
 if ($killable ne""){
     print "Making the account of $killable killable by sophomorix-kill:\n";
     # check if it is really an account
-#    if (getpwnam("$killable")){
     if (&check_sophomorix_user("$killable")==1){
 	print "   - $killable is a valid username.\n";
     } else {
