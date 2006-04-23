@@ -59,6 +59,9 @@ Bug: a user in dachboden is reactivated by a similar
 Bug?: when in lehrer.txt a ; is missing, the sophomorix-check 
 runs and tries to add the user with unforeseen consequences
 
+Bug: 
+ps2pdf cuts away the footer when sophomorix-print is running
+
 ############################################################
 DOKUMENTATION To do
 ############################################################
@@ -1253,12 +1256,16 @@ everywhere where homedir was fetched by getpwnam:
 
 
 
-NEXT: collect fromroom, room 121
+NEXT:
 variablen in SophomorixPgldap scheine global zu gelten.
 
 
 1.8.1-1  (2006-04-xx)
    CODE Cleanup:
+   - SophomorixBase:
+      - removed function get_lehrer_in_klasse
+      - removed function check_leher
+      - removed function get_klasse_von_login 
    - removed unneeded testscripts and their manpages from
      the package sophomorix-developer 
    - added CVS-Id-Keyword to all relevant files 
