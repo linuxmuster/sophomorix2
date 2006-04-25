@@ -1240,11 +1240,108 @@ NEXT:
 variablen in SophomorixPgldap scheinen global zu gelten.
 SphomorixBase: remove unused functions
 
+smb.conf:
 
+thomas template im installierten system:
+
+als parameter definieren in sophomorix-devel.conf: /var/lib/linuxmuster
+
+Variablen sind:
+  @@workgroup@@
+  @@basename@@  in @@basedn@@ ändern (ich bei mir)
+
+wenn thomas smb.conf (Revision 18) vorhanden, dann diese holen und ersetzen
+ansonsten eigene benutzen. Thomas macht @@message3@@ noch rein  
+
+@@message1@@ und @@message2@@: 
+Neues Feld @@message3@@ mit Datum und Uhrzeit der Änderung noch rein
+
+
+
+Netlogon:
+
+scripte:
+
+login.bat  (smb.conf) ruft andere auf
+logon.bat
+common.bat
+
+
+wie bei smb.conf, Pfad konfigurierbar, kommt von Thomas
+
+
+
+
+Projekte:
+
+- switch --join zur funktion bringen
+- Projekt löschen
+
+
+
+
+
+
+
+Verzeichnisstruktur:
+
+$HOME/cups-pdf  user:adminclass 0700
+
+Betrifft: lehrer,schueler,workstations,administrators
+
+
+Austritt aus Klasse/Projekt/:
+
+Ordner bleibt erhalten wenn nicht leer, User bekommt löschrecht (owner)
+Schulkonsole.
+
+Bei wiedereintritt soll Ordner mit korrekte Daten da sein
+
+
+public_html:
+
+
+Benutzeranlegen:
+             $HOME muss 0701 sein Schüler 2751
+Verzeichnis: $HOME/public_html owner:adminklasse 0755
+      darin: $HOME/public_html/.htacces   www-data:www-data 0400 mit
+             - nur owner und Administrator und gruppe teachers Zugriff erlaubt
+               (.htacess von Thomas, owner,gruppe mit @@getagged@@)
+               (bei Lehrer andere Datei (gruppe lehrer nicht))
+
+Veröffentlichen: /var/www/people
+      jeder user bekommt ein dir /klasse/user
+                 bzw. /project/home
+             mit .htaccess für off
+
+      (.htaccess für on und off, mit @@getagged@@)
+           
+
+Befehl für schulkonsole
+für user/klassen/project die .htaccess-Datei wechseln 
+
+
+
+NEXT:
+
+remove $HOME/www stuff and add public_html instead
+
+sophomorix-quota: Not setting Quota for workstation  (is that OK?)
+
+Homedir of administrators: 2701
+
+
+nscd:  neu starten /etc/init.d/nscd stop|start
+
+
+Ordner für __eingesammelt:
+
+$lehrer-$datum-$uhrzeit-$klasse/raum...
 
 
 
 1.8.1-1  (2006-04-xx)
+   Bugfix: add Administrator with shell /bin/bash
    Bugfix: fetchdata_from_account shows wrong account-type for workstations 
    CODE Cleanup:
    - everywhere where homedir was fetched by getpwnam:
