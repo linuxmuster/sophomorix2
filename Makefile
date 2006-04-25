@@ -60,7 +60,7 @@ SAMBADIR=$(DESTDIR)/var/lib/samba
 # Config-templates
 CTEMPDIR=$(DESTDIR)/usr/share/sophomorix/config-templates
 
-# Config-templates
+# Testfiles
 DEVELOPERDIR=$(DESTDIR)/usr/share/sophomorix-developer
 
 # WEBMINCONFDIR ML und Debian
@@ -97,6 +97,7 @@ install-base:
 	install -d -m700 -oroot -groot $(LOGDIR)/user
 	install -d -m700 -oroot -groot $(CTEMPDIR)
 	install -d -m700 -oroot -groot $(CTEMPDIR)/samba/netlogon
+	install -d -m700 -oroot -groot $(CTEMPDIR)/apache
 
 	##### scripts
 	install -d $(DESTDIR)/usr/sbin
@@ -173,6 +174,8 @@ install-pgldap:
 	##### install samba.schema
 	install -d -m755 -oroot -groot $(SCHEMA)/
 	install -oroot -groot --mode=0755 sophomorix-pgldap/config-ldap/samba.schema $(SCHEMA)/
+	##### Copy the apache-templates
+	install -oroot -groot --mode=0644 sophomorix-base/apache-templates/*-template $(CTEMPDIR)/apache/
 	##### the install script for the database installation
 	install -d -m755 -oroot -groot $(DBINSTALL)/
 	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/sophomorix.sql $(DBINSTALL)/pgsql
