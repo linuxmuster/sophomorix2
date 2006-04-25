@@ -14,24 +14,21 @@ Next meeting
 ============================================================
 Working together: sophomorix and linuxmuster_base
 
-- smb.conf
-- who creates directory structure for workstation accounts
-- fetching the type of a workstation (does it work)
-- what to do in remove_share_directory, when dir is not empty?
-- directories in /etc/skel. whats left
-- cups-pdf dir in $HOME (owner? undeleteable for user)
-- public_html in $HOME
 
-Gibts folgende Datei immer?
+cups-pdf: not necessary for Administrator (not a user account)
+
+
 /etc/linuxmustser/classrooms   (1 Raum pro Zeile)
+File exists always, empty in the beginning,
+Always use this file as a list of classrooms (for exams)
+
+
 
 
 
 Other Questions
-- decide if dir when colllecting data contains the teachers 
-  loginname 
-- problems: a teacher cann fill the HD space easily with handing out lots of data
-- nscd (was started and stopped on ML 2.x: what to do now?)
+- problems: a teacher cann fill the HD space easily with 
+  handing out lots of data
 
 
 
@@ -535,7 +532,7 @@ ALL SCRIPTS To do
 ############################################################
 DATABASE To do
 ############################################################
-Postres:
+Postgres:
    - dump old database, before doing anything
                  pg_dump ldap > file.sql
 
@@ -550,6 +547,10 @@ SQL-DBI/OpenLDAP related:
 - avoid inserting an identical,existing line once again
   --using SQL
   (SQL can't do that)
+
+
+Lihas: nscd start/stop: when needed?
+
 
 ############################################################
 DATABASE Tips
@@ -1240,6 +1241,12 @@ NEXT:
 variablen in SophomorixPgldap scheinen global zu gelten.
 SphomorixBase: remove unused functions
 
+
+
+
+
+
+
 smb.conf:
 
 thomas template im installierten system:
@@ -1258,16 +1265,20 @@ Neues Feld @@message3@@ mit Datum und Uhrzeit der Änderung noch rein
 
 
 
+
+
 Netlogon:
 
 scripte:
-
-login.bat  (smb.conf) ruft andere auf
-logon.bat
-common.bat
-
+   login.bat  (smb.conf) ruft andere auf
+   logon.bat
+   common.bat
 
 wie bei smb.conf, Pfad konfigurierbar, kommt von Thomas
+
+
+
+
 
 
 
@@ -1276,18 +1287,9 @@ Projekte:
 
 - switch --join zur funktion bringen
 - Projekt löschen
+- make a teacher join a project if --join
 
 
-
-
-
-
-
-Verzeichnisstruktur:
-
-$HOME/cups-pdf  user:adminclass 0700
-
-Betrifft: lehrer,schueler,workstations,administrators
 
 
 Austritt aus Klasse/Projekt/:
@@ -1295,16 +1297,16 @@ Austritt aus Klasse/Projekt/:
 Ordner bleibt erhalten wenn nicht leer, User bekommt löschrecht (owner)
 Schulkonsole.
 
-Bei wiedereintritt soll Ordner mit korrekte Daten da sein
+Bei wiedereintritt soll Ordner mit korrekten Daten da sein
+
+
+
 
 
 public_html:
 
-
-Benutzeranlegen:
-             $HOME muss 0701 sein Schüler 2751
-Verzeichnis: $HOME/public_html owner:adminklasse 0755
-      darin: $HOME/public_html/.htacces   www-data:www-data 0400 mit
+When creating a user:
+       $HOME/public_html/.htacces   www-data:www-data 0400 mit
              - nur owner und Administrator und gruppe teachers Zugriff erlaubt
                (.htacess von Thomas, owner,gruppe mit @@getagged@@)
                (bei Lehrer andere Datei (gruppe lehrer nicht))
@@ -1317,36 +1319,53 @@ Veröffentlichen: /var/www/people
       (.htaccess für on und off, mit @@getagged@@)
            
 
+
+
+
 Befehl für schulkonsole
 für user/klassen/project die .htaccess-Datei wechseln 
+
+sophomorix-user
+sophomorix-class
+sophomorix-project
+...
+
 
 
 
 NEXT:
 
-remove $HOME/www stuff and add public_html instead
+Creating directory-structure for webspace
+
 
 sophomorix-quota: Not setting Quota for workstation  (is that OK?)
 
 Homedir of administrators: 2701
 
 
-nscd:  neu starten /etc/init.d/nscd stop|start
-
-
-Ordner für __eingesammelt:
-
-$lehrer-$datum-$uhrzeit-$klasse/raum...
 
 
 
 1.8.1-1  (2006-04-xx)
-   Bugfix: add Administrator with shell /bin/bash
-   Bugfix: fetchdata_from_account shows wrong account-type for workstations 
-   CODE Cleanup:
-   - everywhere where homedir was fetched by getpwnam:
-     replaced it with fetchdata_from_account
-   - SophomorixBase:
+   
+   - added $HOME/public_html apache templates to debian package
+   - Bugfix: fetchadminclasses_from_school displayed group of teachers
+   - $HOME/cups-pdf  user:teachers 0700
+   - Dir to collect data changed to:
+      - $teacher-$datewithtime_$klasse
+   - nscd start/stop in
+      - sophomorix-add
+   - Changed Permissions of $HOME
+   - Changed directory structure:
+      - remove $HOME/www/public_html
+      - use $HOME/public_html
+      - add $HOME/cups-pdf  user:teachers 0700 (students and teachers)
+   - Bugfix: add Administrator with shell /bin/bash
+   - Bugfix: fetchdata_from_account shows wrong account-type for workstations 
+   - CODE Cleanup:
+      - everywhere where homedir was fetched by getpwnam:
+        replaced it with fetchdata_from_account
+      - SophomorixBase:
       - removed function get_ka_raeume_in_schule
       - removed function check_raum
       - removed function get_raeume_in_schule_hash
