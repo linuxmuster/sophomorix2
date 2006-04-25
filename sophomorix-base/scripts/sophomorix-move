@@ -304,7 +304,7 @@ while(<USERVERSETZEN>){
    # Muss angepasst werden an Eigentümer lehrer
    &do_falls_nicht_testen(
         "chown -R .${DevelConf::teacher} $new_home",
-        "chown .root $new_home/www"
+#        "chown .root $new_home/www"
    );
 
    # links 
