@@ -934,12 +934,15 @@ sub provide_user_files {
                   "\$homedir_teacher/\$lehrer/\$share_dir",
                   "$home/${Language::share_dir}",
                   "$login");
-           &setup_verzeichnis("\$homedir_teacher/\$lehrer/www",
-                      "$www_home");
-
-           &setup_verzeichnis("\$homedir_teacher/\$lehrer/www/public_html",
-                      "$www_home/public_html",
-                      "$login");
+           &setup_verzeichnis(
+                  "\$homedir_teacher/\$lehrer/public_html",
+                  "$home/public_html");
+#           &setup_verzeichnis("\$homedir_teacher/\$lehrer/www",
+#                      "$www_home");
+#
+#           &setup_verzeichnis("\$homedir_teacher/\$lehrer/www/public_html",
+#                      "$www_home/public_html",
+#                      "$login");
         }
         &do_falls_nicht_testen(
            # Link von windows aus
@@ -994,12 +997,15 @@ sub provide_user_files {
                   "\$homedir_pupil/\$klassen/\$schueler/\$share_dir",
                   "$home/${Language::share_dir}",
                   "$login");
-           &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/www",
-                              "$www_home");
            &setup_verzeichnis(
-                  "\$homedir_pupil/\$klassen/\$schueler/www/public_html",
-                  "$www_home/public_html",
-                  "$login");
+                  "\$homedir_pupil/\$klassen/\$schueler/public_html",
+                  "$home/public_html");
+#           &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/www",
+#                              "$www_home");
+#           &setup_verzeichnis(
+#                  "\$homedir_pupil/\$klassen/\$schueler/www/public_html",
+#                  "$www_home/public_html",
+#                  "$login");
            #www
            &do_falls_nicht_testen(
               # Link von windows aus
