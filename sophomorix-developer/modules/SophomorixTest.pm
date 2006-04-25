@@ -482,10 +482,18 @@ sub fetch_login {
 # check all files/directorys/links of a account 
 sub check_provided_files {
     my ($login,$class) = @_;
-    &check_file("",$login,$class,
-                 $login,
-                 "teachers",
-                 "0700");
+    if ($class eq ${DevelConf::teacher}){
+        &check_file("",$login,$class,
+                    $login,
+                    "teachers",
+                    "2701");
+     } else {
+        &check_file("",$login,$class,
+                    $login,
+                    "teachers",
+                    "2751");
+    }
+
     &check_file("windows",$login,$class,
                  $login,
                  "teachers",
@@ -495,6 +503,7 @@ sub check_provided_files {
                     $login,
                     ${DevelConf::teacher},
                     "1755");
+
     } else {
        &check_file("$Language::task_dir",$login,$class,
                     "root",
@@ -549,9 +558,9 @@ sub check_file {
     my ($group)=getgrgid($gid);
     my ($name)=getpwuid($uid);
 
-    # print "Permissions of $file are $mode, $uid, $gid\n";
-    # print "Gruppe: $group \n";
-    # print "Login: $name \n";
+    print "Permissions of $file are $mode, $uid, $gid\n";
+    print "Gruppe: $group \n";
+    print "Login: $name \n";
 
     is($mode, $perm, "    permissions of $file are $perm");
     is($name, $owner, "    Owner of $file is $owner");
