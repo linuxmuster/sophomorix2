@@ -1411,6 +1411,8 @@ sub create_class_db_entry {
         $type="adminclass";
     } elsif ($sub==2) {
         $type="project";
+    } elsif ($sub==4) {
+        $type="teacher";
     } elsif ($sub==3) {
         $type="manualgroup";
     } else {
@@ -1557,10 +1559,10 @@ sub create_class_db_entry {
              FALSE,
              FALSE,
              '$type')";	
-#        if($Conf::log_level>=3){
-#           print "\nSQL: $sql\n";
-#        }
-#        $dbh->do($sql);
+        if($Conf::log_level>=3){
+           print "\nSQL: $sql\n";
+        }
+        $dbh->do($sql);
 
     } else {
         # adding a adminclass
@@ -1923,6 +1925,7 @@ sub fetchadminclasses_from_school {
     my $dbh=&db_connect();
     my $sth= $dbh->prepare( "SELECT gid from classdata 
                               WHERE type='adminclass'
+                                AND NOT gid='${DevelConf::teacher}'
                               ORDER BY gid" );
       $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
