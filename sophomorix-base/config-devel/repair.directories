@@ -18,8 +18,8 @@
 #
 #
 # $webserver                        Pfad zum Webserver-doc-Verzeichnis
-# $webuser                          Der Apache_user
-# $webgroup                         Die Apache_group
+# $apache_user                      Der Apache_user
+# $apache_group                     Die Apache_group
 #
 #  ! Es darf nur max. 1 Gruppenplatzhalter der obigen vorkommen (auch mehrmals)
 #  ! Es darf nur max. 1 Userplatzhalter der obigen vorkommen (auch mehrmals)
@@ -93,11 +93,11 @@ $homedir_pupil/$klassen/$schueler/$handoutcopy_dir::root::root::1755
 $homedir_pupil/$klassen/$schueler/$handoutcopy_dir/$current_room::root::root::0700
 
 # old
-$homedir_pupil/$klassen/$schueler/www::$webuser::root::0001/0501
-$homedir_pupil/$klassen/$schueler/www/public_html::$schueler::teachers::2755
+#$homedir_pupil/$klassen/$schueler/www::$apache_user::root::0001/0501
+#$homedir_pupil/$klassen/$schueler/www/public_html::$schueler::teachers::2755
 
 # new
-$homedir_pupil/$klassen/$schueler/public_html::$schueler::$webgroup::2750
+$homedir_pupil/$klassen/$schueler/public_html::$schueler::$apache_group::2750
 
 
 ### TEACHER
@@ -121,11 +121,11 @@ $homedir_teacher/$lehrer/$collected_dir/$current_room::$lehrer::teachers::0755
 $homedir_teacher/$lehrer/$share_dir::root::root::1755
 
 # old
-$homedir_teacher/$lehrer/www::$webuser::root::0001/0501
-$homedir_teacher/$lehrer/www/public_html::$lehrer::teachers::2755
+#$homedir_teacher/$lehrer/www::$apache_user::root::0001/0501
+#$homedir_teacher/$lehrer/www/public_html::$lehrer::teachers::2755
 
 # new
-$homedir_teacher/$lehrer/public_html::$lehrer::$webgroup::2750
+$homedir_teacher/$lehrer/public_html::$lehrer::$apache_group::2750
 
 
 # WORKSTATION
@@ -196,7 +196,7 @@ $homedir_samba_progs::Administrator::administrators::0775
 #/home/schueler/$klassen/$schueler/windows::$schueler::lehrer::0700 
 #/home/schueler/$klassen/$schueler/windows/sammelordner::$schueler::lehrer::2750
 #/home/schueler/$klassen/$schueler/Tauschverzeichnisse::admin::lehrer::1755
-#/home/schueler/$klassen/$schueler/www::$webuser::root::0001/0501
+#/home/schueler/$klassen/$schueler/www::$apache_user::root::0001/0501
 #/home/schueler/$klassen/$schueler/www/public_html::$schueler::lehrer::2755
 
 # Lehrer
@@ -204,7 +204,7 @@ $homedir_samba_progs::Administrator::administrators::0775
 #/home/lehrer/$lehrer/windows::$lehrer::lehrer::0700
 #/home/lehrer/$lehrer/windows/sammelordner::$lehrer::lehrer::0755
 #/home/lehrer/$lehrer/windows/aufgaben::admin::lehrer::0775
-#/home/lehrer/$lehrer/www::$webuser::root::0001/0501
+#/home/lehrer/$lehrer/www::$apache_user::root::0001/0501
 #/home/lehrer/$lehrer/www/public_html::$lehrer::lehrer::2755
 
 # Workstation
@@ -213,7 +213,7 @@ $homedir_samba_progs::Administrator::administrators::0775
 #/home/workstations/$raeume/$workstation/windows::$workstation::lehrer::2750 
 #/home/workstations/$raeume/$workstation/windows/sammelordner::$workstation::lehrer::2750
 #/home/workstations/$raeume/$workstation/Tauschverzeichnisse::admin::lehrer::1755
-#/home/workstations/$raeume/$workstation/www::$webuser::root::0001/0501
+#/home/workstations/$raeume/$workstation/www::$apache_user::root::0001/0501
 #/home/workstations/$raeume/$workstation/www/public_html::$workstation::lehrer::2755
 
 ### SAMBA
