@@ -206,6 +206,11 @@ if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.add")) {
 # sophomorix.add mitloggen
 &backup_amk_file($zeit,"add","before");
 
+# stop nscd
+if (-e $DevelConf::nscd_script){
+    system("$DevelConf::nscd_stop");
+}
+
 my @passwort_zeichen=&get_passwd_charlist();
 
 
@@ -402,6 +407,13 @@ close(NOCHANLEGEN);
 #if (-e "/etc/init.d/webmin"){
 #   &do_falls_nicht_testen("/etc/init.d/webmin restart");
 #}
+
+
+# start nscd
+if (-e $DevelConf::nscd_script){
+    system("$DevelConf::nscd_start");
+}
+
 
 # später ???
 if ($user_nummer==0){ 
