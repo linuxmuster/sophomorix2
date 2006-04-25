@@ -19,6 +19,7 @@
 #
 # $webserver                        Pfad zum Webserver-doc-Verzeichnis
 # $webuser                          Der Apache_user
+# $webgroup                         Die Apache_group
 #
 #  ! Es darf nur max. 1 Gruppenplatzhalter der obigen vorkommen (auch mehrmals)
 #  ! Es darf nur max. 1 Userplatzhalter der obigen vorkommen (auch mehrmals)
@@ -81,7 +82,8 @@ $tasks_rooms/$raeume::Administrator::teachers::3775
 ### STUDENTS
 
 $homedir_pupil/$klassen::Administrator::teachers::2751 
-$homedir_pupil/$klassen/$schueler::$schueler::teachers::0700
+#$homedir_pupil/$klassen/$schueler::$schueler::teachers::0700
+$homedir_pupil/$klassen/$schueler::$schueler::teachers::2751
 $homedir_pupil/$klassen/$schueler/windows::$schueler::teachers::0700 
 $homedir_pupil/$klassen/$schueler/$task_dir::root::root::1755
 $homedir_pupil/$klassen/$schueler/$collect_dir::$schueler::root::1755
@@ -90,13 +92,18 @@ $homedir_pupil/$klassen/$schueler/$share_dir::root::root::1755/1750
 $homedir_pupil/$klassen/$schueler/$handoutcopy_dir::root::root::1755
 $homedir_pupil/$klassen/$schueler/$handoutcopy_dir/$current_room::root::root::0700
 
+# old
 $homedir_pupil/$klassen/$schueler/www::$webuser::root::0001/0501
 $homedir_pupil/$klassen/$schueler/www/public_html::$schueler::teachers::2755
+
+# new
+$homedir_pupil/$klassen/$schueler/public_html::$schueler::$webgroup::2750
 
 
 ### TEACHER
 
-$homedir_teacher/$lehrer::$lehrer::teachers::0700/0701
+#$homedir_teacher/$lehrer::$lehrer::teachers::0700/0701
+$homedir_teacher/$lehrer::$lehrer::teachers::2701
 $homedir_teacher/$lehrer/windows::$lehrer::teachers::0700
 $homedir_teacher/$lehrer/$task_dir::$lehrer::teachers::1755
 $homedir_teacher/$lehrer/$handout_dir::$lehrer::teachers::1755
@@ -113,8 +120,12 @@ $homedir_teacher/$lehrer/$collected_dir::$lehrer::teachers::0700
 $homedir_teacher/$lehrer/$collected_dir/$current_room::$lehrer::teachers::0755
 $homedir_teacher/$lehrer/$share_dir::root::root::1755
 
+# old
 $homedir_teacher/$lehrer/www::$webuser::root::0001/0501
 $homedir_teacher/$lehrer/www/public_html::$lehrer::teachers::2755
+
+# new
+$homedir_teacher/$lehrer/public_html::$lehrer::$webgroup::2750
 
 
 # WORKSTATION
@@ -126,6 +137,11 @@ $homedir_ws/$raeume/$workstation/$collect_dir::$workstation::root::1755
 $homedir_ws/$raeume/$workstation/$collect_dir/$current_room::$workstation::teachers::0755
 $homedir_ws/$raeume/$workstation/$task_dir::root::root::1755
 $homedir_ws/$raeume/$workstation/$handoutcopy_dir::root::root::1755
+
+
+### /var/www
+
+
 
 
 ### SAMBA

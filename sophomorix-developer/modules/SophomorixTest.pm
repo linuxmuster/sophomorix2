@@ -284,7 +284,7 @@ sub check_account {
        my($name,$passwd,$uid,$gid,$quota,$comment,
           $gcos,$dir,$shell) = getpwnam($login);
        my $pri_grp = getgrgid($gid);
-       &check_dir($dir,$login,${DevelConf::teacher},"0700");
+       &check_dir($dir,$login,${DevelConf::teacher},"2701");
        &check_dir("${dir}/windows",$login,${DevelConf::teacher},"0700");
        &check_dir("${dir}/${Language::share_dir}","root","root","1755");
        my $link_dir="${dir}/${Language::share_dir}";
