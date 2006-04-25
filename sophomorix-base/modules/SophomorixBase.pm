@@ -3992,14 +3992,14 @@ sub collect {
 
   if (defined $users){ 
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
-                   "${Language::current_room}/${name}_${date}";
+                   "${Language::current_room}/${login}_${date}_${name}";
   } else {
      if ($exam==1){
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
-                   "${Language::exam}/EXAM_${name}_${date}";
+                   "${Language::exam}/EXAM_${login}_${date}_${name}";
      } else {
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
-                   "${name}/${name}_${date}";
+                   "${name}/${login}_${date}_${name}";
      }
   }
 
@@ -4011,7 +4011,7 @@ sub collect {
   }
 
   # for exams
-  my $log_dir = "${DevelConf::log_pfad_ka}/EXAM_${name}_${date}_${login}";
+  my $log_dir = "${DevelConf::log_pfad_ka}/EXAM_${login}_${date}_${name}";
   # ???? make more secure
   if ($log_dir =~ /(.*)/) {
      $log_dir=$1;
