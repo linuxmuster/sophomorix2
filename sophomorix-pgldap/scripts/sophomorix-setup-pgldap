@@ -825,7 +825,7 @@ my %permissions=&get_alle_verzeichnis_rechte();
 
 # adding users
 # Administrator is equal to admin in ml 2.x
-system("smbldap-useradd -a  -c Administrator -m -d /home/administrators/Administrator -g 'domadmins' -G 'administrators,printoperators' -s /bin/false Administrator");
+system("smbldap-useradd -a  -c Administrator -m -d /home/administrators/Administrator -g 'domadmins' -G 'administrators,printoperators' -s /bin/bash Administrator");
 
 # pgadmin is to install programs on the win clients
 system("smbldap-useradd -a  -c 'Programm Administrator' -m -d /home/administrators/pgmadmin -g 'administrators' -s /bin/false pgmadmin");
