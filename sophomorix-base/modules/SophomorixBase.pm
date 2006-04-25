@@ -456,8 +456,10 @@ sub setup_verzeichnis {
       if ($permissions =~m/\//) {
          ($permissions)=split(/\//,$permissions);
       }
-      # $webuser ersetzen
-      $owner=~s/\$webuser/$DevelConf::apache_user/;
+      # $apache_user ersetzen
+      $owner=~s/\$apache_user/$DevelConf::apache_user/;
+      # $apache_group ersetzen
+      $gowner=~s/\$apache_group/$DevelConf::apache_group/;
       # $webserver ersetzen
       $pfad=~s/\/\$webserver/$DevelConf::apache_root/;
 
@@ -936,7 +938,8 @@ sub provide_user_files {
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/public_html",
-                  "$home/public_html");
+                  "$home/public_html",
+                  "$login");
 #           &setup_verzeichnis("\$homedir_teacher/\$lehrer/www",
 #                      "$www_home");
 #
@@ -999,7 +1002,8 @@ sub provide_user_files {
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_pupil/\$klassen/\$schueler/public_html",
-                  "$home/public_html");
+                  "$home/public_html",
+                  "$login");
 #           &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/www",
 #                              "$www_home");
 #           &setup_verzeichnis(

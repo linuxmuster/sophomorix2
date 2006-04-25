@@ -205,6 +205,8 @@ sub repair_directories {
 
        #s/\$homedir_admin/$DevelConf::homedir_admin/;
        s/\$var_lib_pfad/$DevelConf::var_lib_pfad/;
+       s/\$apache_user/$DevelConf::apache_user/;
+       s/\$apache_group/$DevelConf::apache_group/;
        s/\$homedir_all_admins/$DevelConf::homedir_all_admins/;
        s/\$homedir_pupil/${DevelConf::homedir_pupil}/;     
        s/\$homedir_teacher/$DevelConf::homedir_teacher/; 
@@ -368,8 +370,8 @@ sub repair_directory {
    # Allgemeine Ersetzungen
    # $webserver
    $path=~s/\/\$webserver/$DevelConf::apache_root/;
-   # $webuser
-   $owner=~s/\$webuser/$DevelConf::apache_user/;
+   # $apache_user
+   $owner=~s/\$apache_user/$DevelConf::apache_user/;
    # $samba
 #   $path=~s/\/\$samba/$DevelConf::samba_dir/;
    my @userliste=();
