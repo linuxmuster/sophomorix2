@@ -1308,12 +1308,6 @@ Bei wiedereintritt soll Ordner mit korrekten Daten da sein
 
 public_html:
 
-When creating a user:
-       $HOME/public_html/.htacces   www-data:www-data 0400 mit
-             - nur owner und Administrator und gruppe teachers Zugriff erlaubt
-               (.htacess von Thomas, owner,gruppe mit @@getagged@@)
-               (bei Lehrer andere Datei (gruppe lehrer nicht))
-
 Veröffentlichen: /var/www/people
       jeder user bekommt ein dir /klasse/user
                  bzw. /project/home
@@ -1346,11 +1340,13 @@ sophomorix-quota: Not setting Quota for workstation  (is that OK?)
 Homedir of administrators: 2701
 
 
-
+Creating dirs in /var/www/people
 
 
 1.8.1-1  (2006-04-xx)
-   
+   - added .htaccess file in each teachers/students public_html
+      -- owner is www-data.www-data
+      -- permissions are 0400
    - added $HOME/public_html apache templates to debian package
    - Bugfix: fetchadminclasses_from_school displayed group of teachers
    - $HOME/cups-pdf  user:teachers 0700
