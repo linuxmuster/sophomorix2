@@ -244,6 +244,7 @@ sub repair_directories {
        s/\$collect_dir/$Language::collect_dir/;     
        s/\$collected_dir/$Language::collected_dir/;     
        s/\$current_room/$Language::current_room/;     
+       s/\$www_people/$DevelConf::www_people/;     
        
        # print only number of command when --info
        if ($info==1){

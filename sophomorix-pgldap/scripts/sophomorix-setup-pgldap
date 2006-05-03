@@ -883,6 +883,9 @@ system("smbldap-useradd -c 'web Administrator' -m -d /home/administrators/wwwadm
 &setup_verzeichnis("\$tasks_projects","$DevelConf::tasks_projects");
 &setup_verzeichnis("\$tasks_teachers","$DevelConf::tasks_teachers");
 
+# www stuff
+&setup_verzeichnis("/var/www","/var/www");
+&setup_verzeichnis("\$www_people","$DevelConf::www_people");
 
 
 # make important data readable by root only
