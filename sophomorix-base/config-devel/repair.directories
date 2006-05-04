@@ -15,6 +15,8 @@
 # $workstation                      alle Workstation der Schule
 # $workstation rechts von $raeume   alle Workstation dieses Raumes
 #
+# $members rechts von $projects     alle Mitglieder dieses Projektes
+#
 # $apache_user                      Der Apache_user
 # $apache_group                     Die Apache_group
 #
@@ -136,7 +138,8 @@ $homedir_ws/$raeume/$workstation/$task_dir::root::root::1755
 $homedir_ws/$raeume/$workstation/$handoutcopy_dir::root::root::1755
 
 
-### /var/www
+### /var/www/...
+
 /var/www::root::root::0755
 $www_people::root::root::0755
 
@@ -145,6 +148,8 @@ $www_classes/$klassen::root::root::0755
 $www_classes/$klassen/$schueler::root::root::0755
 
 $www_projects::root::root::0755
+$www_projects/$projects::root::root::0755
+$www_projects/$projects/$members::root::root::0755
 
 $www_teachers::root::root::0755
 $www_teachers/$lehrer::root::root::0755
