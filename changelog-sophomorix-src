@@ -12,6 +12,8 @@ This is the todo/changelog for the sophomorix sourcecode
 Next meeting 0711/ 253 583-33
 ============================================================
 ============================================================
+Quota in /var/www/people ?
+
 Working together: sophomorix and linuxmuster_base
 
 
@@ -1332,18 +1334,19 @@ sophomorix-project
 
 NEXT:
 
-Creating directory-structure for webspace
-
-
 sophomorix-quota: Not setting Quota for workstation  (is that OK?)
 
 Homedir of administrators: 2701
 
-
-Creating dirs in /var/www/people
+When adding a user to a project, create /var/www/people/$PROJECT/$USER
+When removing a user, remove empty /var/www/people/$PROJECT/$USER or 
+                      move contents to the users home
 
 
 1.8.1-1  (2006-04-xx)
+   - killing a project removes /var/www/people/projects/$PROJECT
+   - adding a user creates a dir in /var/www/people/[teachers|students]
+   - added /var/www/people/[teachers/students/projects]
    - added .htaccess file in each teachers/students public_html
       -- owner is www-data.www-data
       -- permissions are 0400
