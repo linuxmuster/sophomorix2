@@ -273,7 +273,8 @@ sub repair_directories {
            @gruppen=@klassen;
            $gruppen_anzahl++;
            if($Conf::log_level>=3){
-              print "\$klassen gefunden (Gruppenplatzhalter: $gruppen_anzahl)\n";
+              print "\$klassen gefunden ",
+                    "(Gruppenplatzhalter: $gruppen_anzahl)\n";
            }
        }elsif (/\$raeume/) {
            # Liste ist Raumliste
@@ -282,9 +283,17 @@ sub repair_directories {
            if($Conf::log_level>=3){
               print "\$raeume found (Group: $gruppen_anzahl)\n";
 	   }
+       }elsif (/\$projects/) {
+           # Liste ist Projektliste
+           @gruppen=@projects;
+           $gruppen_anzahl++;
+           if($Conf::log_level>=3){
+              print "\$projects found (Group: $gruppen_anzahl)\n";
+	   }
        } else {
            if($Conf::log_level>=3){
-              print ("No \$klassen or \$raeume found (Group: $groupowner)\n");
+              print "No \$klassen, \$raeume or $\projects ",
+                    "found (Group: $groupowner)\n";
            }
            @gruppen=($groupowner);
        }
@@ -321,10 +330,17 @@ sub repair_directories {
            if($Conf::log_level>=3){
               print "\$workstation found (Userplatzhalter: $user_anzahl)\n";
 	   }
+       }elsif (/\$members/) {
+           # Liste ist leer ($members alleine macht keinen Sinn)
+           @user=();
+           $user_anzahl++;
+           if($Conf::log_level>=3){
+              print "\$members found (Userplatzhalter: $user_anzahl)\n";
+	   }
        } else {
            if($Conf::log_level>=3){
-              print ("No \$schueler, \$lehrer or \$workstations found ");
-              print ("(Userplatzhalter: $owner)\n");
+              print ("No \$schueler, \$lehrer \$workstations or \$members ");
+              print ("found (Userplatzhalter: $owner)\n");
 	   }
            @user=($owner);
        }
@@ -400,6 +416,9 @@ sub repair_directory {
 #            @userliste=&get_schueler_in_klasse($gruppe);
             @userliste=&fetchstudents_from_adminclass($gruppe);
             #print "Userliste: Nur Klasse\n";
+	 } elsif ($path=~/\$projects/ && $path=~/\$members/) {
+            @userliste=&fetchusers_from_project($gruppe);
+            #print "Userliste: Nur Workstations\n";
 	 } elsif ($path=~/\$raeume/ && $path=~/\$workstation/) {
 #            @userliste=&get_workstations_in_raum($gruppe);
             @userliste=&fetchworkstations_from_room($gruppe);
@@ -419,9 +438,11 @@ sub repair_directory {
          # Bsp.: String $klassen mit dem Wert von $gruppe ersetzen
          $path=~s/\$klassen/$gruppe/g; 
          $path=~s/\$raeume/$gruppe/g; 
+         $path=~s/\$projects/$gruppe/g; 
 
          $groupowner=~s/\$klassen/$gruppe/g; 
          $groupowner=~s/\$raeume/$gruppe/g;
+         $groupowner=~s/\$projects/$gruppe/g;
 
       foreach $user (@userliste){
          if($Conf::log_level>=3){
@@ -442,10 +463,12 @@ sub repair_directory {
          $path=~s/\$schueler/$user/g; 
          $path=~s/\$lehrer/$user/g; 
          $path=~s/\$workstation/$user/g; 
+         $path=~s/\$members/$user/g; 
 
          $owner=~s/\$schueler/$user/g; 
          $owner=~s/\$lehrer/$user/g;
          $owner=~s/\$workstation/$user/g; 
+         $owner=~s/\$members/$user/g; 
 
          if (not defined ($ownerid = getpwnam $owner)) {
             print "Benutzer $owner gibt es nicht!\n";
