@@ -74,7 +74,8 @@ if ($help==1) {
    my @list = split(/\//,$0);
    my $scriptname = pop @list;
    # Befehlbeschreibung
-   print "\n$scriptname repairs the permissions of a sophomorix installation,\n",
+   print "\n$scriptname repairs the permissions ",
+         "of a sophomorix installation,\n",
          "reading the permissions from $repair_directories.\n\n";
    print('
 Options
@@ -113,9 +114,9 @@ if ($filename ne "") {
 &get_alle_verzeichnis_rechte();
 
 
-################################################################################
+###############################################################################
 # Gruppenlisten/Userlisten erstellen
-################################################################################
+###############################################################################
 
 # Klassen
 &titel("Creating list of every AdminClass ...");
@@ -135,7 +136,6 @@ my @klassen_sub=&fetchsubclasses_from_school();
 #my @projects=&get_projects_school(); 
 my @projects=&fetchprojects_from_school(); 
 &print_list("The list of every Project:",@projects);
-
 
 # Räume
 &titel("Creating list of every room ...");
@@ -245,6 +245,9 @@ sub repair_directories {
        s/\$collected_dir/$Language::collected_dir/;     
        s/\$current_room/$Language::current_room/;     
        s/\$www_people/$DevelConf::www_people/;     
+       s/\$www_classes/$DevelConf::www_classes/;     
+       s/\$www_projects/$DevelConf::www_projects/;     
+       s/\$www_teachers/$DevelConf::www_teachers/;     
        
        # print only number of command when --info
        if ($info==1){
