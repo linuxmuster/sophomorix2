@@ -776,16 +776,21 @@ sub provide_class_files {
     if ($class eq ${DevelConf::teacher}){
       &setup_verzeichnis("\$share_teacher",
                     "${DevelConf::share_teacher}");
+      &setup_verzeichnis("\$www_teachers",
+                    "${DevelConf::www_teachers}");
     } else {
       my $klassen_homes="${DevelConf::homedir_pupil}/$class";
       my $klassen_tausch="${DevelConf::share_classes}/$class";
       my $klassen_aufgaben="${DevelConf::tasks_classes}/$class";
+      my $klassen_www="${DevelConf::www_classes}/$class";
       &setup_verzeichnis("\$homedir_pupil/\$klassen",
                     "$klassen_homes");
       &setup_verzeichnis("\$share_classes/\$klassen",
                     "$klassen_tausch");
       &setup_verzeichnis("\$tasks_classes/\$klassen",
                     "$klassen_aufgaben");
+      &setup_verzeichnis("\$www_classes/\$klassen",
+                    "$klassen_www");
     }
 }
 
@@ -950,6 +955,10 @@ sub provide_user_files {
                   "\$homedir_teacher/\$lehrer/public_html",
                   "$home/public_html",
                   "$login");
+           &setup_verzeichnis(
+                  "\$www_teachers/\$lehrer",
+                  "${DevelConf::www_teachers}/$login",
+                  "$login");
 	   print "$htaccess_sed_command\n";
            system("$htaccess_sed_command"); 
            chmod 0400, $htaccess_target;
@@ -1015,6 +1024,10 @@ sub provide_user_files {
            &setup_verzeichnis(
                   "\$homedir_pupil/\$klassen/\$schueler/\$share_dir",
                   "$home/${Language::share_dir}",
+                  "$login");
+           &setup_verzeichnis(
+                  "\$www_classes/\$klassen/\$schueler",
+                  "${DevelConf::www_classes}/$class/$login",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_pupil/\$klassen/\$schueler/public_html",
