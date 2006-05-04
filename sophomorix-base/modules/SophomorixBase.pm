@@ -835,23 +835,36 @@ sub provide_project_files {
     my ($project) = @_;
     my $project_tausch="${DevelConf::share_projects}/$project";
     my $project_aufgaben="${DevelConf::tasks_projects}/$project";
+    my $project_www="${DevelConf::www_projects}/$project";
     print "   $project_tausch\n";
     print "   $project_aufgaben\n";
     &setup_verzeichnis("\$share_projects/\$klassen",
                        "$project_tausch");
     &setup_verzeichnis("\$tasks_projects/\$klassen",
                        "$project_aufgaben");
+    &setup_verzeichnis("\$www_projects/\$projects",
+                       "$project_www");
 }
 
 
 
 sub remove_project_files {
     my ($project) = @_;
+    if (not defined $project){
+        $project="";
+    }
+    if ($project eq ""){
+        print "ERROR: No project given";
+        return 0; 
+    }
     # removing directories
     my $command="rm -rf ${DevelConf::share_projects}/$project";
     print $command,"\n";
     system("$command");  
     $command="rm -rf ${DevelConf::tasks_projects}/$project";
+    print $command,"\n";
+    system("$command");  
+    $command="rm -rf ${DevelConf::www_projects}/$project";
     print $command,"\n";
     system("$command");  
 }
