@@ -4,20 +4,17 @@
 # Platzhalter:
 #
 # Gruppen:
-# $klassen                          alle Klassen in denen Schüler sind (OHNE lehrer)
-# $raeume                           alle Räume, in denen sich Workstations befinden
+# $klassen         alle Klassen in denen Schüler sind (OHNE lehrer)
+# $raeume          alle Räume, in denen sich Workstations befinden
+# $projects        alle Projekte der Schule (Todo)
 #
 # User:
 # $schueler                         alle Schüler der Schule
-# $schueler oder $workstation 
-# rechts von $klassen               alle Schüler dieser Klasse
+# $schueler rechts von $klassen     alle Schüler dieser Klasse
 # $lehrer                           alle Lehrer der Schule
 # $workstation                      alle Workstation der Schule
-# $schueler oder $workstation 
-# rechts von $raeume                alle Workstation dieses Raumes
+# $workstation rechts von $raeume   alle Workstation dieses Raumes
 #
-#
-# $webserver                        Pfad zum Webserver-doc-Verzeichnis
 # $apache_user                      Der Apache_user
 # $apache_group                     Die Apache_group
 #
@@ -45,9 +42,7 @@ $homedir_pupil::Administrator::domadmins::1775
 $homedir_ws::Administrator::domadmins::0775
 
 ### SHARES
-
 $share_share::Administrator::domadmins::1775
-
 $share_classes::Administrator::teachers::0751
 $share_subclasses::Administrator::teachers::0751
 $share_exams::Administrator::domadmins::0775
@@ -144,6 +139,15 @@ $homedir_ws/$raeume/$workstation/$handoutcopy_dir::root::root::1755
 ### /var/www
 /var/www::root::root::0755
 $www_people::root::root::0755
+
+$www_classes::root::root::0755
+$www_classes/$klassen::root::root::0755
+$www_classes/$klassen/$schueler::root::root::0755
+
+$www_projects::root::root::0755
+
+$www_teachers::root::root::0755
+$www_teachers/$lehrer::root::root::0755
 
 
 
