@@ -36,9 +36,9 @@ my $login="";
 my $command_number=0;
 $Conf::log_level=1;
 
-################################################################################
+###############################################################################
 # Beginn
-################################################################################
+###############################################################################
 # Datei, die die zu reparierenden Verzeichnisse beinhaltet
 my $repair_directories="$DevelConf::devel_pfad/repair.directories";
 
@@ -181,7 +181,6 @@ if ($dateirechte==1 or $info==1) {
 # Erzeugt für jede Zeile von repair.directories einen Befehl
 ################################################################################
 sub repair_directories {
-
    # Liste mit einem Element, dass die Schleifen EINMAL durchlaufen werden
    my @gruppen=("");
    my @user=("");
