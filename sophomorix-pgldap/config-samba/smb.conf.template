@@ -1,5 +1,6 @@
 ##### @@message1@@
 ##### @@message2@@
+##### @@message3@@
 ##### $Id$
 #
 ############################################################
@@ -87,8 +88,8 @@
    encrypt passwords = true
 
    ldap replication sleep = 5000
-   ldap admin dn = cn=admin,@@basename@@
-   ldap suffix = @@basename@@
+   ldap admin dn = cn=admin,@@basedn@@
+   ldap suffix = @@basedn@@
    ldap group suffix = ou=groups
    ldap user suffix = ou=accounts
    ldap machine suffix = ou=machines
