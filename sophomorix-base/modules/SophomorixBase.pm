@@ -77,12 +77,10 @@ use Quota;
               quota_addition
               get_standard_quota
               get_lehrer_quota
-              get_klassen_quota
               get_quota_fs_liste
               get_quota_fs_num
               check_quotastring
               sophomorix_passwd
-              get_erst_passwd
               check_internet_status
               austeilen_manager
               share_access
@@ -2703,7 +2701,7 @@ sub get_lehrer_in_klasse_oldstuff {
 ################################################################################
 
 
-sub get_raum_buchung {
+sub get_raum_buchung_oldstuff {
    my $lock_data="$DevelConf::dyn_config_pfad/lock_data";
    my %raum_buchung=();
    my $raum="";
@@ -3514,7 +3512,7 @@ sub get_lehrer_quota {
 # ===========================================================================
 # Hash mit klassen_quota ermitteln
 # ===========================================================================
-sub get_klassen_quota {
+sub get_klassen_quota_oldstuff {
    my @quota_filesystems=&get_quota_fs_liste(); 
    my %klassen_quota_hash=();
    my @klassen_quota_liste=();
@@ -3684,7 +3682,7 @@ sub sophomorix_passwd {
 #deprecated
 
 
-sub get_erst_passwd {
+sub get_erst_passwd_oldstuff {
   my ($username) = @_;
   my $rainer=0; # Hilfsvariable
   open(PASSPROT, "$DevelConf::dyn_config_pfad/user_db");
