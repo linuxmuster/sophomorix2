@@ -1260,14 +1260,10 @@ als parameter definieren in sophomorix-devel.conf: /var/lib/linuxmuster
 
 Variablen sind:
   @@workgroup@@
-  @@basename@@  in @@basedn@@ ändern (ich bei mir)
+  @@basedn@@
 
 wenn thomas smb.conf (Revision 18) vorhanden, dann diese holen und ersetzen
 ansonsten eigene benutzen. Thomas macht @@message3@@ noch rein  
-
-@@message1@@ und @@message2@@: 
-Neues Feld @@message3@@ mit Datum und Uhrzeit der Änderung noch rein
-
 
 
 
@@ -1351,7 +1347,12 @@ Kollegium-Liste
 is created
 
 
+test if @@message3@@ is displayed in all config_files
+
+
 1.8.1-1  (2006-04-xx)
+   - added @@message3@@ to all scripts
+   - replaced @@basename@@ with @@basedn@@ in all config files and scripts
    - killing a project removes /var/www/people/projects/$PROJECT
    - adding a user creates a dir in /var/www/people/[teachers|students]
    - added /var/www/people/[teachers/students/projects]
