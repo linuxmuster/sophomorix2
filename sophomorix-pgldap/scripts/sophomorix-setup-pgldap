@@ -35,7 +35,7 @@ my $replace="";
 
 $Conf::log_level=1;
 
-my $basename="";
+my $basedn="";
 my $domainname="";
 my $servername="";
 my $smbworkgroup="";
@@ -65,6 +65,8 @@ my $ldap_explanation="";
 my $db_explanation="";
 
 my $old_password_file="/etc/ldap/slapd.conf";
+
+my $timestamp=&zeit_stempel();
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -424,16 +426,17 @@ my $db_config="/var/lib/ldap/DB_CONFIG";
 ############################################################
 my $message1="Do not change this file! It will be overwritten!";
 my $message2="This configuration file was automatically created by sophomorix-setup-pgldap";
+my $message3="Last Modification: $timestamp";
 
 ############################################################
-# basename
+# basedn
 ############################################################
 my @ldapdomains=();
 my (@domains)= split(/\./,$domainname);
 foreach my $value (@domains) {
     push @ldapdomains, "dc=${value}";
 }
-$basename = join "," , @ldapdomains;
+$basedn = join "," , @ldapdomains;
 
 
 ############################################################
@@ -449,7 +452,7 @@ print "   Database name               :   $dbname \n";
 
 
 # the great replacement string
-$replace= " -e 's/\@\@basename\@\@/${basename}/g'". 
+$replace= " -e 's/\@\@basedn\@\@/${basedn}/g'". 
           " -e 's/\@\@servername\@\@/${servername}/g'". 
           " -e 's/\@\@internip\@\@/${internip}/g'". 
           " -e 's/\@\@sid\@\@/${sid}/g'". 
@@ -459,7 +462,8 @@ $replace= " -e 's/\@\@basename\@\@/${basename}/g'".
           " -e 's/\@\@dbpassword\@\@/${dbpassword}/g'". 
           " -e 's/\@\@dbname\@\@/${dbname}/g'". 
           " -e 's/\@\@message1\@\@/${message1}/g'". 
-          " -e 's/\@\@message2\@\@/${message2}/g'"; 
+          " -e 's/\@\@message2\@\@/${message2}/g'".
+          " -e 's/\@\@message3\@\@/${message3}/g'"; 
 
 
 # do it, ldap 
@@ -569,7 +573,7 @@ system("mv /etc/postgresql/pg_ident.conf.tmp /etc/postgresql/pg_ident.conf");
 
 
 # what to do:
-# 3x basename
+# 3x basedn
 # 1x sid
 # ... 
 #system("sed $replace ${template}/pg/sophomorix.sql.template > $sophomorix_db"); 
@@ -667,7 +671,7 @@ if ($keep_database==1){
 
 
 # setting the ldap suffix dn=x
-&set_ldap_suffix_pg($basename);
+&set_ldap_suffix_pg($basedn);
 
 
 # setting institutes
@@ -704,7 +708,7 @@ print "   SID from the system         :   $sid \n";
 
 
 # change the great replacement string (with new sid)
-$replace= " -e 's/\@\@basename\@\@/${basename}/g'". 
+$replace= " -e 's/\@\@basedn\@\@/${basedn}/g'". 
           " -e 's/\@\@servername\@\@/${servername}/g'". 
           " -e 's/\@\@internip\@\@/${internip}/g'". 
           " -e 's/\@\@sid\@\@/${sid}/g'". 
@@ -714,7 +718,8 @@ $replace= " -e 's/\@\@basename\@\@/${basename}/g'".
           " -e 's/\@\@dbpassword\@\@/${dbpassword}/g'". 
           " -e 's/\@\@dbname\@\@/${dbname}/g'". 
           " -e 's/\@\@message1\@\@/${message1}/g'". 
-          " -e 's/\@\@message2\@\@/${message2}/g'"; 
+          " -e 's/\@\@message2\@\@/${message2}/g'".
+          " -e 's/\@\@message3\@\@/${message3}/g'"; 
 
 
 # patch smbtools
