@@ -30,7 +30,6 @@ use Sophomorix::SophomorixSYSPgLdap qw(
                                     add_class_to_sys
                                    );
 
-
 my $replace="";
 
 $Conf::log_level=1;
@@ -416,6 +415,18 @@ my $pam_ldap_conf="/etc/pam_ldap.conf";
 
 # samba
 my $smb_conf="/etc/samba/smb.conf";
+# use linuxmuster-base if existing
+if (-e "$DevelConf::linuxmuster_base_smb_conf"){
+    $smb_conf=${DevelConf::linuxmuster_base_smb_conf};
+}
+
+my $smb_netlogon_bat=${DevelConf::devel_netlogon_path}."/netlogon.bat";
+if (-e "$DevelConf::linuxmuster_base_logon_bat"){
+    $smb_netlogon_bat=${DevelConf::linuxmuster_base_logon_bat};
+}
+
+
+
 
 # bdb
 my $db_config="/var/lib/ldap/DB_CONFIG";
@@ -587,6 +598,8 @@ system("sed $replace ${template}/pam/pam_ldap.conf.template > $pam_ldap_conf");
 
 # do it, samba
 system("sed $replace ${template}/samba/smb.conf.template > $smb_conf"); 
+system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlogon_bat"); 
+
 
 # do it, bdb
 system("sed $replace ${template}/bdb/DB_CONFIG > $db_config"); 
