@@ -995,6 +995,11 @@ sub fetch_my_adminclasses {
                                          FROM posix_account 
                                          WHERE uid='$user'");
 
+
+    if (not defined $uidnumber_sys){
+        print "ERROR: Couldn't find user $user\n";
+	return @userlist;
+    }
     # select the columns that i need
     my $sth= $dbh->prepare( "SELECT adminclassid
                              FROM classes_admins 
