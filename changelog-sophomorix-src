@@ -1359,10 +1359,95 @@ is created
 
 remove old kernel_update stuff
 
-test if @@message3@@ is displayed in all config_files
+
+userliste in allen sophomorix-*:    -u --users user1,user2,...  Liste akzeptieren  
+(-l raus, --login raus)
+
+  - sophomorix-kill
+  - sophomorix-add
+  - sophomorix-move
+  - sophomorix-quota
+  - sophomorix-repair
+  - sophomorix-kill
+
+
+
+
+
+Schulkonsole Klassen: 
+
+public_html
+
+im Home: 2 Zustände
+
+1. offen
+2. geschlossen
+
+
+
+HOTH: smbldap-tool suer beginnen mit uid=10000
+      und sophomorix-user beginnen mit 10000
+anpassen
+
+
+
+
+in /var/www/people
+                  students
+                  teachers
+                  projects
+                  classes
+
+ordner: root.root 0755
+
+ordner wo apache was reinladen lässt  www-data.www-data 0755
+
+
+Generelles ein/ausschalten (nach installation 0640)
+
+root.root 0640 oder root.root 0755
+
+
+Benennung:
+
+# public-private
+# upload-noupload
+
+
+
+Lehrer
+1. öffentlich   -> 3./4. unten
+2. nicht öffentlich  -> 1./2. unten
+
+Schüler, ebenso Klassen/Projekte(anderes tempate)
+1. nicht öffentlich Schüler kann nicht hochladen (lehrer/admin hochladen)
+2. nicht öffentlich  Schüler lädt hoch (lehrer/admin hochladen)
+3. öffentlich, lehrer/admin laden hoch (webdavs)
+4. öffentlich, hochladen durch Schüler
+
+
+
+
+
+austeilen 
+
+einsammeln
+
+Datei kann nicht einsammeln werden da sich die Zeit ändert
+
+
+sophomorix-print für Klassen bugfixen
+
+
+when using --command-... throw warning when -p is forgotten
+what happens when command 75 is nonexistent?
+
 
 
 1.8.1-1  (2006-04-xx)
+   - removed sophomorix-samba from package
+   - BUGFIX: sophomorix-teacher --teacher xsd -i  
+       (Error, when user nonexistent)
    - added basic support for netlogon scripts
    - sophomorix-devel.conf is in english now and cleaned up
    - added @@message3@@ to all scripts
