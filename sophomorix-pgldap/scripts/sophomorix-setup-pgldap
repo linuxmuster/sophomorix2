@@ -845,6 +845,9 @@ system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlog
 # www stuff
 &setup_verzeichnis("/var/www","/var/www");
 &setup_verzeichnis("\$www_people","$DevelConf::www_people");
+&setup_verzeichnis("\$www_students","$DevelConf::www_students");
+&setup_verzeichnis("\$www_classes","$DevelConf::www_classes");
+&setup_verzeichnis("\$www_projects","$DevelConf::www_projects");
 
 
 # make important data readable by root only
