@@ -558,9 +558,9 @@ sub check_file {
     my ($group)=getgrgid($gid);
     my ($name)=getpwuid($uid);
 
-    print "Permissions of $file are $mode, $uid, $gid\n";
-    print "Gruppe: $group \n";
-    print "Login: $name \n";
+#    print "Permissions of $file are $mode, $uid, $gid\n";
+#    print "Gruppe: $group \n";
+#    print "Login: $name \n";
 
     is($mode, $perm, "    permissions of $file are $perm");
     is($name, $owner, "    Owner of $file is $owner");
