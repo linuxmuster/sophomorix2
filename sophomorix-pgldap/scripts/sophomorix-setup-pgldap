@@ -477,6 +477,11 @@ $replace= " -e 's/\@\@basedn\@\@/${basedn}/g'".
           " -e 's/\@\@message3\@\@/${message3}/g'"; 
 
 
+# repair.directories einlesen
+my %permissions=&get_alle_verzeichnis_rechte();
+
+
+
 # do it, ldap 
 system("sed $replace ${template}/ldap/ldap.conf.template > $ldap_conf"); 
 system("sed $replace ${template}/ldap/slapd.conf.template > $slapd_conf"); 
@@ -597,8 +602,9 @@ system("sed $replace ${template}/pam/common-session.template > $common_session")
 system("sed $replace ${template}/pam/pam_ldap.conf.template > $pam_ldap_conf"); 
 
 # do it, samba
+# samba part 1
+&setup_verzeichnis("\$homedir_samba","$DevelConf::homedir_samba");
 system("sed $replace ${template}/samba/smb.conf.template > $smb_conf"); 
-system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlogon_bat"); 
 
 
 # do it, bdb
@@ -764,89 +770,28 @@ if (-e "/etc/init.d/nscd"){
 }
 
 
-
-# evtl. noch anders
-#system("smbldap-populate -a admin");
-
-#system("sophomorix-add --smbroot --password server");
-
-
-# adding groups
-#system("sophomorix-groupadd -g 512 'Domain Admins'");
-##? system("sophomorix-groupadd -g 544 'Administrators'");
-##? system("sophomorix-groupadd -g 551 'Backup Operators'");
-#system("sophomorix-groupadd -g 515 'Domain Computers'");
-#system("sophomorix-groupadd -g 514 'Domain Guests'");
-#system("sophomorix-groupadd -g 550 'Print Operators'");
-#system("sophomorix-groupadd -g 552 'Replicators'");
-
-# adding users
-#system("sophomorix-useradd --gecos Administrator --homedir /home/Administrator --group 'Domain Admins' --password server Administrator");
-
-
 # adding groups with smbldap-tools
-
 &add_ldap_group("domadmins","Domain Admins",512);
-#system("smbldap-groupadd -g 512 'domadmins'");
-#system("net groupmap add rid=512 unixgroup=domadmins ntgroup='Domain Admins'");
-
 &add_ldap_group("domusers","Domain Users",513);
-#system("smbldap-groupadd -g 513 'domusers'");
-#system("net groupmap add rid=513 unixgroup=domusers ntgroup='Domain Users'");
-
 &add_ldap_group("domguests","Domain Guests",514);
-#system("smbldap-groupadd -g 514 'domguests'");
-#system("net groupmap add rid=514 unixgroup=domguests ntgroup='Domain Guests'");
-
 &add_ldap_group("domcomputers","Domain Computers",515);
-#system("smbldap-groupadd -g 515 'domcomputers'");
-#system("net groupmap add rid=515 unixgroup=domcomputers ntgroup='Domain Computers'");
-
-# local group
+# local groups
 &add_local_ldap_group("printoperators","Print Operators",550);
-#system("smbldap-groupadd -g 550 'printoperators'");
-#system("net groupmap add sid='S-1-5-32-550' unixgroup=printoperators ntgroup='Print Operators' type=local");
-
-# local group
+&add_local_ldap_group("pgmadmins","Program Administrators",560);
 &add_local_ldap_group("replicators","Replicators",552);
-#system("smbldap-groupadd -g 552 'replicators'");
-#system("net groupmap add sid='S-1-5-32-552' unixgroup=replicators ntgroup='Replicators' type=local");
-
-
-# local group
 &add_local_ldap_group("administrators","Administrators",544);
-#system("smbldap-groupadd -g 544 'administrators'");
-#system("net groupmap add sid='S-1-5-32-544' unixgroup=administrators ntgroup='Administrators' type=local");
-
-# local group
 &add_local_ldap_group("accountoperators","Account Operators",548);
-#system("smbldap-groupadd -g 548 'accountoperators'");
-#system("net groupmap add sid='S-1-5-32-548' unixgroup=accountoperators ntgroup='Account Operators' type=local");
-
-
-# local group
 &add_local_ldap_group("backupoperators","Backup Operators",551);
-
-#$unix_group="backupoperators";
-#if (defined getgrnam($unix_group)) {
-#    print "Group $unix_group (NT: Backup Operators) exists already.\n";
-#} else {
-#    system("smbldap-groupadd -g 551 '$unix_group'");
-#    system("net groupmap add sid='S-1-5-32-551' unixgroup=$unix_group ntgroup='Backup Operators' type=local");
-#}
-
-# repair.directories einlesen
-my %permissions=&get_alle_verzeichnis_rechte();
 
 
 &setup_verzeichnis("\$homedir_all_admins","$DevelConf::homedir_all_admins");
 
 # adding users
 # Administrator is equal to admin in ml 2.x
-system("smbldap-useradd -a  -c Administrator -m -d /home/administrators/Administrator -g 'domadmins' -G 'administrators,printoperators' -s /bin/bash Administrator");
+system("smbldap-useradd -a  -c Administrator -m -d /home/administrators/Administrator -g 'domadmins' -G 'administrators,printoperators,pgmadmins' -s /bin/bash Administrator");
 
-# pgadmin is to install programs on the win clients
-system("smbldap-useradd -a  -c 'Programm Administrator' -m -d /home/administrators/pgmadmin -g 'administrators' -s /bin/false pgmadmin");
+# pgmadmin is to install programs on the win clients
+system("smbldap-useradd -a  -c 'Programm Administrator' -m -d /home/administrators/pgmadmin -g 'pgmadmins' -s /bin/false pgmadmin");
 
 
 # wwwadmin for web services (moodle, opengroupware, imp ...   ) NOT a windows user
@@ -854,19 +799,13 @@ system("smbldap-useradd -c 'web Administrator' -m -d /home/administrators/wwwadm
 
 
 
-
+# group teachers part 1
+&create_class_db_entry(${DevelConf::teacher},4);
+&add_class_to_sys(${DevelConf::teacher});
 
 &setup_verzeichnis("\$share_share","$DevelConf::share_share");
 
-
-# this is done already with create_user_db_entry, when using postgres
-&create_class_db_entry(${DevelConf::teacher},4);
-&add_class_to_sys(${DevelConf::teacher});
-&provide_class_files(${DevelConf::teacher});
-
-
 # todo /etc/rc2.d samba auf 21 erhöhen
-
 
 # Adding directories
 # First Parameter: search for "$homedir_teacher" in repair.directories an do NOT
@@ -877,14 +816,6 @@ system("smbldap-useradd -c 'web Administrator' -m -d /home/administrators/wwwadm
 &setup_verzeichnis("\$homedir_pupil","$DevelConf::homedir_pupil");
 &setup_verzeichnis("\$homedir_ws","$DevelConf::homedir_ws");
 
-# samba
-&setup_verzeichnis("\$homedir_samba","$DevelConf::homedir_samba");
-&setup_verzeichnis("\$homedir_samba_netlogon",
-                   "$DevelConf::homedir_samba_netlogon");
-&setup_verzeichnis("\$homedir_samba_progs",
-                   "$DevelConf::homedir_samba_progs");
-&setup_verzeichnis("\$homedir_samba_cds",
-                   "$DevelConf::homedir_samba_cds");
 
 # share
 &setup_verzeichnis("\$share_exams","$DevelConf::share_exams");
@@ -901,6 +832,16 @@ system("smbldap-useradd -c 'web Administrator' -m -d /home/administrators/wwwadm
 &setup_verzeichnis("\$tasks_projects","$DevelConf::tasks_projects");
 &setup_verzeichnis("\$tasks_teachers","$DevelConf::tasks_teachers");
 
+# samba part 2
+&setup_verzeichnis("\$homedir_samba_netlogon",
+                   "$DevelConf::homedir_samba_netlogon");
+&setup_verzeichnis("\$homedir_samba_progs",
+                   "$DevelConf::homedir_samba_progs");
+&setup_verzeichnis("\$homedir_samba_cds",
+                   "$DevelConf::homedir_samba_cds");
+system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlogon_bat"); 
+
+
 # www stuff
 &setup_verzeichnis("/var/www","/var/www");
 &setup_verzeichnis("\$www_people","$DevelConf::www_people");
@@ -909,6 +850,12 @@ system("smbldap-useradd -c 'web Administrator' -m -d /home/administrators/wwwadm
 # make important data readable by root only
 &setup_verzeichnis("\$var_lib_pfad","$DevelConf::var_lib_pfad");
 
+
+
+
+
+# group teachers part 2
+&provide_class_files(${DevelConf::teacher});
 
 
 
