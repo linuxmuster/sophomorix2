@@ -53,7 +53,7 @@ nimmt eine Klasse in die Liste von MyAdminClasses auf.
 .B --remove Klasse
 Entfernt Klassen aus MyAdminClasses.
 .TP
-.B Optionen zum Austeilen/Einsammeln von Daten
+.B Optionen zum Austeilen/Einsammeln/Bereitstellen von Daten
 .TP
 .B --handout 
 teilt Daten in ein gemeinsames Verzeichnis der class/subclass/project
@@ -75,14 +75,27 @@ Es muss zusätzlich --class, --subclass oder --project angegeben werden.
 .B [--handout|--collect] -i , [--handout|--collect] --info
 zeigt an welche Dateien Eingesammelt/ausgeteilt werden würden
 .TP
+.B Angabe von Räumen beim Austeilen/Einsammeln/Bereitstellen
+.TP
+.B --room raumname
+Einsammeln von Raum raumname
+.TP
+.B --fromroom 
+Einsammeln von 'aktueller_raum'
+.TP
+.B Angabe von Usern beim Austeilen/Einsammeln/Bereitstellen
+.TP
 .B --class AdminClass
-Einsammeln/Austeilen an die Klasse AdminClass 
+Einsammeln/Austeilen/Bereitstellen an die Klasse AdminClass. 
 .TP
 .B --subclass SubClass
-Einsammeln/Austeilen an die Gruppe SubClass
+Einsammeln/Austeilen/Bereitstellen an die Gruppe SubClass.
 .TP
 .B --project Project
-Einsammeln/Austeilen an das Projekt Project
+Einsammeln/Austeilen/Bereitstellen an das Projekt Project.
+.TP
+.B --users user1,user2,...
+Einsammeln/Austeilen (NICHT beim Bereitstellen) an eine Liste von usern.
 .TP
 .B --share|--noshare --users user1,user2,user3,...
 Erlaube dem User user1,user2,... sein _tauschen zu benutzen oder nicht.
