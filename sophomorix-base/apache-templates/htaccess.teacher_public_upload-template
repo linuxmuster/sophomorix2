@@ -1,1 +1,10 @@
 # teacher_public_upload
+# begin .htaccess
+# www access world wide allowed
+# DAV allowed for teacher
+AuthType Basic
+AuthName "@@username@@"
+<LimitExcept GET OPTIONS>
+  Require user @@username@@
+</LimitExcept>
+# end .htaccess

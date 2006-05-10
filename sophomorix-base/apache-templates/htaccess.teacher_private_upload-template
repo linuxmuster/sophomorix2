@@ -1,1 +1,9 @@
 # teacher_private_upload
+# begin .htaccess
+# www access world wide denied
+# DAV and https allowed for teacher
+AuthType Basic
+AuthName "@@username@@"
+SSLRequireSSL
+Require user @@username@@
+# end .htaccess

@@ -1,1 +1,10 @@
 # group_private_upload
+# begin .htaccess
+# www access world wide denied
+# DAV and https allowed for group members and Administrator
+AuthType Basic
+AuthName "@@groupname@@"
+SSLRequireSSL
+Require user Administrator
+Require group @@groupname@@
+# end .htaccess
