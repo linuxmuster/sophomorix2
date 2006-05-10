@@ -60,11 +60,9 @@ my $testopt=GetOptions(
 &check_options($testopt);
 
 
-if ($dateirechte==0 and $info==0 and $command_number==0) {
+if ($dateirechte==0 and $info==0) {
    # Es muss eine Option angegeben werden, sonst hilfe
    $help=1;
-#   print "\nYou must specify one of the following options:\n";
-#   print "\n   -p\n";
 }
 
 
@@ -84,9 +82,15 @@ Options
   -vv / --verbose --verbose
   -i
   -f filename / --file filename
-  --command-number number
+
+What to repair:
   -p  / --permissions
   --acl (Todo)
+
+Limit the repair to a command-number (show the numbers with -i):
+  --command-number number
+
+Limit the repair to some users:
   --login user (Todo)
   --schueler (Todo)
   --lehrer (Todo)
