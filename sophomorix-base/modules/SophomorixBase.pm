@@ -970,7 +970,11 @@ sub provide_user_files {
                   "\$www_teachers/\$lehrer",
                   "${DevelConf::www_teachers}/$login",
                   "$login");
-	   print "$htaccess_sed_command\n";
+           if($Conf::log_level>=2){
+   	       print "$htaccess_sed_command\n";
+           } else {
+   	       print "   sed: $htaccess_target\n";
+           }
            system("$htaccess_sed_command"); 
            chmod 0400, $htaccess_target;
            my ($name,$pass,$uid,$gid)=getpwnam(${DevelConf::apache_user});
@@ -1044,7 +1048,11 @@ sub provide_user_files {
                   "\$homedir_pupil/\$klassen/\$schueler/public_html",
                   "$home/public_html",
                   "$login");
-           print "$htaccess_sed_command\n";
+           if($Conf::log_level>=2){
+   	       print "$htaccess_sed_command\n";
+           } else {
+   	       print "   sed: $htaccess_target\n";
+           }
            system("$htaccess_sed_command"); 
            chmod 0400, $htaccess_target;
            my ($name,$pass,$uid,$gid)=getpwnam(${DevelConf::apache_user});
@@ -1980,6 +1988,11 @@ sub create_share_link {
         $share_long_name=${Language::teacher};     
     }
 
+    # use shortname as longname if not given
+    if (not defined $share_long_name){
+        $share_long_name=$share_name;
+    }
+
     # project is standard
     if (not defined $type or $type eq ""){
 	$type="project";
@@ -2078,6 +2091,12 @@ sub create_share_directory {
     if ($share_name  eq ${DevelConf::teacher}){
         $share_long_name=${Language::teacher};     
     }
+
+    # use shortname as longname if not given
+    if (not defined $share_long_name){
+        $share_long_name=$share_name;
+    }
+
     my ($homedir,$account_type)=
        &Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
 
