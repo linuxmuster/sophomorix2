@@ -30,6 +30,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     user_deaktivieren
                                     user_reaktivieren     
                                     check_sophomorix_user
+                                    set_sophomorix_passwd
                                    );
 
 &check_connections();
@@ -43,6 +44,7 @@ chomp($today);
 $Conf::log_level=1;
 my $help=0;
 my $info=0;
+my $empty_password=0;
 my $freeze="";
 my $permanent="";
 my $removable="";
@@ -63,6 +65,7 @@ my $testopt=GetOptions(
        "K|killable=s" => \$killable,
        "A|activate=s" => \$activate,
        "reset-user=s" => \$reset_user,
+       "empty-password" => \$empty_password,
           );
 
 
@@ -452,6 +455,10 @@ if ($reset_user ne""){
         }
         # reset the account
         &reset_user($user);
+        if ($empty_password==1){
+            print "   Setting empty password for $user\n";
+            &set_sophomorix_passwd($user,"");
+        }
     }
     exit;
 }
