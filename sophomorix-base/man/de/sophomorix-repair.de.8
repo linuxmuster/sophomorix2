@@ -44,26 +44,14 @@ liest die Datei dateiname ein, und legt die darin enthaltenen Verzeichnisse an.?
 .TP
 .B Optionen, die angeben, was repariert werden soll:
 .TP
-.B \--permissions
+.B \-p, \--permissions
 repariert die Dateirechte und legt verlorengegangene Verzeichnisse wieder an. Dieser Befehl dauert lange (~1 Stunde je 1000 User).
 .TP
 .B \--acl
 repariert acl (noch nicht mal begonnen, in der Zukunft soll das tun)
-
-.TP
-.B \--www, \--public_html
-verschiebt die public_html Verzeichnisse aus dem home/windows nach home/www und verlinkt sie (??? nicht mehr notwendig, daher ausgeschaltet).
 .TP
 .B Optionen, die angeben, bei welchen Usern etwas repariert werden soll:
-.TP
-.B \--login
-verschiebt nur die public_html Verzeichnisse des users username.??? ausgeschaltet. Sollte auf --permissons umgebaut werden.
-.TP
-.B \--schueler
-verschiebt nur die public_html Verzeichnisse aller schueler.??? ausgeschaltet. Sollte auf --permissons umgebaut werden.
-.TP
-.B \--lehrer
-verschiebt nur die public_html Verzeichnisse der lehrer??? ausgeschaltet. Sollte auf --permissons umgebaut werden.
+Todo
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
