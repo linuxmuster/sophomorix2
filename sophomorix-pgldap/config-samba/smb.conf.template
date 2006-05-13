@@ -2,7 +2,7 @@
 ##### @@message2@@
 ##### @@message3@@
 ##### $Id$
-#
+##### From Revision 24 in svn
 ############################################################
 #  Include your own stuff in the following files:
 #  global stuff:      /etc/samba/smb.conf.global
@@ -35,7 +35,7 @@
    workgroup = @@workgroup@@ 
 
 # server string is the equivalent of the NT Description field
-#   server string = @@smbserverstring@@
+#   server string = Linux %h mit Samba %v
 
 # Windows Internet Name Serving Support Section:
 # WINS Support - Tells the NMBD component of Samba to enable its WINS Server
@@ -97,6 +97,7 @@
    obey pam restrictions = no
    guest account = nobody
 
+#   username map = /etc/samba/username.map
    enable privileges = yes
    
 # This boolean parameter controls whether Samba attempts to sync the Unix
@@ -120,7 +121,7 @@
 
 # If you want to automatically load your printer list rather
 # than setting them up individually then you'll need this
-   load printers = yes
+   load printers = no
 
 # lpr(ng) printing. You may wish to override the location of the
 # printcap file
@@ -135,7 +136,7 @@
 # When using [print$], root is implicitly a 'printer admin', but you can
 # also give this right to other users to add drivers and set printer
 # properties
-   printer admin = root, @ntadmin
+   printer admin = root, printoperators
 
 
 ######## File sharing ########
@@ -145,13 +146,14 @@
 ;   short preserve case = yes
 
 #### linuxmuster settings ####
+   interfaces = @@serverip@@/@@internmask@@ 127.0.0.1/255.0.0.0
    domain logons = Yes
-   admin users = administrator
+   admin users = @domadmins
    unix charset = ISO8859-15
    logon script = login.bat
    time server = Yes
    logon path =
-   logon home = \\%L\%u\windows
+   logon home = \\%L\%u
    use sendfile = No
    os level = 99
 
@@ -214,16 +216,19 @@
 
 # File creation mask is set to 0700 for security reasons. If you want to
 # create files with group=rw permissions, set next parameter to 0775.
-   create mask = 0700
+   create mask = 2640
 
 # Directory creation mask is set to 0700 for security reasons. If you want to
 # create dirs. with group=rw permissions, set next parameter to 0775.
-   directory mask = 0700
+   directory mask = 2750
    
 # linuxmuster settings
    wide links = Yes
-   path = %H/windows
+#   path = %H/windows
+   path = %H
    valid users = %S
+   root preexec = samba-userlog --log=in --username=%U --hostname=%m --homedir=%H
+   root postexec = samba-userlog --log=out --username=%U --hostname=%m --homedir=%H
    
 # Un-comment the following and create the netlogon directory for Domain Logons
 # (you need to configure Samba to act as a domain controller too.)
@@ -232,42 +237,54 @@
    path = /home/samba/netlogon
    guest ok = yes
    writable = no
+   create mask = 664
    share modes = no
-   write list = @admin
+   write list = @domadmins
+   force group = domadmins
 
-[printers]
-   comment = All Printers
-   browseable = no
-   path = /tmp
-   printable = yes
-   public = no
-   writable = no
-   create mode = 0700
+#[printers]
+#   comment = All Printers
+#   browseable = no
+#   path = /tmp
+#   printable = yes
+#   public = no
+#   writable = no
+#   create mode = 0700
 
 # Windows clients look for this share name as a source of downloadable
 # printer drivers
-[print$]
-   comment = Printer Drivers
-   path = /var/lib/samba/printers
-   browseable = yes
-   read only = yes
-   guest ok = no
-   force group = ntadmin
-   create mask = 664
-   directory mode = 775
+#[print$]
+#   comment = Printer Drivers
+#   path = /var/lib/samba/printers
+#   browseable = yes
+#   read only = yes
+#   guest ok = no
+#   force group = printoperators
+#   create mask = 664
+#   directory mode = 775
 # Uncomment to allow remote administration of Windows print drivers.
 # Replace 'ntadmin' with the name of the group your admin users are
 # members of.
-   write list = @ntadmin
+#   write list = @printoperators
 
 [pgm]
    comment = Programme
    path = /home/samba/progs
-   #admin users = pgmadmin
-   write list = @admin
-   force group = admin
-   create mask = 0644
-   directory mode = 0755
+   writable = no
+   write list = @pgmadmins
+   force group = pgmadmins
+   create mask = 664
+   directory mask = 775
+   guest ok = Yes
+
+[cdrom]
+   comment = CD-Images
+   path = /home/samba/cds
+   force group = pgmadmins
+   create mask = 664
+   directory mask = 775
+   write list = @pgmadmins
+   writable = no
    guest ok = Yes
 
 # including your own share definitions
