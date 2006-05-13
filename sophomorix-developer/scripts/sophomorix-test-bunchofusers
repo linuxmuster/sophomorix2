@@ -749,14 +749,17 @@ sub dateien_einsammeln{
     my $user_option="";
     my $users="";
     $command="sophomorix-user --reset-user $teacher";
-    print "$command \n";
-    system($command);
+    &run_command($command,$verbose);
+
+#    print "$command \n";
+#    system($command);
     foreach my $user (@userlist_to_check){
        my @entry = getpwnam($user);
        my $homedir = "$entry[7]";
        $command="sophomorix-user --reset-user $user";
-       print "$command \n";
-       system($command);
+    &run_command($command,$verbose);
+#       print "$command \n";
+#       system($command);
     }
     foreach my $testfile (@teacher_files){
        foreach my $user (@userlist_to_check){
@@ -768,8 +771,9 @@ sub dateien_einsammeln{
               $create_this="${homedir}/${Language::collect_dir}/${teacher}";
               $command="su --command='mkdir ${create_this}' $user";
               if (not -e $create_this){
-                print "$command \n";
-                system($command);
+    &run_command($command,$verbose);
+#                print "$command \n";
+#                system($command);
               }
            } elsif ($type eq "room"){
               $create_this=
@@ -777,11 +781,13 @@ sub dateien_einsammeln{
            }
            $command="su --command='cp /usr/share/sophomorix-developer".
                     "/testfiles/${testfile} ${create_this}' root";
-           print "$command \n";
-           system($command);
+     &run_command($command,$verbose);
+#          print "$command \n";
+#           system($command);
            $command="chown ${user}.root ${create_this}/${testfile}";
-           print "$command \n";
-           system($command);
+    &run_command($command,$verbose);
+#           print "$command \n";
+#           system($command);
 
        }
     }
@@ -800,10 +806,13 @@ sub dateien_einsammeln{
         $command="sophomorix-teacher --teacher $teacher ".
                  "--${option} --${type} $group $user_option $exam";
     }
-    print "##################################################\n";
-    print "$command \n";
-    print "##################################################\n";
-    system($command);
+
+    &run_command($command,$verbose);
+
+#    print "##################################################\n";
+#    print "$command \n";
+#    print "##################################################\n";
+#    system($command);
 
     my $collect_dir="";
     my $collect_parent_dir="";
@@ -977,33 +986,22 @@ sub handout_files_room {
     my ($teacher,$users) = @_;
     my @users = split(/,/,$users);
     my $command="";
-
-    # clean up
-#    $command="rm -rf /home/teachers/${teacher}/${Language::handoutcopy_dir}/aktueller_raum/*"; 
     $command="sophomorix-user --reset-user $teacher";
-
-    print "$command \n";
-    system($command);
- 
+    &run_command($command,$verbose);
     foreach my $user (@users){
-       print "$user","\n";
        my @entry = getpwnam($user);
        my $homedir = "$entry[7]";
-#       $command="rm -rf ${homedir}/${Language::handoutcopy_dir}/aktueller_raum/*"; 
        $command="sophomorix-user --reset-user $user";
-       print "$command \n";
-       system($command);
+    &run_command($command,$verbose);
     } 
 
     foreach my $testfile (@teacher_files){
-       $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::handoutcopy_dir}/aktueller_raum'";
-       print "$command \n";
-       system($command);
+       $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::to_handoutcopy_dir}/aktueller_raum'";
+    &run_command($command,$verbose);
     }
 
     $command="sophomorix-teacher --teacher $teacher --user $users --fromroom --handoutcopy";
-    print "$command \n";
-    system($command);
+    &run_command($command,$verbose);
     foreach my $user (@userlist_to_check){
        foreach my $testfile (@teacher_files){
          my @entry = getpwnam($user);
