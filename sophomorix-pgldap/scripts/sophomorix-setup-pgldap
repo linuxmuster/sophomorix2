@@ -39,6 +39,7 @@ my $domainname="";
 my $servername="";
 my $smbworkgroup="";
 my $internip="";
+my $internmask="";
 my $sid="";
 my $smbserverstring="";
 my $dbname="";
@@ -181,10 +182,7 @@ if (-e $config_file) {
    $smbworkgroup=$PgLdapConf::smbworkgroup;
    $smbserverstring=$PgLdapConf::smbserverstring;
    $internip=$PgLdapConf::internip;
-# $ldappassword is a generated number now
-#   $ldappassword=$PgLdapConf::ldappassword;
-# $dbpassword is a generated number now
-#   $dbpassword=$PgLdapConf::dbpassword;
+   $internmask=$PgLdapConf::internmask;
    $dbname=$PgLdapConf::dbname;
 }
 
@@ -196,7 +194,8 @@ if ($config_file==0){
 
 # domainname
 #------------------------------------------------------------
-my $domainname_debconf=&get_debconf_value("linuxmuster-base", "domainname",0);
+my $domainname_debconf=
+    &get_debconf_value("linuxmuster-base", "domainname",0);
 # process debconf data
 if ($domainname_debconf ne 0){
     # from debconf
@@ -211,7 +210,8 @@ if ($domainname_debconf ne 0){
 
 # servername
 #------------------------------------------------------------
-my $servername_debconf=&get_debconf_value("linuxmuster-base", "servername",0);
+my $servername_debconf=
+    &get_debconf_value("linuxmuster-base", "servername",0);
 # process debconf data
 if ($servername_debconf ne 0){
     # from debconf
@@ -225,7 +225,8 @@ if ($servername_debconf ne 0){
 
 # workgroup from samba
 #------------------------------------------------------------
-my $smbworkgroup_debconf=&get_debconf_value("linuxmuster-base", "workgroup",0);
+my $smbworkgroup_debconf=
+    &get_debconf_value("linuxmuster-base", "workgroup",0);
 # process debconf data
 if ($smbworkgroup_debconf ne 0){
     # from debconf
@@ -238,11 +239,13 @@ if ($smbworkgroup_debconf ne 0){
 
 # internal ip
 #------------------------------------------------------------
-my $internip_debconf=&get_debconf_value("linuxmuster-base", "internip",0);
+my $internsubrange_debconf=
+    &get_debconf_value("linuxmuster-base", "internsubrange",0);
 # process debconf data
-if ($internip_debconf ne 0){
+if ($internsubrange_debconf ne 0){
     # from debconf
-    $internip=$internip_debconf;    
+    my ($min,$max)=split(/-/,$internsubrange_debconf);    
+    $internip="10.".$min.".0.0";    
     print "   Internal IP from debconf             : $internip \n";
 } else {
     # from config file
@@ -250,11 +253,26 @@ if ($internip_debconf ne 0){
 }
 
 
+# internal netmask
+#------------------------------------------------------------
+my $internmask_debconf=
+    &get_debconf_value("linuxmuster-base", "internmask",0);
+# process debconf data
+if ($internmask_debconf ne 0){
+    # from debconf
+    $internmask=$internmask_debconf;    
+    print "   Internal netmask from debconf        : $internmask \n";
+} else {
+    # from config file
+    print "   Internal netmask from pgldap.conf    : $internmask \n";
+}
+
+
 } # end $config_file==0
 
 
-    printf "   ldappassword %23s : ********** \n","($ldap_explanation)";
-    printf "   dbpassword   %23s : ********** \n","($db_explanation)";
+printf "   ldappassword %23s : ********** \n","($ldap_explanation)";
+printf "   dbpassword   %23s : ********** \n","($db_explanation)";
 
 
 # institutes
@@ -466,6 +484,8 @@ print "   Database name               :   $dbname \n";
 $replace= " -e 's/\@\@basedn\@\@/${basedn}/g'". 
           " -e 's/\@\@servername\@\@/${servername}/g'". 
           " -e 's/\@\@internip\@\@/${internip}/g'". 
+          " -e 's/\@\@serverip\@\@/${internip}/g'". 
+          " -e 's/\@\@internmask\@\@/${internmask}/g'". 
           " -e 's/\@\@sid\@\@/${sid}/g'". 
           " -e 's/\@\@workgroup\@\@/${smbworkgroup}/g'". 
           " -e 's/\@\@smbserverstring\@\@/${smbserverstring}/g'". 
@@ -730,6 +750,8 @@ print "   SID from the system         :   $sid \n";
 $replace= " -e 's/\@\@basedn\@\@/${basedn}/g'". 
           " -e 's/\@\@servername\@\@/${servername}/g'". 
           " -e 's/\@\@internip\@\@/${internip}/g'". 
+          " -e 's/\@\@serverip\@\@/${internip}/g'". 
+          " -e 's/\@\@internmask\@\@/${internmask}/g'". 
           " -e 's/\@\@sid\@\@/${sid}/g'". 
           " -e 's/\@\@workgroup\@\@/${smbworkgroup}/g'". 
           " -e 's/\@\@smbserverstring\@\@/${smbserverstring}/g'". 
