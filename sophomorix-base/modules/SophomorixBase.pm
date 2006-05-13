@@ -903,9 +903,9 @@ sub provide_user_files {
            &setup_verzeichnis("\$homedir_teacher/\$lehrer",
                   "$home",
                   "$login");
-           &setup_verzeichnis("\$homedir_teacher/\$lehrer/windows",
-                  "$home/windows",
-                  "$login");
+#           &setup_verzeichnis("\$homedir_teacher/\$lehrer/windows",
+#                  "$home/windows",
+#                  "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$task_dir",
                   "$home/${Language::task_dir}",
@@ -1006,9 +1006,9 @@ sub provide_user_files {
                               "$home",
                               "$login");
            system("chown -R $login:${DevelConf::teacher} $home");
-           &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/windows",
-                              "$home/windows",
-                              "$login");
+#           &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/windows",
+#                              "$home/windows",
+#                              "$login");
            &setup_verzeichnis(
                   "\$homedir_pupil/\$klassen/\$schueler/\$task_dir",
                   "$home/${Language::task_dir}",
@@ -1069,9 +1069,9 @@ sub provide_user_files {
                               "$home",
                               "$login");
            system("chown -R $login:${DevelConf::teacher} $home");
-           &setup_verzeichnis("\$homedir_ws/\$raeume/\$workstation/windows",
-                              "$home/windows",
-                              "$login");
+#           &setup_verzeichnis("\$homedir_ws/\$raeume/\$workstation/windows",
+#                              "$home/windows",
+#                              "$login");
            &setup_verzeichnis(
                   "\$homedir_ws/\$raeume/\$workstation/\$task_dir",
                   "$home/${Language::task_dir}",
@@ -1924,8 +1924,10 @@ sub reset_user {
                 }
                 my ($type,$longname)=
                    &Sophomorix::SophomorixPgLdap::pg_get_group_type($group);
+                    print "   Creating Links for secondary group $group ($longname)\n";
+
                 if($Conf::log_level>=2){
-                    print "   Creating Links for secondary group $group\n";
+                    print "   Creating Links for secondary group $group ($longname)\n";
                 }    
                 &create_share_link($user,$group,$longname,$type);
                 if($Conf::log_level>=2){
