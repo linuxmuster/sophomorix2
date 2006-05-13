@@ -14,14 +14,31 @@ Next meeting 0711/ 253 583-33
 ============================================================
 Quota in /var/www/people ?
 
-path to smb.conf in linuxmuster-base?
 
-netlogon
-netlogin
-common.bat
+smb.conf:
 
-where are this files in svn?
+thomas template im installierten system:
 
+als parameter definieren in sophomorix-devel.conf: /var/lib/linuxmuster
+
+Variablen sind:
+  @@workgroup@@
+  @@basedn@@
+
+wenn thomas smb.conf (Revision 18) vorhanden, dann diese holen und ersetzen
+ansonsten eigene benutzen. Thomas macht @@message3@@ noch rein  
+
+
+Netlogon:
+
+scripte:
+   login.bat  (smb.conf) ruft andere auf
+   logon.bat
+   common.bat
+
+wie bei smb.conf, Pfad konfigurierbar, kommt von Thomas
+
+where are these files in svn?
 
 
 
@@ -128,7 +145,6 @@ This was abandoned, because
 MAKING a Package
 ############################################################
 
-
 1. update versions in debian/control
    (so that apt-get update sophomorix2 updates all sophomorix-* packages)
 
@@ -141,6 +157,28 @@ MAKING a Package
 
 5. Tag all files in the cvs repository with the tag 'Version-x-y-z'
 
+
+############################################################
+UPDATING smb.conf from linuxmuster
+############################################################
+
+1. Fetch the new smb.conf:
+
+   Path to smb.conf in subversion of lml.mine.nu
+   Module linuxmuster-base: /var/config-dynamic/15_ldap/smb.conf
+
+2. Edit the first lines:
+
+   ##### @@message1@@
+   ##### @@message1@@
+   ##### @@message1@@
+   # $Id$
+
+3. check if new @@variables@@ are used
+
+4. Make a diff between old and new
+
+5. replace sophomorix-pgldap/config-samba/smb.conf.template
 
 
 ############################################################
@@ -1263,30 +1301,9 @@ SphomorixBase: remove unused functions
 
 
 
-smb.conf:
-
-thomas template im installierten system:
-
-als parameter definieren in sophomorix-devel.conf: /var/lib/linuxmuster
-
-Variablen sind:
-  @@workgroup@@
-  @@basedn@@
-
-wenn thomas smb.conf (Revision 18) vorhanden, dann diese holen und ersetzen
-ansonsten eigene benutzen. Thomas macht @@message3@@ noch rein  
 
 
 
-
-Netlogon:
-
-scripte:
-   login.bat  (smb.conf) ruft andere auf
-   logon.bat
-   common.bat
-
-wie bei smb.conf, Pfad konfigurierbar, kommt von Thomas
 
 
 
@@ -1374,21 +1391,6 @@ userliste in allen sophomorix-*:    -u --users user1,user2,...  Liste akzeptiere
 
 
 
-Schulkonsole Klassen: 
-
-public_html
-
-im Home: 2 Zustände
-
-1. offen
-2. geschlossen
-
-
-
-HOTH: smbldap-tool suer beginnen mit uid=10000
-      und sophomorix-user beginnen mit 10000
-anpassen
-
 
 remove dachboden, speicher from fetchadminclasses_from_school
 
@@ -1406,34 +1408,9 @@ ordner wo apache was reinladen lässt  www-data.www-data 0755
 
 
 Generelles ein/ausschalten (nach installation 0640)
-
 root.root 0640 oder root.root 0755
 
 
-Benennung:
-
-# public-private
-# upload-noupload
-
-
-
-Lehrer
-1. öffentlich   -> 3./4. unten
-   (teacher-public-upload)
-2. nicht öffentlich  -> 1./2. unten
-   (teacher-private-upload)
-
-Schüler, ebenso Klassen/Projekte (anderes tempate)
-1. nicht öffentlich Schüler kann nicht hochladen (lehrer/admin hochladen)
-   (student-private-noupload)
-2. nicht öffentlich  Schüler lädt hoch (lehrer/admin hochladen)
-   (student-private-upload)
-3. öffentlich, Schüler kann nicht hochladen, lehrer/admin laden hoch (webdavs)
-   (student-public-noupload)
-4. öffentlich, hochladen durch Schüler
-   (student-public-upload)
-
-dito (1. bis 4., aber statt student group)
 
 
 
@@ -1447,11 +1424,8 @@ einsammeln
 Datei kann nicht eingesammelt werden da sich die Zeit ändert?
 
 
-sophomorix-print für Klassen bugfixen
-
 check_klasse noch notwendig? (sophomorix-print)
 
-public_html  -> private_html
 
 Fehler in sophomorix-test-bunchofusers --tasks
 
@@ -1460,9 +1434,26 @@ Beispiel für Aufrufe Austeilen/Bereitstellen/Einsammeln in die
 man-page von sophomorix-teacher (Mail an Aike)
 
 
-
 1.8.1-1  (2006-04-xx)
-
+   - new smb.conf from linuxmuster-base, Revision 24
+   - fetch serverip and internmask from debconf
+   - $HOME/public_html --> $HOME/private_html
+   - sophomorix-print works for classes (nothing changed)
+   - new htaccess files:
+       Naming convention of the files:
+          public:    available in the www
+          private:   not available
+          upload:    student can upload
+          noupload:  member of teachers or administrators can upload 
+          Teachers
+             1. teacher-public-upload
+             2. teacher-private-upload
+          Students or groups(with another template)
+             1. student-private-noupload
+             2. student-private-upload
+             3. student-public-noupload
+             4. student-public-upload
+          (1. to 4. with group instaead of student)
 
 
 1.7.2-1  (2006-05-11)
