@@ -1833,7 +1833,6 @@ sub pg_get_group_list {
 
 sub pg_get_group_type {
     my ($gid) = @_;
-    my $return="";
     my $dbh=&db_connect();
     # fetching project_id
     my ($id_sys,$gidnumber_sys)= $dbh->selectrow_array( "SELECT id,gidnumber 
@@ -1846,9 +1845,13 @@ sub pg_get_group_type {
     my ($type)= $dbh->selectrow_array( "SELECT type 
                                           FROM classdata 
                                           WHERE id='$id_sys'");
-    if (not defined $type){
-        # not adminclass, not subclass
-        
+    if ($type eq "subclass"){
+        # subclass
+        return ("subclass",$gid);
+    } elsif ($type eq "adminclass"){
+        # adminclass
+        return ("adminclass",$gid);
+    } elsif ($type eq "project"){
         my ($longname)= $dbh->selectrow_array( "SELECT longname
                                           FROM projectdata 
                                           WHERE id='$id_sys'");
@@ -1870,12 +1873,8 @@ sub pg_get_group_type {
                return ("unknown",$gid);
            }
         }
-    } elsif ($type eq "subclass"){
-        # subclass
-        return ("subclass",$gid);
-    } elsif ($type eq "adminclass"){
-        # adminclass
-        return ("adminclass",$gid);
+    }  elsif (not defined $type){
+        return ("unknown",$gid);
     }
 }
 
