@@ -895,8 +895,8 @@ sub provide_user_files {
         $www_home = "${DevelConf::homedir_teacher}/$login/www";
         $share_class = "${DevelConf::share_teacher}";
         $htaccess_template="${DevelConf::apache_templates}"."/".
-                           "htaccess.teacher.public_html-template";
-        $htaccess_target=$home."/public_html/.htaccess";
+                           "htaccess.teacher.private_html-template";
+        $htaccess_target=$home."/private_html/.htaccess";
         $htaccess_sed_command=
             "sed $htaccess_replace $htaccess_template > $htaccess_target";
         if ($DevelConf::testen==0) {
@@ -963,8 +963,8 @@ sub provide_user_files {
                   "$home/${Language::share_dir}",
                   "$login");
            &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/public_html",
-                  "$home/public_html",
+                  "\$homedir_teacher/\$lehrer/private_html",
+                  "$home/private_html",
                   "$login");
            &setup_verzeichnis(
                   "\$www_teachers/\$lehrer",
@@ -982,13 +982,6 @@ sub provide_user_files {
                  "${DevelConf::apache_user}($gid) to $htaccess_target\n";
            chown $uid, $gid, $htaccess_target;
         }
-#        &do_falls_nicht_testen(
-           # Link von windows aus
-           #"rm -rf ${DevelConf::homedir_teacher}/$login/windows/public_html",
-           #"cd ${DevelConf::homedir_teacher}/$login/windows; ln -s ../www/public_html public_html",
-           # Link von Linux aus
-           #"cd ${DevelConf::homedir_teacher}/$login; ln -s www/public_html public_html"
-#        );
         &create_share_link($login, $class,$class,"adminclass");
         &create_share_directory($login, $class,$class,"adminclass");
         &create_school_link($login);
@@ -1001,8 +994,8 @@ sub provide_user_files {
         $www_home = "${DevelConf::homedir_pupil}/$class/$login/www";
         $share_class = "${DevelConf::share_classes}/$class";
         $htaccess_template="${DevelConf::apache_templates}"."/".
-                           "htaccess.student.public_html-template";
-        $htaccess_target=$home."/public_html/.htaccess";
+                           "htaccess.student.private_html-template";
+        $htaccess_target=$home."/private_html/.htaccess";
         $htaccess_sed_command=
             "sed $htaccess_replace $htaccess_template > $htaccess_target";
         if ($DevelConf::testen==0) {
@@ -1045,8 +1038,8 @@ sub provide_user_files {
                   "${DevelConf::www_classes}/$class/$login",
                   "$login");
            &setup_verzeichnis(
-                  "\$homedir_pupil/\$klassen/\$schueler/public_html",
-                  "$home/public_html",
+                  "\$homedir_pupil/\$klassen/\$schueler/private_html",
+                  "$home/private_html",
                   "$login");
            if($Conf::log_level>=2){
    	       print "$htaccess_sed_command\n";
@@ -1059,20 +1052,6 @@ sub provide_user_files {
 	   print "Setting owner/gowner ${DevelConf::apache_user}($uid)/".
                  "${DevelConf::apache_user}($gid) to $htaccess_target\n";
            chown $uid, $gid, $htaccess_target;
-#           &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/www",
-#                              "$www_home");
-#           &setup_verzeichnis(
-#                  "\$homedir_pupil/\$klassen/\$schueler/www/public_html",
-#                  "$www_home/public_html",
-#                  "$login");
-           #www
-#           &do_falls_nicht_testen(
-              # Link von windows aus
-#              "rmdir $home/windows/public_html $dev_null",
-#              "cd $home/windows; ln -s ../www/public_html public_html",
-              # Link von Linux aus
-#              "cd $home; ln -s www/public_html public_html"
-#           );
            &create_share_link($login, $class,$class,"adminclass");
            &create_share_directory($login, $class,$class,"adminclass");
            &create_school_link($login);
