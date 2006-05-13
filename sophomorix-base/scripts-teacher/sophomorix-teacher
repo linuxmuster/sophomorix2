@@ -33,6 +33,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
 ############################################################
 # Start
 ############################################################
+
 $Conf::log_level=1;
 my $help=0;
 my $add="";
@@ -70,7 +71,7 @@ my $testopt=GetOptions(
            "class|adminclass|c=s" => \$class,
            "subclass=s" => \$subclass,
            "project=s" => \$project,
-           "fromroom" => \$fromroom,
+           "fromroom|currentroom" => \$fromroom,
            "room=s" => \$room,
            "exam" => \$exam,
            "info|i" => \$info,
@@ -120,14 +121,29 @@ Options
   -h  / --help
   -v  / --verbose
   -vv / --verbose --verbose
+
+Manage memberships:
   --add AdminClass
   --remove AdminClass
-  --handout
-  --collect
-  --collectcopy
+
+What to do:
+  --handout      (bereitstellen)
+  --handoutcopy  (austeilen)
+  --collect      (einsammeln)
+  --collectcopy  (Kopie einsammeln)
+
+Select students/teachers to work with:
+  --class class
+  --subclass subclass
+  --project project
+  --users user1,user2,user3,...
+  --room room
+
+  --exam
+  --fromroom (aktueller_raum)
 
 Options for the user root
-  --teacher login
+  --teacher teacher
 
 Please see the sophomorix-teacher(1) man pages for full documentation
 ');
@@ -337,11 +353,15 @@ if ($handoutcopy==1 and ($users ne "" and $fromroom==1)){
     }
 
     if ($users ne ""){
-    print "Calling handoutcopy\n";
-           &handoutcopy($login, $class,$type,"unused",$users);
+        print "Calling handoutcopy\n";
+        &handoutcopy($login, $class,$type,"unused",$users);
     }
     exit;
+} elsif ($handoutcopy==1) {
+    print "Cannot handoutcopy to class/subclass/project.\n";
+    print "Use --users user1,user2,...\n";
 }
+
 
 
 
