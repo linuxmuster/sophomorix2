@@ -1845,7 +1845,21 @@ sub pg_get_group_type {
     my ($type)= $dbh->selectrow_array( "SELECT type 
                                           FROM classdata 
                                           WHERE id='$id_sys'");
-    if ($type eq "subclass"){
+    if (not defined $type){
+        # look at a users home
+        my ($home)= $dbh->selectrow_array( "SELECT homedirectory 
+                                            FROM userdata 
+                                            WHERE gidnumber=$gidnumber_sys");
+           if ($home=~/^\/home\/workstations\//){
+               # identify a workstation 
+	       return ("room",$gid);
+           } elsif ($home=~/^\/home\/administrators\//){
+               # identify an administrator
+               return ("administrator",$gid);
+           } else {
+               return ("unknown",$gid);
+           }
+    } elsif ($type eq "subclass"){
         # subclass
         return ("subclass",$gid);
     } elsif ($type eq "adminclass"){
@@ -1858,23 +1872,8 @@ sub pg_get_group_type {
         if (defined $longname){
             return ("project",$longname);
         } else {
-           # look at a users home
-
-           my ($home)= $dbh->selectrow_array( "SELECT homedirectory 
-                                          FROM userdata 
-                                          WHERE gidnumber=$gidnumber_sys");
-           if ($home=~/^\/home\/workstations\//){
-               # identify a workstation 
-	       return ("room",$gid);
-           } elsif ($home=~/^\/home\/administrators\//){
-               # identify an administrator
-               return ("administrator",$gid);
-           } else {
-               return ("unknown",$gid);
-           }
+            return ("project",$gid);
         }
-    }  elsif (not defined $type){
-        return ("unknown",$gid);
     }
 }
 
