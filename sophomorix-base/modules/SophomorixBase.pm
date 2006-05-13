@@ -3925,20 +3925,20 @@ sub handoutcopy {
     my ($homedir)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
 
     if ($type eq "adminclass"){
-       $from_dir = "${homedir}/${Language::handoutcopy_dir}/${name}";
+       $from_dir = "${homedir}/${Language::to_handoutcopy_dir}/${name}";
     } elsif ($type eq "subclass"){
-       $from_dir = "${homedir}/${Language::handoutcopy_dir}/${name}";
+       $from_dir = "${homedir}/${Language::to_handoutcopy_dir}/${name}";
     } elsif ($type eq "project"){
        # get the longname
        my ($longname) =
          &Sophomorix::SophomorixPgLdap::fetchinfo_from_project($name);
-       $from_dir = "${homedir}/${Language::handoutcopy_dir}/${longname}";
+       $from_dir = "${homedir}/${Language::to_handoutcopy_dir}/${longname}";
     } elsif ($type eq "current room"){
-       $from_dir = "${homedir}/${Language::handoutcopy_dir}".
+       $from_dir = "${homedir}/${Language::to_handoutcopy_dir}".
                    "/${Language::current_room}";
        @userlist=split(/,/,$users);
     }
-    print "   From($type): ${from_dir}\n";
+    print "   From ($type): ${from_dir}\n";
     # check if there could be files found to handout
     my $found=0;
     opendir DIR, $from_dir or die "Cannot open $from_dir: $!";
@@ -3947,7 +3947,7 @@ sub handoutcopy {
 	    next;
         }
         $found=1;
-        print "      handout: $file\n";
+        print "      handoutcopy: $file\n";
     }
     closedir DIR;
     if ($found==1){
