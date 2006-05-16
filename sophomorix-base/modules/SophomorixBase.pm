@@ -3883,15 +3883,19 @@ sub handout {
   my $from_dir = "";
 
   if ($type eq "adminclass"){
-      $from_dir = "${homedir}/${Language::handout_dir}/${name}/";
-      $to_dir="${DevelConf::tasks_classes}/${name}/${login}";
+      $from_dir = "${homedir}/${Language::handout_dir}/".
+                  "${Language::handout_string}${name}/";
+      $to_dir="${DevelConf::tasks_classes}/${Language::handout_string}".
+              "${name}/${login}";
   } elsif ($type eq "subclass"){
-      $from_dir = "${homedir}/${Language::handout_dir}/${name}/";
+      $from_dir = "${homedir}/${Language::handout_dir}/".
+                  "${Language::handout_string}${name}/";
       $to_dir="${DevelConf::tasks_subclasses}/${name}/${login}";
   } elsif ($type eq "project"){
       # get the longname
       my ($longname)=&Sophomorix::SophomorixPgLdap::fetchinfo_from_project($name);
-      $from_dir = "${homedir}/${Language::handout_dir}/${longname}/";
+      $from_dir = "${homedir}/${Language::handout_dir}/".
+                  "${Language::handout_string}${longname}/";
       $to_dir="${DevelConf::tasks_projects}/${name}/${login}";
   }
 
@@ -3940,6 +3944,7 @@ sub handoutcopy {
                    "/${Language::current_room}";
        @userlist=split(/,/,$users);
     }
+
     print "   From ($type): ${from_dir}\n";
     # check if there could be files found to handout
     my $found=0;
@@ -3952,6 +3957,7 @@ sub handoutcopy {
         print "      handoutcopy: $file\n";
     }
     closedir DIR;
+
     if ($found==1){
        foreach my $user (@userlist){
            # home des austeilenden ermitteln
