@@ -321,7 +321,10 @@ print "Test";
 
 
 # --handout
-if ($handout==1 and ($class ne "" or $subclass ne "" or $project ne "")){
+if ($handout==1 and ($class ne "" 
+                  or $subclass ne "" 
+                  or $project ne ""
+                  or $room ne "")){
     my $group_type="";
     my $rsync="delete";
     print "Calling handout with rsync option $rsync\n";
@@ -333,6 +336,9 @@ if ($handout==1 and ($class ne "" or $subclass ne "" or $project ne "")){
     }
     if ($project ne ""){
            &handout($login, $project,"project",$rsync);
+    }
+    if ($room ne ""){
+           &handout($login, $room,"room",$rsync);
     }
     exit;
 }

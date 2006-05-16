@@ -3897,6 +3897,10 @@ sub handout {
       $from_dir = "${homedir}/${Language::handout_dir}/".
                   "${Language::handout_string}${longname}/";
       $to_dir="${DevelConf::tasks_projects}/${name}/${login}";
+  } elsif ($type eq "room"){
+      $from_dir = "${homedir}/${Language::handout_dir}/".
+                  "${Language::handout_string}${Language::current_room}/";
+      $to_dir="${DevelConf::tasks_rooms}/${name}/${login}";
   }
 
   print "   From: ${from_dir}\n";
