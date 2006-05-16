@@ -335,14 +335,36 @@ if ($tasks==1 and -e "/root/sophomorix-test/bunchofusers"){
     print '
 ###########################################################################
 #                                                                         #
-#              CHECK TASKS (Vorlagen bereitstellen: class)                #
+#              CHECK TASKS (Vorlagen bereitstellen: room)                 #
 #                                                                         #
 ###########################################################################
 ';
    # DISTRIBUTE (Vorlagen)
    my $vorlagen_teacher="galli";
-   my $vorlagen_gruppe="11a";
-   my $type="adminclass";
+   my $vorlagen_gruppe="134a";
+   my $type="room";
+
+   # Working with these files
+   @teacher_files=("testfile_1.txt","testfile_2.txt");
+   @userlist_to_check=("pc0001",
+                       "pc0002",
+                       "pc0003",
+                       "pc0004",
+                      );
+   &vorlagen_bereitstellen($vorlagen_teacher,
+                           $vorlagen_gruppe,
+                           $type);
+    print '
+###########################################################################
+#                                                                         #
+#              CHECK TASKS (Vorlagen bereitstellen: class)                #
+#                                                                         #
+###########################################################################
+';
+   # DISTRIBUTE (Vorlagen)
+   $vorlagen_teacher="galli";
+   $vorlagen_gruppe="11a";
+   $type="adminclass";
 
    # Working with these files
    @teacher_files=("testfile_1.txt","testfile_2.txt");
@@ -895,6 +917,7 @@ sub vorlagen_bereitstellen{
     my ($teacher,$group,$type) = @_;
     my $command="";
     my $file="";
+    my $exam="";
 
     if ($type eq "project"){
        # $linkname (global should be given before calling this function) 
@@ -904,22 +927,24 @@ sub vorlagen_bereitstellen{
        # $linkname (global should be given before calling this function) 
        # $dirname  (global should be given before calling this function) 
        # $mothergroup (global should be given before calling this function) 
+    } elsif ($type eq "room"){
+       $exam="--exam";
+       $linkname=$group;  
+       $dirname="aktueller_raum";  
+       $mothergroup=$group;
     } else {
        $linkname=$group;  
        $dirname=$group;  
        $mothergroup=$group;
+
     }
 
     $command="sophomorix-user --reset-user $teacher";
     &run_command($command,$verbose);
-#    print "$command \n";
-#    system($command);
 
     foreach my $user (@userlist_to_check){
         $command="sophomorix-user --reset-user $user";
         &run_command($command,$verbose);
-#       print "$command \n";
-#       system($command);
     }
 
 
@@ -927,8 +952,6 @@ sub vorlagen_bereitstellen{
     if ($type eq "adminclass" or $type eq "subclass"){
         $command="sophomorix-teacher --teacher $teacher --remove $mothergroup";
         &run_command($command,$verbose);
-#        print "$command \n";
-#        system($command);
     }
 
     # do this with add already
@@ -940,8 +963,6 @@ sub vorlagen_bereitstellen{
     } elsif ($type eq "subclass"){
        $command="sophomorix-teacher --teacher $teacher --add $mothergroup";
        &run_command($command,$verbose);
-#       print "$command \n";
-#       system($command);
     }
 
     # was directory created ?
@@ -949,17 +970,17 @@ sub vorlagen_bereitstellen{
     ok(-e $file, "$file existiert");
 
     foreach my $testfile (@teacher_files){
-        $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::handout_dir}/${dirname}'/";
+        if ($type eq "room"){
+            $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::handout_dir}/aktueller_raum'/";
+        } else {
+            $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::handout_dir}/${dirname}'/";
+        }
         &run_command($command,$verbose);
-#        print "$command \n";
-#        system($command);
     }
 
     # distribute files(?????? later do this as galli)
-    $command="sophomorix-teacher --teacher $teacher --handout --${type} $group";
+    $command="sophomorix-teacher --teacher $teacher --handout --${type} $group $exam";
     &run_command($command,$verbose);
-#    print "$command \n";
-#    system($command);
 
     # was file handed out ?
     foreach my $testfile (@teacher_files){
@@ -974,8 +995,6 @@ sub vorlagen_bereitstellen{
           ok(-e $file, "$file existiert");
        }
     }
-
-
 }
 
 
