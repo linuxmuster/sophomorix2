@@ -40,9 +40,9 @@ my $add=0;
 my $wsadd=0;
 my $remove=0;
 my $wsremove=0;
-my $tasks=0;
-my $collect=0;
 my $handout=0;
+my $collect=0;
+my $handoutcopy=0;
 my $work=0;
 
 # Parsen der Optionen
@@ -51,9 +51,9 @@ my $testopt=GetOptions(
                 "add" => \$add,
                 "wsadd" => \$wsadd,
                 "work" => \$work,
-                "tasks" => \$tasks,
-                "collect" => \$collect,
                 "handout" => \$handout,
+                "collect" => \$collect,
+                "handoutcopy" => \$handoutcopy,
                 "remove|delete" => \$remove,
                 "wsremove|wsdelete" => \$wsremove,
           );
@@ -87,9 +87,9 @@ Removing users:
   --wsremove
 
 Performing tests
-  --tasks
+  --handout      (read only)
   --collect
-  --handout
+  --handoutcopy  (copy to users home)
 
 Please see the sophomorix-test-bunchofusers(8) man pages for full documentation
 ');
@@ -99,9 +99,9 @@ Please see the sophomorix-test-bunchofusers(8) man pages for full documentation
 
 
 if ($work==1){
-    $handout=1;
+    $handoutcopy=1;
     $collect=1;
-    $tasks=1;
+    $handout=1;
 }
 
 
@@ -331,11 +331,11 @@ if ($wsremove==1){
 
 
 
-if ($tasks==1 and -e "/root/sophomorix-test/bunchofusers"){
+if ($handout==1 and -e "/root/sophomorix-test/bunchofusers"){
     print '
 ###########################################################################
 #                                                                         #
-#              CHECK TASKS (Vorlagen bereitstellen: room)                 #
+#            CHECK HANDOUT (Vorlagen bereitstellen: room)                 #
 #                                                                         #
 ###########################################################################
 ';
@@ -357,7 +357,7 @@ if ($tasks==1 and -e "/root/sophomorix-test/bunchofusers"){
     print '
 ###########################################################################
 #                                                                         #
-#              CHECK TASKS (Vorlagen bereitstellen: class)                #
+#            CHECK HANDOUT (Vorlagen bereitstellen: class)                #
 #                                                                         #
 ###########################################################################
 ';
@@ -383,7 +383,7 @@ if ($tasks==1 and -e "/root/sophomorix-test/bunchofusers"){
     print '
 ###########################################################################
 #                                                                         #
-#              CHECK TASKS (Vorlagen bereitstellen: project)              #
+#            CHECK HANDOUT (Vorlagen bereitstellen: project)              #
 #                                                                         #
 ###########################################################################
 ';
@@ -408,7 +408,7 @@ if ($tasks==1 and -e "/root/sophomorix-test/bunchofusers"){
     print '
 ###########################################################################
 #                                                                         #
-#              CHECK TASKS (Vorlagen bereitstellen: subclass)             #
+#            CHECK HANDOUT (Vorlagen bereitstellen: subclass)             #
 #                                                                         #
 ###########################################################################
 ';
@@ -432,7 +432,7 @@ if ($tasks==1 and -e "/root/sophomorix-test/bunchofusers"){
    &vorlagen_bereitstellen($vorlagen_teacher,
                            $vorlagen_gruppe,
                            $type);
-} elsif ($tasks==1 and not -e "/root/sophomorix-test/bunchofusers"){
+} elsif ($handout==1 and not -e "/root/sophomorix-test/bunchofusers"){
     print "The users must be added bofore checking tasks!\n";
 } else {
     print "INFO: Not checking tasks!\n";
@@ -639,11 +639,11 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
 
 
 
-if ($handout==1 and -e "/root/sophomorix-test/bunchofusers"){
+if ($handoutcopy==1 and -e "/root/sophomorix-test/bunchofusers"){
     print '
 ###########################################################################
 #                                                                         #
-#           CHECK HANDOUT (Dateien austeilen an userliste)                #
+#         CHECK HANDOUTCOPY (Dateien austeilen an userliste)              #
 #                                                                         #
 ###########################################################################
 ';
@@ -673,7 +673,7 @@ if ($handout==1 and -e "/root/sophomorix-test/bunchofusers"){
 
 
 
-} elsif ($handout==1 and not -e "/root/sophomorix-test/bunchofusers"){
+} elsif ($handoutcopy==1 and not -e "/root/sophomorix-test/bunchofusers"){
     print "The users must be added bofore checking handout!\n";
 } else {
     print "INFO: Not checking handout!\n";
