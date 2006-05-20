@@ -446,7 +446,7 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
     print '
 ###########################################################################
 #                                                                         #
-#     CHECK COLLECT (Dat. einsammeln: tycho von room,exam collect)    #
+#     CHECK COLLECT (Dat. einsammeln: tycho von userliste collectcopy)    #
 #                                                                         #
 ###########################################################################
 ';
@@ -454,8 +454,69 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
    my $einsammeln_teacher="tycho";
    my $einsammeln_gruppe="134a";
    my $einsammeln_type="room";
-   my $einsammeln_option="collect";
+   my $einsammeln_option="collectcopy";
    my $einsammeln_exam="--exam";
+
+   # Working with these files
+   @teacher_files=("testfile_4.txt","testfile_5.txt");
+   @userlist_to_check=("altigru",
+                       "blackmri",
+                       "thuraudi",
+                       "pc0003",
+                       "pc0004",
+                       "Rechner1",
+                       "Rechner2",
+                      );
+   my $userliste_collect="altigru,blackmri,thuraudi,pc0003,pc0004,Rechner1,Rechner2";
+
+   &dateien_einsammeln_room($einsammeln_teacher,
+                            $userliste_collect,
+                            $einsammeln_option
+                           );
+    print '
+###########################################################################
+#                                                                         #
+#     CHECK COLLECT (Dat. einsammeln: tycho von userliste collect)        #
+#                                                                         #
+###########################################################################
+';
+   # COLLECT copy (Vorlagen) from project
+   $einsammeln_teacher="tycho";
+   $einsammeln_gruppe="134a";
+   $einsammeln_type="room";
+   $einsammeln_option="collect";
+   $einsammeln_exam="--exam";
+
+   # Working with these files
+   @teacher_files=("testfile_4.txt","testfile_5.txt");
+   @userlist_to_check=("altigru",
+                       "blackmri",
+                       "thuraudi",
+                       "pc0003",
+                       "pc0004",
+                       "Rechner1",
+                       "Rechner2",
+                      );
+   my $userliste_collect="altigru,blackmri,thuraudi,pc0003,pc0004,Rechner1,Rechner2";
+
+   &dateien_einsammeln_room($einsammeln_teacher,
+                            $userliste_collect,
+                            $einsammeln_option
+                           );
+    exit;
+    print '
+###########################################################################
+#                                                                         #
+#     CHECK COLLECT (Dat. einsammeln: tycho von room,exam collect)        #
+#                                                                         #
+###########################################################################
+';
+   # COLLECT copy (Vorlagen) from project
+   $einsammeln_teacher="tycho";
+   $einsammeln_gruppe="134a";
+   $einsammeln_type="room";
+   $einsammeln_option="collect";
+   $einsammeln_exam="--exam";
 
    # Working with these files
    @teacher_files=("testfile_4.txt","testfile_5.txt");
@@ -769,6 +830,88 @@ if ($remove==1 and -e "/root/sophomorix-test/bunchofusers"){
 ############################################################
 # SUB
 ############################################################
+sub dateien_einsammeln_room{
+    my ($teacher,$users,$option)=@_;
+    my @users = split(/,/,$users);
+    my $command="";
+    $command="sophomorix-user --reset-user $teacher";
+    &run_command($command,$verbose);
+    foreach my $user (@users){
+       my @entry = getpwnam($user);
+       my $homedir = "$entry[7]";
+       $command="sophomorix-user --reset-user $user";
+       &run_command($command,$verbose);
+    } 
+
+    foreach my $testfile (@teacher_files){
+       foreach my $user (@userlist_to_check){
+          my $create_this="";
+          my @entry = getpwnam($user);
+          my $homedir = "$entry[7]";
+          $create_this=
+             "${homedir}/${Language::collect_dir}/${Language::current_room}";
+          $command="su --command='cp /usr/share/sophomorix-developer".
+                   "/testfiles/${testfile} ${create_this}' root";
+          &run_command($command,$verbose);
+          $command="chown ${user}.root ${create_this}/${testfile}";
+          &run_command($command,$verbose);
+       }
+    }
+
+    $command="sophomorix-teacher --teacher $teacher --user $users --fromroom --${option}";
+    &run_command($command,$verbose);
+
+    my $collect_dir="";
+    my $collect_parent_dir="/home/teachers/${teacher}".
+            "/${Language::collected_dir}/${Language::current_room}";
+
+    print "Collect parent dir is: $collect_parent_dir \n";
+    opendir(COLL, $collect_parent_dir) 
+         || die "can't opendir ",
+                "$collect_parent_dir $!";
+    while (defined(my $filename = readdir(COLL))) {
+        #print "     Directory $filename found\n";
+        if ($filename=~m/${Language::current_room}.*$/){
+          $collect_dir=$filename
+	  }
+    }
+    closedir(COLL);
+
+    print "Looking for collected data in $collect_dir \n";
+
+    my @entry = getpwnam($teacher);
+    my $homedir = "$entry[7]";
+    foreach my $user (@userlist_to_check){
+       my @entry_student = getpwnam($user);
+       my $homedir_student = "$entry_student[7]";
+      
+       foreach my $testfile (@teacher_files){
+	my $file=$homedir."/${Language::collected_dir}/".
+                          "${Language::current_room}/${collect_dir}/".
+                          "${user}/".$testfile;
+        my $file_nonexist="${homedir_student}".
+                     "/${Language::collect_dir}/${Language::current_room}".
+                     "/${testfile}"; 
+           &check_existence($file);
+           if ($option eq "collect"){
+               # data must be moved away
+               &check_nonexistence($file_nonexist);
+           } elsif ($option eq "collectcopy"){
+               # data must still be there
+               &check_existence($file_nonexist);
+           } else {
+	       print "Bad option $option";
+               exit;
+           }
+
+
+
+       }
+    }
+}
+
+
+
 sub dateien_einsammeln{
     my ($teacher,$group,$type,$option,$exam) = @_;
     my $command="";
@@ -777,29 +920,24 @@ sub dateien_einsammeln{
     $command="sophomorix-user --reset-user $teacher";
     &run_command($command,$verbose);
 
-#    print "$command \n";
-#    system($command);
     foreach my $user (@userlist_to_check){
        my @entry = getpwnam($user);
        my $homedir = "$entry[7]";
        $command="sophomorix-user --reset-user $user";
-    &run_command($command,$verbose);
-#       print "$command \n";
-#       system($command);
+       &run_command($command,$verbose);
+
     }
     foreach my $testfile (@teacher_files){
        foreach my $user (@userlist_to_check){
            my $create_this="";
            my @entry = getpwnam($user);
            my $homedir = "$entry[7]";
-           print "Creating user Data\n";
+           #print "Creating user Data\n";
            if ($type eq "adminclass" or $type eq "project" or $type eq "subclass"){
               $create_this="${homedir}/${Language::collect_dir}/${teacher}";
               $command="su --command='mkdir ${create_this}' $user";
               if (not -e $create_this){
-    &run_command($command,$verbose);
-#                print "$command \n";
-#                system($command);
+                  &run_command($command,$verbose);
               }
            } elsif ($type eq "room"){
               $create_this=
@@ -807,14 +945,9 @@ sub dateien_einsammeln{
            }
            $command="su --command='cp /usr/share/sophomorix-developer".
                     "/testfiles/${testfile} ${create_this}' root";
-     &run_command($command,$verbose);
-#          print "$command \n";
-#           system($command);
+           &run_command($command,$verbose);
            $command="chown ${user}.root ${create_this}/${testfile}";
-    &run_command($command,$verbose);
-#           print "$command \n";
-#           system($command);
-
+           &run_command($command,$verbose);
        }
     }
 
@@ -834,12 +967,6 @@ sub dateien_einsammeln{
     }
 
     &run_command($command,$verbose);
-
-#    print "##################################################\n";
-#    print "$command \n";
-#    print "##################################################\n";
-#    system($command);
-
     my $collect_dir="";
     my $collect_parent_dir="";
     if ($type eq "adminclass" or $type eq "project" or $type eq "subclass"){

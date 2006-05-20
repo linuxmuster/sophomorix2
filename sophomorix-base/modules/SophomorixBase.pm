@@ -4016,6 +4016,7 @@ sub collect {
        print "Collect from :      $name\n";
        print "rsync Options:      $rsync\n";
        print "Exam (boolean):     $exam\n";
+       print "Users:              $users\n";
   }
 
   # where to get _Task data
@@ -4053,7 +4054,8 @@ sub collect {
 
   if (defined $users){ 
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
-                   "${Language::current_room}/${login}_${date}_${name}";
+                   "${Language::current_room}/".
+                   "${login}_${date}_${Language::current_room}";
   } else {
      if ($exam==1){
          $to_dir = "${homedir_col}/${Language::collected_dir}/".

@@ -248,9 +248,7 @@ if ($remove ne ""){
 ############################################################
 # Info
 ############################################################
-
 # --info
-#
 # Display info and exit
  
 if ($info==1 
@@ -318,8 +316,6 @@ print "Test";
 ############################################################
 # Handout
 ############################################################
-
-
 # --handout
 if ($handout==1 and ($class ne "" 
                   or $subclass ne "" 
@@ -347,9 +343,6 @@ if ($handout==1 and ($class ne ""
 ############################################################
 # Handoutcopy
 ############################################################
-
-
-
 # --handoutcopy
 if ($handoutcopy==1 and ($users ne "" and $fromroom==1)){
     my $type="";
@@ -375,7 +368,6 @@ if ($handoutcopy==1 and ($users ne "" and $fromroom==1)){
 ############################################################
 # Enable/Disable all shares
 ############################################################
-
 # --share/--noshare
 if (defined $shares){
     if ($shares==1){
@@ -390,13 +382,12 @@ if (defined $shares){
 ############################################################
 # Collect
 ############################################################
-
-
 # --collect
 if ($collect==1 and ($class ne "" 
                   or $subclass ne "" 
                   or $project ne ""
-                  or $room ne "")){
+                  or $room ne ""
+                  or $users ne "" and $fromroom==1)){
     my $group_type="";
     my $rsync="move";
     if ($class ne ""){
@@ -410,13 +401,18 @@ if ($collect==1 and ($class ne ""
     }
     if ($room ne "" and $users ne ""){
         #  collect from userlist (current room)
-print "Here\n";   
         &collect($login, $room,"current room",$rsync,$exam,$users);
     }
     if ($room ne "" and $exam==1){
         #  collect from a room
         &collect($login, $room,"room",$rsync,$exam);
     }
+    if ($users ne "" and $fromroom==1){
+	print "Jszd\n";
+        #  collect from a userlist
+        &collect($login, $room,"current room",$rsync,$exam,$users);
+    }
+
     exit;
 }
 
@@ -425,7 +421,8 @@ print "Here\n";
 if ($collectcopy==1 and ($class ne "" 
                       or $subclass ne "" 
                       or $project ne ""
-                      or $room ne "")){
+                      or $room ne ""
+                      or $users ne "" and $fromroom==1)){
     my $group_type="";
     my $rsync="copy";
     if ($class ne ""){
@@ -445,6 +442,11 @@ if ($collectcopy==1 and ($class ne ""
         #  collect from a room
         &collect($login, $room,"room",$rsync,$exam);
     }
+    if ($users ne "" and $fromroom==1){
+        #  collect from a userlist
+        &collect($login, $room,"current room",$rsync,$exam,$users);
+    }
+
     exit;
 }
 
