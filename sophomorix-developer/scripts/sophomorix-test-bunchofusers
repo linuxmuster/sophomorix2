@@ -452,10 +452,10 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
 ';
    # COLLECT copy (Vorlagen) from project
    my $einsammeln_teacher="tycho";
-   my $einsammeln_gruppe="134a";
-   my $einsammeln_type="room";
+   my $einsammeln_gruppe="";
+   my $einsammeln_type="";
    my $einsammeln_option="collectcopy";
-   my $einsammeln_exam="--exam";
+   my $einsammeln_exam="";
 
    # Working with these files
    @teacher_files=("testfile_4.txt","testfile_5.txt");
@@ -505,7 +505,6 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
                             $userliste_collect,
                             $einsammeln_option
                            );
-    exit;
     print '
 ###########################################################################
 #                                                                         #
@@ -987,8 +986,9 @@ sub dateien_einsammeln{
          || die "can't opendir ",
                 "$collect_parent_dir $!";
     while (defined(my $filename = readdir(COLL))) {
-        #print "     Directory $filename found\n";
-        if ($filename=~m/${group}.*$/){
+        print "     Directory $filename found\n";
+        if ($filename=~m/${group}.*$/ or
+            $filename=~m/${Language::current_room}.*$/ ){
           $collect_dir=$filename
 	  }
     }
