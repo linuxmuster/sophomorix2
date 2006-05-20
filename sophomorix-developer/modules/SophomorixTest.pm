@@ -373,7 +373,25 @@ sub check_links {
 
 sub run_command {
     my ($command,$verbose)=@_;
-    print "   *** Running $command \n";
+    my $length = length($command);
+
+    my $part1;
+    my $part2;
+    my $part3;
+
+    $part1 = substr $command, 0 ,70;
+    if ($length>70){
+        $part2 = substr $command, 70 ,140;
+    }
+    if ($length>140){
+        $part3 = substr $command, 140 ,210;
+    }
+
+    #print "   *** Running $command \n";
+    print "   *** Running $part1 \n" if defined $part1;
+    print "               $part2 \n" if defined $part2;
+    print "               $part3 \n" if defined $part3;
+
     if ($verbose==1){
 	system("$command");
     } else {
