@@ -655,8 +655,12 @@ if ($handoutcopy==1 and -e "/root/sophomorix-test/bunchofusers"){
    @userlist_to_check=("altigru",
                        "blackmri",
                        "pageji",
-                       "thuraudi");
-   my $userliste="altigru,blackmri,pageji,thuraudi";
+                       "thuraudi",
+                       "pc0003",
+                       "pc0004",
+                       "Rechner1",
+                       "Rechner2");
+   my $userliste="altigru,blackmri,pageji,thuraudi,pc0003,pc0004,Rechner1,Rechner2";
 
 
    &handout_files_room($handout_teacher,$userliste);   

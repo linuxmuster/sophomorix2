@@ -1088,6 +1088,10 @@ sub provide_user_files {
                   "\$homedir_ws/\$raeume/\$workstation/\$handoutcopy_dir",
                   "$home/${Language::handoutcopy_dir}",
                   "$login");
+           &setup_verzeichnis(
+                  "\$homedir_ws/\$raeume/\$workstation/\$handoutcopy_dir/\$current_room",
+                  "$home/${Language::handoutcopy_dir}/${Language::current_room}",
+                  "$login");
          }
     }
 }
