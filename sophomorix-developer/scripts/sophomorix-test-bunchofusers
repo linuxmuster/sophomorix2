@@ -1063,7 +1063,7 @@ sub vorlagen_bereitstellen{
     } elsif ($type eq "room"){
        $exam="--exam";
        $linkname=$group;  
-       $dirname="aktueller_raum";  
+       $dirname="klassenarbeit";  
        $mothergroup=$group;
     } else {
        $linkname=$group;  
@@ -1104,7 +1104,7 @@ sub vorlagen_bereitstellen{
 
     foreach my $testfile (@teacher_files){
         if ($type eq "room"){
-            $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::handout_dir}/aktueller_raum'/";
+            $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::handout_dir}/${Language::exam}'/";
         } else {
             $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::handout_dir}/${dirname}'/";
         }
