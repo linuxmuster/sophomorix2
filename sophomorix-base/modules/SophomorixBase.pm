@@ -2092,7 +2092,8 @@ sub create_share_directory {
             # teacher
             ##############################
             my $handout_dir=$homedir."/".
-                ${Language::handout_dir}."/".$share_long_name;
+                ${Language::handout_dir}."/".
+                ${Language::handout_string}.$share_long_name;
             if (not -e $handout_dir){
                 if($Conf::log_level>=2){
                     print "   Adding directory ${handout_dir}\n"; 
@@ -2100,7 +2101,8 @@ sub create_share_directory {
                 system("mkdir $handout_dir");
             }
             my $to_handoutcopy_dir=$homedir."/".
-                ${Language::to_handoutcopy_dir}."/".$share_long_name;
+                ${Language::to_handoutcopy_dir}."/".
+                ${Language::to_handoutcopy_string}.$share_long_name;
             if (not -e $to_handoutcopy_dir){
                 if($Conf::log_level>=2){
                     print "   Adding directory ${to_handoutcopy_dir}\n"; 
@@ -2218,7 +2220,8 @@ sub remove_share_directory {
             # teacher
             ##############################
             my $handout_dir=$homedir."/".
-               ${Language::handout_dir}."/".$share_long_name;
+               ${Language::handout_dir}."/".${Language::handout_dir}.
+               $share_long_name;
             if (-e $handout_dir){
                 if($Conf::log_level>=2){
                     print "   Removing $handout_dir if empty.\n";
@@ -2226,7 +2229,8 @@ sub remove_share_directory {
                 system("rmdir $handout_dir");
             }
             my $to_handoutcopy_dir=$homedir."/".
-               ${Language::to_handoutcopy_dir}."/".$share_long_name;
+               ${Language::to_handoutcopy_dir}."/".
+               ${Language::to_handoutcopy_string}.$share_long_name;
             if (-e $to_handoutcopy_dir){
                 if($Conf::log_level>=2){
                     print "   Removing $to_handoutcopy_dir if empty.\n";
@@ -3939,14 +3943,17 @@ sub handoutcopy {
     my ($homedir)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
 
     if ($type eq "adminclass"){
-       $from_dir = "${homedir}/${Language::to_handoutcopy_dir}/${name}";
+       $from_dir = "${homedir}/${Language::to_handoutcopy_dir}/".
+                   "${Language::to_handoutcopy_string}.${name}";
     } elsif ($type eq "subclass"){
-       $from_dir = "${homedir}/${Language::to_handoutcopy_dir}/${name}";
+       $from_dir = "${homedir}/${Language::to_handoutcopy_dir}/".
+                   "${Language::to_handoutcopy_string}${name}";
     } elsif ($type eq "project"){
        # get the longname
        my ($longname) =
          &Sophomorix::SophomorixPgLdap::fetchinfo_from_project($name);
-       $from_dir = "${homedir}/${Language::to_handoutcopy_dir}/${longname}";
+       $from_dir = "${homedir}/${Language::to_handoutcopy_dir}/".
+                   "${Language::to_handoutcopy_string}${longname}";
     } elsif ($type eq "current room"){
        $from_dir = "${homedir}/${Language::to_handoutcopy_dir}".
                    "/${Language::current_room}";
