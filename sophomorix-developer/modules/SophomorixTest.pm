@@ -285,7 +285,6 @@ sub check_account {
           $gcos,$dir,$shell) = getpwnam($login);
        my $pri_grp = getgrgid($gid);
        &check_dir($dir,$login,${DevelConf::teacher},"2701");
-       &check_dir("${dir}/windows",$login,${DevelConf::teacher},"0700");
        &check_dir("${dir}/${Language::share_dir}","root","root","1755");
        my $link_dir="${dir}/${Language::share_dir}";
        &check_links("${link_dir}",$login);
@@ -511,11 +510,6 @@ sub check_provided_files {
                     "teachers",
                     "2751");
     }
-
-    &check_file("windows",$login,$class,
-                 $login,
-                 "teachers",
-                 "0700");
     if ($class eq ${DevelConf::teacher}){
        &check_file("$Language::task_dir",$login,$class,
                     $login,
