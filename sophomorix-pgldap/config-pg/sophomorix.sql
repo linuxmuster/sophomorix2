@@ -1483,7 +1483,6 @@ CREATE TABLE project_details (
     sophomorixstatus character varying(255),
     enddate date,
     longname character varying(255),
-    maxmebers integer,
     "type" integer,
     maxmembers integer,
     creationdate timestamp without time zone,
