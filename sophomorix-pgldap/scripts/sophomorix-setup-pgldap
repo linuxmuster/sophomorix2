@@ -809,8 +809,8 @@ if (-e "/etc/init.d/nscd"){
 &setup_verzeichnis("\$homedir_all_admins","$DevelConf::homedir_all_admins");
 
 # adding users
-# Administrator is equal to admin in ml 2.x
-system("smbldap-useradd -a  -c Administrator -m -d /home/administrators/Administrator -g 'domadmins' -G 'administrators,printoperators,pgmadmins' -s /bin/bash Administrator");
+# administrator is equal to admin in ml 2.x
+system("smbldap-useradd -a  -c administrator -m -d /home/administrators/administrator -g 'domadmins' -G 'administrators,printoperators,pgmadmins' -s /bin/bash administrator");
 
 # pgmadmin is to install programs on the win clients
 system("smbldap-useradd -a  -c 'Programm Administrator' -m -d /home/administrators/pgmadmin -g 'pgmadmins' -s /bin/false pgmadmin");
