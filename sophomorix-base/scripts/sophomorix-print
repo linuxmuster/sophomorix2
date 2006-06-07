@@ -33,7 +33,7 @@ use Sophomorix::SophomorixPgLdap qw(check_connections
 &titel("sophomorix-print is creating output ...");
 &check_connections(),
 
-my $schul_name="---";
+#my $schul_name="---";
 
 # Auslesen der Schulinfo-Datei
 my $info_klasse="";
@@ -259,8 +259,11 @@ if ($gruppe ne "") {
 }
 
 
+my $latex_schoolname=&latexize_string("$Conf::schul_name");
 
-print LATEX ('\lfoot{',"$Conf::schul_name",'}',"\n");
+
+#print LATEX ('\lfoot{',"$Conf::schul_name",'}',"\n");
+print LATEX ('\lfoot{',"$latex_schoolname",'}',"\n");
 print LATEX ('\rfoot{'," ${output_file_basename}",'.pdf','}',"\n");
 
 print LATEX ('
@@ -912,6 +915,14 @@ if ($show==1) {
 # ===========================================================================
 # Subroutinen
 # ===========================================================================
+
+sub latexize_string {
+    # make string usable by latex (convert)
+    my ($string) = @_;
+    $string=~s/_/\\_/g;
+    return $string; 
+}
+
 
 sub pdflatexen {
     &titel("pdflatex is creating output ...");
