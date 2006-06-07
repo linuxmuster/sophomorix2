@@ -55,7 +55,7 @@ my $addadmin="";
 my $removeadmin="";
 my $add="";
 my $remove="";
-my $teacher="";
+my $users="";
 my $p_long_name;
 my $p_admins;
 my $p_groups;
@@ -86,7 +86,7 @@ my $testopt=GetOptions(
            "remove=s" => \$remove,
            "addadmin=s" => \$addadmin,
            "removeadmin=s" => \$removeadmin,
-           "teacher=s" => \$teacher,
+           "users=s" => \$users,
            "Name|project|p=s" => \$project,
            "LongName=s" => \$p_long_name,
            "MemberGroups=s" => \$p_groups,
@@ -145,10 +145,10 @@ Options
   --AddMailQuota number
   --MaxMembers number
 
-  --teacher --add project
-  --teacher --remove project
-  --teacher --addadmin project
-  --teacher --removeadmin project
+  --users user1,user2,... --add project
+  --users user1,user2,... --remove project
+  --users user1,user2,... --addadmin project
+  --users user1,user2,... --removeadmin project
 
 Please see the sophomorix-project(8) man pages for full documentation
 ');
@@ -175,29 +175,29 @@ if ($project eq "" and $info==1){
 
 
 # --add
-if ($add ne "" and $teacher ne ""){
-    &adduser_to_project($teacher,$add);
+if ($add ne "" and $users ne ""){
+    &adduser_to_project($users,$add);
     exit;
 }
 
 
 # --remove
-if ($remove ne "" and $teacher ne ""){
-    &deleteuser_from_project($teacher,$remove);
+if ($remove ne "" and $users ne ""){
+    &deleteuser_from_project($users,$remove);
     exit;
 }
 
 # --addadmin
-if ($addadmin ne "" and $teacher ne ""){
-    &deleteuser_from_project($teacher,$addadmin);
-    &addadmin_to_project($teacher,$addadmin);
+if ($addadmin ne "" and $users ne ""){
+    &deleteuser_from_project($users,$addadmin);
+    &addadmin_to_project($users,$addadmin);
     exit;
 }
 
 
 # --removeadmin
-if ($removeadmin ne "" and $teacher ne ""){
-    &deleteadmin_from_project($teacher,$removeadmin);
+if ($removeadmin ne "" and $users ne ""){
+    &deleteadmin_from_project($users,$removeadmin);
     exit;
 }
 
