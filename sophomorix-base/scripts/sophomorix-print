@@ -919,6 +919,7 @@ if ($show==1) {
 sub latexize_string {
     # make string usable by latex (convert)
     my ($string) = @_;
+    #replace  _   with   \_
     $string=~s/_/\\_/g;
     return $string; 
 }

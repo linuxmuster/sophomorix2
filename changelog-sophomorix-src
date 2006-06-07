@@ -332,6 +332,7 @@ sophomorix-print
      i.e. to allow some of its students to participate in a wiki permanently
      admin should be able to define an 'veteran project', i.e. 
      m4kb2t --> mkb-veterans
+   - allow other than [a-z0-9_] in strings that is used for latex
 
 
 sophomorix-project
@@ -1465,8 +1466,10 @@ make these options accept a list
 
 
 
-
 1.8.1-1  (2006-05-xx)
+   - sophomorix-print: allow _ in schoolname
+   - Bugfix: prefix strings not created with sophomorix-repair
+   - removed buggy field from database (memebdata or so)
    - renamed account Administrator to administrator
      (Problems with uppercase) 
 
