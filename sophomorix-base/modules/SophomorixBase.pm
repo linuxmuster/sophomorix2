@@ -919,20 +919,20 @@ sub provide_user_files {
                   "$home/${Language::to_handoutcopy_dir}",
                   "$login");
            &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$to_handoutcopy_dir/\$current_room",
-                  "$home/${Language::to_handoutcopy_dir}/${Language::current_room}",
+                  "\$homedir_teacher/\$lehrer/\$to_handoutcopy_dir/\$to_handoutcopy_string\$current_room",
+                  "$home/${Language::to_handoutcopy_dir}/${Language::to_handoutcopy_string}${Language::current_room}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$handoutcopy_dir",
                   "$home/${Language::handoutcopy_dir}",
                   "$login");
            &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$handout_dir/\$exam",
-                  "$home/${Language::handout_dir}/${Language::exam}",
+                  "\$homedir_teacher/\$lehrer/\$handout_dir/\$handout_string\$exam",
+                  "$home/${Language::handout_dir}/${Language::handout_string}${Language::exam}",
                   "$login");
            &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$handout_dir/\$current_room",
-                  "$home/${Language::handout_dir}/${Language::current_room}",
+                  "\$homedir_teacher/\$lehrer/\$handout_dir/\$handout_string\$current_room",
+                  "$home/${Language::handout_dir}/${Language::handout_string}${Language::current_room}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$handoutcopy_dir/\$current_room",
