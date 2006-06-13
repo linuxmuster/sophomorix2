@@ -31,6 +31,10 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     addadmin_to_project
                                     deleteuser_from_project
                                     deleteadmin_from_project
+                                    addgroup_to_project
+                                    deletegroup_from_project
+                                    addproject_to_project
+                                    deleteproject_from_project
                                    );
 
 # ===========================================================================
@@ -261,7 +265,9 @@ if ($removeadmins ne "" and $project ne ""){
 if ($addmembergroups ne "" and $project ne ""){
     my @groups = split(/,/,$addmembergroups);
     my ($long_name) = &fetchinfo_from_project($project);
-
+    foreach my $group (@groups){
+        &addgroup_to_project($group,$project);
+    }
     exit;
 }
 
@@ -270,7 +276,9 @@ if ($addmembergroups ne "" and $project ne ""){
 if ($removemembergroups ne "" and $project ne ""){
     my @groups = split(/,/,$removemembergroups);
     my ($long_name) = &fetchinfo_from_project($project);
-
+    foreach my $group (@groups){
+        &deletegroup_from_project($group,$project);
+    }
     exit;
 }
 
@@ -280,7 +288,9 @@ if ($removemembergroups ne "" and $project ne ""){
 if ($addmemberprojects ne "" and $project ne ""){
     my @projects = split(/,/,$addmemberprojects);
     my ($long_name) = &fetchinfo_from_project($project);
-
+    foreach my $pro (@projects){
+        &addproject_to_project($pro,$project);
+    }
     exit;
 }
 
@@ -289,7 +299,9 @@ if ($addmemberprojects ne "" and $project ne ""){
 if ($removememberprojects ne "" and $project ne ""){
     my @projects = split(/,/,$removememberprojects);
     my ($long_name) = &fetchinfo_from_project($project);
-
+    foreach my $pro (@projects){
+        &deleteproject_from_project($pro,$project);
+    }
     exit;
 }
 
