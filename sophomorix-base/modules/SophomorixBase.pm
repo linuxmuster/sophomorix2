@@ -1034,8 +1034,8 @@ sub provide_user_files {
                   "$home/${Language::share_dir}",
                   "$login");
            &setup_verzeichnis(
-                  "\$www_classes/\$klassen/\$schueler",
-                  "${DevelConf::www_classes}/$class/$login",
+                  "\$www_students/\$schueler",
+                  "${DevelConf::www_students}/$login",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_pupil/\$klassen/\$schueler/private_html",
