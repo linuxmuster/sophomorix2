@@ -398,6 +398,7 @@ sub deleteadmin_from_project {
     my $dbh=&db_connect();
     # fetching id
     my ($project_id_sys)= $dbh->selectrow_array( "SELECT id 
+
                                          FROM groups 
                                          WHERE gid='$project'");
     # fetching uidnumber
@@ -3163,7 +3164,6 @@ sub create_project {
     foreach my $user (@users_to_add) {
        if ($user eq "root"){next;}
        &adduser_to_project($user,$project);
-
        # create a link
        &Sophomorix::SophomorixBase::create_share_link($user,
                                         $project,$p_long_name);
