@@ -54,9 +54,12 @@ my $v;
 
 my $addadmins="";
 my $removeadmins="";
-
 my $addmembers="";
 my $removemembers="";
+my $addmembergroups="";
+my $removemembergroups="";
+my $addmemberprojects="";
+my $removememberprojects="";
 
 my $p_long_name;
 my $p_admins;
@@ -88,6 +91,10 @@ my $testopt=GetOptions(
            "removemembers=s" => \$removemembers,
            "addadmins=s" => \$addadmins,
            "removeadmins=s" => \$removeadmins,
+           "addmembergroups=s" => \$addmembergroups,
+           "removemembergroups=s" => \$removemembergroups,
+           "addmemberprojects=s" => \$addmemberprojects,
+           "removememberprojects=s" => \$removememberprojects,
            "Name|project|p=s" => \$project,
            "LongName=s" => \$p_long_name,
            "MemberGroups=s" => \$p_groups,
@@ -110,6 +117,10 @@ if ($project eq ""
     and $removemembers eq ""
     and $addadmins eq ""
     and $removeadmins eq ""
+    and $addmembergroups eq ""
+    and $removemembergroups eq ""
+    and $addmemberprojects eq ""
+    and $removememberprojects eq ""
     and $info==0
     ){
     $help=1;
@@ -244,6 +255,38 @@ if ($removeadmins ne "" and $project ne ""){
     }
     exit;
 }
+
+
+# --addmembergroups
+if ($addmembergroups ne "" and $project ne ""){
+
+    exit;
+}
+
+
+# --removemembergroups
+if ($removemembergroups ne "" and $project ne ""){
+
+    exit;
+}
+
+
+
+# --addmemberprojects
+if ($addmemberprojects ne "" and $project ne ""){
+
+    exit;
+}
+
+
+# --removememberprojects
+if ($removememberprojects ne "" and $project ne ""){
+
+    exit;
+}
+
+
+
 
 
 
