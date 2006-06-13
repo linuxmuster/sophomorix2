@@ -1462,24 +1462,23 @@ Test schreiben
 
 
 
-/var/www/people/students/klasse/student
- wird zu /var/www/people/students/student
-
-(Damit bleibt Pfad zum einzigen privaten public_html auch bei
-versetzen gleich, und kann verlinkt werden in gemeinsames Klassen
-bzw. Project-public_html)
-
-
 
 adding/removing group/project:
 
 to do: handle members 
 
 
+handle /var/www/people/students when user is killed (not deleted at the moment)
+
 
 
 
 1.8.1-1  (2006-05-xx)
+   - added nonworking script sophomorix-www with manpage to package
+   - dropped classes subdir (www-dir of a user shouldn't change, when 
+     moving her to another class)
+        /var/www/people/students/klasse/student
+        ---> /var/www/people/students/student
    - new options in sophomorix-project (accepting lists)
        --addmembergroups
        --removemembergroups

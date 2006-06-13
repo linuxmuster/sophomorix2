@@ -1001,7 +1001,6 @@ sub provide_user_files {
         if ($DevelConf::testen==0) {
            &setup_verzeichnis("\$homedir_pupil/\$klassen",
                               "$home_class");
-
            &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler",
                               "$home",
                               "$login");
