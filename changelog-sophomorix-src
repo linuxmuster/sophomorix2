@@ -1444,25 +1444,51 @@ subclassen als projekte hinzufügen? Tut das?
 manpage sophomorix-project aktualisieren
 
 
+
+think about logging all sophomorix-commands to /var/log/sophomorix with date
+
+logrotate file in /debian/package.logrotate
+
+
 optionen sophomorix-project: 
- --addadmins 
- --removeadmins
 
- --addmembers
- --removeadmins 
+nur option --removemembers
+wenn ein admin angegeben wird, dann ihn als admin entfernen 
 
- --addmembergroups
- --removemembergroups
 
- --addmemberproject
- --removememberproject
+sophomorix-teacher:
+option fromproject: wird im Verzeichnisnamen verwendet in den eingesammelt wird
+Test schreiben
 
-make these options accept a list
+
+
+/var/www/people/students/klasse/student
+ wird zu /var/www/people/students/student
+
+(Damit bleibt Pfad zum einzigen privaten public_html auch bei
+versetzen gleich, und kann verlinkt werden in gemeinsames Klassen
+bzw. Project-public_html)
+
+
+
+adding/removing group/project:
+
+to do: handle members 
+
 
 
 
 
 1.8.1-1  (2006-05-xx)
+   - new options in sophomorix-project (accepting lists)
+       --addmembergroups
+       --removemembergroups
+       --addmemberproject
+       --removememberproject
+       --addadmins 
+       --removeadmins
+       --addmembers
+       --removeadmins 
    - sophomorix-print: allow _ in schoolname
    - Bugfix: prefix strings not created with sophomorix-repair
    - removed buggy field from database (memebdata or so)
@@ -1479,7 +1505,7 @@ make these options accept a list
    - Bugfix: current_room is missing in $handout/workstations
 
 1.7.3-1  (2006-05-16)
-   - acced handout type room
+   - added handout type room
    - Bugfix: pg_get_grpup_type works for workstations
    - Bugfix: sophomorix-test-bucnchofusers throws error
      reason: sophomorix-user --reset-user didn'd used longnames
