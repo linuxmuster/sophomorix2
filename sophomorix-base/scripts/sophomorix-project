@@ -259,6 +259,8 @@ if ($removeadmins ne "" and $project ne ""){
 
 # --addmembergroups
 if ($addmembergroups ne "" and $project ne ""){
+    my @groups = split(/,/,$addmembergroups);
+    my ($long_name) = &fetchinfo_from_project($project);
 
     exit;
 }
@@ -266,6 +268,8 @@ if ($addmembergroups ne "" and $project ne ""){
 
 # --removemembergroups
 if ($removemembergroups ne "" and $project ne ""){
+    my @groups = split(/,/,$removemembergroups);
+    my ($long_name) = &fetchinfo_from_project($project);
 
     exit;
 }
@@ -274,6 +278,8 @@ if ($removemembergroups ne "" and $project ne ""){
 
 # --addmemberprojects
 if ($addmemberprojects ne "" and $project ne ""){
+    my @projects = split(/,/,$addmemberprojects);
+    my ($long_name) = &fetchinfo_from_project($project);
 
     exit;
 }
@@ -281,6 +287,8 @@ if ($addmemberprojects ne "" and $project ne ""){
 
 # --removememberprojects
 if ($removememberprojects ne "" and $project ne ""){
+    my @projects = split(/,/,$removememberprojects);
+    my ($long_name) = &fetchinfo_from_project($project);
 
     exit;
 }
