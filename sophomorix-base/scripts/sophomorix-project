@@ -26,6 +26,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     create_project
                                     remove_project
                                     remove_class_db_entry
+                                    fetchinfo_from_project
                                     adduser_to_project
                                     addadmin_to_project
                                     deleteuser_from_project
@@ -51,11 +52,12 @@ my $project="";
 my $k;
 my $v;
 
-my $addadmin="";
-my $removeadmin="";
-my $add="";
-my $remove="";
-my $users="";
+my $addadmins="";
+my $removeadmins="";
+
+my $addmembers="";
+my $removemembers="";
+
 my $p_long_name;
 my $p_admins;
 my $p_groups;
@@ -82,11 +84,10 @@ my $testopt=GetOptions(
            "kill" => \$kill,
            "verbose|v+" => \$Conf::log_level,
            "join!" => \$join,
-           "add=s" => \$add,
-           "remove=s" => \$remove,
-           "addadmin=s" => \$addadmin,
-           "removeadmin=s" => \$removeadmin,
-           "users=s" => \$users,
+           "addmembers=s" => \$addmembers,
+           "removemembers=s" => \$removemembers,
+           "addadmins=s" => \$addadmins,
+           "removeadmins=s" => \$removeadmins,
            "Name|project|p=s" => \$project,
            "LongName=s" => \$p_long_name,
            "MemberGroups=s" => \$p_groups,
@@ -105,10 +106,10 @@ my $testopt=GetOptions(
 
 
 if ($project eq ""
-    and $add eq ""
-    and $remove eq ""
-    and $addadmin eq ""
-    and $removeadmin eq ""
+    and $addmembers eq ""
+    and $removemembers eq ""
+    and $addadmins eq ""
+    and $removeadmins eq ""
     and $info==0
     ){
     $help=1;
@@ -145,10 +146,14 @@ Options
   --AddMailQuota number
   --MaxMembers number
 
-  --users user1,user2,... --add project
-  --users user1,user2,... --remove project
-  --users user1,user2,... --addadmin project
-  --users user1,user2,... --removeadmin project
+  -p project --addAdmins 
+  -p project --removeAdmins
+  -p project --addMembers
+  -p project --removeMembers 
+  -p project --addMemberGroups
+  -p project --removeMemberGroups
+  -p project --addMemberProjects
+  -p project --removeMemberProjects
 
 Please see the sophomorix-project(8) man pages for full documentation
 ');
@@ -174,30 +179,69 @@ if ($project eq "" and $info==1){
 }
 
 
-# --add
-if ($add ne "" and $users ne ""){
-    &adduser_to_project($users,$add);
+# --addmembers
+if ($addmembers ne "" and $project ne ""){
+    my @users = split(/,/,$addmembers);
+    my ($long_name) = &fetchinfo_from_project($project);
+    foreach my $user (@users){
+        &adduser_to_project($user,$project);
+        # create a link
+        &Sophomorix::SophomorixBase::create_share_link($user,
+                                        $project,$long_name);
+        # create directories 
+        &Sophomorix::SophomorixBase::create_share_directory($user,
+                                        $project,$long_name);
+    }
     exit;
 }
 
 
-# --remove
-if ($remove ne "" and $users ne ""){
-    &deleteuser_from_project($users,$remove);
+# --removemembers
+if ($removemembers ne "" and $project ne ""){
+    my @users = split(/,/,$removemembers);
+    my ($long_name) = &fetchinfo_from_project($project);
+    foreach my $user (@users){
+        &deleteuser_from_project($user,$project);
+        &Sophomorix::SophomorixBase::remove_share_link($user,
+                                       $project,$long_name);
+        &Sophomorix::SophomorixBase::remove_share_directory($user,
+                                       $project,$long_name);
+    }
     exit;
 }
 
-# --addadmin
-if ($addadmin ne "" and $users ne ""){
-    &deleteuser_from_project($users,$addadmin);
-    &addadmin_to_project($users,$addadmin);
+
+# --addadmins
+if ($addadmins ne "" and $project ne ""){
+    my @users = split(/,/,$addadmins);
+    my ($long_name) = &fetchinfo_from_project($project);
+    foreach my $user (@users){
+        &deleteuser_from_project($user,$project);
+        &Sophomorix::SophomorixBase::remove_share_link($user,
+                                       $project,$long_name);
+        &Sophomorix::SophomorixBase::remove_share_directory($user,
+                                       $project,$long_name);
+        &addadmin_to_project($user,$project);
+        &Sophomorix::SophomorixBase::create_share_link($user,
+                                        $project,$long_name);
+        &Sophomorix::SophomorixBase::create_share_directory($user,
+                                        $project,$long_name);
+    }
     exit;
 }
 
 
-# --removeadmin
-if ($removeadmin ne "" and $users ne ""){
-    &deleteadmin_from_project($users,$removeadmin);
+# --removeadmins
+if ($removeadmins ne "" and $project ne ""){
+    my @users = split(/,/,$removeadmins);
+    my ($long_name) = &fetchinfo_from_project($project);
+    foreach my $user (@users){
+        &deleteadmin_from_project($user,$project);
+        &Sophomorix::SophomorixBase::remove_share_link($user,
+                                       $project,$long_name);
+        &Sophomorix::SophomorixBase::remove_share_directory($user,
+                                       $project,$long_name);
+    }
     exit;
 }
 
