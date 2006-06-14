@@ -72,10 +72,6 @@ if ($help==1) {
    my @list = split(/\//,$0);
    my $scriptname = pop @list;
    # Befehlsbeschreibung
-
-
-
-
    print('
 sophomorix-kill removes users from the sophomorix database and deletes their data for good.
 
@@ -175,19 +171,12 @@ while(<KILL>){
 
      my $public_html_to_kill ="";
      if ($type_to_kill eq "teacher"){
-         $public_html_to_kill = ${DevelConf::www_teachers}."/".$login_name_to_kill;
+         $public_html_to_kill = ${DevelConf::www_teachers}.
+                                "/".$login_name_to_kill;
      } elsif ($type_to_kill eq "student") {
-         $public_html_to_kill = ${DevelConf::www_students}."/".$login_name_to_kill;
+         $public_html_to_kill = ${DevelConf::www_students}.
+                                "/".$login_name_to_kill;
      }
-
-#     my $dbh=&db_connect();
-#     my $sql="";
-#     $sql="SELECT homedirectory FROM userdata WHERE uid='$login_name_to_kill'";
-#     if($Conf::log_level>=3){
-#        print "\nSQL: $sql\n";
-#     }
-#     my ($home_verzeichnis_to_kill)= $dbh->selectrow_array($sql);
-#     &db_disconnect($dbh);
 
      # Abbruch, wenn nicht der richtige loginname entfernt wird
      if ($loginname ne "") {
