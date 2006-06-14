@@ -94,6 +94,7 @@ use Quota;
               provide_project_files
               remove_project_files
               provide_user_files
+              student_public_upload
               get_debconf_value
               );
 
@@ -4341,6 +4342,24 @@ sub unterricht_einsammeln {
    # Alles soll lehrer gehören
    system("chown -R ${loginname}:${DevelConf::teacher} $lehrer_verzeichnis");
    print "Aufgaben Einsammeln ... fertig.</b><p> ";
+}
+
+
+
+
+sub student_public_upload {
+    my ($user) = @_;
+    print "   modifying $user to student-public-upload\n";
+    my $ht_replace= " -e 's/\@\@username\@\@/${user}/g'".
+            " -e 's/\@\@teachergroup\@\@/${DevelConf::teacher}/g'";
+    my $ht_template="${DevelConf::apache_templates}"."/".
+                 "htaccess.student_public_upload-template";
+    my $ht_target=${DevelConf::www_students}."/".$user."/.htaccess";
+    my $sed_command = "sed $ht_replace $ht_template > $ht_target";
+    if($Conf::log_level>=3){
+        print "$sed_command \n";
+    }
+    system "$sed_command";
 }
 
 
