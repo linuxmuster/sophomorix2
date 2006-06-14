@@ -39,46 +39,46 @@ $var_lib_pfad::root::root::0700
 ###   /home/*
 
 $homedir_all_admins::root::root::0755
-$homedir_teacher::Administrator::domadmins::0775
-$homedir_pupil::Administrator::domadmins::1775
-$homedir_ws::Administrator::domadmins::0775
+$homedir_teacher::administrator::domadmins::0775
+$homedir_pupil::administrator::domadmins::1775
+$homedir_ws::administrator::domadmins::0775
 
 ### SHARES
-$share_share::Administrator::domadmins::1775
-$share_classes::Administrator::teachers::0751
-$share_subclasses::Administrator::teachers::0751
-$share_exams::Administrator::domadmins::0775
-$share_projects::Administrator::teachers::0751
-$share_school::Administrator::teachers::3777
-#$share_tasks::Administrator::domadmins::0775
-$share_teacher::Administrator::teachers::3770
+$share_share::administrator::domadmins::1775
+$share_classes::administrator::teachers::0751
+$share_subclasses::administrator::teachers::0751
+$share_exams::administrator::domadmins::0775
+$share_projects::administrator::teachers::0751
+$share_school::administrator::teachers::3777
+#$share_tasks::administrator::domadmins::0775
+$share_teacher::administrator::teachers::3770
 
-$share_classes/$klassen::Administrator::teachers::3777
-$share_subclasses/$klassen::Administrator::teachers::3777
-$share_projects/$klassen::Administrator::teachers::3777
+$share_classes/$klassen::administrator::teachers::3777
+$share_subclasses/$klassen::administrator::teachers::3777
+$share_projects/$klassen::administrator::teachers::3777
 
 
 ### TASKS
 
-$tasks_tasks::Administrator::teachers::1775
+$tasks_tasks::administrator::teachers::1775
 
-$tasks_classes::Administrator::teachers::0771
-$tasks_teachers::Administrator::teachers::0771
-$tasks_subclasses::Administrator::teachers::3775
-$tasks_projects::Administrator::teachers::3775
-$tasks_rooms::Administrator::teachers::3775
+$tasks_classes::administrator::teachers::0771
+$tasks_teachers::administrator::teachers::0771
+$tasks_subclasses::administrator::teachers::3775
+$tasks_projects::administrator::teachers::3775
+$tasks_rooms::administrator::teachers::3775
 
-$tasks_classes/$klassen::Administrator::teachers::3775
-$tasks_subclasses/$klassen::Administrator::teachers::3775
-$tasks_projects/$klassen::Administrator::teachers::3775
-$tasks_rooms/$raeume::Administrator::teachers::3775
+$tasks_classes/$klassen::administrator::teachers::3775
+$tasks_subclasses/$klassen::administrator::teachers::3775
+$tasks_projects/$klassen::administrator::teachers::3775
+$tasks_rooms/$raeume::administrator::teachers::3775
 
 
 
 
 ### STUDENTS
 
-$homedir_pupil/$klassen::Administrator::teachers::2751 
+$homedir_pupil/$klassen::administrator::teachers::2751 
 #$homedir_pupil/$klassen/$schueler::$schueler::teachers::0700
 $homedir_pupil/$klassen/$schueler::$schueler::teachers::2751
 #$homedir_pupil/$klassen/$schueler/windows::$schueler::teachers::0700 
@@ -117,7 +117,7 @@ $homedir_teacher/$lehrer/private_html::$lehrer::$apache_group::2750
 
 # WORKSTATION
 
-$homedir_ws/$raeume::Administrator::teachers::2751
+$homedir_ws/$raeume::administrator::teachers::2751
 $homedir_ws/$raeume/$workstation::$workstation::teachers::2750 
 #$homedir_ws/$raeume/$workstation/windows::$workstation::teachers::2750 
 $homedir_ws/$raeume/$workstation/$collect_dir::$workstation::root::1755
@@ -153,9 +153,9 @@ $www_students/$schueler::root::root::0755
 ### SAMBA
 
 $homedir_samba::root::root::0755
-$homedir_samba_cds::Administrator::pgmadmins::0775
-$homedir_samba_netlogon::Administrator::domadmins::0755
-$homedir_samba_progs::Administrator::pgmadmins::0775
+$homedir_samba_cds::administrator::pgmadmins::0775
+$homedir_samba_netlogon::administrator::domadmins::0755
+$homedir_samba_progs::administrator::pgmadmins::0775
 
 
 ### Security
