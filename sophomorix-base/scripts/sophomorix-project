@@ -57,7 +57,6 @@ my $k;
 my $v;
 
 my $addadmins="";
-my $removeadmins="";
 my $addmembers="";
 my $removemembers="";
 my $addmembergroups="";
@@ -94,7 +93,6 @@ my $testopt=GetOptions(
            "addMembers=s" => \$addmembers,
            "removeMembers=s" => \$removemembers,
            "addAdmins=s" => \$addadmins,
-           "removeAdmins=s" => \$removeadmins,
            "addMemberGroups=s" => \$addmembergroups,
            "removeMemberGroups=s" => \$removemembergroups,
            "addMemberProjects=s" => \$addmemberprojects,
@@ -120,7 +118,6 @@ if ($project eq ""
     and $addmembers eq ""
     and $removemembers eq ""
     and $addadmins eq ""
-    and $removeadmins eq ""
     and $addmembergroups eq ""
     and $removemembergroups eq ""
     and $addmemberprojects eq ""
@@ -162,7 +159,6 @@ Options
   --MaxMembers number
 
   -p project --addAdmins 
-  -p project --removeAdmins
   -p project --addMembers
   -p project --removeMembers 
   -p project --addMemberGroups
@@ -216,7 +212,14 @@ if ($removemembers ne "" and $project ne ""){
     my @users = split(/,/,$removemembers);
     my ($long_name) = &fetchinfo_from_project($project);
     foreach my $user (@users){
+        # is this user admin or member
+# ???? deleteadmin deletes also user?
+        # delete member
         &deleteuser_from_project($user,$project);
+        # delete admin
+        #&deleteadmin_from_project($user,$project);
+        
+
         &Sophomorix::SophomorixBase::remove_share_link($user,
                                        $project,$long_name);
         &Sophomorix::SophomorixBase::remove_share_directory($user,
@@ -244,22 +247,6 @@ if ($addadmins ne "" and $project ne ""){
     }
     exit;
 }
-
-
-# --removeadmins
-if ($removeadmins ne "" and $project ne ""){
-    my @users = split(/,/,$removeadmins);
-    my ($long_name) = &fetchinfo_from_project($project);
-    foreach my $user (@users){
-        &deleteadmin_from_project($user,$project);
-        &Sophomorix::SophomorixBase::remove_share_link($user,
-                                       $project,$long_name);
-        &Sophomorix::SophomorixBase::remove_share_directory($user,
-                                       $project,$long_name);
-    }
-    exit;
-}
-
 
 # --addmembergroups
 if ($addmembergroups ne "" and $project ne ""){
