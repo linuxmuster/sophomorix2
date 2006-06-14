@@ -22,6 +22,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     pg_get_group_list
                                     db_connect
                                     db_disconnect
+                                    fetchdata_from_account
                                    );
 use Sophomorix::SophomorixSYSPgLdap qw(show_sys_modulename
                                        delete_user_from_sys
@@ -34,6 +35,7 @@ my $identifier_to_kill="";
 my $login_name_to_kill="";
 my $home_verzeichnis_to_kill="";
 my $linux_gruppe_to_kill="";
+my $public_html_to_kill="";
 my $linie_to_kill="";
 #my %protokoll_hash=();
 
@@ -164,18 +166,28 @@ while(<KILL>){
      chomp();
      ($identifier_to_kill, $login_name_to_kill)=split(/::/);
      # Klasse ermitteln
-#     ($linux_gruppe_to_kill)=&get_group_list($login_name_to_kill);
      ($linux_gruppe_to_kill)=&pg_get_group_list($login_name_to_kill);
      # Home-Verzeichnis ermitteln
 
-     my $dbh=&db_connect();
-     my $sql="";
-     $sql="SELECT homedirectory FROM userdata WHERE uid='$login_name_to_kill'";
-     if($Conf::log_level>=3){
-        print "\nSQL: $sql\n";
+     my ($home_verzeichnis_to_kill,
+         $type_to_kill) = 
+         &fetchdata_from_account($login_name_to_kill);
+
+     my $public_html_to_kill ="";
+     if ($type_to_kill eq "teacher"){
+         $public_html_to_kill = ${DevelConf::www_teachers}."/".$login_name_to_kill;
+     } elsif ($type_to_kill eq "student") {
+         $public_html_to_kill = ${DevelConf::www_students}."/".$login_name_to_kill;
      }
-     my ($home_verzeichnis_to_kill)= $dbh->selectrow_array($sql);
-     &db_disconnect($dbh);
+
+#     my $dbh=&db_connect();
+#     my $sql="";
+#     $sql="SELECT homedirectory FROM userdata WHERE uid='$login_name_to_kill'";
+#     if($Conf::log_level>=3){
+#        print "\nSQL: $sql\n";
+#     }
+#     my ($home_verzeichnis_to_kill)= $dbh->selectrow_array($sql);
+#     &db_disconnect($dbh);
 
      # Abbruch, wenn nicht der richtige loginname entfernt wird
      if ($loginname ne "") {
@@ -196,6 +208,7 @@ while(<KILL>){
         print("Login-Name:          $login_name_to_kill\n");
         print("Home-Verzeichnis:    $home_verzeichnis_to_kill\n");
         print("Klasse:              $linux_gruppe_to_kill\n");
+        print("public_html:         $public_html_to_kill\n");
       } 
 
       # tschmitt: delete cyrus user
@@ -215,6 +228,16 @@ while(<KILL>){
 	} else {
 	    print "Test: Removing recursively $home_verzeichnis_to_kill \n";
         }
+      }
+
+      # remove public_html in /var/www
+      if ($public_html_to_kill ne ""){
+          if ($DevelConf::testen==0) {
+	      print "   Removing recursively $public_html_to_kill \n";
+              system("rm -rf $public_html_to_kill");
+   	  } else {
+	      print "Test: Removing recursively $public_html_to_kill \n";
+          }
       }
 
       # Zeile aus user_db entfernen
