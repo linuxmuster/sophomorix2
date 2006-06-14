@@ -1337,7 +1337,7 @@ Bei wiedereintritt soll Ordner mit korrekten Daten da sein
 public_html:
 
 Veröffentlichen: /var/www/people
-      jeder user bekommt ein dir /klasse/user
+      jeder user bekommt ein dir /user
                  bzw. /project/home
              mit .htaccess für off
 
@@ -1462,14 +1462,20 @@ option fromproject: wird im Verzeichnisnamen verwendet in den eingesammelt wird
 Test schreiben
 
 
+use function student_private_noupload when creating a user 
+
 
 
 adding/removing group/project:
-
 to do: handle members 
 
 
 1.8.1-1  (2006-06-xx)
+   - replaced Administrator with administrator in
+       - htaccess-files
+       - repair.directories
+   - created option --student-public-upload in sophomorix-www 
+     as an example function
    - /var/www/people/students/$user is deleted when user is killed
    - /var/www/people/students/$user is deleted when user is killed
    - added nonworking script sophomorix-www with manpage to package
