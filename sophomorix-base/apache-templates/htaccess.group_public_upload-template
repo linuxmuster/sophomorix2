@@ -1,11 +1,11 @@
 # group_public_upload
 # begin .htaccess
 # www access world wide allowed
-# DAV allowed for group members and Administrator
+# DAV allowed for group members and administrator
 AuthType Basic
 AuthName "@@groupname@@"
 <LimitExcept GET OPTIONS>
-  Require user Administrator
+  Require user administrator
   Require group @@groupname@@
 </LimitExcept>
 # end .htaccess
