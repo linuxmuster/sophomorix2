@@ -711,6 +711,7 @@ Aufgabenformat gift (-> konvertierung zu problectix)
 Think about:
 ============================================================
 ============================================================
+   - tar.gz-ing /var/www/people (for teachers only)
    - cups 
    - moodle (add users to classes, add teachers to admins)
    - deleting /home/exams
@@ -1468,12 +1469,9 @@ adding/removing group/project:
 to do: handle members 
 
 
-handle /var/www/people/students when user is killed (not deleted at the moment)
-
-
-
-
-1.8.1-1  (2006-05-xx)
+1.8.1-1  (2006-06-xx)
+   - /var/www/people/students/$user is deleted when user is killed
+   - /var/www/people/students/$user is deleted when user is killed
    - added nonworking script sophomorix-www with manpage to package
    - dropped classes subdir (www-dir of a user shouldn't change, when 
      moving her to another class)
