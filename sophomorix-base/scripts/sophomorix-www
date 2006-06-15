@@ -13,7 +13,7 @@ use strict;
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 use Sophomorix::SophomorixConfig;
-use Sophomorix::SophomorixBase qw(student_public_upload
+use Sophomorix::SophomorixBase qw(
                                   check_options
                                  );
 use Sophomorix::SophomorixAPI;
@@ -30,20 +30,21 @@ $Conf::log_level=1;
 my $help=0;
 my $info=0;
 $Conf::log_level=1;
-my $student_public_upload="";
-my $student_public_noupload="";
-my $student_private_upload="";
-my $student_private_noupload="";
+my $user_public_upload="";
+my $user_public_noupload="";
+my $user_private_upload="";
+my $user_private_noupload="";
+
 
 # Parsen der Optionen
 my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
            "verbose|v+" => \$Conf::log_level,
-           "student-public-upload=s" => \$student_public_upload,
-           "student-public-noupload=s" => \$student_public_noupload,
-           "student-private-upload=s" => \$student_private_upload,
-           "student-private-noupload=s" => \$student_private_noupload,
+           "user-public-upload=s" => \$user_public_upload,
+           "user-public-noupload=s" => \$user_public_noupload,
+           "user-private-upload=s" => \$user_private_upload,
+           "user-private-noupload=s" => \$user_private_noupload,
           );
 
 # Prüfen, ob Optionen erkannt wurden
@@ -67,11 +68,11 @@ Options
   -vv / --verbose --verbose
   -i  / --info
 
-Managing students:
-  --student-public-upload user1,user2,...
-  --student-public-noupload user1,user2,...
-  --student-private-upload user1,user2,...
-  --student-private-noupload user1,user2,...
+Managing users (students and teachers):
+  --user-public-upload user1,user2,...
+  --user-public-noupload user1,user2,... (not for teachers)
+  --user-private-upload user1,user2,...
+  --user-private-noupload user1,user2,... (not for teachers)
 
 Please see the sophomorix-www(8) man pages for full documentation
 ');
@@ -80,7 +81,7 @@ Please see the sophomorix-www(8) man pages for full documentation
 }
 
 ############################################################
-# config values
+# options
 ############################################################
 
 &check_connections();
@@ -92,40 +93,39 @@ if ($info==1){
 }
 
 
+### user
 
-#  --student-public-upload user1,user2,...
-if ($student_public_upload ne ""){
-    my @users = split(/,/,$student_public_upload);
+#  --user-public-upload user1,user2,...
+if ($user_public_upload ne ""){
+    my @users = split(/,/,$user_public_upload);
     foreach my $user (@users){
-	&Sophomorix::SophomorixBase::student_public_upload($user);
+	&Sophomorix::SophomorixBase::user_public_upload($user);
     }
 }
 
-
-#  --student-public-noupload user1,user2,...
-if ($student_public_noupload ne ""){
-    my @users = split(/,/,$student_public_noupload);
+#  --user-public-noupload user1,user2,...
+if ($user_public_noupload ne ""){
+    my @users = split(/,/,$user_public_noupload);
     foreach my $user (@users){
-	&Sophomorix::SophomorixBase::student_public_noupload($user);
+	&Sophomorix::SophomorixBase::user_public_noupload($user);
     }
 }
 
-
-#  --student-private-upload user1,user2,...
-if ($student_private_upload ne ""){
-    my @users = split(/,/,$student_private_upload);
+#  --user-private-upload user1,user2,...
+if ($user_private_upload ne ""){
+    my @users = split(/,/,$user_private_upload);
     foreach my $user (@users){
-	&Sophomorix::SophomorixBase::student_private_upload($user);
+	&Sophomorix::SophomorixBase::user_private_upload($user);
     }
 }
 
-
-#  --student-private-noupload user1,user2,...
-if ($student_private_noupload ne ""){
-    my @users = split(/,/,$student_private_noupload);
+#  --user-private-noupload user1,user2,...
+if ($user_private_noupload ne ""){
+    my @users = split(/,/,$user_private_noupload);
     foreach my $user (@users){
-	&Sophomorix::SophomorixBase::student_private_noupload($user);
+	&Sophomorix::SophomorixBase::user_private_noupload($user);
     }
 }
+
 
 
