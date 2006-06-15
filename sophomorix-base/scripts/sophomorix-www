@@ -35,6 +35,11 @@ my $user_public_noupload="";
 my $user_private_upload="";
 my $user_private_noupload="";
 
+my $group_public_upload="";
+my $group_public_noupload="";
+my $group_private_upload="";
+my $group_private_noupload="";
+
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -45,6 +50,10 @@ my $testopt=GetOptions(
            "user-public-noupload=s" => \$user_public_noupload,
            "user-private-upload=s" => \$user_private_upload,
            "user-private-noupload=s" => \$user_private_noupload,
+           "group-public-upload=s" => \$group_public_upload,
+           "group-public-noupload=s" => \$group_public_noupload,
+           "group-private-upload=s" => \$group_private_upload,
+           "group-private-noupload=s" => \$group_private_noupload,
           );
 
 # Prüfen, ob Optionen erkannt wurden
@@ -73,6 +82,12 @@ Managing users (students and teachers):
   --user-public-noupload user1,user2,... (not for teachers)
   --user-private-upload user1,user2,...
   --user-private-noupload user1,user2,... (not for teachers)
+
+Managing groups (classes and projects):
+  --group-public-upload group1,group2,...
+  --group-public-noupload group1,group2,...
+  --group-private-upload group1,group2,...
+  --group-private-noupload group1,group2,...
 
 Please see the sophomorix-www(8) man pages for full documentation
 ');
@@ -126,6 +141,47 @@ if ($user_private_noupload ne ""){
 	&Sophomorix::SophomorixBase::user_private_noupload($user);
     }
 }
+
+
+
+
+
+### group
+
+#  --group-public-upload group1,group2,...
+if ($group_public_upload ne ""){
+    my @groups = split(/,/,$group_public_upload);
+    foreach my $group (@groups){
+	&Sophomorix::SophomorixBase::group_public_upload($group);
+    }
+}
+
+#  --group-public-noupload group1,group2,...
+if ($group_public_noupload ne ""){
+    my @groups = split(/,/,$group_public_noupload);
+    foreach my $group (@groups){
+	&Sophomorix::SophomorixBase::group_public_noupload($group);
+    }
+}
+
+#  --group-private-upload group1,group2,...
+if ($group_private_upload ne ""){
+    my @groups = split(/,/,$group_private_upload);
+    foreach my $group (@groups){
+	&Sophomorix::SophomorixBase::group_private_upload($group);
+    }
+}
+
+#  --group-private-noupload group1,group2,...
+if ($group_private_noupload ne ""){
+    my @groups = split(/,/,$group_private_noupload);
+    foreach my $group (@groups){
+	&Sophomorix::SophomorixBase::group_private_noupload($group);
+    }
+}
+
+
+
 
 
 

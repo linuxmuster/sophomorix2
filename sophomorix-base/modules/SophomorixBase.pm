@@ -98,6 +98,10 @@ use Quota;
               user_public_noupload
               user_private_upload
               user_private_noupload
+              group_public_upload
+              group_public_noupload
+              group_private_upload
+              group_private_noupload
               get_debconf_value
               );
 
@@ -785,6 +789,7 @@ sub provide_class_files {
       my $klassen_tausch="${DevelConf::share_classes}/$class";
       my $klassen_aufgaben="${DevelConf::tasks_classes}/$class";
       my $klassen_www="${DevelConf::www_classes}/$class";
+      my $ht_access_target=$klassen_www."/.htaccess";
       &setup_verzeichnis("\$homedir_pupil/\$klassen",
                     "$klassen_homes");
       &setup_verzeichnis("\$share_classes/\$klassen",
@@ -793,6 +798,10 @@ sub provide_class_files {
                     "$klassen_aufgaben");
       &setup_verzeichnis("\$www_classes/\$klassen",
                     "$klassen_www");
+      # create .htaccess file if nonexisting
+      if (not -e $ht_access_target){
+          &group_private_noupload($class);
+      }
     }
 }
 
@@ -838,6 +847,7 @@ sub provide_project_files {
     my $project_tausch="${DevelConf::share_projects}/$project";
     my $project_aufgaben="${DevelConf::tasks_projects}/$project";
     my $project_www="${DevelConf::www_projects}/$project";
+    my $ht_access_target=$project_www."/.htaccess";
     print "   $project_tausch\n";
     print "   $project_aufgaben\n";
     &setup_verzeichnis("\$share_projects/\$klassen",
@@ -846,6 +856,10 @@ sub provide_project_files {
                        "$project_aufgaben");
     &setup_verzeichnis("\$www_projects/\$projects",
                        "$project_www");
+    # create .htaccess file if nonexisting
+    if (not -e $ht_access_target){
+        &group_private_noupload($project);
+    }
 }
 
 
@@ -4358,6 +4372,13 @@ sub unterricht_einsammeln {
 }
 
 
+
+################################################################################
+# HTACCESS-TOOLS
+################################################################################
+
+# users
+
 sub user_public_upload {
     my ($user) = @_;
     my ($home,$type)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
@@ -4511,6 +4532,171 @@ sub user_private_noupload {
 
 
 
+
+
+
+
+# groups
+
+sub group_public_upload {
+    my ($group) = @_;
+    my ($type,$longname)=
+       &Sophomorix::SophomorixPgLdap::pg_get_group_type($group);
+    my $ht_replace= " -e 's/\@\@groupname\@\@/${group}/g'".
+                    " -e 's/\@\@teachergroup\@\@/${DevelConf::teacher}/g'";
+    my $ht_template="${DevelConf::apache_templates}"."/".
+                "htaccess.group_public_upload-template";
+    my $ht_target="";
+    if ($type eq "adminclass"){
+        $ht_target=${DevelConf::www_classes}."/".$group."/.htaccess";
+    } elsif ($type eq "project"){
+        $ht_target=${DevelConf::www_projects}."/".$group."/.htaccess";
+    } else {
+        # not adminclass, not project
+        print "   WARNING: $group is not a adminclass/project",
+              " (cannot group-public-upload)\n";
+        return 0;
+    }
+
+    # do it
+    my $sed_command = "sed $ht_replace $ht_template > $ht_target";
+    print "   modifying  $ht_target (group-public-upload)\n";
+    if($Conf::log_level>=3){
+        print "$sed_command \n";
+    }
+    system "$sed_command";
+    # setting owner,permissions
+    chmod 0400, $ht_target;
+    my ($name,$pass,$uid,$gid)=getpwnam(${DevelConf::apache_user});
+    print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
+          "${DevelConf::apache_user}($gid) to:\n     $ht_target\n";
+    chown $uid, $gid, $ht_target;
+    return 1;
+}
+
+
+
+sub group_public_noupload {
+    my ($group) = @_;
+    my ($type,$longname)=
+       &Sophomorix::SophomorixPgLdap::pg_get_group_type($group);
+    my $ht_replace= " -e 's/\@\@groupname\@\@/${group}/g'".   
+       " -e 's/\@\@teachergroup\@\@/${DevelConf::teacher}/g'";
+    my $ht_template="${DevelConf::apache_templates}"."/".
+                     "htaccess.group_public_noupload-template";
+    my $ht_target="";
+    if ($type eq "adminclass"){
+        $ht_target=${DevelConf::www_classes}."/".$group."/.htaccess";
+    } elsif ($type eq "project"){
+        $ht_target=${DevelConf::www_projects}."/".$group."/.htaccess";
+    } else {
+        # not adminclass, not project
+        print "   WARNING: $group is not a adminclass/project",
+              " (cannot group-public-noupload)\n";
+        return 0;
+    }
+    
+    # do it
+    my $sed_command = "sed $ht_replace $ht_template > $ht_target";
+    print "   modifying $ht_target (group-public-noupload)\n";
+    if($Conf::log_level>=3){
+        print "$sed_command \n";
+    }
+    system "$sed_command";
+    # setting owner,permissions
+    chmod 0400, $ht_target;
+    my ($name,$pass,$uid,$gid)=getpwnam(${DevelConf::apache_user});
+    print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
+          "${DevelConf::apache_user}($gid) to:\n     $ht_target\n";
+    chown $uid, $gid, $ht_target;
+    return 1;
+}
+
+
+sub group_private_upload {
+    my ($group) = @_;
+    my ($type,$longname)=
+       &Sophomorix::SophomorixPgLdap::pg_get_group_type($group);
+    my $ht_replace= " -e 's/\@\@groupname\@\@/${group}/g'".
+                    " -e 's/\@\@teachergroup\@\@/${DevelConf::teacher}/g'";
+    my $ht_template="${DevelConf::apache_templates}"."/".
+                "htaccess.group_private_upload-template";
+    my $ht_target="";
+    if ($type eq "adminclass"){
+        $ht_target=${DevelConf::www_classes}."/".$group."/.htaccess";
+    } elsif ($type eq "project"){
+        $ht_target=${DevelConf::www_projects}."/".$group."/.htaccess";
+    } else {
+        # not adminclass, not project
+        print "   WARNING: $group is not a adminclass/project",
+              " (cannot group-private-upload)\n";
+        return 0;
+    }
+
+    # do it
+    my $sed_command = "sed $ht_replace $ht_template > $ht_target";
+    print "   modifying  $ht_target (group-private-upload)\n";
+    if($Conf::log_level>=3){
+        print "$sed_command \n";
+    }
+    system "$sed_command";
+    # setting owner,permissions
+    chmod 0400, $ht_target;
+    my ($name,$pass,$uid,$gid)=getpwnam(${DevelConf::apache_user});
+    print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
+          "${DevelConf::apache_user}($gid) to:\n     $ht_target\n";
+    chown $uid, $gid, $ht_target;
+    return 1;
+}
+
+
+
+sub group_private_noupload {
+    my ($group) = @_;
+    my ($type,$longname)=
+       &Sophomorix::SophomorixPgLdap::pg_get_group_type($group);
+    my $ht_replace= " -e 's/\@\@groupname\@\@/${group}/g'".
+                " -e 's/\@\@teachergroup\@\@/${DevelConf::teacher}/g'";
+    my $ht_template="${DevelConf::apache_templates}"."/".
+                "htaccess.group_private_noupload-template";
+    my $ht_target="";
+    if ($type eq "adminclass"){
+        $ht_target=${DevelConf::www_classes}."/".$group."/.htaccess";
+    } elsif ($type eq "project"){
+        $ht_target=${DevelConf::www_projects}."/".$group."/.htaccess";
+    } else {
+        # not adminclass, not project
+        print "   WARNING: $group is not a adminclass/project",
+              " (cannot group-private-noupload)\n";
+        return 0;
+    }
+
+    # do it
+    my $sed_command = "sed $ht_replace $ht_template > $ht_target";
+    print "   modifying $ht_target (group-private-noupload)\n";
+    if($Conf::log_level>=3){
+        print "$sed_command \n";
+    }
+    system "$sed_command";
+    # setting owner,permissions
+    chmod 0400, $ht_target;
+    my ($name,$pass,$uid,$gid)=getpwnam(${DevelConf::apache_user});
+    print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
+          "${DevelConf::apache_user}($gid) to:\n     $ht_target\n";
+    chown $uid, $gid, $ht_target;
+    return 1;
+}
+
+
+
+
+
+
+
+
+################################################################################
+# DEBIAN-TOOLS
+################################################################################
 
 sub get_debconf_value {
     my ($package,$entry,$show)=@_;
