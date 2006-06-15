@@ -102,3 +102,30 @@ if ($student_public_upload ne ""){
 }
 
 
+#  --student-public-noupload user1,user2,...
+if ($student_public_noupload ne ""){
+    my @users = split(/,/,$student_public_noupload);
+    foreach my $user (@users){
+	&Sophomorix::SophomorixBase::student_public_noupload($user);
+    }
+}
+
+
+#  --student-private-upload user1,user2,...
+if ($student_private_upload ne ""){
+    my @users = split(/,/,$student_private_upload);
+    foreach my $user (@users){
+	&Sophomorix::SophomorixBase::student_private_upload($user);
+    }
+}
+
+
+#  --student-private-noupload user1,user2,...
+if ($student_private_noupload ne ""){
+    my @users = split(/,/,$student_private_noupload);
+    foreach my $user (@users){
+	&Sophomorix::SophomorixBase::student_private_noupload($user);
+    }
+}
+
+
