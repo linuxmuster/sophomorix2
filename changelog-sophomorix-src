@@ -1462,12 +1462,18 @@ option fromproject: wird im Verzeichnisnamen verwendet in den eingesammelt wird
 Test schreiben
 
 
+add option --htaccess  to sophomorix-repair that rewrites .htaccess-files
+
 
 adding/removing group/project:
 to do: handle members 
 
 
 1.8.1-1  (2006-06-xx)
+   - setting correct owner and permissions when creating/modifying 
+     .htaccess files
+   - renamed sophomorix-www options student-*-'* to user-*-*
+     (they also work for teachers now)
    - when adding a student: student-private-noupload is set to
      /var/www/people/students/user/.htaccess
    - sophomorix-www: options student-public/private-no/upload now working
