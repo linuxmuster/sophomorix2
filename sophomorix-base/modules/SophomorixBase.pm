@@ -94,10 +94,10 @@ use Quota;
               provide_project_files
               remove_project_files
               provide_user_files
-              student_public_upload
-              student_public_noupload
-              student_private_upload
-              student_private_noupload
+              user_public_upload
+              user_public_noupload
+              user_private_upload
+              user_private_noupload
               get_debconf_value
               );
 
@@ -976,8 +976,8 @@ sub provide_user_files {
                   "$login");
            if($Conf::log_level>=3){
    	       print "$htaccess_sed_command\n";
-           } elsif($Conf::log_level>=2) {
-   	       print "   sed: $htaccess_target\n";
+           } else {
+   	       print "   modifying  $htaccess_target\n";
            }
            system("$htaccess_sed_command"); 
            chmod 0400, $htaccess_target;
@@ -986,6 +986,10 @@ sub provide_user_files {
                  "${DevelConf::apache_user}($gid) to:\n     $htaccess_target\n";
            chown $uid, $gid, $htaccess_target;
         }
+
+        # add htaccess to /var/www/people/.../user
+        &user_private_upload($login);
+
         &create_share_link($login, $class,$class,"adminclass");
         &create_share_directory($login, $class,$class,"adminclass");
         &create_school_link($login);
@@ -1048,8 +1052,8 @@ sub provide_user_files {
            # add htaccess to private_html
            if($Conf::log_level>=3){
    	       print "$htaccess_sed_command\n";
-           } elsif($Conf::log_level>=2){
-   	       print "   sed: $htaccess_target\n";
+           } else {
+   	       print "   modifying $htaccess_target\n";
            }
            system("$htaccess_sed_command"); 
            chmod 0400, $htaccess_target;
@@ -1058,8 +1062,8 @@ sub provide_user_files {
                  "${DevelConf::apache_user}($gid) to:\n     $htaccess_target\n";
            chown $uid, $gid, $htaccess_target;
            
-           # add htaccess to /var/www/people/students
-           &student_private_noupload($login);
+           # add htaccess to /var/www/people/.../user
+           &user_private_noupload($login);
 
            &create_share_link($login, $class,$class,"adminclass");
            &create_share_directory($login, $class,$class,"adminclass");
@@ -4354,99 +4358,155 @@ sub unterricht_einsammeln {
 }
 
 
-
-
-sub student_public_upload {
+sub user_public_upload {
     my ($user) = @_;
     my ($home,$type)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
-    if ($type ne "student"){
-        print "   WARNING: $user is not a student",
-              " (cannot student-public-upload)\n";
-        return;
-    } else {
-        my $ht_replace= " -e 's/\@\@username\@\@/${user}/g'".
-                " -e 's/\@\@teachergroup\@\@/${DevelConf::teacher}/g'";
-        my $ht_template="${DevelConf::apache_templates}"."/".
+    my $ht_replace= " -e 's/\@\@username\@\@/${user}/g'".
+                    " -e 's/\@\@teachergroup\@\@/${DevelConf::teacher}/g'";
+    my $ht_template="";
+    my $ht_target="";
+
+    if ($type eq "teacher"){
+        $ht_template="${DevelConf::apache_templates}"."/".
+                "htaccess.teacher_public_upload-template";
+        $ht_target=${DevelConf::www_teachers}."/".$user."/.htaccess";
+    } elsif ($type eq "student"){
+        $ht_template="${DevelConf::apache_templates}"."/".
                 "htaccess.student_public_upload-template";
-        my $ht_target=${DevelConf::www_students}."/".$user."/.htaccess";
-        my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-        print "   modifying  $ht_target (student-public-upload)\n";
-        if($Conf::log_level>=3){
-            print "$sed_command \n";
-        }
-        system "$sed_command";
-    }
-}
-
-
-sub student_public_noupload {
-    my ($user) = @_;
-    my ($home,$type)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
-    if ($type ne "student"){
-        print "   WARNING: $user is not a student",
-              " (cannot student-public-noupload)\n";
-        return;
+        $ht_target=${DevelConf::www_students}."/".$user."/.htaccess";
     } else {
-        my $ht_replace= " -e 's/\@\@username\@\@/${user}/g'".
-                " -e 's/\@\@teachergroup\@\@/${DevelConf::teacher}/g'";
-        my $ht_template="${DevelConf::apache_templates}"."/".
-                "htaccess.student_public_noupload-template";
-        my $ht_target=${DevelConf::www_students}."/".$user."/.htaccess";
-        my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-        print "   modifying $ht_target (student-public-noupload)\n";
-        if($Conf::log_level>=3){
-            print "$sed_command \n";
-        }
-        system "$sed_command";
+        # not student, not teacher
+        print "   WARNING: $user is not a student/teacher",
+              " (cannot user-public-upload)\n";
+        return 0;
     }
+
+    # do it
+    my $sed_command = "sed $ht_replace $ht_template > $ht_target";
+    print "   modifying  $ht_target (user-public-upload)\n";
+    if($Conf::log_level>=3){
+        print "$sed_command \n";
+    }
+    system "$sed_command";
+    # setting owner,permissions
+    chmod 0400, $ht_target;
+    my ($name,$pass,$uid,$gid)=getpwnam(${DevelConf::apache_user});
+    print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
+          "${DevelConf::apache_user}($gid) to:\n     $ht_target\n";
+    chown $uid, $gid, $ht_target;
+    return 1;
 }
 
 
 
-
-sub student_private_upload {
+sub user_public_noupload {
     my ($user) = @_;
     my ($home,$type)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
+    my $ht_replace= " -e 's/\@\@username\@\@/${user}/g'".   
+       " -e 's/\@\@teachergroup\@\@/${DevelConf::teacher}/g'";
+    my $ht_template="";
+    my $ht_target="";
+
     if ($type ne "student"){
         print "   WARNING: $user is not a student",
-              " (cannot student-private-upload)\n";
-        return;
+              " (cannot user-public-noupload)\n";
+        return 0;
     } else {
-        my $ht_replace= " -e 's/\@\@username\@\@/${user}/g'".
-                " -e 's/\@\@teachergroup\@\@/${DevelConf::teacher}/g'";
-        my $ht_template="${DevelConf::apache_templates}"."/".
+        $ht_template="${DevelConf::apache_templates}"."/".
+                     "htaccess.student_public_noupload-template";
+        $ht_target=${DevelConf::www_students}."/".$user."/.htaccess";
+    }
+    
+    # do it
+    my $sed_command = "sed $ht_replace $ht_template > $ht_target";
+    print "   modifying $ht_target (user-public-noupload)\n";
+    if($Conf::log_level>=3){
+        print "$sed_command \n";
+    }
+    system "$sed_command";
+    # setting owner,permissions
+    chmod 0400, $ht_target;
+    my ($name,$pass,$uid,$gid)=getpwnam(${DevelConf::apache_user});
+    print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
+          "${DevelConf::apache_user}($gid) to:\n     $ht_target\n";
+    chown $uid, $gid, $ht_target;
+    return 1;
+}
+
+
+sub user_private_upload {
+    my ($user) = @_;
+    my ($home,$type)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
+    my $ht_replace= " -e 's/\@\@username\@\@/${user}/g'".
+                    " -e 's/\@\@teachergroup\@\@/${DevelConf::teacher}/g'";
+    my $ht_template="";
+    my $ht_target="";
+
+    if ($type eq "teacher"){
+        $ht_template="${DevelConf::apache_templates}"."/".
+                "htaccess.teacher_private_upload-template";
+        $ht_target=${DevelConf::www_teachers}."/".$user."/.htaccess";
+    } elsif ($type eq "student"){
+        $ht_template="${DevelConf::apache_templates}"."/".
                 "htaccess.student_private_upload-template";
-        my $ht_target=${DevelConf::www_students}."/".$user."/.htaccess";
-        my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-        print "   modifying $ht_target (student-private-upload)\n";
-        if($Conf::log_level>=3){
-            print "$sed_command \n";
-        }
-        system "$sed_command";
+        $ht_target=${DevelConf::www_students}."/".$user."/.htaccess";
+    } else {
+        # not student, not teacher
+        print "   WARNING: $user is not a student/teacher",
+              " (cannot user-private-upload)\n";
+        return 0;
     }
+
+    # do it
+    my $sed_command = "sed $ht_replace $ht_template > $ht_target";
+    print "   modifying  $ht_target (user-private-upload)\n";
+    if($Conf::log_level>=3){
+        print "$sed_command \n";
+    }
+    system "$sed_command";
+    # setting owner,permissions
+    chmod 0400, $ht_target;
+    my ($name,$pass,$uid,$gid)=getpwnam(${DevelConf::apache_user});
+    print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
+          "${DevelConf::apache_user}($gid) to:\n     $ht_target\n";
+    chown $uid, $gid, $ht_target;
+    return 1;
 }
 
 
-sub student_private_noupload {
+
+sub user_private_noupload {
     my ($user) = @_;
     my ($home,$type)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
-    if ($type ne "student"){
-        print "   WARNING: $user is not a student",
-              " (cannot student-private-noupload)\n";
-        return;
-    } else {
         my $ht_replace= " -e 's/\@\@username\@\@/${user}/g'".
                 " -e 's/\@\@teachergroup\@\@/${DevelConf::teacher}/g'";
-        my $ht_template="${DevelConf::apache_templates}"."/".
+    my $ht_template="";
+    my $ht_target="";
+
+    if ($type ne "student"){
+        print "   WARNING: $user is not a student",
+              " (cannot user-private-noupload)\n";
+        return 0;
+    } else {
+        $ht_template="${DevelConf::apache_templates}"."/".
                 "htaccess.student_private_noupload-template";
-        my $ht_target=${DevelConf::www_students}."/".$user."/.htaccess";
-        my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-        print "   modifying $ht_target (student-private-noupload)\n";
-        if($Conf::log_level>=3){
-            print "$sed_command \n";
-        }
-        system "$sed_command";
+        $ht_target=${DevelConf::www_students}."/".$user."/.htaccess";
     }
+
+    # do it
+    my $sed_command = "sed $ht_replace $ht_template > $ht_target";
+    print "   modifying $ht_target (user-private-noupload)\n";
+    if($Conf::log_level>=3){
+        print "$sed_command \n";
+    }
+    system "$sed_command";
+    # setting owner,permissions
+    chmod 0400, $ht_target;
+    my ($name,$pass,$uid,$gid)=getpwnam(${DevelConf::apache_user});
+    print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
+          "${DevelConf::apache_user}($gid) to:\n     $ht_target\n";
+    chown $uid, $gid, $ht_target;
+    return 1;
 }
 
 
