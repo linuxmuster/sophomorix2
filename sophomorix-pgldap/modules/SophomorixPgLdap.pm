@@ -3915,7 +3915,7 @@ sub show_project {
         $status,$join,$time,$max_members,
         $mailalias,$maillist)=&fetchinfo_from_project($project);
     if (defined $longname){
-       print "Project:          $project\n";
+       print "Project:             $project\n";
        print "   LongName:         $longname\n";
        print "   AddQuota:         $addquota MB\n";
        print "   AddMailQuota:     $add_mail_quota MB\n";
