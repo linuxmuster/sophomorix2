@@ -3162,7 +3162,7 @@ sub create_project {
     }
     # sorting
     @users_to_add = sort @users_to_add;
-    print "     Users to add: @users_to_add\n";
+    print "  Users to add: @users_to_add\n";
     # adding the users
     foreach my $user (@users_to_add) {
        if ($user eq "root"){next;}
@@ -3207,19 +3207,17 @@ sub create_project {
     }
     # sorting
     @admins_to_add = sort @admins_to_add;
-    print "     Users to add as admins: @admins_to_add\n";
+    print "  Users to add as admins: @admins_to_add\n";
     # adding the users
     foreach my $user (@admins_to_add) {
        if ($user eq "root"){next;}
        &addadmin_to_project($user,$project);
-
        # create a link
        &Sophomorix::SophomorixBase::create_share_link($user,
                                          $project,$p_long_name);
        # create directories
        &Sophomorix::SophomorixBase::create_share_directory($user,
                                         $project,$p_long_name);
-
     }
 
 
@@ -3239,10 +3237,16 @@ sub create_project {
             print "     Group $group has left Project $project,",
                   " removing $group\n";
          }
-         #system("gpasswd -d $user $project");
+	 my @users_to_remove = fetchstudents_from_adminclass($group);
+	 print "  Removing all users of group ${group}:\n";
+	 foreach my $user (@users_to_remove){
+             &deleteuser_from_project($user,$project);
+             &Sophomorix::SophomorixBase::remove_share_link($user,
+                                          $project,$p_long_name);
+             &Sophomorix::SophomorixBase::remove_share_directory($user,
+                                          $project,$p_long_name);
+         }
 	 &deletegroup_from_project($group,$project);
-         # do this for all users ????????
-         #&Sophomorix::SophomorixBase::remove_share_link($user,$project);
        } 
     }    
     
@@ -3252,7 +3256,7 @@ sub create_project {
     }
     # sorting
     @groups_to_add = sort @groups_to_add;
-    print "     Groups to add: @groups_to_add\n";
+    print "  Groups to add: @groups_to_add\n";
     # adding the groups
     foreach my $group (@groups_to_add) {
        	if ($group ne $project){
@@ -3280,6 +3284,17 @@ sub create_project {
             print "     Project $m_project has left Project $project,",
                   " removing $m_project\n";
          }
+         
+	 my @users_to_remove = &fetchusers_from_project($m_project);
+	 print "  Removing all users of project ${project}:\n";
+	 foreach my $user (@users_to_remove){
+             &deleteuser_from_project($user,$project);
+             &Sophomorix::SophomorixBase::remove_share_link($user,
+                                          $project,$p_long_name);
+             &Sophomorix::SophomorixBase::remove_share_directory($user,
+                                          $project,$p_long_name);
+         }
+	 print "  Removing project ${project}:\n";
 	 &deleteproject_from_project($m_project,$project);
        } 
     }    
@@ -3289,7 +3304,7 @@ sub create_project {
     }
     # sorting
     @projects_to_add = sort @projects_to_add;
-    print "     Projects to add as members: @projects_to_add\n";
+    print "  Projects to add as members: @projects_to_add\n";
     # adding the projects
     foreach my $m_project (@projects_to_add) {
 	if ($m_project ne $project){
