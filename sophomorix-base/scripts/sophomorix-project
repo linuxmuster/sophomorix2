@@ -80,8 +80,6 @@ my $p_status;
 my $join; # 0,1
 my $p_join="TRUE"; # FALSE,TRUE
 
-#my @options=();
-
 # Parsen der Optionen
 my $testopt=GetOptions(
            "help|h" => \$help,
@@ -192,104 +190,78 @@ if ($project eq "" and $info==1){
 
 # --addmembers
 if ($addmembers ne "" and $project ne ""){
-    my @users = split(/,/,$addmembers);
-    my ($long_name) = &fetchinfo_from_project($project);
-    foreach my $user (@users){
-        &adduser_to_project($user,$project);
-        # create a link
-        &Sophomorix::SophomorixBase::create_share_link($user,
-                                        $project,$long_name);
-        # create directories 
-        &Sophomorix::SophomorixBase::create_share_directory($user,
-                                        $project,$long_name);
-    }
-    exit;
+    my @new_users = split(/,/,$addmembers);
+    my @old_users = 
+       &Sophomorix::SophomorixPgLdap::fetchusers_from_project($project);
+    my @users = (@old_users,@new_users);
+    $p_members=join(",",@users);
+    print "   Using: --Members=$p_members\n";
 }
 
 
 # --removemembers
 if ($removemembers ne "" and $project ne ""){
     my @users = split(/,/,$removemembers);
-    my ($long_name) = &fetchinfo_from_project($project);
-    foreach my $user (@users){
-        # is this user admin or member
-# ???? deleteadmin deletes also user?
-        # delete member
-        &deleteuser_from_project($user,$project);
-        # delete admin
-        #&deleteadmin_from_project($user,$project);
-        
-
-        &Sophomorix::SophomorixBase::remove_share_link($user,
-                                       $project,$long_name);
-        &Sophomorix::SophomorixBase::remove_share_directory($user,
-                                       $project,$long_name);
-    }
-    exit;
+    my @old_users = 
+       &Sophomorix::SophomorixPgLdap::fetchusers_from_project($project);
+    my @new_users=&remove_duplicates_from_first_list(\@old_users,\@users);
+    $p_members=join(",",@new_users);
+    print "   Using: --Members=$p_members\n";
 }
 
 
 # --addadmins
 if ($addadmins ne "" and $project ne ""){
-    my @users = split(/,/,$addadmins);
-    my ($long_name) = &fetchinfo_from_project($project);
-    foreach my $user (@users){
-        &deleteuser_from_project($user,$project);
-        &Sophomorix::SophomorixBase::remove_share_link($user,
-                                       $project,$long_name);
-        &Sophomorix::SophomorixBase::remove_share_directory($user,
-                                       $project,$long_name);
-        &addadmin_to_project($user,$project);
-        &Sophomorix::SophomorixBase::create_share_link($user,
-                                        $project,$long_name);
-        &Sophomorix::SophomorixBase::create_share_directory($user,
-                                        $project,$long_name);
-    }
-    exit;
+    my @new_admins = split(/,/,$addadmins);
+    my @old_admins = 
+       &Sophomorix::SophomorixPgLdap::fetchadmins_from_project($project);
+    my @admins = (@old_admins,@new_admins);
+    $p_admins=join(",",@admins);
+    print "   Using: --Admins=$p_admins\n";
 }
+
 
 # --addmembergroups
 if ($addmembergroups ne "" and $project ne ""){
-    my @groups = split(/,/,$addmembergroups);
-    my ($long_name) = &fetchinfo_from_project($project);
-    foreach my $group (@groups){
-        &addgroup_to_project($group,$project);
-    }
-    exit;
+    my @new_groups = split(/,/,$addmembergroups);
+    my @old_groups = 
+       &Sophomorix::SophomorixPgLdap::fetchgroups_from_project($project);
+    my @groups = (@old_groups,@new_groups);
+    $p_groups=join(",",@groups);
+    print "   Using: --MemberGroups=$p_groups\n";
 }
 
 
 # --removemembergroups
 if ($removemembergroups ne "" and $project ne ""){
     my @groups = split(/,/,$removemembergroups);
-    my ($long_name) = &fetchinfo_from_project($project);
-    foreach my $group (@groups){
-        &deletegroup_from_project($group,$project);
-    }
-    exit;
+    my @old_groups = 
+       &Sophomorix::SophomorixPgLdap::fetchgroups_from_project($project);
+    my @new_groups=&remove_duplicates_from_first_list(\@old_groups,\@groups);
+    $p_groups=join(",",@new_groups);
+    print "   Using: --MemberGroups=$p_groups\n";
 }
-
 
 
 # --addmemberprojects
 if ($addmemberprojects ne "" and $project ne ""){
-    my @projects = split(/,/,$addmemberprojects);
-    my ($long_name) = &fetchinfo_from_project($project);
-    foreach my $pro (@projects){
-        &addproject_to_project($pro,$project);
-    }
-    exit;
+    my @new_projects = split(/,/,$addmemberprojects);
+    my @old_projects = 
+       &Sophomorix::SophomorixPgLdap::fetchprojects_from_project($project);
+    my @projects = (@old_projects,@new_projects);
+    $p_projects=join(",",@projects);
+    print "   Using: --MemberProjects=$p_projects\n";
 }
 
 
 # --removememberprojects
 if ($removememberprojects ne "" and $project ne ""){
     my @projects = split(/,/,$removememberprojects);
-    my ($long_name) = &fetchinfo_from_project($project);
-    foreach my $pro (@projects){
-        &deleteproject_from_project($pro,$project);
-    }
-    exit;
+    my @old_projects = 
+       &Sophomorix::SophomorixPgLdap::fetchprojects_from_project($project);
+    my @new_projects=&remove_duplicates_from_first_list(\@old_projects,\@projects);
+    $p_projects=join(",",@new_projects);
+    print "   Using: --MemberProjects=$p_projects\n";
 }
 
 
@@ -425,4 +397,36 @@ if (defined $p_admins
 } else {
     &titel("NOT creating mailaliases/lists (nothing mail related changed)");
 }
+
+
+
+############################################################
+# sub
+############################################################
+
+sub remove_duplicates_from_first_list {
+    my ($liste_1,$liste_2) = @_;
+    my %liste_1=();
+    my @result=();
+    # creating liste_1 hash
+    foreach my $user (@$liste_1){
+        $liste_1{$user}="seen";
+        #print "User: $user \n";
+    }
+    # remove users from list2
+    foreach my $user2 (@$liste_2){
+        if (exists $liste_1{$user2}){
+	    delete $liste_1{$user2};
+            #print "Remove User: $user2 \n";
+        }
+    }
+    # push liste_1 hash back into a list
+    while( my ($k, $v) = each(%liste_1)) {
+      push @result, $k;
+    }
+    @result = sort @result;
+    return @result;
+}
+
+
 
