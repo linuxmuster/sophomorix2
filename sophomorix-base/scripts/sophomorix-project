@@ -56,9 +56,10 @@ my $project="";
 my $k;
 my $v;
 
-my $addadmins="";
 my $addmembers="";
 my $removemembers="";
+my $addadmins="";
+my $removeadmins="";
 my $addmembergroups="";
 my $removemembergroups="";
 my $addmemberprojects="";
@@ -91,6 +92,7 @@ my $testopt=GetOptions(
            "addMembers=s" => \$addmembers,
            "removeMembers=s" => \$removemembers,
            "addAdmins=s" => \$addadmins,
+           "removeAdmins=s" => \$removeadmins,
            "addMemberGroups=s" => \$addmembergroups,
            "removeMemberGroups=s" => \$removemembergroups,
            "addMemberProjects=s" => \$addmemberprojects,
@@ -116,6 +118,7 @@ if ($project eq ""
     and $addmembers eq ""
     and $removemembers eq ""
     and $addadmins eq ""
+    and $removeadmins eq ""
     and $addmembergroups eq ""
     and $removemembergroups eq ""
     and $addmemberprojects eq ""
@@ -156,9 +159,10 @@ Options
   --AddMailQuota number
   --MaxMembers number
 
-  -p project --addAdmins 
   -p project --addMembers
   -p project --removeMembers 
+  -p project --addAdmins 
+  -p project --removeAdmins 
   -p project --addMemberGroups
   -p project --removeMemberGroups
   -p project --addMemberProjects
@@ -217,6 +221,17 @@ if ($addadmins ne "" and $project ne ""){
        &Sophomorix::SophomorixPgLdap::fetchadmins_from_project($project);
     my @admins = (@old_admins,@new_admins);
     $p_admins=join(",",@admins);
+    print "   Using: --Admins=$p_admins\n";
+}
+
+
+# --removeadmins
+if ($removeadmins ne "" and $project ne ""){
+    my @admins = split(/,/,$removeadmins);
+    my @old_admins = 
+       &Sophomorix::SophomorixPgLdap::fetchadmins_from_project($project);
+    my @new_admins=&remove_duplicates_from_first_list(\@old_admins,\@admins);
+    $p_admins=join(",",@new_admins);
     print "   Using: --Admins=$p_admins\n";
 }
 
