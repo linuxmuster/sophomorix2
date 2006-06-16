@@ -35,6 +35,11 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     deletegroup_from_project
                                     addproject_to_project
                                     deleteproject_from_project
+                                    fetchprojects_from_school
+                                    fetchprojects_from_project
+                                    fetchgroups_from_project
+                                    fetchusers_from_project
+                                    fetchadmins_from_project
                                    );
 
 # ===========================================================================
@@ -46,6 +51,7 @@ my $pg_timestamp=&pg_timestamp();
 # Variablen für Optionen
 $Conf::log_level=1;
 my $help=0;
+my $tree=0;
 my $info=0;
 my $create=0;
 my $kill=0;
@@ -89,6 +95,7 @@ my $testopt=GetOptions(
            "kill" => \$kill,
            "verbose|v+" => \$Conf::log_level,
            "join!" => \$join,
+           "tree" => \$tree,
            "addMembers=s" => \$addmembers,
            "removeMembers=s" => \$removemembers,
            "addAdmins=s" => \$addadmins,
@@ -124,6 +131,7 @@ if ($project eq ""
     and $addmemberprojects eq ""
     and $removememberprojects eq ""
     and $info==0
+    and $tree==0
     ){
     $help=1;
 }
@@ -145,6 +153,7 @@ Options
   -v  / --verbose
   -vv / --verbose --verbose
   -i  / --info
+  --tree
   -i -p projectname
   -p projectname, / --project projectname 
   --create 
@@ -175,6 +184,53 @@ Please see the sophomorix-project(8) man pages for full documentation
 }
 
 
+# --tree
+if ($tree==1) {
+    print "Project Membership Tree:\n";
+    my @projects=&fetchprojects_from_school();
+    foreach my $pro (@projects){
+        print "$pro: \n";
+        my @projects=&fetchprojects_from_project($pro);
+        foreach my $pro (@projects){
+           print "   ### $pro (project) \n";
+        }
+        my @groups=&fetchgroups_from_project($pro);
+        foreach my $group (@groups){
+           print "     # $group (group) \n";
+        }
+        my @admins=&fetchadmins_from_project($pro);
+           print "   *** admin:";
+        foreach my $adm (@admins){
+           print " $adm,";
+        }
+        print "\n";
+        print "     * users: \n";
+        my @users=&fetchusers_from_project($pro);
+
+	my $number=6;
+        my $index_number=$number-1;
+        my @linelist=();
+        my $all=$#users+1;
+        my $left=$all % $number;
+        my $to_add=$number-$left;
+        my $i;
+        # add the missing elements
+        if ($all!=$number){
+           for ($i = 1; $i <= $to_add; $i++) {  # count from 1 to 10
+              push @users, "";
+           }
+        }
+
+      foreach my $user (@users){
+          push @linelist, $user;
+          if ($#linelist==$index_number){
+	      printf "       %-12s %-12s %-12s %-12s %-12s %-12s\n",@linelist;
+          @linelist=();
+          } 
+      }
+    }
+    exit;
+}
 
 
 
