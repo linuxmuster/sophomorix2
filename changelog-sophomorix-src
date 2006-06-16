@@ -1408,7 +1408,6 @@ ordner: root.root 0755
 
 ordner wo apache was reinladen lässt  www-data.www-data 0755
 
-
 Generelles ein/ausschalten (nach installation 0640)
 root.root 0640 oder root.root 0755
 
@@ -1419,22 +1418,7 @@ Datei kann nicht eingesammelt werden da sich die Zeit ändert?
 check_klasse noch notwendig? (sophomorix-print)
 
 
-Beispiel für Aufrufe Austeilen/Bereitstellen/Einsammeln in die
-man-page von sophomorix-teacher (Mail an Aike)
-
-
-
 Tester eintragen
-
-
-
-Lehrer joint ein Projekt als Mitglied(nicht admin).
-
-sophomorix-project --teacher bz --add project
-                                --remove
-
-
-
 
 
 3.0: nur offene Projekte (--join)
@@ -1442,19 +1426,11 @@ sophomorix-project --teacher bz --add project
 
 subclassen als projekte hinzufügen? Tut das?
 
-manpage sophomorix-project aktualisieren
-
-
 
 think about logging all sophomorix-commands to /var/log/sophomorix with date
 
 logrotate file in /debian/package.logrotate
 
-
-optionen sophomorix-project: 
-
-nur option --removemembers
-wenn ein admin angegeben wird, dann ihn als admin entfernen 
 
 
 sophomorix-teacher:
@@ -1465,11 +1441,9 @@ Test schreiben
 add option --htaccess  to sophomorix-repair that rewrites .htaccess-files
 
 
-adding/removing group/project:
-to do: handle members 
-
-
 1.8.1-1  (2006-06-xx)
+   - updated sophomorix-project manpage
+   - option sophmorix-project --tree (overview of project memberships)
    - all sophomorix-www options addXxxxYyyy are 
      calling XxxxYyyy to avoid doule code 
    - manpage sophomorix-www updated

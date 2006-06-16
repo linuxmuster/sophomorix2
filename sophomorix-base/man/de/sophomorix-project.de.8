@@ -78,7 +78,11 @@ Kurzübersicht über Optionen, sowie eine Liste der eingelesenen Dateien.
 Sagt, was das Programm gerade macht (verbose)
 .TP
 .B \-i, \-\-info
-Informationen über alle Projekte.
+Informationen über alle Projekte (Übersicht).
+.TP
+.B \-\-tree
+.br
+Informationen über alle Projekte und ihre Mitgliedschaften.
 .TP
 .B \-i -p projektname
 Informationen über das Projekt projektname.
@@ -180,22 +184,28 @@ Gruppenmitgliedschaftanzahl)
 Fügt die Mitglieder user1,user2, ... dem Projekt hinzu.
 .TP
 .B --removeMembers user1,user2,... --project Projekt
-Entfernt Mitglieder SOWIE Admins user1,user2, ... aus dem Projekt.
+Entfernt die Mitglieder user1,user2,... aus dem Projekt. (Es werden
+keine Admins entfernt)
 .TP
 .B --addAdmins user1,user2,... --project Projekt
-Fügt die Admins user1,user2, ... dem Projekt hinzu.
+Fügt die Admins user1,user2,... dem Projekt hinzu.
+.TP
+.B --removeAdmins user1,user2,... --project Projekt
+Entfernt die Admins user1,user2,... aus dem Projekt (auch als
+Members). Es werden keine Members entfernt, die nicht auch Admins
+sind.
 .TP
 .B --addMemberGroups gruppe1,gruppe2,... --project Projekt
-Fügt die Gruppen gruppe1,gruppe2, ... dem Projekt hinzu.
+Fügt die Gruppen gruppe1,gruppe2,... dem Projekt hinzu.
 .TP
 .B --removeMemberGroups gruppe1,gruppe2,... --project Projekt
-Entfernt die Gruppen gruppe1,gruppe2, ... aus dem Projekt.
+Entfernt die Gruppen gruppe1,gruppe2,... aus dem Projekt.
 .TP
 .B --addMemberProjects project1,project2,... --project Projekt
-Fügt die Projekte project1,project2, ... dem Projekt hinzu.
+Fügt die Projekte project1,project2,... dem Projekt hinzu.
 .TP
 .B --removeProjects project1,project2,... --project Projekt
-Entfernt die Projekte project1,project2, ... aus dem Projekt.
+Entfernt die Projekte project1,project2,... aus dem Projekt.
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
