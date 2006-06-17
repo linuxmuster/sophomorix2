@@ -213,11 +213,11 @@ if ($add eq "" and
 }
 
 
+
 if (defined $shares and not @users){
     print "You must give users to switch shares on/off\n";
     exit;
 }
-
 
 
 
@@ -313,6 +313,10 @@ if ($info==1
     exit;
 }
 
+
+
+
+
 ############################################################
 # Handout
 ############################################################
@@ -382,13 +386,16 @@ if (defined $shares){
 ############################################################
 # Collect
 ############################################################
+print "Hier\n";
+
+
 # --collect
 if ($collect==1 and ($class ne "" 
-                  or $subclass ne "" 
-                  or $project ne ""
-                  or $room ne ""
-                  or ($users ne "" and $fromroom==1)
-                  or ($users ne "" and $fromproject ne ""))){
+                 or $subclass ne "" 
+                 or $project ne ""
+                 or $room ne ""
+                 or ($users ne "" and $fromroom==1)
+                 or ($users ne "" and $fromproject ne ""))){
     my $group_type="";
     my $rsync="move";
     if ($class ne ""){

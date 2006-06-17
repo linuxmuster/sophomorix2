@@ -532,9 +532,9 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
 
    &dateien_einsammeln_userliste($einsammeln_teacher,
                             $userliste_collect,
-                            $einsammeln_option
+                            $einsammeln_option,
+                            "--fromroom"
                            );
-
     print '
 ###########################################################################
 #                                                                         #
@@ -695,7 +695,6 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
                        $einsammeln_type,
                        $einsammeln_option,
                        $einsammeln_exam);
-
     print '
 ###########################################################################
 #                                                                         #
@@ -982,6 +981,9 @@ sub dateien_einsammeln{
     my $command="";
     my $user_option="";
     my $users="";
+    my ($group_type,$longname)=
+       &Sophomorix::SophomorixPgLdap::pg_get_group_type($group);
+
     $command="sophomorix-user --reset-user $teacher";
     &run_command($command,$verbose);
 
@@ -999,8 +1001,10 @@ sub dateien_einsammeln{
            my $homedir = "$entry[7]";
            #print "Creating user Data\n";
            if ($type eq "adminclass" or $type eq "project" or $type eq "subclass"){
-              $create_this="${homedir}/${Language::collect_dir}/${teacher}";
-              $command="su --command='mkdir ${create_this}' $user";
+              $create_this="${homedir}/${Language::collect_dir}/${longname}";
+   #           $command="su --command='mkdir ${create_this}' $user";
+#              $create_this="${homedir}/${Language::collect_dir}/${teacher}";
+#              $command="su --command='mkdir ${create_this}' $user";
               if (not -e $create_this){
                   &run_command($command,$verbose);
               }
@@ -1035,13 +1039,13 @@ sub dateien_einsammeln{
     my $collect_dir="";
     my $collect_parent_dir="";
     if ($type eq "adminclass" or $type eq "project" or $type eq "subclass"){
-    $collect_parent_dir=
-        "/home/teachers/${teacher}/${Language::collected_dir}/${group}";
+       $collect_parent_dir=
+         "/home/teachers/${teacher}/${Language::collected_dir}/${longname}";
     } elsif ($type eq "room" and $exam eq ""){
-    $collect_parent_dir = "/home/teachers/${teacher}".
+       $collect_parent_dir = "/home/teachers/${teacher}".
                "/${Language::collected_dir}/${Language::current_room}";
     } elsif ($type eq "room" and $exam eq "--exam"){
-    $collect_parent_dir = "/home/teachers/${teacher}".
+       $collect_parent_dir = "/home/teachers/${teacher}".
                "/${Language::collected_dir}/${Language::exam}";
     }
 
@@ -1050,8 +1054,9 @@ sub dateien_einsammeln{
          || die "can't opendir ",
                 "$collect_parent_dir $!";
     while (defined(my $filename = readdir(COLL))) {
-        print "     Directory $filename found\n";
-        if ($filename=~m/${group}.*$/ or
+        # print "     Directory $filename found\n";
+        if ($filename=~m/${longname}.*$/ 
+            or
             $filename=~m/${Language::current_room}.*$/ ){
           $collect_dir=$filename
 	  }
@@ -1067,9 +1072,9 @@ sub dateien_einsammeln{
 
            if ($type eq "adminclass" or $type eq "project" or $type eq "subclass"){
                $file="/home/teachers/${teacher}/${Language::collected_dir}".
-                     "/${group}/${collect_dir}/${user}/${testfile}"; 
+                     "/${longname}/${collect_dir}/${user}/${testfile}"; 
               $file_nonexist="${homedir}".
-                     "/${Language::collect_dir}/${teacher}/${testfile}"; 
+                     "/${Language::collect_dir}/${longname}/${testfile}"; 
            } elsif ($type eq "room" and $exam eq ""){
                $file="/home/teachers/${teacher}/${Language::collected_dir}".
                      "/${Language::current_room}/${collect_dir}".

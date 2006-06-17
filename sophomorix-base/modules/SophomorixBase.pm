@@ -4179,7 +4179,7 @@ sub collect {
           } elsif ($rsync eq "copy"){
               system("/usr/bin/rsync -tor $from_dir ${to_dir}/${user}");
           } elsif ($rsync eq "move"){
-              system("/bin/mv ${from_dir}/* ${to_dir}/${user}");
+              system("/bin/mv ${from_dir}* ${to_dir}/${user}");
           } else {
               print "unknown Parameter $rsync";
           }
