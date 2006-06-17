@@ -4101,18 +4101,16 @@ sub collect {
                    "${Language::current_room}/".
                    "${login}_${date}_${Language::current_room}";
   } elsif (defined $users) {
-      print "Name: $name";
-	 print "Longname: $longname \n";
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
                    "${longname}/".
                    "${login}_${date}_${longname}";
   } else {
      if ($exam==1){
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
-                   "${Language::exam}/EXAM_${login}_${date}_${name}";
+                   "${Language::exam}/EXAM_${login}_${date}_${longname}";
      } else {
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
-                   "${name}/${login}_${date}_${name}";
+                   "${longname}/${login}_${date}_${longname}";
      }
   }
 
