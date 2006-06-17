@@ -3922,8 +3922,7 @@ sub handout {
   if ($type eq "adminclass"){
       $from_dir = "${homedir}/${Language::handout_dir}/".
                   "${Language::handout_string}${name}/";
-      $to_dir="${DevelConf::tasks_classes}/${Language::handout_string}".
-              "${name}/${login}";
+      $to_dir="${DevelConf::tasks_classes}/${name}/${login}";
   } elsif ($type eq "subclass"){
       $from_dir = "${homedir}/${Language::handout_dir}/".
                   "${Language::handout_string}${name}/";
@@ -3985,7 +3984,7 @@ sub handoutcopy {
                    "${Language::to_handoutcopy_string}${longname}";
     } elsif ($type eq "current room"){
        $from_dir = "${homedir}/${Language::to_handoutcopy_dir}".
-                   "/${Language::current_room}";
+                   "/${Language::to_handoutcopy_string}${Language::current_room}";
        @userlist=split(/,/,$users);
     }
 

@@ -734,7 +734,7 @@ if ($handoutcopy==1 and -e "/root/sophomorix-test/bunchofusers"){
     print '
 ###########################################################################
 #                                                                         #
-#         CHECK HANDOUTCOPY (Dateien austeilen an userliste)              #
+#   CHECK HANDOUTCOPY (Dateien austeilen an userliste, aktueller raum)    #
 #                                                                         #
 ###########################################################################
 ';
@@ -1123,20 +1123,22 @@ sub vorlagen_bereitstellen{
 
     if ($type eq "project"){
        # $linkname (global should be given before calling this function) 
-       # $dirname  (global should be given before calling this function) 
+       # $dirname  (global should be given before calling this function)
+       $dirname=${Language::handout_string}.$dirname; 
        # $mothergroup (global should be given before calling this function) 
     } elsif ($type eq "subclass"){
        # $linkname (global should be given before calling this function) 
        # $dirname  (global should be given before calling this function) 
+       $dirname=${Language::handout_string}.$dirname; 
        # $mothergroup (global should be given before calling this function) 
     } elsif ($type eq "room"){
        $exam="--exam";
        $linkname=$group;  
-       $dirname="klassenarbeit";  
+       $dirname="${Language::handout_string}klassenarbeit";  
        $mothergroup=$group;
     } else {
        $linkname=$group;  
-       $dirname=$group;  
+       $dirname="${Language::handout_string}$group";  
        $mothergroup=$group;
 
     }
@@ -1168,12 +1170,13 @@ sub vorlagen_bereitstellen{
     }
 
     # was directory created ?
-    $file="/home/teachers/${teacher}/${Language::handout_dir}/${dirname}"; 
+    $file="/home/teachers/${teacher}/${Language::handout_dir}".
+          "/${dirname}"; 
     ok(-e $file, "$file existiert");
 
     foreach my $testfile (@teacher_files){
         if ($type eq "room"){
-            $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::handout_dir}/${Language::exam}'/";
+            $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::handout_dir}/${Language::handout_string}${Language::exam}'/";
         } else {
             $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::handout_dir}/${dirname}'/";
         }
@@ -1217,7 +1220,7 @@ sub handout_files_room {
     } 
 
     foreach my $testfile (@teacher_files){
-       $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::to_handoutcopy_dir}/aktueller_raum'";
+       $command="su --command='cp /usr/share/sophomorix-developer/testfiles/${testfile} /home/teachers/${teacher}/${Language::to_handoutcopy_dir}/${Language::to_handoutcopy_string}${Language::current_room}'";
     &run_command($command,$verbose);
     }
 
@@ -1227,7 +1230,8 @@ sub handout_files_room {
        foreach my $testfile (@teacher_files){
          my @entry = getpwnam($user);
          my $homedir = "$entry[7]";
-         my $file="$homedir/${Language::handoutcopy_dir}/aktueller_raum/$testfile";
+         my $file="$homedir/${Language::handoutcopy_dir}/".
+                  "${Language::current_room}/$testfile";
          &check_existence($file);
        }
     }
