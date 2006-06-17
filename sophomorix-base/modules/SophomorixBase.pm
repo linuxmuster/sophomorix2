@@ -1120,6 +1120,8 @@ sub provide_user_files {
                   "$home/${Language::handoutcopy_dir}/${Language::current_room}",
                   "$login");
          }
+    } else {
+        print "\nERROR: Could not determine type of $class\n\n";
     }
 }
 
@@ -4044,13 +4046,15 @@ sub collect {
   # TODO: if name is locked for an exam, exit with message
   my ($login,$name,$type,$rsync,$exam,$users) = @_;
   my $date=&zeit_stempel;
+  my ($group_type,$longname)=
+      &Sophomorix::SophomorixPgLdap::pg_get_group_type($name);
   if($Conf::log_level>=2){
-       print "Collect as:         $login\n";
-       print "Collect from type:  $type\n";
-       print "Collect from :      $name\n";
-       print "rsync Options:      $rsync\n";
-       print "Exam (boolean):     $exam\n";
-       print "Users:              $users\n";
+       print "Collect as:              $login\n";
+       print "Collect from type:       $type\n";
+       print "Collect from :           $name ($longname)\n";
+       print "rsync Options:           $rsync\n";
+       print "Exam (boolean):          $exam\n";
+       print "Users:                   $users\n";
   }
 
   # where to get _Task data
@@ -4080,16 +4084,28 @@ sub collect {
   } elsif ($type eq "current room"){
       @users=split(/,/,$users);
       # no tasks dir
+  } elsif ($type eq "project"){
+      @users=split(/,/,$users);
+      # no tasks dir
+  } elsif ($type eq "adminclass"){
+      @users=split(/,/,$users);
+      # no tasks dir
   }
 
   # where to save the collected data
   my ($homedir_col)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
   my $to_dir="";
 
-  if (defined $users){ 
+  if (defined $users and $type eq "current room"){ 
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
                    "${Language::current_room}/".
                    "${login}_${date}_${Language::current_room}";
+  } elsif (defined $users) {
+      print "Name: $name";
+	 print "Longname: $longname \n";
+         $to_dir = "${homedir_col}/${Language::collected_dir}/".
+                   "${longname}/".
+                   "${login}_${date}_${longname}";
   } else {
      if ($exam==1){
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
@@ -4124,6 +4140,10 @@ sub collect {
           $from_dir="$homedir/${Language::collect_dir}/${Language::current_room}/";
       } elsif ($type eq "room") {
           $from_dir="$homedir/${Language::collect_dir}/${Language::current_room}/";
+      } elsif ($type eq "project") {
+          $from_dir="$homedir/${Language::collect_dir}/${longname}/";
+      } elsif ($type eq "adminclass") {
+          $from_dir="$homedir/${Language::collect_dir}/${longname}/";
       } else {
           $from_dir="$homedir/${Language::collect_dir}/${login}/";
       }
