@@ -150,7 +150,6 @@ my @teacherlist=(
 my @loginlist=("tycho", "hannes", "bruno", "galli", "niko" );
 
 
-#my $user="";
 my $teacher="";
 my $login="";
 my $today=`date +%d.%m.%Y`;
@@ -478,7 +477,7 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
     print '
 ###########################################################################
 #                                                                         #
-# CHECK COLLECT (einsammeln: tycho,userliste,collectcopy,fromproject=astro)     #
+# CHECK COLLECT(einsammeln: tycho,userliste,collectcopy,fromproject=astro)#
 #                                                                         #
 ###########################################################################
 ';
@@ -502,6 +501,34 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
                             $einsammeln_option,
                             "--fromproject astro",
                             "astro"
+                           );
+    print '
+###########################################################################
+#                                                                         #
+# CHECK COLLECT(einsammeln: tycho,userliste,collectcopy,fromproject=11a)  #
+#                                                                         #
+###########################################################################
+';
+   # COLLECT copy (Vorlagen) from project
+   $einsammeln_teacher="niko";
+   $einsammeln_gruppe="";
+   $einsammeln_type="";
+   $einsammeln_option="collectcopy";
+   $einsammeln_exam="";
+
+   # Working with these files
+   @teacher_files=("testfile_3.txt","testfile_4.txt");
+   @userlist_to_check=("gillania",
+                       "blackmri",
+                       "lordjo"
+                      );
+   $userliste_collect="gillania,blackmri,lordjo";
+
+   &dateien_einsammeln_userliste($einsammeln_teacher,
+                            $userliste_collect,
+                            $einsammeln_option,
+                            "--fromclass 11a",
+                            "11a"
                            );
     print '
 ###########################################################################
@@ -902,7 +929,7 @@ sub dateien_einsammeln_userliste{
        }
     }
 
-    $command="sophomorix-teacher --teacher $teacher --user $users $add_option --${option}";
+    $command="sophomorix-teacher --teacher $teacher --users $users $add_option --${option}";
     &run_command($command,$verbose);
 
     my $collect_dir="";
@@ -1224,7 +1251,7 @@ sub handout_files_room {
     &run_command($command,$verbose);
     }
 
-    $command="sophomorix-teacher --teacher $teacher --user $users --fromroom --handoutcopy";
+    $command="sophomorix-teacher --teacher $teacher --users $users --fromroom --handoutcopy";
     &run_command($command,$verbose);
     foreach my $user (@userlist_to_check){
        foreach my $testfile (@teacher_files){

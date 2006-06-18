@@ -4061,7 +4061,7 @@ sub collect {
 
   # create a list of user to collect data from
   my @users=();
-  if ($type eq "adminclass"){
+  if ($type eq "adminclass" and not defined $users){
       if ($name ne "${DevelConf::teacher}"){
          @users=&Sophomorix::SophomorixPgLdap::fetchstudents_from_adminclass($name);
          $tasks_dir="${DevelConf::tasks_classes}/${name}/";
@@ -4069,15 +4069,15 @@ sub collect {
          # nix
          # make collection from teachers possible ???????
      }
-  } elsif ($type eq "subclass"){
+  } elsif ($type eq "subclass" and not defined $users){
       # gruppenmitglieder 
       my ($name,$passwd,$gid,$members)=getgrname($name);
       @users=split(/,/, $members);
       $tasks_dir="${DevelConf::tasks_subclasses}/${name}/";
-  } elsif ($type eq "project"){
+  } elsif ($type eq "project" and not defined $users){
       @users=&Sophomorix::SophomorixPgLdap::fetchusers_from_project($name);
       $tasks_dir="${DevelConf::tasks_projects}/${name}/";
-  } elsif ($type eq "room"){
+  } elsif ($type eq "room" and not defined $users){
       @users=&Sophomorix::SophomorixPgLdap::fetchworkstations_from_room($name);
       # no tasks dir
   } elsif ($type eq "current room"){
@@ -4085,10 +4085,13 @@ sub collect {
       # no tasks dir
   } elsif ($type eq "project"){
       @users=split(/,/,$users);
-      # no tasks dir
+      $tasks_dir="${DevelConf::tasks_projects}/${name}/";
   } elsif ($type eq "adminclass"){
       @users=split(/,/,$users);
-      # no tasks dir
+      $tasks_dir="${DevelConf::tasks_classes}/${name}/";
+  } elsif ($type eq "room"){
+      @users=split(/,/,$users);
+      $tasks_dir="${DevelConf::tasks_rooms}/${name}/";
   }
 
   # where to save the collected data

@@ -1242,40 +1242,6 @@ variablen nutzen siehe perldoc Sophomorix::SophomorixAPI
 
 
 
-einsammeln geschieht nie in den aktuellen raum????
-  sondern es wird immer der raumname als parameter übergeben
-   -> _einsammeln/aktueller_raum kann verschwinden????
-
-
-
-__austeilen      [/aktueller raum, $klassen, $subkl, $projekte  /$lehrer]
-     TODO: $lehrer entsteht beim austeilen
-
-
-__einsammeln     [/aktueller Raum, $lehrer]
-     TODO: $lehrer entsteht durch schulkonsole
-
-
-__tauschen       [/$klassen, $subkl, $projekte, lehrer, schule]
-
-
-__vorlagen       [/$klassen, $subkl, $projekte   /$lehrer]
-Todo: (bei workstations: __vorlagen/klassenarbeit )
-
-
-_auszuteilen   [/aktueller raum, $klassen, $subkl, $projekte]
-
-
-_bereitstellen [/klassenarbeit, $klassen, $subkl, $projekte]
-
-
-_eingesammelt  [/klassenarbeit, aktueller raum, $klassen, $subkl, 
-$projekte  /$datum-$uhrzeit  /$schüler]
-
-
-
-
-
 cleanup_function: nicht um administratoren zu cleanen
 
 
@@ -1299,25 +1265,11 @@ SphomorixBase: remove unused functions
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 Projekte:
 
-- switch --join zur funktion bringen
 - Projekt löschen
+
+- switch --join zur funktion bringen
 - make a teacher join a project if --join
 
 
@@ -1363,11 +1315,6 @@ NEXT:
 sophomorix-quota: Not setting Quota for workstation  (is that OK?)
 
 Homedir of administrators: 2701
-
-When adding a user to a project, create /var/www/people/$PROJECT/$USER
-When removing a user, remove empty /var/www/people/$PROJECT/$USER or 
-                      move contents to the users home
-
 
 add a field male/female to database and lehrer.txt
 make configurable if a 

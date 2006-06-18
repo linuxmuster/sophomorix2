@@ -49,6 +49,7 @@ my $project="";
 my $users="";
 my $fromroom=0;
 my $fromproject="";
+my $fromclass="";
 my $room="";
 my $exam=0;
 my $info=0;
@@ -72,7 +73,8 @@ my $testopt=GetOptions(
            "class|adminclass|c=s" => \$class,
            "subclass=s" => \$subclass,
            "project=s" => \$project,
-           "fromproject|currentproject=s" => \$fromproject,
+           "fromproject=s" => \$fromproject,
+           "fromclass=s" => \$fromclass,
            "fromroom|currentroom" => \$fromroom,
            "room=s" => \$room,
            "exam" => \$exam,
@@ -144,6 +146,7 @@ Select students/teachers to work with:
   --exam
   --fromroom (aktueller_raum)
   --fromproject
+  --fromclass
 
 Options for the user root
   --teacher teacher
@@ -386,8 +389,6 @@ if (defined $shares){
 ############################################################
 # Collect
 ############################################################
-print "Hier\n";
-
 
 # --collect
 if ($collect==1 and ($class ne "" 
@@ -395,7 +396,9 @@ if ($collect==1 and ($class ne ""
                  or $project ne ""
                  or $room ne ""
                  or ($users ne "" and $fromroom==1)
-                 or ($users ne "" and $fromproject ne ""))){
+                 or ($users ne "" and $fromproject ne "")
+                 or ($users ne "" and $fromclass ne "")
+   )){
     my $group_type="";
     my $rsync="move";
     if ($class ne ""){
@@ -423,7 +426,10 @@ if ($collect==1 and ($class ne ""
         #  collect from a userlist
         &collect($login, $fromproject,"project",$rsync,$exam,$users);
     }
-
+    if ($users ne "" and $fromclass ne ""){
+        #  collect from a userlist
+        &collect($login, $fromclass,"class",$rsync,$exam,$users);
+    }
     exit;
 }
 
@@ -434,7 +440,10 @@ if ($collectcopy==1 and ($class ne ""
                       or $project ne ""
                       or $room ne ""
                       or ($users ne "" and $fromroom==1)
-                      or ($users ne "" and $fromproject ne ""))){
+                      or ($users ne "" and $fromproject ne "")
+                      or ($users ne "" and $fromclass ne "")
+   )){
+
     my $group_type="";
     my $rsync="copy";
     if ($class ne ""){
@@ -461,6 +470,10 @@ if ($collectcopy==1 and ($class ne ""
     if ($users ne "" and $fromproject ne ""){
         #  collect from a userlist
         &collect($login, $fromproject,"project",$rsync,$exam,$users);
+    }
+    if ($users ne "" and $fromclass ne ""){
+        #  collect from a userlist
+        &collect($login, $fromclass,"adminclass",$rsync,$exam,$users);
     }
 
     exit;
