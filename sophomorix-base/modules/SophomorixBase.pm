@@ -57,10 +57,6 @@ use Quota;
               append_teach_in_log
               archive_log_entry
               backup_amk_file
-                get_schueler_in_schule_hash
-                get_lehrer_in_schule_hash
-                get_workstations_in_schule_hash
-                get_klassen_in_schule_hash
               check_klasse
               get_link_pfad
               datum_loeschen_schueler
@@ -87,8 +83,6 @@ use Quota;
               handout
               handoutcopy
               collect
-                 ka_einsammeln
-                 unterricht_einsammeln
               provide_class_files
               provide_subclass_files
               provide_project_files
@@ -2466,7 +2460,7 @@ sub get_klasse_von_login_oldstuff {
 # ===========================================================================
 # dito, aber im hash, Value ist primäre Gruppe
 # ===========================================================================
-sub get_schueler_in_schule_hash {
+sub get_schueler_in_schule_hash_oldstuff {
     my %schuelerhash=();
     my @liste=get_schueler_in_schule();
     foreach $user (@liste) {
@@ -2489,7 +2483,7 @@ sub get_schueler_in_schule_hash {
 # ===========================================================================
 # dito, aber im hash
 # ===========================================================================
-sub get_lehrer_in_schule_hash {
+sub get_lehrer_in_schule_hash_oldstuff {
     my %lehrerhash=();
     my @liste=get_lehrer_in_schule();
     foreach $user (@liste) {
@@ -2508,7 +2502,7 @@ sub get_lehrer_in_schule_hash {
 # ===========================================================================
 # dito, aber im hash
 # ===========================================================================
-sub get_workstations_in_schule_hash {
+sub get_workstations_in_schule_hash_oldstuff {
     my %workstationhash=();
     my @liste=get_workstation_in_schule();
     foreach $user (@liste) {
@@ -2537,7 +2531,7 @@ sub get_workstations_in_schule_hash {
 
 
 # deprecated: succesor: pg_get_adminclasses in SophomorixPgLdap.pm
-sub get_klassen_in_schule_hash {
+sub get_klassen_in_schule_hash_oldstuff {
     my @pwliste;
     my %klassen_hash=();
     my @liste;
@@ -4233,7 +4227,7 @@ sub collect {
 }
 
 
-sub ka_einsammeln {
+sub ka_einsammeln_oldstuff {
   # Parameter 1: Wer sammelt ein
   # Parameter 2: In welchem Raum  wird eingesammelt 
   my ($loginname, $raum) = @_;
@@ -4326,7 +4320,7 @@ sub ka_einsammeln {
 }
 
 
-sub unterricht_einsammeln {
+sub unterricht_einsammeln_oldstuff {
   # Parameter 1: Wer sammelt ein
   # Parameter 2: In welcher Klasse wird eingesammelt 
   # Parameter 3: Original (mv) oder Kopie (rsync)
