@@ -1092,8 +1092,6 @@ SophomorixPgLdap.pm
       show_class_teacher_list
       show_teacher_class_list
 
-sophomorix-user: make options accept a userLIST
-
  
 
 meeting 21.3.2006
@@ -1122,55 +1120,7 @@ to a nonexisting class
   (odbc.ini, ...)
 
 
-
-
-Aufrufe fuer Schulkonsole bereitstellen
-==================================================
-
-1.3) Bereitstellen/Vorlagen:
-(technisch: rsync --delete to /var/cache/sophomorix/tasks/.../gruppe/lehrer)
-
-Example: teacher niko, class 11a, project astro, subclass 11a-A must exist
-
-sophomorix-teacher --teacher niko --class 11a --handout
-sophomorix-teacher --teacher niko --project astro --handout
-sophomorix-teacher --teacher niko --subclass 11a-A --handout
-sophomorix-teacher --teacher niko --room A123 --handout  (todo)
-
-sophomorix-teacher --teacher niko --room A123 --exam  (todo)
-
-
-1.4) Austeilen
-(technisch: copy into users home)
-
-sophomorix-teacher --teacher niko --class 11a --handoutcopy
-sophomorix-teacher --teacher niko --project astro --handoutcopy
-sophomorix-teacher --teacher niko --subclass 11a-A --handoutcopy
-sophomorix-teacher --teacher niko --room A123 --handoutcopy  (todo)
-sophomorix-teacher --teacher niko 
-              --users user1,user2, ... 
-              --fromroom                                      (aktueller_raum)
-             (--files file1,file2,directory1,directory2, ...) (later) 
-              --handoutcopy  (todo)
-
-1.5 A) Einsammeln (Kopie)
-sophomorix-teacher --teacher niko --class 11a --collectcopy
-sophomorix-teacher --teacher niko --project astro --collectcopy
-sophomorix-teacher --teacher niko --subclass 11a-A --collectcopy
-sophomorix-teacher --teacher niko --room A123 --collectcopy  (todo)
-sophomorix-teacher --teacher niko
-                   --room name 
-                   --users user1,user2, ... 
-                   --collectcopy  (todo)
-
-1.5 B) Einsammeln (Take away)
-wie 1.5 A), jedoch:
---collect (anstelle von --collectcopy)
-
-Einsammeln: 
-von    $WORKSTATIONHOME/_einsammeln
-nach:  $HOME/_einsammeln/klassenarbeit/$RAUM-$DAUM-$ZEIT/      
-
+Is this necessary?
 wohin einsammeln soll konfigurierbar sein 
    A):  loginname
    B):  vorname.nachname
@@ -1298,23 +1248,9 @@ Veröffentlichen: /var/www/people
 
 
 
-
-Befehl für schulkonsole
-für user/klassen/project die .htaccess-Datei wechseln 
-
-sophomorix-user
-sophomorix-class
-sophomorix-project
-...
-
-
-
-
-NEXT:
-
 sophomorix-quota: Not setting Quota for workstation  (is that OK?)
 
-Homedir of administrators: 2701
+Homedir of administrators: 2701 (is this good?)
 
 add a field male/female to database and lehrer.txt
 make configurable if a 
@@ -1323,7 +1259,6 @@ Lehrer-Liste
 Kollegium-Liste
 is created
 
-remove old kernel_update stuff
 
 
 userliste in allen sophomorix-*:    -u --users user1,user2,...  Liste akzeptieren  
@@ -1335,14 +1270,6 @@ userliste in allen sophomorix-*:    -u --users user1,user2,...  Liste akzeptiere
   - sophomorix-quota
   - sophomorix-repair
   - sophomorix-kill
-
-
-
-
-
-
-remove dachboden, speicher from fetchadminclasses_from_school
-
 
 
 in /var/www/people
@@ -1381,8 +1308,13 @@ logrotate file in /debian/package.logrotate
 
 add option --htaccess  to sophomorix-repair that rewrites .htaccess-files
 
+1.8.0-1  (2006-06-xx)
+   - renamed unused functions in SophomorixBase
+   - remove dachboden, speicher from fetchadminclasses_from_school
+   - removed rest of old kernel_update stuff
 
-1.8.1-1  (2006-06-xx)
+
+1.8.0-1  (2006-06-18)
    - romoved bugs from sophomorix-test-bunchofusers
      --handout
      --handoutcopy
