@@ -28,6 +28,7 @@ use Quota;
               get_alle_verzeichnis_rechte
               get_v_rechte
               setup_verzeichnis
+              make_some_files_root_only
               get_old_info 
               user_login_hash
               save_tausch_klasse
@@ -516,6 +517,32 @@ sub setup_verzeichnis {
      system("chown ${owner}.${gowner} $pfad");
      system("chmod $permissions $pfad");
    }
+}
+
+
+
+sub make_some_files_root_only {
+    # if parameter is given use it as a filename
+    # otherwise use list below
+    my ($file) = @_;
+    my @filelist=();
+    if (defined $file){
+       @filelist=($file);
+    } else {
+       # add more files here
+       @filelist=("/etc/ldap.secret",
+                  "/etc/ldap/slapd.conf",
+                  "/etc/smbldap-tools/smbldap.conf",
+                  "/etc/smbldap-tools/smbldap_bind.conf"
+                  );
+    }
+
+    # do it
+    foreach my $root_file (@filelist){
+        print "Making file $root_file root only\n";
+        system("chown root.root $root_file");
+        system("chmod 0600 $root_file");
+    }
 }
 
 
