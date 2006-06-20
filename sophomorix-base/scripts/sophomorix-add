@@ -388,7 +388,10 @@ while(<SOPHOMORIXADD>){
 
   # 7. tschmitt: create cyrus user with 10mb quota
   if (-s "/usr/lib/linuxmuster/bin/cyrus-user.pl") {
-    system("/usr/lib/linuxmuster/bin/cyrus-user.pl -u $login_name_ok -c -q 10m");
+      system("/usr/lib/linuxmuster/bin/cyrus-user.pl -u $login_name_ok -c -q 10m");
+  } else {
+      print "WARNING: Could not find /usr/lib/linuxmuster/bin/cyrus-user.pl.\n";
+      print "NOT creating mail account.\n";
   }
 
 
