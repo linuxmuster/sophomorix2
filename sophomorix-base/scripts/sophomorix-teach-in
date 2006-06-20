@@ -110,7 +110,7 @@ Options
   -v  / --verbose
   -vv / --verbose --verbose
   -a value / --approx value
-  -r login / --redo login
+  --undo login
 
 Please see the sophomorix-teach-in(8) man pages for full documentation
 ');
@@ -234,7 +234,7 @@ if ($undo_login ne ""){
 # Programmbeginn
 # ===========================================================================
 
-&titel("sophomorix-teach-in starts with $match_fehlertoleranz % amatch");
+&titel("sophomorix-teach-in starts with $match_fehlertoleranz% amatch");
 
 my $today=`date +%d.%m.%Y`;
 my $today_pg=`date +%Y-%m-%d`;
@@ -254,6 +254,7 @@ if($Conf::log_level>=3){
 
 while(<SOPHOMORIXADD>){
    chomp();
+   my $a;
    ($hinzu_klasse,$identifier,$a)=split(/::/);
    $schueler_hinzu_hash{$identifier}="$hinzu_klasse";
    if($Conf::log_level>=3){
@@ -300,14 +301,16 @@ my @toleration=&get_teach_in_sys_users();
 
 foreach $identifier (@toleration){
    # Gesucht wird Entsprechung zu diesem Schüler
+   print "----------------------------------------",
+         "----------------------------------------\n";
    printf "%-25s: %-40s\n" , 
-          "User in the system is", 
-          "$identifier";
-   printf "%-25s: %-40s\n" , 
-          "Login", 
+          "    Login", 
           "$schueler_im_system_loginname{$identifier}";
    printf "%-25s: %-40s\n" , 
-          "AdminClass", 
+          "    User in the system", 
+          "$identifier";
+   printf "%-25s: %-40s\n" , 
+          "    AdminClass", 
           "$schueler_im_system_hash{$identifier}";
    if (exists $schueler_im_system_exit_admin_class{$identifier}){
       printf "%-25s: %-40s\n" , 
