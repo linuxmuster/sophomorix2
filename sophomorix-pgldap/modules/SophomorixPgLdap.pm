@@ -1939,7 +1939,9 @@ sub fetchadminclasses_from_school {
     my $i=0;
     foreach ( @{ $array_ref } ) {
         my $gid=${$array_ref}[$i][0];
-        push @admin_classes, $gid;
+        if (not ($gid eq "speicher" or $gid eq "dachboden")){
+            push @admin_classes, $gid;
+        }
         $i++;
     }   
     &db_disconnect($dbh);
@@ -3788,9 +3790,11 @@ sub show_class_list {
         if (not defined $department){
 	    $department="";
         }
+        if (not ($gid eq "speicher" or $gid eq "dachboden")){
         printf "%-15s|%10s|%4s |%1s|%1s| %-19s| %-18s\n",$gid,
                 $quota,$mailquota,$mailalias,$maillist,
                 $schooltype,$department;
+        }
         $i++;
     }   
     print "---------------+----------+-----",
