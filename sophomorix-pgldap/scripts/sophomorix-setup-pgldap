@@ -882,6 +882,8 @@ system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlog
 # group teachers part 2
 &provide_class_files(${DevelConf::teacher});
 
+# make some files owned by root.root and 0600
+&make_some_files_root_only();
 
 
 
