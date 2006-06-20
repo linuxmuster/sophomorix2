@@ -625,7 +625,6 @@ Errors and output in a file:
 ############################################################
 LDAP To do
 ############################################################
-        Passwort in /etc/ldap.secret   (Zugriff 600)
 
 
 ############################################################
@@ -1236,18 +1235,6 @@ Bei wiedereintritt soll Ordner mit korrekten Daten da sein
 
 
 
-public_html:
-
-Veröffentlichen: /var/www/people
-      jeder user bekommt ein dir /user
-                 bzw. /project/home
-             mit .htaccess für off
-
-      (.htaccess für on und off, mit @@getagged@@)
-           
-
-
-
 sophomorix-quota: Not setting Quota for workstation  (is that OK?)
 
 Homedir of administrators: 2701 (is this good?)
@@ -1309,6 +1296,8 @@ logrotate file in /debian/package.logrotate
 add option --htaccess  to sophomorix-repair that rewrites .htaccess-files
 
 1.8.0-1  (2006-06-xx)
+   - added function to set some files to root.root 0600
+      - use it for configfiles with password in sophomorix-setup-pgldap
    - renamed unused functions in SophomorixBase
    - remove dachboden, speicher from fetchadminclasses_from_school
    - removed rest of old kernel_update stuff
