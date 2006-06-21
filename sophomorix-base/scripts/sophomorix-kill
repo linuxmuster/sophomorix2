@@ -28,6 +28,8 @@ use Sophomorix::SophomorixSYSPgLdap qw(show_sys_modulename
                                        delete_user_from_sys
 				      );
 
+my $linuxmusterscriptsdir = "/usr/share/linuxmuster/scripts";
+
 my $zeit=&zeit_stempel;
 my $user_nummer=0;
 
@@ -201,8 +203,8 @@ while(<KILL>){
       } 
 
       # tschmitt: delete cyrus user
-      if (-s "/usr/lib/linuxmuster/bin/cyrus-user.pl") {
-        system("/usr/lib/linuxmuster/bin/cyrus-user.pl -u $login_name_to_kill -d");
+      if (-s "$linuxmusterscriptsdir/cyrus-user.pl") {
+        system("$linuxmusterscriptsdir/cyrus-user.pl -u $login_name_to_kill -d");
       }
 
       # memberships

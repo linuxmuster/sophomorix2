@@ -30,6 +30,8 @@ use Sophomorix::SophomorixSYSPgLdap qw(show_sys_modulename
                                        add_user_to_sys
                                       );
 
+my $linuxmusterscriptsdir = "/usr/share/linuxmuster/scripts";
+
 my $zeit=&zeit_stempel();
 my $pg_timestamp=&pg_timestamp();
 my $user_nummer=0;
@@ -387,10 +389,10 @@ while(<SOPHOMORIXADD>){
   &add_newuser_to_her_projects($login_name_ok,$new_admin_group);
 
   # 7. tschmitt: create cyrus user with 10mb quota
-  if (-s "/usr/lib/linuxmuster/bin/cyrus-user.pl") {
-      system("/usr/lib/linuxmuster/bin/cyrus-user.pl -u $login_name_ok -c -q 10m");
+  if (-s "$linuxmusterscriptsdir/cyrus-user.pl") {
+      system("$linuxmusterscriptsdir/cyrus-user.pl -u $login_name_ok -c");
   } else {
-      print "WARNING: Could not find /usr/lib/linuxmuster/bin/cyrus-user.pl.\n";
+      print "WARNING: Could not find $linuxmusterscriptsdir/cyrus-user.pl.\n";
       print "NOT creating mail account.\n";
   }
 

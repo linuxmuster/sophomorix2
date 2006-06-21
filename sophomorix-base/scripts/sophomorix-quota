@@ -25,6 +25,9 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     db_connect
                                     db_disconnect
                                    );
+
+my $linuxmusterscriptsdir = "/usr/share/linuxmuster/scripts";
+
 &check_connections();
 
 # Liste der Filesysteme auf denen Quota gesetzt werden
@@ -445,10 +448,10 @@ sub set_mail_quota {
     my ($login,$mailquota) = @_;
     my $cyrus=0;
     print "   Setting MailQuota of $login to $mailquota MB\n";
-    if (-s "/usr/lib/linuxmuster/bin/cyrus-user.pl") {
+    if (-s "$linuxmusterscriptsdir/cyrus-user.pl") {
        # if it is bw musterloesung
        $cyrus=1;
-       system("/usr/lib/linuxmuster/bin/cyrus-user.pl -u $login -q ${mailquota}m");
+       system("$linuxmusterscriptsdir/cyrus-user.pl -u $login -q ${mailquota}m");
 # ????????
 #    } elsif (-s "/usr/lib/linuxmuster/bin/cyrus-user.pl") {
 #       # other systems with cyrus
