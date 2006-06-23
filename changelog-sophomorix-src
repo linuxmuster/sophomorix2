@@ -1298,7 +1298,11 @@ add option --htaccess  to sophomorix-repair that rewrites .htaccess-files
 
 TEST sophomorix-quota and admin/administrator
 
-1.8.0-1  (2006-06-xx)
+1.8.1-1  (2006-06-xx)
+   - use function to determin login_type in sophomorix-quota
+   - moved path to cyrus.pl to DevelConf
+   - added correct path to cyrus.pl (tschmitt)
+   - added administrators to users for which quota is set
    - removed hardcoded stuff for admin from quota:
      new administrators are in postgres/ldap (no extrawork needed) 
    - changed --h output of sophomorix-passwd
