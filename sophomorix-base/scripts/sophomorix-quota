@@ -364,9 +364,13 @@ sub set_quota {
    # was gemacht wurde zusammensetzen
    my $quotastring=join "+", @$q_list;
    # skip updating postgres, when user is admin ?????????
-   if ($user ne "admin"){
+#   if ($user ne "administrator"
+#       or $user ne "pgmadmin"
+#       or $user ne "wwwadmin"
+#       or $user ne "www-data"
+#      ){
       &update_user_db_entry($user,"Quota=$quotastring");
-   }
+#   }
 }
 
 
@@ -464,9 +468,13 @@ sub set_mail_quota {
     }
 
     # update the database
-    if ($login ne "admin"){
+#    if ($login ne "administrator"
+#        or $user ne "pgmadmin"
+#        or $user ne "wwwadmin"
+#        or $user ne "www-data"
+#       ){
        &update_user_db_entry($login,"MailQuota=$mailquota");
-    }
+#    }
 } 
 
 
@@ -555,12 +563,12 @@ sub get_quota{
     my ($login) = @_;
     my @groups = &pg_get_group_list($login);
     my $pri_group=shift(@groups);
-    if (not defined $pri_group){
-       # ????? necessary when admin is in ldap
-       # for admin, ...
-       $pri_group = `id -n -g $login`;
-       chomp($pri_group);
-    }
+#    if (not defined $pri_group){
+#       # ????? necessary when admin is in ldap
+#       # for admin, ...
+#       $pri_group = `id -n -g $login`;
+#       chomp($pri_group);
+#    }
     if($Conf::log_level>=2){
         print "   Primary Group:    $pri_group \n";
         print "   Secondary Groups: @groups \n";
@@ -755,8 +763,8 @@ sub get_db_quota {
     my $sophomorixstatus="";
     my %db_quota=();
     my %db_quota_mail=();
-    $db_quota{"admin"}=0;
-    $db_quota_mail{"admin"}=0;
+#    $db_quota{"admin"}=0;
+#    $db_quota_mail{"admin"}=0;
 
     my $dbh=&db_connect();
 
