@@ -59,7 +59,6 @@ use Quota;
               archive_log_entry
               backup_amk_file
               check_klasse
-              get_link_pfad
               datum_loeschen_schueler
               daten_loeschen_ich_lehrer
               daten_loeschen_lehrer
@@ -2789,7 +2788,7 @@ sub get_raum_buchung_oldstuff {
 # ===========================================================================
 # Diese Fuktion setzt den Pfad zur Konfiguratuionsdatei für den gerade angemeldeten user
 # Falls die Konfigurationsdatei nicht vorhanden ist, wird sie als leere Datei angelegt
-sub get_config_datei_meine_klassen {
+sub get_config_datei_meine_klassen_oldstuff {
      $loginname="$ENV{'REMOTE_USER'}";
      # Falls lehrerlogin übergeben, DESSEN Meine-Klassen suchen
      ($parameter)=@_;
@@ -2832,7 +2831,7 @@ sub get_config_datei_meine_klassen {
 # Diese Fuktion ermittelt den Link-Pfad (NUR WEBMIN)
 # ===========================================================================
 # Falls der Link-Pfad nicht vorhanden ist, wird er angelegt
-sub get_link_pfad {
+sub get_link_pfad_oldstuff {
      my $link_pfad="";
      $loginname="$ENV{'REMOTE_USER'}";
      # Pfad zur Konfigurationsdatei bestimmen
