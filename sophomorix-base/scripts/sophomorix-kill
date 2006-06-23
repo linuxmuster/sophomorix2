@@ -28,8 +28,6 @@ use Sophomorix::SophomorixSYSPgLdap qw(show_sys_modulename
                                        delete_user_from_sys
 				      );
 
-my $linuxmusterscriptsdir = "/usr/share/linuxmuster/scripts";
-
 my $zeit=&zeit_stempel;
 my $user_nummer=0;
 
@@ -203,9 +201,16 @@ while(<KILL>){
       } 
 
       # tschmitt: delete cyrus user
-      if (-s "$linuxmusterscriptsdir/cyrus-user.pl") {
-        system("$linuxmusterscriptsdir/cyrus-user.pl -u $login_name_to_kill -d");
+      if (-s "${DevelConf::linuxmuster_imap}") {
+          my $command="${DevelConf::linuxmuster_imap} -u $login_name_to_kill -d";
+          print "$command\n";
+          system("$command");
+          #system("${DevelConf::linuxmuster_imap} -u $login_name_to_kill -d");
+      } else {
+          print "WARNING: Could not find ${DevelConf::linuxmuster_imap}.\n";
+          print "NOT deleating mail account.\n";
       }
+
 
       # memberships
       &deleteuser_from_all_projects($login_name_to_kill);

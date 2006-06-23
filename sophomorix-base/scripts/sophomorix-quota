@@ -24,9 +24,8 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     pg_get_group_list
                                     db_connect
                                     db_disconnect
+                                    fetchdata_from_account
                                    );
-
-my $linuxmusterscriptsdir = "/usr/share/linuxmuster/scripts";
 
 &check_connections();
 
@@ -201,7 +200,6 @@ if($Conf::log_level>=2){
 }
 
 
-
 my ($ref_db_quota,$ref_db_quota_mail) = &get_db_quota();
 my %db_quota = %$ref_db_quota;
 my %db_quota_mail = %$ref_db_quota_mail;
@@ -364,13 +362,13 @@ sub set_quota {
    # was gemacht wurde zusammensetzen
    my $quotastring=join "+", @$q_list;
    # skip updating postgres, when user is admin ?????????
-#   if ($user ne "administrator"
-#       or $user ne "pgmadmin"
-#       or $user ne "wwwadmin"
-#       or $user ne "www-data"
-#      ){
+   if ($user ne "administrator"
+       or $user ne "pgmadmin"
+       or $user ne "wwwadmin"
+       or $user ne "www-data"
+      ){
       &update_user_db_entry($user,"Quota=$quotastring");
-#   }
+   }
 }
 
 
@@ -387,21 +385,25 @@ sub set_quota_if_needed {
     my $count=0;
     while ( my ($login, $type) = each(%login_type)) {
         if($Conf::log_level>=2){
-            print "$login is type $type \n";
+            print "\n$login is type $type: \n";
         }
-        if ($type eq "domcomp" or $type eq "workstation"){
-            # ????????????????????
-            print "   Not setting quota for $login\n";
-            # not setting quota for machine accounts and workstation accounts
+        if ($type eq "domcomp"){
+            # not setting quota for machine accounts ($)
+            print "   Not setting quota for $login ($type)\n";
 	    next;
         }
         ($new_quota,$mailquota)=&get_quota($login);
-
 
         ##### quota
         if($Conf::log_level>=2){
 	    print "   New Quota: $new_quota \n";
         }
+
+        # set quota to empty if not defined
+	if (not defined $db_quota{$login}){
+	    $db_quota{$login}="";
+	}
+
         if ($new_quota eq $db_quota{$login} and $all==0){
            #do nothing
         } else {
@@ -427,6 +429,12 @@ sub set_quota_if_needed {
         if($Conf::log_level>=2){
 	    print "   New MailQuota: $mailquota \n";
         }
+
+        # set quota to empty if not defined
+	if (not defined $db_quota_mail{$login}){
+	    $db_quota_mail{$login}="";
+	}
+
         if ($mailquota eq $db_quota_mail{$login} and $all==0){
            #do nothing
         } else {
@@ -452,15 +460,21 @@ sub set_mail_quota {
     my ($login,$mailquota) = @_;
     my $cyrus=0;
     print "   Setting MailQuota of $login to $mailquota MB\n";
-    if (-s "$linuxmusterscriptsdir/cyrus-user.pl") {
+    if (-s "${DevelConf::linuxmuster_imap}") {
        # if it is bw musterloesung
        $cyrus=1;
-       system("$linuxmusterscriptsdir/cyrus-user.pl -u $login -q ${mailquota}m");
+       my $command="${DevelConf::linuxmuster_imap} -u $login -q ${mailquota}m";
+       print "$command\n";
+       system("$command");
+       #system("${DevelConf::linuxmuster_imap} -u $login -q ${mailquota}m");
 # ????????
 #    } elsif (-s "/usr/lib/linuxmuster/bin/cyrus-user.pl") {
 #       # other systems with cyrus
 #       $cyrus=1;
 #       system("/usr/lib/linuxmuster/bin/cyrus-user.pl -u $login -q ${mailquota}m");
+    } else {
+      print "WARNING: Could not find ${DevelConf::linuxmuster_imap}.\n";
+      print "NOT creating mail account.\n";
     }
 
     if ($cyrus==0){
@@ -468,13 +482,13 @@ sub set_mail_quota {
     }
 
     # update the database
-#    if ($login ne "administrator"
-#        or $user ne "pgmadmin"
-#        or $user ne "wwwadmin"
-#        or $user ne "www-data"
-#       ){
+    if ($login ne "administrator"
+        or $login ne "pgmadmin"
+        or $login ne "wwwadmin"
+        or $login ne "www-data"
+       ){
        &update_user_db_entry($login,"MailQuota=$mailquota");
-#    }
+    }
 } 
 
 
@@ -515,8 +529,6 @@ sub login_type {
     my $login="";
     my $home="";
 
-    # add admin, because it is not in user_db
-    #$login_type{"admin"}="admin";
     # others
     my $dbh=&db_connect();
     # select the columns that i need
@@ -527,31 +539,22 @@ sub login_type {
     my $array_ref = $sth->fetchall_arrayref();
     foreach my $row (@$array_ref){
        # split the array, to give better names
-       my ($uid,$home)=@$row;
-       if($home=~/^$DevelConf::homedir_pupil/){
-          $login_type{$uid}="student";
-       } elsif($home=~/^$DevelConf::homedir_ws/){
-          $login_type{$uid}="workstation";
-       } elsif($home=~/^$DevelConf::homedir_teacher/){
-          $login_type{$uid}="teacher";
-       } elsif($home=~/dev\/null/){
-          $login_type{$uid}="domcomp";
-       }
+       my ($uid,$home_old)=@$row;
+
+       my ($home,$login_type,$gecos,$group) = &fetchdata_from_account($uid);
+       $login_type{$uid}=$login_type;
+
+#       if($home=~/^$DevelConf::homedir_pupil/){
+#          $login_type{$uid}="student";
+#       } elsif($home=~/^$DevelConf::homedir_ws/){
+#          $login_type{$uid}="workstation";
+#       } elsif($home=~/^$DevelConf::homedir_teacher/){
+#          $login_type{$uid}="teacher";
+#       } elsif($home=~/dev\/null/){
+#          $login_type{$uid}="domcomp";
+#       }
     }
     &db_disconnect($dbh);
-#    setpwent();
-#    while(($login,$a,$a,$a,$a,$a,$a,$home)=getpwent()) {
-#        if($home=~/^$DevelConf::homedir_pupil/){
-#           $login_type{$login}="student";
-#        } elsif($home=~/^$DevelConf::homedir_ws/){
-#           $login_type{$login}="workstation";
-#        } elsif($home=~/^$DevelConf::homedir_teacher/){
-#           $login_type{$login}="teacher";
-#        } elsif($home=~/dev\/null/){
-#           $login_type{$login}="domcomp";
-#        }
-#    }
-#    endpwent();
     return %login_type;
 }
 
