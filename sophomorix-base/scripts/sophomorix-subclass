@@ -39,7 +39,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
 $Conf::log_level=1;
 my $help=0;
 my $info=0;
-my $lch="admin";
+#my $lch="admin";
 my $class="";
 my $noninteractive=0;
 my $split=0;
@@ -69,7 +69,7 @@ my @o_members="";
 my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
            "class|c=s" => \$class,
-           "lastchange|l=s" => \$lch,
+#           "lastchange|l=s" => \$lch,
            "help|h" => \$help,
            "info|i" => \$info,
            "noninteractive|n" => \$noninteractive,
@@ -110,7 +110,6 @@ Options
   -vv / --verbose --verbose
   -i  / --info
   -c class  / --class class
-  -l login / --lastchange login
   -A comment -B comment -C comment -D comment
   -Amemebers user 1,user2, ... -Bmembers -user1.user2, ... ...
   -0memebers user 1,user2
