@@ -123,17 +123,17 @@ sub db_connect {
     # password not needed because of postgres configuration
     # in pg_hba.conf pg_ident.conf
     my $pass_saved="";
-    if($Conf::log_level>=3){
-       print "Connecting to database ...\n";
-    }
+#    if($Conf::log_level>=3){
+#       print "Connecting to database ...\n";
+#    }
     # needs at UNIX sockets:   local all all  trust sameuser
     my $dbh = DBI->connect("dbi:Pg:dbname=$dbname", "$dbuser","$pass_saved",
                { RaiseError => 1, PrintError => 0, AutoCommit => 1 });
     if (defined $dbh){
-       if($Conf::log_level>=3){
-          print "   Connection with password $pass_saved successful!\n";
-          print "   Database $dbname ready for user $dbuser!\n";
-       }
+#       if($Conf::log_level>=3){
+#          print "   Connection with password $pass_saved successful!\n";
+#          print "   Database $dbname ready for user $dbuser!\n";
+#       }
     } else {
        print "   Could not connect to database with password $pass_saved!\n";
     }
@@ -145,9 +145,9 @@ sub db_connect {
 sub db_disconnect {
     my ($dbh) = @_;
     $dbh->disconnect();
-    if($Conf::log_level>=3){
-       print "Disconnecting ...\n";
-    }
+ #   if($Conf::log_level>=3){
+ #      print "Disconnecting ...\n";
+ #   }
 }
 
 
@@ -1044,18 +1044,22 @@ sub fetchdata_from_account {
                                         ");
     &db_disconnect($dbh);
     if (defined $home){
-    if ($group  eq ${DevelConf::teacher}){
-	$type="teacher";
-    } elsif ($group eq "administrators"){
-        $type="administrator";
-    } elsif ($home=~/\/workstations\//){
-        $type="workstation";
-    } else {
-        $type="student";
-    }
+        if ($home=~/^$DevelConf::homedir_pupil\//){
+            $type="student";
+        } elsif ($group  eq ${DevelConf::teacher}){
+	    $type="teacher";
+        } elsif ($home=~/^$DevelConf::homedir_ws\//){
+            $type="workstation";
+        } elsif ($home=~/\/dev\/null/){
+            $type="domcomp";
+        } elsif ($home=~/^$DevelConf::homedir_all_admins\//){
+            $type="administrator";
+        } else {
+            $type="none";
+        }
         return ($home,$type,$gecos,$group);
     } else {
-	return ("","","");
+        return ("","","");
     }
 }
 
