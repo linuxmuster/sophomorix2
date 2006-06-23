@@ -1295,7 +1295,12 @@ logrotate file in /debian/package.logrotate
 
 add option --htaccess  to sophomorix-repair that rewrites .htaccess-files
 
+
+TEST sophomorix-quota and admin/administrator
+
 1.8.0-1  (2006-06-xx)
+   - removed hardcoded stuff for admin from quota:
+     new administrators are in postgres/ldap (no extrawork needed) 
    - changed --h output of sophomorix-passwd
    - added function to set some files to root.root 0600
       - use it for configfiles with password in sophomorix-setup-pgldap
