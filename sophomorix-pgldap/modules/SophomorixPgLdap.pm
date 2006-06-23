@@ -3084,7 +3084,7 @@ sub create_project {
     }
 
     foreach my $memb (@new_admins){
-	$users_to_add{ $memb }="admin";
+	$users_to_add{ $memb }="projectadmin";
     }
 
     if($Conf::log_level>=2){
