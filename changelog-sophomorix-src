@@ -1050,10 +1050,6 @@ Bug: when sophomorix-quota -l galli
 - tritt nicht mehr auf
 
 
-create_userlist in SophomorixAPI.pm checken
-functions in sophomorixAPI.pm that must be updated
-   get_ml_users (is working, but use SQL to speed up ) 
-
 
 
 BUG: skip empty lines in config files (review that)
@@ -1296,9 +1292,21 @@ logrotate file in /debian/package.logrotate
 add option --htaccess  to sophomorix-repair that rewrites .htaccess-files
 
 
-TEST sophomorix-quota and admin/administrator
+sophomorix-quota (without option doesn't work)
+check options
+    --all (is this really nececary)
+    without option
+    --set (force setting quota)
+
+
+sophomorix-add : call "sophomorix-quota --students --teachers" 
+     to skip other users (Workstation) and gain speed
+
 
 1.8.1-1  (2006-06-xx)
+   - sophomorix-quota: option --teachers works
+   - BUGFIX: create_userlist in SophomorixAPI.pm 
+   - get_ml_users --> fetchusers_sophomorix
    - use function to determin login_type in sophomorix-quota
    - moved path to cyrus.pl to DevelConf
    - added correct path to cyrus.pl (tschmitt)
