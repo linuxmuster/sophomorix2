@@ -52,6 +52,7 @@ require Exporter;
              fetchrooms_from_school
              fetchworkstations_from_school
              fetchworkstations_from_room
+             fetchusers_sophomorix
              set_sophomorix_passwd
              user_deaktivieren
              user_reaktivieren
@@ -98,6 +99,9 @@ use Crypt::SmbHash;
 use Sophomorix::SophomorixSYSPgLdap qw( add_class_to_sys
                                         get_user_auth_data
                                       );
+use Sophomorix::SophomorixAPI qw( 
+                                  fetchstudents_from_school
+                                );
 
 
 =head1 Documentation of SophomorixPgLdap.pm
@@ -2065,6 +2069,20 @@ sub fetchworkstations_from_room {
     &db_disconnect($dbh);
     return @rooms;
 }
+
+sub fetchusers_sophomorix {
+    # fetch students,teachers and workstation users in a hash
+    my @ws = &fetchworkstations_from_school();
+    my @teachers=&fetchstudents_from_adminclass(${DevelConf::teacher});
+    my @students=&Sophomorix::SophomorixAPI::fetchstudents_from_school();
+    my @users=(@teachers,@students,@ws);
+
+    foreach my $user (@users){
+        $users{$user}="user";
+    }
+    return %users;
+}
+
 
 
 

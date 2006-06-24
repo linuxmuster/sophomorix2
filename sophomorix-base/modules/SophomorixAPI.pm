@@ -28,7 +28,7 @@ use Sophomorix::SophomorixBase qw (
 @EXPORT = qw( 
              fetchstudents_from_school
              create_userlist
-             get_ml_users
+             get_ml_users_oldstuff
              add_my_adminclass
              remove_my_adminclass
             );
@@ -416,7 +416,6 @@ sub create_userlist {
         my @users=();
         my (@roomlist)=split(/,/,$rooms);
         foreach my $room (@roomlist){
-#           @users=&get_workstations_room($room);
            @users=&fetchworkstations_from_room($room);
            push @userlist, @users;
         }
@@ -424,17 +423,14 @@ sub create_userlist {
 
       if ($ws==1) {
         my @users=();
-#        @users=&get_workstations_school();
         @users=&fetchworkstations_from_school();
         push @userlist, @users;
       }
 
-
       # create userlist
       if ($check==1 and not $#userlist+1==0){
-       %logins=&get_ml_users();
+         %logins=&fetchusers_sophomorix();
       }
-
 
       # remove doules/check
       foreach my $item (@userlist) {
@@ -466,24 +462,12 @@ sub create_userlist {
 
 
 
-
-=pod
-
-=item ??? I<%hash = get_ml_users()>
-
-Returns an hash with ALL ml login names. This includes:
-  - pupil, teachers (sophomorix database)
-  - workstations
-
-The value is one of teacher, student or workstation
-
-=cut
-
-sub get_ml_users {
+sub get_ml_users_oldstuff {
     my @pwliste=();
     my %ml_hash=();
     setpwent();
     while (@pwliste=getpwent()) {
+
     #print"$pwliste[7]\n";  # Das 8. Element ist das Home-Verzeichnis
        if ($pwliste[7]=~/^$DevelConf::homedir_pupil/) {
 	   $ml_hash{$pwliste[0]}="student";
