@@ -252,26 +252,19 @@ if($Conf::log_level>=2){
 
 
 
-    # create the list of users from options
-    my @userlist=();
-    &titel("Creating a userlist from options ...");
-    print "Loginname:    $loginname \n",
-          "Classes:      $classes   \n",
-          "Students:     $student  \n",
-          "Rooms:        $rooms  \n",
-          "Workstations: $ws  \n";
+# create the list of users from options
+my @userlist=();
+&titel("Creating a userlist from options ...");
+if ($force==1){
+    @userlist=&create_userlist($loginname,$classes,$student,$rooms,$ws,0);
+} else {
+    # check the users
+    @userlist=&create_userlist($loginname,$classes,$student,$rooms,$ws,1);
+}
 
-    if ($force==1){
-        @userlist=&create_userlist($loginname,$classes,$student,$rooms,$ws,0);
-    } else {
-        # check the users
-        @userlist=&create_userlist($loginname,$classes,$student,$rooms,$ws,1);
-    }
-
-    if ($#userlist+1==0 and $sum==0){
-         print "INFO: No valid users given\n";
-         $help=1;
-    }
+if ($#userlist+1==0 and $sum==0){
+    print "INFO: No valid users given\n\n";
+}
 
 
 
