@@ -250,7 +250,14 @@ if($Conf::log_level>=2){
 }
 
 
-
+# add teachers to classes if option is given
+if ($teacher==1){
+    if ($classes eq ""){
+        $classes=${DevelConf::teacher};
+    } else {
+        $classes=$classes.",".${DevelConf::teacher};
+    }
+}
 
 # create the list of users from options
 my @userlist=();
