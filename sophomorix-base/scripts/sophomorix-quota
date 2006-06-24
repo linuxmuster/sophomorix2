@@ -52,23 +52,25 @@ my $noninteractive=0;
 my $info=0;
 my $loginname="";
 my $classes="";
-my $pupil=0;
+my $student=0;
+my $teacher=0;
 my $rooms="";
 my $ws=0;
 my $force=0;
 my $sum=0;
 my $system=0;
-my $all=0;
+my $set=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
-           "login|user|u|l=s" => \$loginname,
-           "class|klasse|c|k=s" => \$classes,
-           "pupil|pupils" => \$pupil,
-           "room|=s" => \$rooms,
+           "users=s" => \$loginname,
+           "class|classes|c=s" => \$classes,
+           "student|students" => \$student,
+           "teacher|teachers" => \$teacher,
+           "room|rooms=s" => \$rooms,
            "workstations|workstation|ws" => \$ws,
            "force" => \$force,
-           "all|allusers" => \$all,
+           "set" => \$set,
            "test|t" => \$DevelConf::testen,
            "sum" => \$sum,
            "verbose|v+" => \$Conf::log_level,
@@ -114,7 +116,8 @@ Options
   --sum
   -l  login1, ... / --login login1, .../ -u login1, ... / --user login1, ...
   -c class / --class class 
-  --pupils
+  --students
+  --teachers
   -r room / --room room
   --workstations
   -s  / --system (untested, on your own risk!)
@@ -160,7 +163,7 @@ if ($info==1) {
        print "The order of the $quota_fs_num filesystems "; 
        print "is important!\n\n";
    }
-   print "I.e.: To set the Standard-Quota for all pupils on your host,\n";
+   print "I.e.: To set the Standard-Quota for all students on your host,\n";
    print "you must have a line like this in ${DevelConf::config_pfad}/quota.txt:\n\n";
    print "   standard-schueler:";
    
@@ -236,6 +239,7 @@ if($Conf::log_level>=2){
     &print_hash(\%class_quota_mail,"","Adminclass:","MailQuota:");
 }
 
+
 my ($ref_projects_add_quota,$ref_projects_add_quota_mail) 
     = &get_projects_add_quota();
 my %projects_add_quota = %$ref_projects_add_quota;
@@ -246,23 +250,34 @@ if($Conf::log_level>=2){
 }
 
 
-&titel("Searching for users with changed quota/mailquota...");
 
 
-if ($loginname ne "" or $classes ne "" or $pupil!=0 or $rooms ne "" or $ws!=0){
-    # create the list of users
+    # create the list of users from options
     my @userlist=();
     &titel("Creating a userlist from options ...");
+    print "Loginname:    $loginname \n",
+          "Classes:      $classes   \n",
+          "Students:     $student  \n",
+          "Rooms:        $rooms  \n",
+          "Workstations: $ws  \n";
+
     if ($force==1){
-        @userlist=&create_userlist($loginname,$classes,$pupil,$rooms,$ws,0);
+        @userlist=&create_userlist($loginname,$classes,$student,$rooms,$ws,0);
     } else {
         # check the users
-        @userlist=&create_userlist($loginname,$classes,$pupil,$rooms,$ws,1);
+        @userlist=&create_userlist($loginname,$classes,$student,$rooms,$ws,1);
     }
+
     if ($#userlist+1==0 and $sum==0){
          print "INFO: No valid users given\n";
          $help=1;
     }
+
+
+
+&titel("Searching for users with changed quota/mailquota...");
+#if ($loginname ne "" or $classes ne "" or $student!=0 or $rooms ne "" or $ws!=0){
+if ($set==1){
     &titel("Setting Quota for users in the userlist ...");
     # setting quota for every user
     foreach my $user (@userlist){
@@ -281,9 +296,10 @@ if ($loginname ne "" or $classes ne "" or $pupil!=0 or $rooms ne "" or $ws!=0){
         # check the new quotastring ???? must be integer
 	&set_mail_quota($user,$mailquota);
     }
+
 } else {
-   # ohne optionen
-   &set_quota_if_needed($all);
+   &titel("Setting changed Quota for users in the userlist ...");
+   &set_quota_if_needed(@userlist);
 }
 
 
@@ -379,11 +395,18 @@ sub set_quota {
 # check for which users quota must be updated in the database. 
 # if yes: call set_quota for each user
 sub set_quota_if_needed {
-    my ($all) = @_; 
+#    my  = @_; 
     my $new_quota="";
     my $mailquota;
     my $count=0;
-    while ( my ($login, $type) = each(%login_type)) {
+
+    foreach my $login (@userlist){
+        my $type=$login_type{$login};
+        print "   * $login ($type)\n";
+
+#    }
+
+#    while ( my ($login, $type) = each(%login_type)) {
         if($Conf::log_level>=2){
             print "\n$login is type $type: \n";
         }
@@ -404,7 +427,7 @@ sub set_quota_if_needed {
 	    $db_quota{$login}="";
 	}
 
-        if ($new_quota eq $db_quota{$login} and $all==0){
+        if ($new_quota eq $db_quota{$login}){
            #do nothing
         } else {
            $count++;
@@ -435,7 +458,7 @@ sub set_quota_if_needed {
 	    $db_quota_mail{$login}="";
 	}
 
-        if ($mailquota eq $db_quota_mail{$login} and $all==0){
+        if ($mailquota eq $db_quota_mail{$login}){
            #do nothing
         } else {
 	   if ($login ne $last_user){
@@ -474,7 +497,7 @@ sub set_mail_quota {
 #       system("/usr/lib/linuxmuster/bin/cyrus-user.pl -u $login -q ${mailquota}m");
     } else {
       print "WARNING: Could not find ${DevelConf::linuxmuster_imap}.\n";
-      print "NOT creating mail account.\n";
+      print "NOT updating mail quota.\n";
     }
 
     if ($cyrus==0){
@@ -522,7 +545,7 @@ sub get_teacher_quota {
 
 
 
-# hash: login -> type(pupil,teacher,workstation)
+# hash: login -> type(student,teacher,workstation)
 sub login_type {
     my %login_type=();
     my %login_type_new=();
