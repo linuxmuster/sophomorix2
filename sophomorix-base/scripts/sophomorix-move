@@ -385,7 +385,7 @@ if ($DevelConf::testen==0) {
 
 # Setting Quota
 if ($Conf::use_quota eq "yes" and $user_nummer>0) {
-    system("sophomorix-quota --noninteractive");
+    system("sophomorix-quota --students --teachers --noninteractive");
 } else {
     if ($user_nummer==0){ 
         &titel("NOT setting quota (0 users moved)");

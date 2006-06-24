@@ -445,7 +445,7 @@ if ($Conf::use_quota eq "yes"
          or $kill==1
         ) 
     ) {
-    system("sophomorix-quota --noninteractive");
+    system("sophomorix-quota --students --teachers --noninteractive");
 } else {
     &titel("NOT setting quota (nothing quota related changed)");
 }

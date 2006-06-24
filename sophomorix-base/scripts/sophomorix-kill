@@ -316,7 +316,7 @@ if ($DevelConf::testen==0) {
 # Should not be necessary,
 # but who knows how to remove user from aquota.usr
 #if ($Conf::use_quota eq "yes" and $user_nummer>0) {
-#    system("sophomorix-quota --noninteractive");
+#    system("sophomorix-quota --students --teachers --noninteractive");
 #} else {
 #    if ($user_nummer==0){ 
 #        &titel("NOT setting quota (0 users removed)");
