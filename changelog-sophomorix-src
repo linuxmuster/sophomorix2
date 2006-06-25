@@ -1291,19 +1291,15 @@ logrotate file in /debian/package.logrotate
 
 add option --htaccess  to sophomorix-repair that rewrites .htaccess-files
 
-
-sophomorix-quota (without option doesn't work)
-check options
-    --all (is this really nececary)
-    without option
-    --set (force setting quota)
-
-
-sophomorix-add : call "sophomorix-quota --students --teachers" 
-     to skip other users (Workstation) and gain speed
+can sophomorix-class set quota AND writes them to the system???
+if yes: update man page
 
 
 1.8.1-1  (2006-06-xx)
+   - setting mailquota in the database works (cannot check with cyrus)
+   - sophomorix-quota: withaut options use all users 
+   - sophomorix-add, ... : call "sophomorix-quota --students --teachers" 
+     to skip other users (Workstation) and gain speed
    - sophomorix-quota: option --teachers works
    - BUGFIX: create_userlist in SophomorixAPI.pm 
    - get_ml_users --> fetchusers_sophomorix
