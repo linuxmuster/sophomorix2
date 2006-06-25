@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-QUOTA 8 "November 29, 2004"
+.TH SOPHOMORIX-QUOTA 8 "June 25, 2006"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -170,7 +170,7 @@ Listet Dateisysteme auf, die aktuell mit der Option usrquota gemountet
 sind. Auf diesen Dateisystemen kann sophomorix-quota die Quota
 verändern.
 .TP
-.B -t, --test
+.B --test
 sophomorix-quota läuft möglichst normal ab, ohne Quota tatsächlich zu
 verändern. Es kann zu unsinnigen Fehlermeldungen kommen, da einige
 Schritte beim setzten von Quota auf anderen aufbauen.
@@ -189,7 +189,7 @@ prüft nicht, ob die übergebenen loginnamen sinnvoll sind.
 .B --sum
 zeigt am Ende die Gesamtsumme der vergebenen Quota an.(Todo)
 .TP
-.B -s, --system
+.B --system
 sophomorix-quota benutzt anstelle des Perl-Moduls Quota::
 den Systembefehl des Betriebssystems Linux, Kernel 2.4.x (2.6.x ????):
 
@@ -202,22 +202,22 @@ und vom Betriebsystem bzw. Kernel-Version abhängig ist.
 .TP
 Die Auswahl erfolgt anhäufend. Das bedeutet, dass durch Angabe mehrerer Optionen eine Userliste erzeugt wird, in der kein User doppelt vorkommt, aber jeder enthalten ist.
 .TP
-.B --users name1,name2,... 
-setzt Quota der  User name1,name2, ... . Der user kann auch eine Workstation sein.
+.B -u user1,user2,... / --users user1,user2,... 
+setzt Quota der  User user1,user2, ... . Der user kann auch eine Workstation oder Administrator sein.
 .TP
-.B -c class1,class2, ... , --class class1,class2, ...
+.B -c class1,class2,... / --class class1,class2,...
 setzt Quota für jeden User in der Klasse class. Class kann auch die Gruppe der Lehrer sein (lehrer im Moment).
 .TP
-.B --students 
-setzt Quota für alle Schüler der Schule.
-.TP
-.B --teachers 
-setzt Quota für alle Lehrer der Schule.
-.TP
-.B -r raum1,raum2, ... , --room raum1,raum2,...
+.B -r raum1,raum2,... / --room raum1,raum2,...
 setzt Quota für jede Workstation im raum raum1,raum2 ...
 .TP
-.B  --workstations 
+.B -s / --students 
+setzt Quota für alle Schüler der Schule.
+.TP
+.B -t / --teachers 
+setzt Quota für alle Lehrer der Schule.
+.TP
+.B  -w / --workstations 
 setzt Quota für alle Workstations der Schule.
 .TP
 .SH SEE ALSO
