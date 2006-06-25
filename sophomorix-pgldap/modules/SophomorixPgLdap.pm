@@ -52,6 +52,7 @@ require Exporter;
              fetchrooms_from_school
              fetchworkstations_from_school
              fetchworkstations_from_room
+             fetchadministrators_from_school
              fetchusers_sophomorix
              set_sophomorix_passwd
              user_deaktivieren
@@ -1887,6 +1888,7 @@ sub pg_get_group_type {
             return ("project",$gid);
         }
     }
+    &db_disconnect($dbh);
 }
 
 
@@ -2070,20 +2072,44 @@ sub fetchworkstations_from_room {
     return @rooms;
 }
 
+
+
+sub fetchadministrators_from_school {
+    # fetch administrators with /home/administrators
+    my @admins = ();
+    my $dbh=&db_connect();
+    my $sth= $dbh->prepare( "
+                   SELECT uid
+                   FROM userdata 
+                   WHERE homedirectory LIKE '${DevelConf::homedir_all_admins}/%'
+                   ORDER BY uid");
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    my $i=0;
+    foreach ( @{ $array_ref } ) {
+        my $gid=${$array_ref}[$i][0];
+        push @admins, $gid;
+        $i++;
+    }   
+    &db_disconnect($dbh);
+    return @admins;
+}
+
+
+
 sub fetchusers_sophomorix {
     # fetch students,teachers and workstation users in a hash
     my @ws = &fetchworkstations_from_school();
     my @teachers=&fetchstudents_from_adminclass(${DevelConf::teacher});
     my @students=&Sophomorix::SophomorixAPI::fetchstudents_from_school();
-    my @users=(@teachers,@students,@ws);
+    my @administrators=&fetchadministrators_from_school();
+    my @users=(@teachers,@students,@ws,@administrators);
 
     foreach my $user (@users){
         $users{$user}="user";
     }
     return %users;
 }
-
-
 
 
 

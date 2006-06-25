@@ -122,11 +122,11 @@ Please see the sophomorix-passwd(8) man pages for full documentation
 
 # create the list of users
 if ($force==1){
-   @users=&create_userlist($loginname,$classes,$pupil,$rooms,$ws,0);
+   @users=&create_userlist($loginname,$classes,$pupil,$rooms,$ws,0,0);
 } else {
    # check the users
    &titel("Checking login names ...");
-   @users=&create_userlist($loginname,$classes,$pupil,$rooms,$ws,1);
+   @users=&create_userlist($loginname,$classes,$pupil,$rooms,$ws,0,1);
 }
 
 ################################################################################

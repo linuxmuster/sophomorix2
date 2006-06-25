@@ -54,6 +54,7 @@ my $loginname="";
 my $classes="";
 my $student=0;
 my $teacher=0;
+my $administrator=0;
 my $rooms="";
 my $ws=0;
 my $force=0;
@@ -67,6 +68,7 @@ my $testopt=GetOptions(
            "class|classes|c=s" => \$classes,
            "student|students" => \$student,
            "teacher|teachers" => \$teacher,
+           "administrator|administrators" => \$administrator,
            "room|rooms=s" => \$rooms,
            "workstations|workstation|ws" => \$ws,
            "force" => \$force,
@@ -82,6 +84,15 @@ my $testopt=GetOptions(
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
+
+
+my $check;
+if ($force==1){
+    $check=0;
+} else {
+    $check=1;
+}
+
 
 
 # check if I have to ...
@@ -113,13 +124,15 @@ Options
   -vv / --verbose --verbose
   -i  / --info
   -t  / --test
-  --sum
-  -l  login1, ... / --login login1, .../ -u login1, ... / --user login1, ...
-  -c class / --class class 
+  -- force (not checking loginnames)
+  --set (set the quota even if it remains the same)
+  --sum (Todo)
   --students
   --teachers
-  -r room / --room room
   --workstations
+  --users login1, ...
+  -c class / --class class 
+  -r room / --room room
   -s  / --system (untested, on your own risk!)
 
 Please see the sophomorix-quota(8) man page for full documentation
@@ -250,6 +263,7 @@ if($Conf::log_level>=2){
 }
 
 
+
 # add teachers to classes if option is given
 if ($teacher==1){
     if ($classes eq ""){
@@ -259,15 +273,36 @@ if ($teacher==1){
     }
 }
 
+
+# if no option is given, use all users
+if ($teacher==1){
+    if ($classes eq ""){
+        $classes=${DevelConf::teacher};
+    } else {
+        $classes=$classes.",".${DevelConf::teacher};
+    }
+}
+
+
+
+
 # create the list of users from options
 my @userlist=();
 &titel("Creating a userlist from options ...");
-if ($force==1){
-    @userlist=&create_userlist($loginname,$classes,$student,$rooms,$ws,0);
+if ($loginname eq ""
+      and $classes eq ""
+      and $student==0
+      and $rooms eq ""
+      and $ws==0
+      and $administrator==0){
+    @userlist=&create_userlist("","${DevelConf::teacher}",1,"",1,1,$check);
 } else {
     # check the users
-    @userlist=&create_userlist($loginname,$classes,$student,$rooms,$ws,1);
+    @userlist=&create_userlist($loginname,$classes,$student,
+                               $rooms,$ws,$administrator,$check);
 }
+
+
 
 if ($#userlist+1==0 and $sum==0){
     print "INFO: No valid users given\n\n";
@@ -276,7 +311,6 @@ if ($#userlist+1==0 and $sum==0){
 
 
 &titel("Searching for users with changed quota/mailquota...");
-#if ($loginname ne "" or $classes ne "" or $student!=0 or $rooms ne "" or $ws!=0){
 if ($set==1){
     &titel("Setting Quota for users in the userlist ...");
     # setting quota for every user
@@ -299,7 +333,7 @@ if ($set==1){
 
 } else {
    &titel("Setting changed Quota for users in the userlist ...");
-   &set_quota_if_needed(@userlist);
+   &set_quota_if_needed();
 }
 
 
@@ -395,7 +429,6 @@ sub set_quota {
 # check for which users quota must be updated in the database. 
 # if yes: call set_quota for each user
 sub set_quota_if_needed {
-#    my  = @_; 
     my $new_quota="";
     my $mailquota;
     my $count=0;
@@ -403,10 +436,6 @@ sub set_quota_if_needed {
     foreach my $login (@userlist){
         my $type=$login_type{$login};
         print "   * $login ($type)\n";
-
-#    }
-
-#    while ( my ($login, $type) = each(%login_type)) {
         if($Conf::log_level>=2){
             print "\n$login is type $type: \n";
         }
@@ -566,16 +595,6 @@ sub login_type {
 
        my ($home,$login_type,$gecos,$group) = &fetchdata_from_account($uid);
        $login_type{$uid}=$login_type;
-
-#       if($home=~/^$DevelConf::homedir_pupil/){
-#          $login_type{$uid}="student";
-#       } elsif($home=~/^$DevelConf::homedir_ws/){
-#          $login_type{$uid}="workstation";
-#       } elsif($home=~/^$DevelConf::homedir_teacher/){
-#          $login_type{$uid}="teacher";
-#       } elsif($home=~/dev\/null/){
-#          $login_type{$uid}="domcomp";
-#       }
     }
     &db_disconnect($dbh);
     return %login_type;

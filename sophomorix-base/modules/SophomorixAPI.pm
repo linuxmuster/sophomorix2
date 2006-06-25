@@ -354,24 +354,26 @@ sub get_workstations_school_oldstuff {
 
 =pod
 
-=item ??? May not work: I<@list = create_userlist(logins,classes,students,rooms,workstations,check)>
+=I<@list = create_userlist(logins,classes,students,rooms,workstations,administrators,check)>
 
 Creates a ascibetical list of users, that are specified with the
 parameters. The parameters are:
 
-logins:       comma seperated list of logins
+logins:        comma seperated list of logins
 
-classes:      comma seperated list of AdminClasses, (can also be teachers)
+classes:       comma seperated list of AdminClasses, (can also be teachers)
 
-students:     add the list of all students (1), or not (0)
+students:      add the list of all students (1), or not (0)
 
-rooms:        comma seperated list of rooms
+rooms:         comma seperated list of rooms
 
-workstations: add the list of all workstations (1), or not (0)
+workstations:  add the list of all workstations (1), or not (0)
 
-check:        check (1) every loginname if it is a valid student,teacher 
+administrators: add the list of all administrators (1), or not (0)
 
-              or workstation or not (0)
+check:         check (1) every loginname if it is a valid student,teacher 
+
+               or workstation or not (0)
 
 Option check makes this function very slow!
 
@@ -383,12 +385,13 @@ sub create_userlist {
     my @userlist=();
     my %logins=();
     my @unique_userlist=();
-    my ($login, $classes, $pupil, $rooms, $ws,$check) = @_;
+    my ($login,$classes,$student,$rooms,$ws,$administrators,$check) = @_;
     if (not defined $login){$login=""}   
     if (not defined $classes){$classes=""}   
-    if (not defined $pupil){$pupil=0}   
+    if (not defined $student){$student=0}   
     if (not defined $rooms){$rooms=""}   
     if (not defined $ws){$ws=0}   
+    if (not defined $administrators){$administrators=0}   
     if (not defined $check){$check=0}   
 
     # loginnames
@@ -406,7 +409,7 @@ sub create_userlist {
        }
      }
 
-     if ($pupil==1) {
+     if ($student==1) {
         my @users=();
         @users=&fetchstudents_from_school();
         push @userlist, @users;
@@ -424,6 +427,12 @@ sub create_userlist {
       if ($ws==1) {
         my @users=();
         @users=&fetchworkstations_from_school();
+        push @userlist, @users;
+      }
+
+      if ($administrators==1) {
+        my @users=();
+        @users=&fetchadministrators_from_school();
         push @userlist, @users;
       }
 
