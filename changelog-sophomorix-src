@@ -1250,18 +1250,8 @@ userliste in allen sophomorix-*:    -u --users user1,user2,...  Liste akzeptiere
   - sophomorix-kill
   - sophomorix-add
   - sophomorix-move
-  - sophomorix-quota
   - sophomorix-repair
   - sophomorix-kill
-
-
-in /var/www/people
-                  students
-                  teachers
-                  projects
-                  classes
-
-ordner: root.root 0755
 
 ordner wo apache was reinladen lässt  www-data.www-data 0755
 
@@ -1283,11 +1273,9 @@ Tester eintragen
 
 subclassen als projekte hinzufügen? Tut das?
 
-
+LOGGING:
 think about logging all sophomorix-commands to /var/log/sophomorix with date
-
 logrotate file in /debian/package.logrotate
-
 
 add option --htaccess  to sophomorix-repair that rewrites .htaccess-files
 
@@ -1295,7 +1283,9 @@ can sophomorix-class set quota AND writes them to the system???
 if yes: update man page
 
 
-1.8.1-1  (2006-06-xx)
+1.8.1-1  (2006-06-25)
+   - updated all scripts to common options 
+     (i.e. users instead of loginname, ...)
    - setting mailquota in the database works (cannot check with cyrus)
    - sophomorix-quota: withaut options use all users 
    - sophomorix-add, ... : call "sophomorix-quota --students --teachers" 
