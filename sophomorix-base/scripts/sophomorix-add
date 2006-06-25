@@ -79,8 +79,8 @@ my $password="";
 # Parsen der Optionen
 my $testopt=GetOptions(
            "test|t" => \$DevelConf::testen,
-           "login|user|u|l=s" => \$loginname,
-           "group|class|klasse|g|c|k=s" => \$gruppe,
+           "users|user|u=s" => \$loginname,
+           "class|classes|c=s" => \$gruppe,
            "verbose|v+" => \$Conf::log_level,
            "system|s" => \$DevelConf::system,
            "password" => \$password,
@@ -106,9 +106,9 @@ Options
   -v  / --verbose
   -vv / --verbose --verbose
   -i  / --info
-  -l  loginname /   --loginame loginname / -u loginname --user loginname
-  -g class / --group class / -c class / --class class / -k class / --klasse class
-  -t  / --test
+  --u user / --users user
+  -c class / --class class
+  --test
 
 Please see the sophomorix-add(8) man pages for full documentation
 ');

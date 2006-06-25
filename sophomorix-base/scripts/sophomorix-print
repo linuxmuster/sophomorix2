@@ -137,10 +137,10 @@ my $gruppe="";
 my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
            "show|s" => \$show,
-           "all|alle|a" => \$alle,
+           "all|a" => \$alle,
            "class|c=s" => \$gruppe,
            "help|h" => \$help,
-           "lehrer|teacher|l|t" => \$lehrer,
+           "teacher|t" => \$lehrer,
            "caller|postfix=s" => \$caller,
            "info|i" => \$info
           );
@@ -171,7 +171,7 @@ Options
   -v  / --verbose
   -vv / --verbose --verbose
   -a  / --all / --alle
-  -l  / -t / --lehrer / --teacher
+  -t / --teacher
   -c class / --class class
   -s  / --show
   --caller

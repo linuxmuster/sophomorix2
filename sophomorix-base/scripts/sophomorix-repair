@@ -46,10 +46,8 @@ my $testopt=GetOptions(
            "info|i" => \$info,
            "verbose|v+" => \$Conf::log_level,
            "permissions|p" => \$dateirechte,
-#           "schueler" => \$schueler,
-#           "lehrer" => \$lehrer,
            "command-number=n" => \$command_number,
-           "login|l=s" => \$login,
+           "user|u=s" => \$login,
            "file|f=s" => \$filename
           );
 
@@ -88,9 +86,9 @@ Limit the repair to a command-number (show the numbers with -i):
   --command-number number
 
 Limit the repair to some users:
-  --login user (Todo)
-  --schueler (Todo)
-  --lehrer (Todo)
+  -u user / --user user (Todo)
+  --students (Todo)
+  --teachers (Todo)
 
 Please see the sophomorix-repair(8) man pages for full documentation
 ');

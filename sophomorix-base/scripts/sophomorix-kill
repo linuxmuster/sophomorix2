@@ -55,8 +55,8 @@ my $loginname="";
 
 # Parsen der Optionen
 my $testopt=GetOptions(
-           "test|t" => \$DevelConf::testen,
-           "login|loginname|user|u|l=s" => \$loginname,
+           "test" => \$DevelConf::testen,
+           "user|u=s" => \$loginname,
            "verbose|v+" => \$Conf::log_level,
            "info|i" => \$info,
            "help|h" => \$help
@@ -80,8 +80,8 @@ Options
   -v  / --verbose
   -vv / --verbose --verbose
   -i  / --info
-  -l  loginname /   --loginame loginname 
-  -t  / --test
+  -u  user / --user user
+  --test
 
 Please see the sophomorix-kill(8) man pages for full documentation
 ');

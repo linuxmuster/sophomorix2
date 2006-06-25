@@ -68,11 +68,11 @@ my $loginname="";
 
 # Parsen der Optionen
 my $testopt=GetOptions(
-           "test|t" => \$DevelConf::testen,
+           "test" => \$DevelConf::testen,
            "verbose|v+" => \$Conf::log_level,
-           "login|user|u|l=s" => \$loginname,
-           "oldclass|altklasse|a|o=s" => \$alt_gruppe,
-           "newclass|neuklasse|n=s" => \$neu_gruppe,
+           "user|u=s" => \$loginname,
+           "oldclass|o=s" => \$alt_gruppe,
+           "newclass|n=s" => \$neu_gruppe,
            "info|i" => \$info,           
            "help|h" => \$help
           );
