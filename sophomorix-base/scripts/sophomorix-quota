@@ -486,7 +486,6 @@ sub set_quota_if_needed {
 	if (not defined $db_quota_mail{$login}){
 	    $db_quota_mail{$login}="";
 	}
-
         if ($mailquota eq $db_quota_mail{$login}){
            #do nothing
         } else {
@@ -608,17 +607,10 @@ sub get_quota{
     my ($login) = @_;
     my @groups = &pg_get_group_list($login);
     my $pri_group=shift(@groups);
-#    if (not defined $pri_group){
-#       # ????? necessary when admin is in ldap
-#       # for admin, ...
-#       $pri_group = `id -n -g $login`;
-#       chomp($pri_group);
-#    }
     if($Conf::log_level>=2){
         print "   Primary Group:    $pri_group \n";
         print "   Secondary Groups: @groups \n";
     }
-
 
     ##### quota
     my $quotastring="";
