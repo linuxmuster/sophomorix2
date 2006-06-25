@@ -42,10 +42,12 @@ Folgende Dateien/Befehle dienen zur Konfiguration von Quotaangaben:
 Datei:  /etc/sophomorix/user/sophomorix.conf
 .TP
 .B 2. Standard-Quotawerte für Lehrer, Schüler, Workstation
-Datei:  /etc/sophomorix/user/quota.txt
+Dateien:  /etc/sophomorix/user/quota.txt
+          /etc/sophomorix/user/mailquota.txt
 .TP
 .B 3. Quota einzelner user AUSSER lehrer, z. B. admin
-Datei:  /etc/sophomorix/user/quota.txt
+Dateien:  /etc/sophomorix/user/quota.txt
+          /etc/sophomorix/user/mailquota.txt
 .TP
 .B 4. Quota einzelner lehrer
 Datei:  /etc/sophomorix/user/lehrer.txt
@@ -114,7 +116,7 @@ Filesysteme(Windows-Begriff: Partitionen) übereinstimmt (siehe Syntax
 der Quotaangaben).
 .TP
 7. Rufen Sie folgenden Befehl auf, um Quota für alle user zu setzen:
-   sophomorix-quota --all
+   sophomorix-quota --set
 .PP
 .B Kernel 2.6.x:
 .TP
@@ -146,7 +148,7 @@ Filesysteme(Windows-Begriff: Partitionen) übereinstimmt (siehe Syntax
 der Quotaangaben).
 .TP
 7. Rufen Sie folgenden Befehl auf, um Quota für alle user zu setzen:
-   sophomorix-quota --all
+   sophomorix-quota --set
 .PP
 .PP
 .SH OPTIONS
@@ -173,7 +175,7 @@ sophomorix-quota läuft möglichst normal ab, ohne Quota tatsächlich zu
 verändern. Es kann zu unsinnigen Fehlermeldungen kommen, da einige
 Schritte beim setzten von Quota auf anderen aufbauen.
 .TP
-.B --all
+.B --set
 prüft nicht, ob sich das Quota verändert hat, sondern setzt es auf
 jeden Fall.
 .br
@@ -200,23 +202,23 @@ und vom Betriebsystem bzw. Kernel-Version abhängig ist.
 .TP
 Die Auswahl erfolgt anhäufend. Das bedeutet, dass durch Angabe mehrerer Optionen eine Userliste erzeugt wird, in der kein User doppelt vorkommt, aber jeder enthalten ist.
 .TP
-.B -l name1,name2, ... , --login name1, ... -u name1, ... , --user name1, ... 
+.B --users name1,name2,... 
 setzt Quota der  User name1,name2, ... . Der user kann auch eine Workstation sein.
 .TP
 .B -c class1,class2, ... , --class class1,class2, ...
 setzt Quota für jeden User in der Klasse class. Class kann auch die Gruppe der Lehrer sein (lehrer im Moment).
 .TP
-.B --pupils 
+.B --students 
 setzt Quota für alle Schüler der Schule.
+.TP
+.B --teachers 
+setzt Quota für alle Lehrer der Schule.
 .TP
 .B -r raum1,raum2, ... , --room raum1,raum2,...
 setzt Quota für jede Workstation im raum raum1,raum2 ...
 .TP
 .B  --workstations 
 setzt Quota für alle Workstations der Schule.
-.TP
-.B  --school 
-setzt Quota für alle Lehrer, Schüler und Workstations der Schule (ToDo).
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
