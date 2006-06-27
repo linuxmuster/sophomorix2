@@ -425,6 +425,10 @@ sub set_quota_if_needed {
 
     foreach my $login (@userlist){
         my $type=$login_type{$login};
+        if (not defined $type){
+            # when userd for www-data,...
+	    $type="none";
+        }
         print "   * $login ($type)\n";
         if($Conf::log_level>=2){
             print "\n$login is type $type: \n";
