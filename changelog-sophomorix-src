@@ -1293,6 +1293,41 @@ can sophomorix-class set quota AND writes them to the system???
 if yes: update man page
 
 
+No quota for www-data
+==================================================
+Schulkonsole: do this manually
+sophomorix: use 
+   sophomorix-quota --user www-data --force
+to set. (setting mailquota will thow errors because www-data in not a 
+cyrus user)
+
+
+
+lehrer aus klasse  austragen geht nicht:
+
+sophomorix-teacher --remove 11a
+
+
+
+
+
+
+BUG: /etc/aliases root.root 0644  (who changes this values) 
+                                  (I don't think sophomorix does it)
+
+sophomorix-mail setzt diese Werte .
+
+
+
+__einsammeln/   OHNE Unterverzeichnisse
+
+
+BUG: sophomorix-teacher --handoutcopy --fromclass class
+
+
+AIKE: Pfade für projekt vertrag ergänzen, als mail an Andy
+ 
+
 1.8.2-1  (2006-06-xx)
    - 
 
