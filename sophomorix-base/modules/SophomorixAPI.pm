@@ -553,8 +553,11 @@ MyAdminClasses), 0 is returned.
 sub remove_my_adminclass {
     my ($login,$class) = @_;
 
-    # remove my adminclass from database
+    # remove admin     
     &deleteadmin_from_adminclass($login,$class);
+
+    # remove secondary membership
+    &deleteuser_from_project($login,$class);
 
     # remove link
     &Sophomorix::SophomorixBase::remove_share_link($login,
