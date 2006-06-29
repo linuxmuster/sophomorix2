@@ -1301,21 +1301,10 @@ sophomorix: use
 to set. (setting mailquota will thow errors because www-data in not a 
 cyrus user)
 
-
-
-lehrer aus klasse  austragen geht nicht:
-
-sophomorix-teacher --remove 11a
-
-
-
-
-
-
 BUG: /etc/aliases root.root 0644  (who changes this values) 
                                   (I don't think sophomorix does it)
 
-sophomorix-mail setzt diese Werte .
+sophomorix-mail setzt diese Werte per umask.
 
 
 
