@@ -1766,7 +1766,7 @@ sub pg_adduser {
                   "group $group ($gidnumber)\n";
             $dbh->do($sql);
         } else {
-            print "   User $user(${uidnumber})exists ",
+            print "   User $user(${uidnumber}) exists ",
                   "already in $group ($gidnumber)\n";
         }
     } else {
