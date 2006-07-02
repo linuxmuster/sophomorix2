@@ -988,10 +988,10 @@ sub provide_user_files {
                   "\$homedir_teacher/\$lehrer/\$collect_dir",
                   "$home/${Language::collect_dir}",
                   "$login");
-           &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$collect_dir/\$current_room",
-                  "$home/${Language::collect_dir}/${Language::current_room}",
-                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_teacher/\$lehrer/\$collect_dir/\$current_room",
+#                  "$home/${Language::collect_dir}/${Language::current_room}",
+#                  "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$collected_dir/\$exam",
                   "$home/${Language::collected_dir}/${Language::exam}",
@@ -1058,10 +1058,10 @@ sub provide_user_files {
                   "\$homedir_pupil/\$klassen/\$schueler/\$collect_dir",
                   "$home/${Language::collect_dir}",
                   "$login");
-           &setup_verzeichnis(
-                  "\$homedir_pupil/\$klassen/\$schueler/\$collect_dir/\$current_room",
-                  "$home/${Language::collect_dir}/${Language::current_room}",
-                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_pupil/\$klassen/\$schueler/\$collect_dir/\$current_room",
+#                  "$home/${Language::collect_dir}/${Language::current_room}",
+#                  "$login");
            &setup_verzeichnis(
                   "\$homedir_pupil/\$klassen/\$schueler/\$handoutcopy_dir",
                   "$home/${Language::handoutcopy_dir}",
@@ -1127,10 +1127,10 @@ sub provide_user_files {
                   "\$homedir_ws/\$raeume/\$workstation/\$collect_dir",
                   "$home/${Language::collect_dir}",
                   "$login");
-           &setup_verzeichnis(
-                  "\$homedir_ws/\$raeume/\$workstation/\$collect_dir/\$current_room",
-                  "$home/${Language::collect_dir}/${Language::current_room}",
-                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_ws/\$raeume/\$workstation/\$collect_dir/\$current_room",
+#                  "$home/${Language::collect_dir}/${Language::current_room}",
+#                  "$login");
            &setup_verzeichnis(
                   "\$homedir_ws/\$raeume/\$workstation/\$handoutcopy_dir",
                   "$home/${Language::handoutcopy_dir}",
@@ -2190,14 +2190,14 @@ sub create_share_directory {
         ##############################
         # all users
         ##############################
-        my $collect_dir=$homedir."/".
-            ${Language::collect_dir}."/".$share_long_name;
-        if (not -e $collect_dir){
-            if($Conf::log_level>=2){
-                print "   Adding directory ${collect_dir}\n"; 
-	    }
-            system("mkdir $collect_dir");
-        }
+#        my $collect_dir=$homedir."/".
+#            ${Language::collect_dir}."/".$share_long_name;
+#        if (not -e $collect_dir){
+#            if($Conf::log_level>=2){
+#                print "   Adding directory ${collect_dir}\n"; 
+#	    }
+#            system("mkdir $collect_dir");
+#        }
         my $handoutcopy_dir=$homedir."/".
             ${Language::handoutcopy_dir}."/".$share_long_name;
         if (not -e $handoutcopy_dir){
@@ -3996,7 +3996,7 @@ sub handoutcopy {
     } elsif ($type eq "project"){
        # get the longname
        my ($longname) =
-         &Sophomorix::SophomorixPgLdap::fetchinfo_from_project($name);
+       &Sophomorix::SophomorixPgLdap::fetchinfo_from_project($name);
        $from_dir = "${homedir}/${Language::to_handoutcopy_dir}/".
                    "${Language::to_handoutcopy_string}${longname}";
     } elsif ($type eq "current room"){
@@ -4030,6 +4030,12 @@ sub handoutcopy {
               if ($type eq "current room"){
                    $to_dir = "${homedir}/${Language::handoutcopy_dir}".
                              "/${Language::current_room}";
+              } elsif ($type eq "project") {
+                   # get the longname
+                   my ($longname) =
+                   &Sophomorix::SophomorixPgLdap::fetchinfo_from_project($name);
+                   $to_dir = "${homedir}/${Language::handoutcopy_dir}".
+                             "/${longname}";
               } else {
                    $to_dir = "${homedir}/${Language::handoutcopy_dir}".
                              "/${name}";
@@ -4152,18 +4158,24 @@ sub collect {
   # collect data from all users
   foreach my $user (@users){
       my ($homedir)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
-      my $from_dir="";
-      if ($type eq "current room"){
-          $from_dir="$homedir/${Language::collect_dir}/${Language::current_room}/";
-      } elsif ($type eq "room") {
-          $from_dir="$homedir/${Language::collect_dir}/${Language::current_room}/";
-      } elsif ($type eq "project") {
-          $from_dir="$homedir/${Language::collect_dir}/${longname}/";
-      } elsif ($type eq "adminclass") {
-          $from_dir="$homedir/${Language::collect_dir}/${longname}/";
-      } else {
-          $from_dir="$homedir/${Language::collect_dir}/${login}/";
-      }
+      my $from_dir="$homedir/${Language::collect_dir}/";
+
+# collect from _einsammeln
+
+#      my $from_dir="";
+#      if ($type eq "current room"){
+#          $from_dir="$homedir/${Language::collect_dir}/${Language::current_room}/";
+#      } elsif ($type eq "room") {
+#          $from_dir="$homedir/${Language::collect_dir}/${Language::current_room}/";
+#      } elsif ($type eq "project") {
+#          $from_dir="$homedir/${Language::collect_dir}/${longname}/";
+#      } elsif ($type eq "adminclass") {
+#          $from_dir="$homedir/${Language::collect_dir}/${longname}/";
+#      } else {
+#          $from_dir="$homedir/${Language::collect_dir}/${login}/";
+#      }
+
+
       # ???? make more secure
       if ($from_dir =~ /(.*)/) {
          $from_dir=$1;
