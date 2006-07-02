@@ -356,11 +356,20 @@ if ($handout==1 and ($class ne ""
 # Handoutcopy
 ############################################################
 # --handoutcopy
-if ($handoutcopy==1 and ($users ne "" and $fromroom==1)){
+if ($handoutcopy==1 and (
+                ($users ne "" and $fromroom==1)
+             or ($users ne "" and $fromproject ne "")
+             or ($users ne "" and $fromclass ne "")
+                        )){
     my $type="";
-    my $rsync="unused";
     if ($fromroom==1){
 	$type="current room";
+    } elsif ($fromclass ne ""){
+	$type="adminclass";
+        $class=$fromclass;
+    } elsif ($fromproject ne ""){
+	$type="project";
+        $project=$fromproject;
     }
 
     if ($users ne ""){

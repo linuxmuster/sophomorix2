@@ -3985,14 +3985,11 @@ sub handoutcopy {
     my ($login, $name, $type, $rsync,$users) = @_;
     my $from_dir = "";
     my $to_dir = "";
-    my @userlist=();
-
     # home des austeilenden ermitteln
     my ($homedir)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
-
     if ($type eq "adminclass"){
        $from_dir = "${homedir}/${Language::to_handoutcopy_dir}/".
-                   "${Language::to_handoutcopy_string}.${name}";
+                   "${Language::to_handoutcopy_string}${name}";
     } elsif ($type eq "subclass"){
        $from_dir = "${homedir}/${Language::to_handoutcopy_dir}/".
                    "${Language::to_handoutcopy_string}${name}";
@@ -4005,9 +4002,9 @@ sub handoutcopy {
     } elsif ($type eq "current room"){
        $from_dir = "${homedir}/${Language::to_handoutcopy_dir}".
                    "/${Language::to_handoutcopy_string}${Language::current_room}";
-       @userlist=split(/,/,$users);
     }
 
+    my @userlist=split(/,/,$users);
     print "   From ($type): ${from_dir}\n";
     # check if there could be files found to handout
     my $found=0;
