@@ -1302,23 +1302,28 @@ to set. (setting mailquota will thow errors because www-data in not a
 cyrus user)
 
 BUG: /etc/aliases root.root 0644  (who changes this values) 
-                                  (I don't think sophomorix does it)
 
-sophomorix-mail setzt diese Werte per umask.
-
+sophomorix-mail does not changethese values (but should do it with umask)
 
 
-__einsammeln/   OHNE Unterverzeichnisse
+when teaching in a user (say they are correlating) then remove the users
+that should have been added from sophomorix.add 
 
-
-BUG: sophomorix-teacher --handoutcopy --fromclass class
 
 
 AIKE: Pfade für projekt vertrag ergänzen, als mail an Andy
- 
 
-1.8.2-1  (2006-06-xx)
-   - 
+1.8.3-1  (2006-07-xx)
+   -  
+
+
+1.8.2-1  (2006-07-03)
+   - changed the test for __einsammeln only
+   - removed all subdirs from __einsammeln when creating/resetting a user
+   - Bugfix: 
+     sophomorix-teacher --teacher xxx --handoutcopy 
+         --users user1,2,... --fromclass class
+     does work now (also: --fromproject project)
 
 
 1.8.1-1  (2006-06-25)
