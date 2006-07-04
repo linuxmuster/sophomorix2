@@ -29,6 +29,7 @@ use Quota;
               get_v_rechte
               setup_verzeichnis
               make_some_files_root_only
+              remove_line_from_file
               get_old_info 
               user_login_hash
               save_tausch_klasse
@@ -516,6 +517,34 @@ sub make_some_files_root_only {
     }
 }
 
+
+
+sub remove_line_from_file {
+    my @fields=();
+    my $found=0;
+    my ($regex,$file) = @_;
+    open(FILE,"<$file");
+    open(TMP,">$file.tmp");
+    while (<FILE>){
+      chomp();
+      if (/$regex/){
+          $found=1;
+          if($Conf::log_level>=2){
+              print "   Removing: $_ \n",
+                    "         in: $file!\n";
+	  }
+      } else {
+	  print TMP "$_\n";
+      }
+    }
+    close(FILE);
+    close(TMP);
+    system("mv $file.tmp $file");
+    if ($found == 0){
+	print "   Could not find Regex $regex \n";
+    }
+    return;
+}
 
 
 
