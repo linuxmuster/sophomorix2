@@ -52,6 +52,9 @@ my $hinzu_klasse;
 
 # Hash in die Hinzukommende Schüler eingelesen werden
 my %schueler_hinzu_hash;
+# Hash for iignored logins
+my %ignored_users;
+my $ignore_file="sophomorix.teach-in.ignored";
 
 # Hash für das Auswahlmenü
 my %auswahl_hash;
@@ -241,17 +244,41 @@ my $today_pg=`date +%Y-%m-%d`;
 chomp($today);
 chomp($today_pg);
 
+
+# ===========================================================================
+# Ignored users hash erstellen
+# ===========================================================================
+if (-e "${DevelConf::ergebnis_pfad}/$ignore_file"){
+    open(SOPHOMORIXIGNORE,
+         "${DevelConf::ergebnis_pfad}/$ignore_file") 
+         || die "Fehler: $!";
+    if($Conf::log_level>=3){
+        &titel("Users that are ignored ($ignore_file):");
+    }
+    while(<SOPHOMORIXIGNORE>){
+        chomp();
+        my $a;
+        my ($login,$ident)=split(/::/);
+        $ignored_users{$login}="$ident";
+        if($Conf::log_level>=3){
+            print "Reading:    $_\n";
+            print "Login:      $login\n";
+            print "Identifier: $ident\n";
+        }
+    }
+    close(SOPHOMORIXIGNORE);
+}
+
+
 # ===========================================================================
 # Schüler-Hinzu-Hash erstellen
 # ===========================================================================
 open(SOPHOMORIXADD,
      "${DevelConf::ergebnis_pfad}/sophomorix.add") 
      || die "Fehler: $!";
-
 if($Conf::log_level>=3){
    &titel("Users that would be added (sophomorix.add):");
  }
-
 while(<SOPHOMORIXADD>){
    chomp();
    my $a;
@@ -262,8 +289,13 @@ while(<SOPHOMORIXADD>){
       print "Identifier: $identifier\n";
     }
 }
-
 close(SOPHOMORIXADD);
+
+
+# open the ignored file for appending
+open(SOPHOMORIXIGNORE,
+     ">>${DevelConf::ergebnis_pfad}/$ignore_file") 
+     || die "Fehler: $!";
 
 
 # ===========================================================================
@@ -300,6 +332,12 @@ my @toleration=&get_teach_in_sys_users();
 &print_list("Teach-in users from the system",@toleration);
 
 foreach $identifier (@toleration){
+   # skip ignored users
+   if (exists $ignored_users{$schueler_im_system_loginname{$identifier}}){
+       print "   $schueler_im_system_loginname{$identifier} is ignored\n";
+       next;
+   }
+
    # Gesucht wird Entsprechung zu diesem Schüler
    print "----------------------------------------",
          "----------------------------------------\n";
@@ -379,9 +417,11 @@ foreach $identifier (@toleration){
    # ======================================================================
    # Ausgabe in die tech-in-datei
    if ($user_antwort eq "0"){ # nur, wenn 1,2,3,... gewählt etwas tun
-      # Nichts tun
+      # remember this user
+      print SOPHOMORIXIGNORE "$schueler_im_system_loginname{$identifier}".
+	                     "::$identifier"."\n";
       print "\n\n\n";
-   } else {
+    } else {
       print "========================================",
             "========================================\n";
       print "sophomorix db:  ", 
@@ -445,4 +485,6 @@ foreach $identifier (@toleration){
    }
 }
 
+
+close(SOPHOMORIXIGNORE);
 &titel("... sophomorix-teach-in is terminated regularly.");
