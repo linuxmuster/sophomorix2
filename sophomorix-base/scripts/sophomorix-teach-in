@@ -131,7 +131,7 @@ $match_fehlertoleranz="25";
            print "  Fehlertoleranz $match_fehlertoleranz ist nicht zulässig! \n";
            print "  Zulässige Argumente sind 5 bis 60 \n";
            print "    (in 5-er Schritten) \n";
-           die;
+           exit;
        }
 }
 
@@ -384,12 +384,17 @@ foreach $identifier (@toleration){
    } else {
       print "========================================",
             "========================================\n";
-      print "Updating sophomorix database:  ", 
-            "$identifier",
-            ":::",
-            "$auswahl_hash{$user_antwort}\n";
+      print "sophomorix db:  ", 
+            "$identifier -> $auswahl_hash{$user_antwort}\n";
+      print "sophomorix.add: remove ", 
+            "$auswahl_hash{$user_antwort} in ",
+            "$schueler_hinzu_hash{$schueler_hinzu}\n";
+      # removing new user from sophomorix.add
+      &remove_line_from_file(
+          "$schueler_hinzu_hash{$schueler_hinzu}::$auswahl_hash{$user_antwort}",
+          "${DevelConf::ergebnis_pfad}/sophomorix.add");
       print "========================================",
-            "========================================\n\n\n";
+            "========================================\n\n";
 
       my $identifier_sys=$identifier;
       my $identifier_file=$auswahl_hash{$user_antwort},
