@@ -867,6 +867,29 @@ Wichtig: BUGlist: im svn, modul anleitungen
 
 mailquota stuff
 ------------------------------
+
+
+Mailaccount anlegen:
+/usr/share/linuxmuster/scripts/cyrus-user.pl -u <username> -c [-q <n>m]
+
+Mailaccount löschen:
+/usr/share/linuxmuster/scripts/cyrus-user.pl -u <username> -d
+
+Mailquota einstellen (n in MB):
+/usr/share/linuxmuster/scripts/cyrus-user.pl -u <username> -q <n>m
+
+Kurzübersicht über die Optionen durch Aufruf ohne Parameter.
+
+Wie kann man sich denn die mailquotas anzeigen lassen? (Konsole)
+
+su -c /usr/sbin/cyrquota cyrus
+
+
+
+
+
+
+
 lehrer.txt zusatzfeld 'comment' (Platz in Datenbank suchen)
 
 change quota with cyrus-user.pl -u user -q quota
@@ -1302,7 +1325,6 @@ to set. (setting mailquota will thow errors because www-data in not a
 cyrus user)
 
 BUG: /etc/aliases root.root 0644  (who changes this values) 
-
 sophomorix-mail does not changethese values (but should do it with umask)
 
 
@@ -1310,11 +1332,15 @@ when teaching in a user (say they are correlating) then remove the users
 that should have been added from sophomorix.add 
 
 
-
-AIKE: Pfade für projekt vertrag ergänzen, als mail an Andy
-
 1.8.3-1  (2006-07-xx)
-   -  
+   - sophomorix-teach-in reads sophomorix.teach-in.ignored and does not 
+     ask about these users anymore (when running *-teach-in multiple times) 
+   - sophomorix-teach-in creates .../check_results/sophomorix.teach-in.ignored
+     for users that are not teached in and therefore ignored
+   - Bugfix: sophomorix-teach-in removes 
+             user from sophomorix.add when this user is 
+             teached in (new user connected to old system user)  
+   - Bugfix: owner,permissions of collect_dir
 
 
 1.8.2-1  (2006-07-03)
