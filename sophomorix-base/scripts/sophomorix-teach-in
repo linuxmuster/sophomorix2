@@ -77,7 +77,9 @@ my $v;
 my $testen=0;
 $Conf::log_level=1;
 my $help=0;
+my $ignored_users=0;
 my $info=0;
+my $next=0;
 my $undo_login="";
 # Parameter gibt an wie verschieden ähnliche Schüler finden soll (in Prozent)
 # 10% nur sehr änliche Namen werden gefunden
@@ -90,6 +92,8 @@ my $testopt=GetOptions(
            "undo=s" => \$undo_login,
            "approx|a=s" => \$match_fehlertoleranz,
 #           "test|t" => \$testen,
+           "ignored-users" => \$ignored_users,
+           "next=n" => \$next,
            "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
            "info|i" => \$info
@@ -113,6 +117,7 @@ Options
   -v  / --verbose
   -vv / --verbose --verbose
   -a value / --approx value
+  --ignored-users
   --undo login
 
 Please see the sophomorix-teach-in(8) man pages for full documentation
@@ -270,6 +275,22 @@ if (-e "${DevelConf::ergebnis_pfad}/$ignore_file"){
 }
 
 
+# --ignored-users
+if ($ignored_users==1){
+    my @list=();
+    while (my ($login,$ident) = each %ignored_users) {
+	push @list, $login;
+    }
+    @list = sort @list;
+    &titel("Users that are ignored ($ignore_file):");
+    foreach my $item (@list){
+   printf "%-12s: %-64s\n",$item,$ignored_users{$item};
+    }
+    exit;
+}
+
+
+
 # ===========================================================================
 # Schüler-Hinzu-Hash erstellen
 # ===========================================================================
@@ -331,6 +352,8 @@ my %schueler_im_system_exit_admin_class = %$ref_exit_adminclass;
 my @toleration=&get_teach_in_sys_users();
 &print_list("Teach-in users from the system",@toleration);
 
+my $number=1;
+
 foreach $identifier (@toleration){
    # skip ignored users
    if (exists $ignored_users{$schueler_im_system_loginname{$identifier}}){
@@ -339,24 +362,32 @@ foreach $identifier (@toleration){
    }
 
    # Gesucht wird Entsprechung zu diesem Schüler
-   print "----------------------------------------",
-         "----------------------------------------\n";
-   printf "%-25s: %-40s\n" , 
-          "    Login", 
-          "$schueler_im_system_loginname{$identifier}";
-   printf "%-25s: %-40s\n" , 
-          "    User in the system", 
-          "$identifier";
-   printf "%-25s: %-40s\n" , 
-          "    AdminClass", 
-          "$schueler_im_system_hash{$identifier}";
-   if (exists $schueler_im_system_exit_admin_class{$identifier}){
-      printf "%-25s: %-40s\n" , 
-             "ExitAdminClass", 
-             "$schueler_im_system_exit_admin_class{$identifier}";
+   if ($next!=0){
+       # noninteractive
+       print "next::$schueler_im_system_hash{$identifier}::",
+                   "$schueler_im_system_loginname{$identifier}::$identifier";
+   } else {
+       # interactive
+       print "----------------------------------------",
+             "----------------------------------------\n";
+       printf "%-25s: %-40s\n" , 
+              "    Login ($number)", 
+              "$schueler_im_system_loginname{$identifier}";
+       printf "%-25s: %-40s\n" , 
+              "    User in the system", 
+              "$identifier";
+       printf "%-25s: %-40s\n" , 
+              "    AdminClass", 
+              "$schueler_im_system_hash{$identifier}";
+       if (exists $schueler_im_system_exit_admin_class{$identifier}){
+          printf "%-25s: %-40s\n" , 
+                 "ExitAdminClass", 
+                 "$schueler_im_system_exit_admin_class{$identifier}";
+       }
+       print "----------------------------------------",
+             "----------------------------------------\n";
    }
-   print "----------------------------------------",
-         "----------------------------------------\n";
+
    # Auswahlnummer auf eins setzen
    $entsprechungs_nummer=0;
    # Bisherige Werte löschen
@@ -373,17 +404,37 @@ foreach $identifier (@toleration){
       # 25% ist realistisch für Approx-Matching
  # so tuts:#  if (amatch("$schueler_weg" , ["i 25%"])){
       if (amatch("$identifier" , ["i   ${match_fehlertoleranz}%"])){
+         # counter for decision number
          $entsprechungs_nummer++;
-         printf "%-25s: %-40s\n" , 
-                "($entsprechungs_nummer) Approx match",
-                "$schueler_hinzu";
-         printf "%-25s: %-40s\n" , 
-                "    AdminClass",
-                "$schueler_hinzu_hash{$schueler_hinzu}";
+         # counter for --next
+         $number++;
+         # printout
+         if ($next!=0){
+            # noninteracive
+	    print "::$schueler_hinzu_hash{$schueler_hinzu}::$schueler_hinzu";
+         } else {
+            # interactive
+            printf "%-25s: %-40s\n" , 
+                   "($entsprechungs_nummer) Approx match",
+                   "$schueler_hinzu";
+            printf "%-25s: %-40s\n" , 
+                   "    AdminClass",
+                   "$schueler_hinzu_hash{$schueler_hinzu}";
+         }
          # Approx-Match ablegen im Auswahl-Hash
          $auswahl_hash{$entsprechungs_nummer}="$schueler_hinzu";
       }
    }# Alle Schüler durchgegangen
+
+   # exit if it is enough
+   if ($next!=0 and $number-1==$next){
+       print "::\n";
+       exit;
+   } elsif ($next!=0){
+       print "::\n";
+       next;
+   }
+
    # (0) = Nichts machen hinzufügen zum Auswahl-Hash
    printf "%-25s: %-40s\n" , 
           "(0)",
@@ -391,6 +442,9 @@ foreach $identifier (@toleration){
           $auswahl_hash{0}="Nichts tun!";
    print "----------------------------------------",
          "----------------------------------------\n";
+
+
+
 
    # ======================================================================
    # Useraktion einlesen
