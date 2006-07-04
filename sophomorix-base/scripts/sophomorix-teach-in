@@ -78,6 +78,10 @@ my $testen=0;
 $Conf::log_level=1;
 my $help=0;
 my $ignored_users=0;
+my $ignore="";
+my @ignore=();
+#my %ignore=();
+
 my $info=0;
 my $next=0;
 my $undo_login="";
@@ -93,6 +97,7 @@ my $testopt=GetOptions(
            "approx|a=s" => \$match_fehlertoleranz,
 #           "test|t" => \$testen,
            "ignored-users" => \$ignored_users,
+           "ignore=s" => \$ignore,
            "next=n" => \$next,
            "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
@@ -118,11 +123,29 @@ Options
   -vv / --verbose --verbose
   -a value / --approx value
   --ignored-users
+  --ignore user1,user2,...
   --undo login
 
 Please see the sophomorix-teach-in(8) man pages for full documentation
 ');
    exit;
+}
+
+
+# open the ignored file for appending
+open(SOPHOMORIXIGNORE,
+     ">>${DevelConf::ergebnis_pfad}/$ignore_file") 
+     || die "Fehler: $!";
+
+
+# --ignore
+if ($ignore ne ""){
+    @ignore = split(/::/,$ignore);
+    foreach my $user (@ignore){
+        print "$user \n";
+        print SOPHOMORIXIGNORE "${user}::\n";
+    }
+    exit;
 }
 
 
@@ -254,13 +277,13 @@ chomp($today_pg);
 # Ignored users hash erstellen
 # ===========================================================================
 if (-e "${DevelConf::ergebnis_pfad}/$ignore_file"){
-    open(SOPHOMORIXIGNORE,
+    open(SOPHOMORIXIGNORD,
          "${DevelConf::ergebnis_pfad}/$ignore_file") 
          || die "Fehler: $!";
     if($Conf::log_level>=3){
         &titel("Users that are ignored ($ignore_file):");
     }
-    while(<SOPHOMORIXIGNORE>){
+    while(<SOPHOMORIXIGNORD>){
         chomp();
         my $a;
         my ($login,$ident)=split(/::/);
@@ -271,7 +294,7 @@ if (-e "${DevelConf::ergebnis_pfad}/$ignore_file"){
             print "Identifier: $ident\n";
         }
     }
-    close(SOPHOMORIXIGNORE);
+    close(SOPHOMORIXIGNORD);
 }
 
 
@@ -313,11 +336,6 @@ while(<SOPHOMORIXADD>){
 close(SOPHOMORIXADD);
 
 
-# open the ignored file for appending
-open(SOPHOMORIXIGNORE,
-     ">>${DevelConf::ergebnis_pfad}/$ignore_file") 
-     || die "Fehler: $!";
-
 
 # ===========================================================================
 # Alle Schüler, die entfernt werden sollen einzeln abfragen
@@ -342,9 +360,9 @@ my %schueler_im_system_hash = %$ref_adminclass;
 # identifier - loginname (uid in ldap)
 my %schueler_im_system_loginname = %$ref_login;
 
+
 # identifier - ExitAdminClass
 my %schueler_im_system_exit_admin_class = %$ref_exit_adminclass;
-
 
 
 &titel("Extracting teach-in users from the system ...");
