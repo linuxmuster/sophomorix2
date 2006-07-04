@@ -525,12 +525,12 @@ sub check_provided_files {
 
     if ($class eq ${DevelConf::teacher}){
        &check_file("$Language::collect_dir",$login,$class,
-                    $login,
-                    ${DevelConf::teacher},
+                    "root",
+                    "root",
                     "1755");
     } else {
        &check_file("$Language::collect_dir",$login,$class,
-                    $login,
+                    "root",
                     "root",
                     "1755");
 
