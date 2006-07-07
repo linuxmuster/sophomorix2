@@ -1120,7 +1120,6 @@ smbldap-useradd -B 1 user : muss passwort ändern
 nach passwortänderung ist das wieder auf 24...  magic number
 
 
-tasks in /var/cache/sophomorix/tasks/gruppe/lehrer
 
 rooms that are used for teaching
 (classrooms, or rooms with 1 PC that is used for teaching)
@@ -1328,13 +1327,16 @@ BUG: /etc/aliases root.root 0644  (who changes this values)
 sophomorix-mail does not changethese values (but should do it with umask)
 
 
-when teaching in a user (say they are correlating) then remove the users
-that should have been added from sophomorix.add 
+ALL ?! tasks in /var/cache/sophomorix/tasks/gruppe/lehrer
+
+
 
 Next: option --unignore
              --teach-in liste
 
 1.8.3-1  (2006-07-xx)
+   - catched error when colling sophomorix-quota with nonexisting lehrer.txt
+   - moved all tasks to /var/cache/sophomorix
    - new sophomorix-teach-in options and updated manpage:
      --next n
      --ignored-users
