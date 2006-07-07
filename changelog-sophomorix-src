@@ -1114,27 +1114,14 @@ SophomorixPgLdap.pm
 
 meeting 21.3.2006
 
-smbldap-useradd -B 1 user : muss passwort ändern
-(unter win erscheint nach dem einloggen, )
-----> sambapwdmustchange=0
-nach passwortänderung ist das wieder auf 24...  magic number
-
-
 
 rooms that are used for teaching
 (classrooms, or rooms with 1 PC that is used for teaching)
 /etc/linuxmustser/classrooms   (1 Raum pro Zeile)
 
-Beim Lehrer:  _vorlagen/aktueller_raum-$RAUM
-Beim Schüler: _vorlagen/aktueller_raum
-
 
 NOT creating a dir  in galli/_vorlagen and others, when user is added 
 to a nonexisting class
-
-
-- check that config-files are only readable by root
-  (odbc.ini, ...)
 
 
 Is this necessary?
@@ -1236,15 +1223,12 @@ RENAMING loginname of a user:
 
 
 
-NEXT:
 variablen in SophomorixPgldap scheinen global zu gelten.
 SphomorixBase: remove unused functions
 
 
 
 Projekte:
-
-- Projekt löschen
 
 - switch --join zur funktion bringen
 - make a teacher join a project if --join
@@ -1260,10 +1244,6 @@ Schulkonsole.
 Bei wiedereintritt soll Ordner mit korrekten Daten da sein
 
 
-
-
-
-sophomorix-quota: Not setting Quota for workstation  (is that OK?)
 
 Homedir of administrators: 2701 (is this good?)
 
@@ -1297,7 +1277,6 @@ Datei kann nicht eingesammelt werden da sich die Zeit ändert?
 check_klasse noch notwendig? (sophomorix-print)
 
 
-Tester eintragen
 
 
 3.0: nur offene Projekte (--join)
@@ -1329,12 +1308,22 @@ sophomorix-mail does not changethese values (but should do it with umask)
 
 ALL ?! tasks in /var/cache/sophomorix/tasks/gruppe/lehrer
 
+?!Tester eintragen
+
 
 
 Next: option --unignore
              --teach-in liste
 
+
+
+RELEASE NOTES: Test sambapwdmustchange
+
 1.8.3-1  (2006-07-xx)
+   - adding a user with sambapwmustchange:
+     set sambapwdmustchange=0 			password must be changed on login
+     set sambapwdmustchange=24...(magic number) 
+     (see: smbldap-useradd -B 1 user)
    - catched error when colling sophomorix-quota with nonexisting lehrer.txt
    - moved all tasks to /var/cache/sophomorix
    - new sophomorix-teach-in options and updated manpage:
