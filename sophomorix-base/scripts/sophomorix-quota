@@ -544,22 +544,24 @@ sub get_teacher_quota {
    my $mailquota="";
    my %teacher_quota=();
    my %teacher_quota_mail=();
-   open(TEACHER,"${DevelConf::users_pfad}/lehrer.txt") || die "Fehler: $!";
-   while(<TEACHER>){
-      chomp();
-      s/\s//g; # Whitespace Entfernen
-      if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
-      if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
-      ($a,$a,$a,$a,$login,$a,$a,$quotastring,$mailquota)=split(/;/);
-      # Wenn Quotaangabe vorhanden, dann benutzen
-      if($quotastring ne "quota"){
-         $teacher_quota{$login}=$quotastring;
-      }
-      if($mailquota ne "mailquota"){
-         $teacher_quota_mail{$login}=$mailquota;
-      }
+   if (-e "${DevelConf::users_pfad}/lehrer.txt"){
+       open(TEACHER,"${DevelConf::users_pfad}/lehrer.txt") || die "Fehler: $!";
+       while(<TEACHER>){
+          chomp();
+          s/\s//g; # Whitespace Entfernen
+          if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+          if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+          ($a,$a,$a,$a,$login,$a,$a,$quotastring,$mailquota)=split(/;/);
+          # Wenn Quotaangabe vorhanden, dann benutzen
+          if($quotastring ne "quota"){
+             $teacher_quota{$login}=$quotastring;
+          }
+          if($mailquota ne "mailquota"){
+             $teacher_quota_mail{$login}=$mailquota;
+          }
+       }
+       close(TEACHER);
    }
-   close(TEACHER);
    return (\%teacher_quota,\%teacher_quota_mail);
 }
 
