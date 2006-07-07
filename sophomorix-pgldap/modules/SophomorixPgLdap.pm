@@ -1095,6 +1095,7 @@ sub create_user_db_entry {
        $homedir_force,
        $gecos_force) = @_;
 
+    my $sambapwdmustchange;
     if (not defined $mailquota){
        $mailquota=-1;
     }
@@ -1114,9 +1115,19 @@ sub create_user_db_entry {
     if ($admin_class eq ${DevelConf::teacher}){
         # teachers
         $homedir = "${DevelConf::homedir_teacher}/$login";
+        if (${Conf::teacher_samba_pw_must_change} eq "yes"){
+            $sambapwdmustchange="0";
+        } else {
+            $sambapwdmustchange="2147483647";
+        }
     } else {
         # students
         $homedir = "${DevelConf::homedir_pupil}/$admin_class/$login";
+        if (${Conf::student_samba_pw_must_change} eq "yes"){
+            $sambapwdmustchange="0";
+        } else {
+            $sambapwdmustchange="2147483647";
+        }
     }
 
     if (defined $homedir_force){
@@ -1260,7 +1271,7 @@ sub create_user_db_entry {
          '2147483647',
          '2147483647',
          '0',
-         '2147483647',
+         '$sambapwdmustchange',
          '[UX]',
          '$gecos',
          '$smb_homepath',
