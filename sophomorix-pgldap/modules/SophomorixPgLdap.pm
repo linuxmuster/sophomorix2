@@ -50,6 +50,7 @@ require Exporter;
              fetchsubclasses_from_school
              fetchprojects_from_school
              fetchrooms_from_school
+             fetchclassrooms_from_school
              fetchworkstations_from_school
              fetchworkstations_from_room
              fetchadministrators_from_school
@@ -1996,7 +1997,7 @@ sub fetchsubclasses_from_school {
 
 
 sub fetchprojects_from_school {
-    # fetch all subclasses
+    # fetch all projects
     my @projects=();
     my $dbh=&db_connect();
     my $sth= $dbh->prepare( "SELECT gid
@@ -2018,7 +2019,7 @@ sub fetchprojects_from_school {
 
 
 sub fetchrooms_from_school {
-    # fetch all subclasses
+    # fetch all rooms
     my @rooms=();
     my $dbh=&db_connect();
     my $sth= $dbh->prepare( "SELECT DISTINCT gid
@@ -2037,6 +2038,22 @@ sub fetchrooms_from_school {
     return @rooms;
 }
 
+
+sub fetchclassrooms_from_school {
+    # fetch all classrooms from /etc/linuxmuster/classrooms
+    my @classrooms=();
+    if (-e ${DevelConf::classroom_file}){
+        open(CLASSROOMS, "${DevelConf::classroom_file}");
+        while(<CLASSROOMS>) {
+            chomp(); # Returnzeichen abschneiden
+            s/\s//g; # Spezialzeichen raus
+            if ($_ eq ""){next;} # Wenn Zeile Leer, dann weiter
+            push @classrooms, $_;
+        }
+     close(CLASSROOMS);
+     }
+     return @classrooms;
+}
 
 
 sub fetchworkstations_from_school {
