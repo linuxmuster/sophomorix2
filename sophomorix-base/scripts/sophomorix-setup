@@ -9,61 +9,10 @@
 # This Script adds directories and files that are necessary for sophomorix-base 
 # It should be run as postinst
 #use Sophomorix::SophomorixConfig; 
-#use Sophomorix::SophomorixBase; 
+use Sophomorix::SophomorixBase; 
 
 # Einlesen der Konfigurationsdatei für Entwickler
 #{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
 
 print "##### sophomorix-setup is configuring the system for sophomorix-base ...\n";
-
-# repair.directories einlesen
-#my %permissions=&get_alle_verzeichnis_rechte();
-
-
-# adding existing user root to samba
-###
-###  ???
-###
-
-
-# Adding directories
-# First Parameter: search for "$homedir_teacher" in repair.directories an do NOT
-#    expand to the variable $homedir_teacher (i.e. dont forget the leading \)
-# Second Parameter: Expand to the contents of $homedir_teacher wich is defined in
-#    sophomorix-devel.conf 
-#&setup_verzeichnis("\$homedir_teacher","$DevelConf::homedir_teacher");
-##&setup_verzeichnis("\$homedir_admin","$DevelConf::homedir_admin");
-#&setup_verzeichnis("\$homedir_all_admins","$DevelConf::homedir_all_admins");
-#&setup_verzeichnis("\$homedir_pupil","$DevelConf::homedir_pupil");
-#&setup_verzeichnis("\$homedir_ws","$DevelConf::homedir_ws");
-
-## samba
-#&setup_verzeichnis("\$homedir_samba","$DevelConf::homedir_samba");
-#&setup_verzeichnis("\$homedir_samba_netlogon",
-#                   "$DevelConf::homedir_samba_netlogon");
-#&setup_verzeichnis("\$homedir_samba_progs",
-#                   "$DevelConf::homedir_samba_progs");
-#&setup_verzeichnis("\$homedir_samba_cds",
-#                   "$DevelConf::homedir_samba_cds");
-
-## share
-#&setup_verzeichnis("\$share_share","$DevelConf::share_share");
-#&setup_verzeichnis("\$share_exams","$DevelConf::share_exams");
-#&setup_verzeichnis("\$share_classes","$DevelConf::share_classes");
-#&setup_verzeichnis("\$share_subclasses","$DevelConf::share_subclasses");
-#&setup_verzeichnis("\$share_projects","$DevelConf::share_projects");
-#&setup_verzeichnis("\$share_school","$DevelConf::share_school");
-
-## tasks
-#&setup_verzeichnis("\$tasks_tasks","$DevelConf::tasks_tasks");
-#&setup_verzeichnis("\$tasks_classes","$DevelConf::tasks_classes");
-#&setup_verzeichnis("\$tasks_subclasses","$DevelConf::tasks_subclasses");
-#&setup_verzeichnis("\$tasks_projects","$DevelConf::tasks_projects");
-#&setup_verzeichnis("\$tasks_teachers","$DevelConf::tasks_teachers");
-
-
-## make important data readable by root only
-## this does not probably not work
-#&setup_verzeichnis("\$var_lib_pfad","$DevelConf::var_lib_pfad");
-
-
+&log_script_start();

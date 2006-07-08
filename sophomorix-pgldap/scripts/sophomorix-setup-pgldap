@@ -86,6 +86,7 @@ my $testopt=GetOptions(
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
 
+&log_script_start();
 
 # fetch old passwords
 my ($old_ldappw,$old_dbpw)=&fetch_ldap_pg_passwords();

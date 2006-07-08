@@ -34,6 +34,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                    );
 
 &check_connections();
+&log_script_start();
 
 my $today=`date +%d.%m.%Y`;
 chomp($today);

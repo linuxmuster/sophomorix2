@@ -21,12 +21,14 @@ use Sophomorix::SophomorixPgLdap qw(
                                   show_modulename
                                   db_connect
                                   db_disconnect
+                                  check_connections
                                   fetchusers_from_project
                                   fetchinfo_from_project
                                   fetchusers_from_adminclass
                                    );
 
 use DBI;
+use Net::LDAP;
 
 
 # ===========================================================================
@@ -84,9 +86,8 @@ Please see the sophomorix-mail(8) man pages for full documentation
    exit;
 }
 
-
-
-
+&check_connections();
+&log_script_start();
 
 # classes with mailalias vorname.nachname
 my @mail_klassen=&get_mail_alias_classes();

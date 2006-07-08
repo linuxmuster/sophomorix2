@@ -126,6 +126,9 @@ Please see the sophomorix-useradd(8) man pages for full documentation
    exit;
 }
 
+&check_connections();
+&log_script_start();
+
 
 # repair.directories einlesen
 &get_alle_verzeichnis_rechte();

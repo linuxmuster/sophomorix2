@@ -28,6 +28,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                    );
 
 &check_connections();
+&log_script_start();
 
 # Liste der Filesysteme auf denen Quota gesetzt werden
 my @quota_fs=&get_quota_fs_liste();

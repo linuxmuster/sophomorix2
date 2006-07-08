@@ -178,6 +178,7 @@ my $epoche_jetzt=time;
          "$epoche_jetzt (right now)\n";
 
 &check_connections();
+&log_script_start();
 
 my $dbh=&db_connect();
 

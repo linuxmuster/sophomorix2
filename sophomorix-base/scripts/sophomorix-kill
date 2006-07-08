@@ -133,6 +133,7 @@ if ($info==1) {
 }
 
 &check_connections();
+&log_script_start();
 
 # sophomorix database sichern
 &backup_user_database($zeit, "before.kill");

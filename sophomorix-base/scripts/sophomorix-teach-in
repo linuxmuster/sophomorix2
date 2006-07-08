@@ -28,9 +28,8 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                    );
 use Sophomorix::SophomorixSYSPgLdap qw(update_gecos      
                                       );
-
-
 &check_connections();
+&log_script_start();
 
 # Erlaubte Werte in einen Hash schreiben
 my %match_fehlertoleranz_erlaubt = qw(

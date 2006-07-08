@@ -81,6 +81,8 @@ Please see the sophomorix-groupadd(8) man pages for full documentation
    exit;
 }
 
+&check_connections();
+&log_script_start();
 
 # exit if arguments are bad
 if (not defined $ARGV[0] or defined $ARGV[1]){

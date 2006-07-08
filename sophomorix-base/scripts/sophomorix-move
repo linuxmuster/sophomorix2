@@ -27,6 +27,7 @@ use Sophomorix::SophomorixSYSPgLdap qw(show_sys_modulename
                                       );
 
 &check_connections();
+&log_script_start();
 
 my $zeit=&zeit_stempel;
 my $user_nummer=0;
