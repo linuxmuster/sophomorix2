@@ -27,7 +27,10 @@ USERROOT=$(DESTDIR)/root
 # Data
 LIBDIR=$(DESTDIR)/var/lib/sophomorix
 
-# Data
+# Cache
+CACHEDIR=$(DESTDIR)/var/cache/sophomorix
+
+# Logs
 LOGDIR=$(DESTDIR)/var/log/sophomorix
 
 # Perl modules
@@ -93,6 +96,7 @@ install-base:
 	install -d -m700 -oroot -groot $(LIBDIR)/tmp
 	install -d -m700 -oroot -groot $(LIBDIR)/print-data
 	install -d -m700 -oroot -groot $(LIBDIR)/database
+	install -d -m700 -oroot -groot $(CACHEDIR)
 	install -d -m700 -oroot -groot $(LOGDIR)
 	install -d -m700 -oroot -groot $(LOGDIR)/user
 	install -d -m700 -oroot -groot $(CTEMPDIR)
