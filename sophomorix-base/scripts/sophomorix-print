@@ -132,6 +132,7 @@ my $show=0;
 my $alle=0;
 my $lehrer=0;
 my $caller="";
+my $command="latex";
 my $gruppe="";
 
 # Parsen der Optionen
@@ -143,6 +144,7 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "teacher|t" => \$lehrer,
            "caller|postfix=s" => \$caller,
+           "command=s" => \$command,
            "info|i" => \$info
           );
 
@@ -171,11 +173,12 @@ Options
   -h  / --help
   -v  / --verbose
   -vv / --verbose --verbose
-  -a  / --all / --alle
+  -a  / --all
   -t / --teacher
   -c class / --class class
   -s  / --show
   --caller
+  --command pdflatex  (standard is latex)
   -i / --info
 
 Please see the sophomorix-print(8) man pages for full documentation
@@ -194,7 +197,7 @@ my $output_file_basename="";
 
 my $klasse_filename_part="";
 if ($alle==1){
-   $klasse_filename_part="alle";
+   $klasse_filename_part="all";
 } elsif ($lehrer==1){
    $klasse_filename_part=${DevelConf::teacher};
 }elsif ($gruppe ne ""){
@@ -259,11 +262,8 @@ if ($gruppe ne "") {
    ');
 }
 
-
 my $latex_schoolname=&latexize_string("$Conf::schul_name");
 
-
-#print LATEX ('\lfoot{',"$Conf::schul_name",'}',"\n");
 print LATEX ('\lfoot{',"$latex_schoolname",'}',"\n");
 print LATEX ('\rfoot{'," ${output_file_basename}",'.pdf','}',"\n");
 
@@ -454,7 +454,7 @@ if ($gruppe eq "" && $alle==0 && $lehrer==0) {
 } elsif ($alle==1) {
    # Argument "alle" -> nichts ausfiltern
    if($Conf::log_level>=2){
-      print("\nArgument ist:  alle\n");
+      print("\nArgument ist:  all\n");
     }
    foreach (keys %schueler_im_system_hash){
      my $klasse="";
@@ -488,14 +488,6 @@ if ($gruppe eq "" && $alle==0 && $lehrer==0) {
       } else {
         $argument="$gruppe";
       }
-
-   # prüfen, ob tatsächlich klasse
-   my $check_ergebnis=&check_klasse($gruppe);
-   if (not $check_ergebnis==1) {
-     print "\n$gruppe ist keine Klasse\n\n";
-     exit;
-   };
-  
 
    my $klasse="";
    if($Conf::log_level>=2){
@@ -887,15 +879,18 @@ close(LATEX);
 # ===========================================================================
 
 
-# hoehere Qualitaet
-#&latexen;
-#&latexen;
-&latexen;
-
 # einfacher
-&pdflatexen;
-#&pdflatexen;
-#&pdflatexen;
+if ($command eq "pdflatex"){
+    &pdflatexen;
+} elsif ($command eq "latex"){
+    # hoehere Qualitaet
+    &latexen;
+} else {
+    print "\nI do not know how to process the file ($command ?)\n\n";
+}
+
+
+
 
 
 # Datei öffnen und mit acrobat-reader anzeigen falls --show
