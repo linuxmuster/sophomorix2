@@ -2363,9 +2363,9 @@ sub append_teach_in_log {
 sub log_script_start {
     my $timestamp = `date '+%Y-%m-%d %H:%M:%S'`;
     chomp($timestamp);
-    my $log="${timestamp}::start::  $0 ";
+    my $log="${timestamp}::start::  $0";
     foreach my $arg (@ARGV){
-	$log=$log.$arg ;
+	$log=$log." ".$arg ;
     }
     $log=$log."\n";
     open(LOG,">>$DevelConf::log_command");
