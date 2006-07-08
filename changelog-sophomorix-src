@@ -48,10 +48,6 @@ Working together: sophomorix and linuxmuster_base
 cups-pdf: not necessary for Administrator (not a user account)
 
 
-/etc/linuxmustser/classrooms   (1 Raum pro Zeile)
-File exists always, empty in the beginning,
-Always use this file as a list of classrooms (for exams)
-
 
 
 
@@ -1114,12 +1110,6 @@ SophomorixPgLdap.pm
 
 meeting 21.3.2006
 
-
-rooms that are used for teaching
-(classrooms, or rooms with 1 PC that is used for teaching)
-/etc/linuxmustser/classrooms   (1 Raum pro Zeile)
-
-
 NOT creating a dir  in galli/_vorlagen and others, when user is added 
 to a nonexisting class
 
@@ -1320,6 +1310,9 @@ Next: option --unignore
 RELEASE NOTES: Test sambapwdmustchange
 
 1.8.3-1  (2006-07-xx)
+
+   - added function to read /etc/linuxmustser/classrooms
+     (1 room per line)
    - adding a user with sambapwmustchange:
      set sambapwdmustchange=0 			password must be changed on login
      set sambapwdmustchange=24...(magic number) 
