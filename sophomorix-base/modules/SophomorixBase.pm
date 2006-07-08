@@ -60,7 +60,6 @@ use Quota;
               log_script_start
               archive_log_entry
               backup_amk_file
-              check_klasse
               datum_loeschen_schueler
               daten_loeschen_ich_lehrer
               daten_loeschen_lehrer
@@ -2458,7 +2457,7 @@ sub backup_amk_file {
 # ===========================================================================
 # Prüfen,ob der übergebene Gruppenname(String) eine Klasse ist
 # ===========================================================================
-sub check_klasse {
+sub check_klasse_oldstuff {
     my ($klasse_to_check) = @_;
     # print "Pruefe, ob $klasse_to_check eine Klasse ist.";
     my @pwliste;
