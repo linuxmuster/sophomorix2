@@ -57,6 +57,7 @@ use Quota;
               zeit
               pg_timestamp
               append_teach_in_log
+              log_script_start
               archive_log_entry
               backup_amk_file
               check_klasse
@@ -2357,6 +2358,19 @@ sub append_teach_in_log {
                  $old."::->::".$new."::".$unid."\n";
    close(ATLOG);
 
+}
+
+sub log_script_start {
+    my $timestamp = `date '+%Y-%m-%d %H:%M:%S'`;
+    chomp($timestamp);
+    my $log="${timestamp}::start::  $0 ";
+    foreach my $arg (@ARGV){
+	$log=$log.$arg ;
+    }
+    $log=$log."\n";
+    open(LOG,">>$DevelConf::log_command");
+    print LOG "$log";
+    close(LOG);
 }
 
 
