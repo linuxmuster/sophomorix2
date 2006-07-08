@@ -32,9 +32,6 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     user_deaktivieren
                                     check_connections
                                    );
-use Sophomorix::SophomorixSYSPgLdap qw(show_sys_modulename
-                                       update_gecos
-                                      );
 
 # Es wird eine Datei sophomorix.ok (schueler+lehrer) erzeugt 
 # Welche Dateien mit Userdaten sollen verarbeitet werden
@@ -2259,7 +2256,9 @@ sub auto_teach_in {
                                );
 
       # update the system
-      &update_gecos($login,$first,$last);
+      my $gecos="$first"." "."$last";
+      &Sophomorix::SophomorixPgLdap::update_user_db_entry($login,
+                      "Gecos=$gecos");
    }
    &titel("auto_teach-in: ... $auto_teach_in_count accounts modified");
 }
@@ -2326,7 +2325,9 @@ sub update_unids {
                                        $unid_file);
 
              # update the system
-             &update_gecos($login,$first,$last);
+             $gecos="$first"." "."$last";
+             &Sophomorix::SophomorixPgLdap::update_user_db_entry($login,
+                      "Gecos=$gecos");
 
              # updating the hashes that sophomorix uses internally
              &update_all_hashes($identifier_sys,

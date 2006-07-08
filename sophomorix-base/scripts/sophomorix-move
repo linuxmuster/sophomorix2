@@ -22,10 +22,6 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     add_newuser_to_her_projects
                                    );
 
-use Sophomorix::SophomorixSYSPgLdap qw(show_sys_modulename
-                                       add_class_to_sys
-                                      );
-
 &check_connections();
 &log_script_start();
 
@@ -275,37 +271,26 @@ while(<USERVERSETZEN>){
    if ($neue_klasse ne ${DevelConf::teacher}) {
      &provide_class_files($neue_klasse);
      &create_class_db_entry($neue_klasse);
-     &add_class_to_sys($neue_klasse);
    }
    # Benutzerdatenbank ändern
    # LDAP
    # usermod:
    # -d -m: home verschieben
    # -g : gruppe ändern
-#       if (${DevelConf::db_backend} ne "pgldap"){
-#          &do_falls_nicht_testen(
-#            "usermod -d $new_home -m -g $neue_klasse $login_versetzen"
-#	    );
-#       } else {
-          # move home directory
-          &do_falls_nicht_testen(
-            "mkdir -p $new_homedir_above",
-            "mv $old_home $new_homedir_above"
-	    );
-          # change primary group
-          # neue gruppe anlegen und gidnumber holen, falls erforderlich
-          my $gidnumber=&create_class_db_entry($neue_klasse);
-          &update_user_db_entry($login_versetzen, 
-                          "Gid=$neue_klasse",
-                         );
-
-#       }
+   # move home directory
+   &do_falls_nicht_testen(
+        "mkdir -p $new_homedir_above",
+        "mv $old_home $new_homedir_above"
+	);
+   # change primary group
+   # neue gruppe anlegen und gidnumber holen, falls erforderlich
+   my $gidnumber=&create_class_db_entry($neue_klasse);
+   &update_user_db_entry($login_versetzen,"Gid=$neue_klasse");
 
    # Dateien im neuen home gehoeren nun der Klassengruppe.
    # Muss angepasst werden an Eigentümer lehrer
    &do_falls_nicht_testen(
         "chown -R .${DevelConf::teacher} $new_home",
-#        "chown .root $new_home/www"
    );
 
    # links 
@@ -317,13 +302,7 @@ while(<USERVERSETZEN>){
    &deleteuser_from_all_projects($login_versetzen,0);
    &add_newuser_to_her_projects($login_versetzen,$neue_klasse);
 
-   # Protokoll-Hash ändern
-   # Alte Linie aus dem Hash löschen
-#   delete($protokoll_hash{$alte_zeile});
-
-
    # user in db updaten
-#   $protokoll_hash{$neue_zeile}="";
    if ($DevelConf::testen==0) {
        if ($neue_klasse eq "dachboden"){
           &update_user_db_entry($login_versetzen,
@@ -351,18 +330,6 @@ while(<USERVERSETZEN>){
 close(USERVERSETZEN);
 close(NOCHVERSETZEN);
 
-
-
-
-
-
-## Verarbeitete Datei mit Zeitstempel versehen
-## Nur wenn nicht leer ?????
-#&do_falls_nicht_testen(
-#    "mv ${DevelConf::ergebnis_pfad}/sophomorix.move ${DevelConf::log_pfad}/${zeit}.sophomorix.move",
-## Nur für root lesbar machen
-#    "chmod 600 ${DevelConf::log_pfad}/${zeit}.sophomorix.move"
-#);
 
 # sophomorix database sichern
 &backup_user_database($zeit, "after.move");

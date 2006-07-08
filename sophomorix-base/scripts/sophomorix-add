@@ -25,10 +25,6 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     create_class_db_entry
                                     add_newuser_to_her_projects
                                    );
-use Sophomorix::SophomorixSYSPgLdap qw(show_sys_modulename
-                                       add_class_to_sys
-                                       add_user_to_sys
-                                      );
 
 my $zeit=&zeit_stempel();
 my $pg_timestamp=&pg_timestamp();
@@ -360,34 +356,18 @@ while(<SOPHOMORIXADD>){
                         );
 
   # 2. Add the class (db and dirs,links, ...)
-#  if (${DevelConf::db_backend} ne "pgldap"){
-#     # this is done already with create_user_db_entry, when using postgres
-#     &create_class_db_entry($new_admin_group);
-#     &add_class_to_sys($new_admin_group,$wunsch_gid); # VOR add_user_to_sys !
-#  }
   &provide_class_files($new_admin_group);
 
-  # 3. Add  user to db
-  &add_user_to_sys($nachname,
-                   $vorname,
-                   $gebdat,
-                   $new_admin_group,
-                   $login_name_ok,
-                   $klartext_passwort,
-                   $shell,
-                   $wunsch_id);
+  # 3. set a password
   &set_sophomorix_passwd($login_name_ok,$klartext_passwort);
 
-#  # 4. Add user to webmin
-#  &create_webmin_account($login_name_ok);
-
-  # 5. Creating dirs, links for the user
+  # 4. Creating dirs, links for the user
   &provide_user_files($login_name_ok,$new_admin_group);
 
-  # 6. Add user to all groups she is in (files must exist to create links)
+  # 5. Add user to all groups she is in (files must exist to create links)
   &add_newuser_to_her_projects($login_name_ok,$new_admin_group);
 
-  # 7. tschmitt: create cyrus user with 10mb quota
+  # 6. tschmitt: create cyrus user with 10mb quota
   if (-s "${DevelConf::linuxmuster_imap}") {
       my $command="${DevelConf::linuxmuster_imap} -u $login_name_ok -c";
       print "$command\n";

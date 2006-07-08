@@ -24,9 +24,6 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     db_disconnect
                                     fetchdata_from_account
                                    );
-use Sophomorix::SophomorixSYSPgLdap qw(show_sys_modulename
-                                       delete_user_from_sys
-				      );
 
 my $zeit=&zeit_stempel;
 my $user_nummer=0;
@@ -215,8 +212,6 @@ while(<KILL>){
 
       # memberships
       &deleteuser_from_all_projects($login_name_to_kill);
-      # user itself
-      &delete_user_from_sys($login_name_to_kill);
       
       if ($home_verzeichnis_to_kill=~/^\/home\//){
           if ($DevelConf::testen==0) {
