@@ -26,10 +26,6 @@ use Sophomorix::SophomorixPgLdap qw(
                                     create_class_db_entry
                                    );
 
-use Sophomorix::SophomorixSYSPgLdap qw(
-                                    add_class_to_sys
-                                   );
-
 my $replace="";
 
 $Conf::log_level=1;
@@ -824,7 +820,6 @@ system("smbldap-useradd -u 997 -c 'web Administrator' -m -d /home/administrators
 
 # group teachers part 1
 &create_class_db_entry(${DevelConf::teacher},4);
-&add_class_to_sys(${DevelConf::teacher});
 
 &setup_verzeichnis("\$share_share","$DevelConf::share_share");
 

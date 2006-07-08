@@ -95,12 +95,7 @@ use Sophomorix::SophomorixBase qw ( titel
                                     print_forward
                                     print_list_column
                                   );
-
 use Crypt::SmbHash;
-
-use Sophomorix::SophomorixSYSPgLdap qw( add_class_to_sys
-                                        get_user_auth_data
-                                      );
 use Sophomorix::SophomorixAPI qw( 
                                   fetchstudents_from_school
                                 );

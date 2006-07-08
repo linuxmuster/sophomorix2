@@ -26,8 +26,6 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     update_user_db_entry
                                     get_sys_users
                                    );
-use Sophomorix::SophomorixSYSPgLdap qw(update_gecos      
-                                      );
 &check_connections();
 &log_script_start();
 
@@ -62,6 +60,7 @@ my $schueler_weg="";
 my $schueler_hinzu="";
 my $entsprechungs_nummer=0;
 my $user_antwort=0;
+my $gecos;
 
 # Wiederverwendbare Variablen zur Hashausgabe
 my $k;
@@ -222,7 +221,9 @@ if ($undo_login ne ""){
                              "LastName=$last",
                              "Birthday=$birth");
        # update the system
-       &update_gecos($login,$first,$last);
+       $gecos="$first"." "."$last";
+       &Sophomorix::SophomorixPgLdap::update_user_db_entry($login,
+                      "Gecos=$gecos");
 
        # removing last entry in log-lines
        open(LOG,
@@ -534,7 +535,9 @@ foreach $identifier (@toleration){
                                 $identifier_file,
                                );
       # update the system
-      &update_gecos($login,$first,$last);
+      $gecos="$first"." "."$last";
+      &Sophomorix::SophomorixPgLdap::update_user_db_entry($login,
+                      "Gecos=$gecos");
 
       # update the hashes
       if (exists $schueler_im_system_hash{$identifier_sys}){

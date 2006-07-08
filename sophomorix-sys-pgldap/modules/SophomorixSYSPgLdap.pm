@@ -10,12 +10,12 @@ package Sophomorix::SophomorixSYSPgLdap;
 require Exporter;
 
 @ISA =qw(Exporter);
-@EXPORT = qw(show_sys_modulename
+@EXPORT = qw(show_sys_modulename_oldstuff
              update_gecos
-             delete_user_from_sys
+             delete_user_from_sys_oldstuff
              add_class_to_sys
              add_user_to_sys
-             get_user_auth_data
+             get_user_auth_data_oldstuff
 );
 
 use Sophomorix::SophomorixBase qw ( titel
@@ -44,12 +44,8 @@ Shows the name of the actually loaded module
 
 
 sub show_sys_modulename {
-#    if($Conf::log_level>=2){
        &Sophomorix::SophomorixBase::titel("SYS-DB-Module:       SophomorixSYSPgLdap.pm");
-
-#   }
 }
-
 
 
 
@@ -67,136 +63,31 @@ sub update_gecos {
    # update the gocos-fiels in /etc/passwd
    my ($login,$first,$last) = @_;
    my $gecos="$first"." "."$last";
-#   system("usermod -c '$gecos' $login");
    &Sophomorix::SophomorixPgLdap::update_user_db_entry($login,
                       "Gecos=$gecos");
-
 }
 
-=pod
 
-=item  I<delete_user_from_sys(login)>
 
-Deletes the user I<login> in F<passwd>, F<samba> and removes her home
-directory for good.
-
-=cut
-
-sub delete_user_from_sys {
-    my ($login) = @_;
-#    &Sophomorix::SophomorixBase::do_falls_nicht_testen(
-#       # aus smbpasswd entfernen
-#       "/usr/bin/smbpasswd  -x $login",
-#       # Aus Benutzerdatenbank entfernen (-r: Home löschen)
-#       "userdel  -r $login",
-#    );
-#    my @pwnam = getpwnam("$login");
-#    my $home="$pwnam[7]";
-#
-#    &Sophomorix::SophomorixBase::do_falls_nicht_testen(
-#       # delete home of $login
-#       "rm -rf $home",
-#    );
+sub delete_user_from_sys_oldstuff {
     
 }
 
-=pod
-
-=item  I<add_class_to_sys(class, gid)>
-
-Adds the group I<class> to the system database.
-
-
-=cut
 
 sub add_class_to_sys {
-#    ($class,$gid)=@_;
-#    if (not defined $gid){
-#        $gid="---";
-#    }
-#    if ($gid eq "---" or $gid eq ""){
-#       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
-#          "groupadd $class",
-#       );
-#   } else {
-#       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
-#          "groupadd -g $gid $class",
-#       );
-#   }
 }
 
-
-=pod
-
-=item  I<add_user_to_sys(class)>
-
-Adds the user I<user> to the system database.
-
-
-=cut
 
 sub add_user_to_sys {
-#    my ($nachname,
-#       $vorname,
-#       $gebdat,
-#       $class,
-#       $login,
-#       $pass,
-#       $sh,
-#       $wunsch_id) = @_;
-#
-#    my $gec = "$vorname"." "."$nachname";
-#    my $home ="";
-#    if ($class eq ${DevelConf::teacher}){
-#       $home = "${DevelConf::homedir_teacher}/$login";
-#    } else {
-#       $home = "${DevelConf::homedir_pupil}/$class/$login";
-#    }
-#    if ($wunsch_id eq "---"){
-#       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
-#          "useradd -c '$gec' -d $home -m -g $class -p $pass -s $sh $login"
-#       );
-#    } else {
-#       &Sophomorix::SophomorixBase::do_falls_nicht_testen(
-#          "useradd -c '$gec' -d $home -m -g $class -p $pass -s $sh $login -u $wunsch_id"
-##         "useradd -c '$gec' -m -g $class -p $pass -s $sh $login"
-#    );
-#    }
+
 }
 
-
-
-=pod
-
-=item  I<get_user_auth_data(login)>
-
-Retrieves data as in getpwnam Does getpwnam also work with ldap, sql? 
-
-
-=cut
-sub get_user_auth_data {
+sub get_user_auth_data_oldstuff {
     my ($login) = @_;
     # Abfragen der /etc/passwd
     my @data = getpwnam("$login");
     return @data;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-# OK
-
-
-
-
 
 
 
