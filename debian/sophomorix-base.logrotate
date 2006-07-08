@@ -1,0 +1,8 @@
+# sample logrotate configuration file
+compress
+create
+
+/var/log/sophomorix/command.log {
+    rotate 5
+    weekly
+}
