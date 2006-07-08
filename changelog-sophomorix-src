@@ -103,6 +103,14 @@ dokumentation:
       - perldoc Sophomorix::SophpmorixAPI
    * logging   
 
+Setting quota for www-data:
+      sophomorix-quota --user www-data --force
+   (setting mailquota will thow errors because www-data in not a 
+   cyrus user)
+
+ML 3.0: allow open projects only (--join)
+
+
 
 ############################################################
 PACKAGING for DEBIAN To do
@@ -117,8 +125,6 @@ packaging:
      (das steht in den abhängigkeiten), falls es installiert werden soll (optional)
      andersherum braucht sophomorix-vampire dieselbe Versionsnummer von sophomorix2 
      wie macht man das?
-   - sophomorix-base depends on libdbd-csv-perl
-     change that to *-files or so
    - optionen in postinst-scripten upgrade)
    - create only necessary packages
 
@@ -199,10 +205,8 @@ SCRIPTS To do
 ############################################################
 
 sophomorix-repair
-   * repair permissions of subclasses and projects 
    - use function create_userlist to specify users
      Call with option -l loginname should be fast (= do only this)
-   * update man page
    - group owner in the home directory is lehrer (is this really good?)
 
 
@@ -316,9 +320,8 @@ sophomorix-passwd
 
 sophomorix-print
    - print subclass on login-card?
+   - option --project to print login cards for members of projects
    - what about projects, show project membership?
-   * make configurable which print-output sophomorix-print generates 
-     to save time (ps, pdf,csv,...)
    - put school-logo on login-card, watermark, ...
    - generate a onepage-printout for teachers (help, mail, webmin-login, ...)
    - root can allow teachers to move his students in a special permanent class
@@ -443,12 +446,6 @@ sophomorix-mail
 
 
 sophomorix-teacher
-  ** write new script to distribute data, collect data, ...
-      --handout -i shows what to hand out
-      --collect -i shows what to collect
-      options --sync --copy when handing out data
-      options --collect-original, --collect-copy when collecting
-      --exam
    - read perlsec
    - distribute _Collect to one pupil
    - backups after rsync are temporarily owned by group 'lehrer', 
@@ -527,7 +524,6 @@ ALL SCRIPTS To do
 
    - show quota values larger than 9999MB as GB
      9999 -> 10G  (what about accuracy?)
-   * convert pupil stuff to student
    - if a class is to be added and the groupname is given to a project already
      make something correct
    - remove global variable alle_verzeichnis_rechte
@@ -560,15 +556,7 @@ ALL SCRIPTS To do
          (' ist shift-#)
          liest einzelne Werte aus
 
-   * creating database file from sophomorix-setup-files??
-       removing it from sophomorix-check??
-   * remove old stuff: ${schueler_oder_user}.protokoll";
-   - remove database/sys dependent code
    * set/check file-permissions at the and of each sophomorix-* run. 
-   - shorter verbosity when no verbosity option is given
-   * remove old subclass stuff (extrafile to specify subclass)
-   * get_xxx functions of sophomorix-repair: give a international name 
-     and put it to SophomorixAPI, document it with perldoc 
    - unify the options for all scripts (create rfc), where a common
      naming system is used, i.e what options are used to refer to a AdminClass:
          -c AdminClass --class AdminClass --adminclass AdminClass
@@ -596,8 +584,6 @@ SQL-DBI/OpenLDAP related:
   --using SQL
   (SQL can't do that)
 
-
-Lihas: nscd start/stop: when needed?
 
 
 ############################################################
@@ -694,65 +680,14 @@ Moodle-Integration:
 - make group of teachers to creators of new courses per ldap
 - make miniteachers not creators, but totors of one course 
 
-
 Aufgabenformat gift (-> konvertierung zu problectix)
 
 
-============================================================
-============================================================
-Think about:
-============================================================
-============================================================
-   - tar.gz-ing /var/www/people (for teachers only)
-   - cups 
-   - moodle (add users to classes, add teachers to admins)
-   - deleting /home/exams
-   - restart of nscd (will nscd be running? is restart necessary)
-   - use logrotate (debian/logrotate, dh_logrotate)
-   - log password changes securely
-   - create loginnames initial.name.birthday
-     (what about changes to this data)
-   - sophomorix-info for ALL users (show my account data)
-   - make standard-passwort linux configurable
-   - mail: experienced admins should be able to make entrys to
-     /etc/aliases without being overriden
-     (read aliases first, then add generated stuff)   
-   - commands for every user (sophomorix-show-my account, ...)
-   - creating a htmlpage with links to all usable public-html's
-     (this script updates this page, whenever a teacher opens/closes a 
-      users public-html)
-   - quick-self-add-mode
-   - Mail notification for events (i.e. new student in your class, ...) 
-   - use of sperrklassen.txt or entfernen.txt (-> filter.txt)
-   - think about getting user in class lists from the database
-     for correction of exams, ...
-   - think about lehrer.txt handling
-     allow comments to be added in a new Filed ()
-   think about ext-lehrer (teacher fo only one class).
-     probably needed for vhs-Kurse, etc., ...
-   - think about: when a teacher adds/removes herself to a class, 
-     add/remove her to a field in class_db
-   - think about acl's and their handling in repair-directory
-   - think about self adding of users
-   - think about grpquota in projects
-   - think about manually moving pupils in other classes
-      - restrict manually moving to Permanent,Frozen?
-      - manually create classes for Permanent
-        or automatically create a class permanent, where all Permanent/Frozen users 
-        a moved to?
-        do they have an exchange directory?
-   - think about file-locking (use DBD:CSV - module)
-   - Think about removing ALL files of a user when she is deleted
-     (find /home/share ... and kill them)
-     think about renaming every file in an exchange-directory
-     of a user that wil be killed shortly to
-       filename.txt   -> will_be_deleted_filename.txt
-   - group problems: which group should be primary group
-   - easy to hook in prefilter-scripts, that are run automatically
-   - create multiple project_db files ???
-       1. automatically created projects:  department-spanning
-       2. manually created projects by root
-       3. Projects created by teachers
+
+
+############################################################
+Administration Software
+############################################################
 
 Administration software:
    schueler.txt:   class;lastname;firstname;birthday;unid;department;
@@ -765,11 +700,48 @@ Software Vendors:
    - Schulkartei
 
 
-libpamount
-
-publichtml: Mail vom 12.04.06
 
 
+============================================================
+============================================================
+Think about:
+============================================================
+============================================================
+   - tar.gz-ing /var/www/people when deleting a user
+     (for teachers only)
+   - cups 
+   - moodle (add users to classes, add teachers to admins)
+   - deleting /home/exams
+   - log password changes securely
+   - create loginnames initial.name.birthday
+     (what about changes to this data)
+   - sophomorix-info for ALL users (show my account data)
+   - make standard-passwort linux configurable
+   - commands for every user (sophomorix-show-my account, ...)
+   - quick-self-add-mode
+   - Mail notification for events (i.e. new student in your class, ...) 
+   - use of sperrklassen.txt or entfernen.txt (-> filter.txt)
+   - think about getting user in class lists from the database
+     for correction of exams, ...
+   - think about lehrer.txt handling
+     allow comments to be added in a new field
+   think about ext-lehrer (teacher fo only one class).
+     probably needed for vhs-Kurse, etc., ...
+   - think about acl's and their handling in repair-directory
+   - think about self adding of users
+   - think about grpquota in projects
+   - think about manually moving students in other classes
+      - restrict manually moving to Permanent,Frozen?
+      - manually create classes for Permanent
+        or automatically create a class permanent, where all Permanent/Frozen users 
+        a moved to?
+        do they have an exchange directory?
+   - Think about removing ALL files of a user when she is deleted
+     (find /home/share ... and kill them)
+     think about renaming every file in an exchange-directory
+     of a user that wil be killed shortly to
+       filename.txt   -> will_be_deleted_filename.txt
+   - easy to hook in prefilter-scripts, that are run automatically
 
 
 
@@ -964,18 +936,12 @@ change quota with cyrus-user.pl -u user -q quota
          add tests to sophomorix-test (check groups, check_provided_files)
 
            
-   - beim gruppenanlegen das Feld description nutzen
    - strichpunkt an schueler.txt intelligent anhängen
      (bisher in sophomorix.conf)
 
    - smbldap-usershow entspricht in etwa sophomorix-user
    - crypt zu md5 (Passwort-decription)
    - system() in perl mit sysrun tauschen (oder noch besseres)
-
-   - updating sophomorix-user -i to show workstations and get not 
-     confused by them
-
-   - function rewrite: get_users_project
 
    - use groups_admin in display ???
   
@@ -1011,13 +977,6 @@ Reactivation is very slow (when a user reappears in schueler.txt)
 ------------------------------------------------------------
 Code cleanup
 ------------------------------------------------------------
-
-- remove option db in sophomorix.conf
-- remove decision for db in all scripts
-
-- make functions in sys-pgldap empty
-- remove all calls to this functions in the scripts
-- remove use of sys-pgldap in all scripts
 - move show ... loaded to higher loglevel
 - move show Language ... loaded to higher loglevel
 
@@ -1033,8 +992,6 @@ show_....list:
 should call fetch ... and just display the results
 (avoid code doubling)
 
-odbc.ini and template remove uncommented lines 
-(password and user)
 ------------------------------------------------------------
 
 
@@ -1234,6 +1191,9 @@ Bei wiedereintritt soll Ordner mit korrekten Daten da sein
 
 Homedir of administrators: 2701 (is this good?)
 
+
+Is this necessary?
+====================
 add a field male/female to database and lehrer.txt
 make configurable if a 
 Lehrerinnen-Liste 
@@ -1243,9 +1203,7 @@ is created
 
 
 
-userliste in allen sophomorix-*:    -u --users user1,user2,...  Liste akzeptieren  
-(-l raus, --login raus)
-
+userliste in allen sophomorix-*:    -u --users user1,user2,...
   - sophomorix-kill
   - sophomorix-add
   - sophomorix-move
@@ -1260,20 +1218,7 @@ root.root 0640 oder root.root 0755
 
 Datei kann nicht eingesammelt werden da sich die Zeit ändert?
 
-
-check_klasse noch notwendig? (sophomorix-print)
-
-
-
-
-3.0: nur offene Projekte (--join)
-
-
 subclassen als projekte hinzufügen? Tut das?
-
-LOGGING:
-think about logging all sophomorix-commands to /var/log/sophomorix with date
-logrotate file in /debian/package.logrotate
 
 add option --htaccess  to sophomorix-repair that rewrites .htaccess-files
 
@@ -1281,22 +1226,11 @@ can sophomorix-class set quota AND writes them to the system???
 if yes: update man page
 
 
-No quota for www-data
-==================================================
-Schulkonsole: do this manually
-sophomorix: use 
-   sophomorix-quota --user www-data --force
-to set. (setting mailquota will thow errors because www-data in not a 
-cyrus user)
-
 BUG: /etc/aliases root.root 0644  (who changes this values) 
 sophomorix-mail does not changethese values (but should do it with umask)
 
 
 ALL ?! tasks in /var/cache/sophomorix/tasks/gruppe/lehrer
-
-?!Tester eintragen
-
 
 
 Next: option --unignore
@@ -1306,8 +1240,19 @@ Next: option --unignore
 
 RELEASE NOTES: Test sambapwdmustchange
 
-1.8.3-1  (2006-07-xx)
-
+1.8.4-1  (2006-07-xx)
+   - removed package sophomorix-sys-pgldap (not needed anymore)
+   - code cleanup:
+       replaced update_gecos function
+       removed all calls to functions in SophomorixSYSPgldap
+   - sophomorix-print: 
+       - made latexing standard (instead of pdflatexing)
+       - removed class check (nonexisting class shows empty printout)
+       - added option --pdflatex
+   - added a logrotate config file to package sophomorix-base to
+     log command.log
+   - Bugfix: /var/cache/sophomorix not created
+   - added basic logging (date-time::start::script) to all scripts
    - added function to read /etc/linuxmustser/classrooms
      (1 room per line)
    - adding a user with sambapwmustchange:
