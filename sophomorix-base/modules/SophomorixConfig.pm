@@ -44,7 +44,6 @@ if (not -e $develconf){
 }
 
 # Einlesen der Konfigurationsdatei für Entwickler
-#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
 { package DevelConf ; do "$develconf"}
 
 

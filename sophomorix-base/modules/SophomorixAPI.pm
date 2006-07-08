@@ -34,28 +34,6 @@ use Sophomorix::SophomorixBase qw (
             );
 
 
-
-
-# wenn diese Zeile da steht dann muss in SophomorixSYSFiles.pm immer
-# wenn eine Funktion aus SophomorixBase.pm genutzt wird der absolute Pfad
-# &Sophomorix::SophomorixBase::titel() angegeben werden.
-# Es wir nach der Funktion in Sophomorix::SophomorixSYSFiles::titel gesucht
-
-#use Sophomorix::SophomorixSYSFiles qw ( 
-#                                    get_user_auth_data
-#                                  );
-
-
-
-
-#use Sophomorix::SophomorixFiles qw ( 
-#                                    update_user_db_entry
-#                                  );
-
-
-
-
-
 =head1 Documentation of SophomorixAPI.pm
 
 
