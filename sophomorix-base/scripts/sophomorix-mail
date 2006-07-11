@@ -5,7 +5,6 @@
 # Bei Fehlern wenden Sie sich bitte an mich.
 # jeffbeck@web.de  oder  jeffbeck@gmx.de
 
-
 # ===========================================================================
 # Bibliotheken
 # ===========================================================================
@@ -15,8 +14,6 @@ Getopt::Long::Configure ("bundling");
 
 use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
-#use Sophomorix::SophomorixAPI qw(
-#                                );
 use Sophomorix::SophomorixPgLdap qw(
                                   show_modulename
                                   db_connect
@@ -26,10 +23,8 @@ use Sophomorix::SophomorixPgLdap qw(
                                   fetchinfo_from_project
                                   fetchusers_from_adminclass
                                    );
-
 use DBI;
 use Net::LDAP;
-
 
 # ===========================================================================
 # Optionen verarbeiten
@@ -39,12 +34,10 @@ my $file="/etc/aliases";
 my $file_tmp="/etc/aliases-tmp";
 my $new_aliases="/usr/bin/newaliases";
 
-
 # Variablen für Optionen
 $Conf::log_level=1;
 my $help=0;
 my $info=0;
-
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -150,7 +143,6 @@ if ($magic==0){
 }
 
 
-
 # 3) add own stuff
 # additional comment
 print ALIASESTMP "### Entries after here are managed by sophomorix-mail ###\n";
@@ -171,6 +163,7 @@ foreach my $gruppe (@mail_projects) {
       &generate_mail_alias_projects("$gruppe"); 
    }
 }
+
 
 
 # mailinglist of adminclass
@@ -221,7 +214,7 @@ sub get_mail_alias_classes {
     my $sth= $dbh->prepare( "SELECT gid,mailalias 
                             FROM classdata 
                             WHERE (mailalias='t'
-                              AND type='adminclass') 
+                              AND (type='adminclass' OR type='teacher')) 
                            " );
     $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
@@ -262,7 +255,7 @@ sub get_mail_list_classes {
     my $sth= $dbh->prepare( "SELECT gid,maillist 
                             FROM classdata 
                             WHERE (maillist='t'
-                              AND type='adminclass') 
+                              AND (type='adminclass' OR type='teacher')) 
                            " );
     $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
