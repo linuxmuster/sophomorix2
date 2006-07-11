@@ -870,6 +870,7 @@ system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlog
 
 # make important data readable by root only
 &setup_verzeichnis("\$var_lib_pfad","$DevelConf::var_lib_pfad");
+&setup_verzeichnis("\$log_files","$DevelConf::var_lib_pfad");
 
 
 
