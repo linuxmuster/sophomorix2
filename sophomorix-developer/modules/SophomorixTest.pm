@@ -643,11 +643,9 @@ sub check_groups {
     }
     closedir TASK;
 
-    # add share school if necessary if configured in sophomorix.conf
+    # add link to share school if necessary
     my $share_school="${Language::share_string}"."${Language::school}";
-    if (${Conf::schulweit_tauschen} eq "yes") {
-        $is_links_share{$share_school} = 1;
-    }
+    $is_links_share{$share_school} = 1;
 
 
     # go through must_groups , and check this
