@@ -12,8 +12,6 @@ This is the todo/changelog for the sophomorix sourcecode
 Next meeting 0711/ 253 583-33
 ============================================================
 ============================================================
-Quota in /var/www/people ?
-
 
 smb.conf:
 
@@ -774,6 +772,12 @@ id	short_status	long_status
 10	P		permanent
 
 
+Quota in /var/www/people ?
+without quota. owner of all uploaded files is www-data
+
+
+
+
 ############################################################
 INSTALLATION TESTSERVER:
 ############################################################
@@ -1237,10 +1241,32 @@ Next: option --unignore
              --teach-in liste
 
 
+create dir /var/log/sophomorix/user/history with installation of package
+make it root.root 0700
+
+
+sophomorix.conf 
+mail aliase tut nicht
+
+
+vorname.nachname automatisch anlegen in /etc/aliases
+(vorname_nachname)
+
+doppelter loginname: 
+neuerer hinzugenommener user bekommt KEIN alias
+älterer behält alias
+später: override durch datenbanktabelle 
+
+
+was muss man machen dass schulweit tauschen möglich wird/unmöglich
+(option hat keine Wirkung)
+Parameter entfernen: Conf::schulweit_tauschen
+und aus SophomorixTest.pm raus
 
 
 1.8.5-1  (2006-07-xx)
-
+   - removed schulweit_tauschen variable in sophomorix.conf
+   - typo in sophomorix.conf removed
 
 1.8.4-1  (2006-07-08)
    - removed package sophomorix-sys-pgldap (not needed anymore)
