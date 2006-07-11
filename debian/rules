@@ -54,23 +54,17 @@ install: build
 
 	# Add here commands to install the package into debian/sophomorix.
 	$(MAKE) install-base DESTDIR=$(CURDIR)/debian/sophomorix
-#	$(MAKE) install-ldap DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-files DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-sys-files DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-pgldap DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-sys-pgldap DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-developer DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-vampire DESTDIR=$(CURDIR)/debian/sophomorix
-#	$(MAKE) install-webmin-classmanager DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) doc DESTDIR=$(CURDIR)/debian/sophomorix
 
 
 # Build architecture-independent files here.
 binary-indep: build install
-# We have nothing to do by default.
-
-# Build architecture-dependent files here.
-binary-arch: build install
 	dh_testdir
 	dh_testroot
 	dh_installdebconf	
@@ -109,8 +103,6 @@ binary-arch: build install
 	dh_installman -psophomorix-base sophomorix-base/man/de/sophomorix-passwd.de.8
 	dh_installman -psophomorix-base sophomorix-base/man/de/sophomorix-www.de.8
 	dh_installman -psophomorix-base sophomorix-base/man/de/sophomorix-teacher.de.1
-# Install manpages for sophomorix-files
-	dh_installman -psophomorix-files sophomorix-files/man/de/sophomorix-search.de.8
 # Install manpages for sophomorix-pgldap
 	dh_installman -psophomorix-pgldap sophomorix-pgldap/man/de/sophomorix-setup-pgldap.de.8
 # Install manpages for sophomorix-developer
@@ -132,6 +124,10 @@ binary-arch: build install
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
+
+
+# Build architecture-dependent files here.
+binary-arch: build install
 
 binary: binary-indep binary-arch
 .PHONY: build clean binary-indep binary-arch binary install configure
