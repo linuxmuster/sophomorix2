@@ -1244,18 +1244,14 @@ ALL ?! tasks in /var/cache/sophomorix/tasks/gruppe/lehrer
 Next: option --unignore
              --teach-in liste
 
-
-create dir /var/log/sophomorix/user/history with installation of package
-make it root.root 0700
-
-
-doppelter loginname: 
-neuerer hinzugenommener user bekommt KEIN alias
-älterer behält alias
-später: override durch datenbanktabelle 
+double loginname: 
+newer user receives NO alias
+older user keeps alias
+later: override with database entry
 
 
 1.8.5-1  (2006-07-xx)
+   - adding /var/log/sophomorix with root.root 700 to package
    - Bugfix: allow sophomorix-class activate mailaliases (and maillists)
      for the group teachers (type teacher)
    - removed schulweit_tauschen variable in sophomorix.conf
