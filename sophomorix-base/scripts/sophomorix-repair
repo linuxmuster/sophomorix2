@@ -206,6 +206,7 @@ sub repair_directories {
 
        #s/\$homedir_admin/$DevelConf::homedir_admin/;
        s/\$var_lib_pfad/$DevelConf::var_lib_pfad/;
+       s/\$log_files/$DevelConf::log_files/;
        s/\$apache_user/$DevelConf::apache_user/;
        s/\$apache_group/$DevelConf::apache_group/;
        s/\$homedir_all_admins/$DevelConf::homedir_all_admins/;
