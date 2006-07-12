@@ -89,10 +89,12 @@ use Quota;
               provide_project_files
               remove_project_files
               provide_user_files
+              fetchhtaccess_from_user
               user_public_upload
               user_public_noupload
               user_private_upload
               user_private_noupload
+              fetchhtaccess_from_group
               group_public_upload
               group_public_noupload
               group_private_upload
@@ -3673,11 +3675,48 @@ sub collect {
 
 
 
-################################################################################
+###############################################################################
 # HTACCESS-TOOLS
-################################################################################
+###############################################################################
 
 # users
+sub fetchhtaccess_from_user {
+    my ($user) = @_;
+    my $upload=0;
+    my $public=0,
+    my $result="user-";
+    my ($home,$type)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
+    if ($type eq "teacher"){
+        $ht_target=${DevelConf::www_teachers}."/".$user."/.htaccess";
+    } elsif ($type eq "student"){
+        $ht_target=${DevelConf::www_students}."/".$user."/.htaccess";
+    } else {
+        return "";
+    }
+    open(FILE, "<$ht_target");
+    while (<FILE>) {
+        chomp(); # Returnzeichen abschneiden
+        s/\s//g; # Spezialzeichen raus
+        if(/^\#public/){
+            $public=1;
+        }
+        if(/^\#upload/){
+            $upload=1;
+        }
+    }
+    close(FILE);
+    if ($public==1){
+        $result=$result."public-";
+    } else {
+        $result=$result."private-";
+    }
+    if ($upload==1){
+        $result=$result."upload";
+    } else {
+        $result=$result."noupload";
+    }
+    return $result;
+}
 
 sub user_public_upload {
     my ($user) = @_;
@@ -3837,6 +3876,47 @@ sub user_private_noupload {
 
 
 # groups
+sub fetchhtaccess_from_group {
+    my ($group) = @_;
+    my $upload=0;
+    my $public=0,
+    my $result="group-";
+    my ($type,$longname)=
+       &Sophomorix::SophomorixPgLdap::pg_get_group_type($group);
+
+    if ($type eq "adminclass"){
+        $ht_target=${DevelConf::www_classes}."/".$group."/.htaccess";
+    } elsif ($type eq "project"){
+        $ht_target=${DevelConf::www_projects}."/".$group."/.htaccess";
+    } else {
+	return "";
+    }
+
+    open(FILE, "<$ht_target");
+    while (<FILE>) {
+        chomp(); # Returnzeichen abschneiden
+        s/\s//g; # Spezialzeichen raus
+        if(/^\#public/){
+            $public=1;
+        }
+        if(/^\#upload/){
+            $upload=1;
+        }
+    }
+    close(FILE);
+    if ($public==1){
+        $result=$result."public-";
+    } else {
+        $result=$result."private-";
+    }
+    if ($upload==1){
+        $result=$result."upload";
+    } else {
+        $result=$result."noupload";
+    }
+    return $result;
+}
+
 
 sub group_public_upload {
     my ($group) = @_;

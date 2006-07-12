@@ -27,6 +27,7 @@ my $help=0;
 my $info=0;
 my $filename="";
 my $dateirechte=0;
+my $htaccess=0;
 my $schueler=0;
 my $lehrer=0;
 my $login="";
@@ -46,6 +47,7 @@ my $testopt=GetOptions(
            "info|i" => \$info,
            "verbose|v+" => \$Conf::log_level,
            "permissions|p" => \$dateirechte,
+           "htaccess" => \$htaccess,
            "command-number=n" => \$command_number,
            "user|u=s" => \$login,
            "file|f=s" => \$filename
@@ -55,7 +57,9 @@ my $testopt=GetOptions(
 &check_options($testopt);
 
 
-if ($dateirechte==0 and $info==0) {
+if ($dateirechte==0 
+    and $htaccess==0
+    and $info==0) {
    # Es muss eine Option angegeben werden, sonst hilfe
    $help=1;
 }
@@ -80,6 +84,7 @@ Options
 
 What to repair:
   -p  / --permissions
+  --htaccess
   --acl (Todo)
 
 Limit the repair to a command-number (show the numbers with -i):
@@ -92,7 +97,7 @@ Limit the repair to some users:
 
 Please see the sophomorix-repair(8) man pages for full documentation
 ');
-   exit;
+   exit; 
 }
 
 
@@ -177,11 +182,68 @@ if ($dateirechte==1 or $info==1) {
    exit;
 }
 
+# --htaccess
+if ($htaccess==1){
+   &repair_htaccess();
+   exit;
+}
 
 
-################################################################################
+###############################################################################
 # Erzeugt für jede Zeile von repair.directories einen Befehl
-################################################################################
+###############################################################################
+sub repair_htaccess {
+    print "Repairing htaccess files of adminclasses:\n";
+    foreach my $group (@klassen){
+        my $access=&fetchhtaccess_from_group($group);
+        &set_htaccess_for_group($group,$access);
+    }
+    print "Repairing htaccess files of projects:\n";
+    foreach my $group (@projects){
+        my $access=&fetchhtaccess_from_group($group);
+        &set_htaccess_for_group($group,$access);
+    }
+exit;
+    print "Repairing htaccess files of students:\n";
+    foreach my $student (@schueler){
+        my $access=&fetchhtaccess_from_user($student);
+        &set_htaccess_for_user($student,$access);
+    }
+    print "Repairing htaccess files of teachers:\n";
+    foreach my $teacher (@lehrer){
+        my $access=&fetchhtaccess_from_user($teacher);
+        &set_htaccess_for_user($teacher,$access);
+    }
+}
+
+
+sub set_htaccess_for_user {
+    my ($user,$access) = @_;
+    if ($access eq "user-public-upload"){
+        &user_public_upload($user);
+    } elsif ($access eq "user-private-upload"){
+        &user_private_upload($user);
+    } elsif ($access eq "user-public-noupload"){
+        &user_public_noupload($user);
+    } elsif ($access eq "user-private-noupload"){
+        &user_private_noupload($user);
+    }
+}
+
+sub set_htaccess_for_group {
+    my ($group,$access) = @_;
+    if ($access eq "group-public-upload"){
+        &group_public_upload($group);
+    } elsif ($access eq "group-private-upload"){
+        &group_private_upload($group);
+    } elsif ($access eq "group-public-noupload"){
+        &group_public_noupload($group);
+    } elsif ($access eq "group-private-noupload"){
+        &group_private_noupload($group);
+    }
+}
+
+
 sub repair_directories {
    # Liste mit einem Element, dass die Schleifen EINMAL durchlaufen werden
    my @gruppen=("");
@@ -375,9 +437,9 @@ sub repair_directories {
 
 
 
-################################################################################
-# REparieren eines Verzeichnisses 
-################################################################################
+###############################################################################
+# Reparieren eines Verzeichnisses 
+###############################################################################
 sub repair_directory {
    # Übergabewerte:
    # pfad(string) mit variablen $gruppe und $user
