@@ -1228,9 +1228,7 @@ Datei kann nicht eingesammelt werden da sich die Zeit ändert?
 
 subclassen als projekte hinzufügen? Tut das?
 
-add option --htaccess  to sophomorix-repair that rewrites .htaccess-files
-
-can sophomorix-class set quota AND writes them to the system???
+can sophomorix-class/project set quota AND writes them to the system???
 if yes: update man page
 
 
@@ -1249,8 +1247,13 @@ newer user receives NO alias
 older user keeps alias
 later: override with database entry
 
+1.8.6-1  (2006-07-11)
+   - sophomorix-repair: new option to repair
+     .htaccess files in /var/www/people
+   - sophomorix-www: show help when options are missing
 
-1.8.5-1  (2006-07-xx)
+
+1.8.5-1  (2006-07-11)
    - adding /var/log/sophomorix with root.root 700 to package
    - Bugfix: allow sophomorix-class activate mailaliases (and maillists)
      for the group teachers (type teacher)
