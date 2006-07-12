@@ -2085,6 +2085,7 @@ sub create_share_directory {
                     print "   Adding directory ${handout_dir}\n"; 
 	        }
                 system("mkdir $handout_dir");
+                system("chown $login:root $handout_dir");
             }
             my $to_handoutcopy_dir=$homedir."/".
                 ${Language::to_handoutcopy_dir}."/".
@@ -2094,6 +2095,7 @@ sub create_share_directory {
                     print "   Adding directory ${to_handoutcopy_dir}\n"; 
 	        }
                 system("mkdir $to_handoutcopy_dir");
+                system("chown $login:root $to_handoutcopy_dir");
             }
             my $collected_dir=$homedir."/".
                 ${Language::collected_dir}."/".$share_long_name;
@@ -2102,6 +2104,7 @@ sub create_share_directory {
                     print "   Adding directory ${collected_dir}\n"; 
 	        }
                 system("mkdir $collected_dir");
+                system("chown $login:root $collected_dir");
             }
             
             # adding subdirs with the name of $teacher to __einsammeln
@@ -2142,6 +2145,7 @@ sub create_share_directory {
                 print "   Adding directory ${handoutcopy_dir}\n"; 
             }
             system("mkdir $handoutcopy_dir");
+            system("chown $login:root $handoutcopy_dir");
         }
 
     } else {
@@ -3376,8 +3380,10 @@ sub handout {
 
   if ($rsync eq "delete") {
      system("rsync -tor --delete $from_dir $to_dir");
+     system("chmod -R 0755 $to_dir");
   } elsif ($rsync eq "copy"){
      system("rsync -tor $from_dir $to_dir");
+     system("chmod -R 0755 $to_dir");
   } else {
       print "unknown Parameter $rsync";
   }
