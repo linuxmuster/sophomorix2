@@ -508,7 +508,7 @@ sub set_mail_quota {
     if (-s "${DevelConf::linuxmuster_imap}") {
        # if it is bw musterloesung
        $cyrus=1;
-       my $command="${DevelConf::linuxmuster_imap} -u $login -q ${mailquota}m";
+       my $command="${DevelConf::linuxmuster_imap} -u $login -c -q ${mailquota}m";
        print "$command\n";
        system("$command");
        #system("${DevelConf::linuxmuster_imap} -u $login -q ${mailquota}m");
