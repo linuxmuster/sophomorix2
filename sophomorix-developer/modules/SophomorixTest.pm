@@ -527,12 +527,12 @@ sub check_provided_files {
        &check_file("$Language::collect_dir",$login,$class,
                     "root",
                     "root",
-                    "1755");
+                    "1777");
     } else {
        &check_file("$Language::collect_dir",$login,$class,
                     "root",
                     "root",
-                    "1755");
+                    "1777");
 
     }   
 
