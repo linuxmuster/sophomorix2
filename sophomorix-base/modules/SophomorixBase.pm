@@ -33,7 +33,6 @@ use Quota;
               get_old_info 
               user_login_hash
               save_tausch_klasse
-              protokoll_linien
               extra_kurs_schueler
               lehrer_ordnen
               zeit_stempel
@@ -60,13 +59,6 @@ use Quota;
               log_script_start
               archive_log_entry
               backup_amk_file
-              datum_loeschen_schueler
-              daten_loeschen_ich_lehrer
-              daten_loeschen_lehrer
-              daten_loeschen
-              get_dir_list
-              td_ausgeben
-              liste_ausgeben
               get_mail_alias_from
               get_quotastring
               setze_quota
@@ -147,7 +139,7 @@ of B<SophomorixBase> and youre off.
 
 
 ################################################################################
-# FORMATIERUNGEN
+# FORMATTING
 ################################################################################
 =pod
 
@@ -496,6 +488,9 @@ sub make_some_files_root_only {
 }
 
 
+################################################################################
+#  Working with files
+################################################################################
 
 sub remove_line_from_file {
     my @fields=();
@@ -1130,16 +1125,8 @@ sub provide_user_files {
 # ===========================================================================
 # Protokoll-Datei lesen
 # ===========================================================================
-=pod
 
-=item I<%hash = protokoll_linien()>
-
-liest die Linien aus user_db in einen Hash.
-
-=cut
-
-# ???????????????????
-sub protokoll_linien {
+sub protokoll_linien_oldstuff {
    # Protokoll-Datei Zeilenweise in einen Hash einlesen
    my %protokoll_linien=();
    open(PROTOKOLL,"<$DevelConf::protokoll_datei");
@@ -1693,8 +1680,6 @@ sub check_verzeichnis_mkdir {
 # ===========================================================================
 # User Account Information
 # ===========================================================================
-
-
 =pod
 
 =item I<get_user_history(login)>
@@ -1914,10 +1899,12 @@ sub reset_user {
                 }
                 my ($type,$longname)=
                    &Sophomorix::SophomorixPgLdap::pg_get_group_type($group);
-                    print "   Creating Links for secondary group $group ($longname)\n";
+                    print "   Creating Links for secondary ",
+                          "group $group ($longname)\n";
 
                 if($Conf::log_level>=2){
-                    print "   Creating Links for secondary group $group ($longname)\n";
+                    print "   Creating Links for secondary ",
+                          "group $group ($longname)\n";
                 }    
                 &create_share_link($user,$group,$longname,$type);
                 if($Conf::log_level>=2){
@@ -2421,284 +2408,18 @@ sub backup_amk_file {
 
 
 ################################################################################
-# LEHRER
-################################################################################
-
-
-################################################################################
 # WORKSTATIONS
 ################################################################################
-
-
 
 
 ################################################################################
 # KLASSEN
 ################################################################################
 
-# ===========================================================================
-# Prüfen,ob der übergebene Gruppenname(String) eine Klasse ist
-# ===========================================================================
-sub check_klasse_oldstuff {
-    my ($klasse_to_check) = @_;
-    # print "Pruefe, ob $klasse_to_check eine Klasse ist.";
-    my @pwliste;
-    my %klassen_id_hash=();
-    # Alle Klassen-ids in einen Hash
-
-    setpwent();
-    while (@pwliste=getpwent()) {
-#       if ($pwliste[7]=~/^\/home\/schueler\//) {
-       if ($pwliste[7]=~/^$DevelConf::homedir_pupil/) {
-          $klassen_id_hash{$pwliste[3]}=""; 
-          #print "$pwliste[3]";
-       }
-    }
-    endpwent();
-
-    # Suche Group-ID zur zu prüfenden Gruppe
-    my $gid=getgrnam("$klasse_to_check");
-    if (not $gid) {$gid=-1};
-    if (exists $klassen_id_hash{$gid}) {
-        #print "$klasse_to_check ist eine Klasse";
-        # Ja = 1
-        $ergebnis=1;
-    } else {
-        # Nein =2
-        $ergebnis=0;
-    }
-    return $ergebnis;
-}
-
-
-
-
 
 ################################################################################
 # RÄUME
 ################################################################################
-
-
-
-
-
-################################################################################
-# WEBMIN
-################################################################################
-
-
-
-# ===========================================================================
-# Löschen von Schüler-Dateien
-# ===========================================================================
-sub daten_loeschen_schueler {
-   # Hash der Schüler_ids erzeugen
-   # loginnamen aller Schüler
-   my @user_loesch_liste=&get_schueler_in_schule();
-   my %user_loesch_hash_id=();
-   # Liste/Hash mit id's füllen
-   foreach $user (@user_loesch_liste) {
-      my $uid=getpwnam $user;
-      # erzeugt Liste  
-      #push(@user_loesch_liste_id, $uid);
-      # erzeugt Hash
-      $user_loesch_hash_id{$uid}="";
-   }
-   # Ausgabe des Hashes
-   #   while (($k) = each %user_loesch_hash_id){
-   #      print "Lösche $k<p>";
-   #   }
-   # Lösch-Funktion aufrufen, Parameter ist Hash mit user-id's
-   &daten_loeschen(%user_loesch_hash_id);
-}
-
-
-
-# ===========================================================================
-# Löschen von Eigenen Lehrer-Dateien
-# ===========================================================================
-sub daten_loeschen_ich_lehrer {
-   my $loginname="$ENV{'REMOTE_USER'}";
-   my %user_loesch_hash_id=();
-   my $loginname_id=getpwnam $loginname;
-   # erzeugt Hash mit nur dem einen Lehrer, der eingeloggt ist
-   $user_loesch_hash_id{$loginname_id}="";
-   # Lösch-Funktion aufrufen, Parameter ist Hash mit user-id's
-   &daten_loeschen(%user_loesch_hash_id);
-}
-
-
-
-
-# ===========================================================================
-# Löschen von Lehrer-Dateien
-# ===========================================================================
-sub daten_loeschen_lehrer {
-   # Hash der Lehrer_ids erzeugen
-   # loginnamen aller Lehrer
-   my @user_loesch_liste=&get_lehrer_in_schule();
-   my %user_loesch_hash_id=();
-   # Liste/Hash mit id's füllen
-   foreach $user (@user_loesch_liste) {
-      my $uid=getpwnam $user;
-      # erzeugt Liste  
-      #push(@user_loesch_liste_id, $uid);
-      # erzeugt Hash
-      $user_loesch_hash_id{$uid}="";
-   }
-   # Ausgabe des Hashes
-   #   while (($k) = each %user_loesch_hash_id){
-   #      print "Lösche $k<p>";
-   #   }
-   # Lösch-Funktion aufrufen, Parameter ist Hash mit user-id's
-   &daten_loeschen(%user_loesch_hash_id);
-}
-
-
-
-
-
-
-# ===========================================================================
-# Löschen vo Dateien von Usern im übergebenen Hash
-# ===========================================================================
-# Löscht alle Daten, die Usern aus dem übergebenen Hash gehören
-sub daten_loeschen {
-   my %user_loesch_hash_id = @_;
-   # Verarbeitung
-   # Infos zur Datei holen (lstat: gibt links statt deren Quelle zurück)
-   my @statliste=lstat($File::Find::name);
-   my $owner= getpwuid $statliste[4];
-   my $deletestring="$File::Find::name";
-   # nur zum testen ob löschen verhindert wird.
-   #$deletestring="${DevelConf::share_classes}/km1kb2t"; 
-   if (exists $user_loesch_hash_id{$statliste[4]}) {
-      # Nochmal checken, ob wirklich löschen
-#      if ($deletestring=~/^\/home\/tausch\/klassen\/${klasse}\//) {
-# ???????????
-      if ($deletestring=~/^\/home\/share\/classes\/${klasse}\//) {
-         print "<b>Lösche : ","$deletestring"," ---> Eigentümer: $statliste[4]","($owner)","</b><p>";
-         #rmtree($deletestring); 
-         # tut, aber gefährlich und löscht root-Dateien in Unterverzeichnissen
-         # alternative:
-         # + nicht so gefährlich
-         # + root-Dateien bleiben erhalten
-         # +- Verzeichnisse von schuelern/lehrern bleiben erhalten, wenn eine root-Datei drin ist
-         unlink($deletestring); # falls es eine Datei ist
-         rmdir($deletestring);  # falls es ein Verzeichnis ist
-      }
-   } else {
-     print "Nicht gelöscht: ","$deletestring"," ---> Eigentümer: $statliste[4]","($owner)","<p>";
-   }
-}
-
-
-
-# Eine Liste des Verzeichnisinhalts erstellen
-sub get_dir_list {
-  my ($path)=@_;
-  my @filelist=();
-  my $abs_path="";
-  my $leer=1;
-  #my $dir="0";
-  if (not -e $path) {
-    return "-1";
-  } else {
-     opendir VERZ, $path or die "kann $path nicht öffnen";
-     foreach my $datei (readdir VERZ){
-         if ($datei eq "."){next};
-         if ($datei eq ".."){next};
-         $leer=0;
-         $abs_path = "$path"."/"."$datei";
-         if (-d "$abs_path") {
-          $datei="$datei"."/";
-	} elsif (-l "$abs_path") {
-          $datei = "$datei"." (link)";
-	}
-         push (@filelist, $datei);
-     }
-     if ($leer==1) {
-        return "0";
-     } else {
-        @filelist = sort @filelist;
-        # als erstes element 1 Zurcück = mit Inhalt
-        unshift (@filelist, "1");
-        return @filelist;
-     }
-  }
-}
-
-
-
-
-# Eine Liste als td ausgeben (tabledata)
-# Erstes Element der Rückgabeliste gibt an:
-#  -1: Verzeichnis existiert nicht
-#   0: Verzeichnis ist leer (nur . und .. sind da)
-#   1: Verzeichnis enthält Daten
-sub td_ausgeben {
-  my ($error, @liste) = @_;
-  my $item="";
-  
-  if ($error eq "-1") {
-     print "  <td bgcolor=#FF3300><b>";
-     print "Verzeichnis existiert nicht<br>";
-   } elsif ($error eq "0") {
-        print "  <td bgcolor=#FF9966><b>";
-     print "Verzeichnis ist leer<br>";
-   } else {
-        print "  <td bgcolor=#66FF99><b>";
-	foreach $item (@liste){
-	  if ($item=~/\//) {
-           # Verzeichnissymbol
-           print "<img src=\"/images/dir.gif\">";
-	 } else {
-           # Dateisymbol 
-           print "<img src=\"/images/text.gif\">";
-         }
-           print " $item <br>";
-	}
-   }
-   print "</b></td>\n";
-}
-
-
-# Eine Liste ausgeben in einer Tabelle (ohne Rand)
-# Erstes Element der Rückgabeliste gibt an:
-#  -1: Verzeichnis existiert nicht
-#   0: Verzeichnis ist leer (nur . und .. sind da)
-#   1: Verzeichnis enthält Daten
-sub liste_ausgeben {
-  my $spalten_anzahl=2;
-  my ($error, @items) = @_;
-
-  if ($error eq "-1") {
-     print "<br><font color=red><b>Verzeichnis existiert nicht</b></font><p>";
-   } elsif ($error eq "0") {
-     print "<br><font color=red><b>Das Verzeichnis ist leer</b></font><p>";
-   } else {
-	foreach $item (@liste){
-           print "$item <br>";
-	}
-   }
-
-   # Auffüllen mit leeren Feldern
-   while ( ($#items+1) % $spalten_anzahl !=0) {
-     push (@items, "&nbsp;");
-   }
-   # Ausgeben als Tabelle
-   print "<table border=0 bgcolor=lightgrey cellpadding=5 width=100% border>\n";
-   while ( ($#items+1) != 0) {
-      print "<tr>\n";
-      my $item="";
-      for ($i = 1; $i <= $spalten_anzahl; $i++) {
-         $item = shift(@items);
-         print "  <td width=25%><b>$item</b></td>\n";
-      }
-      print "</tr>\n";
-   }
-   print "</table>\n";
-}
 
 
 ################################################################################
@@ -3312,6 +3033,10 @@ sub sophomorix_passwd {
 
 
 
+################################################################################
+# TEACHER STUFF
+################################################################################
+
 sub share_access {
     # first parameter: 0=off, 1=on
     # second parameter: list of users (also works for teachers)
@@ -3478,7 +3203,7 @@ sub collect {
   # Parameter 3: Typ (class,subclass,project,room,current room, ...)
   # Parameter 4: options for rsync
   # Parameter 5: exam(0,1) 
-  # Parameter 6: users commaseperated
+  # Parameter 6: users commaseparated
   # rsync
   # -t Datum belassen
   # -r Rekursiv
@@ -4106,6 +3831,200 @@ sub get_debconf_value {
        return $ret;
     }
 }
+
+
+
+
+################################################################################
+# WEBMIN
+################################################################################
+
+# ===========================================================================
+# Löschen von Eigenen Lehrer-Dateien
+# ===========================================================================
+sub daten_loeschen_ich_lehrer_oldstuff {
+   my $loginname="$ENV{'REMOTE_USER'}";
+   my %user_loesch_hash_id=();
+   my $loginname_id=getpwnam $loginname;
+   # erzeugt Hash mit nur dem einen Lehrer, der eingeloggt ist
+   $user_loesch_hash_id{$loginname_id}="";
+   # Lösch-Funktion aufrufen, Parameter ist Hash mit user-id's
+   &daten_loeschen(%user_loesch_hash_id);
+}
+
+
+
+
+# ===========================================================================
+# Löschen von Lehrer-Dateien
+# ===========================================================================
+sub daten_loeschen_lehrer_oldstuff {
+   # Hash der Lehrer_ids erzeugen
+   # loginnamen aller Lehrer
+   my @user_loesch_liste=&get_lehrer_in_schule();
+   my %user_loesch_hash_id=();
+   # Liste/Hash mit id's füllen
+   foreach $user (@user_loesch_liste) {
+      my $uid=getpwnam $user;
+      # erzeugt Liste  
+      #push(@user_loesch_liste_id, $uid);
+      # erzeugt Hash
+      $user_loesch_hash_id{$uid}="";
+   }
+   # Ausgabe des Hashes
+   #   while (($k) = each %user_loesch_hash_id){
+   #      print "Lösche $k<p>";
+   #   }
+   # Lösch-Funktion aufrufen, Parameter ist Hash mit user-id's
+   &daten_loeschen(%user_loesch_hash_id);
+}
+
+
+
+
+
+
+# ===========================================================================
+# Löschen vo Dateien von Usern im übergebenen Hash
+# ===========================================================================
+# Löscht alle Daten, die Usern aus dem übergebenen Hash gehören
+sub daten_loeschen_oldstuff {
+   my %user_loesch_hash_id = @_;
+   # Verarbeitung
+   # Infos zur Datei holen (lstat: gibt links statt deren Quelle zurück)
+   my @statliste=lstat($File::Find::name);
+   my $owner= getpwuid $statliste[4];
+   my $deletestring="$File::Find::name";
+   # nur zum testen ob löschen verhindert wird.
+   #$deletestring="${DevelConf::share_classes}/km1kb2t"; 
+   if (exists $user_loesch_hash_id{$statliste[4]}) {
+      # Nochmal checken, ob wirklich löschen
+#      if ($deletestring=~/^\/home\/tausch\/klassen\/${klasse}\//) {
+# ???????????
+      if ($deletestring=~/^\/home\/share\/classes\/${klasse}\//) {
+         print "<b>Lösche : ","$deletestring"," ---> Eigentümer: $statliste[4]","($owner)","</b><p>";
+         #rmtree($deletestring); 
+         # tut, aber gefährlich und löscht root-Dateien in Unterverzeichnissen
+         # alternative:
+         # + nicht so gefährlich
+         # + root-Dateien bleiben erhalten
+         # +- Verzeichnisse von schuelern/lehrern bleiben erhalten, wenn eine root-Datei drin ist
+         unlink($deletestring); # falls es eine Datei ist
+         rmdir($deletestring);  # falls es ein Verzeichnis ist
+      }
+   } else {
+     print "Nicht gelöscht: ","$deletestring"," ---> Eigentümer: $statliste[4]","($owner)","<p>";
+   }
+}
+
+
+
+# Eine Liste des Verzeichnisinhalts erstellen
+sub get_dir_list_oldstuff {
+  my ($path)=@_;
+  my @filelist=();
+  my $abs_path="";
+  my $leer=1;
+  #my $dir="0";
+  if (not -e $path) {
+    return "-1";
+  } else {
+     opendir VERZ, $path or die "kann $path nicht öffnen";
+     foreach my $datei (readdir VERZ){
+         if ($datei eq "."){next};
+         if ($datei eq ".."){next};
+         $leer=0;
+         $abs_path = "$path"."/"."$datei";
+         if (-d "$abs_path") {
+          $datei="$datei"."/";
+	} elsif (-l "$abs_path") {
+          $datei = "$datei"." (link)";
+	}
+         push (@filelist, $datei);
+     }
+     if ($leer==1) {
+        return "0";
+     } else {
+        @filelist = sort @filelist;
+        # als erstes element 1 Zurcück = mit Inhalt
+        unshift (@filelist, "1");
+        return @filelist;
+     }
+  }
+}
+
+
+
+
+# Eine Liste als td ausgeben (tabledata)
+# Erstes Element der Rückgabeliste gibt an:
+#  -1: Verzeichnis existiert nicht
+#   0: Verzeichnis ist leer (nur . und .. sind da)
+#   1: Verzeichnis enthält Daten
+sub td_ausgeben_oldstuff {
+  my ($error, @liste) = @_;
+  my $item="";
+  
+  if ($error eq "-1") {
+     print "  <td bgcolor=#FF3300><b>";
+     print "Verzeichnis existiert nicht<br>";
+   } elsif ($error eq "0") {
+        print "  <td bgcolor=#FF9966><b>";
+     print "Verzeichnis ist leer<br>";
+   } else {
+        print "  <td bgcolor=#66FF99><b>";
+	foreach $item (@liste){
+	  if ($item=~/\//) {
+           # Verzeichnissymbol
+           print "<img src=\"/images/dir.gif\">";
+	 } else {
+           # Dateisymbol 
+           print "<img src=\"/images/text.gif\">";
+         }
+           print " $item <br>";
+	}
+   }
+   print "</b></td>\n";
+}
+
+
+# Eine Liste ausgeben in einer Tabelle (ohne Rand)
+# Erstes Element der Rückgabeliste gibt an:
+#  -1: Verzeichnis existiert nicht
+#   0: Verzeichnis ist leer (nur . und .. sind da)
+#   1: Verzeichnis enthält Daten
+sub liste_ausgeben_oldstuff {
+  my $spalten_anzahl=2;
+  my ($error, @items) = @_;
+
+  if ($error eq "-1") {
+     print "<br><font color=red><b>Verzeichnis existiert nicht</b></font><p>";
+   } elsif ($error eq "0") {
+     print "<br><font color=red><b>Das Verzeichnis ist leer</b></font><p>";
+   } else {
+	foreach $item (@liste){
+           print "$item <br>";
+	}
+   }
+
+   # Auffüllen mit leeren Feldern
+   while ( ($#items+1) % $spalten_anzahl !=0) {
+     push (@items, "&nbsp;");
+   }
+   # Ausgeben als Tabelle
+   print "<table border=0 bgcolor=lightgrey cellpadding=5 width=100% border>\n";
+   while ( ($#items+1) != 0) {
+      print "<tr>\n";
+      my $item="";
+      for ($i = 1; $i <= $spalten_anzahl; $i++) {
+         $item = shift(@items);
+         print "  <td width=25%><b>$item</b></td>\n";
+      }
+      print "</tr>\n";
+   }
+   print "</table>\n";
+}
+
 
 
 
