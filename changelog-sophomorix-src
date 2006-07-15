@@ -1228,15 +1228,9 @@ Datei kann nicht eingesammelt werden da sich die Zeit ändert?
 
 subclassen als projekte hinzufügen? Tut das?
 
-can sophomorix-class/project set quota AND writes them to the system???
-if yes: update man page
-
 
 BUG: /etc/aliases root.root 0644  (who changes this values) 
 sophomorix-mail does not changethese values (but should do it with umask)
-
-
-ALL ?! tasks in /var/cache/sophomorix/tasks/gruppe/lehrer
 
 
 Next: option --unignore
@@ -1247,13 +1241,15 @@ newer user receives NO alias
 older user keeps alias
 later: override with database entry
 
-rechte in _auszuteieln: wie in links machen
-          _bereitstellen
-
-Bug /var/log/sophomomorix NOT 0700!
-
 
 ================== CHANGELOG ========================================
+
+1.8.7-1  (2006-07-15)
+   - updated man page of sophomorix-quota
+   - Bugfix /var/log/sophomomorix is 0700
+   - Bug closed: sophomorix-taecher --collect does nothing
+   - Bugfix: __einsammeln not writeable
+
 
 1.8.6-1  (2006-07-12)
    - fixed som permission stuff
