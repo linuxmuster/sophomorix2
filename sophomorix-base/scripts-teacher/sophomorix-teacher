@@ -419,33 +419,33 @@ if ($collect==1 and ($class ne ""
     my $group_type="";
     my $rsync="move";
     if ($class ne ""){
-           &collect($login, $class,"adminclass",$rsync,$exam);
+           &collect($login,$class,"adminclass",$rsync,$exam);
     }
     if ($subclass ne ""){
-           &collect($login, $subclass,"subclass",$rsync,$exam);
+           &collect($login,$subclass,"subclass",$rsync,$exam);
     }
     if ($project ne ""){
-           &collect($login, $project,"project",$rsync,$exam);
+           &collect($login,$project,"project",$rsync,$exam);
     }
     if ($room ne "" and $users ne ""){
         #  collect from userlist (current room)
-        &collect($login, $room,"current room",$rsync,$exam,$users);
+        &collect($login,$room,"current room",$rsync,$exam,$users);
     }
     if ($room ne "" and $exam==1){
         #  collect from a room
-        &collect($login, $room,"room",$rsync,$exam);
+        &collect($login,$room,"room",$rsync,$exam);
     }
     if ($users ne "" and $fromroom==1){
         #  collect from a userlist
-        &collect($login, $room,"current room",$rsync,$exam,$users);
+        &collect($login,$room,"current room",$rsync,$exam,$users);
     }
     if ($users ne "" and $fromproject ne ""){
         #  collect from a userlist
-        &collect($login, $fromproject,"project",$rsync,$exam,$users);
+        &collect($login,$fromproject,"project",$rsync,$exam,$users);
     }
     if ($users ne "" and $fromclass ne ""){
         #  collect from a userlist
-        &collect($login, $fromclass,"class",$rsync,$exam,$users);
+        &collect($login,$fromclass,"adminclass",$rsync,$exam,$users);
     }
     exit;
 }
@@ -464,35 +464,34 @@ if ($collectcopy==1 and ($class ne ""
     my $group_type="";
     my $rsync="copy";
     if ($class ne ""){
-           &collect($login, $class,"adminclass",$rsync,$exam);
+           &collect($login,$class,"adminclass",$rsync,$exam);
     }
     if ($subclass ne ""){
-           &collect($login, $subclass,"subclass",$rsync,$exam);
+           &collect($login,$subclass,"subclass",$rsync,$exam);
     }
     if ($project ne ""){
-           &collect($login, $project,"project",$rsync,$exam);
+           &collect($login,$project,"project",$rsync,$exam);
     }
     if ($room ne "" and $users ne ""){
         #  collect from userlist (current room)   
-        &collect($login, $room,"current room",$rsync,$exam,$users);
+        &collect($login,$room,"current room",$rsync,$exam,$users);
     }
     if ($room ne "" and $exam==1){
         #  collect from a room
-        &collect($login, $room,"room",$rsync,$exam);
+        &collect($login,$room,"room",$rsync,$exam);
     }
     if ($users ne "" and $fromroom==1){
         #  collect from a userlist
-        &collect($login, $room,"current room",$rsync,$exam,$users);
+        &collect($login,$room,"current room",$rsync,$exam,$users);
     }
     if ($users ne "" and $fromproject ne ""){
         #  collect from a userlist
-        &collect($login, $fromproject,"project",$rsync,$exam,$users);
+        &collect($login,$fromproject,"project",$rsync,$exam,$users);
     }
     if ($users ne "" and $fromclass ne ""){
         #  collect from a userlist
-        &collect($login, $fromclass,"adminclass",$rsync,$exam,$users);
+        &collect($login,$fromclass,"adminclass",$rsync,$exam,$users);
     }
-
     exit;
 }
 
