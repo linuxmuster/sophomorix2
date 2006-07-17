@@ -796,7 +796,8 @@ if (-e "/etc/init.d/nscd"){
 &add_ldap_group("domcomputers","Domain Computers",515);
 # local groups
 &add_local_ldap_group("printoperators","Print Operators",550);
-&add_local_ldap_group("pgmadmins","Program Administrators",560);
+&add_local_ldap_group("pgmadmins","Program Administrators",999);
+&add_local_ldap_group("wwwadmins","Web Administrators",997);
 &add_local_ldap_group("replicators","Replicators",552);
 &add_local_ldap_group("administrators","Administrators",544);
 &add_local_ldap_group("accountoperators","Account Operators",548);
@@ -810,11 +811,11 @@ if (-e "/etc/init.d/nscd"){
 system("smbldap-useradd -u 998 -a  -c administrator -m -d /home/administrators/administrator -g 'domadmins' -G 'administrators,printoperators,pgmadmins' -s /bin/bash administrator");
 
 # pgmadmin is to install programs on the win clients
-system("smbldap-useradd -u 999 -a  -c 'Programm Administrator' -m -d /home/administrators/pgmadmin -g 'pgmadmins' -s /bin/false pgmadmin");
+system("smbldap-useradd -u 999 -a  -c 'Programm Administrator' -m -d /home/administrators/pgmadmin -g 'pgmadmins' -G 'administrators' -s /bin/false pgmadmin");
 
 
 # wwwadmin for web services (moodle, opengroupware, imp ...   ) NOT a windows user
-system("smbldap-useradd -u 997 -c 'web Administrator' -m -d /home/administrators/wwwadmin -s /bin/false wwwadmin");
+system("smbldap-useradd -u 997 -c 'web Administrator' -m -d /home/administrators/wwwadmin -g 'wwwadmins' -s /bin/false wwwadmin");
 
 
 
