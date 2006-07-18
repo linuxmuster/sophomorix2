@@ -1875,10 +1875,15 @@ sub reset_user {
     # before reset_user
     my ($user) = @_;
     print "Cleaning up user $user\n";
-    my ($homedir)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
+    my ($homedir,$type)=
+        &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
+
     if ($homedir eq ""){
         print "   ERROR: Cannot determine Homedirectory of user $user\n";
         print "   ... doing nothing!\n";
+    } elsif ($type ne "student" and $type ne "teacher"){
+        print "   WARNING: Cannot reset other accounts than \n";
+        print "            students or teachers\n";
     } else {
         # do some work
         my (@groups) = 
