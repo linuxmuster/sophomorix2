@@ -3879,14 +3879,26 @@ sub show_class_list {
 
 
 sub show_class_teacher_list {
-    print "To do: classes --> teachers \n";
+    print "\n";
+    my @classes=&fetchadminclasses_from_school();    
+    foreach my $class (@classes){
+        my @teachers=&fetchadmins_from_adminclass($class);
+	&Sophomorix::SophomorixBase::print_list_column(6,
+                              "Teacher von $class",@teachers);
+    }
 }
 
 
 
 
 sub show_teacher_class_list {
-    print "To do: teachers --> classes \n";
+    print "\n";
+    my @teachers=&fetchusers_from_adminclass(${DevelConf::teacher});
+    foreach my $teacher (@teachers){
+        my @classes=&fetch_my_adminclasses($teacher);
+        &Sophomorix::SophomorixBase::print_list_column(6,
+                              "Klassen von $teacher",@classes);
+    }
 }
 
 
