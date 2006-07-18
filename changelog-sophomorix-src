@@ -1061,15 +1061,6 @@ deleteadmin_from_pro : Fehler abfangen
 usw. alle fetch_ delete ... durchguggen
 
 
-small isolated jobs:
-------------------------------
-SophomorixPgLdap.pm
-    functions:
-      show_class_teacher_list
-      show_teacher_class_list
-
- 
-
 meeting 21.3.2006
 
 NOT creating a dir  in galli/_vorlagen and others, when user is added 
@@ -1243,12 +1234,17 @@ later: override with database entry
 
 NEXT: man sophomorix-teacher -i --teacher xxx not correct
 
---showclasses
---showteachers
+.locked in __einsammeln
+           cups-pdf
+
 
 ================== CHANGELOG ========================================
 
 1.8.8-1  (2006-07-xx)
+   - new working options in sophomorix-teacher:
+        --showclasses
+        --showteachers
+   - group wwwadmin is singular
    - updated formatting of console output
    - changed ids according to administratoren.txt
    - updated help and manpage of sophomorix-teacher:
