@@ -653,7 +653,7 @@ sub get_quota{
         # look in teacher.txt
         $mailquota=$teacher_quota_mail{$login};
 	print "   Found lehrer.txt mailquota: $mailquota\n" if($Conf::log_level>=2);
-    } elsif (exists $class_quota_mail{$pri_group}){
+    } elsif (exists $class_quota_mail{$pri_group} ){
         # look in class
         $mailquota=$class_quota_mail{$pri_group};
 	print "   Found mailquota for class $pri_group: $mailquota\n" 
@@ -730,8 +730,7 @@ sub get_class_quota {
        }
        if(not defined $row->{'mailquota'}){
            next;
-       } elsif($row->{'mailquota'} ne "quota"){
-          # ??????? not defined means standard ??????????
+       } elsif($row->{'mailquota'}!=-1){
           $class_quota_mail{ $row->{'gid'} } = $row->{'mailquota'}; 
        }
     }
