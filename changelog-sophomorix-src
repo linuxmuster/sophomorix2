@@ -1188,9 +1188,6 @@ Bei wiedereintritt soll Ordner mit korrekten Daten da sein
 
 
 
-Homedir of administrators: 2701 (is this good?)
-
-
 Is this necessary?
 ====================
 add a field male/female to database and lehrer.txt
@@ -1209,7 +1206,6 @@ userliste in allen sophomorix-*:    -u --users user1,user2,...
   - sophomorix-repair
   - sophomorix-kill
 
-ordner wo apache was reinladen lässt  www-data.www-data 0755
 
 Generelles ein/ausschalten (nach installation 0640)
 root.root 0640 oder root.root 0755
@@ -1241,6 +1237,10 @@ NEXT: man sophomorix-teacher -i --teacher xxx not correct
 ================== CHANGELOG ========================================
 
 1.8.8-1  (2006-07-xx)
+   - Bugfix: quota was set to class_mail_quota, 
+             because 'empty' quota (-1) was accidentally used
+   - directory where www-data can load files via webdavs:
+       made them  www-data.www-data 0755
    - new working options in sophomorix-teacher:
         --showclasses
         --showteachers
