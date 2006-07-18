@@ -207,9 +207,6 @@ if ($login eq "root"){
 
 
 
-
-
-
 ############################################################
 # Managing MyAdminClasses
 ############################################################
@@ -233,7 +230,6 @@ if (defined $shares and not @users){
     print "You must give users to switch shares on/off\n";
     exit;
 }
-
 
 
 
@@ -268,13 +264,13 @@ if ($remove ne ""){
 ############################################################
 # --info
 # Display info and exit
- 
+
 if ($info==1 
     and $collect==0 
     and $collectcopy==0 
     and $handout==0 
     and $exam==0
-    and $users=""){
+    and $users eq ""){
    my @list=&fetch_my_adminclasses($login);
    if ($#list==-1){
       print "\nTeacher $login has no AdminClasses in his list\n";
