@@ -13,6 +13,11 @@ Next meeting 0711/ 253 583-33
 ============================================================
 ============================================================
 
+logged in users in /var/cache/linuxmuster/logins
+
+
+
+
 smb.conf:
 
 thomas template im installierten system:
@@ -1228,15 +1233,18 @@ newer user receives NO alias
 older user keeps alias
 later: override with database entry
 
-NEXT: man sophomorix-teacher -i --teacher xxx not correct
-
 .locked in __einsammeln
            cups-pdf
+
+
 
 
 ================== CHANGELOG ========================================
 
 1.8.8-1  (2006-07-xx)
+   - Bug: sophomorix-teacher -i --teacher xxx does not
+          show admiclasses of teachers
+   - allow 3777/0700 in /home/share/school (repair.directories)
    - Bugfix: quota was set to class_mail_quota, 
              because 'empty' quota (-1) was accidentally used
    - directory where www-data can load files via webdavs:
