@@ -1703,8 +1703,8 @@ sub get_user_history {
       if ($line[2] eq $login){
 	 $count++;
          my $info=$line[0]."(".$line[1]."): ";
-         printf "  %-27s %-55s \n",$info,$line[3];
-         printf "     Unid: %-18s %-55s \n",$line[6],$line[5];
+         printf "  %-27s %-49s \n",$info,$line[3];
+         printf "     Unid: %-18s %-49s \n",$line[6],$line[5];
           
       }
    }

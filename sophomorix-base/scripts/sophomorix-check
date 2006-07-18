@@ -2233,7 +2233,7 @@ sub auto_teach_in {
    while (my ($identifier_sys,$identifier_file) = each %go_come){
       my $points = $come_points{$identifier_file};
       # go through all users that have to be changed 
-      printf "  %-37s %-37s %-3sPts\n",
+      printf "  %-34s %-34s %-3sPts\n",
              $identifier_sys,
              $identifier_file,
              $points;
