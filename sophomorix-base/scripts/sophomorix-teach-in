@@ -59,6 +59,7 @@ my %auswahl_hash;
 my $schueler_weg="";
 my $schueler_hinzu="";
 my $entsprechungs_nummer=0;
+my $teach_in_nummer=0;
 my $user_antwort=0;
 my $gecos;
 
@@ -76,6 +77,7 @@ my $testen=0;
 $Conf::log_level=1;
 my $help=0;
 my $ignored_users=0;
+my $teach_in="";
 my $ignore="";
 my @ignore=();
 #my %ignore=();
@@ -95,6 +97,7 @@ my $testopt=GetOptions(
            "approx|a=s" => \$match_fehlertoleranz,
 #           "test|t" => \$testen,
            "ignored-users" => \$ignored_users,
+           "teach-in=s" => \$teach_in,
            "ignore=s" => \$ignore,
            "next=n" => \$next,
            "verbose|v+" => \$Conf::log_level,
@@ -104,6 +107,19 @@ my $testopt=GetOptions(
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
+
+
+# --teach-in in hash
+my @teach_in_list = ();
+my %teach_in_hash =();
+if ($teach_in ne ""){
+    @teach_in_list = split(/,/,$teach_in);
+    foreach my $item (@teach_in_list){
+        my ($login,$ident)=split(/::/,$item);
+        $teach_in_hash{$login}="$ident";
+    }
+}
+
 
 
 # --help
@@ -122,6 +138,7 @@ Options
   -a value / --approx value
   --ignored-users
   --ignore user1,user2,...
+  --teach-in user1::identifier1,user2,identifier2,...
   --undo login
 
 Please see the sophomorix-teach-in(8) man pages for full documentation
@@ -383,7 +400,7 @@ foreach $identifier (@toleration){
    if ($next!=0){
        # noninteractive
        print "next::$schueler_im_system_hash{$identifier}::",
-                   "$schueler_im_system_loginname{$identifier}::$identifier";
+             "$schueler_im_system_loginname{$identifier}::$identifier";
    } else {
        # interactive
        print "----------------------------------------",
@@ -408,6 +425,7 @@ foreach $identifier (@toleration){
 
    # Auswahlnummer auf eins setzen
    $entsprechungs_nummer=0;
+   $teach_in_nummer=0;
    # Bisherige Werte löschen
    $user_antwort="";
    %auswahl_hash=();
@@ -438,6 +456,18 @@ foreach $identifier (@toleration){
             printf "%-25s: %-40s\n" , 
                    "    AdminClass",
                    "$schueler_hinzu_hash{$schueler_hinzu}";
+            if ($teach_in ne "" ) {
+               # check if option fits
+#	        print "option teach-in: $schueler_im_system_loginname{$identifier}\n";
+#	        print "option teach-in: $schueler_hinzu\n";
+               if (exists $teach_in_hash{$schueler_im_system_loginname{$identifier}}){
+                    if ($teach_in_hash{$schueler_im_system_loginname{$identifier}} 
+                            eq "$schueler_hinzu"){
+                        print "Number $entsprechungs_nummer is teached in by option\n";
+                        $teach_in_nummer=$entsprechungs_nummer;
+                    }
+               }
+            }
          }
          # Approx-Match ablegen im Auswahl-Hash
          $auswahl_hash{$entsprechungs_nummer}="$schueler_hinzu";
@@ -470,6 +500,9 @@ foreach $identifier (@toleration){
    if($entsprechungs_nummer==0){
    # Es gibt nur 0=Nichts tun
    $user_antwort="0";
+   } elsif ($teach_in_nummer!=0) {
+       print "Selected by option: $teach_in_nummer \n";
+       $user_antwort=$teach_in_nummer;
    } else { # Admin nach rat fragen
       while(){# Endlosschleife für die Eingabe
          $user_antwort= <STDIN>; # Lesen von Tastatur
