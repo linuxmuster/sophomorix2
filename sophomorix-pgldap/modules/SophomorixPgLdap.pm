@@ -1504,7 +1504,7 @@ sub create_class_db_entry {
            }
            $gidnumber = $dbh->selectrow_array($sql);
            print "Received $gidnumber as next free gidnumber\n";
-       }
+        }
 
     # Gruppe anlegen, Funktion
     $sql="SELECT manual_create_ldap_for_group('$class_to_add')";
