@@ -30,7 +30,6 @@ use Sophomorix::SophomorixPgLdap qw(check_connections
                                     fetchadmins_from_adminclass
                                    );
 
-&titel("sophomorix-print is creating output ...");
 &check_connections(),
 &log_script_start();
 
@@ -125,6 +124,7 @@ if($Conf::log_level>=3){
 # Programmbeginn
 # ===========================================================================
 
+
 $Conf::log_level=1;
 my $help=0;
 my $info=0;
@@ -154,10 +154,10 @@ my $testopt=GetOptions(
 
 
 # --info
-if ($info==1) {
-   print "\n  noch keine sinnvolle Anwendung f¸r Parameter --info\n\n";
-   exit;
+if ($info==0){
+    &titel("sophomorix-print is creating output ...");
 }
+
 
 # --help
 if ($help==1) {
@@ -179,7 +179,7 @@ Options
   -s  / --show
   --caller
   --command pdflatex  (standard is latex)
-  -i / --info
+  -i / --info         (print to standard out)
 
 Please see the sophomorix-print(8) man pages for full documentation
 ');
@@ -228,9 +228,12 @@ if($Conf::log_level>=3){
 open(LATEX,
      ">${DevelConf::druck_pfad}/${output_file_basename}.tex") || die "Fehler: $!";
 
-# *.csv-Datei ˆffnen
+# *.csv-Datei ˆffnen (windows)
 open(CSV,
         ">${DevelConf::druck_pfad}/${output_file_basename}.csv") || die "Fehler: $!";
+# *.csv-Datei ˆffnen (linux)
+open(UNIXCSV,
+        ">${DevelConf::druck_pfad}/${output_file_basename}-unix.csv") || die "Fehler: $!";
 
 
 print LATEX ('
@@ -797,13 +800,24 @@ if($eintrag_typ_alt==0){
    $anzahl_karten_pro_zeile++;
    
    # Zeile in add.csv schreiben (unix)georg: linliste
-#   print CSV ("$name_protokoll",";","$klasse_protokoll",";","$loginname_protokoll",";","$passwort_protokoll",";","\n");
+   print UNIXCSV ("$name_protokoll",";","$klasse_protokoll",";","$loginname_protokoll",";","$passwort_protokoll",";","\n");
 
    # Zeile in add.csv schreiben (windows-versuch 1) georg: winliste
    print CSV ("$name_protokoll",";","$klasse_protokoll",";","$loginname_protokoll",";","$passwort_protokoll",";","\l\r");
 
 
+   # Zeile auf konsole ausgeben
+   if ($info==1){
+       printf "%-11s%-11s%-11s%-40s\n",
+              $loginname_protokoll,
+              $passwort_protokoll,
+              $klasse_protokoll,
+              $name_protokoll;
 
+
+#"$name_protokoll",";","$klasse_protokoll",";",
+#              "$loginname_protokoll",";","$passwort_protokoll",";","\n";
+   }
 
 
 } # Ende foreach
@@ -872,11 +886,17 @@ if ($gruppe ne "") {
 # Latex-Dokument schlieﬂen
 close(LATEX);
 # CSV-Dokument schlieﬂen
-close(LATEX);
+close(CSV);
+close(UNIXCSV);
 
 # ===========================================================================
 # LATEXEN des Dokuments
 # ===========================================================================
+
+
+if ($info==1){
+    exit;
+}
 
 
 # einfacher
@@ -898,7 +918,6 @@ if ($show==1) {
       print "\nacroread: ÷ffne ${DevelConf::druck_pfad}/$output_file_basename.pdf\n\n";
       system("acroread ${DevelConf::druck_pfad}/$output_file_basename.pdf");
 }
-
 
 
 
