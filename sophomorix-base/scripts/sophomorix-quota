@@ -575,21 +575,35 @@ sub login_type {
     my %login_type_new=();
     my $login="";
     my $home="";
+    my $type="";
 
     # others
     my $dbh=&db_connect();
     # select the columns that i need
-    my $sth= $dbh->prepare( "SELECT uid,homedirectory
+    my $sth= $dbh->prepare( "SELECT uid,homedirectory,gecos,gid
                             FROM userdata 
                            " );
     $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
     foreach my $row (@$array_ref){
        # split the array, to give better names
-       my ($uid,$home_old)=@$row;
-
-       my ($home,$login_type,$gecos,$group) = &fetchdata_from_account($uid);
-       $login_type{$uid}=$login_type;
+       my ($uid,$home,$gecos,$group)=@$row;
+       if (defined $home){
+          if ($home=~/^$DevelConf::homedir_pupil\//){
+              $type="student";
+          } elsif ($group  eq ${DevelConf::teacher}){
+	      $type="teacher";
+          } elsif ($home=~/^$DevelConf::homedir_ws\//){
+              $type="workstation";
+          } elsif ($home=~/\/dev\/null/){
+              $type="domcomp";
+          } elsif ($home=~/^$DevelConf::homedir_all_admins\//){
+              $type="administrator";
+          } else {
+              $type="none";
+          }
+    }
+       $login_type{$uid}=$type;
     }
     &db_disconnect($dbh);
     return %login_type;
