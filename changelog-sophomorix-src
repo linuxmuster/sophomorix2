@@ -1221,10 +1221,15 @@ later: override with database entry
 
 check option --teach-in
 
+when removing a class, dont remove its admins from the project.
+...             project ...
+
 
 ================== CHANGELOG ========================================
 
 1.8.9-1  (2006-07-xx)
+   - speed up sophomorix-quota when fetching login_type:
+     (connect just once to the database for every user)
    - added option sophpomorix-print --info to print to standard out 
    - added option --teach-in login::identifier to sophomorix-teach-in
 
