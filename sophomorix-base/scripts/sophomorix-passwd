@@ -43,6 +43,7 @@ my $help=0;
 my $info=0;
 my $loginname="";
 my $classes="";
+my $projects="";
 my $student=0;
 my $teacher=0;
 my $rooms="";
@@ -70,11 +71,12 @@ my $info_line="";
 my $testopt=GetOptions(
            "users|user|u=s" => \$loginname,
            "class|classes|c=s" => \$classes,
+           "project|projects|p=s" => \$projects,
            "student|students|s" => \$student,
            "teacher|teachers|t" => \$teacher,
            "room|rooms|r=s" => \$rooms,
            "workstations|workstation|w" => \$ws,
-           "password|passwd|p=s" => \$password,
+           "password|passwd|pass=s" => \$password,
            "reset" => \$reset,
            "common" => \$common,
            "random" => \$random,
@@ -104,7 +106,7 @@ Options
   -vv / --verbose --verbose
   -i  / --info
   --hide
-  -p password, --password password
+  --pass password, --password password
   --common
   --reset
   --random
@@ -114,6 +116,7 @@ Options
   -w / --workstations
   -u user1,user2,...   /  --users  user1,user2,...
   -c class1,class2,... /  --class class1,class2,... 
+  -p project1,project2,... /  --project project1,project2,... 
   -r room1,room2,...   /  --rooms room1,room2,...
 
 Please see the sophomorix-passwd(8) man pages for full documentation
@@ -138,11 +141,13 @@ if ($teacher==1){
 
 # create the list of users
 if ($force==1){
-   @users=&create_userlist($loginname,$classes,$student,$rooms,$ws,0,0);
+   @users=&create_userlist($loginname,$classes,0,$projects,0,$student,
+                           $rooms,$ws,0,0);
 } else {
    # check the users
    &titel("Checking login names ...");
-   @users=&create_userlist($loginname,$classes,$student,$rooms,$ws,0,1);
+   @users=&create_userlist($loginname,$classes,0,$projects,0,$student,
+                           $rooms,$ws,0,1);
 }
 
 ################################################################################
