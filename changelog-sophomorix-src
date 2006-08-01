@@ -1230,20 +1230,24 @@ code setting mailquota according to scripts
 
 
 speed up the call to sophomorix-quota in
-sophomorix-add, -move,-kill
+sophomorix-kill ??
 the following way:
-
-add users that were handled to list.
-call sophomorix-quota --users list 
 
 
 
 ================== CHANGELOG ========================================
 
 1.8.9-1  (2006-07-xx)
+   - added option --project name to
+      sophomorix-quota
+      sophomorix-passwd
+      sohpmorix-vampire
+     (and updated the manpage)
    - speed up sophomorix-quota call in
       sophomorix-class
       sophomorix-project
+      sophomorix-add
+      sophomorix-move
    - speed up sophomorix-quota when fetching login_type:
      (connect just once to the database for every user)
    - added option sophpomorix-print --info to print to standard out 
