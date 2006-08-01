@@ -45,6 +45,8 @@ my $www_link="";
 
 #my %protokoll_hash;
 
+my @users_for_quota=();
+
 my $k;
 my $v;
 my $key;
@@ -254,7 +256,11 @@ while(<USERVERSETZEN>){
       print("Neues Home:            $new_home\n");
       print("Neues Homedir:         $new_homedir_above\n");
       print("Alter Status:          $old_status\n");
-    }
+   }
+
+   # 0. rember login to set quota later
+   push @users_for_quota, $login_versetzen;
+
 
    if ($neue_klasse eq ${DevelConf::teacher} && not $alte_klasse eq "speicher") {
       # Es ist die Gruppe lehrer beteiligt
@@ -352,7 +358,12 @@ if ($DevelConf::testen==0) {
 
 
 # Setting Quota
-if ($Conf::use_quota eq "yes" and $user_nummer>0) {
+if ($Conf::use_quota eq "yes" 
+    and $user_nummer>0
+    and $user_nummer<101) {
+    my $users=join(",",@users_for_quota);
+    system("sophomorix-quota --users $users --noninteractive");
+} elsif ($Conf::use_quota eq "yes" and $user_nummer>100){
     system("sophomorix-quota --students --teachers --noninteractive");
 } else {
     if ($user_nummer==0){ 
