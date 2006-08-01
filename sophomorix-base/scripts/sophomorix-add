@@ -48,13 +48,9 @@ my $login_name_ok="";
 my $klartext_passwort="";
 my $new_admin_group="";
 my $shell="";
-#my $quotastring="";
 
+my @users_for_quota=();
 my %user_login_hash=();
-
-#my $datei="";
-
-#my $i;
 
 my $dev_null="1>/dev/null 2>/dev/null";
 
@@ -341,6 +337,9 @@ while(<SOPHOMORIXADD>){
       }
    }
 
+   # 0. rember login to set quota later
+   push @users_for_quota, $login_name_ok;
+
    # 1. Entry in sophomorix database
    &create_user_db_entry($nachname,
                          $vorname,
@@ -377,8 +376,6 @@ while(<SOPHOMORIXADD>){
       print "WARNING: Could not find ${DevelConf::linuxmuster_imap}.\n";
       print "NOT creating mail account.\n";
   }
-
-
 }
 
 close(SOPHOMORIXADD);
@@ -441,7 +438,12 @@ if ($DevelConf::testen==0) {
 
 
 # Setting Quota
-if ($Conf::use_quota eq "yes" and $user_nummer>0) {
+if ($Conf::use_quota eq "yes" 
+    and $user_nummer>0
+    and $user_nummer<101) {
+    my $users=join(",",@users_for_quota);
+    system("sophomorix-quota --users $users --noninteractive");
+} elsif ($Conf::use_quota eq "yes" and $user_nummer>100){
     system("sophomorix-quota --students --teachers --noninteractive");
 } else {
     if ($user_nummer==0){ 
