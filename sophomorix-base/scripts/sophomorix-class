@@ -157,7 +157,7 @@ if ($Conf::use_quota eq "yes"
     and $class ne "" 
     and (defined $quota or defined $mailquota)
     ) {
-    system("sophomorix-quota --students --teachers --noninteractive");
+    system("sophomorix-quota --class $class  --noninteractive");
 } else {
     &titel("NOT setting quota (nothing quota related changed)");
 }
