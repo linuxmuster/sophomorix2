@@ -52,7 +52,7 @@ versucht das Passwort auch zu ändern wenn der user nicht in der sophomorix-daten
 .TP
 Wenn keine dieser Option angegeben wird, dann werden die Einstellungen aus sophomorix.conf verwendet.
 .TP
-.B -p geheim, --password geheim
+.B --pass geheim, --password geheim
 setzt das Passwort auf den Wert geheim. 
 .TP
 .B --common
@@ -78,6 +78,9 @@ setzt das Passwort der  User user1,user2, ... . Der user kann auch eine Workstat
 .TP
 .B -c class1,class2,... / --class class1,class2,...
 setzt das Passwort für jeden User in der Klasse class. Class kann auch die Gruppe der Lehrer sein (lehrer im Moment).
+.TP
+.B -p project1,project2,... / --project project1,project2,...
+setzt das Passwort für jeden User im Projekt project1,... 
 .TP
 .B -r raum1,raum2,... / --room raum1,raum2,...
 setzt das Passwort für jede Workstation im raum raum1,raum2 ...
