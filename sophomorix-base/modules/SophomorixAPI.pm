@@ -114,7 +114,7 @@ sub fetchstudents_from_school {
     # select the columns that i need
     my $sth= $dbh->prepare( "SELECT uid 
                              FROM userdata 
-                             WHERE (gid!='teachers' 
+                             WHERE (gid!='$DevelConf::teacher' 
                                AND sophomorixstatus!='') 
                             " );
     $sth->execute();
@@ -341,6 +341,12 @@ logins:        comma seperated list of logins
 
 classes:       comma seperated list of AdminClasses, (can also be teachers)
 
+add_class_teachers: add teachers in this class (1) or not (0)
+
+projects:       comma seperated list of projects
+
+add_project_admins: add admins in this project (1) or not (0)
+
 students:      add the list of all students (1), or not (0)
 
 rooms:         comma seperated list of rooms
@@ -363,9 +369,16 @@ sub create_userlist {
     my @userlist=();
     my %logins=();
     my @unique_userlist=();
-    my ($login,$classes,$student,$rooms,$ws,$administrators,$check) = @_;
+    my ($login,
+        $classes,$add_class_teachers,
+        $projects,$add_project_admins,
+        $student,
+        $rooms,$ws,$administrators,$check) = @_;
     if (not defined $login){$login=""}   
     if (not defined $classes){$classes=""}   
+    if (not defined $add_class_teachers){$add_class_teachers=0}   
+    if (not defined $projects){$projects=""}   
+    if (not defined $add_project_admins){$add_project_admins=0}   
     if (not defined $student){$student=0}   
     if (not defined $rooms){$rooms=""}   
     if (not defined $ws){$ws=0}   
@@ -380,10 +393,30 @@ sub create_userlist {
 
     if ($classes ne "") {
        my @users=();
+       my @admins=();
        my (@classlist)=split(/,/,$classes);
        foreach my $class (@classlist){
           @users=&fetchstudents_from_adminclass($class);
           push @userlist, @users;
+          if ($add_class_teachers==1){
+              @admins=&fetchadmins_from_adminclass($class);
+              push @userlist, @admins;
+          }
+       }
+     }
+
+
+    if ($projects ne "") {
+       my @users=();
+       my @admins=();
+       my (@projectlist)=split(/,/,$projects);
+       foreach my $project (@projectlist){
+          @users=&fetchusers_from_project($project);
+          push @userlist, @users;
+          if ($add_project_admins==1){
+              @admins=&fetchadmins_from_project($project);
+              push @userlist, @admins;
+          }
        }
      }
 

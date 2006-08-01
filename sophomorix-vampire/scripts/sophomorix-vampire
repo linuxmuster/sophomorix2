@@ -60,7 +60,8 @@ my $key=0;
 
 my $loginname="";
 my $classes="";
-my $pupil=0;
+my $projects="";
+my $student=0;
 my $rooms="";
 my $ws=0;
 my $force=0;
@@ -80,9 +81,10 @@ my $testopt=GetOptions(
            "sync-dirs" => \$sync_dirs,
            "key" => \$key,
            "files" => \$fetch_files,
-           "login|user|u|l=s" => \$loginname,
-           "class|klasse|c|k=s" => \$classes,
-           "pupil|pupils" => \$pupil,
+           "user|u=s" => \$loginname,
+           "class|c=s" => \$classes,
+           "project|projects|p=s" => \$classes,
+           "student|students" => \$student,
            "room|=s" => \$rooms,
            "workstations|workstation|ws" => \$ws,
            "force" => \$force,
@@ -228,14 +230,16 @@ if ($sync_user==1){
 
 
 # create userlist with options
-if ($loginname ne "" or $classes ne "" or $pupil!=0 or $rooms ne "" or $ws!=0){
+if ($loginname ne "" or $classes ne "" or $student!=0 or $rooms ne "" or $ws!=0){
     # create the list of users
     &titel("Creating a userlist from options ...");
     if ($force==1){
-        @userlist=&create_userlist($loginname,$classes,$pupil,$rooms,$ws,0);
+        @userlist=&create_userlist($loginname,$classes,0,$projects,0,$student,
+                                   $rooms,$ws,0);
     } else {
         # check the users
-        @userlist=&create_userlist($loginname,$classes,$pupil,$rooms,$ws,1);
+        @userlist=&create_userlist($loginname,$classes,0,$projects,0,$student,
+                                   $rooms,$ws,1);
     }
     if ($#userlist+1==0){
          print "INFO: No valid users given\n";
