@@ -53,6 +53,7 @@ my $noninteractive=0;
 my $info=0;
 my $loginname="";
 my $classes="";
+my $projects="";
 my $student=0;
 my $teacher=0;
 my $administrator=0;
@@ -67,6 +68,7 @@ my $set=0;
 my $testopt=GetOptions(
            "users|user|u=s" => \$loginname,
            "class|classes|c=s" => \$classes,
+           "project|projects|p=s" => \$projects,
            "student|students|s" => \$student,
            "teacher|teachers|t" => \$teacher,
            "administrator|administrators" => \$administrator,
@@ -281,15 +283,16 @@ my @userlist=();
 &titel("Creating a userlist from options ...");
 if ($loginname eq ""
       and $classes eq ""
+      and $projects eq ""
       and $student==0
       and $rooms eq ""
       and $ws==0
       and $administrator==0){
     # all users
-    @userlist=&create_userlist("","${DevelConf::teacher}",1,"",1,1,$check);
+    @userlist=&create_userlist("","${DevelConf::teacher}",0,"",0,1,"",1,1,$check);
 } else {
     # userlist according to options
-    @userlist=&create_userlist($loginname,$classes,$student,
+    @userlist=&create_userlist($loginname,$classes,0,$projects,0,$student,
                                $rooms,$ws,$administrator,$check);
 }
 
