@@ -12,7 +12,7 @@ use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
-
+use IMAP::Admin;
 use DBI;
 use Net::LDAP;
 use Sophomorix::SophomorixPgLdap qw(show_modulename
@@ -174,6 +174,9 @@ my $epoche_jetzt=time;
 
 my $dbh=&db_connect();
 
+my $cyruspass="NMnDwk1U";
+my $imap=&imap_connect("localhost",${DevelConf::cyrusadmin},$cyruspass);
+exit;
 ################################################################################
 # User (Schüler und Lehrer) anlegen aus sophomorix.add
 ################################################################################
@@ -366,17 +369,20 @@ while(<SOPHOMORIXADD>){
   # 5. Add user to all groups she is in (files must exist to create links)
   &add_newuser_to_her_projects($login_name_ok,$new_admin_group);
 
-  # 6. tschmitt: create cyrus user with 10mb quota
-  if (-s "${DevelConf::linuxmuster_imap}") {
-      my $command="${DevelConf::linuxmuster_imap} -u $login_name_ok -c";
-      print "$command\n";
-      system("$command");
-      #system("${DevelConf::linuxmuster_imap} -u $login_name_ok -c");
-  } else {
-      print "WARNING: Could not find ${DevelConf::linuxmuster_imap}.\n";
-      print "NOT creating mail account.\n";
-  }
-}
+  # 6. Add a mailbox for the user
+  &imap_create_mailbox($imap,$login_name_ok);
+
+#  # 6. tschmitt: create cyrus user with 10mb quota
+#  if (-s "${DevelConf::linuxmuster_imap}") {
+#      my $command="${DevelConf::linuxmuster_imap} -u $login_name_ok -c";
+#      print "$command\n";
+#      system("$command");
+#      #system("${DevelConf::linuxmuster_imap} -u $login_name_ok -c");
+#  } else {
+#      print "WARNING: Could not find ${DevelConf::linuxmuster_imap}.\n";
+#      print "NOT creating mail account.\n";
+#  }
+#}
 
 close(SOPHOMORIXADD);
 close(NOCHANLEGEN);
@@ -460,6 +466,10 @@ if ($user_nummer>0) {
     &titel("NOT creating mailaliases/lists (0 users added)");
 }
 
+
+
+# ??? db_disconnect
+&imap_disconnect($imap);
 
 
 &titel("sophomorix-add terminated regularly ($user_nummer users added)");
