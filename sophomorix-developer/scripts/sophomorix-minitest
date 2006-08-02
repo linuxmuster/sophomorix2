@@ -24,56 +24,119 @@ use DBI;
 use Crypt::SmbHash;
 use Net::LDAP;
 #use DebAux::Debconf;
+use IMAP::Admin;
 
-# Einlesen der Konfigurationsdatei für Entwickler
-#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+my $cyruspass="NMnDwk1U";
+
+my $user="hartmapapier";
 
 
-system("install -d /root/sophomorix-test");
+my $imap=&imap_connect("localhost","cyrus",$cyruspass) or return undef;
+
+
+# fetch list of mailboxes
+
+&imap_fetch_mailboxes();
+
+# create mailbox
+&imap_create_mailbox($user);
+
+
+# setting quota
+my @mailquota=&fetch_imap_mailquota($user);
+&set_imap_mailquota($imap,$user,"30");
+@mailquota=&fetch_imap_mailquota($user);
+
+
+
+
+&imap_disconnect($imap);
 
 ############################################################
-# Start
+# sub
 ############################################################
 
-$Conf::log_level=1;
-
-
-
-
-
-
-
-my $workstationhome="/home/workstations";
-my $room1="134a";
-my $room2="717b";
-
-
-my @hostnames1=("pc1","pc2","pc3","pc4");
-my @hostnames2=("Rechner1","Rechner2","Rechner3","Rechner4",
-                "Rechner5","Rechner6","Rechner7","Rechner8");
-
-system("smbldap-groupadd -a $room1");
-system("smbldap-groupadd -a $room2");
-
-system("mkdir -p $workstationhome/$room1");
-system("mkdir -p $workstationhome/$room2");
-
-foreach my $hostname (@hostnames1){
-    print "Adding $hostname to $room1\n";
-    my $command=
-       "smbldap-useradd -a -d $workstationhome/$room1/$hostname".
-       " -c 'workstation account' -g $room1 -m -s /bin/false $hostname";
-    #print "$command\n";
-   system("$command");
+sub imap_fetch_mailboxes {
+    my @list = $imap->list("user.*");
+    print "@list \n";
 }
 
-foreach my $hostname (@hostnames2){
-    print "Adding $hostname to $room2\n";
-    my $command=
-       "smbldap-useradd -a -d $workstationhome/$room2/$hostname".
-       " -c 'workstation account' -g $room2 -m -s /bin/false $hostname";
-    #print "$command\n";
-    system("$command");
+sub imap_create_mailbox {
+	my ($login) = @_;
+	my $err = $imap->create("user.$login");
+	if ($err != 0) {
+		my $status = $imap->error;
+		#$imap->close();
+                #print "Error creating mailbox for $login \n";
+                print "$status \n";
+		return undef;
+	}
+        print "Mailbox for $login created.\n";
+###	create_subfolders($imap, $login, @subfolders) or return undef;
+        return 1;
 }
 
 
+
+sub fetch_imap_mailquota {
+    my ($user) = @_;
+    my $mailbox="user.".$user;
+    my @mailquota = $imap->get_quotaroot($mailbox);
+
+    if (defined $mailquota[1]) {    
+        $mailquota[1]=$mailquota[1]/1024;
+        $mailquota[1]=$mailquota[1]."MB";
+    } else {
+        return undef;
+    }
+
+    if (defined $mailquota[1]) {    
+        $mailquota[2]=$mailquota[2]/1024;
+        $mailquota[2]=$mailquota[2]."MB";
+    } else {
+        return undef;
+    }
+
+    # loglevel
+    print "User $user ($mailquota[0]) has used $mailquota[1] of $mailquota[2] \n";
+    return @mailquota;
+}
+
+
+sub imap_connect {
+	my ($server, $admin, $admin_pwd) = @_;
+        print "Connecting to $server as $admin with password $admin_pwd \n";
+	my $imap = IMAP::Admin->new(
+	  	'Server' => $server,
+	  	'Login' => $admin,
+	  	'Password' => $admin_pwd,
+	  	'CRAM' => 2,
+	  	);
+	my $status = $imap->error;
+	if ($status ne 'No Errors') {
+	        print "$status \n";
+		#log_msg('warning', "Error: $status");
+		$imap->close();
+		return undef;
+	}
+	return $imap;
+}
+
+
+sub imap_disconnect {
+    print "Disconnecting ... \n";
+    $imap->close();
+}
+
+
+sub set_imap_mailquota {
+	my ($imap, $login, $quota) = @_;
+	my $quota_kb = $quota * 1024; # quota in KB
+
+	my $err = $imap->set_quota("user.$login", $quota_kb);
+	if ($err != 0) {
+		my $status = $imap->error;
+		return undef;
+	}
+	return 1;
+}
