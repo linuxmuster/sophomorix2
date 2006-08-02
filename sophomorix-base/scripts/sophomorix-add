@@ -176,7 +176,7 @@ my $dbh=&db_connect();
 
 my $cyruspass="NMnDwk1U";
 my $imap=&imap_connect("localhost",${DevelConf::cyrusadmin},$cyruspass);
-exit;
+
 ################################################################################
 # User (Schüler und Lehrer) anlegen aus sophomorix.add
 ################################################################################
@@ -382,7 +382,7 @@ while(<SOPHOMORIXADD>){
 #      print "WARNING: Could not find ${DevelConf::linuxmuster_imap}.\n";
 #      print "NOT creating mail account.\n";
 #  }
-#}
+}
 
 close(SOPHOMORIXADD);
 close(NOCHANLEGEN);
