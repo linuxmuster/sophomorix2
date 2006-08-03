@@ -325,7 +325,7 @@ if ($set==1){
         }
         ##### mailquota
         # check the new quotastring ???? must be integer
-###	&set_mail_quota($user,$mailquota);
+###	&set_mail_quota_oldstuff($user,$mailquota);
         &imap_set_mailquota($imap,$user,$mailquota);        
     }
 
@@ -499,7 +499,7 @@ sub set_quota_if_needed {
                print "   Database : $db_quota_mail{$login}\n";
            }
            # check the new quotastring ???? must be integer
-###	   &set_mail_quota($login,$mailquota);
+###	   &set_mail_quota_oldstuff($login,$mailquota);
            &imap_set_mailquota($imap,$login,$mailquota);
         }
         # mailquota
@@ -509,7 +509,7 @@ sub set_quota_if_needed {
 
 
 
-sub set_mail_quota {
+sub set_mail_quota_oldstuff {
     my ($login,$mailquota) = @_;
     my $cyrus=0;
     print "   Setting MailQuota of $login to $mailquota MB\n";
