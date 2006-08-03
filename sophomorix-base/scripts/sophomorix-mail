@@ -25,7 +25,7 @@ use Sophomorix::SophomorixPgLdap qw(
                                    );
 use DBI;
 use Net::LDAP;
-
+use IMAP::Admin;
 # ===========================================================================
 # Optionen verarbeiten
 # ==========================================================================
@@ -38,11 +38,13 @@ my $new_aliases="/usr/bin/newaliases";
 $Conf::log_level=1;
 my $help=0;
 my $info=0;
+my $show_mailbox=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
+           "showmailbox|showmailboxes" => \$show_mailbox,
            "info|i" => \$info
           );
 
@@ -72,6 +74,9 @@ Options
   -v  / --verbose
   -vv / --verbose --verbose
   -i  / --info
+  
+Imap-Server Options
+  --showmailboxes
 
 Please see the sophomorix-mail(8) man pages for full documentation
 ');
@@ -105,6 +110,16 @@ if ($info==1) {
    print "  @mail_liste_klassen\n\n";
 
    exit;
+}
+
+if ($show_mailbox==1) {
+    my $cyruspass="NMnDwk1U";
+    my $imap=&imap_connect("localhost",${DevelConf::cyrusadmin},$cyruspass);
+    # fetch list of mailboxes
+    &imap_show_mailbox_info($imap);
+    &imap_disconnect($imap);
+
+    exit;
 }
 
 

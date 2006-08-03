@@ -15,6 +15,7 @@ use Sophomorix::SophomorixAPI;
 Getopt::Long::Configure ("bundling");
 use DBI;
 use Net::LDAP;
+use IMAP::Admin;
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     check_connections
                                     get_sys_users
@@ -208,6 +209,9 @@ if ($info==1) {
 }
 
 
+# connect to imap server
+my $cyruspass="NMnDwk1U";
+my $imap=&imap_connect("localhost",${DevelConf::cyrusadmin},$cyruspass);
 
 
 &titel("Calculating usrquota/mailquota ... (this may take a while)");
@@ -322,7 +326,8 @@ if ($set==1){
         }
         ##### mailquota
         # check the new quotastring ???? must be integer
-	&set_mail_quota($user,$mailquota);
+###	&set_mail_quota($user,$mailquota);
+        &imap_set_mailquota($imap,$user,$mailquota);        
     }
 
 } else {
@@ -495,7 +500,8 @@ sub set_quota_if_needed {
                print "   Database : $db_quota_mail{$login}\n";
            }
            # check the new quotastring ???? must be integer
-	   &set_mail_quota($login,$mailquota);
+###	   &set_mail_quota($login,$mailquota);
+           &imap_set_mailquota($imap,$login,$mailquota);
         }
         # mailquota
     }
@@ -582,6 +588,7 @@ sub login_type {
 
     # others
     my $dbh=&db_connect();
+
     # select the columns that i need
     my $sth= $dbh->prepare( "SELECT uid,homedirectory,gecos,gid
                             FROM userdata 

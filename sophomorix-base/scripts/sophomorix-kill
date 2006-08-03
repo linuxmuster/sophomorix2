@@ -14,6 +14,7 @@ use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
 use DBI;
 use Net::LDAP;
+use IMAP::Admin;
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     check_connections
                                     deleteuser_from_all_projects
@@ -130,6 +131,8 @@ if ($info==1) {
 }
 
 &check_connections();
+my $cyruspass="NMnDwk1U";
+my $imap=&imap_connect("localhost",${DevelConf::cyrusadmin},$cyruspass);
 &log_script_start();
 
 # sophomorix database sichern
@@ -198,16 +201,17 @@ while(<KILL>){
         print("public_html:         $public_html_to_kill\n");
       } 
 
+      &imap_kill_mailbox($imap,$login_name_to_kill);
       # tschmitt: delete cyrus user
-      if (-s "${DevelConf::linuxmuster_imap}") {
-          my $command="${DevelConf::linuxmuster_imap} -u $login_name_to_kill -d";
-          print "$command\n";
-          system("$command");
-          #system("${DevelConf::linuxmuster_imap} -u $login_name_to_kill -d");
-      } else {
-          print "WARNING: Could not find ${DevelConf::linuxmuster_imap}.\n";
-          print "NOT deleating mail account.\n";
-      }
+#      if (-s "${DevelConf::linuxmuster_imap}") {
+#          my $command="${DevelConf::linuxmuster_imap} -u $login_name_to_kill -d";
+#          print "$command\n";
+#          system("$command");
+#          #system("${DevelConf::linuxmuster_imap} -u $login_name_to_kill -d");
+#      } else {
+#          print "WARNING: Could not find ${DevelConf::linuxmuster_imap}.\n";
+#          print "NOT deleating mail account.\n";
+#      }
 
 
       # memberships
