@@ -2575,7 +2575,7 @@ sub imap_kill_mailbox {
 	push @mboxes, "user.$login";			# add the root mailbox
 	foreach my $mbox (@mboxes) {
 	    print "   Setting ACL of $mbox for removal\n";
-	    my $err = $imap->set_acl("$mbox", $DevelConf::cyrusadmin, 'c');
+	    my $err = $imap->set_acl("$mbox", $DevelConf::imap_admin, 'c');
 	    if ($err != 0) {
 	    	my $status = $imap->error;
                 if ($status=~/Mailbox does not exist/){
