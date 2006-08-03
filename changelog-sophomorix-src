@@ -1226,20 +1226,13 @@ when removing a class, dont remove its admins from the project.
 
 
 
-code setting mailquota according to scripts 
-
-
 speed up the call to sophomorix-quota in
 sophomorix-kill ??
 the following way:
 
-
-
+  
 remove debug info in imap_connect (password)
 mock up display of mailboxes with |-+
-
-remove path to old cyrus script in DevelConf::
-code cleanup: remove commented lines linuxmuster...
 
 
 
@@ -1247,23 +1240,113 @@ sophomorix-add insert db_disconnect (grep for ???)
 sophomorix-quota "  and imap_disconnect
 sophomorix-kill imap_disconnect and db_disconnect
 
+
 remove capital lettern from nameing MailQuota ...
 
-update manpage of sophomorix-mail --showmailboxes
 
-check package dependancies IMAP::Admin
+
+
+check package dependencies IMAP::Admin
 
 
 Thomas:
+ - Cyrus::Imap::Admin can be removed
+ - remove cyrus-user.pl
 
-Cyrus::Imap::Admin can be removed
-remove cyrus-user.pl
-server server30.mine.nu verbogen
-maibox dirs
 
+
+
+Multi-Treffen:
+
+Vermeiden von klassennamen = gruppennamen
+
+- bei klassengruppennamen darf kein _ vorkommen
+- beim projektanlegen MUSS Langname angegeben werden
+- es wird automatisch ein unix-gruppenname generiert,
+  der:
+    - mit p_ beginnt
+    - danach max 10 Zeichen nur a-z0-9 aus dem langnamen 
+      (splitten an //, Zeichen in array)
+    - falls gruppennamen schon vorhanden, Ziffer hochzählen am Ende
+- in Schulkonsole wird nur Langname angezeigt 
+  (unix-gruppenname nur klein/informativ)
+- kein mailalias mehr für unix-gruppenname
+
+Feature Request:
+  - austeilen an lehrer soll gehen (auch an einzelne)
+
+
+Bugs:
+  - Projektname Schule/Lehrer gibt Probleme
+  - langname und kurzname 
+  - Projekt teachers anlegen und löschen legt system lahm
+    (projekte mit klassennamen können nicht angelet werden)
+    (was passiert, wenn klasse kommt, mit deren Namen ein Projekt existiert)
+  - locking: mehrere sophomorix-scripte dürfen nicht gleichzeitig laufen
+  - Kein Einsammeln-ordner beim workstation user
+     - nach anlegen?
+     - vor Klassenarbeit?
+
+
+IMAP-cyrus
+ - bisher noch keine subdirs im cyrus
+ - wenn kein passwort da ist in imap.secret, dann nix machen am cyrus
+ - wenn ein user kein postfach hat mit *-repair oder *-quota anlegen
+ - postfächer sind in /var/spool/cyrus/mail/
+ - maildir-format
+   Konvertieren: /usr/share/doc/cyrus(-common)/example/mbox to cyrus oder so
+
+
+Testen lml3:
+ - dhcp-bereich
+   /etc/dhcp/dhcp3.conf rangeangabe auskommentieren  
+
+
+neues Paket sophomorix 1.8.9  bis Sonntag abend machen
+
+
+
+
+
+Bugs projects
+
+Bug1:
+when project-a is member in astro,
+and 13a is a member in astro
+and some users are in 13a and astro
+then ALL members of project-a are removed when project-a is removed
+even if members should stay members because of their class membership in 13a
+
+Bug2:
+if an admin is removed from project
+and readded as a member, then he is added as ADMIN!
+
+
+mail verschicken: Perl module: 
+use Email::Send;
+
+lml.mine.nu schulkonsole/shtml
+
+
+variable entfernen:
+@quota_kommentar = ("Test", "Daten", "");
+
+
+
+option sophomorix-teach-in --all (alle zeigen)
+
+
+
+report.admin: kürzen
+
+tauschen der Schueler raus, genauso der check fürs tauschen raus
+ 
 ================== CHANGELOG ========================================
 
 1.8.9-1  (2006-08-xx)
+   - Bugfixes in htaccess-templates
+   - added cronjobs to package sophomorix-base with dh_installcron 
+   - updated manpage sophomorix-mail
    - made the connect function read the password from /etc/imap.secret
    - added option --showmailboxes to sophomorix-mail, which shows an overview 
      of all mailboxes
