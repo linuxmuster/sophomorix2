@@ -1235,10 +1235,13 @@ the following way:
 
 
 
-remove debug info in imap_connect
-read /etc/imap.secret instaed of hardcoded pass (grep for cyruspass)
+remove debug info in imap_connect (password)
 mock up display of mailboxes with |-+
+
 remove path to old cyrus script in DevelConf::
+code cleanup: remove commented lines linuxmuster...
+
+
 
 sophomorix-add insert db_disconnect (grep for ???)
 sophomorix-quota "  and imap_disconnect
@@ -1246,12 +1249,28 @@ sophomorix-kill imap_disconnect and db_disconnect
 
 remove capital lettern from nameing MailQuota ...
 
-update manpage of sophomorix-mail
+update manpage of sophomorix-mail --showmailboxes
 
+check package dependancies IMAP::Admin
+
+
+Thomas:
+
+Cyrus::Imap::Admin can be removed
+remove cyrus-user.pl
 
 ================== CHANGELOG ========================================
 
-1.8.9-1  (2006-07-xx)
+1.8.9-1  (2006-08-xx)
+   - made the connect function read the password from /etc/imap.secret
+   - added option --showmailboxes to sophomorix-mail, which shows an overview 
+     of all mailboxes
+   - replaced call for cyrus-user.pl with this functions in
+     sophomorix-add 
+     sophomorix-kill 
+     sophomorix-quota 
+   - added functions to SophomorixBase.pm to manage an imap server
+     (connect, add/delete mailboxes, show/set quota, show list)
    - added option --project name to
       sophomorix-quota
       sophomorix-passwd
