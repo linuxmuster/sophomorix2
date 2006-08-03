@@ -482,7 +482,8 @@ sub make_some_files_root_only {
        @filelist=("/etc/ldap.secret",
                   "/etc/ldap/slapd.conf",
                   "/etc/smbldap-tools/smbldap.conf",
-                  "/etc/smbldap-tools/smbldap_bind.conf"
+                  "/etc/smbldap-tools/smbldap_bind.conf",
+                  "/etc/imap.secret"
                   );
     }
 
