@@ -113,8 +113,7 @@ if ($info==1) {
 }
 
 if ($show_mailbox==1) {
-    my $cyruspass="NMnDwk1U";
-    my $imap=&imap_connect("localhost",${DevelConf::cyrusadmin},$cyruspass);
+    my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
     # fetch list of mailboxes
     &imap_show_mailbox_info($imap);
     &imap_disconnect($imap);

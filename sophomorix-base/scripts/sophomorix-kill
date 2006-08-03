@@ -131,8 +131,7 @@ if ($info==1) {
 }
 
 &check_connections();
-my $cyruspass="NMnDwk1U";
-my $imap=&imap_connect("localhost",${DevelConf::cyrusadmin},$cyruspass);
+my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
 &log_script_start();
 
 # sophomorix database sichern
