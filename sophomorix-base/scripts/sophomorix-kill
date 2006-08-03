@@ -200,18 +200,8 @@ while(<KILL>){
         print("public_html:         $public_html_to_kill\n");
       } 
 
+      # kill mailbox
       &imap_kill_mailbox($imap,$login_name_to_kill);
-      # tschmitt: delete cyrus user
-#      if (-s "${DevelConf::linuxmuster_imap}") {
-#          my $command="${DevelConf::linuxmuster_imap} -u $login_name_to_kill -d";
-#          print "$command\n";
-#          system("$command");
-#          #system("${DevelConf::linuxmuster_imap} -u $login_name_to_kill -d");
-#      } else {
-#          print "WARNING: Could not find ${DevelConf::linuxmuster_imap}.\n";
-#          print "NOT deleating mail account.\n";
-#      }
-
 
       # memberships
       &deleteuser_from_all_projects($login_name_to_kill);

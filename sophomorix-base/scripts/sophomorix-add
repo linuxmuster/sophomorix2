@@ -369,17 +369,6 @@ while(<SOPHOMORIXADD>){
 
   # 6. Add a mailbox for the user
   &imap_create_mailbox($imap,$login_name_ok);
-
-#  # 6. tschmitt: create cyrus user with 10mb quota
-#  if (-s "${DevelConf::linuxmuster_imap}") {
-#      my $command="${DevelConf::linuxmuster_imap} -u $login_name_ok -c";
-#      print "$command\n";
-#      system("$command");
-#      #system("${DevelConf::linuxmuster_imap} -u $login_name_ok -c");
-#  } else {
-#      print "WARNING: Could not find ${DevelConf::linuxmuster_imap}.\n";
-#      print "NOT creating mail account.\n";
-#  }
 }
 
 close(SOPHOMORIXADD);
