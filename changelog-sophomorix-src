@@ -1235,6 +1235,20 @@ the following way:
 
 
 
+remove debug info in imap_connect
+read /etc/imap.secret instaed of hardcoded pass (grep for cyruspass)
+mock up display of mailboxes with |-+
+remove path to old cyrus script in DevelConf::
+
+sophomorix-add insert db_disconnect (grep for ???)
+sophomorix-quota "  and imap_disconnect
+sophomorix-kill imap_disconnect and db_disconnect
+
+remove capital lettern from nameing MailQuota ...
+
+update manpage of sophomorix-mail
+
+
 ================== CHANGELOG ========================================
 
 1.8.9-1  (2006-07-xx)

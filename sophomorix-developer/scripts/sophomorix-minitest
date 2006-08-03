@@ -32,24 +32,24 @@ my $cyrususer="cyrus";
 my $user="ohenryhigg";
 
 
-my $imap=&imap_connect("localhost",$cyrususer,$cyruspass) or return undef;
+my $imap=&imap_connect("localhost",$cyrususer,$cyruspass);
 
 
 # fetch list of mailboxes
-&imap_show_mailbox_info();
+&imap_show_mailbox_info($imap);
 
-&imap_kill_mailbox("ohenryhigg");
+&imap_kill_mailbox($imap,"ohenryhigg");
 
 exit;
 
 # create mailbox
-&imap_create_mailbox($user);
+&imap_create_mailbox($imap,$user);
 
 
 # setting quota
-my @mailquota=&fetch_imap_mailquota($user);
-&set_imap_mailquota($imap,$user,"30");
-@mailquota=&fetch_imap_mailquota($user);
+my @mailquota=&imap_fetch_mailquota($imap,$user);
+&imap_set_mailquota($imap,$user,"30");
+@mailquota=&imap_fetch_mailquota($imap,$user);
 
 
 
@@ -59,150 +59,3 @@ my @mailquota=&fetch_imap_mailquota($user);
 ############################################################
 # sub
 ############################################################
-
-sub imap_show_mailbox_info {
-    my @mailboxes = $imap->list("user.*");
-    foreach my $box (@mailboxes){
-	#print $box,"\n";
-        my @data=&fetch_imap_mailquota($box,1,1);
-        printf "%-20s %-20s %-20s\n",$data[0],$data[1],$data[2];
-    }
-}
-
-
-sub imap_kill_mailbox {
-	my ($login) = @_;
-        print "Killing mailbox of ${login}.\n";
-        print "   Getting list of ${login}'s mailboxes for deletion.\n";
-	my @mboxes = $imap->list("user.$login.*");	# subfolders
-	push @mboxes, "user.$login";			# add the root mailbox
-	foreach my $mbox (@mboxes) {
-	    print "   Setting ACL of $mbox for removal\n";
-	    my $err = $imap->set_acl("$mbox", $cyrususer, 'c');
-	    if ($err != 0) {
-	    	my $status = $imap->error;
-                if ($status=~/Mailbox does not exist/){
-		    print "   Mailbox of $login does not exist ... nothing to do.\n";
-                    return 1;
-                } else {
-                    print "$status \n";
-		    return undef;
-	        }
-
-
-	      	print "$status \n";
-                $imap->close();
-		return undef;
-	    }
-	}
-	my $err = $imap->h_delete("user.$login");
-	if ($err != 0) {
-		my $status = $imap->error;
-		print "$status \n";
-		$imap->close();
-		return undef;
-	}
-	$imap->close();
-	return 1;
-}
-
-
-sub imap_create_mailbox {
-	my ($login) = @_;
-	my $err = $imap->create("user.$login");
-	if ($err != 0) {
-		my $status = $imap->error;
-		#$imap->close();
-                #print "Error creating mailbox for $login \n";
-                if ($status=~/Mailbox already exists/){
-		    print "    Mailbox of $login existed already ... doing nothing.\n";
-                    return 1;
-                } else {
-                    print "$status \n";
-		    return undef;
-	        }
-	}
-        print "Mailbox for $login created.\n";
-###	create_subfolders($imap, $login, @subfolders) or return undef;
-        return 1;
-}
-
-
-
-sub fetch_imap_mailquota {
-    my ($user,$full_boxname,$quiet) = @_;
-    my $mailbox;
-
-    if (not defined $full_boxname){
-        $full_boxname=0;
-    }
-    if (not defined $quiet){
-        $quiet=1;
-    }
-    if ($full_boxname==0){
-        $mailbox="user.".$user;
-    } else {
-        $mailbox=$user;
-    }
-
-    my @mailquota = $imap->get_quotaroot($mailbox);
-
-    if (defined $mailquota[1]) {    
-        $mailquota[1]=$mailquota[1]/1024;
-        $mailquota[1]=$mailquota[1]."MB";
-    } else {
-        return undef;
-    }
-
-    if (defined $mailquota[1]) {    
-        $mailquota[2]=$mailquota[2]/1024;
-        $mailquota[2]=$mailquota[2]."MB";
-    } else {
-        return undef;
-    }
-
-    # loglevel
-    if ($quiet==0){
-        print "User $user ($mailquota[0]) has used $mailquota[1] of $mailquota[2] \n";
-    }
-    return @mailquota;
-}
-
-
-sub imap_connect {
-	my ($server, $admin, $admin_pwd) = @_;
-        print "Connecting to $server as $admin with password $admin_pwd \n";
-	my $imap = IMAP::Admin->new(
-	  	'Server' => $server,
-	  	'Login' => $admin,
-	  	'Password' => $admin_pwd,
-	  	'CRAM' => 2,
-	  	);
-	my $status = $imap->error;
-	if ($status ne 'No Errors') {
-	        print "$status \n";
-		#log_msg('warning', "Error: $status");
-		$imap->close();
-		return undef;
-	}
-	return $imap;
-}
-
-
-sub imap_disconnect {
-    print "Disconnecting ... \n";
-    $imap->close();
-}
-
-
-sub set_imap_mailquota {
-	my ($imap, $login, $quota) = @_;
-	my $quota_kb = $quota * 1024; # quota in KB
-
-	my $err = $imap->set_quota("user.$login", $quota_kb);
-	if ($err != 0) {
-		my $status = $imap->error;
-		return undef;
-	}
-	return 1;
-}
