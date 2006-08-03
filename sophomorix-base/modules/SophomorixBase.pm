@@ -2509,15 +2509,34 @@ sub get_mail_alias_from {
 ################################################################################
 
 sub imap_connect {
-	my ($server, $admin, $admin_pwd) = @_;
-        print "Connecting to $server as $admin with password $admin_pwd \n";
+    my ($server, $admin) = @_;
+    my $imap_pass="";
+
+
+
+
+    if (-e ${DevelConf_imap_password_file}) {
+         # looking for password
+ 	 open (CONF, ${DevelConf_imap_password_file});
+         while (<CONF>){
+             chomp();
+             if ($_ ne ""){
+		 $imap_pass=$_;
+             }
+         }
+         close(CONF);
+    }
+
+
+    return $imap_pass;
+        print "Connecting to $server as $admin with password $imap_pass \n";
 	my $imap = IMAP::Admin->new(
 	  	'Server' => $server,
 	  	'Login' => $admin,
 	  	'Password' => $admin_pwd,
 	  	'CRAM' => 2,
 	  	);
-	my $status = $imap->error;
+	my $status = $imap->error;      
 	if ($status ne 'No Errors') {
 	        print "$status \n";
 		#log_msg('warning', "Error: $status");
