@@ -7,5 +7,7 @@
 AuthType Basic
 AuthName "@@username@@"
 SSLRequireSSL
-Require user @@username@@
+<LimitExcept GET OPTIONS>
+  Require user @@username@@
+</LimitExcept>
 # end .htaccess
