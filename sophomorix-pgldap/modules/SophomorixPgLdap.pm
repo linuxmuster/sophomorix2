@@ -429,7 +429,8 @@ sub deleteadmin_from_project {
         }
     }
     &db_disconnect($dbh);
-
+    # remove admin also as a user
+    &deleteuser_from_project($user,$project);
 }
 
 
