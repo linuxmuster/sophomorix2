@@ -84,6 +84,7 @@ my @ignore=();
 
 my $info=0;
 my $next=0;
+my $all=0;
 my $undo_login="";
 # Parameter gibt an wie verschieden ähnliche Schüler finden soll (in Prozent)
 # 10% nur sehr änliche Namen werden gefunden
@@ -100,6 +101,7 @@ my $testopt=GetOptions(
            "teach-in=s" => \$teach_in,
            "ignore=s" => \$ignore,
            "next=n" => \$next,
+           "all" => \$all,
            "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
            "info|i" => \$info
@@ -397,7 +399,7 @@ foreach $identifier (@toleration){
    }
 
    # Gesucht wird Entsprechung zu diesem Schüler
-   if ($next!=0){
+   if ($next!=0 or $all==1){
        # noninteractive
        print "next::$schueler_im_system_hash{$identifier}::",
              "$schueler_im_system_loginname{$identifier}::$identifier";
@@ -445,7 +447,7 @@ foreach $identifier (@toleration){
          # counter for --next
          $number++;
          # printout
-         if ($next!=0){
+         if ($next!=0 or $all==1){
             # noninteracive
 	    print "::$schueler_hinzu_hash{$schueler_hinzu}::$schueler_hinzu";
          } else {
@@ -475,10 +477,10 @@ foreach $identifier (@toleration){
    }# Alle Schüler durchgegangen
 
    # exit if it is enough
-   if ($next!=0 and $number-1==$next){
+   if ($all==0 and $next!=0 and $number-1==$next){
        print "::\n";
        exit;
-   } elsif ($next!=0){
+   } elsif ($all==1 or $next!=0){
        print "::\n";
        next;
    }
