@@ -1310,16 +1310,12 @@ neues Paket sophomorix 1.8.9  bis Sonntag abend machen
 
 Bugs projects
 
-Bug1:
-when project-a is member in astro,
-and 13a is a member in astro
-and some users are in 13a and astro
-then ALL members of project-a are removed when project-a is removed
-even if members should stay members because of their class membership in 13a
 
-Bug2:
+Bug2:(Pending)
 if an admin is removed from project
 and readded as a member, then he is added as ADMIN!
+
+(Cannot replay that Bug)
 
 
 mail verschicken: Perl module: 
@@ -1328,22 +1324,26 @@ use Email::Send;
 lml.mine.nu schulkonsole/shtml
 
 
-variable entfernen:
-@quota_kommentar = ("Test", "Daten", "");
-
-
-
-option sophomorix-teach-in --all (alle zeigen)
-
-
-
 report.admin: kürzen
 
 tauschen der Schueler raus, genauso der check fürs tauschen raus
+
+sophomorix.conf: specify filterfile (empty for NOT filtering (just copy))
  
 ================== CHANGELOG ========================================
 
 1.8.9-1  (2006-08-xx)
+   - Bugfix:
+       delete users of membergroups of a project only when
+       they are not member via another project
+   - Bugfix:
+       delete users of memberprojects of a project only when
+       they are not member via another project or adminclass(membergroup)
+   - Bugfix: when admin is removed from a project with 
+      sophomorix-project --removeadmin ...
+      remove it also as a user
+   - added option: sophomorix-teach-in --all (show all)
+   - removed from Conf: @quota_kommentar = ("Test", "Daten", "");
    - Bugfixes in htaccess-templates
    - added cronjobs to package sophomorix-base with dh_installcron 
    - updated manpage sophomorix-mail
