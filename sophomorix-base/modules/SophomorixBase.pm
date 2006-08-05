@@ -2510,6 +2510,10 @@ sub get_mail_alias_from {
 ################################################################################
 
 sub imap_connect {
+    if (not -e ${DevelConf::imap_password_file}) {
+        print "WARNING No imap password file. Skipping IMAP stuff.\n";
+        return 0;
+    }
     my ($server, $admin) = @_;
     my $imap_pass="";
     # fetch pass from file
@@ -2543,6 +2547,10 @@ sub imap_connect {
 
 
 sub imap_disconnect {
+    if (not -e ${DevelConf::imap_password_file}) {
+        print "WARNING No imap password file. Skipping IMAP stuff.\n";
+        return 0;
+    }
     my ($imap) = @_;
     print "Disconnecting ... \n";
     $imap->close();
@@ -2550,6 +2558,10 @@ sub imap_disconnect {
 
 
 sub imap_show_mailbox_info {
+    if (not -e ${DevelConf::imap_password_file}) {
+        print "WARNING No imap password file. Skipping IMAP stuff.\n";
+        return 0;
+    }
     my ($imap) = @_; 
     my @mailboxes = $imap->list("user.*");
     foreach my $box (@mailboxes){
@@ -2561,59 +2573,71 @@ sub imap_show_mailbox_info {
 
 
 sub imap_create_mailbox {
-	my ($imap,$login) = @_;
-	my $err = $imap->create("user.$login");
-	if ($err != 0) {
-		my $status = $imap->error;
-		#$imap->close();
-                #print "Error creating mailbox for $login \n";
-                if ($status=~/Mailbox already exists/){
-		    print "    Mailbox of $login existed already ... doing nothing.\n";
-                    return 1;
-                } else {
-                    print "$status \n";
-		    return undef;
-	        }
+    if (not -e ${DevelConf::imap_password_file}) {
+        print "WARNING No imap password file. Skipping IMAP stuff.\n";
+        return 0;
+    }
+    my ($imap,$login) = @_;
+    my $err = $imap->create("user.$login");
+    if ($err != 0) {
+       	my $status = $imap->error;
+       	#$imap->close();
+        #print "Error creating mailbox for $login \n";
+        if ($status=~/Mailbox already exists/){
+            print "    Mailbox of $login existed already ... doing nothing.\n";
+            return 1;
+        } else {
+            print "$status \n";
+            return undef;
 	}
-        print "Mailbox for $login created.\n";
+    }
+    print "Mailbox for $login created.\n";
 ###	create_subfolders($imap, $login, @subfolders) or return undef;
-        return 1;
+    return 1;
 }
 
 
 sub imap_kill_mailbox {
-	my ($imap,$login) = @_;
-        print "Killing mailbox of ${login}.\n";
-        print "   Getting list of ${login}'s mailboxes for deletion.\n";
-	my @mboxes = $imap->list("user.$login.*");	# subfolders
-	push @mboxes, "user.$login";			# add the root mailbox
-	foreach my $mbox (@mboxes) {
-	    print "   Setting ACL of $mbox for removal\n";
-	    my $err = $imap->set_acl("$mbox", $DevelConf::imap_admin, 'c');
-	    if ($err != 0) {
-	    	my $status = $imap->error;
-                if ($status=~/Mailbox does not exist/){
-		    print "   Mailbox of $login does not exist ... nothing to do.\n";
-                    return 1;
-                } else {
-                    print "$status \n";
-		    return undef;
-	        }
+    if (not -e ${DevelConf::imap_password_file}) {
+        print "WARNING No imap password file. Skipping IMAP stuff.\n";
+        return 0;
+    }
+    my ($imap,$login) = @_;
+    print "Killing mailbox of ${login}.\n";
+    print "   Getting list of ${login}'s mailboxes for deletion.\n";
+    my @mboxes = $imap->list("user.$login.*");	# subfolders
+    push @mboxes, "user.$login";			# add the root mailbox
+    foreach my $mbox (@mboxes) {
+        print "   Setting ACL of $mbox for removal\n";
+	my $err = $imap->set_acl("$mbox", $DevelConf::imap_admin, 'c');
+	if ($err != 0) {
+       	my $status = $imap->error;
+            if ($status=~/Mailbox does not exist/){
+	        print "   Mailbox of $login does not exist ... nothing to do.\n";
+                return 1;
+            } else {
+                print "$status \n";
+		return undef;
 	    }
 	}
-	my $err = $imap->h_delete("user.$login");
-	if ($err != 0) {
-		my $status = $imap->error;
-#		print "$status \n";
-		$imap->close();
-		return undef;
-	}
-	$imap->close();
-	return 1;
+    }
+    my $err = $imap->h_delete("user.$login");
+    if ($err != 0) {
+       	my $status = $imap->error;
+#      	print "$status \n";
+       	$imap->close();
+       	return undef;
+    }
+    $imap->close();
+    return 1;
 }
 
 
 sub imap_fetch_mailquota {
+    if (not -e ${DevelConf::imap_password_file}) {
+        print "WARNING No imap password file. Skipping IMAP stuff.\n";
+        return 0;
+    }
     my ($imap,$user,$full_boxname,$quiet) = @_;
     my $mailbox;
 
@@ -2654,16 +2678,20 @@ sub imap_fetch_mailquota {
 
 
 sub imap_set_mailquota {
-	my ($imap, $login, $mailquota) = @_;
-	my $mailquota_kb = $mailquota * 1024; # quota in KB
+    if (not -e ${DevelConf::imap_password_file}) {
+        print "WARNING No imap password file. Skipping IMAP stuff.\n";
+        return 0;
+    }
+    my ($imap, $login, $mailquota) = @_;
+    my $mailquota_kb = $mailquota * 1024; # quota in KB
 
-	my $err = $imap->set_quota("user.$login", $mailquota_kb);
-	if ($err != 0) {
-		my $status = $imap->error;
-		return undef;
-	}
-        print "  set mailquota of $login to $mailquota MB\n";
-	return 1;
+    my $err = $imap->set_quota("user.$login", $mailquota_kb);
+    if ($err != 0) {
+      	my $status = $imap->error;
+       	return undef;
+    }
+    print "  set mailquota of $login to $mailquota MB\n";
+    return 1;
 }
 
 
