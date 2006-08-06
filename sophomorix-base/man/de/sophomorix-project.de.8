@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-PROJECT 8 "February 11, 2006"
+.TH SOPHOMORIX-PROJECT 8 "August 07, 2006"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -26,43 +26,43 @@ sophomorix-project \- Projekte anlegen und verwalten
 .B sophomorix-project
 verwaltetes Projekt hat folgende Eigenschaften:
 .br
-     Name:           Der Name des Projekts (unix groupname), 
+     name:           Der Name des Projekts (unix groupname), 
 .br
                          z.B.:  astro 
 .br
-     LongName:       Der ausführliche Name des Projekts,  
+     longname:       Der ausführliche Name des Projekts,  
 .br
                          z.B.:  Astronomie-AG-2004
 .br
-     Admins:         User mit Verwaltungsaufgaben im Projekt
+     admins:         User mit Verwaltungsaufgaben im Projekt
 .br
                          z.B.:  bz,kj,roes
 .br
-     Members:        User, die dem Projekt angehören (Admins gehören 
+     members:        User, die dem Projekt angehören (admins gehören 
                      automatisch dazu)
 .br
                          z.B.:  muellepe,maierjo
 .br
-     MemberGroups:   Primäre Gruppen (AdminClass, also Schulklassen und teachers), 
+     membergroups:   Primäre Gruppen (adminclass, also Schulklassen und teachers), 
                      deren Mitglieder dem Projekt angehören.
 .br
                          z.B.:  12c,7a,teachers
 .br
-     MemberProjects: Sekundäre Gruppen (Projekte), deren Mitglieder dem Projekt 
-angehören.
+     memberprojects: Sekundäre Gruppen (Projekte), deren Mitglieder dem Projekt 
+                     angehören.
 .br
                          z.B.:  12c,7a,teachers
 .br
-     AddQuota:       Zuätzliches Festplatten-Quota in MB, das Mitglieder 
+     addquota:       Zuätzliches Festplatten-Quota in MB, das Mitglieder 
                      des Projekts bekommen.
 .br
-     AddMailQuota:   Zuätzliches Mail-Quota in MB, das Mitglieder 
+     addmailquota:   Zuätzliches Mail-Quota in MB, das Mitglieder 
                      des Projekts bekommen.
 .br
                          z.B.:  40
 .br
-     MaxMembers:     Maximale Anzahl von Mitgliedern, die ein User mit
-                     Verwaltungsaufgaben (siehe Admins) einem Projekt 
+     maxmembers:     Maximale Anzahl von Mitgliedern, die ein User mit
+                     Verwaltungsaufgaben (siehe admins) einem Projekt 
                      hinzufügen kann. 
                      Diese Grenze gilt nur, wenn AddQuota gesetzt ist.
 .br
@@ -104,48 +104,58 @@ existiert.
 Löscht das mit -p projektname angegebene Projekt. Löscht ebenfalls die
 Tausch- und Aufgabenverzeichnisse.
 .TP
-.B \-\-LongName Projektname(Lang)
+.B \-\-longname Projektname(Lang)
 Aktualiesiert, bzw. legt das Projekt mit dem LongName Projektname
 an. Wird bei einem neuen Projekt kein LongName angegeben, so wird Name
 als LongName eingetragen.
 .TP
-.B \-\-Admins user1,user2,user3, ... 
+.B \-\-admins user1,user2,user3, ... 
 Trägt die übergebenen User als Verwalter in das Projekt ein. Bisher
 vorhandene User werden ersetzt. Werden bei einem neuen Projekt keine
-Admins angegeben, so wird root eingetragen.
+admins angegeben, so wird root eingetragen.
 .br
-Wollen sie aus einem Projekt alle Admins entfernen, Müssen sie --Admins "" angeben.
+Wollen sie aus einem Projekt alle admins entfernen, Müssen sie --admins "" angeben.
 .TP
-.B \-\-Members user1,user2,user3, ... 
+.B \-\-members user1,user2,user3, ... 
 Trägt die übergebenen User als Mitglieder in das Projekt ein. Bisher
 vorhandene User werden ersetzt. Werden bei einem neuen Projekt keine
-Members angegeben, so wird nichts eingetragen.
+members angegeben, so wird nichts eingetragen.
 .br
-Wollen sie aus einem Projekt alle User entfernen, Müssen sie --Members "" angeben.
+Wollen sie aus einem Projekt alle User entfernen, Müssen sie --members "" angeben.
 .TP
-.B \-\-MemberGroups group1,group2,group3, ... 
-Trägt die Mitglieder der übergebenen Gruppen als Mitglieder in das
-Projekt ein. Bisher vorhandene Gruppen werden ersetzt. Werden
-bei einem neuen Projekt keine MemberGroups angegeben, so wird nichts
-eingetragen.
+.B \-\-membergroups group1,group2,group3, ... 
+Trägt alle Mitglieder (nicht admins) der übergebenen Gruppen als
+Mitglieder in das Projekt ein. Bisher vorhandene Gruppen werden
+ersetzt.
+.br
+Die Mitglieder der Gruppe werden automatisch von sophomorix
+aktualisiert. Sie können NICHT einzeln entfernt werden.
+.br
+Werden bei einem neuen Projekt keine membergroups angegeben, so
+wird nichts eingetragen.
 .br
 Als Gruppen können nur primäre Gruppen angegeben werden, also
-sogenannte AdminClasses, die in schueler.txt vorkommen (Also alle vom
+sogenannte adminclasses, die in schueler.txt vorkommen (Also alle vom
 Schulverwaltungsprogramm angelegten Klassen)
 .br
 Wollen sie aus einem Projekt alle Gruppen entfernen, Müssen sie
---MemberGroups "" angeben.
+--membergroups "" angeben.
 .TP
-.B \-\-MemberProjects project1,project2,project3, ... 
-Trägt die Mitglieder der übergebenen Projekte als Mitglieder in das
-Projekt ein. Bisher vorhandene Projekte werden ersetzt. Werden
-bei einem neuen Projekt keine MemberProjects angegeben, so wird nichts
-eingetragen.
+.B \-\-memberprojects project1,project2,project3, ... 
+Trägt die Mitglieder (nicht admins) der übergebenen Projekte als
+Mitglieder in das Projekt ein. Bisher vorhandene Projekte werden
+ersetzt.
 .br
-Wollen sie aus einem Projekt alle MemberProjects entfernen, Müssen sie \
---MemberProjects "" angeben.
+Die Mitglieder des Mitgliedprojekts werden automatisch von sophomorix
+aktualisiert. Sie können NICHT einzeln entfernt werden.
+.br
+Werden bei einem neuen Projekt keine memberprojects angegeben, so wird
+nichts eingetragen.
+.br
+Wollen sie aus einem Projekt alle memberprojects entfernen, Müssen sie \
+--memberprojects "" angeben.
 .TP
-.B \-\-AddQuota quotastring
+.B \-\-addquota quotastring
 Trägt den übergebenen quotastring als Zusatzquota in das Projekt ein
 und überträgt diese Werte ins System. Der bisher vorhandene
 quotastring wird ersetzt. Wird bei einem neuen Projekt kein AddQuota
@@ -155,11 +165,11 @@ Wie der quotastring aussehen kann siehe:
 .B man sophomorix-quota
 .TP
 .TP
-.B \-\-AddMailQuota number
+.B \-\-addmailquota number
 Trägt die übergebene Zahl(integer) als zusätzliches Mail Quota (in MB)
 in das Projekt ein, und überträgt den Wert ins System. Die bisher
 vorhandene Zahl wird ersetzt. Wird bei einem neuen Projekt kein
-AddMailQuota angegeben, so wird 0 MB eingetragen.
+addmailquota angegeben, so wird 0 MB eingetragen.
 .TP
 .B \-\-mailalias
 Trägt für alle Mitglieder dieses Projekts einen Mailalias ein
@@ -170,44 +180,44 @@ Trägt alle Mitglieder dieses Projekts in eine Mailingliste ein. Alle
 Mitglieder sind somit unter dem Projektnamen UND dem langen
 Projektnamen (LongName) erreichbar.
 .TP
-.B \-\-MaxMembers anzahl
-Trägt anzahl als MaxMembers in das Projekt ein. Die bisher vorhandene
+.B \-\-maxmembers anzahl
+Trägt anzahl als maxmembers in das Projekt ein. Die bisher vorhandene
 anzahl wird ersetzt. Wird bei einem neuen Projekt keine
-MaxMembers angegeben, so wird 0 eingetragen.
+maxmembers angegeben, so wird 0 eingetragen.
 .br
-Der Eintrag MaxMembers dient zur Begrenzung der vergebenen AddQuota, und ist
+Der Eintrag maxmembers dient zur Begrenzung der vergebenen addquota, und ist
 nur wirksam, wenn AddQuota nicht 0  ist. Projekte, die mit denen
-kein AddQuota gekoppelt ist (AddQuota=0), sind in ihrer Mitgliederanzahl praktisch
+kein addquota gekoppelt ist (addquota=0), sind in ihrer Mitgliederanzahl praktisch
 unbeschränkt (nur durch eine im Betriebsystem vohandene maximale
 Gruppenmitgliedschaftanzahl)
 .TP
 .B Hinzunehmen und entfernen einzelner members, admins, groups und projects
 .TP
-.B --addMembers user1,user2,... --project Projekt
+.B --addmembers user1,user2,... --project Projekt
 Fügt die Mitglieder user1,user2, ... dem Projekt hinzu.
 .TP
-.B --removeMembers user1,user2,... --project Projekt
+.B --removemembers user1,user2,... --project Projekt
 Entfernt die Mitglieder user1,user2,... aus dem Projekt. (Es werden
-keine Admins entfernt)
+keine admins entfernt)
 .TP
-.B --addAdmins user1,user2,... --project Projekt
-Fügt die Admins user1,user2,... dem Projekt hinzu.
+.B --addadmins user1,user2,... --project Projekt
+Fügt die admins user1,user2,... dem Projekt hinzu.
 .TP
-.B --removeAdmins user1,user2,... --project Projekt
-Entfernt die Admins user1,user2,... aus dem Projekt (auch als
-Members). Es werden keine Members entfernt, die nicht auch Admins
+.B --removeadmins user1,user2,... --project Projekt
+Entfernt die admins user1,user2,... aus dem Projekt (auch als
+members). Es werden keine members entfernt, die nicht auch admins
 sind.
 .TP
-.B --addMemberGroups gruppe1,gruppe2,... --project Projekt
+.B --addmembergroups gruppe1,gruppe2,... --project Projekt
 Fügt die Gruppen gruppe1,gruppe2,... dem Projekt hinzu.
 .TP
-.B --removeMemberGroups gruppe1,gruppe2,... --project Projekt
+.B --removemembergroups gruppe1,gruppe2,... --project Projekt
 Entfernt die Gruppen gruppe1,gruppe2,... aus dem Projekt.
 .TP
-.B --addMemberProjects project1,project2,... --project Projekt
+.B --addmemberprojects project1,project2,... --project Projekt
 Fügt die Projekte project1,project2,... dem Projekt hinzu.
 .TP
-.B --removeProjects project1,project2,... --project Projekt
+.B --removeprojects project1,project2,... --project Projekt
 Entfernt die Projekte project1,project2,... aus dem Projekt.
 .TP
 .SH SEE ALSO
