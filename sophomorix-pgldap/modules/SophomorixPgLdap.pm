@@ -3843,7 +3843,7 @@ sub check_sophomorix_user_oldstuff {
 sub show_project_list {
     print "The following projects exist already:\n\n";
     printf "%-16s|%9s |%4s |%3s |%1s|%1s|%1s|%1s| %-22s \n",
-           "Project","AddQuota","AMQ","MM","A","L","S","J","LongName";
+           "Project","addquota","AMQ","MM","A","L","S","J","LongName";
     print "----------------+----------+-----+----+-+-",
           "+-+-+---------------------------------\n";
     my $dbh=&db_connect();
@@ -3900,8 +3900,8 @@ sub show_project_list {
     }   
     print "----------------+----------+-----+----+-+-",
           "+-+-+---------------------------------\n";
-    print "(AMQ=AddMailQuota, MM=MaxMembers, A=Mailalias,",
-          " L=Mailist, S=Status, J=Joinable)\n";
+    print "(AMQ=addmailquota, MM=maxmembers, A=mailalias,",
+          " L=mailist, S=status, J=joinable)\n";
     &db_disconnect($dbh);
 }
 

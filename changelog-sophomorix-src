@@ -1221,15 +1221,11 @@ later: override with database entry
 
 check option --teach-in
 
-when removing a class, dont remove its admins from the project.
-...             project ...
-
-
 
 speed up the call to sophomorix-quota in
 sophomorix-kill ??
 the following way:
-
+does quota need to be removed when killing a user???
   
 remove debug info in imap_connect (password)
 mock up display of mailboxes with |-+
@@ -1241,19 +1237,12 @@ sophomorix-quota "  and imap_disconnect
 sophomorix-kill imap_disconnect and db_disconnect
 
 
-remove capital letters from nameing MailQuota ...
-
-
-
-
 check package dependencies IMAP::Admin
 
 
 Thomas:
  - Cyrus::Imap::Admin can be removed
  - remove cyrus-user.pl
-
-
 
 
 Multi-Treffen:
@@ -1301,12 +1290,6 @@ Testen lml3:
    /etc/dhcp/dhcp3.conf rangeangabe auskommentieren  
 
 
-Bug2:(Pending)
-if an admin is removed from project
-and readded as a member, then he is added as ADMIN!
-
-(Cannot replay that Bug)
-
 
 mail verschicken: Perl module: 
 use Email::Send;
@@ -1318,7 +1301,10 @@ lml.mine.nu schulkonsole/shtml: descriptions
 ================== CHANGELOG ========================================
 
 1.8.9-1  (2006-08-06)
-   - code cleanup:
+   - Bugfix:
+     manage groups in projects and projects in projects only with members
+     (not admins)
+   - code cleanup in sophomorix-check:
      - dont check anymore the order of firstname/lastname
      - use filter script instead
    - create variable in sophomorix.conf to create a pre filter script

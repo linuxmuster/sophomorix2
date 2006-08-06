@@ -96,23 +96,23 @@ my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
            "join!" => \$join,
            "tree" => \$tree,
-           "addMembers=s" => \$addmembers,
-           "removeMembers=s" => \$removemembers,
-           "addAdmins=s" => \$addadmins,
-           "removeAdmins=s" => \$removeadmins,
-           "addMemberGroups=s" => \$addmembergroups,
-           "removeMemberGroups=s" => \$removemembergroups,
-           "addMemberProjects=s" => \$addmemberprojects,
-           "removeMemberProjects=s" => \$removememberprojects,
-           "Name|project|p=s" => \$project,
-           "LongName=s" => \$p_long_name,
-           "MemberGroups=s" => \$p_groups,
-           "Admins=s" => \$p_admins,
-           "Members=s" => \$p_members,
-           "MemberProjects=s" => \$p_projects,
-           "AddQuota=s" => \$p_add_quota,
-           "AddMailQuota=s" => \$p_add_mail_quota,
-           "MaxMembers=s" => \$p_max_members,
+           "addmembers=s" => \$addmembers,
+           "removemembers=s" => \$removemembers,
+           "addadmins=s" => \$addadmins,
+           "removeadmins=s" => \$removeadmins,
+           "addmembergroups=s" => \$addmembergroups,
+           "removemembergroups=s" => \$removemembergroups,
+           "addmemberprojects=s" => \$addmemberprojects,
+           "removememberprojects=s" => \$removememberprojects,
+           "name|project|p=s" => \$project,
+           "longname=s" => \$p_long_name,
+           "membergroups=s" => \$p_groups,
+           "admins=s" => \$p_admins,
+           "members=s" => \$p_members,
+           "memberprojects=s" => \$p_projects,
+           "addquota=s" => \$p_add_quota,
+           "addmailquota=s" => \$p_add_mail_quota,
+           "maxmembers=s" => \$p_max_members,
            "mailalias!" => \$mailalias,
            "maillist!" => \$maillist,
           );
@@ -159,23 +159,23 @@ Options
   --create 
   --kill
   --join,  --nojoin
-  --LongName projectname(long)
-  --Admins user1,user2,user3, ... 
-  --Members user1,user2,user3, ... 
-  --MemberGroups group1,group2,group3, ... 
-  --MemberProjects project1,project2,project3, ... 
-  --AddQuota quotastring
-  --AddMailQuota number
-  --MaxMembers number
+  --longname projectname(long)
+  --admins user1,user2,user3, ... 
+  --members user1,user2,user3, ... 
+  --membergroups group1,group2,group3, ... 
+  --memberprojects project1,project2,project3, ... 
+  --addquota quotastring
+  --addmailquota number
+  --maxmembers number
 
-  -p project --addMembers
-  -p project --removeMembers 
-  -p project --addAdmins 
-  -p project --removeAdmins 
-  -p project --addMemberGroups
-  -p project --removeMemberGroups
-  -p project --addMemberProjects
-  -p project --removeMemberProjects
+  -p project --addmembers
+  -p project --removemembers 
+  -p project --addadmins 
+  -p project --removeadmins 
+  -p project --addmembergroups
+  -p project --removemembergroups
+  -p project --addmemberprojects
+  -p project --removememberprojects
 
 Please see the sophomorix-project(8) man pages for full documentation
 ');
