@@ -2511,7 +2511,8 @@ sub get_mail_alias_from {
 
 sub imap_connect {
     if (not -e ${DevelConf::imap_password_file}) {
-        print "WARNING No imap password file. Skipping IMAP stuff.\n";
+        print "WARNING No file ${DevelConf::imap_password_file}. ",
+              "Skipping IMAP stuff.\n";
         return 0;
     }
     my ($server, $admin) = @_;
@@ -2548,7 +2549,8 @@ sub imap_connect {
 
 sub imap_disconnect {
     if (not -e ${DevelConf::imap_password_file}) {
-        print "WARNING No imap password file. Skipping IMAP stuff.\n";
+        print "WARNING No file ${DevelConf::imap_password_file}. ",
+              "Skipping IMAP stuff.\n";
         return 0;
     }
     my ($imap) = @_;
@@ -2559,7 +2561,8 @@ sub imap_disconnect {
 
 sub imap_show_mailbox_info {
     if (not -e ${DevelConf::imap_password_file}) {
-        print "WARNING No imap password file. Skipping IMAP stuff.\n";
+        print "WARNING No file ${DevelConf::imap_password_file}.",
+              " Skipping IMAP stuff.\n";
         return 0;
     }
     my ($imap) = @_; 
@@ -2574,7 +2577,8 @@ sub imap_show_mailbox_info {
 
 sub imap_create_mailbox {
     if (not -e ${DevelConf::imap_password_file}) {
-        print "WARNING No imap password file. Skipping IMAP stuff.\n";
+        print "WARNING No file ${DevelConf::imap_password_file}.",
+              " Skipping IMAP stuff.\n";
         return 0;
     }
     my ($imap,$login) = @_;
@@ -2599,7 +2603,8 @@ sub imap_create_mailbox {
 
 sub imap_kill_mailbox {
     if (not -e ${DevelConf::imap_password_file}) {
-        print "WARNING No imap password file. Skipping IMAP stuff.\n";
+        print "WARNING No file ${DevelConf::imap_password_file}.",
+              " Skipping IMAP stuff.\n";
         return 0;
     }
     my ($imap,$login) = @_;
@@ -2635,7 +2640,8 @@ sub imap_kill_mailbox {
 
 sub imap_fetch_mailquota {
     if (not -e ${DevelConf::imap_password_file}) {
-        print "WARNING No imap password file. Skipping IMAP stuff.\n";
+        print "WARNING No file ${DevelConf::imap_password_file}.",
+              " Skipping IMAP stuff.\n";
         return 0;
     }
     my ($imap,$user,$full_boxname,$quiet) = @_;
@@ -2679,7 +2685,8 @@ sub imap_fetch_mailquota {
 
 sub imap_set_mailquota {
     if (not -e ${DevelConf::imap_password_file}) {
-        print "WARNING No imap password file. Skipping IMAP stuff.\n";
+        print "WARNING No file ${DevelConf::imap_password_file}.",
+              " Skipping IMAP stuff.\n";
         return 0;
     }
     my ($imap, $login, $mailquota) = @_;
