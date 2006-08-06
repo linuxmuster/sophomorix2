@@ -169,8 +169,6 @@ my $geburts_jahreszahl_stop=0;
 # Laufvariable für Geburtsjahreszahl
 my $geburts_jahreszahl_lauf=0;
 
-
-
 # Erste Analyse auf Vornamentausch
 # Die eingelesenen Felder
 my $feld1="";
@@ -183,26 +181,6 @@ my $okfeld1="";
 my $okfeld2="";
 my $okfeld3="";
 my $okfeld4="";
-#my $feld6="";
-# Hash mit oft vorkommenden Vornamen
-my %vornamen_hash = qw(
-     Peter ok
-     Michael ok
-     Sascha ok
-     Sven ok
-     Manfred ok
-     Andreas ok
-     Julia ok
-     Sabine ok
-     Anja ok
-     Marion ok
-     Tanja ok
-     Sonja ok
-);
-# wie oft kommen bekannte Vornamen in Feld 2, Feld 3 vor
-my $feld2_ist_vorname=0;
-my $feld3_ist_vorname=0;
-my $datensatz_getauscht="";
 
 # Informationen aus sperrklassen.txt in eine Hash-Tabelle ablegen
 my %sperrklassen=();
@@ -280,7 +258,6 @@ my $schueler_sternchenklasse_anzahl=0;
 my $auto_teach_in_count=0;
 
 my $move=0;
-
 
 # Alles OK
 #my $identifier_to_check="";
@@ -388,10 +365,15 @@ my $value="";
 
 &check_verzeichnis_mkdir("${DevelConf::ergebnis_pfad}");
 
+# remove check-result
 system("rm -r ${DevelConf::ergebnis_pfad}");
-       #|| die "Kann Verzeichnis ergebnis nicht löschen: $!";
 mkdir("${DevelConf::ergebnis_pfad}",0700) 
-       || die "Kann Verzeichnis nicht anlegen: $!"; 
+       || die "Kann Verzeichnis ${DevelConf::ergebnis_pfad} nicht anlegen: $!"; 
+
+# remove tmp
+system("rm -r ${DevelConf::pruef_pfad}");
+mkdir("${DevelConf::pruef_pfad}",0700) 
+       || die "Kann Verzeichnis ${DevelConf::pruef_pfad} nicht anlegen: $!"; 
 
 &check_verzeichnis_mkdir("${DevelConf::var_lib_pfad}");
 &check_verzeichnis_mkdir("${DevelConf::pruef_pfad}");
@@ -467,46 +449,24 @@ if($Conf::log_level>=3){
 #}
 
 
-# ===========================================================================
-# Vorcheck: Erkennen, welches Feld der Vorname ist
-# Vorcheck wird nur mit der Datei des Schulverwaltungsprogrammes durchgeführt
-# ===========================================================================
-#if ($file_to_check ne "") {
-#   open(SCHUELERNEUANZULEGENVOR,
-#        "$file_to_check") || 
-#              die "Fehler: $! nicht gefunden.";
-#} else {
-#   open(SCHUELERNEUANZULEGENVOR,
-#        "${DevelConf::users_pfad}/schueler.txt") || 
-#              die "Fehler: $! nicht gefunden.";
-#}
-#
-#while(<SCHUELERNEUANZULEGENVOR>){
-#   chomp();
-#   s/\s//g;
-#   if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
-#   # Zerteilen der Zeile in vier Elemente, diese in Variablen abspeichern
-#   ($feld1,$feld2,$feld3,$feld4)=split(/;/);
-#       # Vorname-Nachname vertauscht prüfen
-#   if (exists($vornamen_hash{$feld2})){
-#      # Wenn feld 2 Vorname ist, dann Zähler hochsetzen
-#      $feld2_ist_vorname++;
-#   }
-#   if (exists($vornamen_hash{$feld3})){
-#      # Wenn feld 3 Vorname ist, dann Zähler hochsetzen
-#      $feld3_ist_vorname++;
-#   }
-#}
-#close(SCHUELERNEUANZULEGENVOR);
-# ===========================================================================
-# Ende Vorcheck
-# ===========================================================================
 
-# swap the order of the entries in schueler.txt
-# ??? todo  ask if you want to check swapping  (Performance)
-#&swap_pupils_order();
-system("cp ${DevelConf::users_pfad}/schueler.txt ${DevelConf::schueler_datei}");
-
+# copy the schueler.txt to location where it is checked, or
+# call the filter script
+if ($Conf::filter_script eq ""){
+    &titel("No filter script defined, copying schueler.txt ...");
+    system("cp ${DevelConf::users_pfad}/schueler.txt ${DevelConf::schueler_datei}");
+} else {
+    if (-x $Conf::filter_script){
+        &titel("Running filter script $Conf::filter_script.");
+        system("$Conf::filter_script");
+    } else {
+        print "\nERROR:\n";
+        print "  Filter script $Conf::filter_script not found or not executable!\n";
+        print "  Set correct filter script in sophomorix.conf",
+              " and make sure it is executable\n\n";
+        exit;
+    }
+}
 
 # replace the configured name for teacher with teacher
 &rename_teacher_groupname();
@@ -628,6 +588,16 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
                             "########";
    print REPORTSEKRETARIAT  "########################################",
                             "########################################\n\n";
+
+   # exit if filterscript does not create schueler.txt.tmp
+   if (not -e ${DevelConf::schueler_datei} and $Conf::filter_script ne ""){
+       print "You have configured to use the following filter script:\n";
+       print "   $Conf::filter_script\n";
+       print "This script was called but no file\n";
+       print "   ${schuelerdatei} \n";
+       print "was created by the filter script to continue.\n";
+       exit;
+   }
 
    open(USERDATEI, "${schuelerdatei}") || 
              die "Fehler: $! ${schuelerdatei} nicht gefunden!"; 
@@ -1394,99 +1364,6 @@ sub rename_teacher_groupname {
    }
    close(TEACHER);
    close(TEACHERTMP);
-}
-
-
-# ===========================================================================
-# Neue Datei schueler.txt.tmp erzeugen (evtl. Namen tauschen)
-# ===========================================================================
-sub swap_pupils_order {
-# Dateihandle öffnen zum schreiben
-open(SCHUELERNEUANZULEGENTAUSCH, 
-    ">${DevelConf::schueler_datei}") 
-    || die "Fehler: $!";
-
-# Dateihandle öffnen zum lesen
-open(SCHUELERNEUANZULEGENVOR,
-    "${DevelConf::users_pfad}/schueler.txt")
-    || die "Fehler: $! nicht gefunden.";
-
-# ===========================================================================
-# Tauschen oder nicht
-if($Conf::log_level>=2){
-   print "Eingestellt in sophomorix.conf ist:\n";
-}
-# Ermitteln der Variablen
-if ($Conf::vorname_nachname_tausch==0){
-    # Manuelle Einstellung liegt vor
-    if($Conf::log_level>=2){
-       print "Feld 2 und Feld 3 werden nicht getauscht. ", 
-             "(Manuelle Einstellung)\n";
-     }
-} elsif ($Conf::vorname_nachname_tausch==1) {
-    if($Conf::log_level>=2){
-       print "Feld 2 und Feld 3 werden getauscht. ",
-             "(Manuelle Einstellung)\n";
-     }
-} elsif ($Conf::vorname_nachname_tausch==2) {
-    # Automatik
-    if($Conf::log_level>=2){
-       print "Feld 2 und Feld 3 werden evtl. getauscht. ",
-             "(Automatische Einstellung)\n";
-     }
-    if ($feld2_ist_vorname>$feld3_ist_vorname) {
-       # tauschen
-       if($Conf::log_level>=1){
-          print "\nAchtung: Feld-Reihenfolge in schueler.txt ist nicht OK!",
-	}
-       $Conf::vorname_nachname_tausch=1;
-    } else {
-       # kein Tausch durchführen
-       if($Conf::log_level>=2){
-          print "\nFeldreihenfolge in schueler.txt ist OK!\n\n";
-       }
-       $Conf::vorname_nachname_tausch=0;
-    }
-}
-
-
-if($Conf::vorname_nachname_tausch==1){
-    if($Conf::log_level>=1){
-       print "\n         Tausche Feld 2 mit Feld 3!\n";
-    }
-    if($Conf::log_level>=3){
-       print "Erzeuge ergebnis/schueler.txt.tmp\n";
-       print "mit getauschtem Vor- und Nachnamen\n";
-     }
-    $Conf::vorname_nachname_tausch=1; # für den report merken
-    # Vor und Nachnamen tauschen:
-    # Dateihandle öffnen
-    while(<SCHUELERNEUANZULEGENVOR>){
-       chomp($_);
-       s/\s//g;
-       if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
-       # Zerteilen der Zeile in vier Elemente, diese in Variablen abspeichern
-       ($feld1,$feld2,$feld3,$feld4)=split(/;/);
-       $datensatz_getauscht=join(";",($feld1,$feld3,$feld2,$feld4));
-       print SCHUELERNEUANZULEGENTAUSCH "$datensatz_getauscht;\n";
-    }
-} else {
-    # kein Tausch durchführen
-      &titel("Creating ergebnis/schueler.txt.tmp (Ohne Feldertausch)");
-
-    while(<SCHUELERNEUANZULEGENVOR>){
-       s/ //g;
-       chomp($_);
-       print SCHUELERNEUANZULEGENTAUSCH "$_\n";
-     }
-}
-
-close(SCHUELERNEUANZULEGENVOR);
-close(SCHUELERNEUANZULEGENTAUSCH);
-
-# ===========================================================================
-# In ergebnis/schueler.txt.tmp ist Reihenfolge nun korrekt
-# ===========================================================================
 }
 
 
@@ -2582,21 +2459,6 @@ sub generate_admin_report {
     print REPORTADMIN  "Abschluss-Report für den Administrator:\n";              
     print REPORTADMIN  "----------------------------------------",
                    "----------------------------------------\n";
-    print REPORTADMIN "Ermittele mit folgenden Vornamen, ",
-                      "ob Feld 3 tatsächlich Vornamen enthält: \n";
-    while (($k,$v) = each %vornamen_hash){
-        print REPORTADMIN $k , " ";
-    }
-    print REPORTADMIN"\n";
-    printf REPORTADMIN "%-50s:%6s\n" ,  "In Feld 2 (Nachnamen-Feld) gefundene Vornamen" ,
-                       $feld2_ist_vorname;
-
-    printf REPORTADMIN "%-50s:%6s\n" ,  "In Feld 3 (Vornamen-Feld) gefundene Vornamen" ,
-                       $feld3_ist_vorname;
-
-    printf REPORTADMIN "%-50s:%6s\n\n" ,  "Tauschen von Vor- und Nachnamen (1 = JA) " ,
-                       $Conf::vorname_nachname_tausch;
-
     printf REPORTADMIN "%-50s:%6s\n", 
                        "Eingelesene Zeilen (ohne Kommentarzeilen)", $zeilen_anzahl;
 
@@ -2681,7 +2543,7 @@ sub generate_admin_report {
                        "  Unerlaubtes Zeichen im Vornamen", 
                        $vorname_unerlaubtes_zeichen_anzahl;
     printf REPORTADMIN "%-50s:%6s\n", 
-                       "  Jahr unrealistisch/Datum mit unerlaubtem Zeichen oder leer", 
+                       "  Datum unrealistisch/unerlaubte Zeichen/leer", 
                        $datum_unrealistisch_anzahl;
     printf REPORTADMIN "%-50s:%6s\n", 
                        "  Datum existiert nicht", 
