@@ -2913,7 +2913,7 @@ sub create_project {
         }
     }
 
-    # MaxMambers
+    # MaxMembers
     if (not defined $p_max_members){
 	if (defined $old_max_members){
            $p_max_members=$old_max_members;          
@@ -3029,6 +3029,12 @@ sub create_project {
     print "2) Exchange Directories:\n";
 
     my %users_to_add=();
+
+    my %users_to_keep=();
+
+    my %users_to_keep_groupmembers=();
+    my %users_to_keep_projectmembers=();
+
     my %admins_to_add=();
     my %projects_to_add=();
 
@@ -3058,7 +3064,7 @@ sub create_project {
     @old_groups=&fetchgroups_from_project($project);
     @old_projects=&fetchprojects_from_project($project);
 
-    # Adding all users/admins/projects from options to lists
+    # Adding all users/admins/groups/projects from options to lists
     if (defined $p_members){
         @new_members=split(/,/,$p_members);
     } else {
@@ -3100,7 +3106,6 @@ sub create_project {
         }
 
         # select the primary users
-#        @new_users_pri=&Sophomorix::SophomorixBase::get_user_adminclass($group);
         @new_users_pri=&fetchstudents_from_adminclass($group);
 
         if($Conf::log_level>=2){
@@ -3112,6 +3117,10 @@ sub create_project {
         foreach my $user (@new_users_pri){        
            if (not exists $users_to_add{$user}){
        	      $users_to_add{$user}="$group(primary)";
+           }
+           # this users must be kept because of their groupmembership
+           if (not exists $users_to_keep_groupmembers{$user}){
+       	      $users_to_keep_groupmembers{$user}="$group(primary)";
            }
         }
     }
@@ -3148,14 +3157,19 @@ sub create_project {
            if (not exists $users_to_add{$user}){
        	      $users_to_add{$user}="$m_project(secondary)";
            }
+           if (not exists $users_to_keep_projectmembers{$user}){
+       	      $users_to_keep_projectmembers{$user}="$m_project(secondary)";
+           }
         }
     }
 
     foreach my $memb (@new_members){
+	print "adding $memb as member\n";
 	$users_to_add{ $memb }="member";
     }
 
     foreach my $memb (@new_admins){
+	print "adding $memb as admin\n";
 	$users_to_add{ $memb }="projectadmin";
     }
 
@@ -3168,6 +3182,9 @@ sub create_project {
        }
        print "------------------------------------------------------------\n";
     }
+
+    # remember this list (all of this users must be kept)
+    %users_to_keep = %users_to_add;    
 
     foreach my $admin (@new_admins){
 	$admins_to_add{ $admin }="";
@@ -3312,8 +3329,14 @@ sub create_project {
                   " removing $group\n";
          }
 	 my @users_to_remove = fetchstudents_from_adminclass($group);
-	 print "  Removing all users of group ${group}:\n";
+	 print "  Removing users of group ${group}:\n";
 	 foreach my $user (@users_to_remove){
+             # check if user must be kept
+             if (exists $users_to_keep_projectmembers{$user}){
+                 print "   Not deleting $user (is still member/admin ",
+                       "in project $users_to_keep_projectmembers{$user})\n";
+                 next;
+             }
              &deleteuser_from_project($user,$project);
              &Sophomorix::SophomorixBase::remove_share_link($user,
                                           $project,$p_long_name);
@@ -3360,8 +3383,20 @@ sub create_project {
          }
          
 	 my @users_to_remove = &fetchusers_from_project($m_project);
-	 print "  Removing all users of project ${project}:\n";
+	 print "  Removing users of project ${project}:\n";
 	 foreach my $user (@users_to_remove){
+             # check if user must be kept
+             if (exists $users_to_keep_projectmembers{$user}){
+                 print "   Not deleting $user (is still member/admin ",
+                       "in project $users_to_keep_projectmembers{$user})\n";
+                 next;
+             }
+             if (exists $users_to_keep_groupmembers{$user}){
+                 print "   Not deleting $user (is still member/admin ",
+                       "in adminclass $users_to_keep_groupmembers{$user})\n";
+                 next;
+             }
+
              &deleteuser_from_project($user,$project);
              &Sophomorix::SophomorixBase::remove_share_link($user,
                                           $project,$p_long_name);
