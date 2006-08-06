@@ -1241,7 +1241,7 @@ sophomorix-quota "  and imap_disconnect
 sophomorix-kill imap_disconnect and db_disconnect
 
 
-remove capital lettern from nameing MailQuota ...
+remove capital letters from nameing MailQuota ...
 
 
 
@@ -1280,7 +1280,7 @@ Bugs:
   - Projektname Schule/Lehrer gibt Probleme
   - langname und kurzname 
   - Projekt teachers anlegen und löschen legt system lahm
-    (projekte mit klassennamen können nicht angelet werden)
+    (projekte mit klassennamen können nicht angelegt werden)
     (was passiert, wenn klasse kommt, mit deren Namen ein Projekt existiert)
   - locking: mehrere sophomorix-scripte dürfen nicht gleichzeitig laufen
   - Kein Einsammeln-ordner beim workstation user
@@ -1290,7 +1290,6 @@ Bugs:
 
 IMAP-cyrus
  - bisher noch keine subdirs im cyrus
- - wenn kein passwort da ist in imap.secret, dann nix machen am cyrus
  - wenn ein user kein postfach hat mit *-repair oder *-quota anlegen
  - postfächer sind in /var/spool/cyrus/mail/
  - maildir-format
@@ -1300,15 +1299,6 @@ IMAP-cyrus
 Testen lml3:
  - dhcp-bereich
    /etc/dhcp/dhcp3.conf rangeangabe auskommentieren  
-
-
-neues Paket sophomorix 1.8.9  bis Sonntag abend machen
-
-
-
-
-
-Bugs projects
 
 
 Bug2:(Pending)
@@ -1321,18 +1311,18 @@ and readded as a member, then he is added as ADMIN!
 mail verschicken: Perl module: 
 use Email::Send;
 
-lml.mine.nu schulkonsole/shtml
+lml.mine.nu schulkonsole/shtml: descriptions
 
 
-report.admin: kürzen
-
-tauschen der Schueler raus, genauso der check fürs tauschen raus
-
-sophomorix.conf: specify filterfile (empty for NOT filtering (just copy))
  
 ================== CHANGELOG ========================================
 
-1.8.9-1  (2006-08-xx)
+1.8.9-1  (2006-08-06)
+   - code cleanup:
+     - dont check anymore the order of firstname/lastname
+     - use filter script instead
+   - create variable in sophomorix.conf to create a pre filter script
+     - checked this, added appropriate exits and messages
    - Bugfix:
        delete users of membergroups of a project only when
        they are not member via another project
@@ -1347,6 +1337,7 @@ sophomorix.conf: specify filterfile (empty for NOT filtering (just copy))
    - Bugfixes in htaccess-templates
    - added cronjobs to package sophomorix-base with dh_installcron 
    - updated manpage sophomorix-mail
+   - when imap.secret is not there, no configuration is made  
    - made the connect function read the password from /etc/imap.secret
    - added option --showmailboxes to sophomorix-mail, which shows an overview 
      of all mailboxes
