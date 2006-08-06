@@ -59,9 +59,7 @@ my %filename_map = ("$DevelConf::schueler_datei", "schueler.txt",
 # =========================================================================
 # lehrer.txt ordnen
 # =========================================================================
-
 &check_datei_touch("${DevelConf::users_pfad}/lehrer.txt");
-#&check_datei_touch("${DevelConf::users_pfad}/schulinfo.txt");
 &lehrer_ordnen();
 
 # ===========================================================================
@@ -104,14 +102,19 @@ if ($help==1) {
    my $scriptname = pop @list;
    # Befehlbeschreibung
    print "\n$scriptname examines and synchronises the following files\n",
-         "with the system:\n\n";
+         "with the system:\n";
 
    foreach my $datei (@schueler_to_check_dateien){
        print "   $datei\n";
    }
-   print"\nWhere \n\n";
-   print"   schueler.txt.tmp   is created from   schueler.txt   \n";
-   print"   extrakurse.students   is created from   extrakurse.txt \n";
+   print"\nWhere \n";
+   print"   schueler.txt.tmp    is copied from   schueler.txt   \n";
+   print"   lehrer.txt.tmp      is copied from   lehrer.txt \n";
+   print"   extrakurse.students is copied from   extrakurse.txt \n";
+
+   print"\nIf you want to filter schueler.txt before processing see the\n";
+   print"Expanation in /etc/sophomorix/user/sophomorix-conf\n";
+
    print('
 Options
   -h  / --help
@@ -373,9 +376,6 @@ my $value="";
 # Existenz wichtiger Dateien prüfen
 # ===========================================================================
 &check_datei_exit("${DevelConf::users_pfad}/schueler.txt");
-#&check_datei_exit("${DevelConf::users_pfad}/lehrer.txt");
-#&check_datei_exit("${DevelConf::config_pfad}/entfernen.txt");
-#&check_datei_exit("${DevelConf::config_pfad}/sperrklassen.txt");
 &check_config_template("entfernen.txt");
 &check_config_template("sperrklassen.txt");
 &check_config_template("extrakurse.txt");
@@ -471,40 +471,42 @@ if($Conf::log_level>=3){
 # Vorcheck: Erkennen, welches Feld der Vorname ist
 # Vorcheck wird nur mit der Datei des Schulverwaltungsprogrammes durchgeführt
 # ===========================================================================
-if ($file_to_check ne "") {
-   open(SCHUELERNEUANZULEGENVOR,
-        "$file_to_check") || 
-              die "Fehler: $! nicht gefunden.";
-} else {
-   open(SCHUELERNEUANZULEGENVOR,
-        "${DevelConf::users_pfad}/schueler.txt") || 
-              die "Fehler: $! nicht gefunden.";
-}
-
-while(<SCHUELERNEUANZULEGENVOR>){
-   chomp();
-   s/\s//g;
-   if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
-   # Zerteilen der Zeile in vier Elemente, diese in Variablen abspeichern
-   ($feld1,$feld2,$feld3,$feld4)=split(/;/);
-       # Vorname-Nachname vertauscht prüfen
-   if (exists($vornamen_hash{$feld2})){
-      # Wenn feld 2 Vorname ist, dann Zähler hochsetzen
-      $feld2_ist_vorname++;
-   }
-   if (exists($vornamen_hash{$feld3})){
-      # Wenn feld 3 Vorname ist, dann Zähler hochsetzen
-      $feld3_ist_vorname++;
-   }
-}
-close(SCHUELERNEUANZULEGENVOR);
+#if ($file_to_check ne "") {
+#   open(SCHUELERNEUANZULEGENVOR,
+#        "$file_to_check") || 
+#              die "Fehler: $! nicht gefunden.";
+#} else {
+#   open(SCHUELERNEUANZULEGENVOR,
+#        "${DevelConf::users_pfad}/schueler.txt") || 
+#              die "Fehler: $! nicht gefunden.";
+#}
+#
+#while(<SCHUELERNEUANZULEGENVOR>){
+#   chomp();
+#   s/\s//g;
+#   if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+#   # Zerteilen der Zeile in vier Elemente, diese in Variablen abspeichern
+#   ($feld1,$feld2,$feld3,$feld4)=split(/;/);
+#       # Vorname-Nachname vertauscht prüfen
+#   if (exists($vornamen_hash{$feld2})){
+#      # Wenn feld 2 Vorname ist, dann Zähler hochsetzen
+#      $feld2_ist_vorname++;
+#   }
+#   if (exists($vornamen_hash{$feld3})){
+#      # Wenn feld 3 Vorname ist, dann Zähler hochsetzen
+#      $feld3_ist_vorname++;
+#   }
+#}
+#close(SCHUELERNEUANZULEGENVOR);
 # ===========================================================================
 # Ende Vorcheck
 # ===========================================================================
 
 # swap the order of the entries in schueler.txt
 # ??? todo  ask if you want to check swapping  (Performance)
-&swap_pupils_order();
+#&swap_pupils_order();
+system("cp ${DevelConf::users_pfad}/schueler.txt ${DevelConf::schueler_datei}");
+
 
 # replace the configured name for teacher with teacher
 &rename_teacher_groupname();
