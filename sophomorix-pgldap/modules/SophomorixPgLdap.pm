@@ -19,6 +19,7 @@ require Exporter;
              addproject_to_project
              fetchinfo_from_project
              fetchusers_from_project
+             fetchmembers_from_project
              fetchadmins_from_project
              fetchgroups_from_project
              fetchprojects_from_project
@@ -202,7 +203,7 @@ sub fetchinfo_from_project {
 
 
 sub fetchusers_from_project {
-    # return a list of uid of users of the given project
+    # return a list of uid of ALL users (members AND admins) of the given project
     # linux: which users are secondary members of group
     my ($group) = @_;
     my @userlist=();
@@ -234,6 +235,54 @@ sub fetchusers_from_project {
        push @userlist, $uid_sys;
     }
     &db_disconnect($dbh);
+    return @userlist;
+}
+
+
+
+sub fetchmembers_from_project {
+    # return a list of uid of members (no admins!) of the given project 
+    my ($group) = @_;
+    my %members=();
+    my @userlist=();
+    my $dbh=&db_connect();
+    # fetching gid
+    my ($gidnumber_sys)= $dbh->selectrow_array( "SELECT gidnumber 
+                                         FROM groups 
+                                         WHERE gid='$group'
+                                        ");
+    if (not defined $gidnumber_sys){
+        print "WARNING: $group not found\n";
+	return @userlist;
+        exit;
+    }
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT memberuidnumber 
+                            FROM groups_users 
+                            WHERE gidnumber=$gidnumber_sys 
+                           " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+       # split the array, to give better names
+       my ($uidnumber)=@$row;
+       # fetching uid
+       my ($uid_sys)= $dbh->selectrow_array( "SELECT uid 
+                                         FROM posix_account 
+                                         WHERE uidnumber=$uidnumber");
+       $members{$uid_sys}="member";
+    }
+    &db_disconnect($dbh);
+    my @admins=&fetchadmins_from_project($group);
+    foreach my $admin (@admins){
+        delete($members{$admin})
+    }
+    while(my ($user, $value) = each(%members)) {
+        # do something with $key and $value
+        push @userlist,$user;
+    }
+    @userlist = sort @userlist;
+
     return @userlist;
 }
 
@@ -3059,6 +3108,7 @@ sub create_project {
     &Sophomorix::SophomorixBase::provide_project_files($project);
 
     # get old values
+    # users and admins
     @old_users=&fetchusers_from_project($project);
     @old_admins=&fetchadmins_from_project($project);
     @old_groups=&fetchgroups_from_project($project);
@@ -3144,7 +3194,7 @@ sub create_project {
 	          "... skipping $m_project as MemberGroups in $project\n";
 	    next;
         }
-        # select the secondary users
+        # select the secondary users (admins and users)
         @new_users_sec=&fetchusers_from_project($m_project);
 
         if($Conf::log_level>=2){
@@ -3382,7 +3432,8 @@ sub create_project {
                   " removing $m_project\n";
          }
          
-	 my @users_to_remove = &fetchusers_from_project($m_project);
+         # select only members, not admins
+	 my @users_to_remove = &fetchmembers_from_project($m_project);
 	 print "  Removing users of project ${project}:\n";
 	 foreach my $user (@users_to_remove){
              # check if user must be kept
@@ -4064,7 +4115,9 @@ sub show_project {
        print "   MaxMembers:       $max_members\n";
        print "   CreationTime:     $time\n";
     }
-    my @user=&fetchusers_from_project($project);
+    
+    # show only members, not admins (admins are shown later)
+    my @user=&fetchmembers_from_project($project);
     @user = sort @user;
     &Sophomorix::SophomorixBase::print_list_column(4,"Members of $project",@user);
     print "\n";
