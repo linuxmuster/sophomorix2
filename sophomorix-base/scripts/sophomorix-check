@@ -72,6 +72,7 @@ my $old_info_dir="";
 my $no_kclass=0;
 my $use_uid=0;
 my $use_gid=0;
+my $cron=0;
 my $no_auto_teach_in=0;
 
 # Parsen der Optionen
@@ -81,6 +82,7 @@ my $testopt=GetOptions(
            "get-info-from-old-files=s" => \$old_info_dir,
            "use-uid" => \$use_uid,
            "use-gid" => \$use_gid,
+           "cron" => \$cron,
            "no-kclass" => \$no_kclass,
            "no-auto-teach-in|no-sync" => \$no_auto_teach_in,
            "file=s" => \$file_to_check,
@@ -169,7 +171,6 @@ my $geburts_jahreszahl_stop=0;
 # Laufvariable für Geburtsjahreszahl
 my $geburts_jahreszahl_lauf=0;
 
-# Erste Analyse auf Vornamentausch
 # Die eingelesenen Felder
 my $feld1="";
 my $feld2="";
