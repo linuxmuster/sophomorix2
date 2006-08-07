@@ -207,18 +207,10 @@ SCRIPTS To do
 
 sophomorix-repair
    - use function create_userlist to specify users
-     Call with option -l loginname should be fast (= do only this)
-   - group owner in the home directory is lehrer (is this really good?)
-
+     Call with option -u user should be fast (= do only this)
 
 sophomorix-quota
-   - option --auto-setup
-       makes a usable quota-system
-       does what it needs to have quota enabled and working
    * option --sum still missing
-   - option --school(=pupil, teacher, workstation)
-     Use this option in sophomorix-passwd also?
-       -> include in function create_userlist
    - check if quota is really set (how?, grep through 'quota user' ?)
    - find users without quota, report them
    - find users that approch their quota, send mail, ...
@@ -229,9 +221,6 @@ sophomorix-teach-in (seems ok so far)
 
 sophomorix-shell 
    - change the login-shell of a user
-   - configuration files like quota
-     (quota.txt, lehrer.txt, class, ...)
-   - think about putting this into sophomorix-user as an option (YES)
 
 
 sophomorix-check
@@ -248,7 +237,7 @@ sophomorix-check
      for security reasons
    - add use of field 6, upload Field 6 Data automatically into database
       - add entry for every user in user_db: "Department"
-      - for every department create entry in department_db
+      - for every department create entry in the postgres database
       department_ contains:
          - Name of department i.e. "Hauptschule"
          - Name String, i.e. "HS Sydney", which is used by printing things.
@@ -257,7 +246,7 @@ sophomorix-check
          - automatisch: Schülerzahl, Klassenzahl ?????? oder besser dynamisch
          - ....
    - Format report.office with latex          
-   - include filter-file for different school-administration-sofware
+   - include filter-files
    - throw error, when unid is double in schueler.txt 
 
 
@@ -267,11 +256,11 @@ sophomorix-add
    - create file forbidden.logins which loginnames that are no to be generated
      (root1, root2, root3, ...mysql, ...)
      (All systemusers that could be possible, when installing additional packages) 
-
+     alle existing and future groups
 
 sophomorix-move
    - move Data from share into home, even if 'hidden' in another owners directory
-   - quick-move of a user(move user with a command, and keep him somehow out of 
+   - quick-move of a user (move user with a command, and keep him somehow out of 
      way, when calling sophomorix-move)
    - option -i: group users to add by classes alphabetical, users alphabetical
 
@@ -288,7 +277,7 @@ sophomorix-user
    - Changing a state of a user (make Permanent, Killable, ...)
      by using function create_userlist, i.e. make all pupils killable
    - option --move moves a pupil at once in the new class 
-     i.e. (calls sophomorix-move -l loginname)
+     i.e. (calls sophomorix-move -u user)
    - user with status U,E must not be activated?
    - option --activatable (or -i -D -T shows info about Disabled or Tolerated users)
    - when reactivating a user, set a date in the future to keep her longer acctive 
@@ -332,7 +321,6 @@ sophomorix-print
 
 
 sophomorix-project
-   - count users in projects, display with -i
    - add status stuff/lifetime stuff to projects
       P= Permanent, will not be automatically removed
       ... see drawing in doku
@@ -347,7 +335,7 @@ sophomorix-project
        - delete links from users to exchange dir
        - move data back to homedir of user?
 
-   - allow teachers to add a project (if no AddQuota is involved)
+   - allow teachers to add a project (if no addquota is involved)
      - (maximum of Projects is configurable for each teacher: standard 30)
      - standard final date: one year from now or schoolyears end (if configured)
      - maximum length is 3 years
@@ -363,6 +351,7 @@ sophomorix-project
 
 sophomorix-class
    - count users in classes, display with -i
+     show total of clases with users / without users
    - if no class is found,-> message
    --kill  remove a class from database,
            delete the exchange directory
@@ -439,10 +428,6 @@ sophomorix-vampire:
 
    
 sophomorix-mail
-   - Eintrag der lehrer in /etc/aliases mit vorname.nachname@...
-     wenn das in sophomorix.conf so steht.
-     (... wird sich noch ändern (SQL))
-   - aliases in postgres (zusätzlich zu /etc/aliases) ????????
 
 
 sophomorix-teacher
@@ -507,16 +492,11 @@ sophomorix-end-of-year (new script)
 
 sophomorix-cron (new script) (runs at night)
    - zip files in /var/log/sophomorix/exam
-   - update timestamps
-   - run sophomorix-check ??
 
 
 Functions in SophomorixBase:
-   - Put Quota-functions in SophomorixQuota.pm 
+   - code cleanup
 
-
-SophomorixAPI: 
-   - use more complicated data structures to return data (speed)
 
 ############################################################
 ALL SCRIPTS To do
@@ -1296,9 +1276,17 @@ use Email::Send;
 
 lml.mine.nu schulkonsole/shtml: descriptions
 
+check if additional fields in db are needed for projects ()
+
+vorname.nachname in sophomorix.conf does not set mailalias =1
+should be updated in the database, when sophomorix-mail is run
+
 
  
 ================== CHANGELOG ========================================
+
+1.8.10-1  (2006-08-xx)
+   - removed variables for vorname_nachname_tausch in sophomorix.conf
 
 1.8.9-1  (2006-08-06)
    - Bugfix:
