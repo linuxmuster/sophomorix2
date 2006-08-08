@@ -82,7 +82,6 @@ require Exporter;
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
-#                         show_class_list
 
 
 # ??????????
@@ -3841,7 +3840,8 @@ sub check_sophomorix_user_oldstuff {
 
 
 sub show_project_list {
-    print "The following projects exist already:\n\n";
+    print "----------------+----------+-----+----+-+-",
+          "+-+-+---------------------------------\n";
     printf "%-16s|%9s |%4s |%3s |%1s|%1s|%1s|%1s| %-22s \n",
            "Project","addquota","AMQ","MM","A","L","S","J","LongName";
     print "----------------+----------+-----+----+-+-",
@@ -3902,6 +3902,7 @@ sub show_project_list {
           "+-+-+---------------------------------\n";
     print "(AMQ=addmailquota, MM=maxmembers, A=mailalias,",
           " L=mailist, S=status, J=joinable)\n";
+    print "$i projects\n";
     &db_disconnect($dbh);
 }
 
@@ -3911,7 +3912,8 @@ sub show_project_list {
 
 
 sub show_class_list {
-    print "The following adminclasses exist already:\n\n";
+    print "---------------+----------+-----",
+          "+-+-+--------------------+---------------------\n";
     printf "%-14s | %8s |%4s |%1s|%1s| %-19s| %-20s\n","AdminClass",
            "Quota", "MQ","A","L","SchoolType","Department";
     print "---------------+----------+-----",
@@ -3920,7 +3922,7 @@ sub show_class_list {
     my $sth= $dbh->prepare( "SELECT gid,quota,mailquota,mailalias,
                                     maillist,schooltype,department
                              FROM classdata
-                             WHERE type='adminclass'
+                             WHERE (type='adminclass' OR type='teacher')
                              ORDER BY gid" );
     $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
@@ -3957,7 +3959,7 @@ sub show_class_list {
     }   
     print "---------------+----------+-----",
           "+-+-+--------------------+---------------------\n";
-    print "(MQ=MailQuota, A=Mailalias,",
+    print "$i classes    (MQ=MailQuota, A=Mailalias,",
           " L=Mailist)\n";
     &db_disconnect($dbh);
 }
