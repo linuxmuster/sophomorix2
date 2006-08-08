@@ -1272,17 +1272,13 @@ use Email::Send;
 
 lml.mine.nu schulkonsole/shtml: descriptions
 
-check if additional fields in db are needed for projects ()
-
-vorname.nachname in sophomorix.conf does not set mailalias =1
-should be updated in the database, when sophomorix-mail is run
-
 does www-data,wwwadmin need a mailbox?
 
  
 ================== CHANGELOG ========================================
 
 1.8.10-1  (2006-08-xx)
+   - allow also vorname_nachname for mail aliases in sophomorix.conf
    - moved connecting info to higher loglevel
    - hide password when connecting to imap
    - mocked up display of mailboxes
