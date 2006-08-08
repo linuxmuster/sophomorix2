@@ -2871,7 +2871,7 @@ sub setze_quota {
    my $q_opt4="";
    my $fs; 
    my $j=0;
-   my $uid=-1;
+   my $uidnumber=-1;
    # Parameter 
    # $user:        username
    # $fsliste      Referenz auf Liste mit Filesystemen (für alle user gleich)
@@ -2924,16 +2924,18 @@ sub setze_quota {
 
       # Quota-Befehlsparameter ausgeben
       # user-ID ermitteln
-      ($a,$a,$uid)=getpwnam("$user");
-#      if (not defined $uid) {
-#        $uid=999999;
-#        print("UserID:   n.A., da Testlauf (UID=$uid, show must go on.)\n");
+      ($a,$a,$a,$a,$uidnumber)=
+         &Sophomorix::SophomorixPgLdap::fetchdata_from_account("$user");
+      #($a,$a,$uidnumber)=getpwnam("$user");
+#      if (not defined $uidnumber) {
+#        $uidnumber=999999;
+#        print("UserID:   n.A., da Testlauf (UID=$uidnumber, show must go on.)\n");
 #      }
       if($Conf::log_level>=3){
          # Ausgeben der ermittelten werte
          print("  Device:            ${fs}\n");
          print("  User:              ${user}\n");
-         print("  UserID:            $uid\n");
+         print("  UserID:            $uidnumber\n");
          print("  Block-Softlimit:   ${q_opt1}000  \n");
          print("  Block-Hardlimit:   ${q_opt2}000  \n");
          print("  Inode-Softlimit:   ${q_opt3}     \n");
@@ -2945,12 +2947,12 @@ sub setze_quota {
          # Quota-Modul benutzen
          if(not $DevelConf::testen==1) {
             # do it
-            Quota::setqlim($fs,$uid,"${q_opt1}000","${q_opt2}000",$q_opt3,$q_opt4);
+            Quota::setqlim($fs,$uidnumber,"${q_opt1}000","${q_opt2}000",$q_opt3,$q_opt4);
 	 } else {
             # test
             print "  Test (quota are not set!): \n";
          }
-         print "   Setting quota ($fs, uid $uid): "; 
+         print "   Setting quota ($fs, uid $uidnumber): "; 
          print "${q_opt1}000 ${q_opt2}000 $q_opt3 $q_opt4 \n";
       } else {
          # Systembefehl benutzten
@@ -3018,7 +3020,9 @@ sub addup_quota {
 
       # Quota-Befehlsparameter ausgeben
       # user-ID ermitteln
-      ($a,$a,$uid)=getpwnam("$user");
+      ($a,$a,$a,$a,$uid)=
+         &Sophomorix::SophomorixPgLdap::fetchdata_from_account("$user");
+#      ($a,$a,$uid)=getpwnam("$user");
 #      if (not defined $uid) {
 #        $uid=999999;
 #        print("UserID:   n.A., da Testlauf (UID=$uid, show must go on.)\n");
@@ -3703,6 +3707,7 @@ sub user_public_upload {
     system "$sed_command";
     # setting owner,permissions
     chmod 0400, $ht_target;
+
     my ($name,$pass,$uid,$gid)=getpwnam(${DevelConf::apache_user});
     print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
           "${DevelConf::apache_user}($gid) to:\n     $ht_target\n";
