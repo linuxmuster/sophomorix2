@@ -2530,7 +2530,10 @@ sub imap_connect {
          }
          close(CONF);
     }
-    print "Connecting to $server as $admin with password $imap_pass \n";
+    if($Conf::log_level>=2){
+        # $imap_pass holds password
+        print "Connecting to imap-server at $server as $admin with password *** \n";
+    }
     my $imap = IMAP::Admin->new(
 	     'Server' => $server,
 	     'Login' => $admin,
@@ -2554,7 +2557,10 @@ sub imap_disconnect {
         return 0;
     }
     my ($imap) = @_;
-    print "Disconnecting ... \n";
+    
+    if($Conf::log_level>=2){
+        print "Disconnecting from imap-server ... \n";
+    }
     $imap->close();
 }
 
@@ -2567,11 +2573,15 @@ sub imap_show_mailbox_info {
     }
     my ($imap) = @_; 
     my @mailboxes = $imap->list("user.*");
+    print "+----------------------------+--------------------+-------------+\n";
+    printf "| %-27s| %-19s| %-12s|\n","Mailbox","Used Mailquota","Mailquota";
+    print "+----------------------------+--------------------+-------------+\n";
     foreach my $box (@mailboxes){
 	#print $box,"\n";
         my @data=&imap_fetch_mailquota($imap,$box,1,1);
-        printf "%-20s %-20s %-20s\n",$data[0],$data[1],$data[2];
+        printf "| %-27s| %-19s| %-12s|\n",$data[0],$data[1],$data[2];
     }
+    print "+----------------------------+--------------------+-------------+\n";
 }
 
 
@@ -2663,14 +2673,14 @@ sub imap_fetch_mailquota {
 
     if (defined $mailquota[1]) {    
         $mailquota[1]=$mailquota[1]/1024;
-        $mailquota[1]=$mailquota[1]."MB";
+        $mailquota[1]=$mailquota[1]." MB";
     } else {
         return undef;
     }
 
     if (defined $mailquota[1]) {    
         $mailquota[2]=$mailquota[2]/1024;
-        $mailquota[2]=$mailquota[2]."MB";
+        $mailquota[2]=$mailquota[2]." MB";
     } else {
         return undef;
     }
