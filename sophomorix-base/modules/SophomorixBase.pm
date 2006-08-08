@@ -489,9 +489,14 @@ sub make_some_files_root_only {
 
     # do it
     foreach my $root_file (@filelist){
-        print "Making file $root_file root only\n";
-        system("chown root.root $root_file");
-        system("chmod 0600 $root_file");
+        if (-e $root_file){
+            print "Making file $root_file root only\n";
+            system("chown root.root $root_file");
+            system("chmod 0600 $root_file");
+        } else {
+            print "WARNING: File $root_file does not exist, ",
+                  "cannot make root only.\n";
+        }
     }
 }
 
@@ -3463,7 +3468,7 @@ sub collect {
      }
   } elsif ($type eq "subclass" and not defined $users){
       # gruppenmitglieder 
-      my ($name,$passwd,$gid,$members)=getgrname($name);
+      my ($name,$passwd,$gid,$members)=getgrnam($name);
       @users=split(/,/, $members);
       $tasks_dir="${DevelConf::tasks_subclasses}/${name}/";
   } elsif ($type eq "project" and not defined $users){

@@ -1088,7 +1088,9 @@ sub fetchdata_from_account {
     my $dbh=&db_connect();
     my ($home,
         $group,
-        $gecos)= $dbh->selectrow_array( "SELECT homedirectory,gid,gecos 
+        $gecos,
+        $uidnumber,
+       )= $dbh->selectrow_array( "SELECT homedirectory,gid,gecos,uidnumber 
                                          FROM userdata 
                                          WHERE uid='$login'
                                         ");
@@ -1107,9 +1109,9 @@ sub fetchdata_from_account {
         } else {
             $type="none";
         }
-        return ($home,$type,$gecos,$group);
+        return ($home,$type,$gecos,$group,$uidnumber);
     } else {
-        return ("","","");
+        return ("","","","",-1);
     }
 }
 
@@ -1144,7 +1146,6 @@ sub create_user_db_entry {
     if (not defined $mailquota){
        $mailquota=-1;
     }
-
     if (not defined $pg_timestamp){
        $pg_timestamp=$today_pg;
     }
@@ -1384,14 +1385,13 @@ sub create_user_db_entry {
          print "SQL: $sql\n";
       }
       $dbh->do($sql);
-      $dbh->disconnect();
   } else {
       if($Conf::log_level>=3){
          print "Test:   Wrote entry into database\n";
       }
   }
   } # end 
-
+  &db_disconnect($dbh);
 }
 
 
@@ -1939,9 +1939,9 @@ sub pg_get_group_type {
                                           FROM projectdata 
                                           WHERE id='$id_sys'");
         if (defined $longname){
-            return ("project",$longname);
+            return ("project",$longname,$gidnumber_sys);
         } else {
-            return ("project",$gid);
+            return ("project",$gid,$gidnumber_sys);
         }
     }
     &db_disconnect($dbh);
