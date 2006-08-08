@@ -1272,12 +1272,22 @@ use Email::Send;
 
 lml.mine.nu schulkonsole/shtml: descriptions
 
-does www-data,wwwadmin need a mailbox?
+
+sophomorix-user: remove getpwnam???
+save_tausch_klassen: getpwuid ersetzen.
+user_login_hash:  sophomorix-add, aber nur 1x benutzt, muss eh 
+überarbeitet werden, wegen forbidden logins
+getgrnam 
+   bei collect in SophomorixBase
+   sophomorix-subclass
+   sophomorix-repair
+
 
  
 ================== CHANGELOG ========================================
 
-1.8.10-1  (2006-08-xx)
+1.8.10-1  (2006-08-09)
+   - removed all disturbing calls via C-Library and ldap.
    - allow also vorname_nachname for mail aliases in sophomorix.conf
    - moved connecting info to higher loglevel
    - hide password when connecting to imap

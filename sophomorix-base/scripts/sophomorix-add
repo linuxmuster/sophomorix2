@@ -342,6 +342,7 @@ while(<SOPHOMORIXADD>){
    push @users_for_quota, $login_name_ok;
 
    # 1. Entry in sophomorix database
+   print "DEBUG: create_user_db_entry\n";
    &create_user_db_entry($nachname,
                          $vorname,
                          $gebdat,
@@ -356,19 +357,25 @@ while(<SOPHOMORIXADD>){
                         );
 
   # 2. Add the class (db and dirs,links, ...)
+  print "DEBUG: provide_class_files\n";
   &provide_class_files($new_admin_group);
 
   # 3. set a password
+  print "DEBUG: set_sophomorix_passwd\n";
   &set_sophomorix_passwd($login_name_ok,$klartext_passwort);
 
   # 4. Creating dirs, links for the user
+  print "DEBUG: provide_user_files\n";
   &provide_user_files($login_name_ok,$new_admin_group);
 
   # 5. Add user to all groups she is in (files must exist to create links)
+  print "DEBUG: add_newuser_to_her_projects\n";
   &add_newuser_to_her_projects($login_name_ok,$new_admin_group);
 
   # 6. Add a mailbox for the user
+  print "DEBUG: imap_create_mailbox\n";
   &imap_create_mailbox($imap,$login_name_ok);
+  print "DEBUG: user is added now.\n";
 }
 
 close(SOPHOMORIXADD);
