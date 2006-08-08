@@ -538,7 +538,9 @@ sub repair_directory {
          $owner=~s/\$workstation/$user/g; 
          $owner=~s/\$members/$user/g; 
 
-         if (not defined ($ownerid = getpwnam $owner)) {
+#         if (not defined ($ownerid = getpwnam $owner)) {
+         $ownerid = &fetchdata_from_account($owner);
+         if ($ownerid==-1) {
             print "Benutzer $owner gibt es nicht!\n";
             next;
          }

@@ -368,7 +368,8 @@ sub set_quota {
       $q_opt4=100*$quota;
 
       # user-ID ermitteln
-      ($a,$a,$uid)=getpwnam("$user");
+      #($a,$a,$uid)=getpwnam("$user");
+      ($a,$a,$a,$a,$uid)=&fetchdata_from_account("$user");
 
       # Ausgeben der ermittelten werte
       if($Conf::log_level>=3){
