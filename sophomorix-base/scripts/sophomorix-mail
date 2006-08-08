@@ -164,19 +164,27 @@ print ALIASESTMP "### Entries after here are managed by sophomorix-mail ###\n";
 
 # aliases of adminclasses
 foreach my $gruppe (@mail_klassen) {
-   if (${Conf::mail_aliases} eq "vorname.nachname") {
+   if (${Conf::mail_aliases} eq "vorname.nachname"
+       or ${Conf::mail_aliases} eq "vorname_nachname") {
       print "   Generating mailaliases for adminclass $gruppe\n";
       &generate_mail_alias_classes("$gruppe"); 
-   }
+  } else {
+      print "Warning: ${Conf::mail_aliases} is not a valid",
+            " alias template for $gruppe.\n";
+  }
 }
 
 
 # aliases of projects
 foreach my $gruppe (@mail_projects) {
-   if (${Conf::mail_aliases} eq "vorname.nachname") {
+   if (${Conf::mail_aliases} eq "vorname.nachname"
+       or ${Conf::mail_aliases} eq "vorname_nachname") {
       print "   Generating mailaliases for project $gruppe\n";
       &generate_mail_alias_projects("$gruppe"); 
-   }
+  } else {
+      print "Warning: ${Conf::mail_aliases} is not a valid",
+            " alias template for $gruppe.\n";
+  }
 }
 
 
@@ -317,9 +325,13 @@ sub generate_mail_alias_classes {
            # Gecos-Feld ermitteln
            my ($home,$type,$gecos)=
              &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
-           $gecos=~s/ /./g; # Spezialzeichen raus
-           #print ALIASESTMP "$gecos:\t\t\t$user\n";
-           printf ALIASESTMP "%-35s %-20s \n",$gecos.":",$user;
+           if (${Conf::mail_aliases} eq "vorname.nachname"){
+               $gecos=~s/ /./g; # Spezialzeichen raus
+               printf ALIASESTMP "%-35s %-20s \n",$gecos.":",$user;
+           } elsif (${Conf::mail_aliases} eq "vorname_nachname"){
+               $gecos=~s/ /_/g; # Spezialzeichen raus
+               printf ALIASESTMP "%-35s %-20s \n",$gecos.":",$user;
+           }
        }
    }
 }
@@ -334,11 +346,15 @@ sub generate_mail_alias_projects {
    print ALIASESTMP "\n### Mailaliases for project $group \n";
    foreach my $user (@user) {
       # Gecos-Feld ermitteln
-           my ($home,$type,$gecos)=
+      my ($home,$type,$gecos)=
              &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
-      $gecos=~s/ /./g; # Spezialzeichen raus
-      #print ALIASESTMP "$gecos:\t\t\t$user\n";
-      printf ALIASESTMP "%-35s %-20s \n",$gecos.":",$user;
+      if (${Conf::mail_aliases} eq "vorname.nachname"){
+          $gecos=~s/ /./g; # Spezialzeichen raus
+          printf ALIASESTMP "%-35s %-20s \n",$gecos.":",$user;
+      }elsif (${Conf::mail_aliases} eq "vorname_nachname"){
+          $gecos=~s/ /_/g; # Spezialzeichen raus
+          printf ALIASESTMP "%-35s %-20s \n",$gecos.":",$user;
+      }
    }
 }
 
