@@ -64,6 +64,7 @@ require Exporter;
              create_project
              remove_project
              get_sys_users
+             forbidden_login_hash
              get_teach_in_sys_users
              get_print_data
              search_user
@@ -2424,9 +2425,7 @@ foreach my $row (@$array_ref){
    $number++;
 
 }
-
-    $dbh->disconnect();
-
+   &db_disconnect($dbh);
    # returns some Hashes, as a list
    # 1:  identifier - login
    # 2:  identifier - sophomorixAdminClass
@@ -2445,6 +2444,98 @@ foreach my $row (@$array_ref){
           \%identifier_exit_adminclass,
           \%identifier_account_type
          );
+}
+
+
+
+
+
+# ===========================================================================
+# Hash with all forbidden loginnames
+# ===========================================================================
+sub  forbidden_login_hash{
+   my %forbidden_login_hash = %DevelConf::forbidden_logins;
+   my $dbh=&db_connect();
+
+   # users in db
+   my $sth= $dbh->prepare( "SELECT uid FROM userdata" );
+   $sth->execute();
+   my $array_ref = $sth->fetchall_arrayref();
+   foreach my $row (@$array_ref){
+      my ($login) = @$row;
+      $forbidden_login_hash{$login}="login in db";
+
+   }
+
+   # users in /etc/passwd
+   if (-e "/etc/passwd"){
+        open(PASS, "/etc/passwd");
+        while(<PASS>) {
+            my ($login)=split(/:/);
+            $forbidden_login_hash{$login}="login in /etc/passwd";
+         }
+     close(PASS);
+
+   }
+
+   # future groups in schueler.txt
+   if (-e "$DevelConf::users_pfad/schueler.txt"){
+        open(STUDENTS, "$DevelConf::users_pfad/schueler.txt");
+        while(<STUDENTS>) {
+            my ($group)=split(/;/);
+            $forbidden_login_hash{$group}="future group in schueler.txt";
+         }
+     close(STUDENTS);
+
+   }
+
+   # groups in db
+   my $sth2= $dbh->prepare( "SELECT gid FROM classdata" );
+   $sth2->execute();
+   my $array_ref_2 = $sth2->fetchall_arrayref();
+
+   foreach my $row (@$array_ref_2){
+      my ($group) = @$row;
+      $forbidden_login_hash{$group}="unix group in db";
+
+   }
+
+   # project longnames in db
+   my $sth3= $dbh->prepare( "SELECT longname FROM projectdata" );
+   $sth3->execute();
+   my $array_ref_3 = $sth3->fetchall_arrayref();
+
+   foreach my $row (@$array_ref_3){
+      my ($longname) = @$row;
+      $forbidden_login_hash{$longname}="project longname in db";
+
+   }
+
+   # groups in /etc/group
+   if (-e "/etc/group"){
+        open(GROUP, "/etc/group");
+        while(<GROUP>) {
+            my ($group)=split(/:/);
+            $forbidden_login_hash{$group}="group in /etc/group";
+         }
+     close(GROUP);
+
+   }
+
+   &db_disconnect($dbh);
+   # Ausgabe aller Loginnamen, die schon vorhanden sind
+   if($Conf::log_level>=3){
+       #&titel("Vorhandene Login-Namen");
+       print("Login-Name:                    ",
+             "                                   Status:\n");
+       print("================================",
+             "===========================================\n");
+       while (($k,$v) = each %forbidden_login_hash){
+           printf "%-60s %3s\n","$k","$v";
+       }
+   }
+
+   return %forbidden_login_hash;
 }
 
 
