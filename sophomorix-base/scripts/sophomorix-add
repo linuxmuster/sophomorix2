@@ -21,6 +21,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     db_disconnect
                                     create_user_db_entry
                                     backup_user_database
+                                    forbidden_login_hash
                                     set_sophomorix_passwd
                                     create_class_db_entry
                                     add_newuser_to_her_projects
@@ -50,7 +51,7 @@ my $new_admin_group="";
 my $shell="";
 
 my @users_for_quota=();
-my %user_login_hash=();
+my %forbidden_login_hash=();
 
 my $dev_null="1>/dev/null 2>/dev/null";
 
@@ -211,7 +212,7 @@ my @passwort_zeichen=&get_passwd_charlist();
 # ===========================================================================
 # Alle vorhandenen Loginnamen einlesen 
 # ===========================================================================
-%user_login_hash=&user_login_hash();
+%forbidden_login_hash=&forbidden_login_hash();
 
 # Datei mit den Schülern, die nicht angelegt wurden
 open(NOCHANLEGEN,">${DevelConf::ergebnis_pfad}/sophomorix.add.new") 
@@ -249,7 +250,7 @@ while(<SOPHOMORIXADD>){
    }
 
    # Existenz prüfen ???ldap
-   if (not exists($user_login_hash{$login_name_to_check})){
+   if (not exists($forbidden_login_hash{$login_name_to_check})){
        # Wenn der zu prüfende Login-Name nicht schon vorhanden
        # Kann er benutzt werden 
        $login_name_ok=$login_name_to_check;
@@ -258,13 +259,14 @@ while(<SOPHOMORIXADD>){
        # Abbrechen, Wunsch-Login soll nicht verändert werden
        print "\nERROR:\n";
        print "Cannot add user   $vorname $nachname \n";
-       print "Loginname   $wunsch_login   exists in the system already!\n\n";
+       print "Login   $wunsch_login   exists in the system",
+             "/is a forbidden name!\n\n";
        next;
    } else {
        # Wenn schon vorhanden, muss Login-Namen modifiziert werden
        $login_name_to_check_mod="$login_name_to_check";
        my $i=1; # Erster Wert für Zusatzziffer
-       while (exists($user_login_hash{$login_name_to_check_mod})) { 
+       while (exists($forbidden_login_hash{$login_name_to_check_mod})) { 
           # An zu prüfenden Loginame eine Ziffer anhängen
           $login_name_to_check_mod="$login_name_to_check"."$i";
           $i=$i+1;
@@ -276,7 +278,7 @@ while(<SOPHOMORIXADD>){
 
    # Login-Name des anzulegenden users darf ab jetzt nicht mehr verwendet werden,
    # deshalb dem Hash mit vorhandenen Loginnamen hinzufügen
-   $user_login_hash{$login_name_ok}="neu";
+   $forbidden_login_hash{$login_name_ok}="neu";
 
 
    # Klartext-Passwort
