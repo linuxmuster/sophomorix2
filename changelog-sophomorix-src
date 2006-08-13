@@ -253,10 +253,6 @@ sophomorix-check
 sophomorix-add
    - add standard linux GUI (kde3 (configurable))
    - option -i: group users to add by classes alphabetical, users alphabetical
-   - create file forbidden.logins which loginnames that are no to be generated
-     (root1, root2, root3, ...mysql, ...)
-     (All systemusers that could be possible, when installing additional packages) 
-     alle existing and future groups
 
 sophomorix-move
    - move Data from share into home, even if 'hidden' in another owners directory
@@ -812,8 +808,6 @@ RELEASES:
 
 Wichtig: BUGlist: im svn, modul anleitungen
 
-? speedup: loginnamen /etc/passwd durchgreppen und aus sql auslesen 
-?          ist schneller als getent passwd 
 
 ? Workstation
    view für workstationaccounts (mit $)
@@ -1275,8 +1269,6 @@ lml.mine.nu schulkonsole/shtml: descriptions
 
 sophomorix-user: remove getpwnam???
 save_tausch_klassen: getpwuid ersetzen.
-user_login_hash:  sophomorix-add, aber nur 1x benutzt, muss eh 
-überarbeitet werden, wegen forbidden logins
 getgrnam 
    bei collect in SophomorixBase
    sophomorix-subclass
