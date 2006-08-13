@@ -31,7 +31,7 @@ use Quota;
               make_some_files_root_only
               remove_line_from_file
               get_old_info 
-              user_login_hash
+              forbidden_login_hash
               save_tausch_klasse
               extra_kurs_schueler
               lehrer_ordnen
@@ -680,34 +680,6 @@ sub get_old_info {
 
 
 
-
-# ===========================================================================
-# Hash mit ALLEN Loginnamen 
-# ===========================================================================
-=pod
-
-=item I<%hash = user_login_hash()>
-
-Returns a hash with all user loginnames.
-
-=cut
-sub  user_login_hash{
-  while(($login_name_im_system)=getpwent) {    
-     # Alle bisher vorhandnen Loginnamen in passwort-Hash
-     $user_login_hash{$login_name_im_system}="vorhanden";                                    
-   };
-
-  # Ausgabe aller Loginnamen, die schon vorhanden sind
-  if($Conf::log_level>=3){
-     #&titel("Vorhandene Login-Namen");
-     print("Login-Name:                                                       Status:\n");
-     print("===========================================================================\n");
-     while (($k,$v) = each %user_login_hash){
-       printf "%-60s %3s\n","$k","$v";
-      }
-  }
-return %user_login_hash;
-}
 
 
 
@@ -2516,7 +2488,7 @@ sub get_mail_alias_from {
 
 sub imap_connect {
     if (not -e ${DevelConf::imap_password_file}) {
-        print "WARNING No file ${DevelConf::imap_password_file}. ",
+        print "WARNING: No file ${DevelConf::imap_password_file}. ",
               "Skipping IMAP stuff.\n";
         return 0;
     }
@@ -2557,7 +2529,7 @@ sub imap_connect {
 
 sub imap_disconnect {
     if (not -e ${DevelConf::imap_password_file}) {
-        print "WARNING No file ${DevelConf::imap_password_file}. ",
+        print "WARNING: No file ${DevelConf::imap_password_file}. ",
               "Skipping IMAP stuff.\n";
         return 0;
     }
@@ -2572,7 +2544,7 @@ sub imap_disconnect {
 
 sub imap_show_mailbox_info {
     if (not -e ${DevelConf::imap_password_file}) {
-        print "WARNING No file ${DevelConf::imap_password_file}.",
+        print "WARNING: No file ${DevelConf::imap_password_file}.",
               " Skipping IMAP stuff.\n";
         return 0;
     }
@@ -2592,7 +2564,7 @@ sub imap_show_mailbox_info {
 
 sub imap_create_mailbox {
     if (not -e ${DevelConf::imap_password_file}) {
-        print "WARNING No file ${DevelConf::imap_password_file}.",
+        print "WARNING: No file ${DevelConf::imap_password_file}.",
               " Skipping IMAP stuff.\n";
         return 0;
     }
@@ -2618,7 +2590,7 @@ sub imap_create_mailbox {
 
 sub imap_kill_mailbox {
     if (not -e ${DevelConf::imap_password_file}) {
-        print "WARNING No file ${DevelConf::imap_password_file}.",
+        print "WARNING: No file ${DevelConf::imap_password_file}.",
               " Skipping IMAP stuff.\n";
         return 0;
     }
@@ -2655,7 +2627,7 @@ sub imap_kill_mailbox {
 
 sub imap_fetch_mailquota {
     if (not -e ${DevelConf::imap_password_file}) {
-        print "WARNING No file ${DevelConf::imap_password_file}.",
+        print "WARNING: No file ${DevelConf::imap_password_file}.",
               " Skipping IMAP stuff.\n";
         return 0;
     }
@@ -2700,7 +2672,7 @@ sub imap_fetch_mailquota {
 
 sub imap_set_mailquota {
     if (not -e ${DevelConf::imap_password_file}) {
-        print "WARNING No file ${DevelConf::imap_password_file}.",
+        print "WARNING: No file ${DevelConf::imap_password_file}.",
               " Skipping IMAP stuff.\n";
         return 0;
     }
