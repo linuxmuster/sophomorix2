@@ -31,7 +31,6 @@ use Quota;
               make_some_files_root_only
               remove_line_from_file
               get_old_info 
-              forbidden_login_hash
               save_tausch_klasse
               extra_kurs_schueler
               lehrer_ordnen
@@ -87,6 +86,7 @@ use Quota;
               provide_subclass_files
               provide_project_files
               remove_project_files
+              calculate_unix_groupname
               provide_user_files
               fetchhtaccess_from_user
               user_public_upload
@@ -864,6 +864,26 @@ sub remove_project_files {
     system("$command");  
 }
 
+
+
+
+sub calculate_unix_groupname{
+    my ($project) = @_;
+    $project=~s/-//g;
+    $project=~s/_//g;
+    $project=substr($project,0,11);
+    $project="p_".$project;
+    # check if groupname exists already ????
+#    my %forbidden=&Sophomorix::SophomorixPgLdap::forbidden_project_hash();
+#    if (not exists $forbidden{$project}){
+        
+#    } else {
+                
+#    }
+    # abppend _a,_b,_c,... if it exists already
+    return $project;
+}
+
 =pod
 
 =item I<provide_user_files(class)>
@@ -1090,14 +1110,14 @@ sub provide_user_files {
 #                  "\$homedir_ws/\$raeume/\$workstation/\$collect_dir/\$current_room",
 #                  "$home/${Language::collect_dir}/${Language::current_room}",
 #                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_ws/\$raeume/\$workstation/\$handoutcopy_dir",
-                  "$home/${Language::handoutcopy_dir}",
-                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_ws/\$raeume/\$workstation/\$handoutcopy_dir/\$current_room",
-                  "$home/${Language::handoutcopy_dir}/${Language::current_room}",
-                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_ws/\$raeume/\$workstation/\$handoutcopy_dir",
+#                  "$home/${Language::handoutcopy_dir}",
+#                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_ws/\$raeume/\$workstation/\$handoutcopy_dir/\$current_room",
+#                  "$home/${Language::handoutcopy_dir}/${Language::current_room}",
+#                  "$login");
          }
     } else {
         print "\nERROR: Could not determine type of $class\n\n";
@@ -1866,9 +1886,11 @@ sub reset_user {
     if ($homedir eq ""){
         print "   ERROR: Cannot determine Homedirectory of user $user\n";
         print "   ... doing nothing!\n";
-    } elsif ($type ne "student" and $type ne "teacher"){
-        print "   WARNING: Cannot reset other accounts than \n";
-        print "            students or teachers\n";
+    } elsif ($type ne "student" 
+         and $type ne "teacher" 
+         and $type ne "workstation"){
+        print "   WARNING: Cannot reset account $user \n";
+        print "            Not a student, teacher or workstation\n";
     } else {
         # do some work
         my (@groups) = 
