@@ -3961,12 +3961,12 @@ sub check_sophomorix_user_oldstuff {
 
 
 sub show_project_list {
-    print "--------------------------+----------+-----+----+-+-",
-          "+-+-+-----------------------\n";
-    printf "%-26s|%9s |%4s |%3s |%1s|%1s|%1s|%1s| %-12s \n",
-           "Projectname","addquota","AMQ","MM","A","L","S","J","groupname";
-    print "--------------------------+----------+-----+----+-+-",
-          "+-+-+-----------------------\n";
+    print "--------------------+----------+-----+----+-+-",
+          "+-+-+-----------------------------\n";
+    printf "%-20s|%9s |%4s |%3s |%1s|%1s|%1s|%1s| %-20s \n",
+           "Name","addquota","AMQ","MM","A","L","S","J","(Longname)";
+    print "--------------------+----------+-----+----+-+-",
+          "+-+-+-----------------------------\n";
     my $dbh=&db_connect();
     my $sth= $dbh->prepare( "SELECT gid,addquota,addmailquota,
                                     longname,maxmembers,sophomorixstatus,
@@ -4014,13 +4014,13 @@ sub show_project_list {
         if (not defined $joinable){
 	    $joinable="";
         }
-        printf "%-26s|%9s |%4s |%3s |%1s|%1s|%1s|%1s| %-12s\n",$longname,
+        printf "%-20s|%9s |%4s |%3s |%1s|%1s|%1s|%1s| %-20s\n",$gid,
                 $addquota,$addmailquota,$maxmembers,$mailalias,
-                $maillist,$status,$joinable,$gid;
+                $maillist,$status,$joinable,$longname;
         $i++;
     }   
-    print "--------------------------+----------+-----+----+-+-",
-          "+-+-+-----------------------\n";
+    print "--------------------+----------+-----+----+-+-",
+          "+-+-+-----------------------------\n";
     print "(AMQ=addmailquota, MM=maxmembers, A=mailalias,",
           " L=mailist, S=status, J=joinable)\n";
     print "$i projects\n";
