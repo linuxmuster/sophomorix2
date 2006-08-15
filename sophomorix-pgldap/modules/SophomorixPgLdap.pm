@@ -2541,6 +2541,36 @@ sub  forbidden_login_hash{
 
 
 
+# ===========================================================================
+# Hash with all forbidden project names beginning with p_
+# ===========================================================================
+sub  forbidden_project_hash{
+   my %forbidden_project_hash=();
+   my $dbh=&db_connect();
+   # users in db
+   my $sth= $dbh->prepare( "SELECT gid FROM projectdata" );
+   $sth->execute();
+   my $array_ref = $sth->fetchall_arrayref();
+   foreach my $row (@$array_ref){
+      my ($project) = @$row;
+      $forbidden_project_hash{$project}="project in db";
+   }
+   &db_disconnect($dbh);
+   # Ausgabe aller Loginnamen, die schon vorhanden sind
+   if($Conf::log_level>=3){
+       print("Project-Name(unix group name):                    ",
+             "                                   Status:\n");
+       print("================================",
+             "===========================================\n");
+       while (($k,$v) = each %forbidden_project_hash){
+           printf "%-60s %3s\n","$k","$v";
+       }
+   }
+   return %forbidden_project_hash;
+}
+
+
+
 # returns a list of users with status D,T,S,A
 # i.e. the users for  teach-in
 sub get_teach_in_sys_users {
