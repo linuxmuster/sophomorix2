@@ -1824,7 +1824,7 @@ sub get_plain_password {
    my $i;
    if ($gruppe eq ${DevelConf::teacher}) {
       # Es ist ein Lehrer
-      if ($Conf::lehrer_zufall_passwort eq "ja") {
+      if ($Conf::lehrer_zufall_passwort eq "yes") {
          # Zufallspasswort erzeugen
          for ($i=1;$i<=${Conf::zufall_passwort_anzahl_lehrer};$i++)
             {
@@ -1836,7 +1836,7 @@ sub get_plain_password {
 	  }
       } else {
          # Es ist ein Schüler
-         if ($Conf::schueler_zufall_passwort eq "ja") {
+         if ($Conf::schueler_zufall_passwort eq "yes") {
             # Zufallspasswort erzeugen
             for ($i=1;$i<=${Conf::zufall_passwort_anzahl_schueler};$i++)
              {

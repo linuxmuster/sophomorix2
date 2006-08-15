@@ -734,7 +734,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
        $klasse=~tr/A-Z/a-z/; 
 
        # Falls Sternchenklassen ausgefiltert werden sollen:
-       if ($Conf::splan_sternchenklassen_filtern eq "ja") {
+       if ($Conf::splan_sternchenklassen_filtern eq "yes") {
          if($klasse=~/^\*/){ # Bei * am Beginn des Klassennamens aussteigen
                  # Splan-Sternchenklassen ausfiltern
                  if($Conf::log_level>=2){	
@@ -901,7 +901,7 @@ close(REPORTSEKRETARIAT);
 close(REPORTGESPERRT);
 
 # Falls Sternchenklassen ausgefiltert werden sollen, Datei schließen
-if ($Conf::splan_sternchenklassen_filtern eq "ja") {
+if ($Conf::splan_sternchenklassen_filtern eq "yes") {
    close(REPORTSPLAN);
 }
 
@@ -1399,7 +1399,7 @@ print REPORTGESPERRT "das Ende des Sperrdatums noch nicht erreicht ist:\n\n";
 
 
 # Falls Sternchenklassen ausgefiltert werden sollen, entsprechende Datei öffnen
-if ($Conf::splan_sternchenklassen_filtern eq "ja") {
+if ($Conf::splan_sternchenklassen_filtern eq "yes") {
   # report.splan      --> Alle Klassen, die mit * beginnen (Splan-Sternchenklassen)
   open(REPORTSPLAN, ">${DevelConf::ergebnis_pfad}/report.splan") 
                        || die "Fehler: $!";
@@ -2496,7 +2496,7 @@ sub generate_admin_report {
                        $schueler_entfernt_anzahl;
 
     # Ausgabe von 
-    if ($Conf::splan_sternchenklassen_filtern eq "ja") {
+    if ($Conf::splan_sternchenklassen_filtern eq "yes") {
         printf REPORTADMIN "%-50s:%6s\n", 
                            "wurden als *klassen gesperrt (SPLAN)", 
                            $schueler_sternchenklasse_anzahl;

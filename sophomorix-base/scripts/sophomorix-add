@@ -499,14 +499,14 @@ sub shell_ermitteln {
    # Shell ermitteln (Lehrer <> Schüler)
       if ($gruppe eq ${DevelConf::teacher}) {
          # Es ist ein Lehrer
-         if ($Conf::lehrer_per_ssh eq "ja") {
+         if ($Conf::lehrer_per_ssh eq "yes") {
              $login_shell="/bin/bash";
            } else {
              $login_shell="/bin/false";
            }
        } else {
          # Es ist ein Schüler
-         if ($Conf::schueler_per_ssh eq "ja") {
+         if ($Conf::schueler_per_ssh eq "yes") {
              $login_shell="/bin/bash";
            } else {
              $login_shell="/bin/false";
