@@ -1231,6 +1231,31 @@ Vermeiden von klassennamen = gruppennamen
   (unix-gruppenname nur klein/informativ)
 - kein mailalias mehr für unix-gruppenname
 
+
+Umstiegszenario:
+1) done
+2) done
+3) option --name gbts nicht mehr
+4) option --longname must be given
+5) use function in 1)
+6) all options to specify a project use the longname
+7) rename database fields
+   longname -> projectname
+   name     -> gid
+
+gecanceled
+
+
+2) remove calculate_unix_groupname(longname)
+
+
+wenn kein p_ zu beginn von name steht, dann setzte das p_ davor.
+max. 14 zeichen ... [a-z0-0_-]{3,14}
+
+ 
+
+
+
 Feature Request:
   - austeilen an lehrer soll gehen (auch an einzelne)
 
@@ -1242,9 +1267,6 @@ Bugs:
     (projekte mit klassennamen können nicht angelegt werden)
     (was passiert, wenn klasse kommt, mit deren Namen ein Projekt existiert)
   - locking: mehrere sophomorix-scripte dürfen nicht gleichzeitig laufen
-  - Kein Einsammeln-ordner beim workstation user
-     - nach anlegen?
-     - vor Klassenarbeit?
 
 
 IMAP-cyrus
@@ -1278,8 +1300,47 @@ getgrnam
 Bug: mehrfache Mailboxen
 
 
- 
+Throw error when a teacher is given in quota.txt
+- meldung ausgeben: WARNING quota.txt contains a teacher 
+                    teacher quota must be specified in lehrer.txt
+- kein quota setzten
+- script läuft weiter
+
+
+sophomorix-quota --force : 
+was passiert wenn user nicht existiert
+was passiert wenn user root, postfix,... ist.
+
+
+
+Einheitlich:
+
+sophomorix-devel.conf: yes, um zu setzten
+
+
+
+sophomorix-teach-in:
+
+wenn für ein user --ignore UND --teach-in angaben gemacht werden, dann 
+
+igoriere diese Angaben. (nichts machen)
+
+
 ================== CHANGELOG ========================================
+
+1.8.11-1  (2006-08-xx)
+   - Bugfix: typos in sophomorix.conf
+   - Bugfix: sophomorix --reset-user did not reset workstations 
+
+
+   - added more users to forbidden_logins, a list of logins not to create 
+     when adding users
+       /etc/passwd
+       /etc/group
+       existing logins in database
+       existing groups in datadase
+       manual list in sophomorix-devel.conf
+
 
 1.8.10-1  (2006-08-09)
    - removed all disturbing calls via C-Library and ldap.
