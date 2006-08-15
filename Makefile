@@ -117,6 +117,7 @@ install-base:
 	install -oroot -groot --mode=0600 sophomorix-base/config/mailquota.txt $(CONF)/user
 	##### config-templates
 	install -oroot -groot --mode=0600 sophomorix-base/config-templates/*[!CVS] $(CTEMPDIR)
+	install -oroot -groot --mode=0600 sophomorix-base/config/sophomorix.conf $(CTEMPDIR)
 	##### configs for developers
 	install -d -m755 -oroot -groot $(DEVELCONF)/devel
 
