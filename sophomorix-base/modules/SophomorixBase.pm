@@ -3200,22 +3200,22 @@ sub check_quotastring {
     my @list = split(/\+/, $quotastring);
     my $item=$#list+1;
     if($Conf::log_level>=2){
-       print "   Checking $quotastring \n";
+       print "  Checking $quotastring \n";
     }
     if (not $item==$quota_fs_num){
 	print "$item quotas for $quota_fs_num filesystems\n";
         @result=(-3);
     }
     foreach my $quo (@list){
-      if($Conf::log_level>=2){
-         print "   Checking $quo ";
+      if($Conf::log_level>=3){
+         print "    Checking $quo ";
       }
       if ($quo=~/^[0-9]+$/){
-         if($Conf::log_level>=2){
+         if($Conf::log_level>=3){
              print " OK\n";
          }    
       } else {
-        if($Conf::log_level>=2){
+        if($Conf::log_level>=3){
             print " NOT OK\n";
         }
         @result=(-3);    
