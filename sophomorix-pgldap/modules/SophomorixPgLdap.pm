@@ -2473,9 +2473,8 @@ sub  forbidden_login_hash{
         while(<PASS>) {
             my ($login)=split(/:/);
             $forbidden_login_hash{$login}="login in /etc/passwd";
-         }
-     close(PASS);
-
+        }
+        close(PASS);
    }
 
    # future groups in schueler.txt
@@ -2816,13 +2815,13 @@ sub update_user_db_entry {
         print "\nSQL: $sql\n";
     }
     my ($id)=$dbh->selectrow_array($sql);
-    if($Conf::log_level>=3){
-       print "Retrieved Id of $login: $id \n";
-    }
 
 
     if (defined $id){
        # if user found in database
+       if($Conf::log_level>=3){
+           print "Retrieved Id of $login: $id \n";
+       }
        # updating posix_account
        my $posix=join(", ",@posix);
        if ($posix ne ""){
