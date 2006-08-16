@@ -1307,16 +1307,6 @@ Throw error when a teacher is given in quota.txt
 - script läuft weiter
 
 
-sophomorix-quota --force : 
-was passiert wenn user nicht existiert
-was passiert wenn user root, postfix,... ist.
-
-
-
-Einheitlich:
-
-sophomorix-devel.conf: yes, um zu setzten
-
 
 
 sophomorix-teach-in:
@@ -1329,10 +1319,14 @@ igoriere diese Angaben. (nichts machen)
 ================== CHANGELOG ========================================
 
 1.8.11-1  (2006-08-xx)
+   - sophomorix-quota: 
+     - setting quota for sysusers
+     - catch errors, when user in quota.txt/mailquota.txt does not exist
+   - sophomorix.conf: made all variables use "yes/no" instead of "ja/nein"
+   - added sophomorix.conf to packaging in config-templates
+     (will be used by schulkonsole)
    - Bugfix: typos in sophomorix.conf
    - Bugfix: sophomorix --reset-user did not reset workstations 
-
-
    - added more users to forbidden_logins, a list of logins not to create 
      when adding users
        /etc/passwd
