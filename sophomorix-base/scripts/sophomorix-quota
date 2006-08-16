@@ -34,9 +34,6 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
 # Liste der Filesysteme auf denen Quota gesetzt werden
 my @quota_fs=&get_quota_fs_liste();
 
-# last user that was modified
-my $last_user="";
-
 # ===========================================================================
 # Anzahl quotierte Dateisysteme ermitteln
 # ==========================================================================
@@ -313,22 +310,30 @@ if ($set==1){
     # setting quota for every user
     foreach my $user (@userlist){
         my ($new_quota,$mailquota)=&get_quota($user);
+
         ##### quota
-        my @q_list = &check_quotastring($quota_fs_num,$new_quota);
-        if ($q_list[0]!=-3){
-            if($Conf::log_level==1){
-                print "   Setting quota of user $user to @q_list\n";
-            }
-	    &set_quota($system,$user,\@quota_fs,\@q_list);
+        if (not defined $new_quota){
+            print "NOT setting quota (No quota found for $user).\n";
         } else {
-	    print "ERROR: $new_quota is not correct, skipping ...\n";
+            my @q_list = &check_quotastring($quota_fs_num,$new_quota);
+            if ($q_list[0]!=-3){
+                if($Conf::log_level==1){
+                    print "  Setting quota of user $user to @q_list\n";
+                }
+	        &set_quota($system,$user,\@quota_fs,\@q_list);
+            } else {
+	        print "ERROR: $new_quota is not correct, skipping ...\n";
+            }
         }
+
         ##### mailquota
         # check the new quotastring ???? must be integer
-###	&set_mail_quota_oldstuff($user,$mailquota);
-        &imap_set_mailquota($imap,$user,$mailquota);        
+        if (not defined $mailquota){
+            print "NOT setting mailquota (No mailquota found for $user).\n";
+        } else {
+            &imap_set_mailquota($imap,$user,$mailquota);        
+        }
     }
-
 } else {
    &titel("Setting changed Quota for users in the userlist ...");
    &set_quota_if_needed();
@@ -368,19 +373,23 @@ sub set_quota {
       $q_opt4=100*$quota;
 
       # user-ID ermitteln
-      #($a,$a,$uid)=getpwnam("$user");
-      ($a,$a,$a,$a,$uid)=&fetchdata_from_account("$user");
-
+      if ($login_type{$user} eq "passwd"){
+          # sysuser
+          ($a,$a,$uid)=getpwnam("$user");
+      } else {
+          # sophomorix user
+          ($a,$a,$a,$a,$uid)=&fetchdata_from_account("$user");
+      }
       # Ausgeben der ermittelten werte
       if($Conf::log_level>=3){
-         print("  Quotastring:       ${quota}\n");
-         print("  Device:            ${fs}\n");
-         print("  User:              ${user}\n");
-         print("  UserID:            $uid\n");
-         print("  Block-Softlimit:   ${q_opt1}000  \n");
-         print("  Block-Hardlimit:   ${quota}000  \n");
-         print("  Inode-Softlimit:   ${q_opt3}     \n");
-         print("  Inode-Hardlimit:   ${q_opt4}     \n");
+         print("  Quotateilstring $j:  ${quota}\n");
+         print("    Device:             ${fs}\n");
+         print("    User:               ${user}\n");
+         print("    UserID:             $uid\n");
+         print("    Block-Softlimit:    ${q_opt1}000  \n");
+         print("    Block-Hardlimit:    ${quota}000  \n");
+         print("    Inode-Softlimit:    ${q_opt3}     \n");
+         print("    Inode-Hardlimit:    ${q_opt4}     \n");
       }
       # Mit setquota die Quota der user tatsächlich anpassen
       if (not $DevelConf::system==1){
@@ -392,7 +401,7 @@ sub set_quota {
             # test
             print "  Test (quota are not set!): \n";
          }
-            print "  set quota ($fs,uid $uid): "; 
+            print "    set quota ($fs,uid $uid): "; 
             print "${q_opt1}M ${quota}M $q_opt3 $q_opt4 \n";
       } else {
          # Systembefehl benutzten
@@ -410,12 +419,16 @@ sub set_quota {
    }
    # was gemacht wurde zusammensetzen
    my $quotastring=join "+", @$q_list;
-   # skip updating postgres, when user is admin ?????????
-   if ($user ne "administrator"
-       or $user ne "pgmadmin"
-       or $user ne "wwwadmin"
-       or $user ne "www-data"
+
+   # skip updating db, when user is admin
+   if ($login_type{$user} eq "passwd"
+       or $user eq "administrator"
+       or $user eq "pgmadmin"
+       or $user eq "wwwadmin"
+       or $user eq "www-data"
       ){
+      print "NOT updating db ($user is not a sophomorix user)\n";
+   } else {
       &update_user_db_entry($user,"Quota=$quotastring");
    }
 }
@@ -431,15 +444,18 @@ sub set_quota_if_needed {
     my $new_quota="";
     my $mailquota;
     my $count=0;
-
+    my $all=$#userlist;
     foreach my $login (@userlist){
+        $count++;
         my $type=$login_type{$login};
         if (not defined $type){
-            # when userd for www-data,...
 	    $type="none";
         }
+
+        print "\nUser $login ($count/$all):\n";
+
         if($Conf::log_level>=2){
-            print "\n$login is type $type: \n";
+            print "  $login is type $type\n";
         }
         if ($type eq "domcomp"){
             # not setting quota for machine accounts ($)
@@ -447,12 +463,11 @@ sub set_quota_if_needed {
 	    next;
         }
         ($new_quota,$mailquota)=&get_quota($login);
-
-        ##### quota
-        if($Conf::log_level>=2){
-	    print "   New Quota: $new_quota \n";
+        if (not defined $new_quota or not defined $mailquota){
+            return;
         }
 
+        ##### quota
         # set quota to empty if not defined
 	if (not defined $db_quota{$login}){
 	    $db_quota{$login}="";
@@ -461,18 +476,14 @@ sub set_quota_if_needed {
         if ($new_quota eq $db_quota{$login}){
            #do nothing
         } else {
-           $count++;
-           print "User $count: $login \n";
            if($Conf::log_level>=2){
                print "  New quota: $new_quota \n";
-               print "  Database : $db_quota{$login}\n";
+               print "  db  quota: $db_quota{$login}\n";
            }
            # check the new quotastring
            my @q_list = &check_quotastring($quota_fs_num,$new_quota);
            if ($q_list[0]!=-3){
 	       &set_quota(0,$login,\@quota_fs,\@q_list);
-               # remember login of user
-	       $last_user=$login;
            } else {
 	       print "ERROR: $new_quota is not correct, skipping ...\n";
            }
@@ -480,10 +491,6 @@ sub set_quota_if_needed {
 
 
         ##### mailquota
-        if($Conf::log_level>=2){
-	    print "   New MailQuota: $mailquota \n";
-        }
-
         # set quota to empty if not defined
 	if (not defined $db_quota_mail{$login}){
 	    $db_quota_mail{$login}="";
@@ -491,19 +498,13 @@ sub set_quota_if_needed {
         if ($mailquota eq $db_quota_mail{$login}){
            #do nothing
         } else {
-	   if ($login ne $last_user){
-              $count++;
-              print "User $count: $login \n";
-	   }
            if($Conf::log_level>=2){
-               print "   New MailQuota: $mailquota \n";
-               print "   Database : $db_quota_mail{$login}\n";
+               print "  New mailquota: $mailquota \n";
+               print "  db  mailquota: $db_quota_mail{$login}\n";
            }
            # check the new quotastring ???? must be integer
-###	   &set_mail_quota_oldstuff($login,$mailquota);
            &imap_set_mailquota($imap,$login,$mailquota);
         }
-        # mailquota
     }
 }
 
@@ -616,6 +617,16 @@ sub login_type {
        $login_type{$uid}=$type;
     }
     &db_disconnect($dbh);
+
+    # fetching sysusers
+    if (-e "/etc/passwd"){
+        open(PASS, "/etc/passwd");
+        while(<PASS>) {
+            my ($login)=split(/:/);
+            $login_type{$login}="passwd";
+         }
+        close(PASS);
+    }
     return %login_type;
 }
 
@@ -625,15 +636,29 @@ sub login_type {
 # calculates the quota of the user login
 sub get_quota{
     my ($login) = @_;
+    my $quotastring="";
+    my $mailquota=0; 
+
+    if (not exists $login_type{$login}){
+        print "WARNING: Could not determine type of user ",
+              "$login (I guess user is nonexisting)\n";
+        $quotastring=undef;
+        $mailquota=undef;
+        return ($quotastring,$mailquota);
+    }
+
     my @groups = &pg_get_group_list($login);
     my $pri_group=shift(@groups);
+    if (not defined $pri_group){
+        # avoid undef
+        $pri_group="";
+    }
     if($Conf::log_level>=2){
-        print "   Primary Group:    $pri_group \n";
-        print "   Secondary Groups: @groups \n";
+        print "  Primary Group:    $pri_group \n";
+        print "  Secondary Groups: @groups \n";
     }
 
     ##### quota
-    my $quotastring="";
     if (exists $quota_txt{$login}){
         # look in quota.txt
         $quotastring=$quota_txt{$login};
@@ -655,6 +680,9 @@ sub get_quota{
 	    $quotastring=$quota_txt{"standard-lehrer"};
         } elsif ($login_type{$login} eq "workstation"){
 	    $quotastring=$quota_txt{"standard-workstations"};
+        } else {
+            print "WARNING: Could not find any quota for user $login.\n";
+            $quotastring=undef;
         }
     }
     foreach my $group (@groups){
@@ -668,7 +696,6 @@ sub get_quota{
 
 
     #####  mailquota
-    my $mailquota=0; 
     if (exists $mail_quota_txt{$login}){
         # look in mailquota.txt
         $mailquota=$mail_quota_txt{$login};
@@ -690,6 +717,9 @@ sub get_quota{
 	    $mailquota=$mail_quota_txt{"standard-lehrer"};
         } elsif ($login_type{$login} eq "workstation"){
 	    $mailquota=$mail_quota_txt{"standard-workstations"};
+        } else {
+            print "WARNING: Could not find any mailquota for user $login.\n";
+            $mailquota=undef;
         }
     }
     foreach my $group (@groups){
