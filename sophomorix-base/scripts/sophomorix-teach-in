@@ -40,6 +40,14 @@ my %match_fehlertoleranz_erlaubt = qw(
 );
 
 
+# fill this hash when a login is stated more than once
+my %ambiguous_logins=();
+# fill this hash with identifiers, when one is stated more than once 
+my %ambiguous_identifiers=();
+my %identifiers_seen=();
+
+
+
 # ===========================================================================
 # Variablen, ...
 # ===========================================================================
@@ -119,7 +127,14 @@ if ($teach_in ne ""){
     foreach my $item (@teach_in_list){
         my ($login,$ident)=split(/::/,$item);
         $teach_in_hash{$login}="$ident";
+        if (exists $identifiers_seen{$ident}){
+            $ambiguous_identifiers{$ident}="more than once";  
+            print "WARNING: Identifier $ident is ambiguous. Skipping ...\n";
+        } else {
+            $identifiers_seen{$ident}="seen";
+        }
     }
+    
 }
 
 
@@ -401,8 +416,11 @@ foreach $identifier (@toleration){
    # Gesucht wird Entsprechung zu diesem Schüler
    if ($next!=0 or $all==1){
        # noninteractive
+       # if specified by option do not print
+       #??????
        print "next::$schueler_im_system_hash{$identifier}::",
              "$schueler_im_system_loginname{$identifier}::$identifier";
+
    } else {
        # interactive
        print "----------------------------------------",
@@ -440,7 +458,7 @@ foreach $identifier (@toleration){
       $schueler_hinzu=$_;
       # Approx-Match ausgeben
       # 25% ist realistisch für Approx-Matching
- # so tuts:#  if (amatch("$schueler_weg" , ["i 25%"])){
+      # so tuts:#  if (amatch("$schueler_weg" , ["i 25%"])){
       if (amatch("$identifier" , ["i   ${match_fehlertoleranz}%"])){
          # counter for decision number
          $entsprechungs_nummer++;
@@ -449,7 +467,18 @@ foreach $identifier (@toleration){
          # printout
          if ($next!=0 or $all==1){
             # noninteracive
-	    print "::$schueler_hinzu_hash{$schueler_hinzu}::$schueler_hinzu";
+            if ($teach_in ne "" ) {
+               # check if option fits
+	       if (exists $teach_in_hash{$schueler_im_system_loginname{$identifier}}
+                   and not exists $ambiguous_identifiers{$schueler_hinzu}){
+                    if ($teach_in_hash{$schueler_im_system_loginname{$identifier}} 
+                            eq "$schueler_hinzu"){
+                        $teach_in_nummer=$entsprechungs_nummer;
+                    }
+	       } elsif (exists $ambiguous_identifiers{$schueler_hinzu}){
+        	   print "::$schueler_hinzu_hash{$schueler_hinzu}::$schueler_hinzu";
+	       }
+            }
          } else {
             # interactive
             printf "%-25s: %-40s\n" , 
@@ -458,41 +487,36 @@ foreach $identifier (@toleration){
             printf "%-25s: %-40s\n" , 
                    "    AdminClass",
                    "$schueler_hinzu_hash{$schueler_hinzu}";
-            if ($teach_in ne "" ) {
-               # check if option fits
-#	        print "option teach-in: $schueler_im_system_loginname{$identifier}\n";
-#	        print "option teach-in: $schueler_hinzu\n";
-               if (exists $teach_in_hash{$schueler_im_system_loginname{$identifier}}){
-                    if ($teach_in_hash{$schueler_im_system_loginname{$identifier}} 
-                            eq "$schueler_hinzu"){
-                        print "Number $entsprechungs_nummer is teached in by option\n";
-                        $teach_in_nummer=$entsprechungs_nummer;
-                    }
-               }
-            }
          }
          # Approx-Match ablegen im Auswahl-Hash
          $auswahl_hash{$entsprechungs_nummer}="$schueler_hinzu";
       }
    }# Alle Schüler durchgegangen
 
+
    # exit if it is enough
-   if ($all==0 and $next!=0 and $number-1==$next){
+   if ($all==0 and $next!=0 and $number-1==$next and $teach_in_nummer==0){
        print "::\n";
        exit;
-   } elsif ($all==1 or $next!=0){
+   } elsif ($all==1 or $next!=0  and $teach_in_nummer==0){
        print "::\n";
        next;
    }
 
-   # (0) = Nichts machen hinzufügen zum Auswahl-Hash
-   printf "%-25s: %-40s\n" , 
-          "(0)",
-          "Do nothing";
-          $auswahl_hash{0}="Nichts tun!";
-   print "----------------------------------------",
-         "----------------------------------------\n";
+   if ($all==1 or $next!=0) {
 
+   } else {
+       # (0) = Nichts machen hinzufügen zum Auswahl-Hash
+       printf "%-25s: %-40s\n" , 
+              "(0)",
+              "Do nothing";
+       print "----------------------------------------",
+             "----------------------------------------\n";
+   }
+
+
+   # add 0 
+   $auswahl_hash{0}="Nichts tun!";
 
 
 
@@ -553,10 +577,8 @@ foreach $identifier (@toleration){
 #      print "\nlast: $last";
 #      print "\nfirst: $first";
 #      print "\nbirth: $birth\n\n";
+
       # updating the database
-
- 
-
       &update_user_db_entry($login, 
                             "Name=$first",
                             "LastName=$last",
