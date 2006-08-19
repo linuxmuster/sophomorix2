@@ -171,10 +171,12 @@ open(SOPHOMORIXIGNORE,
 
 
 # --ignore
+my %ignore_hash=();
 if ($ignore ne ""){
     @ignore = split(/::/,$ignore);
     foreach my $user (@ignore){
         print "$user \n";
+        $ignore_hash{$user}="ignored";
         print SOPHOMORIXIGNORE "${user}::\n";
     }
     exit;
@@ -407,9 +409,10 @@ my @toleration=&get_teach_in_sys_users();
 my $number=1;
 
 foreach $identifier (@toleration){
+   my $login=$schueler_im_system_loginname{$identifier};
    # skip ignored users
-   if (exists $ignored_users{$schueler_im_system_loginname{$identifier}}){
-       print "   $schueler_im_system_loginname{$identifier} is ignored\n";
+   if (exists $ignored_users{$login}){
+       print "   $login is ignored\n";
        next;
    }
 
@@ -417,17 +420,19 @@ foreach $identifier (@toleration){
    if ($next!=0 or $all==1){
        # noninteractive
        # if specified by option do not print
-       #??????
-       print "next::$schueler_im_system_hash{$identifier}::",
-             "$schueler_im_system_loginname{$identifier}::$identifier";
-
+       if ((not exists $teach_in_hash{$login}
+            and not exists $ignore_hash{$login}) 
+            or exists $ambiguous_identifiers{$identifier}){
+              print "next::${schueler_im_system_hash{$identifier}}::".
+                    "${login}::${identifier}";
+       }
    } else {
        # interactive
        print "----------------------------------------",
              "----------------------------------------\n";
        printf "%-25s: %-40s\n" , 
               "    Login ($number)", 
-              "$schueler_im_system_loginname{$identifier}";
+              "$login";
        printf "%-25s: %-40s\n" , 
               "    User in the system", 
               "$identifier";
@@ -467,18 +472,24 @@ foreach $identifier (@toleration){
          # printout
          if ($next!=0 or $all==1){
             # noninteracive
-            if ($teach_in ne "" ) {
+#            if ($teach_in ne "" ) {
                # check if option fits
-	       if (exists $teach_in_hash{$schueler_im_system_loginname{$identifier}}
+	       if (exists $teach_in_hash{$login}
                    and not exists $ambiguous_identifiers{$schueler_hinzu}){
-                    if ($teach_in_hash{$schueler_im_system_loginname{$identifier}} 
+                    if ($teach_in_hash{$login} 
                             eq "$schueler_hinzu"){
                         $teach_in_nummer=$entsprechungs_nummer;
                     }
-	       } elsif (exists $ambiguous_identifiers{$schueler_hinzu}){
+#	       } elsif (not exists $identifiers_seen{$identifier}
+#                   or exists $ambiguous_identifiers{$schueler_hinzu}){
+	       } elsif ((not exists $teach_in_hash{$login}
+                         and not exists $ignore_hash{$login}   )
+                          or exists $ambiguous_identifiers{$identifier}){
         	   print "::$schueler_hinzu_hash{$schueler_hinzu}::$schueler_hinzu";
 	       }
-            }
+#	   }
+
+
          } else {
             # interactive
             printf "%-25s: %-40s\n" , 
@@ -496,17 +507,24 @@ foreach $identifier (@toleration){
 
    # exit if it is enough
    if ($all==0 and $next!=0 and $number-1==$next and $teach_in_nummer==0){
-       print "::\n";
+       if ((not exists $teach_in_hash{$login}
+            and not exists $ignore_hash{$login}   )
+            or exists $ambiguous_identifiers{$identifier}){
+              print "::\n";
+       }
        exit;
-   } elsif ($all==1 or $next!=0  and $teach_in_nummer==0){
-       print "::\n";
+   } elsif ( ( $all==1 or $next!=0 )  and $teach_in_nummer==0){
+       if ((not exists $teach_in_hash{$login}
+            and not exists $ignore_hash{$login})
+            or exists $ambiguous_identifiers{$identifier}){
+              print "::\n";
+       }
        next;
    }
 
    if ($all==1 or $next!=0) {
 
    } else {
-       # (0) = Nichts machen hinzufügen zum Auswahl-Hash
        printf "%-25s: %-40s\n" , 
               "(0)",
               "Do nothing";
@@ -515,8 +533,8 @@ foreach $identifier (@toleration){
    }
 
 
-   # add 0 
-   $auswahl_hash{0}="Nichts tun!";
+    # (0) = Nichts machen hinzufügen zum Auswahl-Hash
+    $auswahl_hash{0}="Nichts tun!";
 
 
 
@@ -549,8 +567,7 @@ foreach $identifier (@toleration){
    # Ausgabe in die tech-in-datei
    if ($user_antwort eq "0"){ # nur, wenn 1,2,3,... gewählt etwas tun
       # remember this user
-      print SOPHOMORIXIGNORE "$schueler_im_system_loginname{$identifier}".
-	                     "::$identifier"."\n";
+      print SOPHOMORIXIGNORE "$login"."::"."$identifier"."\n";
       print "\n\n\n";
     } else {
       print "========================================",
