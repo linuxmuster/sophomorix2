@@ -55,8 +55,15 @@ gibt an, wie genau es sophomorix-teach-in nehmen soll bei der Suche nach ähnlich
 .B --undo login
 Nimmt die am Account login zuletzt gemachte Änderung zurück.
 .TP
+.B --teach-in 'user1::identifier1,user2::identifier2,...'
+Führt user1 im System mit dem neuen identifier1 zusammen usw. Da
+identifier Strichpunkte enthalten, muss das Argument quotiert werden.
+.TP
+.TP
 .B --ignore user1,user2,...
-Nimmt die User user1,user2,... in die Liste der zu ignorierenden user auf. 
+Nimmt die User user1,user2,... in die Liste der zu ignorierenden user
+auf. D. h. es gibt keine neu hinzukommenden User, die zu
+user1,user2,... passen.
 .TP
 .B --ignored-users
 Zeigt die User an, die beim vormaligen Aufruf von sophomorix-teach-in schon
