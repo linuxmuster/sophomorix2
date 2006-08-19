@@ -1309,16 +1309,14 @@ Throw error when a teacher is given in quota.txt
 
 
 
-sophomorix-teach-in:
-
-wenn für ein user --ignore UND --teach-in angaben gemacht werden, dann 
-
-igoriere diese Angaben. (nichts machen)
-
-
 ================== CHANGELOG ========================================
 
 1.8.11-1  (2006-08-xx)
+   - sophomorix-teach-in:
+     if identifiers in option --teach-in are given more than once, they are ignored
+     and a next:: line is printed for further processing with schulkonsole
+     if login is given in --ignore AND --teach-in the login is ignored 
+     and a next:: line is printed for further processing with schulkonsole
    - sophomorix-quota: 
      - setting quota for sysusers
      - catch errors, when user in quota.txt/mailquota.txt does not exist
