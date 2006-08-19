@@ -1300,18 +1300,14 @@ getgrnam
 Bug: mehrfache Mailboxen
 
 
-Throw error when a teacher is given in quota.txt
-- meldung ausgeben: WARNING quota.txt contains a teacher 
-                    teacher quota must be specified in lehrer.txt
-- kein quota setzten
-- script läuft weiter
-
-
-
 
 ================== CHANGELOG ========================================
 
 1.8.11-1  (2006-08-xx)
+   - sophomorix-quota
+     ignore quota for teachers in quota.txt and mailquota.txt
+     throw warning, continue script
+   - updated manpage of sophomorix-teach-in
    - sophomorix-teach-in:
      if identifiers in option --teach-in are given more than once, they are ignored
      and a next:: line is printed for further processing with schulkonsole
