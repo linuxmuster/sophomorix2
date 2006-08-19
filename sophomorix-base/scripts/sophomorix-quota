@@ -810,7 +810,16 @@ sub get_quota_txt {
       if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
       # user von sollquota splitten
       ($user,$quotastring)=split(/:/);
-      $quota_txt{$user}=$quotastring;
+      if (exists $login_type{$user}){
+          if ($login_type{$user} eq "teacher"){
+              print "WARNING: User $user in quota.txt is a teacher.\n";
+              print "         Use lehrer.txt for teacher quota. Skipping ...\n";
+          } else {
+              $quota_txt{$user}=$quotastring;
+          }
+      } else {
+          $quota_txt{$user}=$quotastring;
+      }
    }
    close(QUOTATXT);
    # Rückgabe-Hash enthält standard-quota UND Einzel-Quota
@@ -832,7 +841,16 @@ sub get_mail_quota_txt {
       if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
       # user von sollquota splitten
       ($user,$quotastring)=split(/:/);
-      $mail_quota_txt{$user}=$quotastring;
+      if (exists $login_type{$user}){
+          if ($login_type{$user} eq "teacher"){
+              print "WARNING: User $user in mailquota.txt is a teacher.\n";
+              print "         Use lehrer.txt for teacher quota. Skipping ...\n";
+          } else {
+              $mail_quota_txt{$user}=$quotastring;
+          }
+      } else {
+          $mail_quota_txt{$user}=$quotastring;
+      }
    }
    close(MAILQUOTATXT);
    # Rückgabe-Hash enthält standard-quota UND Einzel-Quota
