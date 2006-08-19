@@ -42,6 +42,7 @@ my %match_fehlertoleranz_erlaubt = qw(
 
 # fill this hash when a login is stated more than once
 my %ambiguous_logins=();
+my %show_ambiguous_logins=();
 # fill this hash with identifiers, when one is stated more than once 
 my %ambiguous_identifiers=();
 my %identifiers_seen=();
@@ -175,11 +176,16 @@ my %ignore_hash=();
 if ($ignore ne ""){
     @ignore = split(/::/,$ignore);
     foreach my $user (@ignore){
-        print "$user \n";
         $ignore_hash{$user}="ignored";
-        print SOPHOMORIXIGNORE "${user}::\n";
+        if (exists $teach_in_hash{$user}){
+            print "WARNING: $user is given in --ignore and ",
+                  "--teach-in. Skipping ...\n";
+            $show_ambiguous_logins{$user}="show";
+	} else {
+            print SOPHOMORIXIGNORE "${user}::\n";
+        }
     }
-    exit;
+#    exit;
 }
 
 
@@ -422,7 +428,8 @@ foreach $identifier (@toleration){
        # if specified by option do not print
        if ((not exists $teach_in_hash{$login}
             and not exists $ignore_hash{$login}) 
-            or exists $ambiguous_identifiers{$teach_in_hash{$login}}){
+            or exists $ambiguous_identifiers{$teach_in_hash{$login}}
+            or exists $show_ambiguous_logins{$login}){
               print "next::${schueler_im_system_hash{$identifier}}::".
                     "${login}::${identifier}";
        }
@@ -474,13 +481,15 @@ foreach $identifier (@toleration){
             # noninteracive
             # check if option fits
 	    if (exists $teach_in_hash{$login}
-                and not exists $ambiguous_identifiers{$teach_in_hash{$login}}){
+                and not exists $ambiguous_identifiers{$teach_in_hash{$login}}
+                and not exists $show_ambiguous_logins{$login}){
                  if ($teach_in_hash{$login} eq "$schueler_hinzu"){
                         $teach_in_nummer=$entsprechungs_nummer;
                  }
 	    } elsif ((not exists $teach_in_hash{$login}
                       and not exists $ignore_hash{$login})
-                       or exists $ambiguous_identifiers{$teach_in_hash{$login}}){
+                       or exists $ambiguous_identifiers{$teach_in_hash{$login}}
+                       or exists $show_ambiguous_logins{$login}){
         	   print "::$schueler_hinzu_hash{$schueler_hinzu}::$schueler_hinzu";
 	    }
          } else {
@@ -502,21 +511,24 @@ foreach $identifier (@toleration){
    if ($all==0 and $next!=0 and $number-1==$next and $teach_in_nummer==0){
        if ((not exists $teach_in_hash{$login}
             and not exists $ignore_hash{$login}   )
-            or exists $ambiguous_identifiers{$teach_in_hash{$login}}){
+            or exists $ambiguous_identifiers{$teach_in_hash{$login}}
+            or exists $show_ambiguous_logins{$login}){
               print "::\n";
        }
        exit;
-   } elsif ( ( $all==1 or $next!=0 )  and $teach_in_nummer==0){
+#   } elsif ( ( $all==1 or $next!=0 ) and $teach_in_nummer==0){
+    } elsif ( ( $all==1 or $next!=0 ) and $teach_in_nummer==0){
        if ((not exists $teach_in_hash{$login}
             and not exists $ignore_hash{$login})
-            or exists $ambiguous_identifiers{$teach_in_hash{$login}}){
+            or exists $ambiguous_identifiers{$teach_in_hash{$login}}
+            or exists $show_ambiguous_logins{$login}){
               print "::\n";
        }
        next;
    }
 
    if ($all==1 or $next!=0) {
-
+       # no printout
    } else {
        printf "%-25s: %-40s\n" , 
               "(0)",
