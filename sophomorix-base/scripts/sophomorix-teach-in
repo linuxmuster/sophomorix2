@@ -422,7 +422,7 @@ foreach $identifier (@toleration){
        # if specified by option do not print
        if ((not exists $teach_in_hash{$login}
             and not exists $ignore_hash{$login}) 
-            or exists $ambiguous_identifiers{$identifier}){
+            or exists $ambiguous_identifiers{$teach_in_hash{$login}}){
               print "next::${schueler_im_system_hash{$identifier}}::".
                     "${login}::${identifier}";
        }
@@ -472,24 +472,17 @@ foreach $identifier (@toleration){
          # printout
          if ($next!=0 or $all==1){
             # noninteracive
-#            if ($teach_in ne "" ) {
-               # check if option fits
-	       if (exists $teach_in_hash{$login}
-                   and not exists $ambiguous_identifiers{$schueler_hinzu}){
-                    if ($teach_in_hash{$login} 
-                            eq "$schueler_hinzu"){
+            # check if option fits
+	    if (exists $teach_in_hash{$login}
+                and not exists $ambiguous_identifiers{$teach_in_hash{$login}}){
+                 if ($teach_in_hash{$login} eq "$schueler_hinzu"){
                         $teach_in_nummer=$entsprechungs_nummer;
-                    }
-#	       } elsif (not exists $identifiers_seen{$identifier}
-#                   or exists $ambiguous_identifiers{$schueler_hinzu}){
-	       } elsif ((not exists $teach_in_hash{$login}
-                         and not exists $ignore_hash{$login}   )
-                          or exists $ambiguous_identifiers{$identifier}){
+                 }
+	    } elsif ((not exists $teach_in_hash{$login}
+                      and not exists $ignore_hash{$login})
+                       or exists $ambiguous_identifiers{$teach_in_hash{$login}}){
         	   print "::$schueler_hinzu_hash{$schueler_hinzu}::$schueler_hinzu";
-	       }
-#	   }
-
-
+	    }
          } else {
             # interactive
             printf "%-25s: %-40s\n" , 
@@ -509,14 +502,14 @@ foreach $identifier (@toleration){
    if ($all==0 and $next!=0 and $number-1==$next and $teach_in_nummer==0){
        if ((not exists $teach_in_hash{$login}
             and not exists $ignore_hash{$login}   )
-            or exists $ambiguous_identifiers{$identifier}){
+            or exists $ambiguous_identifiers{$teach_in_hash{$login}}){
               print "::\n";
        }
        exit;
    } elsif ( ( $all==1 or $next!=0 )  and $teach_in_nummer==0){
        if ((not exists $teach_in_hash{$login}
             and not exists $ignore_hash{$login})
-            or exists $ambiguous_identifiers{$identifier}){
+            or exists $ambiguous_identifiers{$teach_in_hash{$login}}){
               print "::\n";
        }
        next;
