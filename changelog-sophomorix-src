@@ -1232,41 +1232,11 @@ Vermeiden von klassennamen = gruppennamen
 - kein mailalias mehr für unix-gruppenname
 
 
-Umstiegszenario:
-1) done
-2) done
-3) option --name gbts nicht mehr
-4) option --longname must be given
-5) use function in 1)
-6) all options to specify a project use the longname
-7) rename database fields
-   longname -> projectname
-   name     -> gid
-
-gecanceled
-
-
-2) remove calculate_unix_groupname(longname)
-
-
-wenn kein p_ zu beginn von name steht, dann setzte das p_ davor.
-max. 14 zeichen ... [a-z0-0_-]{3,14}
-
- 
-
 
 
 Feature Request:
   - austeilen an lehrer soll gehen (auch an einzelne)
 
-
-Bugs:
-  - Projektname Schule/Lehrer gibt Probleme
-  - langname und kurzname 
-  - Projekt teachers anlegen und löschen legt system lahm
-    (projekte mit klassennamen können nicht angelegt werden)
-    (was passiert, wenn klasse kommt, mit deren Namen ein Projekt existiert)
-  - locking: mehrere sophomorix-scripte dürfen nicht gleichzeitig laufen
 
 
 IMAP-cyrus
@@ -1300,11 +1270,57 @@ getgrnam
 Bug: mehrfache Mailboxen
 
 
+add field in db for usertoken (use update function)
+update usertoken automatically 
+
+
+
+
+
+
+
+
+Idea about logging:
+  
+- locking: mehrere sophomorix-scripte dürfen nicht gleichzeitig laufen
+
+add  to log_script_start
+             log_script_end
+             log_script_exit
+
+include there queries:
+
+if (exists scriptname in %locking_scripts)
+
+all scripts that create a locking file
+
+%locking_scripts=(/usr/sbin/sophomorix-check   ...)
+
+all scripts that delete a locking file
+
+%unlocking_scripts=(...)
+
+
+todo:
+    create function log_script_exit(return,ERROR-String,unlock,@arguments)
+
+
+unlock: 0 force no unlock
+        1 force unlock 
+        2 unlock according to unlocking_scripts
+
+
+
 
 ================== CHANGELOG ========================================
 
 1.8.12-1  (2006-09-xx)
-
+   - use absolute paths when calling scripts with 'system'
+   - call log_script_end in all scripts
+   - created function log_script_end
+   - make every project begin with p_ (name and longname identical)
+   - make every project have 3-14 characters after p_
+   
 
 1.8.11-1  (2006-08-19)
    - sophomorix-quota
