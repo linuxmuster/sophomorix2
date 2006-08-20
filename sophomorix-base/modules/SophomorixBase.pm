@@ -86,7 +86,6 @@ use Quota;
               provide_subclass_files
               provide_project_files
               remove_project_files
-              calculate_unix_groupname
               provide_user_files
               fetchhtaccess_from_user
               user_public_upload
@@ -865,24 +864,6 @@ sub remove_project_files {
 }
 
 
-
-
-sub calculate_unix_groupname{
-    my ($project) = @_;
-    $project=~s/-//g;
-    $project=~s/_//g;
-    $project=substr($project,0,11);
-    $project="p_".$project;
-    # check if groupname exists already ????
-#    my %forbidden=&Sophomorix::SophomorixPgLdap::forbidden_project_hash();
-#    if (not exists $forbidden{$project}){
-        
-#    } else {
-                
-#    }
-    # abppend _a,_b,_c,... if it exists already
-    return $project;
-}
 
 =pod
 
