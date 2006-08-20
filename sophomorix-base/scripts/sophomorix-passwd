@@ -22,8 +22,10 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     set_sophomorix_passwd
                                    );
 
+my @arguments = @ARGV;
+
 &check_connections();
-&log_script_start();
+&log_script_start(@arguments);
 
 # ===========================================================================
 # Variablen
@@ -263,7 +265,4 @@ foreach my $user (@users){
 
 
 
-
-
-
-
+&log_script_end(@arguments);

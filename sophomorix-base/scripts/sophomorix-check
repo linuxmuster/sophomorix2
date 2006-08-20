@@ -23,6 +23,8 @@ use Date::Calc qw(check_date);
 use DBI;
 use Net::LDAP;
 
+my @arguments = @ARGV;
+
 # nach jedem Printbefehl wieder auf Standardfarbe zurücksetzen
 $Term::ANSIColor::AUTORESET = 1;
 use Sophomorix::SophomorixPgLdap qw(show_modulename
@@ -88,9 +90,9 @@ my $testopt=GetOptions(
            "file=s" => \$file_to_check,
           );
 
-
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
+&log_script_start(@arguments);
 
 if ($file_to_check ne "") {
     @schueler_to_check_dateien=("$file_to_check","","","","","","");
@@ -135,7 +137,6 @@ Please see the sophomorix-check(8) man pages for full documentation
 }
 
 &check_connections();
-&log_script_start();
 
 # Die Einzelnen Dateien werden unter folgenden Variable benutzt
 my $schuelerdatei="";
@@ -1036,13 +1037,7 @@ print RED "Sie sollten sophomorix-teach-in aufrufen!\n";
 # ===========================================================================
 # Ende des Scripts
 # ===========================================================================
-&titel("... sophomorix-check terminated regularly");
-
-
-
-
-
-
+&log_script_end(@arguments);
 
 # ===========================================================================
 # Subroutinen

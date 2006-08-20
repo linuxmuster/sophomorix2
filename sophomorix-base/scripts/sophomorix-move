@@ -21,9 +21,10 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     deleteuser_from_all_projects
                                     add_newuser_to_her_projects
                                    );
+my @arguments = @ARGV;
 
 &check_connections();
-&log_script_start();
+&log_script_start(@arguments);
 
 my $zeit=&zeit_stempel;
 my $user_nummer=0;
@@ -381,6 +382,5 @@ if ($user_nummer>0) {
 }
 
 
-
-&titel("sophomorix-move terminated regularly ($user_nummer users moved)");
-
+&titel("$user_nummer users moved");
+&log_script_end(@arguments);

@@ -8,11 +8,11 @@
 
 # This Script adds directories and files that are necessary for sophomorix-base 
 # It should be run as postinst
-#use Sophomorix::SophomorixConfig; 
+
 use Sophomorix::SophomorixBase; 
 
-# Einlesen der Konfigurationsdatei für Entwickler
-#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
+my @arguments = @ARGV;
 
 print "##### sophomorix-setup is configuring the system for sophomorix-base ...\n";
-&log_script_start();
+&log_script_start(@arguments);
+&log_script_end(@arguments);

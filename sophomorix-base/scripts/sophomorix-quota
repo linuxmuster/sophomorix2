@@ -28,8 +28,10 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     fetchdata_from_account
                                    );
 
+my @arguments = @ARGV;
+
 &check_connections();
-&log_script_start();
+&log_script_start(@arguments);
 
 # Liste der Filesysteme auf denen Quota gesetzt werden
 my @quota_fs=&get_quota_fs_liste();
@@ -338,6 +340,14 @@ if ($set==1){
    &titel("Setting changed Quota for users in the userlist ...");
    &set_quota_if_needed();
 }
+
+
+&log_script_end(@arguments);
+
+
+
+
+
 
 
 # ===========================================================================

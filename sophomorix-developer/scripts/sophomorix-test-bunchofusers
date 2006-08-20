@@ -19,9 +19,7 @@ Getopt::Long::Configure ("bundling");
 use DBI;
 use Net::LDAP;
 
-# Einlesen der Konfigurationsdatei für Entwickler
-#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
-
+my @arguments = @ARGV;
 
 system("install -d /root/sophomorix-test");
 
@@ -62,6 +60,7 @@ my $testopt=GetOptions(
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
+&log_script_start(@arguments);
 
 
 # --help
@@ -99,7 +98,6 @@ Please see the sophomorix-test-bunchofusers(8) man pages for full documentation
 }
 
 &check_connections();
-&log_script_start();
 
 if ($work==1){
     $handoutcopy=1;
@@ -905,6 +903,9 @@ if ($remove==1 and -e "/root/sophomorix-test/bunchofusers"){
 
 
 
+&log_script_end(@arguments);
+
+
 
 
 ############################################################
@@ -936,19 +937,7 @@ sub dateien_einsammeln_userliste{
           my $create_this="";
           my @entry = getpwnam($user);
           my $homedir = "$entry[7]";
-
-
-#          if ($add_option eq "--fromroom"){
-#              $create_this=
-#                 "${homedir}/${Language::collect_dir}/${Language::current_room}";
-#          } else {
-#              $create_this=
-#                 "${homedir}/${Language::collect_dir}/${longname}";
-#          }
-
           $create_this="${homedir}/${Language::collect_dir}";
-
-
           $command="su --command='cp /usr/share/sophomorix-developer".
                    "/testfiles/${testfile} ${create_this}' root";
           &run_command($command,$verbose);
@@ -999,9 +988,6 @@ sub dateien_einsammeln_userliste{
 	    $file=$homedir."/${Language::collected_dir}/".
                            "${Language::current_room}/${collect_dir}/".
                            "${user}/".$testfile;
-#            $file_nonexist="${homedir_student}".
-#                        "/${Language::collect_dir}/${Language::current_room}".
-#                        "/${testfile}"; 
             $file_nonexist="${homedir_student}".
                         "/${Language::collect_dir}".
                         "/${testfile}"; 
@@ -1009,9 +995,6 @@ sub dateien_einsammeln_userliste{
 	    $file=$homedir."/${Language::collected_dir}/".
                            "${longname}/${collect_dir}/".
                            "${user}/".$testfile;
-#            $file_nonexist="${homedir_student}".
-#                        "/${Language::collect_dir}/${longname}".
-#                        "/${testfile}"; 
             $file_nonexist="${homedir_student}".
                         "/${Language::collect_dir}".
                         "/${testfile}"; 
@@ -1062,15 +1045,6 @@ sub dateien_einsammeln{
            my $homedir = "$entry[7]";
 
            $create_this="${homedir}/${Language::collect_dir}";
-#           if ($type eq "adminclass" or $type eq "project" or $type eq "subclass"){
-#              $create_this="${homedir}/${Language::collect_dir}/${longname}";
-#              if (not -e $create_this){
-#                  &run_command($command,$verbose);
-#              }
-#           } elsif ($type eq "room"){
-#              $create_this=
-#              "${homedir}/${Language::collect_dir}/${Language::current_room}";
-#           }
            $command="su --command='cp /usr/share/sophomorix-developer".
                     "/testfiles/${testfile} ${create_this}' root";
            &run_command($command,$verbose);
@@ -1132,22 +1106,14 @@ sub dateien_einsammeln{
            if ($type eq "adminclass" or $type eq "project" or $type eq "subclass"){
                $file="/home/teachers/${teacher}/${Language::collected_dir}".
                      "/${longname}/${collect_dir}/${user}/${testfile}"; 
-#              $file_nonexist="${homedir}".
-#                     "/${Language::collect_dir}/${longname}/${testfile}"; 
            } elsif ($type eq "room" and $exam eq ""){
                $file="/home/teachers/${teacher}/${Language::collected_dir}".
                      "/${Language::current_room}/${collect_dir}".
                      "/${user}/${testfile}"; 
-#               $file_nonexist="${homedir}".
-#                     "/${Language::collect_dir}/${Language::current_room}".
-#                     "/${testfile}"; 
            } elsif ($type eq "room" and $exam eq "--exam"){
                $file="/home/teachers/${teacher}/${Language::collected_dir}".
                      "/${Language::exam}/${collect_dir}".
                      "/${user}/${testfile}"; 
-#               $file_nonexist="${homedir}".
-#                     "/${Language::collect_dir}/${Language::current_room}".
-#                     "/${testfile}"; 
            }
            $file_nonexist="${homedir}".
                      "/${Language::collect_dir}".

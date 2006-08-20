@@ -26,8 +26,12 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     update_user_db_entry
                                     get_sys_users
                                    );
+
+my @arguments = @ARGV;
+
 &check_connections();
-&log_script_start();
+&log_script_start(@arguments);
+
 
 # Erlaubte Werte in einen Hash schreiben
 my %match_fehlertoleranz_erlaubt = qw(
@@ -640,4 +644,7 @@ foreach $identifier (@toleration){
 
 
 close(SOPHOMORIXIGNORE);
-&titel("... sophomorix-teach-in is terminated regularly.");
+
+
+
+&log_script_end(@arguments);

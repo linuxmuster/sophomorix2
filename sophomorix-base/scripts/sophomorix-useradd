@@ -23,6 +23,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     set_sophomorix_passwd
                                     create_class_db_entry
                                    );
+my @arguments = @ARGV;
 
 my $epoche_jetzt=time;
    print "Epochenzeit:                                 ",
@@ -93,6 +94,7 @@ my $testopt=GetOptions(
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
+&log_script_start(@arguments);
 
 # --help
 if ($help==1) {
@@ -127,7 +129,6 @@ Please see the sophomorix-useradd(8) man pages for full documentation
 }
 
 &check_connections();
-&log_script_start();
 
 
 # repair.directories einlesen
@@ -253,3 +254,6 @@ if ($login eq "" or $password eq "" or $homedir eq "" or
 
 #$gidnumber=&create_class_db_entry($ARGV[0],3,$gid_force_number);
 
+
+
+&log_script_end(@arguments);

@@ -26,6 +26,9 @@ use Sophomorix::SophomorixPgLdap qw(
 use DBI;
 use Net::LDAP;
 use IMAP::Admin;
+
+my @arguments = @ARGV;
+
 # ===========================================================================
 # Optionen verarbeiten
 # ==========================================================================
@@ -51,6 +54,7 @@ my $testopt=GetOptions(
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
+&log_script_start(@arguments);
 
 
 # --help
@@ -86,7 +90,7 @@ Please see the sophomorix-mail(8) man pages for full documentation
 }
 
 &check_connections();
-&log_script_start();
+
 
 # classes with mailalias vorname.nachname
 my @mail_klassen=&get_mail_alias_classes();
@@ -221,7 +225,7 @@ if (-e "$new_aliases"){
 }
 
 
-
+&log_script_end(@arguments);
 
 
 

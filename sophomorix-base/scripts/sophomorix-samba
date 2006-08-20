@@ -13,9 +13,9 @@ use Sophomorix::SophomorixBase;
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 
+my @arguments = @ARGV;
 
-&log_script_start();
-
+&log_script_start(@arguments);
 
 # ===========================================================================
 # get servername
@@ -41,6 +41,12 @@ if ($servername_debconf ne 0){
 # ==========================================================================
 
 &patch_netlogon("login.bat");
+
+
+
+&log_script_end(@arguments);
+
+
 
 
 # ===========================================================================

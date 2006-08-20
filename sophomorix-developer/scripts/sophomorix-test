@@ -26,9 +26,7 @@ Getopt::Long::Configure ("bundling");
 use DBI;
 use Net::LDAP;
 
-# Einlesen der Konfigurationsdatei für Entwickler
-#{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
-
+my @arguments = @ARGV;
 
 system("install -d /root/sophomorix-test");
 
@@ -36,7 +34,8 @@ system("install -d /root/sophomorix-test");
 # Start
 ############################################################
 &check_connections();
-&log_script_start();
+&log_script_start(@arguments);
+
 
 my $server="server";
 my $win_magic="2147483647";
@@ -1802,9 +1801,7 @@ foreach my $login (@logins){
 
 
 
-
-
-
+&log_script_end(@arguments);
 
 
 ###########################################################################

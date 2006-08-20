@@ -30,8 +30,10 @@ use Sophomorix::SophomorixPgLdap qw(check_connections
                                     fetchadmins_from_adminclass
                                    );
 
+my @arguments = @ARGV;
+
 &check_connections(),
-&log_script_start();
+&log_script_start(@arguments);
 
 #my $schul_name="---";
 
@@ -920,11 +922,7 @@ if ($show==1) {
 }
 
 
-
-# ===========================================================================
-# Dateirechte anpassen
-# ===========================================================================
-
+&log_script_end(@arguments);
 
 
 # ===========================================================================
