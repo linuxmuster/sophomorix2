@@ -383,6 +383,10 @@ if (defined $project) {
        print "\nArgument of --project contains invalid characters. \n\n";
        exit;
    }
+   unless ($project =~ m/^p\_/) { 
+       $project="p_".$project;
+   }
+
 }
 
 
@@ -393,8 +397,6 @@ if ($project ne "" and $info==1){
     &show_project($project);
     exit;
 }
-
-
 
 
 # ===========================================================================
