@@ -372,15 +372,19 @@ if (not defined $maillist){
 
 # parse arguments
 if (defined $p_long_name) {
-   unless ($p_long_name =~ m/^([\w-]+)$/) { 
-       print "\nArgument of --LongName contains invalid characters. \n\n";
+   unless ($p_long_name =~ m/^([\w-]{6,32})$/) { 
+       print "\nArgument of --longname\n";
+       print "   contains invalid characters. \n";
+       print "   or is too short or too long (6-32 characters). \n\n";
        exit;
    }
 }
 
 if (defined $project) {
-   unless ($project =~ m/^([\w-]+)$/) { 
-       print "\nArgument of --project contains invalid characters. \n\n";
+   unless ($project =~ m/^([\w-]{4,14})$/) { 
+       print "\nArgument of --project\n";
+       print "   contains invalid characters. \n";
+       print "   or is too short or too long (4-14 characters after p_). \n\n";
        exit;
    }
    unless ($project =~ m/^p\_/) { 
