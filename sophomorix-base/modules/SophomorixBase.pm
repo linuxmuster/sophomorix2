@@ -56,6 +56,7 @@ use Quota;
               pg_timestamp
               append_teach_in_log
               log_script_start
+              log_script_end
               archive_log_entry
               backup_amk_file
               get_mail_alias_from
@@ -2322,16 +2323,32 @@ sub append_teach_in_log {
 }
 
 sub log_script_start {
+    my @arguments = @_;
     my $timestamp = `date '+%Y-%m-%d %H:%M:%S'`;
     chomp($timestamp);
     my $log="${timestamp}::start::  $0";
-    foreach my $arg (@ARGV){
+    foreach my $arg (@arguments){
 	$log=$log." ".$arg ;
     }
     $log=$log."\n";
     open(LOG,">>$DevelConf::log_command");
     print LOG "$log";
     close(LOG);
+}
+
+sub log_script_end {
+    my @arguments = @_;
+    my $timestamp = `date '+%Y-%m-%d %H:%M:%S'`;
+    chomp($timestamp);
+    my $log="${timestamp}::end  ::  $0";
+    foreach my $arg (@arguments){
+	$log=$log." ".$arg ;
+    }
+    $log=$log."\n";
+    open(LOG,">>$DevelConf::log_command");
+    print LOG "$log";
+    close(LOG);
+    &titel("$0 terminated regularly");
 }
 
 
