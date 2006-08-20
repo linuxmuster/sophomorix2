@@ -446,9 +446,9 @@ if ($Conf::use_quota eq "yes"
     and $user_nummer>0
     and $user_nummer<101) {
     my $users=join(",",@users_for_quota);
-    system("sophomorix-quota --users $users --noninteractive");
+    system("${DevelConf::executable_pfad}/sophomorix-quota --users $users --noninteractive");
 } elsif ($Conf::use_quota eq "yes" and $user_nummer>100){
-    system("sophomorix-quota --students --teachers --noninteractive");
+    system("${DevelConf::executable_pfad}/sophomorix-quota --students --teachers --noninteractive");
 } else {
     if ($user_nummer==0){ 
         &titel("NOT setting quota (0 users added)");
@@ -459,7 +459,7 @@ if ($Conf::use_quota eq "yes"
 
 # Creating Mailing Aliases and Lists
 if ($user_nummer>0) {
-    system("sophomorix-mail");
+    system("${DevelConf::executable_pfad}/sophomorix-mail");
 } else {
     &titel("NOT creating mailaliases/lists (0 users added)");
 }

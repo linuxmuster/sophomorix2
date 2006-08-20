@@ -455,7 +455,7 @@ if ($Conf::use_quota eq "yes"
         ) 
     ) {
     # system("sophomorix-quota --students --teachers --noninteractive");
-    system("sophomorix-quota --project $project --noninteractive");
+    system("${DevelConf::executable_pfad}/sophomorix-quota --project $project --noninteractive");
 } else {
     &titel("NOT setting quota (nothing quota related changed)");
 }
@@ -474,7 +474,7 @@ if (defined $p_admins
     or defined $maillist
     or $kill==1
    ) {
-    system("sophomorix-mail");
+    system("${DevelConf::executable_pfad}/sophomorix-mail");
 } else {
     &titel("NOT creating mailaliases/lists (nothing mail related changed)");
 }

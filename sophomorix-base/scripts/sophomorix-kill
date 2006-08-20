@@ -299,26 +299,9 @@ if ($DevelConf::testen==0) {
 #&do_falls_nicht_testen("sophomorix-webmin --modules --no-restart");
 
 
-
-
-
-
-# Setting Quota
-# Should not be necessary,
-# but who knows how to remove user from aquota.usr
-#if ($Conf::use_quota eq "yes" and $user_nummer>0) {
-#    system("sophomorix-quota --students --teachers --noninteractive");
-#} else {
-#    if ($user_nummer==0){ 
-#        &titel("NOT setting quota (0 users removed)");
-#    } else {
-#        &titel("NOT setting quota");
-#    }
-#}
-
 # Creating Mailing Aliases and Lists
 if ($user_nummer>0) {
-    system("sophomorix-mail");
+    system("${DevelConf::executable_pfad}/sophomorix-mail");
 } else {
     &titel("NOT creating mailaliases/lists (0 users removed)");
 }

@@ -159,7 +159,7 @@ if ($Conf::use_quota eq "yes"
     and $class ne "" 
     and (defined $quota or defined $mailquota)
     ) {
-    system("sophomorix-quota --class $class  --noninteractive");
+    system("${DevelConf::executable_pfad}/sophomorix-quota --class $class  --noninteractive");
 } else {
     &titel("NOT setting quota (nothing quota related changed)");
 }
@@ -172,7 +172,7 @@ if ($Conf::use_quota eq "yes"
 if ($class ne ""
     and (defined $mailalias or defined $maillist)
    ) {
-    system("sophomorix-mail");
+    system("${DevelConf::executable_pfad}/sophomorix-mail");
 } else {
     &titel("NOT creating mailaliases/lists (nothing mail related changed)");
 }
