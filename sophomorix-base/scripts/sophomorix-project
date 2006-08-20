@@ -381,10 +381,10 @@ if (defined $p_long_name) {
 }
 
 if (defined $project) {
-   unless ($project =~ m/^([\w-]{4,14})$/) { 
+   unless ($project =~ m/^([\w-]{3,14})$/) { 
        print "\nArgument of --project\n";
        print "   contains invalid characters. \n";
-       print "   or is too short or too long (4-14 characters after p_). \n\n";
+       print "   or is too short or too long (3-14 characters after p_). \n\n";
        exit;
    }
    unless ($project =~ m/^p\_/) { 
