@@ -7,8 +7,6 @@
 AuthType Basic
 AuthName "@@groupname@@"
 SSLRequireSSL
-<LimitExcept GET OPTIONS>
-  Require user administrator
-  Require group @@teachergroup@@
-</LimitExcept>
+Require user administrator
+Require group @@teachergroup@@
 # end .htaccess

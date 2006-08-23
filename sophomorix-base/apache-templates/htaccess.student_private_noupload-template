@@ -6,8 +6,6 @@
 # DAV allowed only for administrator and teachers
 AuthType Basic
 AuthName "@@username@@"
-<LimitExcept GET OPTIONS>
-  Require user administrator
-  Require group @@teachergroup@@
-</LimitExcept>
+Require user administrator
+Require group @@teachergroup@@
 # end .htaccess

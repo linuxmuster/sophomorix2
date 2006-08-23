@@ -36,6 +36,7 @@
 
 # server string is the equivalent of the NT Description field
 #   server string = Linux %h mit Samba %v
+   server string = %h
 
 # Windows Internet Name Serving Support Section:
 # WINS Support - Tells the NMBD component of Samba to enable its WINS Server
@@ -156,6 +157,7 @@
    logon home = \\%L\%u
    use sendfile = No
    os level = 99
+   unix extensions = no
 
    ldap passwd sync = Yes
    passwd program = /usr/sbin/smbldap-passwd %u
@@ -224,12 +226,13 @@
    
 # linuxmuster settings
    wide links = Yes
-#   path = %H/windows
    path = %H
    valid users = %S
    root preexec = samba-userlog --log=in --username=%U --hostname=%m --homedir=%H
    root postexec = samba-userlog --log=out --username=%U --hostname=%m --homedir=%H
-   
+   veto files = /.locked/.htaccess/
+   delete veto files = no
+
 # Un-comment the following and create the netlogon directory for Domain Logons
 # (you need to configure Samba to act as a domain controller too.)
 [netlogon]
@@ -268,7 +271,7 @@
 #   write list = @printoperators
 
 [pgm]
-   comment = Programme
+   comment = Windows Programs
    path = /home/samba/progs
    writable = no
    write list = @pgmadmins
