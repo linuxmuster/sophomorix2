@@ -729,29 +729,8 @@ SCHULKONSOLE:
    - we are using perl (Nov,2005)
 
 
-Nummern für Dinge(unused at the moment):
-
-0 - unused
-1 - highest value first (z.b admin=1, ...user=4)
-
-Status-Tabelle:
-id	short_status	long_status
--------------------------------------	
-0	unknown		unknown
-1	U		usable
-2	E		enabled
-3	T		tolerated
-4	A		activated
-5	S		self-activated
-6	D		disabled
-7	R		removeable
-8	K		killable
-9	F		frozen
-10	P		permanent
-
-
 Quota in /var/www/people ?
-without quota. owner of all uploaded files is www-data
+without individual quota. owner of all uploaded files is www-data
 
 The group teachers is added with mailaliases:
 sophomorix-class --class teachers --mailalias
@@ -802,54 +781,20 @@ CD-Installation:
     (vmware: eth1 is the card on the bottom: host only)
 
 
+Testing lml3 in Network with 2.x:
+ - set dhcp-range in both ml to nothing
+   ml3: uncomment rangesetting in /etc/dhcp/dhcp3.conf
+
+
 ############################################################
 RELEASES:
 ############################################################
-
-Wichtig: BUGlist: im svn, modul anleitungen
-
 
 ? Workstation
    view für workstationaccounts (mit $)
    view für workstationuser
 
-
-mailquota stuff
-------------------------------
-
-
-Mailaccount anlegen:
-/usr/share/linuxmuster/scripts/cyrus-user.pl -u <username> -c [-q <n>m]
-
-Mailaccount löschen:
-/usr/share/linuxmuster/scripts/cyrus-user.pl -u <username> -d
-
-Mailquota einstellen (n in MB):
-/usr/share/linuxmuster/scripts/cyrus-user.pl -u <username> -q <n>m
-
-Kurzübersicht über die Optionen durch Aufruf ohne Parameter.
-
-Wie kann man sich denn die mailquotas anzeigen lassen? (Konsole)
-
-su -c /usr/sbin/cyrquota cyrus
-
-
-
-
-
-
-
 lehrer.txt zusatzfeld 'comment' (Platz in Datenbank suchen)
-
-change quota with cyrus-user.pl -u user -q quota
-
-??? Gecos Feld ist immer Computer, also nicht "Domain Machine Account" Wieso?
-  (Wo steht, dass -w -> gecos = Computer)
-
-
-??? Funktion get_pupils_school mit get_students_school ersetzen.
-
-
 
    sophomorix-setup-pgldap
 
@@ -860,8 +805,6 @@ change quota with cyrus-user.pl -u user -q quota
 
            --Kommandozeilenoptionen
 
-
-
    SID: -- Beim erstanlegen in debconf-Datenbank wird SID gespeichert
         -- Beim Netbiosnamen ändern wird  
            vom linuxmuster Setup script
@@ -871,12 +814,10 @@ change quota with cyrus-user.pl -u user -q quota
         -- Option --force-sid (forced die sid auch in schon 
                vorhandene Usereinträge in pg)
 
-
    NETBIOS Name:
 
          muss von sophomorix-pgldap-setup angepasst werden
          (evtl. mit --new-netbiosname)
-
 
 
    backpgsql zusätzlich im slapd -lml paket von Thomas S.
@@ -1193,9 +1134,6 @@ later: override with database entry
            cups-pdf
 
 
-check option --teach-in
-
-
 speed up the call to sophomorix-quota in
 sophomorix-kill ??
 the following way:
@@ -1207,9 +1145,6 @@ sophomorix-quota "  and imap_disconnect
 sophomorix-kill imap_disconnect and db_disconnect
 
 
-check package dependencies IMAP::Admin
-
-
 Thomas:
  - Cyrus::Imap::Admin can be removed
  - remove cyrus-user.pl
@@ -1217,27 +1152,8 @@ Thomas:
 
 Multi-Treffen:
 
-Vermeiden von klassennamen = gruppennamen
-
-- bei klassengruppennamen darf kein _ vorkommen
-- beim projektanlegen MUSS Langname angegeben werden
-- es wird automatisch ein unix-gruppenname generiert,
-  der:
-    - mit p_ beginnt
-    - danach max 10 Zeichen nur a-z0-9 aus dem langnamen 
-      (splitten an //, Zeichen in array)
-    - falls gruppennamen schon vorhanden, Ziffer hochzählen am Ende
-- in Schulkonsole wird nur Langname angezeigt 
-  (unix-gruppenname nur klein/informativ)
-- kein mailalias mehr für unix-gruppenname
-
-
-
-
 Feature Request:
   - austeilen an lehrer soll gehen (auch an einzelne)
-
-
 
 IMAP-cyrus
  - bisher noch keine subdirs im cyrus
@@ -1246,10 +1162,6 @@ IMAP-cyrus
  - maildir-format
    Konvertieren: /usr/share/doc/cyrus(-common)/example/mbox to cyrus oder so
 
-
-Testen lml3:
- - dhcp-bereich
-   /etc/dhcp/dhcp3.conf rangeangabe auskommentieren  
 
 
 
@@ -1274,47 +1186,62 @@ add field in db for usertoken (use update function)
 update usertoken automatically 
 
 
-
-
-
-
-
-
 Idea about logging:
   
-- locking: mehrere sophomorix-scripte dürfen nicht gleichzeitig laufen
+1) somesophomorix-scripts are not allowed to run simultaneously
+     - sophomorix-check
+     - sohomorix-add
+     - sophomorix-move
+     - sophomorix-kill
+     - sophomorix-teach-in
+     - sophomorix-repair
+     - sophomorix-setup-pgldap
+     - sophomorix-setup
+     - sophomorix-quota  (add option --skiplock when calling from 
+                          within sophomorix-add, sophomorix-move ...)
 
-add  to log_script_start
-             log_script_end
-             log_script_exit
+   these scripts are saved in DevelConf::locking_scripts
+   and in DevelConf::unlocking_scripts
 
-include there queries:
+2) all these scripts create a lock file 
+   /var/lib/sophomorix/tmp???/sophomorix-lock
 
-if (exists scriptname in %locking_scripts)
+3) these scripts contain a line with the command (with options) that 
+   has created the lock file:
+   add a second line with script names that can unlock sophomorix
 
-all scripts that create a locking file
-
-%locking_scripts=(/usr/sbin/sophomorix-check   ...)
-
-all scripts that delete a locking file
-
-%unlocking_scripts=(...)
+   line 1:    creator:: sophomorix-check --cron
+   line 2:    unlockable:: sophomorix-teach-in
+   line 3:    unlockable:: sophomorix-add
 
 
-todo:
-    create function log_script_exit(return,ERROR-String,unlock,@arguments)
+4) add  to log_script_start, log_script_end,log_script_exit
+   the following queries:
 
+   if (exists scriptname in %locking_scripts) then  start else error
 
-unlock: 0 force no unlock
-        1 force unlock 
-        2 unlock according to unlocking_scripts
+5) todo:
+    create function log_script_exit(return,unlock,skiplock,@arguments)
+    return: return value used by Schulkonsole
+            (an error string corresponds to this return values)
+            (return::error_string): configure this in a file, which is 
+             loaded by log_script_start into a hash 
+    what to do when an exit occurs
+       unlock: 0 force no unlock
+               1 force unlock 
+               2 unlock according to unlocking_scripts
 
 
 
 check list of systemusers in debian developers manual
 
 
+when a teacher/students is disabled remove him from /etc/aliases???
+
 ================== CHANGELOG ========================================
+
+1.8.13-1  (2006-09-xx)
+
 
 1.8.12-1  (2006-08-22)
    - removed 'DEBUG' messages from sophomorix-add
