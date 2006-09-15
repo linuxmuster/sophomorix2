@@ -1247,6 +1247,18 @@ create a field 'scheduled-delete for teachers' in the database
 use this value to send mail to the teacher (warn about deleted data, ...)
 
 
+sophomorix-repair options:
+
+--delete-from-homedir path-to-file
+
+go through all homedirs to delete the file $home/path-to-file
+
+--delete-old-dotfiles path-to-/etc/skel
+
+    - read all files from path-to-/etc/skel and create md5sums
+    - go through all homedirs
+      delete the files that exist in path-from-/etc/skel 
+      in the homedirs when they exist and and are NOT modified
 
 
 ================== CHANGELOG ========================================
