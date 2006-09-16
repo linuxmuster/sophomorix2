@@ -1243,8 +1243,24 @@ check if sophomorix-kill,-move,-add shows users ascibetically/classwise,
 and sums up number of users to work on
 
 
-create a field 'scheduled-delete for teachers' in the database
-use this value to send mail to the teacher (warn about deleted data, ...)
+create a field 'scheduled-delete' for teachers (and othe users) in the database
+sophomorix-check --cron uses this date to 
+
+   1. send mail to the teacher and a copy to root 
+   - you will be removed from the system
+     in xxx days aaa happens toleration
+     in yyy days bbb happens
+     list of files in the exchange dirs
+     files in apache are kept
+     email will be deleted
+
+ 
+     please reply to root@xxx.de or contact the administrators
+     if that is not correct
+
+   - add  '### scheduled-delete 60::90### before the teacher entry in lehrer.txt
+     where 60::90 is xxx::yyy
+     (this has to be done at the start of sophomorix-check --cron)  
 
 
 sophomorix-repair options:
