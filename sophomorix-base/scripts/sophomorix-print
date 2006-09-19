@@ -314,6 +314,18 @@ print LATEX ('
 \end{minipage}
 }}
 
+\newcommand{\datenoneperpage}[5]{
+\begin{center}
+\fbox{
+\begin{minipage}[b][54mm][c]{85mm}
+\begin{center}
+\Large #1 #2 \par #3 \par \vspace{2mm} #4 \par #5
+\end{center}
+\end{minipage}
+}
+\end{center}
+}
+
 %% Lehrereintrag am Seitenrand erzeugen
 \newcommand{\edvlehrer}[1]{
 \marginpar{%
@@ -617,14 +629,44 @@ if($Conf::log_level>=3){
 # ONE ENTRY PER PAGE
 if ($one_per_page==1){
    foreach $eintrag (@drucken_reihenfolge) {
-       print LATEX ('\chead{\LARGE \bf ',"$eintrag",'}');
+       $schueler_protokoll_zeile=$schueler_im_system_hash{$eintrag};
+       ($klasse_protokoll, 
+       $name_protokoll,
+       $loginname_protokoll,
+       $passwort_protokoll,
+       $geburtsdatum_protokoll
+       )=split(/;/,$schueler_protokoll_zeile);
+       # Ausgabe
+       if($Conf::log_level>=2){
+          print "Erstelle Login-Karte für  $loginname_protokoll  ",
+                "in   $klasse_protokoll \n";
+       }
+
+       print LATEX '\chead{\LARGE \bf ',
+                   "$name_protokoll ($klasse_protokoll)",'}';
        print LATEX "$eintrag \n\n";
+
+
+   print LATEX ('\datenoneperpage');
+   # 1 Name
+   print LATEX ('{',"$name_protokoll",'}');
+   # 2 Nicht genutzt
+   print LATEX ('{}');
+   # 3 Klasse
+   print LATEX ('{',"Klasse: $klasse_protokoll",'}');
+   # 4 Login
+   print LATEX ('{',"Login: $loginname_protokoll",'}');
+   # 5 Passwort
+   print LATEX ('{',"Passwort: $passwort_protokoll",'}',"\n");
+
+
+
+       # include here the 
+
        print LATEX "\\newpage \n\n";
    }
 } else {
-
 # 36 PER PAGE
-
 # ===========================================================================
 # Sortierte Einträge in LATEX-Datei und CSV schreiben 
 # ===========================================================================
