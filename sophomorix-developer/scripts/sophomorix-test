@@ -110,23 +110,23 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 # Ergebnisdateien pruefen
 # Test
 &check_line_in_file(
-  "m4kb::maier;joerg;12.10.1982::[-a-z]{2,}::[-a-z]{3,}",
+  "m4kb::Maier;Joerg;12.10.1982::[-a-z]{2,}::[-a-z]{3,}",
   "${DevelConf::ergebnis_pfad}/sophomorix.add");
 # Test
 &check_line_in_file(
-  "7a::oeztuerk;mohammed;02.04.1982::[-a-z]{2,}::[-a-z]{3,}",
+  "7a::Oeztuerk;Mohammed;02.04.1982::[-a-z]{2,}::[-a-z]{3,}",
   "${DevelConf::ergebnis_pfad}/sophomorix.add");
 # Test
 &check_line_in_file(
-  "2c::wall;larry;02.04.1972::[-a-z]{2,}::[-a-z]{3,}",
+  "2c::Wall;Larry;02.04.1972::[-a-z]{2,}::[-a-z]{3,}",
   "${DevelConf::ergebnis_pfad}/sophomorix.add");
 # Test
 &check_line_in_file(
-  "m1kb::mahn;oliver;12.10.1982::[-a-z]{2,}::[-a-z]{3,}",
+  "m1kb::Mahn;oliver;12.10.1982::[-a-z]{2,}::[-a-z]{3,}",
   "${DevelConf::ergebnis_pfad}/sophomorix.add");
 # Test
 &check_line_in_file(
-  "teachers::darwin;charles;12.10.1942::darwin::[-a-z]{3,}",
+  "teachers::Darwin;Charles;12.10.1942::darwin::[-a-z]{3,}",
   "${DevelConf::ergebnis_pfad}/sophomorix.add");
 
 # Test
@@ -155,15 +155,15 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 # Druckdaten prüfen
 # add.tex
 &check_existence("${DevelConf::druck_pfad}/add.tex");
-&check_line_in_file("joerg maier",
+&check_line_in_file("Joerg Maier",
                     "${DevelConf::druck_pfad}/add.tex");
-&check_line_in_file("mohammed oeztuerk",
+&check_line_in_file("Mohammed Oeztuerk",
                     "${DevelConf::druck_pfad}/add.tex");
-&check_line_in_file("larry wall",
+&check_line_in_file("Larry Wall",
                     "${DevelConf::druck_pfad}/add.tex");
-&check_line_in_file("oliver mahn",
+&check_line_in_file("oliver Mahn",
                     "${DevelConf::druck_pfad}/add.tex");
-&check_line_in_file("charles darwin",
+&check_line_in_file("Charles Darwin",
                     "${DevelConf::druck_pfad}/add.tex");
 
 # andere
@@ -177,18 +177,18 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 # Datenbank prüfen
 
 
-%account = &fetch_single_account("surname='maier' 
-                                  AND firstname='joerg'
+%account = &fetch_single_account("surname='Maier' 
+                                  AND firstname='Joerg'
                                   AND birthday='1982-10-12'
                                   AND adminclass='m4kb'",
                       );
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
-&ok_account("gecos", "joerg maier");
+&ok_account("gecos", "Joerg Maier");
 &ok_account("gid", "m4kb");
 &ok_account("homedirectory", "/home/students/m4kb/$account{'uid'}");
 # samba
-&ok_account("displayname", "joerg maier");
+&ok_account("displayname", "Joerg Maier");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -208,18 +208,18 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 
-%account = &fetch_single_account("surname='oeztuerk' 
-                                  AND firstname='mohammed'
+%account = &fetch_single_account("surname='Oeztuerk' 
+                                  AND firstname='Mohammed'
                                   AND birthday='1982-04-02'
                                   AND adminclass='7a'",
                       );
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
-&ok_account("gecos", "mohammed oeztuerk");
+&ok_account("gecos", "Mohammed Oeztuerk");
 &ok_account("gid", "7a");
 &ok_account("homedirectory", "/home/students/7a/$account{'uid'}");
 # samba
-&ok_account("displayname", "mohammed oeztuerk");
+&ok_account("displayname", "Mohammed Oeztuerk");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -238,18 +238,18 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 
-%account = &fetch_single_account("surname='wall' 
-                                  AND firstname='larry'
+%account = &fetch_single_account("surname='Wall' 
+                                  AND firstname='Larry'
                                   AND birthday='1972-04-02'
                                   AND adminclass='2c'",
                       );
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
-&ok_account("gecos", "larry wall");
+&ok_account("gecos", "Larry Wall");
 &ok_account("gid", "2c");
 &ok_account("homedirectory", "/home/students/2c/$account{'uid'}");
 # samba
-&ok_account("displayname", "larry wall");
+&ok_account("displayname", "Larry Wall");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -268,19 +268,19 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 
-%account = &fetch_single_account("surname='mahn' 
+%account = &fetch_single_account("surname='Mahn' 
                                   AND firstname='oliver'
                                   AND birthday='1982-10-12'
                                   AND adminclass='m1kb'",
                       );
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
-&ok_account("gecos", "oliver mahn");
+&ok_account("gecos", "oliver Mahn");
 &ok_account("unid", "987654321");
 &ok_account("gid", "m1kb");
 &ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
 # samba
-&ok_account("displayname", "oliver mahn");
+&ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -298,8 +298,8 @@ $gsid=2*$account{'gidnumber'}+1001;
 &check_groups($account{ 'uid' },"m1kb");
 
 
-%account = &fetch_single_account("surname='darwin' 
-                                  AND firstname='charles'
+%account = &fetch_single_account("surname='Darwin' 
+                                  AND firstname='Charles'
                                   AND birthday='1942-10-12'
                                   AND adminclass='teachers'",
                       );
@@ -307,13 +307,13 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "");
 &ok_account("deactivationdate", "");
-&ok_account("gecos", "charles darwin");
+&ok_account("gecos", "Charles Darwin");
 &ok_account("unid", "");
 &ok_account("exitunid", "");
 &ok_account("gid", "teachers");
 &ok_account("homedirectory", "/home/teachers/$account{'uid'}");
 # samba
-&ok_account("displayname", "charles darwin");
+&ok_account("displayname", "Charles Darwin");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -349,18 +349,18 @@ print '
 
 
 # Is toleration set
-%account = &fetch_single_account("surname='maier' 
-                                  AND firstname='joerg'
+%account = &fetch_single_account("surname='Maier' 
+                                  AND firstname='Joerg'
                                   AND birthday='1982-10-12'
                                   AND adminclass='m4kb'",
                       );
 &ok_account("sophomorixstatus", "T");
 &ok_account("tolerationdate", $today_pg);
-&ok_account("gecos", "joerg maier");
+&ok_account("gecos", "Joerg Maier");
 &ok_account("gid", "m4kb");
 &ok_account("homedirectory", "/home/students/m4kb/$account{'uid'}");
 # samba
-&ok_account("displayname", "joerg maier");
+&ok_account("displayname", "Joerg Maier");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -387,17 +387,17 @@ $gsid=2*$account{'gidnumber'}+1001;
 &run_command("sophomorix-move",$verbose);
 
 # check movement
-%account = &fetch_single_account("surname='maier' 
-                                AND firstname='joerg'
+%account = &fetch_single_account("surname='Maier' 
+                                AND firstname='Joerg'
                                 AND birthday='1982-10-12'
                                 AND adminclass='dachboden'",
                               );
 &ok_account("exitadminclass", "m4kb");
-&ok_account("gecos", "joerg maier");
+&ok_account("gecos", "Joerg Maier");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
 # samba
-&ok_account("displayname", "joerg maier");
+&ok_account("displayname", "Joerg Maier");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -415,8 +415,8 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # Fetch login of user
-$login = &fetch_login("surname='maier' 
-                       AND firstname='joerg'
+$login = &fetch_login("surname='Maier' 
+                       AND firstname='Joerg'
                        AND birthday='1982-10-12'
                        AND adminclass='dachboden'",
                      );
@@ -424,19 +424,19 @@ $login = &fetch_login("surname='maier'
 
 # make user tolerated for a looooong time
 &update_user_db_entry($login,"TolerationDate=01.01.1970");
-%account = &fetch_single_account("surname='maier' 
-                                  AND firstname='joerg'
+%account = &fetch_single_account("surname='Maier' 
+                                  AND firstname='Joerg'
                                   AND birthday='1982-10-12'
                                   AND adminclass='dachboden'",
                       );
 &ok_account("sophomorixstatus", "T");
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "");
-&ok_account("gecos", "joerg maier");
+&ok_account("gecos", "Joerg Maier");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
 # samba
-&ok_account("displayname", "joerg maier");
+&ok_account("displayname", "Joerg Maier");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -457,8 +457,8 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # Is deactivation set
-%account = &fetch_single_account("surname='maier' 
-                                  AND firstname='joerg'
+%account = &fetch_single_account("surname='Maier' 
+                                  AND firstname='Joerg'
                                   AND birthday='1982-10-12'
                                   AND adminclass='dachboden'",
                       );
@@ -466,11 +466,11 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("deactivationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("exitadminclass", "m4kb");
-&ok_account("gecos", "joerg maier");
+&ok_account("gecos", "Joerg Maier");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
 # samba
-&ok_account("displayname", "joerg maier");
+&ok_account("displayname", "Joerg Maier");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -493,8 +493,8 @@ $gsid=2*$account{'gidnumber'}+1001;
 &update_user_db_entry($login,"DeactivationDate=01.01.1971");
 
 # check if this was succesful
-%account = &fetch_single_account("surname='maier' 
-                                  AND firstname='joerg'
+%account = &fetch_single_account("surname='Maier' 
+                                  AND firstname='Joerg'
                                   AND birthday='1982-10-12'
                                   AND adminclass='dachboden'",
                       );
@@ -503,13 +503,13 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
 &ok_account("exitadminclass", "m4kb");
-&ok_account("gecos", "joerg maier");
+&ok_account("gecos", "Joerg Maier");
 &ok_account("unid", "");
 &ok_account("exitunid", "");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
 # samba
-&ok_account("displayname", "joerg maier");
+&ok_account("displayname", "Joerg Maier");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -531,7 +531,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &check_emptyness("sophomorix.move");
 
 &check_line_in_file(
-  "maier;joerg;12.10.1982::${login}",
+  "Maier;Joerg;12.10.1982::${login}",
   "${DevelConf::ergebnis_pfad}/sophomorix.kill");
 
 
@@ -561,8 +561,8 @@ print '
 
 
 # Test
-$login = &fetch_login("surname='oeztuerk' 
-                       AND firstname='mohammed'
+$login = &fetch_login("surname='Oeztuerk' 
+                       AND firstname='Mohammed'
                        AND birthday='1982-04-02'
                        AND adminclass='7a'",
                      );
@@ -576,18 +576,18 @@ $login = &fetch_login("surname='oeztuerk'
 
 
 # Is user tolerated?
-%account = &fetch_single_account("surname='oeztuerk' 
-                                  AND firstname='mohammed'
+%account = &fetch_single_account("surname='Oeztuerk' 
+                                  AND firstname='Mohammed'
                                   AND birthday='1982-04-02'
                                   AND adminclass='7a'",
                       );
 &ok_account("sophomorixstatus", "T");
 &ok_account("tolerationdate", $today_pg);
-&ok_account("gecos", "mohammed oeztuerk");
+&ok_account("gecos", "Mohammed Oeztuerk");
 &ok_account("gid", "7a");
 &ok_account("homedirectory", "/home/students/7a/$account{'uid'}");
 # samba
-&ok_account("displayname", "mohammed oeztuerk");
+&ok_account("displayname", "Mohammed Oeztuerk");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -619,18 +619,18 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # Reactivation OK?
-%account = &fetch_single_account("surname='oeztuerk' 
-                                  AND firstname='mohammed'
+%account = &fetch_single_account("surname='Oeztuerk' 
+                                  AND firstname='Mohammed'
                                   AND birthday='1982-04-02'
                                   AND adminclass='7a'",
                       );
 &ok_account("sophomorixstatus", "E");
 &ok_account("tolerationdate", "");
-&ok_account("gecos", "mohammed oeztuerk");
+&ok_account("gecos", "Mohammed Oeztuerk");
 &ok_account("gid", "7a");
 &ok_account("homedirectory", "/home/students/7a/$account{'uid'}");
 # samba
-&ok_account("displayname", "mohammed oeztuerk");
+&ok_account("displayname", "Mohammed Oeztuerk");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -649,17 +649,17 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # Move OK?
-%account = &fetch_single_account("surname='oeztuerk' 
-                                  AND firstname='mohammed'
+%account = &fetch_single_account("surname='Oeztuerk' 
+                                  AND firstname='Mohammed'
                                   AND birthday='1982-04-02'
                                   AND adminclass='7c'",
                       );
 &ok_account("sophomorixstatus", "E");
 &ok_account("tolerationdate", "");
-&ok_account("gecos", "mohammed oeztuerk");
+&ok_account("gecos", "Mohammed Oeztuerk");
 &ok_account("gid", "7c");
 # samba
-&ok_account("displayname", "mohammed oeztuerk");
+&ok_account("displayname", "Mohammed Oeztuerk");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -700,19 +700,19 @@ print '
 
 
 # Is user tolerated now? 
-%account = &fetch_single_account("surname='wall' 
-                                  AND firstname='larry'
+%account = &fetch_single_account("surname='Wall' 
+                                  AND firstname='Larry'
                                   AND birthday='1972-04-02'
                                   AND adminclass='2c'",
                       );
 &ok_account("sophomorixstatus", "T");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", $today_pg);
-&ok_account("gecos", "larry wall");
+&ok_account("gecos", "Larry Wall");
 &ok_account("gid", "2c");
 &ok_account("homedirectory", "/home/students/2c/$account{'uid'}");
 # samba
-&ok_account("displayname", "larry wall");
+&ok_account("displayname", "Larry Wall");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -729,8 +729,8 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # Test
-$login = &fetch_login("surname='wall' 
-                       AND firstname='larry'
+$login = &fetch_login("surname='Wall' 
+                       AND firstname='Larry'
                        AND birthday='1972-04-02'
                        AND adminclass='2c'",
                      );
@@ -752,8 +752,8 @@ $login = &fetch_login("surname='wall'
 
 
 # Is user deactivated now? 
-%account = &fetch_single_account("surname='wall' 
-                                  AND firstname='larry'
+%account = &fetch_single_account("surname='Wall' 
+                                  AND firstname='Larry'
                                   AND birthday='1972-04-02'
                                   AND adminclass='dachboden'",
                       );
@@ -761,12 +761,12 @@ $login = &fetch_login("surname='wall'
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", $today_pg);
-&ok_account("gecos", "larry wall");
+&ok_account("gecos", "Larry Wall");
 &ok_account("exitadminclass", "2c");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
 # samba
-&ok_account("displayname", "larry wall");
+&ok_account("displayname", "Larry Wall");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -805,8 +805,8 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # Is user Moved and Enabled
-%account = &fetch_single_account("surname='wall' 
-                                  AND firstname='larry'
+%account = &fetch_single_account("surname='Wall' 
+                                  AND firstname='Larry'
                                   AND birthday='1972-04-02'
                                   AND adminclass='3c'",
                       );
@@ -814,11 +814,11 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("exitadminclass", "2c");
 &ok_account("creationdate", $today_pg);
-&ok_account("gecos", "larry wall");
+&ok_account("gecos", "Larry Wall");
 &ok_account("gid", "3c");
 &ok_account("homedirectory", "/home/students/3c/$account{'uid'}");
 # samba
-&ok_account("displayname", "larry wall");
+&ok_account("displayname", "Larry Wall");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -857,17 +857,17 @@ print '
 &check_emptyness("sophomorix.move");
 #&check_emptyness("sophomorix.kill");
 
-%account = &fetch_single_account("surname='oetztuerk' 
-                                  AND firstname='mohammed'
+%account = &fetch_single_account("surname='Oetztuerk' 
+                                  AND firstname='Mohammed'
                                   AND birthday='1982-04-02'
                                   AND adminclass='7c'",
                       );
 &ok_account("sophomorixstatus", "E");
-&ok_account("gecos", "mohammed oetztuerk");
+&ok_account("gecos", "Mohammed Oetztuerk");
 &ok_account("gid", "7c");
 &ok_account("homedirectory", "/home/students/7c/$account{'uid'}");
 # samba
-&ok_account("displayname", "mohammed oetztuerk");
+&ok_account("displayname", "Mohammed Oetztuerk");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -896,17 +896,17 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 
-%account = &fetch_single_account("surname='oetztuerk' 
-                                  AND firstname='mohammad'
+%account = &fetch_single_account("surname='Oetztuerk' 
+                                  AND firstname='Mohammad'
                                   AND birthday='1982-04-02'
                                   AND adminclass='7c'",
                       );
 &ok_account("sophomorixstatus", "E");
-&ok_account("gecos", "mohammad oetztuerk");
+&ok_account("gecos", "Mohammad Oetztuerk");
 &ok_account("gid", "7c");
 &ok_account("homedirectory", "/home/students/7c/$account{'uid'}");
 # samba
-&ok_account("displayname", "mohammad oetztuerk");
+&ok_account("displayname", "Mohammad Oetztuerk");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -933,17 +933,17 @@ $gsid=2*$account{'gidnumber'}+1001;
 &check_emptyness("sophomorix.move");
 #&check_emptyness("sophomorix.kill");
 
-%account = &fetch_single_account("surname='oetztuerk' 
-                                  AND firstname='mohammad'
+%account = &fetch_single_account("surname='Oetztuerk' 
+                                  AND firstname='Mohammad'
                                   AND birthday='1983-04-02'
                                   AND adminclass='7c'",
                       );
 &ok_account("sophomorixstatus", "E");
-&ok_account("gecos", "mohammad oetztuerk");
+&ok_account("gecos", "Mohammad Oetztuerk");
 &ok_account("gid", "7c");
 &ok_account("homedirectory", "/home/students/7c/$account{'uid'}");
 # samba
-&ok_account("displayname", "mohammad oetztuerk");
+&ok_account("displayname", "Mohammad Oetztuerk");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -980,19 +980,19 @@ print '
 &check_emptyness("sophomorix.move");
 #&check_emptyness("sophomorix.kill");
 
-%account = &fetch_single_account("surname='wall' 
-                                  AND firstname='larry'
+%account = &fetch_single_account("surname='Wall' 
+                                  AND firstname='Larry'
                                   AND birthday='1972-04-02'
                                   AND adminclass='3c'",
                       );
 &ok_account("sophomorixstatus", "E");
 &ok_account("creationdate", $today_pg);
-&ok_account("gecos", "larry wall");
+&ok_account("gecos", "Larry Wall");
 &ok_account("unid", "123456789");
 &ok_account("gid", "3c");
 &ok_account("homedirectory", "/home/students/3c/$account{'uid'}");
 # samba
-&ok_account("displayname", "larry wall");
+&ok_account("displayname", "Larry Wall");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -1017,19 +1017,19 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 
-%account = &fetch_single_account("surname='stallman' 
-                                  AND firstname='richard'
+%account = &fetch_single_account("surname='Stallman' 
+                                  AND firstname='Richard'
                                   AND birthday='1962-04-02'
                                   AND adminclass='3c'",
                       );
 &ok_account("sophomorixstatus", "E");
 &ok_account("creationdate", $today_pg);
-&ok_account("gecos", "richard stallman");
+&ok_account("gecos", "Richard Stallman");
 &ok_account("unid", "123456789");
 &ok_account("gid", "3c");
 &ok_account("homedirectory", "/home/students/3c/$account{'uid'}");
 # samba
-&ok_account("displayname", "richard stallman");
+&ok_account("displayname", "Richard Stallman");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -1065,7 +1065,7 @@ print '
 
 
 # check if user is tolerated and unid is removed
-%account = &fetch_single_account("surname='mahn' 
+%account = &fetch_single_account("surname='Mahn' 
                                   AND firstname='oliver'
                                   AND birthday='1982-10-12'
                                   AND adminclass='m1kb'",
@@ -1073,13 +1073,13 @@ print '
 &ok_account("sophomorixstatus", "T");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", $today_pg);
-&ok_account("gecos", "oliver mahn");
+&ok_account("gecos", "oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "m1kb");
 &ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
 # samba
-&ok_account("displayname", "oliver mahn");
+&ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -1104,7 +1104,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # check if data is uploaded
-%account = &fetch_single_account("surname='mahn' 
+%account = &fetch_single_account("surname='Mahn' 
                                   AND firstname='oliver'
                                   AND birthday='1984-10-12'
                                   AND adminclass='m1kb'",
@@ -1112,13 +1112,13 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sophomorixstatus", "E");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "");
-&ok_account("gecos", "oliver mahn");
+&ok_account("gecos", "oliver Mahn");
 &ok_account("unid", "987654321");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "m1kb");
 &ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
 # samba
-&ok_account("displayname", "oliver mahn");
+&ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -1147,19 +1147,19 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # check if unid is removed
-%account = &fetch_single_account("surname='mahn' 
+%account = &fetch_single_account("surname='Mahn' 
                                   AND firstname='oliver'
                                   AND birthday='1984-10-12'
                                   AND adminclass='m1kb'",
                       );
 &ok_account("sophomorixstatus", "E");
 &ok_account("creationdate", $today_pg);
-&ok_account("gecos", "oliver mahn");
+&ok_account("gecos", "oliver Mahn");
 &ok_account("unid", "");
 &ok_account("gid", "m1kb");
 &ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
 # samba
-&ok_account("displayname", "oliver mahn");
+&ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -1208,29 +1208,29 @@ print '
 # colecting all logins
 my @logins=();
 
-$login = &fetch_login("surname='oetztuerk' 
-                       AND firstname='mohammad'
+$login = &fetch_login("surname='Oetztuerk' 
+                       AND firstname='Mohammad'
                        AND birthday='1983-04-02'
                        AND adminclass='7c'",
                      );
 push @logins, $login;
 
-$login = &fetch_login("surname='stallman' 
-                       AND firstname='richard'
+$login = &fetch_login("surname='Stallman' 
+                       AND firstname='Richard'
                        AND birthday='1962-04-02'
                        AND adminclass='3c'",
                      );
 push @logins, $login;
 
-$login = &fetch_login("surname='mahn' 
+$login = &fetch_login("surname='Mahn' 
                        AND firstname='oliver'
                        AND birthday='1984-10-12'
                        AND adminclass='m1kb'",
                      );
 push @logins, $login;
 
-$login = &fetch_login("surname='darwin' 
-                       AND firstname='charles'
+$login = &fetch_login("surname='Darwin' 
+                       AND firstname='Charles'
                        AND birthday='1942-10-12'
                        AND adminclass='teachers'",
                      );
@@ -1267,8 +1267,8 @@ foreach my $login (@logins){
 
 
 # check if users are removeable (R)
-%account = &fetch_single_account("surname='maier' 
-                                  AND firstname='joerg'
+%account = &fetch_single_account("surname='Maier' 
+                                  AND firstname='Joerg'
                                   AND birthday='1982-10-12'
                                   AND adminclass='dachboden'",
                       );
@@ -1277,13 +1277,13 @@ foreach my $login (@logins){
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
 &ok_account("exitadminclass", "m4kb");
-&ok_account("gecos", "joerg maier");
+&ok_account("gecos", "Joerg Maier");
 &ok_account("unid", "");
 &ok_account("exitunid", "");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
 # samba
-&ok_account("displayname", "joerg maier");
+&ok_account("displayname", "Joerg Maier");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -1298,8 +1298,8 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
-%account = &fetch_single_account("surname='oetztuerk' 
-                                  AND firstname='mohammad'
+%account = &fetch_single_account("surname='Oetztuerk' 
+                                  AND firstname='Mohammad'
                                   AND birthday='1983-04-02'
                                   AND adminclass='dachboden'",
                       );
@@ -1307,13 +1307,13 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
-&ok_account("gecos", "mohammad oetztuerk");
+&ok_account("gecos", "Mohammad Oetztuerk");
 &ok_account("unid", "");
 &ok_account("exitunid", "");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
 # samba
-&ok_account("displayname", "mohammad oetztuerk");
+&ok_account("displayname", "Mohammad Oetztuerk");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -1328,8 +1328,8 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
-%account = &fetch_single_account("surname='stallman' 
-                                  AND firstname='richard'
+%account = &fetch_single_account("surname='Stallman' 
+                                  AND firstname='Richard'
                                   AND birthday='1962-04-02'
                                   AND adminclass='dachboden'",
                       );
@@ -1337,13 +1337,13 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
-&ok_account("gecos", "richard stallman");
+&ok_account("gecos", "Richard Stallman");
 &ok_account("unid", "");
 &ok_account("exitunid", "123456789");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
 # samba
-&ok_account("displayname", "richard stallman");
+&ok_account("displayname", "Richard Stallman");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -1359,7 +1359,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # 
-%account = &fetch_single_account("surname='mahn' 
+%account = &fetch_single_account("surname='Mahn' 
                                   AND firstname='oliver'
                                   AND birthday='1984-10-12'
                                   AND adminclass='dachboden'",
@@ -1368,13 +1368,13 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
-&ok_account("gecos", "oliver mahn");
+&ok_account("gecos", "oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
 # samba
-&ok_account("displayname", "oliver mahn");
+&ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -1389,8 +1389,8 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
-%account = &fetch_single_account("surname='darwin' 
-                                  AND firstname='charles'
+%account = &fetch_single_account("surname='Darwin' 
+                                  AND firstname='Charles'
                                   AND birthday='1942-10-12'
                                   AND adminclass='speicher'",
                       );
@@ -1398,13 +1398,13 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
-&ok_account("gecos", "charles darwin");
+&ok_account("gecos", "Charles Darwin");
 &ok_account("unid", "");
 &ok_account("exitunid", "");
 &ok_account("gid", "speicher");
 &ok_account("homedirectory", "/home/students/speicher/$account{'uid'}");
 # samba
-&ok_account("displayname", "charles darwin");
+&ok_account("displayname", "Charles Darwin");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -1429,7 +1429,7 @@ print '
 ';
 
 # user the user Mahn
-$login = &fetch_login("surname='mahn' 
+$login = &fetch_login("surname='Mahn' 
                        AND firstname='oliver'
                        AND birthday='1984-10-12'
                        AND adminclass='dachboden'",
@@ -1441,7 +1441,7 @@ $login = &fetch_login("surname='mahn'
 
 
 # check if permanent 
-%account = &fetch_single_account("surname='mahn' 
+%account = &fetch_single_account("surname='Mahn' 
                                   AND firstname='oliver'
                                   AND birthday='1984-10-12'
                                   AND adminclass='dachboden'",
@@ -1450,13 +1450,13 @@ $login = &fetch_login("surname='mahn'
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
-&ok_account("gecos", "oliver mahn");
+&ok_account("gecos", "oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
 # samba
-&ok_account("displayname", "oliver mahn");
+&ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -1479,7 +1479,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 #?????
 
 # check if Killable 
-%account = &fetch_single_account("surname='mahn' 
+%account = &fetch_single_account("surname='Mahn' 
                                   AND firstname='oliver'
                                   AND birthday='1984-10-12'
                                   AND adminclass='dachboden'",
@@ -1488,13 +1488,13 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
-&ok_account("gecos", "oliver mahn");
+&ok_account("gecos", "oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
 # samba
-&ok_account("displayname", "oliver mahn");
+&ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -1519,7 +1519,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # check if still Killable 
-%account = &fetch_single_account("surname='mahn' 
+%account = &fetch_single_account("surname='Mahn' 
                                   AND firstname='oliver'
                                   AND birthday='1984-10-12'
                                   AND adminclass='dachboden'",
@@ -1528,13 +1528,13 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
-&ok_account("gecos", "oliver mahn");
+&ok_account("gecos", "oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
 # samba
-&ok_account("displayname", "oliver mahn");
+&ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -1554,7 +1554,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # check if Frozen 
-%account = &fetch_single_account("surname='mahn' 
+%account = &fetch_single_account("surname='Mahn' 
                                   AND firstname='oliver'
                                   AND birthday='1984-10-12'
                                   AND adminclass='dachboden'",
@@ -1563,13 +1563,13 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
-&ok_account("gecos", "oliver mahn");
+&ok_account("gecos", "oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
 # samba
-&ok_account("displayname", "oliver mahn");
+&ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -1594,7 +1594,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # check if still Frozen
-%account = &fetch_single_account("surname='mahn' 
+%account = &fetch_single_account("surname='Mahn' 
                                   AND firstname='oliver'
                                   AND birthday='1984-10-12'
                                   AND adminclass='dachboden'",
@@ -1603,13 +1603,13 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
-&ok_account("gecos", "oliver mahn");
+&ok_account("gecos", "oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
 # samba
-&ok_account("displayname", "oliver mahn");
+&ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -1630,7 +1630,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # check 
-%account = &fetch_single_account("surname='mahn' 
+%account = &fetch_single_account("surname='Mahn' 
                                   AND firstname='oliver'
                                   AND birthday='1984-10-12'
                                   AND adminclass='dachboden'",
@@ -1639,13 +1639,13 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "$today_pg");
 &ok_account("deactivationdate", "");
-&ok_account("gecos", "oliver mahn");
+&ok_account("gecos", "oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "dachboden");
 &ok_account("homedirectory", "/home/students/dachboden/$account{'uid'}");
 # samba
-&ok_account("displayname", "oliver mahn");
+&ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -1677,7 +1677,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # check movement and activation 
-%account = &fetch_single_account("surname='mahn' 
+%account = &fetch_single_account("surname='Mahn' 
                                   AND firstname='oliver'
                                   AND birthday='1984-10-12'
                                   AND adminclass='m1kb'",
@@ -1686,13 +1686,13 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "");
 &ok_account("deactivationdate", "");
-&ok_account("gecos", "oliver mahn");
+&ok_account("gecos", "oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "m1kb");
 &ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
 # samba
-&ok_account("displayname", "oliver mahn");
+&ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
@@ -1723,7 +1723,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # check that account stays activated and was NOT moved to dachboden
-%account = &fetch_single_account("surname='mahn' 
+%account = &fetch_single_account("surname='Mahn' 
                                   AND firstname='oliver'
                                   AND birthday='1984-10-12'
                                   AND adminclass='m1kb'",
@@ -1732,13 +1732,13 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "");
 &ok_account("deactivationdate", "");
-&ok_account("gecos", "oliver mahn");
+&ok_account("gecos", "oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "m1kb");
 &ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
 # samba
-&ok_account("displayname", "oliver mahn");
+&ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
 &ok_account("sambahomedrive", "H:");
 &ok_account("sambalogontime", "0");
