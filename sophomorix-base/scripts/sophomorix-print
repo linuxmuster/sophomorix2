@@ -37,6 +37,8 @@ my @arguments = @ARGV;
 
 #my $schul_name="---";
 
+my $entries_per_page=36;
+
 # Auslesen der Schulinfo-Datei
 my $info_klasse="";
 my $info_abteilung="";
@@ -136,6 +138,7 @@ my $lehrer=0;
 my $caller="";
 my $command="latex";
 my $gruppe="";
+my $one_per_page=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -147,6 +150,7 @@ my $testopt=GetOptions(
            "teacher|t" => \$lehrer,
            "caller|postfix=s" => \$caller,
            "command=s" => \$command,
+           "one-per-page" => \$one_per_page,
            "info|i" => \$info
           );
 
@@ -238,8 +242,7 @@ open(UNIXCSV,
         ">${DevelConf::druck_pfad}/${output_file_basename}-unix.csv") || die "Fehler: $!";
 
 
-print LATEX ('
-%% Dieser Vorspann wurde Automatisch erzeugt von sophomorix-print
+print LATEX ('%% This preamble was created from sophomorix-print
 \documentclass[11pt,fleqn,oneside]{article}
 \usepackage[T1]{fontenc}
 \usepackage[latin1]{inputenc}
@@ -392,7 +395,6 @@ foreach (@print_data){
                               $vorname_protokoll,
                               ";",
                               $geburtsdatum_protokoll));
-
    # In einem Hash ablegen
    my $value="$klasse_protokoll".";"."$name_protokoll".";".
           "$loginname_protokoll".";"."$passwort_protokoll".";".
@@ -612,6 +614,16 @@ if($Conf::log_level>=3){
                          @drucken_einzelschueler_reihenfolge);
 
 
+# ONE ENTRY PER PAGE
+if ($one_per_page==1){
+   foreach $eintrag (@drucken_reihenfolge) {
+       print LATEX ('\chead{\LARGE \bf ',"$eintrag",'}');
+       print LATEX "$eintrag \n\n";
+       print LATEX "\\newpage \n\n";
+   }
+} else {
+
+# 36 PER PAGE
 
 # ===========================================================================
 # Sortierte Einträge in LATEX-Datei und CSV schreiben 
@@ -629,8 +641,7 @@ foreach $eintrag (@drucken_reihenfolge) {
    } else {
       $identifier=$eintrag;
    }
-      $schueler_protokoll_zeile=$schueler_im_system_hash{$identifier};
-
+   $schueler_protokoll_zeile=$schueler_im_system_hash{$identifier};
    if($Conf::log_level>=3){
       print ("\nDieser User wird gedruckt: $eintrag\n");
       print("Identifier:               --$identifier--\n");
@@ -669,7 +680,7 @@ foreach $eintrag (@drucken_reihenfolge) {
        if ($klasse_protokoll_alt ne ""){
           # Nicht der allererste Eintrag
           # Auffüllen der Seite
-          while ($anzahl_karten_pro_seite < 36){
+          while ($anzahl_karten_pro_seite < $entries_per_page){
              print LATEX ('\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}');
              print LATEX ("\n");
              $anzahl_karten_pro_seite++;
@@ -714,7 +725,7 @@ if($eintrag_typ_alt==0){
            # Vorgänger gehörte zur einer Klasse (über 4 Schüler)
            $rand_bemerkung_lehrer=0; # Randbemerkung wurde nicht gemacht
            # Auffüllen der Seite
-           while ($anzahl_karten_pro_seite < 36){
+           while ($anzahl_karten_pro_seite < $entries_per_page){
               print LATEX ('\daten{\rule[1mm]{30mm}{0.5mm}}{}{}{}{}');
               print LATEX ("\n");
               $anzahl_karten_pro_seite++;
@@ -750,7 +761,7 @@ if($eintrag_typ_alt==0){
                $anzahl_karten_pro_zeile++;
                $rand_bemerkung_lehrer=0; # Randbemerkung wurde nicht gemacht
            }
-           if($anzahl_karten_pro_seite ==36) {
+           if($anzahl_karten_pro_seite == $entries_per_page) {
                print LATEX ("\n\n",'\newpage',"\n\n");
                $anzahl_karten_pro_seite=0;
 	   }
@@ -829,7 +840,7 @@ if($eintrag_typ_alt==0){
 
 
 # Allerletzte Seite (vor Inhaltsverzeichnis noch auffüllen)
-while ($anzahl_karten_pro_seite < 36){
+while ($anzahl_karten_pro_seite < $entries_per_page){
    print LATEX ('\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}');
    print LATEX ("\n");
    $anzahl_karten_pro_seite++;
@@ -839,11 +850,15 @@ while ($anzahl_karten_pro_seite < 36){
 # Klassen LATEX-Nachspann schreiben
 # ===========================================================================
 # Letze Seite mit leeren Einträgen füllen
-while ($anzahl_karten_pro_seite < 36){
+while ($anzahl_karten_pro_seite < $entries_per_page){
         print LATEX ('\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}');
         print LATEX ("\n");
         $anzahl_karten_pro_seite++;
 }
+
+
+
+} # End 36 PER PAGE
 
 
 
@@ -857,30 +872,30 @@ if ($gruppe ne "") {
 } else {
    print LATEX ('
 
-   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-   %% Hier enden die erzeugten Einträge
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Hier enden die erzeugten Einträge
 
-   \newpage
+\newpage
 
-   \setlength{\columnsep}{15mm}
-   \setlength{\columnseprule}{0.4mm}
+\setlength{\columnsep}{15mm}
+\setlength{\columnseprule}{0.4mm}
 
-   % Wenn sie bis 225 Klassen im Inhaltsverzeichnis wollen 
-   % dann erhöhen Sie folgenden Wert auf 5 erhöhen
-   \begin{multicols}{4}
+% Wenn sie bis 225 Klassen im Inhaltsverzeichnis wollen 
+% dann erhöhen Sie folgenden Wert auf 5 erhöhen
+\begin{multicols}{4}
 
-   \rhead{\bf \LARGE I}
-   \lhead{}
-   \chead{\bf \LARGE Inhaltsverzeichnis}
-   \cfoot{}
+\rhead{\bf \LARGE I}
+\lhead{}
+\chead{\bf \LARGE Inhaltsverzeichnis}
+\cfoot{}
 
-   \tableofcontents
+\tableofcontents
 
-   \end{multicols}
+\end{multicols}
 
-   \end{document}
+\end{document}
 
-   ');
+');
 }
 
 
