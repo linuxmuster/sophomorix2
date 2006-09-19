@@ -131,6 +131,9 @@ install-base:
 	install -d -m755 -oroot -groot $(LANGUAGE)
 
 	install -oroot -groot --mode=0644 sophomorix-base/lang/sophomorix-lang.*[a-z] $(LANGUAGE)
+	install -d -m755 -oroot -groot $(LANGUAGE)/latex-templates
+	install -oroot -groot --mode=0644 sophomorix-base/latex-templates/*.tex $(LANGUAGE)/latex-templates
+
 	##### Copy the module
 	install -d -m755 -oroot -groot $(PERLMOD)
 	install -oroot -groot --mode=0644 sophomorix-base/modules/Sophomorix*[A-Za-z1-9].pm $(PERLMOD)
