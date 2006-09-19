@@ -1239,13 +1239,6 @@ check list of systemusers in debian developers manual
 when a teacher/students is disabled remove him from /etc/aliases???
 
 
-
-entwickler@lml.support-netz.de Entwickler + GL + Hotline
-extern@lml.support-netz.de Externe Dienstleister,Thomas,Andy
-linuxfreaks@lml.support-netz.de Nur Entwickler
-
-
-
 check if sophomorix-kill,-move,-add shows users ascibetically/classwise, 
 and sums up number of users to work on
 
@@ -1283,10 +1276,33 @@ go through all homedirs to delete the file $home/path-to-file
       delete the files that exist in path-from-/etc/skel 
       in the homedirs when they exist and and are NOT modified
 
+
+when a user that exists (wwwadmin) and no quota in quota.txt is given,
+there is a warning (check if the script is interrupted)
+
+
+make latex-template/login-info.tex more fancy.
+  - where to log in windows
+  - where to log in linux
+  - schulkonsole
+  - to check mail
+
+add a custom login-info:
+
+first line: REPLACE_TEMPLATE=no  (add the contents to the template)
+                             yes (replace contents to the template)
+
+
+
+
+
 ================== CHANGELOG ========================================
 
 
 1.8.14-1 (2006-09-yy)
+   - creted latex-templates login-info.tex (language dependant)
+   - created one side per user login card to show more info
+     option --one-per-page
    - updated sophomorix-test 
    - made capital letters usable as firstname and Lastname
 
