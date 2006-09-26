@@ -51,11 +51,23 @@ my $keep_database=0;
 my $config_file=0;
 
 my $create_path="/usr/share/sophomorix/config-templates/pg/";
-my $upgrade_path="/usr/share/sophomorix/config-templates/pg/upgrade/";
+my $upgrade_path_db="/usr/share/sophomorix/config-templates/pg/upgrade/";
+my $upgrade_path_script="/usr/share/sophomorix/config-templates/scripts/upgrade/";
+
+### ??? make running of *.sql files also run *.update files
+
+
 my $old_version="";
 my $new_version="";
-my @upgrade_files_id=();
-my %upgrade_files_id_filename=();
+my @upgrade_sql_id=();
+my %upgrade_sql_id_filename=();
+
+my @upgrade_scripts_id=();
+my %upgrade_scripts_id_filename=();
+
+
+
+# ???? vars for scripts
 
 my $ldappassword = "";
 my $dbpassword = "";
@@ -308,7 +320,7 @@ print "   New Debian Package Version  :   $new_version \n";
 
 # db upgrade
 my @all_db_upgrades=();
-opendir(UPGRADE, $upgrade_path) or die "can't opendir $upgrade_path: $!";
+opendir(UPGRADE, $upgrade_path_db) or die "can't opendir $upgrade_path_db: $!";
 while (defined(my $filename = readdir(UPGRADE))) {
     # do something with "$dirname/$file"
     if ($filename=~m/.sql$/){
@@ -322,7 +334,7 @@ closedir(UPGRADE);
 
 @all_db_upgrades = sort @all_db_upgrades;
 
-print "Checking upgrade files (not ordered):\n";
+print "Checking upgrade sql files (not ordered):\n";
 foreach my $file (@all_db_upgrades){
     my $version="";
     # extract Version from filename
@@ -365,8 +377,8 @@ foreach my $file (@all_db_upgrades){
 
     if ($file_number > $old_number and $file_number <= $new_number){
         print "      ***Run $file as upgrade\n";
-        push @upgrade_files_id, $file_number;
-        $upgrade_files_id_filename{$file_number}=$file;        
+        push @upgrade_sql_id, $file_number;
+        $upgrade_sql_id_filename{$file_number}=$file;        
     } elsif ($file_number <= $old_number){
         print "      File $file is to old\n";
     } elsif ($file_number > $new_number){
@@ -376,13 +388,98 @@ foreach my $file (@all_db_upgrades){
 
 
 # sorting the id numbers
-@upgrade_files_id= sort {$a <=> $b} @upgrade_files_id;
+@upgrade_sql_id= sort {$a <=> $b} @upgrade_sql_id;
 
 
 print "Files to run for upgrade of database in correct order: \n";
 
-foreach my $file_id (@upgrade_files_id){
-    printf "   %14s   %-40s \n",$file_id, $upgrade_files_id_filename{$file_id};
+foreach my $file_id (@upgrade_sql_id){
+    printf "   %14s   %-40s \n",$file_id, $upgrade_sql_id_filename{$file_id};
+}
+print "\n";
+
+
+
+
+
+
+# scripts upgrade
+my @all_script_upgrades=();
+opendir(SUPGRADE, $upgrade_path_script) or die "can't opendir $upgrade_path_script: $!";
+while (defined(my $filename = readdir(SUPGRADE))) {
+    # do something with "$dirname/$file"
+    if ($filename=~m/.upgrade$/){
+       #print "$filename \n";
+       push @all_script_upgrades, $filename;
+
+    }
+}
+closedir(SUPGRADE);
+
+
+@all_script_upgrades = sort @all_script_upgrades;
+
+print "Checking upgrade script files (not ordered):\n";
+foreach my $file (@all_script_upgrades){
+    my $version="";
+    # extract Version from filename
+    if ($file=~m/sophomorix_(.*).upgrade/){
+        $version=$1;
+    }
+    my @old = split(/[\.-]/,$old_version);
+    my @new = split(/[\.-]/,$new_version);
+    my @file = split(/[\.-]/,$version);
+
+    #print "Old: ", @old, "\n";
+    #print "New: ", @new, "\n";
+    #print "File:", @file, "\n";
+
+    # calculating number
+    my $file_number=$file[3]
+                   +$file[2]*1000
+                   +$file[1]*1000*1000
+                   +$file[0]*1000*1000*1000;
+    my $old_number=$old[3]
+                  +$old[2]*1000
+                  +$old[1]*1000*1000
+                  +$old[0]*1000*1000*1000;
+    my $new_number=$new[3]
+                  +$new[2]*1000
+                  +$new[1]*1000*1000
+                  +$new[0]*1000*1000*1000;
+
+    #print $file_number,"\n";
+    #print $old_number,"\n";
+    #print $new_number,"\n";
+
+    #           - To old
+    #  old ...  - To old
+    #           + Run
+    #           + Run 
+    #  new ...  + Run
+    #           - To new
+    #           - To new
+
+    if ($file_number > $old_number and $file_number <= $new_number){
+        print "      ***Run $file as upgrade\n";
+        push @upgrade_scripts_id, $file_number;
+        $upgrade_scripts_id_filename{$file_number}=$file;        
+    } elsif ($file_number <= $old_number){
+        print "      File $file is to old\n";
+    } elsif ($file_number > $new_number){
+        print "      File $file is to new\n";
+    }
+}
+
+
+# sorting the id numbers
+@upgrade_scripts_id= sort {$a <=> $b} @upgrade_scripts_id;
+
+
+print "Scripts to run for upgrade in correct order: \n";
+
+foreach my $file_id (@upgrade_scripts_id){
+    printf "   %14s   %-40s \n",$file_id, $upgrade_scripts_id_filename{$file_id};
 }
 print "\n";
 
@@ -397,10 +494,6 @@ if ($info==1){
 
 
 
-
-
-
-#exit;
 
 ############################################################
 # Replace the following config-files
@@ -693,16 +786,21 @@ if ( ($old_version eq "0.0.0-0" and not defined $dbh) or $new_database==1){
     print "\ncreating the postgresql database ldap \n\n";
     &create_database();
 } else {
-    print "\nNot creating the postgresql database ldap \n\n";
+    print "\nNOT creating the postgresql database ldap \n\n";
 }
 
 
 # upgrade database if necessary
 if ($keep_database==1){
-    print "\nNot running upgrades on postgresql database ldap \n\n";
+    print "\nNOT running upgrades on postgresql database ldap (option given)\n\n";
 } else {
     &upgrade_database();
 }
+
+
+# run upgrade scripts
+&run_upgrade_scripts();
+
 
 # setting the password
 &set_db_passwd($dbpassword);
@@ -1092,11 +1190,29 @@ sub create_database {
 
 
 sub upgrade_database {
-    print "Upgrading database ldap with the following files: \n";
-    foreach my $file_id (@upgrade_files_id){
-        my $file = $upgrade_path.$upgrade_files_id_filename{$file_id};
-        print "  $file \n";
-        system("psql -U ldap ldap < $file");
+    if ($old_version eq "0.0.0-0"){
+        print "NOT upgrading database ldap (Old package is $old_version) \n";
+    } else {
+        print "Upgrading database ldap with the following files: \n";
+        foreach my $file_id (@upgrade_sql_id){
+            my $file = $upgrade_path_db.$upgrade_sql_id_filename{$file_id};
+            print "  $file \n";
+            system("psql -U ldap ldap < $file");
+        }
+    }
+}
+
+sub run_upgrade_scripts {
+    if ($old_version eq "0.0.0-0"){
+        print "NOT running upgrade scripts (Old package is $old_version) \n";
+    } else {
+        print "Running the following upgrade scripts: \n";
+        foreach my $file_id (@upgrade_scripts_id){
+            my $file = $upgrade_path_script.$upgrade_scripts_id_filename{$file_id};
+            print "  $file \n";
+            chmod 0755, $file;
+            system("$file");
+        }
     }
 }
 
