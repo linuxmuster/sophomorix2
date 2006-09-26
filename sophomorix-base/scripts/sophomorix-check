@@ -684,8 +684,6 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
 
        # A-Z in Kleinbuchstaben umwandeln
        $klasse=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
-  #     $nachname=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
-  #     $vorname=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
  
        # Decide, what to do with field_five
        if($field_five eq ""){
@@ -3311,7 +3309,7 @@ sub filter_school_admin_software {
 
        # Sonderzeichen wegfallenlassen
        # Minus streichen
-       $line=~s/-//g;
+#       $line=~s/-//g;
        # ' Streichen
        # mit s/'//g; geht die Emacs-Formetierung nicht mehr
        $line=~s/\'//g;
