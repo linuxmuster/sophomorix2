@@ -35,6 +35,7 @@ use Quota;
               extra_kurs_schueler
               lehrer_ordnen
               zeit_stempel
+              recode_to_ascii
               do_falls_nicht_testen
               check_options
               check_datei_exit
@@ -1508,6 +1509,23 @@ sub zeit_stempel {
    return $zeit;
 }
 
+
+# ===========================================================================
+# recoding
+# ===========================================================================
+
+sub recode_to_ascii {
+    my ($string) = @_;
+    $string=~s/ /./g;
+    $string=~s/ü/ue/g;
+    $string=~s/Ü/ue/g;
+    $string=~s/ö/oe/g;
+    $string=~s/Ö/oe/g;
+    $string=~s/ä/ae/g;
+    $string=~s/Ä/ae/g;
+    $string=~s/ß/ss/g;
+    return $string;
+}
 
 
 
