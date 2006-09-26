@@ -248,8 +248,12 @@ while(<SOPHOMORIXADD>){
     # remove - from login
     my $nachname_login=$nachname;
     $nachname_login=~s/-//g;
+    $nachname_login=&recode_to_ascii($nachname_login);
+
     my $vorname_login=$vorname;
     $vorname_login=~s/-//g;
+    $vorname_login=&recode_to_ascii($vorname_login);
+
     $login_teil_1=substr($nachname_login,0,$Conf::schueler_login_nachname_zeichen);
     $login_teil_2=substr($vorname_login,0,$Conf::schueler_login_vorname_zeichen);
     # Zu prüfender Loginname

@@ -330,10 +330,10 @@ sub generate_mail_alias_classes {
            my ($home,$type,$gecos)=
              &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
            if (${Conf::mail_aliases} eq "vorname.nachname"){
-               $gecos=~s/ /./g; # Spezialzeichen raus
+	       $gecos=&recode_to_ascii($gecos);
                printf ALIASESTMP "%-35s %-20s \n",$gecos.":",$user;
            } elsif (${Conf::mail_aliases} eq "vorname_nachname"){
-               $gecos=~s/ /_/g; # Spezialzeichen raus
+	       $gecos=&recode_to_ascii($gecos);
                printf ALIASESTMP "%-35s %-20s \n",$gecos.":",$user;
            }
        }
@@ -353,10 +353,10 @@ sub generate_mail_alias_projects {
       my ($home,$type,$gecos)=
              &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
       if (${Conf::mail_aliases} eq "vorname.nachname"){
-          $gecos=~s/ /./g; # Spezialzeichen raus
+	  $gecos=&recode_to_ascii($gecos);
           printf ALIASESTMP "%-35s %-20s \n",$gecos.":",$user;
       }elsif (${Conf::mail_aliases} eq "vorname_nachname"){
-          $gecos=~s/ /_/g; # Spezialzeichen raus
+	  $gecos=&recode_to_ascii($gecos);
           printf ALIASESTMP "%-35s %-20s \n",$gecos.":",$user;
       }
    }
