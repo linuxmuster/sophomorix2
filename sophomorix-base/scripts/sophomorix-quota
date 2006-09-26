@@ -454,7 +454,7 @@ sub set_quota_if_needed {
     my $new_quota="";
     my $mailquota;
     my $count=0;
-    my $all=$#userlist;
+    my $all=$#userlist+1;
     foreach my $login (@userlist){
         $count++;
         my $type=$login_type{$login};
@@ -473,9 +473,36 @@ sub set_quota_if_needed {
 	    next;
         }
         ($new_quota,$mailquota)=&get_quota($login);
-        if (not defined $new_quota or not defined $mailquota){
-            return;
-        }
+
+
+
+#	print " q $new_quota  $mailquota  \n";
+#        if (not defined $new_quota){
+#	    print "Could not find quota in the sophomorix database. \n";
+#            if ($login_type{$login} eq "passwd"){
+#                # users in passwd
+#                print "Using $quota_txt{$login} from quota.txt \n";
+#                $new_quota=$quota_txt{$login};
+#            } else {
+#                # nonexisting users
+#                return;
+#            }
+#        }
+
+
+#        if (not defined $mailquota){
+#	    print "Could not find mailquota in the sophomorix database. \n";
+#            if ($login_type{$login} eq "passwd"){
+#                # users in passwd
+#                print "Using $mail_quota_txt{$login} from mailquota.txt \n";
+#                $mailquota=$mail_quota_txt{$login};
+#            } else {
+#                # nonexisting users
+#                return;
+#            }
+#        }
+
+
 
         ##### quota
         # set quota to empty if not defined
@@ -483,7 +510,9 @@ sub set_quota_if_needed {
 	    $db_quota{$login}="";
 	}
 
-        if ($new_quota eq $db_quota{$login}){
+	if (not defined $new_quota){
+           # do nothing
+        } elsif ($new_quota eq $db_quota{$login}){
            #do nothing
         } else {
            if($Conf::log_level>=2){
@@ -505,7 +534,10 @@ sub set_quota_if_needed {
 	if (not defined $db_quota_mail{$login}){
 	    $db_quota_mail{$login}="";
 	}
-        if ($mailquota eq $db_quota_mail{$login}){
+
+        if (not defined $mailquota){
+            # do nothing
+        } elsif ($mailquota eq $db_quota_mail{$login}){
            #do nothing
         } else {
            if($Conf::log_level>=2){
