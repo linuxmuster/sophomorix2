@@ -79,6 +79,7 @@ DBINSTALL=$(DESTDIR)/usr/share/dbconfig-common/data/sophomorix-pgldap/install
 DBADMININSTALL=$(DESTDIR)/usr/share/dbconfig-common/data/sophomorix-pgldap/install-dbadmin
 
 # dbconfig-common/upgrade
+# obsolete ???
 DBUPGRADE=$(DESTDIR)/usr/share/dbconfig-common/data/sophomorix-pgldap/upgrade
 
 
@@ -164,6 +165,10 @@ install-pgldap:
 	##### Copy the ldap config-templates
 	install -d -m755 -oroot -groot $(CTEMPDIR)/ldap/
 	install -oroot -groot --mode=0644 sophomorix-pgldap/config-ldap/*.template $(CTEMPDIR)/ldap/
+	##### Copy the upgrade scripts
+	install -d -m755 -oroot -groot $(CTEMPDIR)/scripts/
+	install -d -m755 -oroot -groot $(CTEMPDIR)/scripts/upgrade/
+	install -oroot -groot --mode=0644 sophomorix-base/upgrade-scripts/*.upgrade $(CTEMPDIR)/scripts/upgrade/
 	##### Copy the pg config-templates
 	install -d -m755 -oroot -groot $(CTEMPDIR)/pg/
 	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/*.template $(CTEMPDIR)/pg/
@@ -191,6 +196,7 @@ install-pgldap:
 	install -d -m755 -oroot -groot $(DBADMININSTALL)/
 	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/sophomorix-admin.sql $(DBADMININSTALL)/pgsql
 	##### the install script for the database installation
+	# obsolete ???
 	install -d -m755 -oroot -groot $(DBUPGRADE)/
 	##### put the update scripts ino place ()
 	##### Copy the bdb example file
