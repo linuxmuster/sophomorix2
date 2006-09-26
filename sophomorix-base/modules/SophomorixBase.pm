@@ -3199,6 +3199,13 @@ sub check_quotastring {
     my $quota_fs_num=shift;
     # the quotastring to check
     my ($quotastring) = @_;
+
+    # accept 'quota' as correct
+    if ($quotastring eq "quota"){
+        $result[1]="quota";
+        return @result;
+    }
+
     my @list = split(/\+/, $quotastring);
     my $item=$#list+1;
     if($Conf::log_level>=2){

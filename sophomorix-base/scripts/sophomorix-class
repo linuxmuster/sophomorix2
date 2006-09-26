@@ -137,7 +137,14 @@ if (defined $quota){
         print "   You must give a class to use --quota\n";
 	exit;
     }
-    &update_class_db_entry($class,"Quota=$quota");
+    if ($quota eq "" or 
+        $quota eq "quota" or 
+        $quota eq "standard" or
+	$quota eq "default"){
+        &update_class_db_entry($class,"Quota=quota");
+    } else {
+        &update_class_db_entry($class,"Quota=$quota");
+    }
 }
 
 

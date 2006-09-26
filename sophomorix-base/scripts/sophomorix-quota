@@ -318,13 +318,13 @@ if ($set==1){
             print "NOT setting quota (No quota found for $user).\n";
         } else {
             my @q_list = &check_quotastring($quota_fs_num,$new_quota);
-            if ($q_list[0]!=-3){
+            if ($q_list[0]!=-3 and $q_list[1] ne "quota"){
                 if($Conf::log_level==1){
                     print "  Setting quota of user $user to @q_list\n";
                 }
 	        &set_quota($system,$user,\@quota_fs,\@q_list);
             } else {
-	        print "ERROR: $new_quota is not correct, skipping ...\n";
+	        print "ERROR: $new_quota for $user is not correct, skipping ...\n";
             }
         }
 
@@ -521,10 +521,10 @@ sub set_quota_if_needed {
            }
            # check the new quotastring
            my @q_list = &check_quotastring($quota_fs_num,$new_quota);
-           if ($q_list[0]!=-3){
+           if ($q_list[0]!=-3 and $q_list[1] ne "quota"){
 	       &set_quota(0,$login,\@quota_fs,\@q_list);
            } else {
-	       print "ERROR: $new_quota is not correct, skipping ...\n";
+	       print "ERROR: $new_quota for $login is not correct, skipping ...\n";
            }
         }
 
