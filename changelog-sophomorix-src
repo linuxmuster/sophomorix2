@@ -486,7 +486,7 @@ sophomorix-end-of-year (new script)
    - exclude classes of type extra
 
 
-sophomorix-cron (new script) (runs at night)
+sophomorix-check --cron 
    - zip files in /var/log/sophomorix/exam
 
 
@@ -1182,8 +1182,8 @@ getgrnam
 Bug: mehrfache Mailboxen
 
 
-add field in db for usertoken (use update function)
-update usertoken automatically 
+
+update db field usertoken automatically 
 
 
 Idea about logging:
@@ -1285,7 +1285,7 @@ make latex-template/login-info.tex more fancy.
   - where to log in windows
   - where to log in linux
   - schulkonsole
-  - to check mail
+  - how to check mail
 
 add a custom login-info:
 
@@ -1293,13 +1293,41 @@ first line: REPLACE_TEMPLATE=no  (add the contents to the template)
                              yes (replace contents to the template)
 
 
+sonstiges
 
+http://ekiga.net/
+
+mediawiki mit .htaccess absuchern (aktuelle ct, 26.9.06)
+
+
+
+quota einer Klasse zurücksetzen 
+
+sophomorix-class --quota standard    (oder "") setzt auf standard zurück
+
+
+Rücksetzen eines einzelnen users geht auch nicht
+
+Fehler: 0 quota for 2 filesystems
+
+
+
+manpage sophomorix-class anpassen erläuterungen zu -1
+
+aike informieren 
 
 
 ================== CHANGELOG ========================================
 
 
 1.8.14-1 (2006-09-yy)
+   - sophomorix-quota --force sets quota for users in passwd 
+     (non-sophomorix users )
+   - when logging an empty parameter, log '' in 
+     /var/log/sophomorix/command.log
+   - running upgrade scripts depending from which version we upgrade
+     (like *.sql upgrade scripts)
+   - made - signs usable in firstnames and surnames
    - creted latex-templates login-info.tex (language dependant)
    - created one side per user login card to show more info
      option --one-per-page
