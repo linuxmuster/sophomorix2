@@ -245,8 +245,13 @@ while(<SOPHOMORIXADD>){
     $login_name_to_check="$wunsch_login";
    } else {
     # Sonst: Login-Name bilden
-    $login_teil_1=substr($nachname,0,$Conf::schueler_login_nachname_zeichen);
-    $login_teil_2=substr($vorname,0,$Conf::schueler_login_vorname_zeichen);
+    # remove - from login
+    my $nachname_login=$nachname;
+    $nachname_login=~s/-//g;
+    my $vorname_login=$vorname;
+    $vorname_login=~s/-//g;
+    $login_teil_1=substr($nachname_login,0,$Conf::schueler_login_nachname_zeichen);
+    $login_teil_2=substr($vorname_login,0,$Conf::schueler_login_vorname_zeichen);
     # Zu prüfender Loginname
     $login_name_to_check="$login_teil_1"."$login_teil_2";
     $login_name_to_check=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
