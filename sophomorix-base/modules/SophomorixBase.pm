@@ -2328,7 +2328,11 @@ sub log_script_start {
     chomp($timestamp);
     my $log="${timestamp}::start::  $0";
     foreach my $arg (@arguments){
-	$log=$log." ".$arg ;
+        if ($arg eq ""){
+   	    $log=$log." ''";
+        } else {
+	    $log=$log." ".$arg ;
+        }
     }
     $log=$log."\n";
     open(LOG,">>$DevelConf::log_command");
