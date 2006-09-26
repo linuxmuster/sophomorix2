@@ -69,11 +69,15 @@ setzt das Quotafeld für die Klasse in der sophomorix Datenbank auf den
 Wert quotastring, und überträgt diese Werte ins System. Wie
 quotastring aussehen muss siehe sophomorix-quota.
 .br
-Um einen leeren Wert zu setzten gibt man --quota "" an.
+Einen leeren Wert (Standardwert) setzt man mit
+.br
+ --quota standard 
 .TP
 .B --mailquota number 
 setzt das MailQuotafeld für die Klasse in der sophomorix Datenbank auf
 den Wert mailquota und überträgt diese Werte ins System.
+.br
+Um einen leeren Wert (Standardwert) zu setzten gibt man --quota -1 an.
 .TP
 .B --mailalias
 Trägt für alle Mitglieder dieses Klasse einen Mailalias ein
@@ -85,7 +89,6 @@ Mitglieder sind somit unter dem Projektnamen UND dem langen
 Projektnamen (LongName) erreichbar.
 .TP
 .br
-Um einen leeren Wert zu setzten gibt man --quota -1 an.
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
