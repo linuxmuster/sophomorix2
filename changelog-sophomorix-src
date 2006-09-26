@@ -1293,6 +1293,8 @@ first line: REPLACE_TEMPLATE=no  (add the contents to the template)
                              yes (replace contents to the template)
 
 
+
+
 sonstiges
 
 http://ekiga.net/
@@ -1301,26 +1303,31 @@ mediawiki mit .htaccess absuchern (aktuelle ct, 26.9.06)
 
 
 
-quota einer Klasse zurücksetzen 
-
-sophomorix-class --quota standard    (oder "") setzt auf standard zurück
 
 
 Rücksetzen eines einzelnen users geht auch nicht
 
 Fehler: 0 quota for 2 filesystems
 
+??????
 
 
-manpage sophomorix-class anpassen erläuterungen zu -1
-
-aike informieren 
+loginname without -
+mail without ä,ö,ü,ß
+gecos äöüß
+firstname äöüß
+surname äöüß
 
 
 ================== CHANGELOG ========================================
 
 
 1.8.14-1 (2006-09-yy)
+   - BUGFIX: set quota when user is removed from quota.txt
+     back to standard/class/project value
+   - updated manpage of sophomorix-class
+   - Bugfix: sophomorix-class --quota standard 
+     uses standard/project values of users in this class again
    - sophomorix-quota --force sets quota for users in passwd 
      (non-sophomorix users )
    - when logging an empty parameter, log '' in 
