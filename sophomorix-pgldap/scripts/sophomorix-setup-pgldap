@@ -297,8 +297,13 @@ print "   String for institutes(ldap) :   $institutes \n";
 
 
 if ($old_version eq "" or not defined $old_version ){
-    # make sure to run all upgrads
-    $old_version="0.0.0-0";
+    # ask dpkg for old Version
+    my $line=`dpkg -l sophomorix-pgldap | grep 'sophomorix-pg'`;
+    chomp($line);
+    my ($status,$name,$version,$desc)=split(/\s+/,$line);
+    $old_version=$version;
+#    # make sure to run all upgrads
+#    $old_version="0.0.0-0";
 }
 
 if ($new_version eq "" or not defined $new_version ){
@@ -312,7 +317,6 @@ if ($new_version eq "" or not defined $new_version ){
 print "Database Versions:\n";
 print "   Old Debian Package Version  :   $old_version \n";
 print "   New Debian Package Version  :   $new_version \n";
-
 
 
 
@@ -777,7 +781,7 @@ if ($new_database==1){
 }
 
 
-
+# trying to connect
 my $dbh = DBI->connect("dbi:Pg:dbname=ldap", "ldap","pass",
           { RaiseError => 0, PrintError => 0});
 
@@ -1190,22 +1194,22 @@ sub create_database {
 
 
 sub upgrade_database {
-    if ($old_version eq "0.0.0-0"){
-        print "NOT upgrading database ldap (Old package is $old_version) \n";
-    } else {
+#    if ($old_version eq "0.0.0-0"){
+#        print "NOT upgrading database ldap (Old package is $old_version) \n";
+#    } else {
         print "Upgrading database ldap with the following files: \n";
         foreach my $file_id (@upgrade_sql_id){
             my $file = $upgrade_path_db.$upgrade_sql_id_filename{$file_id};
             print "  $file \n";
             system("psql -U ldap ldap < $file");
         }
-    }
+#    }
 }
 
 sub run_upgrade_scripts {
-    if ($old_version eq "0.0.0-0"){
-        print "NOT running upgrade scripts (Old package is $old_version) \n";
-    } else {
+#    if ($old_version eq "0.0.0-0"){
+#        print "NOT running upgrade scripts (Old package is $old_version) \n";
+#    } else {
         print "Running the following upgrade scripts: \n";
         foreach my $file_id (@upgrade_scripts_id){
             my $file = $upgrade_path_script.$upgrade_scripts_id_filename{$file_id};
@@ -1213,7 +1217,7 @@ sub run_upgrade_scripts {
             chmod 0755, $file;
             system("$file");
         }
-    }
+#    }
 }
 
 

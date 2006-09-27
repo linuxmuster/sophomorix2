@@ -43,8 +43,13 @@ set -e
 
 new_version=`dpkg -l sophomorix-pgldap | grep 'sophomorix-pg' | { read status name version desc; echo "$version";}`
 
+if [ "$old_version" == "" ]; then
+    old_version="0.0.0-0"
+fi
+
+
 echo "New Version: $new_version"
-echo "Old Version: $2"
+echo "Old Version: $old_version"
 
 
 echo "Parameter 1: $1"
@@ -60,8 +65,10 @@ echo "Parameter 5: $5"
 case "$1" in
     configure)
     # calling the setup-script of sophomorix to create a new database
-    echo "calling sophomorix-setup-pgldap"
-    sophomorix-setup-pgldap --oldversion "$2" --newversion "$new_version"
+#    echo "calling sophomorix-setup-pgldap --oldversion $2 --newversion $new_version"
+    echo "calling sophomorix-setup-pgldap --oldversion $old_version --newversion $new_version"
+#    sophomorix-setup-pgldap --oldversion "$2" --newversion "$new_version"
+    sophomorix-setup-pgldap --oldversion "$old_version" --newversion "$new_version"
 
     ;;
 
