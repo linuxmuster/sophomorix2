@@ -1047,7 +1047,6 @@ print RED "Sie sollten sophomorix-teach-in aufrufen!\n";
 
 # subs for status check subs
 sub append_move_entry {
-    
     # appends a line to sophomorix.move
     my ($identifier, $old_class, $new_class,$old_status) = @_;
     if (not defined $old_status){$old_status=""};
@@ -1182,6 +1181,9 @@ sub a_u_check {
          my $login=$schueler_im_system_loginname{$identifier};
          my $new=$schueler_im_system_exit_admin_class{$identifier};
          my $old=$schueler_im_system_hash{$identifier};
+         if (not defined $new){
+             return;
+         }
          if ($old ne $new){
             &append_move_entry($identifier,$old,$new,"A");
 	    $count++;
