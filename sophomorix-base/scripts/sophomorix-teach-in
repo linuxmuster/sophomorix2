@@ -583,13 +583,29 @@ foreach $identifier (@toleration){
             "========================================\n";
       print "sophomorix db:  ", 
             "$identifier -> $auswahl_hash{$user_antwort}\n";
+      # removing new user from sophomorix.add
       print "sophomorix.add: remove ", 
             "$auswahl_hash{$user_antwort} in ",
             "$schueler_hinzu_hash{$schueler_hinzu}\n";
-      # removing new user from sophomorix.add
       &remove_line_from_file(
           "$schueler_hinzu_hash{$schueler_hinzu}::$auswahl_hash{$user_antwort}",
           "${DevelConf::ergebnis_pfad}/sophomorix.add");
+      # removing new user from sophomorix.move
+      if (-e "${DevelConf::ergebnis_pfad}/sophomorix.move"){
+          print "sophomorix.move: remove ", 
+                "${login} in ",
+                "$schueler_hinzu_hash{$schueler_hinzu}\n";
+          &remove_line_from_file(
+              "${login}::$schueler_hinzu_hash{$schueler_hinzu}",
+              "${DevelConf::ergebnis_pfad}/sophomorix.move");
+      }
+      # removing new user from sophomorix.kill
+#      print "sophomorix.kill: remove ", 
+#            "${login} with identifier $auswahl_hash{$user_antwort}",
+#            "\n";
+#      &remove_line_from_file(
+#          "$auswahl_hash{$user_antwort}::${login}",
+#          "${DevelConf::ergebnis_pfad}/sophomorix.kill");
       print "========================================",
             "========================================\n\n";
 
