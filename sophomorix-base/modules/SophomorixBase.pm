@@ -1317,27 +1317,11 @@ sub lehrer_ordnen {
 
    open (LEHRER, "${DevelConf::users_pfad}/lehrer.txt") 
          || die "Fehler: ${DevelConf::users_pfad}/lehrer.txt \n$!";
-
    open (LEHRERTMP, ">${DevelConf::users_pfad}/lehrer.tmp") 
          || die "Fehler: $!";
 
-
-   # Infotext für die Datei lehrer.txt
-   # Achtung: folgende Einträge werden ASCIIbetisch geordnet!
-#   print LEHRERTMP ("! Lehrer mit vorangesetzem # bleiben unberücksichtigt.\n");
-#   print LEHRERTMP ("! \n");
-#   print LEHRERTMP ("* Bei schon angelegten Lehrern dürfen die ersten 6 Felder NICHT mehr verändert werden\n");
-#   print LEHRERTMP ("* A******************************************************************************\n"); 
-#   print LEHRERTMP ("* Z******************************************************************************\n"); 
-
-
    while(<LEHRER>) {
      chomp();
-
-#
-#     if(/^\!/){next;} # Bei Kommentarzeichen ! aussteigen (Für Informationen)
-#     if(/^\*/){next;} # Bei Kommentarzeichen ! aussteigen (Für Informationen)
-
      if(/^\#/){
         # Bei Kommentarzeichen # unbearbeitet übernehmen
         print LEHRERTMP ("$_\n");
@@ -1359,6 +1343,13 @@ sub lehrer_ordnen {
       $quota,
       $mailquota)=split(/;/);
 
+     if(not defined $wunsch_login){
+        # go to next user when final ; is missing
+        print LEHRERTMP ("$_\n");
+        # next teacher
+        next;
+      } 
+
       # identifier erzeugen
       $identifier=join("",
                        ($nachname,
@@ -1375,48 +1366,21 @@ sub lehrer_ordnen {
      if ($wunsch_login eq "") {
          # gibt es lehrer schon im system, dann dort login holen
          print("\n\n\nAbbruch:\n\n");
-         print("Für die Lehrerin/den Lehrer  $vorname $nachname   ist kein Login-Name angegeben!\n\n");
-
-         print("\n\n  Wenn   $vorname $nachname   SCHON ANGELEGT ist, muss der im System eingetragene \n");
+         print("Für die Lehrerin/den Lehrer  $vorname $nachname   ",
+               "ist kein Login-Name angegeben!\n\n");
+         print("\n\n  Wenn   $vorname $nachname   SCHON ANGELEGT ist, ",
+               "muss der im System eingetragene \n");
          print("  Login-Name auch in lehrer.txt eingetragen werden  \n\n");
-
-         print("\n\n  Wenn   $vorname $nachname   NOCH NICHT ANGELEGT ist, kann ein beliebiger\n");
+         print("\n\n  Wenn   $vorname $nachname   NOCH NICHT ANGELEGT ",
+               "ist, kann ein beliebiger\n");
          print("  Login-Name in lehrer.txt eingetragen werden  \n\n");
-
         exit;
-
-# evtl .   ???????????????
-# Diese Manuelle Eingabe kann evtl. automatisiert werden
-
-# Wenn: Script von Helmut Krämer eine lehrer.protokoll erzeugt, könnte aus dieser der 
-# identifier und der zugehörige Login ermittelt werden
-# dies gilt nur für den Umstieg, ansonsten soll lehrer.txt eine Datei bleiben, die das erste mal aus dem 
-# Schulverwaltungsprogramm geholt wird und dann: nur noch von Hand editieren
-
-
-#       if (exists ($lehrer_im_system_loginname{$idenifier})){
-#         print("\n\n $identifier gibt es !!!\n\n");
-#       } else {
-#         print("\n\n $identifier gibt es nicht\n\n");
-#       }
-
-
-
-         # lehrer nicht im System gefunden -> neuer lehrer
-         # login muss angegeben werden, sonst Abbruch
-
-
-#         print ("Bei einem Lehrer MUSS ein Wunsch-Login angegeben werden\n");
-#         exit;
-#         $wunsch_login="wunschlogin";
-       }
-
+     }
 
      # Füllen der Felder
      if ($erst_passwort eq "") {
          $erst_passwort="---";
      }
-
 
      if (not defined $lehrer_kuerzel) {
          $lehrer_kuerzel="kurz";
@@ -1438,7 +1402,6 @@ sub lehrer_ordnen {
          $mailquota="mailquota";
      }
 
-
      # geordnete Zeile ausgeben
      printf LEHRERTMP ("%-6s %-14s %-14s %-11s %-8s %-8s %-4s %-6s %-11s",
            "$typ",
@@ -1457,9 +1420,6 @@ sub lehrer_ordnen {
    close(LEHRER);
    close(LEHRERTMP);
 
-
-
-
    open (LEHRERTMP, "<${DevelConf::users_pfad}/lehrer.tmp") 
        || die "Fehler: $!";
    while(<LEHRERTMP>) {
@@ -1467,7 +1427,6 @@ sub lehrer_ordnen {
        push @linien, $_;
      }
    close(LEHRERTMP);
-
  
    # alphabetisch sortieren
    @linien = sort @linien;
@@ -1481,7 +1440,6 @@ sub lehrer_ordnen {
         print LEHRER "$a";
       }
    close(LEHRER);
-
 
    system("rm ${DevelConf::users_pfad}/lehrer.tmp");
    system("chmod 700 ${DevelConf::users_pfad}/lehrer.txt");
