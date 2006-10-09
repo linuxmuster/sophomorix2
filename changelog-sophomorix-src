@@ -628,10 +628,6 @@ check if dir exists /var/lib/cyrus  ??? kommt mit paket
 
 paket: cyrus21-imapd
 
-siehe script: /usr/lib/linuxmuster/bin/cyrus-user.pl
-aus paket linuxmuster-base
-
-quota for mail
 
 ############################################################
 IMAP Tips
@@ -1145,16 +1141,11 @@ sophomorix-quota "  and imap_disconnect
 sophomorix-kill imap_disconnect and db_disconnect
 
 
-Thomas:
- - Cyrus::Imap::Admin can be removed
- - remove cyrus-user.pl
-
-
 Multi-Treffen:
 
 Feature Request:
   - austeilen an lehrer soll gehen (auch an einzelne)
-
+ 
 IMAP-cyrus
  - bisher noch keine subdirs im cyrus
  - wenn ein user kein postfach hat mit *-repair oder *-quota anlegen
@@ -1190,7 +1181,7 @@ Idea about logging:
   
 1) somesophomorix-scripts are not allowed to run simultaneously
      - sophomorix-check
-     - sohomorix-add
+     - sophomorix-add
      - sophomorix-move
      - sophomorix-kill
      - sophomorix-teach-in
@@ -1315,6 +1306,23 @@ Fehler: 0 quota for 2 filesystems
 KNOWN BUG: smbpasswd -d user tut nicht bei usern mitöäüÖÄÜß.
 
 
+Feature Request:
+
+user soll in schulkonsole dazuerhaft/immer sehen WER gerade 
+angemeldet ist.
+
+Klassen/Raum/... wechseln. wieso nicht schon, wenn ich im pulldown
+menue was wähle (Wechseln-button weglassen?)
+
+Austeilen an einzelne Lehrer/Alle Lehrer wäre möglich, wenn
+im Klassen wechseln menue die 'Klasse' Lehrer(Kollegium) erscheinen 
+würde.
+
+Andere ML's haben bunte Knöpfe in der Schulkonsole, linux nicht? 
+Why? Styleguide?
+
+man sophomorix-mail : es wird zuerst nach der nicht existierenden
+en manpage gesucht un die Deutsch nicht gefunden, obwwohl existent.
 
 
 
