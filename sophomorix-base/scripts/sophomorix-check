@@ -3264,64 +3264,75 @@ sub filter_school_admin_software {
      my ($line) = @_;
      # Todo: Variable with string in user.conf $admin_software="splan";
      # open splan.filter and Read the following lines from there
-       # SPLAN-Sonderzeichen BEGINN
-       #evtl recode ibmpc..lat1
-       # Falsches ' in richtiges umwandeln
-       $line=~s/`/'/g;
-       # ü umwandeln
-#       $line=~s/ü/ue/g;
-#       $line=~s/\201/ue/g;
-       $line=~s/\201/ü/g;
-       # Ü umwandeln
-#       $line=~s/Ü/Ue/g;
-#       $line=~s/\232/ue/g;
-       $line=~s/\232/Ü/g;
-       # ö umwandeln
-#       $line=~s/ö/oe/g;
-#       $line=~s/\224/oe/g;
-       $line=~s/\224/ö/g;
-       # Ö umwandeln
-#       $line=~s/Ö/Oe/g;
-#       $line=~s/\231/oe/g;
-       $line=~s/\231/Ö/g;
-       # ä umwandeln
-#       $line=~s/ä/ae/g;
-#       $line=~s/\204/ae/g;
-       $line=~s/\204/ä/g;
-       # Ä umwandeln
-       # gibt es nicht
-#       $line=~s/Ä/Ae/g;
-       # e mit Akzent  umwandeln
-       $line=~s/\202/e/g;
-       $line=~s/\212/e/g;
-       $line=~s/è/e/g;
-       $line=~s/é/e/g;
-       # a mit Akzent umwandeln
-       $line=~s/À/a/g;
-       # a mit Dach umwandeln
-       $line=~s/\203/a/g;
-       # o mit Akzent umwandeln
-       $line=~s/¢/o/g;
-       # o mit Dach umwandeln
-       $line=~s/\223/o/g;
-       # russisches i
-       $line=~s/ï/i/g;
-       # u mit akzent
-       s/£/u/g;
-       # SPLAN-Sonderzeichen ENDE
+     # SPLAN-Sonderzeichen BEGINN
+     #evtl recode ibmpc..lat1
+     # Falsches ' in richtiges umwandeln
+     $line=~s/`/'/g;
+     # ü umwandeln
+     if ($DevelConf::allow_umlaut eq "no"){
+           # ü
+           $line=~s/ü/ue/g;
+           $line=~s/\201/ue/g;
+           # Ü
+           $line=~s/Ü/Ue/g;
+           $line=~s/\232/Ue/g;
+           # ö
+           $line=~s/ö/oe/g;
+           $line=~s/\224/oe/g;
+           # Ö
+           $line=~s/Ö/Oe/g;
+           $line=~s/\231/Oe/g;
+           # ä
+           $line=~s/ä/ae/g;
+           $line=~s/\204/ae/g;
+           # Ä
+           $line=~s/Ä/Ae/g;
+           # ß
+           $line=~s/ß/ss/g;
+           $line=~s/á/ss/g;
+     } else {
+           # ü
+           $line=~s/\201/ü/g;
+           # Ü
+           $line=~s/\232/Ü/g;
+           # ö
+           $line=~s/\224/ö/g;
+           # Ö
+           $line=~s/\231/Ö/g;
+           # ä
+           $line=~s/\204/ä/g;
+           # Ä
+           # nothing to do
+           $line=~s/\204/Ä/g;
+      }
+      # e mit Akzent  umwandeln
+      $line=~s/\202/e/g;
+      $line=~s/\212/e/g;
+      $line=~s/è/e/g;
+      $line=~s/é/e/g;
+      # a mit Akzent umwandeln
+      $line=~s/À/a/g;
+      # a mit Dach umwandeln
+      $line=~s/\203/a/g;
+      # o mit Akzent umwandeln
+      $line=~s/¢/o/g;
+      # o mit Dach umwandeln
+      $line=~s/\223/o/g;
+      # russisches i
+      $line=~s/ï/i/g;
+      # u mit akzent
+      s/£/u/g;
+      # SPLAN-Sonderzeichen ENDE
 
-       # ß umwandeln
-#       $line=~s/ß/ss/g;
-#       $line=~s/á/ss/g;
-       $line=~s/á/ß/g;
-
-       # Sonderzeichen wegfallenlassen
-       # Minus streichen
-#       $line=~s/-//g;
-       # ' Streichen
-       # mit s/'//g; geht die Emacs-Formetierung nicht mehr
-       $line=~s/\'//g;
-       return $line;
+      # ß umwandeln
+      $line=~s/á/ß/g;
+      # Sonderzeichen wegfallenlassen
+      # Minus streichen
+#      $line=~s/-//g;
+      # ' Streichen
+      # mit s/'//g; geht die Emacs-Formatierung nicht mehr
+      $line=~s/\'//g;
+      return $line;
 }
 
 # Ende Sub
