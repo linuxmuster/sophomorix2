@@ -1696,10 +1696,10 @@ sub syntax_check_entry {
        }
     }
 
-
     if($birthdate eq ""){
        # empty, dont check for other errors
        $feld_geburt_leer=1
+    } elsif ($birthdate=~/[^0-9\.]/)  {
     } else {
        # check if date exists
        # return 1 when valid
