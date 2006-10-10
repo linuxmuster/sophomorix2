@@ -1573,7 +1573,10 @@ sub check_datei_exit {
      print "  wurde nicht gefunden.\n\n";
      print "  Sie muss vorhanden sein.\n\n";
      print "  $scriptname beendet sich deshalb!\n\n";
-     exit;
+     &log_script_exit("$datei existiert nicht",
+                         1,1,0,@arguments);
+
+     #exit;
   } 
 }
 
