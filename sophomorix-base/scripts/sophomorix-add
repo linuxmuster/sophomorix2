@@ -109,7 +109,7 @@ Options
 Please see the sophomorix-add(8) man pages for full documentation
 ');
    print "\n";
-   exit;
+   &log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -153,7 +153,7 @@ if ($info==1) {
    close(SOPHOMORIXADD);
    &linie;
    print "$count users can be added\n";
-   exit;
+   &log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -193,12 +193,7 @@ my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
 # Abbruch, wenn sophomorix.add fehlt oder leer
 # ===========================================================================
 if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.add")) {
-  print "\n  Die Datei\n\n";
-  print "    ${DevelConf::ergebnis_pfad}/sophomorix.add\n\n";
-  print "  ist leer oder wurde nicht gefunden.\n\n";
-  print "  Es sind keine User anzulegen\n\n";
-  print "   sophomorix-add beendet sich deshalb!\n\n";
-  exit; 
+  &log_script_exit("No users to add!",1,1,0,@arguments);
 }
 
 
@@ -453,9 +448,9 @@ if ($Conf::use_quota eq "yes"
     and $user_nummer>0
     and $user_nummer<101) {
     my $users=join(",",@users_for_quota);
-    system("${DevelConf::executable_pfad}/sophomorix-quota --users $users --noninteractive");
+    system("${DevelConf::executable_pfad}/sophomorix-quota --skiplock --users $users --noninteractive");
 } elsif ($Conf::use_quota eq "yes" and $user_nummer>100){
-    system("${DevelConf::executable_pfad}/sophomorix-quota --students --teachers --noninteractive");
+    system("${DevelConf::executable_pfad}/sophomorix-quota --skiplock --students --teachers --noninteractive");
 } else {
     if ($user_nummer==0){ 
         &titel("NOT setting quota (0 users added)");
@@ -466,7 +461,7 @@ if ($Conf::use_quota eq "yes"
 
 # Creating Mailing Aliases and Lists
 if ($user_nummer>0) {
-    system("${DevelConf::executable_pfad}/sophomorix-mail");
+    system("${DevelConf::executable_pfad}/sophomorix-mail --skiplock");
 } else {
     &titel("NOT creating mailaliases/lists (0 users added)");
 }
@@ -491,7 +486,7 @@ if ($user_nummer>0) {
 sub print {
    if ($DevelConf::testen==0) {
       # Mit 1mal sophomorix-print aufrufen sollte es tun, tut es aber nicht
-      system("$DevelConf::executable_pfad/sophomorix-print");
+      system("$DevelConf::executable_pfad/sophomorix-print --skiplock");
    } else {
        &titel("NOT generating print data (Test)");
 #      print "\n\nDruckdaten werden NICHT erzeugt: Testmodus\n\n"; 

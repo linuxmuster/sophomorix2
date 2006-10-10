@@ -42,12 +42,14 @@ $Conf::log_level=1;
 my $help=0;
 my $info=0;
 my $show_mailbox=0;
+my $skiplock=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
            "showmailbox|showmailboxes" => \$show_mailbox,
+           "skiplock" => \$skiplock,
            "info|i" => \$info
           );
 

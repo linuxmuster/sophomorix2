@@ -174,7 +174,7 @@ What passwords to use:
          - else: generate a random 10 digit number as password
 ');
    print "\n";
-   exit;
+   &log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -492,7 +492,7 @@ print "\n";
 
 if ($info==1){
     # show values only
-    exit;
+    &log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -989,9 +989,6 @@ system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlog
 
 
 &log_script_end(@arguments);
-
-
-exit;
 
 
 

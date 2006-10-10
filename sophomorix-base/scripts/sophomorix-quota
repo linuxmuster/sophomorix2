@@ -60,6 +60,7 @@ my $administrator=0;
 my $rooms="";
 my $ws=0;
 my $force=0;
+my $skiplock=0;
 my $sum=0;
 my $system=0;
 my $set=0;
@@ -75,6 +76,7 @@ my $testopt=GetOptions(
            "room|rooms=s" => \$rooms,
            "workstations|workstation|w" => \$ws,
            "force" => \$force,
+           "skiplock" => \$skiplock,
            "set" => \$set,
            "test" => \$DevelConf::testen,
            "sum" => \$sum,
@@ -104,11 +106,11 @@ if($Conf::use_quota ne "yes" and $noninteractive==0){
   print "\nsophomorix.conf says:  You don't want to use quota.\n\n";
   print "Set  \$use_quota=\"yes\"  in sophomorix.conf to use quota.\n\n";
   print "For more information:  man sophomorix-quota \n\n";
-  exit;
+  &log_script_exit("",1,1,0,@arguments);
 } elsif ($Conf::use_quota ne "yes" and $noninteractive==1){
   # ... or do nothing
   &titel("sphomorix-quota: Not Setting quota ... \$use_quota=\"no\"");
-  exit; 
+  &log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -141,7 +143,7 @@ Options
 Please see the sophomorix-quota(8) man page for full documentation
 ');
    print "\n";
-   exit;
+   &log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -202,9 +204,8 @@ if ($info==1) {
      $l=$l+1;
      print"  Filesystem ${l}:    $fs     to $mb_liste[${l}-1] MB\n";
    }
-
    print "\n\n";
-   exit;
+   &log_script_exit("",1,1,0,@arguments);
 }
 
 

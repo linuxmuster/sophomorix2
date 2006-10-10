@@ -133,7 +133,7 @@ Options
 Please see the sophomorix-check(8) man pages for full documentation
 ');
    print "\n";
-   exit;
+   &log_script_exit("",1,1,0,@arguments);
 }
 
 &check_connections();
@@ -462,10 +462,8 @@ if ($Conf::filter_script eq ""){
         &titel("Running filter script $Conf::filter_script.");
         system("$Conf::filter_script");
     } else {
-        print "\nERROR:\n";
-        print "  Filter script $Conf::filter_script not found or not executable!\n";
-        print "  Set correct filter script in sophomorix.conf",
-              " and make sure it is executable\n\n";
+        &log_script_exit("ERROR: Filter script not found or not executable!",
+                         1,1,0,@arguments);
         exit;
     }
 }
@@ -593,12 +591,13 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
 
    # exit if filterscript does not create schueler.txt.tmp
    if (not -e ${DevelConf::schueler_datei} and $Conf::filter_script ne ""){
-       print "You have configured to use the following filter script:\n";
-       print "   $Conf::filter_script\n";
-       print "This script was called but no file\n";
-       print "   ${schuelerdatei} \n";
-       print "was created by the filter script to continue.\n";
-       exit;
+#       print "You have configured to use the following filter script:\n";
+#       print "   $Conf::filter_script\n";
+#       print "This script was called but no file\n";
+#       print "   ${schuelerdatei} \n";
+#       print "was created by the filter script to continue.\n";
+       &log_script_exit("ERROR: Filterscript $Conf::filter_script doesnt create ${schuelerdatei}",1,1,0,@arguments);
+#       exit;
    }
 
    open(USERDATEI, "${schuelerdatei}") || 
@@ -1754,12 +1753,15 @@ sub syntax_check_entry {
         # nix tun, kein wunsch_login angegeben
     }  elsif ($wish_login=~/[^a-z0-9]/){
         # Fehlerhafter Wunsch-Login
-        print "\n\n\nSYNTAXFEHLER!\n";
-        print "\n\n  ---$wish_login---    enthält Sonderzeichen\n\n";
-        print "\n\n  Beheben sie diesen Fehler in /etc/sophomorix/user/extrakurse.txt\n\n";
-        print "\n\n  Und starten sie das Programm neu.\n\n";
+#        print "\n\n\nSYNTAXFEHLER!\n";
+#        print "\n\n  ---$wish_login---    enthält Sonderzeichen\n\n";
+#        print "\n\n  Beheben sie diesen Fehler in /etc/sophomorix/user/extrakurse.txt\n\n";
+#        print "\n\n  Und starten sie das Programm neu.\n\n";
         # Programm beenden
-           exit;
+        &log_script_exit("ERROR: $wish_login contains unvalid chars",
+                         1,1,0,@arguments);
+
+        #   exit;
     } else {
         if($Conf::log_level>=3){
 	   print " ... Wunschlogin  $wish_login OK in $filename ...\n";
@@ -2906,9 +2908,10 @@ sub get_action_date {
            $days=$Conf::schueler_deaktivierung_tage;
        }
     } else {
-        print "Error fetching sequenz_date! \n";
-        print "Unknown Parameter $type! \n";
-        exit;
+#        print "Error fetching sequenz_date! \n";
+#        print "Unknown Parameter $type! \n";
+        &log_script_exit("ERROR: fetching sequenz_date!",1,1,0,@arguments);
+        #exit;
     }
     $l_month=$l_month-1;
     $l_year=$l_year-1900;

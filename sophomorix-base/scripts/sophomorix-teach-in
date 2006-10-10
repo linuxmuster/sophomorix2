@@ -165,7 +165,7 @@ Options
 
 Please see the sophomorix-teach-in(8) man pages for full documentation
 ');
-   exit;
+   &log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -206,7 +206,7 @@ $match_fehlertoleranz="25";
            print "  Fehlertoleranz $match_fehlertoleranz ist nicht zulässig! \n";
            print "  Zulässige Argumente sind 5 bis 60 \n";
            print "    (in 5-er Schritten) \n";
-           exit;
+           &log_script_exit("",1,1,0,@arguments);
        }
 }
 
@@ -236,7 +236,7 @@ if ($info==1){
         print "Action ($count) can be undone.\n";
     }
     close(HISTORY);
-    exit;
+    &log_script_exit("",1,1,0,@arguments);
 }
 
 # --redo
@@ -303,7 +303,7 @@ if ($undo_login ne ""){
     } else {
        print "Sorry: Could not find loginname $undo_login\n";
     }
-    exit;
+    &log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -355,7 +355,7 @@ if ($ignored_users==1){
     foreach my $item (@list){
    printf "%-12s: %-64s\n",$item,$ignored_users{$item};
     }
-    exit;
+    &log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -519,7 +519,7 @@ foreach $identifier (@toleration){
             or exists $show_ambiguous_logins{$login}){
               print "::\n";
        }
-       exit;
+       &log_script_exit("",1,1,0,@arguments);
 #   } elsif ( ( $all==1 or $next!=0 ) and $teach_in_nummer==0){
     } elsif ( ( $all==1 or $next!=0 ) and $teach_in_nummer==0){
        if ((not exists $teach_in_hash{$login}

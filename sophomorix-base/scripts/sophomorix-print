@@ -139,6 +139,7 @@ my $caller="";
 my $command="latex";
 my $gruppe="";
 my $one_per_page=0;
+my $skiplock=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -151,6 +152,7 @@ my $testopt=GetOptions(
            "caller|postfix=s" => \$caller,
            "command=s" => \$command,
            "one-per-page" => \$one_per_page,
+           "skiplock" => \$skiplock,
            "info|i" => \$info
           );
 

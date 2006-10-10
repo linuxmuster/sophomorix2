@@ -95,6 +95,7 @@ install-base:
 	##### some dirs
 	install -d -m700 -oroot -groot $(LIBDIR)
 	install -d -m700 -oroot -groot $(LIBDIR)/tmp
+	install -d -m700 -oroot -groot $(LIBDIR)/lock
 	install -d -m700 -oroot -groot $(LIBDIR)/print-data
 	install -d -m700 -oroot -groot $(LIBDIR)/database
 	install -d -m755 -oroot -groot $(CACHEDIR)

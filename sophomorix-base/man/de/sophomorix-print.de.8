@@ -71,6 +71,11 @@ Der Dateiname und der Inhalt der Datei enthält den String name. Dies
 kann z.B beim Aufruf aus webmin verwendet werden, um den Aufrufenden
 Lehrer (caller) mit auszudrucken.
 .TP
+.B --skiplock
+prüft nicht, ob die sophomorix lock-Datei existiert. Führt das Script
+also auch dann aus, wenn andere sophomorix-Befehle gerade laufen. Sollte nur
+benutzt werden, wenn man weiss, was man tut.
+.TP
 .SH SEE ALSO
 .BR sophomorix (8),
 .BR sophomorix-teach-in (8),

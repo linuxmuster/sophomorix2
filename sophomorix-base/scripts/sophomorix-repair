@@ -99,7 +99,7 @@ Limit the repair to some users:
 
 Please see the sophomorix-repair(8) man pages for full documentation
 ');
-   exit; 
+   &log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -112,7 +112,7 @@ if ($filename ne "") {
       $repair_directories="$filename";
    } else {
       print "\n   ABBRUCH - Nichtexistierende Datei: $filename\n\n";
-      exit;
+      &log_script_exit("Nonexisting file $filename",1,1,0,@arguments);
     }
 }
 
@@ -180,13 +180,13 @@ my @workstations=&fetchworkstations_from_school();
 # --permissions
 if ($dateirechte==1 or $info==1) {
    &repair_directories();
-   exit;
+   &log_script_exit("",1,1,0,@arguments);
 }
 
 # --htaccess
 if ($htaccess==1){
    &repair_htaccess();
-   exit;
+   &log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -209,7 +209,7 @@ sub repair_htaccess {
         my $access=&fetchhtaccess_from_group($group);
         &set_htaccess_for_group($group,$access);
     }
-exit;
+    &log_script_exit("",1,1,0,@arguments);
     print "Repairing htaccess files of students:\n";
     foreach my $student (@schueler){
         my $access=&fetchhtaccess_from_user($student);
@@ -374,9 +374,8 @@ sub repair_directories {
 
        # Abbruch, falls verschiedene Gruppenplatzhalter
        if ($gruppen_anzahl > 1){
-             print "\nFehler: Gruppen-Platzhalter-Anzahl $gruppen_anzahl.",
-                   " ABBRUCH.\n\n";
-             exit;
+             &log_script_exit("ERROR: Gruppen-Platzhalter-Anzahl $gruppen_anzahl",
+                              1,1,0,@arguments);
        }
 
        # User auswählen
@@ -421,8 +420,8 @@ sub repair_directories {
 
        # Abbruch, falls verschiedene Userplatzhalter
        if ($user_anzahl > 1){
-             print "\nFehler: User-Platzhalter-Anzahl:  $user_anzahl. ABBRUCH.\n\n";
-             exit;
+             &log_script_exit("ERROR: User-Platzhalter-Anzahl:  $user_anzahl",
+                              1,1,0,@arguments);
        }
          
        # Verzeichnis reparieren

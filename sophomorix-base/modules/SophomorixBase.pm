@@ -58,6 +58,7 @@ use Quota;
               append_teach_in_log
               log_script_start
               log_script_end
+              log_script_exit
               archive_log_entry
               backup_amk_file
               get_mail_alias_from
@@ -2301,19 +2302,55 @@ sub append_teach_in_log {
 sub log_script_start {
     my @arguments = @_;
     my $timestamp = `date '+%Y-%m-%d %H:%M:%S'`;
+    my $locking_script="";
+    my $skiplock=0;
+    # scripts that are locking the system
     chomp($timestamp);
     my $log="${timestamp}::start::  $0";
+    my $lock="lock::${timestamp}::creator::$0";
+    my $log_locked="${timestamp}::locked:: $0";
     foreach my $arg (@arguments){
+        if ($arg eq "--skiplock"){
+            $skiplock=1;
+        }
         if ($arg eq ""){
    	    $log=$log." ''";
         } else {
 	    $log=$log." ".$arg ;
         }
     }
+
     $log=$log."\n";
+
     open(LOG,">>$DevelConf::log_command");
     print LOG "$log";
     close(LOG);
+
+    # exit if lockfile exists
+    if (-e $DevelConf::lock_file and $skiplock==0){
+        my @lock=(); 
+        open(LOCK,"<$DevelConf::lock_file") || die "Cannot create lock file \n";;
+        while (<LOCK>) {
+            @lock=split(/::/);
+        }
+        close(LOCK);
+        open(LOG,">>$DevelConf::log_command");
+        print LOG "$log_locked";
+        close(LOG);
+        $locking_script=$lock[3];
+        
+        &titel("sophomorix has been locked by $locking_script");
+        &titel("try again later ...");
+        exit;
+    }
+
+    if (exists ${DevelConf::lock_scripts}{$0}){
+        &titel("Creating lock in $DevelConf::lock_file");    
+        open(LOCK,">$DevelConf::lock_file") || die "Cannot create lock file \n";;
+#        print LOCK "$lock::locked by $0\n";
+        print LOCK "$lock";
+        close(LOCK);
+    }
 }
 
 sub log_script_end {
@@ -2328,7 +2365,42 @@ sub log_script_end {
     open(LOG,">>$DevelConf::log_command");
     print LOG "$log";
     close(LOG);
+    # remove lock file
+    if (-e $DevelConf::lock_file
+         and exists ${DevelConf::lock_scripts}{$0}){
+	unlink $DevelConf::lock_file;
+        &titel("Removing lock in $DevelConf::lock_file");    
+    }
     &titel("$0 terminated regularly");
+}
+
+sub log_script_exit {
+    my $message=shift;
+    # return 0: normal end, return=1 unexpected end 
+    my $return=shift;
+    my $unlock=shift;
+    my $skiplock=shift;
+
+    my @arguments = @_;
+    my $timestamp = `date '+%Y-%m-%d %H:%M:%S'`;
+    chomp($timestamp);
+    my $log="${timestamp}::exit ::  $0::$message";
+    foreach my $arg (@arguments){
+	$log=$log." ".$arg ;
+    }
+    $log=$log."\n";
+    open(LOG,">>$DevelConf::log_command");
+    print LOG "$log";
+    close(LOG);
+    # remove lock file
+    if (-e $DevelConf::lock_file
+         and exists ${DevelConf::lock_scripts}{$0}){
+	unlink $DevelConf::lock_file;
+    }
+    if ($message ne ""){
+        &titel("$message");
+    }
+    exit;
 }
 
 

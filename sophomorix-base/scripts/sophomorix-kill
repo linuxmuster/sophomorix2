@@ -87,7 +87,7 @@ Options
 Please see the sophomorix-kill(8) man pages for full documentation
 ');
    print "\n";
-   exit;
+   &log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -103,12 +103,7 @@ if ($loginname ne "") {
 # Abbruch, wenn sophomorix.kill fehlt oder leer
 # ===========================================================================
 if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.kill")) {
-  print "\n  Die Datei\n\n";
-  print "    ${DevelConf::ergebnis_pfad}/sophomorix.kill\n\n";
-  print "  ist leer oder wurde nicht gefunden.\n\n";
-  print "  Es sind keine User zu löschen\n\n";
-  print "   sophomorix-kill beendet sich deshalb!\n\n";
-  exit; 
+  &log_script_exit("No users to kill!",1,1,0,@arguments);
 }
 
 
@@ -132,7 +127,7 @@ if ($info==1) {
     close(KILL);
     &linie;
     print "$count users can be killed\n";
-    exit;
+    &log_script_exit("",1,1,0,@arguments);
 }
 
 &check_connections();
@@ -303,7 +298,7 @@ if ($DevelConf::testen==0) {
 
 # Creating Mailing Aliases and Lists
 if ($user_nummer>0) {
-    system("${DevelConf::executable_pfad}/sophomorix-mail");
+    system("${DevelConf::executable_pfad}/sophomorix-mail --skiplock");
 } else {
     &titel("NOT creating mailaliases/lists (0 users removed)");
 }
