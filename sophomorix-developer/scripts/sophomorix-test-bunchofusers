@@ -209,9 +209,9 @@ if ($add==1 and not -e "/root/sophomorix-test/bunchofusers"){
 
 
     # creating some projects
-    system("sophomorix-project --create -p astro --Longname Astronomie --Admins tycho,niko --Members altigru,thuraudi,blackmri,pageji");
-    system("sophomorix-project --create -p chemie --Longname Chemie-AG --Admins bruno,tycho --Members altigru,thuraudi,hannes,lordjo,gillania");
-    system("sophomorix-project --create -p micro --Longname Mikroskopie --Admins hannes --Members altigru,thuraudi,hinaulbe,raasja");
+    system("sophomorix-project --create -p astro  --Admins tycho,niko --Members altigru,thuraudi,blackmri,pageji");
+    system("sophomorix-project --create -p chemie --Admins bruno,tycho --Members altigru,thuraudi,hannes,lordjo,gillania");
+    system("sophomorix-project --create -p micro  --Admins hannes --Members altigru,thuraudi,hinaulbe,raasja");
 
     # teacher tycho and bruno join a class 
     system("sophomorix-teacher --teacher bruno --add 11a");
@@ -389,7 +389,7 @@ if ($handout==1 and -e "/root/sophomorix-test/bunchofusers"){
 ';
    # DISTRIBUTE (Vorlagen)
    $vorlagen_teacher="niko";
-   $vorlagen_gruppe="astro";
+   $vorlagen_gruppe="p_astro";
    $type="project";
 
    # Working with these files
@@ -400,8 +400,8 @@ if ($handout==1 and -e "/root/sophomorix-test/bunchofusers"){
                        "thuraudi",
                        "blackmri",
                        "pageji");
-   $dirname="Astronomie";
-   $linkname="Astronomie";
+   $dirname="p_astro";
+   $linkname="p_astro";
    &vorlagen_bereitstellen($vorlagen_teacher,
                            $vorlagen_gruppe,
                            $type);
@@ -500,8 +500,8 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
    &dateien_einsammeln_userliste($einsammeln_teacher,
                             $userliste_collect,
                             $einsammeln_option,
-                            "--fromproject astro",
-                            "astro"
+                            "--fromproject p_astro",
+                            "p_astro"
                            );
     print '
 ###########################################################################
@@ -732,7 +732,7 @@ if ($collect==1 and -e "/root/sophomorix-test/bunchofusers"){
 ';
    # COLLECT copy (Vorlagen) from project
    $einsammeln_teacher="niko";
-   $einsammeln_gruppe="astro";
+   $einsammeln_gruppe="p_astro";
    $einsammeln_type="project";
    $einsammeln_option="collectcopy";
    $einsammeln_exam="";
@@ -774,12 +774,17 @@ if ($handoutcopy==1 and -e "/root/sophomorix-test/bunchofusers"){
    @userlist_to_check=("altigru",
                        "blackmri",
                        "pageji",
-                       "thuraudi",
-                       "pc0003",
-                       "pc0004",
-                       "Rechner1",
-                       "Rechner2");
-   my $userliste="altigru,blackmri,pageji,thuraudi,pc0003,pc0004,Rechner1,Rechner2";
+                       "thuraudi");
+#   @userlist_to_check=("altigru",
+#                       "blackmri",
+#                       "pageji",
+#                       "thuraudi",
+#                       "pc0003",
+#                       "pc0004",
+#                       "Rechner1",
+#                       "Rechner2");
+   my $userliste="altigru,blackmri,pageji,thuraudi";
+#   my $userliste="altigru,blackmri,pageji,thuraudi,pc0003,pc0004,Rechner1,Rechner2";
 
 
    &handoutcopy_files($handout_teacher,$userliste,"room","--fromroom","room");   
@@ -813,7 +818,7 @@ if ($handoutcopy==1 and -e "/root/sophomorix-test/bunchofusers"){
 
 
    &handoutcopy_files($handout_teacher,$userliste,"project",
-                      "--fromproject astro","astro");   
+                      "--fromproject p_astro","p_astro");   
 
 
 } elsif ($handoutcopy==1 and not -e "/root/sophomorix-test/bunchofusers"){
@@ -841,7 +846,7 @@ if ($remove==1 and -e "/root/sophomorix-test/bunchofusers"){
 ###########################################################################
 ';
     # removing projects
-    system("sophomorix-project --kill -p astro");
+    system("sophomorix-project --kill -p p_astro");
     system("sophomorix-project --kill -p chemie");
     system("sophomorix-project --kill -p micro");
 
