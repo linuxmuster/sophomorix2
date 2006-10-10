@@ -628,6 +628,15 @@ if($Conf::log_level>=3){
 
 # ONE ENTRY PER PAGE
 if ($one_per_page==1){
+    # fetch dnsdomainname and hostname
+    my $hostname=`hostname`;
+    chomp($hostname);
+    print "$hostname \n";
+    my $dnsdomainname=`dnsdomainname`;
+    chomp($dnsdomainname);
+    print "$dnsdomainname \n";
+    my $server=$hostname.".".$dnsdomainname;
+    
 
     # read the template into variable
     my $template=${DevelConf::latex_templates}."/login-info-".${Conf::lang}.".tex";
@@ -683,6 +692,27 @@ if ($one_per_page==1){
         print LATEX ('{',"Login: $loginname_protokoll",'}');
         # 5 Passwort
         print LATEX ('{',"Passwort: $passwort_protokoll",'}',"\n");
+
+
+        # schulkonsole
+        print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
+        print LATEX "Pädagogische Funktionen mit der Schulkonsole im Intranet:\n\n";
+        print LATEX " URL: \\texttt{https://${server}/schulkonsole/}\n\n";
+
+        # horde
+        print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
+        print LATEX "Webmail mit Horde: \n\n";
+        print LATEX " URL: \\texttt{https://${server}/horde3}\n\n";
+
+        # ogo
+        print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
+        print LATEX " Groupware mit Opengroupware: \n\n";
+        print LATEX " URL: \\texttt{https://${server}/ogo}\n\n";
+
+        # moodle
+        print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
+        print LATEX " Lernplattform mit Moodle: \n\n";
+        print LATEX " URL: \\texttt{https://${server}/moodle}\n\n";
 
         print LATEX "\\newpage \n\n";
    }
