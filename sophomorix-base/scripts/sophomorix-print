@@ -696,6 +696,25 @@ if ($one_per_page==1){
         print LATEX ('{',"Passwort: $passwort_protokoll",'}',"\n");
 
 
+        # windows
+        print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
+        print LATEX "Anmeldung an einem Windowsrechner:\n\n";
+        print LATEX "\\begin{tabbing}\n";
+        print LATEX " Benutzername:\\qquad \\= \\texttt{$loginname_protokoll} \\\\ \n";
+        print LATEX " Kennwort:     \\> \\texttt{$passwort_protokoll} \\\\ \n";
+        print LATEX " Domäne:       \\> \\texttt{???} \\\\ \n";
+        print LATEX "\\end{tabbing}\n\n";
+        print LATEX "\\vspace{-6mm}\n\n";
+
+        # linux 
+        print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
+        print LATEX "Anmeldung an einem Linuxrechner:\n";
+        print LATEX "\\begin{tabbing}\n";
+        print LATEX " Login:\\qquad\\qquad \\= \\texttt{$loginname_protokoll} \\\\ \n";
+        print LATEX " Passwort: \\> \\texttt{$passwort_protokoll} \\\\ \n";
+        print LATEX "\\end{tabbing}\n";
+        print LATEX "\\vspace{-6mm}\n\n";
+
         # schulkonsole
         print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
         print LATEX "Pädagogische Funktionen mit der Schulkonsole im Intranet:\n\n";
