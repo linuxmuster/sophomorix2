@@ -2567,20 +2567,20 @@ sub imap_show_mailbox_info {
     while (my ($key) = each %hash){
         push @mailboxes_cleaned, $key;
     }
-    print "+----------------------------+----+",
+    print "+----------------------------+------+",
           "--------------------+-------------+\n";
-    printf "| %-27s|%-3s %-19s| %-12s|\n",
+    printf "| %-27s| %4s | %-19s| %12s|\n",
            "Mailbox","Dirs", "Used Mailquota","Mailquota";
-    print "+----------------------------+----+",
+    print "+----------------------------+------+",
           "--------------------+-------------+\n";
     @mailboxes_cleaned = sort @mailboxes_cleaned;
     foreach my $box (@mailboxes_cleaned){
 	#print $box,"\n";
         my @data=&imap_fetch_mailquota($imap,$box,1,1);
-        printf "| %-27s|%-3s %-19s| %-12s|\n",
+        printf "| %-27s| %4s | %-19s| %12s|\n",
                $data[0],$hash{$data[0]},$data[1],$data[2];
     }
-    print "+----------------------------+----+",
+    print "+----------------------------+------+",
           "--------------------+-------------+\n";
 }
 
