@@ -2552,30 +2552,36 @@ sub imap_show_mailbox_info {
     my @mailboxes = $imap->list("user.*"); # one entry per dir
     my @mailboxes_cleaned=(); # one entry per user
     my %hash=();
+    my $dircount=0;
     foreach my $entry (@mailboxes){
         # remove doubles
         my ($string1,$string2)=split(/\./,$entry);
         $entry=$string1.".".$string2;
         if (not exists $hash{$entry}){
-	    print "Add $entry \n";
-           $hash{$entry}="";
+	   # print "Add $entry \n";
+           $hash{$entry}=1;
+        } else {
+	    $hash{$entry}=$hash{$entry}+1;
         }
     }
     while (my ($key) = each %hash){
         push @mailboxes_cleaned, $key;
     }
-    print "+----------------------------+",
+    print "+----------------------------+----+",
           "--------------------+-------------+\n";
-    printf "| %-27s| %-19s| %-12s|\n","Mailbox","Used Mailquota","Mailquota";
-    print "+----------------------------+",
+    printf "| %-27s|%-3s %-19s| %-12s|\n",
+           "Mailbox","Dirs", "Used Mailquota","Mailquota";
+    print "+----------------------------+----+",
           "--------------------+-------------+\n";
     @mailboxes_cleaned = sort @mailboxes_cleaned;
     foreach my $box (@mailboxes_cleaned){
 	#print $box,"\n";
         my @data=&imap_fetch_mailquota($imap,$box,1,1);
-        printf "| %-27s| %-19s| %-12s|\n",$data[0],$data[1],$data[2];
+        printf "| %-27s|%-3s %-19s| %-12s|\n",
+               $data[0],$hash{$data[0]},$data[1],$data[2];
     }
-    print "+----------------------------+--------------------+-------------+\n";
+    print "+----------------------------+----+",
+          "--------------------+-------------+\n";
 }
 
 
