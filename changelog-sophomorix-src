@@ -1265,8 +1265,6 @@ there is a warning (check if the script is interrupted)
 make latex-template/login-info.tex more fancy.
   - where to log in windows
   - where to log in linux
-  - schulkonsole
-  - how to check mail
 
 add a custom login-info:
 
@@ -1315,10 +1313,18 @@ man sophomorix-mail : es wird zuerst nach der nicht existierenden
 en manpage gesucht un die Deutsch nicht gefunden, obwwohl existent.
 
 
+cyrus: anzahl mailordner ausgeben
 
 ================== CHANGELOG ========================================
 
 1.8.15-1 (2006-09-xx)
+   - sophomorix-mail --showmailboxes shows number of dirs of a users 
+     mailbox
+   - added moodle,ogo,schulkonsole,horde to
+     sophomorix-print --one-per-page
+   - Make sophomorix-test-bunchofusers work with Capital letters 
+   - Make use of ‰ˆ¸ƒ÷‹ﬂ configurable in sophomorix-devel.conf
+     (Standard: allow_umlaut="no")   
    - Bugfix: when 3rd field contains birthday, do NOT throw warning
              anymore; continue orderly
    - Bugfix: when 4th ; in lehrer.txt is missing, no error is thrown
