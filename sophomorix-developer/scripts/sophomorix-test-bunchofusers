@@ -1297,8 +1297,8 @@ sub get_login_from_user {
     if ($class eq "lehrer"){
         $class="teachers",
     }
-    $last=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
-    $first=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
+    #$last=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
+    #$first=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
 
     $birth=&date_perl2pg($birth);
 
