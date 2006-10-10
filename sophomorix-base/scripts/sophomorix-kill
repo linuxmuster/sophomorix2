@@ -114,23 +114,25 @@ if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.kill")) {
 
 # --info
 if ($info==1) {
-   # Ausgabe der loeschbaren user
-
-   print "\nFolgende User können endgültig gelöscht werden:\n\n";
-   print "Loginname   AdminClass   Identifier\n";
-   &linie;
-   open(KILL,"${DevelConf::ergebnis_pfad}/sophomorix.kill") || die "Fehler: $!";
-     while(<KILL>){
-       chomp();
-       ($identifier_to_kill, $login_name_to_kill)=split(/::/);
-       # Klasse ermitteln
-       ($linux_gruppe_to_kill)=&pg_get_group_list($login_name_to_kill);
-       printf "%-11s %-12s %-40s\n",
-              "$login_name_to_kill","$linux_gruppe_to_kill","$identifier_to_kill";
-     }
-   close(KILL);
-   print "\n";
-   exit;
+    my $count=0;
+    # Ausgabe der loeschbaren user
+    print "\nFolgende User können endgültig gelöscht werden:\n\n";
+    print "Loginname   AdminClass   Identifier\n";
+    &linie;
+    open(KILL,"${DevelConf::ergebnis_pfad}/sophomorix.kill") || die "Fehler: $!";
+       while(<KILL>){      
+          chomp();
+          $count++;
+          ($identifier_to_kill, $login_name_to_kill)=split(/::/);
+          # Klasse ermitteln
+          ($linux_gruppe_to_kill)=&pg_get_group_list($login_name_to_kill);
+          printf "%-11s %-12s %-40s\n",
+                "$login_name_to_kill","$linux_gruppe_to_kill","$identifier_to_kill";
+       }
+    close(KILL);
+    &linie;
+    print "$count users can be killed\n";
+    exit;
 }
 
 &check_connections();

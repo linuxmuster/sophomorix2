@@ -115,40 +115,44 @@ Please see the sophomorix-add(8) man pages for full documentation
 
 # --info
 if ($info==1) {
+   my $count=0;
    # Ausgabe der Anlegbaren user
    print "\nThe following users can be added:\n";
    print "(Fields with --- are automatically created by sophomorix-add):\n\n";
-   printf "%-10s%-6s%-11s%-4s%-10s%-10s%-29s\n",
+   printf "%-11s%-29s%-10s%-6s%-4s%-10s%-10s\n",
+          "AdminClass",
+          "Identifier",
           "login",
           "id",
-          "AdminClass",
           "gid",
           "Old-Pass",
-          "unid",
-          "Identifier";
+          "unid";
    &linie;
 
-   open(SOPHOMORIXADD,"${DevelConf::ergebnis_pfad}/sophomorix.add") || die "Fehler: $!";
-      while(<SOPHOMORIXADD>){
-        chomp();
-        ($new_admin_group,
-         $identifier,
-         $wunsch_login,
-         $wunsch_passwort,
-         $wunsch_id,
-         $wunsch_gid,
-         $unid)=split("::");
-        printf "%-10s%-6s%-11s%-4s%-10s%-10s%-29s\n",
-               "$wunsch_login",
-               "$wunsch_id", 
-               "$new_admin_group",
-	       "$wunsch_gid",
-               "$wunsch_passwort",
-               "$unid", 
-               "$identifier";
-     }
+   open(SOPHOMORIXADD,"${DevelConf::ergebnis_pfad}/sophomorix.add") || 
+             die "Fehler: $!";
+   while(<SOPHOMORIXADD>){
+       chomp();
+       $count++;
+       ($new_admin_group,
+       $identifier,
+       $wunsch_login,
+       $wunsch_passwort,
+       $wunsch_id,
+       $wunsch_gid,
+       $unid)=split("::");
+       printf "%-11s%-29s%-10s%-6s%-4s%-10s%-10s\n",
+              "$new_admin_group",
+              "$identifier",
+              "$wunsch_login",
+              "$wunsch_id", 
+	      "$wunsch_gid",
+              "$wunsch_passwort",
+              "$unid";
+   }
    close(SOPHOMORIXADD);
-   print "\n";
+   &linie;
+   print "$count users can be added\n";
    exit;
 }
 
