@@ -138,6 +138,7 @@ my $lehrer=0;
 my $caller="";
 my $command="latex";
 my $gruppe="";
+my $classlist="";
 my $one_per_page=0;
 my $skiplock=0;
 
@@ -147,6 +148,7 @@ my $testopt=GetOptions(
            "show|s" => \$show,
            "all|a" => \$alle,
            "class|c=s" => \$gruppe,
+           "classlist=s" => \$classlist,
            "help|h" => \$help,
            "teacher|t" => \$lehrer,
            "caller|postfix=s" => \$caller,
@@ -210,6 +212,8 @@ if ($alle==1){
    $klasse_filename_part=${DevelConf::teacher};
 }elsif ($gruppe ne ""){
    $klasse_filename_part="$gruppe";
+}elsif ($classlist ne ""){
+   $klasse_filename_part="$classlist-classlist";
 } else {
    $klasse_filename_part="add";
 }
@@ -265,6 +269,11 @@ if ($gruppe ne "") {
    # Klassenangabe gemacht  
   print LATEX ('
       \chead{\LARGE \bf ',"$gruppe",'}
+   ');
+} elsif ($classlist ne "") {
+   # Klassenangabe gemacht  
+  print LATEX ('
+      \chead{\LARGE \bf ',"$classlist",'}
    ');
 } else {
   print LATEX ('
@@ -359,6 +368,8 @@ print LATEX ('
 
 
 
+
+
 # ===========================================================================
 # user_db in Hash einlesen
 # KEY = identifier wie im ersten Teil von sophomorix.add
@@ -431,7 +442,7 @@ if($Conf::log_level>=3){
 # Schülerdaten aus sophomorix.add dem System in Hash einlesen
 # ===========================================================================
 
-if ($gruppe eq "" && $alle==0 && $lehrer==0) {
+if ($classlist eq "" and $gruppe eq "" && $alle==0 && $lehrer==0) {
   # ohne Argument -> sophomorix.add einlesen und nur die übernehmen
   if($Conf::log_level>=2){
       &titel("Reading sophomorix.add ...");
@@ -508,6 +519,28 @@ if ($gruppe eq "" && $alle==0 && $lehrer==0) {
         exit;
       } else {
         $argument="$gruppe";
+      }
+
+   my $klasse="";
+   if($Conf::log_level>=2){
+      print("\nArgument ist:  $argument\n");
+   }
+   foreach (keys %schueler_im_system_hash){
+     ($klasse)=split(/;/,$schueler_im_system_hash{$_});
+      if ($argument eq $klasse){
+         # Key = identifier
+         # Value = Klasse
+         $sortier_hash{$_}="$klasse";
+      }
+   }
+} elsif ($classlist ne "") {
+   # Argument muss "klasse" sein -> filtern
+   my $argument;
+   if ($classlist eq ${DevelConf::teacher}){
+        print "Mit der Option --klasse können keine Lehrer angezeigt werden!\n\n";
+        exit;
+      } else {
+        $argument="$classlist";
       }
 
    my $klasse="";
@@ -628,17 +661,62 @@ if($Conf::log_level>=3){
                          @drucken_einzelschueler_reihenfolge);
 
 
+
+############################################################
+# CLASSLIST
+############################################################
+if ($classlist ne ""){
+    &titel("Creating classlist of $classlist");
+    my $count=0;
+
+    print LATEX "\\begin{tabular}{|r|p{55mm}|p{116mm}|}\\hline \n";
+    print LATEX "\\rule[-2mm]{0mm}{7mm}\\textbf{Nr}& \\textbf{Name, Vorname} & \\\\ \\hline\\hline
+";
+
+
+
+    foreach $eintrag (@drucken_reihenfolge) {
+        $count++;
+        $schueler_protokoll_zeile=$schueler_im_system_hash{$eintrag};
+        ($klasse_protokoll, 
+        $name_protokoll,
+        $loginname_protokoll,
+        $passwort_protokoll,
+        $geburtsdatum_protokoll
+        )=split(/;/,$schueler_protokoll_zeile);
+
+        my ($firstname,$surname)=split(/\s/,$name_protokoll);
+        my $name=$surname.", ".$firstname;
+
+        # Ausgabe
+        if($Conf::log_level>=2){
+           print "Erstelle Klassenliste für  $loginname_protokoll  ",
+                 "in   $klasse_protokoll \n";
+        }
+
+        print LATEX "\\rule[-2mm]{0mm}{6.7mm} $count & $name &  \\\\  \\hline \n";
+
+
+    }
+
+    print LATEX "\\end{tabular} \n";
+
+
+}# End CLASSLIST
+
+
+
+############################################################
 # ONE ENTRY PER PAGE
+############################################################
 if ($one_per_page==1){
+    &titel("Creating a login list (1 per page)");
     # fetch dnsdomainname and hostname
     my $hostname=`hostname`;
     chomp($hostname);
-    print "$hostname \n";
     my $dnsdomainname=`dnsdomainname`;
     chomp($dnsdomainname);
-    print "$dnsdomainname \n";
     my $server=$hostname.".".$dnsdomainname;
-    
 
     # read the template into variable
     my $template=${DevelConf::latex_templates}."/login-info-".${Conf::lang}.".tex";
@@ -695,7 +773,6 @@ if ($one_per_page==1){
         # 5 Passwort
         print LATEX ('{',"Passwort: $passwort_protokoll",'}',"\n");
 
-
         # windows
         print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
         print LATEX "Anmeldung an einem Windowsrechner:\n\n";
@@ -737,32 +814,34 @@ if ($one_per_page==1){
 
         print LATEX "\\newpage \n\n";
    }
-} else {
-# 36 PER PAGE
-# ===========================================================================
-# Sortierte Einträge in LATEX-Datei und CSV schreiben 
-# ===========================================================================
-$klasse_protokoll_alt="";
-
-# Sortierten Hash ausgeben lassen
-foreach $eintrag (@drucken_reihenfolge) {
-   my $identifier="";
+} # End 1 PER PAGE
 
 
-# dirty fix
-   if ($eintrag=~m/::/){
-   ($a,$identifier)=split(/::/, $eintrag);
-   } else {
-      $identifier=$eintrag;
-   }
-   $schueler_protokoll_zeile=$schueler_im_system_hash{$identifier};
-   if($Conf::log_level>=3){
-      print ("\nDieser User wird gedruckt: $eintrag\n");
-      print("Identifier:               --$identifier--\n");
-      print("Zeile in user_db          --$schueler_protokoll_zeile--\n\n");
-   }
+
+############################################################
+# 36 ENTRIES PER PAGE
+############################################################
+if ($one_per_page==0 and $classlist eq ""){
+    &titel("Creating a login list (36 per page)");
+    $klasse_protokoll_alt="";
+
+    # Sortierten Hash ausgeben lassen
+    foreach $eintrag (@drucken_reihenfolge) {
+       my $identifier="";
+
+       # dirty fix
+       if ($eintrag=~m/::/){
+           ($a,$identifier)=split(/::/, $eintrag);
+       } else {
+            $identifier=$eintrag;
+       }
+       $schueler_protokoll_zeile=$schueler_im_system_hash{$identifier};
+       if($Conf::log_level>=3){
+       print ("\nDieser User wird gedruckt: $eintrag\n");
+       print("Identifier:               --$identifier--\n");
+       print("Zeile in user_db          --$schueler_protokoll_zeile--\n\n");
+    }
    
-
    ($klasse_protokoll, 
     $name_protokoll,
     $loginname_protokoll,
@@ -816,7 +895,8 @@ foreach $eintrag (@drucken_reihenfolge) {
        # Verantwortlicher Lehrer ermitteln
 
        # $edv_lehrer_foot 
-       my @lehrerliste = &Sophomorix::SophomorixPgLdap::fetchadmins_from_adminclass($klasse_protokoll);
+       my @lehrerliste = 
+          &Sophomorix::SophomorixPgLdap::fetchadmins_from_adminclass($klasse_protokoll);
        $edv_lehrer_foot = join(", ",@lehrerliste);
 
        print LATEX ('\cfoot{\bf ',
@@ -832,9 +912,9 @@ foreach $eintrag (@drucken_reihenfolge) {
      } else {
         # Wenn Einzelschüler
         # Wenn Vorgänger zu Klasse gehörte, Seite füllen
-if($eintrag_typ_alt==0){
-   $rand_bemerkung_lehrer=0;
-}
+        if($eintrag_typ_alt==0){
+            $rand_bemerkung_lehrer=0;
+        }
         if($eintrag_typ_alt==2){
            # Vorgänger gehörte zur einer Klasse (über 4 Schüler)
            $rand_bemerkung_lehrer=0; # Randbemerkung wurde nicht gemacht
@@ -927,12 +1007,11 @@ if($eintrag_typ_alt==0){
    $anzahl_karten_pro_zeile++;
    
    # Zeile in add.csv schreiben (unix)georg: linliste
-   print UNIXCSV ("$name_protokoll",";","$klasse_protokoll",";","$loginname_protokoll",";","$passwort_protokoll",";","\n");
-
+   print UNIXCSV ("$name_protokoll",";","$klasse_protokoll",";",
+                  "$loginname_protokoll",";","$passwort_protokoll",";","\n");
    # Zeile in add.csv schreiben (windows-versuch 1) georg: winliste
-   print CSV ("$name_protokoll",";","$klasse_protokoll",";","$loginname_protokoll",";","$passwort_protokoll",";","\l\r");
-
-
+   print CSV ("$name_protokoll",";","$klasse_protokoll",";",
+              "$loginname_protokoll",";","$passwort_protokoll",";","\l\r");
    # Zeile auf konsole ausgeben
    if ($info==1){
        printf "%-11s%-11s%-11s%-40s\n",
@@ -940,13 +1019,7 @@ if($eintrag_typ_alt==0){
               $passwort_protokoll,
               $klasse_protokoll,
               $name_protokoll;
-
-
-#"$name_protokoll",";","$klasse_protokoll",";",
-#              "$loginname_protokoll",";","$passwort_protokoll",";","\n";
    }
-
-
 } # Ende foreach
 # Nun sind alle Schüler in der LATEX-Datei eingelesen
 
@@ -973,12 +1046,31 @@ while ($anzahl_karten_pro_seite < $entries_per_page){
 
 
 } # End 36 PER PAGE
+############################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 # ===========================================================================
 # Dokument beenden und Inhaltsverzeichnis schreiben
 if ($gruppe ne "") {
+   # Klassenangabe gemacht  
+   print LATEX ('
+      \end{document}
+   ');
+} elsif ($classlist ne "") {
    # Klassenangabe gemacht  
    print LATEX ('
       \end{document}
