@@ -300,8 +300,10 @@ while(<USERVERSETZEN>){
    # links 
     &remove_share_link($login_versetzen, $alte_klasse,$alte_klasse,"adminclass");
     &create_share_link($login_versetzen, $neue_klasse,$neue_klasse,"adminclass");
-    &remove_share_directory($login_versetzen, $alte_klasse,$alte_klasse,"adminclass");
-    &create_share_directory($login_versetzen, $neue_klasse,$neue_klasse,"adminclass");
+    &remove_share_directory($login_versetzen, 
+                            $alte_klasse,$alte_klasse,"adminclass");
+    &create_share_directory($login_versetzen, 
+                            $neue_klasse,$neue_klasse,"adminclass");
 
    &deleteuser_from_all_projects($login_versetzen,0);
    &add_newuser_to_her_projects($login_versetzen,$neue_klasse);
