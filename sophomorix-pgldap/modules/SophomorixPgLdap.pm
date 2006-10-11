@@ -2241,11 +2241,12 @@ sub get_sys_users {
    my %unid_identifier=();
    my %identifier_exit_adminclass=();
    my %identifier_account_type=();
+   my %identifier_usertoken=();
 
    my $dbh=&db_connect();
 
 # select the columns that i need
-my $sth= $dbh->prepare( "SELECT uid, firstname, surname, birthday, adminclass, exitadminclass, unid, subclass, tolerationdate, deactivationdate, sophomorixstatus FROM userdata" );
+my $sth= $dbh->prepare( "SELECT uid, firstname, surname, birthday, adminclass, exitadminclass, unid, subclass, tolerationdate, deactivationdate, sophomorixstatus, usertoken FROM userdata" );
 $sth->execute();
 
 my $array_ref = $sth->fetchall_arrayref();
@@ -2266,6 +2267,7 @@ foreach my $row (@$array_ref){
         $toleration_date_pg,
         $deactivation_date_pg,
         $status,
+        $usertoken,
         ) = @$row;
 
 
@@ -2285,9 +2287,7 @@ foreach my $row (@$array_ref){
    if (not defined $unid){$unid=""}
    if (not defined $subclass){$subclass=""}
    if (not defined $exit_admin_class){$exit_admin_class=""}
-
- 
-
+   if (not defined $usertoken){$usertoken=""}
 
    # exclude one user ????????ß
    if ($login eq "NextFreeUnixId"){
@@ -2323,6 +2323,13 @@ foreach my $row (@$array_ref){
          print "  Unid              :   $unid \n" ;
       } else {
          print "  Unid              :   --- \n" ;
+      }
+
+      # usertoken is optional
+      if ($usertoken ne "") {
+         print "  Usertoken         :   $usertoken \n" ;
+      } else {
+         print "  Usertoken         :   --- \n" ;
       }
 
       # subclass is optional
@@ -2420,6 +2427,12 @@ foreach my $row (@$array_ref){
       $identifier_account_type{$identifier} = "$account_type";
    }
 
+   # usertoken is optional
+   if ($usertoken ne "") {        
+      $identifier_usertoken{$identifier} = "$usertoken";
+   }
+
+
 
    # increase counter for users
    $number++;
@@ -2442,7 +2455,8 @@ foreach my $row (@$array_ref){
           \%identifier_deactivation_date,
           \%unid_identifier,
           \%identifier_exit_adminclass,
-          \%identifier_account_type
+          \%identifier_account_type,
+          \%identifier_usertoken,
          );
 }
 

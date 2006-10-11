@@ -309,6 +309,7 @@ my %wunsch_login_forbidden=();
 my %schueler_ok_wunsch_passwort_hash=();
 my %schueler_im_system_exit_admin_class=();
 my %schueler_im_system_account_type=();
+my %identifier_sys_usertoken = ();
  
 my $schueler_weg_anzahl=0;
 my $schueler_hinzu_anzahl=0;
@@ -494,6 +495,7 @@ my ($ref_login,
     $ref_unid_identifier,
     $ref_exit_adminclass,
     $ref_account_type,
+    $ref_usertoken,
    ) = &get_sys_users();
 
 # identifier - klasse (ohne k = sophomorixAdminClass)
@@ -522,6 +524,9 @@ my ($ref_login,
 
 # identifier - AccountType 
 %schueler_im_system_account_type = %$ref_account_type;
+
+# identifier - usertoken 
+%identifier_sys_usertoken = %$ref_usertoken;
 
 
 
@@ -3096,6 +3101,15 @@ if($Conf::log_level>=3){
          "         AccountType:\n");
    &linie();
    while (($k,$v) = each %schueler_im_system_account_type){
+     printf "%-40s %-3s\n","$k","$v";
+   }
+   &linie();
+
+   # print usertoken of system users
+   print("identifier_sys_usertoken:",
+         "         Usertoken:\n");
+   &linie();
+   while (($k,$v) = each %identifier_sys_usertoken){
      printf "%-40s %-3s\n","$k","$v";
    }
    &linie();
