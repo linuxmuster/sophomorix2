@@ -208,6 +208,7 @@ my $vorname="";
 my $geburt="";
 my $unid="";
 my $field_five="";
+my $usertoken="";
 my $wunsch_login="---";
 my $wunsch_passwort="---";
 # Die 3 Unterfelder des Datums
@@ -302,6 +303,7 @@ my %schueler_im_system_protokoll_linie=();
 my %schueler_ok_hash=();
 my %unid_ok_file=();
 my %schueler_ok_unid=();
+my %schueler_ok_usertoken=();
 my %unid_ok_system=();
 my %schueler_ok_wunsch_login_hash=();
 my %wunsch_login_seen=();
@@ -610,6 +612,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
     while(<USERDATEI>){
        $wunsch_login="";
        $unid="";
+       $usertoken="";
        # Zeile abspeichern in $zeile_orig (für Fehlerreport)
        chomp($_); # Returnzeichen abschneiden
        $zeile_orig=$_;
@@ -683,7 +686,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
        # Zerteilen der Zeile in 4 bis 6 Elemente, 
        # diese in Variablen abspeichern
        ($klasse,$nachname,$vorname,$geburt,
-        $field_five,$wunsch_passwort)=split(/;/);
+        $field_five,$wunsch_passwort,$usertoken)=split(/;/);
 
        # A-Z in Kleinbuchstaben umwandeln
        $klasse=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
@@ -705,10 +708,14 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
        if (not defined $wunsch_passwort){
           # $wunsch_passwort Kann evtl nicht mehr definiert sein
           $wunsch_passwort="---"
-        } elsif($wunsch_passwort eq "" or $wunsch_passwort eq "erstpw"){
+       } elsif($wunsch_passwort eq "" or $wunsch_passwort eq "erstpw"){
           # oder leer oder alt: erstpw
           $wunsch_passwort="---"
-        };
+       };
+
+       if (not defined $usertoken){
+          $usertoken=""
+       }
 
        # Datum pruefen
        ($geburts_tag, 
@@ -924,6 +931,11 @@ if ($Conf::splan_sternchenklassen_filtern eq "yes") {
 # Load UNIDS into the Database and System
 # ===========================================================================
 &update_unids();
+
+# ===========================================================================
+# Load DB_PUSHDATA (usertoken, ...) into the Database and System
+# ===========================================================================
+&update_db_pushdata();
 
 
 # ===========================================================================
@@ -1930,6 +1942,16 @@ if (not exists $schueler_ok_hash{$identifier}){
 	print "Error UNID $unid is not unique!\n";
     }   
 
+    # Usertoken in hash-table einordnen, falls moeglich
+    if ($usertoken ne ""){
+       # Eintrag in die Hash-Tabelle, falls identifier noch nicht vorhanden
+       $schueler_ok_usertoken{$identifier}="$usertoken";
+    } elsif ($unid eq ""){
+       #	print "UNID is empty\n";
+       # nix tun, da leer
+    }
+
+
     # User in hash-table einordnen, falls moeglich
     if (not exists $schueler_ok_hash{$identifier} and $unid ne ""){
        # Eintrag in die Hash-Tabelle, falls identifier noch nicht vorhanden
@@ -2145,6 +2167,30 @@ sub auto_teach_in {
 }
 
 
+# should be possible to also push other data
+sub update_db_pushdata {
+   while ( my ($identifier,$login) = each %schueler_im_system_loginname ) { 
+       #print "Verifying $identifier ($login) \n";
+       if (not exists $schueler_ok_usertoken{$identifier}){
+           $schueler_ok_usertoken{$identifier}="";
+       }
+       if ($schueler_ok_usertoken{$identifier} eq "usertoken"){
+           $schueler_ok_usertoken{$identifier}="";
+       }
+       if (not exists $identifier_sys_usertoken{$identifier}){
+	   $identifier_sys_usertoken{$identifier}="";
+       }
+       if ($schueler_ok_usertoken{$identifier} ne 
+           $identifier_sys_usertoken{$identifier}){
+           if ($schueler_ok_usertoken{$identifier} ne "usertoken"){
+               print "  Uploading Usertoken $schueler_ok_usertoken{$identifier} ",
+                     "to user $login \n";
+           &update_user_db_entry($login,
+             "Usertoken=$schueler_ok_usertoken{$identifier}");
+           }
+       }
+   }
+}
 
 
 sub update_unids {

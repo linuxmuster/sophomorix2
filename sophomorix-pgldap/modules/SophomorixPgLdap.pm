@@ -2706,6 +2706,7 @@ sub update_user_db_entry {
     my $toleration_date="",
     my $deactivation_date="";
     my $exit_admin_class="";
+    my $usertoken="";
     my $account_type="";
     my $quota="";
     my $mailquota=-1;
@@ -2781,7 +2782,11 @@ sub update_user_db_entry {
        elsif ($attr eq "ExitAdminClass"){
            $exit_admin_class="$value";
            push @posix_details, "exitadminclass = '$exit_admin_class'";
-           }
+       }
+       elsif ($attr eq "Usertoken"){
+           $usertoken="$value";
+           push @posix_details, "usertoken = '$usertoken'";
+       }
        elsif ($attr eq "Gid"){
            $gid_name="$value";
            print " ****adding $gid_name\n";

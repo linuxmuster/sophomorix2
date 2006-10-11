@@ -1384,11 +1384,11 @@ sub lehrer_ordnen {
      }
 
      if (not defined $lehrer_kuerzel) {
-         $lehrer_kuerzel="kurz";
+         $lehrer_kuerzel="usertoken";
      }
 
      if ($lehrer_kuerzel eq "") {
-         $lehrer_kuerzel="kurz";
+         $lehrer_kuerzel="usertoken";
      }
 
      if (not defined $quota) {
@@ -1404,7 +1404,7 @@ sub lehrer_ordnen {
      }
 
      # geordnete Zeile ausgeben
-     printf LEHRERTMP ("%-6s %-14s %-14s %-11s %-8s %-8s %-4s %-6s %-11s",
+     printf LEHRERTMP ("%-6s %-14s %-14s %-11s %-8s %-8s %-10s %-6s %-11s",
            "$typ",
            ";$nachname",
            ";$vorname",
