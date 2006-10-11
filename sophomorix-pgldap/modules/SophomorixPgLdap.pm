@@ -3695,7 +3695,8 @@ sub search_user {
                             deactivationdate, sophomorixstatus,
                             gecos, homedirectory, firstpassword, quota,
                             sambaacctflags, sambahomepath, sambahomedrive,
-                            sambalogonscript,sambaprofilepath 
+                            sambalogonscript,sambaprofilepath,usertoken,
+                            scheduled_delete 
                          FROM userdata
                          WHERE uid LIKE $str
                             OR firstname LIKE $str
@@ -3729,11 +3730,14 @@ sub search_user {
            $sambahomedrive,
            $sambalogonscript,
            $sambaprofilepath, 
+           $usertoken,
+           $scheduled_delete,
            ) = @$row;
 
        my $birthday=&date_pg2perl($birthday_pg);
        my $tol=&date_pg2perl($toleration_date_pg);
        my $deact=&date_pg2perl($deactivation_date_pg);
+       my $sched_del=&date_pg2perl($scheduled_delete);
 
        # Gruppen-Zugehoerigkeit
        $pri_group_string="";
@@ -3778,6 +3782,9 @@ sub search_user {
        }
 
        print "Sophomorix:\n";
+       if (defined $usertoken){
+          printf "  Usertoken        : %-47s %-11s\n",$usertoken,$login;
+       }
 
        printf "  FirstPassword    : %-47s %-11s\n",$first_pass,$login;
        printf "  Birthday         : %-47s %-11s\n",$birthday,$login;
@@ -3804,6 +3811,10 @@ sub search_user {
 
        if (defined $deact){
           printf "  DeactivationDate : %-47s %-11s\n",$deact,$login;
+       }
+
+       if (defined $sched_del){
+          printf "  ScheduledDelete  : %-47s %-11s\n",$sched_del,$login;
        }
 
        if (defined $ex_admin){
