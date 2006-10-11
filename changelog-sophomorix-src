@@ -1167,50 +1167,9 @@ getgrnam
 update db field usertoken automatically 
 
 
-Idea about logging:
-  
-1) somesophomorix-scripts are not allowed to run simultaneously
-     - sophomorix-check
-     - sophomorix-add
-     - sophomorix-move
-     - sophomorix-kill
-     - sophomorix-teach-in
-     - sophomorix-repair
-     - sophomorix-setup-pgldap
-     - sophomorix-setup
-     - sophomorix-quota  (add option --skiplock when calling from 
-                          within sophomorix-add, sophomorix-move ...)
 
-   these scripts are saved in DevelConf::locking_scripts
-   and in DevelConf::unlocking_scripts
-
-2) all these scripts create a lock file 
-   /var/lib/sophomorix/tmp???/sophomorix-lock
-
-3) these scripts contain a line with the command (with options) that 
-   has created the lock file:
-   add a second line with script names that can unlock sophomorix
-
-   line 1:    creator:: sophomorix-check --cron
-   line 2:    unlockable:: sophomorix-teach-in
-   line 3:    unlockable:: sophomorix-add
-
-
-4) add  to log_script_start, log_script_end,log_script_exit
-   the following queries:
-
-   if (exists scriptname in %locking_scripts) then  start else error
-
-5) todo:
-    create function log_script_exit(return,unlock,skiplock,@arguments)
-    return: return value used by Schulkonsole
-            (an error string corresponds to this return values)
-            (return::error_string): configure this in a file, which is 
-             loaded by log_script_start into a hash 
-    what to do when an exit occurs
-       unlock: 0 force no unlock
-               1 force unlock 
-               2 unlock according to unlocking_scripts
+log_script_exit:
+use parameter to create return value for all exits
 
 
 
@@ -1220,8 +1179,7 @@ check list of systemusers in debian developers manual
 when a teacher/students is disabled remove him from /etc/aliases???
 
 
-check if sophomorix-kill,-move,-add shows users ascibetically/classwise, 
-and sums up number of users to work on
+
 
 
 create a field 'scheduled-delete' for teachers (and othe users) in the database
@@ -1262,6 +1220,7 @@ when a user that exists (wwwadmin) and no quota in quota.txt is given,
 there is a warning (check if the script is interrupted)
 
 
+
 make latex-template/login-info.tex more fancy.
   - where to log in windows
   - where to log in linux
@@ -1279,8 +1238,6 @@ sonstiges
 http://ekiga.net/
 
 mediawiki mit .htaccess absuchern (aktuelle ct, 26.9.06)
-
-
 
 
 
@@ -1312,6 +1269,9 @@ Why? Styleguide?
 man sophomorix-mail : es wird zuerst nach der nicht existierenden
 en manpage gesucht un die Deutsch nicht gefunden, obwwohl existent.
 
+
+Bug:
+
 mein Testsystem: das tut (LANG ist )de_DE@euro)
 ml3cd: LANG ist leer
 
@@ -1322,6 +1282,36 @@ ml3cd: LANG ist leer
 ================== CHANGELOG ========================================
 
 1.8.15-1 (2006-09-xx)
+   - added option 
+     sophomorix print --classlist
+     created a formatted, printable list of users of a class
+   - added windows, linux and other login-data
+     to login-info.tex 
+   - documented option --skiplock in -mail,-quota,-print
+   - added function log_script_exit to unlock scripts when exited 
+     unnormally. print Errors into command.log
+   - added locking in the following scripts (see sophomorix-devel.conf)
+     - sophomorix-check
+     - sophomorix-add
+     - sophomorix-move
+     - sophomorix-kill
+     - sophomorix-teach-in
+     - sophomorix-repair
+     - sophomorix-setup-pgldap
+     - sophomorix-setup
+     - sophomorix-quota
+  - these scripts create the lock file /var/lib/sophomorix/lock/sophomorix.lock
+  -  added option --skiplock for  sophomorix-add, 
+                                  sophomorix-move 
+                                  sophomorix-print
+     used this option when calling these scripts from within other 
+     sophomorix scripts
+
+
+
+   - s*-kill,-move,-add: count users when showing --info
+   - removed from sophomorix-test-bunchofusers to handoutcopy to 
+     workstations in a userlist (we only handout to workstations)
    - sophomorix-mail --showmailboxes shows number of dirs of a users 
      mailbox
    - added moodle,ogo,schulkonsole,horde to
