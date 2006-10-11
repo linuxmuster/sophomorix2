@@ -804,13 +804,25 @@ if ($one_per_page==1){
 
         # ogo
         print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
-        print LATEX " Groupware mit Opengroupware: \n\n";
-        print LATEX " URL: \\texttt{https://${server}/ogo}\n\n";
+        print LATEX " Groupware mit OpenGroupware: \n\n";
+        print LATEX " URL: \\texttt{https://${server}/OpenGroupware}\n\n";
 
         # moodle
         print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
         print LATEX " Lernplattform mit Moodle: \n\n";
         print LATEX " URL: \\texttt{https://${server}/moodle}\n\n";
+
+        # phpmyadmin
+        print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
+        print LATEX " Datenbankzugriff mit phpmyadmin: \n\n";
+        print LATEX " URL: \\texttt{https://${server}/phpmyadmin}\n\n";
+
+        # websvn
+        print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
+        print LATEX " Versionskontrolle mit svn per Webfrontend: \n\n";
+        print LATEX " URL: \\texttt{https://${server}/websvn}\n\n";
+
+
 
         print LATEX "\\newpage \n\n";
    }
