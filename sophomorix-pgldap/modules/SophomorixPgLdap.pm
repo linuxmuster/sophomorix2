@@ -2792,6 +2792,9 @@ sub update_user_db_entry {
            if ($gid_name eq ${DevelConf::teacher}) {
               # in klasse lehrer versetzten
               $home_dir="${DevelConf::homedir_teacher}/${login}";
+           } elsif ($gid_name eq "attic") {
+              # move to attic
+              $home_dir="${DevelConf::attic}/${login}";
            } else {
               # in andere Klasse versetzten (auch attic)
               $home_dir="${DevelConf::homedir_pupil}/${gid_name}/${login}";

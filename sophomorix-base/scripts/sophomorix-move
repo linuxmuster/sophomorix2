@@ -209,8 +209,12 @@ while(<USERVERSETZEN>){
       # in klasse lehrer versetzten
       $new_home="${DevelConf::homedir_teacher}/${login_versetzen}";
       $new_homedir_above="${DevelConf::homedir_teacher}";
+   } elsif ($neue_klasse eq "attic"){
+      # move to attic
+      $new_home="${DevelConf::attic}/${login_versetzen}";
+      $new_homedir_above="${DevelConf::attic}";
    } else {
-      # in andere Klasse versetzten (auch attic)
+      # in andere Klasse versetzten (ohne attic)
       $new_home="${DevelConf::homedir_pupil}/${neue_klasse}/${login_versetzen}";
       $new_homedir_above="${DevelConf::homedir_pupil}/${neue_klasse}";
    } 
