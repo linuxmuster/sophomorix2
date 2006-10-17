@@ -166,13 +166,17 @@ sub check_connections {
        print "   Checking postgres connection... \n";
     }
     my $dbh = DBI->connect("dbi:Pg:dbname=$dbname", "$dbuser","$pass_saved",
-              { RaiseError => 1, PrintError => 1});
+              { RaiseError => 0, PrintError => 0}) or
+       &Sophomorix::SophomorixBase::log_script_exit("No connection to postgresql!",
+         1,1,0,@arguments);
 
     # ldap
     if($Conf::log_level>=3){
        print "   Checking ldap connection... \n";
     }
-    my $ldap = Net::LDAP->new( '127.0.0.1' ) or die "$@";
+    my $ldap = Net::LDAP->new( '127.0.0.1' ) or 
+       &Sophomorix::SophomorixBase::log_script_exit("No connection to sldapd!",
+         1,1,0,@arguments);
 }
 
 
