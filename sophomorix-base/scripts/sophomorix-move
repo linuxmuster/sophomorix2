@@ -210,7 +210,7 @@ while(<USERVERSETZEN>){
       $new_home="${DevelConf::homedir_teacher}/${login_versetzen}";
       $new_homedir_above="${DevelConf::homedir_teacher}";
    } else {
-      # in andere Klasse versetzten (auch dachboden/speicher)
+      # in andere Klasse versetzten (auch attic)
       $new_home="${DevelConf::homedir_pupil}/${neue_klasse}/${login_versetzen}";
       $new_homedir_above="${DevelConf::homedir_pupil}/${neue_klasse}";
    } 
@@ -260,12 +260,12 @@ while(<USERVERSETZEN>){
    push @users_for_quota, $login_versetzen;
 
 
-   if ($neue_klasse eq ${DevelConf::teacher} && not $alte_klasse eq "speicher") {
-      # Es ist die Gruppe lehrer beteiligt
-      print("##### User kann nicht vesetzt werden!\n");
-      print("In die Gruppe lehrer kann man nur aus dem speicher versetzt werden\n");
-      next; # Nächster User
-   } 
+#   if ($neue_klasse eq ${DevelConf::teacher} && not $alte_klasse eq "speicher") {
+#      # Es ist die Gruppe lehrer beteiligt
+#      print("##### User kann nicht vesetzt werden!\n");
+#      print("In die Gruppe lehrer kann man nur aus dem speicher versetzt werden\n");
+#      next; # Nächster User
+#   } 
 
 
    # die Daten aus dem Tausch-Verzeichnis dem Schüler in sein home moven
@@ -310,7 +310,8 @@ while(<USERVERSETZEN>){
 
    # user in db updaten
    if ($DevelConf::testen==0) {
-       if ($neue_klasse eq "dachboden"){
+#       if ($neue_klasse eq "dachboden"){
+       if ($neue_klasse eq "attic"){
           &update_user_db_entry($login_versetzen,
                       "AdminClass=$neue_klasse",
                       "Gid=$neue_klasse",

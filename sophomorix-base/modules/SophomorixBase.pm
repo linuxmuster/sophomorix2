@@ -1568,15 +1568,12 @@ sub check_datei_exit {
   my @list = split(/\//,$0);
   my $scriptname = pop @list;
   if (not (-e "$datei")) {
-     print "\n  Die Datei\n\n";
+     print "\n  The file\n\n";
      print "    $datei\n\n";
-     print "  wurde nicht gefunden.\n\n";
-     print "  Sie muss vorhanden sein.\n\n";
-     print "  $scriptname beendet sich deshalb!\n\n";
-     &log_script_exit("$datei existiert nicht",
+     print "  was not found.\n\n";
+     print "  $scriptname is terminating!\n\n";
+     &log_script_exit("$datei does not exist",
                          1,1,0,@arguments);
-
-     #exit;
   } 
 }
 
@@ -1592,7 +1589,7 @@ Legt leere Datei an, wenn die übergebene Datei nicht existiert
 sub check_datei_touch {
   my ($datei) = @_;
   if (not (-e "$datei")) {
-     print "   Die Datei ${datei} wird angelegt \n";
+     &titel("Creating file $datei");
      system("touch ${datei}");
   } 
 }

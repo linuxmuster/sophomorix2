@@ -969,15 +969,15 @@ my %come_points=();
 
 # A) U,E --->>> T
 #================================================== 
-# 1. Usable(U) -> Tolerated(T)  .move (alte klasse -> dachboden)
+# 1. Usable(U) -> Tolerated(T)  .move (old class -> attic)
 &u_t_check();
-# 2. Enabled(E) -> Tolerated(T) .move (alte klasse -> dachboden)
+# 2. Enabled(E) -> Tolerated(T) .move (old class -> attic)
 &e_t_check();
 
 
 # B) T, A, S --->>> E,U
 #==================================================
-# 1. Tolerated(T) -> Enabled(E) .move (dachboden -> neue klasse)
+# 1. Tolerated(T) -> Enabled(E) .move (attic -> new class)
 &t_e_check();
 # 2. Activated(A) -> Usable(U)  .move (aktive klasse -> neue klasse)
 &a_u_check();
@@ -987,20 +987,20 @@ my %come_points=();
 
 # C) T, A, S -> D
 #==================================================
-# 1. Tolerated(T) -> Disabled(D)   .move (alte klasse -> dachboden)
+# 1. Tolerated(T) -> Disabled(D)   .move (old class -> attic)
 &t_d_check();
-# 2. Activated(A) ->   -> Disabled(D)   .move (alte klasse -> dachboden)
+# 2. Activated(A) ->   -> Disabled(D)   .move (old class -> attic)
 &a_d_check();
-# 3. Selfactivated(S) ->   -> Disabled(D)  .move (alte klasse -> dachboden)
+# 3. Selfactivated(S) ->   -> Disabled(D)  .move (old class -> attic)
 &s_d_check();
 
 
 # D) D to E
 #==================================================
-# 1. Disabled(D) -> E(Enable)  .kill .move (alte klasse -> dachboden)
+# 1. Disabled(D) -> E(Enable)  .kill .move (old class  -> attic)
 &d_e_check();
 
-# 2. Disabled(D) -> R(Removeable) .kill .move (alte klasse -> dachboden)
+# 2. Disabled(D) -> R(Removeable) .kill .move (old class -> attic)
 &d_r_check();
 
 
@@ -1069,9 +1069,9 @@ sub append_move_entry {
     my $move_line = ();
     my $move_message = "";
 
-    if ($new_class eq "dachboden" and $old_class eq ${DevelConf::teacher}) {
-        $new_class="speicher";
-    } 
+#    if ($new_class eq "dachboden" and $old_class eq ${DevelConf::teacher}) {
+#        $new_class="speicher";
+#    } 
 
     $move_line="$login"."::".$old_class."::"."$new_class"."::"."$old_status\n";
     $move_message="   $identifier (Login: $login)  $old_class ".
@@ -1141,8 +1141,8 @@ sub u_u_check {
 
 sub u_t_check {
    my $count=0;
-   &titel("u_t_check: Suche User zum tolerieren/-> dachboden/speicher ...");
-   # Usable(U) -> Tolerated(T)  .move (alte klasse -> dachboden) 
+   &titel("u_t_check: Suche User zum tolerieren/-> attic ...");
+   # Usable(U) -> Tolerated(T)  .move (old class -> attic) 
    # Step 1: Tolerate the user
    while ( my ($identifier, $status) = each %sophomorix_status ){
      if ($status eq "U" or $status eq "E" or $status eq ""){
@@ -1158,9 +1158,12 @@ sub u_t_check {
               push @admin_list_toleration, 
                     "$identifier wird ab $heute nur noch toleriert\n";
 	      
+#              &append_move_entry($identifier,
+#                                $schueler_im_system_hash{$identifier},
+#                                "dachboden");
               &append_move_entry($identifier,
                                 $schueler_im_system_hash{$identifier},
-                                "dachboden");
+                                "attic");
               # Counter
               $count++;
   
@@ -1169,13 +1172,13 @@ sub u_t_check {
       }
      }
    }
-   &titel("u_t_check:  ... $count User wurden toleriert/-> dachboden/speicher");
+   &titel("u_t_check:  ... $count User wurden toleriert/-> attic");
 }
 
 
 
 sub e_t_check {
-   # Enabled(E) -> Tolerated(T) .move (alte klasse -> dachboden)
+   # Enabled(E) -> Tolerated(T) .move (alte klasse -> attic)
    # wird mit u_t gemacht??? 
 }
 
@@ -1220,15 +1223,19 @@ sub t_d_check {
    my $count_move=0;
    my $count_disabled=0;
    &titel("t_d_check: Suche Tolerierte User zum versetzen/deaktivieren ...");
-   # Tolerated(T) -> Disabled(D)   .move (alte klasse -> dachboden)
+   # Tolerated(T) -> Disabled(D)   .move (alte klasse -> attic)
    while ( my ($identifier, $status) = each %sophomorix_status ){
       # wenn status T und NICHT wieder auftaucht
       if ($status eq "T" and not exists $schueler_ok_hash{$identifier}){
          my $login=$schueler_im_system_loginname{$identifier};
          my $sys_class=$schueler_im_system_hash{$identifier};
-         # check if tolerated user is not in dachboden/speicher
-         if ($sys_class ne "dachboden" and $sys_class ne "speicher") {
-            &append_move_entry($identifier,$sys_class,"dachboden");
+         # check if tolerated user is not in attic
+#         if ($sys_class ne "dachboden" and $sys_class ne "speicher") {
+#            &append_move_entry($identifier,$sys_class,"dachboden");
+#            $count_move++;
+#         }
+         if ($sys_class ne "attic") {
+            &append_move_entry($identifier,$sys_class,"attic");
             $count_move++;
          }
          # checking for deactivation
@@ -1254,21 +1261,21 @@ sub t_d_check {
 	 }
       }
    }
-   &titel("t_d_check:  ... $count_move tolerierte User -> dachboden/speicher");
+   &titel("t_d_check:  ... $count_move tolerierte User -> attic");
    &titel("t_d_check:  ... $count_disabled  User wurden disabled");
 }
 
 
 
 sub a_d_check {
-   # Activated(A) ->   -> Disabled(D)   .move (alte klasse -> dachboden)
+   # Activated(A) ->   -> Disabled(D)   .move (alte klasse -> attic)
  
 }
 
 
 
 sub s_d_check {
-   # Selfactivated(S) ->   -> Disabled(D)  .move (alte klasse -> dachboden)
+   # Selfactivated(S) ->   -> Disabled(D)  .move (alte klasse -> attic)
 }
 
 
@@ -1276,7 +1283,7 @@ sub s_d_check {
 sub d_e_check {
    my $count=0;
    &titel("d_e_check: Suche User die wieder auftauchen ...");
-   # Disabled(D) -> Enabled(E)  .kill .move (alte klasse -> dachboden)
+   # Disabled(D) -> Enabled(E)  .kill .move (alte klasse -> attic)
    while ( my ($identifier, $status) = each %sophomorix_status ){
       if ($status eq "D" or $status eq "T" or $status eq "R"){
          my $date=$user_deaktivierungsbeginn{$identifier};
@@ -1315,9 +1322,13 @@ sub d_r_check {
          my $login="$schueler_im_system_loginname{$identifier}";
 
          my $sys_class=$schueler_im_system_hash{$identifier};
-         # check if disabled user is not in dachboden/speicher
-         if ($sys_class ne "dachboden" and $sys_class ne "speicher") {
-            &append_move_entry($identifier,$sys_class,"dachboden");
+         # check if disabled user is not in attic
+#         if ($sys_class ne "dachboden" and $sys_class ne "speicher") {
+#            &append_move_entry($identifier,$sys_class,"dachboden");
+#            $count_move++;
+#         }
+         if ($sys_class ne "attic") {
+            &append_move_entry($identifier,$sys_class,"attic");
             $count_move++;
          }
          if (not exists $schueler_ok_hash{$identifier}) {
@@ -1341,7 +1352,7 @@ sub d_r_check {
          }
       }
    }
-   &titel("d_r_check: ... $count_move disabled User -> dachboden/speicher");
+   &titel("d_r_check: ... $count_move disabled User -> attic");
    &titel("d_r_check: ... $count_removable User sind löschbar.");
 }
 
@@ -2049,7 +2060,10 @@ sub auto_teach_in {
       my $go_class=$will_go{$go};
       # Attribute eines users
       my @go = split(/;/, $go);
-      if ($go_class eq "dachboden" or $go_class eq "speicher"){
+#      if ($go_class eq "dachboden" or $go_class eq "speicher"){
+#          $go_class=$schueler_im_system_exit_admin_class{$go}
+#      }
+      if ($go_class eq "attic"){
           $go_class=$schueler_im_system_exit_admin_class{$go}
       }
       push @go, $go_class;
@@ -2664,7 +2678,7 @@ sub generate_admin_report {
     print REPORTADMIN "Insgesamt KÖNNEN $schueler_weg_anzahl", 
                       " User entfernt werden.\n";
 
-    print REPORTADMIN "\n\nVersetzen nach dachboden/speicher möglich:\n";
+    print REPORTADMIN "\n\nVersetzen nach attic möglich:\n";
     print REPORTADMIN "----------------------------------------",
                   "----------------------------------------\n";
 
@@ -2675,7 +2689,7 @@ sub generate_admin_report {
     print REPORTADMIN "----------------------------------------",
                       "----------------------------------------\n";
     print REPORTADMIN "Insgesamt KÖNNEN $schueler_duldungs_beginn_anzahl", 
-                      " User nach dachboden/speicher versetzt werden.\n";
+                      " User nach attic versetzt werden.\n";
 
     print REPORTADMIN "\n\nAngelegt würden:\n";
     print REPORTADMIN "----------------------------------------",
@@ -2932,8 +2946,10 @@ sub get_action_date {
        $last_action = $user_duldungsbeginn{$identifier};
        ($l_day, $l_month, $l_year) = split(/\./, $last_action);
        $sequenztype="TolerationDate";
+
        if ($schueler_im_system_hash{$identifier} eq ${DevelConf::teacher} ||
-           $schueler_im_system_hash{$identifier} eq "speicher" ) {
+           $schueler_im_system_exit_admin_class{$identifier} 
+           eq ${DevelConf::teacher} ) {
            # Falls Lehrer
            $usertype="Lehrer/in";
            $days=$Conf::lehrer_duldung_tage;
@@ -2948,7 +2964,8 @@ sub get_action_date {
        ($l_day, $l_month, $l_year) = split(/\./, $last_action);
        $sequenztype="DeactivationDate";
        if ($schueler_im_system_hash{$identifier} eq ${DevelConf::teacher} ||
-           $schueler_im_system_hash{$identifier} eq "speicher" ) {
+           $schueler_im_system_exit_admin_class{$identifier} 
+           eq ${DevelConf::teacher} ) {
            # Falls Lehrer
            $usertype="Lehrer/in";
            $days=$Conf::lehrer_deaktivierung_tage;

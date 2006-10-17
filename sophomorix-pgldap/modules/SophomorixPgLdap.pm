@@ -2010,7 +2010,8 @@ sub fetchadminclasses_from_school {
     my $i=0;
     foreach ( @{ $array_ref } ) {
         my $gid=${$array_ref}[$i][0];
-        if (not ($gid eq "speicher" or $gid eq "dachboden")){
+#        if (not ($gid eq "speicher" or $gid eq "dachboden")){
+        if (not ($gid eq "attic")){
             push @admin_classes, $gid;
         }
         $i++;
@@ -2381,13 +2382,6 @@ foreach my $row (@$array_ref){
           print "\n";
    }# end loglevel
 
-   # In Hash schreiben: mit Klasse als Wert (um Versetzen herauszufinden)
-#   $schueler_im_system_hash{$identifier}="$admin_class";
-   # In Hash schreiben: mit loginnamen als Wert (um Löschen herauszufinden)
-#   $schueler_im_system_loginname{$identifier}="$login";
-   # In Hash schreiben: mit Zeile als Wert (beim Löschen zu entfernen)
-#   $schueler_im_system_protokoll_linie{$identifier}="$_";
-
    if (not defined $toleration_date){$toleration_date=""}
    if (not defined $deactivation_date){$deactivation_date=""}
    if (not defined $account_type){$account_type=""}
@@ -2421,10 +2415,10 @@ foreach my $row (@$array_ref){
       $identifier_deactivation_date{$identifier} = "$deactivation_date";
    }
 
-   # ExitAdminClass is optional
-   if ($exit_admin_class ne "") {        
+   # ExitAdminClass is must
+   #if ($exit_admin_class ne "") {        
       $identifier_exit_adminclass{$identifier} = "$exit_admin_class";
-   }
+   #}
 
    # AccountType is optional
    if ($account_type ne "") {        
@@ -2435,8 +2429,6 @@ foreach my $row (@$array_ref){
    if ($usertoken ne "") {        
       $identifier_usertoken{$identifier} = "$usertoken";
    }
-
-
 
    # increase counter for users
    $number++;
@@ -2801,7 +2793,7 @@ sub update_user_db_entry {
               # in klasse lehrer versetzten
               $home_dir="${DevelConf::homedir_teacher}/${login}";
            } else {
-              # in andere Klasse versetzten (auch dachboden/speicher)
+              # in andere Klasse versetzten (auch attic)
               $home_dir="${DevelConf::homedir_pupil}/${gid_name}/${login}";
            } 
            # groupsid
@@ -4104,7 +4096,8 @@ sub show_class_list {
         if (not defined $department){
 	    $department="";
         }
-        if (not ($gid eq "speicher" or $gid eq "dachboden")){
+#        if (not ($gid eq "speicher" or $gid eq "dachboden")){
+        if (not ($gid eq "attic")){
         printf "%-15s|%10s|%4s |%1s|%1s| %-19s| %-18s\n",$gid,
                 $quota,$mailquota,$mailalias,$maillist,
                 $schooltype,$department;
