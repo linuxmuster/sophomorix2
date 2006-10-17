@@ -395,7 +395,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("exitadminclass", "m4kb");
 &ok_account("gecos", "Joerg Maier");
 &ok_account("gid", "attic");
-&ok_account("homedirectory", "/home/students/attic/$account{'uid'}");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
 &ok_account("displayname", "Joerg Maier");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
@@ -434,7 +434,7 @@ $login = &fetch_login("surname='Maier'
 &ok_account("deactivationdate", "");
 &ok_account("gecos", "Joerg Maier");
 &ok_account("gid", "attic");
-&ok_account("homedirectory", "/home/students/attic/$account{'uid'}");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
 &ok_account("displayname", "Joerg Maier");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
@@ -468,7 +468,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("exitadminclass", "m4kb");
 &ok_account("gecos", "Joerg Maier");
 &ok_account("gid", "attic");
-&ok_account("homedirectory", "/home/students/attic/$account{'uid'}");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
 &ok_account("displayname", "Joerg Maier");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
@@ -507,7 +507,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("unid", "");
 &ok_account("exitunid", "");
 &ok_account("gid", "attic");
-&ok_account("homedirectory", "/home/students/attic/$account{'uid'}");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
 &ok_account("displayname", "Joerg Maier");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
@@ -764,7 +764,7 @@ $login = &fetch_login("surname='Wall'
 &ok_account("gecos", "Larry Wall");
 &ok_account("exitadminclass", "2c");
 &ok_account("gid", "attic");
-&ok_account("homedirectory", "/home/students/attic/$account{'uid'}");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
 &ok_account("displayname", "Larry Wall");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
@@ -1281,7 +1281,7 @@ foreach my $login (@logins){
 &ok_account("unid", "");
 &ok_account("exitunid", "");
 &ok_account("gid", "attic");
-&ok_account("homedirectory", "/home/students/attic/$account{'uid'}");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
 &ok_account("displayname", "Joerg Maier");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
@@ -1311,7 +1311,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("unid", "");
 &ok_account("exitunid", "");
 &ok_account("gid", "attic");
-&ok_account("homedirectory", "/home/students/attic/$account{'uid'}");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
 &ok_account("displayname", "Mohammad Oetztuerk");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
@@ -1341,7 +1341,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("unid", "");
 &ok_account("exitunid", "123456789");
 &ok_account("gid", "attic");
-&ok_account("homedirectory", "/home/students/attic/$account{'uid'}");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
 &ok_account("displayname", "Richard Stallman");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
@@ -1372,7 +1372,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "attic");
-&ok_account("homedirectory", "/home/students/attic/$account{'uid'}");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
 &ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
@@ -1402,7 +1402,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("unid", "");
 &ok_account("exitunid", "");
 &ok_account("gid", "attic");
-&ok_account("homedirectory", "/home/students/attic/$account{'uid'}");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
 &ok_account("displayname", "Charles Darwin");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
@@ -1454,7 +1454,7 @@ $login = &fetch_login("surname='Mahn'
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "attic");
-&ok_account("homedirectory", "/home/students/attic/$account{'uid'}");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
 &ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
@@ -1492,7 +1492,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "attic");
-&ok_account("homedirectory", "/home/students/attic/$account{'uid'}");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
 &ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
@@ -1532,7 +1532,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "attic");
-&ok_account("homedirectory", "/home/students/attic/$account{'uid'}");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
 &ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
@@ -1567,7 +1567,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "attic");
-&ok_account("homedirectory", "/home/students/attic/$account{'uid'}");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
 &ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
@@ -1607,7 +1607,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "attic");
-&ok_account("homedirectory", "/home/students/attic/$account{'uid'}");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
 &ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
@@ -1643,7 +1643,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "attic");
-&ok_account("homedirectory", "/home/students/attic/$account{'uid'}");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
 &ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
