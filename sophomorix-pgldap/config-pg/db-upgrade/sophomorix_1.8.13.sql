@@ -2,7 +2,7 @@
 BEGIN WORK;
 
 ALTER TABLE posix_account_details ADD usertoken character varying(255) NULL;
-ALTER TABLE posix_account_details ADD scheduled_delete date NULL;
+ALTER TABLE posix_account_details ADD scheduled_toleration date NULL;
 
 DROP VIEW userdata;
 
@@ -58,7 +58,7 @@ posix_account_details.ethicsparticipation,
 posix_account_details.education, posix_account_details.occupation,
 posix_account_details.starttraining,
 posix_account_details.usertoken,
-posix_account_details.scheduled_delete,
+posix_account_details.scheduled_toleration,
 posix_account_details.endtraining, groups.gid FROM (((posix_account
 FULL JOIN samba_sam_account ON ((posix_account.id =
 samba_sam_account.id))) FULL JOIN posix_account_details ON
