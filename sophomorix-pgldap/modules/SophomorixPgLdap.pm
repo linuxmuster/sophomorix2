@@ -3696,7 +3696,7 @@ sub search_user {
                             gecos, homedirectory, firstpassword, quota,
                             sambaacctflags, sambahomepath, sambahomedrive,
                             sambalogonscript,sambaprofilepath,usertoken,
-                            scheduled_delete 
+                            scheduled_toleration 
                          FROM userdata
                          WHERE uid LIKE $str
                             OR firstname LIKE $str
@@ -3731,13 +3731,13 @@ sub search_user {
            $sambalogonscript,
            $sambaprofilepath, 
            $usertoken,
-           $scheduled_delete,
+           $scheduled_toleration,
            ) = @$row;
 
        my $birthday=&date_pg2perl($birthday_pg);
        my $tol=&date_pg2perl($toleration_date_pg);
        my $deact=&date_pg2perl($deactivation_date_pg);
-       my $sched_del=&date_pg2perl($scheduled_delete);
+       my $sched_del=&date_pg2perl($scheduled_toleration);
 
        # Gruppen-Zugehoerigkeit
        $pri_group_string="";
@@ -3759,14 +3759,14 @@ sub search_user {
        print "=======================================";
        print "=======================================\n";
 
-       printf "  AdminClass       : %-47s %-11s\n",$admin_class,$login;
-       printf "  PrimaryGroup     : %-47s %-11s\n",$pri_group_string,$login;
+       printf "  AdminClass         : %-45s %-11s\n",$admin_class,$login;
+       printf "  PrimaryGroup       : %-45s %-11s\n",$pri_group_string,$login;
 
        foreach my $gr (@group_list){
 	   $grp_string= $grp_string." ".$gr;
        }
-       printf "  SecondaryGroups  :%-48s %-11s\n",$grp_string,$login;
-       printf "  Gecos            : %-47s %-11s\n", $gecos,$login;
+       printf "  SecondaryGroups    :%-46s %-11s\n",$grp_string,$login;
+       printf "  Gecos              : %-45s %-11s\n", $gecos,$login;
 
        if (-e $home){
           $home_ex=$home."  (existing)";
@@ -3774,62 +3774,62 @@ sub search_user {
           $home_ex=$home."  (ERROR: non-existing)";
        }
        if (defined $home){
-          printf "  Home             : %-47s %-11s\n",$home_ex,$login;
+          printf "  Home               : %-45s %-11s\n",$home_ex,$login;
        }
 
        if (defined $loginshell){
-          printf "  loginShell       : %-47s %-11s\n",$loginshell,$login;
+          printf "  loginShell         : %-45s %-11s\n",$loginshell,$login;
        }
 
        print "Sophomorix:\n";
        if (defined $usertoken){
-          printf "  Usertoken        : %-47s %-11s\n",$usertoken,$login;
+          printf "  Usertoken          : %-45s %-11s\n",$usertoken,$login;
        }
 
-       printf "  FirstPassword    : %-47s %-11s\n",$first_pass,$login;
-       printf "  Birthday         : %-47s %-11s\n",$birthday,$login;
+       printf "  FirstPassword      : %-45s %-11s\n",$first_pass,$login;
+       printf "  Birthday           : %-45s %-11s\n",$birthday,$login;
 
        if (defined $unid){
-          printf "  Unid             : %-47s %-11s\n",$unid,$login;
+          printf "  Unid               : %-45s %-11s\n",$unid,$login;
        }
 
        if (defined $subclass){
-	  printf "  SubClass         : %-47s %-11s\n",$subclass,$login;
+	  printf "  SubClass           : %-45s %-11s\n",$subclass,$login;
        }
 
        if (defined $status){
-	  printf "  Status           : %-47s %-11s\n",$status,$login;
+	  printf "  Status             : %-45s %-11s\n",$status,$login;
        }
 
        if (defined $tol){
-          printf "  CreationDate     : %-47s %-11s\n",$cre,$login;
+          printf "  CreationDate       : %-45s %-11s\n",$cre,$login;
        }
 
        if (defined $tol){
-          printf "  TolerationDate   : %-47s %-11s\n",$tol,$login;
+          printf "  TolerationDate     : %-45s %-11s\n",$tol,$login;
        }
 
        if (defined $deact){
-          printf "  DeactivationDate : %-47s %-11s\n",$deact,$login;
+          printf "  DeactivationDate   : %-45s %-11s\n",$deact,$login;
        }
 
        if (defined $sched_del){
-          printf "  ScheduledDelete  : %-47s %-11s\n",$sched_del,$login;
+          printf "  ScheduledToleration: %-45s %-11s\n",$sched_del,$login;
        }
 
        if (defined $ex_admin){
-	  printf "  ExitAdminClass   : %-47s %-11s\n",$ex_admin,$login;
+	  printf "  ExitAdminClass     : %-45s %-11s\n",$ex_admin,$login;
        }
 
        if (defined $acc_type){
-	  printf "  AccountType      : %-47s %-11s\n",$acc_type,$login;
+	  printf "  AccountType        : %-45s %-11s\n",$acc_type,$login;
        }
 
        if($Conf::use_quota eq "yes"){
           if (defined $quota){
-	     printf "  Quota (MB)       : %-47s %-11s\n",$quota,$login;
+	     printf "  Quota (MB)         : %-45s %-11s\n",$quota,$login;
           } else {
-	     print  "  Quota (MB)       : --- \n";
+	     print  "  Quota (MB)         : --- \n";
           }
           if (-e "/usr/bin/quota"){
 #	     print "  "; # indent output of following command
@@ -3846,23 +3846,23 @@ sub search_user {
        print "Samba:\n";
 
        if (defined $sambaacctflags){
-          printf "  sambaAcctFlags   : %-47s %-11s\n",$sambaacctflags,$login;
+          printf "  sambaAcctFlags     : %-45s %-11s\n",$sambaacctflags,$login;
        }
 
        if (defined $sambahomepath){
-          printf "  sambaHomePath    : %-47s %-11s\n",$sambahomepath,$login;
+          printf "  sambaHomePath      : %-45s %-11s\n",$sambahomepath,$login;
        }
 
        if (defined $sambahomedrive){
-          printf "  sambaHomeDrive   : %-47s %-11s\n",$sambahomedrive,$login;
+          printf "  sambaHomeDrive     : %-45s %-11s\n",$sambahomedrive,$login;
        }
 
        if (defined $sambalogonscript){
-          printf "  sambaLogonScript : %-47s %-11s\n",$sambalogonscript,$login;
+          printf "  sambaLogonScript   : %-45s %-11s\n",$sambalogonscript,$login;
        }
 
        if (defined $sambaprofilepath){
-          printf "  sambaProfilePath : %-47s %-11s\n",$sambaprofilepath,$login;
+          printf "  sambaProfilePath   : %-45s %-11s\n",$sambaprofilepath,$login;
        }
 
        # webmin, database independent
