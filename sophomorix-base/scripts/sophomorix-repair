@@ -281,6 +281,7 @@ sub repair_directories {
        s/\$homedir_pupil/${DevelConf::homedir_pupil}/;     
        s/\$homedir_teacher/$DevelConf::homedir_teacher/; 
        s/\$homedir_ws/$DevelConf::homedir_ws/; 
+       s/\$attic/$DevelConf::attic/; 
 
        # order is important($homedir_samba must be replaced at last)    
        s/\$homedir_samba_cds/$DevelConf::homedir_samba_cds/;     
