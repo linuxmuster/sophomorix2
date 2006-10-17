@@ -357,7 +357,7 @@ my $value="";
 # ===========================================================================
 # Existenz wichtiger Dateien prüfen
 # ===========================================================================
-&check_datei_exit("${DevelConf::users_pfad}/schueler.txt");
+&check_datei_touch("${DevelConf::users_pfad}/schueler.txt");
 &check_config_template("entfernen.txt");
 &check_config_template("sperrklassen.txt");
 &check_config_template("extrakurse.txt");
