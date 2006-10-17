@@ -1247,9 +1247,6 @@ KNOWN BUG: smbpasswd -d user tut nicht bei usern mitöäüÖÄÜß.
 
 Feature Request:
 
-user soll in schulkonsole dazuerhaft/immer sehen WER gerade 
-angemeldet ist.
-
 Klassen/Raum/... wechseln. wieso nicht schon, wenn ich im pulldown
 menue was wähle (Wechseln-button weglassen?)
 
@@ -1280,11 +1277,41 @@ ml3cd: LANG ist leer
 - aike: usertoken (when not empty in db/usertoken in lehrer.txt 
         use usertoken as Kürzel)
 
+printing userlists: print *.csv *.xls of classes in schulkonsole
+
+
+pgmadmin und gruppenzugehörigkeit lässt keine msi pakete zu.
+
+backup user database rauswerfen
+
+
+print Befehl (in Werkvertrag ergänzen):
+
+sophomorix-print --classlist klasse --postfix username
+(oder statt --postfix ... --caller  : so wie bei der Passwortliste erstellen)
+Die Dateien entstehen in /var/lib/sophomorix/print-data/klasse-classlist.csv
+bzw. *.pdf
+
+
+Liste von log-dateien die zum debuggen von sophomorix notwendig sind
+
+Befehl zum packen und ablegen von Dateien, die zum support geschickt 
+werden sollen
+
+Filesystem-hirarchie soll erhalten bleiben.
 
 
 ================== CHANGELOG ========================================
 
 1.8.15-1 (2006-09-xx)
+   - sophomorix-test: use path /home/attic
+   - moved homes of attic users to /home/attic
+   - use attic instead of dachboden/speicher (homes are still in /home students)
+   - create /home/attic with sophomorix-repair and repair.directories
+   - create lehrer.txt and schueler.txt, when they are not existing
+   - exit with unlocking and logging when
+     slapd and postgres is not running 
+   - renamed scheduled_delete to scheduled_toleration
    - show scheduled_delete and usertoken with sophomorix-user 
    - added field scheduled_delete in posix_account_details
    - modified type of posix_account_datails.usertoken to varchar
