@@ -1,0 +1,71 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH SOPHOMORIX-SUPPORT 8 "October 24, 2006"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenationand right margins
+.\" .nf        disable filling right margins
+.\" .nf        disable filling
+.\" .hy        enable hyphenation
+.\" .ad l      left justifyand right and right margins
+.\" .nf        disable fillingand right margins
+.\" .nf        disable fillingmargins
+.\" .nf        disable filling
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable fillingand right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+sophomorix-support \- Dateien für Support packen
+.SH SYNOPSIS
+.B sophomorix-support
+.RI [ options ]
+.br
+.SH DESCRIPTION
+Mit sophomorix-support kann man eine Auswahl von Dateien packen, die
+als wichtige Informationen zum Support geschickt werden können.
+.TP
+WARNUNG: Diese Dateien enthalten sensible Daten wie Passwörter, Namen \
+von Lehrern und Schülern, sowie deren Geburtstage. Geben sie diese \
+Daten nur vertrauenswürdigen Personen!
+.TP
+.SH OPTIONS
+.B sophomorix-support
+benützt die GNU command line syntax, mit langen Optionen, die mit zwei Bindestrichen (`-') beginnen:
+.TP
+.B \-h, \-\-help
+Kurzübersicht über Optionen.
+.TP
+.B \-i, \-\-info
+Information, welche Dateien gepackt werden.
+.TP
+.B \-v, \-\-verbose
+Sagt, was das Programm gerade macht (verbose)
+.TP
+.B \-vv, \-\-verbose \-\-verbose
+Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
+.TP
+.SH SEE ALSO
+.BR sophomorix (8),
+.BR sophomorix-teach-in (8),
+.BR sophomorix-search (8),
+.BR sophomorix-add (8),
+.BR sophomorix-move (8),
+.BR sophomorix-print (8),
+.BR sophomorix-kill (8),
+.BR sophomorix-subclass (8),
+.BR sophomorix-class (8),
+
+.\".BR baz (1).
+.\".br
+.\"You can see the full options of the Programs by calling for example 
+.\".IR "sophomrix-project -h" ,
+.
+.SH AUTHOR
+This manual page was written by <jeffbeck@web.de>.
