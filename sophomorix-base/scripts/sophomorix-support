@@ -1,0 +1,53 @@
+#!/usr/bin/perl -w
+# $Id$
+# Dieses Script (sophomorix-support) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+# ===========================================================================
+# Bibliotheken
+# ===========================================================================
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+
+# Variablen für Optionen
+
+my @arguments = @ARGV;
+
+
+$Conf::log_level=1;
+my $help=0;
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "help|h" => \$help,
+          );
+
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
+&log_script_start(@arguments);
+
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlbeschreibung
+   print "\n$scriptname packages files to be sent to the support.\n\n";
+   print('
+Options
+  -h  / --help
+
+Please see the sophomorix-support(8) man pages for full documentation
+');
+   print "\n";
+   exit;
+}
+
