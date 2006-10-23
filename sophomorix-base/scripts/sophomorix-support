@@ -18,14 +18,18 @@ use Sophomorix::SophomorixBase;
 # Variablen für Optionen
 
 my @arguments = @ARGV;
+my $config_file="/usr/share/sophomorix/devel/sophomorix-support.conf";
+my $support_tree="/root/sophomorix-support/tree";
 
 
 $Conf::log_level=1;
 my $help=0;
+my $info=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
            "help|h" => \$help,
+           "info|i" => \$info,
           );
 
 
@@ -44,10 +48,59 @@ if ($help==1) {
    print('
 Options
   -h  / --help
+  -i  / --info
 
 Please see the sophomorix-support(8) man pages for full documentation
 ');
    print "\n";
    exit;
+}
+
+
+# --info
+if ($info==1) {
+    my @files=&read_config();
+    &titel("These files are packaged:");
+    foreach my $file (@files){
+        print "   $file \n";
+    }
+    exit;
+}
+
+
+
+# no options 
+my @files=&read_config();
+system("install -d $support_tree");
+&titel("Copying the following files");
+foreach my $file (@files){
+    print "   $file \n";
+    system ("install -D $file ${support_tree}${file}");
+}
+&titel("Packaging files in ${support_tree}");
+
+
+
+
+
+
+
+
+sub read_config {
+    my @configs=();
+    open(CONFIG, "<$config_file");
+    while (<CONFIG>) {
+        if(/^\#/){ # # am Anfang bedeutet Kommentarzeile
+            next;
+        }
+        chomp();
+        my $line=$_;
+        if ($line ne ""){
+            push @configs, $line;
+        }
+    }
+    close(CONFIG);
+    @configs = sort @configs;
+    return @configs;
 }
 
