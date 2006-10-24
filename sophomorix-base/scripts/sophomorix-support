@@ -36,12 +36,25 @@ my $support_tree="${create_dir}/${treename}";
 $Conf::log_level=1;
 my $help=0;
 my $info=0;
+my $add_files="";
+my @add_files=();
+my $add_dirlists="";
+my @add_dirlists=();
 
 # Parsen der Optionen
 my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
+           "add-files=s" => \$add_files,
+           "add-dirlists=s" => \$add_dirlists,
           );
+
+if ($add_files ne ""){
+    (@add_files)=split(/,/,$add_files);
+}
+if ($add_dirlists ne ""){
+    (@add_dirlists)=split(/,/,$add_dirlists);
+}
 
 
 # Prüfen, ob Optionen erkannt wurden
@@ -56,10 +69,13 @@ if ($help==1) {
    my $scriptname = pop @list;
    # Befehlbeschreibung
    print "\n$scriptname packages files to be sent to the support.\n\n";
+   print "WARNING: These files contain sensible data! Do not send unencrypted!\n\n";
    print('
 Options
   -h  / --help
   -i  / --info
+  --add-files file1,file2,...        (absolute paths)
+  --add-dirlists dir1,dir2,...       (absolute paths)
 
 Please see the sophomorix-support(8) man pages for full documentation
 ');
@@ -70,10 +86,18 @@ Please see the sophomorix-support(8) man pages for full documentation
 
 # --info
 if ($info==1) {
-    my @files=&read_config();
+    my ($ref_files,$ref_dirlist)=&read_config();
+    my @files=@$ref_files;
+    @files=(@files,@add_files);
+    my @dirlist=@$ref_dirlist;
+    @dirlist=(@dirlist,@add_dirlists);
     &titel("These files are packaged:");
     foreach my $file (@files){
         print "   $file \n";
+    }
+    &titel("These dirlists are packaged:");
+    foreach my $dir (@dirlist){
+        print "   $dir \n";
     }
     exit;
 }
@@ -83,11 +107,16 @@ if ($info==1) {
 # no options 
 
 # prepare
-my @files=&read_config();
+my ($ref_files,$ref_dirlist)=&read_config();
+my @files=@$ref_files;
+@files=(@files,@add_files);
+my @dirlist=@$ref_dirlist;
+@dirlist=(@dirlist,@add_dirlists);
 system("install -d $support_tree");
 open (LOG,">${support_tree}/${logfile}");
 
 # creating a tree
+# files
 &titel("Copying the following files");
 foreach my $file (@files){
     print "   $file \n";
@@ -99,12 +128,34 @@ foreach my $file (@files){
         print LOG "not existing: $file \n";
     }
 }
+# ls-al files
+&titel("Listing contents of the following files");
+foreach my $dir (@dirlist){
+    print "   $dir \n";
+
+    if (-e $dir) {
+        print LOG "ls-al:        Directory $dir \n";
+        system ("install -d ${support_tree}${dir}");
+        system ("ls -al $dir > ${support_tree}${dir}/ls-al");
+    } else {
+        print LOG "not existing: Directory $dir \n";
+    }
+}
+
+close(LOG);
 
 
 # zipping the tree
 &titel("Packaging files in ${support_tree}");
 system("cd $create_dir; zip -r  ./${treename}.zip ./${treename}");
-close(LOG);
+system ("rm -rf ${create_dir}/${treename}");
+
+
+&titel("The following file is ready to be sent to the support:");
+&titel("${create_dir}/${treename}.zip");
+&titel("WARNING: This file contains sensible data!");
+&titel("         Do not send unencrypted!");
+
 
 
 
@@ -116,6 +167,7 @@ close(LOG);
 
 sub read_config {
     my @configs=();
+    my @dirlist=();
     open(CONFIG, "<$config_file");
     while (<CONFIG>) {
         if(/^\#/){ # # am Anfang bedeutet Kommentarzeile
@@ -124,11 +176,17 @@ sub read_config {
         chomp();
         my $line=$_;
         if ($line ne ""){
-            push @configs, $line;
+	    if ($line=~/^DIRLIST/){
+                my ($tag,$dir)=split(/::/,$line);
+                push @dirlist, $dir;
+            } else {
+                push @configs, $line;
+            }
         }
     }
     close(CONFIG);
     @configs = sort @configs;
-    return @configs;
+    @dirlist = sort @dirlist;
+    return (\@configs,\@dirlist);
 }
 
