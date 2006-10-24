@@ -35,6 +35,19 @@ WARNUNG: Diese Dateien enthalten sensible Daten wie Passwörter, Namen \
 von Lehrern und Schülern, sowie deren Geburtstage. Geben sie diese \
 Daten nur vertrauenswürdigen Personen!
 .TP
+Die Dateien, die gepackt werden sind in sophomorix-support.conf \
+angegeben. Diese Datei wird bei einem Paketupdate von sophomorix-base \
+überschrieben.
+.TP
+Sollen zusätzliche Dateien gepackt werden verwenden sie die unten \
+angegebenen Optionen.
+.TP
+Den Inhalt der entstandenen *.zip-Datei kann mit 'unzip -l file.zip' angezeigt \
+werden. Dazu muss bei Debian das Paket 'unzip' installiert sein.
+.TP
+Nach dem entpacken auf einem anderen Rechner mit 'unzip file.zip' liegen \
+die Dateien wieder in demselben Pfad wie auf dem Originalsystem vor.
+.TP
 .SH OPTIONS
 .B sophomorix-support
 benützt die GNU command line syntax, mit langen Optionen, die mit zwei Bindestrichen (`-') beginnen:
@@ -45,11 +58,16 @@ Kurzübersicht über Optionen.
 .B \-i, \-\-info
 Listet auf, welche Dateien gepackt werden.
 .TP
-.B \-v, \-\-verbose
-Sagt, was das Programm gerade macht (verbose)
+.B \--add-files file1,file2,file3,...
+Packt die Dateien file1,file2,file3,... zusätzlich in das Paket. \
+Die Dateien müssen mit absolutem Pfad angegeben werden.
 .TP
-.B \-vv, \-\-verbose \-\-verbose
-Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
+.B \--add-dirlists dir1,dir2,dir3,...
+Listet den Inhalt der mit absolutem Pfad anzugebenden Verzeichnisse \
+dir1,dir2,dir3,... mit ls -al \
+in die Dateien dir1/ls-al,dir2/ls-al,... \
+Die Dateien dir1/ls-al,dir2/ls-al,... werden zusätzlich eingepackt.
+.TP
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
