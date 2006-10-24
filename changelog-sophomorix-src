@@ -1301,23 +1301,20 @@ bzw. *.pdf
 
 
 
+create list sophomorix-support.conf
 
 Liste von log-dateien die zum debuggen von sophomorix notwendig sind
-
-Befehl zum packen und ablegen von Dateien, die zum support geschickt 
-werden sollen
-
-Filesystem-hirarchie soll erhalten bleiben.
-
 Example scripts from Klaas are in support/*
 
 
 ================== CHANGELOG ========================================
 
 1.8.15-1 (2006-09-xx)
-   - creating a tree in /root/sophomorix-support
-   - added configuration file sophomorix-support.conf
-   - added sophomorix-support and manpage (script does nothing)
+   - packaging files for the support
+      - logging files in the tree in support.log
+      - creating a tree in /root/sophomorix-support
+      - added configuration file sophomorix-support.conf
+      - added sophomorix-support and manpage (script does nothing)
    - sophomorix-test: use path /home/attic
    - moved homes of attic users to /home/attic
    - use attic instead of dachboden/speicher (homes are still in /home students)
