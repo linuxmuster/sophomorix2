@@ -1301,16 +1301,14 @@ bzw. *.pdf
 
 
 
-create list sophomorix-support.conf
-
-Liste von log-dateien die zum debuggen von sophomorix notwendig sind
-Example scripts from Klaas are in support/*
-
 
 ================== CHANGELOG ========================================
 
-1.8.15-1 (2006-09-xx)
+1.9.1-1 (2006-10-xx)
    - packaging files for the support
+      - added options to add custom files to the *.zip
+      - added DIRLIST-tag in sophomorix-support.conf to pack ls-al files
+        into *.zip 
       - logging files in the tree in support.log
       - creating a tree in /root/sophomorix-support
       - added configuration file sophomorix-support.conf
@@ -1359,8 +1357,6 @@ Example scripts from Klaas are in support/*
                                   sophomorix-print
      used this option when calling these scripts from within other 
      sophomorix scripts
-
-
 
    - s*-kill,-move,-add: count users when showing --info
    - removed from sophomorix-test-bunchofusers to handoutcopy to 
