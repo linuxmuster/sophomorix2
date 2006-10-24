@@ -19,7 +19,18 @@ use Sophomorix::SophomorixBase;
 
 my @arguments = @ARGV;
 my $config_file="/usr/share/sophomorix/devel/sophomorix-support.conf";
-my $support_tree="/root/sophomorix-support/tree";
+my $create_dir="/root/sophomorix-support";
+my $logfile="support.log";
+
+my $hostname=`hostname`;
+chomp($hostname);
+my $dnsdomainname=`dnsdomainname`;
+chomp($dnsdomainname);
+my $timestamp = `date '+%Y-%m-%d_%H-%M'`;
+chomp($timestamp);
+my $treename=$hostname.".".$dnsdomainname."-".$timestamp;
+my $support_tree="${create_dir}/${treename}";
+
 
 
 $Conf::log_level=1;
@@ -70,21 +81,38 @@ if ($info==1) {
 
 
 # no options 
+
+# prepare
 my @files=&read_config();
 system("install -d $support_tree");
+open (LOG,">${support_tree}/${logfile}");
+
+# creating a tree
 &titel("Copying the following files");
 foreach my $file (@files){
     print "   $file \n";
-    system ("install -D $file ${support_tree}${file}");
+
+    if (-e $file) {
+        print LOG "copying:      $file \n";
+        system ("install -D $file ${support_tree}${file}");
+    } else {
+        print LOG "not existing: $file \n";
+    }
 }
+
+
+# zipping the tree
 &titel("Packaging files in ${support_tree}");
+system("cd $create_dir; zip -r  ./${treename}.zip ./${treename}");
+close(LOG);
 
 
 
 
 
-
-
+############################################################
+# sub
+############################################################
 
 sub read_config {
     my @configs=();
