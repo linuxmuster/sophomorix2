@@ -22,11 +22,13 @@ use Term::ANSIColor qw(:constants); # farbiger Text RED, BLUE, ...
 $Term::ANSIColor::AUTORESET = 1;
 use DBI;
 use Net::LDAP;
+use Date::Calc qw(check_date);
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     db_connect
                                     check_connections
                                     search_user
                                     update_user_db_entry
+                                    date_pg2perl
                                     user_deaktivieren
                                     user_reaktivieren     
                                     check_sophomorix_user
@@ -53,6 +55,8 @@ my $permanent="";
 my $removable="";
 my $killable="";
 my $activate="";
+my $user="";
+my $sc_toleration="";
 my $reset_user="";
 my $search="";
 
@@ -69,6 +73,8 @@ my $testopt=GetOptions(
        "A|activate=s" => \$activate,
        "reset-user=s" => \$reset_user,
        "empty-password" => \$empty_password,
+       "scheduled-toleration=s" => \$sc_toleration,
+       "u|user=s" => \$user,
           );
 
 
@@ -92,11 +98,13 @@ Options
   -v  / --verbose
   -vv / --verbose --verbose
   -s string / --search string
-  -F loginname   /   --freeze loginname
-  -P loginname   /   --permanent loginname
-  -R loginname   /   --removable loginname
-  -K loginname   /   --killable loginname
-  -A loginname   /   --activate loginname
+  -F user   /   --freeze user
+  -P user   /   --permanent user
+  -R user   /   --removable user
+  -K user   /   --killable user
+  -A    /   --activate user
+  --user user --scheduled-toleration yyyy-mm--dd
+
   --reset-user user1,user2,...
 
 Please see the sophomorix-user(8) man pages for full documentation
@@ -438,6 +446,50 @@ if ($activate ne""){
                           "TolerationDate=$today",
                           "DeactivationDate=");
     &user_reaktivieren($activate);
+    exit;
+}
+
+
+
+# --user user --scheduled-toleration
+if ($user ne"" and $sc_toleration ne ""){
+    print "Setting ScheduledToleration date for $user:\n";
+    # check if it is really an account
+    if (getpwnam("$user")){
+	print "   - $user is a valid username.\n";
+    } else {
+	print "   - $user is not a valid username.\n";
+        exit;
+    }
+    # check date
+    my ($year,$month,$day)=split(/-/,$sc_toleration);
+    if (not defined $month){
+        $month=100;
+    }
+    if (not defined $day ){
+        $day=100;
+    }
+    if ($month eq ""){
+        $month=100;
+    }
+    if ($day eq "" ){
+        $day=100;
+    }
+
+    # check if date exists
+    # return 1 when valid
+    # return 0 when invalid
+    my $return=check_date($year,$month,$day);
+    if ($return==0){
+        print "Date $sc_toleration is not a valid date ",
+              "(use this syntax: 2012-04-22)\n";
+    } else {
+        $sc_toleration=&date_pg2perl($sc_toleration);
+	print "   - $sc_toleration is a valid date.\n";
+        # set scheduled-toletration for the account
+        &update_user_db_entry($user, 
+                              "ScheduledToleration=$sc_toleration");
+    }
     exit;
 }
 

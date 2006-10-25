@@ -312,6 +312,7 @@ my %schueler_ok_wunsch_passwort_hash=();
 my %schueler_im_system_exit_admin_class=();
 my %schueler_im_system_account_type=();
 my %identifier_sys_usertoken = ();
+my %identifier_sc_tol = ();
  
 my $schueler_weg_anzahl=0;
 my $schueler_hinzu_anzahl=0;
@@ -498,6 +499,7 @@ my ($ref_login,
     $ref_exit_adminclass,
     $ref_account_type,
     $ref_usertoken,
+    $ref_scheduled_toleration,
    ) = &get_sys_users();
 
 # identifier - klasse (ohne k = sophomorixAdminClass)
@@ -529,6 +531,9 @@ my ($ref_login,
 
 # identifier - usertoken 
 %identifier_sys_usertoken = %$ref_usertoken;
+
+# identifier - usertoken 
+%identifier_sc_tol = %$ref_scheduled_toleration;
 
 
 
@@ -3143,6 +3148,15 @@ if($Conf::log_level>=3){
          "         DeactivationDate:\n");
    &linie();
    while (($k,$v) = each %user_deaktivierungsbeginn){
+     printf "%-40s %-3s\n","$k","$v";
+   }
+   &linie();
+
+   # print scheduled-toleration
+   print("Identifier (identifier_sc_tol): ",
+         "         ScheduledToleration:\n");
+   &linie();
+   while (($k,$v) = each %identifier_sc_tol){
      printf "%-40s %-3s\n","$k","$v";
    }
    &linie();

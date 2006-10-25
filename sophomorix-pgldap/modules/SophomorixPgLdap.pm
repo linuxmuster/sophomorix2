@@ -2247,11 +2247,12 @@ sub get_sys_users {
    my %identifier_exit_adminclass=();
    my %identifier_account_type=();
    my %identifier_usertoken=();
+   my %identifier_sc_tol=();
 
    my $dbh=&db_connect();
 
 # select the columns that i need
-my $sth= $dbh->prepare( "SELECT uid, firstname, surname, birthday, adminclass, exitadminclass, unid, subclass, tolerationdate, deactivationdate, sophomorixstatus, usertoken FROM userdata" );
+my $sth= $dbh->prepare( "SELECT uid, firstname, surname, birthday, adminclass, exitadminclass, unid, subclass, tolerationdate, deactivationdate, sophomorixstatus, usertoken, scheduled_toleration FROM userdata" );
 $sth->execute();
 
 my $array_ref = $sth->fetchall_arrayref();
@@ -2273,6 +2274,7 @@ foreach my $row (@$array_ref){
         $deactivation_date_pg,
         $status,
         $usertoken,
+        $scheduled_toleration,
         ) = @$row;
 
 
@@ -2293,6 +2295,7 @@ foreach my $row (@$array_ref){
    if (not defined $subclass){$subclass=""}
    if (not defined $exit_admin_class){$exit_admin_class=""}
    if (not defined $usertoken){$usertoken=""}
+   if (not defined $scheduled_toleration){$scheduled_toleration=""}
 
    # exclude one user ????????ß
    if ($login eq "NextFreeUnixId"){
@@ -2315,68 +2318,75 @@ foreach my $row (@$array_ref){
    if($Conf::log_level>=3){
       print "\n";
       print "User $number  Attributes (MUST): \n";
-      print "  Login       :   $login \n"; 
-      print "  AdminClass  :   $admin_class \n";
-      print "  Birthday(pg):   $birthday_pg \n";
-      print "  Birthday(pl):   $birthday \n";
-      print "  Identifier  :   $identifier \n";
+      print "  Login        :   $login \n"; 
+      print "  AdminClass   :   $admin_class \n";
+      print "  Birthday(pg) :   $birthday_pg \n";
+      print "  Birthday(pl) :   $birthday \n";
+      print "  Identifier   :   $identifier \n";
 
       print "User Attributes (MAY): \n";
 
       # unid is optional
       if ($unid ne "") {
-         print "  Unid              :   $unid \n" ;
+         print "  Unid                 :   $unid \n" ;
       } else {
-         print "  Unid              :   --- \n" ;
+         print "  Unid                 :   --- \n" ;
       }
 
       # usertoken is optional
       if ($usertoken ne "") {
-         print "  Usertoken         :   $usertoken \n" ;
+         print "  Usertoken            :   $usertoken \n" ;
       } else {
-         print "  Usertoken         :   --- \n" ;
+         print "  Usertoken            :   --- \n" ;
       }
 
       # subclass is optional
       if ($subclass ne "") {
-         print "  SubClass          :   $subclass \n" ;
+         print "  SubClass             :   $subclass \n" ;
       } else {
-         print "  SubClass          :   --- \n" ;
+         print "  SubClass             :   --- \n" ;
       }
 
       # Status
       if ($status ne "") {
-         print "  Status            :   $status \n" ;
+         print "  Status               :   $status \n" ;
       } else {
-         print "  Status            :   --- \n" ;
+         print "  Status               :   --- \n" ;
       }
 
       # TolerationDate is optional
       if ($toleration_date ne "") {
-         print "  TolerationDate    :   $toleration_date \n" ;
+         print "  TolerationDate       :   $toleration_date \n" ;
       } else {
-         print "  TolerationDate    :   --- \n" ;
+         print "  TolerationDate       :   --- \n" ;
+      }
+
+      # ScheduledToleration is optional
+      if ($scheduled_toleration ne "") {
+         print "  ScheduledToleration  :   $scheduled_toleration \n" ;
+      } else {
+         print "  ScheduledToleration  :   --- \n" ;
       }
 
       # DeactivationDate is optional
       if ($deactivation_date ne "") {
-         print "  DeactivationDate  :   $deactivation_date \n" ;
+         print "  DeactivationDate     :   $deactivation_date \n" ;
       } else {
-         print "  DeactivationDate  :   --- \n" ;
+         print "  DeactivationDate     :   --- \n" ;
       }
 
       # ExitAdminClass is optional
       if ($exit_admin_class ne "") {
-         print "  ExitAdminClass    :   $exit_admin_class \n" ;
+         print "  ExitAdminClass       :   $exit_admin_class \n" ;
       } else {
-         print "  ExitAdminClass    :   --- \n" ;
+         print "  ExitAdminClass       :   --- \n" ;
       }
 
       # AccountType is optional
       if ($account_type ne "") {
-         print "  AccountType       :   $account_type \n" ;
+         print "  AccountType          :   $account_type \n" ;
       } else {
-         print "  AccountType       :   --- \n" ;
+         print "  AccountType          :   --- \n" ;
       }
 
           print "\n";
@@ -2413,6 +2423,11 @@ foreach my $row (@$array_ref){
    # DeactivationDate is optional
    if ($deactivation_date ne "") {        
       $identifier_deactivation_date{$identifier} = "$deactivation_date";
+   }
+
+   # ScheduledToleration is optional
+   if ($scheduled_toleration ne "") {        
+      $identifier_sc_tol{$identifier} = "$scheduled_toleration";
    }
 
    # ExitAdminClass is must
@@ -2453,6 +2468,7 @@ foreach my $row (@$array_ref){
           \%identifier_exit_adminclass,
           \%identifier_account_type,
           \%identifier_usertoken,
+          \%identifier_sc_tol,
          );
 }
 
@@ -2701,6 +2717,7 @@ sub update_user_db_entry {
     my $status="";
     my $toleration_date="",
     my $deactivation_date="";
+    my $sc_toleration_date="",
     my $exit_admin_class="";
     my $usertoken="";
     my $account_type="";
@@ -2774,6 +2791,13 @@ sub update_user_db_entry {
 	       $deactivation_date="'".$deactivation_date."'";
            }
 	   push @posix_details, "deactivationdate = $deactivation_date";
+       }
+       elsif ($attr eq "ScheduledToleration"){
+           $sc_toleration_date=&date_perl2pg($value);
+           if ($sc_toleration_date ne "NULL"){
+	       $sc_toleration_date="'".$sc_toleration_date."'";
+           }
+	   push @posix_details, "scheduled_toleration = $sc_toleration_date";
        }
        elsif ($attr eq "ExitAdminClass"){
            $exit_admin_class="$value";
