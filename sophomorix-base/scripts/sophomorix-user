@@ -27,6 +27,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     db_connect
                                     check_connections
                                     search_user
+                                    fetchdata_from_account
                                     update_user_db_entry
                                     date_pg2perl
                                     user_deaktivieren
@@ -56,7 +57,7 @@ my $removable="";
 my $killable="";
 my $activate="";
 my $user="";
-my $sc_toleration="";
+my $sc_toleration="empty";
 my $reset_user="";
 my $search="";
 
@@ -452,22 +453,38 @@ if ($activate ne""){
 
 
 # --user user --scheduled-toleration
-if ($user ne"" and $sc_toleration ne ""){
-    print "Setting ScheduledToleration date for $user:\n";
+if ($user ne"" and $sc_toleration ne "empty"){
     # check if it is really an account
-    if (getpwnam("$user")){
-	print "   - $user is a valid username.\n";
-    } else {
-	print "   - $user is not a valid username.\n";
-        exit;
-    }
+#    if (getpwnam("$user")){
+#	print "   - $user is a valid username.\n";
+#    } else {
+#	print "   - $user is not a valid username.\n";
+#        exit;
+#    }
+    my ($home,$type,$gecos,$group,$uidnumber)=&fetchdata_from_account($user);
+ 
+  #  if ($type ne "teacher"){
+  #      print "   - $user is NOT a valid username of type 'teacher'\n";
+  #      exit;
+  #  } else {
+  #      print "   - $user is a valid username and of type 'teacher'\n";
+  #  }
+
+
     # check date
     my ($year,$month,$day)=split(/-/,$sc_toleration);
+    # define values, so that check_date does not throw errors 
+    if (not defined $year){
+        $year=9.99;
+    }
     if (not defined $month){
         $month=100;
     }
     if (not defined $day ){
         $day=100;
+    }
+    if ($year eq ""){
+        $year=9.99;
     }
     if ($month eq ""){
         $month=100;
@@ -480,6 +497,12 @@ if ($user ne"" and $sc_toleration ne ""){
     # return 1 when valid
     # return 0 when invalid
     my $return=check_date($year,$month,$day);
+
+    # if date is completely empty, allow this to clear the date in the db
+    if ($sc_toleration eq ""){
+        $return=1;
+    }    
+
     if ($return==0){
         print "Date $sc_toleration is not a valid date ",
               "(use this syntax: 2012-04-22)\n";
@@ -487,6 +510,11 @@ if ($user ne"" and $sc_toleration ne ""){
         $sc_toleration=&date_pg2perl($sc_toleration);
 	print "   - $sc_toleration is a valid date.\n";
         # set scheduled-toletration for the account
+        if ($sc_toleration eq ""){
+            print "Removing ScheduledToleration date for $user \n";
+        } else {
+            print "Setting ScheduledToleration date for $user to $sc_toleration\n";
+        }
         &update_user_db_entry($user, 
                               "ScheduledToleration=$sc_toleration");
     }

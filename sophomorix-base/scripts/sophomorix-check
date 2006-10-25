@@ -29,6 +29,7 @@ my @arguments = @ARGV;
 $Term::ANSIColor::AUTORESET = 1;
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     get_sys_users
+                                    date_pg2perl
                                     update_user_db_entry
                                     user_reaktivieren
                                     user_deaktivieren
@@ -314,6 +315,8 @@ my %schueler_im_system_account_type=();
 my %identifier_sys_usertoken = ();
 my %identifier_sc_tol = ();
  
+my %identifier_origline=();
+
 my $schueler_weg_anzahl=0;
 my $schueler_hinzu_anzahl=0;
 my $schueler_zuversetzen_anzahl=0;
@@ -324,7 +327,6 @@ my %schueler_subklassen=();
 
 # Listen fuer report.admin
 my @admin_list_toleration;
-#   push @admin_list_toleration, "User, die nur noch toleriert werden:\n";
 
 my @admin_list_corrupt;
 my @admin_list_deactivation;
@@ -411,15 +413,15 @@ chomp($heute);
 # ===========================================================================
 
 # Tolerierung bis zu welcher Epochenzeit
-$epoche_duldung_bis_schueler=$epoche_jetzt+86400*$Conf::schueler_duldung_tage;
-
-$epoche_duldung_bis_lehrer=$epoche_jetzt+86400*$Conf::lehrer_duldung_tage;
-
+$epoche_duldung_bis_schueler=
+    $epoche_jetzt+86400*$Conf::schueler_duldung_tage;
+$epoche_duldung_bis_lehrer=
+    $epoche_jetzt+86400*$Conf::lehrer_duldung_tage;
 # Deaktivierung bis zu welcher Epochenzeit
-$epoche_deaktivierung_bis_schueler=$epoche_jetzt+86400*$Conf::schueler_deaktivierung_tage;
-
-$epoche_deaktivierung_bis_lehrer=$epoche_jetzt+86400*$Conf::lehrer_deaktivierung_tage;
-
+$epoche_deaktivierung_bis_schueler=
+    $epoche_jetzt+86400*$Conf::schueler_deaktivierung_tage;
+$epoche_deaktivierung_bis_lehrer=
+    $epoche_jetzt+86400*$Conf::lehrer_deaktivierung_tage;
 
 if($Conf::log_level>=3){
    print "Epochenzeit:                                 ",
@@ -602,13 +604,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
 
    # exit if filterscript does not create schueler.txt.tmp
    if (not -e ${DevelConf::schueler_datei} and $Conf::filter_script ne ""){
-#       print "You have configured to use the following filter script:\n";
-#       print "   $Conf::filter_script\n";
-#       print "This script was called but no file\n";
-#       print "   ${schuelerdatei} \n";
-#       print "was created by the filter script to continue.\n";
        &log_script_exit("ERROR: Filterscript $Conf::filter_script doesnt create ${schuelerdatei}",1,1,0,@arguments);
-#       exit;
    }
 
    open(USERDATEI, "${schuelerdatei}") || 
@@ -862,6 +858,10 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
             if($Conf::log_level>=3){
                 print "### Ergebnis:\n";
             }
+
+            # fill a hash
+            $identifier_origline{$datensatz_ok}="$zeile_orig";
+
             if($Conf::log_level>=2){
                 #printf  "%-10s %-60s","Eingelesen:","$zeile_orig\n";
 	        if ($schuelerdatei eq $schueler_to_check_dateien[3]) {
@@ -871,14 +871,13 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
                 }
                 print "Eingelesener Datensatz:","  $zeile_orig","\n";
                 print "Korrigierter Datensatz:  $datensatz_ok","\n\n";
+                
             }
 
             # ============================================================
             # Kein Fehler aufgetreten, also in sophomorix.ok schreiben:
             # ============================================================
             $schueler_ok_anzahl++;
-
-
 
             print SOPHOMORIXOK "$datensatz_ok\n"; # neu zusammengesetzt
             # In sophomorix.ok sind nun die korrigierten Datensätze 
@@ -974,6 +973,8 @@ my %come_points=();
 
 # A) U,E --->>> T
 #================================================== 
+### 1. Usable(U,scheduled_toleration) -> Tolerated(T)  .move (old class -> attic)
+###&ust_t_check();
 # 1. Usable(U) -> Tolerated(T)  .move (old class -> attic)
 &u_t_check();
 # 2. Enabled(E) -> Tolerated(T) .move (old class -> attic)
@@ -1014,6 +1015,10 @@ my %come_points=();
 # 1. Removeable(R) und Killable(K) bleibt   .kill
 &r_r_check();
 
+# F) scheduled_toleration
+#==================================================
+# 1. Usable(U,scheduled_toleration) -> Tolerated(T)  .move (old class -> attic)
+&ust_t_check();
 
 
 &show_all_hashes();
@@ -1073,11 +1078,6 @@ sub append_move_entry {
     my $login=$schueler_im_system_loginname{$identifier};
     my $move_line = ();
     my $move_message = "";
-
-#    if ($new_class eq "dachboden" and $old_class eq ${DevelConf::teacher}) {
-#        $new_class="speicher";
-#    } 
-
     $move_line="$login"."::".$old_class."::"."$new_class"."::"."$old_status\n";
     $move_message="   $identifier (Login: $login)  $old_class ".
                   "---> $new_class ($old_status)\n";
@@ -1144,6 +1144,68 @@ sub u_u_check {
 
 
 
+sub ust_t_check {
+   my $count=0;
+   &titel("ust_t_check: Suche scheduled_toleration Users -> attic ...");
+   # Usable(U,scheduled toleration) -> Tolerated(T)  .move (old class -> attic) 
+   while ( my ($identifier, $sc_tol) = each %identifier_sc_tol ){
+       # next if user is tolerated already
+       if ($sophomorix_status{$identifier} ne "A"
+           and $sophomorix_status{$identifier} ne "U"
+           and $sophomorix_status{$identifier} ne "E"
+          ){
+           next;
+       }
+       print "   checking user $identifier with scheduled_toleration in $sc_tol \n";
+       my ($year,$month,$day)=split(/-/,$sc_tol);
+       my $sc_tol_perl=&date_pg2perl($sc_tol);
+       $month=$month-1;
+       $year=$year-1900;
+
+       my $epoche_scheduled=timelocal(0,0,0,$day,$month,$year);
+       print "     Scheduled:   $epoche_scheduled ($sc_tol_perl) \n";
+       print "     Today:       $epoche_jetzt ($heute) \n";
+       if ($epoche_scheduled<$epoche_jetzt){
+              print "     INFO: $identifier nur noch toleriert\n";
+              my $login=$schueler_im_system_loginname{$identifier};
+              &update_user_db_entry($login, 
+                                   "Status=T",
+                                    "TolerationDate=$heute");
+              # comment line in lehrer.txt
+              my $origline=$identifier_origline{"teachers;${identifier};"}."\n";
+              $origline=~s/^teachers/lehrer/;
+              open(TEACHER,"<${DevelConf::users_pfad}/lehrer.txt");
+              my $tmp_file=${DevelConf::pruef_pfad}."/lehrer.tmp";
+              open(TEACHERTMP,">$tmp_file");
+              while(<TEACHER>){
+                  if ($_ ne $origline){
+                      print TEACHERTMP "$_";
+                  } else {
+                      print "     commenting in lehrer.txt line of $identifier\n";
+		      print TEACHERTMP "# scheduled_toleration # $_";
+                  }
+              }
+              close(TEACHER);
+              close(TEACHERTMP);
+              system("cp $tmp_file ${DevelConf::users_pfad}/lehrer.txt");
+
+              # report.admin
+              push @admin_list_toleration, 
+                    "$identifier wird ab $heute nur noch toleriert\n";
+              &append_move_entry($identifier,
+                                $schueler_im_system_hash{$identifier},
+                                "attic");
+              
+              # Counter
+              $count++;
+
+	  } else {
+              print "     $identifier: nothing to do\n";
+          }
+   }
+   &titel("ust_t_check:  ... $count scheduled_toleration Users are tolerated");
+}
+
 sub u_t_check {
    my $count=0;
    &titel("u_t_check: Suche User zum tolerieren/-> attic ...");
@@ -1162,19 +1224,14 @@ sub u_t_check {
               # report.admin
               push @admin_list_toleration, 
                     "$identifier wird ab $heute nur noch toleriert\n";
-	      
-#              &append_move_entry($identifier,
-#                                $schueler_im_system_hash{$identifier},
-#                                "dachboden");
               &append_move_entry($identifier,
                                 $schueler_im_system_hash{$identifier},
                                 "attic");
               # Counter
               $count++;
-  
               next;
            }
-      }
+         }
      }
    }
    &titel("u_t_check:  ... $count User wurden toleriert/-> attic");
@@ -1306,7 +1363,8 @@ sub d_e_check {
                                   "Status=E",
                                   "TolerationDate=",
                                   "DeactivationDate=",
-                                  "Unid=$unid");
+                                  "Unid=$unid",
+                                  "ScheduledToleration=");
             &user_reaktivieren("$login");
             $count++;
          }
@@ -1483,7 +1541,8 @@ sub get_entfern_klassen {
        $entfern_monat=$entfern_monat-1;
        $entfern_jahr=$entfern_jahr-1900;
        # 0,0,0 = 0:00 Uhr am sperrtag
-       $entfern_datum_epoche=timelocal(0, 0, 0, $entfern_tag , $entfern_monat, $entfern_jahr);
+       $entfern_datum_epoche=
+           timelocal(0,0,0,$entfern_tag,$entfern_monat,$entfern_jahr);
        if($Conf::log_level>=3){
           print "    Epochenzeit $entfern_datum_epoche";
         }
@@ -3171,8 +3230,6 @@ if($Conf::log_level>=3){
    }
    &linie();
 
-
-
    # print AccountType of system users
    print("schueler_im_system_account_type:",
          "         AccountType:\n");
@@ -3191,7 +3248,14 @@ if($Conf::log_level>=3){
    }
    &linie();
 
-
+   # print origlines of system users
+   print("identifier_origline \n");
+   &linie();
+   while (($k,$v) = each %identifier_origline){
+       print "   Identifier: $k\n";
+       print "   Origline:   $v\n";
+   }
+   &linie();
 
    # print Forbidden Wish-Logins
    print("Forbidden Wish-Logins:",
@@ -3203,8 +3267,6 @@ if($Conf::log_level>=3){
    &linie();
    &titel("End of all Hashes");
    &linie();
-
-
  }# end loglevel
 }
 
