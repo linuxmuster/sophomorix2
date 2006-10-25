@@ -171,7 +171,7 @@ print ("sophomorix-move startet ...\n");
 
 
 # sophomorix database sichern
-&backup_user_database($zeit, "before.move");
+&backup_user_database($zeit, "before-move.sql");
 # sophomorix.move mitloggen
 &backup_amk_file($zeit,"move","before");
 
@@ -342,8 +342,6 @@ close(USERVERSETZEN);
 close(NOCHVERSETZEN);
 
 
-# sophomorix database sichern
-&backup_user_database($zeit, "after.move");
 # sophomorix.move mitloggen
 &backup_amk_file($zeit,"move","after");
 

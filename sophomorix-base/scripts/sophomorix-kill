@@ -134,7 +134,7 @@ if ($info==1) {
 my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
 
 # sophomorix database sichern
-&backup_user_database($zeit, "before.kill");
+&backup_user_database($zeit, "before-kill.sql");
 # sophomorix.kill mitloggen
 &backup_amk_file($zeit,"kill","before");
 
@@ -272,8 +272,6 @@ close(YETTOKILL);
 # ===========================================================================
 # Datei-Zustand (NACHHER) mitloggen 
 # ===========================================================================
-# sophomorix database sichern
-&backup_user_database($zeit, "after.kill");
 # sophomorix.kill mitloggen
 &backup_amk_file($zeit,"kill","after");
 

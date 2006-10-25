@@ -197,8 +197,8 @@ if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.add")) {
 }
 
 
-# sophomorix database sichern
-&backup_user_database($zeit, "before.add");
+# backup database
+&backup_user_database($zeit, "before-add.sql");
 # sophomorix.add mitloggen
 &backup_amk_file($zeit,"add","before");
 
@@ -415,8 +415,6 @@ if ($user_nummer==0){
 
 # sophomorix.add moven, damit sie nicht nochmal eingelesen werden kann
 &backup_amk_file($zeit,"add","after","mv");
-# sophomorix database sichern
-&backup_user_database($zeit, "after.add");
 
 # ===========================================================================
 # add.pdf, add.csv mitloggen
