@@ -3896,11 +3896,13 @@ Makes a backup of the sophomorix user database
 # this function can be left empty so far
 
 sub backup_user_database {
-#    my ($time, $string) = @_;
-#    &do_falls_nicht_testen(
-#      "cp ${DevelConf::protokoll_pfad}/user_db ${DevelConf::log_pfad}/${time}.user_db-${string}",
-#      "chmod 600 ${DevelConf::log_pfad}/${time}.user_db-${string}"
-#    );
+    my ($time, $string) = @_;
+    &titel("Dumping database ldap before I modify it");
+    &do_falls_nicht_testen(
+      "pg_dump --format=p -U ldap --file=${DevelConf::log_pfad}/${time}.ldap-${string} ldap",
+      "chmod 600 ${DevelConf::log_pfad}/${time}.ldap-${string}",
+      "cd  ${DevelConf::log_pfad}; gzip -f ${time}.ldap-${string}"
+    );
 }
 
 
