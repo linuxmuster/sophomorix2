@@ -30,7 +30,7 @@ my $timestamp = `date '+%Y-%m-%d_%H-%M'`;
 chomp($timestamp);
 my $treename=$hostname.".".$dnsdomainname."-".$timestamp;
 my $support_tree="${create_dir}/${treename}";
-
+my $db_dump="${DevelConf::log_pfad}/current-ldap.sql";
 
 
 $Conf::log_level=1;
@@ -91,11 +91,12 @@ if ($info==1) {
     @files=(@files,@add_files);
     my @dirlist=@$ref_dirlist;
     @dirlist=(@dirlist,@add_dirlists);
-    &titel("These files are packaged:");
+    &titel("(1) A dump of database ldap will be made and packaged");
+    &titel("(2) These files will be packaged:");
     foreach my $file (@files){
         print "   $file \n";
     }
-    &titel("These dirlists are packaged:");
+    &titel("(3)These dirlists will be packaged:");
     foreach my $dir (@dirlist){
         print "   $dir \n";
     }
@@ -114,6 +115,10 @@ my @dirlist=@$ref_dirlist;
 @dirlist=(@dirlist,@add_dirlists);
 system("install -d $support_tree");
 open (LOG,">${support_tree}/${logfile}");
+
+# dump the database
+&titel("Creating a dump of database ldap");
+system("pg_dump --format=p -U ldap --file='$db_dump' ldap");
 
 # creating a tree
 # files
@@ -148,9 +153,15 @@ close(LOG);
 # zipping the tree
 &titel("Packaging files in ${support_tree}");
 system("cd $create_dir; zip -r  ./${treename}.zip ./${treename}");
+
+print "\n";
+&titel("Cleaning up ...");
+&titel("Deleting dumped database ${db_dump}");
+system ("rm ${db_dump}");
+&titel("Deleting created tree in ${create_dir}/${treename}");
 system ("rm -rf ${create_dir}/${treename}");
 
-
+print "\n";
 &titel("The following file is ready to be sent to the support:");
 &titel("${create_dir}/${treename}.zip");
 &titel("WARNING: This file contains sensible data!");
