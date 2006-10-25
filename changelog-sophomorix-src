@@ -1201,6 +1201,8 @@ sophomorix-check --cron to
 
 
 
+
+
 sophomorix-repair options:
 
 --delete-from-homedir path-to-file
@@ -1235,13 +1237,6 @@ mediawiki mit .htaccess absuchern (aktuelle ct, 26.9.06)
 
 
 
-Rücksetzen eines einzelnen users geht auch nicht
-
-Fehler: 0 quota for 2 filesystems
-
-??????
-
-
 KNOWN BUG: smbpasswd -d user tut nicht bei usern mitöäüÖÄÜß.
 
 
@@ -1257,6 +1252,17 @@ würde.
 Andere ML's haben bunte Knöpfe in der Schulkonsole, linux nicht? 
 Why? Styleguide?
 
+
+
+
+
+
+
+
+BUG:
+mein Testsystem: das tut (LANG ist )de_DE@euro)
+ml3cd: LANG ist leer
+(mail sent)
 man sophomorix-mail : es wird zuerst nach der nicht existierenden
 en manpage gesucht un die Deutsch nicht gefunden, obwwohl existent.
 
@@ -1264,30 +1270,15 @@ en manpage gesucht un die Deutsch nicht gefunden, obwwohl existent.
 
 
 
-NEXT: crete new package
-mail:
-
-Bug:
-mein Testsystem: das tut (LANG ist )de_DE@euro)
-ml3cd: LANG ist leer
-(mail sent)
-
-
 - update procedure (ml3 testers)
 - aike: usertoken (when not empty in db/usertoken in lehrer.txt 
         use usertoken as Kürzel)
 
-printing userlists: print *.csv *.xls of classes in schulkonsole
 
 
 
 
 pgmadmin und gruppenzugehörigkeit lässt keine msi pakete zu.
-
-
-
-backup user database rauswerfen
-do we need a database dump ?
 
 
 
@@ -1300,12 +1291,37 @@ Die Dateien entstehen in /var/lib/sophomorix/print-data/klasse-classlist.csv
 bzw. *.pdf
 
 
+printing userlists: print *.csv *.xls of classes in schulkonsole
+ist there a independant spreadsheet::write (like Spreadsheet::Read)
+
+
+
+create function delete_old_files(dir, num)  where num is the age in days
+run it with sophomorix --cron
+
+check teachers, lehrer   different naming
+
+if teacher is scheduled_tolerated, it cant be moved to the attic
+after ONE run of sophomorix-check
+It can be moved after the second run
+
 
 
 ================== CHANGELOG ========================================
 
 1.9.1-1 (2006-10-xx)
+   - scheduled_toleration:
+     - sophomorix-check checks the scheduled_toleration and:
+       - updates the database to status T
+       - comments the line in lehrer.txt
+
+
+     - sophomorix-check sees this sheduled_toleration date
+     - sophomorix-user --user user --scheduled-toleration date sets date 
+       in the database
+   - dumping the ldap database before modifying it by *-add, *-move, *-kill
    - packaging files for the support
+      - dumping the ldap database and packaging it
       - added options to add custom files to the *.zip
       - added DIRLIST-tag in sophomorix-support.conf to pack ls-al files
         into *.zip 
