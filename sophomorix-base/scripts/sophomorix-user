@@ -56,7 +56,7 @@ my $permanent="";
 my $removable="";
 my $killable="";
 my $activate="";
-my $user="";
+my $teacher="";
 my $sc_toleration="empty";
 my $reset_user="";
 my $search="";
@@ -75,7 +75,7 @@ my $testopt=GetOptions(
        "reset-user=s" => \$reset_user,
        "empty-password" => \$empty_password,
        "scheduled-toleration=s" => \$sc_toleration,
-       "u|user=s" => \$user,
+       "t|teacher=s" => \$teacher,
           );
 
 
@@ -104,7 +104,7 @@ Options
   -R user   /   --removable user
   -K user   /   --killable user
   -A    /   --activate user
-  --user user --scheduled-toleration yyyy-mm--dd
+  --teacher teacher --scheduled-toleration yyyy-mm--dd
 
   --reset-user user1,user2,...
 
@@ -452,23 +452,17 @@ if ($activate ne""){
 
 
 
-# --user user --scheduled-toleration
-if ($user ne"" and $sc_toleration ne "empty"){
+# --teacher teacher --scheduled-toleration
+if ($teacher ne"" and $sc_toleration ne "empty"){
     # check if it is really an account
-#    if (getpwnam("$user")){
-#	print "   - $user is a valid username.\n";
-#    } else {
-#	print "   - $user is not a valid username.\n";
-#        exit;
-#    }
-    my ($home,$type,$gecos,$group,$uidnumber)=&fetchdata_from_account($user);
+    my ($home,$type,$gecos,$group,$uidnumber)=&fetchdata_from_account($teacher);
  
-  #  if ($type ne "teacher"){
-  #      print "   - $user is NOT a valid username of type 'teacher'\n";
-  #      exit;
-  #  } else {
-  #      print "   - $user is a valid username and of type 'teacher'\n";
-  #  }
+    if ($type ne "teacher"){
+        print "   - $teacher is NOT a valid username of type 'teacher'\n";
+        exit;
+    } else {
+        print "   - $teacher is a valid username and of type 'teacher'\n";
+    }
 
 
     # check date
@@ -511,11 +505,11 @@ if ($user ne"" and $sc_toleration ne "empty"){
 	print "   - $sc_toleration is a valid date.\n";
         # set scheduled-toletration for the account
         if ($sc_toleration eq ""){
-            print "Removing ScheduledToleration date for $user \n";
+            print "Removing ScheduledToleration date for $teacher \n";
         } else {
-            print "Setting ScheduledToleration date for $user to $sc_toleration\n";
+            print "Setting ScheduledToleration date for $teacher to $sc_toleration\n";
         }
-        &update_user_db_entry($user, 
+        &update_user_db_entry($teacher, 
                               "ScheduledToleration=$sc_toleration");
     }
     exit;

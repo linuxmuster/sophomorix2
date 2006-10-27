@@ -1312,9 +1312,6 @@ script to create a IDE:
 - perldoc
 - cvs and checkout of sophomorix2
 
-
-check if gzip and zip is installed with new package
-
 make sophomorix-project use a file to create projects/update 
 project members: for testing and quick update for admin
 
@@ -1328,12 +1325,16 @@ when a certain percentage of mailquota is used
 ================== CHANGELOG ========================================
 
 1.9.1-1 (2006-10-xx)
+   - changed option --user to --teacher (sophomorix-user)
+     updated manpage accordingly
+   - added variables in sophomorix.conf:
+       email notification mailquota is almost used to the limit 
+     reached (in sophomorix.conf)
+   - merged database update into sophomorix.sql
    - scheduled_toleration:
      - sophomorix-check checks the scheduled_toleration and:
        - updates the database to status T
        - comments the line in lehrer.txt
-
-
      - sophomorix-check sees this sheduled_toleration date
      - sophomorix-user --user user --scheduled-toleration date sets date 
        in the database
