@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-USER 8 "November 17, 2004"
+.TH SOPHOMORIX-USER 8 "October 27, 2006"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -42,7 +42,7 @@ Sagt, was das Programm gerade macht (verbose)
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
 .B -s string, --search string
-Sucht nach string in der sophomorix User Database und zeigt die Daten
+Sucht nach string in der sophomorix Datenbank und zeigt die Daten
 aller passenden User an.
 .TP
 .B Zurücksetzen eines Users:
@@ -85,6 +85,16 @@ Tauchen die Benutzerdaten in den Konfigurationsdateien
 (z. B. Schülerdatei) auf, so wird dieser Account Usable (U). Tauchen
 die Daten nicht auf, wird der Account nach verstreichen des
 Tolerierungs-Zeitraumes deaktiviert (D) und schließlich löschbar (R).
+.TP
+.B --teacher teacher --scheduled-toleration yyyy-mm-dd
+Legt fest, dass der Lehrer teacher zum yyyy-mm-dd automatisch aus lehrer.txt \
+auskommentiert werden soll, und dann nur noch toleriert wird.
+.br
+Will man das Datum zurücknehmen (keine automatisches tolerieren), muss das 
+Datum mit einem Leerstring angegeben werden, also '' oder "".
+.br
+Ist der Lehrer schon im Tolerierungszustand, muss in lehrer.txt der
+auskommentierte Eintrag wieder gültig gemacht werden.
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
