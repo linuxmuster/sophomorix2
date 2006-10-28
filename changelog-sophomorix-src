@@ -142,14 +142,16 @@ MAKING a Package
 1. update versions in debian/control
    (so that apt-get update sophomorix2 updates all sophomorix-* packages)
 
-2. cd cvs/sophomorix2
+2. update date of release in changelog-sophomorix-src
 
-3. dch -i 
+3. cd cvs/sophomorix2
+
+4. dch -i 
    add a comment to the changelog
 
-4. dpkg-buildpackage -rfakeroot
+5. dpkg-buildpackage -rfakeroot
 
-5. Tag all files in the cvs repository with the tag 'Version-x-y-z'
+6. Tag all files in the cvs repository with the tag 'Version-x-y-z'
 
 
 ############################################################
