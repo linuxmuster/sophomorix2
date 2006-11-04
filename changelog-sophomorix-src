@@ -1314,13 +1314,75 @@ script to create a IDE:
 - perldoc
 - cvs and checkout of sophomorix2
 
-make sophomorix-project use a file to create projects/update 
-project members: for testing and quick update for admin
 
 send mail via sophomorix-mail --cron,
-when a certain percentage of mailquota is used
+when:
+     - a certain percentage of mailquota is used
+OR   - less then xxx kb is left (add field to sophomorix.conf ????)
+
+(count number of mails that have been sent? store in database (new field???))
+(set number to 0 when mail was deleted)
+
+when mailquota is > 100%, then send mail to root only
 (make that percentage configurable in sophomorix.conf)
 
+
+
+add a cronjob?  (weekly) with  "exec? quotacheck -a"  S. 147/151 LPI(O'Reilly)
+add a cronjob?  fsck (so that no fscheck is necessary when rebooting)
+
+
+
+sophomorix-quota -i and manpage:
+  - repquota -v /home for a detailed list of quota
+  - compare s. 151 with manpage of sophomorix-quota (create quota) 
+
+
+
+
+sophomorix-project (and sophomorix-vampire)
+
+- add options:
+   --create-from-file file
+   (standard file is /etc/sophomorix/project/projects.create)
+   create projects if nonexisting
+   do nothing with existing projects
+
+   --update-from file file
+   (standard file is /etc/sophomorix/project/projects.update)
+   create projects and update them 
+   (useful for admins, to keep some projects up to date (netadmins) on the 
+    command line)
+
+   --dump file
+   dump a list of projects to be reloaded (used by sophomorix-vampire)
+   /var/.../projects.dump
+
+   --lock / --unlock / --skiplock
+   create/delete /var/lib/sophomorix/lock/project.lock
+   if lockfile exists, interrupt sophomorix-project without modifying anything
+   useful when migrating, updating, ...
+
+
+sophomorix-class --dump
+   dump ADDITIONAL data of a class: maillist,...
+   to be used ba sophomorix-vampire   
+
+sophomorix-add, -move, -check, ..
+   options --unlock (--lock ??) to delete lockfile
+
+
+
+when log in (from thomas script) is created, then log information to see
+which teacher is in which room, -> create a maillist for the room automatically
+   
+
+
+create command to lock acces to schulkonsole
+
+
+admingroup stuff -> mail thomas
+sophomorix.conf -> $mailquota_warn_kb 
 
 
 
