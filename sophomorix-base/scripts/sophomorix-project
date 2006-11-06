@@ -23,6 +23,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     check_connections
                                     show_project_list
                                     show_project
+                                    dump_all_projects
                                     create_project
                                     remove_project
                                     remove_class_db_entry
@@ -89,6 +90,8 @@ my $p_status;
 my $join; # 0,1
 my $p_join="TRUE"; # FALSE,TRUE
 
+my $dump_all_projects="";
+
 # Parsen der Optionen
 my $testopt=GetOptions(
            "help|h" => \$help,
@@ -117,6 +120,7 @@ my $testopt=GetOptions(
            "maxmembers=s" => \$p_max_members,
            "mailalias!" => \$mailalias,
            "maillist!" => \$maillist,
+           "dump=s" => \$dump_all_projects,
           );
 
 # Prüfen, ob Optionen erkannt wurden
@@ -135,6 +139,7 @@ if ($project eq ""
     and $removememberprojects eq ""
     and $info==0
     and $tree==0
+    and $dump_all_projects eq ""
     ){
     $help=1;
 }
@@ -182,6 +187,9 @@ Options
   -p project --removemembergroups
   -p project --addmemberprojects
   -p project --removememberprojects
+
+
+  --dump file
 
 Please see the sophomorix-project(8) man pages for full documentation
 ');
@@ -249,6 +257,14 @@ if ($project eq "" and $info==1){
     &show_project_list();
     exit;
 }
+
+
+# --dump
+if ($project eq "" and $dump_all_projects ne ""){
+    &dump_all_projects("$dump_all_projects");
+    exit;
+}
+
 
 
 # --addmembers

@@ -1317,11 +1317,8 @@ script to create a IDE:
 
 send mail via sophomorix-mail --cron,
 when:
-     - a certain percentage of mailquota is used
+     - a certain percentage of mailquota is left
 OR   - less then xxx kb is left (add field to sophomorix.conf ????)
-
-(count number of mails that have been sent? store in database (new field???))
-(set number to 0 when mail was deleted)
 
 when mailquota is > 100%, then send mail to root only
 (make that percentage configurable in sophomorix.conf)
@@ -1390,14 +1387,21 @@ add pre-strings to austeilen, ... stuff
 
 
 admingroup stuff -> mail thomas
-sophomorix.conf -> $mailquota_warn_kb 
+
+warum macht thomas das doppelt?
+
 
 
 
 ================== CHANGELOG ========================================
 
 1.9.2-1 (2006-11-xx)
+   - sophomorix-project
+       - updated manpage
+       - added option --dump
 
+   - added file projects.create and projects.update to package
+   - added options to sophomorix.conf mailquota_warn_kb
 
 1.9.1-1 (2006-10-28)
    - changed option --user to --teacher (sophomorix-user)

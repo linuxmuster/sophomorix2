@@ -78,6 +78,7 @@ require Exporter;
              fetch_used_subclasses
              show_subclass_list
              show_project
+             dump_all_projects
              show_room_list
              get_smb_sid
 );
@@ -4275,9 +4276,9 @@ sub show_subclass_list {
 
 
 
+
 sub show_project {
     my ($project) = @_;
-    #my $dbh=&db_connect();
     my ($longname,$addquota,$add_mail_quota,
         $status,$join,$time,$max_members,
         $mailalias,$maillist)=&fetchinfo_from_project($project);
@@ -4293,26 +4294,70 @@ sub show_project {
        print "   MaxMembers:       $max_members\n";
        print "   CreationTime:     $time\n";
     }
-    
-    # show only members, not admins (admins are shown later)
-    my @user=&fetchmembers_from_project($project);
-    @user = sort @user;
-    &Sophomorix::SophomorixBase::print_list_column(4,"Members of $project",@user);
-    print "\n";
+
     my @admins=&fetchadmins_from_project($project);
     @admins = sort @admins;
-    &Sophomorix::SophomorixBase::print_list_column(4,"Admins of $project",@admins);
+    &Sophomorix::SophomorixBase::print_list_column(4,
+       "Admins of $project",@admins);
+    print "\n";
+    # show only members, not admins (admins are shown earlier)
+    my @user=&fetchmembers_from_project($project);
+    @user = sort @user;
+    &Sophomorix::SophomorixBase::print_list_column(4,
+       "Members of $project",@user);
     print "\n";
     my @groups=&fetchgroups_from_project($project);
     @groups = sort @groups;
-    &Sophomorix::SophomorixBase::print_list_column(4,"Groups of $project",@groups);
+    &Sophomorix::SophomorixBase::print_list_column(4,
+      "MemberGroups of $project",@groups);
     print "\n";
     my @pro=&fetchprojects_from_project($project);
     @pro = sort @pro;
     &Sophomorix::SophomorixBase::print_list_column(4,
       "MemberProjects of $project",@pro);
-    #&db_disconnect($dbh);
 }
+
+
+
+sub dump_all_projects {
+    my ($file) = @_;
+    &titel("dumping all projects to $file");
+    if (-e $file){
+        print "ERROR: File $file exists. I will not overwrite!\n";
+        exit;
+    }
+    my @projects=&fetchprojects_from_school();
+
+    open(DUMP, ">$file");
+
+    foreach my $project (@projects){
+        print "Dumping project:  $project \n";
+        ($longname,$addquota,$add_mail_quota,$status,$join,$time,
+         $max_members,$mailalias,$maillist)=&fetchinfo_from_project($project);
+
+        my @admins=&fetchadmins_from_project($project);
+        @admins = sort @admins;
+        my $admins=join(",",@admins);
+
+        my @users=&fetchmembers_from_project($project);
+        @users = sort @users;
+        my $users=join(",",@users);
+
+        my @groups=&fetchgroups_from_project($project);
+        @groups = sort @groups;
+        my $groups=join(",",@groups);
+
+        my @pro=&fetchprojects_from_project($project);
+        @pro = sort @pro;
+        my $pro=join(",",@pro);
+        print DUMP $project."::".$addquota."::".$add_mail_quota."::".
+                   $max_members."::".$mailalias."::".$maillist."::".
+                   $status."::".$join."::".$admins."::".$users."::".
+                   $groups."::".$pro."::"."\n"; 
+    }
+    close(DUMP);
+}
+
 
 
 
