@@ -313,6 +313,7 @@ sub repair_directories {
        s/\$handout_dir/$Language::handout_dir/;     
        s/\$handout_string/$Language::handout_string/;     
        s/\$handoutcopy_dir/$Language::handoutcopy_dir/;     
+       s/\$handoutcopy_string/$Language::handoutcopy_string/;     
        s/\$exam/$Language::exam/;     
        s/\$collect_dir/$Language::collect_dir/;     
        s/\$collected_dir/$Language::collected_dir/;     
@@ -544,8 +545,11 @@ sub repair_directory {
          $owner=~s/\$workstation/$user/g; 
          $owner=~s/\$members/$user/g; 
 
-#         if (not defined ($ownerid = getpwnam $owner)) {
-         $ownerid = &fetchdata_from_account($owner);
+         if ($owner="root"){
+             $ownerid=0;
+         } else {
+             $ownerid = &fetchdata_from_account($owner);
+         }
          if ($ownerid==-1) {
             print "Benutzer $owner gibt es nicht!\n";
             next;
