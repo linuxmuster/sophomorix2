@@ -317,6 +317,7 @@ sub repair_directories {
        s/\$exam/$Language::exam/;     
        s/\$collect_dir/$Language::collect_dir/;     
        s/\$collected_dir/$Language::collected_dir/;     
+       s/\$collected_string/$Language::collected_string/;     
        s/\$current_room/$Language::current_room/;     
        s/\$www_people/$DevelConf::www_people/;     
        s/\$www_classes/$DevelConf::www_classes/;     
@@ -545,18 +546,18 @@ sub repair_directory {
          $owner=~s/\$workstation/$user/g; 
          $owner=~s/\$members/$user/g; 
 
-         if ($owner="root"){
-             $ownerid=0;
-         } else {
-             $ownerid = &fetchdata_from_account($owner);
-         }
+         # use database
+         $ownerid = &fetchdata_from_account($owner);
          if ($ownerid==-1) {
-            print "Benutzer $owner gibt es nicht!\n";
-            next;
+             # use ldap
+	     if (not defined($ownerid=getpwnam $owner)){
+                 print "WARNING: Benutzer $owner gibt es nicht!\n";
+                 next;
+	     }
          }
 
          if (not   defined ($gid = getgrnam $groupowner)) {
-            print "Gruppe $groupowner gibt es nicht!\n";
+            print "WARNING: Gruppe $groupowner gibt es nicht!\n";
             next;
          }
 
