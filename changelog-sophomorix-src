@@ -1037,8 +1037,6 @@ variablen nutzen siehe perldoc Sophomorix::SophomorixAPI
    /usr/share/schulkonsole
    use Schulkonsole::Error;
 
-   Info: Rückgabewerte scripte 0-127 (evtl. 255) (ab 2 benutzen)
-   z.B. mit exit 7;
 
 
    zuerst linuxmuster-base, svn auschecken, debian paket machen
@@ -1090,7 +1088,7 @@ Bei wiedereintritt soll Ordner mit korrekten Daten da sein
 
 Is this necessary?
 ====================
-add a field male/female to database and lehrer.txt
+add a field male/female to lehrer.txt
 make configurable if a 
 Lehrerinnen-Liste 
 Lehrer-Liste
@@ -1170,6 +1168,14 @@ getgrnam
 log_script_exit:
 use parameter to create return value for all exits
 
+   Info: Rückgabewerte scripte 0-127 (evtl. 255) (ab 2 benutzen)
+   z.B. mit exit 7;
+
+show return values of scripts:
+ls -al [return]
+echo $?
+
+
 
 
 check list of systemusers in debian developers manual
@@ -1182,7 +1188,7 @@ when a teacher/students is disabled remove him from /etc/aliases???
 
 
 
-use field 'scheduled_delete' for teachers (and othe users) in the database
+use field 'scheduled_delete' for teachers (and other users) in the database
 sophomorix-check --cron to 
 
    1. send mail to the teacher and a copy to root 
@@ -1231,6 +1237,7 @@ first line: REPLACE_TEMPLATE=no  (add the contents to the template)
 
 
 
+
 sonstiges
 
 http://ekiga.net/
@@ -1258,15 +1265,14 @@ Why? Styleguide?
 
 
 
-
-
-
 BUG:
 mein Testsystem: das tut (LANG ist )de_DE@euro)
 ml3cd: LANG ist leer
 (mail sent)
 man sophomorix-mail : es wird zuerst nach der nicht existierenden
 en manpage gesucht un die Deutsch nicht gefunden, obwwohl existent.
+
+create request in RT
 
 
 
@@ -1276,11 +1282,6 @@ en manpage gesucht un die Deutsch nicht gefunden, obwwohl existent.
 - aike: usertoken (when not empty in db/usertoken in lehrer.txt 
         use usertoken as Kürzel)
 
-
-
-
-
-pgmadmin und gruppenzugehörigkeit lässt keine msi pakete zu.
 
 
 
@@ -1298,9 +1299,6 @@ ist there a independant spreadsheet::write (like Spreadsheet::Read)
 
 
 
-create function delete_old_files(dir, num)  where num is the age in days
-run it with sophomorix --cron
-
 check teachers, lehrer   different naming
 
 if teacher is scheduled_tolerated, it cant be moved to the attic
@@ -1315,6 +1313,9 @@ script to create a IDE:
 - cvs and checkout of sophomorix2
 
 
+
+
+############################################################
 send mail via sophomorix-mail --cron,
 when:
      - a certain percentage of mailquota is left
@@ -1324,12 +1325,12 @@ when mailquota is > 100%, then send mail to root only
 (make that percentage configurable in sophomorix.conf)
 
 
-
+############################################################
 add a cronjob?  (weekly) with  "exec? quotacheck -a"  S. 147/151 LPI(O'Reilly)
 add a cronjob?  fsck (so that no fscheck is necessary when rebooting)
 
 
-
+############################################################
 sophomorix-quota -i and manpage:
   - repquota -v /home for a detailed list of quota
   - compare s. 151 with manpage of sophomorix-quota (create quota) 
@@ -1351,10 +1352,6 @@ sophomorix-project (and sophomorix-vampire)
    (useful for admins, to keep some projects up to date (netadmins) on the 
     command line)
 
-   --dump file
-   dump a list of projects to be reloaded (used by sophomorix-vampire)
-   /var/.../projects.dump
-
    --lock / --unlock / --skiplock
    create/delete /var/lib/sophomorix/lock/project.lock
    if lockfile exists, interrupt sophomorix-project without modifying anything
@@ -1375,7 +1372,14 @@ which teacher is in which room, -> create a maillist for the room automatically
    
 
 
-create command to lock acces to schulkonsole
+
+
+
+
+
+
+
+
 
 Nagios: public url, so that users can check status of deamons:
    - is www available?
@@ -1383,23 +1387,48 @@ Nagios: public url, so that users can check status of deamons:
 decreased quostioning to admins
 
 
-add pre-strings to austeilen, ... stuff 
 
 
-admingroup stuff -> mail thomas
 
-warum macht thomas das doppelt?
+create command to lock acces to schulkonsole
 
 
+
+
+############################################################
+updateable package:
+############################################################
+
+add pre-strings to _austeilen, ... stuff 
+
+
+
+use $handoutcopy_string="austeilen-";
+before $handoutcopy_dir="__austeilen";
+
+repair.directories
+sophomorix-repair
+
+
+vor current room (aktueller raum)
+
+
+weiter:
+
+SophomorixBase.pm
+sophomorix-teacher
 
 
 ================== CHANGELOG ========================================
 
 1.9.2-1 (2006-11-xx)
+   - smb admin stuff:
+     pgmadmin only in domadmins
+     added user domadmin for joining domains
+     pgmadmins group removed
    - sophomorix-project
        - updated manpage
        - added option --dump
-
    - added file projects.create and projects.update to package
    - added options to sophomorix.conf mailquota_warn_kb
 
