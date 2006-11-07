@@ -1399,18 +1399,25 @@ create command to lock acces to schulkonsole
 updateable package:
 ############################################################
 
-add pre-strings to _austeilen, ... stuff 
-
+add pre-strings to __austeilen, ... stuff 
+                   _eingesammelt
 
 
 use $handoutcopy_string="austeilen-";
 before $handoutcopy_dir="__austeilen";
+
+
+use $collected_string="eingesammelt-";
+before $collected_dir="_eingesammelt";
+
 
 repair.directories
 sophomorix-repair
 
 
 vor current room (aktueller raum)
+
+groupowner pgmadmins in repair.directories raus
 
 
 weiter:
@@ -1419,9 +1426,12 @@ SophomorixBase.pm
 sophomorix-teacher
 
 
+svn auschecken
+
 ================== CHANGELOG ========================================
 
 1.9.2-1 (2006-11-xx)
+   - added prefixes to __austeilen and _eingesammelt
    - smb admin stuff:
      pgmadmin only in domadmins
      added user domadmin for joining domains
