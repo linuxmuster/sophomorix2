@@ -91,6 +91,8 @@ my $join; # 0,1
 my $p_join="TRUE"; # FALSE,TRUE
 
 my $dump_all_projects="";
+my $create_from_file="";
+my $update_from_file="";
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -121,6 +123,8 @@ my $testopt=GetOptions(
            "mailalias!" => \$mailalias,
            "maillist!" => \$maillist,
            "dump=s" => \$dump_all_projects,
+           "create-from-file=s" => \$create_from_file,
+           "update-from-file=s" => \$update_from_file,
           );
 
 # Prüfen, ob Optionen erkannt wurden
@@ -140,6 +144,8 @@ if ($project eq ""
     and $info==0
     and $tree==0
     and $dump_all_projects eq ""
+    and $create_from_file eq ""
+    and $update_from_file eq ""
     ){
     $help=1;
 }
@@ -190,6 +196,8 @@ Options
 
 
   --dump file
+  --create-from-file file
+  --update-from-file
 
 Please see the sophomorix-project(8) man pages for full documentation
 ');
@@ -264,6 +272,23 @@ if ($project eq "" and $dump_all_projects ne ""){
     &dump_all_projects("$dump_all_projects");
     exit;
 }
+
+
+# --create-from-file
+if ($project eq "" and $create_from_file ne ""){
+    print "This feature (--create-from-file) is not implemented yet.\n";
+    exit;
+}
+
+
+# --update-from-file
+if ($project eq "" and $update_from_file ne ""){
+    print "This feature (--update-from-file) is not implemented yet.\n";
+    exit;
+}
+
+
+
 
 
 
