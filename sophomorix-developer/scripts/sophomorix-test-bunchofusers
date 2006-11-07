@@ -959,10 +959,12 @@ sub dateien_einsammeln_userliste{
 
     if ($add_option eq "--fromroom"){
         $collect_parent_dir="/home/teachers/${teacher}".
-            "/${Language::collected_dir}/${Language::current_room}";
+            "/${Language::collected_dir}/${Language::collected_string}".
+            "${Language::current_room}";
     } else {
         $collect_parent_dir="/home/teachers/${teacher}".
-            "/${Language::collected_dir}/${longname}";
+            "/${Language::collected_dir}/".
+            "${Language::collected_string}${longname}";
     }
     print "Collect parent dir is: $collect_parent_dir \n";
     opendir(COLL, $collect_parent_dir) 
@@ -991,14 +993,16 @@ sub dateien_einsammeln_userliste{
        foreach my $testfile (@teacher_files){
          if ($add_option eq "--fromroom"){
 	    $file=$homedir."/${Language::collected_dir}/".
-                           "${Language::current_room}/${collect_dir}/".
+                           "${Language::collected_string}${Language::current_room}".
+                           "/${collect_dir}/".
                            "${user}/".$testfile;
             $file_nonexist="${homedir_student}".
                         "/${Language::collect_dir}".
                         "/${testfile}"; 
          } else {
 	    $file=$homedir."/${Language::collected_dir}/".
-                           "${longname}/${collect_dir}/".
+                           "${Language::collected_string}${longname}".
+                           "/${collect_dir}/".
                            "${user}/".$testfile;
             $file_nonexist="${homedir_student}".
                         "/${Language::collect_dir}".
@@ -1077,14 +1081,16 @@ sub dateien_einsammeln{
     my $collect_dir="";
     my $collect_parent_dir="";
     if ($type eq "adminclass" or $type eq "project" or $type eq "subclass"){
-       $collect_parent_dir=
-         "/home/teachers/${teacher}/${Language::collected_dir}/${longname}";
+       $collect_parent_dir="/home/teachers/${teacher}/".
+           "${Language::collected_dir}/${Language::collected_string}${longname}";
     } elsif ($type eq "room" and $exam eq ""){
        $collect_parent_dir = "/home/teachers/${teacher}".
-               "/${Language::collected_dir}/${Language::current_room}";
+               "/${Language::collected_dir}/${Language::collected_string}".
+               "${Language::current_room}";
     } elsif ($type eq "room" and $exam eq "--exam"){
        $collect_parent_dir = "/home/teachers/${teacher}".
-               "/${Language::collected_dir}/${Language::exam}";
+               "/${Language::collected_dir}/".
+               "${Language::collected_string}${Language::exam}";
     }
 
     print "Collect parent dir is: $collect_parent_dir \n";
@@ -1110,15 +1116,16 @@ sub dateien_einsammeln{
 
            if ($type eq "adminclass" or $type eq "project" or $type eq "subclass"){
                $file="/home/teachers/${teacher}/${Language::collected_dir}".
-                     "/${longname}/${collect_dir}/${user}/${testfile}"; 
+                     "/${Language::collected_string}${longname}/".
+                     "${collect_dir}/${user}/${testfile}"; 
            } elsif ($type eq "room" and $exam eq ""){
                $file="/home/teachers/${teacher}/${Language::collected_dir}".
-                     "/${Language::current_room}/${collect_dir}".
-                     "/${user}/${testfile}"; 
+                     "/${Language::collected_string}${Language::current_room}".
+                     "/${collect_dir}/${user}/${testfile}"; 
            } elsif ($type eq "room" and $exam eq "--exam"){
                $file="/home/teachers/${teacher}/${Language::collected_dir}".
-                     "/${Language::exam}/${collect_dir}".
-                     "/${user}/${testfile}"; 
+                     "/${Language::collected_string}${Language::exam}/".
+                     "${collect_dir}/${user}/${testfile}"; 
            }
            $file_nonexist="${homedir}".
                      "/${Language::collect_dir}".
@@ -1280,10 +1287,11 @@ sub handoutcopy_files {
          my $file="";
        if ($add_options eq "--fromroom"){
             $file="$homedir/${Language::handoutcopy_dir}/".
-                  "${Language::current_room}/$testfile";
+                  "${Language::handoutcopy_string}${Language::current_room}".
+                  "/$testfile";
        } else {
             $file="$homedir/${Language::handoutcopy_dir}/".
-                  "${longname}/$testfile";
+                  "${Language::handoutcopy_string}${longname}/$testfile";
        }
          &check_existence($file);
        }

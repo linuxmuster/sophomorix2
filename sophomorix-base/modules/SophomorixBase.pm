@@ -936,16 +936,16 @@ sub provide_user_files {
                   "$home/${Language::handout_dir}/${Language::handout_string}${Language::current_room}",
                   "$login");
            &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$handoutcopy_dir/\$current_room",
-                  "$home/${Language::handoutcopy_dir}/${Language::current_room}",
+                  "\$homedir_teacher/\$lehrer/\$handoutcopy_dir/\$handoutcopy_string\$current_room",
+                  "$home/${Language::handoutcopy_dir}/${Language::handoutcopy_string}${Language::current_room}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$collected_dir",
                   "$home/${Language::collected_dir}",
                   "$login");
            &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$collected_dir/\$current_room",
-                  "$home/${Language::collected_dir}/${Language::current_room}",
+                  "\$homedir_teacher/\$lehrer/\$collected_dir/\$collected_string\$current_room",
+                  "$home/${Language::collected_dir}/${Language::collected_string}${Language::current_room}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$collect_dir",
@@ -956,8 +956,8 @@ sub provide_user_files {
 #                  "$home/${Language::collect_dir}/${Language::current_room}",
 #                  "$login");
            &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$collected_dir/\$exam",
-                  "$home/${Language::collected_dir}/${Language::exam}",
+                  "\$homedir_teacher/\$lehrer/\$collected_dir/\$collected_string\$exam",
+                  "$home/${Language::collected_dir}/${Language::collected_string}${Language::exam}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$share_dir",
@@ -1030,8 +1030,8 @@ sub provide_user_files {
                   "$home/${Language::handoutcopy_dir}",
                   "$login");
            &setup_verzeichnis(
-                  "\$homedir_pupil/\$klassen/\$schueler/\$handoutcopy_dir/\$current_room",
-                  "$home/${Language::handoutcopy_dir}/${Language::current_room}",
+                  "\$homedir_pupil/\$klassen/\$schueler/\$handoutcopy_dir/\$handoutcopy_string\$current_room",
+                  "$home/${Language::handoutcopy_dir}/${Language::handoutcopy_string}${Language::current_room}",
                   "$login");
            &setup_verzeichnis(
                   "\$homedir_pupil/\$klassen/\$schueler/\$share_dir",
@@ -2056,7 +2056,8 @@ sub create_share_directory {
                 system("chown $login:root $to_handoutcopy_dir");
             }
             my $collected_dir=$homedir."/".
-                ${Language::collected_dir}."/".$share_long_name;
+                ${Language::collected_dir}."/".
+                ${Language::collected_string}.$share_long_name;
             if (not -e $collected_dir){
                 if($Conf::log_level>=2){
                     print "   Adding directory ${collected_dir}\n"; 
@@ -2097,7 +2098,8 @@ sub create_share_directory {
 #            system("mkdir $collect_dir");
 #        }
         my $handoutcopy_dir=$homedir."/".
-            ${Language::handoutcopy_dir}."/".$share_long_name;
+            ${Language::handoutcopy_dir}."/".
+            ${Language::handoutcopy_string}.$share_long_name;
         if (not -e $handoutcopy_dir){
             if($Conf::log_level>=2){
                 print "   Adding directory ${handoutcopy_dir}\n"; 
@@ -2186,7 +2188,8 @@ sub remove_share_directory {
                 system("rmdir $to_handoutcopy_dir");
             }
             my $collected_dir=$homedir."/".
-               ${Language::collected_dir}."/".$share_long_name;
+               ${Language::collected_dir}."/".
+               ${Language::collected_string}.$share_long_name;
             if (-e $collected_dir){
                 if($Conf::log_level>=2){
                     print "   Removing $collected_dir if empty.\n";
@@ -2225,7 +2228,8 @@ sub remove_share_directory {
             system("rmdir $collect_dir");
         }
         my $handoutcopy_dir=$homedir."/".
-           ${Language::handoutcopy_dir}."/".$share_long_name;
+           ${Language::handoutcopy_dir}."/".
+           ${Language::handoutcopy_string}.$share_long_name;
         if (-e $handoutcopy_dir){
             if($Conf::log_level>=2){
                 print "   Removing $handoutcopy_dir if empty.\n";
@@ -3477,16 +3481,17 @@ sub handoutcopy {
            } else {
               if ($type eq "current room"){
                    $to_dir = "${homedir}/${Language::handoutcopy_dir}".
-                             "/${Language::current_room}";
+                             "/${Language::handoutcopy_string}".
+                             "${Language::current_room}";
               } elsif ($type eq "project") {
                    # get the longname
                    my ($longname) =
                    &Sophomorix::SophomorixPgLdap::fetchinfo_from_project($name);
                    $to_dir = "${homedir}/${Language::handoutcopy_dir}".
-                             "/${longname}";
+                             "/${Language::handoutcopy_string}${longname}";
               } else {
                    $to_dir = "${homedir}/${Language::handoutcopy_dir}".
-                             "/${name}";
+                             "/${Language::handoutcopy_string}${name}";
               }
               print "   To:   ${to_dir}\n";
               system ("cp -a $from_dir/* $to_dir");
@@ -3571,19 +3576,21 @@ sub collect {
 
   if (defined $users and $type eq "current room"){ 
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
-                   "${Language::current_room}/".
+                   "${Language::collected_string}${Language::current_room}/".
                    "${login}_${date}_${Language::current_room}";
   } elsif (defined $users) {
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
-                   "${longname}/".
+                   "${Language::collected_string}${longname}/".
                    "${login}_${date}_${longname}";
   } else {
      if ($exam==1){
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
-                   "${Language::exam}/EXAM_${login}_${date}_${longname}";
+                   "${Language::collected_string}${Language::exam}/".
+                    "EXAM_${login}_${date}_${longname}";
      } else {
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
-                   "${longname}/${login}_${date}_${longname}";
+                   "${Language::collected_string}${longname}/".
+                   "${login}_${date}_${longname}";
      }
   }
 
