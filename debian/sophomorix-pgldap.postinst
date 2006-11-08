@@ -65,9 +65,7 @@ echo "Parameter 5: $5"
 case "$1" in
     configure)
     # calling the setup-script of sophomorix to create a new database
-#    echo "calling sophomorix-setup-pgldap --oldversion $2 --newversion $new_version"
     echo "calling sophomorix-setup-pgldap --oldversion $old_version --newversion $new_version"
-#    sophomorix-setup-pgldap --oldversion "$2" --newversion "$new_version"
     sophomorix-setup-pgldap --oldversion "$old_version" --newversion "$new_version"
 
     ;;
