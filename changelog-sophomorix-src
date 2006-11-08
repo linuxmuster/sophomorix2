@@ -1329,16 +1329,27 @@ when mailquota is > 100%, then send mail to root only
 add a cronjob?  (weekly) with  "exec? quotacheck -a"  S. 147/151 LPI(O'Reilly)
 add a cronjob?  fsck (so that no fscheck is necessary when rebooting)
 
+Mail an are gesendet.
+
+
+
+
+
+
+
+
+
+Nagios: public url, so that users can check status of deamons:
+   - is www available?
+   - can mail be sent, ...
+decreased quostioning to admins
+
+
+
 
 ############################################################
-sophomorix-quota -i and manpage:
-  - repquota -v /home for a detailed list of quota
-  - compare s. 151 with manpage of sophomorix-quota (create quota) 
-
-
-
-
 sophomorix-project (and sophomorix-vampire)
+############################################################
 
 - add options:
    --create-from-file file
@@ -1367,30 +1378,45 @@ sophomorix-add, -move, -check, ..
 
 
 
-when log in (from thomas script) is created, then log information to see
-which teacher is in which room, -> create a maillist for the room automatically
+
+############################################################
+postgres indices
+############################################################
+package update:
+
+   1) create a plain text file with index names to remove
+      use perl,DBI, to remove these indices from the database
+      if they exist (catch errors)
+   2) if they exist
+   3) create new indices from a *.sql script in one transaction
+   4) call ANALIZE with  perlscript/in above *.sql
    
+cron.weekly
+   1) call ANALYZE
+
+   /etc/cron.weekly/files are run according to /etc/crontab
+
+   see manpage for run-parts for checking cron jobs
+   cronjob execution sends mail
+   cron itself doesn't log use logger
 
 
 
+############################################################
+Next Meeting:
+############################################################
+
+- create command to lock access to schulkonsole
+
+- when log in (from thomas script) is created, then log information to see
+  which teacher is in which room, -> create a maillist for the room automatically
 
 
+############################################################
+sophomorix-quota -i and manpage:
+  - repquota -v /home for a detailed list of quota
+  - compare s. 151 with manpage of sophomorix-quota (create quota) 
 
-
-
-
-
-
-Nagios: public url, so that users can check status of deamons:
-   - is www available?
-   - can mail be sent, ...
-decreased quostioning to admins
-
-
-
-
-
-create command to lock acces to schulkonsole
 
 
 
@@ -1399,31 +1425,9 @@ create command to lock acces to schulkonsole
 updateable package:
 ############################################################
 
-add pre-strings to __austeilen, ... stuff 
-                   _eingesammelt
+Nothing to do (Schulkonsole fehlt)
 
 
-use $handoutcopy_string="austeilen-";
-before $handoutcopy_dir="__austeilen";
-
-
-use $collected_string="eingesammelt-";
-before $collected_dir="_eingesammelt";
-
-
-repair.directories
-sophomorix-repair
-
-
-vor current room (aktueller raum)
-
-groupowner pgmadmins in repair.directories raus
-
-
-weiter:
-
-SophomorixBase.pm
-sophomorix-teacher
 
 
 svn auschecken
@@ -1432,6 +1436,10 @@ svn auschecken
 
 1.9.2-1 (2006-11-xx)
    - added prefixes to __austeilen and _eingesammelt
+        use $handoutcopy_string="austeilen-";
+        before $handoutcopy_dir="__austeilen";
+        use $collected_string="eingesammelt-";
+        before $collected_dir="_eingesammelt";
    - smb admin stuff:
      pgmadmin only in domadmins
      added user domadmin for joining domains

@@ -204,7 +204,15 @@ if ($info==1) {
      $l=$l+1;
      print"  Filesystem ${l}:    $fs     to $mb_liste[${l}-1] MB\n";
    }
+   print "\n";
+
+   print "To see an overview of all quota use:\n";
+   foreach $fs (@quota_fs) {
+     $l=$l+1;
+     print"  repquota $fs \n";
+   }
    print "\n\n";
+
    &log_script_exit("",1,1,0,@arguments);
 }
 
