@@ -1,4 +1,11 @@
 #!/bin/sh
+
+# log start
+logger $0 started
+
 # sophomorix-check --cron
 /usr/sbin/sophomorix-check --cron > /var/log/sophomorix/cron.daily.lastlog && logger 'sophomorix-check --cron run succesfully' || logger 'sophomorix-check --cron run with ERROR' 
+
+# log end
+logger $0 ended
 
