@@ -912,7 +912,7 @@ if (-e "/etc/init.d/nscd"){
 
 # adding users
 # administrator is equal to admin in ml 2.x
-system("smbldap-useradd -u 998 -a  -c administrator -m -d /home/administrators/administrator -g 'domadmins' -G 'administrators,printoperators,pgmadmins' -s /bin/bash administrator");
+system("smbldap-useradd -u 998 -a  -c administrator -m -d /home/administrators/administrator -g 'domadmins' -G 'administrators,printoperators' -s /bin/bash administrator");
 
 # pgmadmin is to install programs on the win clients
 system("smbldap-useradd -u 999 -a  -c 'Programm Administrator' -m -d /home/administrators/pgmadmin -g 'domadmins' -s /bin/false pgmadmin");
