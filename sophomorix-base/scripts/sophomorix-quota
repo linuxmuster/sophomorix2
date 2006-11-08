@@ -209,7 +209,7 @@ if ($info==1) {
    print "To see an overview of all quota use:\n";
    foreach $fs (@quota_fs) {
      $l=$l+1;
-     print"  repquota $fs \n";
+     print"  repquota -tsv $fs \n";
    }
    print "\n\n";
 
