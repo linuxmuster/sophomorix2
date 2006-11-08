@@ -1171,6 +1171,14 @@ use parameter to create return value for all exits
    Info: Rückgabewerte scripte 0-127 (evtl. 255) (ab 2 benutzen)
    z.B. mit exit 7;
 
+   Return Values:
+   ?   script called with wrong options
+
+
+
+
+
+
 show return values of scripts:
 ls -al [return]
 echo $?
@@ -1382,6 +1390,10 @@ sophomorix-add, -move, -check, ..
 ############################################################
 postgres indices
 ############################################################
+create 2 scripts:   
+--drop-indices
+--update-indices
+
 package update:
 
    1) create a plain text file with index names to remove
@@ -1413,9 +1425,7 @@ Next Meeting:
 
 
 ############################################################
-sophomorix-quota -i and manpage:
-  - repquota -v /home for a detailed list of quota
-  - compare s. 151 with manpage of sophomorix-quota (create quota) 
+compare s. 151 with manpage of sophomorix-quota (create quota) 
 
 
 
@@ -1434,7 +1444,13 @@ svn auschecken
 
 ================== CHANGELOG ========================================
 
-1.9.2-1 (2006-11-xx)
+1.9.3-1 (2006-11-xx)
+   - added logger to cron.daily/weekly/monthly in sophomorix-base
+   - sophomorix-quota -i and manpage:
+      - repquota -tsv /dev for a detailed list of quota
+
+
+1.9.2-1 (2006-11-08)
    - added prefixes to __austeilen and _eingesammelt
         use $handoutcopy_string="austeilen-";
         before $handoutcopy_dir="__austeilen";
