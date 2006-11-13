@@ -121,22 +121,19 @@ sub show_modulename {
 
 # connect to sql database
 sub db_connect {
+    my ($raise_error) = @_;
+    if (not defined $raise_error or $raise_error eq ""){
+        $raise_error=1;
+    }
     my $dbname="ldap";
     my $dbuser="postgres";
     # password not needed because of postgres configuration
     # in pg_hba.conf pg_ident.conf
     my $pass_saved="";
-#    if($Conf::log_level>=3){
-#       print "Connecting to database ...\n";
-#    }
     # needs at UNIX sockets:   local all all  trust sameuser
     my $dbh = DBI->connect("dbi:Pg:dbname=$dbname", "$dbuser","$pass_saved",
-               { RaiseError => 1, PrintError => 0, AutoCommit => 1 });
+               { RaiseError => $raise_error, PrintError => 0, AutoCommit => 1 });
     if (defined $dbh){
-#       if($Conf::log_level>=3){
-#          print "   Connection with password $pass_saved successful!\n";
-#          print "   Database $dbname ready for user $dbuser!\n";
-#       }
     } else {
        print "   Could not connect to database with password $pass_saved!\n";
     }
@@ -148,9 +145,6 @@ sub db_connect {
 sub db_disconnect {
     my ($dbh) = @_;
     $dbh->disconnect();
- #   if($Conf::log_level>=3){
- #      print "Disconnecting ...\n";
- #   }
 }
 
 
