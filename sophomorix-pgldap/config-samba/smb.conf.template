@@ -1,12 +1,12 @@
 ##### @@message1@@
 ##### @@message2@@
 ##### @@message3@@
-##### $Id$
-##### From Revision 24 in svn
+# Revision 3 from svn, server svn.lml.support-netz.de
+#
 ############################################################
 #  Include your own stuff in the following files:
 #  global stuff:      /etc/samba/smb.conf.global
-#  shares:            /etc/samba/smb.conf.shares
+#  custom shares:     /etc/samba/smb.conf.shares
 ############################################################
 #
 #
@@ -137,7 +137,7 @@
 # When using [print$], root is implicitly a 'printer admin', but you can
 # also give this right to other users to add drivers and set printer
 # properties
-   printer admin = root, printoperators
+#   printer admin = root
 
 
 ######## File sharing ########
@@ -149,7 +149,7 @@
 #### linuxmuster settings ####
    interfaces = @@serverip@@/@@internmask@@ 127.0.0.1/255.0.0.0
    domain logons = Yes
-   admin users = @domadmins
+   admin users = @@domadmin@@
    unix charset = ISO8859-15
    logon script = login.bat
    time server = Yes
@@ -157,7 +157,13 @@
    logon home = \\%L\%u
    use sendfile = No
    os level = 99
-   unix extensions = no
+
+   # server side cifs configuration
+   unix extensions = yes
+   map archive = No
+   delete readonly = Yes
+   case sensitive = yes
+   mangled names = no
 
    ldap passwd sync = Yes
    passwd program = /usr/sbin/smbldap-passwd %u
@@ -218,11 +224,11 @@
 
 # File creation mask is set to 0700 for security reasons. If you want to
 # create files with group=rw permissions, set next parameter to 0775.
-   create mask = 2640
+   create mask = 2644
 
 # Directory creation mask is set to 0700 for security reasons. If you want to
 # create dirs. with group=rw permissions, set next parameter to 0775.
-   directory mask = 2750
+   directory mask = 2755
    
 # linuxmuster settings
    wide links = Yes
@@ -242,8 +248,8 @@
    writable = no
    create mask = 664
    share modes = no
-   write list = @domadmins
-   force group = domadmins
+   write list = @@@domadmins@@
+   force group = @@domadmins@@
 
 #[printers]
 #   comment = All Printers
@@ -268,14 +274,14 @@
 # Uncomment to allow remote administration of Windows print drivers.
 # Replace 'ntadmin' with the name of the group your admin users are
 # members of.
-#   write list = @printoperators
+#   write list = @ntadmin
 
 [pgm]
    comment = Windows Programs
    path = /home/samba/progs
    writable = no
-   write list = @pgmadmins
-   force group = pgmadmins
+   write list = @@@domadmins@@
+   force group = @@domadmins@@
    create mask = 664
    directory mask = 775
    guest ok = Yes
@@ -283,12 +289,46 @@
 [cdrom]
    comment = CD-Images
    path = /home/samba/cds
-   force group = pgmadmins
+   force group = @@domadmins@@
    create mask = 664
    directory mask = 775
-   write list = @pgmadmins
+   write list = @@@domadmins@@
    writable = no
    guest ok = Yes
+
+# following shares are only used by linux clients
+[students]
+   comment = Students Homes
+   path = /home/students
+   writeable = no
+   write list = @@administrator@@
+   valid users = @@administrator@@,@@@teachersgroup@@
+   browseable = No
+   guest ok = No
+
+[shares]
+   comment = Shares
+   path = /home/share
+   writeable = yes
+   create mask = 2644
+   directory mask = 2755
+   browseable = No
+   guest ok = No
+
+[tasks]
+   comment = Templates
+   path = /var/cache/sophomorix/tasks
+   writeable = no
+   write list = @@administrator@@,@@@teachersgroup@@
+   browseable = No
+   guest ok = No
+
+[backup]
+   comment = Backups
+   path = /media/backup
+   valid users = @@administrator@@
+   browseable = No
+   guest ok = No
 
 # including your own share definitions
    include = /etc/samba/smb.conf.shares
