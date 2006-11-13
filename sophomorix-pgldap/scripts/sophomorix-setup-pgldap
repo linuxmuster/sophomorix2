@@ -50,6 +50,10 @@ my $new_database=0;
 my $keep_database=0;
 my $config_file=0;
 
+my $create_indices_only=0;
+my $drop_indices_only=0;
+my $update_indices=0;
+
 my $create_path="/usr/share/sophomorix/config-templates/pg/";
 my $upgrade_path_db="/usr/share/sophomorix/config-templates/pg/upgrade/";
 my $upgrade_path_script="/usr/share/sophomorix/config-templates/scripts/upgrade/";
@@ -90,6 +94,9 @@ my $testopt=GetOptions(
            "dbpw|dbpassword=s" => \$dbpw,
            "new-database" => \$new_database,
            "keep-database" => \$keep_database,
+           "create-indices-only" => \$create_indices_only,
+           "drop-indices-only" => \$drop_indices_only,
+           "update-indices-only" => \$update_indices,
           );
 
 
@@ -98,13 +105,40 @@ my $testopt=GetOptions(
 &log_script_start(@arguments);
 
 
+############################################################
+# manage indices
+############################################################
+
+# --update-indices
+if ($update_indices==1) {
+    $create_indices_only=1;
+    $drop_indices_only=1;
+}
+
+# --drop-indices
+if ($drop_indices_only==1) {
+    &drop_indices();
+    # exit, 
+    if ($create_indices_only==0){
+        &log_script_exit("",1,1,0,@arguments);
+    }
+}
+
+# --create-indices
+if ($create_indices_only==1) {
+    &create_indices();
+    &log_script_exit("",1,1,0,@arguments);
+}
+
+
+############################################################
+# manage passwords
+############################################################
+
 # fetch old passwords
 my ($old_ldappw,$old_dbpw)=&fetch_ldap_pg_passwords();
 
-
-
 # ldap password
-
 if ($ldappw ne ""){
     # use password given as option
     $ldappassword = $ldappw;
@@ -119,9 +153,7 @@ if ($ldappw ne ""){
     $ldap_explanation="new random password";
 }
 
-
 # db password
-
 if ($dbpw ne ""){
     # use password given as option
     $dbpassword = $dbpw;
@@ -137,9 +169,9 @@ if ($dbpw ne ""){
 }
 
 
-
-
+############################################################
 # --help
+############################################################
 if ($help==1) {
    # Scriptname ermitteln
    my @list = split(/\//,$0);
@@ -172,6 +204,21 @@ What passwords to use:
       Standard password is:
          - if given in /etc/ldap/slapd.conf :reuse old password
          - else: generate a random 10 digit number as password
+
+Update indices only:
+indices are update automatically if you do not specify one of the following options
+
+  --create-indices-only 
+      This is for testing only
+
+  --drop-indices-only 
+      This is for testing only
+
+  --update-indices-only 
+      Drop indices listed in drop-index.sql and create indices in create-index.sql
+      Use this, when you edit the above files  files and you want to check 
+      performance gain (or loss).
+      This is for testing only
 ');
    print "\n";
    &log_script_exit("",1,1,0,@arguments);
@@ -1049,6 +1096,36 @@ system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlog
 ############################################################
 # sub
 ############################################################
+
+sub create_indices {
+    # read indices from file
+    &titel("Creating indices in $DevelConf::create_index");
+    system("psql -U ldap ldap < $DevelConf::create_index");
+}
+
+
+sub drop_indices {
+    &titel("Dropping indices in $DevelConf::drop_index");
+    open(DROP, "<$DevelConf::drop_index") || die "Fehler: $!";
+    while (<DROP>) {
+        chomp(); # Returnzeichen abschneiden
+        s/ //g;
+        if (/^\#/) {
+            next;
+        }
+        my $index = $_;
+        print "Trying to drop $index ... \n";
+        my $dbh=&db_connect();
+        my $sql="DROP INDEX $index;";	
+        if($Conf::log_level>=3){
+           print "\nSQL: $sql\n";
+        }
+        $dbh->do($sql);
+        &db_disconnect($dbh);
+    }
+    close(DROP);
+}
+
 
 sub add_ldap_group {
     my ($unix_group,$nt_group,$gid) = @_;

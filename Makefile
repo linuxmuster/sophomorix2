@@ -181,6 +181,8 @@ install-pgldap:
 	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/sophomorix.sql $(CTEMPDIR)/pg/
 	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/sophomorix-admin.sql $(CTEMPDIR)/pg/
 	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/sophomorix-lang.sql $(CTEMPDIR)/pg/
+	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/create-index.sql $(CTEMPDIR)/pg/
+	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/drop-index.sql $(CTEMPDIR)/pg/
 	##### Copy the pg upgrade files
 	install -d -m755 -oroot -groot $(CTEMPDIR)/pg/upgrade
 	install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/db-upgrade/*.sql $(CTEMPDIR)/pg/upgrade/
