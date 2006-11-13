@@ -848,6 +848,12 @@ if ($keep_database==1){
     &upgrade_database();
 }
 
+print "\n\n";
+
+# create new indices
+&drop_indices();
+&create_indices();
+
 
 # run upgrade scripts
 &run_upgrade_scripts();
@@ -1105,25 +1111,49 @@ sub create_indices {
 
 
 sub drop_indices {
+#    my ($restart) = @_;
+#    if (not defined $restart){
+#        $restart=0;
+#    }
     &titel("Dropping indices in $DevelConf::drop_index");
     open(DROP, "<$DevelConf::drop_index") || die "Fehler: $!";
     while (<DROP>) {
         chomp(); # Returnzeichen abschneiden
-        s/ //g;
-        if (/^\#/) {
+        s/\s//g;
+        if (/^\#/ or $_ eq "") {
             next;
         }
         my $index = $_;
-        print "Trying to drop $index ... \n";
-        my $dbh=&db_connect();
+        print "   Trying to drop $index ...\n";
+
+        # connect, but dont raise errors
+        my $dbh=&db_connect(0);
+
         my $sql="DROP INDEX $index;";	
         if($Conf::log_level>=3){
            print "\nSQL: $sql\n";
         }
-        $dbh->do($sql);
+        if ($dbh->do($sql)){
+            print "      DROPPED index $index\n";
+        } else {
+            my $err_str=$dbh->errstr;
+            if ($err_str=~/existiert nicht/){
+                # german errors
+		print "      WARNING: index $index is nonexisting\n";
+            } else {
+                # other languages
+		print "      $err_str";
+
+            }
+        }
         &db_disconnect($dbh);
     }
     close(DROP);
+    #if ($restart==1){
+        #system("/etc/init.de/slapd stop");
+        #sleep 1;    
+        #system("/etc/init.de/slapd start");    
+    #}
 }
 
 
@@ -1286,7 +1316,7 @@ sub run_upgrade_scripts {
 #    if ($old_version eq "0.0.0-0"){
 #        print "NOT running upgrade scripts (Old package is $old_version) \n";
 #    } else {
-        print "Running the following upgrade scripts: \n";
+        print "\nRunning the following upgrade scripts: \n";
         foreach my $file_id (@upgrade_scripts_id){
             my $file = $upgrade_path_script.$upgrade_scripts_id_filename{$file_id};
             print "  $file \n";
