@@ -3920,7 +3920,8 @@ sub backup_user_database {
     &do_falls_nicht_testen(
       "pg_dump --format=p -U ldap --file=${DevelConf::log_pfad}/${time}.ldap-${string} ldap",
       "chmod 600 ${DevelConf::log_pfad}/${time}.ldap-${string}",
-      "cd  ${DevelConf::log_pfad}; gzip -f ${time}.ldap-${string}"
+# This is done by a cronjob now
+#      "cd  ${DevelConf::log_pfad}; gzip -f ${time}.ldap-${string}"
     );
 }
 
