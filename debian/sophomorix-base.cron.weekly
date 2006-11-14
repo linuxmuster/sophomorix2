@@ -4,6 +4,7 @@
 logger $0 started
 
 # todo
+echo 'ANALYZE' | psql -U ldap ldap && logger 'ANALYZE in postgres run succesfully' || logger 'ANALYZE in postgres run with ERROR'
 
 # log end
 logger $0 ended
