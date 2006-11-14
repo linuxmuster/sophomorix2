@@ -119,7 +119,7 @@ if ($info==1) {
    # Ausgabe der Anlegbaren user
    print "\nThe following users can be added:\n";
    print "(Fields with --- are automatically created by sophomorix-add):\n\n";
-   printf "%-11s%-29s%-10s%-6s%-4s%-10s%-10s\n",
+   printf "%-11s%-35s%-10s%-6s%-4s%-10s%-10s\n",
           "AdminClass",
           "Identifier",
           "login",
@@ -131,8 +131,29 @@ if ($info==1) {
 
    open(SOPHOMORIXADD,"${DevelConf::ergebnis_pfad}/sophomorix.add") || 
              die "Fehler: $!";
+
+   my @lines=();
    while(<SOPHOMORIXADD>){
-       chomp();
+       push @lines, $_;
+   }
+   close(SOPHOMORIXADD);
+
+   my @sorted_lines = sort {
+       my @a_fields = split /::/, $a;
+       my @aa_fields = split /;/, $a_fields[1];
+
+       my @b_fields = split /::/, $b;
+       my @bb_fields = split /;/, $b_fields[1];
+
+       $a_fields[0] cmp $b_fields[0]  # string sort on 1st field, then
+         ||
+       $aa_fields[0] cmp $bb_fields[0]  # string sort on 2nd field
+         ||
+       $aa_fields[1] cmp $bb_fields[1]  # string sort on 3rd field
+   } @lines;
+
+   foreach my $line (@sorted_lines){
+       chomp($line);
        $count++;
        ($new_admin_group,
        $identifier,
@@ -140,8 +161,8 @@ if ($info==1) {
        $wunsch_passwort,
        $wunsch_id,
        $wunsch_gid,
-       $unid)=split("::");
-       printf "%-11s%-29s%-10s%-6s%-4s%-10s%-10s\n",
+       $unid)=split("::",$line);
+       printf "%-11s%-35s%-10s%-6s%-4s%-10s%-10s\n",
               "$new_admin_group",
               "$identifier",
               "$wunsch_login",
@@ -150,7 +171,6 @@ if ($info==1) {
               "$wunsch_passwort",
               "$unid";
    }
-   close(SOPHOMORIXADD);
    &linie;
    print "$count users can be added\n";
    &log_script_exit("",1,1,0,@arguments);
