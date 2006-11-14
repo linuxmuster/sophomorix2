@@ -831,9 +831,9 @@ sub provide_project_files {
     my $ht_access_target=$project_www."/.htaccess";
     print "   $project_tausch\n";
     print "   $project_aufgaben\n";
-    &setup_verzeichnis("\$share_projects/\$klassen",
+    &setup_verzeichnis("\$share_projects/\$projects",
                        "$project_tausch");
-    &setup_verzeichnis("\$tasks_projects/\$klassen",
+    &setup_verzeichnis("\$tasks_projects/\$projects",
                        "$project_aufgaben");
     &setup_verzeichnis("\$www_projects/\$projects",
                        "$project_www");
