@@ -1273,15 +1273,6 @@ Why? Styleguide?
 
 
 
-BUG:
-mein Testsystem: das tut (LANG ist )de_DE@euro)
-ml3cd: LANG ist leer
-(mail sent)
-man sophomorix-mail : es wird zuerst nach der nicht existierenden
-en manpage gesucht un die Deutsch nicht gefunden, obwwohl existent.
-
-create request in RT
-
 
 
 
@@ -1322,7 +1313,6 @@ script to create a IDE:
 
 
 
-
 ############################################################
 send mail via sophomorix-mail --cron,
 when:
@@ -1333,17 +1323,18 @@ when mailquota is > 100%, then send mail to root only
 (make that percentage configurable in sophomorix.conf)
 
 
+
 ############################################################
+Cron Jobs
+############################################################
+see manpage for run-parts for checking cron jobs
+cronjob execution sends mail
+cron itself doesn't log use logger
+
 add a cronjob?  (weekly) with  "exec? quotacheck -a"  S. 147/151 LPI(O'Reilly)
 add a cronjob?  fsck (so that no fscheck is necessary when rebooting)
 
 Mail an are gesendet.
-
-
-
-
-
-
 
 
 
@@ -1388,33 +1379,6 @@ sophomorix-add, -move, -check, ..
 
 
 ############################################################
-postgres indices
-############################################################
-create 2 scripts:   
---drop-indices
---update-indices
-
-package update:
-
-   1) create a plain text file with index names to remove
-      use perl,DBI, to remove these indices from the database
-      if they exist (catch errors)
-   2) if they exist
-   3) create new indices from a *.sql script in one transaction
-   4) call ANALIZE with  perlscript/in above *.sql
-   
-cron.weekly
-   1) call ANALYZE
-
-   /etc/cron.weekly/files are run according to /etc/crontab
-
-   see manpage for run-parts for checking cron jobs
-   cronjob execution sends mail
-   cron itself doesn't log use logger
-
-
-
-############################################################
 Next Meeting:
 ############################################################
 
@@ -1429,8 +1393,6 @@ compare s. 151 with manpage of sophomorix-quota (create quota)
 
 
 
-
-
 ############################################################
 updateable package:
 ############################################################
@@ -1438,13 +1400,37 @@ updateable package:
 Nothing to do (Schulkonsole fehlt)
 
 
+BUG: (check this)
+mein Testsystem: das tut (LANG ist )de_DE@euro)
+ml3cd: LANG ist leer
+(mail sent)
+man sophomorix-mail : es wird zuerst nach der nicht existierenden
+en manpage gesucht un die Deutsch nicht gefunden, obwwohl existent.
+
+created request in RT
 
 
-svn auschecken
+
+
 
 ================== CHANGELOG ========================================
 
 1.9.3-1 (2006-11-xx)
+   - fetched new smb.conf from thomas schmitt
+     replaced new @@vars@@ with values in sophomorix-devel.conf
+   - move some sql path vars from sophomrix-setup-pgldap 
+     to sophomorix-devel.conf
+   - cron.weekly
+      - call ANALYZE and log it
+   - create/drop indices
+     options --create-indices-only, --drop-indices-only, --update-indices-only
+     Do that on package update:
+        1) created a plain text file drop-index.sql with index names 
+           to remove use perl,DBI, to remove these indices from the 
+           database if they exist (catch errors)
+        2) created a file create-index.sql to add new indices with a script 
+           in one transaction
+        3) call ANALIZE in the same *.sql-script
    - added logger to cron.daily/weekly/monthly in sophomorix-base
    - sophomorix-quota -i and manpage:
       - repquota -tsv /dev for a detailed list of quota
