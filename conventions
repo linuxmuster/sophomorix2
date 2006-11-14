@@ -1,0 +1,80 @@
+# This file is not part of a sophomorix-package
+
+############################################################
+logged in users
+############################################################
+
+currently logged in users: /var/cache/linuxmuster/logins
+
+
+
+
+############################################################
+smb.conf:
+############################################################
+
+thomas template im installierten system:
+
+als parameter definieren in sophomorix-devel.conf: /var/lib/linuxmuster
+
+
+############################################################
+UPDATING smb.conf from linuxmuster
+############################################################
+
+1) Fetch the new smb.conf:
+
+   Path to master smb.conf (tschmitt) in subversion 
+   of svn.lml.support-netz.de:
+   Module linuxmuster-base: /var/config-dynamic/15_ldap/smb.conf
+
+2) for sophomorix they are copied to 
+    sophomorix2/sophomorix-pgldap/config-samba/smb.conf.template
+
+3) Edit the first lines:
+
+   ##### @@message1@@
+   ##### @@message1@@
+   ##### @@message1@@
+   # $Id$
+
+3) check if new @@variables@@ are used
+
+4) Make a diff between old and new
+
+5)
+scripte:
+   login.bat  (smb.conf) ruft andere auf
+   logon.bat
+   common.bat
+
+
+
+
+############################################################
+Bootorder:  
+############################################################
+
+postgres -> ldap -> samba, sonst gibts timeout
+            (mit dpkg-override samba soll 21 weden)
+
+??? pg_hba.conf so, dass auch phpgadmin tut 
+
+
+
+############################################################
+Packaging
+############################################################
+
+
+Using dbconfig-common:
+-------------------------
+This was abandoned, because 
+- it didn't work in a decent amount of time
+- its changing rapidly (not good for such a sensitive Database)
+- unstable
+- postinst script needed 'update' Option (which doesnt exist in stable)
+
+
+
+
