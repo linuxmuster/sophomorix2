@@ -807,9 +807,9 @@ sub provide_subclass_files {
        my $subklassen_aufgaben="${DevelConf::tasks_subclasses}/$subclass";
        print "$subklassen_tausch\n";
        print "$subklassen_aufgaben\n";
-       &setup_verzeichnis("\$share_subclasses/\$klassen",
+       &setup_verzeichnis("\$share_subclasses/\$subclasses",
                           "$subklassen_tausch");
-       &setup_verzeichnis("\$tasks_subclasses/\$klassen",
+       &setup_verzeichnis("\$tasks_subclasses/\$subclasses",
                           "$subklassen_aufgaben");
     }
 }

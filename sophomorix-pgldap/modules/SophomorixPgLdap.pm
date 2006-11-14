@@ -2033,7 +2033,10 @@ sub fetchsubclasses_from_school {
     my $i=0;
     foreach ( @{ $array_ref } ) {
         my $gid=${$array_ref}[$i][0];
-        push @sub_classes, $gid;
+        push @sub_classes, "$gid-A";
+        push @sub_classes, "$gid-B";
+        push @sub_classes, "$gid-C";
+        push @sub_classes, "$gid-D";
         $i++;
     }   
     &db_disconnect($dbh);

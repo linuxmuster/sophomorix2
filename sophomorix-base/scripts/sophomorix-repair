@@ -367,9 +367,16 @@ sub repair_directories {
            if($Conf::log_level>=3){
               print "\$projects found (Group: $gruppen_anzahl)\n";
 	   }
+       }elsif (/\$subclasses/) {
+           # Liste ist Subclassliste
+           @gruppen=@klassen_sub;
+           $gruppen_anzahl++;
+           if($Conf::log_level>=3){
+              print "\$subclasses found (Group: $gruppen_anzahl)\n";
+	   }
        } else {
            if($Conf::log_level>=3){
-              print "No \$klassen, \$raeume or $\projects ",
+              print "No \$klassen, \$raeume, $\projects or $\subclasses ",
                     "found (Group: $groupowner)\n";
            }
            @gruppen=($groupowner);
@@ -468,7 +475,6 @@ sub repair_directory {
    # $apache_user
    $owner=~s/\$apache_user/$DevelConf::apache_user/;
    # $samba
-#   $path=~s/\/\$samba/$DevelConf::samba_dir/;
    my @userliste=();
 
    if($Conf::log_level>=3){
@@ -489,14 +495,12 @@ sub repair_directory {
 
          # Userliste evtl. einschränken
 	 if ($path=~/\$klassen/ && $path=~/\$schueler/) {
-#            @userliste=&get_schueler_in_klasse($gruppe);
             @userliste=&fetchstudents_from_adminclass($gruppe);
             #print "Userliste: Nur Klasse\n";
 	 } elsif ($path=~/\$projects/ && $path=~/\$members/) {
             @userliste=&fetchusers_from_project($gruppe);
             #print "Userliste: Nur Workstations\n";
 	 } elsif ($path=~/\$raeume/ && $path=~/\$workstation/) {
-#            @userliste=&get_workstations_in_raum($gruppe);
             @userliste=&fetchworkstations_from_room($gruppe);
             #print "Userliste: Nur Workstations\n";
 	 } else {
@@ -515,10 +519,12 @@ sub repair_directory {
          $path=~s/\$klassen/$gruppe/g; 
          $path=~s/\$raeume/$gruppe/g; 
          $path=~s/\$projects/$gruppe/g; 
+         $path=~s/\$subclasses/$gruppe/g; 
 
          $groupowner=~s/\$klassen/$gruppe/g; 
          $groupowner=~s/\$raeume/$gruppe/g;
          $groupowner=~s/\$projects/$gruppe/g;
+         $groupowner=~s/\$subclasses/$gruppe/g;
 
       foreach $user (@userliste){
          if($Conf::log_level>=3){
