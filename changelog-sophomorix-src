@@ -1,90 +1,27 @@
 # $Id$
 
-This is the todo/changelog for the sophomorix sourcecode
-**= this is next
-* = high priority
-- = do that when time comes
-
-
-
-============================================================
-============================================================
-Next meeting 0711/ 253 583-33
-============================================================
-============================================================
-
-currently logged in users: /var/cache/linuxmuster/logins
-
-
-smb.conf:
-
-thomas template im installierten system:
-
-als parameter definieren in sophomorix-devel.conf: /var/lib/linuxmuster
-
-Variablen sind:
-  @@workgroup@@
-  @@basedn@@
-
-wenn thomas smb.conf (Revision 18) vorhanden, dann diese holen und ersetzen
-ansonsten eigene benutzen. Thomas macht @@message3@@ noch rein  
-
-
-Netlogon:
-
-scripte:
-   login.bat  (smb.conf) ruft andere auf
-   logon.bat
-   common.bat
-
-wie bei smb.conf, Pfad konfigurierbar, kommt von Thomas
-
-where are these files in svn?
-
-
-
-Working together: sophomorix and linuxmuster_base
+############################################################
+Problems
+############################################################
 
 
 cups-pdf: not necessary for Administrator (not a user account)
-
-
-
-
-
 
 Other Questions
 - problems: a teacher cann fill the HD space easily with 
   handing out lots of data
 
-Bootorder:  postgres -> ldap -> samba, sonst gibts timeout
-            (mit dpkg-override samba soll 21 weden)
-
-??? seems to work
-    (but has a time delay)
-
-??? samba von thomas:    prepatch   templates modifizieren   postpatch
-    schauen was drinstehtund evtl. berücksichtigen
-
-??? pg_hba.conf so, dass auch phpgadmin tut 
-
-
-
-============================================================
-============================================================
-Todo
-============================================================
-============================================================
 
 
 ############################################################
 KNOWN BUGS
 ############################################################
-Bug: a user in dachboden is reactivated by a similar
+BUG: a user in dachboden is reactivated by a similar
      (=must be identical) new user
 
-Bug: 
+BUG: 
 ps2pdf cuts away the footer when sophomorix-print is running
+
 
 ############################################################
 DOKUMENTATION To do
@@ -98,14 +35,6 @@ dokumentation:
       - perldoc Sophomorix::SophpmorixAPI
    * logging   
 
-Setting quota for www-data:
-      sophomorix-quota --user www-data --force
-   (setting mailquota will thow errors because www-data in not a 
-   cyrus user)
-
-ML 3.0: allow open projects only (--join)
-
-
 
 ############################################################
 PACKAGING for DEBIAN To do
@@ -115,24 +44,12 @@ packaging:
    - Makefile creates directories with correct permissions, 
      how can I package this directories with its permissions?
    - include common.bat with comments?
-   - zusammenspiel mit Thomas cd
    - sophomorix-vampire version x.x braucht sophomorix2 1.2.2
      (das steht in den abhängigkeiten), falls es installiert werden soll (optional)
      andersherum braucht sophomorix-vampire dieselbe Versionsnummer von sophomorix2 
      wie macht man das?
    - optionen in postinst-scripten upgrade)
-   - create only necessary packages
 
-
-???? *.dsc,*.tar.gz,*.changes bei sophomorix-pakete ins source Verzeichnis
-
-
-Think about: using dbconfig-common
-This was abandoned, because 
-- it didn't work in a decent amount of time
-- its changing rapidly (not good for such a sensitive Database)
-- unstable
-- postinst script needed 'update' Option (which doesnt exist in stable)
 
 
 ############################################################
@@ -153,28 +70,6 @@ MAKING a Package
 
 6. Tag all files in the cvs repository with the tag 'Version-x-y-z'
 
-
-############################################################
-UPDATING smb.conf from linuxmuster
-############################################################
-
-1. Fetch the new smb.conf:
-
-   Path to smb.conf in subversion of lml.mine.nu
-   Module linuxmuster-base: /var/config-dynamic/15_ldap/smb.conf
-
-2. Edit the first lines:
-
-   ##### @@message1@@
-   ##### @@message1@@
-   ##### @@message1@@
-   # $Id$
-
-3. check if new @@variables@@ are used
-
-4. Make a diff between old and new
-
-5. replace sophomorix-pgldap/config-samba/smb.conf.template
 
 
 ############################################################
@@ -208,15 +103,10 @@ sophomorix-repair
 sophomorix-quota
    * option --sum still missing
    - check if quota is really set (how?, grep through 'quota user' ?)
-   - find users without quota, report them
-   - find users that approch their quota, send mail, ...
+   - find users without quota, report them (cron)
 
 
 sophomorix-teach-in (seems ok so far)
-
-
-sophomorix-shell 
-   - change the login-shell of a user
 
 
 sophomorix-check
@@ -242,13 +132,12 @@ sophomorix-check
          - automatisch: Schülerzahl, Klassenzahl ?????? oder besser dynamisch
          - ....
    - Format report.office with latex          
-   - include filter-files
    - throw error, when unid is double in schueler.txt 
 
 
 sophomorix-add
    - add standard linux GUI (kde3 (configurable))
-   - option -i: group users to add by classes alphabetical, users alphabetical
+     (sophomorix-user --copy-to-home filename --teacher, ...)
 
 sophomorix-move
    - move Data from share into home, even if 'hidden' in another owners directory
@@ -313,6 +202,7 @@ sophomorix-print
 
 
 sophomorix-project
+   - ML 3.0: allow open projects only (--join)
    - add status stuff/lifetime stuff to projects
       P= Permanent, will not be automatically removed
       ... see drawing in doku
@@ -1418,6 +1308,7 @@ check out sophomorix2 and pack a package in a ne empty dir
 ================== CHANGELOG ========================================
 
 1.9.3-1 (2006-11-xx)
+   - sophomorix-add -i (group adminclass and users asciibetically)
    - fetched new smb.conf from thomas schmitt
      replaced new @@vars@@ with values in sophomorix-devel.conf
    - move some sql path vars from sophomrix-setup-pgldap 
