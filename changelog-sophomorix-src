@@ -23,6 +23,8 @@ BUG:
 ps2pdf cuts away the footer when sophomorix-print is running
 
 
+
+
 ############################################################
 DOKUMENTATION To do
 ############################################################
@@ -178,8 +180,6 @@ sophomorix-split
    - sophomorix-split options: 
         split randomly in 2,3 parts
         split a class into projects(is this necessary?)
-   - add change long name of subclass
-   - make sophomorix-split files-independent
 
 
 sophomorix-passwd
@@ -449,33 +449,10 @@ SQL-DBI/OpenLDAP related:
 
 
 ############################################################
-DATABASE Tips
-############################################################
-
-
-
-############################################################
-Tips
-############################################################
-
-Errors and output in a file:
-   command  2&>1  > logfile
-
-
-
-############################################################
 LDAP To do
 ############################################################
 
 
-############################################################
-LDAP Tips
-############################################################
-
-ldapsearch -x -D "cn=admin,dc=linuxmuster,dc=de" -W
-
-???: ldap-cache auf client einrichten (index-dateien, die 
-uid,uinumber, ... cachen)
 
 
 ############################################################
@@ -484,22 +461,6 @@ SAMBA To do
 
 Samba net Befehl ansehen
 
-
-############################################################
-SAMBA Tips
-############################################################
-samba 3: netbios name ändern
-       1. name ändern
-       2. restart (samba setzt neue sid)
-       2. net setlocalsid alte sid wieder setzen
-
-show info
-  -- pdbedit -L         all users
-  -- pdbedit -Lv        ausführlich alle user
-
-check samba
-  -- smbclient -U user%password -L localhost   (check smb account, see Mail Hoth)
-  -- smbclient -N -L localhost    (what for?)
 
 
 
@@ -515,30 +476,11 @@ check if dir exists /var/lib/cyrus  ??? kommt mit paket
 paket: cyrus21-imapd
 
 
-############################################################
-IMAP Tips
-############################################################
-
 
 
 ############################################################
 MOODLE To do
 ############################################################
-
-############################################################
-MOODLE Tips
-############################################################
-
-Blended Learning (E-unterstütztes Lernen im gegens. zu E-learning)
-
-Moodle-Integration:
-
-- authentification method ldap.
-- firstname, surname, mailaddress from ldap.(do not update ldap)  
-- make group of teachers to creators of new courses per ldap
-- make miniteachers not creators, but totors of one course 
-
-Aufgabenformat gift (-> konvertierung zu problectix)
 
 
 
@@ -1096,7 +1038,6 @@ sophomorix-check --cron to
      list of files in the exchange dirs
      files in apache are kept
      email will be deleted
-
  
      please reply to root@xxx.de or contact the administrators
      if that is not correct
@@ -1308,6 +1249,8 @@ check out sophomorix2 and pack a package in a ne empty dir
 ================== CHANGELOG ========================================
 
 1.9.3-1 (2006-11-xx)
+   - added weekly cronjob to bzip2 database dumps 
+   - added weekly cronjob delete bzip2 database dumps 
    - BUGFIX: use $subclasses under /*/subclasss in repair.directories
    - BUGFIX: use $projects under /*/projects in repair.directories
    - sophomorix-add -i (group adminclass and users asciibetically)
@@ -2490,15 +2433,3 @@ miniserv.users: letztes Feld : hosts von denen man zugreifen darf
        -> usermin is not running on the ml-server
        -> postinstall-script muss sich in gruppe student, teacher eintragen
    -abfrage in sophomorix-webmin, ob paket webmin installiert ist
- 
-
-
-
-
-
-
-
-
-
-
-

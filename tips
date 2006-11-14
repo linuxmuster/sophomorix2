@@ -1,0 +1,56 @@
+# This file is not part of a sophomorix-package
+
+############################################################
+LDAP Tips
+############################################################
+
+ldapsearch -x -D "cn=admin,dc=linuxmuster,dc=de" -W
+
+???: ldap-cache auf client einrichten (index-dateien, die 
+uid,uinumber, ... cachen)
+
+
+
+
+############################################################
+SAMBA Tips
+############################################################
+samba 3: netbios name ändern
+       1. name ändern
+       2. restart (samba setzt neue sid)
+       2. net setlocalsid alte sid wieder setzen
+
+show info
+  -- pdbedit -L         all users
+  -- pdbedit -Lv        ausführlich alle user
+
+check samba
+  -- smbclient -U user%password -L localhost   (check smb account, see Mail Hoth)
+  -- smbclient -N -L localhost    (what for?)
+
+
+
+
+
+############################################################
+MOODLE Tips
+############################################################
+
+Blended Learning (E-unterstütztes Lernen im gegens. zu E-learning)
+
+Moodle-Integration:
+
+- authentification method ldap.
+- firstname, surname, mailaddress from ldap.(do not update ldap)  
+- make group of teachers to creators of new courses per ldap
+- make miniteachers not creators, but totors of one course 
+
+Aufgabenformat gift (-> konvertierung zu problectix)
+
+
+
+
+############################################################
+IMAP Tips
+############################################################
+
