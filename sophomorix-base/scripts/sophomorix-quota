@@ -224,6 +224,9 @@ if ($info==1) {
 # --cron
 if ($cron==1) {
     print "Running with option --cron\n";
+    if ($Conf::mailquota_warnings ne "yes"){
+        &log_script_exit("quota warnings not enabled",1,1,0,@arguments);
+    }
     my @students=&fetchstudents_from_school();
     my @teachers=&fetchusers_from_adminclass(${DevelConf::teacher});
     my @users = (@teachers,@students);
