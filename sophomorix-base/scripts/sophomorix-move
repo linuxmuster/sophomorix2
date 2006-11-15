@@ -140,22 +140,41 @@ if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.move")) {
 # --info
 if ($info==1) {
     my $count=0;
-  open(USERVERSETZEN,"${DevelConf::ergebnis_pfad}/sophomorix.move") 
-     || die "Fehler: $!";
-
-      print "\nThe following users can be moved:\n\n";
-      printf "%-12s %-18s %-18s %-18s \n","Login",
+    open(USERVERSETZEN,"${DevelConf::ergebnis_pfad}/sophomorix.move") 
+            || die "Fehler: $!";
+    print "\nThe following users can be moved:\n\n";
+    printf "%-12s %-18s %-18s %-18s \n","Login",
              "Old AdminClass","New AdminClass","Old Status";
-      &linie;
+    &linie;
+
+    my @lines=();
     while(<USERVERSETZEN>){
-      chomp();
-      $count++;
-      ($login_versetzen, $alte_klasse, $neue_klasse,$old_status)=split(/::/);
-      if (not defined $old_status){$old_status=""};
-      # Ausgabe
-      printf "%-12s %-18s %-18s %-18s \n",
-             "$login_versetzen","$alte_klasse","$neue_klasse", $old_status;
+       push @lines, $_;
     }
+    close(USERVERSETZEN);
+
+    my @sorted_lines = sort {
+        my @a_fields = split /::/, $a;
+        my @b_fields = split /::/, $b;
+ 
+        $a_fields[1] cmp $b_fields[1]  # string sort on 1st field, then
+          ||
+        $a_fields[0] cmp $b_fields[0]  # string sort on 2nd field
+    } @lines;
+
+    foreach my $line (@sorted_lines){
+       chomp($line);
+       $count++;
+       ($login_versetzen,
+        $alte_klasse,
+        $neue_klasse,
+        $old_status)=split(/::/,$line);
+       if (not defined $old_status){$old_status=""};
+       # Ausgabe
+       printf "%-12s %-18s %-18s %-18s \n",
+              "$login_versetzen","$alte_klasse","$neue_klasse", $old_status;
+    }
+
     &linie;
     print "$count users can be moved\n";
     &log_script_exit("",1,1,0,@arguments);
