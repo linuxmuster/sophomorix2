@@ -104,7 +104,7 @@ help:
 # build a package
 deb:
 	@echo 'Did you do a dch -i ?'
-	sleep 8 > /dev/null
+	@sleep 8
 	dpkg-buildpackage -tc -uc -us -sa -rfakeroot
 
 
