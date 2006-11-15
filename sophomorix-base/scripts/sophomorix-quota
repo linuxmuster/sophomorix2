@@ -26,6 +26,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     db_connect
                                     db_disconnect
                                     fetchdata_from_account
+                                    fetchusers_from_adminclass
                                    );
 
 my @arguments = @ARGV;
@@ -64,6 +65,7 @@ my $skiplock=0;
 my $sum=0;
 my $system=0;
 my $set=0;
+my $cron=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -82,6 +84,7 @@ my $testopt=GetOptions(
            "sum" => \$sum,
            "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
+           "cron" => \$cron,
            "noninteractive" => \$noninteractive,
            "system" => \$DevelConf::system,
            "info|i" => \$info
@@ -215,6 +218,76 @@ if ($info==1) {
 
    &log_script_exit("",1,1,0,@arguments);
 }
+
+
+# --cron
+if ($cron==1) {
+    print "Running with --cron\n";
+    my @students=&fetchstudents_from_school();
+    my @teachers=&fetchusers_from_adminclass(${DevelConf::teacher});
+
+    my @users = (@teachers,@students);
+
+    my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
+
+    foreach my $user (@users){
+        print "Cron: Checking mailquota of $user \n";
+        my @mailquota = &imap_fetch_mailquota($imap,$user,0,0);
+
+        if (not defined $mailquota[0]){
+            $mailquota[0]="Nouser";
+        }
+        if (not defined $mailquota[1]){
+            $mailquota[1]=0;
+        }
+        if (not defined $mailquota[2]){
+            $mailquota[2]=0;
+        }
+
+        # test
+        @mailquota=($user,192.1234,200.345);
+
+        # calculate percentage
+        if ($mailquota[2]==0){
+            $mailquota[2]=0.0001;
+        }
+
+        my $percentage = 100-($mailquota[1]/$mailquota[2])*100;
+        $percentage = int($percentage*10)/10;
+
+        # calculating kb left
+        my $kb_left = ($mailquota[2]-$mailquota[1])*10;
+        $kb_left = int($kb_left);
+
+        print "   User $user ($mailquota[0]) has ",
+                 "used $mailquota[1] MB of $mailquota[2] MB\n";
+
+	print "   Percentage left : $percentage \% ";
+        if (${Conf::mailquota_warn_percentage} < $percentage){
+            print "\n";
+        } else {
+            print "(WARNING: only ",
+                  "${Conf::mailquota_warn_percentage} \% allowed) \n";
+        }
+
+        print "   Mailquota left   : $kb_left kB ";
+        if (${Conf::mailquota_warn_kb} < $kb_left){
+            print "\n";
+        } else {
+            print "(WARNING: only ",
+                  "${Conf::mailquota_warn_kb} kB allowed) \n";
+        }
+
+
+
+
+    }
+
+    &imap_disconnect($imap);
+
+    &log_script_exit("",1,1,0,@arguments);
+}
+
 
 
 # connect to imap server
