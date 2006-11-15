@@ -2753,8 +2753,8 @@ sub imap_fetch_mailquota {
     } else {
         return undef;
     }
-
-    if (defined $mailquota[1]) {    
+#??? 2 was 1
+    if (defined $mailquota[2]) {    
         $mailquota[2]=$mailquota[2]/1024;
         $mailquota[2]=$mailquota[2]." MB";
     } else {
@@ -2763,7 +2763,8 @@ sub imap_fetch_mailquota {
 
     # loglevel
     if ($quiet==0){
-        print "User $user ($mailquota[0]) has used $mailquota[1] of $mailquota[2] \n";
+        print "User $user ($mailquota[0]) has ",
+              "used $mailquota[1] of $mailquota[2] \n";
     }
     return @mailquota;
 }
