@@ -114,21 +114,44 @@ if ($info==1) {
     print "\nFolgende User können endgültig gelöscht werden:\n\n";
     print "Loginname   AdminClass   Identifier\n";
     &linie;
+
+    my @lines=();
     open(KILL,"${DevelConf::ergebnis_pfad}/sophomorix.kill") || die "Fehler: $!";
-       while(<KILL>){      
-          chomp();
-          $count++;
-          ($identifier_to_kill, $login_name_to_kill)=split(/::/);
-          # Klasse ermitteln
-          ($linux_gruppe_to_kill)=&pg_get_group_list($login_name_to_kill);
-          printf "%-11s %-12s %-40s\n",
-                "$login_name_to_kill","$linux_gruppe_to_kill","$identifier_to_kill";
-       }
+    while(<KILL>){      
+       chomp();
+       # Klasse ermitteln
+       ($identifier_to_kill, $login_name_to_kill)=split(/::/);
+       ($linux_gruppe_to_kill)=&pg_get_group_list($login_name_to_kill);
+       push @lines, "$_"."::"."$linux_gruppe_to_kill"."\n";
+    }
     close(KILL);
+
+    my @sorted_lines = sort {
+        my @a_fields = split /::/, $a;
+        my @b_fields = split /::/, $b;
+ 
+        $a_fields[2] cmp $b_fields[2]  # string sort on 1st field, then
+          ||
+        $a_fields[1] cmp $b_fields[1]  # string sort on 2nd field
+    } @lines;
+
+    foreach my $line (@sorted_lines){
+       chomp($line);
+       $count++;
+       ($identifier_to_kill,
+        $login_name_to_kill,
+        $linux_gruppe_to_kill)=split(/::/,$line);
+       printf "%-11s %-12s %-40s\n",
+              "$login_name_to_kill",
+              "$linux_gruppe_to_kill",
+              "$identifier_to_kill";
+    }
+
     &linie;
     print "$count users can be killed\n";
     &log_script_exit("",1,1,0,@arguments);
 }
+
 
 &check_connections();
 my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
@@ -148,7 +171,8 @@ my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
 # ===========================================================================
 # Datei mit den Schülern, die nicht gelöscht wurden
 # ===========================================================================
-open(YETTOKILL,">${DevelConf::ergebnis_pfad}/sophomorix.kill.neu") || die "Fehler: $!";
+open(YETTOKILL,">${DevelConf::ergebnis_pfad}/sophomorix.kill.neu") 
+     || die "Fehler: $!";
 
 
 # ===========================================================================

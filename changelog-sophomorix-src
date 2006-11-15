@@ -145,11 +145,9 @@ sophomorix-move
    - move Data from share into home, even if 'hidden' in another owners directory
    - quick-move of a user (move user with a command, and keep him somehow out of 
      way, when calling sophomorix-move)
-   - option -i: group users to add by classes alphabetical, users alphabetical
 
 
 sophomorix-kill
-   - option -i: group users to add by classes alphabetical, users alphabetical
 
 
 sophomorix-user 
@@ -1253,6 +1251,8 @@ check out sophomorix2 and pack a package in a ne empty dir
    - added weekly cronjob delete bzip2 database dumps 
    - BUGFIX: use $subclasses under /*/subclasss in repair.directories
    - BUGFIX: use $projects under /*/projects in repair.directories
+   - sophomorix-kill -i (group adminclass and users asciibetically)
+   - sophomorix-move -i (group adminclass and users asciibetically)
    - sophomorix-add -i (group adminclass and users asciibetically)
    - fetched new smb.conf from thomas schmitt
      replaced new @@vars@@ with values in sophomorix-devel.conf
