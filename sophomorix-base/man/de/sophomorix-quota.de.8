@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-QUOTA 8 "November 12, 2006"
+.TH SOPHOMORIX-QUOTA 8 "November 15, 2006"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -200,9 +200,16 @@ benutzt werden, wenn man weiss, was man tut.
 .B --sum
 zeigt am Ende die Gesamtsumme der vergebenen Quota an.(Todo)
 .TP
+.B --cron
+sendet mail an user, wenn der in sophomorix.conf angegebene
+Prozentsatz für mail nicht mehr frei ist, oder weniger als die
+angegebene Menge an mailquota noch frei ist.
+.br
+sophomorix-quota --cron wird als wöchentlicher cronjob aufgerufen.
+.TP
 .B --system
-sophomorix-quota benutzt anstelle des Perl-Moduls Quota::
-den Systembefehl des Betriebssystems Linux, Kernel 2.4.x (2.6.x ????):
+sophomorix-quota benutzt anstelle des Perl-Moduls Quota:: den
+Systembefehl des Betriebssystems Linux, Kernel 2.4.x (2.6.x ????):
 
 .B   setquota -u username 
 
