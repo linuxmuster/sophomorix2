@@ -16,6 +16,7 @@ Getopt::Long::Configure ("bundling");
 use DBI;
 use Net::LDAP;
 use IMAP::Admin;
+use Mail::Send;
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     check_connections
                                     get_sys_users
@@ -232,6 +233,7 @@ if ($cron==1) {
     foreach my $user (@users){
         print "\nChecking mailquota of $user: \n";
         my @mailquota = &imap_fetch_mailquota($imap,$user,0,0);
+        my $send_mail=0;
 
         if (not defined $mailquota[0]){
             $mailquota[0]="Nouser";
@@ -267,6 +269,7 @@ if ($cron==1) {
         if (${Conf::mailquota_warn_percentage} < $percentage){
             print "\n";
         } else {
+            $send_mail=1;
             print "(WARNING: only ",
                   "${Conf::mailquota_warn_percentage} \% allowed) \n";
         }
@@ -275,8 +278,24 @@ if ($cron==1) {
         if (${Conf::mailquota_warn_kb} < $kb_left){
             print "\n";
         } else {
+            $send_mail=1;
             print "(WARNING: only ",
                   "${Conf::mailquota_warn_kb} kB allowed) \n";
+        }
+        # send mail
+        if ($send_mail==1){
+            # send a mail to user
+            my $mail_message = new Mail::Send;
+            $mail_message -> subject('Mailquota warning');  
+            $mail_message -> to("${user}".'@'."localhost");  
+            my $mail_body = "This is a warning from".
+                            " your cyrus mail system:\n\n";
+            $mail_body.= "   - Only $kb_left kB (${percentage} %)".
+                         " of your mailquota is left. \n";
+            $mail_body.= "\nYour Administrator \n";
+            my $fh = $mail_message -> open("sendmail");
+            print $fh $mail_body;
+            $fh -> close();  
         }
     }
     &imap_disconnect($imap);
