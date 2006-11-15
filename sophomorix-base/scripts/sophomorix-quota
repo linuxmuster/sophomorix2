@@ -222,16 +222,15 @@ if ($info==1) {
 
 # --cron
 if ($cron==1) {
-    print "Running with --cron\n";
+    print "Running with option --cron\n";
     my @students=&fetchstudents_from_school();
     my @teachers=&fetchusers_from_adminclass(${DevelConf::teacher});
-
     my @users = (@teachers,@students);
 
     my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
 
     foreach my $user (@users){
-        print "Cron: Checking mailquota of $user \n";
+        print "\nChecking mailquota of $user: \n";
         my @mailquota = &imap_fetch_mailquota($imap,$user,0,0);
 
         if (not defined $mailquota[0]){
@@ -244,25 +243,27 @@ if ($cron==1) {
             $mailquota[2]=0;
         }
 
-        # test
-        @mailquota=($user,192.1234,200.345);
-
         # calculate percentage
         if ($mailquota[2]==0){
+            # avoid division by zero
             $mailquota[2]=0.0001;
         }
 
         my $percentage = 100-($mailquota[1]/$mailquota[2])*100;
         $percentage = int($percentage*10)/10;
+        # avoid negativ percentages
+        if ($percentage<0){
+            $percentage=0;
+        }
 
         # calculating kb left
-        my $kb_left = ($mailquota[2]-$mailquota[1])*10;
+        my $kb_left = ($mailquota[2]-$mailquota[1])*1000;
         $kb_left = int($kb_left);
+        if ($kb_left<0){
+            $kb_left=0;
+        }
 
-        print "   User $user ($mailquota[0]) has ",
-                 "used $mailquota[1] MB of $mailquota[2] MB\n";
-
-	print "   Percentage left : $percentage \% ";
+	print "   Percentage left  : $percentage \% ";
         if (${Conf::mailquota_warn_percentage} < $percentage){
             print "\n";
         } else {
@@ -277,14 +278,8 @@ if ($cron==1) {
             print "(WARNING: only ",
                   "${Conf::mailquota_warn_kb} kB allowed) \n";
         }
-
-
-
-
     }
-
     &imap_disconnect($imap);
-
     &log_script_exit("",1,1,0,@arguments);
 }
 
