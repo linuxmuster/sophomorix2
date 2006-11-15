@@ -2388,11 +2388,11 @@ sub log_script_exit {
     my @arguments = @_;
     my $timestamp = `date '+%Y-%m-%d %H:%M:%S'`;
     chomp($timestamp);
-    my $log="${timestamp}::exit ::  $0::$message";
+    my $log="${timestamp}::exit ::  $0";
     foreach my $arg (@arguments){
 	$log=$log." ".$arg ;
     }
-    $log=$log."\n";
+    $log=$log."::$message\n";
     open(LOG,">>$DevelConf::log_command");
     print LOG "$log";
     close(LOG);
