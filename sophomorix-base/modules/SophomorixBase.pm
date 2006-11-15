@@ -2654,7 +2654,7 @@ sub imap_show_mailbox_info {
 	#print $box,"\n";
         my @data=&imap_fetch_mailquota($imap,$box,1,1);
         printf "| %-27s| %4s | %-19s| %12s|\n",
-               $data[0],$hash{$data[0]},$data[1],$data[2];
+               $data[0],$hash{$data[0]},"$data[1] MB","$data[2] MB";
     }
     print "+----------------------------+------+",
           "--------------------+-------------+\n";
@@ -2749,22 +2749,25 @@ sub imap_fetch_mailquota {
 
     if (defined $mailquota[1]) {    
         $mailquota[1]=$mailquota[1]/1024;
-        $mailquota[1]=$mailquota[1]." MB";
-    } else {
-        return undef;
-    }
-#??? 2 was 1
-    if (defined $mailquota[2]) {    
-        $mailquota[2]=$mailquota[2]/1024;
-        $mailquota[2]=$mailquota[2]." MB";
+        $mailquota[1]=$mailquota[1];
     } else {
         return undef;
     }
 
+    if (defined $mailquota[2]) {    
+        $mailquota[2]=$mailquota[2]/1024;
+        $mailquota[2]=$mailquota[2];
+    } else {
+        return undef;
+    }
+
+    # cut away after 3rd 
+    $mailquota[1]=int(($mailquota[1]*1000)+0.5)/1000;
+
     # loglevel
     if ($quiet==0){
         print "User $user ($mailquota[0]) has ",
-              "used $mailquota[1] of $mailquota[2] \n";
+              "used $mailquota[1] MB of $mailquota[2] MB\n";
     }
     return @mailquota;
 }
