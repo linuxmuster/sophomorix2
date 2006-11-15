@@ -86,6 +86,28 @@ DBUPGRADE=$(DESTDIR)/usr/share/dbconfig-common/data/sophomorix-pgldap/upgrade
 
 all: install-base install-pgldap install-sys-pgldap install-vampire install-developer
 
+help:
+	@echo ' '
+	@echo 'Most common options of this Makefile:'
+	@echo '-------------------------------------'
+	@echo ' '
+	@echo '   make help'
+	@echo '      show this help'
+	@echo ' '
+	@echo '   make'
+	@echo '      make an installation of files to the local debian system'
+	@echo ' '
+	@echo '   make deb'
+	@echo '      create a debian package'
+	@echo ' '
+
+# build a package
+deb:
+	@echo 'Did you do a dch -i ?'
+	sleep 8 > /dev/null
+	dpkg-buildpackage -tc -uc -us -sa -rfakeroot
+
+
 clean: clean-doc
 
 
@@ -97,7 +119,6 @@ install-base:
 	install -d -m700 -oroot -groot $(LIBDIR)/tmp
 	install -d -m700 -oroot -groot $(LIBDIR)/lock
 	install -d -m700 -oroot -groot $(LIBDIR)/print-data
-#	install -d -m700 -oroot -groot $(LIBDIR)/database
 	install -d -m755 -oroot -groot $(CACHEDIR)
 	install -d -m700 -oroot -groot $(LOGDIR)
 	install -d -m700 -oroot -groot $(LOGDIR)/user
