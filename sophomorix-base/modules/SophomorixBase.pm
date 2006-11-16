@@ -2319,12 +2319,18 @@ sub log_script_start {
         }
         if ($arg eq ""){
    	    $log=$log." ''";
+   	    $lock=$lock." ''";
+   	    $log_locked=$log_locked." ''";
         } else {
 	    $log=$log." ".$arg ;
+	    $lock=$lock." ".$arg ;
+	    $log_locked=$log_locked." ".$arg ;
         }
     }
 
-    $log=$log."\n";
+    $log=$log."::$$"."::\n";
+    $lock=$lock."::$$"."::\n";
+    $log_locked=$log_locked."::$$"."::\n";
 
     open(LOG,">>$DevelConf::log_command");
     print LOG "$log";
@@ -2342,8 +2348,9 @@ sub log_script_start {
         print LOG "$log_locked";
         close(LOG);
         $locking_script=$lock[3];
+        $locking_pid=$lock[4];
         
-        &titel("sophomorix has been locked by $locking_script");
+        &titel("sophomorix has been locked by $locking_script (PID: $locking_pid)");
         &titel("try again later ...");
         exit;
     }
@@ -2351,7 +2358,6 @@ sub log_script_start {
     if (exists ${DevelConf::lock_scripts}{$0}){
         &titel("Creating lock in $DevelConf::lock_file");    
         open(LOCK,">$DevelConf::lock_file") || die "Cannot create lock file \n";;
-#        print LOCK "$lock::locked by $0\n";
         print LOCK "$lock";
         close(LOCK);
     }
@@ -2365,7 +2371,7 @@ sub log_script_end {
     foreach my $arg (@arguments){
 	$log=$log." ".$arg ;
     }
-    $log=$log."\n";
+    $log=$log."::"."$$"."::\n";
     open(LOG,">>$DevelConf::log_command");
     print LOG "$log";
     close(LOG);
@@ -2392,7 +2398,7 @@ sub log_script_exit {
     foreach my $arg (@arguments){
 	$log=$log." ".$arg ;
     }
-    $log=$log."::$message\n";
+    $log=$log."::"."$$"."::$message\n";
     open(LOG,">>$DevelConf::log_command");
     print LOG "$log";
     close(LOG);
