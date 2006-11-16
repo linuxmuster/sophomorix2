@@ -68,7 +68,7 @@ MAKING a Package
 4. dch -i 
    add a comment to the changelog
 
-5. dpkg-buildpackage -rfakeroot
+5. make deb  (old dpkg-buildpackage -rfakeroot)
 
 6. Tag all files in the cvs repository with the tag 'Version-x-y-z'
 
@@ -980,8 +980,6 @@ IMAP-cyrus
 
 
 
-mail verschicken: Perl module: 
-use Email::Send;
 
 lml.mine.nu schulkonsole/shtml: descriptions
 
@@ -1143,17 +1141,6 @@ script to create a IDE:
 
 
 ############################################################
-send mail via sophomorix-mail --cron,
-when:
-     - a certain percentage of mailquota is left
-OR   - less then xxx kb is left (add field to sophomorix.conf ????)
-
-when mailquota is > 100%, then send mail to root only
-(make that percentage configurable in sophomorix.conf)
-
-
-
-############################################################
 Cron Jobs
 ############################################################
 see manpage for run-parts for checking cron jobs
@@ -1240,13 +1227,23 @@ created request in RT
 
 
 
-check out sophomorix2 and pack a package in a ne empty dir
 
+check out sophomorix2 and pack a package in a ne empty dir
+  build on a different host
+
+
+next: use pid of lockfile
 
 
 ================== CHANGELOG ========================================
 
 1.9.3-1 (2006-11-xx)
+   - BUGFIX: log errors behind options in command.log
+   - added option sophomorix-quota --cron:
+      - check usage of mailquota in cyrus
+      - send mail to user with quota warnings  
+           use Email::Send;
+      - do nothing if warn mailquota is disabled sophomorix.conf 
    - added weekly cronjob to bzip2 database dumps 
    - added weekly cronjob delete bzip2 database dumps 
    - BUGFIX: use $subclasses under /*/subclasss in repair.directories
