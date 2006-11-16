@@ -59,6 +59,8 @@ use Quota;
               log_script_start
               log_script_end
               log_script_exit
+              unlock_sophomorix
+              lock_sophomorix
               archive_log_entry
               backup_amk_file
               get_mail_alias_from
@@ -2303,15 +2305,47 @@ sub append_teach_in_log {
 
 }
 
+sub unlock_sophomorix {
+    &titel("Removing lock in $DevelConf::lock_file");
+    if (-e $DevelConf::lock_file){
+        system("rm $DevelConf::lock_file")
+    } else {
+        &titel("Lock $DevelConf::lock_file did not exist");
+    }
+}
+
+
+sub lock_sophomorix {
+    my @arguments = @_;
+    my $timestamp = `date '+%Y-%m-%d %H:%M:%S'`;
+    chomp($timestamp);
+    my $lock="lock::${timestamp}::creator::$0";
+    foreach my $arg (@arguments){
+        if ($arg eq "--skiplock"){
+            $skiplock=1;
+        }
+        if ($arg eq ""){
+   	    $lock=$lock." ''";
+        } else {
+	    $lock=$lock." ".$arg ;
+        }
+    }
+    $lock=$lock."::$$"."::\n";
+    &titel("Creating lock in $DevelConf::lock_file");
+    open(LOCK,">$DevelConf::lock_file") || die "Cannot create lock file \n";;
+    print LOCK "$lock";
+    close(LOCK);
+}
+
+
 sub log_script_start {
     my @arguments = @_;
     my $timestamp = `date '+%Y-%m-%d %H:%M:%S'`;
+    chomp($timestamp);
     my $locking_script="";
     my $skiplock=0;
     # scripts that are locking the system
-    chomp($timestamp);
     my $log="${timestamp}::start::  $0";
-    my $lock="lock::${timestamp}::creator::$0";
     my $log_locked="${timestamp}::locked:: $0";
     foreach my $arg (@arguments){
         if ($arg eq "--skiplock"){
@@ -2319,17 +2353,14 @@ sub log_script_start {
         }
         if ($arg eq ""){
    	    $log=$log." ''";
-   	    $lock=$lock." ''";
    	    $log_locked=$log_locked." ''";
         } else {
 	    $log=$log." ".$arg ;
-	    $lock=$lock." ".$arg ;
 	    $log_locked=$log_locked." ".$arg ;
         }
     }
 
     $log=$log."::$$"."::\n";
-    $lock=$lock."::$$"."::\n";
     $log_locked=$log_locked."::$$"."::\n";
 
     open(LOG,">>$DevelConf::log_command");
@@ -2350,16 +2381,12 @@ sub log_script_start {
         $locking_script=$lock[3];
         $locking_pid=$lock[4];
         
-        &titel("sophomorix has been locked by $locking_script (PID: $locking_pid)");
+        &titel("sophomorix locked (${locking_script}, PID: $locking_pid)");
         &titel("try again later ...");
         exit;
     }
-
     if (exists ${DevelConf::lock_scripts}{$0}){
-        &titel("Creating lock in $DevelConf::lock_file");    
-        open(LOCK,">$DevelConf::lock_file") || die "Cannot create lock file \n";;
-        print LOCK "$lock";
-        close(LOCK);
+	&lock_sophomorix(@arguments);
     }
 }
 
@@ -2405,6 +2432,7 @@ sub log_script_exit {
     # remove lock file
     if (-e $DevelConf::lock_file
          and exists ${DevelConf::lock_scripts}{$0}){
+        &titel("Removing lock in $DevelConf::lock_file");    
 	unlink $DevelConf::lock_file;
     }
     if ($message ne ""){
