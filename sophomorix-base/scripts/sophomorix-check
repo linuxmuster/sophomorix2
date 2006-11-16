@@ -76,6 +76,8 @@ my $no_kclass=0;
 my $use_uid=0;
 my $use_gid=0;
 my $cron=0;
+my $lock=0;
+my $unlock=0;
 my $no_auto_teach_in=0;
 
 # Parsen der Optionen
@@ -86,6 +88,8 @@ my $testopt=GetOptions(
            "use-uid" => \$use_uid,
            "use-gid" => \$use_gid,
            "cron" => \$cron,
+           "lock" => \$lock,
+           "unlock" => \$unlock,
            "no-kclass" => \$no_kclass,
            "no-auto-teach-in|no-sync" => \$no_auto_teach_in,
            "file=s" => \$file_to_check,
@@ -93,12 +97,6 @@ my $testopt=GetOptions(
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
-&log_script_start(@arguments);
-
-if ($file_to_check ne "") {
-    @schueler_to_check_dateien=("$file_to_check","","","","","","");
-}
-
 
 # --help
 if ($help==1) {
@@ -130,11 +128,32 @@ Options
   --use-uid
   --use-gid
   --file filename
+  --lock / --unlock
 
 Please see the sophomorix-check(8) man pages for full documentation
 ');
    print "\n";
-   &log_script_exit("",1,1,0,@arguments);
+   exit;
+}
+
+
+# --unlock
+if ($unlock==1) {
+    &unlock_sophomorix();
+    exit;
+}
+
+# --lock
+if ($lock==1) {
+    &lock_sophomorix(@arguments);
+    exit;
+}
+
+
+&log_script_start(@arguments);
+
+if ($file_to_check ne "") {
+    @schueler_to_check_dateien=("$file_to_check","","","","","","");
 }
 
 &check_connections();

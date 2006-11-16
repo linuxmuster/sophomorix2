@@ -24,7 +24,6 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
 my @arguments = @ARGV;
 
 &check_connections();
-&log_script_start(@arguments);
 
 my $zeit=&zeit_stempel;
 my $user_nummer=0;
@@ -64,6 +63,8 @@ my $info=0;
 my $alt_gruppe="";
 my $neu_gruppe="";
 my $loginname="";
+my $lock=0;
+my $unlock=0;
 
 
 # Parsen der Optionen
@@ -73,6 +74,8 @@ my $testopt=GetOptions(
            "user|u=s" => \$loginname,
            "oldclass|o=s" => \$alt_gruppe,
            "newclass|n=s" => \$neu_gruppe,
+           "lock" => \$lock,
+           "unlock" => \$unlock,
            "info|i" => \$info,           
            "help|h" => \$help
           );
@@ -99,11 +102,13 @@ Options
   -o class / --oldclass class
   -n class / --newclass class
   -t  / --test
+  --lock / --unlock
 
 Please see the sophomorix-move(8) man pages for full documentation
 ');
    print "\n";
-   &log_script_exit("",1,1,0,@arguments);
+   exit;
+   #&log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -128,6 +133,21 @@ if ($neu_gruppe ne "") {
 }
 
 
+# --unlock
+if ($unlock==1) {
+    &unlock_sophomorix();
+    exit;
+}
+
+
+# --lock
+if ($lock==1) {
+    &lock_sophomorix(@arguments);
+    exit;
+}
+
+
+&log_script_start(@arguments);
 
 # ===========================================================================
 # Abbruch, wenn sophomorix.move fehlt oder leer

@@ -52,6 +52,7 @@ my $klartext_passwort="";
 my $new_admin_group="";
 my $shell="";
 
+
 my @users_for_quota=();
 my %forbidden_login_hash=();
 
@@ -70,6 +71,8 @@ my $info=0;
 my $loginname="";
 my $gruppe="";
 my $password="";
+my $lock=0;
+my $unlock=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -80,12 +83,13 @@ my $testopt=GetOptions(
            "system|s" => \$DevelConf::system,
            "password" => \$password,
            "info|i" => \$info,
+           "lock" => \$lock,
+           "unlock" => \$unlock,
            "help|h" => \$help
           );
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
-&log_script_start(@arguments);
 
 # --help
 if ($help==1) {
@@ -105,11 +109,25 @@ Options
   --u user / --users user
   -c class / --class class
   --test
+  --lock / --unlock
 
 Please see the sophomorix-add(8) man pages for full documentation
 ');
    print "\n";
-   &log_script_exit("",1,1,0,@arguments);
+   exit;
+}
+
+
+# --unlock
+if ($unlock==1) {
+    &unlock_sophomorix();
+    exit;
+}
+
+# --lock
+if ($lock==1) {
+    &lock_sophomorix(@arguments);
+    exit;
 }
 
 
@@ -173,7 +191,7 @@ if ($info==1) {
    }
    &linie;
    print "$count users can be added\n";
-   &log_script_exit("",1,1,0,@arguments);
+   exit;
 }
 
 
@@ -188,6 +206,9 @@ if ($gruppe ne "") {
   #
   print "Gruppe/Klasse $gruppe angegeben.\n";
 }
+
+
+&log_script_start(@arguments);
 
 
 ################################################################################

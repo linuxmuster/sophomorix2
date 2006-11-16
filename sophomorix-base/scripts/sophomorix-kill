@@ -52,6 +52,8 @@ $Conf::log_level=1;
 my $help=0;
 my $info=0;
 my $loginname="";
+my $lock=0;
+my $unlock=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -59,12 +61,13 @@ my $testopt=GetOptions(
            "user|u=s" => \$loginname,
            "verbose|v+" => \$Conf::log_level,
            "info|i" => \$info,
-           "help|h" => \$help
+           "help|h" => \$help,
+           "lock" => \$lock,
+           "unlock" => \$unlock,
           );
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
-&log_script_start(@arguments);
 
 
 # --help
@@ -83,13 +86,26 @@ Options
   -i  / --info
   -u  user / --user user
   --test
+  --lock / --unlock
 
 Please see the sophomorix-kill(8) man pages for full documentation
 ');
    print "\n";
-   &log_script_exit("",1,1,0,@arguments);
+   exit;
 }
 
+
+# --unlock
+if ($unlock==1) {
+    &unlock_sophomorix();
+    exit;
+}
+
+# --lock
+if ($lock==1) {
+    &lock_sophomorix(@arguments);
+    exit;
+}
 
 
 # --loginname
@@ -98,6 +114,7 @@ if ($loginname ne "") {
   print "Loginname $loginname angegeben.\n";
 }
 
+&log_script_start(@arguments);
 
 # ===========================================================================
 # Abbruch, wenn sophomorix.kill fehlt oder leer
