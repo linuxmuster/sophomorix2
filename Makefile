@@ -213,6 +213,7 @@ install-pgldap:
 	##### Copy the samba config-templates
 	install -d -m755 -oroot -groot $(CTEMPDIR)/samba/
 	install -oroot -groot --mode=0644 sophomorix-pgldap/config-samba/smb.conf.template $(CTEMPDIR)/samba/
+	install -oroot -groot --mode=0644 sophomorix-pgldap/config-samba/smb.conf.global $(CTEMPDIR)/samba/
 	##### install samba.schema
 	install -d -m755 -oroot -groot $(SCHEMA)/
 	install -oroot -groot --mode=0755 sophomorix-pgldap/config-ldap/samba.schema $(SCHEMA)/

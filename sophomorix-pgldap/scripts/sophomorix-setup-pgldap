@@ -770,6 +770,10 @@ system("sed $replace ${template}/pam/pam_ldap.conf.template > $pam_ldap_conf");
 &setup_verzeichnis("\$homedir_samba","$DevelConf::homedir_samba");
 system("sed $replace ${template}/samba/smb.conf.template > $smb_conf"); 
 
+if (not -e "$DevelConf::smb_conf_global_sys"){
+    system("cp $DevelConf::smb_conf_global $DevelConf::smb_conf_global_sys");
+    system("chmod 644 $DevelConf::smb_conf_global_sys");
+}
 
 # do it, bdb
 system("sed $replace ${template}/bdb/DB_CONFIG > $db_config"); 
