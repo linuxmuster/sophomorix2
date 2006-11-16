@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-CHECK 8 "November 16, 2004"
+.TH SOPHOMORIX-CHECK 8 "November 16, 2006"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -46,6 +46,9 @@ Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
 .B --no-auto-teach-in, --no-sync
 macht keine automatischen updates der Benutzerdatenbank (kein auto-teach-in).
+.TP
+.B --lock, --unlock
+legt die Datei sophomorix.lock an, bzw. löscht sie, falls vorhanden. 
 .TP
 .B Daten aus Dateien einer bisherigen Installation holen (siehe auch: man sophomorix-vampire).
 .TP
