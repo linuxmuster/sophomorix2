@@ -390,10 +390,7 @@ ALL SCRIPTS To do
      (sophomorix-split needs return value, sophomorix-add not ???)
    - /home/share/tasks/dachboden is of no use?
    - remove compatibility-mode to ml 1.1.1
-   - log teacher actions (sophomorix-teacher, ... to find out if a teacher 
-     account is missused)
    - replace sperrklassen.txt and entfernklassen.txt with filter.txt
-   - use lehrer.txt (Field: kurz RealShortName )
    - test csv-output on windows and linux
    - clear a user: (The same as clearing a workstation after the exam)
            - keep his login, passwd, homedir
@@ -1188,9 +1185,17 @@ sophomorix-class --dump
    dump ADDITIONAL data of a class: maillist,...
    to be used ba sophomorix-vampire   
 
-sophomorix-add, -move, -check, ..
-   options --unlock (--lock ??) to delete lockfile
 
+
+
+- check options
+
+--help (-> exit;)
+
+(--lock)
+--unlock
+
+-- log script start (lock, stopp when logged)
 
 
 
@@ -1234,7 +1239,7 @@ check out sophomorix2 and pack a package in a ne empty dir
 
 next: use pid of lockfile
 
-next: put sens_mail in a function:
+next: put send_mail in a function:
    - recipient-list, commaseparated, add @domain
    - cc list
    - template-name
@@ -1255,9 +1260,27 @@ database-field my language??
 man 5 schueler.txt, ...
  
 
+
+checken/BUG: cups-pdf wir nur bei sophomorix-repair angelegt,
+nicht beim benutzeranlegen
+
+
+
+.forward auswerten in sieve einrichten. 
+
+/var/lib/cyrus/Mail ...
+
+
+Unterordner spam anlegen: spam (ordner-trenn-parameter . oder /)
+
+
 ================== CHANGELOG ========================================
 
 1.9.3-1 (2006-11-xx)
+   - fetched /etc/samba/smb.conf.global from tschmitt svn and added it
+     to the sophomorix-setup-pgldap scripts
+   - sophomorix-add, -move, -check, ..
+      Options --unlock and --lock to delete/create sophomorix.lock
    - BUGFIX: log errors behind options in command.log
    - added option sophomorix-quota --cron:
       - check usage of mailquota in cyrus

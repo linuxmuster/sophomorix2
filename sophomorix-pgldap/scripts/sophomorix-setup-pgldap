@@ -581,6 +581,11 @@ if (-e "$DevelConf::linuxmuster_base_logon_bat"){
     $smb_netlogon_bat=${DevelConf::linuxmuster_base_logon_bat};
 }
 
+my $smb_netlogin_bat=${DevelConf::devel_netlogon_path}."/netlogin.bat";
+if (-e "$DevelConf::linuxmuster_base_login_bat"){
+    $smb_netlogin_bat=${DevelConf::linuxmuster_base_login_bat};
+}
+
 
 
 
@@ -1022,7 +1027,11 @@ system("smbldap-useradd -a -u 996 -c 'Domain Admin' -m -d /dev/null -g 'domadmin
                    "$DevelConf::homedir_samba_progs");
 &setup_verzeichnis("\$homedir_samba_cds",
                    "$DevelConf::homedir_samba_cds");
+
+print "${template}/samba/netlogon/logon.bat.template > $smb_netlogon_bat \n";
+print "${template}/samba/netlogon/login.bat.template > $smb_netlogin_bat \n";
 system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlogon_bat"); 
+system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlogin_bat"); 
 
 
 # www stuff

@@ -43,10 +43,24 @@ UPDATING smb.conf from linuxmuster
 4) Make a diff between old and new
 
 5)
-scripte:
+
+smb.conf.global is not patched (is empty) and comes from
+   svn (module linuxmuster-base) 
+   /var/config-static/etc/samba/smb.conf.global
+
+
+# unix2dos ???
+
+login scripte are patched (common.bat is not necessary)
+linuxmuster-base/var/config-dynamic/17_admins/login.bat.compat
+
    login.bat  (smb.conf) ruft andere auf
    logon.bat
    common.bat
+
+nur servername
+
+
 
 
 
