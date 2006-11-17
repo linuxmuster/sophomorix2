@@ -1246,9 +1246,8 @@ next: put send_mail in a function:
    - replacements for template
 
 files:
-
-name-body.de
-name-header.de
+   name-body.de
+   name-header.de
 
 replace name with: 
    mailquota_warning,
@@ -1259,12 +1258,6 @@ database-field my language??
 
 man 5 schueler.txt, ...
  
-
-
-checken/BUG: cups-pdf wir nur bei sophomorix-repair angelegt,
-nicht beim benutzeranlegen
-
-
 
 .forward auswerten in sieve einrichten. 
 
@@ -1277,6 +1270,9 @@ Unterordner spam anlegen: spam (ordner-trenn-parameter . oder /)
 ================== CHANGELOG ========================================
 
 1.9.3-1 (2006-11-xx)
+   - BUGFIX: add cups-pdf when adding users (not only when repairing)
+   - fetched netlogon.bat and netlogin.bat from tschmitt's svn 
+     and added it to sophomorix-base
    - fetched /etc/samba/smb.conf.global from tschmitt svn and added it
      to the sophomorix-setup-pgldap scripts
    - sophomorix-add, -move, -check, ..
