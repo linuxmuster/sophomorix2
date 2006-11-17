@@ -909,6 +909,9 @@ sub provide_user_files {
 #           &setup_verzeichnis("\$homedir_teacher/\$lehrer/windows",
 #                  "$home/windows",
 #                  "$login");
+           &setup_verzeichnis("\$homedir_teacher/\$lehrer/cups-pdf",
+                  "$home/cups-pdf",
+                  "$login");
            &setup_verzeichnis(
                   "\$homedir_teacher/\$lehrer/\$task_dir",
                   "$home/${Language::task_dir}",
@@ -1015,6 +1018,9 @@ sub provide_user_files {
 #           &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/windows",
 #                              "$home/windows",
 #                              "$login");
+           &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/cups-pdf",
+                              "$home/cups-pdf",
+                              "$login");
            &setup_verzeichnis(
                   "\$homedir_pupil/\$klassen/\$schueler/\$task_dir",
                   "$home/${Language::task_dir}",
