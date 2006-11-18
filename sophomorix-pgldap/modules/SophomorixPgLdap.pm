@@ -4348,10 +4348,10 @@ sub dump_all_projects {
         my @pro=&fetchprojects_from_project($project);
         @pro = sort @pro;
         my $pro=join(",",@pro);
-        print DUMP $project."::".$addquota."::".$add_mail_quota."::".
-                   $max_members."::".$mailalias."::".$maillist."::".
-                   $status."::".$join."::".$admins."::".$users."::".
-                   $groups."::".$pro."::"."\n"; 
+        print DUMP $project.":".$addquota.":".$add_mail_quota.":".
+                   $max_members.":".$mailalias.":".$maillist.":".
+                   $status.":".$join.":".$admins.":".$users.":".
+                   $groups.":".$pro.":"."\n"; 
     }
     close(DUMP);
 }

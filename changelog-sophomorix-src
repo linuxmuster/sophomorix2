@@ -1170,43 +1170,19 @@ decreased quostioning to admins
 
 
 ############################################################
-sophomorix-project (and sophomorix-vampire)
+sophomorix-vampire
 ############################################################
 
-- add options:
-   --create-from-file file
-   (standard file is /etc/sophomorix/project/projects.create)
-   create projects if nonexisting
-   do nothing with existing projects
-
-   --update-from file file
-   (standard file is /etc/sophomorix/project/projects.update)
-   create projects and update them 
-   (useful for admins, to keep some projects up to date (netadmins) on the 
-    command line)
-
+sophomorix-project
    --lock / --unlock / --skiplock
+
    create/delete /var/lib/sophomorix/lock/project.lock
    if lockfile exists, interrupt sophomorix-project without modifying anything
    useful when migrating, updating, ...
 
-
 sophomorix-class --dump
    dump ADDITIONAL data of a class: maillist,...
    to be used ba sophomorix-vampire   
-
-
-
-
-- check options
-
---help (-> exit;)
-
-(--lock)
---unlock
-
--- log script start (lock, stopp when logged)
-
 
 
 ############################################################
@@ -1227,8 +1203,6 @@ compare s. 151 with manpage of sophomorix-quota (create quota)
 ############################################################
 updateable package:
 ############################################################
-
-Nothing to do (Schulkonsole fehlt)
 
 
 BUG: (check this)
@@ -1273,13 +1247,30 @@ man 5 schueler.txt, ...
 Unterordner spam anlegen: spam (ordner-trenn-parameter . oder /)
 
 
-add @ in makefile to avoid noisy output (what about errors?)
 
+--dump a header line in sophomorix-project
+check manpage
+check options: group,projects, maxmembers, addquota, ...
+
+update manpage
 
 
 ================== CHANGELOG ========================================
 
 1.9.3-1 (2006-11-xx)
+  - added @ in Makefile to avoid noisy output/speed up things
+  - sophomorix-project:
+    - added options:
+        --create-from-file file
+          (standard file is /etc/sophomorix/project/projects.create)
+          create projects if nonexisting
+          do nothing with existing projects
+
+        --update-from file file
+          (standard file is /etc/sophomorix/project/projects.update)
+          create projects and update them 
+          (useful for admins, to keep some projects up to date (netadmins) on the 
+          command line)
    - BUGFIX: add cups-pdf when adding users (not only when repairing)
    - fetched netlogon.bat and netlogin.bat from tschmitt's svn 
      and added it to sophomorix-base
