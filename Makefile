@@ -107,11 +107,15 @@ deb:
 	@echo 'Did you do a dch -i ?'
 	@sleep 8
 	dpkg-buildpackage -tc -uc -us -sa -rfakeroot
+	@echo ''
+	@echo 'Do not forget to tag this version in cvs'
+	@echo ''
 
 
-clean: clean-doc
+clean: clean-doc clean-debian
 
-
+clean-debian:
+	rm -rf  debian/sophomorix
 
 # sophomorix-base
 install-base:
