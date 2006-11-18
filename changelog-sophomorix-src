@@ -1215,12 +1215,6 @@ en manpage gesucht un die Deutsch nicht gefunden, obwwohl existent.
 created request in RT
 
 
-
-
-check out sophomorix2 and pack a package in a ne empty dir
-  build on a different host
-
-
 next: use pid of lockfile
 
 next: put send_mail in a function:
@@ -1258,6 +1252,15 @@ update manpage
 ================== CHANGELOG ========================================
 
 1.9.3-1 (2006-11-xx)
+  - checked out from CVS to an empty dir and built all packages there
+    diffed the contents(filelist) to my working copy and made the lists
+    equal.
+    (fileliste made with
+       lesspipe old/sophomorix2_1.9.3-1_all.deb | cut -d. -f2 | grep ^\/
+     for all packages
+    )
+  - removed *-webmin, *-groupadd, *-useradd and their manpages
+    from CVS. So that they are not added to sophomorix-doc-html anymore
   - added @ in Makefile to avoid noisy output/speed up things
   - sophomorix-project:
     - added options:
