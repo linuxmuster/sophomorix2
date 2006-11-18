@@ -267,6 +267,9 @@ if ($project eq "" and $info==1){
 }
 
 
+
+# writing/reading to/from a file
+
 # --dump
 if ($project eq "" and $dump_all_projects ne ""){
     &dump_all_projects("$dump_all_projects");
@@ -276,17 +279,18 @@ if ($project eq "" and $dump_all_projects ne ""){
 
 # --create-from-file
 if ($project eq "" and $create_from_file ne ""){
-    print "This feature (--create-from-file) is not implemented yet.\n";
+    &alpha_warning();
+    &project_from_file($update_from_file,"--create");
     exit;
 }
 
 
 # --update-from-file
 if ($project eq "" and $update_from_file ne ""){
-    print "This feature (--update-from-file) is not implemented yet.\n";
+    &alpha_warning();
+    &project_from_file($update_from_file,"");
     exit;
 }
-
 
 
 
@@ -558,4 +562,61 @@ sub remove_duplicates_from_first_list {
 }
 
 
+
+sub project_from_file {
+    my ($file,$parm)= @_;
+    print "file: $file \n";
+    print "parm: $parm \n";
+    open(PROS, "<$file");
+    while(<PROS>) {
+       print "$_";
+       chomp();
+       my ($project, #
+           $addquota, #
+           $add_mail_quota, #
+           $max_members, #
+           $mailalias, #
+           $maillist, #
+           $status,
+           $join,
+           $admins, #
+           $users, #
+           $groups, #
+           $pro, #
+          )=split(/:/,$_); 
+
+       my $command="sophomorix-project -p $project ";
+
+       if ($addquota ne "quota" and $addquota ne ""){
+           $command.="--addquota $addquota ";
+       }
+       if ($add_mail_quota!=0 or $add_mail_quota eq ""){
+           $command.="--addmailquota $add_mail_quota ";
+       }
+       if ($admins ne ""){
+           $command.="--admins $admins ";
+       }
+       if ($users ne ""){
+           $command.="--members $users ";
+       }
+       if ($max_members!=0){
+           $command.="--maxmembers $max_members ";
+       }
+       if ($groups ne ""){
+           $command.="--membergroups $groups ";
+       }
+       if ($pro ne ""){
+           $command.="--memberprojects $pro ";
+       }
+       if ($maillist==1){
+           $command.="--maillist ";
+       }
+       if ($mailalias==1){
+           $command.="--mailalias ";
+       }
+       print $command."\n";
+       system($command);
+    }
+    close(PROS);
+}
 
