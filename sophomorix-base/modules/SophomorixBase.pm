@@ -22,6 +22,7 @@ use Quota;
 @EXPORT_OK = qw( check_datei_touch );
 @EXPORT = qw( linie 
               titel
+              alpha_warning
               print_list 
               print_list_column 
               print_hash
@@ -185,6 +186,24 @@ sub titel {
    } else {
          printf "%-3s %-67s %-3s\n", "#####", "$a", "#####";
    }
+}
+
+sub alpha_warning {
+    print "\n WARNING: you are trying to use a feature of sophomorix";
+    print "\n          that is considered DANGEROUS!";
+    print "\n          It is not recommended to use it on a production server!\n";
+    print "\n Type Ctrl-c to exit or 'ok' + <Return> to continue!\n\n";
+    while(){# Endlosschleife für die Eingabe
+         $user_antwort= <STDIN>; # Lesen von Tastatur
+         chomp($user_antwort); # Newline abschneiden
+         if ($user_antwort eq "ok"){
+            print "... continuing in 1 s\n\n";
+            sleep 1;
+             last; 
+         } else {
+	     exit;
+         }
+    }
 }
 
 =pod
