@@ -57,6 +57,11 @@ CREATE TABLE groups_users (
     memberuidnumber integer NOT NULL
 );
 
+CREATE TABLE projects_members (
+    projectid integer NOT NULL,
+    memberuidnumber integer NOT NULL
+);
+
 CREATE TABLE projects_memberprojects (
     projectid integer NOT NULL,
     memberprojectid integer NOT NULL

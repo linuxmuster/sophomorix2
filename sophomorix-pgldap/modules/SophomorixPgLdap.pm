@@ -188,15 +188,38 @@ sub fetchinfo_from_project {
     my $dbh=&db_connect();
     my ($longname,$addquota,$add_mail_quota,$status,$join,
         $time,$max_members,$mailalias,
-        $maillist) = $dbh->selectrow_array( "SELECT longname,addquota,
+        $maillist,$id,$type,$schooltype,$department,
+        $creationdate,$enddate,$tolerationdate,$deactivationdate
+        ) = $dbh->selectrow_array( "SELECT longname,addquota,
            addmailquota,sophomorixstatus,joinable,creationdate,maxmembers,
-           mailalias,maillist
+           mailalias,maillist,id,type,schooltype,department,
+           creationdate,enddate,tolerationdate,deactivationdate
                           FROM projectdata 
                           WHERE gid='$project'");
-    # Merging information:
     &db_disconnect($dbh);
+    if (not defined $schooltype){
+        $schooltype="";
+    }
+    if (not defined $type){
+        $type="";
+    }
+    if (not defined $department){
+        $department="";
+    }
+    if (not defined $enddate){
+        $enddate="";
+    }
+    if (not defined $tolerationdate){
+        $tolerationdate="";
+    }
+    if (not defined $deactivationdate){
+        $deactivationdate="";
+    }
+
     return ($longname,$addquota,$add_mail_quota,
-            $status,$join,$time,$max_members,$mailalias,$maillist);    
+            $status,$join,$time,$max_members,$mailalias,$maillist,
+            $id,$type,$schooltype,$department,
+            $creationdate,$enddate,$tolerationdate,$deactivationdate);    
 }
 
 
@@ -404,7 +427,10 @@ sub fetchprojects_from_project {
 sub deleteuser_from_project {
     # remove user from its secondary membership in project(group)
     # (adding a user is pg_adduser)
-    my ($user,$project)=@_;
+    my ($user,$project,$by_option)=@_;
+    if (not defined $by_option){
+        $by_option=0;
+    }
     my $dbh=&db_connect();
     # fetching gidnumber
     my ($gidnumber_sys)= $dbh->selectrow_array( "SELECT gidnumber 
@@ -419,13 +445,45 @@ sub deleteuser_from_project {
         print "   Removing user $user($uidnumber_sys) ",
               "from $project($gidnumber_sys) \n";
         my $sql="DELETE FROM groups_users 
-             WHERE (memberuidnumber=$uidnumber_sys 
-               AND gidnumber=$gidnumber_sys) 
-             ";	
+                 WHERE (memberuidnumber=$uidnumber_sys 
+                 AND gidnumber=$gidnumber_sys) 
+                ";	
         if($Conf::log_level>=3){
            print "\nSQL: $sql\n";
         }
         $dbh->do($sql);
+
+        # remove track of members by option
+        if ($by_option==1){
+           # fetching project id
+           my ($project_id_sys)= $dbh->selectrow_array( "SELECT id 
+                                         FROM groups 
+                                         WHERE gid='$project'");
+           # check for existance
+           my ($result)= $dbh->selectrow_array( "SELECT memberuidnumber 
+                                         FROM projects_members 
+                                         WHERE projectid='$project_id_sys'");
+           if (defined $result){
+               print "   Removing user $user($uidnumber_sys) ",
+                     "from projects_members \n";
+               $sql="DELETE FROM projects_members
+                     WHERE (memberuidnumber=$uidnumber_sys 
+                     AND projectid=$project_id_sys) 
+                    ";	
+               if($Conf::log_level>=3){
+                   print "\nSQL: $sql\n";
+               }
+               $dbh->do($sql);
+           }
+        }
+
+
+
+
+
+
+
+
     } else {
         if (not defined $uidnumber_sys){
             print "   NOT removing user $user from project ",
@@ -478,7 +536,7 @@ sub deleteadmin_from_project {
     }
     &db_disconnect($dbh);
     # remove admin also as a user
-    &deleteuser_from_project($user,$project);
+    &deleteuser_from_project($user,$project,0);
 }
 
 
@@ -691,7 +749,10 @@ sub add_newuser_to_her_projects {
 
 sub adduser_to_project {
     # add a user as secondary membership to a project(group)
-    my ($user,$project)=@_;
+    my ($user,$project,$by_option)=@_;
+    if (not defined $by_option){
+        $by_option=0;
+    }
     my $dbh=&db_connect();
     # fetching gidnumber
     my ($gidnumber_sys)= $dbh->selectrow_array( "SELECT gidnumber 
@@ -712,6 +773,23 @@ sub adduser_to_project {
            print "\nSQL: $sql\n";
         }
         $dbh->do($sql);
+
+        # keep track of members by option
+        if ($by_option==1){
+           # fetching project id
+           my ($project_id_sys)= $dbh->selectrow_array( "SELECT id 
+                                         FROM groups 
+                                         WHERE gid='$project'");
+           print "   Adding user $user($uidnumber_sys) to projects_members \n";
+           $sql="INSERT INTO projects_members
+                 (projectid,memberuidnumber)
+	         VALUES
+	         ($project_id_sys,'$uidnumber_sys')";	
+           if($Conf::log_level>=3){
+              print "\nSQL: $sql\n";
+           }
+           $dbh->do($sql);
+        }
     } else {
         if (not defined $uidnumber_sys){
            print "   User $user does not exist, doing nothing. \n";
@@ -3373,8 +3451,8 @@ sub create_project {
     }
 
     foreach my $memb (@new_members){
-	print "adding $memb as member\n";
-	$users_to_add{ $memb }="member";
+	print "adding $memb as member_by_option\n";
+	$users_to_add{ $memb }="member_by_option";
     }
 
     foreach my $memb (@new_admins){
@@ -3450,7 +3528,7 @@ sub create_project {
                   " removing $user\n";
          }
          #system("gpasswd -d $user $project");
-	 &deleteuser_from_project($user,$project);
+	 &deleteuser_from_project($user,$project,1);
          &Sophomorix::SophomorixBase::remove_share_link($user,
                                          $project,$p_long_name);
        } 
@@ -3465,8 +3543,12 @@ sub create_project {
     print "  Users to add: @users_to_add\n";
     # adding the users
     foreach my $user (@users_to_add) {
+       my $by_option=0;
        if ($user eq "root"){next;}
-       &adduser_to_project($user,$project);
+       if ($users_to_add{$user} eq "member_by_option"){
+           $by_option=1;      
+       }
+        &adduser_to_project($user,$project,$by_option);
        # create a link
        &Sophomorix::SophomorixBase::create_share_link($user,
                                         $project,$p_long_name);
@@ -3546,7 +3628,7 @@ sub create_project {
                        "in project $users_to_keep_projectmembers{$user})\n";
                  next;
              }
-             &deleteuser_from_project($user,$project);
+             &deleteuser_from_project($user,$project,1);
              &Sophomorix::SophomorixBase::remove_share_link($user,
                                           $project,$p_long_name);
              &Sophomorix::SophomorixBase::remove_share_directory($user,
@@ -3607,7 +3689,7 @@ sub create_project {
                  next;
              }
 
-             &deleteuser_from_project($user,$project);
+             &deleteuser_from_project($user,$project,1);
              &Sophomorix::SophomorixBase::remove_share_link($user,
                                           $project,$p_long_name);
              &Sophomorix::SophomorixBase::remove_share_directory($user,
@@ -4327,11 +4409,21 @@ sub dump_all_projects {
     my @projects=&fetchprojects_from_school();
 
     open(DUMP, ">$file");
+    
+
+#    my $header="#Longname:AddQuota:AddMailQuota:SophomorixStatus:Joinable:".
+#               "CreationDate:MaxMembers:MailAlias:Maillist:SchoolType:".
+#               "Department:EndDate:Type:TolerationDate:DeactivationDate:".
+#               "Id:\n";
+#    print DUMP $header;
 
     foreach my $project (@projects){
         print "Dumping project:  $project \n";
-        ($longname,$addquota,$add_mail_quota,$status,$join,$time,
-         $max_members,$mailalias,$maillist)=&fetchinfo_from_project($project);
+        my ($longname,$addquota,$add_mail_quota,$status,$join,$time,
+         $max_members,$mailalias,$maillist,$id,
+         $type,$schooltype,$department,
+         $creationdate,$enddate,$tolerationdate,$deactivationdate
+         )=&fetchinfo_from_project($project);
 
         my @admins=&fetchadmins_from_project($project);
         @admins = sort @admins;
@@ -4348,10 +4440,35 @@ sub dump_all_projects {
         my @pro=&fetchprojects_from_project($project);
         @pro = sort @pro;
         my $pro=join(",",@pro);
-        print DUMP $project.":".$addquota.":".$add_mail_quota.":".
-                   $max_members.":".$mailalias.":".$maillist.":".
-                   $status.":".$join.":".$admins.":".$users.":".
-                   $groups.":".$pro.":"."\n"; 
+
+        print DUMP "[$project]\n";
+        print DUMP "  Id=${id}\n";
+        print DUMP "  longname=$longname\n";
+        print DUMP "  addquota=${addquota}\n";
+        print DUMP "  addmailquota=${add_mail_quota}\n";
+        print DUMP "  maxmembers=${max_members}\n";
+        print DUMP "  mailalias=${mailalias}\n";
+        print DUMP "  maillist=${maillist}\n";
+        print DUMP "  sophomorixstatus=${status}\n";
+        print DUMP "  joinable=${join}\n";
+        print DUMP "  admins=${admins}\n";
+        print DUMP "  members=${users}\n";
+        print DUMP "  membergroups=${groups}\n";
+        print DUMP "  memberprojects=${pro}\n";
+        print DUMP "  type=${type}\n";
+        print DUMP "  schooltype=${schooltype}\n";
+        print DUMP "  department=${department}\n";
+        print DUMP "  creationdate=${creationdate}\n";
+        print DUMP "  enddate=${enddate}\n";
+        print DUMP "  tolerationdate=${tolerationdate}\n";
+        print DUMP "  deactivationdate=${deactivationdate}\n";
+
+        
+        print DUMP "\n";
+      #  print DUMP $project.":".$addquota.":".$add_mail_quota.":".
+      #             $max_members.":".$mailalias.":".$maillist.":".
+      #             $status.":".$join.":".$admins.":".$users.":".
+      #             $groups.":".$pro.":"."\n"; 
     }
     close(DUMP);
 }
