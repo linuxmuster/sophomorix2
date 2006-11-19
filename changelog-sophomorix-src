@@ -1242,16 +1242,70 @@ Unterordner spam anlegen: spam (ordner-trenn-parameter . oder /)
 
 
 
---dump a header line in sophomorix-project
+sophomorix-project
 check manpage
 check options: group,projects, maxmembers, addquota, ...
 
 update manpage
 
 
+
+
+Modify printout of sophomorix-project -p astro -i
+
+   Admins :           user1,user2,user3, ...
+                      user18,user20
+   Members(by option) user1,user2,
+   Membergroups       group1:
+                      user1,user2,user3            
+   Memberprojects:    
+   
+
+-v unfolds membergroups
+-vv shows alphabetical list of all users
+    and the membership reason:
+         user1 (admin)
+         user2 (admin)
+         user3 (member_by_option)
+         user4 (member_group: m2kb3t)
+         user5 (member_group: m2kb3t)
+         user6 (member_project: project1)
+         user7 (member_project: project1
+                                -> project2)
+
+use this to check information:
+
+drop all secondary group memberships 
+      find out if this user is admin
+                            is member_by_option
+                            is member by group
+                            is member _by project
+                            is member by project-> project
+there must be no users left
+
+
+
+
+make --update-from-projects use new style of format.
+
+
+write tests for projects:
+
+- create a file to do --update-from-file 
+- dump projects compare with a included file that reflects what 
+  is expected
+
+
+
+
+
 ================== CHANGELOG ========================================
 
 1.9.3-1 (2006-11-xx)
+  - tag users in new table projects_members that have been added
+    by option --Members (--addmembers)
+  - changed sophomorix-project --dump in a better format 
+     (smb.conf style, with project_name prepended)
   - checked out from CVS to an empty dir and built all packages there
     diffed the contents(filelist) to my working copy and made the lists
     equal.
