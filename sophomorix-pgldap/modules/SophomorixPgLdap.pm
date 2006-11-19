@@ -20,6 +20,7 @@ require Exporter;
              fetchinfo_from_project
              fetchusers_from_project
              fetchmembers_from_project
+             fetchmembers_by_option_from_project
              fetchadmins_from_project
              fetchgroups_from_project
              fetchprojects_from_project
@@ -257,6 +258,34 @@ sub fetchusers_from_project {
        push @userlist, $uid_sys;
     }
     &db_disconnect($dbh);
+    return @userlist;
+}
+
+
+
+sub fetchmembers_by_option_from_project {
+    # return a list of uid of members that were added by_option
+    my ($project) = @_;
+    my %members=();
+    my @userlist=();
+    my $dbh=&db_connect();
+    # fetching list of uidnumbers
+    my $sth= $dbh->prepare( "SELECT memberuidnumber 
+                             FROM projects_members 
+                             WHERE projectid=(
+                               SELECT id from projectdata 
+                               WHERE gid='p_astro')
+                            ");
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+       my ($memberuidnumber)=@$row;
+       my ($uid_sys)= $dbh->selectrow_array( "SELECT uid from userdata 
+                                              WHERE 
+                                              uidnumber='$memberuidnumber'
+                                             ");
+        push @userlist, $uid_sys;
+    }
     return @userlist;
 }
 
@@ -4380,11 +4409,11 @@ sub show_project {
     &Sophomorix::SophomorixBase::print_list_column(4,
        "Admins of $project",@admins);
     print "\n";
-    # show only members, not admins (admins are shown earlier)
-    my @user=&fetchmembers_from_project($project);
-    @user = sort @user;
+    # show only by_option members, not admins (admins are shown earlier)
+    my @user_bo=&fetchmembers_by_option_from_project($project);
+    @user_bo = sort @user_bo;
     &Sophomorix::SophomorixBase::print_list_column(4,
-       "Members of $project",@user);
+       "Members by_option from $project",@user_bo);
     print "\n";
     my @groups=&fetchgroups_from_project($project);
     @groups = sort @groups;
@@ -4395,6 +4424,15 @@ sub show_project {
     @pro = sort @pro;
     &Sophomorix::SophomorixBase::print_list_column(4,
       "MemberProjects of $project",@pro);
+
+    if($Conf::log_level>=2){
+       print "\n";
+       # show all members, not admins (admins are shown earlier)
+       my @user=&fetchmembers_from_project($project);
+       @user = sort @user;
+       &Sophomorix::SophomorixBase::print_list_column(4,
+          "All Members  from $project",@user);
+       }
 }
 
 
@@ -4409,14 +4447,6 @@ sub dump_all_projects {
     my @projects=&fetchprojects_from_school();
 
     open(DUMP, ">$file");
-    
-
-#    my $header="#Longname:AddQuota:AddMailQuota:SophomorixStatus:Joinable:".
-#               "CreationDate:MaxMembers:MailAlias:Maillist:SchoolType:".
-#               "Department:EndDate:Type:TolerationDate:DeactivationDate:".
-#               "Id:\n";
-#    print DUMP $header;
-
     foreach my $project (@projects){
         print "Dumping project:  $project \n";
         my ($longname,$addquota,$add_mail_quota,$status,$join,$time,
@@ -4429,7 +4459,7 @@ sub dump_all_projects {
         @admins = sort @admins;
         my $admins=join(",",@admins);
 
-        my @users=&fetchmembers_from_project($project);
+        my @users=&fetchmembers_by_option_from_project($project);
         @users = sort @users;
         my $users=join(",",@users);
 
