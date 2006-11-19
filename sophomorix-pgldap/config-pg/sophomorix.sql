@@ -1576,8 +1576,8 @@ CREATE TABLE project_details (
     maxmembers integer,
     creationdate timestamp without time zone,
     tolerationdate date,
-    joinable boolean,
-    deactivationdate date
+    deactivationdate date,
+    joinable boolean
 );
 
 
