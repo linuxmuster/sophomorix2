@@ -4472,33 +4472,27 @@ sub dump_all_projects {
         my $pro=join(",",@pro);
 
         print DUMP "[$project]\n";
-        print DUMP "  Id=${id}\n";
-        print DUMP "  longname=$longname\n";
-        print DUMP "  addquota=${addquota}\n";
-        print DUMP "  addmailquota=${add_mail_quota}\n";
-        print DUMP "  maxmembers=${max_members}\n";
-        print DUMP "  mailalias=${mailalias}\n";
-        print DUMP "  maillist=${maillist}\n";
-        print DUMP "  sophomorixstatus=${status}\n";
-        print DUMP "  joinable=${join}\n";
-        print DUMP "  admins=${admins}\n";
-        print DUMP "  members=${users}\n";
-        print DUMP "  membergroups=${groups}\n";
-        print DUMP "  memberprojects=${pro}\n";
-        print DUMP "  type=${type}\n";
-        print DUMP "  schooltype=${schooltype}\n";
-        print DUMP "  department=${department}\n";
-        print DUMP "  creationdate=${creationdate}\n";
-        print DUMP "  enddate=${enddate}\n";
-        print DUMP "  tolerationdate=${tolerationdate}\n";
-        print DUMP "  deactivationdate=${deactivationdate}\n";
-
-        
+        print DUMP "  ${project}.Id=${id}\n";
+        print DUMP "  ${project}.longname=$longname\n";
+        print DUMP "  ${project}.addquota=${addquota}\n";
+        print DUMP "  ${project}.addmailquota=${add_mail_quota}\n";
+        print DUMP "  ${project}.maxmembers=${max_members}\n";
+        print DUMP "  ${project}.mailalias=${mailalias}\n";
+        print DUMP "  ${project}.maillist=${maillist}\n";
+        print DUMP "  ${project}.sophomorixstatus=${status}\n";
+        print DUMP "  ${project}.joinable=${join}\n";
+        print DUMP "  ${project}.admins=${admins}\n";
+        print DUMP "  ${project}.members=${users}\n";
+        print DUMP "  ${project}.membergroups=${groups}\n";
+        print DUMP "  ${project}.memberprojects=${pro}\n";
+        print DUMP "  ${project}.type=${type}\n";
+        print DUMP "  ${project}.schooltype=${schooltype}\n";
+        print DUMP "  ${project}.department=${department}\n";
+        print DUMP "  ${project}.creationdate=${creationdate}\n";
+        print DUMP "  ${project}.enddate=${enddate}\n";
+        print DUMP "  ${project}.tolerationdate=${tolerationdate}\n";
+        print DUMP "  ${project}.deactivationdate=${deactivationdate}\n";
         print DUMP "\n";
-      #  print DUMP $project.":".$addquota.":".$add_mail_quota.":".
-      #             $max_members.":".$mailalias.":".$maillist.":".
-      #             $status.":".$join.":".$admins.":".$users.":".
-      #             $groups.":".$pro.":"."\n"; 
     }
     close(DUMP);
 }
