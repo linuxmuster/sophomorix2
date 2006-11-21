@@ -283,6 +283,7 @@ install-developer:
 	@install -oroot -groot --mode=0644 sophomorix-developer/testfiles/*.txt $(DEVELOPERDIR)/testfiles
 	@install -d $(DEVELOPERDIR)/projectfiles
 	@install -oroot -groot --mode=0644 sophomorix-developer/projectfiles/*.dump $(DEVELOPERDIR)/projectfiles
+	@install -d $(TOOLS)/projectdumps
 # installing  scripts for laptop development
 	@install -d $(TOOLS)/scripts/laptop
 	@install -oroot -groot --mode=0755 sophomorix-developer/tools/scripts/laptop/*-cvs $(TOOLS)/scripts/laptop
