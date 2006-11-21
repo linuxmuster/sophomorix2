@@ -279,14 +279,14 @@ if ($project eq "" and $dump_all_projects ne ""){
 # --create-from-file
 if ($project eq "" and $create_from_file ne ""){
     &alpha_warning();
-    &project_from_file($update_from_file,"--create");
+    &project_from_file($create_from_file,"--create");
     exit;
 }
 
 
 # --update-from-file
 if ($project eq "" and $update_from_file ne ""){
-    #&alpha_warning();
+    &alpha_warning();
     &project_from_file($update_from_file,"");
     exit;
 }
@@ -607,6 +607,10 @@ sub project_from_file {
 
     foreach my $project (@pro_list){
        my $command="sophomorix-project --project $project ";
+       # create
+       if ($parm eq "--create"){
+           $command.="--create ";
+       }
        # addquota
        if ($all_projects{$project}{'addquota'} ne "quota" 
            and $all_projects{$project}{'addquota'} ne ""){
