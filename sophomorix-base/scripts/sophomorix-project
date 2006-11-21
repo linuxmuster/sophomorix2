@@ -90,9 +90,14 @@ my $p_status;
 my $join; # 0,1
 my $p_join="TRUE"; # FALSE,TRUE
 
-my $dump_all_projects="";
+my $dump_all_projects=""; 
 my $create_from_file="";
 my $update_from_file="";
+my %all_projects=(); # hash with projects and their options
+
+my %seen_projects=();   # projects sorted into @addorder_list
+my %unseen_projects=(); # projects still to sort in @addorder_list
+my @addorder_list=();   # order in which projects have to be added
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -278,7 +283,7 @@ if ($project eq "" and $dump_all_projects ne ""){
 
 # --create-from-file
 if ($project eq "" and $create_from_file ne ""){
-    &alpha_warning();
+    #&alpha_warning();
     &project_from_file($create_from_file,"--create");
     exit;
 }
@@ -286,7 +291,7 @@ if ($project eq "" and $create_from_file ne ""){
 
 # --update-from-file
 if ($project eq "" and $update_from_file ne ""){
-    &alpha_warning();
+    #&alpha_warning();
     &project_from_file($update_from_file,"");
     exit;
 }
@@ -564,12 +569,13 @@ sub remove_duplicates_from_first_list {
 
 sub project_from_file {
     my ($file,$parm)= @_;
-    print "file: $file \n";
-    print "parm: $parm \n";
+    #print "file: $file \n";
+    #print "parm: $parm \n";
 
-    my @pro_list=();
-    my %all_projects=();
-    # fetch projects
+    my @pro_list=(); # list of all projects, order: file appearance
+    %all_projects=();
+
+    # fetch project list
     open(PROS, "<$file");
     while(<PROS>) {
 	if (/^\[(.*)\]/){
@@ -578,7 +584,7 @@ sub project_from_file {
     }
     close(PROS);
 
-    # fetch options
+    # fetch options hash
     open(PROS, "<$file");
     while(<PROS>) {
         if (/^\#/){
@@ -601,53 +607,151 @@ sub project_from_file {
         #print "   PRO: ---$pro---\n";
         #print "   PRO: ---$key---\n";
         #print "   PRO: ---$value---\n";
-        $all_projects{$pro}{$key}=$value; 
+        $all_projects{$pro}{$key}=$value;
+        $unseen_projects{$pro}="not seen"; 
     }
     close(PROS);
 
+    # first run: find projects, without dependencies 
     foreach my $project (@pro_list){
-       my $command="sophomorix-project --project $project ";
-       # create
-       if ($parm eq "--create"){
-           $command.="--create ";
-       }
-       # addquota
-       if ($all_projects{$project}{'addquota'} ne "quota" 
-           and $all_projects{$project}{'addquota'} ne ""){
-           $command.="--addquota  $all_projects{$project}{'addquota'} ";
-       }
-       # addmailquota
-       if ($all_projects{$project}{'addmailquota'}!=0 or 
-           $all_projects{$project}{'addmailquota'} eq ""){
-           $command.="--addmailquota $all_projects{$project}{'addmailquota'} ";
-       }
-       if ($all_projects{$project}{'admins'} ne ""){
-           $command.="--admins $all_projects{$project}{'admins'} ";
-       }
-       if ($all_projects{$project}{'members'} ne ""){
-           $command.="--members $all_projects{$project}{'members'} ";
-       }
-       if ($all_projects{$project}{'maxmembers'}!=0){
-           $command.="--maxmembers $all_projects{$project}{'maxmembers'} ";
-       }
-       if ($all_projects{$project}{'membergroups'} ne ""){
-           $command.="--membergroups $all_projects{$project}{'membergroups'} ";
-       }
-       if ($all_projects{$project}{'memberprojects'} ne ""){
-           $command.="--memberprojects $all_projects{$project}{'memberprojects'} ";
-       }
-       if ($all_projects{$project}{'maillist'}==1){
-           $command.="--maillist ";
-       }
-       if ($all_projects{$project}{'mailalias'}==1){
-           $command.="--mailalias ";
-       }
+        my @member_pro=&fetch_member_projects($project,$file);
+        if (defined $member_pro[0] eq ""){
+	    print "   $project  has NO dependancies, add to addorder_list\n";
+            push @addorder_list,$project;
+            $seen_projects{$project}="seen";
+            delete $unseen_projects{$project};
+        }
+    }
+
+    while ($#pro_list>$#addorder_list){
+        # not all projects sorted
+        &find_undependant_projects($file);
+    }
+
+    print "\nProjects must be added in THIS order:\n";
+    foreach my $pro (@addorder_list){
+        print "   $pro \n";
+    }
+
+    # add the projects
+    foreach my $project (@addorder_list){
+        &create_this_project($project,$parm);
+    }
+}
 
 
-       print "############################################################\n";
-       print "#  $command \n";
-       print "############################################################\n";
-       system($command);
+
+
+
+############################################################
+# sub
+############################################################
+
+sub create_this_project {
+    my ($project,$parm) = @_;
+    my $command="sophomorix-project --project $project ";
+    # create
+    if ($parm eq "--create"){
+        my ($exists)=&fetchinfo_from_project($project);
+        if (defined $exists){
+            print "WARNING: Doing nothing, Project $project exists\n";
+            return;
+        }
+
+        $command.="--create ";
+    }
+    # addquota
+    if ($all_projects{$project}{'addquota'} ne "quota" 
+        and $all_projects{$project}{'addquota'} ne ""){
+        $command.="--addquota  $all_projects{$project}{'addquota'} ";
+    }
+    # addmailquota
+    if ($all_projects{$project}{'addmailquota'}!=0 or 
+        $all_projects{$project}{'addmailquota'} eq ""){
+        $command.="--addmailquota $all_projects{$project}{'addmailquota'} ";
+    }
+    if ($all_projects{$project}{'admins'} ne ""){
+        $command.="--admins $all_projects{$project}{'admins'} ";
+    }
+    if ($all_projects{$project}{'members'} ne ""){
+        $command.="--members $all_projects{$project}{'members'} ";
+    }
+    if ($all_projects{$project}{'maxmembers'}!=0){
+        $command.="--maxmembers $all_projects{$project}{'maxmembers'} ";
+    }
+    if ($all_projects{$project}{'membergroups'} ne ""){
+        $command.="--membergroups $all_projects{$project}{'membergroups'} ";
+    }
+    if ($all_projects{$project}{'memberprojects'} ne ""){
+        $command.="--memberprojects $all_projects{$project}{'memberprojects'} ";
+    }
+    if ($all_projects{$project}{'maillist'}==1){
+        $command.="--maillist ";
+    }
+    if ($all_projects{$project}{'mailalias'}==1){
+        $command.="--mailalias ";
+    }
+
+    print "############################################################\n";
+    print "#  $command \n";
+    print "############################################################\n";
+    system($command);
+}
+
+
+
+
+sub fetch_member_projects {
+    my ($project,$file) = @_;
+    my $pro_string="";
+    my @projects=();
+    open(PROS, "<$file");
+    while(<PROS>) {
+	if (/$project\.memberprojects=(.*)/){
+        }
+        if (defined $1 and $1 ne ""){
+            $pro_string=$1;
+        }
+    }
+    close(PROS);
+    # print "Memberproject entry of $project is $pro_string \n";
+    @projects=split(/,/,$pro_string);
+    foreach my $pro (@projects){
+        if ($pro eq ""){
+            next;
+        }
+    # print "Memberproject of $project is $pro_string \n";
+    }
+    #print "### $project depends on project @projects \n";
+    return @projects;
+}
+
+
+
+sub find_undependant_projects {
+    my ($file) = @_;
+    while( my ($project, $v) = each(%unseen_projects)) {
+        print "### Working on $project\n";
+        my @member_pro=();
+        @member_pro=&fetch_member_projects($project,$file);
+	print "   $project depends on @member_pro \n";
+        my $can_add=1;
+        my $member;
+        foreach $member (@member_pro){
+            print "   Checking if $member has unfullfilled dependencies: ";
+            if (not exists $seen_projects{$member}){
+                print "yes\n";
+		$can_add=0;
+            } else {
+                print "no\n";
+            }
+        }
+        if ($can_add==1){
+            print "$project added to seen_projects\n";
+            push @addorder_list,$project;
+            $seen_projects{$project}="seen";
+            delete $unseen_projects{$project};
+        }
     }
 }
 
