@@ -657,9 +657,14 @@ sub create_this_project {
             print "WARNING: Doing nothing, Project $project exists\n";
             return;
         }
-
         $command.="--create ";
+    } else {
+        my ($exists)=&fetchinfo_from_project($project);
+        if (not defined $exists){
+            $command.="--create ";
+        }
     }
+
     # addquota
     if ($all_projects{$project}{'addquota'} ne "quota" 
         and $all_projects{$project}{'addquota'} ne ""){
