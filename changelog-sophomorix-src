@@ -1302,12 +1302,19 @@ write tests for projects:
   is expected
 
 
-
+make function fetchinfo_from_project return something useful, when 
+project does not exist 
 
 
 ================== CHANGELOG ========================================
 
 1.9.3-1 (2006-11-xx)
+  - updated manpage of sohomorix-project
+  - BUGFIX: --create-from file does nothing if project doesnt exist
+  - Create projects in an order so that member are created before 
+    the project
+  - changed sophomorix-project --update-from-file and
+    --create-from-file to read better dump format
   - tag users in new table projects_members that have been added
     by option --Members (--addmembers)
   - changed sophomorix-project --dump in a better format 
