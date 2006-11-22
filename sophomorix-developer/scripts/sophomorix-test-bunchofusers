@@ -1412,11 +1412,8 @@ sub check_membership {
     }
     close(PROS);
 
-    @pro_list=("p_astro");
     foreach my $project (@pro_list) {
         my @realmembers=&fetchusers_from_project($project);
-
-
 
         # check all real members if they are correct
         foreach my $real_mb (@realmembers){
@@ -1425,10 +1422,11 @@ sub check_membership {
                 delete $member_info{$project}{$real_mb};
                 $true=1;
             }   
-            &is($true,1,"Checking if membership of $real_mb is correct");
+            &is($true,1,
+             "Checking if membership of $real_mb in $project is correct");
         } 
 
-        # the rest are all bugs
+        # all whats left is bugs
         while (my ($user,$v) = each %{ $member_info{$project} }) {
             # dont check, throw error
             &is(0,1,"User $user must be a member, but is not");
