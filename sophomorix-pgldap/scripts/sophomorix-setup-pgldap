@@ -62,10 +62,6 @@ my %upgrade_sql_id_filename=();
 my @upgrade_scripts_id=();
 my %upgrade_scripts_id_filename=();
 
-
-
-# ???? vars for scripts
-
 my $ldappassword = "";
 my $dbpassword = "";
 my $ldap_explanation="";
@@ -74,6 +70,7 @@ my $db_explanation="";
 my $old_password_file="/etc/ldap/slapd.conf";
 
 my $timestamp=&zeit_stempel();
+
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -545,7 +542,9 @@ if ($info==1){
 # Replace the following config-files
 ############################################################
 # path to the template-files
-my $template="/usr/share/sophomorix/config-templates";
+#my $template="/usr/share/sophomorix/config-templates";
+my $template=${DevelConf::config_template_pfad};
+
 
 # ldap
 my $ldap_conf="/etc/ldap/ldap.conf";
@@ -560,7 +559,8 @@ my $smb_ldap_bind_conf="/etc/smbldap-tools/smbldap_bind.conf";
 # pg
 my $odbc_ini="/etc/odbc.ini";
 my $odbcinst_ini="/etc/odbcinst.ini";
-my $sophomorix_db="/usr/share/sophomorix/config-templates/pg/sophomorix.sql";
+#my $sophomorix_db="/usr/share/sophomorix/config-templates/pg/sophomorix.sql";
+my $sophomorix_db=${DevelConf::sql_create_path}."sophomorix.sql";
 
 # pam
 my $common_account="/etc/pam.d/common-account";
@@ -570,18 +570,18 @@ my $common_session="/etc/pam.d/common-session";
 my $pam_ldap_conf="/etc/pam_ldap.conf";
 
 # samba
-my $smb_conf="/etc/samba/smb.conf";
 # use linuxmuster-base if existing
+my $smb_conf_template=${template}."/samba/smb.conf.template";
 if (-e "$DevelConf::linuxmuster_base_smb_conf"){
-    $smb_conf=${DevelConf::linuxmuster_base_smb_conf};
+    $smb_conf_template=${DevelConf::linuxmuster_base_smb_conf};
 }
 
-my $smb_netlogon_bat=${DevelConf::devel_netlogon_path}."/netlogon.bat";
+my $smb_netlogon_bat=${DevelConf::devel_netlogon_path}."/logon.bat";
 if (-e "$DevelConf::linuxmuster_base_logon_bat"){
     $smb_netlogon_bat=${DevelConf::linuxmuster_base_logon_bat};
 }
 
-my $smb_netlogin_bat=${DevelConf::devel_netlogon_path}."/netlogin.bat";
+my $smb_netlogin_bat=${DevelConf::devel_netlogon_path}."/login.bat";
 if (-e "$DevelConf::linuxmuster_base_login_bat"){
     $smb_netlogin_bat=${DevelConf::linuxmuster_base_login_bat};
 }
@@ -773,7 +773,7 @@ system("sed $replace ${template}/pam/pam_ldap.conf.template > $pam_ldap_conf");
 # do it, samba
 # samba part 1
 &setup_verzeichnis("\$homedir_samba","$DevelConf::homedir_samba");
-system("sed $replace ${template}/samba/smb.conf.template > $smb_conf"); 
+system("sed $replace ${smb_conf_template} > ${DevelConf::smb_conf}"); 
 
 if (not -e "$DevelConf::smb_conf_global_sys"){
     system("cp $DevelConf::smb_conf_global $DevelConf::smb_conf_global_sys");
@@ -1028,9 +1028,9 @@ system("smbldap-useradd -a -u 996 -c 'Domain Admin' -m -d /dev/null -g 'domadmin
 &setup_verzeichnis("\$homedir_samba_cds",
                    "$DevelConf::homedir_samba_cds");
 
-print "${template}/samba/netlogon/logon.bat.template > $smb_netlogon_bat \n";
-print "${template}/samba/netlogon/login.bat.template > $smb_netlogin_bat \n";
-system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlogon_bat"); 
+#print "${template}/samba/netlogon/logon.bat.template > $smb_netlogon_bat \n";
+#print "${template}/samba/netlogon/login.bat.template > $smb_netlogin_bat \n";
+system("sed $replace ${template}/samba/netlogon/logon.bat.template > $smb_netlogon_bat"); 
 system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlogin_bat"); 
 
 
