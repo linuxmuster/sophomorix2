@@ -67,7 +67,7 @@ MAKING a Package
 4. dch -i 
    add a comment to the changelog
 
-5. make deb  (old dpkg-buildpackage -rfakeroot)
+5. make deb  (old: dpkg-buildpackage -rfakeroot)
 
 6. Tag all files in the cvs repository with the tag 'Version-x-y-z'
 
@@ -1240,16 +1240,6 @@ man 5 schueler.txt, ...
 Unterordner spam anlegen: spam (ordner-trenn-parameter . oder /)
 
 
-
-sophomorix-project
-check manpage
-check options: group,projects, maxmembers, addquota, ...
-
-update manpage
-
-
-
-
 Modify printout of sophomorix-project -p astro -i
 
    Admins :           user1,user2,user3, ...
@@ -1290,14 +1280,14 @@ membership
 
 
 
+NEXT: 
+
 create more tests for projects
 
 
 make function fetchinfo_from_project return something useful, when 
 project does not exist 
 
-BUG: starting-state -> state-1:
-blackmri 
 
 ================== CHANGELOG ========================================
 
@@ -1305,6 +1295,7 @@ blackmri
 
 
 1.9.4-1 (2006-11-22)
+  - BUGFIX: correct smb loginscripts are: login.bat and logon.bat
   - update man sophomorix-test-bunchofusers and help
   - BUGFIX: tetchusers_by_option_from_project showed only astro group
             correctly

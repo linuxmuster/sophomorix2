@@ -2740,8 +2740,8 @@ sub imap_create_mailbox {
             return undef;
 	}
     }
+    #&create_subfolders($imap, $login, @subfolders) or return undef;
     print "Mailbox for $login created.\n";
-###	create_subfolders($imap, $login, @subfolders) or return undef;
     return 1;
 }
 
