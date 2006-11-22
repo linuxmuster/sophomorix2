@@ -274,7 +274,7 @@ sub fetchmembers_by_option_from_project {
                              FROM projects_members 
                              WHERE projectid=(
                                SELECT id from projectdata 
-                               WHERE gid='p_astro')
+                               WHERE gid='$project')
                             ");
     $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
