@@ -805,19 +805,20 @@ sub adduser_to_project {
 
         # keep track of members by option
         if ($by_option==1){
-           # fetching project id
-           my ($project_id_sys)= $dbh->selectrow_array( "SELECT id 
-                                         FROM groups 
-                                         WHERE gid='$project'");
-           print "   Adding user $user($uidnumber_sys) to projects_members \n";
-           $sql="INSERT INTO projects_members
-                 (projectid,memberuidnumber)
-	         VALUES
-	         ($project_id_sys,'$uidnumber_sys')";	
-           if($Conf::log_level>=3){
-              print "\nSQL: $sql\n";
-           }
-           $dbh->do($sql);
+            &adduser_by_option_to_project($user,$project);
+#           # fetching project id
+#           my ($project_id_sys)= $dbh->selectrow_array( "SELECT id 
+#                                         FROM groups 
+#                                         WHERE gid='$project'");
+#           print "   Adding user $user($uidnumber_sys) to projects_members \n";
+#           $sql="INSERT INTO projects_members
+#                 (projectid,memberuidnumber)
+#	         VALUES
+#	         ($project_id_sys,'$uidnumber_sys')";	
+#           if($Conf::log_level>=3){
+#              print "\nSQL: $sql\n";
+#           }
+#           $dbh->do($sql);
         }
     } else {
         if (not defined $uidnumber_sys){
@@ -827,6 +828,32 @@ sub adduser_to_project {
            print "   Group $project does not exist, doing nothing. \n";
         }
     }
+    &db_disconnect($dbh);
+}
+
+
+sub adduser_by_option_to_project{
+    # add user in the projects_members table
+    my ($user,$project)=@_;
+
+    my $dbh=&db_connect();
+    # fetching uidnumber
+    my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
+                                         FROM posix_account 
+                                         WHERE uid='$user'");
+    # fetching project id
+    my ($project_id_sys)= $dbh->selectrow_array( "SELECT id 
+                                      FROM groups 
+                                      WHERE gid='$project'");
+    print "   Adding user $user($uidnumber_sys) to projects_members \n";
+    $sql="INSERT INTO projects_members
+          (projectid,memberuidnumber)
+	  VALUES
+	  ($project_id_sys,'$uidnumber_sys')";	
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    $dbh->do($sql);
     &db_disconnect($dbh);
 }
 
@@ -3361,6 +3388,7 @@ sub create_project {
     my $old_users="";
     my @old_users=();
     my @old_admins=();
+    my @old_members_by_option=();
     my @old_groups=();
     my @old_projects=();
 
@@ -3368,6 +3396,7 @@ sub create_project {
 
     my @new_members=();
     my @new_admins=();
+    my @new_members_by_option=();
     my @new_groups=();
     my @new_projects=();
 
@@ -3377,6 +3406,7 @@ sub create_project {
     # users and admins
     @old_users=&fetchusers_from_project($project);
     @old_admins=&fetchadmins_from_project($project);
+    @old_members_by_option=&fetchmembers_by_option_from_project($project);
     @old_groups=&fetchgroups_from_project($project);
     @old_projects=&fetchprojects_from_project($project);
 
@@ -3390,6 +3420,11 @@ sub create_project {
         @new_admins=split(/,/,$p_admins);
     } else {
         @new_admins=@old_admins;          
+    }
+     if (defined $p_members){
+        @new_members_by_option=split(/,/,$p_members);
+    } else {
+        @new_members_by_option=@old_members_by_option;          
     }
      if (defined $p_groups){
         @new_groups=split(/,/,$p_groups);
@@ -3489,6 +3524,11 @@ sub create_project {
 	$users_to_add{ $memb }="projectadmin";
     }
 
+    foreach my $memb (@new_members_by_option){
+	print "adding $memb as member by option\n";
+	$users_to_add_by_option{ $memb }="by_option";
+    }
+
     if($Conf::log_level>=2){
        print "\nThis users will be members of project $project\n";
        printf "   %-20s %-20s \n","User:","Group:";
@@ -3546,6 +3586,8 @@ sub create_project {
        }
        if (exists $users_to_add{$user}){
           # remove user from users_to_add
+# ???? but make sure she is member by option
+#          &adduser_by_option_to_project($user,$project);
           if($Conf::log_level>=3){
              print "     User $user does not need to be added\n";
 	  }
@@ -3572,12 +3614,16 @@ sub create_project {
     print "  Users to add: @users_to_add\n";
     # adding the users
     foreach my $user (@users_to_add) {
-       my $by_option=0;
+#       my $by_option=0;
        if ($user eq "root"){next;}
-       if ($users_to_add{$user} eq "member_by_option"){
-           $by_option=1;      
-       }
-        &adduser_to_project($user,$project,$by_option);
+
+
+
+#       if ($users_to_add{$user} eq "member_by_option"){
+#           $by_option=1;      
+#       }
+#        &adduser_to_project($user,$project,$by_option);
+        &adduser_to_project($user,$project);
        # create a link
        &Sophomorix::SophomorixBase::create_share_link($user,
                                         $project,$p_long_name);
@@ -3743,6 +3789,43 @@ sub create_project {
             print "WARNING: Not adding $project to itself!\n";
         }
     }
+
+
+    { # can be  be a function later
+    print "updating projects_members table (users by option)\n";
+    my $dbh=&db_connect();
+    my ($id)= $dbh->selectrow_array( "SELECT id
+                                      FROM groups 
+                                      WHERE gid='$project'
+                                      ");
+    # delete all entries
+    my $sql="DELETE FROM projects_members 
+             WHERE projectid=$id 
+            ";	
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    $dbh->do($sql);
+ 
+    # add entries anew
+    while(my ($user, $value) = each(%users_to_add_by_option)) {
+        # do something with $key and $value
+        my ($uidnumber)= $dbh->selectrow_array( "SELECT uidnumber 
+                                         FROM posix_account 
+                                         WHERE uid='$user'");
+        print "$user($uidnumber) must me added to project($id) by option\n";
+        my $sql="INSERT INTO projects_members
+                    (projectid,memberuidnumber)
+	             VALUES
+	            ('$id','$uidnumber')";	
+            if($Conf::log_level>=3){
+                print "\nSQL: $sql\n";
+            }
+            $dbh->do($sql);
+
+    }
+    &db_disconnect($dbh);
+    } # end can be a function later
 }
 
 
