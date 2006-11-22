@@ -1375,7 +1375,7 @@ sub dump_an_diff_with {
     system("sed $replace $sys_file_abs > $sys_file_abs.mod"); 
     my $diff_result=`diff $truth.mod $sys_file_abs.mod`;
 #    my $diff_result=`diff $truth.mod $truth.mod`;
-    &is($diff_result,"" , "Checking diff");
+    &is($diff_result,"" , "Checking diff truth <> system");
 }
 
 
