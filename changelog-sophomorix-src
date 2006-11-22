@@ -1291,26 +1291,21 @@ membership
 
 
 
-
-make --update-from-projects use new style of format.
-
-
-write tests for projects:
-
-- create a file to do --update-from-file 
-- dump projects compare with a included file that reflects what 
-  is expected
+create more tests for projects
 
 
 make function fetchinfo_from_project return something useful, when 
 project does not exist 
 
-update man sophomorix-test-bunchofusers
 
 ================== CHANGELOG ========================================
 
+
 1.9.3-1 (2006-11-xx)
-  - basic test for projects runnig: shows errors
+  - update man sophomorix-test-bunchofusers and help
+  - BUGFIX: tetchusers_by_option_from_project showed only astro group
+            correctly
+  - basic test for projects runnig: starting-state.dump is working
   - updated manpage of sohomorix-project
   - BUGFIX: --create-from file does nothing if project doesnt exist
   - Create projects in an order so that member are created before 

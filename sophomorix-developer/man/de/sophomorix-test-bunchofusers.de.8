@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-TEST-BUNCHOFUSERS 8 "November 29, 2004"
+.TH SOPHOMORIX-TEST-BUNCHOFUSERS 8 "November 22, 2006"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -16,8 +16,8 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for manpage-specific macros, see man(7)
 .SH NAME
-sophomorix-test-bunchofusers \- Anlegen und entfernen von Beispiel-Klassen
-und -Lehrer
+sophomorix-test-bunchofusers \- Anlegen und entfernen von Beispiel-Klassen, 
+-Projekte, -Räume und -Lehrer
 .SH SYNOPSIS
 .B sophomorix-test-bunchofusers
 .br
@@ -25,7 +25,7 @@ und -Lehrer
 .B sophomorix-test-bunchofusers
 .RI [ options ] 
 .br
-sophomorix-test-bunchofusers legt zwei Klassen und 4 Lehrer an.
+sophomorix-test-bunchofusers kann 3 Klassen, 4 Projekte und 5 Lehrer anlegen.
 .br
 Es wird kurz getestet, ob dies erfolgreich war.
 .br
@@ -42,7 +42,7 @@ Ansonsten müssen sie manuell entfernt werden:
 .br
    4. sophomorix-kill
 .br
-Dieser Test ist nicht geeignet um auf einem produktiven Server
+WARNUNG: Dieser Test ist NICHT geeignet um auf einem produktiven Server
 ausgeführt zu werden.
 .br
 Er dient lediglich dazu zum herumspielen und für Eigentests schnell
@@ -53,13 +53,34 @@ benützt die GNU command line syntax, mit langen Optionen, die mit zwei
 Bindestrichen (`-') beginnen:
 .TP
 .B --add
-Legt die beiden Klassen und Lehrer an
+Legt die Klassen, Lehrer und projekte an.
+.TP
+.TP
+.B --wsadd
+Legt die Workstations und Räume an.
 .TP
 .B --remove, --delete
-Entfernt die beiden Klassen und Lehrer wieder, falls keine
+Entfernt die Klassen, Lehrer und Projekte wieder, falls keine
 Namensänderungen getestet wurden.
 .TP
-
+.B --wsremove, --wsdelete
+Entfernt die Workstations und Räume wieder
+.SH
+.B Tests (das dauert!)
+.TP
+.B --projects
+Führt eine Menge Tests mit Projekten durch. --add muss zuvor ausgeführt sein. 
+.TP
+.B --work
+Führt eine Menge Tests mit Projekten durch. --add und --wsadd muss zuvor ausgeführt 
+sein. (--work schließt --handout, --collect, --handoutcopy ein)
+.TP
+.B --handout      (vorlagen read-only zugänglich machen)
+.TP
+.B --collect
+.TP
+.B --handoutcopy  (austeilen als Kopie)
+.TP
 .PP
 .TP
 .SH SEE ALSO
