@@ -40,6 +40,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     fetchprojects_from_project
                                     fetchgroups_from_project
                                     fetchusers_from_project
+                                    fetchmembers_by_option_from_project
                                     fetchadmins_from_project
                                    );
 
@@ -304,7 +305,8 @@ if ($project eq "" and $update_from_file ne ""){
 if ($addmembers ne "" and $project ne ""){
     my @new_users = split(/,/,$addmembers);
     my @old_users = 
-       &Sophomorix::SophomorixPgLdap::fetchusers_from_project($project);
+       &Sophomorix::SophomorixPgLdap::fetchmembers_by_option_from_project($project);
+#       &Sophomorix::SophomorixPgLdap::fetchusers_from_project($project);
     my @users = (@old_users,@new_users);
     $p_members=join(",",@users);
     print "   Using: --Members=$p_members\n";
@@ -315,7 +317,8 @@ if ($addmembers ne "" and $project ne ""){
 if ($removemembers ne "" and $project ne ""){
     my @users = split(/,/,$removemembers);
     my @old_users = 
-       &Sophomorix::SophomorixPgLdap::fetchusers_from_project($project);
+       &Sophomorix::SophomorixPgLdap::fetchmembers_by_option_from_project($project);
+#       &Sophomorix::SophomorixPgLdap::fetchusers_from_project($project);
     my @new_users=&remove_duplicates_from_first_list(\@old_users,\@users);
     $p_members=join(",",@new_users);
     print "   Using: --Members=$p_members\n";

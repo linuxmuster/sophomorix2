@@ -31,6 +31,9 @@ my $file="";
 my @teacher_files=();
 my @userlist_to_check=();
 
+# path to dumps of projects
+my $truth_file_path="/usr/share/sophomorix-developer/projectfiles/";
+
 # ===========================================================================
 # Optionen verarbeiten
 # ==========================================================================
@@ -222,7 +225,8 @@ if ($add==1 and not -e "/root/sophomorix-test/bunchofusers"){
 
 
     # creating some projects
-system("sophomorix-project --update-from-file /usr/share/sophomorix-developer/projectfiles/starting-state.dump");
+#system("sophomorix-project --update-from-file /usr/share/sophomorix-developer/projectfiles/starting-state.dump");
+system("sophomorix-project --update-from-file ${truth_file_path}starting-state.dump");
 #    system("sophomorix-project --create -p astro  --Admins tycho,niko --Members altigru,thuraudi,blackmri,pageji");
 #    system("sophomorix-project --create -p chemie --Admins bruno,tycho --Members altigru,thuraudi,hannes,lordjo,gillania");
 #    system("sophomorix-project --create -p micro  --Admins hannes --Members altigru,thuraudi,hinaulbe,raasja");
@@ -350,9 +354,14 @@ if ($projects==1){
 #                                                                         #
 ###########################################################################
 ';
-
+    # starting state
+    &update_from_file("starting-state.dump");
     &dump_an_diff_with("starting-state.dump");
     &check_membership("starting-state.dump");
+    # state-1 by file
+    &update_from_file("state-1.dump");
+    &dump_an_diff_with("state-1.dump");
+    &check_membership("state-1.dump");
 
 }
 
@@ -1356,7 +1365,7 @@ sub get_login_from_user {
 
 sub dump_an_diff_with {
     my ($truth_file) = @_;
-    my $truth_file_path="/usr/share/sophomorix-developer/projectfiles/";
+#    my $truth_file_path="/usr/share/sophomorix-developer/projectfiles/";
     my $truth_file_abs=$truth_file_path.$truth_file;
     my $sys_file="dump.sys";
     my $sys_path="/root/sophomorix-developer/projectdumps/";
@@ -1381,7 +1390,7 @@ sub dump_an_diff_with {
 
 sub check_membership {
     my ($truth_file) = @_;
-    my $truth_file_path="/usr/share/sophomorix-developer/projectfiles/";
+    #my $truth_file_path="/usr/share/sophomorix-developer/projectfiles/";
     my $truth_file_abs=$truth_file_path.$truth_file;
 
     my @pro_list=();
@@ -1432,4 +1441,12 @@ sub check_membership {
             &is(0,1,"User $user must be a member, but is not");
         }
     }
+}
+
+
+
+sub update_from_file {
+    my ($state_file) = @_;
+    system("sophomorix-project --update-from-file ${truth_file_path}${state_file}");
+    
 }
