@@ -547,8 +547,10 @@ my $template=${DevelConf::config_template_pfad};
 
 
 # ldap
+my $ldap_args_dir="/var/run/slapd";
 my $ldap_conf="/etc/ldap/ldap.conf";
 my $slapd_conf="/etc/ldap/slapd.conf";
+my $default_slapd="/etc/default/slapd";
 my $smbldap_conf="/etc/smbldap-tools/smbldap.conf";
 my $ldap_secret="/etc/ldap.secret";
 my $nsswitch_conf="/etc/nsswitch.conf";
@@ -654,6 +656,7 @@ my %permissions=&get_alle_verzeichnis_rechte();
 # do it, ldap 
 system("sed $replace ${template}/ldap/ldap.conf.template > $ldap_conf"); 
 system("sed $replace ${template}/ldap/slapd.conf.template > $slapd_conf"); 
+system("sed $replace ${template}/ldap/slapd.template > $default_slapd"); 
 system("sed $replace ${template}/ldap/smbldap.conf.template > $smbldap_conf"); 
 system("sed $replace ${template}/ldap/ldap.secret.template > $ldap_secret"); 
 system("sed $replace ${template}/ldap/nsswitch.conf.template > $nsswitch_conf"); 
@@ -886,6 +889,23 @@ print "\n\n";
 #&set_samba_sid();
 
 
+# changes for the new version of slapd 2.3.27 that runs as openldap
+
+system("chmod 0600 $ldap_conf");
+system("chown openldap:openldap $ldap_conf");
+
+if (not -e "$ldap_args_dir"){
+    system("mkdir $ldap_args_dir");
+}
+
+system("chmod 0755 $ldap_args_dir");
+system("chown openldap:openldap $ldap_args_dir");
+
+# odbc.ini must be 644
+# chown openldap:openldap /var/lib/slapd -R
+# chown openldap:openldap /var/lib/ldap -R
+
+
 
 sleep 5;
 
@@ -1055,7 +1075,6 @@ system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlog
 
 # make some files owned by root.root and 0600
 &make_some_files_root_only();
-
 
 &log_script_end(@arguments);
 
