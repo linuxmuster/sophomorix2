@@ -889,15 +889,16 @@ print "\n\n";
 #&set_samba_sid();
 
 
-# changes for the new version of slapd 2.3.27 that runs as openldap
+# changes for the new version of slapd 2.3.27/etch that runs as openldap
 
-system("chmod 0600 $ldap_conf");
-system("chown openldap:openldap $ldap_conf");
+system("chmod 0644 $ldap_conf");
+#system("chown openldap:openldap $ldap_conf");
+system("chown root:root $ldap_conf");
 
+# the args dir/file
 if (not -e "$ldap_args_dir"){
     system("mkdir $ldap_args_dir");
 }
-
 system("chmod 0755 $ldap_args_dir");
 system("chown openldap:openldap $ldap_args_dir");
 
