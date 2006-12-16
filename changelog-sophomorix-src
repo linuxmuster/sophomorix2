@@ -1281,6 +1281,36 @@ membership
 
 NEXT: 
 
+Buglist from rainer
+
+
+Schulkonsole -> Projekte
+Projekt löschen:
+- Beim Löschen eines Projekts wird das Unterverzeichnis
+"bereitstellen-p_projektname" der Projektmitglieder (Lehrer) nicht gelöscht
+- Beim Löschen eines Projekts wird bei den Projektleitern das Unterverzeichnis "__einsammeln" gelöscht
+- Beim Löschen eines Projekts bleibt bei den Nicht-Projektleitern (Lehrern) das Unterverzeichnis "austeilen-" erhalten (nach Minus KEIN Gruppenname)
+
+Schulkonsole -> Projekte
+Projektmitglied löschen:
+- Bei Nicht-Projektleitern (Lehrer) verbleiben die Unterverzeichnisse "austeilen-p_projektname", "auszuteilen-p_projektname", "bereitstellen-p_projektname" und
+"eingesammelt-p_projektname".
+- Bei Schülern verbleibt logischerweise nur "austeilen-p_projektname" (die anderen werden auch nicht angelegt).
+- Bei Projektleitern verbleibt das Unterverzeichnis
+"bereitstellen-p_projektname"
+
+/home/lehrer/$user/
+unter
+__austeilen
+__vorlagen
+_auszuteilen
+_bereitstellen
+_eingesammelt
+existiert die Gruppe "Lehrer", für welche aber keine Möglichkeit auf der Schulkonsole vorhanden ist, um die Verzeichnisse zu nutzen -> Verzeichnisse für Gruppe Lehrer weglassen.
+
+
+
+
 create more tests for projects
 
 
@@ -1288,14 +1318,16 @@ make function fetchinfo_from_project return something useful, when
 project does not exist 
 
 
-RT: 
-
-Ticket ??: Answer to request for migration of useraccounts
 
 ================== CHANGELOG ========================================
 
-1.9.6-1 (2006-12-xx)
+1.9.7-1 (2006-12-xx)
 
+
+1.9.6-1 (2006-12-16)
+  - fixed Bug #104 (tausch Schüler) (and #103 (merged to #104))
+  - changed permissions in /etc/ldap to be like etch.
+  - updated package to use slapd 2.3.29 and others from etch
 
 1.9.5-1 (2006-12-14)
   - closed Ticked #99 configuring slapd
