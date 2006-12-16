@@ -8,7 +8,7 @@ Standards-Version: 3.5.2
 Package: sophomorix2
 Architecture: all
 Suggests: sophomorix-doc-html
-Depends:  sophomorix-base (>=1.9.5-1), sophomorix-pgldap (>=1.9.5-1)
+Depends:  sophomorix-base (>=1.9.6-1), sophomorix-pgldap (>=1.9.6-1)
 Description: sophomorix user adminitration meta package
  This package contains all the components necessary to add to your
  Debian GNU/Linux box a powerful user administration
@@ -27,7 +27,7 @@ Description: scripts for sophomorix
 Package: sophomorix-pgldap
 Architecture: all
 Suggests: sophomorix-doc-html
-Depends:  sophomorix-base, slapd (>=2.3.27-1lml3), libpam-ldap (>=178), ldap-utils (>=2.3.27), libnss-ldap (>=238), odbc-postgresql, unixodbc (>=2.2.4), odbcinst1 (>=2.2.4), libiodbc2 (>=3.52.2), iodbc (>=3.52.2), smbldap-tools (>=0.8.7), libcrypt-smbhash-perl (>=0.02), libdbd-pg-perl (>=1.41), postgresql (>=7.4.7)
+Depends:  sophomorix-base, slapd (>=2.3.29), libpam-ldap (>=178), ldap-utils (>=2.3.29), libnss-ldap (>=238), odbc-postgresql, unixodbc (>=2.2.4), odbcinst1 (>=2.2.4), libiodbc2 (>=3.52.2), iodbc (>=3.52.2), smbldap-tools (>=0.8.7), libcrypt-smbhash-perl (>=0.02), libdbd-pg-perl (>=1.41), postgresql (>=7.4.7)
 Provides: sophomorix-db
 Description: postgresql database with ldap access for sophomorix
  Database module to store the Sophomorix database in postgresql and make 
@@ -35,7 +35,7 @@ Description: postgresql database with ldap access for sophomorix
 
 Package: sophomorix-vampire
 Architecture: all
-Depends: sophomorix2 (>=1.9.5-1), rsync (>=2.6.3), ssh (>=3.8.1)
+Depends: sophomorix2 (>=1.9.6-1), rsync (>=2.6.3), ssh (>=3.8.1)
 Description: script to such data to a new server
  This script is run on a new sophomorix server. It pushes a ssh-key to an 
  old sophomorix-server, fetches its users and data. Perfect for big step 
@@ -46,7 +46,7 @@ Description: script to such data to a new server
 Package: sophomorix-developer
 Architecture: all
 Suggests: perl-doc
-Depends:  sophomorix2 (>=1.9.5-1)
+Depends:  sophomorix2 (>=1.9.6-1)
 Description: Test suite for sophomorix
  Scripts to test sophomorix on a runnig system. These scripts can screw up 
  your server!
