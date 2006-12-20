@@ -1318,6 +1318,66 @@ make function fetchinfo_from_project return something useful, when
 project does not exist 
 
 
+vmware:
+
+vmware server frei downloadbar (früherer GSX Server)
+anleitung von Rainer in /root/software/vmware-server
+
+
+Nagios:
+
+/etc/nagios/   hosts.cfg contacts.cfg escalations.cfg
+/etc/nagios/services 
+/etc/linuxmuster/nagios.conf
+
+script von Frank
+linuxmuster-nagios-setup
+
+scripte dessen Rückgabewerte genutzt werden 
+0=OK
+1=WARNING
+2=CRITICAL
+3=UNKNOWN
+printoutput erscheint auf Nagios homepage
+/usr/lib/nagios/plugins (wenn paket nagios-plugins installiert ist)
+
+wohin lege ich nagios scripte die sophomorix checken?
+
+
+https://server/nagios  administrator 
+
+schnittstelle zu sophomorix?
+
+Tests: 
+- tut:  id administrator
+- ist sophomorix.add leer?
+- ist sophomorix.move leer?
+- ist sophomorix.kill leer?
+
+Scriptnamen
+check_sophopmorix_id
+check_sophomorix_add ...
+
+
+/usr/lib/nagios/linuxmuster-plugins
+
+suggests nagios nagios-plugins
+
+
+
+
+
+Fernwartung:
+
+mehrere Mailadressen, falls es probleme gibt
+
+mails verschicken per cron oder scripte von Nagios abprüfen lassen?
+
+verändeungen durch remote admin loggen
+a) Zugriff jederzeit durch support möglich
+b) Zugriff nur per Erlaubnis
+
+
 
 ================== CHANGELOG ========================================
 
