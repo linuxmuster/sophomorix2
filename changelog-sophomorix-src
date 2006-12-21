@@ -274,6 +274,8 @@ sophomorix-vampire:
      neuer server mit laufendem cyrus-server, dann aus /var/spool/mail/user
      mit cyrdeliver zuschicken
 
+     siehe: http://cyrusimap.web.cmu.edu/twiki/bin/view/Cyrus/MboxCyrusMigration
+
      von cyrus auf cyrus: imapsync
 
 
@@ -1376,6 +1378,60 @@ mails verschicken per cron oder scripte von Nagios abprüfen lassen?
 verändeungen durch remote admin loggen
 a) Zugriff jederzeit durch support möglich
 b) Zugriff nur per Erlaubnis
+
+
+
+next steps in sophomorix-vampire:
+
+Messages: connect internal devices of servers
+give ip and subnet of old server
+give ip and subnet of new server
+
+shut down services
+- rembo
+- dhcp
+
+add additional ip to internal interface of new server
+
+create dir in $HOME: 
+
+olddata/windows    /home/user/windows
+olddata/linux      /home/user/  ohne windows
+
+
+restart services
+- dhcp 
+- rembo
+
+
+options:
+
+--connect  shut down services
+           configure if 
+           put key on old server
+           
+-- sync-users user1,user2,user3,...
+   Alle, wenn option leer
+ 
+--sync-userdata user1,user2,...
+   Alle, wenn option leer
+
+--sync-shares group1,group2,...
+
+--sync-workstations ws1,ws2,ws3,...
+   Alle, wenn option leer
+
+--sync-mail user1,user2,...
+
+
+--disconnect 
+           Warning: key on old server
+           consider a reboot (disconfigure if, all services running)
+
+
+
+
+
 
 
 
