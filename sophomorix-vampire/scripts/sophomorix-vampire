@@ -19,33 +19,8 @@ use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
 use Sophomorix::SophomorixAPI;
 
-
-# ===========================================================================
-# Loading the db-Module, list of functions
-# ===========================================================================
-# list of functions to load if db is 'files'
-use if ${DevelConf::db_backend} eq 'files' , 
-    'Sophomorix::SophomorixFiles' => qw(show_modulename
-                                       );
-
-# list of functions to load if db is 'ldap'
-use if ${DevelConf::db_backend} eq 'ldap' ,
-    'Sophomorix::SophomorixLDAP' => qw(show_modulename);
-
-
-
-# ===========================================================================
-# Loading the sys-db-Module, list of functions
-# ===========================================================================
-# list of functions to load if db is 'files'
-use if ${DevelConf::sys_db} eq 'files' , 
-    'Sophomorix::SophomorixSYSFiles' => qw(show_sys_modulename
-                                          );
-
-# show the Database Modules that are loaded
-&show_modulename();
-&show_sys_modulename();
-
+use Sophomorix::SophomorixPgLdap qw(show_modulename
+                                   );
 my $server_key_location="";
 my $command="";
 my $fetch_files=0;
@@ -66,7 +41,7 @@ my $rooms="";
 my $ws=0;
 my $force=0;
 my @userlist=();
-my $dir_old_files="/root/sophomorix-vampire";
+my $dir_old_files="/root/sophomorix-vampire/";
 
 my $old_version="2.x";
 
@@ -76,7 +51,7 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "clear" => \$clear,
            "server=s" => \$server,
-           "sync-user" => \$sync_user,
+           "sync-users" => \$sync_user,
            "sync-homes" => \$sync_homes,
            "sync-dirs" => \$sync_dirs,
            "key" => \$key,
@@ -109,7 +84,7 @@ Options
   -i  / --info
   --server name / --server ip 
   --clear
-  -l  login1, ... / --login login1, .../ -u login1, ... / --user login1, ...
+  -u user1 / --user user1
   -c class / --class class 
   --pupils
   -r room / --room room
@@ -147,7 +122,6 @@ if ($server eq ""){
 
 
 
-
 ############################################################
 # Step 1: put a key on the server to be sucked out
 ############################################################
@@ -169,7 +143,6 @@ if ($key==1) {
     # test this
 }
 
-
 ############################################################
 # Step 2: get some files
 ############################################################
@@ -179,6 +152,8 @@ if ($clear==1) {
     system("rm -rf $dir_old_files");
     system("mkdir $dir_old_files");
     $fetch_files=1,
+} elsif (not -e $dir_old_files){
+    system("mkdir $dir_old_files");
 }
 
 if ($fetch_files==1){
@@ -190,6 +165,7 @@ if ($fetch_files==1){
     #}
     foreach my $file (@files){
        $command="scp -i $key_dsa root\@${server}:$file $dir_old_files";
+       print "\nFetching  $file ...\n";
        system("$command");
     }
     # rename some files
@@ -210,9 +186,20 @@ if ($sync_user==1){
    system("cp ${dir_old_files}/schueler.txt ${DevelConf::users_pfad}/schueler.txt");
    system("cp ${dir_old_files}/lehrer.txt ${DevelConf::users_pfad}/lehrer.txt");
    system("sophomorix-check --get-info-from-old-files ${dir_old_files}");
-# alles
-#   system("sophomorix-add");
-   system("sophomorix-add -c m1kb2t");
+   if ($classes ne ""){
+       my $command="sophomorix-add -c $classes";
+       print "\nCalling: $command \n\n";
+       system("$command");
+   } elsif ($loginname ne ""){
+       my $command="sophomorix-add -u $loginname";
+       print "\nCalling: $command \n\n";
+       system("$command");
+   } else {
+       # alles
+       my $command="sophomorix-add";
+       print "\nCalling: $command \n\n";
+       system("$command");
+   }
    system("sophomorix-move");
 } else {
     print "* Step 3:  --sync-users\n",
@@ -227,7 +214,7 @@ if ($sync_user==1){
 ############################################################
 # synchronize the user data
 ############################################################
-
+exit;
 
 # create userlist with options
 if ($loginname ne "" or $classes ne "" or $student!=0 or $rooms ne "" or $ws!=0){
@@ -373,7 +360,9 @@ sub rsync_dirs {
 
 sub get_conf_lines {
     my ($name) = @_;
+    
     my $file = "${DevelConf::vampire_conf}/${name}";
+    print "\n### Reading List of files from ${DevelConf::vampire_conf}/${name}\n";
     my @filelist = ();
     open(FILES,"<$file") || die "Cannot open $file: $!";
     while (<FILES>){
