@@ -21,6 +21,8 @@ use Sophomorix::SophomorixAPI;
 
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                    );
+use DBI;
+
 my $server_key_location="";
 my $command="";
 my $fetch_files=0;
@@ -214,25 +216,35 @@ if ($sync_user==1){
 ############################################################
 # synchronize the user data
 ############################################################
-exit;
 
 # create userlist with options
-if ($loginname ne "" or $classes ne "" or $student!=0 or $rooms ne "" or $ws!=0){
+#if ($loginname ne "" or $classes ne "" or $student!=0 or $rooms ne "" or $ws!=0){
     # create the list of users
     &titel("Creating a userlist from options ...");
-    if ($force==1){
-        @userlist=&create_userlist($loginname,$classes,0,$projects,0,$student,
-                                   $rooms,$ws,0);
+
+    if ($loginname ne ""){
+          @userlist=($loginname);
     } else {
-        # check the users
-        @userlist=&create_userlist($loginname,$classes,0,$projects,0,$student,
-                                   $rooms,$ws,1);
+       if ($force==1){
+           @userlist=&create_userlist($loginname,$classes,0,
+                                      $projects,0,$student,
+                                      $rooms,$ws,0);
+       } else {
+           # check the users
+           @userlist=&create_userlist($loginname,$classes,0,
+                                      $projects,0,$student,
+                                      $rooms,$ws,1);
+       }
     }
+
     if ($#userlist+1==0){
          print "INFO: No valid users given\n";
          $help=1;
     }
-}
+#}
+
+#print "@userlist \n";
+
 
 
 if ($sync_homes==1){
@@ -265,12 +277,44 @@ if ($sync_homes==1){
 
      # rsync all homes
      print "\n";
-     &titel("Synchronizig home of user $user:");
-     print "   $old_home --> $new_home\n";
-     $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avz --delete  root\@${server}:$old_home $new_home";
-     #print "$command\n";
+
+     system("mkdir -p $new_home/old_data");
+     system("chown $user:root $new_home/old_data");
+     system("chmod 700 $new_home/old_data");
+
+     # windows
+     system("mkdir -p $new_home/old_data/windows");
+     system("chown $user:root $new_home/old_data/windows");
+     system("chmod 700 $new_home/old_data/windows");
+
+     # linux
+     system("mkdir -p $new_home/old_data/linux");
+     system("chown $user:root $new_home/old_data/linux");
+     system("chmod 700 $new_home/old_data/linux");
+ 
+
+     # different 2.x and 3.0 ?????
+
+     {
+     # windows
+     my $source="${old_home}windows";
+     my $target="${new_home}old_data";
+     &titel("Synchronizig home of user $user (windows):");
+     print "   $source \n     --> $target\n";
+     $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avz --delete  root\@${server}:$source $target";
+     print "$command\n";
      system($command); 
 
+     # linux
+     my $lin_source="$old_home";
+     my $lin_exclude="windows/";
+     my $lin_target="${new_home}old_data/linux";
+
+     print "   $lin_source \n     --> $lin_target\n";
+     $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avz --delete  --exclude $lin_exclude root\@${server}:$lin_source $lin_target";
+     print "$command\n";
+     system($command); 
+     }
 
     # repair directories
     # needed to correct permissions owner www-run becomes www-data, ...
