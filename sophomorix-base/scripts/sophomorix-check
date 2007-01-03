@@ -580,10 +580,10 @@ if ($old_info_dir ne ""){
    # old files: groupname - old_id 
    %old_gname_gid = %$ref_old_group_gid;
 
-#   print "\n\nDas ist der old-id-id hash\n";
-#   while (($k,$v) = each %old_id_id){
-#       print $k , " ", $v, "\n";
-#   }
+   print "\n\nDas ist der old-id-login hash\n";
+   while (($k,$v) = each %old_id_login){
+       print $k , " ", $v, "\n";
+   }
 }
 
 # ===========================================================================
@@ -2924,23 +2924,25 @@ sub generate_add_file {
             # Dont use old data
             $string="$identifier"."::";
             if (exists $schueler_ok_wunsch_login_hash{$identifier}){
-              $string=$string."$schueler_ok_wunsch_login_hash{$identifier}"."::";
-              $login=$schueler_ok_wunsch_login_hash{$identifier}
+                $string=$string.
+                  "$schueler_ok_wunsch_login_hash{$identifier}"."::";
+                $login=$schueler_ok_wunsch_login_hash{$identifier}
             } else {
-              $string=$string."---"."::";
+                $string=$string."---"."::";
             }
 
             if (exists $schueler_ok_wunsch_passwort_hash{$identifier}){
-              $string=$string."$schueler_ok_wunsch_passwort_hash{$identifier}"."::";
+                $string=$string.
+                  "$schueler_ok_wunsch_passwort_hash{$identifier}"."::";
             } else {
-              $string=$string."---"."::";
+                $string=$string."---"."::";
             }
             $string=$string."---"."::"."---"."::";
 
-
-
 	 } else {
             # Use old data
+            # in Kleinbuchstaben umwandeln
+            $identifier=~tr/A-Z/a-z/;
 	    if (exists $old_id_login{$identifier}){
 		$login=$old_id_login{$identifier};
             } else {
@@ -2978,7 +2980,6 @@ sub generate_add_file {
                     "$gid"."::";
          }
 
-
          # use old data or not: append unid
          if (exists $schueler_ok_unid{$identifier}){
               $unid=$schueler_ok_unid{$identifier};
@@ -2987,9 +2988,6 @@ sub generate_add_file {
          }
 
 	 $string=$string."$unid"."\n";
-
-
-
          print "  $string";
 
          # check if login is not forbidden
