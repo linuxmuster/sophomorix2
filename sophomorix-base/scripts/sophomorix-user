@@ -34,6 +34,8 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     user_reaktivieren     
                                     check_sophomorix_user
                                     set_sophomorix_passwd
+                                    fetchstudents_from_adminclass
+                                    db_connect
                                    );
 
 my @arguments = @ARGV;
@@ -55,6 +57,7 @@ my $freeze="";
 my $permanent="";
 my $removable="";
 my $killable="";
+my $kill_all_users=0;
 my $activate="";
 my $teacher="";
 my $sc_toleration="empty";
@@ -71,6 +74,7 @@ my $testopt=GetOptions(
        "P|permanent=s" => \$permanent,
        "R|removable=s" => \$removable,
        "K|killable=s" => \$killable,
+       "kill-all-users" => \$kill_all_users,
        "A|activate=s" => \$activate,
        "reset-user=s" => \$reset_user,
        "empty-password" => \$empty_password,
@@ -105,6 +109,8 @@ Options
   -K user   /   --killable user
   -A    /   --activate user
   --teacher teacher --scheduled-toleration yyyy-mm--dd
+
+  --kill-all-users
 
   --reset-user user1,user2,...
 
@@ -428,6 +434,23 @@ if ($killable ne""){
     exit;
 }
 
+
+# --kill-all-users
+if ($kill_all_users==1){
+    print "\n\n I will kill all users in 5 seconds!!\n";
+    sleep 1;
+    print "\n\n Hit Ctrl-C to abort!\n\n\n";
+    sleep 5;
+    my @teachers=&fetchstudents_from_adminclass(${DevelConf::teacher});
+    my @students=&Sophomorix::SophomorixAPI::fetchstudents_from_school();
+    my @users=(@teachers,@students);
+
+    foreach my $user_kill (@users){
+        print "Mark $user_kill as killable. \n";
+        system("sophomorix-user -K $user_kill");
+    }
+    exit;
+}
 
 
 
