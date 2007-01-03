@@ -284,18 +284,12 @@ if ($sync_homes==1){
 
      # windows
      system("mkdir -p $new_home/old_data/windows");
-     system("chown ${user}:root $new_home/old_data/windows");
-     system("chmod 700 $new_home/old_data/windows");
 
      # linux
      system("mkdir -p $new_home/old_data/linux");
-     system("chown ${user}:root $new_home/old_data/linux");
-     system("chmod 700 $new_home/old_data/linux");
  
      # mail mbox 2.x only
      system("mkdir -p $new_home/old_data/mail");
-     system("chown ${user}:root $new_home/old_data/mail");
-     system("chmod 700 $new_home/old_data/mail");
 
 
      # different 2.x and 3.0 ?????
@@ -309,6 +303,10 @@ if ($sync_homes==1){
      $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av --delete  root\@${server}:$source $target";
      print "$command\n";
      system($command); 
+     system("chown ${user}:root $new_home/old_data/windows");
+     system("chmod 700 $new_home/old_data/windows");
+
+
 
      # linux
      my $lin_source="$old_home";
@@ -319,6 +317,8 @@ if ($sync_homes==1){
      $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av --delete  --exclude $lin_exclude root\@${server}:$lin_source $lin_target";
      print "$command\n";
      system($command); 
+     system("chown ${user}:root $new_home/old_data/linux");
+     system("chmod 700 $new_home/old_data/linux");
 
      # mail    
      my $mail_source="/var/spool/mail/${user}";
@@ -327,8 +327,15 @@ if ($sync_homes==1){
      $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av root\@${server}:$mail_source $mail_target";
      print "$command\n";
      system($command); 
+     system("chown ${user}:root $new_home/old_data/mail");
+     system("chmod 700 $new_home/old_data/mail");
      system("chown ${user}:root $mail_target");
 
+     # mail .forward kopieren
+     $command="scp -i $key_dsa root\@${server}:${old_home}/.forward $new_home";
+     print "$command\n";
+     system($command); 
+     system("chown ${user} ${new_home}/.forward");
      }
 
     # repair directories
