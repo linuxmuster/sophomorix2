@@ -445,8 +445,11 @@ if ($kill_all_users==1){
     my @students=&Sophomorix::SophomorixAPI::fetchstudents_from_school();
     my @users=(@teachers,@students);
 
+    my $count=0;
+    my $max=$#users;
     foreach my $user_kill (@users){
-        print "Mark $user_kill as killable. \n";
+        $count++;
+        print "Mark $user_kill as killable. ($count/$max) \n";
         system("sophomorix-user -K $user_kill");
     }
     exit;
