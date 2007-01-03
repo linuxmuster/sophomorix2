@@ -109,7 +109,7 @@ are returned
 # replaces get_students_school
 sub fetchstudents_from_school {
     my @students=();
-    my $dbh=&db_connect();
+    my $dbh=&Sophomorix::SophomorixPgLdap::db_connect();
     # select the columns that i need
     my $sth= $dbh->prepare( "SELECT uid 
                              FROM userdata 
@@ -124,7 +124,7 @@ sub fetchstudents_from_school {
        push @students, $uidnumber;
     }
 
-    &db_disconnect($dbh);
+    &Sophomorix::SophomorixPgLdap::db_disconnect($dbh);
     return @students;
 
 }
