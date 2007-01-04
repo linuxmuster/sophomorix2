@@ -2683,7 +2683,10 @@ sub imap_show_mailbox_info {
               " Skipping IMAP stuff.\n";
         return 0;
     }
-    my ($imap) = @_; 
+    my ($imap,$option) = @_;
+    if (not defined $option){
+        $option="";
+    }
     my @mailboxes = $imap->list("user.*"); # one entry per dir
     my @mailboxes_cleaned=(); # one entry per user
     my %hash=();
@@ -2702,24 +2705,39 @@ sub imap_show_mailbox_info {
     while (my ($key) = each %hash){
         push @mailboxes_cleaned, $key;
     }
-    print "+----------------------------+------+",
+    print "+--------------+---------------------+------+",
           "--------------------+-------------+\n";
-    printf "| %-27s| %4s | %-19s| %12s|\n",
-           "Mailbox","Dirs", "Used Mailquota","Mailquota";
-    print "+----------------------------+------+",
+    printf "| %-13s| %-20s| %4s | %-19s| %12s|\n",
+           "Type/Group","Mailbox","Dirs", "Used Mailquota","Mailquota";
+    print "+--------------+---------------------+------+",
           "--------------------+-------------+\n";
     @mailboxes_cleaned = sort @mailboxes_cleaned;
     foreach my $box (@mailboxes_cleaned){
 	#print $box,"\n";
         my @data=&imap_fetch_mailquota($imap,$box,1,1);
+        my $home="";
+        my $group="";
+	if ($option eq "showtype"){
+            my ($string,$user)=split(/\./,$box);
+            ($home,$group)=
+               &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
+            if ($group eq ""){
+                # mailbox only in cyrus, no system account
+                $group="CYRUS";
+            }
+        } else {
+            $group="---";
+        } 
+
         if (defined $data[0]){
-           printf "| %-27s| %4s | %-19s| %12s|\n",
-                  $data[0],$hash{$data[0]},"$data[1] MB","$data[2] MB";
+           printf "| %-13s| %-20s| %4s | %-19s| %12s|\n",
+                  $group,$data[0],$hash{$data[0]},
+                  "$data[1] MB","$data[2] MB";
        } else {
            print "$box not found \n";
        }
     }
-    print "+----------------------------+------+",
+    print "+--------------+---------------------+------+",
           "--------------------+-------------+\n";
 }
 
