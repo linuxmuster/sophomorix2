@@ -187,7 +187,7 @@ if ($sync_user==1){
    print "* Step 3:  synchronizing users\n";
    system("cp ${dir_old_files}/schueler.txt ${DevelConf::users_pfad}/schueler.txt");
    system("cp ${dir_old_files}/lehrer.txt ${DevelConf::users_pfad}/lehrer.txt");
-   system("sophomorix-check --get-info-from-old-files ${dir_old_files}");
+   system("sophomorix-check --no-auto-teach-in --get-info-from-old-files ${dir_old_files}");
    if ($classes ne ""){
        my $command="sophomorix-add -c $classes";
        print "\nCalling: $command \n\n";
