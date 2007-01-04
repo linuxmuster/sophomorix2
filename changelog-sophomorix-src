@@ -1393,53 +1393,29 @@ shut down services
 
 add additional ip to internal interface of new server
 
-create dir in $HOME: 
-
-olddata/windows    /home/user/windows
-olddata/linux      /home/user/  ohne windows
-
 
 restart services
 - dhcp 
 - rembo
 
 
-options:
+sophomorix-vampire
 
---connect  shut down services
-           configure if 
-           put key on old server
-           
--- sync-users user1,user2,user3,...
-   Alle, wenn option leer
- 
---sync-userdata user1,user2,...
-   Alle, wenn option leer
-
---sync-shares group1,group2,...
 
 --sync-workstations ws1,ws2,ws3,...
    Alle, wenn option leer
 
---sync-mail user1,user2,...
-
-
---disconnect 
-           Warning: key on old server
-           consider a reboot (disconfigure if, all services running)
-
-
-
-
-
-Bug: mailboxes are not deleted when killing a user
-
+add option
+sophomorix-mail --killmailbox to delete mailbox of user without account 
 
 ================== CHANGELOG ========================================
 
-1.9.7-1 (2006-12-xx)
+1.9.7-1 (2007-01-xx)
+  - Bugfix: Mailbox not killed when killing users
+  - removed double query from sophomorix-kill to speed up script
+  - sophomorix-add: changed formatting of -i list 
   - tested sophomorix-vampire
-    - Bugfix: use loginname of old installation 
+    - Bugfix: use loginname of old installation (lowercase, no - in name)
   - added option to sophomorix-user to mark all users to be killed
 
 1.9.6-1 (2006-12-16)
