@@ -2712,8 +2712,12 @@ sub imap_show_mailbox_info {
     foreach my $box (@mailboxes_cleaned){
 	#print $box,"\n";
         my @data=&imap_fetch_mailquota($imap,$box,1,1);
-        printf "| %-27s| %4s | %-19s| %12s|\n",
-               $data[0],$hash{$data[0]},"$data[1] MB","$data[2] MB";
+        if (defined $data[0]){
+           printf "| %-27s| %4s | %-19s| %12s|\n",
+                  $data[0],$hash{$data[0]},"$data[1] MB","$data[2] MB";
+       } else {
+           print "$box not found \n";
+       }
     }
     print "+----------------------------+------+",
           "--------------------+-------------+\n";
