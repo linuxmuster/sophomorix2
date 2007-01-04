@@ -44,6 +44,7 @@ my $info=0;
 my $show_mailbox=0;
 my $skiplock=0;
 my $show_type=0;
+my $kill_mailbox="";
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -52,6 +53,7 @@ my $testopt=GetOptions(
            "showmailbox|showmailboxes" => \$show_mailbox,
            "skiplock" => \$skiplock,
            "showtype" => \$show_type,
+           "kill-mailbox=s" => \$kill_mailbox,
            "info|i" => \$info
           );
 
@@ -134,6 +136,13 @@ if ($show_mailbox==1) {
 }
 
 
+# --killmailbox
+if ($kill_mailbox ne "") {
+    # checks
+    print "Trying to kill mailbox $kill_mailbox ...\n";
+
+    exit;
+}
 
 ################################################################################
 # Programm
