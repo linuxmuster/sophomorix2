@@ -201,12 +201,14 @@ open(KILL,"${DevelConf::ergebnis_pfad}/sophomorix.kill") || die "Fehler: $!";
 while(<KILL>){
      chomp();
      ($identifier_to_kill, $login_name_to_kill)=split(/::/);
-     # Klasse ermitteln
-     ($linux_gruppe_to_kill)=&pg_get_group_list($login_name_to_kill);
-     # Home-Verzeichnis ermitteln
+#     # Klasse ermitteln
+#     ($linux_gruppe_to_kill)=&pg_get_group_list($login_name_to_kill);
 
+     # Home-Verzeichnis,klasse ermitteln
      my ($home_verzeichnis_to_kill,
-         $type_to_kill) = 
+         $type_to_kill,
+         $gecos_to_kill,
+         $linux_gruppe_to_kill) = 
          &fetchdata_from_account($login_name_to_kill);
 
      my $public_html_to_kill ="";
