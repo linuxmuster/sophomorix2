@@ -43,6 +43,7 @@ my $help=0;
 my $info=0;
 my $show_mailbox=0;
 my $skiplock=0;
+my $show_type=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -50,6 +51,7 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "showmailbox|showmailboxes" => \$show_mailbox,
            "skiplock" => \$skiplock,
+           "showtype" => \$show_type,
            "info|i" => \$info
           );
 
@@ -122,9 +124,12 @@ if ($info==1) {
 if ($show_mailbox==1) {
     my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
     # fetch list of mailboxes
-    &imap_show_mailbox_info($imap);
+    if ($show_type==1){
+        &imap_show_mailbox_info($imap,"showtype");
+    } else {
+        &imap_show_mailbox_info($imap);
+    }
     &imap_disconnect($imap);
-
     exit;
 }
 
