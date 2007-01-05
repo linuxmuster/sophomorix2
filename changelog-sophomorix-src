@@ -1401,16 +1401,19 @@ restart services
 
 sophomorix-vampire
 
-
 --sync-workstations ws1,ws2,ws3,...
    Alle, wenn option leer
 
 add option
-sophomorix-mail --killmailbox to delete mailbox of user without account 
+sophomorix-mail --create-mailbox to add mailbox without unix account 
 
 ================== CHANGELOG ========================================
 
 1.9.7-1 (2007-01-xx)
+  - sophomorix-mail:
+    added option --kill-mailbox to kill a mailbox without unix account
+    make --showmailboxes --showtype show group ot type 
+    CYRUS (only cyrus account, no unix account) 
   - Bugfix: Mailbox not killed when killing users
   - removed double query from sophomorix-kill to speed up script
   - sophomorix-add: changed formatting of -i list 
