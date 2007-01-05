@@ -2687,6 +2687,7 @@ sub imap_show_mailbox_info {
     if (not defined $option){
         $option="";
     }
+    my $count=0;
     my @mailboxes = $imap->list("user.*"); # one entry per dir
     my @mailboxes_cleaned=(); # one entry per user
     my %hash=();
@@ -2733,12 +2734,14 @@ sub imap_show_mailbox_info {
            printf "| %-13s| %-20s| %4s | %-19s| %12s|\n",
                   $group,$data[0],$hash{$data[0]},
                   "$data[1] MB","$data[2] MB";
-       } else {
+           $count++;
+        } else {
            print "$box not found \n";
-       }
+        }
     }
     print "+--------------+---------------------+------+",
           "--------------------+-------------+\n";
+    print "$count mailmoxes (Group/Type=CYRUS: no unix account\n";
 }
 
 
@@ -2785,7 +2788,8 @@ sub imap_kill_mailbox {
 	if ($err != 0) {
        	my $status = $imap->error;
             if ($status=~/Mailbox does not exist/){
-	        print "   Mailbox of $login does not exist ... nothing to do.\n";
+	        print "   Mailbox of $login does not exist ...",
+                      " nothing to do.\n";
                 return 1;
             } else {
                 print "$status \n";
@@ -2794,7 +2798,7 @@ sub imap_kill_mailbox {
 	}
     }
     my $err = $imap->h_delete("user.${login}");
-    print "   Return of h_delete is $err \n";
+    print "   Return of h_delete is $err (0 = deletion succesful)\n";
     if ($err != 0) {
        	my $status = $imap->error;
       	print "$status \n";
