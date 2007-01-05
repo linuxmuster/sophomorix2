@@ -138,9 +138,41 @@ if ($show_mailbox==1) {
 
 # --killmailbox
 if ($kill_mailbox ne "") {
-    # checks
-    print "Trying to kill mailbox $kill_mailbox ...\n";
+    my $login="";
+    my $mailbox="";
+    my $string="";
 
+    my @mailboxes=split(/,/,$kill_mailbox);
+
+    foreach my $k_mailbox (@mailboxes){
+        if ($k_mailbox =~m/^user\./){
+            # user.login given
+            ($string,$login)=split(/\./, $k_mailbox);
+	    $mailbox=$k_mailbox;
+        } else {
+            # login given
+	    $login=$k_mailbox;
+            $mailbox="user.".$k_mailbox; 
+        }
+        print "Trying to kill mailbox $mailbox ($login) ...\n";
+
+        # checks
+        my ($home,$group)=
+            &Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
+        if ($group eq ""){
+            # no unix account exists
+            print "\nUser $login has no unix account.",
+                  " I try to delete its maibox ...\n\n";
+            my $imap=&Sophomorix::SophomorixBase::imap_connect("localhost",
+                                                 ${DevelConf::imap_admin});
+            &Sophomorix::SophomorixBase::imap_kill_mailbox($imap,$login);
+            &Sophomorix::SophomorixBase::imap_disconnect($imap);
+        } else {
+            # its a unix account
+            print "\nUser $login has a unix account.",
+                  " I will not delete its maibox!\n\n";
+        }
+    }
     exit;
 }
 
