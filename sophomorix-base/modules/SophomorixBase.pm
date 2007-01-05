@@ -2741,7 +2741,7 @@ sub imap_show_mailbox_info {
     }
     print "+--------------+---------------------+------+",
           "--------------------+-------------+\n";
-    print "$count mailmoxes (Group/Type=CYRUS: no unix account\n";
+    print "$count mailboxes (Group/Type=CYRUS: no unix account\n";
 }
 
 
