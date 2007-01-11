@@ -1136,7 +1136,7 @@ sub append_kill_entry {
 
 sub u_u_check {
    my $count=0;
-   &titel("u_u_check: Suche User zum versetzen ...");
+   &titel("u_u_check: Looking for users to be moved ...");
     while ( my ($identifier, $new_class) = each %schueler_ok_hash ){
       if (exists $schueler_im_system_hash{$identifier}) {
          # schueler, die im System sind 
@@ -1159,14 +1159,14 @@ sub u_u_check {
          }
       }
    }
-   &titel("u_u_check: $count User KÖNNEN versetzt werden ...");
+   &titel("u_u_check: $count users can be moved ...");
 }
 
 
 
 sub ust_t_check {
    my $count=0;
-   &titel("ust_t_check: Suche scheduled_toleration Users -> attic ...");
+   &titel("ust_t_check: Looking for scheduled_toleration Users -> attic ...");
    # Usable(U,scheduled toleration) -> Tolerated(T)  .move (old class -> attic) 
    while ( my ($identifier, $sc_tol) = each %identifier_sc_tol ){
        # next if user is tolerated already
@@ -1228,7 +1228,7 @@ sub ust_t_check {
 
 sub u_t_check {
    my $count=0;
-   &titel("u_t_check: Suche User zum tolerieren/-> attic ...");
+   &titel("u_t_check: Looking for users to be tolerated/-> attic ...");
    # Usable(U) -> Tolerated(T)  .move (old class -> attic) 
    # Step 1: Tolerate the user
    while ( my ($identifier, $status) = each %sophomorix_status ){
@@ -1254,7 +1254,7 @@ sub u_t_check {
          }
      }
    }
-   &titel("u_t_check:  ... $count User wurden toleriert/-> attic");
+   &titel("u_t_check:  ... $count users were tolerated/-> attic");
 }
 
 
@@ -1275,7 +1275,7 @@ sub t_e_check {
 sub a_u_check {
    # Activated(A) -> Usable(U)  .move (aktive klasse -> neue klasse)
    my $count=0;
-   &titel("a_u_check: Suche aktivierte User zum enablen  machen ...");
+   &titel("a_u_check: Looking for activated users to enable ...");
    while ( my ($identifier, $status) = each %sophomorix_status ){
       if ($status eq "A"){
          my $login=$schueler_im_system_loginname{$identifier};
@@ -1290,7 +1290,7 @@ sub a_u_check {
          }
       }
    }
-   &titel("a_u_check:  ... $count aktivierte User wurden enabled");
+   &titel("a_u_check:  ... $count activated users were enabled");
 }
 
 
@@ -1304,7 +1304,7 @@ sub s_u_check {
 sub t_d_check {
    my $count_move=0;
    my $count_disabled=0;
-   &titel("t_d_check: Suche Tolerierte User zum versetzen/deaktivieren ...");
+   &titel("t_d_check: Looking for tolerated users to be moved/deactivated ...");
    # Tolerated(T) -> Disabled(D)   .move (alte klasse -> attic)
    while ( my ($identifier, $status) = each %sophomorix_status ){
       # wenn status T und NICHT wieder auftaucht
@@ -1343,8 +1343,8 @@ sub t_d_check {
 	 }
       }
    }
-   &titel("t_d_check:  ... $count_move tolerierte User -> attic");
-   &titel("t_d_check:  ... $count_disabled  User wurden disabled");
+   &titel("t_d_check:  ... $count_move tolerated users -> attic");
+   &titel("t_d_check:  ... $count_disabled  users were disabled");
 }
 
 
@@ -1364,7 +1364,7 @@ sub s_d_check {
 
 sub d_e_check {
    my $count=0;
-   &titel("d_e_check: Suche User die wieder auftauchen ...");
+   &titel("d_e_check: Loking for users coming back ...");
    # Disabled(D) -> Enabled(E)  .kill .move (alte klasse -> attic)
    while ( my ($identifier, $status) = each %sophomorix_status ){
       if ($status eq "D" or $status eq "T" or $status eq "R"){
@@ -1390,7 +1390,7 @@ sub d_e_check {
          }
       }
    }
-   &titel("d_e_check: ... $count User sind wieder aufgetaucht");
+   &titel("d_e_check: ... $count users are coming back");
 }
 
 
@@ -1399,7 +1399,7 @@ sub d_r_check {
    # Disabled(D) -> R(Removeable) .kill
    my $count_removable=0; 
    my $count_move=0; 
-   &titel("d_r_check: Suche disabled User zum versetzen/loeschen...");
+   &titel("d_r_check: Looking for disabled users to be moved/kille ...");
    while ( my ($identifier, $status) = each %sophomorix_status ){
       if ($status eq "D"){
          my $login="$schueler_im_system_loginname{$identifier}";
@@ -1435,8 +1435,8 @@ sub d_r_check {
          }
       }
    }
-   &titel("d_r_check: ... $count_move disabled User -> attic");
-   &titel("d_r_check: ... $count_removable User sind löschbar.");
+   &titel("d_r_check: ... $count_move disabled users -> attic");
+   &titel("d_r_check: ... $count_removable users are killable.");
 }
 
 
@@ -1444,14 +1444,14 @@ sub d_r_check {
 sub r_r_check {
    # Removeable(R)/Killable(K) bleibt   .kill
    my $count=0;
-   &titel("r_r_check: Suche Removable/Killable User zum loeschen...");
+   &titel("r_r_check: Looking for 'removable/killable users to be killed ...");
    while ( my ($identifier, $status) = each %sophomorix_status ){
       if ($status eq "R" or $status eq "K"){
          &append_kill_entry($identifier);
          $count++;
       }
    }
-   &titel("r_r_check: ... $count User sind Removable/Killable");
+   &titel("r_r_check: ... $count users are removable/killable");
 }
 
 
