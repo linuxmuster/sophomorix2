@@ -2944,6 +2944,9 @@ sub generate_add_file {
             # Use old data
             # in Kleinbuchstaben umwandeln
 
+            # save this for later use
+  	    my $identifier_capital=$identifier;
+
             # only in 2.x ???
             $identifier=~tr/A-Z/a-z/;
             $identifier=~s/-//;
@@ -2978,7 +2981,12 @@ sub generate_add_file {
                 $unid="";
             }
 
-            $string="$identifier"."::".
+#            $string="$identifier"."::".
+#                    "$login"."::".
+#                    "$password"."::".
+#                    "$id"."::".
+#                    "$gid"."::";
+            $string="$identifier_capital"."::".
                     "$login"."::".
                     "$password"."::".
                     "$id"."::".
