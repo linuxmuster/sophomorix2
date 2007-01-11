@@ -1117,7 +1117,8 @@ sub append_kill_entry {
     # appends a line to sophomorix.kill
     my ($identifier)=@_;
     my $login=$schueler_im_system_loginname{$identifier};
-    my $kill_line="$identifier"."::"."$login"."\n";
+    my $admin_class=$schueler_im_system_hash{$identifier};
+    my $kill_line="$identifier"."::"."$login"."::"."$admin_class"."\n";
     my $kill_message="   $identifier (Login: $login)".
                      " ---> Removable/Killable\n";
 
