@@ -137,8 +137,10 @@ if ($info==1) {
     while(<KILL>){      
        chomp();
        # Klasse ermitteln
-       ($identifier_to_kill, $login_name_to_kill)=split(/::/);
-       ($linux_gruppe_to_kill)=&pg_get_group_list($login_name_to_kill);
+       ($identifier_to_kill, 
+        $login_name_to_kill,
+        $linux_gruppe_to_kill)=split(/::/);
+       #($linux_gruppe_to_kill)=&pg_get_group_list($login_name_to_kill);
        push @lines, "$_"."::"."$linux_gruppe_to_kill"."\n";
     }
     close(KILL);
