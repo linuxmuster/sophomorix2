@@ -275,11 +275,13 @@ if ($sync_homes==1){
      }
      endpwent();
 
+     my ($group) = &Sophomorix::SophomorixPgLdap::pg_get_group_list($user);
+
      # rsync all homes
      print "\n";
 
      system("mkdir -p $new_home/old_data");
-     system("chown $user:root $new_home/old_data");
+     system("chown ${user}:${group} $new_home/old_data");
      system("chmod 700 $new_home/old_data");
 
      # windows
@@ -303,7 +305,7 @@ if ($sync_homes==1){
      $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av --delete  root\@${server}:$source $target";
      print "$command\n";
      system($command); 
-     system("chown ${user}:root $new_home/old_data/windows");
+     system("chown -R ${user}:${group} $new_home/old_data/windows");
      system("chmod 700 $new_home/old_data/windows");
 
 
@@ -317,7 +319,7 @@ if ($sync_homes==1){
      $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av --delete  --exclude $lin_exclude root\@${server}:$lin_source $lin_target";
      print "$command\n";
      system($command); 
-     system("chown ${user}:root $new_home/old_data/linux");
+     system("chown -R ${user}:${group} $new_home/old_data/linux");
      system("chmod 700 $new_home/old_data/linux");
 
      # mail    
@@ -327,15 +329,15 @@ if ($sync_homes==1){
      $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av root\@${server}:$mail_source $mail_target";
      print "$command\n";
      system($command); 
-     system("chown ${user}:root $new_home/old_data/mail");
+     system("chown ${user}:${group} $new_home/old_data/mail");
      system("chmod 700 $new_home/old_data/mail");
-     system("chown ${user}:root $mail_target");
+     system("chown ${user}:${group} $mail_target");
 
      # mail .forward kopieren
-     $command="scp -i $key_dsa root\@${server}:${old_home}/.forward $new_home";
+     $command="scp -i $key_dsa root\@${server}:${old_home}.forward $new_home";
      print "$command\n";
      system($command); 
-     system("chown ${user} ${new_home}/.forward");
+     system("chown ${user}:${group} ${new_home}.forward");
      }
 
     # repair directories
