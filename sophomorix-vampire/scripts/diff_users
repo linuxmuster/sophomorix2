@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# new_server students
+getent passwd | grep /home/students | cut -d: -f1 | sort > /root/new_server.students
+
+# old_server students
+cat /root/sophomorix-vampire/passwd | grep /home/schueler | grep -v dachboden | cut -d: -f1 | sort > /root/old_server.students
+
+
+echo "Old Server:"
+wc -l /root/old_server.students
+
+echo "New Server:"
+wc -l /root/new_server.students
