@@ -2949,7 +2949,9 @@ sub generate_add_file {
 
             # only in 2.x ???
             $identifier=~tr/A-Z/a-z/;
-            $identifier=~s/-//;
+            $identifier=~s/-//g;
+
+	    print "Looking for $identifier \n";
 
 	    if (exists $old_id_login{$identifier}){
 		$login=$old_id_login{$identifier};
