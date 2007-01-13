@@ -171,7 +171,6 @@ if ($fetch_files==1){
        system("$command");
     }
     # rename some files
-    # put these in a file ?????????
     system("mv $dir_old_files/schulinfo.txt $dir_old_files/class_db");
     system("mv $dir_old_files/user.protokoll $dir_old_files/user_db");
 } else {
@@ -187,6 +186,16 @@ if ($sync_user==1){
    print "* Step 3:  synchronizing users\n";
    system("cp ${dir_old_files}/schueler.txt ${DevelConf::users_pfad}/schueler.txt");
    system("cp ${dir_old_files}/lehrer.txt ${DevelConf::users_pfad}/lehrer.txt");
+   # extraschueler.txt
+   system("cp ${DevelConf::config_template_pfad}/extraschueler.txt ${DevelConf::users_pfad}/extraschueler.txt");
+   system(" echo '###\n### Lines from here are entrys from an update of $server with sophomorix-vampire\n###' >> ${DevelConf::users_pfad}/extraschueler.txt");
+   system("cat ${dir_old_files}/extraschueler.txt >> ${DevelConf::users_pfad}/extraschueler.txt");
+
+   # extrakurse.txt
+   system("cp ${DevelConf::config_template_pfad}/extrakurse.txt ${DevelConf::users_pfad}/extrakurse.txt");
+   system(" echo '###\n### Lines from here are entrys from an update of $server with sophomorix-vampire\n###' >> ${DevelConf::users_pfad}/extrakurse.txt");
+   system("cat ${dir_old_files}/extrakurse.txt >> ${DevelConf::users_pfad}/extrakurse.txt");
+
    system("sophomorix-check --no-auto-teach-in --get-info-from-old-files ${dir_old_files}");
    if ($classes ne ""){
        my $command="sophomorix-add -c $classes";
