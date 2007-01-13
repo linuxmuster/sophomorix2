@@ -585,7 +585,10 @@ sub get_old_info {
    my %old_unix_ids=();
    my %old_group_gid=();  
    my %old_unix_gids=();
-   my %old_teach_in=();
+   # index: system identifier
+   my %old_teach_in_sys=();
+   # index: administration software identifier
+   my %old_teach_in_admin=();
    my ($admin_class, $gecos,$login, $pass,$birth)=();
    my ($name,$surname)=();
    my ($passwd_login,$spass,$id,$gid,$passwd_gecos,$home,$shell)=();
@@ -598,14 +601,31 @@ sub get_old_info {
       chomp();
       if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
       ($identifier_sys,$identifier_admin)=split(/:::/);
-      if (exists $old_teach_in{$identifier_sys}){ 
+      # create hash with index admin
+      if (exists $old_teach_in_admin{$identifier_admin}){ 
+	   print "   ERROR: Identifier  $identifier_admin exists ",
+                 "multiple times in old teach-in.txt.\n";
+      } else {
+         $old_teach_in_admin{$identifier_admin}="$identifier_sys";
+      }
+      # create hash with index sys
+      if (exists $old_teach_in_sys{$identifier_sys}){ 
 	   print "   ERROR: Identifier  $identifier_sys exists ",
                  "multiple times in old teach-in.txt.\n";
       } else {
-         $old_teach_in{$identifier_sys}="$identifier_admin";
+         $old_teach_in_sys{$identifier_sys}="$identifier_admin";
       }
    }
    close(TEACHINDATEN);
+
+#   print "Old_teach_in_admin \n\n";
+#     while (($key,$value) = each %old_teach_in_admin){
+#         printf "%-40s %40s\n","$key","$value";
+#      }
+#   print "Old_teach_in_sys \n\n";
+#     while (($key,$value) = each %old_teach_in_sys){
+#         printf "%-40s %40s\n","$key","$value";
+#      }
 
    # creating login -> unix-id hash
    open(PASSWD, "<$passwd") || die "Fehler: $!";
@@ -613,13 +633,13 @@ sub get_old_info {
    while(<PASSWD>){
        chomp($_);
        ($passwd_login,$spass,$id,$gid,$passwd_gecos,$home,$shell)=split(/:/);
+
        if (exists $old_unix_ids{$id}){
 	   print "   ERROR: Unix_id $id exists ",
                  "multiple times in old passwd.\n";
        } else {
           $old_unix_ids{$id}="$passwd_login";
        }
- 
 
        if (exists $old_login_id{$passwd_login}){
 	   print "   ERROR: Loginname $passwd_login exists ",
@@ -630,6 +650,27 @@ sub get_old_info {
    }
    close(PASSWD);
 
+
+
+   # first run through user_db
+   # save system identifier an their login in the system
+   # for later use
+   my $sysid_login=();
+   open(PROTOCOL, "<$protocol") || die "Fehler: $!";
+   while(<PROTOCOL>){
+       chomp($_);
+      my ($sys_admin_class, $sys_gecos,$sys_login, 
+          $sys_pass,$sys_birth)=split(/;/);
+      my ($sys_name,$sys_surname)=split(/\ /,$sys_gecos); 
+        $sys_identifier="$sys_surname".";"."$sys_name".";"."$sys_birth";
+
+       $sysid_login{$sys_identifier}="$sys_login";
+
+ 
+   }
+   close(PROTOCOL);
+
+   # second run through user_db
    # creating identifier -> ... hashes
    open(PROTOCOL, "<$protocol") || die "Fehler: $!";
    &titel("Extracting data from old user_db ...");
@@ -639,9 +680,21 @@ sub get_old_info {
        ($name,$surname)=split(/\ /,$gecos); 
         $identifier="$surname".";"."$name".";"."$birth";
 
-       # adjusting identifier according to teach-in.txt
-       if (exists $old_teach_in{$identifier}){
-          $identifier=$old_teach_in{$identifier}
+       # if identifier exists in teach in as administartion identifier
+       # then it has different sys identifier and login must be adjusted
+       if (exists $old_teach_in_admin{$identifier}){
+          # adjusting identifier according to teach-in.txt
+	  print "teach-in entry found:\n   $identifier is ",
+                "$old_teach_in_admin{$identifier} in the old system\n";
+          # adjusting $login with the identifier in the system
+          $login=$sysid_login{$old_teach_in_admin{$identifier}};
+          print "   save this in old_id_login: $identifier   $login \n";
+       }
+
+       # if identifier exists in teach in as system identifier
+       # then it has a changed administration identifier and is not needed
+       if (exists $old_teach_in_sys{$identifier}){
+           next;
        }
 
        # identifier -> login hash
