@@ -1419,6 +1419,26 @@ check if sophomorix-check --use-gid works
                           --no-kclass needed?
                           update man page
 
+
+sophomorix-vampire:
+    sync mail:
+       imapsync 3.x -> 3.x
+       pop2imap ?
+       offlineimap (debian-Paket)
+       mb2md (debian-Paket) mailbox -> maildir
+
+sync klassentauschs:
+  rsync -> owner should be Ok, because logins are preserved
+           group owner are not ok, because group names are changed
+           run find with old id of class and teachers id
+            replace it with new id/groupowner
+
+
+Bug? sophomorix-quota sets mailquota for all
+     is there a faster way to do this
+      i.e. read mailquota of all users and decide if it is needed to be set?
+     
+
 ================== CHANGELOG ========================================
 
 1.9.7-1 (2007-01-xx)
