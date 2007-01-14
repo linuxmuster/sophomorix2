@@ -1,14 +1,41 @@
 #!/bin/sh
 
-# new_server students
-getent passwd | grep /home/students | cut -d: -f1 | sort > /root/new_server.students
+old_students=/root/old_server.students
+new_students=/root/new_server.students
 
-# old_server students
-cat /root/sophomorix-vampire/passwd | grep /home/schueler | grep -v dachboden | cut -d: -f1 | sort > /root/old_server.students
+old_teachers=/root/old_server.teachers
+new_teachers=/root/new_server.teachers
+
+# new_server 
+# students
+getent passwd | grep /home/students | cut -d: -f1 | sort > $new_students
+echo "Number of students in new server:"
+wc -l $new_students
+
+# teachers
+getent passwd | grep /home/teachers | cut -d: -f1 | sort > $new_teachers
+echo "Number of teachers in new server:"
+wc -l $new_teachers
 
 
-echo "Old Server:"
-wc -l /root/old_server.students
 
-echo "New Server:"
-wc -l /root/new_server.students
+# old_server 
+# students
+cat /root/sophomorix-vampire/passwd | grep /home/schueler | grep -v dachboden | grep -v speicher | cut -d: -f1 | sort > $old_students
+echo "Number of students in old server:"
+wc -l $old_students
+
+# teachers
+cat /root/sophomorix-vampire/passwd | grep /home/lehrer | grep -v dachboden | grep -v speicher | cut -d: -f1 | sort > $old_teachers
+echo "Number of teachers in old server:"
+wc -l $old_teachers
+
+
+
+# diff the students
+echo "Diff the students old < > new:"
+diff $old_students $new_students
+
+# diff the teachers
+echo "Diff the teachers old < > new:"
+diff $old_teachers $new_teachers
