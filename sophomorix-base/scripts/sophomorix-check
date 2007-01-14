@@ -3504,7 +3504,8 @@ sub filter_school_admin_software {
       # russisches i
       $line=~s/ï/i/g;
       # u mit akzent
-      s/£/u/g;
+      $line=~s/£/u/g;
+      $line=~s/\243/u/g;
       # SPLAN-Sonderzeichen ENDE
 
       # ß umwandeln
