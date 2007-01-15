@@ -33,6 +33,7 @@ my $server="";
 my $sync_user=0;
 my $sync_homes=0;
 my $sync_dirs=0;
+my $sync_shares=0;
 my $key=0;
 
 my $loginname="";
@@ -56,6 +57,7 @@ my $testopt=GetOptions(
            "sync-users" => \$sync_user,
            "sync-homes" => \$sync_homes,
            "sync-dirs" => \$sync_dirs,
+           "sync-shares" => \$sync_shares,
            "key" => \$key,
            "files" => \$fetch_files,
            "user|u=s" => \$loginname,
@@ -180,7 +182,7 @@ if ($fetch_files==1){
 
 
 ############################################################
-# add the users
+# Step 3: add the users
 ############################################################
 if ($sync_user==1){
    print "* Step 3:  synchronizing users\n";
@@ -255,7 +257,9 @@ if ($sync_user==1){
 #print "@userlist \n";
 
 
-
+############################################################
+# Step 4: sync homes
+############################################################
 if ($sync_homes==1){
    print "* Step 4:  synchronizing user homes\n";
    &print_list_column(6,"Userlist for synchronising \$HOME",@userlist);
@@ -375,18 +379,69 @@ if ($sync_homes==1){
 
 
 
+
 ############################################################
-# synchronize the shares
+# Step 6: synchronize the shares
 ############################################################
+if ($sync_shares==1){
+
+    my %old_id_old_group=();
+    open(OLDGROUP, "${dir_old_files}group");
+    while(<OLDGROUP>) {
+	my ($name,$empty,$gid)=split(/:/);
+        $old_id_old_group{$name}=$gid;
+    }
+    close(OLDGROUP);
+
+    while(my ($key, $value) = each(%old_id_old_group)) {
+        # do something with $key and $value
+        print "$key    $value \n";
+    }
+
+    # create old_id new_group hash
+    my %new_group_old_id=();
+    # add teacher
+    $new_group_old_id{$DevelConf::teacher}=$old_id_old_group{"lehrer"};
+    my @groups=&Sophomorix::SophomorixPgLdap::fetchadminclasses_from_school();
+   
+    foreach my $group (@groups){
+        my $old_group="k".$group;
+        my $old_id;
+        if (defined $old_id_old_group{$old_group}){
+            $old_id=$old_id_old_group{$old_group};
+        } else {
+            $old_id=0;
+        }
+        print "New Group: $group Old Group: $old_group\n";
+        print "   Old id of $group  $old_id \n";
+        $new_group_old_id{$group}="$old_id"; 
+    }
+
+    print "* Step 6:  synchronizing the shares\n";
+    my $group="m3kb2t";
+    # do this for all groups
+    # in 3.x no k before class ???
+    my $old_share="/home/tausch/klassen/k$group/*";
+    my $new_share="/home/share/classes/$group/";
+    my $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avg --delete  root\@${server}:$old_share $new_share";
+    print "$command \n";
+    system($command);
+
+    # fix groupowner
+    my @grouplist=(${DevelConf::teacher},$group);
+    print "\nFixing groupowner\n";
+    foreach my $group_to_check (@grouplist){
+        if (defined $new_group_old_id{$group_to_check}){
+            $command="find $new_share -group $new_group_old_id{$group_to_check} -print0 | xargs -0 chown :${group_to_check}";
+            print "\n$command :\n";
+            system("$command");
+        } else {
+            print "WARNING: Could not find old id of $group_to_check \n";
+        }
+    }
+}
 
 
-# do this for all groups
-
-
-
-# look up old class in class_db
-
-# sync share, if new class without k exists 
 
 
 ############################################################
@@ -397,9 +452,6 @@ if ($sync_homes==1){
 ############################################################
 # rsync dirs im /etc/sophomorix/vampire/vampire_x.x_dirs
 ############################################################
-
-
-
 
 # reading a list of dirs to rsync from the old server
 my @dirs=&get_conf_lines("vampire_${old_version}_dirs");
