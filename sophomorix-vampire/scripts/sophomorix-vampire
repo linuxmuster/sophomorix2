@@ -384,6 +384,12 @@ if ($sync_homes==1){
 # Step 6: synchronize the shares
 ############################################################
 if ($sync_shares==1){
+    my @classes=();
+    if ($classes eq ""){
+        @classes=&Sophomorix::SophomorixPgLdap::fetchadminclasses_from_school();
+    } else {
+        @classes=split(/,/,$classes);
+    }
 
     my %old_id_old_group=();
     open(OLDGROUP, "${dir_old_files}group");
@@ -392,18 +398,16 @@ if ($sync_shares==1){
         $old_id_old_group{$name}=$gid;
     }
     close(OLDGROUP);
-
-    while(my ($key, $value) = each(%old_id_old_group)) {
-        # do something with $key and $value
-        print "$key    $value \n";
-    }
+    #while(my ($key, $value) = each(%old_id_old_group)) {
+    #    # do something with $key and $value
+    #    print "$key    $value \n";
+    #}
 
     # create old_id new_group hash
     my %new_group_old_id=();
     # add teacher
     $new_group_old_id{$DevelConf::teacher}=$old_id_old_group{"lehrer"};
     my @groups=&Sophomorix::SophomorixPgLdap::fetchadminclasses_from_school();
-   
     foreach my $group (@groups){
         my $old_group="k".$group;
         my $old_id;
@@ -412,32 +416,35 @@ if ($sync_shares==1){
         } else {
             $old_id=0;
         }
-        print "New Group: $group Old Group: $old_group\n";
-        print "   Old id of $group  $old_id \n";
+        #print "New Group: $group Old Group: $old_group\n";
+        #print "   Old id of $group  $old_id \n";
         $new_group_old_id{$group}="$old_id"; 
     }
 
     print "* Step 6:  synchronizing the shares\n";
-    my $group="m3kb2t";
+    #my $group="m3kb2t";
     # do this for all groups
-    # in 3.x no k before class ???
-    my $old_share="/home/tausch/klassen/k$group/*";
-    my $new_share="/home/share/classes/$group/";
-    my $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avg --delete  root\@${server}:$old_share $new_share";
-    print "$command \n";
-    system($command);
+    foreach my $group (@classes){
+       # in 3.x no k before class ???
+       my $old_share="/home/tausch/klassen/k$group/*";
+       my $new_share="/home/share/classes/$group/";
+       my $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avg --delete  root\@${server}:$old_share $new_share";
+       print "$command \n";
+       system($command);
 
-    # fix groupowner
-    my @grouplist=(${DevelConf::teacher},$group);
-    print "\nFixing groupowner\n";
-    foreach my $group_to_check (@grouplist){
-        if (defined $new_group_old_id{$group_to_check}){
-            $command="find $new_share -group $new_group_old_id{$group_to_check} -print0 | xargs -0 chown :${group_to_check}";
-            print "\n$command :\n";
-            system("$command");
-        } else {
-            print "WARNING: Could not find old id of $group_to_check \n";
-        }
+       # fix groupowner
+       my @grouplist=(${DevelConf::teacher},$group);
+       print "\nFixing groupowner\n";
+       foreach my $group_to_check (@grouplist){
+           if (defined $new_group_old_id{$group_to_check}){
+               $command="find $new_share -group $new_group_old_id{$group_to_check}".
+                        " -print0 | xargs -0 chown :${group_to_check}";
+               print "\n$command :\n";
+               system("$command");
+           } else {
+               print "WARNING: Could not find old id of $group_to_check \n";
+           }
+       }
     }
 }
 
