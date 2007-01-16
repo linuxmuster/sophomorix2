@@ -1317,7 +1317,7 @@ sub create_user_db_entry {
     my $description="perl: create_user_db_entry";
     my $birthday_pg = &date_perl2pg($birthday_perl);
 
-    # create crypt password for liux
+    # create crypt password for linux
     my $crypt_salt_format = '%s';
     my $salt = sprintf($crypt_salt_format,make_salt());
     my $linux_pass = "{CRYPT}" . crypt($pass,$salt);
