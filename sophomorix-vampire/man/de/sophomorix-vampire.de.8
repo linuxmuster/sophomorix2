@@ -21,6 +21,36 @@ sophomorix-vampire \- Migration eines Servers auf neue Hardware und neue Softwar
 .B sophomorix-vampire
 .RI [ options ]
 .br
+.SH WELCHE DATEN WERDEN ÜBERNOMMEN?
+.TP
+.B Loginnamen:
+.br
+Jeder Benutzer behält seinen Loginnamen/Benutzername
+.TP
+.B Private Userdaten:
+.br
+Linux-Daten im Homeverzeichnis werden nach old-data/linux
+kopiert. 
+.br
+Windows-Daten werden nach old_data/windows kopiert.
+.TP
+.B Email im mbox-Format:
+.br
+Die Mailbox liegt im Homeverzeichnis werden in old-data/mail/loginname
+.br
+Windows-Daten werden nach old_data/windows kopiert.
+.TP
+.B Klassennamen:
+.br
+Achtung: aus k7a wird 7a.
+.br
+.SH WELCHE DATEN WERDEN NICHT ÜBERNOMMEN?
+.B Veränderte Passwörter:
+.br 
+Jeder Benutzer bekommt wieder sein Erstpasswort (so wie auf den
+Anmeldungskärtchen ausgedruckt). Veränderte Passwörter werden NICHT
+übernommen.
+.br
 .SH DESCRIPTION
 .B sophomorix-vampire  
 wird auf einem neuen Server gestartet und holt dann Benutzer und und Daten eines alten Servers. 
