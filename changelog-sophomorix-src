@@ -266,11 +266,6 @@ sophomorix-vampire:
    * backup /etc to /etc/sophomorix-vampire
    * backup old login scripts
 
-   * move mail
-     .forward wird vom smpt-server ausgewertet (sendmail,postfix) und sollte 
-     auch auf ml3 tun
-     (.forward auswerten in sieve einrichten. /var/lib/cyrus/Mail ...)
-
      neuer server mit laufendem cyrus-server, dann aus /var/spool/mail/user
      mit cyrdeliver zuschicken
 
@@ -278,19 +273,8 @@ sophomorix-vampire:
 
      von cyrus auf cyrus: imapsync
 
-
-   - move shares
-   - option for k necessary?
-
    - generate a log file what went wrong
 
-   - detect if a non-teacher user has a webmin-login (write to log-file)
-
-   - read passwords from /etc/shadow and /etc/smbpasswd
-     - push them into the new accounts
-       password-encrypting
-       suse:   ?
-       debian: md5
 
    - strategie for rembo:
 
@@ -314,7 +298,6 @@ sophomorix-vampire:
      /etc/myshn ist link
 
     Projektgruppen nach Anleitung T.Schnitt übernehmen
-
 
 
    

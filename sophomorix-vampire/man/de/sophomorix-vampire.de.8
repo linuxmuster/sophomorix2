@@ -21,30 +21,42 @@ sophomorix-vampire \- Migration eines Servers auf neue Hardware und neue Softwar
 .B sophomorix-vampire
 .RI [ options ]
 .br
-.SH WELCHE DATEN WERDEN ÜBERNOMMEN?
+.SH WELCHE DATEN KÖNNEN ÜBERNOMMEN WERDEN?
 .TP
 .B Loginnamen:
 .br
-Jeder Benutzer behält seinen Loginnamen/Benutzername
+Jeder Lehrer und Schüler behält seinen Loginnamen/Benutzernamen.
 .TP
 .B Private Userdaten:
 .br
-Linux-Daten im Homeverzeichnis werden nach old-data/linux
+Linux-Daten im Homeverzeichnis werden nach $HOME/old_data/linux
 kopiert. 
 .br
-Windows-Daten werden nach old_data/windows kopiert.
+Windows-Daten werden nach $HOME/old_data/windows kopiert.
 .TP
 .B Email im mbox-Format:
 .br
-Die Mailbox liegt im Homeverzeichnis werden in old-data/mail/loginname
+Die Mailbox liegt nach der Migration in $HOME/old-data/mail/loginname
 .br
-Windows-Daten werden nach old_data/windows kopiert.
+Windows-Daten werden nach $HOME/old_data/windows kopiert.
+.br
+Todo: Mail in den IMAP-Server kopieren.
 .TP
 .B Klassennamen:
 .br
-Achtung: aus k7a wird 7a.
+Achtung: Beim update von 2.x auf 3.x wird aus k7a die Klasse 7a.
+.TP
+.B Todo: Rembo/myshn 
+.br
+Achtung: Beim update von 2.x auf 3.x wird aus k7a die Klasse 7a.
 .br
 .SH WELCHE DATEN WERDEN NICHT ÜBERNOMMEN?
+.TP
+.B User, die nicht mehr in schueler.txt bzw. lehrer.txt sind. 
+.br
+Also user, die toleriert oder deaktiviert sind. Damit werden auch
+deren Daten NICHT übernommen.
+.TP
 .B Veränderte Passwörter:
 .br 
 Jeder Benutzer bekommt wieder sein Erstpasswort (so wie auf den
@@ -53,46 +65,59 @@ Anmeldungskärtchen ausgedruckt). Veränderte Passwörter werden NICHT
 .br
 .SH DESCRIPTION
 .B sophomorix-vampire  
-wird auf einem neuen Server gestartet und holt dann Benutzer und und Daten eines alten Servers. 
+wird auf einem neuen Server gestartet und holt dann Benutzer und und
+Daten eines alten Servers.
+.br
+
 .TP
-.B Step 1:
-.TP
-.B (--key) Erzeugen eins ssh-keys und ablegen auf dem alten Server.
+.B Step 1: --key --server 10.1.x.y
+.br
+Erzeugen eins passwortlosen ssh-keys und ablegen auf dem alten Server mit der IP 10.1.x.y. Oligatorisch, wenn von einem anderen Rechner migriert wird.
 .TP
 oder:
 .TP
-.B (--localdisk) holen der Daten von einer Wechselplatte (ToDo).
+.B Todo Step 1: --localdisk  rootdir
+.br
+Holen der Daten von einer gemounteten Wechselplatte
 .TP
-.B Step 2:
+.B Step 2: --copy-files
+.br
+Konfigurationsdateien von sophomorix und dem System holen (root/sophomorix-vampire)
 .TP
-.B (--files) Konfigurationsdateien von sophomorix und dem System holen
+.B Step 3: --copy-dirs
+.br
+Einige Verzeichnisse auf den neuen Server kopieren
 .TP
-.B Step 3:
+.B Step 4: --sync-users
+.br
+Benutzer mit gleichen Loginnamen anlegen (numerische user id kann sich ändern). 
 .TP
-.B (--sync-users) Benutzer mit gleichen Loginnamen anlegen
-Ermitteln welche User auf dem neuen system NICHT vorhanden sind, aber auf dem alten.(dachboden-user)
-
+.B Step 5. Quota anlegen (Todo)
+.br
+Leider können die Quotawerte NICHT automatisch sinnvoll übernommen
+werden. Deshalb sollte sie JETZT, bovor sie die Userdaten holen, die
+Quota auf das neue System anpassen.
 .TP
-.B Step 4:
+.B Step 6: --sync-homes
+.br
+Daten im Home der Benutzer abgleichen, user für user. Das kann dauern.
 .TP
-.B (--sync-homes) Daten im Home der Benutzer abgleichen.
+.B Step 7: --sync-workstations
+.br
+.B Todo: Workstation-accounts anlegen.
 .TP
-.B Step 5. Quota anlegen(Todo)
-.TP
-.B Step 6:
-.TP
-.B (--sync-workstations) Workstation-accounts anlegen.(ToDo)
-.TP
-.B Step 7:
-.B  Synchronisieren der Klassentausch-Verzeichnisse aller Klassen des neuen Servers (ToDo)
+.B Step 8: --sync-shares
+.br
+.B  Synchronisieren der Klassentausch-Verzeichnisse aller Klassen des neuen Servers
 .TP 
 .TP
-.B Step 8:
-.TP
-.B Synchronisieren sonstiger Verzeichnisse(ToDo)
+.B Step 9:
+.br
+.B Todo: Synchronisieren sonstiger Verzeichnisse
    (--rembo) rembo images synchronisieren
    (--mlscripten) 
    (--myshn)
+   (--sync-network-shares)
 .TP 
 .PP
 .SH OPTIONS
@@ -109,57 +134,11 @@ Sagt, was das Programm gerade macht (verbose)
 .B -vv, --verbose --verbose
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
-.B -i, --info
-Sagt für welche User Passwörter verändert werden würden.
-.TP
 .B --server ip, --server name
 gibt an von welchem Server die Daten geholt werden sollen. Wenn die Namensauflösung funktioniert kann auch der name des servers benutzt werden.
 .TP
 .B --clear
 löscht das Verzeichnis /root/sophomorix-vampire in dem Konfigurationsdateien des alten Servers liegen.
-.TP
-.B Optionen, die angeben, wie das Passwort lauten soll:
-.TP
-Wenn keine dieser Option angegeben wird, dann werden die Einstellungen aus sophomorix.conf verwendet.
-.TP
-.B -p geheim, --password geheim
-setzt das Passwort auf den Wert geheim. 
-.TP
-.B --common
-erzeugt nach den Angaben in sophomorix.conf jeweils ein Passwort für Lehrer und eines für Schüler . Alle Lehrer bzw. Schüler bekommen dasselbe Passwort. 
-.TP
-Wird eine Längenangabe mit --plength num gemacht, dann wird ein Zufallspasswort generiert.
-.TP
-.B --reset
-setzt das Passwort auf den Wert, der beim ersten Anlegen des Users gültig war. Dieser Wert wird aus der sophomorix Datenbank geholt. 
-.TP
-.B --random
-setzt das Passwort bei Lehrern und Schülern auf einen neuen, individuellen Zufallswert. Jeder User bekommt ein eigenes Zufallspasswort. Die Länge richtet sich nach den Angaben in sophomorix.conf. 
-.TP
-.B --plength num
-Setzt die Länge der Zufalls-Passwörter auf den Wert num. Die Länge richtet sich somit nicht mehr nach den Angaben in sophomorix.conf.  
-.TP
-.B Optionen die angeben von welchen Usern Daten synchronisiert werden sollen
-.TP
-Die Auswahl erfolgt anhäufend. Das bedeutet, dass durch Angabe mehrerer Optionen eine Userliste erzeugt wird, in der kein User doppelt vorkommt, aber jeder enthalten ist.
-.TP
-.B -l name1,name2, ... , --login name1, ... -u name1, ... , --user name1, ... 
-setzt das Passwort der  User name1,name2, ... . Der user kann auch eine Workstation sein.
-.TP
-.B -c class1,class2, ... , --class class1,class2, ...
-setzt das Passwort für jeden User in der Klasse class. Class kann auch die Gruppe der Lehrer sein (lehrer im Moment).
-.TP
-.B -p project1,project2, ... , --project project1,project2, ...
-setzt das Passwort für jeden User im Project project1,.... 
-.TP
-.B --pupils 
-setzt das Passwort für alle Schüler der Schule.
-.TP
-.B -r raum1,raum2, ... , --room raum1,raum2,...
-setzt das Passwort für jede Workstation im raum raum1,raum2 ...
-.TP
-.B  --workstations 
-setzt das Passwort für alle Workstations der Schule.
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
