@@ -183,6 +183,8 @@ sophomorix-passwd
    - generate login-cards with changed passwords automatically
      (passwd_change.pdf)
    - make this an option to sophomorix-user
+   - make shell changeable (-> bin/bash)
+     and modify /etc/security/access.conf
 
 
 sophomorix-print
@@ -1462,12 +1464,18 @@ Group import einträge werden mit 20 nicht gemacht
 mail an aike und hoth wegen tickets
 
 
+#130: close it when passwords work
   
 add share of teachers to be synced as well
 
 ================== CHANGELOG ========================================
 
-1.9.7-1 (2007-01-xx)
+1.9.8-1 (2007-02-xx)
+
+
+1.9.7-1 (2007-01-25)
+  - fixed Bug #130 password crypted with CRYPT
+  - comment added in sophomorix.conf : /bin/bash and /bin/false
   - sophomorix-vampire:
     added option --sync-shares to sync all shares
     (or a list with --class class1,class2,...)
