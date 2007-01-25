@@ -35,6 +35,9 @@ moduleload	back_sql
 moduleload	back_bdb
 moduleload	pcache
 
+# use passwords encrypted with crypt
+password-hash {CRYPT}
+
 #######################################################################
 # Specific Backend Directives for bdb:
 # Backend specific directives apply to this backend until another
