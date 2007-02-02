@@ -34,6 +34,7 @@ my $sync_user=0;
 my $sync_homes=0;
 my $sync_dirs=0;
 my $sync_shares=0;
+my $mlscripts=0;
 my $key=0;
 
 my $loginname="";
@@ -45,6 +46,7 @@ my $ws=0;
 my $force=0;
 my @userlist=();
 my $dir_old_files="/root/sophomorix-vampire/";
+my $old_ws_file=$dir_old_files."wimport_data";
 
 my $old_version="2.x";
 
@@ -58,6 +60,7 @@ my $testopt=GetOptions(
            "sync-homes" => \$sync_homes,
            "sync-dirs" => \$sync_dirs,
            "sync-shares" => \$sync_shares,
+           "mlscripts" => \$mlscripts,
            "key" => \$key,
            "files" => \$fetch_files,
            "user|u=s" => \$loginname,
@@ -477,9 +480,62 @@ if ($sync_dirs==1){
 
 
 
+if ($mlscripts==1){
+    print "* Step 9:  mlscripts stuff (rembo interface)\n";
+  
+    my @hw=&fetch_hw_classes();
+    foreach my $hwc (@hw){
+        print "Working on Hardware class $hwc \n";
+    }
+
+} else {
+    print "* Step 9:  --sync-dirs\n",
+          "   I assume you have done mlscripts stuff already\n";
+}
+
+
+
+
+
+
 ############################################################
 # sub
 ############################################################
+sub fetch_hw_classes {
+    my @hw_classes=();
+    my %hw_classes=();
+   open (WORKSTATIONS,"<$old_ws_file");
+   while (<WORKSTATIONS>){
+      chomp();
+      if (m/^\#/){
+          next;
+      }
+
+      my ($room,$host,$hwk,$mac,$ip,$netmask,
+          $part1,$part2,$part3,$part4,$pxe,$type) = split(/;/);
+      if (not defined $host){
+         next;
+      }
+      if ($pxe eq "0"){
+         next;
+      }
+      # add to hash if not there already
+      if (not exists $hw_classes{$hwk}){
+          #print "added $hwk\n";
+          $hw_classes{$hwk}="dummy";
+      }
+   }
+   close (WORKSTATIONS);
+
+   while(my ($key, $value) = each(%hw_classes)) {
+      # do something with $key and $value
+      #print "$key    $value \n";
+      push @hw_classes, $key;
+   }
+   @hw_classes = sort @hw_classes;
+   return @hw_classes;
+}
+
 
 sub rsync_dirs {
     my @dirlist = @_;
