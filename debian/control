@@ -35,8 +35,8 @@ Description: postgresql database with ldap access for sophomorix
 
 Package: sophomorix-vampire
 Architecture: all
-Depends: sophomorix2 (>=1.9.7-1), rsync (>=2.6.3), ssh (>=3.8.1)
-Description: script to such data to a new server
+Depends: sophomorix2 (>=1.9.7-1), rsync (>=2.6.3), ssh (>=3.8.1), mailsync
+Description: script to migrate data from an old server to a new server
  This script is run on a new sophomorix server. It pushes a ssh-key to an 
  old sophomorix-server, fetches its users and data. Perfect for big step 
  updates or moving to new hardware. Perhaps also a way to mirror a server
