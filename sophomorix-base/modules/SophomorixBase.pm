@@ -1429,7 +1429,11 @@ sub lehrer_ordnen {
         print LEHRERTMP ("$_\n");
         # next teacher
         next;
-      } 
+     } else {
+        # downcase loginnames
+          $wunsch_login=~tr/A-Z/a-z/;
+
+     }
 
       # identifier erzeugen
       $identifier=join("",
