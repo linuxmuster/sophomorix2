@@ -676,8 +676,6 @@ lehrer.txt zusatzfeld 'comment' (Platz in Datenbank suchen)
          add tests to sophomorix-test (check groups, check_provided_files)
 
            
-   - strichpunkt an schueler.txt intelligent anhängen
-     (bisher in sophomorix.conf)
 
    - smbldap-usershow entspricht in etwa sophomorix-user
    - crypt zu md5 (Passwort-decription)
@@ -1391,7 +1389,6 @@ sophomorix-vampire
    move away /etc/linuxmuster/workstations
 
 
-3 or 4 semikolon automagically
 
 add option
 sophomorix-mail --create-mailbox to add mailbox without unix account 
@@ -1427,35 +1424,14 @@ Bugfix: als usertoken wird 'kurz' hochgeladen.
         ins system kopiert wird muss ;kurz; zu ;usertoken;
 
 
-Bugfix # 129: in lehrer.txt steht als login IMMER kleinbuchstaben, auch 
-wenn großbuchstaben.
- 
 
 nagios
 https://servername/nagios2/
 
 
+AuthDomain admin -> AuthDomain rembo ???
 
 
-mlscripts
-
-eigenes import workstations schreiben
-
-Pfad: /usr/sbin/mlscripts-wsimport
-
-eigenes template für rembo.conf
-
-
-dann nach dem meilick script ausfüren,
-
-
-
-
-template nehmen, obiges anfügen
-wimport data auslesen und rembo neu starten
-
-
-wimport_data -> /etc/linuxmuster/workstations
 
 ;20 -> 22  ??? myadmin schreibt mit 20 keine rembo.conf 
 Group import einträge werden mit 20 nicht gemacht
@@ -1471,6 +1447,14 @@ add share of teachers to be synced as well
 ================== CHANGELOG ========================================
 
 1.9.8-1 (2007-02-xx)
+  ANNOUNCE:
+  - remove option $drei_strichpunkt compltely
+
+
+  - Bugfix #129 downcase loginnames in lehrer.txt
+  - doing some de -> en in sophomorix-check
+  - add a semicolon intelligently 
+    (without using value in sophomorix.conf)
   - added support for copying remboinit.rbc's (option --mlscripts)
   - changed apt description of sophomorix-vampire
 
