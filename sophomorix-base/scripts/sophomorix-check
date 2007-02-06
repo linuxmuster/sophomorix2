@@ -2715,7 +2715,7 @@ sub generate_admin_report {
                        "----------------------------------------\n";
     while (($klass,$sch_zahl) = each %klasse_schueleranzahl){
         if ($klass eq ${DevelConf::teacher}){
-            # dont show class teacher
+            # dont show class teacher because its not a doubt
 	    next;
         }
         if ($sch_zahl<=$Conf::mindest_schueler_anzahl_pro_klasse){
