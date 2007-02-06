@@ -35,6 +35,7 @@ my $sync_user=0;
 my $sync_homes=0;
 my $sync_dirs=0;
 my $sync_shares=0;
+my $configure_quota=0;
 my $mlscripts=0;
 my $key=0;
 
@@ -58,6 +59,7 @@ my $testopt=GetOptions(
            "clear" => \$clear,
            "server=s" => \$server,
            "sync-users" => \$sync_user,
+           "configure-quota" => \$configure_quota,
            "sync-homes" => \$sync_homes,
            "sync-dirs" => \$sync_dirs,
            "sync-shares" => \$sync_shares,
@@ -271,13 +273,13 @@ if ($install_files==1){
     # open infile and out file
     open (IN, "<${dir_old_files}/wimport_data");
     open (OUT, ">/etc/linuxmuster/wimport_data_patched");
-    my $patched="";
+    my $patched_ws="";
     while (<IN>){
         chomp();
 
         if(/^\#/ 
            or $_ eq ""){
-            $patched=$_;
+            $patched_ws=$_;
         } else {
             my ($room,$host,$hwk,$mac,$ip,$netmask,
                 $part1,$part2,$part3,$part4,$pxe,$type)= split(/;/);
@@ -290,12 +292,12 @@ if ($install_files==1){
                 $pxe="22";
             }
 
-            $patched = $room.";".$host.";".$hwk.";".$mac.";".$ip.";".$netmask.";".
+            $patched_ws = $room.";".$host.";".$hwk.";".$mac.";".$ip.";".$netmask.";".
 		$part1.";".$part2.";".$part3.";".$part4.";".$pxe.";".$type.";";
 
         }
-        print $patched."\n";
-	print OUT $patched."\n";
+        print $patched_ws."\n";
+	print OUT $patched_ws."\n";
     }
     close(IN);
     close(OUT);
@@ -350,8 +352,49 @@ if ($sync_user==1){
 
 
 ############################################################
-# Step 6: add the users
+# Step 6: care about quota
 ############################################################
+if ($configure_quota==1){
+    print "* Step 6:  configure quota\n";
+    # teacher.txt
+    open (IN, "<${dir_old_files}/lehrer.txt");
+    open (OUT, ">${DevelConf::users_pfad}/lehrer.txt");
+    my $patched_lq="";
+    while (<IN>){
+        chomp();
+        if(/^\#/){
+            $patched_lq=$_;
+        } else {
+            my ($group,$last,$first,$birth,
+                $login,$pass,$usertoken,$quota,$mailquota)= split(/;/);
+
+            # remove whitespace
+            $quota=~s/ //g;
+
+            if ($quota=~/quota/){
+               # do nthing
+            } else {
+               ($quota,$mailquota)=&configure_quota($quota,$mailquota); 
+            }    
+
+            $patched_lq = $group.";".$last.";".$first.";".$birth.";".
+                       $login.";".$pass.";".$usertoken.";".$quota.";".$mailquota.";";
+
+        }
+        #print $patched_lq."\n";
+	print OUT $patched_lq."\n";
+    }
+    close(IN);
+    close(OUT);
+
+
+
+   
+
+   
+}
+
+
 
 
 ############################################################
@@ -613,6 +656,77 @@ if ($mlscripts==1){
 ############################################################
 # sub
 ############################################################
+sub configure_quota {
+    my ($old_quota,$old_mailquota) = @_;
+    print "OLD: ---$old_quota---\n";
+    print "OLDMAIL: ---$old_mailquota---\n";
+
+
+    my @old_quota=split(/\+/,$old_quota);
+    my @new_quota=();
+    my $new_mailquota="mailquota";
+
+    my %new_quota_teacher=();
+    my %new_quota_classes=();
+    my %quota_map=();
+    
+    my $mailquota_map=-1;  
+    my $new_mailquota_teacher=-1;
+    my $new_mailquota_classes=-1;
+
+
+# configure start
+
+    # map old to new quota
+    $quota_map{0}=1;
+    $quota_map{1}=0;
+    # set new quota
+    $new_quota_teacher{2}=2022;
+    $new_quota_teacher{3}=2033;
+
+    $new_quota_classes{3}=1033;
+
+    # mailquota
+    # quota value to use for mailquota
+    $mailquota_map=1;
+    # set new_mailquota for teachers
+    $new_mailquota_teacher=-1;
+    $new_mailquota_classes=-1;
+
+
+# configure end
+
+    # process quota map
+    while(my ($new, $old) = each(%quota_map)) {
+        $new_quota[$new]=$old_quota[$old];
+    }
+
+    # process new quota
+    while(my ($new, $value) = each(%new_quota_teacher)) {
+        $new_quota[$new]=$value;
+    }
+
+    my $new_quota=join("+",@new_quota);
+
+    # process mailquota map
+    if ($mailquota_map!=-1){
+        $new_mailquota=$old_quota[$mailquota_map];
+    }
+    if ($new_mailquota_teacher!=-1){
+        $new_mailquota=$new_mailquota_teacher;
+    }
+
+
+    # process new mailquota 
+
+
+    print "NEW: ---$new_quota---\n";
+    print "NEWMAIL: ---$new_mailquota---\n";
+
+    return ($new_quota,$new_mailquota);
+}
+
+
 sub fetch_hw_classes {
     my @hw_classes=();
     my %hw_classes=();
