@@ -1410,6 +1410,7 @@ sophomorix-vampire:
        pop2imap ?
        offlineimap (debian-Paket)
        mb2md (debian-Paket) mailbox -> maildir
+       mailsync
 
        /usr/local/samba/cds
                         progs
@@ -1433,16 +1434,19 @@ AuthDomain admin -> AuthDomain rembo ???
 
 
 
-;20 -> 22  ??? myadmin schreibt mit 20 keine rembo.conf 
-Group import einträge werden mit 20 nicht gemacht
-
-
 mail an aike und hoth wegen tickets
 
 
+#129: close it
 #130: close it when passwords work
   
 add share of teachers to be synced as well
+
+
+sophomorix-vampire --mlscripts: 
+   sync known hosts must be checked
+
+
 
 ================== CHANGELOG ========================================
 
@@ -1451,6 +1455,8 @@ add share of teachers to be synced as well
   - remove option $drei_strichpunkt compltely
 
 
+  - added syncing of mac files to sophomorix-vampire --mlscripts
+    untested
   - Bugfix #129 downcase loginnames in lehrer.txt
   - doing some de -> en in sophomorix-check
   - add a semicolon intelligently 
