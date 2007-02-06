@@ -89,38 +89,42 @@ oder:
 .br
 Holen der Daten von einer gemounteten Wechselplatte
 .TP
-.B Step 2: --copy-files
+.B Step 2: --fetch-files
 .br
-Konfigurationsdateien von sophomorix und dem System holen (root/sophomorix-vampire)
+Konfigurationsdateien vom alten Server holen (nach root/sophomorix-vampire)
 .TP
-.B Step 3: --copy-dirs
+.B Step 3: --install-files
+.br
+Konfigurationsdateien von sophomorix patchen und ins neue System kopieren
+.TP
+.B Step 4: --sync-dirs
 .br
 Einige Verzeichnisse auf den neuen Server kopieren
 .TP
-.B Step 4: --sync-users
+.B Step 5: --sync-users
 .br
 Benutzer mit gleichen Loginnamen anlegen (numerische user id kann sich ändern). 
 .TP
-.B Step 5. Quota anlegen (Todo)
+.B Step 6. Quota anpassen (Todo)
 .br
 Leider können die Quotawerte NICHT automatisch sinnvoll übernommen
 werden. Deshalb sollte sie JETZT, bovor sie die Userdaten holen, die
 Quota auf das neue System anpassen.
 .TP
-.B Step 6: --sync-homes
+.B Step 7: --sync-homes
 .br
 Daten im Home der Benutzer abgleichen, user für user. Das kann dauern.
 .TP
-.B Step 7: --sync-workstations
+.B Step 8: --sync-workstations
 .br
 .B Todo: Workstation-accounts anlegen.
 .TP
-.B Step 8: --sync-shares
+.B Step 9: --sync-shares
 .br
 .B  Synchronisieren der Klassentausch-Verzeichnisse aller Klassen des neuen Servers
 .TP 
 .TP
-.B Step 9:
+.B Step 10:
 .br
 .B Todo: Synchronisieren sonstiger Verzeichnisse
    (--rembo) rembo images synchronisieren
