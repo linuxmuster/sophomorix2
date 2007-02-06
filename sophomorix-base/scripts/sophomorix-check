@@ -2284,8 +2284,12 @@ sub update_db_pushdata {
        if ($schueler_ok_usertoken{$identifier} ne 
            $identifier_sys_usertoken{$identifier}){
            if ($schueler_ok_usertoken{$identifier} ne "usertoken"){
-               print "  Uploading Usertoken $schueler_ok_usertoken{$identifier} ",
-                     "to user $login \n";
+               if ($schueler_ok_usertoken{$identifier} eq ""){
+                   print "  Uploading empty Usertoken to user $login \n";
+	       } else {
+                   print "  Uploading Usertoken $schueler_ok_usertoken{$identifier} ",
+                         "to user $login \n";
+               }
            &update_user_db_entry($login,
              "Usertoken=$schueler_ok_usertoken{$identifier}");
            }
