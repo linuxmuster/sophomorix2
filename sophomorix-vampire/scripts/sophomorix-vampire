@@ -484,6 +484,17 @@ if ($sync_dirs==1){
 
 if ($mlscripts==1){
     print "* Step 9:  mlscripts stuff (rembo interface)\n";
+
+    # copying mac files
+    my $old_hosts="/usr/local/rembo/files/global/hosts";
+    my $new_hosts="/var/lib/rembo/files/global/hosts";
+    my $rsync_command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av --exclude .* root\@${server}:$old_hosts $new_hosts";
+
+    print "$rsync_command\n";
+#    system("$rsync_command");
+
+
+    # copying remboinit.rbc
     my $old_ml_dir="/usr/local/rembo/files/global/groups";  
     my $new_ml_tmp_dir=$dir_old_files."mlscripts";  
     my $new_ml_dir="/var/lib/rembo/files/global/groups";  
