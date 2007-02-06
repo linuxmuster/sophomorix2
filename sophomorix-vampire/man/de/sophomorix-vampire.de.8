@@ -105,26 +105,31 @@ Einige Verzeichnisse auf den neuen Server kopieren
 .br
 Benutzer mit gleichen Loginnamen anlegen (numerische user id kann sich ändern). 
 .TP
-.B Step 6. Quota anpassen (Todo)
+.B Step 6: --configure-quota 
 .br
-Leider können die Quotawerte NICHT automatisch sinnvoll übernommen
-werden. Deshalb sollte sie JETZT, bovor sie die Userdaten holen, die
-Quota auf das neue System anpassen.
+Quota konfigurieren. 
+.br
+Bearbeiten sie dazu die Datei /root/sophomorix-vampire-config/quota.config
 .TP
-.B Step 7: --sync-homes
+.B Step 7: --update-quota 
+.br Quota im system anpassen
+.br
+Bearbeiten sie dazu die Datei ...
+.TP
+.B Step 8: --sync-homes
 .br
 Daten im Home der Benutzer abgleichen, user für user. Das kann dauern.
 .TP
-.B Step 8: --sync-workstations
+.B Step 9: --sync-workstations
 .br
 .B Todo: Workstation-accounts anlegen.
 .TP
-.B Step 9: --sync-shares
+.B Step 10: --sync-shares
 .br
 .B  Synchronisieren der Klassentausch-Verzeichnisse aller Klassen des neuen Servers
 .TP 
 .TP
-.B Step 10:
+.B Step 11:
 .br
 .B Todo: Synchronisieren sonstiger Verzeichnisse
    (--rembo) rembo images synchronisieren
