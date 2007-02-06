@@ -2714,6 +2714,10 @@ sub generate_admin_report {
     print REPORTADMIN  "----------------------------------------",
                        "----------------------------------------\n";
     while (($klass,$sch_zahl) = each %klasse_schueleranzahl){
+        if ($klass eq ${DevelConf::teacher}){
+            # dont show class teacher
+	    next;
+        }
         if ($sch_zahl<=$Conf::mindest_schueler_anzahl_pro_klasse){
 	    print  REPORTADMIN "Klassenstärke ",
                                $Conf::mindest_schueler_anzahl_pro_klasse,
