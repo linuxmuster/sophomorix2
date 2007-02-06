@@ -73,6 +73,15 @@ Daten eines alten Servers.
 .B Step 1: --key --server 10.1.x.y
 .br
 Erzeugen eins passwortlosen ssh-keys und ablegen auf dem alten Server mit der IP 10.1.x.y. Oligatorisch, wenn von einem anderen Rechner migriert wird.
+.br
+Um den ssh-key auf dem alten Server ablegen zu können, muss dort ein
+ssh login als root möglich sein. Falls sie das rootlogin abgeschaltet
+haben, sollten sie es in /etc/ssh/sshd_config mit
+
+PermitRootLogin yes
+
+für die Migration wieder einschalten.
+ 
 .TP
 oder:
 .TP
