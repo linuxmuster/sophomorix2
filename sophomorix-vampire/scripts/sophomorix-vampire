@@ -36,6 +36,7 @@ my $sync_homes=0;
 my $sync_dirs=0;
 my $sync_shares=0;
 my $configure_quota=0;
+my $update_quota=0;
 my $mlscripts=0;
 my $key=0;
 
@@ -48,6 +49,7 @@ my $ws=0;
 my $force=0;
 my @userlist=();
 my $dir_old_files="/root/sophomorix-vampire/";
+my $dir_config_files="/root/sophomorix-vampire-config/";
 my $old_ws_file=$dir_old_files."wimport_data";
 
 my $old_version="2.x";
@@ -60,6 +62,7 @@ my $testopt=GetOptions(
            "server=s" => \$server,
            "sync-users" => \$sync_user,
            "configure-quota" => \$configure_quota,
+           "update-quota" => \$update_quota,
            "sync-homes" => \$sync_homes,
            "sync-dirs" => \$sync_dirs,
            "sync-shares" => \$sync_shares,
@@ -189,6 +192,8 @@ if ($key==1) {
 # Step 2: fetch some files
 ############################################################
 
+system("mkdir -p $dir_config_files");
+
 if ($clear==1) {
     print "Fetching configuration data once again.\n";
     system("rm -rf $dir_old_files");
@@ -311,7 +316,7 @@ if ($install_files==1){
 
 
 ############################################################
-# Step 4: copy some dirs
+# Step 4: sync some dirs
 ############################################################
 
 
@@ -330,7 +335,7 @@ if ($sync_dirs==1){
 # Step 5: sync the users
 ############################################################
 if ($sync_user==1){
-   print "* Step 3:  synchronizing users\n";
+   print "* Step 5:  synchronizing users\n";
    system("sophomorix-check --no-auto-teach-in --get-info-from-old-files ${dir_old_files}");
    if ($classes ne ""){
        my $command="sophomorix-add -c $classes";
@@ -352,11 +357,42 @@ if ($sync_user==1){
 
 
 ############################################################
-# Step 6: care about quota
+# Step 6: configure quota
 ############################################################
+    my %quota_map=();
+    my %new_quota_teacher=();
+    my %new_quota_classes=();
+
+    my $mailquota_map=-1;  
+    my $new_mailquota_teacher=-1;
+    my $new_mailquota_classes=-1;
+
+
+
 if ($configure_quota==1){
     print "* Step 6:  configure quota\n";
+
+# configure start
+    # map old to new quota
+    $quota_map{0}=1;
+    #$quota_map{1}=0;
+    # set new quota
+    $new_quota_teacher{1}=101;
+    #$new_quota_teacher{3}=2033;
+
+    $new_quota_classes{1}=150;
+
+    # mailquota
+    # quota value to use for mailquota
+    $mailquota_map=0;
+    # set new_mailquota for teachers
+    $new_mailquota_teacher=-1;
+    $new_mailquota_classes=8;
+# configure end
+
+
     # teacher.txt
+    print "   * copying/patching lehrer.txt\n";
     open (IN, "<${dir_old_files}/lehrer.txt");
     open (OUT, ">${DevelConf::users_pfad}/lehrer.txt");
     my $patched_lq="";
@@ -374,34 +410,65 @@ if ($configure_quota==1){
             if ($quota=~/quota/){
                # do nthing
             } else {
-               ($quota,$mailquota)=&configure_quota($quota,$mailquota); 
+               ($quota,$mailquota)=&configure_quota($quota,$mailquota,"teacher"); 
             }    
 
             $patched_lq = $group.";".$last.";".$first.";".$birth.";".
                        $login.";".$pass.";".$usertoken.";".$quota.";".$mailquota.";";
-
         }
-        #print $patched_lq."\n";
 	print OUT $patched_lq."\n";
     }
     close(IN);
     close(OUT);
 
+    # info from class_db (schulinfo.txt)
+    my $class_command="";
+    print "   * scheduling the following commands:\n";
+    open (CLASS, "<${dir_old_files}/class_db");
+    open (COMMANDS, ">${dir_config_files}/quota.commands");
+    while (<CLASS>){
+        chomp();
+        if(/^\#/){
+            next;
+        } else {
+            my $mailquota="";
+            my ($class,$abt,$type,$m,$quota)= split(/;/);
+
+            # remove whitespace
+            $quota=~s/ //g;
+
+            if ($quota=~/quota/){
+               # do nothing
+            } else {
+               ($quota,$mailquota)=&configure_quota($quota,$mailquota,"classes"); 
+               $class_command="sophomorix-class --class $class --quota $quota --mailquota $mailquota";
+               print "     * $class_command\n";
+               print COMMANDS "$class_command\n";
+            }    
+        }
+    }
+    close(CLASS);
+    close(COMMANDS);
+}
 
 
-   
-
-   
+############################################################
+# Step 7: update quota
+############################################################
+if ($update_quota==1){
+    print "* Step 7:  update quota in the system\n";
+    system("sophomorix-check");
+    system("source ${dir_config_files}/quota.commands");
+    system("sophomorix-quota");
 }
 
 
 
-
 ############################################################
-# Step 7: synchronize the user homes
+# Step 8: synchronize the user homes
 ############################################################
 if ($sync_homes==1){
-   print "* Step 4:  synchronizing user homes\n";
+   print "* Step 8:  synchronizing user homes\n";
    &print_list_column(6,"Userlist for synchronising \$HOME",@userlist);
    # do this for all users
    foreach my $user (@userlist){
@@ -505,7 +572,7 @@ if ($sync_homes==1){
 
 
 ############################################################
-# Step 8: sync/add the workstations
+# Step 9: sync/add the workstations
 ############################################################
 
 # copy the wimport_data to the new location
@@ -517,7 +584,7 @@ if ($sync_homes==1){
 
 
 ############################################################
-# Step 9: synchronize the shares
+# Step 10: synchronize the shares
 ############################################################
 if ($sync_shares==1){
     my @classes=();
@@ -557,7 +624,7 @@ if ($sync_shares==1){
         $new_group_old_id{$group}="$old_id"; 
     }
 
-    print "* Step 6:  synchronizing the shares\n";
+    print "* Step 10:  synchronizing the shares\n";
     #my $group="m3kb2t";
     # do this for all groups
     foreach my $group (@classes){
@@ -599,7 +666,7 @@ if ($sync_shares==1){
 
 
 if ($mlscripts==1){
-    print "* Step 9:  mlscripts stuff (rembo interface)\n";
+    print "* Step 11:  mlscripts stuff (rembo interface)\n";
 
     # copying mac files
     my $old_hosts="/usr/local/rembo/files/global/hosts";
@@ -657,44 +724,16 @@ if ($mlscripts==1){
 # sub
 ############################################################
 sub configure_quota {
-    my ($old_quota,$old_mailquota) = @_;
-    print "OLD: ---$old_quota---\n";
-    print "OLDMAIL: ---$old_mailquota---\n";
+    my ($old_quota,$old_mailquota,$type) = @_;
+    #print "OLD: ---$old_quota---\n";
+    #print "OLDMAIL: ---$old_mailquota---\n";
 
 
     my @old_quota=split(/\+/,$old_quota);
     my @new_quota=();
     my $new_mailquota="mailquota";
 
-    my %new_quota_teacher=();
-    my %new_quota_classes=();
-    my %quota_map=();
     
-    my $mailquota_map=-1;  
-    my $new_mailquota_teacher=-1;
-    my $new_mailquota_classes=-1;
-
-
-# configure start
-
-    # map old to new quota
-    $quota_map{0}=1;
-    $quota_map{1}=0;
-    # set new quota
-    $new_quota_teacher{2}=2022;
-    $new_quota_teacher{3}=2033;
-
-    $new_quota_classes{3}=1033;
-
-    # mailquota
-    # quota value to use for mailquota
-    $mailquota_map=1;
-    # set new_mailquota for teachers
-    $new_mailquota_teacher=-1;
-    $new_mailquota_classes=-1;
-
-
-# configure end
 
     # process quota map
     while(my ($new, $old) = each(%quota_map)) {
@@ -702,9 +741,16 @@ sub configure_quota {
     }
 
     # process new quota
-    while(my ($new, $value) = each(%new_quota_teacher)) {
-        $new_quota[$new]=$value;
+    if ($type eq "teacher"){
+        while(my ($new, $value) = each(%new_quota_teacher)) {
+            $new_quota[$new]=$value;
+        }
+    } elsif ($type eq "classes"){
+        while(my ($new, $value) = each(%new_quota_classes)) {
+            $new_quota[$new]=$value;
+        }
     }
+
 
     my $new_quota=join("+",@new_quota);
 
@@ -720,8 +766,8 @@ sub configure_quota {
     # process new mailquota 
 
 
-    print "NEW: ---$new_quota---\n";
-    print "NEWMAIL: ---$new_mailquota---\n";
+    #print "NEW: ---$new_quota---\n";
+    #print "NEWMAIL: ---$new_mailquota---\n";
 
     return ($new_quota,$new_mailquota);
 }
