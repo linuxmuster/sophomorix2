@@ -26,6 +26,7 @@ use DBI;
 my $server_key_location="";
 my $command="";
 my $fetch_files=0;
+my $install_files=0;
 
 my $help=0;
 my $clear=0;
@@ -62,7 +63,8 @@ my $testopt=GetOptions(
            "sync-shares" => \$sync_shares,
            "mlscripts" => \$mlscripts,
            "key" => \$key,
-           "files" => \$fetch_files,
+           "fetch-files" => \$fetch_files,
+           "install-files" => \$install_files,
            "user|u=s" => \$loginname,
            "class|c=s" => \$classes,
            "project|projects|p=s" => \$classes,
@@ -83,6 +85,10 @@ if ($help==1) {
    # Befehlsbeschreibung
    print('
 sophomorix-vampire sucks all data from an old linux-ml-server and uses it
+
+PLEASE READ THE MANPAGE FOR INFORMATION
+
+THIS IS OUTDATED
 
 Options
   -h  / --help
@@ -115,7 +121,7 @@ if ($server eq ""){
            $server=$_;
        }
        close(SERVER);
-       print "Using $server from ${DevelConf::vampire_path}/server as Server-IP\n";
+       print "* Using $server from ${DevelConf::vampire_path}/server as Server-IP\n";
     } else {
        # no IP available -> Error Message
        print "You must tell me which server I shall suck data from!\n";
@@ -128,6 +134,34 @@ if ($server eq ""){
     print SERVER $server;
     close(SERVER);
 }
+
+
+
+
+############################################################
+# Create userlist
+############################################################
+if ($loginname ne ""){
+      @userlist=($loginname);
+} else {
+   if ($force==1){
+       @userlist=&create_userlist($loginname,$classes,0,
+                                  $projects,0,$student,
+                                  $rooms,$ws,0);
+   } else {
+       # check the users
+       @userlist=&create_userlist($loginname,$classes,0,
+                                  $projects,0,$student,
+                                  $rooms,$ws,1);
+   }
+}
+
+if ($#userlist+1==0){
+     print "INFO: No valid users given\n";
+     $help=1;
+}
+
+
 
 
 
@@ -146,14 +180,11 @@ if ($key==1) {
     print "Copying public key to other server...\n";
     $command="ssh-copy-id -i ${key_dsa}.pub root\@${server}";
     system("$command");
-} else {
-    print "* Step 1:  --key \n",
-          "   I assume you have a key on $server\n";
-    # test this
 }
 
+
 ############################################################
-# Step 2: get some files
+# Step 2: fetch some files
 ############################################################
 
 if ($clear==1) {
@@ -180,29 +211,124 @@ if ($fetch_files==1){
     # rename some files
     system("mv $dir_old_files/schulinfo.txt $dir_old_files/class_db");
     system("mv $dir_old_files/user.protokoll $dir_old_files/user_db");
-} else {
-    print "* Step 2:  --files\n",
-          "   I assume you have fetched files already\n";
 }
 
 
+
 ############################################################
-# Step 3: add the users
+# Step 3: install/patch some files
+############################################################
+if ($install_files==1){
+    print "* Step 3:  install/patch configuration files from $dir_old_files\n";
+    # schueler.txt
+    print "   * copying schueler.txt\n";
+    system("cp ${dir_old_files}/schueler.txt ${DevelConf::users_pfad}/schueler.txt");
+    # lehrer.txt
+    print "   * copying/patching lehrer.txt\n";
+    # open infile and out file
+    open (IN, "<${dir_old_files}/lehrer.txt");
+    open (OUT, ">${DevelConf::users_pfad}/lehrer.txt");
+    my $patched="";
+    while (<IN>){
+        chomp();
+        if(/^\#/){
+            $patched=$_;
+        } else {
+            my ($group,$last,$first,$birth,
+                $login,$pass,$usertoken,$quota)= split(/;/);
+
+            # replace kurz with usertoken
+            if ($usertoken=~/kurz/){
+                $usertoken=~s/kurz/usertoken/;
+            }     
+
+            # set standard quota for every teacher
+            $quota="quota";
+
+            $patched = $group.";".$last.";".$first.";".$birth.";".
+                       $login.";".$pass.";".$usertoken.";".$quota.";";
+
+        }
+        #print $patched."\n";
+	print OUT $patched."\n";
+    }
+    close(IN);
+    close(OUT);
+
+    # extraschueler.txt
+    print "   * copying/patching  extraschueler.txt\n";
+    system("cp ${DevelConf::config_template_pfad}/extraschueler.txt ${DevelConf::users_pfad}/extraschueler.txt");
+    system(" echo '###\n### Lines from here are entrys from an update of $server with sophomorix-vampire\n###' >> ${DevelConf::users_pfad}/extraschueler.txt");
+    system("cat ${dir_old_files}/extraschueler.txt >> ${DevelConf::users_pfad}/extraschueler.txt");
+    # extrakurse.txt
+    print "   * copying/patching  extrakurse.txt\n";
+    system("cp ${DevelConf::config_template_pfad}/extrakurse.txt ${DevelConf::users_pfad}/extrakurse.txt");
+    system(" echo '###\n### Lines from here are entrys from an update of $server with sophomorix-vampire\n###' >> ${DevelConf::users_pfad}/extrakurse.txt");
+    system("cat ${dir_old_files}/extrakurse.txt >> ${DevelConf::users_pfad}/extrakurse.txt");
+ 
+
+    # workstations
+    # open infile and out file
+    open (IN, "<${dir_old_files}/wimport_data");
+    open (OUT, ">/etc/linuxmuster/wimport_data_patched");
+    my $patched="";
+    while (<IN>){
+        chomp();
+
+        if(/^\#/ 
+           or $_ eq ""){
+            $patched=$_;
+        } else {
+            my ($room,$host,$hwk,$mac,$ip,$netmask,
+                $part1,$part2,$part3,$part4,$pxe,$type)= split(/;/);
+
+	    if (not defined $type){
+                $type="";
+            }
+
+            if ($pxe eq "20"){
+                $pxe="22";
+            }
+
+            $patched = $room.";".$host.";".$hwk.";".$mac.";".$ip.";".$netmask.";".
+		$part1.";".$part2.";".$part3.";".$part4.";".$pxe.";".$type.";";
+
+        }
+        print $patched."\n";
+	print OUT $patched."\n";
+    }
+    close(IN);
+    close(OUT);
+
+    # pxe 20 -> 22 ?
+    # netmask anpassen
+    # ip anpassen
+
+}
+
+
+
+############################################################
+# Step 4: copy some dirs
+############################################################
+
+
+if ($sync_dirs==1){
+    my @dirs=&get_conf_lines("vampire_${old_version}_dirs");
+    #foreach my $dirline (@dirs){
+    #   print $dirline,"\n";
+    #}
+    print "* Step 4:  synchronizing other dirs\n";
+    &rsync_dirs(@dirs);
+}
+
+
+
+############################################################
+# Step 5: sync the users
 ############################################################
 if ($sync_user==1){
    print "* Step 3:  synchronizing users\n";
-   system("cp ${dir_old_files}/schueler.txt ${DevelConf::users_pfad}/schueler.txt");
-   system("cp ${dir_old_files}/lehrer.txt ${DevelConf::users_pfad}/lehrer.txt");
-   # extraschueler.txt
-   system("cp ${DevelConf::config_template_pfad}/extraschueler.txt ${DevelConf::users_pfad}/extraschueler.txt");
-   system(" echo '###\n### Lines from here are entrys from an update of $server with sophomorix-vampire\n###' >> ${DevelConf::users_pfad}/extraschueler.txt");
-   system("cat ${dir_old_files}/extraschueler.txt >> ${DevelConf::users_pfad}/extraschueler.txt");
-
-   # extrakurse.txt
-   system("cp ${DevelConf::config_template_pfad}/extrakurse.txt ${DevelConf::users_pfad}/extrakurse.txt");
-   system(" echo '###\n### Lines from here are entrys from an update of $server with sophomorix-vampire\n###' >> ${DevelConf::users_pfad}/extrakurse.txt");
-   system("cat ${dir_old_files}/extrakurse.txt >> ${DevelConf::users_pfad}/extrakurse.txt");
-
    system("sophomorix-check --no-auto-teach-in --get-info-from-old-files ${dir_old_files}");
    if ($classes ne ""){
        my $command="sophomorix-add -c $classes";
@@ -219,51 +345,17 @@ if ($sync_user==1){
        system("$command");
    }
    system("sophomorix-move");
-} else {
-    print "* Step 3:  --sync-users\n",
-          "   I assume you have synchronized users already\n";
 }
 
-# check the id of the group teacher
-# is it the same as in ml 2.2?
-
 
 
 ############################################################
-# synchronize the user data
+# Step 6: add the users
 ############################################################
-
-# create userlist with options
-#if ($loginname ne "" or $classes ne "" or $student!=0 or $rooms ne "" or $ws!=0){
-    # create the list of users
-    &titel("Creating a userlist from options ...");
-
-    if ($loginname ne ""){
-          @userlist=($loginname);
-    } else {
-       if ($force==1){
-           @userlist=&create_userlist($loginname,$classes,0,
-                                      $projects,0,$student,
-                                      $rooms,$ws,0);
-       } else {
-           # check the users
-           @userlist=&create_userlist($loginname,$classes,0,
-                                      $projects,0,$student,
-                                      $rooms,$ws,1);
-       }
-    }
-
-    if ($#userlist+1==0){
-         print "INFO: No valid users given\n";
-         $help=1;
-    }
-#}
-
-#print "@userlist \n";
 
 
 ############################################################
-# Step 4: sync homes
+# Step 7: synchronize the user homes
 ############################################################
 if ($sync_homes==1){
    print "* Step 4:  synchronizing user homes\n";
@@ -363,18 +455,14 @@ if ($sync_homes==1){
 
     # sync mail (the dir in /var/spool/mail) 
    }
-} else {
-    print "* Step 4:  --sync-homes\n",
-          "   I assume you have synchronized user homes already\n";
 }
-
 
 
 # what about horde database content?
 
 
 ############################################################
-# add the workstations
+# Step 8: sync/add the workstations
 ############################################################
 
 # copy the wimport_data to the new location
@@ -386,7 +474,7 @@ if ($sync_homes==1){
 
 
 ############################################################
-# Step 6: synchronize the shares
+# Step 9: synchronize the shares
 ############################################################
 if ($sync_shares==1){
     my @classes=();
@@ -465,21 +553,6 @@ if ($sync_shares==1){
 # rsync dirs im /etc/sophomorix/vampire/vampire_x.x_dirs
 ############################################################
 
-# reading a list of dirs to rsync from the old server
-my @dirs=&get_conf_lines("vampire_${old_version}_dirs");
-#foreach my $dirline (@dirs){
-#   print $dirline,"\n";
-#}
-
-if ($sync_dirs==1){
-    print "* Step 8:  synchronizing other dirs\n";
-    &rsync_dirs(@dirs);
-} else {
-    print "* Step 8:  --sync-dirs\n",
-          "   I assume you have synchronized other dirs already\n";
-}
-
-
 
 
 if ($mlscripts==1){
@@ -530,9 +603,6 @@ if ($mlscripts==1){
 
     }
 
-} else {
-    print "* Step 9:  --sync-dirs\n",
-          "   I assume you have done mlscripts stuff already\n";
 }
 
 
