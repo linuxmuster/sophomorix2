@@ -1048,6 +1048,10 @@ sub provide_user_files {
                   "\$www_teachers/\$lehrer",
                   "${DevelConf::www_teachers}/$login",
                   "$login");
+           &setup_verzeichnis(
+                  "\$homedir_teacher/\$lehrer/\$user_attic",
+                  "$home/${Language::user_attic}",
+                  "$login");
            if($Conf::log_level>=3){
    	       print "$htaccess_sed_command\n";
            } else {
@@ -1125,7 +1129,10 @@ sub provide_user_files {
                   "\$homedir_pupil/\$klassen/\$schueler/private_html",
                   "$home/private_html",
                   "$login");
-
+           &setup_verzeichnis(
+                  "\$homedir_pupil/\$klassen/\$schueler/\$user_attic",
+                  "$home/${Language::user_attic}",
+                  "$login");
            # add htaccess to private_html
            if($Conf::log_level>=3){
    	       print "$htaccess_sed_command\n";
