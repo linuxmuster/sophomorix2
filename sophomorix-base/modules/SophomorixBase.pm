@@ -2315,19 +2315,20 @@ sub remove_share_directory {
         # all users
         ##############################
         # einsammeln
-        my $collect_dir=$homedir."/".
-           ${Language::collect_dir}."/".$share_long_name;
-        if (-e $collect_dir){
-            if($Conf::log_level>=2){
-                print "   Removing $collect_dir if empty.\n";
-            }
-            system("rsync -a $collect_dir $attic");
-            if ($collect_dir=~/^\/home\//){
-                system("rm -rf $collect_dir");
-	    }
-            system("rmdir --ignore-fail-on-non-empty $attic/${Language::collect_dir}/$share_long_name");
-            #system("rmdir $collect_dir");
-        }
+        # is NOT removed anymore, cause no subdirs exist here 
+#        my $collect_dir=$homedir."/".
+#           ${Language::collect_dir}."/".$share_long_name;
+#        if (-e $collect_dir){
+#            if($Conf::log_level>=2){
+#                print "   Removing $collect_dir if empty.\n";
+#            }
+#            system("rsync -a $collect_dir $attic");
+#            if ($collect_dir=~/^\/home\//){
+#                system("rm -rf $collect_dir");
+#	    }
+#            system("rmdir --ignore-fail-on-non-empty $attic/${Language::collect_dir}/$share_long_name");
+#            #system("rmdir $collect_dir");
+#        }
         # austeilen
         my $handoutcopy_dir=$homedir."/".
            ${Language::handoutcopy_dir}."/".
