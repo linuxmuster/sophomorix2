@@ -2251,17 +2251,22 @@ sub remove_share_directory {
         # remove dirs in tasks and collect
         if ($account_type eq "teacher"){
             ##############################
-            # teacher
+            # teacher only
             ##############################
+            if($Conf::log_level>=2){
+                 print "   Account type is teacher.\n";
+            }
+            # bereitstellen
             my $handout_dir=$homedir."/".
-               ${Language::handout_dir}."/".${Language::handout_dir}.
-               $share_long_name;
+               ${Language::handout_dir}."/".
+               ${Language::handout_string}.$share_long_name;
             if (-e $handout_dir){
                 if($Conf::log_level>=2){
                     print "   Removing $handout_dir if empty.\n";
                 }
                 system("rmdir $handout_dir");
             }
+            # austeilen
             my $to_handoutcopy_dir=$homedir."/".
                ${Language::to_handoutcopy_dir}."/".
                ${Language::to_handoutcopy_string}.$share_long_name;
@@ -2271,6 +2276,7 @@ sub remove_share_directory {
                 }
                 system("rmdir $to_handoutcopy_dir");
             }
+            # eingesammelt
             my $collected_dir=$homedir."/".
                ${Language::collected_dir}."/".
                ${Language::collected_string}.$share_long_name;
@@ -2280,29 +2286,11 @@ sub remove_share_directory {
                 }
                 system("rmdir $collected_dir");
             }
-
-            # removing subdirs with the name of $teacher from __einsammeln
-#            my ($type,$longname)=
-#                &Sophomorix::SophomorixPgLdap::pg_get_group_type($share_name);
-#            my @groupmembers =
-#                &Sophomorix::SophomorixPgLdap::pg_get_group_members($share_name);
-#            foreach my $member (@groupmembers){
-#                print "Removing dirs from $member ($share_name)\n";
-#                my ($homedir,$account_type)=
-#                   &Sophomorix::SophomorixPgLdap::fetchdata_from_account($member);
-#                my $dir=$homedir."/".$Language::collect_dir."/".
-#                        $longname."/".$login;
-#                if (not -e $dir){
-#                    if($Conf::log_level>=2){
-#                        print "   Removing directory ${dir}\n"; 
-#	            }
-#                    system("rmdir $dir");
-#                }
-#            }     
         }
         ##############################
         # all users
         ##############################
+        # einsammeln
         my $collect_dir=$homedir."/".
            ${Language::collect_dir}."/".$share_long_name;
         if (-e $collect_dir){
@@ -2311,6 +2299,7 @@ sub remove_share_directory {
             }
             system("rmdir $collect_dir");
         }
+        # austeilen
         my $handoutcopy_dir=$homedir."/".
            ${Language::handoutcopy_dir}."/".
            ${Language::handoutcopy_string}.$share_long_name;
