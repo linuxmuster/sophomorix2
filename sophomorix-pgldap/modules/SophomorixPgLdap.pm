@@ -3620,8 +3620,6 @@ sub create_project {
        }
        if (exists $users_to_add{$user}){
           # remove user from users_to_add
-# ???? but make sure she is member by option
-#          &adduser_by_option_to_project($user,$project);
           if($Conf::log_level>=3){
              print "     User $user does not need to be added\n";
 	  }
@@ -3636,6 +3634,11 @@ sub create_project {
 	 &deleteuser_from_project($user,$project,1);
          &Sophomorix::SophomorixBase::remove_share_link($user,
                                          $project,$p_long_name);
+         # This removes the shares, if they exist
+         # (They do not all exist as students but teachers)
+         &Sophomorix::SophomorixBase::remove_share_directory($user,
+                                         $project,$p_long_name);
+
        } 
     }    
     
