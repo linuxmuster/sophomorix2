@@ -2255,6 +2255,7 @@ sub remove_share_directory {
        &Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
 
     if ($homedir ne ""){
+        my $attic=$homedir."/".${Language::user_attic};
         # remove dirs in tasks and collect
         if ($account_type eq "teacher"){
             ##############################
@@ -2271,7 +2272,13 @@ sub remove_share_directory {
                 if($Conf::log_level>=2){
                     print "   Removing $handout_dir if empty.\n";
                 }
-                system("rmdir $handout_dir");
+
+                system("rsync -a $handout_dir $attic");
+                if ($handout_dir=~/^\/home\//){
+                    system("rm -rf $handout_dir");
+	        }
+                system("rmdir --ignore-fail-on-non-empty $attic/${Language::handout_string}$share_long_name");
+                #system("rmdir $handout_dir");
             }
             # austeilen
             my $to_handoutcopy_dir=$homedir."/".
@@ -2281,7 +2288,12 @@ sub remove_share_directory {
                 if($Conf::log_level>=2){
                     print "   Removing $to_handoutcopy_dir if empty.\n";
                 }
-                system("rmdir $to_handoutcopy_dir");
+                system("rsync -a $to_handoutcopy_dir $attic");
+                if ($to_handoutcopy_dir=~/^\/home\//){
+                    system("rm -rf $to_handoutcopy_dir");
+	        }
+                system("rmdir --ignore-fail-on-non-empty $attic/${Language::to_handoutcopy_string}$share_long_name");
+                #system("rmdir $to_handoutcopy_dir");
             }
             # eingesammelt
             my $collected_dir=$homedir."/".
@@ -2291,7 +2303,12 @@ sub remove_share_directory {
                 if($Conf::log_level>=2){
                     print "   Removing $collected_dir if empty.\n";
                 }
-                system("rmdir $collected_dir");
+                system("rsync -a $collected_dir $attic");
+                if ($collected_dir=~/^\/home\//){
+                    system("rm -rf $collected_dir");
+	        }
+                system("rmdir --ignore-fail-on-non-empty $attic/${Language::collected_string}$share_long_name");
+                #system("rmdir $collected_dir");
             }
         }
         ##############################
@@ -2304,7 +2321,12 @@ sub remove_share_directory {
             if($Conf::log_level>=2){
                 print "   Removing $collect_dir if empty.\n";
             }
-            system("rmdir $collect_dir");
+            system("rsync -a $collect_dir $attic");
+            if ($collect_dir=~/^\/home\//){
+                system("rm -rf $collect_dir");
+	    }
+            system("rmdir --ignore-fail-on-non-empty $attic/${Language::collect_dir}/$share_long_name");
+            #system("rmdir $collect_dir");
         }
         # austeilen
         my $handoutcopy_dir=$homedir."/".
@@ -2314,7 +2336,12 @@ sub remove_share_directory {
             if($Conf::log_level>=2){
                 print "   Removing $handoutcopy_dir if empty.\n";
             }
-            system("rmdir $handoutcopy_dir");
+            system("rsync -a $handoutcopy_dir $attic");
+            if ($handoutcopy_dir=~/^\/home\//){
+                system("rm -rf $handoutcopy_dir");
+	    }
+            system("rmdir --ignore-fail-on-non-empty $attic/${Language::handoutcopy_string}$share_long_name");
+            #system("rmdir $handoutcopy_dir");
         }
     } else {
         print "   NOT removing directories: ",
