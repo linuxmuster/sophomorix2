@@ -257,6 +257,7 @@ install-vampire:
 	@install -d -m755 -oroot -groot $(CONF)/vampire
 	@install -oroot -groot --mode=0644 sophomorix-vampire/config/vampire*files $(CONF)/vampire
 	@install -oroot -groot --mode=0644 sophomorix-vampire/config/vampire*dirs $(CONF)/vampire
+	@install -oroot -groot --mode=0644 sophomorix-vampire/config/*.config $(CONF)/vampire
 
 #install-ldap:
 #	##### Copy the module
