@@ -274,6 +274,30 @@ if ($install_files==1){
  
 
     # workstations
+    my $second_octett;
+    my $max;
+    my $internmask_debconf=
+         &get_debconf_value("linuxmuster-base", "internmask",0);
+
+    my $internsubrange_debconf=
+         &get_debconf_value("linuxmuster-base", "internsubrange",0);
+    # process debconf data
+    if ($internsubrange_debconf ne 0){
+        # from debconf
+	($second_octett,$max)=split(/-/,$internsubrange_debconf);    
+    }
+
+    my %ip_map_second_octett=( "16" => "17",
+                               "32" => "33",
+                               "48" => "49",
+                               "65" => "65");
+
+    my $second_octett_client=$ip_map_second_octett{$second_octett};
+
+    print "      * Second Octett of server IP from debconf             : $second_octett \n";
+    print "      * Second Octett of IP for clients                     : $second_octett_client \n";
+    print "      * Internal Netmask of server from debconf             : $internmask_debconf \n";
+
     # open infile and out file
     open (IN, "<${dir_old_files}/wimport_data");
     open (OUT, ">/etc/linuxmuster/wimport_data_patched");
@@ -296,11 +320,17 @@ if ($install_files==1){
                 $pxe="22";
             }
 
+            my ($oct1,$oct2,$oct3,$oct4)=split(/\./,$ip);
+	    $oct2=$second_octett_client;
+            $ip=join(".",$oct1,$oct2,$oct3,$oct4);
+
+            $netmask=$internmask_debconf;
+
             $patched_ws = $room.";".$host.";".$hwk.";".$mac.";".$ip.";".$netmask.";".
 		$part1.";".$part2.";".$part3.";".$part4.";".$pxe.";".$type.";";
+            print $patched_ws."\n";
 
         }
-        print $patched_ws."\n";
 	print OUT $patched_ws."\n";
     }
     close(IN);
