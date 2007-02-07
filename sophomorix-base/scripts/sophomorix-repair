@@ -324,6 +324,8 @@ sub repair_directories {
        s/\$www_projects/$DevelConf::www_projects/;     
        s/\$www_teachers/$DevelConf::www_teachers/;     
        s/\$www_students/$DevelConf::www_students/;     
+       s/\$user_attic/$Language::user_attic/;     
+
        
        # print only number of command when --info
        if ($info==1){
