@@ -399,6 +399,11 @@ if ($configure_quota==1){
             my ($group,$last,$first,$birth,
                 $login,$pass,$usertoken,$quota,$mailquota)= split(/;/);
 
+            # replace kurz with usertoken
+            if ($usertoken=~/kurz/){
+                $usertoken=~s/kurz/usertoken/;
+            }     
+
             # remove whitespace
             $quota=~s/ //g;
 
@@ -420,7 +425,7 @@ if ($configure_quota==1){
     my $class_command="";
     print "   * scheduling the following commands:\n";
     open (CLASS, "<${dir_old_files}/class_db");
-    open (COMMANDS, ">${dir_config_files}/quota.commands");
+    open (COMMANDS, ">${dir_config_files}quota.commands");
     while (<CLASS>){
         chomp();
         if(/^\#/){
@@ -453,7 +458,8 @@ if ($configure_quota==1){
 if ($update_quota==1){
     print "* Step 7:  update quota in the system\n";
     system("sophomorix-check");
-    system("source ${dir_config_files}/quota.commands");
+    chmod 755, "${dir_config_files}quota.commands";
+    system("${dir_config_files}quota.commands");
     system("sophomorix-quota");
 }
 
