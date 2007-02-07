@@ -186,6 +186,9 @@ sub check_connections {
 
 sub fetchinfo_from_project {
     my ($project) = @_;
+    unless ($project =~ m/^p\_/) { 
+       $project="p_".$project;
+    }
     my $dbh=&db_connect();
     my ($longname,$addquota,$add_mail_quota,$status,$join,
         $time,$max_members,$mailalias,
@@ -229,6 +232,9 @@ sub fetchusers_from_project {
     # return a list of uid of ALL users (members AND admins) of the given project
     # linux: which users are secondary members of group
     my ($group) = @_;
+    unless ($group =~ m/^p\_/) { 
+       $group="p_".$group;
+    }
     my @userlist=();
     my $dbh=&db_connect();
     # fetching gid
@@ -266,6 +272,9 @@ sub fetchusers_from_project {
 sub fetchmembers_by_option_from_project {
     # return a list of uid of members that were added by_option
     my ($project) = @_;
+    unless ($project =~ m/^p\_/) { 
+       $project="p_".$project;
+    }
     my %members=();
     my @userlist=();
     my $dbh=&db_connect();
@@ -294,6 +303,9 @@ sub fetchmembers_by_option_from_project {
 sub fetchmembers_from_project {
     # return a list of uid of members (no admins!) of the given project 
     my ($group) = @_;
+    unless ($group =~ m/^p\_/) { 
+       $group="p_".$group;
+    }
     my %members=();
     my @userlist=();
     my $dbh=&db_connect();
@@ -343,6 +355,10 @@ sub fetchmembers_from_project {
 sub fetchadmins_from_project {
     # return a list of uid of admins of the given project
     my ($group) = @_;
+    unless ($group =~ m/^p\_/) { 
+       $group="p_".$group;
+    }
+
     my @userlist=();
     my $dbh=&db_connect();
  
@@ -380,6 +396,9 @@ sub fetchadmins_from_project {
 sub fetchgroups_from_project {
     # return a list of gid of groups of the given project
     my ($project) = @_;
+    unless ($project =~ m/^p\_/) { 
+       $project="p_".$project;
+    }
     my @grouplist=();
     my $dbh=&db_connect();
     # fetching id from project  
@@ -416,6 +435,9 @@ sub fetchgroups_from_project {
 sub fetchprojects_from_project {
     # return a list of member projects of the given project
     my ($group) = @_;
+    unless ($group =~ m/^p\_/) { 
+       $group="p_".$group;
+    }
     my @project_list=();
     my $dbh=&db_connect();
      # fetching project_id
@@ -457,6 +479,9 @@ sub deleteuser_from_project {
     # remove user from its secondary membership in project(group)
     # (adding a user is pg_adduser)
     my ($user,$project,$by_option)=@_;
+    unless ($project =~ m/^p\_/) { 
+       $project="p_".$project;
+    }
     if (not defined $by_option){
         $by_option=0;
     }
@@ -531,6 +556,9 @@ sub deleteuser_from_project {
 sub deleteadmin_from_project {
     # remove admin from project
     my ($user,$project)=@_;
+    unless ($project =~ m/^p\_/) { 
+       $project="p_".$project;
+    }
     my $dbh=&db_connect();
     # fetching id
     my ($project_id_sys)= $dbh->selectrow_array( "SELECT id 
@@ -572,6 +600,9 @@ sub deleteadmin_from_project {
 sub deletegroup_from_project {
     # remove group from project
     my ($group,$project)=@_;
+    unless ($project =~ m/^p\_/) { 
+       $project="p_".$project;
+    }
     my $dbh=&db_connect();
     # fetching project_id
     my ($pro_id_sys)= $dbh->selectrow_array( "SELECT id 
@@ -599,6 +630,9 @@ sub deletegroup_from_project {
 sub deleteproject_from_project {
     # remove memberproject from project
     my ($m_project,$project)=@_;
+    unless ($project =~ m/^p\_/) { 
+       $project="p_".$project;
+    }
     my $dbh=&db_connect();
     # fetching project id
     my ($project_id_sys)= $dbh->selectrow_array( "SELECT id 
