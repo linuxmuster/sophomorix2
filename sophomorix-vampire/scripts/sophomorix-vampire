@@ -49,7 +49,7 @@ my $ws=0;
 my $force=0;
 my @userlist=();
 my $dir_old_files="/root/sophomorix-vampire/";
-my $dir_config_files="/root/sophomorix-vampire-config/";
+my $dir_config_files="/etc/sophomorix/vampire/";
 my $old_ws_file=$dir_old_files."wimport_data";
 
 my $old_version="2.x";
@@ -192,7 +192,6 @@ if ($key==1) {
 # Step 2: fetch some files
 ############################################################
 
-system("mkdir -p $dir_config_files");
 
 if ($clear==1) {
     print "Fetching configuration data once again.\n";
@@ -367,29 +366,25 @@ if ($sync_user==1){
     my $new_mailquota_teacher=-1;
     my $new_mailquota_classes=-1;
 
-
-
 if ($configure_quota==1){
     print "* Step 6:  configure quota\n";
 
-# configure start
-    # map old to new quota
-    $quota_map{0}=1;
-    #$quota_map{1}=0;
-    # set new quota
-    $new_quota_teacher{1}=101;
-    #$new_quota_teacher{3}=2033;
+    my $quota_config_file = "${dir_config_files}"."quota.config";
+    if (-e "$quota_config_file"){
+        print "READING $quota_config_file\n";
+        { package Settings; do "$quota_config_file"}
+    } else {
+        print "ERROR: $quota_config_file not found \n";
+        exit;
+    }
 
-    $new_quota_classes{1}=150;
-
-    # mailquota
-    # quota value to use for mailquota
-    $mailquota_map=0;
-    # set new_mailquota for teachers
-    $new_mailquota_teacher=-1;
-    $new_mailquota_classes=8;
-# configure end
-
+    # map variables in package Settings to global variables in this file
+    %quota_map=%Settings::quota_map;
+    %new_quota_teacher=%Settings::new_quota_teacher;
+    %new_quota_classes=%Settings::new_quota_classes;
+    $mailquota_map=$Settings::mailquota_map;
+    $new_mailquota_teacher=$Settings::new_mailquota_teacher;
+    $new_mailquota_classes=$Settings::new_mailquota_classes;
 
     # teacher.txt
     print "   * copying/patching lehrer.txt\n";
@@ -728,12 +723,9 @@ sub configure_quota {
     #print "OLD: ---$old_quota---\n";
     #print "OLDMAIL: ---$old_mailquota---\n";
 
-
     my @old_quota=split(/\+/,$old_quota);
     my @new_quota=();
     my $new_mailquota="mailquota";
-
-    
 
     # process quota map
     while(my ($new, $old) = each(%quota_map)) {
@@ -751,24 +743,25 @@ sub configure_quota {
         }
     }
 
-
     my $new_quota=join("+",@new_quota);
 
     # process mailquota map
     if ($mailquota_map!=-1){
         $new_mailquota=$old_quota[$mailquota_map];
     }
-    if ($new_mailquota_teacher!=-1){
-        $new_mailquota=$new_mailquota_teacher;
-    }
-
 
     # process new mailquota 
-
-
+    if ($type eq "teacher"){
+        if ($new_mailquota_teacher!=-1){
+            $new_mailquota=$new_mailquota_teacher;
+        }
+    } elsif ($type eq "classes"){
+        if ($new_mailquota_classes!=-1){
+            $new_mailquota=$new_mailquota_classes;
+        }
+    }
     #print "NEW: ---$new_quota---\n";
     #print "NEWMAIL: ---$new_mailquota---\n";
-
     return ($new_quota,$new_mailquota);
 }
 
