@@ -327,6 +327,8 @@ if ($install_files==1){
 
             $netmask=$internmask_debconf;
 
+            $type="";
+
             $patched_ws = $room.";".$host.";".$hwk.";".$mac.";".$ip.";".$netmask.";".
 		$part1.";".$part2.";".$part3.";".$part4.";".$pxe.";".$type.";";
             print $patched_ws."\n";
