@@ -409,6 +409,14 @@ if ($configure_quota==1){
     }
 
     # map variables in package Settings to global variables in this file
+    # avoid warnings
+    my %tmp=%Settings::quota_map;
+    %tmp=%Settings::new_quota_teacher;
+    %tmp=%Settings::new_quota_classes;
+    my $tmp=$Settings::mailquota_map;
+    $tmp=$Settings::new_mailquota_teacher;
+    $tmp=$Settings::new_mailquota_classes;
+
     %quota_map=%Settings::quota_map;
     %new_quota_teacher=%Settings::new_quota_teacher;
     %new_quota_classes=%Settings::new_quota_classes;
@@ -702,10 +710,10 @@ if ($mlscripts==1){
     # copying mac files
     my $old_hosts="/usr/local/rembo/files/global/hosts";
     my $new_hosts="/var/lib/rembo/files/global/hosts";
-    my $rsync_command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av --exclude .* root\@${server}:$old_hosts $new_hosts";
+    my $rsync_command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av --exclude '.*' root\@${server}:$old_hosts/ $new_hosts/";
 
-    print "$rsync_command\n";
-#    system("$rsync_command");
+    print "\n$rsync_command\n\n";
+    system("$rsync_command");
 
 
     # copying remboinit.rbc
@@ -729,21 +737,22 @@ if ($mlscripts==1){
         my $new_dir=$new_ml_dir."/".$hwc;        
 
         my $command="scp -i $key_dsa root\@${server}:$old_dir/$filename $new_dir_tmp/$filename";
-        my $command_sed="sed $replace $new_dir_tmp/$filename > $new_dir/$filename"; 
 
-	print "$command\n";
-	print "$command_sed\n";
+        if (-e "${new_dir_tmp}/${filename}"){
+            my $command_sed=
+               "sed $replace $new_dir_tmp/$filename > $new_dir/$filename"; 
+   	    print "$command\n";
+	    print "$command_sed\n";
 
-        # do it!
-        system("mkdir -p $new_dir_tmp");
-        system("mkdir -p $new_dir");
-        system($command);
+            # do it!
+            system("mkdir -p $new_dir_tmp");
+            system("mkdir -p $new_dir");
+            system($command);
     
-        # modify files and put them into place
-        system($command_sed);
-
+            # modify files and put them into place
+            system($command_sed);
+        }
     }
-
 }
 
 
