@@ -300,7 +300,8 @@ if ($install_files==1){
 
     # open infile and out file
     open (IN, "<${dir_old_files}/wimport_data");
-    open (OUT, ">/etc/linuxmuster/wimport_data_patched");
+#    open (OUT, ">/etc/linuxmuster/wimport_data_patched");
+    open (OUT, ">/var/lib/rembo/files/global/wimport_data");
     my $patched_ws="";
     while (<IN>){
         chomp();
