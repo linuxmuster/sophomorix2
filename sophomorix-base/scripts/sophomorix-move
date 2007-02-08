@@ -289,8 +289,8 @@ while(<USERVERSETZEN>){
    #####################################
    $user_nummer++;
    if($Conf::log_level>=1){
-      &titel("Moving User $user_nummer to different class:");
-      print("Login:                 $login_versetzen\n");
+      print "\n";
+      &titel("Moving User $login_versetzen ($user_nummer) to another class:");
       print("Linux-Gruppe (Alt):    $alte_klasse\n");
       print("Linux-Gruppe (Neu):    $neue_klasse\n");
       print("Altes Home:            $old_home\n");
