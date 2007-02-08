@@ -1446,6 +1446,9 @@ add share of teachers to be synced as well
 sophomorix-vampire --mlscripts: 
    sync known hosts must be checked
 
+option ;ml; in wimport_data not in correct place?
+is it needed?
+
 
 
 ================== CHANGELOG ========================================
@@ -1455,11 +1458,14 @@ sophomorix-vampire --mlscripts:
   - remove option $drei_strichpunkt compltely
   - run sophomorix-repair -p
 
+  
+  - modified output of sophomorix-move to separate users
   - sophomorix-vampire: 
      - patching ip of clients
      - patching netmask
      - patching the file onto /var/lib/rembo/files/global/wimport_data
-     when --install-files
+     - ;ml; -> ;; cause import_workstations diesn't run anymore  
+   when --install-files
      - tested syncing of MAC-files
      when --mlscripts
   - Bug #116 'Projekt löschen' fixed
