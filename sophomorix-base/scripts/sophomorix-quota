@@ -408,7 +408,7 @@ if ($#userlist+1==0 and $sum==0){
 
 &titel("Searching for users with changed quota/mailquota...");
 if ($set==1){
-    &titel("Setting Quota for users in the userlist ...");
+    &titel("Setting Quota for all users in the userlist ...");
     # setting quota for every user
     foreach my $user (@userlist){
         my ($new_quota,$mailquota)=&get_quota($user);
@@ -511,7 +511,7 @@ sub set_quota {
             # test
             print "  Test (quota are not set!): \n";
          }
-            print "    set quota ($fs,uid $uid): "; 
+            print "    settting quota ($fs,uid $uid): "; 
             print "${q_opt1}M ${quota}M $q_opt3 $q_opt4 \n";
       } else {
          # Systembefehl benutzten
@@ -530,7 +530,7 @@ sub set_quota {
    # was gemacht wurde zusammensetzen
    my $quotastring=join "+", @$q_list;
 
-   # skip updating db, when user is admin
+   # skip updating db, when user is administrator, ...
    if ($login_type{$user} eq "passwd"
        or $user eq "administrator"
        or $user eq "pgmadmin"
@@ -574,46 +574,18 @@ sub set_quota_if_needed {
         }
         ($new_quota,$mailquota)=&get_quota($login);
 
-
-
-#	print " q $new_quota  $mailquota  \n";
-#        if (not defined $new_quota){
-#	    print "Could not find quota in the sophomorix database. \n";
-#            if ($login_type{$login} eq "passwd"){
-#                # users in passwd
-#                print "Using $quota_txt{$login} from quota.txt \n";
-#                $new_quota=$quota_txt{$login};
-#            } else {
-#                # nonexisting users
-#                return;
-#            }
-#        }
-
-
-#        if (not defined $mailquota){
-#	    print "Could not find mailquota in the sophomorix database. \n";
-#            if ($login_type{$login} eq "passwd"){
-#                # users in passwd
-#                print "Using $mail_quota_txt{$login} from mailquota.txt \n";
-#                $mailquota=$mail_quota_txt{$login};
-#            } else {
-#                # nonexisting users
-#                return;
-#            }
-#        }
-
-
-
         ##### quota
         # set quota to empty if not defined
 	if (not defined $db_quota{$login}){
 	    $db_quota{$login}="";
 	}
-
 	if (not defined $new_quota){
-           # do nothing
+            # do nothing
         } elsif ($new_quota eq $db_quota{$login}){
-           #do nothing
+            # do nothing, quota seems up to date
+            if($Conf::log_level>=2){
+	        print "  * Quota of $login seems up to date ($new_quota in MB)\n";
+            }
         } else {
            if($Conf::log_level>=2){
                print "  New quota: $new_quota \n";
@@ -634,11 +606,13 @@ sub set_quota_if_needed {
 	if (not defined $db_quota_mail{$login}){
 	    $db_quota_mail{$login}="";
 	}
-
         if (not defined $mailquota){
             # do nothing
         } elsif ($mailquota eq $db_quota_mail{$login}){
-           #do nothing
+            # do nothing, mailquota seems up to date
+            if($Conf::log_level>=2){
+	        print "  * Mailquota of $login seems up to date ($mailquota MB)\n";
+	    }
         } else {
            if($Conf::log_level>=2){
                print "  New mailquota: $mailquota \n";
@@ -646,6 +620,8 @@ sub set_quota_if_needed {
            }
            # check the new quotastring ???? must be integer
            &imap_set_mailquota($imap,$login,$mailquota);
+           # update the ldap database with new mailquota
+           &update_user_db_entry($login,"MailQuota=$mailquota");
         }
     }
 }
