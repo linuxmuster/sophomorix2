@@ -3,5 +3,5 @@
 print "This is sophomorix_1.9.8-1.upgrade starting. \n";
 print "Running sophomorix-repair. This will take approx. 1 hour per 1000 users.\n";
 print "I'm logging to /root/sophomorix-repair.log\n";
-system("sophomorix-repair -p > /root/sophomorix-repair.log");
+system("sophomorix-repair --skiplock -p > /root/sophomorix-repair.log");
 print "This is sophomorix_1.9.8-1.upgrade ending. \n";
