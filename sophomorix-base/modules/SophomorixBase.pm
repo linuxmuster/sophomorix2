@@ -2708,7 +2708,10 @@ sub imap_connect {
               "Skipping IMAP stuff.\n";
         return 0;
     }
-    my ($server, $admin) = @_;
+    my ($server, $admin, $silent) = @_;
+    if (not defined $silent){
+        $silent=0;
+    }
     my $imap_pass="";
     # fetch pass from file
     if (-e ${DevelConf::imap_password_file}) {
@@ -2723,7 +2726,7 @@ sub imap_connect {
          }
          close(CONF);
     }
-    if($Conf::log_level>=2){
+    if($Conf::log_level>=2 and $silent==0){
         # $imap_pass holds password
         print "Connecting to imap-server at $server as $admin with password *** \n";
     }
@@ -2749,9 +2752,11 @@ sub imap_disconnect {
               "Skipping IMAP stuff.\n";
         return 0;
     }
-    my ($imap) = @_;
-    
-    if($Conf::log_level>=2){
+    my ($imap,$silent) = @_;
+    if (not defined $silent){
+        $silent=0;
+    }
+    if($Conf::log_level>=2 and $silent==0){
         print "Disconnecting from imap-server ... \n";
     }
     $imap->close();
