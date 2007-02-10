@@ -102,6 +102,7 @@ use Crypt::SmbHash;
 use Sophomorix::SophomorixAPI qw( 
                                   fetchstudents_from_school
                                 );
+use IMAP::Admin;
 
 
 =head1 Documentation of SophomorixPgLdap.pm
@@ -3945,7 +3946,7 @@ sub search_user {
                             birthday, adminclass, exitadminclass, 
                             unid, subclass, creationdate,tolerationdate, 
                             deactivationdate, sophomorixstatus,
-                            gecos, homedirectory, firstpassword, quota,
+                            gecos, homedirectory, firstpassword, quota, mailquota,
                             sambaacctflags, sambahomepath, sambahomedrive,
                             sambalogonscript,sambaprofilepath,usertoken,
                             scheduled_toleration 
@@ -3977,6 +3978,7 @@ sub search_user {
            $home,
            $first_pass,
            $quota,
+           $mailquota,
            $sambaacctflags, 
            $sambahomepath,
            $sambahomedrive,
@@ -4033,7 +4035,7 @@ sub search_user {
           printf "  loginShell         : %-45s %-11s\n",$loginshell,$login;
        }
 
-       print "Sophomorix:\n";
+       print "Sophomorix (Database Values):\n";
        if (defined $usertoken){
           printf "  Usertoken          : %-45s %-11s\n",$usertoken,$login;
        }
@@ -4077,22 +4079,45 @@ sub search_user {
 	  printf "  AccountType        : %-45s %-11s\n",$acc_type,$login;
        }
 
+
        if($Conf::use_quota eq "yes"){
           if (defined $quota){
 	     printf "  Quota (MB)         : %-45s %-11s\n",$quota,$login;
           } else {
 	     print  "  Quota (MB)         : --- \n";
           }
+       }
+
+       if (defined $mailquota){
+	  printf "  MailQuota (MB)     : %-45s %-11s\n",$mailquota,$login;
+       }
+
+
+       if($Conf::use_quota eq "yes" and $Conf::log_level>=2){
           if (-e "/usr/bin/quota"){
-#	     print "  "; # indent output of following command
+             print "Showing values of quota in the system:\n";
              # -l show only local quota, no nfs
              # -v show quota on unused filesystems          
              #system("quota -l -v $login");
              my $show=`quota -l -v $login`;
 	     print "  "; # indent output of following command
              $show =~ s/\n  /\n/g; # remove indent partially
+             $show =~ s/\/dev/   \/dev/g; # remove indent partially
              print $show;
           }
+       }
+
+
+
+       if($Conf::log_level>=2){
+           print "Asking the Cyrus/Imap server:\n";
+           my $imap=&Sophomorix::SophomorixBase::imap_connect("localhost",${DevelConf::imap_admin},1);
+           my $imap_user="user.".$login;
+           my @mail_quota=&Sophomorix::SophomorixBase::imap_fetch_mailquota($imap,$imap_user,1,1);
+           &Sophomorix::SophomorixBase::imap_disconnect($imap,1);
+           printf "  Cyrus Account      : %-45s %-11s\n",$mail_quota[0],$login;
+           printf "  MailQuota/Cyrus(MB): %-45s %-11s\n",$mail_quota[2],$login;
+           printf "  Used               : %-45s %-11s\n",$mail_quota[1],$login;
        }
 
        print "Samba:\n";
