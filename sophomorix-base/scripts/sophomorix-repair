@@ -33,6 +33,7 @@ my $schueler=0;
 my $lehrer=0;
 my $login="";
 my $command_number=0;
+my $skiplock=0;
 $Conf::log_level=1;
 
 ###############################################################################
@@ -51,6 +52,7 @@ my $testopt=GetOptions(
            "htaccess" => \$htaccess,
            "command-number=n" => \$command_number,
            "user|u=s" => \$login,
+           "skiplock" => \$skiplock,
            "file|f=s" => \$filename
           );
 
