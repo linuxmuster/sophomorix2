@@ -2827,7 +2827,8 @@ sub imap_show_mailbox_info {
     }
     print "+--------------+---------------------+------+",
           "--------------------+-------------+\n";
-    print "$count mailboxes (Group/Type=CYRUS: no unix account\n";
+    print "$count mailboxes (use --showtype to show Group/Type of a mailbox)\n";
+    print "   Group/Type = 'CYRUS': no unix account matching the box's name exists\n";
 }
 
 
