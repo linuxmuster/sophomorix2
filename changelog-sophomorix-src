@@ -104,6 +104,8 @@ sophomorix-repair
 sophomorix-quota
    * option --sum still missing
    - check if quota is really set (how?, grep through 'quota user' ?)
+     do this as cronjob. check if quota in the os is the same as in the 
+     database
    - find users without quota, report them (cron)
 
 
@@ -1264,38 +1266,6 @@ membership
 
 
 
-NEXT: 
-
-Buglist from rainer
-
-
-Schulkonsole -> Projekte
-Projekt löschen:
-- Beim Löschen eines Projekts wird das Unterverzeichnis
-"bereitstellen-p_projektname" der Projektmitglieder (Lehrer) nicht gelöscht
-- Beim Löschen eines Projekts wird bei den Projektleitern das Unterverzeichnis "__einsammeln" gelöscht
-- Beim Löschen eines Projekts bleibt bei den Nicht-Projektleitern (Lehrern) das Unterverzeichnis "austeilen-" erhalten (nach Minus KEIN Gruppenname)
-
-Schulkonsole -> Projekte
-Projektmitglied löschen:
-- Bei Nicht-Projektleitern (Lehrer) verbleiben die Unterverzeichnisse "austeilen-p_projektname", "auszuteilen-p_projektname", "bereitstellen-p_projektname" und
-"eingesammelt-p_projektname".
-- Bei Schülern verbleibt logischerweise nur "austeilen-p_projektname" (die anderen werden auch nicht angelegt).
-- Bei Projektleitern verbleibt das Unterverzeichnis
-"bereitstellen-p_projektname"
-
-/home/lehrer/$user/
-unter
-__austeilen
-__vorlagen
-_auszuteilen
-_bereitstellen
-_eingesammelt
-existiert die Gruppe "Lehrer", für welche aber keine Möglichkeit auf der Schulkonsole vorhanden ist, um die Verzeichnisse zu nutzen -> Verzeichnisse für Gruppe Lehrer weglassen.
-
-
-
-
 create more tests for projects
 
 
@@ -1382,18 +1352,9 @@ restart services
 - rembo
 
 
-sophomorix-vampire
-
---sync-workstations ws1,ws2,ws3,...
-   Alle, wenn option leer
-   move away /etc/linuxmuster/workstations
-
-
 
 add option
 sophomorix-mail --create-mailbox to add mailbox without unix account 
-
-sophomorix quota: user mitzzaehlen beim aendern, damit man sieht wie lange es noch geht.
 
 
 replace cp /etc/passwd with getent paaswd > file;scp file
@@ -1415,23 +1376,8 @@ sophomorix-vampire:
        /usr/local/samba/cds
                         progs
 
-Bug? sophomorix-quota sets mailquota for all
-     is there a faster way to do this
-      i.e. read mailquota of all users and decide if it is needed to be set?
-   
-
-Bugfix: als usertoken wird 'kurz' hochgeladen.
-        muss bei sophomorix-vampire zu usertoken gepached werden, wenn lehrer.txt
-        ins system kopiert wird muss ;kurz; zu ;usertoken;
-
-
-
 nagios
 https://servername/nagios2/
-
-
-AuthDomain admin -> AuthDomain rembo ???
-
 
 
 mail an aike und hoth wegen tickets
@@ -1442,16 +1388,11 @@ mail an aike und hoth wegen tickets
   
 add share of teachers to be synced as well
 
-
-sophomorix-vampire --mlscripts: 
-   sync known hosts must be checked
-
 option ;ml; in wimport_data not in correct place?
 is it needed?
 
-BUG?: sophomorix-quota deosnt set workstation quota
-      sophomorix-quota (--workstations) must be called by 
-      import_workstations
+
+sophomorix-user -s string doesnt show mailquota
 
 ================== CHANGELOG ========================================
 
@@ -1460,7 +1401,15 @@ BUG?: sophomorix-quota deosnt set workstation quota
   - remove option $drei_strichpunkt compltely
   - run sophomorix-repair -p
 
-  
+  - Bugfix: keep a users db quota when moving into/being in the attic
+    (modify it with an entry in quota.txt/mailquota.txt)
+      - updated manpage 
+  - make sophomorix-quota less verbose
+  - call 
+      sophomorix-quota --workstations 
+      when import_workstations is used (this in package linuxmuster-base)
+  - Bugfix: mailquota was always set, because it was not updated 
+    in the database.
   - modified output of sophomorix-move to separate users
   - sophomorix-vampire: 
      - patching ip of clients

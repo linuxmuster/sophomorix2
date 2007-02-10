@@ -70,6 +70,15 @@ sophomorix-quota aufgerufen werden, um diese Angaben ins System zu
 Werden Befehle (5. und 6.) zur Quotaänderung aufgerufen, so werden die
 veränderten Werte automatisch ins System übertragen.
 .PP
+Ein User, der in den Dachboden (Gruppe 'attic') versetzt wird, behält
+sein in der Datenbank stehendes Quota/Mailquota bei. 
+.br
+Muss das Quota/Mailquota eines Users im Dachboden (Gruppe 'attic')
+angepasst werden, dann nutzt man quota.txt/mailquota.txt (Nachdem man
+sophomorix-quota aufgerufen hat, kann man den Eintrag in
+quota.txt/mailquota.txt wider eintfernen, da ja das Datenbankquota
+beibehalten wird).
+.PP
 .SH Syntax von Quotaangaben
 Quotaangaben haben z.B. bei 3 Filesystemen mit 'usrquota' folgende Syntax:
 .br
