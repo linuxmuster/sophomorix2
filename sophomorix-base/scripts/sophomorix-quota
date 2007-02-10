@@ -767,6 +767,10 @@ sub get_quota{
 	    $quotastring=$quota_txt{"standard-lehrer"};
         } elsif ($login_type{$login} eq "workstation"){
 	    $quotastring=$quota_txt{"standard-workstations"};
+        } elsif ($login_type{$login} eq "none"){
+            # must be user in attic,
+            # keep quota from db
+	    $quotastring=$db_quota{$login};
         } else {
             print "WARNING: Could not find any quota for user $login.\n";
             $quotastring=undef;
@@ -804,6 +808,10 @@ sub get_quota{
 	    $mailquota=$mail_quota_txt{"standard-lehrer"};
         } elsif ($login_type{$login} eq "workstation"){
 	    $mailquota=$mail_quota_txt{"standard-workstations"};
+        } elsif ($login_type{$login} eq "none"){
+            # must be user in attic,
+            # keep mailquota from db
+	    $mailquota=$db_quota_mail{$login};
         } else {
             print "WARNING: Could not find any mailquota for user $login.\n";
             $mailquota=undef;
