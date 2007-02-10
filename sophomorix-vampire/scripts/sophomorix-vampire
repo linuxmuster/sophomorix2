@@ -227,10 +227,10 @@ if ($fetch_files==1){
 if ($install_files==1){
     print "* Step 3:  install/patch configuration files from $dir_old_files\n";
     # schueler.txt
-    print "   * copying schueler.txt\n";
+    print "   * copying  schueler.txt\n";
     system("cp ${dir_old_files}/schueler.txt ${DevelConf::users_pfad}/schueler.txt");
     # lehrer.txt
-    print "   * copying/patching lehrer.txt\n";
+    print "   * copying/patching  lehrer.txt\n";
     # open infile and out file
     open (IN, "<${dir_old_files}/lehrer.txt");
     open (OUT, ">${DevelConf::users_pfad}/lehrer.txt");
