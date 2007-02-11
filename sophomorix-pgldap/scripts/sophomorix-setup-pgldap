@@ -215,9 +215,6 @@ indices are update automatically if you do not specify one of the following opti
 }
 
 
-
-
-
 print "Using the following values to configure the system\n";
 ############################################################
 # read the values from the config file
@@ -356,9 +353,6 @@ print "   Old Debian Package Version  :   $old_version \n";
 print "   New Debian Package Version  :   $new_version \n";
 
 
-
-
-
 # db upgrade
 my @all_db_upgrades=();
 opendir(UPGRADE, ${DevelConf::sql_upgrade_path}) or 
@@ -439,10 +433,6 @@ foreach my $file_id (@upgrade_sql_id){
     printf "   %14s   %-40s \n",$file_id, $upgrade_sql_id_filename{$file_id};
 }
 print "\n";
-
-
-
-
 
 
 # scripts upgrade
@@ -527,15 +517,10 @@ foreach my $file_id (@upgrade_scripts_id){
 print "\n";
 
 
-
-
 if ($info==1){
     # show values only
     &log_script_exit("",1,1,0,@arguments);
 }
-
-
-
 
 
 ############################################################
@@ -588,9 +573,6 @@ if (-e "$DevelConf::linuxmuster_base_login_bat"){
     $smb_netlogin_bat=${DevelConf::linuxmuster_base_login_bat};
 }
 
-
-
-
 # bdb
 my $db_config="/var/lib/ldap/DB_CONFIG";
 
@@ -601,7 +583,6 @@ my $db_config="/var/lib/ldap/DB_CONFIG";
 my $message1="Do not change this file! It will be overwritten!";
 my $message2="This configuration file was automatically created by sophomorix-setup-pgldap";
 my $message3="Last Modification: $timestamp";
-
 
 
 ############################################################
@@ -624,7 +605,6 @@ print "   Samba Server String         :   $smbserverstring \n";
 # Database
 ############################################################
 print "   Database name               :   $dbname \n";
-
 
 
 # the great replacement string
@@ -652,7 +632,6 @@ $replace= " -e 's/\@\@basedn\@\@/${basedn}/g'".
 my %permissions=&get_alle_verzeichnis_rechte();
 
 
-
 # do it, ldap 
 system("sed $replace ${template}/ldap/ldap.conf.template > $ldap_conf"); 
 system("sed $replace ${template}/ldap/slapd.conf.template > $slapd_conf"); 
@@ -672,8 +651,6 @@ my $seen_postgres=0;
 my $seen_local_ldap=0;
 my $seen_host_ldap=0;
 my @line=();
-
-
 
 &insert_line_before("local;all;postgres;ident;postgres",
                     "local;all;postgres;ident;sameuser",
@@ -699,12 +676,6 @@ my @line=();
 &insert_line_before("host;ldap;ldap;127.0.0.1;255.255.255.255;password",
                     "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
                     "/etc/postgresql/pg_hba.conf");
-
-
-# sollte raus ???
-# local all all ident sameuser     sollte raus
-# host all all 127.0.0.1 255.255.255.255 ident sameuser
-
 
 
 # pg_ident.conf
@@ -759,7 +730,6 @@ close(IDENT);
 close(IDENTMP);
 system("mv /etc/postgresql/pg_ident.conf.tmp /etc/postgresql/pg_ident.conf");
 
-
 # what to do:
 # 3x basedn
 # 1x sid
@@ -791,9 +761,6 @@ system("sed $replace ${template}/bdb/DB_CONFIG > $db_config");
 system("smbpasswd -w $ldappassword");
 
 
-
-
-
 ############################################################
 # restarting services 
 ############################################################
@@ -815,8 +782,6 @@ system("killall slapd");
 system("/etc/init.d/postgresql stop");
 sleep 5;
 system("killall postmaster");
-
-
 
 
 # starting postgres
@@ -868,10 +833,6 @@ print "\n\n";
 &create_indices();
 
 
-# run upgrade scripts
-&run_upgrade_scripts();
-
-
 # setting the password
 &set_db_passwd($dbpassword);
 
@@ -902,22 +863,12 @@ if (not -e "$ldap_args_dir"){
 system("chmod 0755 $ldap_args_dir");
 system("chown openldap:openldap $ldap_args_dir");
 
-# odbc.ini must be 644
-# chown openldap:openldap /var/lib/slapd -R
-# chown openldap:openldap /var/lib/ldap -R
-
-
-
 sleep 5;
-
-
 
 # starting ldap
 system("/etc/init.d/slapd start");
 
 sleep 2;
-
-
 
 
 ############################################################
@@ -951,13 +902,6 @@ $replace= " -e 's/\@\@basedn\@\@/${basedn}/g'".
 # patch smbtools
 system("sed $replace ${template}/ldap/smbldap.conf.template > $smb_ldap_conf"); 
 system("sed $replace ${template}/ldap/smbldap_bind.conf.template > $smb_ldap_bind_conf"); 
-
-
-
-
-
-
-
 
 
 # starting samba
@@ -1054,7 +998,6 @@ system("smbldap-useradd -a -u 996 -c 'Domain Admin' -m -d /dev/null -g 'domadmin
 system("sed $replace ${template}/samba/netlogon/logon.bat.template > $smb_netlogon_bat"); 
 system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlogin_bat"); 
 
-
 # www stuff
 &setup_verzeichnis("/var/www","/var/www");
 &setup_verzeichnis("\$www_people","$DevelConf::www_people");
@@ -1062,14 +1005,9 @@ system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlog
 &setup_verzeichnis("\$www_classes","$DevelConf::www_classes");
 &setup_verzeichnis("\$www_projects","$DevelConf::www_projects");
 
-
 # make important data readable by root only
 &setup_verzeichnis("\$var_lib_pfad","$DevelConf::var_lib_pfad");
 &setup_verzeichnis("\$log_files","$DevelConf::var_lib_pfad");
-
-
-
-
 
 # group teachers part 2
 &provide_class_files(${DevelConf::teacher});
@@ -1077,58 +1015,10 @@ system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlog
 # make some files owned by root.root and 0600
 &make_some_files_root_only();
 
+# run upgrade scripts
+&run_upgrade_scripts();
+
 &log_script_end(@arguments);
-
-
-
-
-# sophomorix-database is a persistent database
-# should be in /var/lib/sophomorix
-# database type is postgresql -> no choice
-# connection: unix socket or tcp/ip ??? automatically
-# host is localhost -> no choice
-# password is auto-generaded -> no choice
-# database name is sophomorix -> no choice
-#
-# backup database when upgrading -> show where to find backups
-# remove database when deconfigure/remove package -> no
-# remove database when purge package -> no
-
-
-# moodle
-# moodle macht keinen Eintrag in /etc/postgresql/pg-hba.conf
-# wieso tuts trotzdem 
-# (when user moodle is added (adduser), then it works ->  pg-hba.conf:  ident)
-
-
-#my $pass_file="";
-#my $dbuser="";
-
-## read the password
-#if (-e $pass_file){
-#   my $pass_saved=&get_password($pass_file);
-#   print "   Trying to connect as $dbuser to $dbname with password $pass_saved!\n";
-#
-#   my $dbh = DBI->connect("dbi:Pg:dbname=$dbname", "$dbuser","$pass_saved",
-#               { RaiseError => 1, PrintError => 0, AutoCommit => 1 });
-#   if (defined $dbh){
-#    print "   Connection with password $pass_saved successful!\n";
-#    print "   Database $dbname ready for user $dbuser!\n";
-#  } else {
-#      print "   Could not connect to database with password $pass_saved!\n";
-#  }
-#} else{
-#    print "\n There is no saved password, skipping ...\n";
-#}
-#
-#
-#
-#print "\n##### sophomorix-setup-pgldap is configuring openldap for sophomorix-pgldap ...\n";
-
-# phppgadmin: edit /etc/phppgadmin/apache.conf
-#             restart apache
-
-
 
 
 
