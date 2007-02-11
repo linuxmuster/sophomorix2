@@ -517,8 +517,8 @@ sub make_some_files_root_only {
             system("chown root.root $root_file");
             system("chmod 0600 $root_file");
         } else {
-            print "WARNING: File $root_file does not exist, ",
-                  "cannot make root only.\n";
+            print "WARNING: File $root_file nonexisting, ",
+                  "cannot make it root only.\n";
         }
     }
 }
