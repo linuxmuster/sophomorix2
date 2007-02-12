@@ -40,36 +40,36 @@ $log_files::root::root::0700
 
 ###   /home/*
 
-$homedir_all_admins::root::root::0755
-$homedir_teacher::administrator::domadmins::0775
-$homedir_pupil::administrator::domadmins::1775
-$homedir_ws::administrator::domadmins::0775
-$attic::administrator::domadmins::0700
+$homedir_all_admins::root::root::0771
+$homedir_teacher::administrator::teachers::0751
+$homedir_pupil::root::root::0775
+$homedir_ws::root::root::0775
+$attic::root::root::0775
 
 ### SHARES
-$share_share::administrator::domadmins::1775
-$share_classes::administrator::teachers::0751
-$share_subclasses::administrator::teachers::0751
-$share_exams::administrator::domadmins::0775
-$share_projects::administrator::teachers::0751
-$share_school::administrator::teachers::3777/0700
+$share_share::root::root::0771
+$share_classes::root::root::0771
+$share_subclasses::root::root::0771
+$share_exams::root::root::0771
+$share_projects::root::root::0771
+$share_school::root::teachers::3777/0700
 #$share_tasks::administrator::domadmins::0775
 $share_teacher::administrator::teachers::3770
 
-$share_classes/$klassen::administrator::teachers::3777
-$share_subclasses/$subclasses::administrator::teachers::3777
-$share_projects/$projects::administrator::teachers::3777
+$share_classes/$klassen::administrator::$klassen::3770
+$share_subclasses/$subclasses::administrator::$subclasses::3770
+$share_projects/$projects::administrator::$projects::3770
 
 
 ### TASKS
 
-$tasks_tasks::administrator::teachers::1775
+$tasks_tasks::root::root::1771
 
-$tasks_classes::administrator::teachers::0775
-$tasks_teachers::administrator::teachers::0771
-$tasks_subclasses::administrator::teachers::3775
-$tasks_projects::administrator::teachers::3775
-$tasks_rooms::administrator::teachers::3775
+$tasks_classes::administrator::teachers::1751
+$tasks_teachers::administrator::teachers::1751
+$tasks_subclasses::administrator::teachers::1751
+$tasks_projects::administrator::teachers::1751
+$tasks_rooms::administrator::teachers::1751
 
 $tasks_classes/$klassen::administrator::teachers::3775
 $tasks_subclasses/$subclasses::administrator::teachers::3775
@@ -81,56 +81,56 @@ $tasks_rooms/$raeume::administrator::teachers::3775
 
 ### STUDENTS
 
-$homedir_pupil/$klassen::administrator::teachers::2751 
+$homedir_pupil/$klassen::administrator::teachers::1751 
 #$homedir_pupil/$klassen/$schueler::$schueler::teachers::0700
-$homedir_pupil/$klassen/$schueler::$schueler::teachers::2751
+$homedir_pupil/$klassen/$schueler::$schueler::teachers::3751
 #$homedir_pupil/$klassen/$schueler/windows::$schueler::teachers::0700 
-$homedir_pupil/$klassen/$schueler/cups-pdf::$schueler::teachers::0700 
-$homedir_pupil/$klassen/$schueler/$task_dir::root::root::1755
-$homedir_pupil/$klassen/$schueler/$collect_dir::root::root::1777
+$homedir_pupil/$klassen/$schueler/cups-pdf::administrator::teachers::3757 
+$homedir_pupil/$klassen/$schueler/$task_dir::administrator::teachers::3755
+$homedir_pupil/$klassen/$schueler/$collect_dir::administrator::teachers::3757
 #$homedir_pupil/$klassen/$schueler/$collect_dir/$current_room::$schueler::teachers::0755
-$homedir_pupil/$klassen/$schueler/$share_dir::root::root::1755/1750
-$homedir_pupil/$klassen/$schueler/$handoutcopy_dir::root::root::1755
-$homedir_pupil/$klassen/$schueler/$handoutcopy_dir/$handoutcopy_string$current_room::root::root::0755
-$homedir_pupil/$klassen/$schueler/private_html::$schueler::$apache_group::2750
-$homedir_pupil/$klassen/$schueler/$user_attic::root::root::1755
+$homedir_pupil/$klassen/$schueler/$share_dir::administrator::teachers::3757/3750
+$homedir_pupil/$klassen/$schueler/$handoutcopy_dir::administrator::teachers::3757
+$homedir_pupil/$klassen/$schueler/$handoutcopy_dir/$handoutcopy_string$current_room::administrator::teachers::3757
+$homedir_pupil/$klassen/$schueler/private_html::administrator::$apache_group::3757
+$homedir_pupil/$klassen/$schueler/$user_attic::administrator::teachers::3757
 
 
 
 ### TEACHER
 
 #$homedir_teacher/$lehrer::$lehrer::teachers::0700/0701
-$homedir_teacher/$lehrer::$lehrer::teachers::2701
+$homedir_teacher/$lehrer::$lehrer::$apache_group::1710
 #$homedir_teacher/$lehrer/windows::$lehrer::teachers::0700
-$homedir_teacher/$lehrer/cups-pdf::$lehrer::teachers::0700
-$homedir_teacher/$lehrer/$task_dir::$lehrer::teachers::1755
-$homedir_teacher/$lehrer/$handout_dir::root::root::1755
-$homedir_teacher/$lehrer/$handout_dir/$handout_string$exam::$lehrer::teachers::0755
-$homedir_teacher/$lehrer/$handout_dir/$handout_string$current_room::$lehrer::teachers::0700
-$homedir_teacher/$lehrer/$handoutcopy_dir::root::teachers::1755
-$homedir_teacher/$lehrer/$handoutcopy_dir/$handoutcopy_string$current_room::$lehrer::teachers::0755
-$homedir_teacher/$lehrer/$to_handoutcopy_dir::$lehrer::teachers::0700
-$homedir_teacher/$lehrer/$to_handoutcopy_dir/$to_handoutcopy_string$current_room::$lehrer::teachers::0755
-$homedir_teacher/$lehrer/$collect_dir::root::root::1777
+$homedir_teacher/$lehrer/cups-pdf::administrator::teachers::1770
+$homedir_teacher/$lehrer/$task_dir::administrator::teachers::1750
+$homedir_teacher/$lehrer/$handout_dir::administrator::teachers::1770
+$homedir_teacher/$lehrer/$handout_dir/$handout_string$exam::administrator::teachers::1770
+$homedir_teacher/$lehrer/$handout_dir/$handout_string$current_room::administrator::teachers::1770
+$homedir_teacher/$lehrer/$handoutcopy_dir::administrator::teachers::1770
+$homedir_teacher/$lehrer/$handoutcopy_dir/$handoutcopy_string$current_room::administrator::teachers::1770
+$homedir_teacher/$lehrer/$to_handoutcopy_dir::administrator::teachers::1770
+$homedir_teacher/$lehrer/$to_handoutcopy_dir/$to_handoutcopy_string$current_room::administrator::teachers::1770
+$homedir_teacher/$lehrer/$collect_dir::administrator::teachers::1770
 #$homedir_teacher/$lehrer/$collect_dir/$current_room::$lehrer::teachers::0755
-$homedir_teacher/$lehrer/$collected_dir/$collected_string$exam::$lehrer::teachers::0755
-$homedir_teacher/$lehrer/$collected_dir::$lehrer::teachers::0700
-$homedir_teacher/$lehrer/$collected_dir/$collected_string$current_room::$lehrer::teachers::0755
-$homedir_teacher/$lehrer/$share_dir::root::root::1755
-$homedir_teacher/$lehrer/private_html::$lehrer::$apache_group::2750
-$homedir_teacher/$lehrer/$user_attic::root::teachers::1755
+$homedir_teacher/$lehrer/$collected_dir::administrator::teachers::1770
+$homedir_teacher/$lehrer/$collected_dir/$collected_string$exam::administrator::teachers::1770
+$homedir_teacher/$lehrer/$collected_dir/$collected_string$current_room::administrator::teachers::1770
+$homedir_teacher/$lehrer/$share_dir::administrator::root::1777
+$homedir_teacher/$lehrer/private_html::administrator::$apache_group::3757
+$homedir_teacher/$lehrer/$user_attic::administrator::teachers::1770
 
 
 # WORKSTATION
 
-$homedir_ws/$raeume::administrator::teachers::2751
-$homedir_ws/$raeume/$workstation::$workstation::teachers::2750 
+$homedir_ws/$raeume::root::teachers::1751
+$homedir_ws/$raeume/$workstation::administrator::teachers::1755 
 #$homedir_ws/$raeume/$workstation/windows::$workstation::teachers::2750 
-$homedir_ws/$raeume/$workstation/$collect_dir::root::root::1777
+$homedir_ws/$raeume/$workstation/$collect_dir::administrator::teachers::3757
 #$homedir_ws/$raeume/$workstation/$collect_dir/$current_room::$workstation::teachers::0755
-$homedir_ws/$raeume/$workstation/$task_dir::root::root::1755
-$homedir_ws/$raeume/$workstation/$handoutcopy_dir::root::root::1755
-$homedir_ws/$raeume/$workstation/$handoutcopy_dir/$handoutcopy_string$current_room::root::root::0755
+$homedir_ws/$raeume/$workstation/$task_dir::administrator::teachers::1755
+$homedir_ws/$raeume/$workstation/$handoutcopy_dir::administrator::teachers::1755
+$homedir_ws/$raeume/$workstation/$handoutcopy_dir/$handoutcopy_string$current_room::administrator::teachers::1755
 
 
 ### /var/www/...
