@@ -1,0 +1,59 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-allusers) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+# Dieses Script ist NICHT im Paket sophomorix-developer enthalten
+
+
+
+# Bibliotheken
+use strict;
+use Getopt::Long;
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
+#use Sophomorix::SophomorixFiles;
+use Sophomorix::SophomorixPgLdap;
+use Sophomorix::SophomorixTest;
+use Test::More "no_plan";
+Getopt::Long::Configure ("bundling");
+
+use DBI;
+use Crypt::SmbHash;
+use Net::LDAP;
+#use DebAux::Debconf;
+use IMAP::Admin;
+
+my $all_user="allusers";
+
+
+my @students=&Sophomorix::SophomorixAPI::fetchstudents_from_school();
+
+my @teachers=&Sophomorix::SophomorixPgLdap::fetchstudents_from_adminclass("teachers");
+
+
+my @users=(@students,@teachers);
+
+
+my $gidnumber=&create_class_db_entry($all_user);
+
+
+#&Sophomorix::SophomorixPgLdap::pg_adduser("bz",$all_user);
+
+
+
+foreach my $user (@users){
+    &Sophomorix::SophomorixPgLdap::pg_adduser($user,,$all_user);
+    print "$user\n";
+}
+
+
+
+
+
+
+############################################################
+# sub
+############################################################
