@@ -221,6 +221,13 @@ if ($info==1) {
    &log_script_exit("",1,1,0,@arguments);
 }
 
+# --sum
+if ($sum==1){
+   &Sophomorix::SophomorixPgLdap::fetchquota_sum();
+   &log_script_exit("",1,1,0,@arguments);
+}
+
+
 
 # --cron
 if ($cron==1) {
@@ -397,7 +404,6 @@ if ($loginname eq ""
     @userlist=&create_userlist($loginname,$classes,0,$projects,0,$student,
                                $rooms,$ws,$administrator,$check);
 }
-
 
 
 if ($#userlist+1==0 and $sum==0){
