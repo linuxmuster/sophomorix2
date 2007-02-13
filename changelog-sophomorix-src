@@ -8,7 +8,7 @@ Problems
 cups-pdf: not necessary for Administrator (not a user account)
 
 Other Questions
-- problems: a teacher cann fill the HD space easily with 
+- problems: a teacher can fill the HD space easily with 
   handing out lots of data
 
 
@@ -1092,19 +1092,6 @@ Why? Styleguide?
 
 
 
-
-
-
-
-
-- update procedure (ml3 testers)
-- aike: usertoken (when not empty in db/usertoken in lehrer.txt 
-        use usertoken as Kürzel)
-
-
-
-
-
 print Befehl (in Werkvertrag ergänzen):
 
 sophomorix-print --classlist klasse --postfix username
@@ -1142,9 +1129,6 @@ cron itself doesn't log use logger
 
 add a cronjob?  (weekly) with  "exec? quotacheck -a"  S. 147/151 LPI(O'Reilly)
 add a cronjob?  fsck (so that no fscheck is necessary when rebooting)
-
-Mail an are gesendet.
-
 
 
 Nagios: public url, so that users can check status of deamons:
@@ -1380,7 +1364,7 @@ nagios
 https://servername/nagios2/
 
 
-mail an hoth wegen tickets
+mail an hoth wegen tickets, running
 
 
 #129: close it
@@ -1397,7 +1381,6 @@ sophomorix-user -i
      - computer accounts (with a $)
      - ...
 
-make sophomorix-repair log into a file when running as an upgrade
 
 ================== CHANGELOG ========================================
 
@@ -1409,6 +1392,7 @@ make sophomorix-repair log into a file when running as an upgrade
   - remove option $drei_strichpunkt compltely
   - sophomorix-repair -p is run (takes time)
   DONE:
+  - make sophomorix-repair log into a file when running as an upgrade
   - changed description in sophomorix-mail --showmailboxes
   - added output of cyrus mailquota with sophomorix-user -s user -v
   - typo in sophomorix-user -i removed
