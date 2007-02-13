@@ -1,7 +1,10 @@
 #!/usr/bin/perl -w
 # nothing to do
 print "This is sophomorix_1.9.8-1.upgrade starting. \n";
-print "Running sophomorix-repair. This will take approx. 1 hour per 1000 users.\n";
-print "I'm logging to /root/sophomorix-repair.log\n";
-system("sophomorix-repair --skiplock -p > /root/sophomorix-repair.log");
+print "Running sophomorix-repair. This will take approx. 15 minutes per 1000 users.\n";
+print "I'm logging to /var/log/sophomorix/repair/repair.log\n";
+print "I'm logging to /var/log/sophomorix/repair/repair.err\n";
+
+system("mkdir -p /var/log/sophomorix/repair");
+system("sophomorix-repair --skiplock -p 1 > /var/log/sophomorix/repair/repair.log 2 > /var/log/sophomorix/repair/repair.err");
 print "This is sophomorix_1.9.8-1.upgrade ending. \n";

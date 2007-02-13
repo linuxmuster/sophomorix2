@@ -123,6 +123,9 @@ if ($filename ne "") {
 &titel("Reading permision data ...");
 &get_alle_verzeichnis_rechte();
 
+&check_verzeichnis_mkdir("${DevelConf::log_pfad_repair}");
+
+
 
 ###############################################################################
 # Gruppenlisten/Userlisten erstellen
