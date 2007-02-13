@@ -6,5 +6,5 @@ print "I'm logging to /var/log/sophomorix/repair/repair.log\n";
 print "I'm logging to /var/log/sophomorix/repair/repair.err\n";
 
 system("mkdir -p /var/log/sophomorix/repair");
-system("sophomorix-repair --skiplock -p 1 > /var/log/sophomorix/repair/repair.log 2 > /var/log/sophomorix/repair/repair.err");
+system("sophomorix-repair --skiplock -p 2 > /var/log/sophomorix/repair/repair.log 1 > /var/log/sophomorix/repair/repair.err");
 print "This is sophomorix_1.9.8-1.upgrade ending. \n";
