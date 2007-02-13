@@ -82,6 +82,7 @@ require Exporter;
              dump_all_projects
              show_room_list
              get_smb_sid
+             fetchquota_sum
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
@@ -4695,6 +4696,59 @@ sub get_smb_sid {
     return $sid;
 }
 
+
+sub fetchquota_sum {
+    my $quota_fs_num = &Sophomorix::SophomorixBase::get_quota_fs_num();
+    my @quota_fs=&Sophomorix::SophomorixBase::get_quota_fs_liste();
+    my @quota_sum=();
+    foreach my $name (@quota_fs){
+        push @quota_sum,0;
+    }
+
+    my $dbh=&db_connect();
+
+  
+    print "\nQuota Values from database (actual values can differ!):";
+    print "\n=======================================================\n\n";
+
+    # mailquota
+    my ($mail_sum)= $dbh->selectrow_array( "SELECT SUM(mailquota) 
+                                         FROM userdata 
+                                            WHERE (mailquota IS NOT NULL 
+                                            AND mailquota > 0);
+                                        ");
+
+    $mail_sum=int($mail_sum)/1000;
+    print "Sum of maximum allowed Mailquota space is\n";
+    printf "  %10s GB \n",$mail_sum;
+
+    # filesystem quota
+    my $sth= $dbh->prepare( "SELECT uid,quota 
+                             FROM userdata
+                                WHERE quota IS NOT NULL;
+                            ");
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+       my ($uid,$quota)=@$row;
+	  @qlist=split(/\+/,$quota);
+          my $count=0;
+          foreach my $value (@qlist){
+             $quota_sum[$count]=$quota_sum[$count]+$value; 
+             $count++;
+          }
+    }
+    &db_disconnect($dbh);
+
+    # output
+    print "\nSum of maximum allowed Quota space is:\n";
+    for (my $i=0;$i<=$#quota_fs;$i++){
+        #my $string=$quota_sum[$i]/1000;
+        $string=int($quota_sum[$i])/1000;
+        printf "  %10s GB on %-30s\n",$string ,$quota_fs[$i];
+    }
+    print "\n";
+}
 
 
 
