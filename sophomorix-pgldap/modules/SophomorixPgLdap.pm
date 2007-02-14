@@ -480,13 +480,21 @@ sub fetchprojects_from_project {
 sub deleteuser_from_project {
     # remove user from its secondary membership in project(group)
     # (adding a user is pg_adduser)
-    my ($user,$project,$by_option)=@_;
+    # adminclass = 0 : use groupname  with p_ in the beginning ($project)
+    # adminclass = 1 : use groupname as given
+    my ($user,$project,$by_option,$adminclass)=@_;
+    if (not defined $adminclass){
+        $adminclass=0;
+    }
     unless ($project =~ m/^p\_/) { 
-       $project="p_".$project;
+	if ($adminclass==0){
+            $project="p_".$project;
+        }
     }
     if (not defined $by_option){
         $by_option=0;
     }
+ print "Gruppe : $project  $adminclass\n\n";
     my $dbh=&db_connect();
     # fetching gidnumber
     my ($gidnumber_sys)= $dbh->selectrow_array( "SELECT gidnumber 
@@ -532,14 +540,6 @@ sub deleteuser_from_project {
                $dbh->do($sql);
            }
         }
-
-
-
-
-
-
-
-
     } else {
         if (not defined $uidnumber_sys){
             print "   NOT removing user $user from project ",
@@ -549,9 +549,7 @@ sub deleteuser_from_project {
                   "$group: group doesn't exist\n";
         }
     }
-
     &db_disconnect($dbh);
-
 }
 
 
