@@ -346,7 +346,7 @@ sub remove_my_adminclass {
     &deleteadmin_from_adminclass($login,$class);
 
     # remove secondary membership
-    &deleteuser_from_project($login,$class);
+    &deleteuser_from_project($login,$class,0,1);
 
     # remove link
     &Sophomorix::SophomorixBase::remove_share_link($login,
