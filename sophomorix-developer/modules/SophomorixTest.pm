@@ -284,7 +284,8 @@ sub check_account {
        my($name,$passwd,$uid,$gid,$quota,$comment,
           $gcos,$dir,$shell) = getpwnam($login);
        my $pri_grp = getgrgid($gid);
-       &check_dir($dir,$login,${DevelConf::teacher},"2701");
+#       &check_dir($dir,$login,${DevelConf::teacher},"2701");
+       &check_dir($dir,$login,${DevelConf::teacher},"1710");
        &check_dir("${dir}/${Language::share_dir}","root","root","1755");
        my $link_dir="${dir}/${Language::share_dir}";
        &check_links("${link_dir}",$login);
@@ -502,44 +503,51 @@ sub check_provided_files {
     if ($class eq ${DevelConf::teacher}){
         &check_file("",$login,$class,
                     $login,
-                    "teachers",
-                    "2701");
+                    "www-data",
+                    "1710");
      } else {
         &check_file("",$login,$class,
                     $login,
-                    "teachers",
-                    "2751");
-    }
-    if ($class eq ${DevelConf::teacher}){
-       &check_file("$Language::task_dir",$login,$class,
-                    $login,
                     ${DevelConf::teacher},
-                    "1755");
+                    "3751");
+    }
+    if ($class eq ${DevelConf::teacher}){
+       &check_file("$Language::task_dir",$login,$class,
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "1750");
 
     } else {
        &check_file("$Language::task_dir",$login,$class,
-                    "root",
-                    "root",
-                    "1755");
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "3755");
     }
 
     if ($class eq ${DevelConf::teacher}){
        &check_file("$Language::collect_dir",$login,$class,
-                    "root",
-                    "root",
-                    "1777");
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "1770");
     } else {
        &check_file("$Language::collect_dir",$login,$class,
-                    "root",
-                    "root",
-                    "1777");
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "3757");
 
     }   
+    if ($class eq ${DevelConf::teacher}){
+       &check_file("$Language::share_dir",$login,$class,
+                    "administrator",
+                    "root",
+                    "1777");
+    } else {
+       &check_file("$Language::share_dir",$login,$class,
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "3757");
+    }   
 
-    &check_file("$Language::share_dir",$login,$class,
-                 "root",
-                 "root",
-                 "1755");
 }
 
 
