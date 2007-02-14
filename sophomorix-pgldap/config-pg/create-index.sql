@@ -10,7 +10,7 @@ CREATE INDEX le_keyval_idx ON ldap_entries (keyval);
 CREATE INDEX le_oc_map_id_idx ON ldap_entries (oc_map_id);
 CREATE INDEX g_id_idx ON groups (id);
 CREATE INDEX pa_id_idx on posix_account(id);
-
+CREATE INDEX oc_name_idx ON ldap_entry_objclasses (upper(oc_name));
 ANALYZE;
 
 COMMIT WORK;

@@ -8,3 +8,4 @@ le_keyval_idx
 le_oc_map_id_idx
 g_id_idx
 pa_id_idx
+oc_name_idx
