@@ -43,8 +43,10 @@ set -e
 
 new_version=`dpkg -l sophomorix-pgldap | grep 'sophomorix-pg' | { read status name version desc; echo "$version";}`
 
-if [ "$old_version" == "" ]; then
+if [ "$2" == "" ]; then
     old_version="0.0.0-0"
+else
+    old_version=$2
 fi
 
 
