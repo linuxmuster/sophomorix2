@@ -3673,7 +3673,7 @@ sub handoutcopy {
               }
               print "   To:   ${to_dir}\n";
               system ("cp -a $from_dir/* $to_dir");
-              system ("chown -R $user:root $to_dir/*");
+              system ("chown -R ${user}:${DevelConf::teacher} $to_dir/*");
               system ("chmod -R 0755 $to_dir/*");
            }
         }
