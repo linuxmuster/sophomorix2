@@ -26,6 +26,7 @@ use Quota;
               print_list 
               print_list_column 
               print_hash
+              fetch_repairhome
               get_alle_verzeichnis_rechte
               get_v_rechte
               setup_verzeichnis
@@ -323,6 +324,35 @@ sub print_list_column {
 ################################################################################
 # Zentrale Dateirechte
 ################################################################################
+=pod
+
+=item I<get_homedir_permissions()>
+
+Reads all permissions below homedirs
+
+=cut
+sub fetch_repairhome {
+   my ($type) = @_;
+   my @lines=();
+   my $file="$DevelConf::devel_pfad/repairhome"."."."$type";
+   if (not -e $file){
+       print "\nERROR: Could not read $file\n\n";
+       return @lines;
+   }
+   open(REPAIRHOME, "<$file");
+   &titel("Reading $file");
+   while (<REPAIRHOME>) {
+      chomp(); # Returnzeichen abschneiden
+      s/\s//g; # Spezialzeichen raus
+      if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+      if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+      push @lines, $_;
+   }
+   close(REPAIRHOME);
+   return @lines;
+}
+
+
 =pod
 
 =item I<get_alle_verzeichnis_rechte()>

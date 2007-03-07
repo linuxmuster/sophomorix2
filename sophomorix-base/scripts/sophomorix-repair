@@ -24,6 +24,8 @@ my $user="";
 my $klasse="";
 my $gruppe="";
 
+my $repairhome="";
+
 my $help=0;
 my $info=0;
 my $filename="";
@@ -52,6 +54,7 @@ my $testopt=GetOptions(
            "htaccess" => \$htaccess,
            "command-number=n" => \$command_number,
            "user|u=s" => \$login,
+           "repairhome=s" => \$repairhome,
            "skiplock" => \$skiplock,
            "file|f=s" => \$filename
           );
@@ -63,7 +66,8 @@ my $testopt=GetOptions(
 
 if ($dateirechte==0 
     and $htaccess==0
-    and $info==0) {
+    and $info==0
+    and $repairhome eq "") {
    # Es muss eine Option angegeben werden, sonst hilfe
    $help=1;
 }
@@ -182,6 +186,8 @@ my @workstations=&fetchworkstations_from_school();
 &print_list("The list of every workstation:",@workstations);
 
 
+
+
 # --permissions
 if ($dateirechte==1 or $info==1) {
    &repair_directories();
@@ -195,6 +201,94 @@ if ($htaccess==1){
 }
 
 
+# --repairhome type
+if ($repairhome ne ""){
+   my @permissions=&fetch_repairhome("$repairhome");
+   if ($repairhome eq ${DevelConf::teacher} ){
+       print "* Repairing homes of ${DevelConf::teacher}\n";
+       foreach my $teacher (@lehrer){
+           print "  * Repairing $teacher\n";
+           my ($home)=&fetchdata_from_account($teacher);
+           my @groups=&pg_get_group_list($teacher);
+           foreach my $line (@permissions){
+               my ($path,$owner,$gowner,$octal)=split(/::/,$line);
+
+               print "    * $line\n";
+
+               # replacing static variables in the path
+
+
+       $path=~s/\$current_room/$Language::current_room/;     
+       $path=~s/\$exam/$Language::exam/;     
+       $path=~s/\$collect_dir/$Language::collect_dir/;     
+
+       $path=~s/\$collected_dir/$Language::collected_dir/;     
+       $path=~s/\$collected_string/$Language::collected_string/;     
+
+       $path=~s/\$task_dir/$Language::task_dir/;     
+       $path=~s/\$task_string/$Language::task_string/;     
+
+       $path=~s/\$handout_dir/$Language::handout_dir/;     
+       $path=~s/\$handout_string/$Language::handout_string/;     
+
+       $path=~s/\$handout_dir/$Language::handout_dir/;     
+       $path=~s/\$handout_string/$Language::handout_string/;     
+
+       $path=~s/\$handoutcopy_dir/$Language::handoutcopy_dir/;     
+       $path=~s/\$handoutcopy_string/$Language::handoutcopy_string/;     
+
+       $path=~s/\$to_handoutcopy_dir/$Language::to_handoutcopy_dir/;     
+       $path=~s/\$to_handoutcopy_string/$Language::to_handoutcopy_string/;     
+
+       $path=~s/\$share_dir/$Language::share_dir/;     
+       $path=~s/\$share_string/$Language::share_string/;     
+       $path=~s/\$school/$Language::school/;     
+       $path=~s/\$user_attic/$Language::user_attic/;
+     
+#       $path=~s/\$/$Language::/;     
+#       $path=~s/\$/$Language::/;     
+#       $path=~s/\$/$Language::/;     
+#       $path=~s/\$/$Language::/;     
+#       $path=~s/\$/$Language::/;     
+	       $path=$home."/".$path;
+       
+               my $path_static_modified=$path;
+
+               # looking for dynamic $mygroups
+               if ($path_static_modified=~m/\$mygroups/){
+		   #print "    FOUND \$mygroups in $path\n";
+                   foreach my $group (@groups){
+                       my $path_to_change=$path_static_modified;
+                       if ($group eq ${DevelConf::teacher}){
+                           # teachers -> Lehrer
+   		           $path_to_change=~s/\$mygroups/${Language::teacher}/g;
+                       } else {
+		           $path_to_change=~s/\$mygroups/$group/g;
+		       }
+
+                       &repair_directory_novar($path_to_change,
+                                               $owner,$gowner,
+                                               $octal);
+
+                   }
+               } else {
+                   &repair_directory_novar($path_static_modified,
+                                           $owner,$gowner,
+                                           $octal);
+               }
+           }   
+       }
+   }
+
+
+   &log_script_exit("",1,1,0,@arguments);
+}
+
+
+
+
+
+
 &log_script_end(@arguments);
 
 
@@ -203,6 +297,8 @@ if ($htaccess==1){
 ###############################################################################
 # Erzeugt für jede Zeile von repair.directories einen Befehl
 ###############################################################################
+
+
 sub repair_htaccess {
     print "Repairing htaccess files of adminclasses:\n";
     foreach my $group (@klassen){
@@ -462,6 +558,23 @@ sub repair_directories {
 ###############################################################################
 # Reparieren eines Verzeichnisses 
 ###############################################################################
+
+sub repair_directory_novar {
+    my ($path,$owner,$gowner,$octal) = @_;
+    #print "$path ${owner}:${gowner} $octal \n";
+
+    # create if nonexisting
+    if (not -e "$path"){
+        system("mkdir -p $path");
+    }
+    if (-e "$path"){
+        system("chown ${owner}:${gowner} $path");
+        system("chmod ${octal} $path");
+    }
+
+}
+
+
 sub repair_directory {
    # Übergabewerte:
    # pfad(string) mit variablen $gruppe und $user
