@@ -460,6 +460,9 @@ sub generate_maillist_projects {
    print ALIASESTMP "\n### Mailinglist for project ",
                     "$group (LongName: $longname)\n";
 
+   # get mail also for non "p_"-beginning
+   $group=~s/^p_//g;
+
    if (defined $user[0]){
        # create alias from longname to name
        if ($group ne $longname){
