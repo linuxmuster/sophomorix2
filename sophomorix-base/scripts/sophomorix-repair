@@ -201,104 +201,18 @@ if ($htaccess==1){
 }
 
 
-
-
-my %rep=&fetch_repairhome();
-
 my @user_man=("galli", "devlamro");
 
-
+# fetch fermission for all homes
+my $ref_repair=&fetch_repairhome();
 
 
 # --repairhome type
 if ($repairhome ne ""){
-   #my @permissions=&fetch_repairhome("$repairhome");
-#   if ($repairhome eq ${DevelConf::teacher} ){
-   if (1==1){
-
-       foreach my $user (@user_man){
-
-           my ($home,$type)=&fetchdata_from_account($user);
-           my @groups=&pg_get_group_list($user);
-
-           my @permissions=@{$rep{$type}};
-
-           foreach my $line (@permissions){
-               my ($path,$owner,$gowner,$octal)=split(/::/,$line);
-
-               print "    * $line\n";
-
-               # put octal in a array
-               my @octal=split(/\//,$octal);
-
-               # replacing static aviables in owner
-               $owner=~s/\$user/$user/;     
- 
-               # replacing static variables in gowner
-               $gowner=~s/\$teachers/${DevelConf::teacher}/;     
-               $gowner=~s/\$apache_group/${DevelConf::apache_group}/;     
-
-               # replacing static variables in the path
-               # develconv
-
-               # lang
-               $path=~s/\$current_room/$Language::current_room/;     
-               $path=~s/\$exam/$Language::exam/;     
-               $path=~s/\$collect_dir/$Language::collect_dir/;     
-
-               $path=~s/\$collected_dir/$Language::collected_dir/;     
-               $path=~s/\$collected_string/$Language::collected_string/;     
-
-               $path=~s/\$task_dir/$Language::task_dir/;     
-               $path=~s/\$task_string/$Language::task_string/;     
-
-               $path=~s/\$handout_dir/$Language::handout_dir/;     
-               $path=~s/\$handout_string/$Language::handout_string/;     
-
-               $path=~s/\$handout_dir/$Language::handout_dir/;     
-               $path=~s/\$handout_string/$Language::handout_string/;     
-
-               $path=~s/\$handoutcopy_dir/$Language::handoutcopy_dir/;     
-               $path=~s/\$handoutcopy_string/$Language::handoutcopy_string/;     
-
-               $path=~s/\$to_handoutcopy_dir/$Language::to_handoutcopy_dir/;     
-               $path=~s/\$to_handoutcopy_string/$Language::to_handoutcopy_string/;     
-
-               $path=~s/\$share_dir/$Language::share_dir/;     
-               $path=~s/\$share_string/$Language::share_string/;     
-               $path=~s/\$school/$Language::school/;     
-               $path=~s/\$user_attic/$Language::user_attic/;
-     
-#               $path=~s/\$/$Language::/;     
-
-	       $path=$home."/".$path;
-       
-               my $path_static_modified=$path;
-
-               # looking for dynamic $mygroups
-               if ($path_static_modified=~m/\$mygroups/){
-		   #print "    FOUND \$mygroups in $path\n";
-                   foreach my $group (@groups){
-                       my $path_to_change=$path_static_modified;
-                       if ($group eq ${DevelConf::teacher}){
-                           # teachers -> Lehrer
-   		           $path_to_change=~s/\$mygroups/${Language::teacher}/g;
-                       } else {
-		           $path_to_change=~s/\$mygroups/$group/g;
-		       }
-                       &repair_directory_no_var($path_to_change,
-                                               $owner,$gowner,
-                                               @octal);
-                   }
-               } else {
-                    &repair_directory_no_var($path_static_modified,
-                                            $owner,$gowner,
-                                            @octal);
-               }
-           }   
-       }
-   }
-   &log_script_exit("",1,1,0,@arguments);
+    foreach my $user (@user_man){
+        &repair_repairhome($user,$ref_repair);
+    }
+    &log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -571,50 +485,6 @@ sub repair_directories {
 ###############################################################################
 # Reparieren eines Verzeichnisses 
 ###############################################################################
-
-sub repair_directory_no_var {
-    my ($path,$owner,$gowner,@octal) = @_;
-    #print "$path ${owner}:${gowner} $octal \n";
-
-    # create if nonexisting
-    if (not -e "$path"){
-        system("mkdir $path");
-    }  
-    if (-e "$path"){
-        # owner
-        my $command_1="chown ${owner}:${gowner} $path";
-        print "        $command_1\n";
-        system("$command_1");
-
-        # permissions
-        if ($#octal>0){
-            # more than one permission given
-            # Dateirechte des Verzeichnises ermitteln
-            my ($a,$b,$mode) = stat(${path});
-            #print "Mode ist $mode\n";
-            # Umwandeln in übliche Schreibweise
-            $mode &=07777;
-            $mode=sprintf "%04o",$mode;
-            #print "Mode ist $mode\n";
-
-             # Sind die Verzeichnisrechte OK
-	     foreach my $perm (@octal){
-                if ( $mode==$perm ) {
-                    print "        Mode $mode is OK. Nothing to do!\n";
-                    return;
-                } else {
-                    print "        Mode must be set to $octal[0]!\n";
-                    chmod oct($octal[0]), $path;
-                } 
-	    }
-        } else {
-            chmod oct($octal[0]), $path;
-        }
-
-    }
-    return;
-}
-
 
 sub repair_directory {
    # Übergabewerte:

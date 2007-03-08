@@ -94,6 +94,7 @@ use Quota;
               provide_project_files
               remove_project_files
               provide_user_files
+              repair_repairhome
               fetchhtaccess_from_user
               user_public_upload
               user_public_noupload
@@ -371,7 +372,8 @@ sub fetch_repairhome {
       }
       close(REPAIRHOME);
    }
-   return %result;
+   # return a reference
+   return \%result;
 }
 
 
@@ -1003,7 +1005,7 @@ Creates all files and directories for a user.
 
 =cut
 sub provide_user_files {
-    my ($login,$class) = @_;
+    my ($login,$class,$ref_repair) = @_;
     my $home="";
     my $home_class="";
     my $share_class = "";
@@ -1015,6 +1017,12 @@ sub provide_user_files {
     my $dev_null="1>/dev/null 2>/dev/null";
     my ($type,$longname)=
        &Sophomorix::SophomorixPgLdap::pg_get_group_type($class);
+
+    if ($DevelConf::testen==0) {
+        # create all dirs in $HOME for user
+        &repair_repairhome($login,$ref_repair);
+    }
+
     if ($class eq ${DevelConf::teacher}){
         ####################
         # teacher
@@ -1027,84 +1035,85 @@ sub provide_user_files {
         $htaccess_target=$home."/private_html/.htaccess";
         $htaccess_sed_command=
             "sed $htaccess_replace $htaccess_template > $htaccess_target";
+
         if ($DevelConf::testen==0) {
-           &setup_verzeichnis("\$homedir_teacher/\$lehrer",
-                  "$home",
-                  "$login");
-#           &setup_verzeichnis("\$homedir_teacher/\$lehrer/windows",
-#                  "$home/windows",
+#           &setup_verzeichnis("\$homedir_teacher/\$lehrer",
+#                  "$home",
 #                  "$login");
-           &setup_verzeichnis("\$homedir_teacher/\$lehrer/cups-pdf",
-                  "$home/cups-pdf",
-                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$task_dir",
-                  "$home/${Language::task_dir}",
-                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$handout_dir",
-                  "$home/${Language::handout_dir}",
-                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$to_handoutcopy_dir",
-                  "$home/${Language::to_handoutcopy_dir}",
-                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$to_handoutcopy_dir/\$to_handoutcopy_string\$current_room",
-                  "$home/${Language::to_handoutcopy_dir}/${Language::to_handoutcopy_string}${Language::current_room}",
-                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$handoutcopy_dir",
-                  "$home/${Language::handoutcopy_dir}",
-                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$handout_dir/\$handout_string\$exam",
-                  "$home/${Language::handout_dir}/${Language::handout_string}${Language::exam}",
-                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$handout_dir/\$handout_string\$current_room",
-                  "$home/${Language::handout_dir}/${Language::handout_string}${Language::current_room}",
-                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$handoutcopy_dir/\$handoutcopy_string\$current_room",
-                  "$home/${Language::handoutcopy_dir}/${Language::handoutcopy_string}${Language::current_room}",
-                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$collected_dir",
-                  "$home/${Language::collected_dir}",
-                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$collected_dir/\$collected_string\$current_room",
-                  "$home/${Language::collected_dir}/${Language::collected_string}${Language::current_room}",
-                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$collect_dir",
-                  "$home/${Language::collect_dir}",
-                  "$login");
+##           &setup_verzeichnis("\$homedir_teacher/\$lehrer/windows",
+##                  "$home/windows",
+##                  "$login");
+#           &setup_verzeichnis("\$homedir_teacher/\$lehrer/cups-pdf",
+#                  "$home/cups-pdf",
+#                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_teacher/\$lehrer/\$task_dir",
+#                  "$home/${Language::task_dir}",
+#                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_teacher/\$lehrer/\$handout_dir",
+#                  "$home/${Language::handout_dir}",
+#                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_teacher/\$lehrer/\$to_handoutcopy_dir",
+#                  "$home/${Language::to_handoutcopy_dir}",
+#                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_teacher/\$lehrer/\$to_handoutcopy_dir/\$to_handoutcopy_string\$current_room",
+#                  "$home/${Language::to_handoutcopy_dir}/${Language::to_handoutcopy_string}${Language::current_room}",
+#                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_teacher/\$lehrer/\$handoutcopy_dir",
+#                  "$home/${Language::handoutcopy_dir}",
+#                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_teacher/\$lehrer/\$handout_dir/\$handout_string\$exam",
+#                  "$home/${Language::handout_dir}/${Language::handout_string}${Language::exam}",
+#                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_teacher/\$lehrer/\$handout_dir/\$handout_string\$current_room",
+#                  "$home/${Language::handout_dir}/${Language::handout_string}${Language::current_room}",
+#                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_teacher/\$lehrer/\$handoutcopy_dir/\$handoutcopy_string\$current_room",
+#                  "$home/${Language::handoutcopy_dir}/${Language::handoutcopy_string}${Language::current_room}",
+#                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_teacher/\$lehrer/\$collected_dir",
+#                  "$home/${Language::collected_dir}",
+#                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_teacher/\$lehrer/\$collected_dir/\$collected_string\$current_room",
+#                  "$home/${Language::collected_dir}/${Language::collected_string}${Language::current_room}",
+#                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_teacher/\$lehrer/\$collect_dir",
+#                  "$home/${Language::collect_dir}",
+#                  "$login");
 #           &setup_verzeichnis(
 #                  "\$homedir_teacher/\$lehrer/\$collect_dir/\$current_room",
 #                  "$home/${Language::collect_dir}/${Language::current_room}",
 #                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$collected_dir/\$collected_string\$exam",
-                  "$home/${Language::collected_dir}/${Language::collected_string}${Language::exam}",
-                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$share_dir",
-                  "$home/${Language::share_dir}",
-                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/private_html",
-                  "$home/private_html",
-                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_teacher/\$lehrer/\$collected_dir/\$collected_string\$exam",
+#                  "$home/${Language::collected_dir}/${Language::collected_string}${Language::exam}",
+#                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_teacher/\$lehrer/\$share_dir",
+#                  "$home/${Language::share_dir}",
+#                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_teacher/\$lehrer/private_html",
+#                  "$home/private_html",
+#                  "$login");
            &setup_verzeichnis(
                   "\$www_teachers/\$lehrer",
                   "${DevelConf::www_teachers}/$login",
                   "$login");
-           &setup_verzeichnis(
-                  "\$homedir_teacher/\$lehrer/\$user_attic",
-                  "$home/${Language::user_attic}",
-                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_teacher/\$lehrer/\$user_attic",
+#                  "$home/${Language::user_attic}",
+#                  "$login");
            if($Conf::log_level>=3){
    	       print "$htaccess_sed_command\n";
            } else {
@@ -1116,7 +1125,7 @@ sub provide_user_files {
 	   print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
                  "${DevelConf::apache_user}($gid) to:\n     $htaccess_target\n";
            chown $uid, $gid, $htaccess_target;
-        }
+       }
 
         # add htaccess to /var/www/people/.../user
         &user_private_upload($login);
@@ -1138,54 +1147,56 @@ sub provide_user_files {
         $htaccess_sed_command=
             "sed $htaccess_replace $htaccess_template > $htaccess_target";
         if ($DevelConf::testen==0) {
-           &setup_verzeichnis("\$homedir_pupil/\$klassen",
-                              "$home_class");
-           &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler",
-                              "$home",
-                              "$login");
+#           &setup_verzeichnis("\$homedir_pupil/\$klassen",
+#                              "$home_class");
+#           &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler",
+#                              "$home",
+#                              "$login");
+
+           # what is this for ?
            system("chown -R $login:${DevelConf::teacher} $home");
 #           &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/windows",
 #                              "$home/windows",
 #                              "$login");
-           &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/cups-pdf",
-                              "$home/cups-pdf",
-                              "$login");
-           &setup_verzeichnis(
-                  "\$homedir_pupil/\$klassen/\$schueler/\$task_dir",
-                  "$home/${Language::task_dir}",
-                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_pupil/\$klassen/\$schueler/\$collect_dir",
-                  "$home/${Language::collect_dir}",
-                  "$login");
+#           &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/cups-pdf",
+#                              "$home/cups-pdf",
+#                              "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_pupil/\$klassen/\$schueler/\$task_dir",
+#                  "$home/${Language::task_dir}",
+#                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_pupil/\$klassen/\$schueler/\$collect_dir",
+#                  "$home/${Language::collect_dir}",
+#                  "$login");
 #           &setup_verzeichnis(
 #                  "\$homedir_pupil/\$klassen/\$schueler/\$collect_dir/\$current_room",
 #                  "$home/${Language::collect_dir}/${Language::current_room}",
 #                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_pupil/\$klassen/\$schueler/\$handoutcopy_dir",
-                  "$home/${Language::handoutcopy_dir}",
-                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_pupil/\$klassen/\$schueler/\$handoutcopy_dir/\$handoutcopy_string\$current_room",
-                  "$home/${Language::handoutcopy_dir}/${Language::handoutcopy_string}${Language::current_room}",
-                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_pupil/\$klassen/\$schueler/\$share_dir",
-                  "$home/${Language::share_dir}",
-                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_pupil/\$klassen/\$schueler/\$handoutcopy_dir",
+#                  "$home/${Language::handoutcopy_dir}",
+#                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_pupil/\$klassen/\$schueler/\$handoutcopy_dir/\$handoutcopy_string\$current_room",
+#                  "$home/${Language::handoutcopy_dir}/${Language::handoutcopy_string}${Language::current_room}",
+#                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_pupil/\$klassen/\$schueler/\$share_dir",
+#                  "$home/${Language::share_dir}",
+#                  "$login");
            &setup_verzeichnis(
                   "\$www_students/\$schueler",
                   "${DevelConf::www_students}/$login",
                   "$login");
-           &setup_verzeichnis(
-                  "\$homedir_pupil/\$klassen/\$schueler/private_html",
-                  "$home/private_html",
-                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_pupil/\$klassen/\$schueler/\$user_attic",
-                  "$home/${Language::user_attic}",
-                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_pupil/\$klassen/\$schueler/private_html",
+#                  "$home/private_html",
+#                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_pupil/\$klassen/\$schueler/\$user_attic",
+#                  "$home/${Language::user_attic}",
+#                  "$login");
            # add htaccess to private_html
            if($Conf::log_level>=3){
    	       print "$htaccess_sed_command\n";
@@ -1213,23 +1224,24 @@ sub provide_user_files {
         if ($DevelConf::testen==0) {
            $home_ws = "${DevelConf::homedir_ws}/$class";
            $home = "${DevelConf::homedir_ws}/$class/$login";
-           &setup_verzeichnis("\$homedir_ws/\$raeume",
-                              "$home_ws");
-           &setup_verzeichnis("\$homedir_ws/\$raeume/\$workstation",
-                              "$home",
-                              "$login");
+#           &setup_verzeichnis("\$homedir_ws/\$raeume",
+#                              "$home_ws");
+#           &setup_verzeichnis("\$homedir_ws/\$raeume/\$workstation",
+#                              "$home",
+#                              "$login");
+           # Wozu ist das gut ???
            system("chown -R $login:${DevelConf::teacher} $home");
 #           &setup_verzeichnis("\$homedir_ws/\$raeume/\$workstation/windows",
 #                              "$home/windows",
 #                              "$login");
-           &setup_verzeichnis(
-                  "\$homedir_ws/\$raeume/\$workstation/\$task_dir",
-                  "$home/${Language::task_dir}",
-                  "$login");
-           &setup_verzeichnis(
-                  "\$homedir_ws/\$raeume/\$workstation/\$collect_dir",
-                  "$home/${Language::collect_dir}",
-                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_ws/\$raeume/\$workstation/\$task_dir",
+#                  "$home/${Language::task_dir}",
+#                  "$login");
+#           &setup_verzeichnis(
+#                  "\$homedir_ws/\$raeume/\$workstation/\$collect_dir",
+#                  "$home/${Language::collect_dir}",
+#                  "$login");
 #           &setup_verzeichnis(
 #                  "\$homedir_ws/\$raeume/\$workstation/\$collect_dir/\$current_room",
 #                  "$home/${Language::collect_dir}/${Language::current_room}",
@@ -1247,6 +1259,144 @@ sub provide_user_files {
         print "\nERROR: Could not determine type of $class\n\n";
     }
 }
+
+
+
+
+sub repair_repairhome {
+    my ($user,$ref) = @_;
+    my ($home,$type)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
+    my @groups=&Sophomorix::SophomorixPgLdap::pg_get_group_list($user);
+
+    # dont make a copy: put this in a single line
+    my %repair_hash = %$ref;
+    my @permissions=@{$repair_hash{$type}};
+
+    foreach my $line (@permissions){
+        my ($path,$owner,$gowner,$octal)=split(/::/,$line);
+
+        print "    * $line\n";
+
+        # put octal in a array
+        my @octal=split(/\//,$octal);
+
+        # replacing static aviables in owner
+        $owner=~s/\$user/$user/;     
+ 
+        # replacing static variables in gowner
+        $gowner=~s/\$teachers/${DevelConf::teacher}/;     
+        $gowner=~s/\$apache_group/${DevelConf::apache_group}/;     
+
+        # replacing static variables in the path
+        # develconv
+
+        # lang
+        $path=~s/\$current_room/$Language::current_room/;     
+        $path=~s/\$exam/$Language::exam/;     
+        $path=~s/\$collect_dir/$Language::collect_dir/;     
+
+        $path=~s/\$collected_dir/$Language::collected_dir/;     
+        $path=~s/\$collected_string/$Language::collected_string/;     
+
+        $path=~s/\$task_dir/$Language::task_dir/;     
+        $path=~s/\$task_string/$Language::task_string/;     
+
+        $path=~s/\$handout_dir/$Language::handout_dir/;     
+        $path=~s/\$handout_string/$Language::handout_string/;     
+
+        $path=~s/\$handout_dir/$Language::handout_dir/;     
+        $path=~s/\$handout_string/$Language::handout_string/;     
+
+        $path=~s/\$handoutcopy_dir/$Language::handoutcopy_dir/;     
+        $path=~s/\$handoutcopy_string/$Language::handoutcopy_string/;     
+
+        $path=~s/\$to_handoutcopy_dir/$Language::to_handoutcopy_dir/;     
+        $path=~s/\$to_handoutcopy_string/$Language::to_handoutcopy_string/;     
+
+        $path=~s/\$share_dir/$Language::share_dir/;     
+        $path=~s/\$share_string/$Language::share_string/;     
+        $path=~s/\$school/$Language::school/;     
+        $path=~s/\$user_attic/$Language::user_attic/;
+     
+#        $path=~s/\$/$Language::/;     
+
+	$path=$home."/".$path;
+       
+        # save the static modied path
+        my $path_static_modified=$path;
+
+        # looking for dynamic $mygroups
+        if ($path_static_modified=~m/\$mygroups/){
+	    # variable $mygroups detected
+            foreach my $group (@groups){
+                my $path_to_change=$path_static_modified;
+                if ($group eq ${DevelConf::teacher}){
+                    # teachers -> Lehrer
+   	            $path_to_change=~s/\$mygroups/${Language::teacher}/g;
+                } else {
+  	            $path_to_change=~s/\$mygroups/$group/g;
+		}
+                &repair_directory_no_var($path_to_change,
+                                         $owner,$gowner,
+                                         @octal);
+                }
+        } else {
+            # no variable detected
+            &repair_directory_no_var($path_static_modified,
+                                     $owner,$gowner,
+                                     @octal);
+        }
+    }
+} 
+
+
+
+sub repair_directory_no_var {
+    my ($path,$owner,$gowner,@octal) = @_;
+
+    # create if nonexisting
+    if (not -e "$path"){
+        system("mkdir $path");
+    }  
+
+    if (-e "$path"){
+        # owner
+        my $command_1="chown ${owner}:${gowner} $path";
+        print "        $command_1\n";
+        system("$command_1");
+
+        # permissions
+        if ($#octal>0){
+            # more than one permission given
+            # Dateirechte des Verzeichnises ermitteln
+            my ($a,$b,$mode) = stat(${path});
+            #print "Mode ist $mode\n";
+            # Umwandeln in übliche Schreibweise
+            $mode &=07777;
+            $mode=sprintf "%04o",$mode;
+
+            # Sind die Verzeichnisrechte OK
+	    foreach my $perm (@octal){
+               if ( $mode==$perm ) {
+                   print "        Mode $mode is OK. Nothing to do!\n";
+                   return;
+               } else {
+                   print "        Mode must be set to $octal[0]!\n";
+                   chmod oct($octal[0]), $path;
+               } 
+           }
+        } else {
+            chmod oct($octal[0]), $path;
+        }
+    }
+    return;
+}
+
+
+
+
+
+
 
 
 

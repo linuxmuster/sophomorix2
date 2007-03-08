@@ -229,8 +229,12 @@ my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
 # User (Schüler und Lehrer) anlegen aus sophomorix.add
 ################################################################################
 
-# repair.directories einlesen
+# repair.directories einlesen ???
 &get_alle_verzeichnis_rechte();
+
+# fetch permission for all homes
+my $ref_repair=&fetch_repairhome();
+
 
 # ===========================================================================
 # Abbruch, wenn sophomorix.add fehlt oder leer
@@ -418,7 +422,7 @@ while(<SOPHOMORIXADD>){
   &set_sophomorix_passwd($login_name_ok,$klartext_passwort);
 
   # 4. Creating dirs, links for the user
-  &provide_user_files($login_name_ok,$new_admin_group);
+  &provide_user_files($login_name_ok,$new_admin_group,$ref_repair);
 
   # 5. Add user to all groups she is in (files must exist to create links)
   &add_newuser_to_her_projects($login_name_ok,$new_admin_group);
