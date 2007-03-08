@@ -1040,10 +1040,9 @@ sub provide_user_files {
 
         if ($DevelConf::testen==0) {
            # create dirs outside $HOME
-           &setup_verzeichnis(
-                  "\$www_teachers/\$lehrer",
-                  "${DevelConf::www_teachers}/$login",
-                  "$login");
+           &setup_verzeichnis("\$www_teachers/\$lehrer",
+                              "${DevelConf::www_teachers}/$login",
+                              "$login");
            if($Conf::log_level>=3){
    	       print "$htaccess_sed_command\n";
            } else {
@@ -1080,10 +1079,9 @@ sub provide_user_files {
            # create dirs outside $HOME
            # what is this for ?
            #system("chown -R $login:${DevelConf::teacher} $home");
-           &setup_verzeichnis(
-                  "\$www_students/\$schueler",
-                  "${DevelConf::www_students}/$login",
-                  "$login");
+           &setup_verzeichnis("\$www_students/\$schueler",
+                              "${DevelConf::www_students}/$login",
+                              "$login");
            # add htaccess to private_html
            if($Conf::log_level>=3){
    	       print "$htaccess_sed_command\n";
@@ -2119,10 +2117,6 @@ sub create_share_link {
            print "Unknown type $type\n\n";
 	   return 0;
        }
-
-       # make sure directory exists
-#       &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/\$share_dir",
-#                      "$homedir/${Language::share_dir}");
 
        # Link to share (all but workstations)
        if ($type ne "room"){
