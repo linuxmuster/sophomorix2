@@ -1398,11 +1398,32 @@ that recursively changes permissions
 ???
  
  
+create forbiddn projectnames (NOT existing classes)
+
+cups-pdf
+private_html 
+for Exam-accounts??
+
+
+
+use new configuration files when 
+
+resetting a user
+
+make him a member in a project,
+
+move him, ...
+
 
 ================== CHANGELOG ========================================
 
-1.9.10-1 (2007-02-xx)
-  - Bugfix: erceive mail also for project (not only p_project)
+1.9.10-1 (2007-03-xx)
+
+  - Bugfix: removed chown -R after creating an account 
+            (student,workstation). Was causing trouble.
+  - Bugfixes: some permisions of share dirs after first schooling 
+    run at bszleo (Rainer)
+  - Bugfix: rerceive mail also for project (not only p_project)
   - Bugfix #174: sophomorix-project --create -p project 
     project names with 14 characters allowed even if 
     projectname given with option -p begins with p_
