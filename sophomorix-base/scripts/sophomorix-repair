@@ -215,41 +215,48 @@ if ($repairhome ne ""){
 
                print "    * $line\n";
 
+               # replacing static aviables in owner
+               $owner=~s/\$user/$teacher/;     
+ 
+               # replacing static variables in gowner
+               $gowner=~s/\$teachers/${DevelConf::teacher}/;     
+               $gowner=~s/\$apache_group/${DevelConf::apache_group}/;     
+
                # replacing static variables in the path
+               # develconv
+               #$path=~s/\$current_room/${Develconf::current_room}/;     
 
 
-       $path=~s/\$current_room/$Language::current_room/;     
-       $path=~s/\$exam/$Language::exam/;     
-       $path=~s/\$collect_dir/$Language::collect_dir/;     
+               # lang
+               $path=~s/\$current_room/$Language::current_room/;     
+               $path=~s/\$exam/$Language::exam/;     
+               $path=~s/\$collect_dir/$Language::collect_dir/;     
 
-       $path=~s/\$collected_dir/$Language::collected_dir/;     
-       $path=~s/\$collected_string/$Language::collected_string/;     
+               $path=~s/\$collected_dir/$Language::collected_dir/;     
+               $path=~s/\$collected_string/$Language::collected_string/;     
 
-       $path=~s/\$task_dir/$Language::task_dir/;     
-       $path=~s/\$task_string/$Language::task_string/;     
+               $path=~s/\$task_dir/$Language::task_dir/;     
+               $path=~s/\$task_string/$Language::task_string/;     
 
-       $path=~s/\$handout_dir/$Language::handout_dir/;     
-       $path=~s/\$handout_string/$Language::handout_string/;     
+               $path=~s/\$handout_dir/$Language::handout_dir/;     
+               $path=~s/\$handout_string/$Language::handout_string/;     
 
-       $path=~s/\$handout_dir/$Language::handout_dir/;     
-       $path=~s/\$handout_string/$Language::handout_string/;     
+               $path=~s/\$handout_dir/$Language::handout_dir/;     
+               $path=~s/\$handout_string/$Language::handout_string/;     
 
-       $path=~s/\$handoutcopy_dir/$Language::handoutcopy_dir/;     
-       $path=~s/\$handoutcopy_string/$Language::handoutcopy_string/;     
+               $path=~s/\$handoutcopy_dir/$Language::handoutcopy_dir/;     
+               $path=~s/\$handoutcopy_string/$Language::handoutcopy_string/;     
 
-       $path=~s/\$to_handoutcopy_dir/$Language::to_handoutcopy_dir/;     
-       $path=~s/\$to_handoutcopy_string/$Language::to_handoutcopy_string/;     
+               $path=~s/\$to_handoutcopy_dir/$Language::to_handoutcopy_dir/;     
+               $path=~s/\$to_handoutcopy_string/$Language::to_handoutcopy_string/;     
 
-       $path=~s/\$share_dir/$Language::share_dir/;     
-       $path=~s/\$share_string/$Language::share_string/;     
-       $path=~s/\$school/$Language::school/;     
-       $path=~s/\$user_attic/$Language::user_attic/;
+               $path=~s/\$share_dir/$Language::share_dir/;     
+               $path=~s/\$share_string/$Language::share_string/;     
+               $path=~s/\$school/$Language::school/;     
+               $path=~s/\$user_attic/$Language::user_attic/;
      
-#       $path=~s/\$/$Language::/;     
-#       $path=~s/\$/$Language::/;     
-#       $path=~s/\$/$Language::/;     
-#       $path=~s/\$/$Language::/;     
-#       $path=~s/\$/$Language::/;     
+#               $path=~s/\$/$Language::/;     
+
 	       $path=$home."/".$path;
        
                my $path_static_modified=$path;
@@ -265,28 +272,20 @@ if ($repairhome ne ""){
                        } else {
 		           $path_to_change=~s/\$mygroups/$group/g;
 		       }
-
                        &repair_directory_novar($path_to_change,
                                                $owner,$gowner,
                                                $octal);
-
                    }
                } else {
-                   &repair_directory_novar($path_static_modified,
-                                           $owner,$gowner,
-                                           $octal);
+                    &repair_directory_novar($path_static_modified,
+                                            $owner,$gowner,
+                                            $octal);
                }
            }   
        }
    }
-
-
    &log_script_exit("",1,1,0,@arguments);
 }
-
-
-
-
 
 
 &log_script_end(@arguments);
@@ -565,11 +564,15 @@ sub repair_directory_novar {
 
     # create if nonexisting
     if (not -e "$path"){
-        system("mkdir -p $path");
+        system("mkdir $path");
     }
     if (-e "$path"){
-        system("chown ${owner}:${gowner} $path");
-        system("chmod ${octal} $path");
+        my $command_1="chown ${owner}:${gowner} $path";
+        my $command_2="chmod ${octal} $path";
+        print "        $command_1\n";
+        print "        $command_2\n";
+        system("$command_1");
+        system("$command_2");
     }
 
 }
