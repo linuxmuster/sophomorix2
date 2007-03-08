@@ -1418,7 +1418,9 @@ move him, ...
 ================== CHANGELOG ========================================
 
 1.9.10-1 (2007-03-xx)
-
+  - checked calls &setup_verzeichnis that they can go along with
+    smaller repair.directories (nothing within $HOME repaired)
+  - made repair_repairhome stop, when a nonexisting user is given
   - Bugfix: removed chown -R after creating an account 
             (student,workstation). Was causing trouble.
   - Bugfixes: some permisions of share dirs after first schooling 
