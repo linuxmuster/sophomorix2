@@ -127,6 +127,9 @@ if ($filename ne "") {
 &titel("Reading permision data ...");
 &get_alle_verzeichnis_rechte();
 
+# fetch permission for all homes
+&fetch_repairhome();
+
 &check_verzeichnis_mkdir("${DevelConf::log_pfad_repair}");
 
 
@@ -210,7 +213,7 @@ my $ref_repair=&fetch_repairhome();
 # --repairhome type
 if ($repairhome ne ""){
     foreach my $user (@user_man){
-        &repair_repairhome($user,$ref_repair);
+        &repair_repairhome($user);
     }
     &log_script_exit("",1,1,0,@arguments);
 }

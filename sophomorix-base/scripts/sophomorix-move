@@ -208,6 +208,8 @@ print ("sophomorix-move startet ...\n");
 # repair.directories einlesen
 &get_alle_verzeichnis_rechte();
 
+# fetch permission for all homes
+&fetch_repairhome();
 
 # sophomorix database sichern
 &backup_user_database($zeit, "before-move.sql");

@@ -95,7 +95,10 @@ if ($info==1){
 if ($reset_room ne ""){
     print "Resetting room ${reset_room}:\n";
     my @workstations=&fetchworkstations_from_room($reset_room);
+    # repair.directories einlesen
     &get_alle_verzeichnis_rechte();
+    # fetch permission for all homes
+    &fetch_repairhome();
     foreach my $ws (@workstations){
 	print "   Resetting $ws\n";
         &reset_user($ws);
@@ -108,7 +111,10 @@ if ($reset_room ne ""){
 if ($reset_all_rooms==1){
     print "Resetting all rooms:\n";
     my @workstations=&fetchworkstations_from_school();
+    # repair.directories einlesen
     &get_alle_verzeichnis_rechte();
+    # fetch permission for all homes
+    &fetch_repairhome();
     foreach my $ws (@workstations){
 	print "   Resetting $ws\n";
         &reset_user($ws);

@@ -547,6 +547,8 @@ if ($reset_user ne""){
     my @users=split(/,/, $reset_user);
     # repair.directories einlesen
     &get_alle_verzeichnis_rechte();
+    # fetch permission for all homes
+    &fetch_repairhome();
     foreach my $user (@users){
         print "Resetting the account of $user:\n";
         # check if it is really an account

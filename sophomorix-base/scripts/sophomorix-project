@@ -465,6 +465,9 @@ if ($project ne "" and $info==1){
 # repair.directories einlesen
 &get_alle_verzeichnis_rechte();
 
+# fetch permission for all homes
+&fetch_repairhome();
+
 
 # create/update project
 if ($kill==0){

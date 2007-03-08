@@ -98,6 +98,8 @@ my $testopt=GetOptions(
 # repair.directories einlesen
 &get_alle_verzeichnis_rechte();
 
+# fetch permission for all homes
+&fetch_repairhome();
 
 my $UID_name=getpwuid($UID);
 my $EUID_name=getpwuid($EUID);

@@ -177,12 +177,10 @@ if ($split==0){
 
 
 # repair.directories einlesen
-my %alle_verzeichnis_rechte = &get_alle_verzeichnis_rechte();
+&get_alle_verzeichnis_rechte();
 
-#while (my ($k,$v) = each %alle_verzeichnis_rechte){
-#    print $k , " ", $v, "\n";
-#}
-
+# fetch permission for all homes
+&fetch_repairhome();
 
 # step 0
 # removing admin teachers of $class to subclasses with users
