@@ -332,6 +332,53 @@ Reads all permissions below homedirs
 
 =cut
 sub fetch_repairhome {
+   # files repairhome.$type to read
+   my @typelist = ("teacher","student","workstation");
+
+   # data structure: hash of arrays
+   my @student=();     
+   my @teacher=();     
+   my @workstation=();
+   my %result=();
+   $result{"student"}=\@student;
+   $result{"teacher"}=\@teacher;
+   $result{"workstation"}=\@workstation;
+
+   foreach my $type (@typelist){
+
+      my $file="$DevelConf::devel_pfad/repairhome"."."."$type";
+      if (not -e $file){
+         print "\nERROR: Could not read $file\n\n";
+         exit;
+      }
+      open(REPAIRHOME, "<$file");
+      &titel("Reading $file");
+      while (<REPAIRHOME>) {
+          chomp(); # Returnzeichen abschneiden
+          s/\s//g; # Spezialzeichen raus
+          if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+          if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+
+          if ($type eq "teacher"){
+	      push @teacher, $_;
+          }
+          if ($type eq "student"){
+	      push @student, $_;
+          }
+          if ($type eq "workstation"){
+	      push @workstation, $_;
+          }
+      }
+      close(REPAIRHOME);
+   }
+   return %result;
+}
+
+
+
+
+
+sub fetch_repairhome_old {
    my ($type) = @_;
    my @lines=();
    my $file="$DevelConf::devel_pfad/repairhome"."."."$type";
