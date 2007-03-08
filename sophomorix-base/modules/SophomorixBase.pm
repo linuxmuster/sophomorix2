@@ -1019,7 +1019,7 @@ sub provide_user_files {
        &Sophomorix::SophomorixPgLdap::pg_get_group_type($class);
 
     if ($DevelConf::testen==0) {
-        # create all dirs in $HOME for user
+        # create all dirs in $HOME for all users
         &repair_repairhome($login,$ref_repair);
     }
 
@@ -1037,83 +1037,11 @@ sub provide_user_files {
             "sed $htaccess_replace $htaccess_template > $htaccess_target";
 
         if ($DevelConf::testen==0) {
-#           &setup_verzeichnis("\$homedir_teacher/\$lehrer",
-#                  "$home",
-#                  "$login");
-##           &setup_verzeichnis("\$homedir_teacher/\$lehrer/windows",
-##                  "$home/windows",
-##                  "$login");
-#           &setup_verzeichnis("\$homedir_teacher/\$lehrer/cups-pdf",
-#                  "$home/cups-pdf",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_teacher/\$lehrer/\$task_dir",
-#                  "$home/${Language::task_dir}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_teacher/\$lehrer/\$handout_dir",
-#                  "$home/${Language::handout_dir}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_teacher/\$lehrer/\$to_handoutcopy_dir",
-#                  "$home/${Language::to_handoutcopy_dir}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_teacher/\$lehrer/\$to_handoutcopy_dir/\$to_handoutcopy_string\$current_room",
-#                  "$home/${Language::to_handoutcopy_dir}/${Language::to_handoutcopy_string}${Language::current_room}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_teacher/\$lehrer/\$handoutcopy_dir",
-#                  "$home/${Language::handoutcopy_dir}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_teacher/\$lehrer/\$handout_dir/\$handout_string\$exam",
-#                  "$home/${Language::handout_dir}/${Language::handout_string}${Language::exam}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_teacher/\$lehrer/\$handout_dir/\$handout_string\$current_room",
-#                  "$home/${Language::handout_dir}/${Language::handout_string}${Language::current_room}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_teacher/\$lehrer/\$handoutcopy_dir/\$handoutcopy_string\$current_room",
-#                  "$home/${Language::handoutcopy_dir}/${Language::handoutcopy_string}${Language::current_room}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_teacher/\$lehrer/\$collected_dir",
-#                  "$home/${Language::collected_dir}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_teacher/\$lehrer/\$collected_dir/\$collected_string\$current_room",
-#                  "$home/${Language::collected_dir}/${Language::collected_string}${Language::current_room}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_teacher/\$lehrer/\$collect_dir",
-#                  "$home/${Language::collect_dir}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_teacher/\$lehrer/\$collect_dir/\$current_room",
-#                  "$home/${Language::collect_dir}/${Language::current_room}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_teacher/\$lehrer/\$collected_dir/\$collected_string\$exam",
-#                  "$home/${Language::collected_dir}/${Language::collected_string}${Language::exam}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_teacher/\$lehrer/\$share_dir",
-#                  "$home/${Language::share_dir}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_teacher/\$lehrer/private_html",
-#                  "$home/private_html",
-#                  "$login");
+           # create dirs outside $HOME
            &setup_verzeichnis(
                   "\$www_teachers/\$lehrer",
                   "${DevelConf::www_teachers}/$login",
                   "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_teacher/\$lehrer/\$user_attic",
-#                  "$home/${Language::user_attic}",
-#                  "$login");
            if($Conf::log_level>=3){
    	       print "$htaccess_sed_command\n";
            } else {
@@ -1125,7 +1053,7 @@ sub provide_user_files {
 	   print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
                  "${DevelConf::apache_user}($gid) to:\n     $htaccess_target\n";
            chown $uid, $gid, $htaccess_target;
-       }
+        }
 
         # add htaccess to /var/www/people/.../user
         &user_private_upload($login);
@@ -1147,56 +1075,13 @@ sub provide_user_files {
         $htaccess_sed_command=
             "sed $htaccess_replace $htaccess_template > $htaccess_target";
         if ($DevelConf::testen==0) {
-#           &setup_verzeichnis("\$homedir_pupil/\$klassen",
-#                              "$home_class");
-#           &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler",
-#                              "$home",
-#                              "$login");
-
+           # create dirs outside $HOME
            # what is this for ?
            system("chown -R $login:${DevelConf::teacher} $home");
-#           &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/windows",
-#                              "$home/windows",
-#                              "$login");
-#           &setup_verzeichnis("\$homedir_pupil/\$klassen/\$schueler/cups-pdf",
-#                              "$home/cups-pdf",
-#                              "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_pupil/\$klassen/\$schueler/\$task_dir",
-#                  "$home/${Language::task_dir}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_pupil/\$klassen/\$schueler/\$collect_dir",
-#                  "$home/${Language::collect_dir}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_pupil/\$klassen/\$schueler/\$collect_dir/\$current_room",
-#                  "$home/${Language::collect_dir}/${Language::current_room}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_pupil/\$klassen/\$schueler/\$handoutcopy_dir",
-#                  "$home/${Language::handoutcopy_dir}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_pupil/\$klassen/\$schueler/\$handoutcopy_dir/\$handoutcopy_string\$current_room",
-#                  "$home/${Language::handoutcopy_dir}/${Language::handoutcopy_string}${Language::current_room}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_pupil/\$klassen/\$schueler/\$share_dir",
-#                  "$home/${Language::share_dir}",
-#                  "$login");
            &setup_verzeichnis(
                   "\$www_students/\$schueler",
                   "${DevelConf::www_students}/$login",
                   "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_pupil/\$klassen/\$schueler/private_html",
-#                  "$home/private_html",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_pupil/\$klassen/\$schueler/\$user_attic",
-#                  "$home/${Language::user_attic}",
-#                  "$login");
            # add htaccess to private_html
            if($Conf::log_level>=3){
    	       print "$htaccess_sed_command\n";
@@ -1224,36 +1109,9 @@ sub provide_user_files {
         if ($DevelConf::testen==0) {
            $home_ws = "${DevelConf::homedir_ws}/$class";
            $home = "${DevelConf::homedir_ws}/$class/$login";
-#           &setup_verzeichnis("\$homedir_ws/\$raeume",
-#                              "$home_ws");
-#           &setup_verzeichnis("\$homedir_ws/\$raeume/\$workstation",
-#                              "$home",
-#                              "$login");
+           # create dirs outside $HOME
            # Wozu ist das gut ???
            system("chown -R $login:${DevelConf::teacher} $home");
-#           &setup_verzeichnis("\$homedir_ws/\$raeume/\$workstation/windows",
-#                              "$home/windows",
-#                              "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_ws/\$raeume/\$workstation/\$task_dir",
-#                  "$home/${Language::task_dir}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_ws/\$raeume/\$workstation/\$collect_dir",
-#                  "$home/${Language::collect_dir}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_ws/\$raeume/\$workstation/\$collect_dir/\$current_room",
-#                  "$home/${Language::collect_dir}/${Language::current_room}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_ws/\$raeume/\$workstation/\$handoutcopy_dir",
-#                  "$home/${Language::handoutcopy_dir}",
-#                  "$login");
-#           &setup_verzeichnis(
-#                  "\$homedir_ws/\$raeume/\$workstation/\$handoutcopy_dir/\$current_room",
-#                  "$home/${Language::handoutcopy_dir}/${Language::current_room}",
-#                  "$login");
          }
     } else {
         print "\nERROR: Could not determine type of $class\n\n";
