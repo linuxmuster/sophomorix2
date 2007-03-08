@@ -961,7 +961,9 @@ sub provide_project_files {
     print "   $project_tausch\n";
     print "   $project_aufgaben\n";
     &setup_verzeichnis("\$share_projects/\$projects",
-                       "$project_tausch");
+                       "$project_tausch",
+                       "",
+                       $project);
     &setup_verzeichnis("\$tasks_projects/\$projects",
                        "$project_aufgaben");
     &setup_verzeichnis("\$www_projects/\$projects",
@@ -1077,7 +1079,7 @@ sub provide_user_files {
         if ($DevelConf::testen==0) {
            # create dirs outside $HOME
            # what is this for ?
-           system("chown -R $login:${DevelConf::teacher} $home");
+           #system("chown -R $login:${DevelConf::teacher} $home");
            &setup_verzeichnis(
                   "\$www_students/\$schueler",
                   "${DevelConf::www_students}/$login",
@@ -1111,7 +1113,7 @@ sub provide_user_files {
            $home = "${DevelConf::homedir_ws}/$class/$login";
            # create dirs outside $HOME
            # Wozu ist das gut ???
-           system("chown -R $login:${DevelConf::teacher} $home");
+           #system("chown -R $login:${DevelConf::teacher} $home");
          }
     } else {
         print "\nERROR: Could not determine type of $class\n\n";
@@ -1208,7 +1210,7 @@ sub repair_repairhome {
 } 
 
 
-
+# following sub is not exported, user only herein
 sub repair_directory_no_var {
     my ($path,$owner,$gowner,@octal) = @_;
 
