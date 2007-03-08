@@ -1127,17 +1127,16 @@ sub repair_repairhome {
     my ($user) = @_;
     my ($home,$type)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
     my @groups=&Sophomorix::SophomorixPgLdap::pg_get_group_list($user);
+    if ($home eq "" or $type eq ""){
+        print "WARNING: Could not find data for user $user. NOT repairing home!\n";
+	return;
+    }
 
-    # dont make a copy: put this in a single line
-#    my %repair_hash = %$ref;
-#    my @permissions=@{$repair_hash{$type}};
-
-    #my %repair_hash = %$ref;
+    # use permissions according to type
     my @permissions=@{$all_repairhome{$type}};
 
     foreach my $line (@permissions){
         my ($path,$owner,$gowner,$octal)=split(/::/,$line);
-
         print "    * $line\n";
 
         # put octal in a array
