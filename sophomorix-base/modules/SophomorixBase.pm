@@ -340,10 +340,10 @@ sub fetch_repairhome {
    my @student=();     
    my @teacher=();     
    my @workstation=();
-   my %result=();
-   $result{"student"}=\@student;
-   $result{"teacher"}=\@teacher;
-   $result{"workstation"}=\@workstation;
+   %all_repairhome=();
+   $all_repairhome{"student"}=\@student;
+   $all_repairhome{"teacher"}=\@teacher;
+   $all_repairhome{"workstation"}=\@workstation;
 
    foreach my $type (@typelist){
 
@@ -373,7 +373,7 @@ sub fetch_repairhome {
       close(REPAIRHOME);
    }
    # return a reference
-   return \%result;
+   return \%all_repairhome;
 }
 
 
@@ -1007,7 +1007,7 @@ Creates all files and directories for a user.
 
 =cut
 sub provide_user_files {
-    my ($login,$class,$ref_repair) = @_;
+    my ($login,$class) = @_;
     my $home="";
     my $home_class="";
     my $share_class = "";
@@ -1022,7 +1022,7 @@ sub provide_user_files {
 
     if ($DevelConf::testen==0) {
         # create all dirs in $HOME for all users
-        &repair_repairhome($login,$ref_repair);
+        &repair_repairhome($login);
     }
 
     if ($class eq ${DevelConf::teacher}){
@@ -1060,8 +1060,8 @@ sub provide_user_files {
         # add htaccess to /var/www/people/.../user
         &user_private_upload($login);
 
-        &create_share_link($login, $class,$class,"adminclass");
-        &create_share_directory($login, $class,$class,"adminclass");
+        &create_share_link($login,$class,$class,"adminclass");
+        &create_share_directory($login,$class,$class,"adminclass");
         &create_school_link($login);
     } elsif ($type eq "adminclass") { 
         ####################
@@ -1100,8 +1100,8 @@ sub provide_user_files {
            # add htaccess to /var/www/people/.../user
            &user_private_noupload($login);
 
-           &create_share_link($login, $class,$class,"adminclass");
-           &create_share_directory($login, $class,$class,"adminclass");
+           &create_share_link($login,$class,$class,"adminclass");
+           &create_share_directory($login,$class,$class,"adminclass");
            &create_school_link($login);
          }
     } elsif ($type eq "room"){
@@ -1124,13 +1124,16 @@ sub provide_user_files {
 
 
 sub repair_repairhome {
-    my ($user,$ref) = @_;
+    my ($user) = @_;
     my ($home,$type)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
     my @groups=&Sophomorix::SophomorixPgLdap::pg_get_group_list($user);
 
     # dont make a copy: put this in a single line
-    my %repair_hash = %$ref;
-    my @permissions=@{$repair_hash{$type}};
+#    my %repair_hash = %$ref;
+#    my @permissions=@{$repair_hash{$type}};
+
+    #my %repair_hash = %$ref;
+    my @permissions=@{$all_repairhome{$type}};
 
     foreach my $line (@permissions){
         my ($path,$owner,$gowner,$octal)=split(/::/,$line);
@@ -2180,6 +2183,12 @@ sub create_share_directory {
         $share_long_name=$share_name;
     }
 
+    # new 
+    # create all dirs in $HOME for all users
+    &repair_repairhome($login);
+
+    return;
+
     my ($homedir,$account_type)=
        &Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
 
@@ -2219,38 +2228,10 @@ sub create_share_directory {
                 system("mkdir $collected_dir");
                 system("chown $login:root $collected_dir");
             }
-            
-            # adding subdirs with the name of $teacher to __einsammeln
-#            my ($type,$longname)=
-#                &Sophomorix::SophomorixPgLdap::pg_get_group_type($share_name);
-#            my @groupmembers =
-#                &Sophomorix::SophomorixPgLdap::pg_get_group_members($share_name);
-#            foreach my $member (@groupmembers){
-#                print "Adding dirs for $member ($share_name)\n";
-#                my ($homedir,$account_type)=
-#                   &Sophomorix::SophomorixPgLdap::fetchdata_from_account($member);
-#                my $dir=$homedir."/".$Language::collect_dir."/".
-#                        $longname."/".$login;
-#                print "Adding $dir to $member ($share_name)\n";
-#                if (not -e $dir){
-#                    if($Conf::log_level>=2){
-#                        print "   Adding directory ${dir}\n"; 
-#	            }
-#                    system("mkdir $dir");
-#                }
-#            }     
         }
         ##############################
         # all users
         ##############################
-#        my $collect_dir=$homedir."/".
-#            ${Language::collect_dir}."/".$share_long_name;
-#        if (not -e $collect_dir){
-#            if($Conf::log_level>=2){
-#                print "   Adding directory ${collect_dir}\n"; 
-#	    }
-#            system("mkdir $collect_dir");
-#        }
         my $handoutcopy_dir=$homedir."/".
             ${Language::handoutcopy_dir}."/".
             ${Language::handoutcopy_string}.$share_long_name;

@@ -3243,7 +3243,7 @@ sub create_project {
         $p_status,$p_join,$pg_timestamp,
         $p_max_members,$p_members,$p_admins,
         $p_groups,$p_projects,
-        $p_mailalias,$p_maillist) = @_;
+        $p_mailalias,$p_maillist,$ref_repair) = @_;
     # switch if longname has changed
     my $longname_changed=0;
 
