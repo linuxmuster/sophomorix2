@@ -376,30 +376,6 @@ sub fetch_repairhome {
 
 
 
-
-
-sub fetch_repairhome_old {
-   my ($type) = @_;
-   my @lines=();
-   my $file="$DevelConf::devel_pfad/repairhome"."."."$type";
-   if (not -e $file){
-       print "\nERROR: Could not read $file\n\n";
-       return @lines;
-   }
-   open(REPAIRHOME, "<$file");
-   &titel("Reading $file");
-   while (<REPAIRHOME>) {
-      chomp(); # Returnzeichen abschneiden
-      s/\s//g; # Spezialzeichen raus
-      if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
-      if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
-      push @lines, $_;
-   }
-   close(REPAIRHOME);
-   return @lines;
-}
-
-
 =pod
 
 =item I<get_alle_verzeichnis_rechte()>
