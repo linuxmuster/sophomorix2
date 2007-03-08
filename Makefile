@@ -154,8 +154,9 @@ install-base:
 	@install -oroot -groot --mode=0644 sophomorix-base/config-devel/sophomorix-devel.conf $(DEVELCONF)/devel
 	@install -oroot -groot --mode=0644 sophomorix-base/config-devel/sophomorix-support.conf $(DEVELCONF)/devel
 	@install -oroot -groot --mode=0600 sophomorix-base/config-devel/repair.directories $(DEVELCONF)/devel
-	@install -oroot -groot --mode=0600 sophomorix-base/config-devel/repairhome.teachers $(DEVELCONF)/devel
-	@install -oroot -groot --mode=0600 sophomorix-base/config-devel/repairhome.students $(DEVELCONF)/devel
+	@install -oroot -groot --mode=0600 sophomorix-base/config-devel/repairhome.teacher $(DEVELCONF)/devel
+	@install -oroot -groot --mode=0600 sophomorix-base/config-devel/repairhome.student $(DEVELCONF)/devel
+	@install -oroot -groot --mode=0600 sophomorix-base/config-devel/repairhome.workstation $(DEVELCONF)/devel
 #	install -d -m755 -oroot -groot $(DEVELCONF)/webmin
 #	install -oroot -groot --mode=0600 sophomorix-base/config-devel/webmin-admin-modules.conf $(DEVELCONF)/webmin
 #	install -oroot -groot --mode=0600 sophomorix-base/config-devel/webmin-teacher-modules.conf $(DEVELCONF)/webmin
