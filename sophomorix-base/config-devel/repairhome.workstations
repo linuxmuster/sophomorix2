@@ -1,0 +1,47 @@
+# dirs in the homes of workstations
+# Variables: 
+# owner:   $user       -> login of workstation
+# gowner:  $teachers   -> group  of teachers 
+
+
+# the home
+::administrator::$teachers::1755
+
+
+
+# cups ???
+cups-pdf::administrator::$teachers::1770
+
+# private_html ???
+private_html::administrator::$apache_group::3757
+
+
+
+# __austeilen (handout copy)
+$handoutcopy_dir::administrator::$teachers::1755
+#
+$handoutcopy_dir/$handoutcopy_string$current_room::administrator::$teachers::1755
+
+# __einsammeln (collect)
+$collect_dir::administrator::$teachers::3757
+
+# __tauschen
+$share_dir::administrator::root::1777
+
+# __vorlagen 
+$task_dir::administrator::$teachers::1755
+
+
+
+
+
+
+
+
+
+
+# austeilen (handout copy)
+$handoutcopy_dir/$handoutcopy_string$mygroups::administrator::$teachers::1770
+$handoutcopy_dir/$handoutcopy_string$current_room::administrator::$teachers::1770
+
+
