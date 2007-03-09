@@ -1272,6 +1272,8 @@ sub fetchdata_from_account {
             $type="workstation";
         } elsif ($home=~/\/dev\/null/){
             $type="domcomp";
+        } elsif ($home=~/^$DevelConf::attic\//){
+            $type="attic";
         } elsif ($home=~/^$DevelConf::homedir_all_admins\//){
             $type="administrator";
         } else {
