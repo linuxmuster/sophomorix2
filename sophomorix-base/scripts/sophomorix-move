@@ -321,11 +321,7 @@ while(<USERVERSETZEN>){
      &provide_class_files($neue_klasse);
      &create_class_db_entry($neue_klasse);
    }
-   # Benutzerdatenbank ändern
-   # LDAP
-   # usermod:
-   # -d -m: home verschieben
-   # -g : gruppe ändern
+
    # move home directory
    &do_falls_nicht_testen(
         "mkdir -p $new_homedir_above",
@@ -334,6 +330,9 @@ while(<USERVERSETZEN>){
    # change primary group
    # neue gruppe anlegen und gidnumber holen, falls erforderlich
    my $gidnumber=&create_class_db_entry($neue_klasse);
+
+
+# kommt doch noch weiter unten
    &update_user_db_entry($login_versetzen,"Gid=$neue_klasse");
 
    # Dateien im neuen home gehoeren nun der Klassengruppe.
@@ -343,19 +342,18 @@ while(<USERVERSETZEN>){
    );
 
    # links 
-    &remove_share_link($login_versetzen, $alte_klasse,$alte_klasse,"adminclass");
-    &create_share_link($login_versetzen, $neue_klasse,$neue_klasse,"adminclass");
-    &remove_share_directory($login_versetzen, 
-                            $alte_klasse,$alte_klasse,"adminclass");
-    &create_share_directory($login_versetzen, 
-                            $neue_klasse,$neue_klasse,"adminclass");
+   &remove_share_link($login_versetzen, $alte_klasse,$alte_klasse,"adminclass");
+   &create_share_link($login_versetzen, $neue_klasse,$neue_klasse,"adminclass");
+   &remove_share_directory($login_versetzen, 
+                           $alte_klasse,$alte_klasse,"adminclass");
+   &create_share_directory($login_versetzen, 
+                           $neue_klasse,$neue_klasse,"adminclass");
 
    &deleteuser_from_all_projects($login_versetzen,0);
    &add_newuser_to_her_projects($login_versetzen,$neue_klasse);
 
    # user in db updaten
    if ($DevelConf::testen==0) {
-#       if ($neue_klasse eq "dachboden"){
        if ($neue_klasse eq "attic"){
           &update_user_db_entry($login_versetzen,
                       "AdminClass=$neue_klasse",
