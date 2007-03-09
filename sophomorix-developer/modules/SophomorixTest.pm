@@ -387,7 +387,6 @@ sub run_command {
         $part3 = substr $command, 140 ,210;
     }
 
-    #print "   *** Running $command \n";
     print "   *** Running $part1 \n" if defined $part1;
     print "               $part2 \n" if defined $part2;
     print "               $part3 \n" if defined $part3;
@@ -500,6 +499,8 @@ sub fetch_login {
 # check all files/directorys/links of a account 
 sub check_provided_files {
     my ($login,$class) = @_;
+
+    # the home
     if ($class eq ${DevelConf::teacher}){
         &check_file("",$login,$class,
                     $login,
@@ -511,19 +512,75 @@ sub check_provided_files {
                     ${DevelConf::teacher},
                     "3751");
     }
-    if ($class eq ${DevelConf::teacher}){
-       &check_file("$Language::task_dir",$login,$class,
-                    "administrator",
-                    ${DevelConf::teacher},
-                    "1750");
 
-    } else {
-       &check_file("$Language::task_dir",$login,$class,
+    # cups-pdf
+    if ($class eq ${DevelConf::teacher}){
+        &check_file("cups-pdf",$login,$class,
                     "administrator",
                     ${DevelConf::teacher},
-                    "3755");
+                    "1770");
+    } else {
+        &check_file("cups-pdf",$login,$class,
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "3757");
     }
 
+    # private_html
+    if ($class eq ${DevelConf::teacher}){
+        &check_file("private_html",$login,$class,
+                    "administrator",
+                    "www-data",
+                    "3757");
+    } else {
+        &check_file("private_html",$login,$class,
+                    "administrator",
+                    "www-data",
+                    "3757");
+    }
+
+    # __austeilen
+    if ($class eq ${DevelConf::teacher}){
+        &check_file("$Language::handoutcopy_dir",$login,$class,
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "1770");
+    } else {
+        &check_file("$Language::handoutcopy_dir",$login,$class,
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "3757");
+    }
+
+    # __austeilen/mygroups fehlt ????
+
+    # __austeilen/austeilen-aktueller_raum
+    if ($class eq ${DevelConf::teacher}){
+        &check_file("__austeilen/austeilen-aktueller_raum",$login,$class,
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "1770");
+    } else {
+        &check_file("__austeilen/austeilen-aktueller_raum",$login,$class,
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "3757");
+    }
+
+    # __dachboden
+    if ($class eq ${DevelConf::teacher}){
+        &check_file("$Language::user_attic",$login,$class,
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "1770");
+    } else {
+        &check_file("$Language::user_attic",$login,$class,
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "3757");
+    }
+
+    # __einsammeln
     if ($class eq ${DevelConf::teacher}){
        &check_file("$Language::collect_dir",$login,$class,
                     "administrator",
@@ -536,6 +593,8 @@ sub check_provided_files {
                     "3757");
 
     }   
+
+    # __tauschen
     if ($class eq ${DevelConf::teacher}){
        &check_file("$Language::share_dir",$login,$class,
                     "administrator",
@@ -548,6 +607,67 @@ sub check_provided_files {
                     "3757");
     }   
 
+    # __vorlagen
+    if ($class eq ${DevelConf::teacher}){
+       &check_file("$Language::task_dir",$login,$class,
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "1750");
+    } else {
+       &check_file("$Language::task_dir",$login,$class,
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "3755");
+    }
+
+
+    #
+    # only for teachers
+    #
+
+    if ($class eq ${DevelConf::teacher}){
+       # _auszuteilen
+       &check_file("$Language::to_handoutcopy_dir",$login,$class,
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "1770");
+       &check_file("_auszuteilen/auszuteilen-aktueller_raum",$login,$class,
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "1770");
+       # _auszuteilen/mygroups fehlt ????
+
+       # _bereitstellen
+       &check_file("$Language::handout_dir",$login,$class,
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "1770");
+       &check_file("_bereitstellen/bereitstellen-aktueller_raum",$login,$class,
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "1770");
+       &check_file("_bereitstellen/bereitstellen-klassenarbeit",$login,$class,
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "1770");
+       # _bereitstellen/mygroups fehlt ????
+
+       # _eingesammelt
+       &check_file("$Language::collected_dir",$login,$class,
+                    "administrator",
+                    ${DevelConf::teacher},
+                    "1770");
+       &check_file("_eingesammelt/eingesammelt-aktueller_raum",$login,$class,
+                    $login,
+                    "root",
+                    "0770");
+       &check_file("_eingesammelt/eingesammelt-klassenarbeit",$login,$class,
+                    $login,
+                    "root",
+                    "0770");
+       # _eingesammelt/mygroups fehlt ????
+
+    }
 }
 
 
