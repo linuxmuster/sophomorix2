@@ -334,16 +334,18 @@ Reads all permissions below homedirs
 =cut
 sub fetch_repairhome {
    # files repairhome.$type to read
-   my @typelist = ("teacher","student","workstation");
+   my @typelist = ("teacher","student","workstation","attic");
 
    # data structure: hash of arrays
    my @student=();     
    my @teacher=();     
    my @workstation=();
+   my @attic=();
    %all_repairhome=();
    $all_repairhome{"student"}=\@student;
    $all_repairhome{"teacher"}=\@teacher;
    $all_repairhome{"workstation"}=\@workstation;
+   $all_repairhome{"attic"}=\@attic;
 
    foreach my $type (@typelist){
 
@@ -368,6 +370,9 @@ sub fetch_repairhome {
           }
           if ($type eq "workstation"){
 	      push @workstation, $_;
+          }
+          if ($type eq "attic"){
+	      push @attic, $_;
           }
       }
       close(REPAIRHOME);
@@ -1129,10 +1134,6 @@ sub repair_repairhome {
         print "WARNING: Could not find data for user $user. NOT repairing home!\n";
 	return;
     }
-    if ($type eq "attic"){
-        print "NOT repairing dirs under \$HOME. User is of type '$type'\n";
-        return;
-    }
     if ($type eq "none"){
         print "NOT repairing dirs under \$HOME. User is of type '$type'\n";
         return;
@@ -1140,6 +1141,7 @@ sub repair_repairhome {
     # use permissions according to type
     my @permissions=@{$all_repairhome{$type}};
 
+    print "Repairing \$HOME of user $user (type: $type)\n";
     foreach my $line (@permissions){
         my ($path,$owner,$gowner,$octal)=split(/::/,$line);
         print "    * $line\n";
