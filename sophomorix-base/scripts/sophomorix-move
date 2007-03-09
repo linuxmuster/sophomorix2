@@ -304,15 +304,6 @@ while(<USERVERSETZEN>){
    # 0. rember login to set quota later
    push @users_for_quota, $login_versetzen;
 
-
-#   if ($neue_klasse eq ${DevelConf::teacher} && not $alte_klasse eq "speicher") {
-#      # Es ist die Gruppe lehrer beteiligt
-#      print("##### User kann nicht vesetzt werden!\n");
-#      print("In die Gruppe lehrer kann man nur aus dem speicher versetzt werden\n");
-#      next; # Nächster User
-#   } 
-
-
    # die Daten aus dem Tausch-Verzeichnis dem Schüler in sein home moven
    &save_tausch_klasse($login_versetzen, $alte_klasse);
 
@@ -321,6 +312,11 @@ while(<USERVERSETZEN>){
      &provide_class_files($neue_klasse);
      &create_class_db_entry($neue_klasse);
    }
+
+   # alte links/dirs entfernen
+   &remove_share_link($login_versetzen, $alte_klasse,$alte_klasse,"adminclass");
+   &remove_share_directory($login_versetzen, 
+                           $alte_klasse,$alte_klasse,"adminclass");
 
    # move home directory
    &do_falls_nicht_testen(
@@ -333,7 +329,7 @@ while(<USERVERSETZEN>){
 
 
 # kommt doch noch weiter unten
-   &update_user_db_entry($login_versetzen,"Gid=$neue_klasse");
+#   &update_user_db_entry($login_versetzen,"Gid=$neue_klasse");
 
    # Dateien im neuen home gehoeren nun der Klassengruppe.
    # Muss angepasst werden an Eigentümer lehrer
@@ -341,16 +337,6 @@ while(<USERVERSETZEN>){
         "chown -R .${DevelConf::teacher} $new_home",
    );
 
-   # links 
-   &remove_share_link($login_versetzen, $alte_klasse,$alte_klasse,"adminclass");
-   &create_share_link($login_versetzen, $neue_klasse,$neue_klasse,"adminclass");
-   &remove_share_directory($login_versetzen, 
-                           $alte_klasse,$alte_klasse,"adminclass");
-   &create_share_directory($login_versetzen, 
-                           $neue_klasse,$neue_klasse,"adminclass");
-
-   &deleteuser_from_all_projects($login_versetzen,0);
-   &add_newuser_to_her_projects($login_versetzen,$neue_klasse);
 
    # user in db updaten
    if ($DevelConf::testen==0) {
@@ -375,7 +361,17 @@ while(<USERVERSETZEN>){
       print "Nur Test: Daten in $DevelConf::protokoll_datei schreiben\n";
    }
 
+   # links/dirs anlegen 
+   &create_share_link($login_versetzen, $neue_klasse,$neue_klasse,"adminclass");
+   &create_share_directory($login_versetzen, 
+                           $neue_klasse,$neue_klasse,"adminclass");
+
+   &deleteuser_from_all_projects($login_versetzen,0);
+   &add_newuser_to_her_projects($login_versetzen,$neue_klasse);
+
 }
+
+
 
 close(USERVERSETZEN);
 close(NOCHVERSETZEN);
