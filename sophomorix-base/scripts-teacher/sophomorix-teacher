@@ -24,6 +24,8 @@ use Sophomorix::SophomorixBase qw( check_options
                                    handoutcopy
                                    collect
                                    get_alle_verzeichnis_rechte
+                                   fetch_repairhome
+                                   fetch_smb_conf
                                  );
 
 use Sophomorix::SophomorixPgLdap qw(show_modulename
@@ -100,6 +102,10 @@ my $testopt=GetOptions(
 
 # fetch permission for all homes
 &fetch_repairhome();
+
+# fetch permissions for creation of files 
+&fetch_smb_conf();
+
 
 my $UID_name=getpwuid($UID);
 my $EUID_name=getpwuid($EUID);

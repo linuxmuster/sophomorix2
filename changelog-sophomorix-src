@@ -1446,12 +1446,22 @@ without parameter,
    (this is called when updating)
 
 
+create function to read smb.conf to find out with what owner,gowner 
+and permissions are files created.
+use this 
+   - in sophomorix-move (chown -R .gownwer ...)
+
+
 INFO:
 %all_repairhome contains all permission in $HOME
 
 ================== CHANGELOG ========================================
 
 1.9.10-1 (2007-03-xx)
+  - using 0755/0644 instead of 0755 when copyind data to a share
+  - replaced chmod -R 755 with function that uses the smb.conf values
+    when handoucopying data
+  - added function to read in smb.conf
   - sophomorix-move: made chown og gowner not so invasive
   - added function chmod_chown_dir_smb
     to chmod different for files and dirs
