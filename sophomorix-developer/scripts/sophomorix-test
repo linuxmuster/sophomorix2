@@ -36,6 +36,11 @@ system("install -d /root/sophomorix-test");
 &check_connections();
 &log_script_start(@arguments);
 
+# repair.directories einlesen ???
+&get_alle_verzeichnis_rechte();
+
+# fetch permission for all homes
+&fetch_repairhome();
 
 my $server="server";
 my $win_magic="2147483647";
