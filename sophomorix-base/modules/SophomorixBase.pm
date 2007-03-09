@@ -650,8 +650,7 @@ sub show_smb_conf_umask {
     my $create_file;
     my $owner;
     my $gowner;
-    my ($umask_dir,$umask_file)=&permissions_from_umask();
-
+    my ($umask,$umask_dir,$umask_file)=&permissions_from_umask();
 
     if (exists $smb_conf{$share}{"path"}) {
         $path=$smb_conf{$share}{"path"};
@@ -662,14 +661,17 @@ sub show_smb_conf_umask {
     if (exists $smb_conf{$share}{"directorymask"}) {
         $create_dir=$smb_conf{$share}{"directorymask"};
     } else {
-    
-        $create_dir="";
+        # use umask
+	print "using umask $umask for dir: $umask_dir\n";
+        $create_dir=$umask_dir;
     }
 
     if (exists $smb_conf{$share}{"createmask"}) {
         $create_file=$smb_conf{$share}{"createmask"};
     } else {
-        $create_file="";
+        # use umask
+	print "using umask $umask for file: $umask_file\n";
+        $create_file=$umask_file;
     }
 
     if (exists $smb_conf{$share}{"owner"}) {
@@ -714,7 +716,7 @@ sub permissions_from_umask {
 
     my $umask_dir=join("",@umask_dir);
     my $umask_file=join("",@umask_file);
-    return ($umask_dir,$umask_file);    
+    return ($umask,$umask_dir,$umask_file);    
 }
 
 
@@ -3773,14 +3775,6 @@ sub handout {
   # what permissions/owner must i create
   my ($path,$dir_perm,$file_perm,
       $owner,$gowner)=&show_smb_conf_umask("tasks");
-  # dir/file 0644/0755 if nothing else
-  if ($dir_perm eq ""){
-      $dir_perm="0775";
-  }
-  if ($file_perm eq ""){
-      $file_perm="0644";
-  }
-
   if ($rsync eq "delete") {
      system("rsync -tor --delete $from_dir $to_dir");
      &chmod_chown_dir($to_dir,$dir_perm,$file_perm,
@@ -3849,16 +3843,8 @@ sub handoutcopy {
            $owner,$gowner)=&show_smb_conf_umask("homes");
        # owner is set below
        if ($gowner eq ""){
-           # no force gowner
+           # should be primary group of user, but is OK
            $gowner=${DevelConf::teacher};
-       }
-       if ($dir_perm eq ""){
-           # no dir perm
-           $dir_perm="0755";
-       }
-       if ($file_perm eq ""){
-           # no file permissions
-           $file_perm="0644";
        }
        foreach my $user (@userlist){
            # home des austeilenden ermitteln

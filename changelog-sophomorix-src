@@ -1398,11 +1398,10 @@ that recursively changes permissions
 ???
  
  
-create forbiddn projectnames (NOT existing classes)
-
-cups-pdf
-private_html 
-for Exam-accounts??
+create forbidden projectnames 
+   - NOT existing classes
+   - NOT existing classes-[A,B,C,D]
+   - NOT existing projects
 
 
 
@@ -1441,15 +1440,17 @@ script must exit, when one of these files are missing
 
 add options to create a userlist
 
-without parameter,
-   repair homes of teachers,students and workstations
-   (this is called when updating)
 
-
-create function to read smb.conf to find out with what owner,gowner 
-and permissions are files created.
-use this 
+Which gowner must be forced when
    - in sophomorix-move (chown -R .gownwer ...)
+   - in function handoutcopy
+
+idea: when smb.conf has no content for gowner, then use 
+      the users primary group (that what would happen without force group)
+
+
+smb.conf force create_mode, create mask dito. for dirs
+
 
 
 INFO:
@@ -1458,6 +1459,9 @@ INFO:
 ================== CHANGELOG ========================================
 
 1.9.10-1 (2007-03-xx)
+  - added cups-pdf and private_html to exam accounts
+  - sophomorix-repair --repairhome works on teacher and students
+    when no userlist is provided 
   - using 0755/0644 instead of 0755 when copyind data to a share
   - replaced chmod -R 755 with function that uses the smb.conf values
     when handoucopying data
