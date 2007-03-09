@@ -216,21 +216,6 @@ print ("sophomorix-move startet ...\n");
 # sophomorix.move mitloggen
 &backup_amk_file($zeit,"move","before");
 
-
-
-## Protokolldatei lesen
-#%protokoll_hash=&protokoll_linien();
-#
-#if($Conf::log_level>=3){
-#   # Nur zum ausgeben  
-#   while (($key) = each %protokoll_hash){
-#      printf "%-40s\n","$key";
-#   }
-#}
-
-
-
-
 # Datei mit den Schülern, die nicht versetzt wurden
 open(NOCHVERSETZEN,">${DevelConf::ergebnis_pfad}/sophomorix.move.neu") 
      || die "Fehler: $!";
@@ -328,7 +313,7 @@ while(<USERVERSETZEN>){
    my $gidnumber=&create_class_db_entry($neue_klasse);
 
 
-# kommt doch noch weiter unten
+# kommt doch noch weiter unten ??? wozu hier
 #   &update_user_db_entry($login_versetzen,"Gid=$neue_klasse");
 
    # Dateien im neuen home gehoeren nun der Klassengruppe.
@@ -336,7 +321,6 @@ while(<USERVERSETZEN>){
    &do_falls_nicht_testen(
         "chown -R .${DevelConf::teacher} $new_home",
    );
-
 
    # user in db updaten
    if ($DevelConf::testen==0) {
@@ -363,6 +347,9 @@ while(<USERVERSETZEN>){
 
    # links/dirs anlegen 
    &create_share_link($login_versetzen, $neue_klasse,$neue_klasse,"adminclass");
+
+   # the following command must repair ALL dirs under $HOME
+   # because of chown -R .group $HOME above
    &create_share_directory($login_versetzen, 
                            $neue_klasse,$neue_klasse,"adminclass");
 
