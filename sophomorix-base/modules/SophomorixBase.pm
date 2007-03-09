@@ -1129,7 +1129,14 @@ sub repair_repairhome {
         print "WARNING: Could not find data for user $user. NOT repairing home!\n";
 	return;
     }
-
+    if ($type eq "attic"){
+        print "NOT repairing dirs under \$HOME. User is of type '$type'\n";
+        return;
+    }
+    if ($type eq "none"){
+        print "NOT repairing dirs under \$HOME. User is of type '$type'\n";
+        return;
+    }
     # use permissions according to type
     my @permissions=@{$all_repairhome{$type}};
 
