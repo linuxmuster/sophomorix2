@@ -31,6 +31,7 @@ use Quota;
               get_v_rechte
               setup_verzeichnis
               make_some_files_root_only
+              chmod_chown_dir_smb
               remove_line_from_file
               get_old_info 
               save_tausch_klasse
@@ -581,6 +582,27 @@ sub make_some_files_root_only {
                   "cannot make it root only.\n";
         }
     }
+}
+
+
+
+
+
+sub chmod_chown_dir_smb {
+    my ($path,$dir_perm,$file_perm,$owner,$gowner) = @_;
+    my $command="";
+    # chmod dirs
+    $command="find $path -type d -print0 | xargs -0 chmod $dir_perm";
+    print "$command\n";
+    system("$command");
+    # chmod files
+    $command="find $path -type f -print0 | xargs -0 chmod $file_perm";
+    print "$command\n";
+    system("$command");
+    # owner
+    $command="chown -R ${owner}.${gowner} $path";
+    print "$command\n";
+    system("$command");
 }
 
 
