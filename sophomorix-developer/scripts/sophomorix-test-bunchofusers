@@ -68,6 +68,13 @@ my $testopt=GetOptions(
 &log_script_start(@arguments);
 
 
+# repair.directories einlesen ???
+&get_alle_verzeichnis_rechte();
+
+# fetch permission for all homes
+&fetch_repairhome();
+
+
 # --help
 if ($help==1) {
    # Scriptname ermitteln
