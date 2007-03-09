@@ -316,10 +316,11 @@ while(<USERVERSETZEN>){
 # kommt doch noch weiter unten ??? wozu hier
 #   &update_user_db_entry($login_versetzen,"Gid=$neue_klasse");
 
-   # Dateien im neuen home gehoeren nun der Klassengruppe.
-   # Muss angepasst werden an Eigentümer lehrer
+   # files/dirs in ne home might have gowner old_class
+   # must be changed in teachers(or new_class) ???
    &do_falls_nicht_testen(
-        "chown -R .${DevelConf::teacher} $new_home",
+        #"chown -R .${DevelConf::teacher} $new_home",
+        "find $new_home -group $alte_klasse -print0 | xargs -0 chown .${DevelConf::teacher}",
    );
 
    # user in db updaten
