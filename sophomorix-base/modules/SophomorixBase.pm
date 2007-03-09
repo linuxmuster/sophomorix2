@@ -34,6 +34,7 @@ use Quota;
               chmod_chown_dir
               fetch_smb_conf
               show_smb_conf_umask
+              permissions_from_umask
               remove_line_from_file
               get_old_info 
               save_tausch_klasse
@@ -649,6 +650,8 @@ sub show_smb_conf_umask {
     my $create_file;
     my $owner;
     my $gowner;
+    my ($umask_dir,$umask_file)=&permissions_from_umask();
+
 
     if (exists $smb_conf{$share}{"path"}) {
         $path=$smb_conf{$share}{"path"};
@@ -659,6 +662,7 @@ sub show_smb_conf_umask {
     if (exists $smb_conf{$share}{"directorymask"}) {
         $create_dir=$smb_conf{$share}{"directorymask"};
     } else {
+    
         $create_dir="";
     }
 
@@ -682,6 +686,37 @@ sub show_smb_conf_umask {
 
     return ($path,$create_dir,$create_file,$owner,$gowner);
 } 
+
+sub permissions_from_umask {
+    # fetching umask
+    my ($umask) = umask;
+    # convert from actal number to string
+    $umask=sprintf "%04o",$umask;
+   
+    # input
+    my @digits_umask=split(//,$umask);
+    my @digits_dir=(0,7,7,7);
+    my @digits_file=(0,6,6,6);
+
+    # result    
+    my @umask_dir=();
+    my @umask_file=();
+
+    for (my $count=0;$count<=3;$count++)  {
+        my $digit_dir=$digits_dir[$count]-$digits_umask[$count];
+        my $digit_file=$digits_file[$count]-$digits_umask[$count];
+        if ($digit_file < 0){
+            $digit_file=0;
+        }
+	push @umask_dir, $digit_dir;
+	push @umask_file, $digit_file;
+    }
+
+    my $umask_dir=join("",@umask_dir);
+    my $umask_file=join("",@umask_file);
+    return ($umask_dir,$umask_file);    
+}
+
 
 ################################################################################
 #  Working with files
@@ -3735,15 +3770,26 @@ sub handout {
   print "   From: ${from_dir}\n";
   print "   To:   ${to_dir}\n";
 
+  # what permissions/owner must i create
+  my ($path,$dir_perm,$file_perm,
+      $owner,$gowner)=&show_smb_conf_umask("tasks");
+  # dir/file 0644/0755 if nothing else
+  if ($dir_perm eq ""){
+      $dir_perm="0775";
+  }
+  if ($file_perm eq ""){
+      $file_perm="0644";
+  }
+
   if ($rsync eq "delete") {
      system("rsync -tor --delete $from_dir $to_dir");
-     # dir/file 0644/0755
-     &chmod_chown_dir($to_dir,"0755","0644",$login,${DevelConf::teacher});
+     &chmod_chown_dir($to_dir,$dir_perm,$file_perm,
+                      $login,${DevelConf::teacher});
      # system("chmod -R 0755 $to_dir");
   } elsif ($rsync eq "copy"){
      system("rsync -tor $from_dir $to_dir");
-     # dir/file 0644/0755
-     &chmod_chown_dir($to_dir,"0755","0644",$login,${DevelConf::teacher});
+     &chmod_chown_dir($to_dir,$dir_perm,$file_perm,
+                      $login,${DevelConf::teacher});
      #system("chmod -R 0755 $to_dir");
   } else {
       print "unknown Parameter $rsync";
