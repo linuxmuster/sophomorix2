@@ -1214,7 +1214,8 @@ sub ust_t_check {
                     "$identifier wird ab $heute nur noch toleriert\n";
               &append_move_entry($identifier,
                                 $schueler_im_system_hash{$identifier},
-                                "attic");
+                                "attic",
+                                $sophomorix_status{$identifier});
               
               # Counter
               $count++;
@@ -1246,7 +1247,8 @@ sub u_t_check {
                     "$identifier wird ab $heute nur noch toleriert\n";
               &append_move_entry($identifier,
                                 $schueler_im_system_hash{$identifier},
-                                "attic");
+                                "attic",
+                                $status);
               # Counter
               $count++;
               next;
@@ -1312,12 +1314,8 @@ sub t_d_check {
          my $login=$schueler_im_system_loginname{$identifier};
          my $sys_class=$schueler_im_system_hash{$identifier};
          # check if tolerated user is not in attic
-#         if ($sys_class ne "dachboden" and $sys_class ne "speicher") {
-#            &append_move_entry($identifier,$sys_class,"dachboden");
-#            $count_move++;
-#         }
          if ($sys_class ne "attic") {
-            &append_move_entry($identifier,$sys_class,"attic");
+            &append_move_entry($identifier,$sys_class,"attic",$status);
             $count_move++;
          }
          # checking for deactivation
@@ -1406,12 +1404,8 @@ sub d_r_check {
 
          my $sys_class=$schueler_im_system_hash{$identifier};
          # check if disabled user is not in attic
-#         if ($sys_class ne "dachboden" and $sys_class ne "speicher") {
-#            &append_move_entry($identifier,$sys_class,"dachboden");
-#            $count_move++;
-#         }
          if ($sys_class ne "attic") {
-            &append_move_entry($identifier,$sys_class,"attic");
+            &append_move_entry($identifier,$sys_class,"attic",$status);
             $count_move++;
          }
          if (not exists $schueler_ok_hash{$identifier}) {
