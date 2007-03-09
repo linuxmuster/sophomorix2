@@ -24,7 +24,7 @@ my $user="";
 my $klasse="";
 my $gruppe="";
 
-my $repairhome="";
+my $repairhome=0;
 
 my $help=0;
 my $info=0;
@@ -54,7 +54,7 @@ my $testopt=GetOptions(
            "htaccess" => \$htaccess,
            "command-number=n" => \$command_number,
            "user|u=s" => \$login,
-           "repairhome=s" => \$repairhome,
+           "repairhome" => \$repairhome,
            "skiplock" => \$skiplock,
            "file|f=s" => \$filename
           );
@@ -67,7 +67,7 @@ my $testopt=GetOptions(
 if ($dateirechte==0 
     and $htaccess==0
     and $info==0
-    and $repairhome eq "") {
+    and $repairhome==0) {
    # Es muss eine Option angegeben werden, sonst hilfe
    $help=1;
 }
@@ -204,15 +204,12 @@ if ($htaccess==1){
 }
 
 
-my @user_man=("galli", "devlamro");
-
-# fetch fermission for all homes
-my $ref_repair=&fetch_repairhome();
-
-
 # --repairhome type
-if ($repairhome ne ""){
-    foreach my $user (@user_man){
+if ($repairhome==1){
+    # fetch fermission for all homes
+    my $ref_repair=&fetch_repairhome();
+    my @userlist=(@lehrer,@schueler);
+    foreach my $user (@userlist){
         &repair_repairhome($user);
     }
     &log_script_exit("",1,1,0,@arguments);
