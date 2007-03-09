@@ -31,7 +31,9 @@ use Quota;
               get_v_rechte
               setup_verzeichnis
               make_some_files_root_only
-              chmod_chown_dir_smb
+              chmod_chown_dir
+              fetch_smb_conf
+              show_smb_conf_umask
               remove_line_from_file
               get_old_info 
               save_tausch_klasse
@@ -586,25 +588,100 @@ sub make_some_files_root_only {
 
 
 
-
-
-sub chmod_chown_dir_smb {
+sub chmod_chown_dir {
     my ($path,$dir_perm,$file_perm,$owner,$gowner) = @_;
+    # empty option: do not set  
     my $command="";
+
     # chmod dirs
-    $command="find $path -type d -print0 | xargs -0 chmod $dir_perm";
-    print "$command\n";
-    system("$command");
+    if ($dir_perm ne ""){
+        $command="find $path -type d -print0 | xargs -0 chmod $dir_perm";
+        print "$command\n";
+        system("$command");
+    }
+
     # chmod files
-    $command="find $path -type f -print0 | xargs -0 chmod $file_perm";
-    print "$command\n";
-    system("$command");
-    # owner
-    $command="chown -R ${owner}.${gowner} $path";
-    print "$command\n";
-    system("$command");
+    if ($file_perm ne ""){
+        $command="find $path -type f -print0 | xargs -0 chmod $file_perm";
+        print "$command\n";
+        system("$command");
+    }
+
+    # owner.gowner
+    if ($owner ne "" or $gowner ne ""){
+        $command="chown -R ${owner}.${gowner} $path";
+        print "$command\n";
+        system("$command");
+    }
 }
 
+
+
+sub fetch_smb_conf {
+    %smb_conf=();
+    my $file="/etc/samba/smb.conf";
+    open(SMBCONF,"<$file");
+    my $current_share="";
+    while (<SMBCONF>){
+        chomp(); # Returnzeichen abschneiden
+        s/\s//g; # Spezialzeichen raus
+        if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+        if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+        if(/^\;/){next;} # Bei Kommentarzeichen aussteigen
+        #print $_,"\n";
+        if (/^\[([a-z]+)\]/){
+            #print "Share $1\n";
+            $current_share=$1
+	} else {
+	   my ($option,$value)=split(/=/);
+           #print "   $current_share  -> $option -> $value \n";
+           $smb_conf{$current_share}{$option}="$value";
+        }
+    }
+    close(SMBCONF);
+    return \%smb_conf;
+}
+
+sub show_smb_conf_umask {
+    my ($share) = @_;
+    my $path;
+    my $create_dir;
+    my $create_file;
+    my $owner;
+    my $gowner;
+
+    if (exists $smb_conf{$share}{"path"}) {
+        $path=$smb_conf{$share}{"path"};
+    } else {
+        $path="";
+    }
+
+    if (exists $smb_conf{$share}{"directorymask"}) {
+        $create_dir=$smb_conf{$share}{"directorymask"};
+    } else {
+        $create_dir="";
+    }
+
+    if (exists $smb_conf{$share}{"createmask"}) {
+        $create_file=$smb_conf{$share}{"createmask"};
+    } else {
+        $create_file="";
+    }
+
+    if (exists $smb_conf{$share}{"owner"}) {
+        $owner=$smb_conf{$share}{"owner"};
+    } else {
+        $owner="";
+    }
+
+    if (exists $smb_conf{$share}{"forcegroup"}) {
+        $gowner=$smb_conf{$share}{"forcegroup"};
+    } else {
+        $gowner="";
+    }
+
+    return ($path,$create_dir,$create_file,$owner,$gowner);
+} 
 
 ################################################################################
 #  Working with files
@@ -3660,10 +3737,14 @@ sub handout {
 
   if ($rsync eq "delete") {
      system("rsync -tor --delete $from_dir $to_dir");
-     system("chmod -R 0755 $to_dir");
+     # dir/file 0644/0755
+     &chmod_chown_dir($to_dir,"0755","0644",$login,${DevelConf::teacher});
+     # system("chmod -R 0755 $to_dir");
   } elsif ($rsync eq "copy"){
      system("rsync -tor $from_dir $to_dir");
-     system("chmod -R 0755 $to_dir");
+     # dir/file 0644/0755
+     &chmod_chown_dir($to_dir,"0755","0644",$login,${DevelConf::teacher});
+     #system("chmod -R 0755 $to_dir");
   } else {
       print "unknown Parameter $rsync";
   }
@@ -3717,6 +3798,22 @@ sub handoutcopy {
     closedir DIR;
 
     if ($found==1){
+       # what permissions/owner must i create
+       my ($path,$dir_perm,$file_perm,
+           $owner,$gowner)=&show_smb_conf_umask("homes");
+       # owner is set below
+       if ($gowner eq ""){
+           # no force gowner
+           $gowner=${DevelConf::teacher};
+       }
+       if ($dir_perm eq ""){
+           # no dir perm
+           $dir_perm="0755";
+       }
+       if ($file_perm eq ""){
+           # no file permissions
+           $file_perm="0644";
+       }
        foreach my $user (@userlist){
            # home des austeilenden ermitteln
            my ($homedir)=
@@ -3741,8 +3838,17 @@ sub handoutcopy {
               }
               print "   To:   ${to_dir}\n";
               system ("cp -a $from_dir/* $to_dir");
-              system ("chown -R ${user}:${DevelConf::teacher} $to_dir/*");
-              system ("chmod -R 0755 $to_dir/*");
+
+              if ($owner eq ""){
+                  # no force owner
+                  $owner=$user;
+              }
+              &chmod_chown_dir("$to_dir/*",
+                               $dir_perm,
+                               $file_perm,
+                               $owner,$gowner);
+              #system ("chown -R ${user}:${DevelConf::teacher} $to_dir/*");
+              #system ("chmod -R 0755 $to_dir/*");
            }
         }
     } else {
