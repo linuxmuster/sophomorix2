@@ -1415,9 +1415,47 @@ make him a member in a project,
 move him, ...
 
 
+Think about, if something has to be done with permissions, when a user 
+comes into the attic (make sure user can cause trouble)
+
+add more permission tests to SophomorixTest.pm
+   - test also $mygroup stuff
+
+ 
+performance
+
+add parameter $regex to repair_repairhome:
+not set ALL permissions from repairhome.usertype.
+set only for lines matching $regex
+$regex van be $mygroups 
+
+
+sophomorix-repair:
+add option --repairhome-path path/prefix
+to read repairhome permissions from 
+   - path/prefix.student
+   - path/prefix.teacher
+   - path/prefix.workstation
+   - path/prefix.attic
+script must exit, when one of these files are missing
+
+add options to create a userlist
+
+without parameter,
+   repair homes of teachers,students and workstations
+   (this is called when updating)
+
+
+INFO:
+%all_repairhome contains all permission in $HOME
+
 ================== CHANGELOG ========================================
 
 1.9.10-1 (2007-03-xx)
+  - added new tests for permissions in $HOME
+  - introduced account type 'attic'. An user in the attic is in the 
+    account type 'attic' instaed of 'none'
+    its dirs $HOME are repaired using empty repairhome.attic
   - sophomorix-check: show old status correctly when doing soomething
     with an account (function: append_move_entry called with parameter 4)
   - checked calls &setup_verzeichnis that they can go along with
