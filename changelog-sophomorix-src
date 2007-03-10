@@ -1452,6 +1452,10 @@ idea: when smb.conf has no content for gowner, then use
 smb.conf force create_mode, create mask dito. for dirs
 
 
+make use of __dachboden when removing dirs (user exits project, subclass, ...)
+
+chown without file Fehlermeldung in sophomorix-move
+
 
 INFO:
 %all_repairhome contains all permission in $HOME
@@ -1459,6 +1463,15 @@ INFO:
 ================== CHANGELOG ========================================
 
 1.9.10-1 (2007-03-xx)
+  - Bug fixed: common __vorlagen in /var/cache/sophomorix/tasks/rooms/$room
+               was not removed when
+               sophomorix-room --reset-room
+               sophomorix-room --reset-all-rooms
+  - Bug fixed: when collecting data as an exam from a room
+               then __vorlagen/... from the teacher was not collected 
+  - Bug fixed: when user is moved to nonextsting class, 
+    .htacces in /var/www/classes was not created
+  - Bug fixed: class share files of user mot moved into __dachboden
   - added cups-pdf and private_html to exam accounts
   - sophomorix-repair --repairhome works on teacher and students
     when no userlist is provided 
@@ -1467,6 +1480,7 @@ INFO:
     when handoucopying data
   - added function to read in smb.conf
   - sophomorix-move: made chown og gowner not so invasive
+    (change only files/dirs where oldgowner was adminclass to newgowner)
   - added function chmod_chown_dir_smb
     to chmod different for files and dirs
   - added new tests for permissions in $HOME
