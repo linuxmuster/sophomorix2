@@ -3934,8 +3934,9 @@ sub collect {
       @users=&Sophomorix::SophomorixPgLdap::fetchusers_from_project($name);
       $tasks_dir="${DevelConf::tasks_projects}/${name}/";
   } elsif ($type eq "room" and not defined $users){
+      # there was no tasks dir before, why ??? 
       @users=&Sophomorix::SophomorixPgLdap::fetchworkstations_from_room($name);
-      # no tasks dir
+      $tasks_dir="${DevelConf::tasks_rooms}/${name}/";
   } elsif ($type eq "current room"){
       @users=split(/,/,$users);
       # no tasks dir
@@ -3995,22 +3996,6 @@ sub collect {
       my ($homedir)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
       my $from_dir="$homedir/${Language::collect_dir}/";
 
-# collect from _einsammeln
-
-#      my $from_dir="";
-#      if ($type eq "current room"){
-#          $from_dir="$homedir/${Language::collect_dir}/${Language::current_room}/";
-#      } elsif ($type eq "room") {
-#          $from_dir="$homedir/${Language::collect_dir}/${Language::current_room}/";
-#      } elsif ($type eq "project") {
-#          $from_dir="$homedir/${Language::collect_dir}/${longname}/";
-#      } elsif ($type eq "adminclass") {
-#          $from_dir="$homedir/${Language::collect_dir}/${longname}/";
-#      } else {
-#          $from_dir="$homedir/${Language::collect_dir}/${login}/";
-#      }
-
-
       # ???? make more secure
       if ($from_dir =~ /(.*)/) {
          $from_dir=$1;
@@ -4058,8 +4043,6 @@ sub collect {
   # collect tasks
   if ($type eq "current room"){
       # do nothing
-  } elsif ($type eq "room") {
-      # do nothing
   }else {
       # ???? make more secure
       if ($tasks_dir =~ /(.*)/) {
@@ -4089,11 +4072,8 @@ sub collect {
       &linie();
   }
 
-
   # make collected data readable
-#  system("/bin/chown -R $login.${DevelConf::teacher} $dir");
   system("/bin/chown -R $login. $to_dir");
-
 }
 
 
