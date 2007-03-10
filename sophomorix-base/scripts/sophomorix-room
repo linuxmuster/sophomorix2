@@ -103,6 +103,12 @@ if ($reset_room ne ""){
 	print "   Resetting $ws\n";
         &reset_user($ws);
     }
+
+    # remove data from __vorlagen ($tasks_rooms)
+    my $command="rm -rf ${DevelConf::tasks_rooms}/${reset_room}/*";
+    print "Removing common ${Language::task_dir} in room ${reset_room}:\n";
+    print "   $command\n";
+    system("$command");
 }
 
 
@@ -118,6 +124,15 @@ if ($reset_all_rooms==1){
     foreach my $ws (@workstations){
 	print "   Resetting $ws\n";
         &reset_user($ws);
+    }
+    
+    # remove data from __vorlagen
+    my @rooms=&fetchrooms_from_school();
+    foreach my $room (@rooms){
+        my $command="rm -rf ${DevelConf::tasks_rooms}/${room}/*";
+        print "Removing common ${Language::task_dir} in room ${room}:\n";
+        print "   $command\n";
+        system("$command");
     }
 }
 
