@@ -970,9 +970,8 @@ sub save_tausch_klasse {
    my ($login, $klasse) = @_;
    my $dirname=&zeit_stempel;
    my ($homedir)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
-   my $dirpath="$homedir"."/"."${Language::share_string}".
+   my $dirpath="$homedir"."/${Language::user_attic}/"."${Language::share_string}".
                "$dirname"."/";
-
    my $tausch_klasse_path = "";
    if ($klasse eq ${DevelConf::teacher}) {
      $tausch_klasse_path = "${DevelConf::share_teacher}";
@@ -981,39 +980,36 @@ sub save_tausch_klasse {
    }
    # abs. Pfade der zu movenden Verzeichnisse im Tauschverzeichnis 
    # in eine Liste schreiben
-   print "Hierher moven (Home des Schülers/lehrers): \n   $dirpath\n";
-   print "Hier suchen (Klassen-Tausch/Lehrer-Tausch):\n   $tausch_klasse_path\n";
+   print "Look in class share: $tausch_klasse_path\n";
+   print "Backup to here: \n   $dirpath\n";
 
    if (not -e "$tausch_klasse_path"){
-     # nit tun
+       # do nothing
    } else {
-   opendir KTAUSCH, $tausch_klasse_path or 
-                  die "kann $tausch_klasse_path nicht öffnen\n";
-
-   foreach my $datei (readdir KTAUSCH){
-      if ($datei eq "."){next};
-      if ($datei eq ".."){next};
-      my $path=("$tausch_klasse_path"."/"."$datei");
-      my @statliste=lstat($path);
-      my $owner = getpwuid $statliste[4];
-      print "Gefunden: $datei gehört $owner\n";
-      # wenn die Datei/Verzeichnis dem zu versetzenden gehört
-      # Todo: UND bei Verzeichnissen kein weiterer owner unterhalb auftritt ???????
-      if ($owner eq "$login") {
-      # Verschieben
-      if (not -e "$dirpath") {
-         &do_falls_nicht_testen(
-           "install -d -o$login -glehrer $dirpath"
-          );
-      };
-            print "Verschieben: $datei (owner: $owner)\n";
-        &do_falls_nicht_testen(
-           "mv \"$path\" $dirpath"
-        );
-      }
+       opendir KTAUSCH, $tausch_klasse_path or return;
+       foreach my $datei (readdir KTAUSCH){
+          if ($datei eq "."){next};
+          if ($datei eq ".."){next};
+          my $path=("$tausch_klasse_path"."/"."$datei");
+          my @statliste=lstat($path);
+          my $owner = getpwuid $statliste[4];
+          # if file/dir is owned by user
+          # Todo: use find to find files
+          if ($owner eq "$login") {
+             # move it
+             if (not -e "$dirpath") {
+                 &do_falls_nicht_testen(
+                 "install -d -o$login -g${DevelConf::teacher} $dirpath"
+                 );
+             };
+             print "     * Move: $datei (owner: $owner)\n";
+             &do_falls_nicht_testen(
+             "mv \"$path\" $dirpath"
+             );
+          }
+       }
+       closedir KTAUSCH;
    }
-   closedir KTAUSCH;
-}
 }
 
 
