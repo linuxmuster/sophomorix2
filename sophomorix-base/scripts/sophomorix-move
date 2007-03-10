@@ -294,8 +294,9 @@ while(<USERVERSETZEN>){
 
    # Sicherstellen dass neue Klasse (Linux-Gruppe) existiert
    if ($neue_klasse ne ${DevelConf::teacher}) {
-     &provide_class_files($neue_klasse);
+     # first create sb entry, then create files (db_entry needed)
      &create_class_db_entry($neue_klasse);
+     &provide_class_files($neue_klasse);
    }
 
    # alte links/dirs entfernen
@@ -320,7 +321,7 @@ while(<USERVERSETZEN>){
    # must be changed to new class
    &do_falls_nicht_testen(
         #"chown -R .${DevelConf::teacher} $new_home"
-        # commad thrown error, when no file/dir is found
+        # commad thrown error, when no file/dir is found ???
         "find $new_home -group $alte_klasse -print0 | xargs -0 chown .$neue_klasse",
    );
 
