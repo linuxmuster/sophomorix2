@@ -20,9 +20,8 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                    );
 my @arguments = @ARGV;
 
-my $user="";
-my $klasse="";
-my $gruppe="";
+#my $user="";
+#my $gruppe="";
 
 my $repairhome=0;
 
@@ -31,12 +30,18 @@ my $info=0;
 my $filename="";
 my $dateirechte=0;
 my $htaccess=0;
-my $schueler=0;
-my $lehrer=0;
-my $login="";
 my $command_number=0;
 my $skiplock=0;
 $Conf::log_level=1;
+
+
+# not needed ?
+my $login="";
+#my $lehrer=0;
+#my $schueler=0;
+
+
+
 
 ###############################################################################
 # Beginn
@@ -90,10 +95,10 @@ Options
   -i
   -f filename / --file filename
 
-What to repair:
+What to repair (one option must be given):
   -p  / --permissions
   --htaccess
-  --acl (Todo)
+  --repairhome
 
 Limit the repair to a command-number (show the numbers with -i):
   --command-number number
@@ -173,8 +178,6 @@ my @raeume=&fetchrooms_from_school();
 my @schueler=&fetchstudents_from_school();
 &print_list("The list of every pupil:",@schueler);
 
-
-
 # lehrer
 &titel("Creating list of every teacher ...");
 #my @lehrer=&get_lehrer_in_schule();
@@ -191,16 +194,23 @@ my @workstations=&fetchworkstations_from_school();
 
 
 
+
+
+
+
+# do something
+
 # --permissions
 if ($dateirechte==1 or $info==1) {
    &repair_directories();
-   &log_script_exit("",1,1,0,@arguments);
+   #&log_script_exit("",1,1,0,@arguments);
 }
+
 
 # --htaccess
 if ($htaccess==1){
    &repair_htaccess();
-   &log_script_exit("",1,1,0,@arguments);
+   #&log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -208,15 +218,27 @@ if ($htaccess==1){
 if ($repairhome==1){
     # fetch fermission for all homes
     my $ref_repair=&fetch_repairhome();
-    my @userlist=(@lehrer,@schueler);
-    foreach my $user (@userlist){
+
+
+
+    my @users=(@lehrer,@schueler);
+
+
+
+
+    foreach my $user (@users){
         &repair_repairhome($user);
     }
-    &log_script_exit("",1,1,0,@arguments);
+    #&log_script_exit("",1,1,0,@arguments);
 }
 
 
 &log_script_end(@arguments);
+
+
+
+
+
 
 
 
@@ -229,22 +251,26 @@ if ($repairhome==1){
 sub repair_htaccess {
     print "Repairing htaccess files of adminclasses:\n";
     foreach my $group (@klassen){
+        print "   ${group}:\n";
         my $access=&fetchhtaccess_from_group($group);
         &set_htaccess_for_group($group,$access);
     }
     print "Repairing htaccess files of projects:\n";
     foreach my $group (@projects){
+        print "   ${group}:\n";
         my $access=&fetchhtaccess_from_group($group);
         &set_htaccess_for_group($group,$access);
     }
     &log_script_exit("",1,1,0,@arguments);
     print "Repairing htaccess files of students:\n";
     foreach my $student (@schueler){
+        print "   ${student}:\n";
         my $access=&fetchhtaccess_from_user($student);
         &set_htaccess_for_user($student,$access);
     }
     print "Repairing htaccess files of teachers:\n";
     foreach my $teacher (@lehrer){
+        print "   ${teacher}:\n";
         my $access=&fetchhtaccess_from_user($teacher);
         &set_htaccess_for_user($teacher,$access);
     }
@@ -261,6 +287,9 @@ sub set_htaccess_for_user {
         &user_public_noupload($user);
     } elsif ($access eq "user-private-noupload"){
         &user_private_noupload($user);
+    } else {
+        # standard
+        &user_private_noupload($user);
     }
 }
 
@@ -273,6 +302,9 @@ sub set_htaccess_for_group {
     } elsif ($access eq "group-public-noupload"){
         &group_public_noupload($group);
     } elsif ($access eq "group-private-noupload"){
+        &group_private_noupload($group);
+    } else {
+        # standard
         &group_private_noupload($group);
     }
 }
@@ -353,7 +385,6 @@ sub repair_directories {
        s/\$www_teachers/$DevelConf::www_teachers/;     
        s/\$www_students/$DevelConf::www_students/;     
        s/\$user_attic/$Language::user_attic/;     
-
        
        # print only number of command when --info
        if ($info==1){
@@ -369,7 +400,6 @@ sub repair_directories {
        # show what command is processed
        &titel("Command number ${num}:");
        print "$_\n";
-
 
        # Zeile zerlegen
        my ($path, $owner, $groupowner, $permission) = split(/::/);
@@ -512,7 +542,7 @@ sub repair_directory {
       print "Pfad mit Ersetzungen: $path\n";
    }
 
-   foreach $gruppe (@$gruppen){
+   foreach my $gruppe (@$gruppen){
          if($Conf::log_level>=3){
             print "***** Gruppe ist $gruppe *****\n";
          }

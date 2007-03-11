@@ -4096,6 +4096,13 @@ sub fetchhtaccess_from_user {
     } else {
         return "";
     }
+
+    if (not -e $ht_target){
+        print "     * $ht_target not found.\n";
+        print "     * Creating .htaccess with standard value.\n";
+        return "";
+    }
+
     open(FILE, "<$ht_target");
     while (<FILE>) {
         chomp(); # Returnzeichen abschneiden
@@ -4146,7 +4153,7 @@ sub user_public_upload {
 
     # do it
     my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-    print "   modifying  $ht_target (user-public-upload)\n";
+    print "     * modifying  $ht_target (user-public-upload)\n";
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
@@ -4155,8 +4162,8 @@ sub user_public_upload {
     chmod 0400, $ht_target;
 
     my ($name,$pass,$uid,$gid)=getpwnam(${DevelConf::apache_user});
-    print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
-          "${DevelConf::apache_user}($gid) to:\n     $ht_target\n";
+    print "     * Setting owner/gowner to: ${DevelConf::apache_user}($uid)/".
+          "${DevelConf::apache_user}($gid)\n";
     chown $uid, $gid, $ht_target;
     return 1;
 }
@@ -4183,7 +4190,7 @@ sub user_public_noupload {
     
     # do it
     my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-    print "   modifying $ht_target (user-public-noupload)\n";
+    print "     * modifying $ht_target (user-public-noupload)\n";
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
@@ -4191,8 +4198,8 @@ sub user_public_noupload {
     # setting owner,permissions
     chmod 0400, $ht_target;
     my ($name,$pass,$uid,$gid)=getpwnam(${DevelConf::apache_user});
-    print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
-          "${DevelConf::apache_user}($gid) to:\n     $ht_target\n";
+    print "     * Setting owner/gowner to: ${DevelConf::apache_user}($uid)/".
+          "${DevelConf::apache_user}($gid)\n";
     chown $uid, $gid, $ht_target;
     return 1;
 }
@@ -4223,7 +4230,7 @@ sub user_private_upload {
 
     # do it
     my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-    print "   modifying  $ht_target (user-private-upload)\n";
+    print "     * modifying  $ht_target (user-private-upload)\n";
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
@@ -4231,8 +4238,8 @@ sub user_private_upload {
     # setting owner,permissions
     chmod 0400, $ht_target;
     my ($name,$pass,$uid,$gid)=getpwnam(${DevelConf::apache_user});
-    print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
-          "${DevelConf::apache_user}($gid) to:\n     $ht_target\n";
+    print "     * Setting owner/gowner to: ${DevelConf::apache_user}($uid)/".
+          "${DevelConf::apache_user}($gid)\n";
     chown $uid, $gid, $ht_target;
     return 1;
 }
@@ -4259,7 +4266,7 @@ sub user_private_noupload {
 
     # do it
     my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-    print "   modifying $ht_target (user-private-noupload)\n";
+    print "     * modifying $ht_target (user-private-noupload)\n";
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
@@ -4267,8 +4274,8 @@ sub user_private_noupload {
     # setting owner,permissions
     chmod 0400, $ht_target;
     my ($name,$pass,$uid,$gid)=getpwnam(${DevelConf::apache_user});
-    print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
-          "${DevelConf::apache_user}($gid) to:\n     $ht_target\n";
+    print "     * Setting owner/gowner to: ${DevelConf::apache_user}($uid)/".
+          "${DevelConf::apache_user}($gid)\n";
     chown $uid, $gid, $ht_target;
     return 1;
 }
@@ -4294,6 +4301,12 @@ sub fetchhtaccess_from_group {
         $ht_target=${DevelConf::www_projects}."/".$group."/.htaccess";
     } else {
 	return "";
+    }
+
+    if (not -e $ht_target){
+        print "     * $ht_target not found.\n";
+        print "     * Creating .htaccess with standard value.\n";
+        return "";
     }
 
     open(FILE, "<$ht_target");
@@ -4344,7 +4357,7 @@ sub group_public_upload {
 
     # do it
     my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-    print "   modifying  $ht_target (group-public-upload)\n";
+    print "     * modifying  $ht_target (group-public-upload)\n";
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
@@ -4352,8 +4365,8 @@ sub group_public_upload {
     # setting owner,permissions
     chmod 0400, $ht_target;
     my ($name,$pass,$uid,$gid)=getpwnam(${DevelConf::apache_user});
-    print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
-          "${DevelConf::apache_user}($gid) to:\n     $ht_target\n";
+    print "     * Setting owner/gowner to: ${DevelConf::apache_user}($uid)/".
+          "${DevelConf::apache_user}($gid)\n";
     chown $uid, $gid, $ht_target;
     return 1;
 }
@@ -4382,7 +4395,7 @@ sub group_public_noupload {
     
     # do it
     my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-    print "   modifying $ht_target (group-public-noupload)\n";
+    print "     * modifying $ht_target (group-public-noupload)\n";
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
@@ -4390,8 +4403,8 @@ sub group_public_noupload {
     # setting owner,permissions
     chmod 0400, $ht_target;
     my ($name,$pass,$uid,$gid)=getpwnam(${DevelConf::apache_user});
-    print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
-          "${DevelConf::apache_user}($gid) to:\n     $ht_target\n";
+    print "     * Setting owner/gowner to: ${DevelConf::apache_user}($uid)/".
+          "${DevelConf::apache_user}($gid)\n";
     chown $uid, $gid, $ht_target;
     return 1;
 }
@@ -4419,7 +4432,7 @@ sub group_private_upload {
 
     # do it
     my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-    print "   modifying  $ht_target (group-private-upload)\n";
+    print "     * modifying  $ht_target (group-private-upload)\n";
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
@@ -4427,8 +4440,8 @@ sub group_private_upload {
     # setting owner,permissions
     chmod 0400, $ht_target;
     my ($name,$pass,$uid,$gid)=getpwnam(${DevelConf::apache_user});
-    print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
-          "${DevelConf::apache_user}($gid) to:\n     $ht_target\n";
+    print "     * Setting owner/gowner to: ${DevelConf::apache_user}($uid)/".
+          "${DevelConf::apache_user}($gid)\n";
     chown $uid, $gid, $ht_target;
     return 1;
 }
@@ -4457,7 +4470,7 @@ sub group_private_noupload {
 
     # do it
     my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-    print "   modifying $ht_target (group-private-noupload)\n";
+    print "     * modifying $ht_target (group-private-noupload)\n";
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
@@ -4465,8 +4478,8 @@ sub group_private_noupload {
     # setting owner,permissions
     chmod 0400, $ht_target;
     my ($name,$pass,$uid,$gid)=getpwnam(${DevelConf::apache_user});
-    print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
-          "${DevelConf::apache_user}($gid) to:\n     $ht_target\n";
+    print "     * Setting owner/gowner to: ${DevelConf::apache_user}($uid)/".
+          "${DevelConf::apache_user}($gid)\n";
     chown $uid, $gid, $ht_target;
     return 1;
 }
