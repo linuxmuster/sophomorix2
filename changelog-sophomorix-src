@@ -1438,7 +1438,6 @@ to read repairhome permissions from
    - path/prefix.attic
 script must exit, when one of these files are missing
 
-add options to create a userlist
 
 
 Which gowner must be forced when
@@ -1469,13 +1468,37 @@ BUG: if sophomorix-test is run, then
      still exists
 
 
+
+Permissions:
+
+
+/home/students/$klasse/$schueler    $schueler.teachers    3751
+(Die 3 von 3751 bewirkt, dass die Gruppe teachers geforced wird.)
+
+Im Tauschverzeichnis gehört alles der Klasse.
+/home/share/classes/$klassen     administrator.$klassen    3770 
+
+
+
+MIGRATION:
+
+wenn die Daten auf den neuen Server migriert werden,
+dann sollen die die Rechte haben: 2644/2755, owner:group
+(bisher 0700/0700 owner:group)
+
+
+
+
 ================== CHANGELOG ========================================
 
 1.9.10-1 (2007-03-xx)
+
   - sophomorix-repair:
+    - updated manpage and help
     - Don't throw error, when .htacces file to repair doesn't exist
     - modified typeout (option --htaccess)
     - repair also when dir above .htacces doesn't exist (create dirle)
+    - options added to create a userlist with --repairhome
   - Bug fixed: common __vorlagen in /var/cache/sophomorix/tasks/rooms/$room
                was not removed when
                sophomorix-room --reset-room

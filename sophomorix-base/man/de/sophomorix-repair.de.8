@@ -44,17 +44,39 @@ liest die Datei dateiname ein, und legt die darin enthaltenen Verzeichnisse an.?
 .TP
 .B Optionen, die angeben, was repariert werden soll:
 .TP
-.B \-p, \--permissions
-repariert die Dateirechte und legt verlorengegangene Verzeichnisse wieder an. Dieser Befehl dauert lange (~1 Stunde je 1000 User).
+.B \--permissions
+repariert die Dateirechte nach Vorgaben in
+/usr/share/sophomorix/devel/repair.directories und legt
+verlorengegangene Verzeichnisse wieder an.
+.br
+Die Reparatur kann eingeschränkt werden, indem man nur einzelne
+Einträge/Zeilen repariert (Zeilennummer anzeigen mit
+--info). Reparieren mit --command-number Zeilennummer.
 .TP
 .B \--htaccess
-repariert die .htaccess Dateien der User und Gruppen in /var/www/people. Dies kann lange dauern.
+repariert die .htaccess Dateien der User und Gruppen (students,
+teachers, classes und projects) in /var/www/people. Dies kann lange
+dauern. Wenn Änderungen in den htaccess-Dateien gemacht wurden,
+bleiben sie erhalten (Wird im Kommentar erkannt.).
 .TP
-.B \--acl
-repariert acl (noch nicht mal begonnen, in der Zukunft soll das tun)
-.TP
-.B Optionen, die angeben, bei welchen Usern etwas repariert werden soll:
-Todo
+.B \--repairhome
+repariert Verzeichnisse unterhalb von $HOME eines users, wie in
+/usr/share/sophomorix/devel/repairhome.$TYPE angegeben ($TYPE=teacher,
+student, workstation, attic).
+.br
+Ohne weiter Optionen werden die $HOME von students und teachers repariert.
+.br
+Einschränkungen/Erweiterungen sind möglich mit:
+.br
+.B \-u user1,user2,... \--users user1,user2,...
+.br
+.B \-c class1,class2,... / \--class class1.class2,... (teachers can be used)
+.br
+.B \-p project1,project2,... / \--project project1,project2,...
+.br
+.B \--students
+
+
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
