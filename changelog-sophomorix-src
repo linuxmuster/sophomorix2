@@ -1457,12 +1457,25 @@ make use of __dachboden when removing dirs (user exits project, subclass, ...)
 chown without file Fehlermeldung in sophomorix-move
 
 
+how handle htaccess when user is in the attic (type attic)?
+
 INFO:
 %all_repairhome contains all permission in $HOME
+
+
+BUG: if sophomorix-test is run, then
+     /var/www/people/students/oeztuemeo/...
+                     teachers/darmin/...
+     still exists
+
 
 ================== CHANGELOG ========================================
 
 1.9.10-1 (2007-03-xx)
+  - sophomorix-repair:
+    - Don't throw error, when .htacces file to repair doesn't exist
+    - modified typeout (option --htaccess)
+    - repair also when dir above .htacces doesn't exist (create dirle)
   - Bug fixed: common __vorlagen in /var/cache/sophomorix/tasks/rooms/$room
                was not removed when
                sophomorix-room --reset-room
