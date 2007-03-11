@@ -37,6 +37,10 @@ $Conf::log_level=1;
 
 # not needed ?
 my $login="";
+my $classes="";
+my $projects="";
+my $student=0;
+
 #my $lehrer=0;
 #my $schueler=0;
 
@@ -55,13 +59,16 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
            "verbose|v+" => \$Conf::log_level,
-           "permissions|p" => \$dateirechte,
+           "permissions" => \$dateirechte,
            "htaccess" => \$htaccess,
            "command-number=n" => \$command_number,
-           "user|u=s" => \$login,
            "repairhome" => \$repairhome,
            "skiplock" => \$skiplock,
-           "file|f=s" => \$filename
+           "file|f=s" => \$filename,
+           "user|u=s" => \$login,
+           "class|classes|c=s" => \$classes,
+           "project|projects|p=s" => \$projects,
+           "student|students|s" => \$student,
           );
 
 # Prüfen, ob Optionen erkannt wurden
@@ -96,17 +103,22 @@ Options
   -f filename / --file filename
 
 What to repair (one option must be given):
-  -p  / --permissions
+
+  --permissions
+      (repairs permission outside of $HOME)
+      Limit the repair to a command-number (show the numbers with -i):
+         --command-number number
+
   --htaccess
+      (repairs .htacces files for users,classes and projects)
+
   --repairhome
-
-Limit the repair to a command-number (show the numbers with -i):
-  --command-number number
-
-Limit the repair to some users:
-  -u user / --user user (Todo)
-  --students (Todo)
-  --teachers (Todo)
+      (repairs $HOME/* of students and teachers)
+      Limit the repair to some users:
+         -u user1,user2,... / --user user1,user2,...
+         -c class1,class2,... / --class class1.class2,... (teachers can be used)
+         -p project1,project2,... / --project project1,project2,...
+         --students
 
 Please see the sophomorix-repair(8) man pages for full documentation
 ');
@@ -200,17 +212,16 @@ my @workstations=&fetchworkstations_from_school();
 
 # do something
 
+
 # --permissions
 if ($dateirechte==1 or $info==1) {
    &repair_directories();
-   #&log_script_exit("",1,1,0,@arguments);
 }
 
 
 # --htaccess
 if ($htaccess==1){
    &repair_htaccess();
-   #&log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -219,17 +230,23 @@ if ($repairhome==1){
     # fetch fermission for all homes
     my $ref_repair=&fetch_repairhome();
 
-
-
-    my @users=(@lehrer,@schueler);
-
-
-
-
+    my @users=();
+    # create userlist
+    if ($login ne ""
+        or $classes ne ""
+        or $projects ne ""
+        or $student==1
+       ){
+       &titel("Checking login names ...");
+       @users=&create_userlist($login,$classes,1,$projects,1,$student,
+                               0,0,0,1);
+    } else {
+       # teachers and students
+       @users=(@lehrer,@schueler);
+    }
     foreach my $user (@users){
         &repair_repairhome($user);
     }
-    #&log_script_exit("",1,1,0,@arguments);
 }
 
 
