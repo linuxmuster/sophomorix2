@@ -4135,19 +4135,22 @@ sub user_public_upload {
                     " -e 's/\@\@teachergroup\@\@/${DevelConf::teacher}/g'";
     my $ht_template="";
     my $ht_target="";
+    my $ht_target_dir="";
 
     if ($type eq "teacher"){
         $ht_template="${DevelConf::apache_templates}"."/".
                 "htaccess.teacher_public_upload-template";
         $ht_target=${DevelConf::www_teachers}."/".$user."/.htaccess";
+        $ht_target_dir=${DevelConf::www_teachers}."/".$user;
     } elsif ($type eq "student"){
         $ht_template="${DevelConf::apache_templates}"."/".
                 "htaccess.student_public_upload-template";
         $ht_target=${DevelConf::www_students}."/".$user."/.htaccess";
+        $ht_target_dir=${DevelConf::www_students}."/".$user;
     } else {
         # not student, not teacher
-        print "   WARNING: $user is not a student/teacher",
-              " (cannot user-public-upload)\n";
+        print "     * WARNING: $user is not a student/teacher (type: $type)\n",
+              "       (cannot user-public-upload)\n";
         return 0;
     }
 
@@ -4157,6 +4160,7 @@ sub user_public_upload {
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
+    system "install -d $ht_target_dir";
     system "$sed_command";
     # setting owner,permissions
     chmod 0400, $ht_target;
@@ -4177,15 +4181,17 @@ sub user_public_noupload {
        " -e 's/\@\@teachergroup\@\@/${DevelConf::teacher}/g'";
     my $ht_template="";
     my $ht_target="";
+    my $ht_target_dir="";
 
     if ($type ne "student"){
-        print "   WARNING: $user is not a student",
-              " (cannot user-public-noupload)\n";
+        print "     * WARNING: $user is not a student (type: $type)\n",
+              "     (cannot user-public-noupload)\n";
         return 0;
     } else {
         $ht_template="${DevelConf::apache_templates}"."/".
                      "htaccess.student_public_noupload-template";
         $ht_target=${DevelConf::www_students}."/".$user."/.htaccess";
+        $ht_target_dir=${DevelConf::www_students}."/".$user;
     }
     
     # do it
@@ -4194,6 +4200,7 @@ sub user_public_noupload {
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
+    system "install -d $ht_target_dir";
     system "$sed_command";
     # setting owner,permissions
     chmod 0400, $ht_target;
@@ -4212,19 +4219,22 @@ sub user_private_upload {
                     " -e 's/\@\@teachergroup\@\@/${DevelConf::teacher}/g'";
     my $ht_template="";
     my $ht_target="";
+    my $ht_target_dir="";
 
     if ($type eq "teacher"){
         $ht_template="${DevelConf::apache_templates}"."/".
                 "htaccess.teacher_private_upload-template";
         $ht_target=${DevelConf::www_teachers}."/".$user."/.htaccess";
+        $ht_target_dir=${DevelConf::www_teachers}."/".$user;
     } elsif ($type eq "student"){
         $ht_template="${DevelConf::apache_templates}"."/".
                 "htaccess.student_private_upload-template";
         $ht_target=${DevelConf::www_students}."/".$user."/.htaccess";
+        $ht_target_dir=${DevelConf::www_students}."/".$user;
     } else {
         # not student, not teacher
-        print "   WARNING: $user is not a student/teacher",
-              " (cannot user-private-upload)\n";
+        print "     * WARNING: $user is not a student/teacher (type: $type)\n",
+              "     (cannot user-private-upload)\n";
         return 0;
     }
 
@@ -4234,6 +4244,7 @@ sub user_private_upload {
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
+    system "install -d $ht_target_dir";
     system "$sed_command";
     # setting owner,permissions
     chmod 0400, $ht_target;
@@ -4253,15 +4264,17 @@ sub user_private_noupload {
                 " -e 's/\@\@teachergroup\@\@/${DevelConf::teacher}/g'";
     my $ht_template="";
     my $ht_target="";
+    my $ht_target_dir="";
 
     if ($type ne "student"){
-        print "   WARNING: $user is not a student",
-              " (cannot user-private-noupload)\n";
+        print "     * WARNING: $user is not a student (type: $type)\n",
+              "       (cannot user-private-noupload)\n";
         return 0;
     } else {
         $ht_template="${DevelConf::apache_templates}"."/".
                 "htaccess.student_private_noupload-template";
         $ht_target=${DevelConf::www_students}."/".$user."/.htaccess";
+        $ht_target_dir=${DevelConf::www_students}."/".$user;
     }
 
     # do it
@@ -4270,6 +4283,7 @@ sub user_private_noupload {
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
+    system "install -d $ht_target_dir";
     system "$sed_command";
     # setting owner,permissions
     chmod 0400, $ht_target;
@@ -4344,10 +4358,14 @@ sub group_public_upload {
     my $ht_template="${DevelConf::apache_templates}"."/".
                 "htaccess.group_public_upload-template";
     my $ht_target="";
+    my $ht_target_dir="";
+
     if ($type eq "adminclass"){
         $ht_target=${DevelConf::www_classes}."/".$group."/.htaccess";
+        $ht_target_dir=${DevelConf::www_classes}."/".$group;
     } elsif ($type eq "project"){
         $ht_target=${DevelConf::www_projects}."/".$group."/.htaccess";
+        $ht_target_dir=${DevelConf::www_projects}."/".$group;
     } else {
         # not adminclass, not project
         print "   WARNING: $group is not a adminclass/project",
@@ -4361,6 +4379,7 @@ sub group_public_upload {
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
+    system "install -d $ht_target_dir";
     system "$sed_command";
     # setting owner,permissions
     chmod 0400, $ht_target;
@@ -4382,10 +4401,14 @@ sub group_public_noupload {
     my $ht_template="${DevelConf::apache_templates}"."/".
                      "htaccess.group_public_noupload-template";
     my $ht_target="";
+    my $ht_target_dir="";
+
     if ($type eq "adminclass"){
         $ht_target=${DevelConf::www_classes}."/".$group."/.htaccess";
+        $ht_target_dir=${DevelConf::www_classes}."/".$group;
     } elsif ($type eq "project"){
         $ht_target=${DevelConf::www_projects}."/".$group."/.htaccess";
+        $ht_target_dir=${DevelConf::www_projects}."/".$group;
     } else {
         # not adminclass, not project
         print "   WARNING: $group is not a adminclass/project",
@@ -4399,6 +4422,7 @@ sub group_public_noupload {
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
+    system "install -d $ht_target_dir";
     system "$sed_command";
     # setting owner,permissions
     chmod 0400, $ht_target;
@@ -4419,10 +4443,14 @@ sub group_private_upload {
     my $ht_template="${DevelConf::apache_templates}"."/".
                 "htaccess.group_private_upload-template";
     my $ht_target="";
+    my $ht_target_dir="";
+
     if ($type eq "adminclass"){
         $ht_target=${DevelConf::www_classes}."/".$group."/.htaccess";
+        $ht_target_dir=${DevelConf::www_classes}."/".$group;
     } elsif ($type eq "project"){
         $ht_target=${DevelConf::www_projects}."/".$group."/.htaccess";
+        $ht_target_dir=${DevelConf::www_projects}."/".$group;
     } else {
         # not adminclass, not project
         print "   WARNING: $group is not a adminclass/project",
@@ -4436,6 +4464,7 @@ sub group_private_upload {
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
+    system "install -d $ht_target_dir";
     system "$sed_command";
     # setting owner,permissions
     chmod 0400, $ht_target;
@@ -4457,10 +4486,14 @@ sub group_private_noupload {
     my $ht_template="${DevelConf::apache_templates}"."/".
                 "htaccess.group_private_noupload-template";
     my $ht_target="";
+    my $ht_target_dir="";
+
     if ($type eq "adminclass"){
         $ht_target=${DevelConf::www_classes}."/".$group."/.htaccess";
+        $ht_target_dir=${DevelConf::www_classes}."/".$group;
     } elsif ($type eq "project"){
         $ht_target=${DevelConf::www_projects}."/".$group."/.htaccess";
+        $ht_target_dir=${DevelConf::www_projects}."/".$group;
     } else {
         # not adminclass, not project
         print "   WARNING: $group is not a adminclass/project",
@@ -4474,6 +4507,7 @@ sub group_private_noupload {
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
+    system "install -d $ht_target_dir";
     system "$sed_command";
     # setting owner,permissions
     chmod 0400, $ht_target;

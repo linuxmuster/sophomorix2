@@ -261,7 +261,6 @@ sub repair_htaccess {
         my $access=&fetchhtaccess_from_group($group);
         &set_htaccess_for_group($group,$access);
     }
-    &log_script_exit("",1,1,0,@arguments);
     print "Repairing htaccess files of students:\n";
     foreach my $student (@schueler){
         print "   ${student}:\n";
@@ -289,7 +288,17 @@ sub set_htaccess_for_user {
         &user_private_noupload($user);
     } else {
         # standard
-        &user_private_noupload($user);
+        my ($home,$type)=
+          &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
+        if ($type eq "teacher"){
+            &user_private_upload($user);
+        } elsif ($type eq "student"){
+            &user_private_noupload($user);
+        } else {
+            # no type 
+            print "     * WARNING: .htacess NOT created!\n";
+            print "     *           NO standard for type ${type}!\n";
+        }
     }
 }
 
