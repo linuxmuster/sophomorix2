@@ -74,6 +74,7 @@ use Quota;
               imap_disconnect
               imap_show_mailbox_info
               imap_create_mailbox
+              imap_rename_mailbox
               imap_kill_mailbox
               imap_fetch_mailquota
               imap_set_mailquota
@@ -1599,6 +1600,15 @@ sub lehrer_ordnen {
    my $quota="";
    my $mailquota="";
 
+   my ($old_uid,$new_uid) = @_;
+   if (not defined $old_uid){
+       $old_uid="";
+   }
+   if (not defined $new_uid){
+       $new_uid="";
+   }
+
+
    my $identifier="";
 
    my @linien=();
@@ -1619,12 +1629,12 @@ sub lehrer_ordnen {
         print LEHRERTMP ("$_\n");
         # weiter mit nächstem Lehrer
         next;
-      } 
-      s/\s//g;
-      # Wenn Zeile Leer, dann aussteigen
-      if ($_ eq ""){
-         next;
-      } 
+     } 
+     s/\s//g;
+     # Wenn Zeile Leer, dann aussteigen
+     if ($_ eq ""){
+        next;
+     } 
      ($typ,
       $nachname,
       $vorname,
@@ -1646,18 +1656,25 @@ sub lehrer_ordnen {
 
      }
 
-      # identifier erzeugen
-      $identifier=join("",
-                       ($nachname,
-                       ";",
-                        $vorname,
-                       ";",
-                        $datum));
+     # replacing wunschlogin if options are given
+     if ($old_uid ne "" and $new_uid ne ""){
+         if ($wunsch_login eq $old_uid){
+             $wunsch_login=$new_uid;
+         }
+     } 
 
-      if($Conf::log_level>=2){
-         print ("    $identifier\n");
-      }
-      # In lehrer.txt muss IMMER der gültige Loginname stehen (wegen Quota) 
+     # identifier erzeugen
+     $identifier=join("",
+                      ($nachname,
+                      ";",
+                       $vorname,
+                      ";",
+                       $datum));
+
+     if($Conf::log_level>=2){
+        print ("    $identifier\n");
+     }
+     # In lehrer.txt muss IMMER der gültige Loginname stehen (wegen Quota) 
 
      if ($wunsch_login eq "") {
          # gibt es lehrer schon im system, dann dort login holen
@@ -3032,6 +3049,26 @@ sub imap_create_mailbox {
     }
     #&create_subfolders($imap, $login, @subfolders) or return undef;
     print "Mailbox for $login created.\n";
+    return 1;
+}
+
+sub imap_rename_mailbox {
+    if (not -e ${DevelConf::imap_password_file}) {
+        print "WARNING: No file ${DevelConf::imap_password_file}.",
+              " Skipping IMAP stuff.\n";
+        return 0;
+    }
+    my ($imap,$old_uid,$new_uid) = @_;
+
+
+    my $err = $imap->rename("user.$old_uid","user.$new_uid");
+    if ($err != 0) {
+       	my $status = $imap->error;
+        print "$status \n";
+    }
+
+
+    print "Mailbox of $old_uid renamed to $new_uid.\n";
     return 1;
 }
 
