@@ -20,6 +20,7 @@ use Time::localtime;
 use Term::ANSIColor qw(:constants); # farbiger Text RED, BLUE, ...
 # nach jedem Printbefehl wieder auf Standardfarbe zurücksetzen
 $Term::ANSIColor::AUTORESET = 1;
+use IMAP::Admin;
 use DBI;
 use Net::LDAP;
 use Date::Calc qw(check_date);
@@ -28,6 +29,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     check_connections
                                     search_user
                                     fetchdata_from_account
+                                    forbidden_login_hash
                                     update_user_db_entry
                                     date_pg2perl
                                     user_deaktivieren
@@ -63,6 +65,8 @@ my $teacher="";
 my $sc_toleration="empty";
 my $reset_user="";
 my $search="";
+my $old_uid="";
+my $new_uid="";
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -74,6 +78,8 @@ my $testopt=GetOptions(
        "P|permanent=s" => \$permanent,
        "R|removable=s" => \$removable,
        "K|killable=s" => \$killable,
+       "old-uid=s" => \$old_uid,
+       "new-uid=s" => \$new_uid,
        "kill-all-users" => \$kill_all_users,
        "A|activate=s" => \$activate,
        "reset-user=s" => \$reset_user,
@@ -345,6 +351,71 @@ if ($info==1){
 
 
 
+# --user oldlogin --new-login newlogin
+if ($old_uid ne "" and $new_uid ne ""){
+
+    my %forbidden_login_hash=&forbidden_login_hash();
+
+    if (exists($forbidden_login_hash{$new_uid})){
+        print "\nERROR: New login $new_uid exists in the system.\n\n";
+        print "I'm doing nothing!\n\n";
+        exit;
+    }
+
+    # fetch old data
+    my ($old_home,$old_type,$old_gecos,$old_group,$old_uidnumber,
+       $old_sambahomepath) = &fetchdata_from_account($old_uid);
+
+    if ($old_home eq ""){
+        print "\nERROR: Could not find old-uid $old_uid\n\n";
+        print "I'm doing nothing!\n\n";
+        exit;
+    }
+
+    print "\nOld uid: $old_uid \n";
+    print "   Old homedirectory: $old_home \n";
+    print "   Old sambahomepath: $old_sambahomepath \n\n";
+
+    # changing stuff
+    my $new_home=$old_home;
+    $new_home=~s/\/${old_uid}$/\/${new_uid}/;
+
+
+    print "1) Updating $old_uid to $new_uid in the sophomorix database\n";
+    &update_user_db_entry($old_uid,"Uid=$new_uid");
+
+    # fetch new data
+    my ($new_home_db,$new_type,$new_gecos,$new_group,$new_uidnumber,
+       $new_sambahomepath) = &fetchdata_from_account($new_uid);
+
+    print "\nChecking new uid: $new_uid \n";
+    print "   New homedirectory: $new_home_db \n";
+    print "   New sambahomepath: $new_sambahomepath \n\n";
+
+
+    print "2) Moving homedir from\n", 
+          "         $old_home \n", 
+          "   to  \n",
+          "         $new_home \n\n";
+    system("mv $old_home $new_home");
+
+
+    print "3) Renaming mailbox\n";
+    my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
+    &imap_rename_mailbox($imap,$old_uid,$new_uid);
+    &imap_disconnect($imap);
+
+
+    print "4) Updating lehrer.txt if it is a teacher\n";
+    if ($old_type eq "teacher"){
+        &lehrer_ordnen($old_uid,$new_uid);
+    }
+
+
+    print "5) Updating /etc/aliases.\n";
+#    system("${DevelConf::executable_pfad}/sophomorix-mail --skiplock");
+    exit;
+}
 
 
 # --freeze
