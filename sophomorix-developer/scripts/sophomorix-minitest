@@ -26,35 +26,56 @@ use Net::LDAP;
 #use DebAux::Debconf;
 use IMAP::Admin;
 
-my $cyruspass="NMnDwk1U";
-my $cyrususer="cyrus";
-
-my $user="ohenryhigg";
 
 
-my $imap=&imap_connect("localhost",$cyrususer,$cyruspass);
+#&chmod_chown_dir_smb("/root/find","0701","0005","devlamro","12a");
+
+#&fetch_smb_conf();
+
+#my ($path,$dir_perm,$file_perm,$owner,$gowner)=&show_smb_conf_umask("cdrom");
 
 
-# fetch list of mailboxes
-&imap_show_mailbox_info($imap);
+#print " Path:  $path\n";
+#print " dirs:  $dir_perm\n";
+#print " files: $file_perm\n";
+#print " owner: $owner\n";
+#print " gowner: $gowner\n";
 
-&imap_kill_mailbox($imap,"ohenryhigg");
+
+#&chmod_chown_dir("/root/find",$dir_perm,$file_perm,$owner,$gowner);
+
+#my ($dir,$file) = &permissions_from_umask();
+
+#print "Dir $dir     File $file \n";
+
+#my ($home,$type)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account("nikoob");
+
+#print "$home   $type  \n";
+
+
+#&update_user_db_entry("shoemaca","Uid=schumacher");
+
+#&lehrer_ordnen("gilli","galli");
+
+&cyrus_connect;
 
 exit;
 
-# create mailbox
-&imap_create_mailbox($imap,$user);
+my $old_ho="\\\\server\\merckxed";
+
+print "${old_ho}\n";
 
 
-# setting quota
-my @mailquota=&imap_fetch_mailquota($imap,$user);
-&imap_set_mailquota($imap,$user,"30");
-@mailquota=&imap_fetch_mailquota($imap,$user);
+my $old="merckxed";
+my $new="edmrxle";
+
+#$old_ho=~s/\\${old}$/\\\\${new}/;
+#$old_ho=~s/^\\\\/\\\\\\\\/;
 
 
 
+print "${old_ho}\n";
 
-&imap_disconnect($imap);
 
 ############################################################
 # sub

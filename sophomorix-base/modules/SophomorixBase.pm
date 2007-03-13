@@ -70,6 +70,7 @@ use Quota;
               archive_log_entry
               backup_amk_file
               get_mail_alias_from
+              cyrus_connect
               imap_connect
               imap_disconnect
               imap_show_mailbox_info
@@ -2893,6 +2894,62 @@ sub get_mail_alias_from {
 
 
 
+
+################################################################################
+# CYRUS
+################################################################################
+
+sub cyrus_fetch_password {
+    my $cyrus_pass="";
+    # fetch pass from file
+    if (-e ${DevelConf::imap_password_file}) {
+         # looking for password
+ 	 open (CONF, ${DevelConf::imap_password_file});
+         while (<CONF>){
+             chomp();
+             if ($_ ne ""){
+		 $cyrus_pass=$_;
+                 last;
+             }
+         }
+         close(CONF);
+    }
+    return $cyrus_pass
+}
+
+
+sub cyrus_connect {
+    # use Cyrus::IMAP::Admin 
+    if (not -e ${DevelConf::imap_password_file}) {
+        print "WARNING: No file ${DevelConf::imap_password_file}. ",
+              "Skipping IMAP stuff.\n";
+        return 0;
+    }
+    my ($server, $admin, $silent) = @_;
+    if (not defined $silent){
+        $silent=0;
+    }
+
+    my $imap_pass=&cyrus_fetch_password();
+    if($Conf::log_level>=2 and $silent==0){
+        # $imap_pass holds password
+        print "Connecting to imap-server at $server as $admin with password *** \n";
+    }
+
+
+    my $cyrus = Cyrus::IMAP::Admin->new('$server');
+#    my $status = $imap->error;      
+#    if ($status ne 'No Errors') {
+#        print "$status \n";
+#	$cyrus->close();
+#	return undef;
+#    }
+    return $cyrus;
+}
+
+
+
+
 ################################################################################
 # IMAP
 ################################################################################
@@ -2907,20 +2964,23 @@ sub imap_connect {
     if (not defined $silent){
         $silent=0;
     }
-    my $imap_pass="";
-    # fetch pass from file
-    if (-e ${DevelConf::imap_password_file}) {
-         # looking for password
- 	 open (CONF, ${DevelConf::imap_password_file});
-         while (<CONF>){
-             chomp();
-             if ($_ ne ""){
-		 $imap_pass=$_;
-                 last;
-             }
-         }
-         close(CONF);
-    }
+
+    my $imap_pass=&cyrus_fetch_password();
+
+#    my $imap_pass="";
+#    # fetch pass from file
+#    if (-e ${DevelConf::imap_password_file}) {
+#         # looking for password
+# 	 open (CONF, ${DevelConf::imap_password_file});
+#         while (<CONF>){
+#             chomp();
+#             if ($_ ne ""){
+#		 $imap_pass=$_;
+#                 last;
+#             }
+#         }
+#         close(CONF);
+#    }
     if($Conf::log_level>=2 and $silent==0){
         # $imap_pass holds password
         print "Connecting to imap-server at $server as $admin with password *** \n";
@@ -2939,6 +2999,8 @@ sub imap_connect {
     }
     return $imap;
 }
+
+
 
 
 sub imap_disconnect {
