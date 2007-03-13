@@ -1258,7 +1258,9 @@ sub fetchdata_from_account {
         $group,
         $gecos,
         $uidnumber,
-       )= $dbh->selectrow_array( "SELECT homedirectory,gid,gecos,uidnumber 
+        $sambahomepath,
+       )= $dbh->selectrow_array( "SELECT homedirectory,gid,gecos,
+                                         uidnumber,sambahomepath 
                                          FROM userdata 
                                          WHERE uid='$login'
                                         ");
@@ -1279,9 +1281,9 @@ sub fetchdata_from_account {
         } else {
             $type="none";
         }
-        return ($home,$type,$gecos,$group,$uidnumber);
+        return ($home,$type,$gecos,$group,$uidnumber,$sambahomepath);
     } else {
-        return ("","","","",-1);
+        return ("","","","",-1,"");
     }
 }
 
@@ -1387,7 +1389,6 @@ sub create_user_db_entry {
     if (not defined $uid_name_sys){
        $uid_name_sys="";
     }
-
 
     # check if user exists
     if ($uid_sys ne ""){
@@ -2891,6 +2892,7 @@ sub update_user_db_entry {
     my $account_type="";
     my $quota="";
     my $mailquota=-1;
+    my $new_login="";
 
     my @posix=();
     my @posix_details=();
@@ -2921,6 +2923,25 @@ sub update_user_db_entry {
            $gecos="$value";
 	   push @posix, "gecos = '$gecos'";
 	   push @samba, "displayname = '$gecos'";
+       }
+       elsif ($attr eq "Uid"){
+           $new_login="$value";
+	   push @posix, "uid = '$new_login'";
+           # fetch old data
+           my ($old_home,$old_type,$old_gecos,$old_group,$old_uidnumber,
+               $old_sambahomepath) = &fetchdata_from_account($login);
+           # homedirectory
+	   my $new_home=$old_home;
+           $new_home=~s/\/${login}$/\/${new_login}/;
+           push @posix, "homedirectory = '$new_home'";
+           # sambahomepath
+	   print "$old_sambahomepath";
+           my $new_sambahomepath=$old_sambahomepath;
+           $new_sambahomepath=~s/\\${login}$/\\\\${new_login}/;
+           $new_sambahomepath=~s/^\\\\/\\\\\\\\/;
+           # smabahomepath = '\\\\server\\user'  is required
+	   print "$new_sambahomepath";
+	   push @samba, "sambahomepath = '$new_sambahomepath'";
        }
        elsif ($attr eq "FirstPass"){
            $first_pass="$value";
@@ -3018,14 +3039,12 @@ sub update_user_db_entry {
        else {print "Attribute $attr unknown\n"}
     }
 
-
     $sql="SELECT id FROM userdata 
           WHERE uid='$login'";
     if($Conf::log_level>=3){
         print "\nSQL: $sql\n";
     }
     my ($id)=$dbh->selectrow_array($sql);
-
 
     if (defined $id){
        # if user found in database
