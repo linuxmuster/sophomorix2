@@ -2935,12 +2935,10 @@ sub update_user_db_entry {
            $new_home=~s/\/${login}$/\/${new_login}/;
            push @posix, "homedirectory = '$new_home'";
            # sambahomepath
-	   print "$old_sambahomepath";
            my $new_sambahomepath=$old_sambahomepath;
            $new_sambahomepath=~s/\\${login}$/\\\\${new_login}/;
            $new_sambahomepath=~s/^\\\\/\\\\\\\\/;
            # smabahomepath = '\\\\server\\user'  is required
-	   print "$new_sambahomepath";
 	   push @samba, "sambahomepath = '$new_sambahomepath'";
        }
        elsif ($attr eq "FirstPass"){
