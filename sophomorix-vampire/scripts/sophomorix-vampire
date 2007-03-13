@@ -66,6 +66,8 @@ my $testopt=GetOptions(
            "configure-quota" => \$configure_quota,
            "update-quota" => \$update_quota,
            "sync-homes" => \$sync_homes,
+           "sync-mail-data" => \$sync_mail_data,
+           "sync-mail" => \$sync_mail,
            "sync-dirs" => \$sync_dirs,
            "sync-shares" => \$sync_shares,
            "mlscripts" => \$mlscripts,
@@ -537,18 +539,18 @@ if ($sync_homes==1){
      # rsync all homes
      print "\n";
 
-     system("mkdir -p $new_home/old_data");
-     system("chown ${user}:${group} $new_home/old_data");
-     system("chmod 700 $new_home/old_data");
+     system("mkdir -p $new_home/${DevelConf::user_attic}");
+     system("chown ${user}:${group} $new_home/${DevelConf::user_attic}");
+     system("chmod 700 $new_home/${DevelConf::user_attic}");
 
      # windows
-     system("mkdir -p $new_home/old_data/windows");
+     system("mkdir -p $new_home/${DevelConf::user_attic}/windows");
 
      # linux
-     system("mkdir -p $new_home/old_data/linux");
+     system("mkdir -p $new_home/${DevelConf::user_attic}/linux");
  
      # mail mbox 2.x only
-     system("mkdir -p $new_home/old_data/mail");
+     system("mkdir -p $new_home/${DevelConf::user_attic}/mail");
 
 
      # different 2.x and 3.0 ?????
@@ -556,38 +558,38 @@ if ($sync_homes==1){
      {
      # windows
      my $source="${old_home}windows";
-     my $target="${new_home}old_data";
+     my $target="${new_home}${DevelConf::user_attic}";
      &titel("Synchronizig home of user $user (windows):");
      print "   $source \n     --> $target\n";
      $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av --delete  root\@${server}:$source $target";
      print "$command\n";
      system($command); 
-     system("chown -R ${user}:${group} $new_home/old_data/windows");
-     system("chmod 700 $new_home/old_data/windows");
+     system("chown -R ${user}:${group} $new_home/${DevelConf::user_attic}/windows");
+     system("chmod 700 $new_home/${DevelConf::user_attic}/windows");
 
 
 
      # linux
      my $lin_source="$old_home";
      my $lin_exclude="windows/";
-     my $lin_target="${new_home}old_data/linux";
+     my $lin_target="${new_home}${DevelConf::user_attic}/linux";
 
      print "   $lin_source \n     --> $lin_target\n";
      $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av --delete  --exclude $lin_exclude root\@${server}:$lin_source $lin_target";
      print "$command\n";
      system($command); 
-     system("chown -R ${user}:${group} $new_home/old_data/linux");
-     system("chmod 700 $new_home/old_data/linux");
+     system("chown -R ${user}:${group} $new_home/${DevelConf::user_attic}/linux");
+     system("chmod 700 $new_home/${DevelConf::user_attic}/linux");
 
      # mail    
      my $mail_source="/var/spool/mail/${user}";
-     my $mail_target="${new_home}old_data/mail/${user}";
+     my $mail_target="${new_home}${DevelConf::user_attic}/mail/${user}";
      #system("scp -i $key_dsa root\@${server}:${mail_source} $mail_target");
      $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av root\@${server}:$mail_source $mail_target";
      print "$command\n";
      system($command); 
-     system("chown ${user}:${group} $new_home/old_data/mail");
-     system("chmod 700 $new_home/old_data/mail");
+     system("chown ${user}:${group} $new_home/${DevelConf::user_attic}/mail");
+     system("chmod 700 $new_home/${DevelConf::user_attic}/mail");
      system("chown ${user}:${group} $mail_target");
 
      # mail .forward kopieren
