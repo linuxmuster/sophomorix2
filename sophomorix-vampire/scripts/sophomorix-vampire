@@ -33,6 +33,8 @@ my $clear=0;
 my $server="";
 my $sync_user=0;
 my $sync_homes=0;
+my $sync_mail_data=0;
+my $sync_mail=0;
 my $sync_dirs=0;
 my $sync_shares=0;
 my $configure_quota=0;
@@ -524,28 +526,11 @@ if ($sync_homes==1){
    &print_list_column(6,"Userlist for synchronising \$HOME",@userlist);
    # do this for all users
    foreach my $user (@userlist){
-     my $old_home="";
      my $new_home="";
      my $command="";
-     # look up homes in old passwd
-     open(OLD, "<${dir_old_files}/passwd");
-     while (<OLD>){
-	my @list=split(/:/);
-        if ($list[0] eq $user){
-            $old_home=$list[5]."/";            
-        }
-     }
-     close(OLD);
 
-     # look up new homes  in passwd
-     setpwent();
-     while (my @list=getpwent()) {
-        if ($list[0] eq $user){
-            #print "$list[7]\n";
-            $new_home=$list[7]."/";
-        }
-     }
-     endpwent();
+     my $old_home = &fetch_old_home($user);
+     my $new_home = &fetch_new_home($user);
 
      my ($group) = &Sophomorix::SophomorixPgLdap::pg_get_group_list($user);
 
@@ -776,6 +761,39 @@ if ($mlscripts==1){
 ############################################################
 # sub
 ############################################################
+
+sub fetch_old_home {
+    my $user=@_;
+    # look up homes in old passwd
+    open(OLD, "<${dir_old_files}/passwd");
+    while (<OLD>){
+       my @list=split(/:/);
+       if ($list[0] eq $user){
+          $old_home=$list[5]."/";            
+       }
+    }
+    close(OLD);
+    return $old_home;
+}
+
+
+
+sub fetch_new_home {
+    my $user=@_;
+    # look up new homes  in passwd
+    setpwent();
+    while (my @list=getpwent()) {
+       if ($list[0] eq $user){
+          #print "$list[7]\n";
+          $new_home=$list[7]."/";
+       }
+    }
+    endpwent();
+    return $new_home;
+}
+
+
+
 sub configure_quota {
     my ($old_quota,$old_mailquota,$type) = @_;
     #print "OLD: ---$old_quota---\n";
