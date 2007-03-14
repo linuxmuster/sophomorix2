@@ -1497,9 +1497,13 @@ renamin mailbox:
 ================== CHANGELOG ========================================
 
 1.9.11-1 (2007-03-xx)
+  - sophomorix-vampire:
+    split sync of homes into two parts
+      1) windows and linux (--sync-homes)
+      2) mail and .forward (--sync-maildata)
+    --sync-mail syncs mbox-file into cyrus
   - added options to rename login of a user
     PROBLEM: mailbox cannot be renamed
-
 
 1.9.10-1 (2007-03-11)
   - sophomorix-repair:
