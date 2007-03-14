@@ -20,6 +20,7 @@ use Sophomorix::SophomorixBase;
 use Sophomorix::SophomorixAPI;
 
 use Sophomorix::SophomorixPgLdap qw(show_modulename
+                                    fetchdata_from_account
                                    );
 use DBI;
 
@@ -644,17 +645,23 @@ if ($sync_mail==1){
    # do this for all users
    foreach my $user (@userlist){
      my $command="";
-     my $new_home = &fetch_new_home($user);
-print "$new_home \n";
+     #my $new_home = &fetch_new_home($user);
+     my ($new_home,$type,$gecos,$group,$uidnumber,$sambahomepath,
+         $first_passwd) = &fetchdata_from_account($user);
+
+
      # upgrade from 2.x
-     my $mailsync_dir=$new_home.${Language::user_attic}."/"."mailsync/";
+     my $mailsync_dir=$new_home."/".${Language::user_attic}."/"."mailsync/";
      system("mkdir -p $mailsync_dir=");
      my $mailsync_dotfile=$mailsync_dir.".mailsync";
 
-     my $mailbox_file=$new_home.${Language::user_attic}."/"."mail/".${user};
+     my $mailbox_file=$new_home."/".${Language::user_attic}."/".
+                      "mail/".${user};
 
      if (not -e "$mailbox_file"){
 	 print "User $user has no mailbox-file $mailbox_file\n";
+	 print "Skipping user $user ...\n";
+         next;
      }  
 
      print "Mailsync: $mailsync_dir\n";
@@ -665,14 +672,15 @@ print "$new_home \n";
      my $mailsync_template="/etc/sophomorix/vampire/user.mailsync";
      my $replace= " -e 's/\@\@user\@\@/${user}/g'". 
           " -e 's/\@\@user_attic\@\@/${Language::user_attic}/g'". 
+          " -e 's/\@\@user_passwd\@\@/${first_passwd}/g'". 
           " -e 's/\@\@servername\@\@/${host}/g'"; 
 
      system("sed $replace ${mailsync_template} > ${mailsync_dotfile}"); 
 
      # load mailbox file with this config
-
-
-
+     $command="HOME=$new_home mailsync -f $mailsync_dotfile -m migrate";
+     print "$command\n";
+     system("$command");
    }
 }
 
