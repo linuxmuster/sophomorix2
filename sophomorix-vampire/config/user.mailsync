@@ -1,0 +1,24 @@
+# call with
+#
+# HOME="/home/teachers/bz" mailsync -f /home/teachers/roe/old_data/mail/.mailsync
+#
+
+
+# old mail
+store localdir {
+	pat     old_data/mail/*
+	prefix  old_data/mail/
+}
+
+# new mail
+store cyrus {
+	server {majestix.bszleo.de/ssl/novalidate-cert/user=bec}
+	ref    {majestix.bszleo.de}
+	pat    INBOX
+	prefix INBOX.sync.
+}
+
+
+channel migrate localdir cyrus {
+	msinfo  old_data/mailsync/.mailsync.info
+}
