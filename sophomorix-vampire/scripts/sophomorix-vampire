@@ -528,90 +528,163 @@ if ($sync_homes==1){
    &print_list_column(6,"Userlist for synchronising \$HOME",@userlist);
    # do this for all users
    foreach my $user (@userlist){
-     my $new_home="";
      my $command="";
-
      my $old_home = &fetch_old_home($user);
      my $new_home = &fetch_new_home($user);
-
      my ($group) = &Sophomorix::SophomorixPgLdap::pg_get_group_list($user);
 
-     # rsync all homes
-     print "\n";
-
-     system("mkdir -p $new_home/${DevelConf::user_attic}");
-     system("chown ${user}:${group} $new_home/${DevelConf::user_attic}");
-     system("chmod 700 $new_home/${DevelConf::user_attic}");
-
      # windows
-     system("mkdir -p $new_home/${DevelConf::user_attic}/windows");
-
+     system("mkdir -p $new_home/${Language::user_attic}/windows");
      # linux
-     system("mkdir -p $new_home/${DevelConf::user_attic}/linux");
- 
-     # mail mbox 2.x only
-     system("mkdir -p $new_home/${DevelConf::user_attic}/mail");
-
-
-     # different 2.x and 3.0 ?????
+     system("mkdir -p $new_home/${Language::user_attic}/linux");
 
      {
      # windows
      my $source="${old_home}windows";
-     my $target="${new_home}${DevelConf::user_attic}";
+     my $target="${new_home}${Language::user_attic}";
      &titel("Synchronizig home of user $user (windows):");
      print "   $source \n     --> $target\n";
      $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av --delete  root\@${server}:$source $target";
      print "$command\n";
      system($command); 
-     system("chown -R ${user}:${group} $new_home/${DevelConf::user_attic}/windows");
-     system("chmod 700 $new_home/${DevelConf::user_attic}/windows");
 
-
+     # permissions and owner
+     my ($unused_path,$dir_perm,$file_perm,
+           $owner,$gowner)=&show_smb_conf_umask("homes");
+     &chmod_chown_dir("$new_home/${Language::user_attic}/windows",
+                      $dir_perm,$file_perm,
+                      $owner,$gowner);
+#     system("chown -R ${user}:${group} $new_home/${Language::user_attic}/windows");
+#     system("chmod 700 $new_home/${Language::user_attic}/windows");
 
      # linux
      my $lin_source="$old_home";
      my $lin_exclude="windows/";
-     my $lin_target="${new_home}${DevelConf::user_attic}/linux";
+     my $lin_target="${new_home}${Language::user_attic}/linux";
 
      print "   $lin_source \n     --> $lin_target\n";
      $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av --delete  --exclude $lin_exclude root\@${server}:$lin_source $lin_target";
      print "$command\n";
      system($command); 
-     system("chown -R ${user}:${group} $new_home/${DevelConf::user_attic}/linux");
-     system("chmod 700 $new_home/${DevelConf::user_attic}/linux");
+     &chmod_chown_dir("$new_home/${Language::user_attic}/linux",
+                      $dir_perm,$file_perm,
+                      $owner,$gowner);
 
+#     system("chown -R ${user}:${group} $new_home/${Language::user_attic}/linux");
+#     system("chmod 700 $new_home/${Language::user_attic}/linux");
+    }
+
+    # repair directories
+    # needed to correct permissions owner www-run becomes www-data, ...
+   }
+}
+
+
+
+
+############################################################
+# Step 9: synchronize mbox maildata and .forward
+############################################################
+if ($sync_mail_data==1){
+   print "* Step 9:  synchronizing mailbox maildata and .forward\n";
+   &print_list_column(6,"Userlist for synchronising \$HOME",@userlist);
+   # do this for all users
+   foreach my $user (@userlist){
+     my $command="";
+     my $old_home = &fetch_old_home($user);
+     my $new_home = &fetch_new_home($user);
+     my ($group) = &Sophomorix::SophomorixPgLdap::pg_get_group_list($user);
+
+     # mail mbox 2.x only
+     system("mkdir -p $new_home/${Language::user_attic}/mail");
+     # different 2.x and 3.0 ?????
+
+     {
      # mail    
      my $mail_source="/var/spool/mail/${user}";
-     my $mail_target="${new_home}${DevelConf::user_attic}/mail/${user}";
+     my $mail_target="${new_home}${Language::user_attic}/mail/${user}";
      #system("scp -i $key_dsa root\@${server}:${mail_source} $mail_target");
      $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av root\@${server}:$mail_source $mail_target";
      print "$command\n";
      system($command); 
-     system("chown ${user}:${group} $new_home/${DevelConf::user_attic}/mail");
-     system("chmod 700 $new_home/${DevelConf::user_attic}/mail");
+     system("chown ${user}:${group} $new_home/${Language::user_attic}/mail");
+     system("chmod 700 $new_home/${Language::user_attic}/mail");
      system("chown ${user}:${group} $mail_target");
 
-     # mail .forward kopieren
+     # copy .forward
      $command="scp -i $key_dsa root\@${server}:${old_home}.forward $new_home";
      print "$command\n";
      system($command); 
      system("chown ${user}:${group} ${new_home}.forward");
      }
-
-    # repair directories
-    # needed to correct permissions owner www-run becomes www-data, ...
-
-    # sync mail (the dir in /var/spool/mail) 
    }
 }
+
+
+
+
+
+
+
+
+############################################################
+# Step 10: read old mail into cyrus
+############################################################
+if ($sync_mail==1){
+   print "* Step 10:  loading mail into cyrus\n";
+   &print_list_column(6,"Userlist for synchronising \$HOME",@userlist);
+
+   my $servername_debconf=
+       &get_debconf_value("linuxmuster-base", "servername",0);
+   my $domainname_debconf=
+      &get_debconf_value("linuxmuster-base", "domainname",0);
+   my $host=$servername_debconf.".".$domainname_debconf;
+
+
+   # do this for all users
+   foreach my $user (@userlist){
+     my $command="";
+     my $new_home = &fetch_new_home($user);
+print "$new_home \n";
+     # upgrade from 2.x
+     my $mailsync_dir=$new_home.${Language::user_attic}."/"."mailsync/";
+     system("mkdir -p $mailsync_dir=");
+     my $mailsync_dotfile=$mailsync_dir.".mailsync";
+
+     my $mailbox_file=$new_home.${Language::user_attic}."/"."mail/".${user};
+
+     if (not -e "$mailbox_file"){
+	 print "User $user has no mailbox-file $mailbox_file\n";
+     }  
+
+     print "Mailsync: $mailsync_dir\n";
+     print "Mailbox: $mailbox_file\n";
+
+     # create config file for mailsync
+
+     my $mailsync_template="/etc/sophomorix/vampire/user.mailsync";
+     my $replace= " -e 's/\@\@user\@\@/${user}/g'". 
+          " -e 's/\@\@user_attic\@\@/${Language::user_attic}/g'". 
+          " -e 's/\@\@servername\@\@/${host}/g'"; 
+
+     system("sed $replace ${mailsync_template} > ${mailsync_dotfile}"); 
+
+     # load mailbox file with this config
+
+
+
+   }
+}
+
+
+
 
 
 # what about horde database content?
 
 
 ############################################################
-# Step 9: sync/add the workstations
+# Step 11: sync/add the workstations
 ############################################################
 
 # copy the wimport_data to the new location
@@ -623,7 +696,7 @@ if ($sync_homes==1){
 
 
 ############################################################
-# Step 10: synchronize the shares
+# Step 12: synchronize the shares
 ############################################################
 if ($sync_shares==1){
     my @classes=();
@@ -663,7 +736,7 @@ if ($sync_shares==1){
         $new_group_old_id{$group}="$old_id"; 
     }
 
-    print "* Step 10:  synchronizing the shares\n";
+    print "* Step 12:  synchronizing the shares\n";
     #my $group="m3kb2t";
     # do this for all groups
     foreach my $group (@classes){
@@ -765,7 +838,8 @@ if ($mlscripts==1){
 ############################################################
 
 sub fetch_old_home {
-    my $user=@_;
+    my ($user)=@_;
+    my $old_home;
     # look up homes in old passwd
     open(OLD, "<${dir_old_files}/passwd");
     while (<OLD>){
@@ -781,12 +855,12 @@ sub fetch_old_home {
 
 
 sub fetch_new_home {
-    my $user=@_;
+    my ($user)=@_;
+    my $new_home;
     # look up new homes  in passwd
     setpwent();
     while (my @list=getpwent()) {
-       if ($list[0] eq $user){
-          #print "$list[7]\n";
+     if ($list[0] eq $user){
           $new_home=$list[7]."/";
        }
     }
