@@ -1259,8 +1259,9 @@ sub fetchdata_from_account {
         $gecos,
         $uidnumber,
         $sambahomepath,
-       )= $dbh->selectrow_array( "SELECT homedirectory,gid,gecos,
-                                         uidnumber,sambahomepath 
+        $firstpassword,
+       )= $dbh->selectrow_array( "SELECT homedirectory,gid,gecos,uidnumber,
+                                         sambahomepath,firstpassword 
                                          FROM userdata 
                                          WHERE uid='$login'
                                         ");
@@ -1281,9 +1282,10 @@ sub fetchdata_from_account {
         } else {
             $type="none";
         }
-        return ($home,$type,$gecos,$group,$uidnumber,$sambahomepath);
+        return ($home,$type,$gecos,$group,$uidnumber,$sambahomepath,
+                $firstpassword);
     } else {
-        return ("","","","",-1,"");
+        return ("","","","",-1,"","");
     }
 }
 
