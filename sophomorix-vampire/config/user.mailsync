@@ -14,9 +14,9 @@ store localdir {
 store cyrus {
 	server {@@servername@@/ssl/novalidate-cert/user=@@user@@}
 	ref    {@@servername@@}
-        password oiidkB
+        passwd @@user_passwd@@
 	pat    INBOX
-	prefix INBOX.sync.
+	prefix INBOX.@@user_attic@@.
 }
 
 
