@@ -3886,16 +3886,20 @@ sub handoutcopy {
     closedir DIR;
 
     if ($found==1){
+       my $gowner="";
        # what permissions/owner must i create
        my ($path,$dir_perm,$file_perm,
-           $owner,$gowner)=&show_smb_conf_umask("homes");
+           $smb_owner,$smb_gowner)=&show_smb_conf_umask("homes");
        # owner is set below
-       if ($gowner eq ""){
+       if ($smb_gowner eq ""){
            # should be primary group of user, but is OK
            $gowner=${DevelConf::teacher};
+       } else {
+           $gowner=$smb_owner;
        }
        foreach my $user (@userlist){
            # home des austeilenden ermitteln
+           my $owner="";
            my ($homedir)=
               &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
            if ($homedir eq ""){
@@ -3918,10 +3922,12 @@ sub handoutcopy {
               }
               print "   To:   ${to_dir}\n";
               system ("cp -a $from_dir/* $to_dir");
-
-              if ($owner eq ""){
-                  # no force owner
+              if ($smb_owner eq ""){
+                  # make user to owner
                   $owner=$user;
+              } else {
+                  # use smb_owner
+                  $owner=$smb_owner;
               }
               &chmod_chown_dir("$to_dir/*",
                                $dir_perm,
