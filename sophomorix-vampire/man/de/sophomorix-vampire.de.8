@@ -29,18 +29,16 @@ Jeder Lehrer und Schüler behält seinen Loginnamen/Benutzernamen.
 .TP
 .B Private Userdaten:
 .br
-Linux-Daten im Homeverzeichnis werden nach $HOME/old_data/linux
+Linux-Daten im Homeverzeichnis werden nach $HOME/__dachboden/linux
 kopiert. 
 .br
-Windows-Daten werden nach $HOME/old_data/windows kopiert.
+Windows-Daten werden nach $HOME/__dachboden/windows kopiert.
 .TP
 .B Email im mbox-Format:
 .br
-Die Mailbox liegt nach der Migration in $HOME/old-data/mail/loginname
+Die Mailbox liegt nach der Migration in $HOME/__dachboden/mail/loginname
 .br
-Windows-Daten werden nach $HOME/old_data/windows kopiert.
-.br
-Todo: Mail in den IMAP-Server kopieren.
+Diese Mailbox wird in cyrus eingelesen (Unterverzeichnis __dachboden)
 .TP
 .B Klassennamen:
 .br
@@ -72,7 +70,7 @@ Daten eines alten Servers.
 .TP
 .B Step 1: --key --server 10.1.x.y
 .br
-Erzeugen eins passwortlosen ssh-keys und ablegen auf dem alten Server mit der IP 10.1.x.y. Oligatorisch, wenn von einem anderen Rechner migriert wird.
+Erzeugen eins passwortlosen ssh-keys und ablegen auf dem alten Server mit der IP 10.1.x.y. Obligatorisch, wenn von einem anderen Rechner migriert wird.
 .br
 Um den ssh-key auf dem alten Server ablegen zu können, muss dort ein
 ssh login als root möglich sein. Falls sie das rootlogin abgeschaltet
@@ -87,7 +85,7 @@ oder:
 .TP
 .B Todo Step 1: --localdisk  rootdir
 .br
-Holen der Daten von einer gemounteten Wechselplatte
+Holen der Daten von einer gemounteten Wechselplatte(noch nicht implementiert).
 .TP
 .B Step 2: --fetch-files
 .br
@@ -107,18 +105,30 @@ Benutzer mit gleichen Loginnamen anlegen (numerische user id kann sich ändern).
 .TP
 .B Step 6: --configure-quota 
 .br
-Quota konfigurieren. 
+Quota konfigurieren:
 .br
-Bearbeiten sie dazu die Datei /root/sophomorix-vampire-config/quota.config
+1) Bearbeiten sie die Datei /root/sophomorix-vampire-config/quota.config 
+.br
+2) updaten sie die Angaben im lehrer.txt, Datenbank, ... durch den Befehl
+.br
+sophomorix-vampire --configure-quota
 .TP
 .B Step 7: --update-quota 
-.br Quota im system anpassen
+.br Quota im System anpassen. 
 .br
-Bearbeiten sie dazu die Datei ...
+Die Quota werden im System gesetzt.
 .TP
 .B Step 8: --sync-homes
 .br
-Daten im Home der Benutzer abgleichen, user für user. Das kann dauern.
+Daten im Home der Benutzer abgleichen, ein user nach dem anderen. Das kann dauern.
+.TP
+.B Step 9: --sync-mail-data
+.br
+Mail Dateien synchronisieren (/var/spool/mail/user  und .forward nach $HOME/__dachboden/mail synchronisieren)
+.TP
+.B Step 10: --sync-mail
+.br
+Mail aus $HOME/__dachboden/mail/user in cyrus synchronisieren (Unterordner __dachboden)
 .TP
 .B Step 11: --sync-workstations
 .br
