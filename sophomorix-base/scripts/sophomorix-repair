@@ -640,7 +640,8 @@ sub repair_directory {
          $owner=~s/\$members/$user/g; 
 
          # use database
-         $ownerid = &fetchdata_from_account($owner);
+         ($a,$a,$a,$a,$ownerid) = 
+            &Sophomorix::SophomorixPgLdap::fetchdata_from_account($owner);
          if ($ownerid==-1) {
              # use ldap
 	     if (not defined($ownerid=getpwnam $owner)){
