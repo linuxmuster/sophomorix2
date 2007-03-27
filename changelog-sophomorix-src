@@ -72,6 +72,24 @@ MAKING a Package
 6. Tag all files in the cvs repository with the tag 'Version-x-y-z'
 
 
+############################################################
+Repositories
+############################################################
+
+lml30-updates  stable updates  
+lml30-testing  testpakete
+lml30-unstable testpakete, die es vielleicht nach updates 
+lml30-sources  sources der updates
+
+incoming directory 
+
+lml30-linbotesting
+
+
+
+stable   testing
+lml40  stable   testing
+
 
 ############################################################
 MODIFY directries when user is created or repaired
@@ -1497,6 +1515,12 @@ renamin mailbox:
 ================== CHANGELOG ========================================
 
 1.9.11-1 (2007-03-xx)
+  - Bugfix: fixed incorrect call to fetchdata_from_account
+    in sophomorix-repair (why did that work before?)
+  - permissions of /home/share:
+    Bug: administrator cannot enter dir
+    gowner will be domadmins
+  - sophomorix-vampire: updated manpage
   - Bugfix: handoutcopy assigns wrong owner to handed out files
   - sophomorix-vampire:
     split sync of homes into two parts
