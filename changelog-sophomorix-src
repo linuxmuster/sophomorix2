@@ -1521,6 +1521,66 @@ BUG: sophomorix-passwd -u user -pass linux
        (--pass linux sets linux)
 
 
+
+evtl. Bug: does a user has to change its password when he first authenticates 
+           AND $student_samba_pw_must_change="yes" in sophomorix.conf?
+
+          
+
+sophpmorix-vampire:
+sync the following homedirs:
+  admin  --> administrator
+  pgmadmin --> pgmadmin
+  nonexistent -> domadmin (nothing to do)
+  nonexistent -> wwwadmin (nothing to do)
+
+Programdir:
+make owner recursively to administrator:domadmins (file:dir 664:775)
+
+
+URGENT UPDATE:
+
+questions:
+    db name ldap is not correct anymore?
+
+separate ldap from postgres:
+   - change configuration files:
+         slapd.conf
+         ...
+         --> done by Thomas Hoth
+   - Change calls everywhere(*-ad, *-move, *-kill), where
+          1) ldap OR postgres is modified
+          2) AND normal ldap data is concerned (authentication posix and samba)
+             to:
+             modify ldap AND postgres (make sure both has worked)
+
+          Hints:
+            -  add administrators ALSO to postgres 
+               (create a sophomorix function to add them to postgres AND ldap)
+            -  add workstations with ALSO to postgres
+               (create a sophomorix script to add them to postgres AND ldap
+                send the name of the script to T. Schmitt 
+                (smb.conf and import-workstation)
+            - go through all script-calls in samba:
+              replace smbldap-tools calls with scripts that also add info to postgres
+              check their return values and make the new scripts
+              use the same return values (show them with echo $?)
+
+            - all calls to smbldaptools with absolute path prefixed by a variable
+              (smbldaptools might be moved away to protect ldap from being modified)
+
+   - change sophomorix-passwd to change also the password via ldap
+
+
+
+   - create a postgres to ldap script that dumps ALL authentication data to ldap
+     (migration AND emergency help, when ldap is not in sync)
+     --> done by Thomas Hoth
+
+
+
+
+
 ================== CHANGELOG ========================================
 
 1.9.12-1 (2007-04-xx)
