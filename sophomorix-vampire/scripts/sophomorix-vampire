@@ -47,9 +47,6 @@ my $loginname="";
 my $classes="";
 my $projects="";
 my $student=0;
-my $rooms="";
-my $ws=0;
-my $force=0;
 my @userlist=();
 my $dir_old_files="/root/sophomorix-vampire/";
 my $dir_config_files="/etc/sophomorix/vampire/";
@@ -79,9 +76,6 @@ my $testopt=GetOptions(
            "class|c=s" => \$classes,
            "project|projects|p=s" => \$classes,
            "student|students" => \$student,
-           "room|=s" => \$rooms,
-           "workstations|workstation|ws" => \$ws,
-           "force" => \$force,
           );
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
@@ -160,20 +154,22 @@ if ($server eq ""){
 ############################################################
 # Create userlist
 ############################################################
-if ($loginname ne ""){
-      @userlist=($loginname);
+
+if ($loginname eq ""
+    and $classes eq ""
+    and $projects eq ""
+    and $student==0){
+      # without option: admins, teachers, students
+      $student=1;
+      @userlist=&create_userlist("",$DevelConf::teacher,0,
+                                 "",0,$student,
+                                 "",0,1,0);
 } else {
-   if ($force==1){
-       @userlist=&create_userlist($loginname,$classes,0,
-                                  $projects,0,$student,
-                                  $rooms,$ws,0);
-   } else {
-       # check the users
-       @userlist=&create_userlist($loginname,$classes,0,
-                                  $projects,0,$student,
-                                  $rooms,$ws,1);
-   }
+    @userlist=&create_userlist($loginname,$classes,0,
+                               $projects,0,$student,
+                              "",0,0,0);
 }
+
 
 if ($#userlist+1==0){
      print "INFO: No valid users given\n";
@@ -530,9 +526,24 @@ if ($sync_homes==1){
    # do this for all users
    foreach my $user (@userlist){
      my $command="";
-     my $old_home = &fetch_old_home($user);
+
+     # map user names
+     my $old_user;
+     if ($user eq "administrator"){
+	 $old_user="admin";
+     } else {
+         $old_user=$user;
+     }
+
+     my $old_home = &fetch_old_home($old_user);
      my $new_home = &fetch_new_home($user);
      my ($group) = &Sophomorix::SophomorixPgLdap::pg_get_group_list($user);
+
+     # do nothing when user did not exist on old system
+     if ($old_home eq ""){
+         print "Home of $old_user not found on old server, skipping ...\n";
+         next;
+     }
 
      # windows
      system("mkdir -p $new_home/${Language::user_attic}/windows");
@@ -547,6 +558,7 @@ if ($sync_homes==1){
      print "   $source \n     --> $target\n";
      $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av --delete  root\@${server}:$source $target";
      print "$command\n";
+
      system($command); 
 
      # permissions and owner
@@ -555,8 +567,6 @@ if ($sync_homes==1){
      &chmod_chown_dir("$new_home/${Language::user_attic}/windows",
                       $dir_perm,$file_perm,
                       $owner,$gowner);
-#     system("chown -R ${user}:${group} $new_home/${Language::user_attic}/windows");
-#     system("chmod 700 $new_home/${Language::user_attic}/windows");
 
      # linux
      my $lin_source="$old_home";
@@ -570,9 +580,6 @@ if ($sync_homes==1){
      &chmod_chown_dir("$new_home/${Language::user_attic}/linux",
                       $dir_perm,$file_perm,
                       $owner,$gowner);
-
-#     system("chown -R ${user}:${group} $new_home/${Language::user_attic}/linux");
-#     system("chmod 700 $new_home/${Language::user_attic}/linux");
     }
 
     # repair directories
@@ -847,7 +854,7 @@ if ($mlscripts==1){
 
 sub fetch_old_home {
     my ($user)=@_;
-    my $old_home;
+    my $old_home="";
     # look up homes in old passwd
     open(OLD, "<${dir_old_files}/passwd");
     while (<OLD>){
