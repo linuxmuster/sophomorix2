@@ -1499,21 +1499,13 @@ Im Tauschverzeichnis gehört alles der Klasse.
 
 
 MIGRATION:
+sophpmorix-vampire:
+Programdir:
+make owner recursively to administrator:domadmins (file:dir 664:775)
 
 wenn die Daten auf den neuen Server migriert werden,
 dann sollen die die Rechte haben: 2644/2755, owner:group
 (bisher 0700/0700 owner:group)
-
-
-renamin mailbox:
-   - create new mailbox
-   - sync mail to new mailbox
-   - delete old mailbox
-
-
-sophomorix-vampire:
-
-admin -> administrator mappen
 
 
 BUG: sophomorix-passwd -u user -pass linux 
@@ -1521,21 +1513,11 @@ BUG: sophomorix-passwd -u user -pass linux
        (--pass linux sets linux)
 
 
-
 evtl. Bug: does a user has to change its password when he first authenticates 
            AND $student_samba_pw_must_change="yes" in sophomorix.conf?
 
           
 
-sophpmorix-vampire:
-sync the following homedirs:
-  admin  --> administrator
-  pgmadmin --> pgmadmin
-  nonexistent -> domadmin (nothing to do)
-  nonexistent -> wwwadmin (nothing to do)
-
-Programdir:
-make owner recursively to administrator:domadmins (file:dir 664:775)
 
 
 URGENT UPDATE:
@@ -1584,6 +1566,14 @@ separate ldap from postgres:
 ================== CHANGELOG ========================================
 
 1.9.12-1 (2007-04-xx)
+  - sophpmorix-vampire:
+    - skipping users that have no old homedir
+      (i.e. pgmadmin is missing on old server (ML 2.0))
+    - sync the following homedirs:
+        admin  --> administrator
+        pgmadmin --> pgmadmin (works like normal user)
+        nonexistent -> domadmin (nothing to do)
+        nonexistent -> wwwadmin (nothing to do)
 
 
 
