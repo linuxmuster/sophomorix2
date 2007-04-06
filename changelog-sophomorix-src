@@ -1566,17 +1566,19 @@ sophomorix-vampire: check 2 semicolon in the end of wimport_data
 
 ================== CHANGELOG ========================================
 
-1.9.12-1 (2007-04-xx)
+1.9.20-1 (2007-04-xx)
+
+
+1.9.12-1 (2007-04-06)
   - sophpmorix-vampire:
+    - make syncing of all homes with --sync-homes work
     - skipping users that have no old homedir
-      (i.e. pgmadmin is missing on old server (ML 2.0))
+      (i.e. pgmadmin is missing on older servers (ML 2.0))
     - sync the following homedirs:
         admin  --> administrator
         pgmadmin --> pgmadmin (works like normal user)
         nonexistent -> domadmin (nothing to do)
         nonexistent -> wwwadmin (nothing to do)
-
-
 
 1.9.11-1 (2007-03-27)
   - Bugfix: fixed incorrect call to fetchdata_from_account
