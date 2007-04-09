@@ -1648,7 +1648,10 @@ sub make_salt {
 # adds a class to the user database
 sub create_class_db_entry {
     my $smallest_gidnumber=200;
-    my ($class_to_add,$sub,$gid_force_number) = @_;
+    # standard: domain group
+    my $samba_group_type="2";
+    my ($class_to_add,$sub,
+        $gid_force_number,$nt_groupname,$description) = @_;
     my ($class,$dept,$type,$mail,$quota,$mailquota) = ("","","","","",-1);
     if (not defined $sub){
         # standard: no subclass
@@ -1662,11 +1665,22 @@ sub create_class_db_entry {
         $type="teacher";
     } elsif ($sub==3) {
         $type="manualgroup";
+        $description="Domain Unix group";
+    } elsif ($sub==6) {
+        $type="localgroup";
+        $samba_group_type="4";
+        $description="Local Unix group";
     } else {
         $type="subclass";
     }
     if (not defined $gid_force_number){
         $gid_force_number=-1;
+    }
+    if (not defined $nt_groupname){
+        $nt_groupname="";
+    }
+    if (not defined $description){
+        $description="";
     }
 
     my %classes=();
@@ -1752,20 +1766,44 @@ sub create_class_db_entry {
     my $sid = &get_smb_sid();
 
     # smb group sid
-    my $group_sid = &smb_group_sid($gidnumber,$sid);
+    my $group_sid;
+
+    if ($type eq "localgroup"){
+         $group_sid = "S-1-5-32-".$gidnumber;
+    } elsif ($gidnumber < 10000) {
+        $group_sid="$sid"."-"."$gidnumber";
+    } else {
+         $group_sid = &smb_group_sid($gidnumber,$sid);
+    }
 
     #2. Tabelle samba_group_mapping
     #Pflichtfelder (laut Datenbank) id
     # sambagrouptype (2=domaingroup(defaultgroup), 4=localgroup, 5=builtingroup)
+    my $displayname="";
+    if ($nt_groupname eq ""){
+        $displayname=$class_to_add;
+    } else {
+        $displayname=$nt_groupname;
+    }
+#    $sql="INSERT INTO samba_group_mapping
+#	 (id,gidnumber,sambasid,sambagrouptype,displayname,description,sambasidlist)
+#	 VALUES
+#	 ($groups_id,
+#          $gidnumber,
+#          '$group_sid',
+#          '2',
+#          '$displayname',
+#          '$description',
+#          NULL)";	
     $sql="INSERT INTO samba_group_mapping
 	 (id,gidnumber,sambasid,sambagrouptype,displayname,description,sambasidlist)
 	 VALUES
 	 ($groups_id,
           $gidnumber,
           '$group_sid',
-          '2',
-          '$class_to_add',
-          NULL,
+          '$samba_group_type',
+          '$displayname',
+          '$description',
           NULL)";	
     if($Conf::log_level>=3){
        print "\nSQL: $sql\n";
