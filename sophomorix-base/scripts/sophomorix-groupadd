@@ -152,14 +152,28 @@ if (defined $g_gidnumber){
         # do the ldap stuff
         if ($DevelConf::seperate_ldap==1){
             if ($domain_group==1){
+                my $command="";
                 # domain group
-                system("smbldap-groupadd -g $gid_number '$unix_group'");
-                system("net groupmap add rid=$gid_number unixgroup='$unix_group' ntgroup='$nt_group'");
+                $command="smbldap-groupadd -g $gid_number '$unix_group'";
+                print "$command\n";
+                system("$command");
+                $command="net groupmap add rid=$gid_number".
+                         " unixgroup='$unix_group' ntgroup='$nt_group'";
+                print "$command\n";
+                system("$command");
 	    }
             if ($local_group==1){
                 # local group
-                system("smbldap-groupadd -g $gid_number '$unix_group'");
-                system("net groupmap add sid='S-1-5-32-$gid_number' unixgroup='$unix_group' ntgroup='$nt_group' type=local");
+                my $command="";
+                # domain group
+                $command="smbldap-groupadd -g $gid_number '$unix_group'";
+                print "$command\n";
+                system("$command");
+                $command="net groupmap add sid='S-1-5-32-$gid_number'".
+    		         " unixgroup='$unix_group' ntgroup='$nt_group'".
+                         " type=local";
+                print "$command\n";
+                system("$command");
 	    }
         }
     } else {

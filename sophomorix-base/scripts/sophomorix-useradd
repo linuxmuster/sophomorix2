@@ -160,7 +160,6 @@ print "    Quota          : $quota\n";
                       $shell,$quota,$unid,$epoch_now,undef,undef,
                       $uid_number,$home,$gecos);
 
-
 # add to secondary groups
 if ($sec_groups ne ""){
     my @grp_list=split(/,/,$sec_groups);
@@ -169,6 +168,42 @@ if ($sec_groups ne ""){
         &adduser_to_project($login,$group,0);
     }
 }
+
+
+
+
+# check if adding was succesful
+my ($u_name,$u_pass,$u_uidnumber)=getpwnam $login;
+
+# add entry to seperate ldap
+if (defined $u_uidnumber){
+    if ($u_uidnumber eq $uid_number){
+        print "Succesfully added $u_name with uidnumber $u_uidnumber\n";
+        # do the ldap stuff
+        if ($DevelConf::seperate_ldap==1){
+            my $uid_string="";
+            if ($uid_number!=-1){
+                $uid_string="-u $uid_number";
+            }
+            my $command="smbldap-useradd -a $uid_string -c $gecos".
+                        " -d $home -g $unix_group -G $sec_groups".
+                        " -s $shell $login"
+	    print "$command\n";
+            system("$command");           
+        }
+    } else {
+        print "ERROR: Adding group did not suceed as expected!\n";
+    }
+}
+
+
+
+
+
+
+
+
+
 
 
 # set quota
