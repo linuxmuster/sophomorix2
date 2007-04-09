@@ -1576,8 +1576,24 @@ modifies ldap.
 
 
 
+next/todo:
+
+smb.conf-scripts:
+
+smbldap-passwd %u
+   - make sophomorix-passwd interactive
+     sophomorix-passwd --interactive --user name
+
+Check if the following are necessary:
+smbldap-useradd -m '%u'
+smbldap-useradd -w '%u'
+smbldap-groupmod
 
 
+
+- replace calls to smbldap-groupadd with sophomorix-groupadd
+  (sophomorix-setup-pgldap)
+- dito for smbldap-useradd
 
 
 
