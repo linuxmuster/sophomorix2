@@ -840,19 +840,6 @@ sub adduser_to_project {
         # keep track of members by option
         if ($by_option==1){
             &adduser_by_option_to_project($user,$project);
-#           # fetching project id
-#           my ($project_id_sys)= $dbh->selectrow_array( "SELECT id 
-#                                         FROM groups 
-#                                         WHERE gid='$project'");
-#           print "   Adding user $user($uidnumber_sys) to projects_members \n";
-#           $sql="INSERT INTO projects_members
-#                 (projectid,memberuidnumber)
-#	         VALUES
-#	         ($project_id_sys,'$uidnumber_sys')";	
-#           if($Conf::log_level>=3){
-#              print "\nSQL: $sql\n";
-#           }
-#           $dbh->do($sql);
         }
     } else {
         if (not defined $uidnumber_sys){
