@@ -1,0 +1,139 @@
+#!/usr/bin/perl -w
+# $Id$
+# Dieses Script (sophomorix-useradd) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+# Bibliotheken
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
+use DBI;
+use Net::LDAP;
+
+use Sophomorix::SophomorixPgLdap qw(show_modulename
+                                    check_connections
+                                    create_class_db_entry
+                                    pg_get_group_type
+                                   );
+
+
+my @arguments = @ARGV;
+
+&check_connections();
+&log_script_start(@arguments);
+
+# ===========================================================================
+# Variablen
+# ==========================================================================
+
+my $help=0;
+my $login="";
+
+# mandatory
+my $administrator="";
+my $workstation="";
+my $unix_group="";
+
+
+# optional
+my $uid_number=-1;
+my $gecos="";
+my $sec_groups="";
+
+
+my $home="";
+
+
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "help|h" => \$help,
+           "administrator=s" => \$administrator,
+           "workstation=s" => \$workstation,
+           "unix-group=s" => \$unix_group,
+           "secondary-groups=s" => \$sec_groups,
+           "gecos=s" => \$gecos,
+           "uidnumber=i" => \$uid_number,
+          );
+
+# Prüfen, ob Optionen erkannt wurden, sonst Abbruch
+&check_options($testopt);
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlsbeschreibung
+   print('
+sophomorix-useradd adds a group to the sophomorix database (and ldap)
+
+Options
+  -h  / --help
+  --workstation name
+  --administrator name
+
+Please see the sophomorix-useradd(8) man pages for full documentation
+');
+   print "\n";
+   exit;
+}
+
+
+
+
+# exit if options are missing
+if ($unix_group eq "" or ($workstation eq "" 
+                          and $administrator eq "") ){
+    print "\nThe options:\n";
+    print "   --unix-group name \n";
+    print "and one of:\n";
+    print "   --administarator name\n";
+    print "   --workstation name\n";
+    print "are mandatory.\n\n";
+    exit;
+}
+
+
+
+
+
+# set some stuff
+if ($workstation==1){
+    $type="workstation";
+    $login=$workstation;
+}
+if ($administrator==1){
+    $type="administrator";
+    $login=$administrator;
+}
+
+
+
+
+# Do it !
+
+print "Creating user account $login:\n";
+print "    Type        : $uid_number\n";
+print "    Type        : $type\n";
+print "    Secondary   : $sec_groups\n";
+print "    Group       : $unix_group\n";
+print "    Home        : $home\n";
+print "    Gecos       : $gecos\n";
+print "    Shell       : $shell\n";
+
+
+# create postgres entry
+
+
+
+&log_script_end(@arguments);
