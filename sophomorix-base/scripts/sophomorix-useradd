@@ -17,8 +17,8 @@ use Net::LDAP;
 
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     check_connections
-                                    create_class_db_entry
-                                    pg_get_group_type
+                                    create_user_db_entry
+                                    adduser_to_project
                                    );
 
 
@@ -33,6 +33,8 @@ my @arguments = @ARGV;
 
 my $help=0;
 my $login="";
+my $type="";
+my $shell="";
 
 # mandatory
 my $administrator="";
@@ -47,6 +49,10 @@ my $sec_groups="";
 
 
 my $home="";
+my $epoch_now=time;
+my $password="";
+my $quota="";
+my $unid="";
 
 
 # ===========================================================================
@@ -108,14 +114,27 @@ if ($unix_group eq "" or ($workstation eq ""
 
 
 # set some stuff
-if ($workstation==1){
+if ($workstation ne ""){
     $type="workstation";
     $login=$workstation;
+    $shell="/bin/false";
+    $home=$DevelConf::homedir_ws."/".$unix_group."/".$login;
 }
-if ($administrator==1){
+if ($administrator ne ""){
     $type="administrator";
     $login=$administrator;
+    $shell="/bin/bash";
+    $home=$DevelConf::homedir_all_admins."/".$login;
 }
+
+
+
+if ($password eq ""){
+    $password="linux";
+}
+
+
+
 
 
 
@@ -123,16 +142,36 @@ if ($administrator==1){
 # Do it !
 
 print "Creating user account $login:\n";
-print "    Type        : $uid_number\n";
-print "    Type        : $type\n";
-print "    Secondary   : $sec_groups\n";
-print "    Group       : $unix_group\n";
-print "    Home        : $home\n";
-print "    Gecos       : $gecos\n";
-print "    Shell       : $shell\n";
+print "    Uidnumber      : $uid_number\n";
+print "    Type           : $type\n";
+print "    Secondary Grp. : $sec_groups\n";
+print "    Group          : $unix_group\n";
+print "    Home           : $home\n";
+print "    Gecos          : $gecos\n";
+print "    Shell          : $shell\n";
+print "    Epoch          : $epoch_now\n";
+print "    Password       : $password\n";
+print "    Quota          : $quota\n";
 
 
 # create postgres entry
+&create_user_db_entry("","","01.01.1970",
+                      $unix_group,$login,$password,
+                      $shell,$quota,$unid,$epoch_now,undef,undef,
+                      $uid_number,$home,$gecos);
+
+
+# add to secondary groups
+if ($sec_groups ne ""){
+    my @grp_list=split(/,/,$sec_groups);
+    foreach my $group (@grp_list){
+        # 3rd param: 0=do not keep track of memberships in projects
+        &adduser_to_project($login,$group,0);
+    }
+}
+
+
+# set quota
 
 
 
