@@ -15,6 +15,15 @@ use Sophomorix::SophomorixAPI;
 use DBI;
 use Net::LDAP;
 
+use Sophomorix::SophomorixPgLdap qw(show_modulename
+                                    check_connections
+                                    create_class_db_entry
+                                    pg_get_group_type
+                                   );
+
+
+my @arguments = @ARGV;
+
 &check_connections();
 &log_script_start(@arguments);
 
@@ -29,10 +38,27 @@ my $help=0;
 # Optionen verarbeiten
 # ==========================================================================
 
+my $unix_group="";
+my $nt_group="";
+my $gid_number=-1;
+
+my $domain_group=0;
+my $local_group=0;
+my $room_group=0;
+
+my $explanation="";
+
+my $type=-1; # 3: domain group
 
 # Parsen der Optionen
 my $testopt=GetOptions(
-           "help|h" => \$help
+           "help|h" => \$help,
+           "domain" => \$domain_group,
+           "local" => \$local_group,
+           "room" => \$room_group,
+           "unix-group=s" => \$unix_group,
+           "nt-group=s" => \$nt_group,
+           "gidnumber=i" => \$gid_number,
           );
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
@@ -52,6 +78,11 @@ Options
   -v  / --verbose
   -vv / --verbose --verbose
   -i  / --info
+  --unix-group groupname
+  --nt-group name
+  --domain (manually added domain group))
+  --local  (manually added local group)
+  --room   (a group for some workstations))
 
 Please see the sophomorix-groupadd(8) man pages for full documentation
 ');
@@ -59,6 +90,82 @@ Please see the sophomorix-groupadd(8) man pages for full documentation
    exit;
 }
 
+
+
+
+# exit if options are missing
+if ($unix_group eq "" or $nt_group eq "" 
+                      or ($domain_group==0 
+                          and $room_group==0 
+                          and $local_group==0) ){
+    print "\nThe options:\n";
+    print "   --unix-group name \n";
+    print "   --nt-group name \n";
+    print "and one of:\n";
+    print "   --domain\n";
+    print "   --local\n";
+    print "   --room\n";
+    print "are mandatory.\n\n";
+    exit;
+}
+
+
+
+
+# set the group type
+# and related stuff
+if ($domain_group==1){
+    $type=3;
+    $explanation="Domain Group";
+}
+if ($local_group==1){
+    $type=6;
+    $explanation="Local Group";
+}
+if ($room_group==1){
+    $type=5;
+    $explanation="Room Group";
+}
+
+
+
+
+# Do it !
+
+print "Creating unix group $unix_group (gidnumber:$gid_number)\n";
+print "    nt_groupname: $nt_group\n";
+print "    group type  : $type ($explanation)\n";
+
+# create postgres entry
+&create_class_db_entry($unix_group,$type,$gid_number,$nt_group);
+
+
+# check if adding was succesful
+my ($g_name,$g_pass,$g_gidnumber)=getgrnam $unix_group;
+
+
+
+# add entry to seperate ldap
+if (defined $g_gidnumber){
+    if ($g_gidnumber eq $gid_number){
+        print "Succesfully added $unix_group with gidnumber $g_gidnumber\n";
+        # do the ldap stuff
+        if ($DevelConf::seperate_ldap==1){
+            if ($domain_group==1){
+                # domain group
+                system("smbldap-groupadd -g $gid_number '$unix_group'");
+                system("net groupmap add rid=$gid_number unixgroup='$unix_group' ntgroup='$nt_group'");
+	    }
+            if ($local_group==1){
+                # local group
+                system("smbldap-groupadd -g $gid_number '$unix_group'");
+                system("net groupmap add sid='S-1-5-32-$gid_number' unixgroup='$unix_group' ntgroup='$nt_group' type=local");
+	    }
+        }
+    } else {
+        print "ERROR: Adding group did not suceed as expected!\n";
+    }
+}
 
 
 
