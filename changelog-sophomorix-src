@@ -1516,6 +1516,9 @@ BUG: sophomorix-passwd -u user -pass linux
 evtl. Bug: does a user has to change its password when he first authenticates 
            AND $student_samba_pw_must_change="yes" in sophomorix.conf?
 
+
+sophomorix-vampire: check 2 semicolon in the end of wimport_data
+
           
 
 
@@ -1561,13 +1564,30 @@ separate ldap from postgres:
 
 
 
+PROBLEMS:
 
-sophomorix-vampire: check 2 semicolon in the end of wimport_data
+net groupmap add rid=gidnumber unixgroup='$unix_group' ntgroup='$nt_group'");
+
+modifies ldap.
+
+
+
+- when adding domain group manually: how to calculate sid gidnumber
+
+
+
+
+
+
+
+
+
 
 ================== CHANGELOG ========================================
 
 1.9.20-1 (2007-04-xx)
-
+    - first should work version of sophomorix-groupadd
+      adds to postgres (and ldap, untested)
 
 1.9.12-1 (2007-04-06)
   - sophpmorix-vampire:
