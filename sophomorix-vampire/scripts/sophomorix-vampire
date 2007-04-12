@@ -978,8 +978,8 @@ sub rsync_dirs {
         print"  - OLD: $old\n",
              "    NEW: $new\n";
         $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avz --delete  root\@${server}:$old $new";
-#        print "$command\n";
-#       system($command); 
+        print "$command\n";
+        system($command); 
     }
 }
 
