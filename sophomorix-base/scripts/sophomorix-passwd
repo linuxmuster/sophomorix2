@@ -20,6 +20,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     update_user_db_entry
                                     check_sophomorix_user
                                     set_sophomorix_passwd
+                                    auth_passwd
                                    );
 
 my @arguments = @ARGV;
@@ -56,6 +57,8 @@ my $reset=0;
 my $common=0;
 my $random=0;
 
+my $interactive=0;
+
 my $char_num=0;
 
 my $hide=0;
@@ -82,6 +85,7 @@ my $testopt=GetOptions(
            "reset" => \$reset,
            "common" => \$common,
            "random" => \$random,
+           "interactive" => \$interactive,
            "plength=i" => \$char_num,
            "verbose|v+" => \$Conf::log_level,
            "hide" => \$hide,
@@ -110,6 +114,7 @@ Options
   --hide
   --pass password, --password password
   --common
+  --interactive
   --reset
   --random
   --plength number
@@ -147,7 +152,9 @@ if ($force==1){
                            $rooms,$ws,0,0);
 } else {
    # check the users
-   &titel("Checking login names ...");
+   if($Conf::log_level>=2){
+      &titel("Checking login names ...");
+   }
    @users=&create_userlist($loginname,$classes,0,$projects,0,$student,
                            $rooms,$ws,0,1);
 }
@@ -224,7 +231,58 @@ if ($info==1) {
    exit;
 }
 
-# Setting the passwords
+
+# Setting passwords interacive
+if ($interactive==1){
+    my $count_users=$#users+1;
+    if ($count_users==1){
+        # ask for password
+        use Term::ReadKey;
+        ReadMode('noecho');
+
+        # ask once
+        print "New password : ";
+        my $password_1 = ReadLine(0);
+        print "\n";
+        chomp($password_1);
+
+        # ask again
+        print "Retype new password : ";
+        my $password_2 = ReadLine(0);
+        print "\n";
+        chomp($password_2);
+
+        # reset to echo
+        ReadMode('normal');
+
+        # Look if they match
+        if ($password_1 eq $password_2){
+            # Passwort für user setzen
+            &set_sophomorix_passwd($users[0],$password_1);
+            # set password in auth system
+            &Sophomorix::SophomorixPgLdap::auth_passwd($users[0],$password_1);
+            # do NOT set password in the Database as FirstPassword
+            exit 0;
+        } else {
+            print "New passwords don't match!\n";
+            exit 10;
+        }
+    } else {
+        print "ERROR: I can set password interactively only for one user\n";
+        print "Unable to change password\n";
+        # smbldap-passwd returns 0 (10 should be better)
+        exit 0;
+    }
+
+}
+
+
+
+
+
+
+
+# Setting the passwords noninteractive
 foreach my $user (@users){
     # gruppe ermitteln
     my ($home,$type,$gecos,$group)=
@@ -257,7 +315,7 @@ foreach my $user (@users){
        print "  Setting password for user $user in ".
              "$group ($type) to $password ...\n";
     }
-    # Passwort für user setzten
+    # Passwort für user setzen
     &set_sophomorix_passwd($user,$password);
     # updating the database
     &update_user_db_entry($user,"FirstPass=$password");
