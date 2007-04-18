@@ -83,6 +83,7 @@ require Exporter;
              show_room_list
              get_smb_sid
              fetchquota_sum
+             auth_passwd
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
@@ -4793,6 +4794,53 @@ sub fetchquota_sum {
     }
     print "\n";
 }
+
+
+
+
+
+################################################################################
+#
+# authentication system stuff
+#
+################################################################################
+
+
+
+
+
+# change password calling smbldap-passwd interactively
+# use Expect; # must be loaded
+sub auth_passwd {
+    use Expect;
+    my ($username,$new_password)=@_;
+    my $command = Expect->spawn("/usr/sbin/smbldap-passwd $username")
+        or die "Couldn't start program: $!\n";
+    # prevent the program's output from being shown on our STDOUT
+    $command->log_stdout(0);
+
+    # wait 10 seconds
+    unless ($command->expect(10, "New password :")) {
+        exit;
+        # timed out
+    }
+    print $command "$new_password\n";
+
+    # wait 10 seconds
+    unless ($command->expect(10, "Retype new password :")) {
+        exit;
+        # timed out
+    }
+    print $command "$new_password\n";
+
+    # if the program will terminate by itself, finish up with
+    $command->soft_close( );
+
+    # if the program must be explicitly killed, finish up with
+    #$command->hard_close( );
+}
+
+
 
 
 

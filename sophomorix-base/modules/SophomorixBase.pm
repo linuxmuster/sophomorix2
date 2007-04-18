@@ -89,7 +89,6 @@ use Quota;
               get_quota_fs_num
               check_quotastring
               sophomorix_passwd
-              smbldap_passwd
               check_internet_status
               austeilen_manager
               share_access
@@ -3748,39 +3747,6 @@ sub sophomorix_passwd {
     }
 }
 
-
-# change password calling smbldap-passwd interactively
-# use Expect; # must be loaded
-
-
-sub smbldap_passwd {
-    use Expect;
-    my ($username,$new_password)=@_;
-    my $command = Expect->spawn("/usr/sbin/smbldap-passwd $username")
-        or die "Couldn't start program: $!\n";
-    # prevent the program's output from being shown on our STDOUT
-    $command->log_stdout(0);
-
-    # wait 10 seconds
-    unless ($command->expect(10, "New password :")) {
-        exit;
-        # timed out
-    }
-    print $command "$new_password\n";
-
-    # wait 10 seconds
-    unless ($command->expect(10, "Retype new password :")) {
-        exit;
-        # timed out
-    }
-    print $command "$new_password\n";
-
-    # if the program will terminate by itself, finish up with
-    $command->soft_close( );
-
-    # if the program must be explicitly killed, finish up with
-    #$command->hard_close( );
-}
 
 
 ################################################################################
