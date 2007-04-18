@@ -1596,9 +1596,97 @@ smbldap-groupmod
 - dito for smbldap-useradd
 
 
+
+Import workstations stuff:
+
+- Gruppe (Raum) anlegen:
+smbldap-groupadd -a <raum>
+
+- Workstationaccount (Klassenarbeitsnutzer) anlegen:
+smbldap-useradd -a -d <homedir> -c HostAccount -g <raum> -m -s /bin/bash
+<hostname>
+
+- Maschinenaccount anlegen:
+smbldap-useradd -w -g 515 -c Computer -d /dev/null -s /bin/false
+<hostname>$
+
+- Passwort setzen:
+echo -e <password>\n<password>\n | smbldap-passwd <hostname>
+echo -e <password>\n<password>\n | smbldap-passwd <hostname>$
+
+
+- Flags für Maschinenaccount setzen:
+smbldap-usermod -H '[WX]' <hostname>$
+
+- Accounts löschen:
+smbldap-userdel <hostname>
+smbldap-userdel <hostname>$
+
+- Raumgruppe löschen:
+smbldap-groupdel <raum>
+
+
+>>- Maschinenaccount anlegen:
+>>> >smbldap-useradd -w -g 515 -c Computer -d /dev/null -s /bin/false
+>>> ><hostname>$
+>>> >
+>>> >- Flags für Maschinenaccount setzen:
+>>> >smbldap-usermod -H '[WX]' <hostname>$
+>>> >
+
+
+scheint ein Bug in den smbldap-tools zu sein. Wenn man -H '[WX]' mit
+smbldap-useradd übergibt und danach mit smbldap-passwd das
+Maschinenpasswort (12345678) setzt, zeigt smbldap-usershow nur [W] an.
+Man muss also den smbldap-usermod Befehl hinterherschicken.
+
+
+
+
+
+
+
+
+
+
 sophomorix-vampire:
 
 copy rembo.key, rembo.conf, .... rembo stuff to /root/sophomorix-vampire
+
+
+
+
+
+Checken, ob das gut ist:
+
+Könnte man das also so machen
+
+In allen Verzeichnissen, die es in
+
+/usr/local/rembo/files/global/myshn/groups/
+
+gibt (Das sind die Hardwareklassen), werden  nur die Dateien kopiert, die  'config' heissen.
+
+Ist das erfolgversprechend?
+
+
+
+
+
+
+
+
+
+
+
+Done   (must be changed when switching to seperate slapd):
+
+smb.conf:
+sophomorix-passwd --interactive --user name >> smbldap-passwd name
+
+
+impoort workstation:
+
 
 
 ================== CHANGELOG ========================================
