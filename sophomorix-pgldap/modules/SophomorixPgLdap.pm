@@ -85,6 +85,7 @@ require Exporter;
              fetchquota_sum
              auth_passwd
              auth_useradd
+             auth_groupadd
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
@@ -1553,7 +1554,13 @@ sub create_user_db_entry {
       }
   }
   } # end 
+
+  # create entry in auth system (no secondary groups)
+  &auth_useradd($login,$uidnumber,$gecos,$homedir,
+                $admin_class,"",$shell)
+
   &db_disconnect($dbh);
+
 }
 
 
@@ -1639,6 +1646,9 @@ sub create_class_db_entry {
     my $smallest_gidnumber=200;
     # standard: domain group
     my $samba_group_type="2";
+    my $domain_group=1;
+    my $local_group=0;
+
     my ($class_to_add,$sub,
         $gid_force_number,$nt_groupname,$description) = @_;
     my ($class,$dept,$type,$mail,$quota,$mailquota) = ("","","","","",-1);
@@ -1657,6 +1667,9 @@ sub create_class_db_entry {
         $description="Domain Unix group";
     } elsif ($sub==6) {
         $type="localgroup";
+        # change default
+        $domain_group=0;
+        $local_group=1;
         $samba_group_type="4";
         $description="Local Unix group";
     } else {
@@ -1859,6 +1872,11 @@ sub create_class_db_entry {
     }
     
     } # end adding group
+
+    # create entry in auth system
+    &auth_groupadd($class_to_add,$type,
+                   $gidnumber,$displayname,
+                   $domain_group,$local_group);
     return $gidnumber;
 }
 
@@ -4844,7 +4862,10 @@ sub auth_passwd {
 
 sub auth_useradd {
    my ($login,$uid_number,$gecos,$home,$unix_group,$sec_groups,$shell) = @_; 
-   my ($u_name,$u_pass,$u_uidnumber)=getpwnam $login;
+   #my ($u_name,$u_pass,$u_uidnumber)=getpwnam $login;
+   my ($u_home,$u_type,$u_gecos,$u_group,
+       $u_uidnumber)=&fetchdata_from_account($login);
+
    # add entry to seperate ldap
    if (defined $u_uidnumber){
        if ($u_uidnumber eq $uid_number){
@@ -4856,8 +4877,12 @@ sub auth_useradd {
                if ($uid_number!=-1){
                    $uid_string="-u $uid_number";
                }
+               my $sec_string="";
+               if ($sec_groups ne ""){
+		   $sec_string="-G $sec_groups";
+               }
                my $command="smbldap-useradd -a $uid_string -c $gecos".
-                           " -d $home -g $unix_group -G $sec_groups".
+                           " -d $home -g $unix_group $sec_string".
                            " -s $shell $login";
 	       print "$command\n";
                system("$command");           
@@ -4868,6 +4893,58 @@ sub auth_useradd {
        }
    }
 }
+
+
+
+sub auth_groupadd {
+   # $domain_group 0,1
+   # $local_group  0,1
+   my ($unix_group,$type,
+       $gid_number,$nt_group,
+       $domain_group,$local_group) = @_;
+
+   # check if adding was succesful
+#   my ($g_name,$g_pass,$g_gidnumber)=getgrnam $unix_group;
+   my ($g_type,$g_name,$g_gidnumber)=&pg_get_group_type($unix_group);
+
+   # add entry to seperate ldap
+   if (defined $g_gidnumber){
+       if ($g_gidnumber eq $gid_number){
+           print "Succesfully added $unix_group with gidnumber $g_gidnumber\n";
+           # do the ldap stuff
+           if ($DevelConf::seperate_ldap==1){
+               if ($domain_group==1){
+                   my $command="";
+                   # domain group
+                   $command="smbldap-groupadd -g $gid_number '$unix_group'";
+                   print "$command\n";
+                   system("$command");
+                   $command="net groupmap add rid=$gid_number".
+                            " unixgroup='$unix_group' ntgroup='$nt_group'";
+                   print "$command\n";
+                   system("$command");
+	       }
+               if ($local_group==1){
+                   # local group
+                   my $command="";
+                   # domain group
+                   $command="smbldap-groupadd -g $gid_number '$unix_group'";
+                   print "$command\n";
+                   system("$command");
+                   $command="net groupmap add sid='S-1-5-32-$gid_number'".
+    		            " unixgroup='$unix_group' ntgroup='$nt_group'".
+                            " type=local";
+                   print "$command\n";
+                   system("$command" );
+    	       }
+           }
+        } else {
+           print "ERROR: Adding group $unix_group did not suceed as expected!\n";
+           print "       Not Adding group $unix_group to ldap!\n";
+         }
+   }
+}
+
 
 
 

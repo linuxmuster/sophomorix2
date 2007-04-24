@@ -140,47 +140,4 @@ print "    group type  : $type ($explanation)\n";
 &create_class_db_entry($unix_group,$type,$gid_number,$nt_group);
 
 
-# check if adding was succesful
-my ($g_name,$g_pass,$g_gidnumber)=getgrnam $unix_group;
-
-
-
-# add entry to seperate ldap
-if (defined $g_gidnumber){
-    if ($g_gidnumber eq $gid_number){
-        print "Succesfully added $unix_group with gidnumber $g_gidnumber\n";
-        # do the ldap stuff
-        if ($DevelConf::seperate_ldap==1){
-            if ($domain_group==1){
-                my $command="";
-                # domain group
-                $command="smbldap-groupadd -g $gid_number '$unix_group'";
-                print "$command\n";
-                system("$command");
-                $command="net groupmap add rid=$gid_number".
-                         " unixgroup='$unix_group' ntgroup='$nt_group'";
-                print "$command\n";
-                system("$command");
-	    }
-            if ($local_group==1){
-                # local group
-                my $command="";
-                # domain group
-                $command="smbldap-groupadd -g $gid_number '$unix_group'";
-                print "$command\n";
-                system("$command");
-                $command="net groupmap add sid='S-1-5-32-$gid_number'".
-    		         " unixgroup='$unix_group' ntgroup='$nt_group'".
-                         " type=local";
-                print "$command\n";
-                system("$command");
-	    }
-        }
-    } else {
-        print "ERROR: Adding group did not suceed as expected!\n";
-    }
-}
-
-
-
 &log_script_end(@arguments);

@@ -69,6 +69,7 @@ my $testopt=GetOptions(
            "secondary-groups=s" => \$sec_groups,
            "gecos=s" => \$gecos,
            "uidnumber=i" => \$uid_number,
+           "shell=s" => \$shell,
           );
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
@@ -117,13 +118,17 @@ if ($unix_group eq "" or ($workstation eq ""
 if ($workstation ne ""){
     $type="workstation";
     $login=$workstation;
-    $shell="/bin/false";
+    if ($shell eq ""){
+        $shell="/bin/false";
+    }
     $home=$DevelConf::homedir_ws."/".$unix_group."/".$login;
 }
 if ($administrator ne ""){
     $type="administrator";
     $login=$administrator;
-    $shell="/bin/bash";
+    if ($shell eq ""){
+        $shell="/bin/bash";
+    }
     $home=$DevelConf::homedir_all_admins."/".$login;
 }
 
@@ -170,8 +175,9 @@ if ($sec_groups ne ""){
 }
 
 
-&Sophomorix::SophomorixPgLdap::auth_useradd($login,
-     $uid_number,$gecos,$home,$unix_group,$sec_groups,$shell);
+# included in create_user_db_entry
+#&Sophomorix::SophomorixPgLdap::auth_useradd($login,
+#     $uid_number,$gecos,$home,$unix_group,$sec_groups,$shell);
 
 
 # set quota

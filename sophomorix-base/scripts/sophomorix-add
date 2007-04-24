@@ -401,7 +401,7 @@ while(<SOPHOMORIXADD>){
    # 0. rember login to set quota later
    push @users_for_quota, $login_name_ok;
 
-   # 1. Entry in sophomorix database
+   # 1. Entry in sophomorix database and auth system
    &create_user_db_entry($nachname,
                          $vorname,
                          $gebdat,
@@ -452,7 +452,6 @@ if (-e $DevelConf::nscd_script){
 }
 
 
-# später ???
 if ($user_nummer==0){ 
     &titel("NOT creating userlists (0 users added)");
 } else {
