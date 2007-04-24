@@ -84,6 +84,7 @@ require Exporter;
              get_smb_sid
              fetchquota_sum
              auth_passwd
+             auth_useradd
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
@@ -4841,6 +4842,32 @@ sub auth_passwd {
 }
 
 
+sub auth_useradd {
+   my ($login,$uid_number,$gecos,$home,$unix_group,$sec_groups,$shell) = @_; 
+   my ($u_name,$u_pass,$u_uidnumber)=getpwnam $login;
+   # add entry to seperate ldap
+   if (defined $u_uidnumber){
+       if ($u_uidnumber eq $uid_number){
+           print "Succesfully added $u_name with uidnumber $u_uidnumber to db\n";
+           print "Adding user to ldap\n";
+           # do the ldap stuff
+           if ($DevelConf::seperate_ldap==1){
+               my $uid_string="";
+               if ($uid_number!=-1){
+                   $uid_string="-u $uid_number";
+               }
+               my $command="smbldap-useradd -a $uid_string -c $gecos".
+                           " -d $home -g $unix_group -G $sec_groups".
+                           " -s $shell $login";
+	       print "$command\n";
+               system("$command");           
+           }
+       } else {
+           print "ERROR: Adding user did not suceed as expected!\n";
+           print "       Not Adding user to ldap!\n";
+       }
+   }
+}
 
 
 
