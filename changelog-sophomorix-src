@@ -1533,7 +1533,7 @@ separate ldap from postgres:
          slapd.conf
          ...
          --> done by Thomas Hoth
-   - Change calls everywhere(*-ad, *-move, *-kill), where
+   - Change calls everywhere(*-add, *-move, *-kill), where
           1) ldap OR postgres is modified
           2) AND normal ldap data is concerned (authentication posix and samba)
              to:
@@ -1622,9 +1622,6 @@ smbldap-useradd -a -d <homedir> -c HostAccount -g <raum> -m -s /bin/bash
 smbldap-useradd -w -g 515 -c Computer -d /dev/null -s /bin/false
 <hostname>$
 
-- Passwort setzen:
-echo -e <password>\n<password>\n | smbldap-passwd <hostname>
-echo -e <password>\n<password>\n | smbldap-passwd <hostname>$
 
 
 - Flags für Maschinenaccount setzen:
@@ -1653,7 +1650,9 @@ Maschinenpasswort (12345678) setzt, zeigt smbldap-usershow nur [W] an.
 Man muss also den smbldap-usermod Befehl hinterherschicken.
 
 
+sophomorix-useradd:
 
+set quota when needed
 
 
 
@@ -1665,21 +1664,15 @@ sophomorix-vampire:
 
 copy rembo.key, rembo.conf, .... rembo stuff to /root/sophomorix-vampire
 
-
-
-
-
-Checken, ob das gut ist:
-
-Könnte man das also so machen
-
 In allen Verzeichnissen, die es in
 
 /usr/local/rembo/files/global/myshn/groups/
 
-gibt (Das sind die Hardwareklassen), werden  nur die Dateien kopiert, die  'config' heissen.
+gibt (Das sind die Hardwareklassen), werden nur die Dateien kopiert,
+die 'config' heissen.
 
-Ist das erfolgversprechend?
+vgl. Code bei mlscripts
+
 
 
 
@@ -1698,6 +1691,11 @@ sophomorix-passwd --interactive --user name >> smbldap-passwd name
 
 
 import workstation:
+
+- Passwort setzen:
+echo -e <passwd>\n<passwd>\n | sophomorix-passwd --interactive --user <hostname>
+echo -e <passwd>\n<passwd>\n | sophomorix-passwd --interactive --user <hostname>$
+
 
 
 
