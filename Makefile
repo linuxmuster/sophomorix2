@@ -190,6 +190,9 @@ install-pgldap:
 # scripts
 	@install -d $(DESTDIR)/usr/sbin
 	@install -oroot -groot --mode=0744 sophomorix-pgldap/scripts/sophomorix-*[a-z1-9] $(DESTDIR)/usr/sbin
+# postgres2slapd scripts
+	@install -oroot -groot --mode=0744 sophomorix-pgldap/postgres2slapd/dump-postgres-for-ldap.sh $(DESTDIR)/usr/sbin
+	@install -oroot -groot --mode=0744 sophomorix-pgldap/postgres2slapd/gen-ldif-from-sql.perl $(DESTDIR)/usr/sbin
 # Copy the module
 	@install -d -m755 -oroot -groot $(PERLMOD)
 	@install -oroot -groot --mode=0644 sophomorix-pgldap/modules/Sophomorix*[a-z1-9] $(PERLMOD)
