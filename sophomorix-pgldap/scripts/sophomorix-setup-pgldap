@@ -46,6 +46,9 @@ my $dbpw="";
 
 my $info=0;
 my $help=0;
+
+my $slapd_standalone=0;
+
 my $new_database=0;
 my $keep_database=0;
 my $config_file=0;
@@ -87,6 +90,7 @@ my $testopt=GetOptions(
            "create-indices-only" => \$create_indices_only,
            "drop-indices-only" => \$drop_indices_only,
            "update-indices-only" => \$update_indices,
+           "slapd-standalone" => \$slapd_standalone,
           );
 
 
@@ -633,8 +637,14 @@ my %permissions=&get_alle_verzeichnis_rechte();
 
 
 # do it, ldap 
-system("sed $replace ${template}/ldap/ldap.conf.template > $ldap_conf"); 
-system("sed $replace ${template}/ldap/slapd.conf.template > $slapd_conf"); 
+system("sed $replace ${template}/ldap/ldap.conf.template > $ldap_conf");
+
+if ($slapd_standalone==1){
+   system("sed $replace ${template}/ldap/slapd-standalone.conf.template > $slapd_conf");
+} else { 
+   system("sed $replace ${template}/ldap/slapd.conf.template > $slapd_conf");
+} 
+
 system("sed $replace ${template}/ldap/slapd.template > $default_slapd"); 
 system("sed $replace ${template}/ldap/smbldap.conf.template > $smbldap_conf"); 
 system("sed $replace ${template}/ldap/ldap.secret.template > $ldap_secret"); 
