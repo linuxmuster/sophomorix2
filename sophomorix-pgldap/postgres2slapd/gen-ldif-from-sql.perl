@@ -4,8 +4,13 @@ use strict;
 use warnings;
 
 # Datei öffnen und in array schreiben - Datei gleich wieder schließen
+my @groupsusersfile=();
+open(DATEI, "</tmp/groups_users.sql") || die "SQL-Datei nicht gefunden";
+push(@groupsusersfile,<DATEI>);
+close(DATEI);
+
 my @accountsfile=();
-open(DATEI, "</tmp/benutzer.sql") || die "SQL-Datei nicht gefunden";
+open(DATEI, "</tmp/accounts.sql") || die "SQL-Datei nicht gefunden";
 push(@accountsfile,<DATEI>);
 close(DATEI);
 
@@ -137,6 +142,18 @@ foreach $line (@groupsfile) {
   # wenn wert nicht leer ist - ausgeben
   if ( ($wert !~ /^\s*$/) && ($zeilegroups > 1 ) && ($groupsspalte0[$i] !~ /^id/) ){
    print "$groupsspalte0[$i]: $wert\n";
+  
+  # Benutzer - Gruppen zuordnung
+   
+   foreach $line (@groupsusersfile) {
+    my @groupsusersspalte = split(/\|/, $line); #Zeile am | trennen
+    if ( ($groupsusersspalte[0]=~ /$wert/) && ($groupsspalte0[$i]=~ /cn/) ){
+     $groupsusersspalte[1] =~ s/^\s+//;
+     $groupsusersspalte[1] =~ s/\s+$//;
+     print "memberUid: $groupsusersspalte[1]\n"; 
+     
+    };
+   }
   }
   $i++;
  } 
