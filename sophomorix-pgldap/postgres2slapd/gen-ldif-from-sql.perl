@@ -3,19 +3,23 @@
 use strict;
 use warnings;
 
+
+my $ldapdc="dc=linuxmuster,dc=local";
+my $sqlpath="/tmp";
+
 # Datei öffnen und in array schreiben - Datei gleich wieder schließen
 my @groupsusersfile=();
-open(DATEI, "</tmp/groups_users.sql") || die "SQL-Datei nicht gefunden";
+open(DATEI, "<$sqlpath/groups_users.sql") || die "SQL-Datei nicht gefunden";
 push(@groupsusersfile,<DATEI>);
 close(DATEI);
 
 my @accountsfile=();
-open(DATEI, "</tmp/accounts.sql") || die "SQL-Datei nicht gefunden";
+open(DATEI, "<$sqlpath/accounts.sql") || die "SQL-Datei nicht gefunden";
 push(@accountsfile,<DATEI>);
 close(DATEI);
 
 my @groupsfile=();
-open(DATEI, "</tmp/groups.sql") || die "SQL-Datei nicht gefunden";
+open(DATEI, "<$sqlpath/groups.sql") || die "SQL-Datei nicht gefunden";
 push(@groupsfile,<DATEI>);
 close(DATEI);
 
@@ -41,7 +45,7 @@ foreach $line (@accountsfile) {
   $accountsspalte1[30]=~ s/^\s+//; $accountsspalte1[30]=~ s/\s+$//;
   $accountsspalte1[31]=~ s/^\s+//; $accountsspalte1[31]=~ s/\s+$//;
   print "\n\n";
-  print "dn: uid=$accountsspalte1[28],ou=accounts,dc=linuxmuster,dc=local\n";
+  print "dn: uid=$accountsspalte1[28],ou=accounts,$ldapdc\n";
   print "objectClass: inetOrgPerson\n";
   print "objectClass: posixAccount\n";
   print "objectClass: shadowAccount\n";
@@ -116,7 +120,7 @@ foreach $line (@groupsfile) {
  if ($zeilegroups > 1) {
   $groupsspalte1[1]=~ s/^\s+//; $groupsspalte1[1]=~ s/\s+$//;
   print "\n\n";
-  print "dn: cn=$groupsspalte1[1],ou=groups,dc=linuxmuster,dc=local\n";
+  print "dn: cn=$groupsspalte1[1],ou=groups,$ldapdc\n";
   print "objectClass: posixGroup\n";
   print "objectClass: sambaGroupMapping\n";
  }
