@@ -931,6 +931,7 @@ if (-e "/etc/init.d/nscd"){
 }
 
 if ($slapd_standalone==1){
+    system("smbldap-populate");
     # domain groups
     system("sophomorix-groupadd --unix-group domadmins --nt-group 'Domain Admins' --domain --gidnumber 512");
     system("sophomorix-groupadd --unix-group domusers --nt-group 'Domain Users' --domain --gidnumber 513");
@@ -968,29 +969,16 @@ if ($slapd_standalone==1){
 
 if ($slapd_standalone==1){
     # administrator is equal to admin in ml 2.x
-    system("sophomorix-useradd --administrator administrator --uidnumber 998 -a  --gecos administrator --unix-group 'domadmins' --secondary-groups 'administrators,printoperators' --shell /bin/bash ");
+    system("sophomorix-useradd --administrator administrator --uidnumber 998 --gecos administrator --unix-group 'domadmins' --secondary-groups 'administrators,printoperators' --shell /bin/bash ");
 
     # pgmadmin is to install programs on the win clients
-    system("sophomorix-useradd --administrator pgmadmin --uidnumber 999 -a  --gecos 'Programm Administrator' --unix-group 'domadmins' --shell /bin/false ");
+    system("sophomorix-useradd --administrator pgmadmin --uidnumber 999 --gecos 'Programm Administrator' --unix-group 'domadmins' --shell /bin/false ");
 
     # wwwadmin for web services (moodle, opengroupware, imp ...) NOT a windows user
     system("sophomorix-useradd --administrator wwwadmin --uidnumber 997 --gecos 'web Administrator' --unix-group 'wwwadmin' --shell /bin/false ");
 
     # domadmin (for joining the domain)
-    system("sophomorix-useradd --administrator domadmin -a --uidnumber 996 --gecos 'Domain Admin' --unix-group 'domadmins' --shell /bin/false ");
-
-
-
-
-
-
-
-
-
-
-
-
-
+    system("sophomorix-useradd --administrator domadmin --uidnumber 996 --gecos 'Domain Admin' --unix-group 'domadmins' --shell /bin/false ");
 
 } else { 
     # administrator is equal to admin in ml 2.x

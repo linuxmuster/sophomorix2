@@ -1306,6 +1306,7 @@ sub create_user_db_entry {
        $homedir_force,
        $gecos_force) = @_;
 
+    my $uidnumber_auth;
     my $sambapwdmustchange;
     if (not defined $mailquota){
        $mailquota=-1;
@@ -1438,6 +1439,8 @@ sub create_user_db_entry {
        # 1. Tabelle posix_account
        # Pflichtfelder (laut Datenbank): id,uidnumber,uid,gidnumber,firstname
 
+       $uidnumber_auth=$uidnumber;
+
        $sql="INSERT INTO posix_account 
 	  (id,uidnumber,uid,gidnumber,firstname,surname,
            homedirectory,gecos,loginshell,userpassword,description)
@@ -1555,9 +1558,11 @@ sub create_user_db_entry {
   }
   } # end 
 
+
+    print "SHELL $sh\n";
   # create entry in auth system (no secondary groups)
-  &auth_useradd($login,$uidnumber,$gecos,$homedir,
-                $admin_class,"",$shell)
+  &auth_useradd($login,$uidnumber_auth,$gecos,$homedir,
+                $admin_class,"",$sh)
 
   &db_disconnect($dbh);
 
