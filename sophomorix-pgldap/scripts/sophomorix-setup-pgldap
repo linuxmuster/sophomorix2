@@ -546,6 +546,7 @@ my $nsswitch_conf="/etc/nsswitch.conf";
 my $libnssldap_conf="/etc/libnss-ldap.conf";
 my $smb_ldap_conf="/etc/smbldap-tools/smbldap.conf";
 my $smb_ldap_bind_conf="/etc/smbldap-tools/smbldap_bind.conf";
+my $ldif_local="/usr/share/sophomorix/config-templates/ldap/local-gen.ldif";
 
 # pg
 my $odbc_ini="/etc/odbc.ini";
@@ -650,6 +651,7 @@ system("sed $replace ${template}/ldap/smbldap.conf.template > $smbldap_conf");
 system("sed $replace ${template}/ldap/ldap.secret.template > $ldap_secret"); 
 system("sed $replace ${template}/ldap/nsswitch.conf.template > $nsswitch_conf"); 
 system("sed $replace ${template}/ldap/libnss-ldap.conf.template > $libnssldap_conf"); 
+system("sed $replace ${template}/ldap/standalone.ldif.template > $ldif_local"); 
 
 # do it, pg
 system("sed $replace ${template}/pg/odbc.ini.template > $odbc_ini"); 
@@ -873,6 +875,13 @@ if (not -e "$ldap_args_dir"){
 system("chmod 0755 $ldap_args_dir");
 system("chown openldap:openldap $ldap_args_dir");
 
+
+# populate ldap (no users)
+if ($slapd_standalone==1){
+    system("slapadd -l $ldif_local");
+}
+
+
 sleep 5;
 
 # starting ldap
@@ -931,7 +940,8 @@ if (-e "/etc/init.d/nscd"){
 }
 
 if ($slapd_standalone==1){
-    system("smbldap-populate");
+    # population was done with stopped slapd
+    #system("smbldap-populate");
     # domain groups
     system("sophomorix-groupadd --unix-group domadmins --nt-group 'Domain Admins' --domain --gidnumber 512");
     system("sophomorix-groupadd --unix-group domusers --nt-group 'Domain Users' --domain --gidnumber 513");

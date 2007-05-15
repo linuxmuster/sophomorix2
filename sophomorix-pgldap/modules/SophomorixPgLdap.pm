@@ -1653,6 +1653,7 @@ sub create_class_db_entry {
     my $samba_group_type="2";
     my $domain_group=1;
     my $local_group=0;
+    my $displayname="";
 
     my ($class_to_add,$sub,
         $gid_force_number,$nt_groupname,$description) = @_;
@@ -1786,7 +1787,6 @@ sub create_class_db_entry {
     #2. Tabelle samba_group_mapping
     #Pflichtfelder (laut Datenbank) id
     # sambagrouptype (2=domaingroup(defaultgroup), 4=localgroup, 5=builtingroup)
-    my $displayname="";
     if ($nt_groupname eq ""){
         $displayname=$class_to_add;
     } else {
@@ -2132,7 +2132,7 @@ sub pg_get_group_type {
                                          WHERE gid='$gid'");
     if (not defined $id_sys){
         # if not in pgldap
-	return ("unknown",$gid);
+	return ("unknown",$gid,$gidnumber_sys);
     }    
     my ($type)= $dbh->selectrow_array( "SELECT type 
                                           FROM classdata 
@@ -2144,19 +2144,22 @@ sub pg_get_group_type {
                                             WHERE gidnumber=$gidnumber_sys");
            if ($home=~/^\/home\/workstations\//){
                # identify a workstation 
-	       return ("room",$gid);
+	       return ("room",$gid,$gidnumber_sys);
            } elsif ($home=~/^\/home\/administrators\//){
                # identify an administrator
-               return ("administrator",$gid);
+               return ("administrator",$gid,$gidnumber_sys);
            } else {
-               return ("unknown",$gid);
+               return ("unknown",$gid,$gidnumber_sys);
            }
     } elsif ($type eq "subclass"){
         # subclass
-        return ("subclass",$gid);
+        return ("subclass",$gid,$gidnumber_sys);
     } elsif ($type eq "adminclass"){
         # adminclass
-        return ("adminclass",$gid);
+        return ("adminclass",$gid,$gidnumber_sys);
+    } elsif ($type eq "manualgroup"){
+        # manually added group
+        return ("manualgroup",$gid,$gidnumber_sys);
     } elsif ($type eq "project"){
         my ($longname)= $dbh->selectrow_array( "SELECT longname
                                           FROM projectdata 
@@ -4902,6 +4905,7 @@ sub auth_useradd {
 
 
 sub auth_groupadd {
+   print "Adding user to authentication system\n";
    # $domain_group 0,1
    # $local_group  0,1
    my ($unix_group,$type,
@@ -4911,13 +4915,15 @@ sub auth_groupadd {
    # check if adding was succesful
 #   my ($g_name,$g_pass,$g_gidnumber)=getgrnam $unix_group;
    my ($g_type,$g_name,$g_gidnumber)=&pg_get_group_type($unix_group);
-
+   print "GID: $g_gidnumber ($unix_group)";
    # add entry to seperate ldap
    if (defined $g_gidnumber){
        if ($g_gidnumber eq $gid_number){
            print "Succesfully added $unix_group with gidnumber $g_gidnumber\n";
            # do the ldap stuff
            if ($DevelConf::seperate_ldap==1){
+               print "Value of domain_group is: $domain_group";
+               print "Value of local_group is: $local_group";
                if ($domain_group==1){
                    my $command="";
                    # domain group
@@ -4942,6 +4948,8 @@ sub auth_groupadd {
                    print "$command\n";
                    system("$command" );
     	       }
+           } else {
+               print "Not using seperate ldap\n";
            }
         } else {
            print "ERROR: Adding group $unix_group did not suceed as expected!\n";

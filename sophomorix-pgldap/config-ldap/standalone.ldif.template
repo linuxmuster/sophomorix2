@@ -1,18 +1,18 @@
-dn: dc=linuxmuster,dc=de
+dn: @@basedn@@
 objectClass: dcObject
 objectclass: organization
 o: linuxmuster
 dc: linuxmuster
 
-dn: ou=accounts,dc=linuxmuster,dc=de
+dn: ou=accounts,@@basedn@@
 objectClass: organizationalUnit
 ou: accounts
 
-dn: ou=groups,dc=linuxmuster,dc=de
+dn: ou=groups,@@basedn@@
 objectClass: organizationalUnit
 ou: groups
 
-dn: ou=machines,dc=linuxmuster,dc=de
+dn: ou=machines,@@basedn@@
 objectClass: organizationalUnit
 ou: machines
 
@@ -20,7 +20,7 @@ dn:
 objectClass: organizationalUnit
 ou: 
 
-dn: sambaDomainName=schule ,dc=linuxmuster,dc=de
+dn: sambaDomainName=schule ,@@basedn@@
 objectClass: sambaDomain
 objectClass: sambaUnixIdPool
 sambaDomainName: schule 
