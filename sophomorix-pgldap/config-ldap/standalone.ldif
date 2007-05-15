@@ -1,0 +1,211 @@
+dn: dc=linuxmuster,dc=de
+objectClass: dcObject
+objectclass: organization
+o: linuxmuster
+dc: linuxmuster
+
+dn: ou=accounts,dc=linuxmuster,dc=de
+objectClass: organizationalUnit
+ou: accounts
+
+dn: ou=groups,dc=linuxmuster,dc=de
+objectClass: organizationalUnit
+ou: groups
+
+dn: ou=machines,dc=linuxmuster,dc=de
+objectClass: organizationalUnit
+ou: machines
+
+dn: 
+objectClass: organizationalUnit
+ou: 
+
+dn: sambaDomainName=schule ,dc=linuxmuster,dc=de
+objectClass: sambaDomain
+objectClass: sambaUnixIdPool
+sambaDomainName: schule 
+sambaSID: S-1-5-21-2193308230-4163380633-1870270956
+uidNumber: 1000
+gidNumber: 1000
+
+dn: uid=Administrator,ou=accounts,dc=linuxmuster,dc=de
+cn: Administrator
+sn: Administrator
+objectClass: inetOrgPerson
+objectClass: sambaSAMAccount
+objectClass: posixAccount
+objectClass: shadowAccount
+gidNumber: 512
+uid: Administrator
+uidNumber: 998
+homeDirectory: /home/Administrator
+sambaPwdLastSet: 0
+sambaLogonTime: 0
+sambaLogoffTime: 2147483647
+sambaKickoffTime: 2147483647
+sambaPwdCanChange: 0
+sambaPwdMustChange: 2147483647
+sambaPrimaryGroupSID: S-1-5-21-2193308230-4163380633-1870270956-512
+sambaLMPassword: XXX
+sambaNTPassword: XXX
+sambaAcctFlags: [U          ]
+sambaSID: S-1-5-21-2193308230-4163380633-1870270956-2996
+loginShell: /bin/false
+gecos: Netbios Domain Administrator
+
+dn: uid=nobody,ou=accounts,dc=linuxmuster,dc=de
+cn: nobody
+sn: nobody
+objectClass: inetOrgPerson
+objectClass: sambaSAMAccount
+objectClass: posixAccount
+objectClass: shadowAccount
+gidNumber: 514
+uid: nobody
+uidNumber: 999
+homeDirectory: /dev/null
+sambaPwdLastSet: 0
+sambaLogonTime: 0
+sambaLogoffTime: 2147483647
+sambaKickoffTime: 2147483647
+sambaPwdCanChange: 0
+sambaPwdMustChange: 2147483647
+sambaPrimaryGroupSID: S-1-5-21-2193308230-4163380633-1870270956-514
+sambaLMPassword: NO PASSWORDXXXXXXXXXXXXXXXXXXXXX
+sambaNTPassword: NO PASSWORDXXXXXXXXXXXXXXXXXXXXX
+sambaAcctFlags: [NU         ]
+sambaSID: S-1-5-21-2193308230-4163380633-1870270956-2998
+loginShell: /bin/false
+
+dn: cn=Domain Admins,ou=groups,dc=linuxmuster,dc=de
+objectClass: posixGroup
+objectClass: sambaGroupMapping
+gidNumber: 512
+cn: Domain Admins
+memberUid: Administrator
+description: Netbios Domain Administrators
+sambaSID: S-1-5-21-2193308230-4163380633-1870270956-512
+sambaGroupType: 2
+displayName: Domain Admins
+
+dn: cn=Domain Users,ou=groups,dc=linuxmuster,dc=de
+objectClass: posixGroup
+objectClass: sambaGroupMapping
+gidNumber: 513
+cn: Domain Users
+description: Netbios Domain Users
+sambaSID: S-1-5-21-2193308230-4163380633-1870270956-513
+sambaGroupType: 2
+displayName: Domain Users
+
+dn: cn=Domain Guests,ou=groups,dc=linuxmuster,dc=de
+objectClass: posixGroup
+objectClass: sambaGroupMapping
+gidNumber: 514
+cn: Domain Guests
+description: Netbios Domain Guests Users
+sambaSID: S-1-5-21-2193308230-4163380633-1870270956-514
+sambaGroupType: 2
+displayName: Domain Guests
+
+dn: cn=Domain Computers,ou=groups,dc=linuxmuster,dc=de
+objectClass: posixGroup
+objectClass: sambaGroupMapping
+gidNumber: 515
+cn: Domain Computers
+description: Netbios Domain Computers accounts
+sambaSID: S-1-5-21-2193308230-4163380633-1870270956-515
+sambaGroupType: 2
+displayName: Domain Computers
+
+dn: cn=Administrators,ou=groups,dc=linuxmuster,dc=de
+objectClass: posixGroup
+objectClass: sambaGroupMapping
+gidNumber: 544
+cn: Administrators
+description: Netbios Domain Members can fully administer the computer/sambaDomainName
+sambaSID: S-1-5-32-544
+sambaGroupType: 5
+displayName: Administrators
+
+#dn: cn=Users,ou=groups,dc=linuxmuster,dc=de
+#objectClass: posixGroup
+#objectClass: sambaGroupMapping
+#gidNumber: 545
+#cn: Users
+#description: Netbios Domain Ordinary users
+#sambaSID: S-1-5-32-545
+#sambaGroupType: 5
+#displayName: users
+
+#dn: cn=Guests,ou=groups,dc=linuxmuster,dc=de
+#objectClass: posixGroup
+#objectClass: sambaGroupMapping
+#gidNumber: 546
+#cn: Guests
+#memberUid: nobody
+#description: Netbios Domain Users granted guest access to the computer/sambaDomainName
+#sambaSID: S-1-5-32-546
+#sambaGroupType: 5
+#displayName: Guests
+
+#dn: cn=Power Users,ou=groups,dc=linuxmuster,dc=de
+#objectClass: posixGroup
+#objectClass: sambaGroupMapping
+#gidNumber: 547
+#cn: Power Users
+#description: Netbios Domain Members can share directories and printers
+#sambaSID: S-1-5-32-547
+#sambaGroupType: 5
+#displayName: Power Users
+
+#dn: cn=Account Operators,ou=groups,dc=linuxmuster,dc=de
+#objectClass: posixGroup
+#objectClass: sambaGroupMapping
+#gidNumber: 548
+#cn: Account Operators
+#description: Netbios Domain Users to manipulate users accounts
+#sambaSID: S-1-5-32-548
+#sambaGroupType: 5
+#displayName: Account Operators
+
+#dn: cn=System Operators,ou=groups,dc=linuxmuster,dc=de
+#objectClass: posixGroup
+#objectClass: sambaGroupMapping
+#gidNumber: 549
+#cn: System Operators
+#description: Netbios Domain System Operators
+#sambaSID: S-1-5-32-549
+#sambaGroupType: 5
+#displayName: System Operators
+
+dn: cn=Print Operators,ou=groups,dc=linuxmuster,dc=de
+objectClass: posixGroup
+objectClass: sambaGroupMapping
+gidNumber: 550
+cn: Print Operators
+description: Netbios Domain Print Operators
+sambaSID: S-1-5-32-550
+sambaGroupType: 5
+displayName: Print Operators
+
+dn: cn=Backup Operators,ou=groups,dc=linuxmuster,dc=de
+objectClass: posixGroup
+objectClass: sambaGroupMapping
+gidNumber: 551
+cn: Backup Operators
+description: Netbios Domain Members can bypass file security to back up files
+sambaSID: S-1-5-32-551
+sambaGroupType: 5
+displayName: Backup Operators
+
+dn: cn=Replicators,ou=groups,dc=linuxmuster,dc=de
+objectClass: posixGroup
+objectClass: sambaGroupMapping
+gidNumber: 552
+cn: Replicators
+description: Netbios Domain Supports file replication in a sambaDomainName
+sambaSID: S-1-5-32-552
+sambaGroupType: 5
+displayName: Replicators
+
