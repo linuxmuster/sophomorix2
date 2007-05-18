@@ -1317,11 +1317,15 @@ sub create_user_db_entry {
     if (not defined $sophomorix_status){
        $sophomorix_status="U";
     }
+    if ($sophomorix_status eq ""){
+       $sophomorix_status="U";
+    }
     if (not defined $gecos_force or $gecos_force eq ""){
        $gecos = "$vorname"." "."$nachname";
     } else {
        $gecos = $gecos_force;
     }
+
     my $homedir="";
     if ($admin_class eq ${DevelConf::teacher}){
         # teachers
@@ -1685,7 +1689,12 @@ sub create_class_db_entry {
         $gid_force_number=-1;
     }
     if (not defined $nt_groupname){
-        $nt_groupname="";
+        #$nt_groupname="";
+        $displayname=$class_to_add;
+    } elsif ($nt_groupname eq ""){
+        $displayname=$class_to_add;
+    } else {
+        $displayname=$nt_groupname;
     }
     if (not defined $description){
         $description="";
@@ -1787,11 +1796,11 @@ sub create_class_db_entry {
     #2. Tabelle samba_group_mapping
     #Pflichtfelder (laut Datenbank) id
     # sambagrouptype (2=domaingroup(defaultgroup), 4=localgroup, 5=builtingroup)
-    if ($nt_groupname eq ""){
-        $displayname=$class_to_add;
-    } else {
-        $displayname=$nt_groupname;
-    }
+ #   if ($nt_groupname eq ""){
+ #       $displayname=$class_to_add;
+ #   } else {
+ #       $displayname=$nt_groupname;
+ #   }
 #    $sql="INSERT INTO samba_group_mapping
 #	 (id,gidnumber,sambasid,sambagrouptype,displayname,description,sambasidlist)
 #	 VALUES
@@ -4878,7 +4887,7 @@ sub auth_useradd {
    # add entry to seperate ldap
    if (defined $u_uidnumber){
        if ($u_uidnumber eq $uid_number){
-           print "Succesfully added $u_name with uidnumber $u_uidnumber to db\n";
+           print "Succesfully added $login with uidnumber $u_uidnumber to db\n";
            print "Adding user to ldap\n";
            # do the ldap stuff
            if ($DevelConf::seperate_ldap==1){
@@ -4906,7 +4915,7 @@ sub auth_useradd {
 
 
 sub auth_groupadd {
-   print "Adding user to authentication system\n";
+   print "Adding group to authentication system\n";
    # $domain_group 0,1
    # $local_group  0,1
    my ($unix_group,$type,
