@@ -4923,9 +4923,9 @@ sub auth_groupadd {
        $domain_group,$local_group) = @_;
    # check if adding was succesful
    my ($g_type,$g_name,$g_gidnumber)=&pg_get_group_type($unix_group);
-   print "GID: $g_gidnumber ($unix_group)\n";
    # add entry to seperate ldap
    if (defined $g_gidnumber){
+       print "GID: $g_gidnumber ($unix_group)\n";
        if ($g_gidnumber eq $gid_number){
            print "Succesfully added $unix_group with gidnumber $g_gidnumber\n";
            # do the ldap stuff
