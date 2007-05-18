@@ -340,16 +340,18 @@ Reads all permissions below homedirs
 =cut
 sub fetch_repairhome {
    # files repairhome.$type to read
-   my @typelist = ("teacher","student","workstation","attic");
+   my @typelist = ("administrator","teacher","student","workstation","attic");
 
    # data structure: hash of arrays
-   my @student=();     
+   my @administrator=();     
    my @teacher=();     
+   my @student=();     
    my @workstation=();
    my @attic=();
    %all_repairhome=();
-   $all_repairhome{"student"}=\@student;
+   $all_repairhome{"administrator"}=\@administrator;
    $all_repairhome{"teacher"}=\@teacher;
+   $all_repairhome{"student"}=\@student;
    $all_repairhome{"workstation"}=\@workstation;
    $all_repairhome{"attic"}=\@attic;
 
@@ -368,6 +370,9 @@ sub fetch_repairhome {
           if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
           if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
 
+          if ($type eq "administrator"){
+	      push @administrator, $_;
+          }
           if ($type eq "teacher"){
 	      push @teacher, $_;
           }
@@ -1268,6 +1273,8 @@ sub repair_repairhome {
         print "WARNING: Could not find data for user $user. NOT repairing home!\n";
 	return;
     }
+
+    print "TYPE $type\n";
     if ($type eq "none"){
         print "NOT repairing dirs under \$HOME. User is of type '$type'\n";
         return;
