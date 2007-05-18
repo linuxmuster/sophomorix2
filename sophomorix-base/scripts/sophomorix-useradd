@@ -36,6 +36,8 @@ my $login="";
 my $type="";
 my $shell="";
 
+my $skiplock=0;
+
 # mandatory
 my $administrator="";
 my $workstation="";
@@ -70,6 +72,7 @@ my $testopt=GetOptions(
            "gecos=s" => \$gecos,
            "uidnumber=i" => \$uid_number,
            "shell=s" => \$shell,
+           "skiplock" => \$skiplock,
           );
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
