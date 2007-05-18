@@ -55,7 +55,7 @@ my $epoch_now=time;
 my $password="";
 my $quota="";
 my $unid="";
-
+my $sophomorix_status="";
 
 # ===========================================================================
 # Optionen verarbeiten
@@ -133,6 +133,7 @@ if ($administrator ne ""){
         $shell="/bin/bash";
     }
     $home=$DevelConf::homedir_all_admins."/".$login;
+    $sophomorix_status="P";
 }
 
 
@@ -150,22 +151,23 @@ if ($password eq ""){
 # Do it !
 
 print "Creating user account $login:\n";
-print "    Uidnumber      : $uid_number\n";
-print "    Type           : $type\n";
-print "    Secondary Grp. : $sec_groups\n";
-print "    Group          : $unix_group\n";
-print "    Home           : $home\n";
-print "    Gecos          : $gecos\n";
-print "    Shell          : $shell\n";
-print "    Epoch          : $epoch_now\n";
-print "    Password       : $password\n";
-print "    Quota          : $quota\n";
+print "    Uidnumber        : $uid_number\n";
+print "    Type             : $type\n";
+print "    Secondary Grp.   : $sec_groups\n";
+print "    Group            : $unix_group\n";
+print "    Home             : $home\n";
+print "    Gecos            : $gecos\n";
+print "    Shell            : $shell\n";
+print "    SophomorixStatus : $sophomorix_status\n";
+print "    Epoch            : $epoch_now\n";
+print "    Password         : $password\n";
+print "    Quota            : $quota\n";
 
 
 # create postgres entry
 &create_user_db_entry("","","01.01.1970",
                       $unix_group,$login,$password,
-                      $shell,$quota,$unid,$epoch_now,undef,undef,
+                      $shell,$quota,$unid,$epoch_now,undef,$sophomorix_status,
                       $uid_number,$home,$gecos);
 
 # add to secondary groups
@@ -177,15 +179,6 @@ if ($sec_groups ne ""){
     }
 }
 
-
-# included in create_user_db_entry
-#&Sophomorix::SophomorixPgLdap::auth_useradd($login,
-#     $uid_number,$gecos,$home,$unix_group,$sec_groups,$shell);
-
-
-# set quota
-
-
-
+# set quota ???
 
 &log_script_end(@arguments);
