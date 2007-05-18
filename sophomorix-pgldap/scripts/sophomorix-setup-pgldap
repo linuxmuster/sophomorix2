@@ -950,11 +950,11 @@ if ($slapd_standalone==1){
 
     # local 
     system("sophomorix-groupadd --skiplock --unix-group printoperators --nt-group 'Print Operators' --local --gidnumber 550");
-    system("sophomorix-groupadd --skiplock --unix-group wwwadmin --nt-group 'Web Administrators' --domain --gidnumber 997");
-    system("sophomorix-groupadd --skiplock --unix-group replicators --nt-group 'Replicators' --domain --gidnumber 552");
-    system("sophomorix-groupadd --skiplock --unix-group administrators --nt-group 'Administrators' --domain --gidnumber 544");
-    system("sophomorix-groupadd --skiplock --unix-group accountoperators --nt-group 'Account Operators' --domain --gidnumber 548");
-    system("sophomorix-groupadd --skiplock --unix-group backupoperators --nt-group 'Backup Operators' --domain --gidnumber 551");
+    system("sophomorix-groupadd --skiplock --unix-group wwwadmin --nt-group 'Web Administrators' --local --gidnumber 997");
+    system("sophomorix-groupadd --skiplock --unix-group replicators --nt-group 'Replicators' --local --gidnumber 552");
+    system("sophomorix-groupadd --skiplock --unix-group administrators --nt-group 'Administrators' --local --gidnumber 544");
+    system("sophomorix-groupadd --skiplock --unix-group accountoperators --nt-group 'Account Operators' --local --gidnumber 548");
+    system("sophomorix-groupadd --skiplock --unix-group backupoperators --nt-group 'Backup Operators' --local --gidnumber 551");
 
 } else { 
     # adding groups with smbldap-tools

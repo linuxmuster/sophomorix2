@@ -2151,6 +2151,9 @@ sub pg_get_group_type {
            } else {
                return ("unknown",$gid,$gidnumber_sys);
            }
+    } elsif ($type eq "teacher"){
+        # subclass
+        return ("teacher",$gid,$gidnumber_sys);
     } elsif ($type eq "subclass"){
         # subclass
         return ("subclass",$gid,$gidnumber_sys);
@@ -4870,10 +4873,8 @@ sub auth_passwd {
 
 sub auth_useradd {
    my ($login,$uid_number,$gecos,$home,$unix_group,$sec_groups,$shell) = @_; 
-   #my ($u_name,$u_pass,$u_uidnumber)=getpwnam $login;
    my ($u_home,$u_type,$u_gecos,$u_group,
        $u_uidnumber)=&fetchdata_from_account($login);
-
    # add entry to seperate ldap
    if (defined $u_uidnumber){
        if ($u_uidnumber eq $uid_number){
@@ -4889,7 +4890,7 @@ sub auth_useradd {
                if ($sec_groups ne ""){
 		   $sec_string="-G $sec_groups";
                }
-               my $command="smbldap-useradd -a $uid_string -c $gecos".
+               my $command="smbldap-useradd -a $uid_string -c '$gecos'".
                            " -d $home -g $unix_group $sec_string".
                            " -s $shell $login";
 	       print "$command\n";
@@ -4911,19 +4912,17 @@ sub auth_groupadd {
    my ($unix_group,$type,
        $gid_number,$nt_group,
        $domain_group,$local_group) = @_;
-
    # check if adding was succesful
-#   my ($g_name,$g_pass,$g_gidnumber)=getgrnam $unix_group;
    my ($g_type,$g_name,$g_gidnumber)=&pg_get_group_type($unix_group);
-   print "GID: $g_gidnumber ($unix_group)";
+   print "GID: $g_gidnumber ($unix_group)\n";
    # add entry to seperate ldap
    if (defined $g_gidnumber){
        if ($g_gidnumber eq $gid_number){
            print "Succesfully added $unix_group with gidnumber $g_gidnumber\n";
            # do the ldap stuff
            if ($DevelConf::seperate_ldap==1){
-               print "Value of domain_group is: $domain_group";
-               print "Value of local_group is: $local_group";
+               print "Value of domain_group is: $domain_group \n";
+               print "Value of local_group is: $local_group \n";
                if ($domain_group==1){
                    my $command="";
                    # domain group
