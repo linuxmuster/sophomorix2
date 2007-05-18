@@ -1273,8 +1273,6 @@ sub repair_repairhome {
         print "WARNING: Could not find data for user $user. NOT repairing home!\n";
 	return;
     }
-
-    print "TYPE $type\n";
     if ($type eq "none"){
         print "NOT repairing dirs under \$HOME. User is of type '$type'\n";
         return;
