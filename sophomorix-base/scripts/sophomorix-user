@@ -67,6 +67,7 @@ my $reset_user="";
 my $search="";
 my $old_uid="";
 my $new_uid="";
+my $auth=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -86,6 +87,7 @@ my $testopt=GetOptions(
        "empty-password" => \$empty_password,
        "scheduled-toleration=s" => \$sc_toleration,
        "t|teacher=s" => \$teacher,
+       "auth|ldap" => \$auth,
           );
 
 
@@ -659,7 +661,7 @@ if ($search eq ""){
 ############################################################
 # Start
 ############################################################
-&search_user($search);
+&search_user($search,$auth);
 
 &log_script_end(@arguments);
 
