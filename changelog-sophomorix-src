@@ -1701,9 +1701,43 @@ echo -e <passwd>\n<passwd>\n | sophomorix-passwd --interactive --user <hostname>
 
 
 
+Problems:
+
+if you give user a shell:   
+   smbldap-usermod -s /bin/bash user
+and do 
+   su user
+then: user has no name
+
+
+but getent passwd/id as root shows user and its id correctly
+whoami als user sagt, kein loginname für id 10016 
+
+
+2) when user is added in group mkx 
+   and then moved in group mky
+   then the user is still in mkx (as secondary?)
+   when moved again and again, the sec. membership of initial group 
+   is kept
+
+Problems in sophomorix-test:
+
+Test with U, UX sambaaccountflags doesnt work
+smbpasswd asks for password
+
+
+
+
 ================== CHANGELOG ========================================
 
-1.9.13-1 (2007-05-09)
+1.9.14-1 (2007-05-xx)
+    - added stuff to enable users in ldap
+    - added stuff to kill users in ldap   
+    - added stuff to move users in ldap   
+
+
+1.9.13-1 (2007-05-17)
+    - added stuff to add users to seperate ldap
     - Bugfix: added sophomorix-support.conf to package sophomorix-base
     - option slapd-standalone added to sophomorix-pgldap
     - first should work version of sophomorix-groupadd
