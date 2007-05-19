@@ -86,6 +86,10 @@ require Exporter;
              auth_passwd
              auth_useradd
              auth_groupadd
+             auth_usermove
+             auth_killmove
+             auth_disable
+             auth_enable
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
@@ -1562,8 +1566,6 @@ sub create_user_db_entry {
   }
   } # end 
 
-
-    print "SHELL $sh\n";
   # create entry in auth system (no secondary groups)
   &auth_useradd($login,$uidnumber_auth,$gecos,$homedir,
                 $admin_class,"",$sh)
@@ -2961,12 +2963,20 @@ sub update_user_db_entry {
     my $mailquota=-1;
     my $new_login="";
 
+    # decide if auth_usermove must be called (1) or not
+    my $usermove=0;
+
     my @posix=();
     my @posix_details=();
     my @samba=();
   
     my $dbh=&db_connect();
     my $sql="";
+
+    # fetch old data
+    my ($old_home,$old_type,$old_gecos,$old_group,$old_uidnumber,
+        $old_sambahomepath) = &fetchdata_from_account($login);
+
     
     # Check of Parameters
     foreach my $param (@_){
@@ -2994,9 +3004,6 @@ sub update_user_db_entry {
        elsif ($attr eq "Uid"){
            $new_login="$value";
 	   push @posix, "uid = '$new_login'";
-           # fetch old data
-           my ($old_home,$old_type,$old_gecos,$old_group,$old_uidnumber,
-               $old_sambahomepath) = &fetchdata_from_account($login);
            # homedirectory
 	   my $new_home=$old_home;
            $new_home=~s/\/${login}$/\/${new_login}/;
@@ -3063,6 +3070,8 @@ sub update_user_db_entry {
        }
        elsif ($attr eq "Gid"){
            $gid_name="$value";
+           # call auth_usermove later
+           $usermove=1;
            print " ****adding $gid_name\n";
            # neue gruppe anlegen und gidnumber holen, falls erforderlich
            $gid_number=&create_class_db_entry($gid_name);
@@ -3162,6 +3171,11 @@ sub update_user_db_entry {
     }
 
     $dbh->disconnect();
+
+    # update authentication system
+    if ($usermove==1){
+       &auth_usermove($login,$gid_name,$home_dir,$old_group);
+    }
     # ??? besser was sinnvolles
     return 1;
 }
@@ -3181,7 +3195,10 @@ sub remove_user_db_entry {
     }
     my $uidnumber = $dbh->selectrow_array($sql);
     print "Deleted User $login ($uidnumber)\n";
+    &db_disconnect($dbh);
 
+    # deleteentry in auth system
+    &auth_userkill($login);
 }
 
 
@@ -3237,11 +3254,15 @@ sub user_deaktivieren {
  
    }
    &db_disconnect($dbh);
+
+   # disabling in auth system
+   &auth_disable($login);
+
 #   my $linux_string="usermod -L $login >/dev/null";
 #   system("$linux_string");
    if($Conf::log_level>=2){
       print "Samba:  $samba_string\n";
-    }
+   }
    # ToDo
    # mailabruf
    # ToDo
@@ -3311,6 +3332,9 @@ sub user_reaktivieren {
  
    }
    &db_disconnect($dbh);
+
+   # enabling in auth system
+   &auth_enable($login);
 
    # ToDo
    # mailabruf
@@ -4006,7 +4030,7 @@ Creates a line.
 
 sub search_user {
   # database dependent
-  my ($string) = @_;
+  my ($string,$auth) = @_;
   my $str="'\%$string\%'";
 
   my ($class,$gec_user,$login,$first_pass,$birth,$unid,
@@ -4046,6 +4070,8 @@ sub search_user {
   my $array_ref = $sth->fetchall_arrayref();
 
   foreach my $row (@$array_ref){
+       my $gcos_diff="";
+
        my ($login,
            $firstname,
            $surname,
@@ -4089,6 +4115,15 @@ sub search_user {
        if (not defined $first_pass){$first_pass=""}
        if (not defined $cre){$cre=""}
 
+       my ($auth_name,$auth_passwd,$auth_uid,$auth_gid,$auth_quota,
+           $auth_comment,$auth_gcos,$auth_dir,$auth_shell);
+
+       if ($auth==1){
+          &Sophomorix::SophomorixBase::titel("Querying ldap ...");
+          ($auth_name,$auth_passwd,$auth_uid,$auth_gid,$auth_quota,$auth_comment,
+           $auth_gcos,$auth_dir,$auth_shell) = getpwnam($login);
+	  print "$auth_gcos \n";
+       }
 
        if (defined $login){
 	     print "($login exists in the system) \n";
@@ -4104,9 +4139,18 @@ sub search_user {
        foreach my $gr (@group_list){
 	   $grp_string= $grp_string." ".$gr;
        }
-       printf "  SecondaryGroups    :%-46s %-11s\n",$grp_string,$login;
-       printf "  Gecos              : %-45s %-11s\n", $gecos,$login;
 
+       if ($auth==1){
+	   if ($gecos eq $auth_gcos){
+               $gcos_diff="*";
+           } else {
+               $gcos_diff="?";
+           }
+       }
+
+       printf "  SecondaryGroups    :%-46s %-11s\n",$grp_string,$login;
+       printf "  Gecos              : %-44s %-1s%-11s\n", 
+               $gecos,$gcos_diff,$login;
        if (-e $home){
           $home_ex=$home."  (existing)";
        } else {
@@ -4906,7 +4950,7 @@ sub auth_useradd {
                system("$command");           
            }
        } else {
-           print "ERROR: Adding user did not suceed as expected!\n";
+           print "ERROR: Adding user did not suceed in pg as expected!\n";
            print "       Not Adding user to ldap!\n";
        }
    }
@@ -4960,10 +5004,84 @@ sub auth_groupadd {
                print "Not using seperate ldap\n";
            }
         } else {
-           print "ERROR: Adding group $unix_group did not suceed as expected!\n";
+           print "ERROR: Adding group $unix_group did not suceed in pg as expected!\n";
            print "       Not Adding group $unix_group to ldap!\n";
          }
    }
+}
+
+
+sub auth_usermove {
+    # change primary group
+    # change home
+    my ($login,$gid,$home,$oldgr)=@_;
+    # check if movement was successful in postgres
+    my ($u_home,$u_type,$u_gecos,$u_group,
+       $u_uidnumber)=&fetchdata_from_account($login);
+
+    if ($u_home eq $home and
+        $u_group eq $gid){
+        print "Moving user in ldap\n";
+
+        # fetch oldgroups
+        my $oldgroups=`id -n -G $login`;
+        chomp($oldgroups);
+        my @oldgroups=split(/ /,$oldgroups);
+
+        # create new list of groups
+        my @newgroups=();
+        foreach my $gr (@oldgroups){
+            if ($gr ne $oldgr){
+               push @newgroups,$gr;
+	    }
+        }
+        my $group_csv=join(",",@newgroups);
+
+        my $command="smbldap-usermod -g $gid -G '$group_csv' -d $home $login";
+        print "$command\n";
+        system("$command");
+    } else { 
+           print "ERROR: Moving user did not suceed in pg as expected!\n";
+           print "       Not moving user in ldap!\n";
+    }
+
+}
+
+sub auth_userkill {
+    # change home
+    my ($login)=@_;
+    # check if kill was successful in postgres
+    my ($u_home,$u_type,$u_gecos,$u_group,
+       $u_uidnumber)=&fetchdata_from_account($login);
+
+    if ($u_home eq "" and $u_type eq ""){
+        # killing in pg was succesful
+        print "Killing user in ldap\n";
+        my $command="smbldap-userdel $login";
+        print "$command\n";
+        system("$command");
+    } else { 
+           print "ERROR: Killing user did not suceed in pg as expected!\n";
+           print "       Not killing user in ldap!\n";
+    }
+
+}
+
+
+sub auth_disable {
+    my ($login)=@_;
+    my $command="smbldap-usermod -I $login";
+    print "$command\n";
+    system("$command");
+}
+
+
+
+sub auth_enable {
+    my ($login)=@_;
+    my $command="smbldap-usermod -J $login";
+    print "$command\n";
+    system("$command");
 }
 
 
