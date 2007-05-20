@@ -90,6 +90,8 @@ require Exporter;
              auth_killmove
              auth_disable
              auth_enable
+             auth_deleteuser_from_all_projects
+             auth_adduser_to_her_projects
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
@@ -700,6 +702,10 @@ sub deleteuser_from_all_projects {
        $dbh->do($sql);
     }
     &db_disconnect($dbh);
+
+    # delete user from project in auth system
+    &auth_deleteuser_from_all_projects($user);
+
 }
 
 
@@ -809,6 +815,10 @@ sub add_newuser_to_her_projects {
     }
     print "... done!\n";
     &db_disconnect($dbh);
+
+    # adding user in auth system
+    my $group_string=join(",",@memberships);
+    &auth_adduser_to_her_projects($login,$group_string);    
 }
 
 
@@ -3197,7 +3207,7 @@ sub remove_user_db_entry {
     print "Deleted User $login ($uidnumber)\n";
     &db_disconnect($dbh);
 
-    # deleteentry in auth system
+    # delete entry in auth system
     &auth_userkill($login);
 }
 
@@ -3761,16 +3771,8 @@ sub create_project {
     print "  Users to add: @users_to_add\n";
     # adding the users
     foreach my $user (@users_to_add) {
-#       my $by_option=0;
        if ($user eq "root"){next;}
-
-
-
-#       if ($users_to_add{$user} eq "member_by_option"){
-#           $by_option=1;      
-#       }
-#        &adduser_to_project($user,$project,$by_option);
-        &adduser_to_project($user,$project);
+       &adduser_to_project($user,$project);
        # create a link
        &Sophomorix::SophomorixBase::create_share_link($user,
                                         $project,$p_long_name);
@@ -3960,7 +3962,7 @@ sub create_project {
         my ($uidnumber)= $dbh->selectrow_array( "SELECT uidnumber 
                                          FROM posix_account 
                                          WHERE uid='$user'");
-        print "$user($uidnumber) must me added to project($id) by option\n";
+        print "$user($uidnumber) must be added to project($id) by option\n";
         my $sql="INSERT INTO projects_members
                     (projectid,memberuidnumber)
 	             VALUES
@@ -5084,8 +5086,23 @@ sub auth_enable {
     system("$command");
 }
 
+sub auth_deleteuser_from_all_projects {
+    # deletes user from all secondary memberships
+    my ($login)=@_;
+    my $command="smbldap-usermod -G '' $login";
+    print "   LDAP: $command\n";
+    system("$command");
+}
 
 
+sub auth_adduser_to_her_projects {
+    # add user to all secondary groups
+    my ($login,$group_string) = @_;
+    my $command="smbldap-usermod -G '$group_string' $login";
+    print "   LDAP: $command\n";
+    system("$command");
+
+}
 
 # ENDE DER DATEI
 # Wert wahr=1 zurückgeben
