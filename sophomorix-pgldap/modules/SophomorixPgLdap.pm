@@ -92,6 +92,8 @@ require Exporter;
              auth_enable
              auth_deleteuser_from_all_projects
              auth_adduser_to_her_projects
+             auth_adduser_to_project
+             auth_deleteuser_from_project
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
@@ -503,7 +505,7 @@ sub deleteuser_from_project {
     if (not defined $by_option){
         $by_option=0;
     }
- print "Gruppe : $project  $adminclass\n\n";
+    print "Gruppe : $project  $adminclass\n\n";
     my $dbh=&db_connect();
     # fetching gidnumber
     my ($gidnumber_sys)= $dbh->selectrow_array( "SELECT gidnumber 
@@ -525,6 +527,9 @@ sub deleteuser_from_project {
            print "\nSQL: $sql\n";
         }
         $dbh->do($sql);
+
+        # removing user from secondary group
+        &auth_deleteuser_from_project($user,$project);
 
         # remove track of members by option
         if ($by_option==1){
@@ -854,6 +859,9 @@ sub adduser_to_project {
         }
         $dbh->do($sql);
 
+        # adding user to secondary group
+        &auth_adduser_to_project($user,$project);
+
         # keep track of members by option
         if ($by_option==1){
             &adduser_by_option_to_project($user,$project);
@@ -922,6 +930,10 @@ sub addadmin_to_project {
            print "\nSQL: $sql\n";
         }
         $dbh->do($sql);
+
+        # adding user to secondary group
+        &auth_adduser_to_project($user,$project);
+
         # create dirs in tasks and collect
         my ($project_longname)=&fetchinfo_from_project($project);
         &Sophomorix::SophomorixBase::create_share_directory($user,
@@ -1685,7 +1697,7 @@ sub create_class_db_entry {
     } elsif ($sub==4) {
         $type="teacher";
     } elsif ($sub==3) {
-        $type="manualgroup";
+        $type="domaingroup";
         $description="Domain Unix group";
     } elsif ($sub==6) {
         $type="localgroup";
@@ -2181,9 +2193,9 @@ sub pg_get_group_type {
     } elsif ($type eq "adminclass"){
         # adminclass
         return ("adminclass",$gid,$gidnumber_sys);
-    } elsif ($type eq "manualgroup"){
+    } elsif ($type eq "domaingroup"){
         # manually added group
-        return ("manualgroup",$gid,$gidnumber_sys);
+        return ("domaingroup",$gid,$gidnumber_sys);
     } elsif ($type eq "project"){
         my ($longname)= $dbh->selectrow_array( "SELECT longname
                                           FROM projectdata 
@@ -3962,16 +3974,20 @@ sub create_project {
         my ($uidnumber)= $dbh->selectrow_array( "SELECT uidnumber 
                                          FROM posix_account 
                                          WHERE uid='$user'");
+        if (defined $uidnumber){
         print "$user($uidnumber) must be added to project($id) by option\n";
         my $sql="INSERT INTO projects_members
                     (projectid,memberuidnumber)
 	             VALUES
 	            ('$id','$uidnumber')";	
-            if($Conf::log_level>=3){
-                print "\nSQL: $sql\n";
-            }
-            $dbh->do($sql);
-
+        if($Conf::log_level>=3){
+            print "\nSQL: $sql\n";
+        }
+        $dbh->do($sql);
+        } else {
+            print "WARNING: $user nonexisting in postgres, ",
+                  "not adding user to project (ldap)\n";
+        }
     }
     &db_disconnect($dbh);
     } # end can be a function later
@@ -5103,6 +5119,54 @@ sub auth_adduser_to_her_projects {
     system("$command");
 
 }
+
+
+sub auth_adduser_to_project {
+    my ($login,$project)=@_;
+
+    # check if adding in pgldap was sucessful ?????
+
+        # fetch oldgroups
+        my $oldgroups=`id -n -G $login`;
+        chomp($oldgroups);
+
+        my @newgroups=split(/ /,$oldgroups);
+        push @newgroups,$project;
+        my $group_csv=join(",",@newgroups);
+
+        my $command="smbldap-usermod -G '$group_csv' $login";
+        print "$command\n";
+        system("$command");
+}
+
+
+
+
+sub auth_deleteuser_from_project {
+    my ($login,$project)=@_;
+
+    # check if deletion in pgldap was sucessful ?????
+
+        # fetch oldgroups
+        my $oldgroups=`id -n -G $login`;
+        chomp($oldgroups);
+        my @oldgroups=split(/ /,$oldgroups);
+
+        # create new list of groups
+        my @newgroups=();
+        foreach my $gr (@oldgroups){
+            if ($gr ne $project){
+               push @newgroups,$gr;
+	    }
+        }
+        my $group_csv=join(",",@newgroups);
+
+        my $command="smbldap-usermod -G '$group_csv' $login";
+        print "$command\n";
+        system("$command");
+}
+
+
 
 # ENDE DER DATEI
 # Wert wahr=1 zurückgeben
