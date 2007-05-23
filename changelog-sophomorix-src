@@ -1623,6 +1623,10 @@ smbldap-useradd -w -g 515 -c Computer -d /dev/null -s /bin/false
 <hostname>$
 
 
+add option and type computer to sophomorix-useradd to create $ accounts
+    for computers
+
+
 
 - Flags für Maschinenaccount setzen:
 smbldap-usermod -H '[WX]' <hostname>$
@@ -1714,23 +1718,22 @@ but getent passwd/id as root shows user and its id correctly
 whoami als user sagt, kein loginname für id 10016 
 
 
-2) when user is added in group mkx 
-   and then moved in group mky
-   then the user is still in mkx (as secondary?)
-   when moved again and again, the sec. membership of initial group 
-   is kept
-
 Problems in sophomorix-test:
 
-Test with U, UX sambaaccountflags doesnt work
+Test why U, UX sambaaccountflags doesnt work
 smbpasswd asks for password
 
+
+add some checks to auth_* functions, (see ?????)
 
 
 
 ================== CHANGELOG ========================================
 
 1.9.14-1 (2007-05-xx)
+    - added auth_adduser_to_project function
+    - changed grouptype from
+      manualgroup to domaingroup
     - added stuff to enable users in ldap
     - added stuff to kill users in ldap   
     - added stuff to move users in ldap   

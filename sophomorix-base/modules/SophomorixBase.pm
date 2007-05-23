@@ -1283,8 +1283,9 @@ sub repair_repairhome {
     print "Repairing \$HOME of user $user (type: $type)\n";
     foreach my $line (@permissions){
         my ($path,$owner,$gowner,$octal)=split(/::/,$line);
-        print "    * $line\n";
-
+        if($Conf::log_level>=2){
+            print "    * $line\n";
+        }
         # put octal in a array
         my @octal=split(/\//,$octal);
 
@@ -1326,8 +1327,6 @@ sub repair_repairhome {
         $path=~s/\$school/$Language::school/;     
         $path=~s/\$user_attic/$Language::user_attic/;
      
-#        $path=~s/\$/$Language::/;     
-
 	$path=$home."/".$path;
        
         # save the static modied path
@@ -1370,7 +1369,9 @@ sub repair_directory_no_var {
     if (-e "$path"){
         # owner
         my $command_1="chown ${owner}:${gowner} $path";
-        print "        $command_1\n";
+        if($Conf::log_level>=2){
+            print "        $command_1\n";
+        }
         system("$command_1");
 
         # permissions
@@ -1386,10 +1387,14 @@ sub repair_directory_no_var {
             # Sind die Verzeichnisrechte OK
 	    foreach my $perm (@octal){
                if ( $mode==$perm ) {
-                   print "        Mode $mode is OK. Nothing to do!\n";
+                   if($Conf::log_level>=2){
+                       print "        Mode $mode is OK. Nothing to do!\n";
+                   }
                    return;
                } else {
-                   print "        Mode must be set to $octal[0]!\n";
+                   if($Conf::log_level>=2){
+                       print "        Mode must be set to $octal[0]!\n";
+                   }
                    chmod oct($octal[0]), $path;
                } 
            }
