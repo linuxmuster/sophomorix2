@@ -931,9 +931,6 @@ sub addadmin_to_project {
         }
         $dbh->do($sql);
 
-        # adding user to secondary group
-        &auth_adduser_to_project($user,$project);
-
         # create dirs in tasks and collect
         my ($project_longname)=&fetchinfo_from_project($project);
         &Sophomorix::SophomorixBase::create_share_directory($user,
