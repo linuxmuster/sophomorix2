@@ -41,6 +41,8 @@ my $skiplock=0;
 # mandatory
 my $administrator="";
 my $workstation="";
+my $computer="";
+
 my $unix_group="";
 
 
@@ -57,6 +59,9 @@ my $quota="";
 my $unid="";
 my $sophomorix_status="";
 
+$Conf::log_level=1;
+
+
 # ===========================================================================
 # Optionen verarbeiten
 # ==========================================================================
@@ -67,6 +72,8 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "administrator=s" => \$administrator,
            "workstation=s" => \$workstation,
+           "computer=s" => \$computer,
+           "verbose|v+" => \$Conf::log_level,
            "unix-group=s" => \$unix_group,
            "secondary-groups=s" => \$sec_groups,
            "gecos=s" => \$gecos,
@@ -89,8 +96,9 @@ sophomorix-useradd adds a group to the sophomorix database (and ldap)
 
 Options
   -h  / --help
-  --workstation name
-  --administrator name
+  --workstation name         account for exams
+  --administrator name       administrator
+  --computer name            $ account
 
 Please see the sophomorix-useradd(8) man pages for full documentation
 ');
@@ -101,23 +109,50 @@ Please see the sophomorix-useradd(8) man pages for full documentation
 
 
 
-# exit if options are missing
-if ($unix_group eq "" or ($workstation eq "" 
-                          and $administrator eq "") ){
-    print "\nThe options:\n";
-    print "   --unix-group name \n";
-    print "and one of:\n";
-    print "   --administarator name\n";
-    print "   --workstation name\n";
-    print "are mandatory.\n\n";
+# some exits if options are missing
+if ($unix_group ne "" and ($workstation eq "" or $administrator eq "") or 
+   ($computer ne "") ){
+   # thats OK 
+} else {
+    print "\nThe following options must be used:\n\n";
+    print "1)    --unix-group name \n";
+    print "  and one of:\n";
+    print "      --administarator name\n";
+    print "      --workstation name\n";
+    print "OR:\n\n";
+    print "2)   --computer name\n\n";
+    exit;
+}
+
+if ($computer ne "" and not $computer=~m/\$$/){
+    print "\nA computers name must end with \$\n";
+    print "WARNING: I'm doing nothing\n\n";
+    exit;
+}
+
+if ($computer ne "" and $unix_group ne ""){
+    print "\nComputers must be in a fixed group\n";
+    print "You cannot add $computer in group $unix_group\n";
+    print "WARNING: I'm doing nothing\n\n";
     exit;
 }
 
 
 
 
-
 # set some stuff
+if ($computer ne ""){
+    $type="computer";
+    $login=$computer;
+    if ($shell eq ""){
+        $shell="/bin/false";
+    }
+    if ($gecos eq ""){
+        $gecos="Computer";
+    }
+    $home="/dev/null";
+    $sophomorix_status="P";
+}
 if ($workstation ne ""){
     $type="workstation";
     $login=$workstation;
@@ -125,6 +160,7 @@ if ($workstation ne ""){
         $shell="/bin/false";
     }
     $home=$DevelConf::homedir_ws."/".$unix_group."/".$login;
+    $sophomorix_status="P";
 }
 if ($administrator ne ""){
     $type="administrator";
@@ -135,24 +171,19 @@ if ($administrator ne ""){
     $home=$DevelConf::homedir_all_admins."/".$login;
     $sophomorix_status="P";
 }
-
-
-
 if ($password eq ""){
     $password="linux";
 }
 
 
 
-
-
-
-
 # Do it !
+
+
 
 print "Creating user account $login:\n";
 print "    Uidnumber        : $uid_number\n";
-print "    Type             : $type\n";
+print "    Account Type     : $type\n";
 print "    Secondary Grp.   : $sec_groups\n";
 print "    Group            : $unix_group\n";
 print "    Home             : $home\n";
@@ -168,7 +199,7 @@ print "    Quota            : $quota\n";
 &create_user_db_entry("","","01.01.1970",
                       $unix_group,$login,$password,
                       $shell,$quota,$unid,$epoch_now,undef,$sophomorix_status,
-                      $uid_number,$home,$gecos);
+                      $uid_number,$home,$gecos,$type);
 
 # add to secondary groups
 if ($sec_groups ne ""){
