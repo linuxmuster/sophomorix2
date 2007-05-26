@@ -94,6 +94,8 @@ require Exporter;
              auth_adduser_to_her_projects
              auth_adduser_to_project
              auth_deleteuser_from_project
+             auth_connect
+             auth_disconnect
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
@@ -1327,7 +1329,8 @@ sub create_user_db_entry {
        $sophomorix_status,
        $id_force,
        $homedir_force,
-       $gecos_force) = @_;
+       $gecos_force,
+       $type) = @_;
 
     my $uidnumber_auth;
     my $sambapwdmustchange;
@@ -1347,6 +1350,10 @@ sub create_user_db_entry {
        $gecos = "$vorname"." "."$nachname";
     } else {
        $gecos = $gecos_force;
+    }
+
+    if (not defined $type){
+        $type="user";
     }
 
     my $homedir="";
@@ -1397,7 +1404,7 @@ sub create_user_db_entry {
                                          FROM userdata 
                                          WHERE uid='$login'");
     # exists uidnumber of user already?
-    if (defined $id_force and $id_force ne ""){ 
+    if (defined $id_force and $id_force ne "" and $id_force!=-1){ 
        ($uid_name_sys)= $dbh->selectrow_array( "SELECT uid 
                                   FROM userdata 
                                   WHERE uidnumber=$id_force");
@@ -1437,7 +1444,7 @@ sub create_user_db_entry {
           print "SQL: $sql\n";
        }
        my $uidnumber = $dbh->selectrow_array($sql);
-       if (defined $id_force and $id_force ne ""){
+       if (defined $id_force and $id_force ne "" and $id_force!=-1){
            # force the id if given as parameter
 	   $uidnumber=$id_force;
        }
@@ -1445,8 +1452,14 @@ sub create_user_db_entry {
           print "   --> \$uidnumber ist $uidnumber \n\n";
        }
 
-       # neue gruppe anlegen und gidnumber holen, falls erforderlich
-       my $gidnumber=&create_class_db_entry($admin_class);
+       my $gidnumber;
+
+       if ($type eq "computer"){
+           $gidnumber=515;
+       } else {
+           # neue gruppe anlegen und gidnumber holen, falls erforderlich
+           $gidnumber=&create_class_db_entry($admin_class);
+       }
 
        # get_sid
        my $sid = &get_smb_sid();
@@ -1587,7 +1600,7 @@ sub create_user_db_entry {
 
   # create entry in auth system (no secondary groups)
   &auth_useradd($login,$uidnumber_auth,$gecos,$homedir,
-                $admin_class,"",$sh)
+                $admin_class,"",$sh,$type)
 
   &db_disconnect($dbh);
 
@@ -4940,7 +4953,7 @@ sub auth_passwd {
 
 
 sub auth_useradd {
-   my ($login,$uid_number,$gecos,$home,$unix_group,$sec_groups,$shell) = @_; 
+   my ($login,$uid_number,$gecos,$home,$unix_group,$sec_groups,$shell,$type) = @_; 
    my ($u_home,$u_type,$u_gecos,$u_group,
        $u_uidnumber)=&fetchdata_from_account($login);
    # add entry to seperate ldap
@@ -4958,9 +4971,18 @@ sub auth_useradd {
                if ($sec_groups ne ""){
 		   $sec_string="-G $sec_groups";
                }
-               my $command="smbldap-useradd -a $uid_string -c '$gecos'".
-                           " -d $home -g $unix_group $sec_string".
-                           " -s $shell $login";
+
+               my $command="";
+               if ($type eq "computer"){
+                   # computer account $-account
+                   $command="smbldap-useradd -w $uid_string -c Computer".
+                            " -d /dev/null -g 515 -s /bin/false $login";
+	       } else {
+                   # user account
+                   $command="smbldap-useradd -a $uid_string -c '$gecos'".
+                            " -d $home -g $unix_group $sec_string".
+                            " -s $shell $login";
+               }
 	       print "$command\n";
                system("$command");           
            }
@@ -5161,6 +5183,17 @@ sub auth_deleteuser_from_project {
         my $command="smbldap-usermod -G '$group_csv' $login";
         print "$command\n";
         system("$command");
+}
+
+
+
+sub auth_connect {
+    my $ldap = Net::LDAP->new( '127.0.0.1' ) or print "Not connected\n";
+    return $ldap;
+}
+
+sub auth_disconnect {
+
 }
 
 
