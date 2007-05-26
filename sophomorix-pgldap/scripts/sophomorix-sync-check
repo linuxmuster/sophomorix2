@@ -1,0 +1,139 @@
+#!/usr/bin/perl -w
+# $Id$
+# Dieses Script (sophomorix-sync-check) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+# Bibliotheken
+use strict;
+use Quota;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+use IMAP::Admin;
+use DBI;
+use Net::LDAP;
+use Sophomorix::SophomorixPgLdap qw(show_modulename
+                                    check_connections
+                                    db_connect
+                                    db_disconnect
+                                    create_user_db_entry
+                                    backup_user_database
+                                    forbidden_login_hash
+                                    set_sophomorix_passwd
+                                    create_class_db_entry
+                                    add_newuser_to_her_projects
+                                    auth_connect
+                                    auth_disconnect
+                                   );
+
+my @arguments = @ARGV;
+
+my $zeit=&zeit_stempel();
+my $pg_timestamp=&pg_timestamp();
+my $user_nummer=0;
+
+my $identifier;
+my $nachname;
+my $vorname;
+my $gebdat;
+my $gecos="";
+my $wunsch_login;
+my $wunsch_passwort;
+my $wunsch_id;
+my $wunsch_gid;
+my $unid;
+my $login_teil_1="";
+my $login_teil_2="";
+my $login_name_to_check="";
+my $login_name_to_check_mod="";
+my $login_name_ok="";
+my $klartext_passwort="";
+my $new_admin_group="";
+my $shell="";
+
+
+my @users_for_quota=();
+my %forbidden_login_hash=();
+
+my $dev_null="1>/dev/null 2>/dev/null";
+
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+
+# Variablen für Optionen
+$DevelConf::testen=0;
+$DevelConf::system=0;
+$Conf::log_level=1;
+my $help=0;
+my $info=0;
+my $user="";
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "info|i" => \$info,
+           "u|user=s" => \$user,
+           "verbose|v+" => \$Conf::log_level,
+           "help|h" => \$help,
+          );
+
+# Prüfen, ob Optionen erkannt wurden, sonst Abbruch
+&check_options($testopt);
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlsbeschreibung
+   print('
+sophomorix-sync-check looks, if postgres and ldap is in sync, i. e. prints 
+differences.
+
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -i  / --info
+  --u user / --users user
+  -c class / --class class
+  --test
+  --lock / --unlock
+
+Please see the sophomorix-add(8) man pages for full documentation
+');
+   print "\n";
+   exit;
+}
+
+if ($info==1) {
+   print "Option --info given.\n";
+}
+
+
+# --user
+if ($user ne "") {
+  #
+  print "Loginname $user angegeben.\n";
+  my $ldap=&auth_connect();
+  my $msg = $ldap->search(
+        base => "dc=linuxmuster,dc=de",
+        scope => "sub",
+        filter => ("b*e")
+     );
+#     filter => "(&(objectclass=posixAccount)(uid=$user))");
+
+
+  print $msg->count()," entries returned.\n";
+
+}    
+
+&log_script_start(@arguments);
+
+
+
+&check_connections();
+
