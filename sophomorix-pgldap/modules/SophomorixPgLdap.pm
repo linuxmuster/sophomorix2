@@ -4977,14 +4977,20 @@ sub auth_useradd {
                    # computer account $-account
                    $command="smbldap-useradd -w $uid_string -c Computer".
                             " -d /dev/null -g 515 -s /bin/false $login";
+      	           print "$command\n";
+                   system("$command");           
+
+                   $command="smbldap-usermod -H '[WX]' $login";
+      	           print "$command\n";
+                   system("$command");           
 	       } else {
                    # user account
                    $command="smbldap-useradd -a $uid_string -c '$gecos'".
                             " -d $home -g $unix_group $sec_string".
                             " -s $shell $login";
+	           print "$command\n";
+                   system("$command");           
                }
-	       print "$command\n";
-               system("$command");           
            }
        } else {
            print "ERROR: Adding user did not suceed in pg as expected!\n";

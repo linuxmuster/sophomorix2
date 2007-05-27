@@ -157,7 +157,10 @@ if ($workstation ne ""){
     $type="workstation";
     $login=$workstation;
     if ($shell eq ""){
-        $shell="/bin/false";
+        $shell="/bin/bash";
+    }
+    if ($gecos eq ""){
+        $gecos="HostAccount $login";
     }
     $home=$DevelConf::homedir_ws."/".$unix_group."/".$login;
     $sophomorix_status="P";
