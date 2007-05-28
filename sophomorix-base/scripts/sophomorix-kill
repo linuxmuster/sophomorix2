@@ -39,6 +39,8 @@ my $public_html_to_kill="";
 my $linie_to_kill="";
 #my %protokoll_hash=();
 
+my $killuser="";
+
 my $k="";
 my $v="";
 
@@ -59,6 +61,7 @@ my $unlock=0;
 my $testopt=GetOptions(
            "test" => \$DevelConf::testen,
            "user|u=s" => \$loginname,
+           "killuser=s" => \$killuser,
            "verbose|v+" => \$Conf::log_level,
            "info|i" => \$info,
            "help|h" => \$help,
@@ -119,7 +122,8 @@ if ($loginname ne "") {
 # ===========================================================================
 # Abbruch, wenn sophomorix.kill fehlt oder leer
 # ===========================================================================
-if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.kill")) {
+if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.kill")
+    and $killuser eq "") {
   &log_script_exit("No users to kill!",1,1,0,@arguments);
 }
 
@@ -198,20 +202,85 @@ open(YETTOKILL,">${DevelConf::ergebnis_pfad}/sophomorix.kill.neu")
 # Datei mit den zu löschenden Schülern
 # ===========================================================================
 &titel("Beginn deletion ...");
-open(KILL,"${DevelConf::ergebnis_pfad}/sophomorix.kill") || die "Fehler: $!";
 
-while(<KILL>){
-     chomp();
-     ($identifier_to_kill, $login_name_to_kill)=split(/::/);
-#     # Klasse ermitteln
-#     ($linux_gruppe_to_kill)=&pg_get_group_list($login_name_to_kill);
+if ($killuser ne ""){
+    # killing users given by option --killuser
+    print "Killing users $killuser\n";
+    my @userlist=split /,/,$killuser;
+    foreach my $user_to_kill (@userlist){
+        print "Killing $user_to_kill\n";
+        &kill_user($user_to_kill,$identifier_to_kill);
+    }
+} else {
+    # killing users from file
+    open(KILL,"${DevelConf::ergebnis_pfad}/sophomorix.kill") || die "Fehler: $!";
+    while(<KILL>){
+       chomp();
+       ($identifier_to_kill, $login_name_to_kill)=split(/::/);
+       &kill_user($login_name_to_kill,$identifier_to_kill);
+    }
+    close(KILL);
+    close(YETTOKILL);
+}
 
+
+
+
+# ===========================================================================
+# Datei-Zustand (NACHHER) mitloggen 
+# ===========================================================================
+# sophomorix.kill mitloggen
+&backup_amk_file($zeit,"kill","after");
+
+# ===========================================================================
+# Falls nur getestet wird, darf die Datei nicht ersetzt werden
+# ===========================================================================
+if ($DevelConf::testen==0) {
+   # Kein Test
+   rename("${DevelConf::ergebnis_pfad}/sophomorix.kill.neu",
+          "${DevelConf::ergebnis_pfad}/sophomorix.kill" );
+ } else {
+   # Test
+   system("rm -f ${DevelConf::ergebnis_pfad}/sophomorix.kill.neu > /dev/null");
+ }
+
+
+# webmin
+# dont restart webmin (this is done later)
+# webmin not needed anymore
+#&do_falls_nicht_testen("sophomorix-webmin --modules --no-restart");
+
+
+# Creating Mailing Aliases and Lists
+if ($user_nummer>0) {
+    system("${DevelConf::executable_pfad}/sophomorix-mail --skiplock");
+} else {
+    &titel("NOT creating mailaliases/lists (0 users removed)");
+}
+
+
+
+&titel("$user_nummer users killed");
+&log_script_end(@arguments);
+
+
+
+sub kill_user {
+     my ($login_name_to_kill,$identifier_to_kill) = @_;
+     if (not defined $identifier_to_kill){
+         $identifier_to_kill="";
+     }
      # Home-Verzeichnis,klasse ermitteln
      my ($home_verzeichnis_to_kill,
          $type_to_kill,
          $gecos_to_kill,
          $linux_gruppe_to_kill) = 
          &fetchdata_from_account($login_name_to_kill);
+
+     if ($home_verzeichnis_to_kill eq ""){
+         print "Cannot kill user $login_name_to_kill (nonexisting?)\n";
+         return 0;
+     }
 
      my $public_html_to_kill ="";
      if ($type_to_kill eq "teacher"){
@@ -222,10 +291,11 @@ while(<KILL>){
                                 "/".$login_name_to_kill;
      }
 
-     # Abbruch, wenn nicht der richtige loginname entfernt wird
+     # Skip when login was specified by option in sophomorix-kill
+     # and user to be killed is not one of these
      if ($loginname ne "") {
        if ($login_name_to_kill ne $loginname) {
-          print "$login_name_to_kill will  NOT be deleted.\n";
+          print "$login_name_to_kill will  NOT be deleted(not given by option).\n";
           # Merken, dass user noch nicht entfernt wird
           print YETTOKILL "$_\n";
           next;
@@ -292,8 +362,6 @@ while(<KILL>){
           );
        }
 
-
-     
       # Sonst noch löschen:
 
       # find über die Tauschverzeichnisse, löschen (evt. noch aufheben)
@@ -307,49 +375,8 @@ while(<KILL>){
       # Logonscript für Klasse entfernen (nicht so wichtig)
       # Wenns die Klasse wiedergibt, wirds überbügelt
       # Wenns die Klasse nicht mehr gibt, liegt halt a bissle Müll herum
-
-   }
-close(KILL);
-close(YETTOKILL);
-
-
-
-# ===========================================================================
-# Datei-Zustand (NACHHER) mitloggen 
-# ===========================================================================
-# sophomorix.kill mitloggen
-&backup_amk_file($zeit,"kill","after");
-
-# ===========================================================================
-# Falls nur getestet wird, darf die Datei nicht ersetzt werden
-# ===========================================================================
-if ($DevelConf::testen==0) {
-   # Kein Test
-   rename("${DevelConf::ergebnis_pfad}/sophomorix.kill.neu",
-          "${DevelConf::ergebnis_pfad}/sophomorix.kill" );
- } else {
-   # Test
-   system("rm -f ${DevelConf::ergebnis_pfad}/sophomorix.kill.neu > /dev/null");
- }
-
-
-# webmin
-# dont restart webmin (this is done later)
-# webmin not needed anymore
-#&do_falls_nicht_testen("sophomorix-webmin --modules --no-restart");
-
-
-# Creating Mailing Aliases and Lists
-if ($user_nummer>0) {
-    system("${DevelConf::executable_pfad}/sophomorix-mail --skiplock");
-} else {
-    &titel("NOT creating mailaliases/lists (0 users removed)");
 }
 
-
-
-&titel("$user_nummer users killed");
-&log_script_end(@arguments);
 
 
 
