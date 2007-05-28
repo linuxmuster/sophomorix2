@@ -514,17 +514,18 @@ sub check_provided_files {
     }
 
     # cups-pdf
-    if ($class eq ${DevelConf::teacher}){
-        &check_file("cups-pdf",$login,$class,
-                    "administrator",
-                    ${DevelConf::teacher},
-                    "1770");
-    } else {
-        &check_file("cups-pdf",$login,$class,
-                    "administrator",
-                    ${DevelConf::teacher},
-                    "3757");
-    }
+    # is created by cups
+    #if ($class eq ${DevelConf::teacher}){
+    #    &check_file("cups-pdf",$login,$class,
+    #                "administrator",
+    #                ${DevelConf::teacher},
+    #                "1770");
+    #} else {
+    #    &check_file("cups-pdf",$login,$class,
+    #                "administrator",
+    #                ${DevelConf::teacher},
+    #                "3757");
+    #}
 
     # private_html
     if ($class eq ${DevelConf::teacher}){
