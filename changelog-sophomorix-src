@@ -1590,73 +1590,144 @@ Fit on one screen
 
 next/todo:
 
+
+
+
+mail start
+
+Hallo, ich bin so weit mit dem ersetzten der Befehle für das import_workstationan
+script.
+
+Hier die Befehle
+ smbldap-... so sthets bisher im import_workstation script
+
+---> sophomorix-...  so soll es nun drinstehen, um pgldap UND ldap zu 
+                     befüllen/löschen/modifizieren
+
+
+Verwirrend ist m.E. noch der Unterschied zwische workstation-account(=Klassenarbeitsbenutzer) und Computeraccount ($account), da in der engl. Literatur beim $account vom workstationaccount (z.B. accountflag W) gesprochen wird.
+
+Ich würde es gerne in der ML3 so machen
+
+ComputerAccount  : $-Account
+ExamAccount      : Klassenarbeitaccount/Prüfungsaccount
+
+
+Das würde bedeuten, das Gecos-Feld, cn=, und die optionen bei den Befehlsaufrufen 
+anzupassen(statt --workstation --examaccount).
+
+Ist das OK so für euch?
+
+
+
+Hier nun die Befehle und ihr Ersatz:
+
+
+
+- Gruppe (Raum) anlegen:
+smbldap-groupadd -a <raum>
+----------------------------------------
+Ist m.E. nicht mehr erforderlich, da wenn ein user angelegt wird in 
+einer noch nicht angelegten Gruppe, diese automatisch angelegt wird. 
+
+
+
+- Workstationaccount (Klassenarbeitsnutzer) anlegen:
+----------------------------------------
+smbldap-useradd -a -d <homedir> -c HostAccount -g <raum> -m -s /bin/bash
+<hostname>
+
+??? HostAccount mit /bin/bash oder /bin/false ???
+
+---> sophomorix-useradd --workstation --unix-group <raum>
+
+
+
+
+- Maschinenaccount anlegen:
+----------------------------------------
+1) 
+smbldap-useradd -w -g 515 -c Computer -d /dev/null -s /bin/false <hostname>$
+
+2)
+- Flags für Maschinenaccount setzen:
+smbldap-usermod -H '[WX]' <hostname>$
+
+---> sophomorix-useradd --computer <hostname$>
+
+# $ mit übergeben
+# zweiter Befehl(smbldap-usermod -H '[WX]' <hostname>$) tut noch nicht
+# ... kein samba user
+
+
+
+- Accounts löschen:
+----------------------------------------
+smbldap-userdel <hostname>
+smbldap-userdel <hostname>$
+
+---> sophomorix-kill --killuser loginname1,loginame2,...   
+($ mit übergeben im loginnamen)
+
+
+
+- Raumgruppe löschen:
+smbldap-groupdel <raum>
+----------------------------------------
+# Bis jetzt nicht vorgesehen, die Raumgruppen bleiben ebenso erhalten
+# wie die Klassen
+# Besser per cronjob löschen, wenn keine user mehr in dieser gruppe sind???
+
+
+
+
+
+
+############################################################
 smb.conf-scripts:
+############################################################
 
 smbldap-passwd %u
    - make sophomorix-passwd interactive
      sophomorix-passwd --interactive --user name
+
 
 Check if the following are necessary:
 smbldap-useradd -m '%u'
 smbldap-useradd -w '%u'
 smbldap-groupmod
 
-
-
-- replace calls to smbldap-groupadd with sophomorix-groupadd
-  (sophomorix-setup-pgldap)
-- dito for smbldap-useradd
-
-
-
-Import workstations stuff:
-
-- Gruppe (Raum) anlegen:
-smbldap-groupadd -a <raum>
-
-- Workstationaccount (Klassenarbeitsnutzer) anlegen:
-smbldap-useradd -a -d <homedir> -c HostAccount -g <raum> -m -s /bin/bash
-<hostname>
-
-??? HostAccount mit /bin/bash ?
-
-sophomorix-useradd --workstation --unix-group <raum>
-
-??? does this work??? comment OK?
-
-- Maschinenaccount anlegen:
-smbldap-useradd -w -g 515 -c Computer -d /dev/null -s /bin/false
-<hostname>$
-
-sophomorix-useradd --computer <hostname$>
-
-smbldap-useradd -u uid(num) -w -g 515 -c Computer -d /dev/null -s /bin/false host$
-
-
-??? does this work ???
-
-add option and type computer to sophomorix-useradd to create $ accounts
-    for computers
+Diese Befehle sind mE. nicht zwingend notwendig, deshalb fehlen sie noch.
 
 
 
 
 
+Was das neue sophomorix-paket noch NICHT kann:
+
+- anpassen von dc=linuxmuster,dc=de
+  (so wie der basename bei der Erstinstallation angegeben war, bleibt er)
+  Dazu muss ich mich noch mit Thomas Hoth besprechen. Ich kann noch nicht mit 
+  dem ldap per perl modul kommunizieren. 
+
+- upgrade von postgres-only systemen
 
 
-- Flags für Maschinenaccount setzen:
-smbldap-usermod -H '[WX]' <hostname>$
-
-??? add this to create WS account ???
 
 
+=> Ergo: Paket ist NOCH EXPERIMENTAL
 
-- Accounts löschen:
-smbldap-userdel <hostname>
-smbldap-userdel <hostname>$
 
-- Raumgruppe löschen:
-smbldap-groupdel <raum>
+
+Ich bitte darum das bakd zu testen und mir Rückmeldung zu geben.
+
+Ich werde in der Zwischenzeit noch ein paar ungereimtheiten beseitigen
+
+
+
+
+
+mail end
 
 
 >>- Maschinenaccount anlegen:
@@ -1670,6 +1741,15 @@ scheint ein Bug in den smbldap-tools zu sein. Wenn man -H '[WX]' mit
 smbldap-useradd übergibt und danach mit smbldap-passwd das
 Maschinenpasswort (12345678) setzt, zeigt smbldap-usershow nur [W] an.
 Man muss also den smbldap-usermod Befehl hinterherschicken.
+
+
+
+
+
+
+
+
+
 
 
 sophomorix-useradd:

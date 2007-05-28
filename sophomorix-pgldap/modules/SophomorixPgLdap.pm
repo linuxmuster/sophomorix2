@@ -83,6 +83,7 @@ require Exporter;
              show_room_list
              get_smb_sid
              fetchquota_sum
+             kill_user
              auth_passwd
              auth_useradd
              auth_groupadd
@@ -692,6 +693,11 @@ sub deleteuser_from_all_projects {
     my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
                                          FROM posix_account 
                                          WHERE uid='$user'");
+    if (not defined $uidnumber_sys){
+	print "Could not delete user from all projects\n";
+	print "user $user nonexisting\n";
+        return 0;
+    }
     print "   Removing user $user($uidnumber_sys) from all projects \n";
     my $sql="DELETE FROM groups_users 
              WHERE memberuidnumber=$uidnumber_sys ";	
@@ -712,7 +718,6 @@ sub deleteuser_from_all_projects {
 
     # delete user from project in auth system
     &auth_deleteuser_from_all_projects($user);
-
 }
 
 
@@ -3226,7 +3231,11 @@ sub remove_user_db_entry {
        print "SQL: $sql\n";
     }
     my $uidnumber = $dbh->selectrow_array($sql);
-    print "Deleted User $login ($uidnumber)\n";
+    if (not defined $uidnumber){
+        print "Cold not delete nonexisting user $login\n";
+    } else {
+        print "Deleted User $login ($uidnumber)\n";
+    }
     &db_disconnect($dbh);
 
     # delete entry in auth system
@@ -4910,6 +4919,11 @@ sub fetchquota_sum {
 
 
 
+
+
+
+
+
 ################################################################################
 #
 # authentication system stuff
@@ -4977,18 +4991,18 @@ sub auth_useradd {
                    # computer account $-account
                    $command="smbldap-useradd -w $uid_string -c Computer".
                             " -d /dev/null -g 515 -s /bin/false $login";
-      	           print "$command\n";
+      	           print "   * $command\n";
                    system("$command");           
 
                    $command="smbldap-usermod -H '[WX]' $login";
-      	           print "$command\n";
+      	           print "   * $command\n";
                    system("$command");           
 	       } else {
                    # user account
                    $command="smbldap-useradd -a $uid_string -c '$gecos'".
                             " -d $home -g $unix_group $sec_string".
                             " -s $shell $login";
-	           print "$command\n";
+	           print "   * $command\n";
                    system("$command");           
                }
            }
@@ -5023,7 +5037,7 @@ sub auth_groupadd {
                    my $command="";
                    # domain group
                    $command="smbldap-groupadd -g $gid_number '$unix_group'";
-                   print "$command\n";
+                   print "   * $command\n";
                    system("$command");
                    $command="net groupmap add rid=$gid_number".
                             " unixgroup='$unix_group' ntgroup='$nt_group'";
@@ -5035,12 +5049,12 @@ sub auth_groupadd {
                    my $command="";
                    # domain group
                    $command="smbldap-groupadd -g $gid_number '$unix_group'";
-                   print "$command\n";
+                   print "   * $command\n";
                    system("$command");
                    $command="net groupmap add sid='S-1-5-32-$gid_number'".
     		            " unixgroup='$unix_group' ntgroup='$nt_group'".
                             " type=local";
-                   print "$command\n";
+                   print "   * $command\n";
                    system("$command" );
     	       }
            } else {
@@ -5081,7 +5095,7 @@ sub auth_usermove {
         my $group_csv=join(",",@newgroups);
 
         my $command="smbldap-usermod -g $gid -G '$group_csv' -d $home $login";
-        print "$command\n";
+        print "   * $command\n";
         system("$command");
     } else { 
            print "ERROR: Moving user did not suceed in pg as expected!\n";
@@ -5101,7 +5115,7 @@ sub auth_userkill {
         # killing in pg was succesful
         print "Killing user in ldap\n";
         my $command="smbldap-userdel $login";
-        print "$command\n";
+        print "   * $command\n";
         system("$command");
     } else { 
            print "ERROR: Killing user did not suceed in pg as expected!\n";
@@ -5114,7 +5128,7 @@ sub auth_userkill {
 sub auth_disable {
     my ($login)=@_;
     my $command="smbldap-usermod -I $login";
-    print "$command\n";
+    print "   * $command\n";
     system("$command");
 }
 
@@ -5123,7 +5137,7 @@ sub auth_disable {
 sub auth_enable {
     my ($login)=@_;
     my $command="smbldap-usermod -J $login";
-    print "$command\n";
+    print "   * $command\n";
     system("$command");
 }
 
@@ -5131,7 +5145,7 @@ sub auth_deleteuser_from_all_projects {
     # deletes user from all secondary memberships
     my ($login)=@_;
     my $command="smbldap-usermod -G '' $login";
-    print "   LDAP: $command\n";
+    print "   * $command\n";
     system("$command");
 }
 
@@ -5140,7 +5154,7 @@ sub auth_adduser_to_her_projects {
     # add user to all secondary groups
     my ($login,$group_string) = @_;
     my $command="smbldap-usermod -G '$group_string' $login";
-    print "   LDAP: $command\n";
+    print "   * $command\n";
     system("$command");
 
 }
@@ -5160,7 +5174,7 @@ sub auth_adduser_to_project {
         my $group_csv=join(",",@newgroups);
 
         my $command="smbldap-usermod -G '$group_csv' $login";
-        print "$command\n";
+        print "   * $command\n";
         system("$command");
 }
 
@@ -5187,7 +5201,7 @@ sub auth_deleteuser_from_project {
         my $group_csv=join(",",@newgroups);
 
         my $command="smbldap-usermod -G '$group_csv' $login";
-        print "$command\n";
+        print "   * $command\n";
         system("$command");
 }
 
