@@ -2762,6 +2762,7 @@ sub archive_log_entry {
     chomp($today);
 
     &check_datei_touch($archive);
+    &check_datei_touch($file);
 
     print "File LOG is $file\n";
     open(LOG,"<$file");
