@@ -117,18 +117,20 @@ if ($info==1) {
 # --user
 if ($user ne "") {
   #
-  print "Loginname $user angegeben.\n";
+  #print "Loginname $user angegeben.\n";
   my $ldap=&auth_connect();
   my $msg = $ldap->search(
-        base => "dc=linuxmuster,dc=de",
+        base => "ou=accounts,dc=linuxmuster,dc=de",
         scope => "sub",
-        filter => ("b*e")
+        filter => ("uid=$user")
      );
-#     filter => "(&(objectclass=posixAccount)(uid=$user))");
-
 
   print $msg->count()," entries returned.\n";
+  foreach my $entry ( $msg->all_entries() ){
+      $entry->dump();
+  }
 
+  &auth_disconnect($ldap);
 }    
 
 &log_script_start(@arguments);
