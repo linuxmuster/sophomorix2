@@ -3255,12 +3255,15 @@ sub user_deaktivieren {
       print "Deactivating $login ...\n";
    }
 
+   # disabling in auth system
+   &auth_disable($login);
+
    # samba
-   my $samba_string="smbpasswd -d $login >/dev/null";
-   if($Conf::log_level>=2){
-      print "   Disabling samba login of $login:  $samba_string\n";
-   }
-   system("$samba_string");
+#   my $samba_string="smbpasswd -d $login >/dev/null";
+#   if($Conf::log_level>=2){
+#      print "   Disabling samba login of $login:  $samba_string\n";
+#   }
+#   system("$samba_string");
 
    # linux
    # fetch the old crypted password
@@ -3296,9 +3299,6 @@ sub user_deaktivieren {
    }
    &db_disconnect($dbh);
 
-   # disabling in auth system
-   &auth_disable($login);
-
 #   my $linux_string="usermod -L $login >/dev/null";
 #   system("$linux_string");
    if($Conf::log_level>=2){
@@ -3331,12 +3331,16 @@ sub user_reaktivieren {
       print "Reactivating $login ...\n";
    }
 
+
+   # enabling in auth system
+   &auth_enable($login);
+
    # samba
-   my $samba_string="smbpasswd -e $login >/dev/null";
-   if($Conf::log_level>=2){
-      print "   Enabling samba login of $login:  $samba_string\n";
-   }
-   system("$samba_string");
+#   my $samba_string="smbpasswd -e $login >/dev/null";
+#   if($Conf::log_level>=2){
+#      print "   Enabling samba login of $login:  $samba_string\n";
+#   }
+#   system("$samba_string");
 
    # linux
    # fetch the old crypted password
@@ -3373,9 +3377,6 @@ sub user_reaktivieren {
  
    }
    &db_disconnect($dbh);
-
-   # enabling in auth system
-   &auth_enable($login);
 
    # ToDo
    # mailabruf
@@ -5016,47 +5017,68 @@ sub auth_useradd {
 
 
 sub auth_groupadd {
-   print "Adding group to authentication system\n";
    # $domain_group 0,1
    # $local_group  0,1
    my ($unix_group,$type,
        $gid_number,$nt_group,
        $domain_group,$local_group) = @_;
+   print "Adding group $unix_group to authentication system\n";
    # check if adding was succesful
    my ($g_type,$g_name,$g_gidnumber)=&pg_get_group_type($unix_group);
    # add entry to seperate ldap
    if (defined $g_gidnumber){
-       print "GID: $g_gidnumber ($unix_group)\n";
+       #print "GID: $g_gidnumber ($unix_group)\n";
        if ($g_gidnumber eq $gid_number){
-           print "Succesfully added $unix_group with gidnumber $g_gidnumber\n";
+           print "   Succesfully added $unix_group with gidnumber ",
+                 "$g_gidnumber to postgres\n";
            # do the ldap stuff
            if ($DevelConf::seperate_ldap==1){
-               print "Value of domain_group is: $domain_group \n";
-               print "Value of local_group is: $local_group \n";
                if ($domain_group==1){
-                   my $command="";
-                   # domain group
-                   $command="smbldap-groupadd -g $gid_number '$unix_group'";
-                   print "   * $command\n";
-                   system("$command");
-                   $command="net groupmap add rid=$gid_number".
-                            " unixgroup='$unix_group' ntgroup='$nt_group'";
-                   print "$command\n";
-                   system("$command");
+                   print "   Adding domain group $unix_group($nt_group) to ldap\n";
+               } elsif ($local_group==1){
+                   print "   Adding local group $unix_group($nt_group) to ldap\n";
+               } else {
+                   print "ERROR: Dont know which type of group to add.";
+                   return 0;
+               }
+#               print "Value of domain_group is: $domain_group \n";
+#               print "Value of local_group is: $local_group \n";
+               my ($gr_name,$gr_pass,$gr_gid)=getgrnam($unix_group);
+               if (defined $gr_gid){
+                  # group exists already
+                   if ($gr_gid==$gid_number){
+		      print "   Group $unix_group exists already in ldap ",
+                            "with correct gid $gr_gid\n";
+		  } else {
+		      print "WARNING: Group $unix_group exists already in ldap ",
+                            " with WRONG gid $gr_gid\n";
+                  }
+               } else {
+                  if ($domain_group==1){
+                      my $command="";
+                      # domain group
+                      $command="smbldap-groupadd -g $gid_number '$unix_group'";
+                      print "   * $command\n";
+                      system("$command");
+                      $command="net groupmap add rid=$gid_number".
+                               " unixgroup='$unix_group' ntgroup='$nt_group'";
+                      print "   * $command\n";
+                      system("$command");
+	          }
+                  if ($local_group==1){
+                      # local group
+                      my $command="";
+                      # domain group
+                      $command="smbldap-groupadd -g $gid_number '$unix_group'";
+                      print "   * $command\n";
+                      system("$command");
+                      $command="net groupmap add sid='S-1-5-32-$gid_number'".
+    		               " unixgroup='$unix_group' ntgroup='$nt_group'".
+                               " type=local";
+                      print "   * $command\n";
+                      system("$command" );
+    	          }
 	       }
-               if ($local_group==1){
-                   # local group
-                   my $command="";
-                   # domain group
-                   $command="smbldap-groupadd -g $gid_number '$unix_group'";
-                   print "   * $command\n";
-                   system("$command");
-                   $command="net groupmap add sid='S-1-5-32-$gid_number'".
-    		            " unixgroup='$unix_group' ntgroup='$nt_group'".
-                            " type=local";
-                   print "   * $command\n";
-                   system("$command" );
-    	       }
            } else {
                print "Not using seperate ldap\n";
            }
@@ -5208,12 +5230,21 @@ sub auth_deleteuser_from_project {
 
 
 sub auth_connect {
-    my $ldap = Net::LDAP->new( '127.0.0.1' ) or print "Not connected\n";
+    my $ldap = Net::LDAP->new( '127.0.0.1', ) or print "Not connected\n";
+
+
+    my $mesg = $ldap->bind( 'cn=admin,dc=linuxmuster,dc=de',
+                             password => '16508293083'
+                           );
+
+
+
     return $ldap;
 }
 
 sub auth_disconnect {
-
+    my ($ldap) = @_;
+    $ldap->unbind();
 }
 
 
