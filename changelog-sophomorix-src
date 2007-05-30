@@ -1593,18 +1593,6 @@ next/todo:
 
 
 
-mail start
-
-Hallo, ich bin so weit mit dem ersetzten der Befehle für das import_workstationan
-script.
-
-Hier die Befehle
- smbldap-... so sthets bisher im import_workstation script
-
----> sophomorix-...  so soll es nun drinstehen, um pgldap UND ldap zu 
-                     befüllen/löschen/modifizieren
-
-
 Verwirrend ist m.E. noch der Unterschied zwische workstation-account(=Klassenarbeitsbenutzer) und Computeraccount ($account), da in der engl. Literatur beim $account vom workstationaccount (z.B. accountflag W) gesprochen wird.
 
 Ich würde es gerne in der ML3 so machen
@@ -1616,21 +1604,15 @@ ExamAccount      : Klassenarbeitaccount/Prüfungsaccount
 Das würde bedeuten, das Gecos-Feld, cn=, und die optionen bei den Befehlsaufrufen 
 anzupassen(statt --workstation --examaccount).
 
-Ist das OK so für euch?
-
 
 
 Hier nun die Befehle und ihr Ersatz:
-
-
 
 - Gruppe (Raum) anlegen:
 smbldap-groupadd -a <raum>
 ----------------------------------------
 Ist m.E. nicht mehr erforderlich, da wenn ein user angelegt wird in 
 einer noch nicht angelegten Gruppe, diese automatisch angelegt wird. 
-
-
 
 - Workstationaccount (Klassenarbeitsnutzer) anlegen:
 ----------------------------------------
@@ -1639,10 +1621,7 @@ smbldap-useradd -a -d <homedir> -c HostAccount -g <raum> -m -s /bin/bash
 
 ??? HostAccount mit /bin/bash oder /bin/false ???
 
----> sophomorix-useradd --workstation --unix-group <raum>
-
-
-
+---> sophomorix-useradd --workstation <wsname> --unix-group <raum>
 
 - Maschinenaccount anlegen:
 ----------------------------------------
@@ -1658,8 +1637,6 @@ smbldap-usermod -H '[WX]' <hostname>$
 # $ mit übergeben
 # zweiter Befehl(smbldap-usermod -H '[WX]' <hostname>$) tut noch nicht
 # ... kein samba user
-
-
 
 - Accounts löschen:
 ----------------------------------------
@@ -1677,9 +1654,6 @@ smbldap-groupdel <raum>
 # Bis jetzt nicht vorgesehen, die Raumgruppen bleiben ebenso erhalten
 # wie die Klassen
 # Besser per cronjob löschen, wenn keine user mehr in dieser gruppe sind???
-
-
-
 
 
 
@@ -1713,23 +1687,6 @@ Was das neue sophomorix-paket noch NICHT kann:
 - upgrade von postgres-only systemen
 
 
-
-
-=> Ergo: Paket ist NOCH EXPERIMENTAL
-
-
-
-Ich bitte darum das bakd zu testen und mir Rückmeldung zu geben.
-
-Ich werde in der Zwischenzeit noch ein paar ungereimtheiten beseitigen
-
-
-
-
-
-mail end
-
-
 >>- Maschinenaccount anlegen:
 >>> >smbldap-useradd -w -g 515 -c Computer -d /dev/null -s /bin/false
 >>> ><hostname>$
@@ -1741,10 +1698,6 @@ scheint ein Bug in den smbldap-tools zu sein. Wenn man -H '[WX]' mit
 smbldap-useradd übergibt und danach mit smbldap-passwd das
 Maschinenpasswort (12345678) setzt, zeigt smbldap-usershow nur [W] an.
 Man muss also den smbldap-usermod Befehl hinterherschicken.
-
-
-
-
 
 
 
@@ -1824,11 +1777,17 @@ smbpasswd asks for password
 
 add some checks to auth_* functions, (see ?????)
 
+new classes share dir has group owner domadmins (should be class group)
+
 
 
 ================== CHANGELOG ========================================
 
-1.9.14-1 (2007-05-xx)
+1.9.15-1 (2007-06-xx)
+    - Bugfix: gowner of class share was not class (was domadmins)
+
+
+1.9.14-1 (2007-05-30)
     - added auth_adduser_to_project function
     - changed grouptype from
       manualgroup to domaingroup

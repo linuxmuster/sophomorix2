@@ -1047,7 +1047,9 @@ sub provide_class_files {
       &setup_verzeichnis("\$homedir_pupil/\$klassen",
                     "$klassen_homes");
       &setup_verzeichnis("\$share_classes/\$klassen",
-                    "$klassen_tausch");
+                    "$klassen_tausch",
+                    undef,
+                    "$class");
       &setup_verzeichnis("\$tasks_classes/\$klassen",
                     "$klassen_aufgaben");
       &setup_verzeichnis("\$www_classes/\$klassen",
