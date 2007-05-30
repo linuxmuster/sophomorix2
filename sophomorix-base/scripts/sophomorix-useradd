@@ -92,13 +92,16 @@ if ($help==1) {
    my $scriptname = pop @list;
    # Befehlsbeschreibung
    print('
-sophomorix-useradd adds a group to the sophomorix database (and ldap)
+sophomorix-useradd adds a user to the sophomorix database (and ldap)
 
 Options
   -h  / --help
   --workstation name         account for exams
   --administrator name       administrator
   --computer name            $ account
+
+and for workstations and administrators:
+  --unix-group groupname
 
 Please see the sophomorix-useradd(8) man pages for full documentation
 ');
