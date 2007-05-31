@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-KILL 8 "November 16, 2006"
+.TH SOPHOMORIX-KILL 8 "May 31, 2007"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -43,12 +43,15 @@ Sagt, was das Programm gerade macht (verbose)
 .B -vv, --verbose --verbose
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
-.B --test
-Tut nur so, als ob die Benutzer entfernt werden würden und zeigt die
-Befehle, die sophomorix-kill ausführen würde.
-.TP
 .B -u user / --user user
-Entfernt nur den Benutzer mit dem loginnamen loginname.
+Entfernt nur den Benutzer mit dem Loginnamen user. (Er/Sie muss in
+sophomorix-kill enthalten sein).
+.TP
+.B --killuser user
+Entfernt den Benutzer mit dem Loginnamen user aus dem System. Wird
+verwendet, um Klassenarbeitsbenutzer oder Computeraccounts zu
+löschen. Sollte nicht zur Benutzerverwaltung von Lehrern und Schülern
+verwendet werden.
 .TP
 .B --lock, --unlock
 legt die Datei  sophomorix.lock an, bzw. löscht sie, falls vorhanden. 

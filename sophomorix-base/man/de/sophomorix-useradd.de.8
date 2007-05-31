@@ -1,0 +1,101 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH SOPHOMORIX-USERADD 8 "May 31, 2007"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+sophomorix-useradd \- Anlegen von Nicht-Lehrern und Nicht-Schülern.
+.SH SYNOPSIS
+.B sophomorix-useradd
+.RI [ options ] loginname
+.br
+.SH DESCRIPTION
+.B sophomorix-useradd
+Das anlegen von Nicht-Lehrern und Nicht-Schülern erfolgt normalerweise
+aus anderen Scripten heraus. Der Netzwerkbetreuer sollte
+sophomorix-useradd NIE aufrufen müssen.
+.PP
+.SH OPTIONS
+.B sophomorix-useradd
+benützt die GNU command line syntax, mit langen Optionen, die mit zwei Bindestrichen (`-') beginnen:
+.TP
+.B -h, --help
+Kurzübersicht über Optionen
+.TP
+.B -i, --info
+Ohne Funktion
+.TP
+.B -v, --verbose
+Sagt, was das Programm gerade macht (verbose)
+.TP
+.B -vv, --verbose --verbose
+Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
+.TP
+.B --skiplock
+bricht nicht ab, wenn gerade ein anderes sophomorix script läuft.
+(erforderlich wenn sophomorix-useradd von anderen sophomorix-scripten
+aufgerufen wird)
+.TP
+.B Anlegen eines Administrators
+Dies geschieht üblicherweise bei der Paketinstallation. Der
+Netzwerkbetreuer sollte keine Administratoren anlegen müssen.
+.TP
+.B --administrator user --unix-group group 
+Legt den administrator user in der primären Gruppe group
+an. (/home/administrator/user)
+.TP
+.B --uidnumber num
+Gibt dem user die User-id num.
+.TP
+.B --gecos 'The Gecos Comment'
+Gibt dem user den Kommentar 'The Gecos Comment'.
+.TP
+.B --secondary-groups group1,group2
+Legt den user in den sekundären Gruppen group1 und group2 an. 
+.TP
+.B --shell /bin/bash
+Legt den user mit der shell /bin/bash an.
+.TP
+.B Anlegen eines Klassenarbeitsaccount
+Dies geschieht üblicherweise beim workstation import. Der
+Netzwerkbetreuer sollte keine Klassenarbeitsaccounts anlegen müssen.
+.TP
+.B --workstation name --unix-group raum
+Erzeugt den Klassenarbeitsbenutzer name in der primären Gruppe raum.
+.TP
+.B Anlegen eines Computeraccounts ($-account)
+Dies geschieht üblicherweise beim workstation import. Der
+Netzwerkbetreuer sollte keine Computeraccounts anlegen müssen.
+.TP
+.B --computer name
+Legt den Computeraccount name an. Das erste Zeichen von name muss $ sein.
+.TP
+.SH SEE ALSO
+.BR sophomorix (8),
+.BR sophomorix-teach-in (8),
+.BR sophomorix-add (8),
+.BR sophomorix-move (8),
+.BR sophomorix-print (8),
+.BR sophomorix-kill (8),
+.BR sophomorix-subclass (8),
+.BR sophomorix-project (8),
+
+.\".BR baz (1).
+.\".br
+.\"You can see the full options of the Programs by calling for example 
+.\".IR "sophomrix-useradd -h" ,
+.
+.SH AUTHOR
+This manual page was written by <jeffbeck@web.de>.

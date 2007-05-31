@@ -1777,13 +1777,16 @@ smbpasswd asks for password
 
 add some checks to auth_* functions, (see ?????)
 
-new classes share dir has group owner domadmins (should be class group)
-
-
+add warning, when connect to ldap failed
 
 ================== CHANGELOG ========================================
 
 1.9.15-1 (2007-06-xx)
+    - added lookup in slapd for current rootdn and rootpw before 
+      connecting to ldap
+    - added manpages for sophmorix-useradd and sophomorix-groupadd
+    - removed description of option --test from scripts help
+    - removed description of option --test from manpages
     - Bugfix: gowner of class share was not class (was domadmins)
 
 

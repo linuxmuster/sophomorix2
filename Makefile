@@ -206,7 +206,7 @@ install-pgldap:
 # Copy the upgrade scripts
 	@install -d -m755 -oroot -groot $(CTEMPDIR)/scripts/
 	@install -d -m755 -oroot -groot $(CTEMPDIR)/scripts/upgrade/
-	@install -oroot -groot --mode=0644 sophomorix-base/upgrade-scripts/*.upgrade $(CTEMPDIR)/scripts/upgrade/
+	@install -oroot -groot --mode=0744 sophomorix-base/upgrade-scripts/*.upgrade $(CTEMPDIR)/scripts/upgrade/
 # Copy the pg config-templates
 	@install -d -m755 -oroot -groot $(CTEMPDIR)/pg/
 	@install -oroot -groot --mode=0644 sophomorix-pgldap/config-pg/*.template $(CTEMPDIR)/pg/
