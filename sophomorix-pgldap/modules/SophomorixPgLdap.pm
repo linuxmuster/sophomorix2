@@ -84,6 +84,7 @@ require Exporter;
              get_smb_sid
              fetchquota_sum
              kill_user
+
              auth_passwd
              auth_useradd
              auth_groupadd
@@ -97,6 +98,7 @@ require Exporter;
              auth_deleteuser_from_project
              auth_connect
              auth_disconnect
+             fetch_ldap_pg_passwords
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
@@ -1426,11 +1428,13 @@ sub create_user_db_entry {
     if ($uid_sys ne ""){
         # uidnumber found
         my $uidnumber=$uid_sys;
-        print "user $login already exists ($uidnumber)\n";
+        $uidnumber_auth=$uidnumber;
+        print "user $login already exists in pg ($uidnumber)\n";
     } elsif ($uid_name_sys ne ""){
         # uid found
         my $uidname=$uid_name_sys;
-        print "uidnumber $id_force exists already ($uidname)\n";
+        print "uidnumber $id_force exists already in pg ($uidname)\n";
+        $uidnumber_auth=$id_force;
     } else {
     if ($DevelConf::testen==0) {
 
@@ -1453,6 +1457,8 @@ sub create_user_db_entry {
            # force the id if given as parameter
 	   $uidnumber=$id_force;
        }
+
+       $uidnumber_auth=$uidnumber;
        if($Conf::log_level>=3){
           print "   --> \$uidnumber ist $uidnumber \n\n";
        }
@@ -1484,7 +1490,6 @@ sub create_user_db_entry {
        # 1. Tabelle posix_account
        # Pflichtfelder (laut Datenbank): id,uidnumber,uid,gidnumber,firstname
 
-       $uidnumber_auth=$uidnumber;
 
        $sql="INSERT INTO posix_account 
 	  (id,uidnumber,uid,gidnumber,firstname,surname,
@@ -4974,7 +4979,7 @@ sub auth_useradd {
    # add entry to seperate ldap
    if (defined $u_uidnumber){
        if ($u_uidnumber eq $uid_number){
-           print "Succesfully added $login with uidnumber $u_uidnumber to db\n";
+           print "Succesfully added $login with uidnumber $u_uidnumber to pg\n";
            print "Adding user to ldap\n";
            # do the ldap stuff
            if ($DevelConf::seperate_ldap==1){
@@ -5022,7 +5027,6 @@ sub auth_groupadd {
    my ($unix_group,$type,
        $gid_number,$nt_group,
        $domain_group,$local_group) = @_;
-   print "Adding group $unix_group to authentication system\n";
    # check if adding was succesful
    my ($g_type,$g_name,$g_gidnumber)=&pg_get_group_type($unix_group);
    # add entry to seperate ldap
@@ -5054,6 +5058,7 @@ sub auth_groupadd {
                             " with WRONG gid $gr_gid\n";
                   }
                } else {
+
                   if ($domain_group==1){
                       my $command="";
                       # domain group
@@ -5231,16 +5236,61 @@ sub auth_deleteuser_from_project {
 
 sub auth_connect {
     my $ldap = Net::LDAP->new( '127.0.0.1', ) or print "Not connected\n";
-
-
-    my $mesg = $ldap->bind( 'cn=admin,dc=linuxmuster,dc=de',
-                             password => '16508293083'
+    # fetch passwords
+    my ($ldappw,$ldap_rootdn,$dbpw)=&fetch_ldap_pg_passwords();
+    my $mesg = $ldap->bind( "$ldap_rootdn",
+                             password => $ldappw
                            );
-
-
-
     return $ldap;
 }
+
+
+
+
+sub fetch_ldap_pg_passwords {
+    my $old_password_file="/etc/ldap/slapd.conf";
+    my $ldap_passwd="";
+    my $pg_passwd="";
+    my $ldap_rootdn="";
+    if (-e $old_password_file) {
+         # looking for password
+ 	 open (CONF, $old_password_file);
+         while (<CONF>){
+             chomp();
+             if (/(^dbpasswd)\s{1,}?(.*)/){
+                 # whitespace entfernen
+                 my $dbpasswd=$2;
+                 $dbpasswd=~s/\s//g;
+                 #print "---$dbpasswd---\n";
+                 $pg_passwd=$dbpasswd;
+	     }
+             if (/(^rootpw)\s{1,}?(.*)/){
+                 # whitespace entfernen
+                 my $rootpw=$2;
+                 $rootpw=~s/\s//g;
+                 #print "---$rootpw---\n";
+                 $ldap_passwd=$rootpw;
+	     }
+             if (/(^rootdn)\s{1,}?\"(.*)\"/){
+                 # whitespace entfernen
+                 my $rootdn=$2;
+                 $rootdn=~s/\s//g;
+                 #print "---$rootdn---\n";
+                 $ldap_rootdn=$rootdn;
+	     }
+         }
+         close(CONF);
+         return ($ldap_passwd,$ldap_rootdn,$pg_passwd);
+    } else {
+        print "$old_password_file doesn't exist\n";
+        return ("","");
+    }
+}
+
+
+
+
+
 
 sub auth_disconnect {
     my ($ldap) = @_;
