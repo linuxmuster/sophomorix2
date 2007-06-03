@@ -84,7 +84,6 @@ require Exporter;
              get_smb_sid
              fetchquota_sum
              kill_user
-
              auth_passwd
              auth_useradd
              auth_groupadd
@@ -1714,11 +1713,16 @@ sub create_class_db_entry {
         $type="adminclass";
     } elsif ($sub==2) {
         $type="project";
-    } elsif ($sub==4) {
-        $type="teacher";
     } elsif ($sub==3) {
         $type="domaingroup";
+        $domain_group=1;
+        $local_group=0;
+        $samba_group_type="2";
         $description="Domain Unix group";
+    } elsif ($sub==4) {
+        $type="teacher";
+    } elsif ($sub==5) {
+        $type="room";
     } elsif ($sub==6) {
         $type="localgroup";
         # change default
@@ -4995,11 +4999,20 @@ sub auth_useradd {
                my $command="";
                if ($type eq "computer"){
                    # computer account $-account
+                   my $non_dollar_name=$login;
+                   $non_dollar_name=~s/\$//;
+                   # command 1
                    $command="smbldap-useradd -w $uid_string -c Computer".
                             " -d /dev/null -g 515 -s /bin/false $login";
       	           print "   * $command\n";
+                   system("$command");
+           
+                   # command 2
+                   $command="smbpasswd -a -m $non_dollar_name";
+      	           print "   * $command\n";
                    system("$command");           
 
+                   # command 3
                    $command="smbldap-usermod -H '[WX]' $login";
       	           print "   * $command\n";
                    system("$command");           
