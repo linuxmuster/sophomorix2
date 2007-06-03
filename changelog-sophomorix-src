@@ -1635,61 +1635,8 @@ smbldap-userdel <hostname>$
 
 
 
-- Raumgruppe löschen:
+To do : Raumgruppe löschen:
 smbldap-groupdel <raum>
-----------------------------------------
-# Bis jetzt nicht vorgesehen, die Raumgruppen bleiben ebenso erhalten
-# wie die Klassen
-# Besser per cronjob löschen, wenn keine user mehr in dieser gruppe sind???
-
-
-
-############################################################
-smb.conf-scripts:
-############################################################
-
-smbldap-passwd %u
-   - make sophomorix-passwd interactive
-     sophomorix-passwd --interactive --user name
-
-
-Check if the following are necessary:
-smbldap-useradd -m '%u'
-smbldap-useradd -w '%u'
-smbldap-groupmod
-
-Diese Befehle sind mE. nicht zwingend notwendig, deshalb fehlen sie noch.
-
-
-
-
-
-Was das neue sophomorix-paket noch NICHT kann:
-
-- anpassen von dc=linuxmuster,dc=de
-  (so wie der basename bei der Erstinstallation angegeben war, bleibt er)
-  Dazu muss ich mich noch mit Thomas Hoth besprechen. Ich kann noch nicht mit 
-  dem ldap per perl modul kommunizieren. 
-
-- upgrade von postgres-only systemen
-
-
->>- Maschinenaccount anlegen:
->>> >smbldap-useradd -w -g 515 -c Computer -d /dev/null -s /bin/false
->>> ><hostname>$
->>> >
->>> >- Flags für Maschinenaccount setzen:
->>> >smbldap-usermod -H '[WX]' <hostname>$
->>> >
-scheint ein Bug in den smbldap-tools zu sein. Wenn man -H '[WX]' mit
-smbldap-useradd übergibt und danach mit smbldap-passwd das
-Maschinenpasswort (12345678) setzt, zeigt smbldap-usershow nur [W] an.
-Man muss also den smbldap-usermod Befehl hinterherschicken.
-
-
-
-
-
 
 
 sophomorix-useradd:
@@ -1766,9 +1713,25 @@ add some checks to auth_* functions, (see ?????)
 
 add warning, when connect to ldap failed
 
+
+
+Folgendes von sophomorix-setup-pgldap anpassen lassen:
+
+sambaDomainName=SCHULE,dc=linuxmuster,dc=de
+
+
+
 ================== CHANGELOG ========================================
 
-1.9.15-1 (2007-06-xx)
+1.9.16-1 (2007-06-xx)
+
+
+
+1.9.15-1 (2007-06-03)
+    - added empty script sophomorix-groupdel so that workstation import can 
+      call it
+    - Bugfix: Adding rooms as group type room
+    - Bugfix: smbpasswd command added to add computer correctly
     - added lookup in slapd for current rootdn and rootpw before 
       connecting to ldap
     - added manpages for sophmorix-useradd and sophomorix-groupadd

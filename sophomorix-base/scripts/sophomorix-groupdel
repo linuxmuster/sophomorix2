@@ -1,0 +1,88 @@
+#!/usr/bin/perl -w
+# $Id$
+# Dieses Script (sophomorix-groupdel) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+# Bibliotheken
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
+use DBI;
+use Net::LDAP;
+
+use Sophomorix::SophomorixPgLdap qw(show_modulename
+                                    check_connections
+                                    create_class_db_entry
+                                    pg_get_group_type
+                                   );
+
+
+my @arguments = @ARGV;
+
+&check_connections();
+&log_script_start(@arguments);
+
+# ===========================================================================
+# Variablen
+# ==========================================================================
+
+my $help=0;
+
+
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+
+my $room="";
+
+my $explanation="";
+my $skiplock=0;
+
+my $type=-1; # 3: domain group
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "help|h" => \$help,
+           "room=s" => \$room,
+           "skiplock" => \$skiplock,
+          );
+
+# Prüfen, ob Optionen erkannt wurden, sonst Abbruch
+&check_options($testopt);
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlsbeschreibung
+   print('
+sophomorix-groupdel adds a group to the sophomorix database (and ldap)
+
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -i  / --info
+  --room   (a group for some workstations))
+
+Please see the sophomorix-groupdel(8) man pages for full documentation
+');
+   print "\n";
+   exit;
+}
+
+
+
+
+if ($room ne ""){
+    print "\nSorry: Cannot delete the room $room. This is a Todo\n\n";
+}
+
+
+&log_script_end(@arguments);
