@@ -895,12 +895,17 @@ if ($slapd_standalone==1){
     # populate ldap (no users)
     system("slapadd -l $ldif_local");
 
-    # modify the basedn and other stuff in the latest dump
-    # ???????
 
 
-    # add the latest dump, if existing
-    &add_slapd_from_ldif();
+    if ($new_database==1){
+        # new database doesnt need to be filled
+    } else {
+        # use the old database
+        # modify the basedn and other stuff in the latest dump
+        # ???????
+        # add the latest dump, if existing
+        &add_slapd_from_ldif();
+    }
 }
 
 
