@@ -1032,8 +1032,13 @@ Creates all files and directories for a class (exchange/share/... directories).
 
 
 sub provide_class_files {
-    my ($class) = @_;
-    if ($class eq ${DevelConf::teacher}){
+    my ($class,$type) = @_;
+    if (not defined $type){
+	$type="";
+    }
+    if ($type eq "workstation"){
+
+    } elsif ($class eq ${DevelConf::teacher}){
       &setup_verzeichnis("\$share_teacher",
                     "${DevelConf::share_teacher}");
       &setup_verzeichnis("\$www_teachers",
@@ -2812,12 +2817,15 @@ sub backup_amk_file {
     my $inp=${DevelConf::ergebnis_pfad};
     my $outp=${DevelConf::log_pfad};
     # Verarbeitete Datei mit Zeitstempel versehen
-    &do_falls_nicht_testen(
-      "$com ${inp}/sophomorix.${str} ${outp}/${time}.sophomorix.${str}-${str2}",
-      # Nur für root lesbar machen
-      "chown root:root ${outp}/${time}.sophomorix.${str}-${str2}",
-      "chmod 600 ${outp}/${time}.sophomorix.${str}-${str2}"
-    );
+
+    if (-e "${inp}/sophomorix.${str}"){
+       &do_falls_nicht_testen(
+         "$com ${inp}/sophomorix.${str} ${outp}/${time}.sophomorix.${str}-${str2}",
+         # Nur für root lesbar machen
+         "chown root:root ${outp}/${time}.sophomorix.${str}-${str2}",
+         "chmod 600 ${outp}/${time}.sophomorix.${str}-${str2}"
+       );
+    }
 }
 
 
@@ -4621,8 +4629,6 @@ sub get_debconf_value {
        return $ret;
     }
 }
-
-
 
 
 ################################################################################

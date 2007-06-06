@@ -17,8 +17,10 @@ use Net::LDAP;
 
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     check_connections
-                                    create_class_db_entry
+                                    remove_class_db_entry
                                     pg_get_group_type
+                                    fetchworkstations_from_room
+                                    fetchrooms_from_school
                                    );
 
 
@@ -55,6 +57,11 @@ my $testopt=GetOptions(
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
 
+
+if ($room eq ""){
+    $help=1;
+}
+
 # --help
 if ($help==1) {
    # Scriptname ermitteln
@@ -81,7 +88,40 @@ Please see the sophomorix-groupdel(8) man pages for full documentation
 
 
 if ($room ne ""){
-    print "\nSorry: Cannot delete the room $room. This is a Todo\n\n";
+    # 1) check if $room is really a room
+    print "Checking if room $room is a room: ";
+    my $seen=0;
+    my @rooms = &fetchrooms_from_school();
+    foreach my $existing_room (@rooms){
+        if ($room eq $existing_room){
+	    $seen=1;
+            print "Yes\n";
+            last;
+        }
+    }
+    if ($seen==0){
+        print "No\n";
+        print "   WARNING: Not removing room $room\n";
+        exit;
+    }
+
+    # 2) check if there are no users in this room
+    print "Checking if room $room can be removed\n";
+    my @users = &fetchworkstations_from_room($room);
+    my $members=$#users+1;
+    print "   $room has $members workstations\n";
+    if ($members==0){
+	print "   Removing room $room from pg\n";
+    } else {
+        print "   Group $room is not empty\n";
+        print "   WARNING: Not removing room $room\n";
+        exit;
+    } 
+
+    # Remove files/dirs
+
+    # Do it
+    &remove_class_db_entry($room);
 }
 
 

@@ -207,7 +207,7 @@ open(YETTOKILL,">${DevelConf::ergebnis_pfad}/sophomorix.kill.neu")
 
 if ($killuser ne ""){
     # killing users given by option --killuser
-    print "Killing users $killuser\n";
+    print "Killing the following List of users: $killuser\n";
     my @userlist=split /,/,$killuser;
     foreach my $user_to_kill (@userlist){
         print "Killing $user_to_kill\n";
@@ -284,6 +284,8 @@ sub kill_user {
          return 0;
      }
 
+     print "Type of user to kill is $type_to_kill\n";
+
      my $public_html_to_kill ="";
      if ($type_to_kill eq "teacher"){
          $public_html_to_kill = ${DevelConf::www_teachers}.
@@ -291,6 +293,8 @@ sub kill_user {
      } elsif ($type_to_kill eq "student") {
          $public_html_to_kill = ${DevelConf::www_students}.
                                 "/".$login_name_to_kill;
+     } else {
+         print "Not deleting public_html (Type is $type_to_kill)\n";
      }
 
      # Skip when login was specified by option in sophomorix-kill
@@ -353,8 +357,10 @@ sub kill_user {
       # webmin
 #      &remove_webmin_account($login_name_to_kill);
 
-      if ($linux_gruppe_to_kill ne ${DevelConf::teacher}) {
-         # Es ist ein Schüler
+
+     if ($type_to_kill eq "teacher"){
+
+     } elsif ($type_to_kill eq "student") {
          # Klassenverzeichnis in denen die Homes sind löschen, falls leer
          &do_falls_nicht_testen(
              "rmdir --ignore-fail-on-non-empty ${DevelConf::homedir_pupil}/$linux_gruppe_to_kill > /dev/null",
@@ -362,7 +368,24 @@ sub kill_user {
           # (Ist normalerweise nicht Leer)
           "rmdir --ignore-fail-on-non-empty ${DevelConf::share_classes}/$linux_gruppe_to_kill > /dev/null"
           );
-       }
+     } elsif ($type_to_kill eq "workstation") {
+         &do_falls_nicht_testen(
+             "rmdir --ignore-fail-on-non-empty ${DevelConf::homedir_ws}/$linux_gruppe_to_kill > /dev/null",
+          );
+
+     } else {
+
+     }
+
+
+
+
+
+
+
+#      if ($linux_gruppe_to_kill ne ${DevelConf::teacher}) {
+#         # Es ist ein Schüler
+#       }
 
       # Sonst noch löschen:
 
