@@ -28,53 +28,101 @@ use IMAP::Admin;
 
 
 
-#&chmod_chown_dir_smb("/root/find","0701","0005","devlamro","12a");
 
-#&fetch_smb_conf();
-
-#my ($path,$dir_perm,$file_perm,$owner,$gowner)=&show_smb_conf_umask("cdrom");
+my $ldif_local="/usr/share/sophomorix/config-templates/ldap/local-gen.ldif";
 
 
-#print " Path:  $path\n";
-#print " dirs:  $dir_perm\n";
-#print " files: $file_perm\n";
-#print " owner: $owner\n";
-#print " gowner: $gowner\n";
+# dump the contents of slapd to ldif
+# works when slapd is running or not
+system("slapcat -l /root/old.ldif"); 
+
+&dump_slapd_to_ldif();
+
+# stop ldap
+system("/etc/init.d/slapd stop"); 
+
+# do this with a stopped ldap
+
+# saving DB_CONFIG is not necessary, it is created anew
+# cp /var/lib/ldap/DB_CONFIG /tmp/
 
 
-#&chmod_chown_dir("/root/find",$dir_perm,$file_perm,$owner,$gowner);
-
-#my ($dir,$file) = &permissions_from_umask();
-
-#print "Dir $dir     File $file \n";
-
-#my ($home,$type)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account("nikoob");
-
-#print "$home   $type  \n";
+system("rm -rf /var/lib/ldap/*");
 
 
-#&update_user_db_entry("shoemaca","Uid=schumacher");
+# mv /tmp/DB_CONFIG /var/lib/ldap/
+# chown openldap /var/lib/ldap/DB_CONFIG
 
-#&lehrer_ordnen("gilli","galli");
+# start ldap, so that files are created again
+#
+system("/etc/init.d/slapd start");
 
-&cyrus_connect;
-
-exit;
-
-my $old_ho="\\\\server\\merckxed";
-
-print "${old_ho}\n";
+# ok
+system("/etc/init.d/slapd stop");
 
 
-my $old="merckxed";
-my $new="edmrxle";
+# smbldap-populate (oder was entsprechendes von dir)
+# ok
+system("slapadd -l $ldif_local");
 
-#$old_ho=~s/\\${old}$/\\\\${new}/;
-#$old_ho=~s/^\\\\/\\\\\\\\/;
+# reload the old ldif file
+#system("slapadd -c -l /root/old.ldif");
+# ok
+&add_slapd_from_ldif();
+
+# cat user.ldif | slapadd
+# cat group.ldif | slapadd
+# cat user_group | slapadd
+# ok
+system("chown -R openldap.openldap /var/lib/ldap/");
+
+
+# start ldap
+# ok
+system("/etc/init.d/slapd start"); 
 
 
 
-print "${old_ho}\n";
+
+
+
+
+
+
+############################################################
+# The following modifies an entry in ldap
+############################################################
+
+# my $user="beckje";
+# my $new_basedn="dc=example,dc=org";
+
+# my $ldap=&auth_connect();
+
+# my $msg = $ldap->search(
+#        base => "ou=accounts,dc=linuxmuster,dc=de",
+#        scope => "sub",
+#        filter => ("uid=$user")
+#    );
+
+#  my $entry = $msg->entry(0);
+#  my $old_dn=$entry->dn();
+#  print "Old dn:  $old_dn\n";
+
+#  my ($without_basedn) = split(/dc=/,$old_dn);
+#  my $new_dn = $without_basedn.$new_basedn;
+#  print "New dn:  $new_dn \n";
+
+
+# this does not work
+#  $ldap->modify( $old_dn,
+#                 replace => {'dn' => $new_dn}
+#		);
+
+#  $ldap->modify( $old_dn,
+#                 replace => {'description' => 'test'}
+#		);
+
+#&auth_disconnect($ldap);
 
 
 ############################################################
