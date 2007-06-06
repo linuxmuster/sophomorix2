@@ -1708,6 +1708,16 @@ printout, when loading ldif with path, etc
 sophomorix-setup-pgldap does add admins again (nonexisting, why?)
 
 
+Die Abfrage zum Finden von Schuelern sieht bei mir in etwa so aus:
+SELECT uid FROM userdata
+  RIGHT JOIN classdata ON userdata.gidnumber = classdata.gidnumber
+  WHERE classdata.type = 'adminclass'
+
+D.h. also alle Accounts, die als Initial Group eine Klasse haben, die
+vom Typ adminclass ist.
+
+
+
 
 ================== CHANGELOG ========================================
 
