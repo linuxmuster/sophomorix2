@@ -25,6 +25,8 @@ use Sophomorix::SophomorixPgLdap qw(
                                     get_smb_sid
                                     create_class_db_entry
                                     fetch_ldap_pg_passwords
+                                    dump_slapd_to_ldif
+                                    add_slapd_from_ldif
                                    );
 
 my @arguments = @ARGV;
@@ -848,11 +850,11 @@ print "\n\n";
 &create_indices();
 
 
-# setting the password
+# setting the password in pg
 &set_db_passwd($dbpassword);
 
 
-# setting the ldap suffix dn=x
+# setting the ldap suffix dn=x in pg
 &set_ldap_suffix_pg($basedn);
 
 
@@ -866,11 +868,9 @@ print "\n\n";
 
 
 # changes for the new version of slapd 2.3.27/etch that runs as openldap
-
 system("chmod 0644 $ldap_conf");
 #system("chown openldap:openldap $ldap_conf");
 system("chown root:root $ldap_conf");
-
 # the args dir/file
 if (not -e "$ldap_args_dir"){
     system("mkdir $ldap_args_dir");
@@ -879,13 +879,37 @@ system("chmod 0755 $ldap_args_dir");
 system("chown openldap:openldap $ldap_args_dir");
 
 
-# populate ldap (no users)
+
 if ($slapd_standalone==1){
+    # dump the current ldap
+    &dump_slapd_to_ldif();
+
+    # remove bdb files from slapd
+    system("rm -rf /var/lib/ldap/*");
+
+    # start and stop slapd to recreate files in /var/lib/ldap
+    system("/etc/init.d/slapd start");
+    system("/etc/init.d/slapd stop");
+
+    # slapd must be stopped again
+    # populate ldap (no users)
     system("slapadd -l $ldif_local");
+
+    # modify the basedn and other stuff in the latest dump
+    # ???????
+
+
+    # add the latest dump, if existing
+    &add_slapd_from_ldif();
 }
 
 
 sleep 5;
+
+## This is new ??????????????
+## make sure owner is correct, so that slapd can start
+system("chown -R openldap.openldap /var/lib/ldap/");
+
 
 # starting ldap
 system("/etc/init.d/slapd start");
