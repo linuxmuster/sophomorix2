@@ -144,6 +144,10 @@ if ($computer ne "" and $unix_group ne ""){
 
 
 # set some stuff
+if ($password eq ""){
+    $password="linux";
+}
+
 if ($computer ne ""){
     $type="computer";
     $login=$computer;
@@ -156,6 +160,7 @@ if ($computer ne ""){
     $home="/dev/null";
     $sophomorix_status="P";
 }
+
 if ($workstation ne ""){
     $type="workstation";
     $login=$workstation;
@@ -168,6 +173,7 @@ if ($workstation ne ""){
     $home=$DevelConf::homedir_ws."/".$unix_group."/".$login;
     $sophomorix_status="P";
 }
+
 if ($administrator ne ""){
     $type="administrator";
     $login=$administrator;
@@ -177,16 +183,11 @@ if ($administrator ne ""){
     $home=$DevelConf::homedir_all_admins."/".$login;
     $sophomorix_status="P";
 }
-if ($password eq ""){
-    $password="linux";
-}
+
 
 
 
 # Do it !
-
-
-
 print "Creating user account $login:\n";
 print "    Uidnumber        : $uid_number\n";
 print "    Account Type     : $type\n";
@@ -201,11 +202,21 @@ print "    Password         : $password\n";
 print "    Quota            : $quota\n";
 
 
-# create postgres entry
+# 1. create postgres entry
 &create_user_db_entry("","","01.01.1970",
                       $unix_group,$login,$password,
                       $shell,$quota,$unid,$epoch_now,undef,$sophomorix_status,
                       $uid_number,$home,$gecos,$type);
+
+## 2. Add the class (db and dirs,links, ...)
+#&provide_class_files($unix_group);
+
+## 3. set a password
+## my $klartext_passwort="12345678";
+#&set_sophomorix_passwd($login,$klartext_passwort);
+
+## 4. Creating dirs, links for the user
+#&provide_user_files($login,$unix_group);
 
 # add to secondary groups
 if ($sec_groups ne ""){

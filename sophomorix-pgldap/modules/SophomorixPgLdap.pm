@@ -87,6 +87,7 @@ require Exporter;
              auth_passwd
              auth_useradd
              auth_groupadd
+             auth_groupdel
              auth_usermove
              auth_killmove
              auth_disable
@@ -98,6 +99,8 @@ require Exporter;
              auth_connect
              auth_disconnect
              fetch_ldap_pg_passwords
+             dump_slapd_to_ldif
+             add_slapd_from_ldif
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
@@ -1467,8 +1470,14 @@ sub create_user_db_entry {
        if ($type eq "computer"){
            $gidnumber=515;
        } else {
-           # neue gruppe anlegen und gidnumber holen, falls erforderlich
-           $gidnumber=&create_class_db_entry($admin_class);
+           if ($type eq "workstation"){
+              # neue gruppe anlegen und gidnumber holen, falls erforderlich
+              $gidnumber=&create_class_db_entry($admin_class,5);
+	  } else {
+              # neue gruppe anlegen und gidnumber holen, falls erforderlich
+              $gidnumber=&create_class_db_entry($admin_class);
+          }
+
        }
 
        # get_sid
@@ -1488,8 +1497,6 @@ sub create_user_db_entry {
        # User anlegen
        # 1. Tabelle posix_account
        # Pflichtfelder (laut Datenbank): id,uidnumber,uid,gidnumber,firstname
-
-
        $sql="INSERT INTO posix_account 
 	  (id,uidnumber,uid,gidnumber,firstname,surname,
            homedirectory,gecos,loginshell,userpassword,description)
@@ -1844,21 +1851,6 @@ sub create_class_db_entry {
     #2. Tabelle samba_group_mapping
     #Pflichtfelder (laut Datenbank) id
     # sambagrouptype (2=domaingroup(defaultgroup), 4=localgroup, 5=builtingroup)
- #   if ($nt_groupname eq ""){
- #       $displayname=$class_to_add;
- #   } else {
- #       $displayname=$nt_groupname;
- #   }
-#    $sql="INSERT INTO samba_group_mapping
-#	 (id,gidnumber,sambasid,sambagrouptype,displayname,description,sambasidlist)
-#	 VALUES
-#	 ($groups_id,
-#          $gidnumber,
-#          '$group_sid',
-#          '2',
-#          '$displayname',
-#          '$description',
-#          NULL)";	
     $sql="INSERT INTO samba_group_mapping
 	 (id,gidnumber,sambasid,sambagrouptype,displayname,description,sambasidlist)
 	 VALUES
@@ -1873,7 +1865,6 @@ sub create_class_db_entry {
        print "\nSQL: $sql\n";
     }
     $dbh->do($sql);
-
 
     if ($sub==1){
         # adding a subclass
@@ -1893,7 +1884,6 @@ sub create_class_db_entry {
            print "\nSQL: $sql\n";
         }
         $dbh->do($sql);
-
     } elsif ($sub==2){
         # adding a project
         #3. Tabelle class_details
@@ -1912,7 +1902,24 @@ sub create_class_db_entry {
            print "\nSQL: $sql\n";
         }
         $dbh->do($sql);
-
+    } elsif ($sub==5){
+        # adding a room
+        #3. Tabelle class_details
+        $sql="INSERT INTO class_details
+	    (id,quota,mailquota,schooltype,department,mailalias,maillist,type)
+	    VALUES
+  	    ($groups_id,
+             NULL,
+             NULL,
+             '',
+             '',
+             FALSE,
+             FALSE,
+             '$type')";	
+        if($Conf::log_level>=3){
+           print "\nSQL: $sql\n";
+        }
+        $dbh->do($sql);
     } else {
         # adding a adminclass
         #3. Tabelle class_details
@@ -1932,7 +1939,6 @@ sub create_class_db_entry {
         }
         $dbh->do($sql);
     }
-    
     } # end adding group
 
     # create entry in auth system
@@ -2040,7 +2046,7 @@ sub update_class_db_entry {
 
 
 
-# adds a class to the user database
+# removes a class from the user database
 sub remove_class_db_entry {
     my ($group) = @_;
     my $dbh=&db_connect();
@@ -2057,8 +2063,12 @@ sub remove_class_db_entry {
         print "\nERROR: Could not delete group $group \n\n";
     }
     &db_disconnect($dbh);
+
+    # remove entry in auth system
+    &auth_groupdel($group);
     return $return;
 }
+
 
 sub pg_adduser {
     # add a user to a secondary group
@@ -2189,11 +2199,12 @@ sub pg_get_group_type {
                                          WHERE gid='$gid'");
     if (not defined $id_sys){
         # if not in pgldap
-	return ("unknown",$gid,$gidnumber_sys);
+	return ("nonexisting",$gid,$gidnumber_sys);
     }    
     my ($type)= $dbh->selectrow_array( "SELECT type 
                                           FROM classdata 
                                           WHERE id='$id_sys'");
+
     if (not defined $type){
         # look at a users home
         my ($home)= $dbh->selectrow_array( "SELECT homedirectory 
@@ -2217,6 +2228,9 @@ sub pg_get_group_type {
     } elsif ($type eq "adminclass"){
         # adminclass
         return ("adminclass",$gid,$gidnumber_sys);
+    } elsif ($type eq "room"){
+        # adminclass
+        return ("room",$gid,$gidnumber_sys);
     } elsif ($type eq "domaingroup"){
         # manually added group
         return ("domaingroup",$gid,$gidnumber_sys);
@@ -2356,9 +2370,21 @@ sub fetchrooms_from_school {
     # fetch all rooms
     my @rooms=();
     my $dbh=&db_connect();
-    my $sth= $dbh->prepare( "SELECT DISTINCT gid
-                             FROM userdata 
-                             WHERE homedirectory LIKE '/home/workstations/%'
+#    my $sth= $dbh->prepare( "SELECT DISTINCT gid
+#                             FROM userdata 
+#                             WHERE homedirectory LIKE '/home/workstations/%'
+#                             ORDER BY gid");
+#    $sth->execute();
+#    my $array_ref = $sth->fetchall_arrayref();
+#    my $i=0;
+#    foreach ( @{ $array_ref } ) {
+#        my $gid=${$array_ref}[$i][0];
+#        push @rooms, $gid;
+#        $i++;
+#    }
+    my $sth= $dbh->prepare( "SELECT gid
+                             FROM classdata 
+                             WHERE type='room'
                              ORDER BY gid");
     $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
@@ -2367,7 +2393,9 @@ sub fetchrooms_from_school {
         my $gid=${$array_ref}[$i][0];
         push @rooms, $gid;
         $i++;
-    }   
+    }
+
+   
     &db_disconnect($dbh);
     return @rooms;
 }
@@ -2415,7 +2443,7 @@ sub fetchworkstations_from_school {
 sub fetchworkstations_from_room {
     # fetch all subclasses
     my ($gid) = @_;
-    my @rooms=();
+    my @ws=();
     my $dbh=&db_connect();
     my $sth= $dbh->prepare( "SELECT uid
                              FROM userdata 
@@ -2426,12 +2454,12 @@ sub fetchworkstations_from_room {
     my $array_ref = $sth->fetchall_arrayref();
     my $i=0;
     foreach ( @{ $array_ref } ) {
-        my $gid=${$array_ref}[$i][0];
-        push @rooms, $gid;
+        my $uid=${$array_ref}[$i][0];
+        push @ws, $uid;
         $i++;
     }   
     &db_disconnect($dbh);
-    return @rooms;
+    return @ws;
 }
 
 
@@ -5108,6 +5136,24 @@ sub auth_groupadd {
 }
 
 
+
+
+sub auth_groupdel {
+    my ($group) = @_;
+    my ($g_type,$g_name,$g_gidnumber)=&pg_get_group_type($group);
+    if ($g_type eq "nonexisting"){
+       $command="smbldap-groupdel '$group'";
+       print "   * $command\n";
+       system("$command");
+   } else {
+       print "Group $group still exists in ldap\n";
+       print "   NOT removing group $group from ldap",
+   }
+}
+
+
+
+
 sub auth_usermove {
     # change primary group
     # change home
@@ -5247,6 +5293,7 @@ sub auth_deleteuser_from_project {
 
 
 
+
 sub auth_connect {
     my $ldap = Net::LDAP->new( '127.0.0.1', ) or print "Not connected\n";
     # fetch passwords
@@ -5257,6 +5304,12 @@ sub auth_connect {
     return $ldap;
 }
 
+
+
+sub auth_disconnect {
+    my ($ldap) = @_;
+    $ldap->unbind();
+}
 
 
 
@@ -5301,15 +5354,23 @@ sub fetch_ldap_pg_passwords {
 }
 
 
-
-
-
-
-sub auth_disconnect {
-    my ($ldap) = @_;
-    $ldap->unbind();
+sub dump_slapd_to_ldif {
+    my $dump_dir=$DevelConf::log_pfad_slapd_ldif;
+    if (not -e "$dump_dir"){
+        print "Creating $dump_dir\n";
+	system("mkdir -p $dump_dir");
+    }
+    system("slapcat -l $dump_dir/old.ldif"); 
 }
 
+
+sub add_slapd_from_ldif {
+    my $dump_dir=$DevelConf::log_pfad_slapd_ldif;
+    my $ldif_file=$dump_dir."/old.ldif";
+    if (-e "$ldif_file"){
+        system("slapadd -c -l $ldif_file"); 
+    }
+}
 
 
 # ENDE DER DATEI

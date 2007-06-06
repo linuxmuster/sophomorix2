@@ -1521,66 +1521,14 @@ sophomorix-vampire: check 2 semicolon in the end of wimport_data
 
           
 
+To check:
 
+db name ldap is not correct anymore?
 
-URGENT UPDATE:
-
-questions:
-    db name ldap is not correct anymore?
-
-separate ldap from postgres:
-   - change configuration files:
-         slapd.conf
-         ...
-         --> done by Thomas Hoth
-   - Change calls everywhere(*-add, *-move, *-kill), where
-          1) ldap OR postgres is modified
-          2) AND normal ldap data is concerned (authentication posix and samba)
-             to:
-             modify ldap AND postgres (make sure both has worked)
-
-          Hints:
-            -  add administrators ALSO to postgres 
-               (create a sophomorix function to add them to postgres AND ldap)
-            -  add workstations with ALSO to postgres
-               (create a sophomorix script to add them to postgres AND ldap
-                send the name of the script to T. Schmitt 
-                (smb.conf and import-workstation)
-            - go through all script-calls in samba:
-              replace smbldap-tools calls with scripts that also add info to postgres
-              check their return values and make the new scripts
-              use the same return values (show them with echo $?)
-
-            - all calls to smbldaptools with absolute path prefixed by a variable
-              (smbldaptools might be moved away to protect ldap from being modified)
-
-   - change sophomorix-passwd to change also the password via ldap
-
-
-
-   - create a postgres to ldap script that dumps ALL authentication data to ldap
-     (migration AND emergency help, when ldap is not in sync)
-     --> done by Thomas Hoth
-
-
-
-PROBLEMS:
-
-net groupmap add rid=gidnumber unixgroup='$unix_group' ntgroup='$nt_group'");
-
-modifies ldap.
-
-
-
-- when adding domain group manually: how to calculate sid gidnumber
-
-
-next/todo:
-
-
-
-
-Verwirrend ist m.E. noch der Unterschied zwische workstation-account(=Klassenarbeitsbenutzer) und Computeraccount ($account), da in der engl. Literatur beim $account vom workstationaccount (z.B. accountflag W) gesprochen wird.
+Verwirrend ist m.E. noch der Unterschied zwische
+workstation-account(=Klassenarbeitsbenutzer) und Computeraccount
+($account), da in der engl. Literatur beim $account vom
+workstationaccount (z.B. accountflag W) gesprochen wird.
 
 Ich würde es gerne in der ML3 so machen
 
@@ -1593,50 +1541,49 @@ anzupassen(statt --workstation --examaccount).
 
 
 
-Hier nun die Befehle und ihr Ersatz:
+Interface to create/manage accounts:
 
-- Gruppe (Raum) anlegen:
-smbldap-groupadd -a <raum>
+- Create group for room:
 ----------------------------------------
-Ist m.E. nicht mehr erforderlich, da wenn ein user angelegt wird in 
-einer noch nicht angelegten Gruppe, diese automatisch angelegt wird. 
+not necessary, groups are added when user is added
+(replaces smbldap-groupadd -a <raum>)
 
-- Workstationaccount (Klassenarbeitsnutzer) anlegen:
+- Create Workstationaccount (Klassenarbeitsnutzer)
 ----------------------------------------
-smbldap-useradd -a -d <homedir> -c HostAccount -g <raum> -m -s /bin/bash
-<hostname>
+sophomorix-useradd --workstation <wsname> --unix-group <raum>
+(replaces 'smbldap-useradd -a -d <homedir> -c HostAccount -g <raum> -m -s /bin/bash
+<hostname>')
 
-??? HostAccount mit /bin/bash oder /bin/false ???
-
----> sophomorix-useradd --workstation <wsname> --unix-group <raum>
-
-- Maschinenaccount anlegen:
+- Create Computer account
 ----------------------------------------
-1) 
-smbldap-useradd -w -g 515 -c Computer -d /dev/null -s /bin/false <hostname>$
+sophomorix-useradd --computer <hostname$>
 
-2)
-- Flags für Maschinenaccount setzen:
-smbldap-usermod -H '[WX]' <hostname>$
+replaces:
+1) smbldap-useradd -w -g 515 -c Computer -d /dev/null -s /bin/false <hostname>$
 
----> sophomorix-useradd --computer <hostname$>
+2) smbpasswd -u -m hostname (without $)
 
-# $ mit übergeben
-# zweiter Befehl(smbldap-usermod -H '[WX]' <hostname>$) tut noch nicht
-# ... kein samba user
+3) smbldap-usermod -H '[WX]' <hostname>$
 
-- Accounts löschen:
+Delete an account:
 ----------------------------------------
-smbldap-userdel <hostname>
-smbldap-userdel <hostname>$
-
----> sophomorix-kill --killuser loginname1,loginame2,...   
+sophomorix-kill --killuser loginname1,loginame2,...   
 ($ mit übergeben im loginnamen)
+(replaces smbldap-userdel <hostname>)
 
-
-
-To do : Raumgruppe löschen:
+To do : Delete a room group
+----------------------------------------
 smbldap-groupdel <raum>
+  - is project removed completely?
+  
+
+
+Set a password of a user:
+----------------------------------------
+sophomorix-passwd --interactive --user name 
+(replaces 'smbldap-passwd name')
+
+
 
 
 sophomorix-useradd:
@@ -1675,17 +1622,7 @@ vgl. Code bei mlscripts
 
 
 
-Done   (must be changed when switching to seperate slapd):
 
-smb.conf:
-sophomorix-passwd --interactive --user name >> smbldap-passwd name
-
-
-import workstation:
-
-- Passwort setzen:
-echo -e <passwd>\n<passwd>\n | sophomorix-passwd --interactive --user <hostname>
-echo -e <passwd>\n<passwd>\n | sophomorix-passwd --interactive --user <hostname>$
 
 
 
@@ -1706,7 +1643,6 @@ whoami als user sagt, kein loginname für id 10016
 Problems in sophomorix-test:
 
 Test why U, UX sambaaccountflags doesnt work
-smbpasswd asks for password
 
 
 add some checks to auth_* functions, (see ?????)
@@ -1717,14 +1653,70 @@ add warning, when connect to ldap failed
 
 Folgendes von sophomorix-setup-pgldap anpassen lassen:
 
-sambaDomainName=SCHULE,dc=linuxmuster,dc=de
+- sambaDomainName=SCHULE,dc=linuxmuster,dc=de
+
+- jedes Eintrags dn 
+
+
+sophomorix-useradd --workstation ... no homedir created
+
+
+sophomorix-kill --killuser name deletes in the wrong place:
+
+   Removing recursively /home/workstations/r717/may1
+Deleted User may1 (10021)
+Killing user in ldap
+   * smbldap-userdel may1
+File LOG is /var/log/sophomorix/user-modify.log
+-->rmdir: ,,/home/students/r717": Datei oder Verzeichnis nicht gefunden
+-->rmdir: ,,/home/share/classes/r717": Datei oder Verzeichnis nicht gefunden
+
+
+
+
+Careful:
+adding a workstation does not add class-dirs and user-dirs
+(this does the script of workstation import)
+
+deleting groups does not delete workstation dirs
+
+This should be moved to the sophomorix-scripts
+
+
+sophomorix-repair repariert workstations im falschen verzeichnis
+check this
+
+
+changed group type of nonexisting group to 'nonexisting'
+(was 'unknown'). type 'unknown' is for groups, that exist, but a type 
+could not be defined. 
+
+can sophomorix-groupdel delete an empty adminclass group?
+
+
+
+
+next: modify dump of slapd to reflect new basedn and other stuff
+
+cp old.ldif old.ldif-unmodified
+modify it and copy it to old.ldif
+
+printout, when loading ldif with path, etc
+
+- add dump script pg to ldap from hoth
+ 
+sophomorix-setup-pgldap does add admins again (nonexisting, why?)
 
 
 
 ================== CHANGELOG ========================================
 
 1.9.16-1 (2007-06-xx)
-
+    - added functionality to delete a group to sophomorix-groupdel
+    - changed list of fetchrooms_from_school function to lookup rooms 
+      by its type 'room' (and not by the home of users to begin 
+                          with /home/workstation) 
+    - added deletion of room share, 
 
 
 1.9.15-1 (2007-06-03)
