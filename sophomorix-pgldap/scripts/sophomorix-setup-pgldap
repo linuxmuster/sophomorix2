@@ -972,15 +972,13 @@ if (-e "/etc/init.d/nscd"){
 }
 
 if ($slapd_standalone==1){
-    # population was done with stopped slapd
-    #system("smbldap-populate");
     # domain groups
     system("sophomorix-groupadd --skiplock --unix-group domadmins --nt-group 'Domain Admins' --domain --gidnumber 512");
     system("sophomorix-groupadd --skiplock --unix-group domusers --nt-group 'Domain Users' --domain --gidnumber 513");
     system("sophomorix-groupadd --skiplock --unix-group domguests --nt-group 'Domain Guests' --domain --gidnumber 514");
     system("sophomorix-groupadd --skiplock --unix-group domcomputers --nt-group 'Domain Computers' --domain --gidnumber 515");
 
-    # local 
+    # local groups 
     system("sophomorix-groupadd --skiplock --unix-group printoperators --nt-group 'Print Operators' --local --gidnumber 550");
     system("sophomorix-groupadd --skiplock --unix-group wwwadmin --nt-group 'Web Administrators' --local --gidnumber 997");
     system("sophomorix-groupadd --skiplock --unix-group replicators --nt-group 'Replicators' --local --gidnumber 552");
@@ -1017,7 +1015,7 @@ if ($slapd_standalone==1){
     system("sophomorix-useradd --skiplock --administrator pgmadmin --uidnumber 999 --gecos 'Programm Administrator' --unix-group 'domadmins' --shell /bin/false");
 
     # wwwadmin for web services (moodle, opengroupware, imp ...) NOT a windows user
-    system("sophomorix-useradd  --skiplock--administrator wwwadmin --uidnumber 997 --gecos 'web Administrator' --unix-group 'wwwadmin' --shell /bin/false");
+    system("sophomorix-useradd --skiplock --administrator wwwadmin --uidnumber 997 --gecos 'web Administrator' --unix-group 'wwwadmin' --shell /bin/false");
 
     # domadmin (for joining the domain)
     system("sophomorix-useradd --skiplock --administrator domadmin --uidnumber 996 --gecos 'Domain Admin' --unix-group 'domadmins' --shell /bin/false");
