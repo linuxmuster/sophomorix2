@@ -977,10 +977,11 @@ if ($slapd_standalone==1){
     system("sophomorix-groupadd --skiplock --unix-group domusers --nt-group 'Domain Users' --domain --gidnumber 513");
     system("sophomorix-groupadd --skiplock --unix-group domguests --nt-group 'Domain Guests' --domain --gidnumber 514");
     system("sophomorix-groupadd --skiplock --unix-group domcomputers --nt-group 'Domain Computers' --domain --gidnumber 515");
+    system("sophomorix-groupadd --skiplock --unix-group wwwadmin --nt-group 'Web Administrators' --domain --gidnumber 997");
 
     # local groups 
     system("sophomorix-groupadd --skiplock --unix-group printoperators --nt-group 'Print Operators' --local --gidnumber 550");
-    system("sophomorix-groupadd --skiplock --unix-group wwwadmin --nt-group 'Web Administrators' --local --gidnumber 997");
+#    system("sophomorix-groupadd --skiplock --unix-group wwwadmin --nt-group 'Web Administrators' --local --gidnumber 997");
     system("sophomorix-groupadd --skiplock --unix-group replicators --nt-group 'Replicators' --local --gidnumber 552");
     system("sophomorix-groupadd --skiplock --unix-group administrators --nt-group 'Administrators' --local --gidnumber 544");
     system("sophomorix-groupadd --skiplock --unix-group accountoperators --nt-group 'Account Operators' --local --gidnumber 548");
