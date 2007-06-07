@@ -27,6 +27,7 @@ use Sophomorix::SophomorixPgLdap qw(
                                     fetch_ldap_pg_passwords
                                     dump_slapd_to_ldif
                                     add_slapd_from_ldif
+                                    patch_ldif
                                    );
 
 my @arguments = @ARGV;
@@ -596,10 +597,12 @@ my $message3="Last Modification: $timestamp";
 
 
 ############################################################
-# basedn
+# basedn, dc
 ############################################################
 my @ldapdomains=();
 my (@domains)= split(/\./,$domainname);
+my $dc=$domains[0];
+
 foreach my $value (@domains) {
     push @ldapdomains, "dc=${value}";
 }
@@ -619,6 +622,7 @@ print "   Database name               :   $dbname \n";
 
 # the great replacement string
 $replace= " -e 's/\@\@basedn\@\@/${basedn}/g'". 
+          " -e 's/\@\@dc\@\@/${dc}/g'". 
           " -e 's/\@\@servername\@\@/${servername}/g'". 
           " -e 's/\@\@internip\@\@/${internip}/g'". 
           " -e 's/\@\@serverip\@\@/${internip}/g'". 
@@ -893,16 +897,15 @@ if ($slapd_standalone==1){
 
     # slapd must be stopped again
     # populate ldap (no users)
+    print "Populating ldap with $ldif_local\n";
     system("slapadd -l $ldif_local");
-
-
 
     if ($new_database==1){
         # new database doesnt need to be filled
     } else {
         # use the old database
         # modify the basedn and other stuff in the latest dump
-        # ???????
+        &patch_ldif($basedn);
         # add the latest dump, if existing
         &add_slapd_from_ldif();
     }

@@ -101,6 +101,7 @@ require Exporter;
              fetch_ldap_pg_passwords
              dump_slapd_to_ldif
              add_slapd_from_ldif
+             patch_ldif
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
@@ -5356,20 +5357,56 @@ sub fetch_ldap_pg_passwords {
 
 sub dump_slapd_to_ldif {
     my $dump_dir=$DevelConf::log_pfad_slapd_ldif;
+    my $dump_file=$dump_dir."/old.ldif";
     if (not -e "$dump_dir"){
         print "Creating $dump_dir\n";
 	system("mkdir -p $dump_dir");
     }
-    system("slapcat -l $dump_dir/old.ldif"); 
+  
+    print "$dump_dir\n";
+    system("slapcat -l $dump_file"); 
 }
 
 
 sub add_slapd_from_ldif {
     my $dump_dir=$DevelConf::log_pfad_slapd_ldif;
-    my $ldif_file=$dump_dir."/old.ldif";
+    my $ldif_file=$dump_dir."/old-patched.ldif";
+#    my $ldif_file=$dump_dir."/old.ldif";
+    print "adding file $ldif_file\n";
     if (-e "$ldif_file"){
         system("slapadd -c -l $ldif_file"); 
     }
+}
+
+
+sub patch_ldif {
+    # parameter 1: basedn
+    #
+    my ($base_dn) = @_;
+    my ($dc)=split(/,/,$base_dn);
+    $dc=~s/dc=//;
+    print "basedn:   ---$base_dn---\n";
+    print "dc    :   ---$dc---\n";
+    my $orig="$DevelConf::log_pfad_slapd_ldif"."/old.ldif";
+    my $patched="$DevelConf::log_pfad_slapd_ldif/"."old-patched.ldif";
+    open(ORIG, "$orig");
+    open(PATCHED, ">$patched");
+    print "Patching $orig to $patched\n"; 
+    while(<ORIG>){
+        chomp();
+	if (m/^dn:/){
+	    #print "\n$_\n";
+            my ($without_dn) = split(/dc=/);
+            my $new_dc = $without_dn.$base_dn;
+            print PATCHED "$new_dc\n";
+	} elsif (m/^dc:/){
+            print PATCHED "dc: $dc\n";
+        } else {
+            print PATCHED "$_\n";
+        }
+    }
+    close(ORIG);
+    close(PATCHED);
 }
 
 
