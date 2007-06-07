@@ -2,7 +2,7 @@ dn: @@basedn@@
 objectClass: dcObject
 objectclass: organization
 o: linuxmuster
-dc: linuxmuster
+dc: @@dc@@
 
 dn: ou=accounts,@@basedn@@
 objectClass: organizationalUnit
@@ -15,10 +15,6 @@ ou: groups
 dn: ou=machines,@@basedn@@
 objectClass: organizationalUnit
 ou: machines
-
-dn: 
-objectClass: organizationalUnit
-ou: 
 
 dn: sambaDomainName=schule ,@@basedn@@
 objectClass: sambaDomain
