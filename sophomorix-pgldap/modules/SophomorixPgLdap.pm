@@ -5073,7 +5073,6 @@ sub auth_groupadd {
    my ($g_type,$g_name,$g_gidnumber)=&pg_get_group_type($unix_group);
    # add entry to seperate ldap
    if (defined $g_gidnumber){
-       #print "GID: $g_gidnumber ($unix_group)\n";
        if ($g_gidnumber eq $gid_number){
            print "   Succesfully added $unix_group with gidnumber ",
                  "$g_gidnumber to postgres\n";
@@ -5087,8 +5086,6 @@ sub auth_groupadd {
                    print "ERROR: Dont know which type of group to add.";
                    return 0;
                }
-#               print "Value of domain_group is: $domain_group \n";
-#               print "Value of local_group is: $local_group \n";
                my ($gr_name,$gr_pass,$gr_gid)=getgrnam($unix_group);
                if (defined $gr_gid){
                   # group exists already
@@ -5141,16 +5138,47 @@ sub auth_groupadd {
 
 sub auth_groupdel {
     my ($group) = @_;
+
+    # find out ntgroupname
+    my $nt_groupname=&fetch_nt_groupmap($group);
+
     my ($g_type,$g_name,$g_gidnumber)=&pg_get_group_type($group);
     if ($g_type eq "nonexisting"){
-       $command="smbldap-groupdel '$group'";
-       print "   * $command\n";
-       system("$command");
+        # delete groupmapping, if existing
+	if ($nt_groupname ne ""){
+           $command="net groupmap delete ntgroup='$nt_groupname'";
+           print "   * $command\n";
+           system("$command");
+        }
+        # delete group       
+        $command="smbldap-groupdel '$group'";
+        print "   * $command\n";
+        system("$command");
    } else {
-       print "Group $group still exists in ldap\n";
-       print "   NOT removing group $group from ldap",
+        print "Group $group still exists in ldap\n";
+        print "   NOT removing group $group from ldap",
    }
 }
+
+
+sub fetch_nt_groupmap {
+    my ($unix) = @_;
+    my $string=`net groupmap list`;
+    my @lines = split(/\n/,$string);
+    foreach my $line (@lines){
+        my($nt_group,$rest)=split(/\s+\(S/,$line);    
+        my ($nothing,$unix_group)=split(/->\s+/,$rest);
+        if ($unix eq $unix_group){
+            #print "$unix_group maps to $nt_group\n";
+            return $nt_group;
+        }
+    }
+    return "";
+}
+
+
+
+
 
 
 
