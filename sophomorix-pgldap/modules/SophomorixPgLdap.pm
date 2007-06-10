@@ -1822,7 +1822,7 @@ sub create_class_db_entry {
     }
     my $groups_id = $dbh->selectrow_array($sql);
 
-    #Gruppe anlegen (2Tabellen)
+    #Gruppe anlegen (2 Tabellen)
     #1. Tabelle groups
     #Pflichtfelder (laut Datenbank): alle
 
@@ -1943,6 +1943,7 @@ sub create_class_db_entry {
     } # end adding group
 
     # create entry in auth system
+    print "ADDING $class_to_add $type $gidnumber $displayname $domain_group $local_group\n";
     &auth_groupadd($class_to_add,$type,
                    $gidnumber,$displayname,
                    $domain_group,$local_group);
@@ -2235,6 +2236,9 @@ sub pg_get_group_type {
     } elsif ($type eq "domaingroup"){
         # manually added group
         return ("domaingroup",$gid,$gidnumber_sys);
+    } elsif ($type eq "localgroup"){
+        # manually added group
+        return ("localgroup",$gid,$gidnumber_sys);
     } elsif ($type eq "project"){
         my ($longname)= $dbh->selectrow_array( "SELECT longname
                                           FROM projectdata 
@@ -5048,7 +5052,7 @@ sub auth_useradd {
 	       } else {
                    # user account
                    $command="smbldap-useradd -a $uid_string -c '$gecos'".
-                            " -d $home -g $unix_group $sec_string".
+                            " -d $home -m -g $unix_group $sec_string".
                             " -s $shell $login";
 	           print "   * $command\n";
                    system("$command");           
@@ -5127,9 +5131,10 @@ sub auth_groupadd {
                print "Not using seperate ldap\n";
            }
         } else {
-           print "ERROR: Adding group $unix_group did not suceed in pg as expected!\n";
+           print "ERROR: Adding group $unix_group did not ",
+                 "suceed in pg as expected!\n";
            print "       Not Adding group $unix_group to ldap!\n";
-         }
+        }
    }
 }
 
