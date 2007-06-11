@@ -5437,6 +5437,7 @@ sub patch_ldif {
 	    #print "\n$_\n";
             my ($without_dn) = split(/dc=/);
             my $new_dc = $without_dn.$base_dn;
+            # [^,]*  are all characters 
             if ($new_dc=~m/(.*sambaDomainName=)[^,]*(,dc=.*)/){
                 #print "$1 \n";
                 #print "$2 \n";
