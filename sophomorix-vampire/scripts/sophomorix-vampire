@@ -797,6 +797,13 @@ if ($sync_shares==1){
 if ($mlscripts==1){
     print "* Step 11:  mlscripts stuff (rembo interface)\n";
 
+    # fetching rembo.key
+    my $old_rembo_key="/usr/local/rembo/rembo.key";
+    my $new_rembo_key="/usr/share/rembo/rembo.key";
+    my $rembo_key_command="scp -i $key_dsa root\@${server}:$old_rembo_key $new_rembo_key";
+    
+    system "$rembo_key_command";
+
     # copying mac files
     my $old_hosts="/usr/local/rembo/files/global/hosts";
     my $new_hosts="/var/lib/rembo/files/global/hosts";
