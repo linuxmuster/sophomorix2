@@ -1720,10 +1720,28 @@ vom Typ adminclass ist.
 wwwadmin account should not be windows account (disable wwwadmin in ldap??)
 
 
+administrators: do repair their homes as well
+                do they need some dirs in their home?
+
+
+
+add parameter to auth_groupadd: unixonly
+  if unixonly==1 -> do NOT issue net groupmap command 
+               0 -> do     issue net groupmap command
+check if this is the difference from a group appearing in windows
+
+
+komischer Wert bei slapcat:
+sambaDomainName:: c2NodWxlIA==
+
+
 ================== CHANGELOG ========================================
 
 1.9.17-1 (2007-06-xx)
-
+    - changing of smbworkgroup changes sambaDomainName in ldap
+    - adding localgroups correctly to ldap
+    - deleting net groupmap entry 
+    - changing of domainname changes basedn in ldap
 
 1.9.16-1 (2007-06-06)
     - wwwadmin is a domain group
