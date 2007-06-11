@@ -239,9 +239,10 @@ install-pgldap:
 # the install script for the database installation
 # obsolete ???
 	@install -d -m755 -oroot -groot $(DBUPGRADE)/
-# put the update scripts ino place ()
+# put the update scripts into place ()
 	@install -d -m755 -oroot -groot $(CTEMPDIR)/bdb/
 	@install -oroot -groot --mode=0644 sophomorix-pgldap/config-bdb/DB_CONFIG $(CTEMPDIR)/bdb/
+	@install -oroot -groot --mode=0644 sophomorix-pgldap/config-bdb/slapd-standalone.DB_CONFIG $(CTEMPDIR)/bdb/
 
 
 install-sys-files:
