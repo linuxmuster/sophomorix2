@@ -1,0 +1,45 @@
+#!/usr/bin/perl 
+# $Id$
+# Dieses Script (sophomorix-dump-pg2ldap) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+
+
+# Todo replace debconf calls with thomas values
+
+#use Sophomorix::SophomorixConfig; 
+#use Sophomorix::SophomorixBase; 
+#use Sophomorix::SophomorixPgLdap qw(
+                                   );
+
+my @arguments = @ARGV;
+
+$Conf::log_level=1;
+
+my $timestamp=&zeit_stempel();
+
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "verbose|v+" => \$Conf::log_level,
+           "help|h" => \$help,
+           "info|i" => \$info,
+           "dump" => \$dump,
+          );
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
+&log_script_start(@arguments);
+
+print "starting dump...\n";
+
+
+&log_script_end(@arguments);
+
+
+
