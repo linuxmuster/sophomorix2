@@ -40,6 +40,7 @@ my $skiplock=0;
 
 # mandatory
 my $administrator="";
+my $unixadmin="";
 my $workstation="";
 my $computer="";
 
@@ -71,6 +72,7 @@ $Conf::log_level=1;
 my $testopt=GetOptions(
            "help|h" => \$help,
            "administrator=s" => \$administrator,
+           "unixadmin=s" => \$unixadmin,
            "workstation=s" => \$workstation,
            "computer=s" => \$computer,
            "verbose|v+" => \$Conf::log_level,
@@ -98,6 +100,7 @@ Options
   -h  / --help
   --workstation name         account for exams
   --administrator name       administrator
+  --unixadmin name           login (no windows account)
   --computer name            $ account
 
 and for workstations and administrators:
@@ -113,14 +116,17 @@ Please see the sophomorix-useradd(8) man pages for full documentation
 
 
 # some exits if options are missing
-if ($unix_group ne "" and ($workstation eq "" or $administrator eq "") or 
-   ($computer ne "") ){
+if ($unix_group ne "" and ($workstation eq "" or 
+                           $administrator eq "" or 
+                           $unixadmin eq "") or 
+                   ($computer ne "") ){
    # thats OK 
 } else {
     print "\nThe following options must be used:\n\n";
     print "1)    --unix-group name \n";
     print "  and one of:\n";
     print "      --administarator name\n";
+    print "      --unixadmin name\n";
     print "      --workstation name\n";
     print "OR:\n\n";
     print "2)   --computer name\n\n";
@@ -177,6 +183,16 @@ if ($workstation ne ""){
 if ($administrator ne ""){
     $type="administrator";
     $login=$administrator;
+    if ($shell eq ""){
+        $shell="/bin/bash";
+    }
+    $home=$DevelConf::homedir_all_admins."/".$login;
+    $sophomorix_status="P";
+}
+
+if ($unixadmin ne ""){
+    $type="unixadmin";
+    $login=$unixadmin;
     if ($shell eq ""){
         $shell="/bin/bash";
     }
