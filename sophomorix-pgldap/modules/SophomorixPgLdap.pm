@@ -1943,7 +1943,6 @@ sub create_class_db_entry {
     } # end adding group
 
     # create entry in auth system
-    print "ADDING $class_to_add $type $gidnumber $displayname $domain_group $local_group\n";
     &auth_groupadd($class_to_add,$type,
                    $gidnumber,$displayname,
                    $domain_group,$local_group);
@@ -5049,8 +5048,15 @@ sub auth_useradd {
                    $command="smbldap-usermod -H '[WX]' $login";
       	           print "   * $command\n";
                    system("$command");           
+	       } elsif ($type eq "unixadmin") {
+                   # user account, unix only
+                   $command="smbldap-useradd $uid_string -c '$gecos'".
+                            " -d $home -m -g $unix_group $sec_string".
+                            " -s $shell $login";
+	           print "   * $command\n";
+                   system("$command");           
 	       } else {
-                   # user account
+                   # user account, unix and windows
                    $command="smbldap-useradd -a $uid_string -c '$gecos'".
                             " -d $home -m -g $unix_group $sec_string".
                             " -s $shell $login";
@@ -5415,7 +5421,7 @@ sub add_slapd_from_ldif {
 sub patch_ldif {
     # parameter 1: basedn
     #
-    my ($base_dn) = @_;
+    my ($base_dn,$smbworkgroup) = @_;
     my ($dc)=split(/,/,$base_dn);
     $dc=~s/dc=//;
     print "basedn:   ---$base_dn---\n";
@@ -5431,6 +5437,13 @@ sub patch_ldif {
 	    #print "\n$_\n";
             my ($without_dn) = split(/dc=/);
             my $new_dc = $without_dn.$base_dn;
+            if ($new_dc=~m/(.*sambaDomainName=)[^,]*(,dc=.*)/){
+                #print "$1 \n";
+                #print "$2 \n";
+                my $line=$1.$smbworkgroup.$2;
+                $new_dc=$line;
+	    }
+            print "$new_dc\n";
             print PATCHED "$new_dc\n";
 	} elsif (m/^dc:/){
             print PATCHED "dc: $dc\n";
