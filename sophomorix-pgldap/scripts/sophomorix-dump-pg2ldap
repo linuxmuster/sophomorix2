@@ -42,9 +42,12 @@ my $testopt=GetOptions(
 &check_options($testopt);
 &log_script_start(@arguments);
 
+my $dump_dir=${DevelConf::log_pfad_pg2ldif};
 
 if ($dump==1){
-    print "starting dump ...\n";
+    system("mkdir -p $dump_dir");
+    print "dump to $dump_dir...\n";
+    system("dump-postgres-for-ldap.sh $dump_dir");
 }
 
 if ($load_dump==1){
