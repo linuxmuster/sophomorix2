@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-USERADD 8 "May 31, 2007"
+.TH SOPHOMORIX-USERADD 8 "June 11, 2007"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -53,8 +53,12 @@ Dies geschieht üblicherweise bei der Paketinstallation. Der
 Netzwerkbetreuer sollte keine Administratoren anlegen müssen.
 .TP
 .B --administrator user --unix-group group 
-Legt den administrator user in der primären Gruppe group
-an. (/home/administrator/user)
+Legt den administrator user mit unix- und windows-Account in der
+primären Gruppe group an. (/home/administrator/user)
+.TP
+.B --unixadmin user --unix-group group
+Legt den administrator user mit unix-Account in der primären Gruppe
+group an. (/home/administrator/user)
 .TP
 .B --uidnumber num
 Gibt dem user die User-id num.
