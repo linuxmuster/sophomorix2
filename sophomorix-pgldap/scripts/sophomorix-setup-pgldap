@@ -1023,7 +1023,7 @@ if ($slapd_standalone==1){
     system("sophomorix-useradd --skiplock --unixadmin wwwadmin --uidnumber 997 --gecos 'web Administrator' --unix-group 'wwwadmin' --shell /bin/false");
 
     # domadmin (for joining the domain)
-    system("sophomorix-useradd --skiplock --administrator domadmin --uidnumber 996 --gecos 'Domain Admin' --unix-group 'domadmins' --shell /bin/false");
+    system("sophomorix-useradd --skiplock --administrator domadmin --uidnumber 996 --gecos 'Domain Admin' --unix-group 'domadmins' --shell /bin/false --home /dev/null");
 
 } else { 
     # administrator is equal to admin in ml 2.x
