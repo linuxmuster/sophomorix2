@@ -81,6 +81,7 @@ my $testopt=GetOptions(
            "gecos=s" => \$gecos,
            "uidnumber=i" => \$uid_number,
            "shell=s" => \$shell,
+           "home=s" => \$home,
            "skiplock" => \$skiplock,
           );
 
@@ -105,6 +106,11 @@ Options
 
 and for workstations, administrators and unixadmin:
   --unix-group groupname
+
+optional
+  --shell /bin/sh
+  --home /dev/null
+  --gecos "my gecos field"
 
 Please see the sophomorix-useradd(8) man pages for full documentation
 ');
@@ -186,7 +192,12 @@ if ($administrator ne ""){
     if ($shell eq ""){
         $shell="/bin/bash";
     }
-    $home=$DevelConf::homedir_all_admins."/".$login;
+    if ($home eq ""){
+        $home=$DevelConf::homedir_all_admins."/".$login;
+    }
+    if ($gecos eq ""){
+        $gecos="unknown admin";
+    }
     $sophomorix_status="P";
 }
 
@@ -196,7 +207,12 @@ if ($unixadmin ne ""){
     if ($shell eq ""){
         $shell="/bin/bash";
     }
-    $home=$DevelConf::homedir_all_admins."/".$login;
+    if ($home eq ""){
+        $home=$DevelConf::homedir_all_admins."/".$login;
+    }
+    if ($gecos eq ""){
+        $gecos="unknown unixadmin";
+    }
     $sophomorix_status="P";
 }
 
