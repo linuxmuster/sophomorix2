@@ -12,14 +12,19 @@ Getopt::Long::Configure ("bundling");
 
 # Todo replace debconf calls with thomas values
 
-#use Sophomorix::SophomorixConfig; 
-#use Sophomorix::SophomorixBase; 
+use Sophomorix::SophomorixConfig; 
+use Sophomorix::SophomorixBase; 
 #use Sophomorix::SophomorixPgLdap qw(
-                                   );
+#                                   );
 
 my @arguments = @ARGV;
 
+my $help=0;
+my $info=0;
 $Conf::log_level=1;
+
+my $dump=0;
+my $load_dump=0;
 
 my $timestamp=&zeit_stempel();
 
@@ -30,14 +35,21 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
            "dump" => \$dump,
+           "load_dump" => \$load_dump,
           );
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
 &log_script_start(@arguments);
 
-print "starting dump...\n";
 
+if ($dump==1){
+    print "starting dump ...\n";
+}
+
+if ($load_dump==1){
+    print "loading dump ...\n";
+}
 
 &log_script_end(@arguments);
 
