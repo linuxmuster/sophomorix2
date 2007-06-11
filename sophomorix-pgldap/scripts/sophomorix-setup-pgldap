@@ -13,9 +13,6 @@ use DBI;
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 
-
-# Todo replace debconf calls with thomas values
-
 use Sophomorix::SophomorixConfig; 
 use Sophomorix::SophomorixBase; 
 use Sophomorix::SophomorixPgLdap qw(
@@ -537,7 +534,6 @@ if ($info==1){
 # Replace the following config-files
 ############################################################
 # path to the template-files
-#my $template="/usr/share/sophomorix/config-templates";
 my $template=${DevelConf::config_template_pfad};
 
 
@@ -776,7 +772,11 @@ if (not -e "$DevelConf::smb_conf_global_sys"){
 }
 
 # do it, bdb
-system("sed $replace ${template}/bdb/DB_CONFIG > $db_config"); 
+if ($slapd_standalone==1){
+    system("sed $replace ${template}/bdb/slapd-standalone.DB_CONFIG > $db_config"); 
+} else { 
+    system("sed $replace ${template}/bdb/DB_CONFIG > $db_config"); 
+} 
 
 
 # Set password in /var/lib/samba/secrets.tdb
