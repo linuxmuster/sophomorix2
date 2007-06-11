@@ -317,6 +317,8 @@ foreach my $user (@users){
     }
     # Passwort für user setzen
     &set_sophomorix_passwd($user,$password);
+    # set password in auth system
+    &Sophomorix::SophomorixPgLdap::auth_passwd($user,$password);
     # updating the database
     &update_user_db_entry($user,"FirstPass=$password");
 }
