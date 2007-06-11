@@ -259,8 +259,6 @@ if ($interactive==1){
         if ($password_1 eq $password_2){
             # Passwort für user setzen
             &set_sophomorix_passwd($users[0],$password_1);
-            # set password in auth system
-            &Sophomorix::SophomorixPgLdap::auth_passwd($users[0],$password_1);
             # do NOT set password in the Database as FirstPassword
             exit 0;
         } else {
@@ -317,8 +315,6 @@ foreach my $user (@users){
     }
     # Passwort für user setzen
     &set_sophomorix_passwd($user,$password);
-    # set password in auth system
-    &Sophomorix::SophomorixPgLdap::auth_passwd($user,$password);
     # updating the database
     &update_user_db_entry($user,"FirstPass=$password");
 }
