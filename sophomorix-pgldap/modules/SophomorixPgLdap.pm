@@ -1681,8 +1681,10 @@ sub set_sophomorix_passwd {
           print "Test: setting password part 2\n";
       }
     }
-
     $dbh->disconnect();
+
+    # set password in auth system
+    &auth_passwd($login,$pass);
 }
 
 
