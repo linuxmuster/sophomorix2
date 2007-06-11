@@ -622,7 +622,8 @@ print "   Database name               :   $dbname \n";
 
 # the great replacement string
 $replace= " -e 's/\@\@basedn\@\@/${basedn}/g'". 
-          " -e 's/\@\@dc\@\@/${dc}/g'". 
+          " -e 's/\@\@dc\@\@/${dc}/g'".
+          " -e 's/\@\@smbworkgroup\@\@/${smbworkgroup}/g'".
           " -e 's/\@\@servername\@\@/${servername}/g'". 
           " -e 's/\@\@internip\@\@/${internip}/g'". 
           " -e 's/\@\@serverip\@\@/${internip}/g'". 
@@ -905,7 +906,7 @@ if ($slapd_standalone==1){
     } else {
         # use the old database
         # modify the basedn and other stuff in the latest dump
-        &patch_ldif($basedn);
+        &patch_ldif($basedn,$smbworkgroup);
         # add the latest dump, if existing
         &add_slapd_from_ldif();
     }
@@ -1019,7 +1020,7 @@ if ($slapd_standalone==1){
     system("sophomorix-useradd --skiplock --administrator pgmadmin --uidnumber 999 --gecos 'Programm Administrator' --unix-group 'domadmins' --shell /bin/false");
 
     # wwwadmin for web services (moodle, opengroupware, imp ...) NOT a windows user
-    system("sophomorix-useradd --skiplock --administrator wwwadmin --uidnumber 997 --gecos 'web Administrator' --unix-group 'wwwadmin' --shell /bin/false");
+    system("sophomorix-useradd --skiplock --unixadmin wwwadmin --uidnumber 997 --gecos 'web Administrator' --unix-group 'wwwadmin' --shell /bin/false");
 
     # domadmin (for joining the domain)
     system("sophomorix-useradd --skiplock --administrator domadmin --uidnumber 996 --gecos 'Domain Admin' --unix-group 'domadmins' --shell /bin/false");
