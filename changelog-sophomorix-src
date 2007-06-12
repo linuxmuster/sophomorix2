@@ -1699,23 +1699,21 @@ check if this is the difference from a group appearing in windows
 komischer Wert bei slapcat:
 sambaDomainName:: c2NodWxlIA==
 
-wwwadmin sollte in files?
- - automatisch nur posix user
- - tut auch ohne ldap
-oder muss wwwadmin in ldap sein?
-
-
 Admins müssen sn haben im ldif
 Workstation auch?
 accounts
-
-net get localsid -> zuvor in debconf lesen 
 
 ================== CHANGELOG ========================================
 
 Last code changes for 2.0.0: 26.6.07 
 
-1.9.19-1 (2007-06-xx)
+
+1.9.20-1 (2007-06-xx)
+
+
+1.9.19-1 (2007-06-12)
+    - workstation -> examaccount
+    - Bugfix: fetch SID from debconf (fallback to net getlocalsid)
     - Bugfix: make all files in /var/lib/ldap owned by openldap.openldap
 
 1.9.18-1 (2007-06-12)
