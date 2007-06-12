@@ -4899,10 +4899,18 @@ sub smb_group_sid {
 
 
 sub get_smb_sid {
-    $sid_string=`net getlocalsid`;
-    chomp($sid_string);
-    my ($rubbish,$sid) = split(/: /,$sid_string);
-    return $sid;
+    my $sid_debconf = 
+      &Sophomorix::SophomorixBase::get_debconf_value("linuxmuster-base", "sambasid",0);
+    my $sid="";
+    my $rubbish="";
+    if ($sid_debconf eq "0"){
+        $sid_string=`net getlocalsid`;
+        chomp($sid_string);
+        ($rubbish,$sid) = split(/: /,$sid_string);
+        return $sid;
+    } else {
+        return $sid_debconf;
+    }
 }
 
 

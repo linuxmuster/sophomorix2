@@ -92,6 +92,7 @@ if ($dump==1){
 
 
 if ($load_dump==1){
+    my $ldap_dir="/var/lib/ldap";
     my $db_config="/var/lib/ldap/DB_CONFIG";
     my $template=${DevelConf::config_template_pfad};
     my $ldif_local="/usr/share/sophomorix/config-templates/ldap/local-gen.ldif";
@@ -104,7 +105,7 @@ if ($load_dump==1){
     print "throwing away old ldap tree ...\n";
     system("rm -rf /var/lib/ldap/*");
     system("cp ${template}/bdb/slapd-standalone.DB_CONFIG $db_config"); 
-    system("chown openldap.openldap $db_config"); 
+    system("chown openldap.openldap $ldap_dir/*"); 
 
     # start and stop slapd to recreate files in /var/lib/ldap
     system("/etc/init.d/slapd start");
@@ -114,9 +115,11 @@ if ($load_dump==1){
     # populate ldap (no users)
     print "Populating ldap with $ldif_local\n";
     system("slapadd -c -l $ldif_local");
+    system("chown openldap.openldap $ldap_dir/*"); 
 
     print "loading dump ...\n";
     system("slapadd -c -l $dump_dir/$ldif_file");
+    system("chown openldap.openldap $ldap_dir/*"); 
     system("/etc/init.d/slapd start");
 } else {
     print "NOT loading ldif into ldap\n";
