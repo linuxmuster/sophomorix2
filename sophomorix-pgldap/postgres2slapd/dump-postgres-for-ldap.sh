@@ -1,5 +1,8 @@
 #!/bin/bash
 
+LANG=C
+export LANG
+
 dump_dir=$1
 mkdir -p $dump_dir
 
