@@ -1743,16 +1743,23 @@ wwwadmin sollte in files?
 oder muss wwwadmin in ldap sein?
 
 
+Admins müssen sn haben im ldif
+
 ================== CHANGELOG ========================================
 
-1.9.18-1 (2007-06-xx)
+1.9.19-1 (2007-06-xx)
+
+
+1.9.18-1 (2007-06-12)
+    - added surname,firstname to postgres to dump MUST sn value in ldap
+    - integrated scripts of T. Hoth
     - updated manpage and --help od sophomorix-useradd
 
 
 1.9.17-1 (2007-06-11)
     - changing of smbworkgroup changes sambaDomainName in ldap
     - adding localgroups correctly to ldap
-    - deleting net groupmap entry 
+    - deleting net groupmap entry when deleting a group
     - changing of domainname changes basedn in ldap
 
 1.9.16-1 (2007-06-06)
