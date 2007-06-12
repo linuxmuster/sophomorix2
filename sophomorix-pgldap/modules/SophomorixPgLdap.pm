@@ -1297,7 +1297,7 @@ sub fetchdata_from_account {
         } elsif ($group  eq ${DevelConf::teacher}){
 	    $type="teacher";
         } elsif ($home=~/^$DevelConf::homedir_ws\//){
-            $type="workstation";
+            $type="examaccount";
         } elsif ($home=~/\/dev\/null/){
             $type="domcomp";
         } elsif ($home=~/^$DevelConf::attic\//){
@@ -1471,7 +1471,7 @@ sub create_user_db_entry {
        if ($type eq "computer"){
            $gidnumber=515;
        } else {
-           if ($type eq "workstation"){
+           if ($type eq "examaccount"){
               # neue gruppe anlegen und gidnumber holen, falls erforderlich
               $gidnumber=&create_class_db_entry($admin_class,5);
 	  } else {
@@ -5465,6 +5465,7 @@ sub patch_ldif {
     close(ORIG);
     close(PATCHED);
 }
+
 
 
 # ENDE DER DATEI

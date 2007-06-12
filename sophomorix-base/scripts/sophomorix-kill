@@ -368,7 +368,7 @@ sub kill_user {
           # (Ist normalerweise nicht Leer)
           "rmdir --ignore-fail-on-non-empty ${DevelConf::share_classes}/$linux_gruppe_to_kill > /dev/null"
           );
-     } elsif ($type_to_kill eq "workstation") {
+     } elsif ($type_to_kill eq "examaccount") {
          &do_falls_nicht_testen(
              "rmdir --ignore-fail-on-non-empty ${DevelConf::homedir_ws}/$linux_gruppe_to_kill > /dev/null",
           );

@@ -697,7 +697,7 @@ sub login_type {
           } elsif ($group  eq ${DevelConf::teacher}){
 	      $type="teacher";
           } elsif ($home=~/^$DevelConf::homedir_ws\//){
-              $type="workstation";
+              $type="examaccount";
           } elsif ($home=~/\/dev\/null/){
               $type="domcomp";
           } elsif ($home=~/^$DevelConf::homedir_all_admins\//){
@@ -770,7 +770,7 @@ sub get_quota{
 	    $quotastring=$quota_txt{"standard-schueler"};
         } elsif ($login_type{$login} eq "teacher"){
 	    $quotastring=$quota_txt{"standard-lehrer"};
-        } elsif ($login_type{$login} eq "workstation"){
+        } elsif ($login_type{$login} eq "examaccount"){
 	    $quotastring=$quota_txt{"standard-workstations"};
         } elsif ($login_type{$login} eq "none"){
             # must be user in attic,
@@ -811,7 +811,7 @@ sub get_quota{
 	    $mailquota=$mail_quota_txt{"standard-schueler"};
         } elsif ($login_type{$login} eq "teacher"){
 	    $mailquota=$mail_quota_txt{"standard-lehrer"};
-        } elsif ($login_type{$login} eq "workstation"){
+        } elsif ($login_type{$login} eq "examaccount"){
 	    $mailquota=$mail_quota_txt{"standard-workstations"};
         } elsif ($login_type{$login} eq "none"){
             # must be user in attic,

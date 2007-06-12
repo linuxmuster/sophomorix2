@@ -41,7 +41,7 @@ my $skiplock=0;
 # mandatory
 my $administrator="";
 my $unixadmin="";
-my $workstation="";
+my $examaccount="";
 my $computer="";
 
 my $unix_group="";
@@ -75,7 +75,7 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "administrator=s" => \$administrator,
            "unixadmin=s" => \$unixadmin,
-           "workstation=s" => \$workstation,
+           "examaccount=s" => \$examaccount,
            "computer=s" => \$computer,
            "verbose|v+" => \$Conf::log_level,
            "unix-group=s" => \$unix_group,
@@ -101,7 +101,7 @@ sophomorix-useradd adds a user to the sophomorix database (and ldap)
 
 Options
   -h  / --help
-  --workstation name         account for exams
+  --examaccount name         account for exams
   --administrator name       administrator
   --unixadmin name           login (no windows account)
   --computer name            $ account
@@ -124,7 +124,7 @@ Please see the sophomorix-useradd(8) man pages for full documentation
 
 
 # some exits if options are missing
-if ($unix_group ne "" and ($workstation eq "" or 
+if ($unix_group ne "" and ($examaccount eq "" or 
                            $administrator eq "" or 
                            $unixadmin eq "") or 
                    ($computer ne "") ){
@@ -135,7 +135,7 @@ if ($unix_group ne "" and ($workstation eq "" or
     print "  and one of:\n";
     print "      --administarator name\n";
     print "      --unixadmin name\n";
-    print "      --workstation name\n";
+    print "      --examaccount name\n";
     print "OR:\n\n";
     print "2)   --computer name\n\n";
     exit;
@@ -181,14 +181,14 @@ if ($computer ne ""){
     $sophomorix_status="P";
 }
 
-if ($workstation ne ""){
-    $type="workstation";
-    $login=$workstation;
+if ($examaccount ne ""){
+    $type="examaccount";
+    $login=$examaccount;
     if ($shell eq ""){
         $shell="/bin/bash";
     }
     if ($gecos eq ""){
-        $gecos="HostAccount $login";
+        $gecos="ExamAccount";
     }
     if ($surname eq ""){
         $surname="Account";

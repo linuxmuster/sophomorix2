@@ -341,7 +341,7 @@ Reads all permissions below homedirs
 =cut
 sub fetch_repairhome {
    # files repairhome.$type to read
-   my @typelist = ("administrator","teacher","student","workstation","attic");
+   my @typelist = ("administrator","teacher","student","examaccount","attic");
 
    # data structure: hash of arrays
    my @administrator=();     
@@ -353,7 +353,7 @@ sub fetch_repairhome {
    $all_repairhome{"administrator"}=\@administrator;
    $all_repairhome{"teacher"}=\@teacher;
    $all_repairhome{"student"}=\@student;
-   $all_repairhome{"workstation"}=\@workstation;
+   $all_repairhome{"examaccount"}=\@workstation;
    $all_repairhome{"attic"}=\@attic;
 
    foreach my $type (@typelist){
@@ -380,7 +380,7 @@ sub fetch_repairhome {
           if ($type eq "student"){
 	      push @student, $_;
           }
-          if ($type eq "workstation"){
+          if ($type eq "examaccount"){
 	      push @workstation, $_;
           }
           if ($type eq "attic"){
@@ -1037,7 +1037,7 @@ sub provide_class_files {
     if (not defined $type){
 	$type="";
     }
-    if ($type eq "workstation"){
+    if ($type eq "examaccount"){
 
     } elsif ($class eq ${DevelConf::teacher}){
       &setup_verzeichnis("\$share_teacher",
@@ -2178,7 +2178,7 @@ sub reset_user {
         print "   ... doing nothing!\n";
     } elsif ($type ne "student" 
          and $type ne "teacher" 
-         and $type ne "workstation"){
+         and $type ne "examaccount"){
         print "   WARNING: Cannot reset account $user \n";
         print "            Not a student, teacher or workstation\n";
     } else {
