@@ -26,20 +26,31 @@ use Net::LDAP;
 #use DebAux::Debconf;
 use IMAP::Admin;
 
+#my $unix_group="printoperators";
+
+#my ($g_type,$g_name,$g_gidnumber)=&pg_get_group_type($unix_group);
+
+#print "$g_type    $g_name    $g_gidnumber  \n";
+
+#&patch_ldif("dc=mydom,dc=org","myschool");
 
 
+my $sid=&get_smb_sid();
 
-my $ldif_local="/usr/share/sophomorix/config-templates/ldap/local-gen.ldif";
+print "$sid\n";
+
+
+#my $ldif_local="/usr/share/sophomorix/config-templates/ldap/local-gen.ldif";
 
 
 # dump the contents of slapd to ldif
 # works when slapd is running or not
-system("slapcat -l /root/old.ldif"); 
+##system("slapcat -l /root/old.ldif"); 
 
-&dump_slapd_to_ldif();
+##&dump_slapd_to_ldif();
 
 # stop ldap
-system("/etc/init.d/slapd stop"); 
+##system("/etc/init.d/slapd stop"); 
 
 # do this with a stopped ldap
 
@@ -47,7 +58,7 @@ system("/etc/init.d/slapd stop");
 # cp /var/lib/ldap/DB_CONFIG /tmp/
 
 
-system("rm -rf /var/lib/ldap/*");
+##system("rm -rf /var/lib/ldap/*");
 
 
 # mv /tmp/DB_CONFIG /var/lib/ldap/
@@ -55,31 +66,31 @@ system("rm -rf /var/lib/ldap/*");
 
 # start ldap, so that files are created again
 #
-system("/etc/init.d/slapd start");
+##system("/etc/init.d/slapd start");
 
 # ok
-system("/etc/init.d/slapd stop");
+##system("/etc/init.d/slapd stop");
 
 
 # smbldap-populate (oder was entsprechendes von dir)
 # ok
-system("slapadd -l $ldif_local");
+##system("slapadd -l $ldif_local");
 
 # reload the old ldif file
-#system("slapadd -c -l /root/old.ldif");
+##system("slapadd -c -l /root/old2.ldif");
 # ok
-&add_slapd_from_ldif();
+#&add_slapd_from_ldif();
 
 # cat user.ldif | slapadd
 # cat group.ldif | slapadd
 # cat user_group | slapadd
 # ok
-system("chown -R openldap.openldap /var/lib/ldap/");
+##system("chown -R openldap.openldap /var/lib/ldap/");
 
 
 # start ldap
 # ok
-system("/etc/init.d/slapd start"); 
+##system("/etc/init.d/slapd start"); 
 
 
 

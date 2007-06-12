@@ -1709,12 +1709,14 @@ Admins müssen sn haben im ldif
 Workstation auch?
 accounts
 
+net get localsid -> zuvor in debconf lesen 
+
 ================== CHANGELOG ========================================
 
 Last code changes for 2.0.0: 26.6.07 
 
 1.9.19-1 (2007-06-xx)
-
+    - Bugfix: make all files in /var/lib/ldap owned by openldap.openldap
 
 1.9.18-1 (2007-06-12)
     - added surname,firstname to postgres to dump MUST sn value in ldap
