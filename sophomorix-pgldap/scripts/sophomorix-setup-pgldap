@@ -33,7 +33,6 @@ my $replace="";
 
 $Conf::log_level=1;
 
-my $basedn="";
 my $domainname="";
 my $servername="";
 my $smbworkgroup="";
@@ -595,15 +594,7 @@ my $message3="Last Modification: $timestamp";
 ############################################################
 # basedn, dc
 ############################################################
-my @ldapdomains=();
-my (@domains)= split(/\./,$domainname);
-my $dc=$domains[0];
-
-foreach my $value (@domains) {
-    push @ldapdomains, "dc=${value}";
-}
-$basedn = join "," , @ldapdomains;
-
+my ($basedn,$dc)=&basedn_from_domainname($domainname);
 
 ############################################################
 # SMB server string
@@ -773,9 +764,11 @@ if (not -e "$DevelConf::smb_conf_global_sys"){
 
 # do it, bdb
 if ($slapd_standalone==1){
-    system("sed $replace ${template}/bdb/slapd-standalone.DB_CONFIG > $db_config"); 
+    system("sed $replace ${template}/bdb/slapd-standalone.DB_CONFIG > $db_config");
+    system("chown openldap.openldap $db_config"); 
 } else { 
     system("sed $replace ${template}/bdb/DB_CONFIG > $db_config"); 
+    system("chown openldap.openldap $db_config"); 
 } 
 
 
@@ -1020,7 +1013,7 @@ if ($slapd_standalone==1){
     system("sophomorix-useradd --skiplock --administrator pgmadmin --uidnumber 999 --gecos 'Programm Administrator' --unix-group 'domadmins' --shell /bin/false");
 
     # wwwadmin for web services (moodle, opengroupware, imp ...) NOT a windows user
-    system("sophomorix-useradd --skiplock --unixadmin wwwadmin --uidnumber 997 --gecos 'web Administrator' --unix-group 'wwwadmin' --shell /bin/false");
+    system("sophomorix-useradd --skiplock --unixadmin wwwadmin --uidnumber 997 --gecos 'Web Administrator' --unix-group 'wwwadmin' --shell /bin/false");
 
     # domadmin (for joining the domain)
     system("sophomorix-useradd --skiplock --administrator domadmin --uidnumber 996 --gecos 'Domain Admin' --unix-group 'domadmins' --shell /bin/false --home /dev/null");
@@ -1033,7 +1026,7 @@ if ($slapd_standalone==1){
     system("smbldap-useradd -u 999 -a  -c 'Programm Administrator' -m -d /home/administrators/pgmadmin -g 'domadmins' -s /bin/false pgmadmin");
 
     # wwwadmin for web services (moodle, opengroupware, imp ...) NOT a windows user
-    system("smbldap-useradd -u 997 -c 'web Administrator' -m -d /home/administrators/wwwadmin -g 'wwwadmin' -s /bin/false wwwadmin");
+    system("smbldap-useradd -u 997 -c 'Web Administrator' -m -d /home/administrators/wwwadmin -g 'wwwadmin' -s /bin/false wwwadmin");
 
     # domadmin (for joining the domain)
     system("smbldap-useradd -a -u 996 -c 'Domain Admin' -m -d /dev/null -g 'domadmins' -s /bin/false domadmin");

@@ -112,6 +112,7 @@ use Quota;
               group_private_upload
               group_private_noupload
               get_debconf_value
+              basedn_from_domainname
               );
 
 
@@ -4629,6 +4630,25 @@ sub get_debconf_value {
        return $ret;
     }
 }
+
+
+
+################################################################################
+# ldap stuff 
+################################################################################
+
+sub basedn_from_domainname {
+   my ($domainname) = @_;
+   my @ldapdomains=();
+   my (@domains)= split(/\./,$domainname);
+   my $dc=$domains[0];
+   foreach my $value (@domains) {
+       push @ldapdomains, "dc=${value}";
+   }
+   $basedn = join "," , @ldapdomains;
+   return ($basedn,$dc);
+}
+
 
 
 ################################################################################

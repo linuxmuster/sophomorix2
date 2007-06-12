@@ -19,15 +19,43 @@ use Sophomorix::SophomorixBase;
 
 my @arguments = @ARGV;
 
+
+
 my $help=0;
 my $info=0;
 $Conf::log_level=1;
 
 my $dump=0;
 my $load_dump=0;
+my $domainname="";
 
+############################################################
+# read the values from the config file
+############################################################
+my $config_file="/etc/sophomorix/pgldap/pgldap.conf";
+if (-e $config_file) { 
+   { package PgLdapConf ; do "$config_file"}
+   $domainname=$PgLdapConf::domainname;
+}
+
+# domainname
+#------------------------------------------------------------
+
+my $domainname_debconf=
+    &get_debconf_value("linuxmuster-base", "domainname",0);
+# process debconf data
+if ($domainname_debconf ne 0){
+    # from debconf
+    $domainname=$domainname_debconf;    
+    print "   Domainname from debconf              : $domainname \n";
+} else {
+    # from config file
+    print "   Domainname from pgldap.conf          : $domainname \n";
+}
+
+
+my ($basedn,$dc)=&basedn_from_domainname($domainname);
 my $timestamp=&zeit_stempel();
-
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -42,17 +70,59 @@ my $testopt=GetOptions(
 &check_options($testopt);
 &log_script_start(@arguments);
 
+
+
 my $dump_dir=${DevelConf::log_pfad_pg2ldif};
+my $ldif_file="slapd.ldif";
+
+
 
 if ($dump==1){
+    # dumping
     system("mkdir -p $dump_dir");
-    print "dump to $dump_dir...\n";
+    print "Dumping to $dump_dir...\n";
     system("dump-postgres-for-ldap.sh $dump_dir");
+    # convertting to ldif
+    system("gen-ldif-from-sql.perl $dump_dir $basedn > $dump_dir/$ldif_file");
+} else {
+    print "NOT dumping pg to ldif\n";
 }
 
+
+
+
 if ($load_dump==1){
+    my $db_config="/var/lib/ldap/DB_CONFIG";
+    my $template=${DevelConf::config_template_pfad};
+    my $ldif_local="/usr/share/sophomorix/config-templates/ldap/local-gen.ldif";
+
+    system("/etc/init.d/slapd stop");
+    sleep 2;
+    system("killall slapd");
+
+    # remove bdb files from slapd
+    print "throwing away old ldap tree ...\n";
+    system("rm -rf /var/lib/ldap/*");
+    system("cp ${template}/bdb/slapd-standalone.DB_CONFIG $db_config"); 
+    system("chown openldap.openldap $db_config"); 
+
+    # start and stop slapd to recreate files in /var/lib/ldap
+    system("/etc/init.d/slapd start");
+    system("/etc/init.d/slapd stop");
+
+    # slapd must be stopped again
+    # populate ldap (no users)
+    print "Populating ldap with $ldif_local\n";
+    system("slapadd -c -l $ldif_local");
+
     print "loading dump ...\n";
+    system("slapadd -c -l $dump_dir/$ldif_file");
+    system("/etc/init.d/slapd start");
+} else {
+    print "NOT loading ldif into ldap\n";
 }
+
+
 
 &log_script_end(@arguments);
 

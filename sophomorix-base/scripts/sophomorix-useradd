@@ -50,6 +50,8 @@ my $unix_group="";
 # optional
 my $uid_number=-1;
 my $gecos="";
+my $surname="";
+my $given_name="";
 my $sec_groups="";
 
 
@@ -169,6 +171,12 @@ if ($computer ne ""){
     if ($gecos eq ""){
         $gecos="Computer";
     }
+    if ($surname eq ""){
+        $surname="Computer";
+    }
+    if ($given_name eq ""){
+        $given_name="Computer";
+    }
     $home="/dev/null";
     $sophomorix_status="P";
 }
@@ -181,6 +189,12 @@ if ($workstation ne ""){
     }
     if ($gecos eq ""){
         $gecos="HostAccount $login";
+    }
+    if ($surname eq ""){
+        $surname="Account";
+    }
+    if ($given_name eq ""){
+        $given_name="Host";
     }
     $home=$DevelConf::homedir_ws."/".$unix_group."/".$login;
     $sophomorix_status="P";
@@ -198,6 +212,12 @@ if ($administrator ne ""){
     if ($gecos eq ""){
         $gecos="unknown admin";
     }
+    if ($surname eq ""){
+        $surname="Doe";
+    }
+    if ($given_name eq ""){
+        $given_name="John";
+    }
     $sophomorix_status="P";
 }
 
@@ -212,6 +232,12 @@ if ($unixadmin ne ""){
     }
     if ($gecos eq ""){
         $gecos="unknown unixadmin";
+    }
+    if ($surname eq ""){
+        $surname="Doe";
+    }
+    if ($given_name eq ""){
+        $given_name="Jane";
     }
     $sophomorix_status="P";
 }
@@ -235,7 +261,7 @@ print "    Quota            : $quota\n";
 
 
 # 1. create postgres entry
-&create_user_db_entry("","","01.01.1970",
+&create_user_db_entry($surname,$given_name,"01.01.1970",
                       $unix_group,$login,$password,
                       $shell,$quota,$unid,$epoch_now,undef,$sophomorix_status,
                       $uid_number,$home,$gecos,$type);
