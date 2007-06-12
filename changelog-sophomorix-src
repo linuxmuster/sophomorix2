@@ -1617,16 +1617,6 @@ vgl. Code bei mlscripts
 
 
 
-
-
-
-
-
-
-
-
-
-
 Problems:
 
 if you give user a shell:   
@@ -1650,17 +1640,6 @@ add some checks to auth_* functions, (see ?????)
 add warning, when connect to ldap failed
 
 
-
-Folgendes von sophomorix-setup-pgldap anpassen lassen:
-
-- sambaDomainName=SCHULE,dc=linuxmuster,dc=de
-
-- jedes Eintrags dn 
-
-
-sophomorix-useradd --workstation ... no homedir created
-
-
 sophomorix-kill --killuser name deletes in the wrong place:
 
    Removing recursively /home/workstations/r717/may1
@@ -1672,9 +1651,9 @@ File LOG is /var/log/sophomorix/user-modify.log
 -->rmdir: ,,/home/share/classes/r717": Datei oder Verzeichnis nicht gefunden
 
 
-
-
 Careful:
+sophomorix-useradd --workstation ... no homedir created
+
 adding a workstation does not add class-dirs and user-dirs
 (this does the script of workstation import)
 
@@ -1683,31 +1662,14 @@ deleting groups does not delete workstation dirs
 This should be moved to the sophomorix-scripts
 
 
-sophomorix-repair repariert workstations im falschen verzeichnis
+
+sophomorix-repair repariert workstations im falschen Verzeichnis
 check this
 
-
-changed group type of nonexisting group to 'nonexisting'
-(was 'unknown'). type 'unknown' is for groups, that exist, but a type 
-could not be defined. 
-
 can sophomorix-groupdel delete an empty adminclass group?
+- add option to do this
 
-
-
-
-next: modify dump of slapd to reflect new basedn and other stuff
-
-cp old.ldif old.ldif-unmodified
-modify it and copy it to old.ldif
-
-printout, when loading ldif with path, etc
-
-- add dump script pg to ldap from hoth
- 
-sophomorix-setup-pgldap does add admins again (nonexisting, why?)
-
-
+Checken:
 Die Abfrage zum Finden von Schuelern sieht bei mir in etwa so aus:
 SELECT uid FROM userdata
   RIGHT JOIN classdata ON userdata.gidnumber = classdata.gidnumber
@@ -1744,8 +1706,12 @@ oder muss wwwadmin in ldap sein?
 
 
 Admins müssen sn haben im ldif
+Workstation auch?
+accounts
 
 ================== CHANGELOG ========================================
+
+Last code changes for 2.0.0: 26.6.07 
 
 1.9.19-1 (2007-06-xx)
 
@@ -1770,6 +1736,10 @@ Admins müssen sn haben im ldif
       by its type 'room' (and not by the home of users to begin 
                           with /home/workstation) 
     - added deletion of room share, 
+    - The following could be changed also in another release (I'm not sure anymore)
+      Changed th group type of nonexisting group to 'nonexisting'
+      (was 'unknown'). type 'unknown' is for groups, that exist, but a type 
+      could not be defined. 
 
 
 1.9.15-1 (2007-06-03)
