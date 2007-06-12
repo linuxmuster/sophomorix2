@@ -3,9 +3,11 @@
 use strict;
 use warnings;
 
+my ($sqlpath,$ldapdc) = @ARGV;
 
-my $ldapdc="dc=linuxmuster,dc=local";
-my $sqlpath="/tmp";
+# t.hoth:
+#my $sqlpath="/tmp";
+#my $ldapdc="dc=linuxmuster,dc=local";
 
 # Datei öffnen und in array schreiben - Datei gleich wieder schließen
 my @groupsusersfile=();
