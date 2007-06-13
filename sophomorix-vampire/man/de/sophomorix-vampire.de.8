@@ -66,6 +66,17 @@ Anmeldungskärtchen ausgedruckt). Veränderte Passwörter werden NICHT
 wird auf einem neuen Server gestartet und holt dann Benutzer und und
 Daten eines alten Servers.
 .br
+.TP
+.B Step 0: 
+Sorgen sie dafuer, dass der neue Server üueber seine interne Netzwerkkarte auf den alten Server zugreifen kann:
+.br
+1) Physikalische Verbindung herstellen.
+.br
+2) Dem neuen Server eine zusaetzliche IP/Netmask geben, die im alten Netz liegt, und noch nicht vergeben ist, z.B. mit:
+.br
+.B ifconfig br_intern:10 netmask 255.255.0.0 10.1.1.244 
+
+.br
 
 .TP
 .B Step 1: --key --server 10.1.x.y
@@ -88,7 +99,7 @@ oder:
 Holen der Daten von einer gemounteten Wechselplatte(noch nicht implementiert).
 .TP
 .B Step 2: --fetch-files
-.br
+q.br
 Konfigurationsdateien vom alten Server holen (nach root/sophomorix-vampire)
 .TP
 .B Step 3: --install-files
