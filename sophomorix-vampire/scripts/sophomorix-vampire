@@ -996,6 +996,7 @@ sub rsync_dirs {
         my ($old,$new)=split(/::/,$entry);
         print"  - OLD: $old\n",
              "    NEW: $new\n";
+        system("mkdir -p $new");
         $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avz --delete  root\@${server}:$old $new";
         print "$command\n";
         system($command); 
