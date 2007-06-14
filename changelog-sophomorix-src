@@ -1508,11 +1508,6 @@ dann sollen die die Rechte haben: 2644/2755, owner:group
 (bisher 0700/0700 owner:group)
 
 
-BUG: sophomorix-passwd -u user -pass linux 
-       sets random password without throwing error/warning
-       (--pass linux sets linux)
-
-
 evtl. Bug: does a user has to change its password when he first authenticates 
            AND $student_samba_pw_must_change="yes" in sophomorix.conf?
 
@@ -1710,6 +1705,9 @@ Last code changes for 2.0.0: 26.6.07
 
 
 1.9.20-1 (2007-06-xx)
+    - Bugfix: avoid setting random password when using incorrect option
+      -pass (instead of --pass) in sophomorix-passwd
+    - updataed manpage sophomorix-vampire
     - Bugfix: sophomorix-vampier doesent work with sec_oct=160
     - Bugfix: --sync-dirs did not create new dir
 
