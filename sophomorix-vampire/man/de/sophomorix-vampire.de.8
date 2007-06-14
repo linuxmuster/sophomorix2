@@ -178,7 +178,20 @@ gibt an von welchem Server die Daten geholt werden sollen. Wenn die Namensauflös
 .TP
 .B --clear
 löscht das Verzeichnis /root/sophomorix-vampire in dem Konfigurationsdateien des alten Servers liegen.
-.TP
+.SH FAQ
+.br
+.B Question 1:
+.br
+Wie kann ich mich ohne Passwort, sondern mit dem erzeugten Key auf dem
+alten Server einloggen?
+.br
+.B Answer 1:
+.br
+sophomorix-vampire erzeugt keinen Key mit Standardnamen, sondern einen
+eigenen Key, damit evtl. vorhandene Standardkeys nicht ueberschrieben
+werden. Deshalb muss man beim einloggen angeben, welchen key man benutzt:
+.br
+.B ssh root@10.1.x.y -i /root/.ssh/vampire_key_dsa
 .SH SEE ALSO
 .BR sophomorix (8),
 .BR sophomorix-teach-in (8),
