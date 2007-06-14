@@ -76,7 +76,7 @@ my $info_line="";
 my $testopt=GetOptions(
            "users|user|u=s" => \$loginname,
            "class|classes|c=s" => \$classes,
-           "project|projects|p=s" => \$projects,
+           "project|projects=s" => \$projects,
            "student|students|s" => \$student,
            "teacher|teachers|t" => \$teacher,
            "room|rooms|r=s" => \$rooms,
@@ -123,7 +123,7 @@ Options
   -w / --workstations
   -u user1,user2,...   /  --users  user1,user2,...
   -c class1,class2,... /  --class class1,class2,... 
-  -p project1,project2,... /  --project project1,project2,... 
+  --project project1,project2,... 
   -r room1,room2,...   /  --rooms room1,room2,...
 
 Please see the sophomorix-passwd(8) man pages for full documentation
