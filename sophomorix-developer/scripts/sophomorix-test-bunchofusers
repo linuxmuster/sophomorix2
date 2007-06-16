@@ -333,7 +333,7 @@ if ($wsremove==1){
       #print "$command\n";
       system("$command");
 #      $command="smbldap-userdel $hostname\$";
-      my $command="sophomorix-kill --killuser $hostname\$";
+      $command="sophomorix-kill --killuser $hostname\$";
       #print "$command\n";
       system("$command");
    }
@@ -344,7 +344,7 @@ if ($wsremove==1){
 
       #print "$command\n";
       system("$command");
-      my $command="sophomorix-kill --killuser $hostname\$";
+      $command="sophomorix-kill --killuser $hostname\$";
       #$command="smbldap-userdel $hostname\$";
       #print "$command\n";
       system("$command");
