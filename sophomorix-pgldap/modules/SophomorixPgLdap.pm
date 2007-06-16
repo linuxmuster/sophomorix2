@@ -1389,7 +1389,7 @@ sub create_user_db_entry {
         $homedir=$homedir_force;
     }
 
-    my $description="perl: create_user_db_entry";
+    my $description="";
     my $birthday_pg = &date_perl2pg($birthday_perl);
 
     # create crypt password for linux
