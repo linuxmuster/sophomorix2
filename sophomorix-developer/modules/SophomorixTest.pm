@@ -468,7 +468,7 @@ sub fetch_ldap_account {
     my $entry = $msg->entry(0);
 
     foreach my $attrib ( $entry->attributes() ){
-        foreach my $val ( $entry->get_value( $attrib) ){
+        foreach my $val ( $entry->get_value( $attrib ) ){
             # WARNING: if attrib contains multiple values, then last wins!!!
 	    #print $attrib,": ",$val,"\n";
             $entries{$attrib}=$val;
