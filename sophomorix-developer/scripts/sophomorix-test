@@ -510,7 +510,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[DU]");
+&ok_account("sambaacctflags","[DUX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -552,7 +552,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[DU]");
+&ok_account("sambaacctflags","[DUX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -679,7 +679,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[U]");
+&ok_account("sambaacctflags","[UX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -711,7 +711,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[U]");
+&ok_account("sambaacctflags","[UX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -824,7 +824,7 @@ $login = &fetch_login("surname='Wall'
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[DU]");
+&ok_account("sambaacctflags","[DUX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -879,7 +879,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[U]");
+&ok_account("sambaacctflags","[UX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -931,7 +931,7 @@ print '
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[U]");
+&ok_account("sambaacctflags","[UX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -973,7 +973,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[U]");
+&ok_account("sambaacctflags","[UX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -1013,7 +1013,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[U]");
+&ok_account("sambaacctflags","[UX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -1065,7 +1065,7 @@ print '
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[U]");
+&ok_account("sambaacctflags","[UX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -1105,7 +1105,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[U]");
+&ok_account("sambaacctflags","[UX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -1200,7 +1200,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[U]");
+&ok_account("sambaacctflags","[UX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -1244,7 +1244,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[U]");
+&ok_account("sambaacctflags","[UX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -1371,7 +1371,7 @@ foreach my $login (@logins){
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[DU]");
+&ok_account("sambaacctflags","[DUX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -1404,7 +1404,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[DU]");
+&ok_account("sambaacctflags","[DUX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -1437,7 +1437,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[DU]");
+&ok_account("sambaacctflags","[DUX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -1471,7 +1471,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[DU]");
+&ok_account("sambaacctflags","[DUX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -1504,7 +1504,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[DU]");
+&ok_account("sambaacctflags","[DUX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -1559,7 +1559,7 @@ $login = &fetch_login("surname='Mahn'
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[U]");
+&ok_account("sambaacctflags","[UX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -1600,7 +1600,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[DU]");
+&ok_account("sambaacctflags","[DUX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -1643,7 +1643,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[DU]");
+&ok_account("sambaacctflags","[DUX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -1681,7 +1681,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[DU]");
+&ok_account("sambaacctflags","[DUX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -1724,7 +1724,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[DU]");
+&ok_account("sambaacctflags","[DUX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -1763,7 +1763,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[U]");
+&ok_account("sambaacctflags","[UX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -1813,7 +1813,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[U]");
+&ok_account("sambaacctflags","[UX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -1862,7 +1862,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambakickofftime", "$win_magic");
 &ok_account("sambapwdcanchange", "0");
 &ok_account("sambapwdmustchange", "$win_magic");
-&ok_account("sambaacctflags","[U]");
+&ok_account("sambaacctflags","[UX]");
 $usid=2*$account{'uidnumber'}+1000;
 $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambasid", "${sid}-${usid}");
@@ -1925,10 +1925,13 @@ foreach my $login (@logins){
 ###########################################################################
 
 
-
 sub ok_account{
     # Hash must be in %account, wich is global in this file
     my ($col, $v) = @_;
+    my $ldap_gid;
+    my $ldap_cn;
+    my $pg_gidnumber;
+    my $ldap_gidnumber;
 
     # pg
 
@@ -1946,6 +1949,34 @@ sub ok_account{
     } else {
        # check for equality
        is( $account{$col},$v, "pgcheck:   $v is $col of $account{uid}");
+    }
+
+    if ($col eq "gid"){
+        # fetch gidnumbers
+        $pg_gidnumber=$account{'gidnumber'};
+        $ldap_gidnumber=$account_ldap{'gidNumber'};
+        # expect ldap to be equal
+        is( $pg_gidnumber,$ldap_gidnumber, 
+            "gidnums:   ${pg_gidnumber}(pg) = ${ldap_gidnumber}(ldap) of $account_ldap{uid}");
+
+        # fetch gid of ldap
+        my $ldap=&Sophomorix::SophomorixPgLdap::auth_connect();
+        my $msg = $ldap->search(
+            base => "ou=groups,dc=linuxmuster,dc=de",
+            scope => "sub",
+            filter => ("gidNumber=$pg_gidnumber")
+        );
+
+        # print $msg->count(), " entries returned\n";
+        my $entry = $msg->entry(0);
+        ($ldap_cn)=$entry->get_value('cn');
+        ($ldap_gid)=$entry->get_value('displayname');
+
+        is( $ldap_cn,$v, 
+            "cn:        ${v}(pg->gid) = ${ldap_cn}(ldap->cn) of $account_ldap{uid}");
+        is( $ldap_gid,$v, 
+            "gid:       ${v}(pg->gid) = ${ldap_gid}(ldap->displayname) of $account_ldap{uid}");
+        &Sophomorix::SophomorixPgLdap::auth_disconnect($ldap);
     }
 
     # ldap
@@ -1987,8 +2018,12 @@ sub ok_account{
 
     # check for equality
     is( $account_ldap{$attr},$v, "ldapcheck: $v is $attr of $account_ldap{uid}");
-}
 
+    # check if in cn is the same value as in gecos
+    if ($attr eq "gecos"){
+        is( $account_ldap{'cn'},$v, "ldapcheck: $v is cn of $account_ldap{uid}");
+    }
+}
 
 
 
