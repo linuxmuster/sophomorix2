@@ -63,7 +63,7 @@ print "\nToday is $today (pg: $today_pg)\n";
 my $verbose=0;
 
 my %account=();
-
+my %account_ldap=();
 
 &run_command("sophomorix-check",$verbose);
 
@@ -182,11 +182,14 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 # Datenbank prüfen
 
 
-%account = &fetch_single_account("surname='Maier' 
+%account = &fetch_single_account("surname='Maier'
                                   AND firstname='Joerg'
                                   AND birthday='1982-10-12'
                                   AND adminclass='m4kb'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Joerg Maier");
@@ -218,6 +221,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1982-04-02'
                                   AND adminclass='7a'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Mohammed Oeztuerk");
@@ -248,6 +254,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1972-04-02'
                                   AND adminclass='2c'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
@@ -278,6 +287,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1982-10-12'
                                   AND adminclass='m1kb'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "oliver Mahn");
@@ -308,6 +320,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1942-10-12'
                                   AND adminclass='teachers'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "");
@@ -359,6 +374,9 @@ print '
                                   AND birthday='1982-10-12'
                                   AND adminclass='m4kb'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "T");
 &ok_account("tolerationdate", $today_pg);
 &ok_account("gecos", "Joerg Maier");
@@ -397,6 +415,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                 AND birthday='1982-10-12'
                                 AND adminclass='attic'",
                               );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("exitadminclass", "m4kb");
 &ok_account("gecos", "Joerg Maier");
 &ok_account("gid", "attic");
@@ -434,6 +455,9 @@ $login = &fetch_login("surname='Maier'
                                   AND birthday='1982-10-12'
                                   AND adminclass='attic'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "T");
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "");
@@ -467,6 +491,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1982-10-12'
                                   AND adminclass='attic'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "D");
 &ok_account("deactivationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
@@ -503,6 +530,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1982-10-12'
                                   AND adminclass='attic'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "D");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
@@ -586,6 +616,9 @@ $login = &fetch_login("surname='Oeztuerk'
                                   AND birthday='1982-04-02'
                                   AND adminclass='7a'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "T");
 &ok_account("tolerationdate", $today_pg);
 &ok_account("gecos", "Mohammed Oeztuerk");
@@ -629,6 +662,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1982-04-02'
                                   AND adminclass='7a'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "E");
 &ok_account("tolerationdate", "");
 &ok_account("gecos", "Mohammed Oeztuerk");
@@ -659,6 +695,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1982-04-02'
                                   AND adminclass='7c'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "E");
 &ok_account("tolerationdate", "");
 &ok_account("gecos", "Mohammed Oeztuerk");
@@ -710,6 +749,9 @@ print '
                                   AND birthday='1972-04-02'
                                   AND adminclass='2c'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "T");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", $today_pg);
@@ -762,6 +804,9 @@ $login = &fetch_login("surname='Wall'
                                   AND birthday='1972-04-02'
                                   AND adminclass='attic'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "D");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
@@ -815,6 +860,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1972-04-02'
                                   AND adminclass='3c'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "E");
 &ok_account("creationdate", $today_pg);
 &ok_account("exitadminclass", "2c");
@@ -867,6 +915,9 @@ print '
                                   AND birthday='1982-04-02'
                                   AND adminclass='7c'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "E");
 &ok_account("gecos", "Mohammed Oetztuerk");
 &ok_account("gid", "7c");
@@ -906,6 +957,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1982-04-02'
                                   AND adminclass='7c'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "E");
 &ok_account("gecos", "Mohammad Oetztuerk");
 &ok_account("gid", "7c");
@@ -943,6 +997,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1983-04-02'
                                   AND adminclass='7c'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "E");
 &ok_account("gecos", "Mohammad Oetztuerk");
 &ok_account("gid", "7c");
@@ -990,6 +1047,9 @@ print '
                                   AND birthday='1972-04-02'
                                   AND adminclass='3c'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "E");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
@@ -1027,6 +1087,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1962-04-02'
                                   AND adminclass='3c'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "E");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Richard Stallman");
@@ -1075,6 +1138,9 @@ print '
                                   AND birthday='1982-10-12'
                                   AND adminclass='m1kb'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "T");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", $today_pg);
@@ -1114,6 +1180,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1984-10-12'
                                   AND adminclass='m1kb'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "E");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "");
@@ -1157,6 +1226,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1984-10-12'
                                   AND adminclass='m1kb'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "E");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "oliver Mahn");
@@ -1277,6 +1349,9 @@ foreach my $login (@logins){
                                   AND birthday='1982-10-12'
                                   AND adminclass='attic'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "R");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
@@ -1308,6 +1383,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1983-04-02'
                                   AND adminclass='attic'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "R");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
@@ -1338,6 +1416,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1962-04-02'
                                   AND adminclass='attic'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "R");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
@@ -1369,6 +1450,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1984-10-12'
                                   AND adminclass='attic'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "R");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
@@ -1399,6 +1483,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1942-10-12'
                                   AND adminclass='attic'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "R");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
@@ -1451,6 +1538,9 @@ $login = &fetch_login("surname='Mahn'
                                   AND birthday='1984-10-12'
                                   AND adminclass='attic'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "P");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
@@ -1489,6 +1579,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1984-10-12'
                                   AND adminclass='attic'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "K");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
@@ -1529,6 +1622,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1984-10-12'
                                   AND adminclass='attic'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "K");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
@@ -1564,6 +1660,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1984-10-12'
                                   AND adminclass='attic'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "F");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
@@ -1604,6 +1703,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1984-10-12'
                                   AND adminclass='attic'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "F");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "1970-01-01");
@@ -1640,6 +1742,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1984-10-12'
                                   AND adminclass='attic'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "A");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "$today_pg");
@@ -1687,6 +1792,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1984-10-12'
                                   AND adminclass='m1kb'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "A");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "");
@@ -1733,6 +1841,9 @@ $gsid=2*$account{'gidnumber'}+1001;
                                   AND birthday='1984-10-12'
                                   AND adminclass='m1kb'",
                       );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
 &ok_account("sophomorixstatus", "A");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "");
@@ -1813,25 +1924,120 @@ foreach my $login (@logins){
 # SUB
 ###########################################################################
 
+
+
 sub ok_account{
     # Hash must be in %account, wich is global in this file
     my ($col, $v) = @_;
+
+    # pg
+
     # Make sure that its defined
     if (not defined $account{$col} ){
 	$account{$col}="";
     };
-    # repace spaces in the sambaaccountflags
+    # replace spaces in the sambaaccountflags
     if ($col eq "sambaacctflags"){
        $account{$col}=~s/ //g;
     }
     if ($col eq "creationdate"){
        # use a special regex
-       like( $account{$col},qr/^$v.*/, "checking if $v is $col of $account{uid}");
+       like( $account{$col},qr/^$v.*/, "pgcheck:   $v is $col of $account{uid}");
     } else {
        # check for equality
-       is( $account{$col},$v, "checking if $v is $col of $account{uid}");
+       is( $account{$col},$v, "pgcheck:   $v is $col of $account{uid}");
+    }
+
+    # ldap
+    my $attr;
+    
+    # key: which pg columns must be checked in ldap
+    # value: how is the attribute name in ldap
+    my %check= (
+          "gecos" => "gecos",
+          "homedirectory" => "homeDirectory",
+          "displayname" => "displayName",
+          "sambahomepath" => "sambaHomePath",
+          "sambahomedrive" => "sambaHomeDrive",
+          "sambalogontime" => "sambaLogonTime",
+          "sambalogofftime" => "sambaLogoffTime",
+          "sambakickofftime" => "sambaKickoffTime",
+          "sambapwdcanchange" => "sambaPwdCanChange",
+          "sambapwdmustchange" => "sambaPwdMustChange",
+          "sambaacctflags" => "sambaAcctFlags",
+          "sambasid" => "sambaSID",
+          "sambaprimarygroupsid" => "sambaPrimaryGroupSID",
+          "" => "",
+       );
+
+    if (not exists $check{$col}){
+	return;
+    } else {
+        $attr=$check{$col};
+    }
+
+    # Make sure that its defined
+    if (not defined $account_ldap{$attr} ){
+	$account_ldap{$attr}="";
+    };
+    ## replace spaces in the sambaaccountflags
+    #if ($attr eq "sambaacctflags"){
+    #   $account_ldap{$attr}=~s/ //g;
+    #}
+
+    # check for equality
+    is( $account_ldap{$attr},$v, "ldapcheck: $v is $attr of $account_ldap{uid}");
+}
+
+
+
+
+
+sub old_ok_account{
+    # Hash must be in %account, wich is global in this file
+    my ($col, $v) = @_;
+
+    # pg
+
+    # Make sure that its defined
+    if (not defined $account{$col} ){
+	$account{$col}="";
+    };
+    # replace spaces in the sambaaccountflags
+    if ($col eq "sambaacctflags"){
+       $account{$col}=~s/ //g;
+    }
+    if ($col eq "creationdate"){
+       # use a special regex
+       like( $account{$col},qr/^$v.*/, "pgcheck: $v is $col of $account{uid}");
+    } else {
+       # check for equality
+       is( $account{$col},$v, "pgcheck: $v is $col of $account{uid}");
+    }
+
+    # ldap
+
+    # Make sure that its defined
+    if (not defined $account_ldap{$col} ){
+	$account_ldap{$col}="";
+    };
+    # replace spaces in the sambaaccountflags
+    if ($col eq "sambaacctflags"){
+       $account_ldap{$col}=~s/ //g;
+    }
+    if ($col eq "creationdate"){
+       # use a special regex
+       like( $account_ldap{$col},qr/^$v.*/, "ldapcheck: $v is $col of $account_ldap{uid}");
+    } else {
+       # check for equality
+       is( $account_ldap{$col},$v, "ldapcheck: $v is $col of $account_ldap{uid}");
     }
 }
+
+
+
+
+
 
 
 

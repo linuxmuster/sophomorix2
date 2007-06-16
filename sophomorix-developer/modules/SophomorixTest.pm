@@ -24,6 +24,7 @@ use DBI;
               check_account
               run_command
               fetch_single_account
+              fetch_ldap_account
               fetch_login
               check_file
               check_provided_files
@@ -93,6 +94,7 @@ sub exchange_line_in_file {
     }
     return $result;
 }
+
 
 # checks if a line matching $regex is ONCE is $file
 sub check_line_in_file {
@@ -448,6 +450,33 @@ sub fetch_single_account {
 
 
 
+
+
+sub fetch_ldap_account {
+    my ($user) = @_;
+    my %entries=();
+
+    my $ldap=&Sophomorix::SophomorixPgLdap::auth_connect();
+
+    #print "Looking for user $user\n";
+    my $msg = $ldap->search(
+          base => "ou=accounts,dc=linuxmuster,dc=de",
+          scope => "sub",
+          filter => ("uid=$user")
+       );
+    #print $msg->count(), " entries returned\n";
+    my $entry = $msg->entry(0);
+
+    foreach my $attrib ( $entry->attributes() ){
+        foreach my $val ( $entry->get_value( $attrib) ){
+            # WARNING: if attrib contains multiple values, then last wins!!!
+	    #print $attrib,": ",$val,"\n";
+            $entries{$attrib}=$val;
+        }
+    }
+    &Sophomorix::SophomorixPgLdap::auth_disconnect($ldap);
+    return %entries;
+}
 
 
 
