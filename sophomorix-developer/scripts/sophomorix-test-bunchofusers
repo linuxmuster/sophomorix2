@@ -274,33 +274,39 @@ if ($wsadd==1){
 #                                                                         #
 ###########################################################################
 ';
-   system("smbldap-groupadd -a $room1");
-   system("smbldap-groupadd -a $room2");
-   system("mkdir -p $workstationhome/$room1");
-   system("mkdir -p $workstationhome/$room2");
+#   system("smbldap-groupadd -a $room1");
+#   system("smbldap-groupadd -a $room2");
+#   system("mkdir -p $workstationhome/$room1");
+#   system("mkdir -p $workstationhome/$room2");
    foreach my $hostname (@hostnames1){
       print "Adding $hostname to $room1\n";
+#      my $command=
+#         "smbldap-useradd -a -d $workstationhome/$room1/$hostname".
+#         " -c 'workstation account' -g $room1 -m -s /bin/false $hostname";
       my $command=
-         "smbldap-useradd -a -d $workstationhome/$room1/$hostname".
-         " -c 'workstation account' -g $room1 -m -s /bin/false $hostname";
+         "sophomorix-useradd --unix-group $room1 --examaccount $hostname";
       #print "$command\n";
       system("$command");
-      $command=
-         "smbldap-useradd -w -g 515 -c 'domain machine account'".
-         " -d /dev/null -s /bin/false $hostname\$";
+#      $command=
+#         "smbldap-useradd -w -g 515 -c 'domain machine account'".
+#         " -d /dev/null -s /bin/false $hostname\$";
+      $command="sophomorix-useradd --computer $hostname\$";
       #print "$command\n";
       system("$command");
    }
    foreach my $hostname (@hostnames2){
       print "Adding $hostname to $room2\n";
+#      my $command=
+#         "smbldap-useradd -a -d $workstationhome/$room2/$hostname".
+#         " -c 'workstation account' -g $room2 -m -s /bin/false $hostname";
       my $command=
-         "smbldap-useradd -a -d $workstationhome/$room2/$hostname".
-         " -c 'workstation account' -g $room2 -m -s /bin/false $hostname";
+         "sophomorix-useradd --unix-group $room2 --examaccount $hostname";
       #print "$command\n";
       system("$command");
-      $command=
-         "smbldap-useradd -w -g 515 -c 'domain machine account'".
-         " -d /dev/null -s /bin/false $hostname\$";
+#      $command=
+#         "smbldap-useradd -w -g 515 -c 'domain machine account'".
+#         " -d /dev/null -s /bin/false $hostname\$";
+      $command="sophomorix-useradd --computer $hostname\$";
       #print "$command\n";
       system("$command");
    }
@@ -322,30 +328,33 @@ if ($wsremove==1){
 ';
    foreach my $hostname (@hostnames1){
       print "Deleting $hostname\n";
-      my $command=
-         "smbldap-userdel -r $hostname";
+#      my $command="smbldap-userdel -r $hostname";
+      my $command="sophomorix-kill --killuser $hostname";
       #print "$command\n";
       system("$command");
-      $command=
-         "smbldap-userdel $hostname\$";
+#      $command="smbldap-userdel $hostname\$";
+      my $command="sophomorix-kill --killuser $hostname\$";
       #print "$command\n";
       system("$command");
    }
    foreach my $hostname (@hostnames2){
       print "Deleting $hostname\n";
-      my $command=
-         "smbldap-userdel -r $hostname";
+#      my $command="smbldap-userdel -r $hostname";
+      my $command="sophomorix-kill --killuser $hostname";
+
       #print "$command\n";
       system("$command");
-      $command=
-         "smbldap-userdel $hostname\$";
+      my $command="sophomorix-kill --killuser $hostname\$";
+      #$command="smbldap-userdel $hostname\$";
       #print "$command\n";
       system("$command");
 
 
    }
-   system("smbldap-groupdel $room1");
-   system("smbldap-groupdel $room2");
+   system("sophomorix-groupdel -room $room1");
+   system("sophomorix-groupdel -room $room2");
+#   system("smbldap-groupdel $room1");
+#   system("smbldap-groupdel $room2");
    system("rmdir $workstationhome/$room1");
    system("rmdir $workstationhome/$room2");
 } else {
