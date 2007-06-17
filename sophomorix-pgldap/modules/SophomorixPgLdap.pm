@@ -4245,7 +4245,11 @@ sub search_user {
           printf "  loginShell         : %-45s %-11s\n",$loginshell,$login;
        }
 
-       print "Sophomorix (Database Values):\n";
+       if($Conf::log_level>=2){
+           print "LDAP attributes:\n";
+       }
+
+       print "Sophomorix (Database Values):\n";     
        if (defined $usertoken){
           printf "  Usertoken          : %-45s %-11s\n",$usertoken,$login;
        }
@@ -4325,9 +4329,14 @@ sub search_user {
            my $imap_user="user.".$login;
            my @mail_quota=&Sophomorix::SophomorixBase::imap_fetch_mailquota($imap,$imap_user,1,1);
            &Sophomorix::SophomorixBase::imap_disconnect($imap,1);
+           if (not defined $mail_quota[1]){
+	       print "BNO\n";
+	       @mail_quota=("---","---","---");
+           }
            printf "  Cyrus Account      : %-45s %-11s\n",$mail_quota[0],$login;
            printf "  MailQuota/Cyrus(MB): %-45s %-11s\n",$mail_quota[2],$login;
            printf "  Used               : %-45s %-11s\n",$mail_quota[1],$login;
+
        }
 
        print "Samba:\n";
