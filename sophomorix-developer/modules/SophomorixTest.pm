@@ -440,9 +440,10 @@ sub fetch_single_account {
        if($Conf::log_level>=3){
           print "   Login is: $hash{'uid'} \n";
        }
+       &Sophomorix::SophomorixPgLdap::db_disconnect($dbh);
        return %hash;
     } else {
-
+       &Sophomorix::SophomorixPgLdap::db_disconnect($dbh);
        return %hash;
     }
 
