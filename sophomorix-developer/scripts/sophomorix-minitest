@@ -35,9 +35,34 @@ use IMAP::Admin;
 #&patch_ldif("dc=mydom,dc=org","myschool");
 
 
-my $sid=&get_smb_sid();
+# &fill_smb_groupmap();
 
-print "$sid\n";
+my %hash=&forbidden_login_hash();
+
+print "$hash{'root6'}\n";
+
+
+
+#sub ok_ldap_account{
+#    # Hash must be in %account, wich is global in this file
+#    my ($col, $v) = @_;
+#    # Make sure that its defined
+#    if (not defined $account_ldap{$col} ){
+#	$account_ldap{$col}="";
+#    };
+#    # repace spaces in the sambaaccountflags
+#    if ($col eq "sambaacctflags"){
+#       $account_ldap{$col}=~s/ //g;
+#    }
+#    if ($col eq "creationdate"){
+#       # use a special regex
+#       like( $account_ldap{$col},qr/^$v.*/, "ldapcheck: $v is $col of $account_ldap{uid}");
+#    } else {
+#       # check for equality
+#       is( $account_ldap{$col},$v, "ldapcheck: $v is $col of $account_ldap{uid}");
+#    }
+#}
+
 
 
 #my $ldif_local="/usr/share/sophomorix/config-templates/ldap/local-gen.ldif";
