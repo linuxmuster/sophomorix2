@@ -1699,12 +1699,45 @@ Workstation auch?
 accounts
 
 
+Bugs:
+# 117
+# 238
+# 221 Claire Schlamm
+
+In all installations: sambaHomePath in postgres is wrong
+   (fixed servername 'server')
+
+
+Das Verzeichnis /home/.../__einsammeln bei Schülern und Lehrern kann
+gelöscht werden.
+Am einfachsten man erzeugt eine lock-Datei in .../einsammeln, die
+allerdings beim Einsammeln nicht berücksichtigt werden darf.
+
+diff pg to ldap:
+  - use it in sophomorix-sync-check
+  - with -vv make it more noisy (show what is has found)
+
+
+sophomorix-user -s Rechner5$ does not work
+sophomorix-user -s Rechner5 thrown error:
+      Group-SID differs
+
+sophomorix-test thows errors
+
+
 ================== CHANGELOG ========================================
 
 Last code changes for 2.0.0: 26.6.07 
 
 
 1.9.20-1 (2007-06-xx)
+    - Bugfix: sambahomepath is creted with correct hostname when 
+              adding a user
+              (was 'server' all the time)
+    - added function to diff pg and ldap when calling
+      sophomorix-user -s username
+    - removed hardcoded SID from standalone.ldif.template
+      (replaced it with value from debconf or net getlocalsid)
     - sophomorix-test-bunchofusers works again with workstations and
       seperate ldap
     - sophomorix-test (1627 tests now)
@@ -1714,7 +1747,7 @@ Last code changes for 2.0.0: 26.6.07
     - Bugfix: renaming repairhome.examaccount
     - Bugfix: avoid setting random password when using incorrect option
       -pass (instead of --pass) in sophomorix-passwd
-    - updataed manpage sophomorix-vampire
+    - updated manpage sophomorix-vampire
     - Bugfix: sophomorix-vampier doesent work with sec_oct=160
     - Bugfix: --sync-dirs did not create new dir
 
