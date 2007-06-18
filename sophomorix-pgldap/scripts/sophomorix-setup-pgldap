@@ -326,6 +326,11 @@ printf "   ldappassword %23s : ********** \n","($ldap_explanation)";
 printf "   dbpassword   %23s : ********** \n","($db_explanation)";
 
 
+# sid 
+# use debconf (if existing), else net getlocalsid
+$sid=&get_smb_sid();
+
+
 # institutes
 #------------------------------------------------------------
 my (@institutes)= split(/\./,$domainname);
@@ -610,7 +615,6 @@ print "   Database name               :   $dbname \n";
 # the great replacement string
 $replace= " -e 's/\@\@basedn\@\@/${basedn}/g'". 
           " -e 's/\@\@dc\@\@/${dc}/g'".
-          " -e 's/\@\@smbworkgroup\@\@/${smbworkgroup}/g'".
           " -e 's/\@\@servername\@\@/${servername}/g'". 
           " -e 's/\@\@internip\@\@/${internip}/g'". 
           " -e 's/\@\@serverip\@\@/${internip}/g'". 
@@ -922,29 +926,31 @@ sleep 2;
 ############################################################
 # SID
 ############################################################
-$sid=`net getlocalsid`;
-($a,$sid)=split(/:/,$sid);
-$sid=~s/ //g;
-chomp($sid);
-print "   SID from the system         :   $sid \n";
+#$sid=&get_smb_sid();
+
+#$sid=`net getlocalsid`;
+#($a,$sid)=split(/:/,$sid);
+#$sid=~s/ //g;
+#chomp($sid);
+#print "   SID from the system         :   $sid \n";
 #print "---$sid---\n";
 
 
-# change the great replacement string (with new sid)
-$replace= " -e 's/\@\@basedn\@\@/${basedn}/g'". 
-          " -e 's/\@\@servername\@\@/${servername}/g'". 
-          " -e 's/\@\@internip\@\@/${internip}/g'". 
-          " -e 's/\@\@serverip\@\@/${internip}/g'". 
-          " -e 's/\@\@internmask\@\@/${internmask}/g'". 
-          " -e 's/\@\@sid\@\@/${sid}/g'". 
-          " -e 's/\@\@workgroup\@\@/${smbworkgroup}/g'". 
-          " -e 's/\@\@smbserverstring\@\@/${smbserverstring}/g'". 
-          " -e 's/\@\@ldappassword\@\@/${ldappassword}/g'". 
-          " -e 's/\@\@dbpassword\@\@/${dbpassword}/g'". 
-          " -e 's/\@\@dbname\@\@/${dbname}/g'". 
-          " -e 's/\@\@message1\@\@/${message1}/g'". 
-          " -e 's/\@\@message2\@\@/${message2}/g'".
-          " -e 's/\@\@message3\@\@/${message3}/g'"; 
+## change the great replacement string (with new sid)
+#$replace= " -e 's/\@\@basedn\@\@/${basedn}/g'". 
+#          " -e 's/\@\@servername\@\@/${servername}/g'". 
+#          " -e 's/\@\@internip\@\@/${internip}/g'". 
+#          " -e 's/\@\@serverip\@\@/${internip}/g'". 
+#          " -e 's/\@\@internmask\@\@/${internmask}/g'". 
+#          " -e 's/\@\@sid\@\@/${sid}/g'". 
+#          " -e 's/\@\@workgroup\@\@/${smbworkgroup}/g'". 
+#          " -e 's/\@\@smbserverstring\@\@/${smbserverstring}/g'". 
+#          " -e 's/\@\@ldappassword\@\@/${ldappassword}/g'". 
+#          " -e 's/\@\@dbpassword\@\@/${dbpassword}/g'". 
+#          " -e 's/\@\@dbname\@\@/${dbname}/g'". 
+#          " -e 's/\@\@message1\@\@/${message1}/g'". 
+#          " -e 's/\@\@message2\@\@/${message2}/g'".
+#          " -e 's/\@\@message3\@\@/${message3}/g'"; 
 
 
 # patch smbtools
