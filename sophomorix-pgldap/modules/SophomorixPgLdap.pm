@@ -1385,6 +1385,12 @@ sub create_user_db_entry {
         }
     }
 
+    my $servername=`hostname`;
+    chomp($servername);
+    my $smb_homepath="\\\\\\\\$servername\\\\$login";
+    my $smb_ldap_homepath="\\\\$servername\\$login";
+
+
     if (defined $homedir_force){
         $homedir=$homedir_force;
     }
@@ -1493,7 +1499,6 @@ sub create_user_db_entry {
        if($Conf::log_level>=3){
            print "GROUP-SID:       $group_sid\n";
        }
-       my $smb_homepath="\\\\\\\\server\\\\$login";
 
        # User anlegen
        # 1. Tabelle posix_account
@@ -1617,7 +1622,7 @@ sub create_user_db_entry {
 
   # create entry in auth system (no secondary groups)
   &auth_useradd($login,$uidnumber_auth,$gecos,$homedir,
-                $admin_class,"",$sh,$type)
+                $admin_class,"",$sh,$type,$smb_ldap_homepath)
 
   &db_disconnect($dbh);
 
@@ -4245,9 +4250,10 @@ sub search_user {
           printf "  loginShell         : %-45s %-11s\n",$loginshell,$login;
        }
 
-       if($Conf::log_level>=2){
-           print "LDAP attributes:\n";
-       }
+#       if($Conf::log_level>=2){
+           print "Compare pg to LDAP attributes:\n";
+           &compare_pg_with_ldap($login);
+#       }
 
        print "Sophomorix (Database Values):\n";     
        if (defined $usertoken){
@@ -5028,7 +5034,8 @@ sub auth_passwd {
 
 
 sub auth_useradd {
-   my ($login,$uid_number,$gecos,$home,$unix_group,$sec_groups,$shell,$type) = @_; 
+   my ($login,$uid_number,$gecos,$home,$unix_group,
+       $sec_groups,$shell,$type,$smb_ldap_homepath) = @_; 
    my ($u_home,$u_type,$u_gecos,$u_group,
        $u_uidnumber)=&fetchdata_from_account($login);
    # add entry to seperate ldap
@@ -5079,6 +5086,10 @@ sub auth_useradd {
                    $command="smbldap-useradd -a $uid_string -c '$gecos'".
                             " -d $home -m -g $unix_group $sec_string".
                             " -s $shell $login";
+	           print "   * $command\n";
+                   system("$command");
+                   $command="smbldap-usermod -D 'H:'".
+                            " -C '${smb_ldap_homepath}' $login";
 	           print "   * $command\n";
                    system("$command");           
                }
@@ -5475,6 +5486,119 @@ sub patch_ldif {
     close(PATCHED);
 }
 
+
+
+sub compare_pg_with_ldap {
+    my ($login) = @_;
+    my $count=0;
+    my $ref;
+    my $lastref;
+
+    my @error_lines = ();
+
+    my %ldap_pg_mapping= (
+        "gecos" => "gecos",
+        "homeDirectory" => "homedirectory",
+        "displayName" => "displayname",
+        "sambaHomePath" => "sambahomepath",
+        "sambaHomeDrive" => "sambahomedrive",
+        "sambaLogonTime" => "sambalogontime",
+        "sambaLogoffTime" => "sambalogofftime",
+        "sambaKickoffTime" => "sambakickofftime",
+        "sambaPwdCanChange" => "sambapwdcanchange",
+        "sambaPwdMustChange" => "sambapwdmustchange",
+        "sambaAcctFlags" => "sambaacctflags",
+        "sambaSID" => "sambasid",
+        "sambaPrimaryGroupSID" => "sambaprimarygroupsid"
+    );
+
+    # pg
+    my $dbh=&Sophomorix::SophomorixPgLdap::db_connect();
+    my $sql="SELECT * FROM userdata WHERE uid='$login'";
+    my $sth=$dbh->prepare($sql);
+    $sth->execute();
+    while ( $ref = $sth->fetchrow_hashref ){
+	$count++;
+	#print $ref->{uid},"\n";
+        $lastref=$ref;
+    } 
+    &Sophomorix::SophomorixPgLdap::db_disconnect($dbh);
+    my %pg_hash=%$lastref;
+
+    # ldap
+    my $ldap=&Sophomorix::SophomorixPgLdap::auth_connect();
+
+    my $msg = $ldap->search(
+          base => "ou=accounts,dc=linuxmuster,dc=de",
+          scope => "sub",
+          filter => ("uid=$login")
+       );
+
+    print "Ldap has returned ",$msg->count(), " entries\n";
+    my $entry = $msg->entry(0);
+
+
+    while(my ($ldap_attr, $pg_col) = each(%ldap_pg_mapping)) {
+        if (defined $entry->get_value( $ldap_attr ) ){
+            printf "ldap: %-25s %-50s\n","$ldap_attr:",
+                   $entry->get_value( $ldap_attr );
+        } else {
+            push @error_lines,"   ERROR: $ldap_attr: NOT DEFINED";
+            printf "ldap: %-25s %-50s\n","$ldap_attr:",
+                   "ERROR: NOT DEFINED!";
+        }
+        if (defined $pg_hash{$pg_col}){
+            printf "pg:   %-25s %-50s\n","$pg_col:",$pg_hash{$pg_col};
+        } else {
+            push @error_lines,"   ERROR: $pg_col: NOT DEFINED";
+            printf "pg:   %-25s %-50s\n","$pg_col:",
+                   "ERROR: NOT DEFINED!";
+        }     
+ 
+        if (defined $entry->get_value( $ldap_attr ) 
+            and defined $pg_hash{$pg_col}){
+            # compare
+            if ($entry->get_value( $ldap_attr ) eq $pg_hash{$pg_col}){
+                #print "OK:   $ldap_attr <-> $pg_col\n";
+            } else {
+                push @error_lines,"   ERROR: $ldap_attr and $pg_col differ";
+                #print "ERROR:$ldap_attr and $pg_col differ\n";
+            }
+        } else {
+            if (not defined $entry->get_value( $ldap_attr ) ){
+                print "ERROR:$ldap_attr and $pg_col} (ldap undef)\n";
+            } elsif (not defined $pg_hash{$pg_col} ){
+                print "ERROR:$ldap_attr and $pg_col} (pg undef)\n";
+            }
+        }
+
+
+   }
+
+  
+    @error_lines = sort @error_lines;
+
+    if ($#error_lines==-1){
+        print "  No errors found.\n";
+    }
+
+    foreach my $line (@error_lines){
+	print $line,"\n";
+    }
+
+
+
+#    foreach my $attrib ( $entry->attributes() ){
+#        foreach my $val ( $entry->get_value( $attrib ) ){
+#            print "Comparing $attrib (ldap) with \n";
+#        }
+#    }
+
+
+
+
+    &Sophomorix::SophomorixPgLdap::auth_disconnect($ldap);
+}
 
 
 # ENDE DER DATEI
