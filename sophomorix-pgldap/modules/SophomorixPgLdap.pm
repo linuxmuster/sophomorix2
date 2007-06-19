@@ -3085,7 +3085,6 @@ sub update_user_db_entry {
 	   push @posix, "firstname = '$firstname'";
        }
        elsif ($attr eq "LastName"){
-           # call auth_nameupdate later
            $lastnameupdate=1;
            $lastname="$value";
 	   push @posix, "surname = '$lastname'";
@@ -3280,7 +3279,6 @@ sub update_user_db_entry {
     if ($gecosupdate==1){
        &auth_gecosupdate($login,$gecos);
     }
-
     # ??? besser was sinnvolles
     return 1;
 }
@@ -3326,6 +3324,7 @@ sub user_deaktivieren {
    # disabling in auth system
    &auth_disable($login);
 
+   # disable in pg
    my $dbh=&db_connect();
    my $sql="";
 
@@ -3334,7 +3333,7 @@ sub user_deaktivieren {
    $sql="UPDATE samba_sam_account
          SET 
          sambaacctflags = '[DUX]'
-         WHERE uid = '$login'
+         WHERE id = (SELECT id from userdata WHERE uid='$login')
         ";
    if($Conf::log_level>=3){
       print "\nSQL: $sql\n";
@@ -3378,7 +3377,6 @@ sub user_deaktivieren {
    if($Conf::log_level>=2){
       print "Samba:  $samba_string\n";
    }
-
    # ToDo
    # mailabruf
    # ToDo
@@ -3409,6 +3407,7 @@ sub user_reaktivieren {
    # enabling in auth system
    &auth_enable($login);
 
+   # enabling in pg
    my $dbh=&db_connect();
    my $sql="";
 
@@ -3417,13 +3416,14 @@ sub user_reaktivieren {
    $sql="UPDATE samba_sam_account
          SET 
          sambaacctflags = '[UX]'
-         WHERE uid = '$login'
+         WHERE id = (SELECT id from userdata WHERE uid='$login')
         ";
    if($Conf::log_level>=3){
       print "\nSQL: $sql\n";
    }
    $dbh->do($sql);
 
+   # linux
    # fetch the old crypted password
    $sql="SELECT userpassword FROM userdata WHERE uid='$login'";
    if($Conf::log_level>=3){
@@ -3453,9 +3453,9 @@ sub user_reaktivieren {
           print "\nSQL: $sql\n";
        }
           $dbh->do($sql);
+ 
    }
    &db_disconnect($dbh);
-
 
    # ToDo
    # mailabruf
@@ -5394,12 +5394,12 @@ sub auth_deleteuser_from_project {
 
 
 
-
 sub auth_firstnameupdate {
    my ($login,$firstname) = @_;
-        my $command="smbldap-usermod -N '$firstname' $login";
-        print "   * $command\n";
-        system("$command");
+        # firstname is updated only in the db
+        #my $command="smbldap-usermod -N '$firstname' $login";
+        #print "   * $command\n";
+        #system("$command");
 
 }
 
@@ -5417,12 +5417,12 @@ sub auth_lastnameupdate {
 
 sub auth_gecosupdate {
    my ($login,$gecos) = @_;
-   my $command="smbldap-usermod -c '$gecos' $login";
+   # -c (comment) This is the gecos field
+   # -N This is the cn: (common name) 
+   my $command="smbldap-usermod -c '$gecos' -N '$gecos' $login";
    print "   * $command\n";
    system("$command");
 }
-
-
 
 
 sub auth_connect {
