@@ -4281,10 +4281,14 @@ sub search_user {
           printf "  loginShell         : %-45s %-11s\n",$loginshell,$login;
        }
 
-#       if($Conf::log_level>=2){
+       if($Conf::log_level>=3){
            print "Compare pg to LDAP attributes:\n";
            &compare_pg_with_ldap($login);
-#       }
+       } else {
+           my $err_num = &compare_pg_with_ldap($login);
+           printf "Comparing ldap with pg showed $err_num errors%-30s %-11s\n",
+                 "",$login;
+       }
 
        print "Sophomorix (Database Values):\n";     
        if (defined $usertoken){
@@ -5552,6 +5556,7 @@ sub patch_ldif {
 sub compare_pg_with_ldap {
     my ($login) = @_;
     my $count=0;
+    my $err_num=0;
     my $ref;
     my $lastref;
 
@@ -5595,25 +5600,36 @@ sub compare_pg_with_ldap {
           filter => ("uid=$login")
        );
 
-    print "Ldap has returned ",$msg->count(), " entries\n";
+    if($Conf::log_level>=3){
+        print "  Ldap has returned ",$msg->count(), 
+              " entry/entries for $login\n";
+    }
     my $entry = $msg->entry(0);
 
 
     while(my ($ldap_attr, $pg_col) = each(%ldap_pg_mapping)) {
         if (defined $entry->get_value( $ldap_attr ) ){
-            printf "ldap: %-25s %-50s\n","$ldap_attr:",
-                   $entry->get_value( $ldap_attr );
+            if($Conf::log_level>=3){
+                printf "    ldap: %-21s%-54s\n","$ldap_attr:",
+                       $entry->get_value( $ldap_attr );
+            }
         } else {
             push @error_lines,"   ERROR: $ldap_attr: NOT DEFINED";
-            printf "ldap: %-25s %-50s\n","$ldap_attr:",
-                   "ERROR: NOT DEFINED!";
+            if($Conf::log_level>=3){
+                printf "    ldap: %-21s%-54s\n","$ldap_attr:",
+                       "ERROR: NOT DEFINED!";
+	    }
         }
         if (defined $pg_hash{$pg_col}){
-            printf "pg:   %-25s %-50s\n","$pg_col:",$pg_hash{$pg_col};
+            if($Conf::log_level>=3){
+                printf "    pg:   %-21s%-54s\n","$pg_col:",$pg_hash{$pg_col};
+            }
         } else {
             push @error_lines,"   ERROR: $pg_col: NOT DEFINED";
-            printf "pg:   %-25s %-50s\n","$pg_col:",
-                   "ERROR: NOT DEFINED!";
+            if($Conf::log_level>=3){
+                printf "    pg:   %-21s%-54s\n","$pg_col:",
+                       "ERROR: NOT DEFINED!";
+            }
         }     
  
         if (defined $entry->get_value( $ldap_attr ) 
@@ -5627,15 +5643,18 @@ sub compare_pg_with_ldap {
             }
         } else {
             if (not defined $entry->get_value( $ldap_attr ) ){
-                print "ERROR:$ldap_attr and $pg_col} (ldap undef)\n";
+                if($Conf::log_level>=3){
+                   print "    ERROR:$ldap_attr and $pg_col} (ldap undef)\n";
+	        }
             } elsif (not defined $pg_hash{$pg_col} ){
-                print "ERROR:$ldap_attr and $pg_col} (pg undef)\n";
+                if($Conf::log_level>=3){
+                   print "    ERROR:$ldap_attr and $pg_col} (pg undef)\n";
+	        }
             }
         }
 
 
    }
-
   
     @error_lines = sort @error_lines;
 
@@ -5646,19 +5665,13 @@ sub compare_pg_with_ldap {
     foreach my $line (@error_lines){
 	print $line,"\n";
     }
-
-
-
 #    foreach my $attrib ( $entry->attributes() ){
 #        foreach my $val ( $entry->get_value( $attrib ) ){
 #            print "Comparing $attrib (ldap) with \n";
 #        }
 #    }
-
-
-
-
     &Sophomorix::SophomorixPgLdap::auth_disconnect($ldap);
+    return $#error_lines+1;
 }
 
 
