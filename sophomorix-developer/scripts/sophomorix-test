@@ -42,7 +42,10 @@ system("install -d /root/sophomorix-test");
 # fetch permission for all homes
 &fetch_repairhome();
 
-my $server="server";
+#my $server="server";
+my $server=`hostname`;
+chomp($server);
+
 my $win_magic="2147483647";
 
 # sid
@@ -517,7 +520,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
-# todo ???????????????ßßß
+# todo ????????????
 #&check_account($login,"disabled");
 
 
