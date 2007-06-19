@@ -96,6 +96,9 @@ require Exporter;
              auth_adduser_to_her_projects
              auth_adduser_to_project
              auth_deleteuser_from_project
+             auth_firstnameupdate
+             auth_lastnameupdate
+             auth_gecosupdate
              auth_connect
              auth_disconnect
              fetch_ldap_pg_passwords
@@ -3050,6 +3053,9 @@ sub update_user_db_entry {
 
     # decide if auth_usermove must be called (1) or not
     my $usermove=0;
+    my $firstnameupdate=0;
+    my $lastnameupdate=0;
+    my $gecosupdate=0;
 
     my @posix=();
     my @posix_details=();
@@ -3074,14 +3080,18 @@ sub update_user_db_entry {
 	   push @posix_details, "adminclass = '$admin_class'";
        }
        elsif ($attr eq "Name"){
+           $firstnameupdate=1;
            $firstname="$value";
 	   push @posix, "firstname = '$firstname'";
        }
        elsif ($attr eq "LastName"){
+           # call auth_nameupdate later
+           $lastnameupdate=1;
            $lastname="$value";
 	   push @posix, "surname = '$lastname'";
        }
        elsif ($attr eq "Gecos"){
+           $gecosupdate=1;
            $gecos="$value";
 	   push @posix, "gecos = '$gecos'";
 	   push @samba, "displayname = '$gecos'";
@@ -3261,6 +3271,16 @@ sub update_user_db_entry {
     if ($usermove==1){
        &auth_usermove($login,$gid_name,$home_dir,$old_group);
     }
+    if ($firstnameupdate==1){
+       &auth_firstnameupdate($login,$firstname);
+    }
+    if ($lastnameupdate==1){
+       &auth_lastnameupdate($login,$lastname);
+    }
+    if ($gecosupdate==1){
+       &auth_gecosupdate($login,$gecos);
+    }
+
     # ??? besser was sinnvolles
     return 1;
 }
@@ -3306,17 +3326,23 @@ sub user_deaktivieren {
    # disabling in auth system
    &auth_disable($login);
 
+   my $dbh=&db_connect();
+   my $sql="";
+
    # samba
-#   my $samba_string="smbpasswd -d $login >/dev/null";
-#   if($Conf::log_level>=2){
-#      print "   Disabling samba login of $login:  $samba_string\n";
-#   }
-#   system("$samba_string");
+   print "Disabling samba account in pg\n";
+   $sql="UPDATE samba_sam_account
+         SET 
+         sambaacctflags = '[DUX]'
+         WHERE uid = '$login'
+        ";
+   if($Conf::log_level>=3){
+      print "\nSQL: $sql\n";
+   }
+   $dbh->do($sql);
 
    # linux
    # fetch the old crypted password
-   my $dbh=&db_connect();
-   my $sql="";
    $sql="SELECT userpassword FROM userdata WHERE uid='$login'";
    if($Conf::log_level>=3){
       print "\nSQL: $sql\n";
@@ -3352,6 +3378,7 @@ sub user_deaktivieren {
    if($Conf::log_level>=2){
       print "Samba:  $samba_string\n";
    }
+
    # ToDo
    # mailabruf
    # ToDo
@@ -3379,21 +3406,25 @@ sub user_reaktivieren {
       print "Reactivating $login ...\n";
    }
 
-
    # enabling in auth system
    &auth_enable($login);
 
-   # samba
-#   my $samba_string="smbpasswd -e $login >/dev/null";
-#   if($Conf::log_level>=2){
-#      print "   Enabling samba login of $login:  $samba_string\n";
-#   }
-#   system("$samba_string");
-
-   # linux
-   # fetch the old crypted password
    my $dbh=&db_connect();
    my $sql="";
+
+   # samba
+   print "Enabling samba account in pg\n";
+   $sql="UPDATE samba_sam_account
+         SET 
+         sambaacctflags = '[UX]'
+         WHERE uid = '$login'
+        ";
+   if($Conf::log_level>=3){
+      print "\nSQL: $sql\n";
+   }
+   $dbh->do($sql);
+
+   # fetch the old crypted password
    $sql="SELECT userpassword FROM userdata WHERE uid='$login'";
    if($Conf::log_level>=3){
       print "\nSQL: $sql\n";
@@ -3422,9 +3453,9 @@ sub user_reaktivieren {
           print "\nSQL: $sql\n";
        }
           $dbh->do($sql);
- 
    }
    &db_disconnect($dbh);
+
 
    # ToDo
    # mailabruf
@@ -5141,7 +5172,7 @@ sub auth_groupadd {
                   if ($domain_group==1){
                       my $command="";
                       # domain group
-                      $command="smbldap-groupadd -g $gid_number '$unix_group'";
+                      $command="smbldap-groupadd -a -g $gid_number '$unix_group'";
                       print "   * $command\n";
                       system("$command");
                       $command="net groupmap add rid=$gid_number".
@@ -5153,7 +5184,7 @@ sub auth_groupadd {
                       # local group
                       my $command="";
                       # domain group
-                      $command="smbldap-groupadd -g $gid_number '$unix_group'";
+                      $command="smbldap-groupadd -a -g $gid_number '$unix_group'";
                       print "   * $command\n";
                       system("$command");
                       $command="net groupmap add sid='S-1-5-32-$gid_number'".
@@ -5359,6 +5390,36 @@ sub auth_deleteuser_from_project {
         my $command="smbldap-usermod -G '$group_csv' $login";
         print "   * $command\n";
         system("$command");
+}
+
+
+
+
+sub auth_firstnameupdate {
+   my ($login,$firstname) = @_;
+        my $command="smbldap-usermod -N '$firstname' $login";
+        print "   * $command\n";
+        system("$command");
+
+}
+
+
+
+sub auth_lastnameupdate {
+   my ($login,$lastname) = @_;
+        my $command="smbldap-usermod -S '$lastname' $login";
+        print "   * $command\n";
+        system("$command");
+
+}
+
+
+
+sub auth_gecosupdate {
+   my ($login,$gecos) = @_;
+   my $command="smbldap-usermod -c '$gecos' $login";
+   print "   * $command\n";
+   system("$command");
 }
 
 
