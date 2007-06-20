@@ -4269,7 +4269,7 @@ sub search_user {
        printf "  Gecos              : %-44s %-1s%-11s\n", 
                $gecos,$gcos_diff,$login;
        if (-e $home){
-          $home_ex=$home."  (existing)";
+          $home_ex=$home." (exists)";
        } else {
           $home_ex=$home."  (ERROR: non-existing)";
        }
@@ -5534,13 +5534,15 @@ sub patch_ldif {
             my $new_dc = $without_dn.$base_dn;
             # [^,]*  are all characters 
             if ($new_dc=~m/(.*sambaDomainName=)[^,]*(,dc=.*)/){
-                #print "$1 \n";
-                #print "$2 \n";
+                # print "$1 \n";
+                # print "$2 \n";
                 my $line=$1.$smbworkgroup.$2;
                 $new_dc=$line;
 	    }
             print "$new_dc\n";
             print PATCHED "$new_dc\n";
+	} elsif (m/^sambaDomainName/){
+            print PATCHED "sambaDomainName: $smbworkgroup\n";
 	} elsif (m/^dc:/){
             print PATCHED "dc: $dc\n";
         } else {
@@ -5559,7 +5561,6 @@ sub compare_pg_with_ldap {
     my $err_num=0;
     my $ref;
     my $lastref;
-
     my @error_lines = ();
 
     my %ldap_pg_mapping= (
@@ -5599,14 +5600,12 @@ sub compare_pg_with_ldap {
           scope => "sub",
           filter => ("uid=$login")
        );
-
     if($Conf::log_level>=3){
         print "  Ldap has returned ",$msg->count(), 
               " entry/entries for $login\n";
     }
+
     my $entry = $msg->entry(0);
-
-
     while(my ($ldap_attr, $pg_col) = each(%ldap_pg_mapping)) {
         if (defined $entry->get_value( $ldap_attr ) ){
             if($Conf::log_level>=3){
@@ -5631,7 +5630,6 @@ sub compare_pg_with_ldap {
                        "ERROR: NOT DEFINED!";
             }
         }     
- 
         if (defined $entry->get_value( $ldap_attr ) 
             and defined $pg_hash{$pg_col}){
             # compare
@@ -5652,18 +5650,11 @@ sub compare_pg_with_ldap {
 	        }
             }
         }
-
-
-   }
+    }
   
     @error_lines = sort @error_lines;
-
-    if ($#error_lines==-1){
-        print "  No errors found.\n";
-    }
-
     foreach my $line (@error_lines){
-	print $line,"\n";
+       print $line,"\n";
     }
 #    foreach my $attrib ( $entry->attributes() ){
 #        foreach my $val ( $entry->get_value( $attrib ) ){
