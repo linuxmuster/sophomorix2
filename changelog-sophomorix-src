@@ -1704,9 +1704,6 @@ Bugs:
 # 238
 # 221 Claire Schlamm
 
-In all installations: sambaHomePath in postgres is wrong
-   (fixed servername 'server')
-
 
 Das Verzeichnis /home/.../__einsammeln bei Schülern und Lehrern kann
 gelöscht werden.
@@ -1728,9 +1725,16 @@ sophomorix-test thows errors
 ================== CHANGELOG ========================================
 
 Last code changes for 2.0.0: 26.6.07 
+1.9.21-1 (2007-06-xx)
 
 
-1.9.20-1 (2007-06-xx)
+1.9.20-1 (2007-06-20)
+    - Bugfix: changing line 
+      sambaDomainName, when patching ldif on installation
+    - sophomorix-test (1627 tests now)
+    - closed Bug #238 repairhome.teacher
+    - made user_aktivieren/user_deakivieren updating pg 
+    
     - Bugfix: sambahomepath is creted with correct hostname when 
               adding a user
               (was 'server' all the time)
@@ -1740,7 +1744,7 @@ Last code changes for 2.0.0: 26.6.07
       (replaced it with value from debconf or net getlocalsid)
     - sophomorix-test-bunchofusers works again with workstations and
       seperate ldap
-    - sophomorix-test (1627 tests now)
+    - sophomorix-test 
       - replaced check for account flags: X is ok now
       - added checking entries in ldap 
       - added checking for identity of gid and gidnumber in pq and ldap
