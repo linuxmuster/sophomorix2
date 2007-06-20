@@ -2213,8 +2213,8 @@ sub pg_get_group_type {
 	return ("nonexisting",$gid,$gidnumber_sys);
     }    
     my ($type)= $dbh->selectrow_array( "SELECT type 
-                                          FROM classdata 
-                                          WHERE id='$id_sys'");
+                                        FROM classdata 
+                                        WHERE id='$id_sys'");
 
     if (not defined $type){
         # look at a users home

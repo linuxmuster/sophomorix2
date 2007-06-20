@@ -100,6 +100,7 @@ use Quota;
               provide_project_files
               remove_project_files
               provide_user_files
+              make_dir_locked
               repair_repairhome
               fetchhtaccess_from_user
               user_public_upload
@@ -1271,14 +1272,34 @@ sub provide_user_files {
 }
 
 
+sub make_dir_locked {
+    my ($dir) = @_;
+    my $file=".locked";
+    if (not -e $dir){
+        print "Cannot create .locked in $dir (nonexisting)\n";
+    } else {
+        my $path=$dir."/".$file;
+        if (not -e $path){
+            if($Conf::log_level>=2){
+                print "        creating $path\n";
+            }        
+            system("touch $path");
+            system("chown administrator.administrators $path");
+            system("chmod 0600 $path");
+        } 
+    }
+}
+
 
 
 sub repair_repairhome {
     my ($user) = @_;
-    my ($home,$type)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
+    my ($home,$type)=
+       &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
     my @groups=&Sophomorix::SophomorixPgLdap::pg_get_group_list($user);
     if ($home eq "" or $type eq ""){
-        print "WARNING: Could not find data for user $user. NOT repairing home!\n";
+        print "WARNING: Could not find data for user $user. ".
+              "NOT repairing home!\n";
 	return;
     }
     if ($type eq "none"){
@@ -1290,7 +1311,7 @@ sub repair_repairhome {
 
     print "Repairing \$HOME of user $user (type: $type)\n";
     foreach my $line (@permissions){
-        my ($path,$owner,$gowner,$octal)=split(/::/,$line);
+        my ($path,$owner,$gowner,$octal,$locked)=split(/::/,$line);
         if($Conf::log_level>=2){
             print "    * $line\n";
         }
@@ -1353,13 +1374,13 @@ sub repair_repairhome {
 		}
                 &repair_directory_no_var($path_to_change,
                                          $owner,$gowner,
-                                         @octal);
+                                         $locked,@octal);
                 }
         } else {
             # no variable detected
             &repair_directory_no_var($path_static_modified,
                                      $owner,$gowner,
-                                     @octal);
+                                     $locked,@octal);
         }
     }
 } 
@@ -1367,7 +1388,7 @@ sub repair_repairhome {
 
 # following sub is not exported, user only herein
 sub repair_directory_no_var {
-    my ($path,$owner,$gowner,@octal) = @_;
+    my ($path,$owner,$gowner,$locked,@octal) = @_;
 
     # create if nonexisting
     if (not -e "$path"){
@@ -1375,6 +1396,12 @@ sub repair_directory_no_var {
     }  
 
     if (-e "$path"){
+        # locked
+        if (defined $locked){
+           if ($locked eq "locked"){
+               &make_dir_locked($path);
+           }
+        }
         # owner
         my $command_1="chown ${owner}:${gowner} $path";
         if($Conf::log_level>=2){
@@ -3841,9 +3868,15 @@ sub handout {
   print "   From: ${from_dir}\n";
   print "   To:   ${to_dir}\n";
 
+  if (not -e $from_dir){
+      print "ERROR: $from_dir\n",
+            "       doesnt exist, Nothing to hand out!\n";
+      return;
+  }
+
   # what permissions/owner must i create
-  my ($path,$dir_perm,$file_perm,
-      $owner,$gowner)=&show_smb_conf_umask("tasks");
+  my ($path,$dir_perm,$file_perm)=($to_dir,"0755","0644");
+
   if ($rsync eq "delete") {
      system("rsync -tor --delete $from_dir $to_dir");
      &chmod_chown_dir($to_dir,$dir_perm,$file_perm,
@@ -3857,8 +3890,6 @@ sub handout {
   } else {
       print "unknown Parameter $rsync";
   }
-
-
 }
 
 
