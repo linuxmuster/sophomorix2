@@ -159,6 +159,7 @@ install-base:
 	@install -oroot -groot --mode=0600 sophomorix-base/config-devel/repairhome.student $(DEVELCONF)/devel
 	@install -oroot -groot --mode=0600 sophomorix-base/config-devel/repairhome.examaccount $(DEVELCONF)/devel
 	@install -oroot -groot --mode=0600 sophomorix-base/config-devel/repairhome.attic $(DEVELCONF)/devel
+	@install -oroot -groot --mode=0600 sophomorix-base/config-devel/repairhome.domcomp $(DEVELCONF)/devel
 #	install -d -m755 -oroot -groot $(DEVELCONF)/webmin
 #	install -oroot -groot --mode=0600 sophomorix-base/config-devel/webmin-admin-modules.conf $(DEVELCONF)/webmin
 #	install -oroot -groot --mode=0600 sophomorix-base/config-devel/webmin-teacher-modules.conf $(DEVELCONF)/webmin

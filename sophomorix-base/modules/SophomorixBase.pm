@@ -342,7 +342,8 @@ Reads all permissions below homedirs
 =cut
 sub fetch_repairhome {
    # files repairhome.$type to read
-   my @typelist = ("administrator","teacher","student","examaccount","attic");
+   my @typelist = ("administrator","teacher","student",
+                   "examaccount","attic","domcomp");
 
    # data structure: hash of arrays
    my @administrator=();     
@@ -350,12 +351,14 @@ sub fetch_repairhome {
    my @student=();     
    my @workstation=();
    my @attic=();
+   my @domcomp=();
    %all_repairhome=();
    $all_repairhome{"administrator"}=\@administrator;
    $all_repairhome{"teacher"}=\@teacher;
    $all_repairhome{"student"}=\@student;
    $all_repairhome{"examaccount"}=\@workstation;
    $all_repairhome{"attic"}=\@attic;
+   $all_repairhome{"domcomp"}=\@domcomp;
 
    foreach my $type (@typelist){
 
@@ -386,6 +389,9 @@ sub fetch_repairhome {
           }
           if ($type eq "attic"){
 	      push @attic, $_;
+          }
+          if ($type eq "domcomp"){
+	      push @domcomp, $_;
           }
       }
       close(REPAIRHOME);
