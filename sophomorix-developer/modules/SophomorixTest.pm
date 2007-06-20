@@ -459,9 +459,10 @@ sub fetch_ldap_account {
 
     my $ldap=&Sophomorix::SophomorixPgLdap::auth_connect();
 
-    #print "Looking for user $user\n";
+    my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=
+        &Sophomorix::SophomorixPgLdap::fetch_ldap_pg_passwords();
     my $msg = $ldap->search(
-          base => "ou=accounts,dc=linuxmuster,dc=de",
+          base => "$suffix",
           scope => "sub",
           filter => ("uid=$user")
        );
