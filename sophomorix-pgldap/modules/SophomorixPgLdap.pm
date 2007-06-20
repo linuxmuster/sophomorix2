@@ -4168,14 +4168,14 @@ sub search_user {
   my $sql="";
 
   # select the columns that i need
-  my $sth= $dbh->prepare( "SELECT DISTINCT uid, firstname, surname, loginshell, 
-                            birthday, adminclass, exitadminclass, 
+  my $sth= $dbh->prepare( "SELECT DISTINCT uid, firstname, surname, 
+                            loginshell, birthday, adminclass, exitadminclass, 
                             unid, subclass, creationdate,tolerationdate, 
                             deactivationdate, sophomorixstatus,
-                            gecos, homedirectory, firstpassword, quota, mailquota,
-                            sambaacctflags, sambahomepath, sambahomedrive,
-                            sambalogonscript,sambaprofilepath,usertoken,
-                            scheduled_toleration 
+                            gecos, homedirectory, firstpassword, quota, 
+                            mailquota, sambaacctflags, sambahomepath, 
+                            sambahomedrive, sambalogonscript, 
+                            sambaprofilepath, usertoken, scheduled_toleration 
                          FROM userdata
                          WHERE uid LIKE $str
                             OR firstname LIKE $str
@@ -5453,6 +5453,7 @@ sub fetch_ldap_pg_passwords {
     my $ldap_passwd="";
     my $pg_passwd="";
     my $ldap_rootdn="";
+    my $ldap_suffix="";
     if (-e $old_password_file) {
          # looking for password
  	 open (CONF, $old_password_file);
@@ -5479,12 +5480,19 @@ sub fetch_ldap_pg_passwords {
                  #print "---$rootdn---\n";
                  $ldap_rootdn=$rootdn;
 	     }
+             if (/(^suffix)\s{1,}?\"(.*)\"/){
+                 # whitespace entfernen
+                 my $suffix=$2;
+                 $suffix=~s/\s//g;
+                 #print "---$suffix---\n";
+                 $ldap_suffix=$suffix;
+	     }
          }
          close(CONF);
-         return ($ldap_passwd,$ldap_rootdn,$pg_passwd);
+         return ($ldap_passwd,$ldap_rootdn,$pg_passwd,$ldap_suffix);
     } else {
         print "$old_password_file doesn't exist\n";
-        return ("","");
+        return ("","","","");
     }
 }
 
@@ -5594,9 +5602,9 @@ sub compare_pg_with_ldap {
 
     # ldap
     my $ldap=&Sophomorix::SophomorixPgLdap::auth_connect();
-
+    my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
     my $msg = $ldap->search(
-          base => "ou=accounts,dc=linuxmuster,dc=de",
+          base => "$suffix",
           scope => "sub",
           filter => ("uid=$login")
        );
