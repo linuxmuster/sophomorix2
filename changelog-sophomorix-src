@@ -1705,27 +1705,34 @@ Bugs:
 # 221 Claire Schlamm
 
 
-Das Verzeichnis /home/.../__einsammeln bei Schülern und Lehrern kann
-gelöscht werden.
-Am einfachsten man erzeugt eine lock-Datei in .../einsammeln, die
-allerdings beim Einsammeln nicht berücksichtigt werden darf.
-
 diff pg to ldap:
   - use it in sophomorix-sync-check
   - with -vv make it more noisy (show what is has found)
 
 
-sophomorix-user -s Rechner5$ does not work
-sophomorix-user -s Rechner5 thrown error:
-      Group-SID differs
+Bug (cosmetical):
+fetch_ldap_pg_passwords finds lines twice (they exist only once)
 
-sophomorix-test thows errors
+Check: 
+frueher: smbldap-useradd legte homedirs von examaccounts an
+neu    : sophomorix-useradd macht das nicht mehr
+beim nutzen der examaccounts werden diese erstmal zurückgesetzt
+also werden die homes nicht gebraucht
 
 
 ================== CHANGELOG ========================================
 
 Last code changes for 2.0.0: 26.6.07 
 1.9.21-1 (2007-06-xx)
+    - exit script sophmorix-teacher, when handout from class 
+      in which one is not member
+    - made the following command handout with correct permissions
+      (user.teachers, 755/644 for dirs/files)
+    - making use of ::locked in repairhome.* to lock some dirs 
+      (make them undeleteable)
+    - created function make_dir_locked to create .locked veto files
+    - Bugfix: sophomorix-user -s user had a hardcoded ldap suffix
+              (-> did not compare with ldap)
 
 
 1.9.20-1 (2007-06-20)
