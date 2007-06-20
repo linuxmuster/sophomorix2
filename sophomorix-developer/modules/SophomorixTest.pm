@@ -462,7 +462,7 @@ sub fetch_ldap_account {
     my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=
         &Sophomorix::SophomorixPgLdap::fetch_ldap_pg_passwords();
     my $msg = $ldap->search(
-          base => "$suffix",
+          base => "ou=accounts,$suffix",
           scope => "sub",
           filter => ("uid=$user")
        );
@@ -631,7 +631,7 @@ sub check_provided_files {
        &check_file("$Language::share_dir",$login,$class,
                     "administrator",
                     "root",
-                    "1777");
+                    "1775");
     } else {
        &check_file("$Language::share_dir",$login,$class,
                     "administrator",
