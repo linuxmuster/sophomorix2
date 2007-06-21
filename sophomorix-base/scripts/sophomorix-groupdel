@@ -100,7 +100,8 @@ if ($room ne ""){
         }
     }
     if ($seen==0){
-        print "No\n";
+        my ($type)=&pg_get_group_type($room);
+        print "No ($type)\n";
         print "   WARNING: Not removing room $room\n";
         exit;
     }
