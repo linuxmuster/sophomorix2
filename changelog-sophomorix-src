@@ -1732,7 +1732,19 @@ sophomorix-passwd doesnt work???
 Last code changes for 2.0.0: 26.6.07
 
 1.9.22-1 (2007-06-xx)
-
+    - sophomorix-groupdel: added more typeout when NOT deleting a group
+    - modified pg_get_group_type to avoid error:
+      SophomorixPgLdap.pm Line 2224
+    - revised adding of groups the following way:
+      A) unixgroup=ntgroup 
+         -> use smbldap-groupadd -a ... (win+lin account)
+            this adds a groupmap entry already
+      B) unixgroup differs from ntgroup
+         -> dont use option -a
+         -> issue a 'net groupmap add ...' command 
+    - sophomorix-groupadd:
+      avoid warning when 'net groupmap add ...' because groupmap 
+      entry exist already (because of option -a in smbldap-groupadd)
 
  
 1.9.21-1 (2007-06-21)
