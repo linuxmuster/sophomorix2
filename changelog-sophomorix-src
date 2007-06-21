@@ -1677,12 +1677,6 @@ vom Typ adminclass ist.
 wwwadmin account should not be windows account
 check if this is correct
 
-net user doesnt work
-
-
-administrators: do repair their homes as well
-                do they need some dirs in their home?
-
 
 
 add parameter to auth_groupadd: unixonly
@@ -1719,8 +1713,6 @@ neu    : sophomorix-useradd macht das nicht mehr
 beim nutzen der examaccounts werden diese erstmal zurückgesetzt
 also werden die homes nicht gebraucht
 
-3 Errors with tests on majestix
-
 ================== CHANGELOG ========================================
 
 Last code changes for 2.0.0: 26.6.07
@@ -1730,6 +1722,8 @@ Last code changes for 2.0.0: 26.6.07
 
  
 1.9.21-1 (2007-06-21)
+    - adjusted search base in ldap searches 
+    - added empty file repairhome.domcomp to avoid warning
     - exit script sophmorix-teacher, when handout from class 
       in which one is not member
     - made the following command handout with correct permissions
