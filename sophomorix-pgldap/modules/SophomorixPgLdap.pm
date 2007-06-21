@@ -5571,6 +5571,7 @@ sub compare_pg_with_ldap {
     my $lastref;
     my @error_lines = ();
 
+    # ldap => pg
     my %ldap_pg_mapping= (
         "gecos" => "gecos",
         "homeDirectory" => "homedirectory",
@@ -5604,7 +5605,7 @@ sub compare_pg_with_ldap {
     my $ldap=&Sophomorix::SophomorixPgLdap::auth_connect();
     my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
     my $msg = $ldap->search(
-          base => "$suffix",
+          base => "ou=accounts,$suffix",
           scope => "sub",
           filter => ("uid=$login")
        );

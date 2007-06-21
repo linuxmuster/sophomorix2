@@ -1968,7 +1968,7 @@ sub ok_account{
         my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=
             &Sophomorix::SophomorixPgLdap::fetch_ldap_pg_passwords();
         my $msg = $ldap->search(
-            base => "$suffix",
+            base => "ou=groups,$suffix",
             scope => "sub",
             filter => ("gidNumber=$pg_gidnumber")
         );
