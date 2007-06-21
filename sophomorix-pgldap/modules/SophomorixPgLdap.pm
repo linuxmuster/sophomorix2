@@ -2067,6 +2067,8 @@ sub remove_class_db_entry {
     if($Conf::log_level>=3){
         print "\nSQL: $sql\n";
     }
+    #$dbh->do($sql);
+
     my $return = $dbh->selectrow_array($sql);
     if (defined $return){
         print "Group $return ($group) removed!\n";
@@ -2221,7 +2223,9 @@ sub pg_get_group_type {
         my ($home)= $dbh->selectrow_array( "SELECT homedirectory 
                                             FROM userdata 
                                             WHERE gidnumber=$gidnumber_sys");
-           if ($home=~/^\/home\/workstations\//){
+           if (not defined $home){
+	       return ("nonexisting",$gid,$gidnumber_sys);
+           } elsif ($home=~/^\/home\/workstations\//){
                # identify a workstation 
 	       return ("room",$gid,$gidnumber_sys);
            } elsif ($home=~/^\/home\/administrators\//){
@@ -5154,9 +5158,11 @@ sub auth_groupadd {
            # do the ldap stuff
            if ($DevelConf::seperate_ldap==1){
                if ($domain_group==1){
-                   print "   Adding domain group $unix_group($nt_group) to ldap\n";
+                   print "   Adding domain group $unix_group($nt_group)",
+                         " to ldap\n";
                } elsif ($local_group==1){
-                   print "   Adding local group $unix_group($nt_group) to ldap\n";
+                   print "   Adding local group $unix_group($nt_group)",
+                         " to ldap\n";
                } else {
                    print "ERROR: Dont know which type of group to add.";
                    return 0;
@@ -5168,34 +5174,55 @@ sub auth_groupadd {
 		      print "   Group $unix_group exists already in ldap ",
                             "with correct gid $gr_gid\n";
 		  } else {
-		      print "WARNING: Group $unix_group exists already in ldap ",
+		      print "WARNING: Group $unix_group",
+                            " exists already in ldap ",
                             " with WRONG gid $gr_gid\n";
                   }
                } else {
-
+                  my $group_rid=2*$gid_number+1001;
                   if ($domain_group==1){
                       my $command="";
-                      # domain group
-                      $command="smbldap-groupadd -a -g $gid_number '$unix_group'";
-                      print "   * $command\n";
-                      system("$command");
-                      $command="net groupmap add rid=$gid_number".
-                               " unixgroup='$unix_group' ntgroup='$nt_group'";
-                      print "   * $command\n";
-                      system("$command");
+                      if ($unix_group eq $nt_group){ 
+                        # add the domain group
+                        $command="smbldap-groupadd -a ".
+                                 "-g $gid_number '$unix_group' -t 2";
+                        print "   * $command\n";
+                        system("$command");
+                      } else {
+                        # add the domain group
+                        $command="smbldap-groupadd ".
+                                 "-g $gid_number '$unix_group' -t 2";
+                        print "   * $command\n";
+                        system("$command");
+                        # add correct groupmapping
+                        $command="net groupmap add rid=$group_rid".
+                            " unixgroup='$unix_group' ntgroup='$nt_group'".
+                            " type=domain";
+                        print "   * $command\n";
+                        system("$command");
+		      }
 	          }
                   if ($local_group==1){
-                      # local group
                       my $command="";
-                      # domain group
-                      $command="smbldap-groupadd -a -g $gid_number '$unix_group'";
-                      print "   * $command\n";
-                      system("$command");
-                      $command="net groupmap add sid='S-1-5-32-$gid_number'".
+                      if ($unix_group eq $nt_group){ 
+                        # add the local group 
+                        $command="smbldap-groupadd -a ".
+                                 "-g $gid_number '$unix_group' -t 4";
+                        print "   * $command\n";
+                        system("$command");
+		      } else {
+                        # add the local group 
+                        $command="smbldap-groupadd ".
+                                 "-g $gid_number '$unix_group' -t 4";
+                        print "   * $command\n";
+                        system("$command");
+                        # add correct groupmapping
+                        $command="net groupmap add sid='S-1-5-32-$group_rid'".
     		               " unixgroup='$unix_group' ntgroup='$nt_group'".
-                               " type=local";
-                      print "   * $command\n";
-                      system("$command" );
+                                 " type=local";
+                        print "   * $command\n";
+                        system("$command" );
+		      }
     	          }
 	       }
            } else {
