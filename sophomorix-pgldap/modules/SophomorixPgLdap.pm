@@ -1644,19 +1644,19 @@ Setzt das Passwort string in linux, samba, ...
 
 sub set_sophomorix_passwd {
     my ($login,$pass) = @_;
-       # create crypt password for liux
-       my $crypt_salt_format = '%s';
-       my $salt = sprintf($crypt_salt_format,make_salt());
-       my $linux_pass = "{CRYPT}" . crypt($pass,$salt);
-       # create crypted passwords for samba
-       my ($lmpassword,$ntpassword) = ntlmgen $pass;
-       my $dbh=&db_connect();
-       my $sql="";
-       $sql="SELECT id FROM userdata WHERE uid='$login'";
-       if($Conf::log_level>=3){
-          print "\nSQL: $sql\n";
-       }
-       my ($id)= $dbh->selectrow_array($sql);
+    # create crypt password for liux
+    my $crypt_salt_format = '%s';
+    my $salt = sprintf($crypt_salt_format,make_salt());
+    my $linux_pass = "{CRYPT}" . crypt($pass,$salt);
+    # create crypted passwords for samba
+    my ($lmpassword,$ntpassword) = ntlmgen $pass;
+    my $dbh=&db_connect();
+    my $sql="";
+    $sql="SELECT id FROM userdata WHERE uid='$login'";
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    my ($id)= $dbh->selectrow_array($sql);
     if (not defined $id){
        $id="";
        print "ERROR: User $login not found in database to set password!\n";
@@ -5047,8 +5047,13 @@ sub auth_passwd {
     my ($username,$new_password)=@_;
     my $command = Expect->spawn("/usr/sbin/smbldap-passwd $username")
         or die "Couldn't start program: $!\n";
-    # prevent the program's output from being shown on our STDOUT
-    $command->log_stdout(0);
+
+    if($Conf::log_level>=3){
+	print "Running /usr/sbin/smbldap-passwd ${username}:\n";
+    } else {
+       # prevent the program's output from being shown on our STDOUT
+       $command->log_stdout(0);
+    }
 
     # wait 10 seconds
     unless ($command->expect(10, "New password :")) {
