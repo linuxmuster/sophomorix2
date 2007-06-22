@@ -1726,12 +1726,29 @@ test stuff, that is only in ldap???
 
 sophomorix-passwd doesnt work???
 
+disabling a user doesnt modify the linux password in ldap, so the
+account is not disabled
+
+
+upgrade:
+
+Klassenarbeitsbenutzer in ExamAccount umwandeln statt HostAccount
+
+bei räumen den typ auf ExamAccount setzen
+
 
 ================== CHANGELOG ========================================
 
 Last code changes for 2.0.0: 26.6.07
 
-1.9.22-1 (2007-06-xx)
+1.9.23-1 (2007-06-xx)
+
+
+1.9.22-1 (2007-06-22)
+    - moved samba,slapd,postgres to Pre-Depends insted of depends,
+      so that samba,slapd,postgres are fully updated when
+      sophomorix starts
+    - added debug info to sophmorix-passwd
     - sophomorix-groupdel: added more typeout when NOT deleting a group
     - modified pg_get_group_type to avoid error:
       SophomorixPgLdap.pm Line 2224
