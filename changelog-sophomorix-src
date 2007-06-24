@@ -1734,6 +1734,12 @@ upgrade:
 Klassenarbeitsbenutzer in ExamAccount umwandeln statt HostAccount
 bei räumen den typ auf ExamAccount setzen
 
+gecos in der Datenbank nach 
+cn(posix account),displayname(sambasamaccount),
+description(sambasamaccount UND posix_account)
+
+
+
 Gruppen, deren Mitglieder /home/workstations haben, sollen den typ 
 room bekommen.
 
@@ -1803,6 +1809,7 @@ B) nach dem ersten dump ist givenName ausgefüllt
 Ich denke nicht, dass uns das stören wird. Aber vielleicht gibts einen
 technischen Grund dass man den givenName immer braucht.
 
+givenName wird auch nicht upgedated von sophomorix (nur beim dump)
 
 
 
@@ -1836,9 +1843,13 @@ danach gefühlte 10 min. Pause, bis es weitergeht.
 Last code changes for 2.0.0: 26.6.07
 
 1.9.23-1 (2007-06-xx)
+    - Bugfix: updating description in samba_sam_account AND posix_account
+      (posix_account shown in view userdata)
+    - added test of cn and description to sophomorix-test
+      (1738 Tests now)
     - Bugfix in repair.directories: $share_school root-> administrator
     - added sambaacctflags correctly ([WX]) when adding a computer
-    - added updating cn and description in pg. sop that the dump to ldap
+    - added updating cn and description in pg. So that the dump to ldap
       shows the same values as when adding a user the first time
     - sophomorix-dump-pg2ldap: without param, dump and load_ldif
     - givenName of ExamAccount in ldap adjusted to match dump
