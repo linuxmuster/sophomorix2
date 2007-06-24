@@ -1345,8 +1345,17 @@ sub create_user_db_entry {
        $gecos_force,
        $type) = @_;
 
+    my $gidnumber;
     my $uidnumber_auth;
     my $sambapwdmustchange;
+    my $servername=`hostname`;
+    chomp($servername);
+    my $smb_homepath;
+    my $smb_ldap_homepath;
+    my $smb_homedrive;
+    my $smb_acctflags;
+    my $homedir="";
+
     if (not defined $mailquota){
        $mailquota=-1;
     }
@@ -1369,7 +1378,6 @@ sub create_user_db_entry {
         $type="user";
     }
 
-    my $homedir="";
     if ($admin_class eq ${DevelConf::teacher}){
         # teachers
         $homedir = "${DevelConf::homedir_teacher}/$login";
@@ -1388,17 +1396,15 @@ sub create_user_db_entry {
         }
     }
 
-    my $servername=`hostname`;
-    chomp($servername);
-    my $smb_homepath="\\\\\\\\$servername\\\\$login";
-    my $smb_ldap_homepath="\\\\$servername\\$login";
-
-
     if (defined $homedir_force){
         $homedir=$homedir_force;
     }
 
     my $description="";
+    $description=$gecos;    
+    my $cn="";
+    $cn=$gecos;
+
     my $birthday_pg = &date_perl2pg($birthday_perl);
 
     # create crypt password for linux
@@ -1475,19 +1481,25 @@ sub create_user_db_entry {
           print "   --> \$uidnumber ist $uidnumber \n\n";
        }
 
-       my $gidnumber;
 
        if ($type eq "computer"){
            $gidnumber=515;
+           $smb_homepath="";
+           $smb_ldap_homepath="";
+           $smb_homedrive="";
+           $smb_acctflags="[WX]";
        } else {
-           if ($type eq "examaccount"){
+          $smb_homepath="\\\\\\\\$servername\\\\$login";
+          $smb_ldap_homepath="\\\\$servername\\$login";
+          $smb_homedrive="H:";
+          $smb_acctflags="[UX]";
+          if ($type eq "examaccount"){
               # neue gruppe anlegen und gidnumber holen, falls erforderlich
               $gidnumber=&create_class_db_entry($admin_class,5);
 	  } else {
               # neue gruppe anlegen und gidnumber holen, falls erforderlich
               $gidnumber=&create_class_db_entry($admin_class);
           }
-
        }
 
        # get_sid
@@ -1502,6 +1514,8 @@ sub create_user_db_entry {
        if($Conf::log_level>=3){
            print "GROUP-SID:       $group_sid\n";
        }
+
+
 
        # User anlegen
        # 1. Tabelle posix_account
@@ -1540,7 +1554,7 @@ sub create_user_db_entry {
 	VALUES
 	($posix_account_id,
          '$user_sid',
-         NULL,
+         '$cn',
          '$lmpassword',
          '$ntpassword',
          '$unix_epoc',
@@ -1549,10 +1563,10 @@ sub create_user_db_entry {
          '2147483647',
          '0',
          '$sambapwdmustchange',
-         '[UX]',
+         '$smb_acctflags',
          '$gecos',
          '$smb_homepath',
-         'H:',
+         '$smb_homedrive',
          NULL,
          NULL,
          NULL,
@@ -1625,8 +1639,8 @@ sub create_user_db_entry {
 
   # create entry in auth system (no secondary groups)
   &auth_useradd($login,$uidnumber_auth,$gecos,$homedir,
-                $admin_class,"",$sh,$type,$smb_ldap_homepath)
-
+                $admin_class,"",$sh,$type,$smb_ldap_homepath,
+                $nachname)
   &db_disconnect($dbh);
 
 }
@@ -3098,6 +3112,7 @@ sub update_user_db_entry {
            $gecos="$value";
 	   push @posix, "gecos = '$gecos'";
 	   push @samba, "displayname = '$gecos'";
+	   push @samba, "cn = '$gecos'";
        }
        elsif ($attr eq "Uid"){
            $new_login="$value";
@@ -4946,8 +4961,13 @@ sub smb_user_sid {
 sub smb_group_sid {
     # when adding a user
     my ($gidnumber,$sid) = @_;
-    my $group_sid=2*$gidnumber+1001;
-    $group_sid="$sid"."-"."$group_sid";
+    my $group_sid;
+    if ($gidnumber==515){
+        $group_sid="$sid"."-"."$gidnumber";
+    } else {
+        $group_sid=2*$gidnumber+1001;
+        $group_sid="$sid"."-"."$group_sid";
+    }
     return $group_sid;
 }
 
@@ -5079,7 +5099,7 @@ sub auth_passwd {
 
 sub auth_useradd {
    my ($login,$uid_number,$gecos,$home,$unix_group,
-       $sec_groups,$shell,$type,$smb_ldap_homepath) = @_; 
+       $sec_groups,$shell,$type,$smb_ldap_homepath,$lastname) = @_; 
    my ($u_home,$u_type,$u_gecos,$u_group,
        $u_uidnumber)=&fetchdata_from_account($login);
    # add entry to seperate ldap
@@ -5115,7 +5135,9 @@ sub auth_useradd {
                    system("$command");           
 
                    # command 3
-                   $command="smbldap-usermod -H '[WX]' $login";
+                   $command="smbldap-usermod -H '[WX]' ".
+		            "-S 'Computer' ".
+		            "-N 'Computer' $login";
       	           print "   * $command\n";
                    system("$command");           
 	       } elsif ($type eq "unixadmin") {
@@ -5133,7 +5155,10 @@ sub auth_useradd {
 	           print "   * $command\n";
                    system("$command");
                    $command="smbldap-usermod -D 'H:'".
-                            " -C '${smb_ldap_homepath}' $login";
+                            " -C '${smb_ldap_homepath}'".
+                            " -S '${lastname}'".
+                            " -N '${gecos}'".
+                            " $login";
 	           print "   * $command\n";
                    system("$command");           
                }
