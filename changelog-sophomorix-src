@@ -1732,8 +1732,10 @@ account is not disabled
 upgrade:
 
 Klassenarbeitsbenutzer in ExamAccount umwandeln statt HostAccount
-
 bei räumen den typ auf ExamAccount setzen
+
+Gruppen, deren Mitglieder /home/workstations haben, sollen den typ 
+room bekommen.
 
 
 
@@ -1804,11 +1806,37 @@ technischen Grund dass man den givenName immer braucht.
 
 
 
+
+1.9.22:
+
+
+bei der Installation kommt hier folgende Meldung:
+
+=> bdb_tool_entry_put: id2entry_add failed: DB_KEYEXIST: Key/data pair
+already exists (-30996)
+=> bdb_tool_entry_put: txn_aborted! DB_KEYEXIST: Key/data pair already
+exists (-30996)
+slapadd: could not add entry dn="dc=linuxmuster,dc=local" (line=14):
+txn_aborted! DB_KEYEXIST: Key/data pair already exists (-30996)
+
+danach gefühlte 10 min. Pause, bis es weitergeht.
+
+
+
+
+
+
+
+
+
+
+
 ================== CHANGELOG ========================================
 
 Last code changes for 2.0.0: 26.6.07
 
 1.9.23-1 (2007-06-xx)
+    - Bugfix in repair.directories: $share_school root-> administrator
     - added sambaacctflags correctly ([WX]) when adding a computer
     - added updating cn and description in pg. sop that the dump to ldap
       shows the same values as when adding a user the first time
