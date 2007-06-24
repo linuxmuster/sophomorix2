@@ -5633,6 +5633,8 @@ sub compare_pg_with_ldap {
     # ldap => pg
     my %ldap_pg_mapping= (
         "gecos" => "gecos",
+        "cn" => "cn",
+        "description" => "description",
         "homeDirectory" => "homedirectory",
         "displayName" => "displayname",
         "sambaHomePath" => "sambahomepath",
@@ -5659,6 +5661,11 @@ sub compare_pg_with_ldap {
     } 
     &Sophomorix::SophomorixPgLdap::db_disconnect($dbh);
     my %pg_hash=%$lastref;
+
+    # remove spaces at the end of description in pg
+    my $tmp = $pg_hash{'description'};
+    $tmp=~s/\s*$//;
+    $pg_hash{'description'}=$tmp;
 
     # ldap
     my $ldap=&Sophomorix::SophomorixPgLdap::auth_connect();
