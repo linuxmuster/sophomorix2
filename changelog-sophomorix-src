@@ -1716,7 +1716,6 @@ also werden die homes nicht gebraucht
 
 add more check of ldap attributes to tests, and compare (sophomorix-user)
 
-sophomorix-dump-pg2ldap: without param, dump and load
 
 sophomorix-sync users: add ldap comparison
 
@@ -1737,12 +1736,86 @@ Klassenarbeitsbenutzer in ExamAccount umwandeln statt HostAccount
 bei räumen den typ auf ExamAccount setzen
 
 
+
+
+
+To do Beck:
+given Name: 'Vorname' is not existing 
+(no smbldap-usermod option for this)
+
+
+
+
+
+ich hab mal ldap mit smbldaptools befüllt(=mit sophmorix) und dann mit
+smbldap-usershow angezeigt Dann habe ich deine scripte angewendet und
+den ldap-baum neu erzeugt um ihn dann neu anzeigen zu lassen mit
+smbldap-usershow.
+
+Eigentlich sollte der dann aufgebaute ldap-Baum gleich sein.
+
+Das ist so, bis auf folgende Ausnahmen:
+
+1)
+Beim $-Account steht:
+dn: uid=test12$,ou=accounts,dc=linuxmuster,dc=de
+
+muss ou=machines stehen
+
+Alle $-accounts müssten also mit ou=machines gedumpt werden.
+
+
+
+2) Reihenfolge in objectClass ist anders: 
+# beim anlegen
+objectClass: top,inetOrgPerson,posixAccount,shadowAccount,sambaSamAccount
+# beim dump
+objectClass: inetOrgPerson,posixAccount,shadowAccount,top,sambaSamAccount 
+
+Ich weiss nicht ob das irgendwelche Auswirkungen hat. Bitte prüfen.
+
+
+
+3) sambaprimarygroupsid (postgres) bzw. sambaPrimaryGroupSID(ldap)
+ist z.B. S-1-5-21-1800012640-1621739038-321154774-515 für $-accounts, wenn mit 
+smbldaptools angelegt (letzte Zahlen sind unix-group id)
+
+bei unserem bisherigen setup (postgres alleine) wird die letzte Zahl berechnet
+nach 2*unixgidnumber+1001
+
+Das würde bedeuten: 
+A) nach dem anlegen S-*-515
+B) nach dem ersten dump 2031 
+
+Was ist nun richtig?
+Soll ich in der Datenbank auch mit *-515 anlegen?
+
+
+4) givenName
+Dafür gibts in den smbldap-tools keine Option. Das bedeutet:
+A) nach dem anlegen ist givenName leer.
+B) nach dem ersten dump ist givenName ausgefüllt
+
+(Da müsste ich also nachbessern: givenName beim Anlegen )
+
+Ich denke nicht, dass uns das stören wird. Aber vielleicht gibts einen
+technischen Grund dass man den givenName immer braucht.
+
+
+
+
 ================== CHANGELOG ========================================
 
 Last code changes for 2.0.0: 26.6.07
 
 1.9.23-1 (2007-06-xx)
-
+    - added sambaacctflags correctly ([WX]) when adding a computer
+    - added updating cn and description in pg. sop that the dump to ldap
+      shows the same values as when adding a user the first time
+    - sophomorix-dump-pg2ldap: without param, dump and load_ldif
+    - givenName of ExamAccount in ldap adjusted to match dump
+    - Bugfix: create user account in ldap with sn: lastname 
+              (Buggy: sn: login)
 
 1.9.22-1 (2007-06-22)
     - moved samba,slapd,postgres to Pre-Depends insted of depends,
