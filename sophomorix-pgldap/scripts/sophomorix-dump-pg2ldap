@@ -77,6 +77,19 @@ my $ldif_file="slapd.ldif";
 
 
 
+
+
+# without options:
+# dump and load
+if ($dump==0 and $load_dump==0){
+    $dump=1;
+    $load_dump=1;
+}
+
+
+
+
+# --dump
 if ($dump==1){
     # dumping
     system("mkdir -p $dump_dir");
@@ -90,13 +103,14 @@ if ($dump==1){
 
 
 
-
+# --load
 if ($load_dump==1){
     my $ldap_dir="/var/lib/ldap";
     my $db_config="/var/lib/ldap/DB_CONFIG";
     my $template=${DevelConf::config_template_pfad};
     my $ldif_local="/usr/share/sophomorix/config-templates/ldap/local-gen.ldif";
 
+    print "Loading ldif file $dump_dir/$ldif_file\n";
     system("/etc/init.d/slapd stop");
     sleep 2;
     system("killall slapd");
