@@ -3113,6 +3113,8 @@ sub update_user_db_entry {
 	   push @posix, "gecos = '$gecos'";
 	   push @samba, "displayname = '$gecos'";
 	   push @samba, "cn = '$gecos'";
+	   push @posix, "description = '$gecos'";
+	   push @samba, "description = '$gecos'";
        }
        elsif ($attr eq "Uid"){
            $new_login="$value";
