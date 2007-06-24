@@ -1949,6 +1949,17 @@ sub ok_account{
     if ($col eq "creationdate"){
        # use a special regex
        like( $account{$col},qr/^$v.*/, "pgcheck:   $v is $col of $account{uid}");
+    } elsif ($col eq "gecos"){
+       # check gecos
+       is( $account{$col},$v, "pgcheck:   $v is $col of $account{uid}");
+       # check cn
+       is( $account{'cn'},$v, "pgcheck:   $v is cn of $account{uid}");
+       # check description
+       # remove whitespace at the end
+       my $mod=$account{'description'};
+       $mod=~s/\s*$//;
+       is( $mod,$v, 
+            "pgcheck:   $mod is description of $account{uid}");
     } else {
        # check for equality
        is( $account{$col},$v, "pgcheck:   $v is $col of $account{uid}");
@@ -2028,6 +2039,8 @@ sub ok_account{
     # check if in cn is the same value as in gecos
     if ($attr eq "gecos"){
         is( $account_ldap{'cn'},$v, "ldapcheck: $v is cn of $account_ldap{uid}");
+        is( $account_ldap{'description'},$v, 
+                     "ldapcheck: $v is description of $account_ldap{uid}");
     }
 }
 
