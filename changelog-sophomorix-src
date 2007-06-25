@@ -1688,8 +1688,7 @@ sambaDomainName:: c2NodWxlIA==
 
 Bugs:
 # 117
-# 238
-# 221 Claire Schlamm
+# 238 schreiben in __vorlagen und __tauschen
 
 
 diff pg to ldap:
@@ -1725,7 +1724,8 @@ bei räumen den typ auf ExamAccount setzen
 Gruppen, deren Mitglieder /home/workstations haben, sollen den typ 
 room bekommen.
 
-am besten: vor dem upgrade au 1.9.23 ws entfernen, ungrade und wieder anlegen
+am besten: vor dem upgrade au 1.9.23 ws entfernen, 
+           paket upgraden und wieder anlegen
 
 
 User
@@ -1741,8 +1741,9 @@ To do Beck:
 given Name: 'Vorname' is not existing 
 (no smbldap-usermod option for this)
 
-disabling a user doesnt modify the linux password in ldap, so the
-account is not disabled
+check this out:
+disabling a user doesnt modify the linux password in ldap???, so the
+account is not disabled ???
 
 
 
@@ -1768,13 +1769,7 @@ Alle $-accounts müssten also mit ou=machines gedumpt werden.
 
 
 2) Reihenfolge in objectClass ist anders: 
-# beim anlegen
-objectClass: top,inetOrgPerson,posixAccount,shadowAccount,sambaSamAccount
-# beim dump
-objectClass: inetOrgPerson,posixAccount,shadowAccount,top,sambaSamAccount 
-
-Ich weiss nicht ob das irgendwelche Auswirkungen hat. Bitte prüfen.
-
+Hat keine Auswirkungen
 
 
 3) sambaprimarygroupsid (postgres) bzw. sambaPrimaryGroupSID(ldap)
@@ -1802,14 +1797,9 @@ B) nach dem ersten dump ist givenName ausgefüllt
 Ich denke nicht, dass uns das stören wird. Aber vielleicht gibts einen
 technischen Grund dass man den givenName immer braucht.
 
-givenName wird auch nicht upgedated von sophomorix (nur beim dump)
-
-
 
 
 1.9.22:
-
-
 bei der Installation kommt hier folgende Meldung:
 
 => bdb_tool_entry_put: id2entry_add failed: DB_KEYEXIST: Key/data pair
@@ -1836,7 +1826,10 @@ danach gefühlte 10 min. Pause, bis es weitergeht.
 Last code changes for 2.0.0: 26.6.07
 
 1.9.23-1 (2007-06-xx)
-    - added update script to copy gecos field
+    - resolved #221, 'Claire Schlamm' without action
+    - added update script to 
+        - copy gecos field to description,cn,displayname
+        - call sophomorix-dump-pg2ldap
     - Bugfix: updating description in samba_sam_account AND posix_account
       (posix_account shown in view userdata)
     - added test of cn and description to sophomorix-test
