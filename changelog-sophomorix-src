@@ -1625,10 +1625,6 @@ but getent passwd/id as root shows user and its id correctly
 whoami als user sagt, kein loginname für id 10016 
 
 
-Problems in sophomorix-test:
-
-Test why U, UX sambaaccountflags doesnt work
-
 
 add some checks to auth_* functions, (see ?????)
 
@@ -1688,9 +1684,6 @@ check if this is the difference from a group appearing in windows
 komischer Wert bei slapcat:
 sambaDomainName:: c2NodWxlIA==
 
-Admins müssen sn haben im ldif
-Workstation auch?
-accounts
 
 
 Bugs:
@@ -1723,25 +1716,22 @@ sophomorix-imp-expand-from-address
 
 test stuff, that is only in ldap???
 
-sophomorix-passwd doesnt work???
 
-disabling a user doesnt modify the linux password in ldap, so the
-account is not disabled
 
 
 upgrade:
-
 Klassenarbeitsbenutzer in ExamAccount umwandeln statt HostAccount
 bei räumen den typ auf ExamAccount setzen
-
-gecos in der Datenbank nach 
-cn(posix account),displayname(sambasamaccount),
-description(sambasamaccount UND posix_account)
-
-
-
 Gruppen, deren Mitglieder /home/workstations haben, sollen den typ 
 room bekommen.
+
+am besten: vor dem upgrade au 1.9.23 ws entfernen, ungrade und wieder anlegen
+
+
+User
+gecos in der Datenbank nach 
+cn, displayname(sambasamaccount),
+description(sambasamaccount UND posix_account)
 
 
 
@@ -1750,6 +1740,9 @@ room bekommen.
 To do Beck:
 given Name: 'Vorname' is not existing 
 (no smbldap-usermod option for this)
+
+disabling a user doesnt modify the linux password in ldap, so the
+account is not disabled
 
 
 
@@ -1843,6 +1836,7 @@ danach gefühlte 10 min. Pause, bis es weitergeht.
 Last code changes for 2.0.0: 26.6.07
 
 1.9.23-1 (2007-06-xx)
+    - added update script to copy gecos field
     - Bugfix: updating description in samba_sam_account AND posix_account
       (posix_account shown in view userdata)
     - added test of cn and description to sophomorix-test
