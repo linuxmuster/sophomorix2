@@ -11,10 +11,10 @@ use Sophomorix::SophomorixPgLdap qw(db_disconnect
                                     db_connect
                                    );
 
-print "\nHello, Im upgrading the database.\n\n";
+print "\nHello, sophomorix_1.9.23-1.upgrade modifies the Database\n\n";
+sleep 2;
 
 my $dbh=&db_connect();
-
 
 my @teachers=&fetchstudents_from_adminclass(${DevelConf::teacher});
 my @students=&Sophomorix::SophomorixAPI::fetchstudents_from_school();
@@ -40,11 +40,15 @@ foreach my $user (@users){
          WHERE id = $id";
     print "\nSQL: $sql\n";
     $dbh->do($sql);
-
-
 }
 
 
-system("sophomorix-dump-pg2ldap");
 
 &db_disconnect($dbh);
+
+
+
+
+
+# dumping database to ldap
+system("sophomorix-dump-pg2ldap");
