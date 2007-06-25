@@ -11,7 +11,7 @@ use Sophomorix::SophomorixPgLdap qw(db_disconnect
                                     db_connect
                                    );
 
-print "\nHello, sophomorix_1.9.23-1.upgrade modifies the Database\n\n";
+print "\n1) Hello, sophomorix_1.9.23-1.upgrade modifies postgres\n\n";
 sleep 2;
 
 my $dbh=&db_connect();
@@ -48,6 +48,8 @@ foreach my $user (@users){
 
 
 
+print "\n2) Hello, sophomorix_1.9.23-1.upgrade recreates ldap\n\n";
+sleep 2;
 
 
 # dumping database to ldap

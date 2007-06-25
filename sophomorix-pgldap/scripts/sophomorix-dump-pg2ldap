@@ -116,7 +116,7 @@ if ($load_dump==1){
     system("killall slapd");
 
     # remove bdb files from slapd
-    print "throwing away old ldap tree ...\n";
+    print "throwing away old ldap tree and creating a new...\n";
     system("rm -rf /var/lib/ldap/*");
     system("cp ${template}/bdb/slapd-standalone.DB_CONFIG $db_config"); 
     system("chown openldap.openldap $ldap_dir/*"); 
