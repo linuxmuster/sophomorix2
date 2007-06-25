@@ -1,3 +1,80 @@
 #!/usr/bin/perl -w
 
+use DBI;
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
 
+use Sophomorix::SophomorixPgLdap qw(db_disconnect
+                                    fetchstudents_from_adminclass
+                                    fetchadministrators_from_school
+                                    db_connect
+                                   );
+
+
+print "\nHello, Im upgrading the database.\n\n";
+
+
+my $dbh=&db_connect();
+
+
+my @teachers=&fetchstudents_from_adminclass(${DevelConf::teacher});
+my @students=&Sophomorix::SophomorixAPI::fetchstudents_from_school();
+my @administrators=&fetchadministrators_from_school();
+
+my @users=(@teachers,@students,@administrators,"domadmin");
+
+
+foreach my $user (@users){
+    my ($id,$gecos)= $dbh->selectrow_array( "SELECT id,gecos 
+                                         FROM userdata 
+                                         WHERE uid='$user'
+                                        ");
+    print "Working on user $user (postgres id: $id)\n";
+    $sql="UPDATE posix_account 
+            SET description='$gecos'
+         WHERE id = $id";
+    print "\nSQL: $sql\n";
+    $dbh->do($sql);
+    $sql="UPDATE samba_sam_account
+            SET description='$gecos',
+                cn='$gecos',
+                displayname='$gecos'
+         WHERE id = $id";
+    print "\nSQL: $sql\n";
+    $dbh->do($sql);
+
+
+}
+
+#    my $sth= $dbh->prepare( "SELECT uid
+#                             FROM userdata
+#                             WHERE homedirectory LIKE '/home/workstations%'
+#                            ");
+#    $sth->execute();
+#    my $array_ref = $sth->fetchall_arrayref();
+#    foreach my $row (@$array_ref){
+#       my ($uid)=@$row;
+#       print "$uid\n";
+#       $sql="UPDATE posix_account 
+#               SET description='ExamAccount',
+#                   gecos='ExamAccount',
+#                   firstname='Exam',
+#                   surname='Account',
+#            WHERE uid = '$uid'";
+#       print "\nSQL: $sql\n";
+#       $dbh->do($sql);
+#       $sql="UPDATE samba_sam_account 
+#               SET description='ExamAccount',
+#                   displayname='ExamAccount',
+#                   cn='ExamAccount'
+#            WHERE uid = '$uid'";
+#       print "\nSQL: $sql\n";
+#       $dbh->do($sql);
+#    }
+
+
+
+
+
+&db_disconnect($dbh);
