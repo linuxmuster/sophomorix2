@@ -1814,6 +1814,9 @@ danach gefühlte 10 min. Pause, bis es weitergeht.
 
 
 
+use ldapsearch instead of smbldap-usershow and compare these values as well
+
+ldapsearch -x -D cn=admin,dc=bszleo,dc=de,dc=local -y /etc/ldap.secret uid=roe >/root/log3
 
 
 
