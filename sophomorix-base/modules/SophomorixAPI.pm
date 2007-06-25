@@ -114,7 +114,7 @@ sub fetchstudents_from_school {
     my $sth= $dbh->prepare( "SELECT uid 
                              FROM userdata 
                              WHERE (gid!='$DevelConf::teacher' 
-                               AND sophomorixstatus!='') 
+                               AND homedirectory LIKE '/home/students%') 
                             " );
     $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
