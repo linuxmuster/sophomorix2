@@ -75,7 +75,6 @@ sub update_ws {
         $smb_homepath="\\\\\\\\".${hostname}."\\\\".${user};
         $firstname="Exam";
         $surname="Account";
-        
     } else {
         $admin_class="";
         $gecos="Computer";
@@ -84,10 +83,6 @@ sub update_ws {
         $firstname="Computer";
         $surname="Computer";
     }
-
-
-
-
 
     if (not defined $id){
         print "Workstation $user is not in the database\n";
