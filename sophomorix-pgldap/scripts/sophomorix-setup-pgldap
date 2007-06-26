@@ -896,7 +896,11 @@ if ($slapd_standalone==1){
     # slapd must be stopped again
     # populate ldap (no users)
     print "Populating ldap with $ldif_local\n";
-    system("slapadd -l $ldif_local");
+    print "This can take a while ...\n";
+    if (not -e ${DevelConf::log_pfad_package_update}){
+	system("mkdir -p ${DevelConf::log_pfad_pack_up}");
+    }
+    system("slapadd -l $ldif_local > ${DevelConf::log_pfad_pack_up}/slapadd-previous.log");
 
     if ($new_database==1){
         # new database doesnt need to be filled
