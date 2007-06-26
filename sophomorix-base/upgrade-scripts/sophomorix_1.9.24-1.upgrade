@@ -39,7 +39,8 @@ foreach my $user (@users){
     print "\nSQL: $sql\n";
     $dbh->do($sql);
 
-    my $smb_homepath="\\".${hostname}."\".${user};
+    my $smb_homepath="".${hostname}."".${user};
+
     $sql="UPDATE samba_sam_account
             SET description='$gecos',
                 cn='$gecos',
@@ -47,6 +48,7 @@ foreach my $user (@users){
                 sambahomedrive='H:',
                 sambahomepath='$smb_homepath'
          WHERE id = $id";
+
     print "\nSQL: $sql\n";
     $dbh->do($sql);
     $sql="UPDATE posix_account_details
