@@ -266,7 +266,8 @@ sub create_userlist {
                if (exists $logins{$item}){
                   push(@unique_userlist, $item);
 	       } else {
-                  print "INFO: $item is not a ml user, skipping $item ...\n";
+                  print "INFO: $item is not a sophomorix ",
+                        "user, skipping $item ...\n";
                }
             }
          } else {

@@ -28,6 +28,12 @@ print "Hostname: $hostname\n";
 
 
 foreach my $user (@users){
+    print $user
+}
+sleep 3;
+
+
+foreach my $user (@users){
     my ($id,$admin_class)= $dbh->selectrow_array( "SELECT id,gid 
                                          FROM userdata 
                                          WHERE uid='$user'
@@ -110,7 +116,7 @@ foreach my $user (@users){
            '19700101')";
     }
     print "\nSQL: $sql\n";
-#    $dbh->do($sql);
+    $dbh->do($sql);
 }
 
 

@@ -22,7 +22,7 @@ my $config_file="/usr/share/sophomorix/devel/sophomorix-support.conf";
 my $create_dir="/root/sophomorix-support";
 my $logfile="support.log";
 
-my $hostname=`hostname`;
+my $hostname=`hostname -s`;
 chomp($hostname);
 my $dnsdomainname=`dnsdomainname`;
 chomp($dnsdomainname);
