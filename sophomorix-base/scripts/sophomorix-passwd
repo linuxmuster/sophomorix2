@@ -58,7 +58,7 @@ my $common=0;
 my $random=0;
 
 my $interactive=0;
-
+my $nofirstpassupdate=0;
 my $char_num=0;
 
 my $hide=0;
@@ -86,6 +86,7 @@ my $testopt=GetOptions(
            "common" => \$common,
            "random" => \$random,
            "interactive" => \$interactive,
+           "nofirstpassupdate" => \$nofirstpassupdate,
            "plength=i" => \$char_num,
            "verbose|v+" => \$Conf::log_level,
            "hide" => \$hide,
@@ -115,6 +116,7 @@ Options
   --pass password, --password password
   --common
   --interactive
+  --nofirstpassupdate
   --reset
   --random
   --plength number
@@ -321,7 +323,9 @@ foreach my $user (@users){
     # Passwort für user setzen
     &set_sophomorix_passwd($user,$password);
     # updating the database
-    &update_user_db_entry($user,"FirstPass=$password");
+    if ($nofirstpassupdate==0){
+        &update_user_db_entry($user,"FirstPass=$password");
+    }
 }
 
 
