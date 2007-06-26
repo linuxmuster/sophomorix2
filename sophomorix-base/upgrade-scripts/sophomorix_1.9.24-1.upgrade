@@ -6,7 +6,6 @@ use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
 use Sophomorix::SophomorixAPI;
 use Sophomorix::SophomorixPgLdap qw(db_disconnect
-                                    fetchstudents_from_adminclass
                                     fetchworkstations_from_school
                                     db_connect
                                    );
@@ -25,10 +24,11 @@ chomp($hostname);
 
 
 
-print "Hostname: $hostname\n"
-    exit;
+print "Hostname: $hostname\n";
+
+
 foreach my $user (@users){
-    my ($id,$gecos)= $dbh->selectrow_array( "SELECT id,gecos 
+    my ($id)= $dbh->selectrow_array( "SELECT id,gecos 
                                          FROM userdata 
                                          WHERE uid='$user'
                                         ");
