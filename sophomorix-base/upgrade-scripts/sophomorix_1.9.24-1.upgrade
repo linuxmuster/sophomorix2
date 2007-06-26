@@ -17,44 +17,95 @@ my $dbh=&db_connect();
 
 my @users=&fetchworkstations_from_school();
 
-my $gecos="ExamAccount";
+#my $gecos="ExamAccount";
 
 my $hostname=`hostname -s`;
 chomp($hostname);
-
-
-
 print "Hostname: $hostname\n";
 
 
 foreach my $user (@users){
     print "$user\n";
 }
-sleep 3;
 
 
 foreach my $user (@users){
+    # 1: ExamAccount
+    &update_ws($user,1);
+    # 0: Computer
+    $user=$user."\$";
+    &update_ws($user,0);
+
+}
+
+
+&db_disconnect($dbh);
+
+
+
+print "\n2) Hello, sophomorix_1.9.24-1.upgrade recreates ldap\n\n";
+sleep 2;
+
+
+# dumping database to ldap
+system("sophomorix-dump-pg2ldap");
+
+
+
+
+
+
+
+sub update_ws {
+    my ($user,$exam_account) = @_;
+    my $smb_homepath;
+    my $drive;
+    my $gecos;
+    my $firstname;
+    my $surname;
+
+
+    if ($exam_account==1){
+        $gecos="ExamAccount";
+        $drive="H:";
+        $smb_homepath="\\\\\\\\".${hostname}."\\\\".${user};
+        $firstname="Exam";
+        $surname="Account";
+        
+    } else {
+        $gecos="Computer";
+        $drive="";
+        $smb_homepath="";
+        $firstname="Computer";
+        $surname="Computer";
+    }
+
+
     my ($id,$admin_class)= $dbh->selectrow_array( "SELECT id,gid 
                                          FROM userdata 
                                          WHERE uid='$user'
                                         ");
+
+    if (not defined $id){
+        print "Workstation $user is not in the database\n";
+        next;
+    }
+
     print "Working on workstation $user (postgres id: $id)\n";
     $sql="UPDATE posix_account 
             SET description='$gecos',
-                firstname='Exam',
-                surname='Account',
+                firstname='$firstname',
+                surname='$surname',
                 gecos='$gecos'
          WHERE id = $id";
     print "\nSQL: $sql\n";
     $dbh->do($sql);
 
-    my $smb_homepath="\\\\\\\\".${hostname}."\\\\".${user};
-
     $sql="UPDATE samba_sam_account
             SET description='$gecos',
                 cn='$gecos',
                 displayname='$gecos',
-                sambahomedrive='H:',
+                sambahomedrive='$drive',
                 sambahomepath='$smb_homepath'
          WHERE id = $id";
 
@@ -69,9 +120,7 @@ foreach my $user (@users){
                                         ");
 
     if (defined $c_date){
-        print "Deleting entry\n";
-
-        sleep 3;
+        print "Deleting entry $user:\n";
         my $sql="DELETE FROM posix_account_details
                  WHERE id=$id 
                 ";	
@@ -118,16 +167,3 @@ foreach my $user (@users){
     print "\nSQL: $sql\n";
     $dbh->do($sql);
 }
-
-
-
-&db_disconnect($dbh);
-
-
-
-print "\n2) Hello, sophomorix_1.9.24-1.upgrade recreates ldap\n\n";
-sleep 2;
-
-
-# dumping database to ldap
-system("sophomorix-dump-pg2ldap");
