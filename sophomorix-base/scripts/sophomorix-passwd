@@ -144,10 +144,15 @@ if ($teacher==1){
 }
 
 
+if ($loginname eq "domadmin"){
+
+}
 
 
 # create the list of users
-if ($force==1){
+if ($loginname eq "domadmin"){
+   @users=("domadmin");
+} elsif ($force==1){
    @users=&create_userlist($loginname,$classes,0,$projects,0,$student,
                            $rooms,$ws,0,0);
 } else {
