@@ -19,7 +19,7 @@ my @users=&fetchworkstations_from_school();
 
 my $gecos="ExamAccount";
 
-my $hostname=`hostname > /dev/null`;
+my $hostname=`hostname -s`;
 chomp($hostname);
 
 
