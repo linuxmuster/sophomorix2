@@ -44,7 +44,7 @@ foreach my $user (@users){
             SET description='$gecos',
                 cn='$gecos',
                 displayname='$gecos',
-                sambahomedrive='H:'
+                sambahomedrive='H:',
                 sambahomepath='$smb_homepath'
          WHERE id = $id";
     print "\nSQL: $sql\n";
