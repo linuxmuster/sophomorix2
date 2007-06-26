@@ -1830,11 +1830,14 @@ Last code changes for 2.0.0: 26.6.07
 
 
 1.9.24-1 (2007-06-26)
+    - call sophomorix-dump-pg2ldap with --skiplock 
+    - added option --skiplock to sophomorix-dump-pg2ldap
     - created upgrade script, that upgrades ExamAccounts and 
       Computers
     - modified sophomorix-paswd to accept domadmin as user without
       checking if it is a ml user
-    - Added $Id$-Tags to repairhome.*
+    - Bugfix: adding administrator with smbhomepath not defined
+    - Added cvs Id Tag for to repairhome.*
 
 1.9.23-1 (2007-06-25)
     - resolved #221, 'Claire Schlamm' without action
