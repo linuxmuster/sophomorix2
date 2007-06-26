@@ -28,6 +28,8 @@ $Conf::log_level=1;
 my $dump=0;
 my $load_dump=0;
 my $domainname="";
+my $skiplock=0;
+
 
 ############################################################
 # read the values from the config file
@@ -61,6 +63,7 @@ my $timestamp=&zeit_stempel();
 my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
+           "skiplock" => \$skiplock,
            "info|i" => \$info,
            "dump" => \$dump,
            "load_dump" => \$load_dump,
