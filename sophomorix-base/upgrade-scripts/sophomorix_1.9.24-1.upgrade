@@ -28,18 +28,21 @@ print "Hostname: $hostname\n";
 
 
 foreach my $user (@users){
-    my ($id)= $dbh->selectrow_array( "SELECT id,gecos 
+    my ($id,$admin_class)= $dbh->selectrow_array( "SELECT id,gid 
                                          FROM userdata 
                                          WHERE uid='$user'
                                         ");
     print "Working on workstation $user (postgres id: $id)\n";
     $sql="UPDATE posix_account 
-            SET description='$gecos'
+            SET description='$gecos',
+                firstname='Exam',
+                surname='Account',
+                gecos='$gecos'
          WHERE id = $id";
     print "\nSQL: $sql\n";
     $dbh->do($sql);
 
-    my $smb_homepath="\\\\".${hostname}."\\".${user};
+    my $smb_homepath="\\\\\\\\".${hostname}."\\\\".${user};
 
     $sql="UPDATE samba_sam_account
             SET description='$gecos',
@@ -51,12 +54,63 @@ foreach my $user (@users){
 
     print "\nSQL: $sql\n";
     $dbh->do($sql);
-    $sql="UPDATE posix_account_details
-            SET sophomorixstatus='P',
-                creationdate='2007-07-02 00:00:00'
-         WHERE id = $id";
+
+
+
+    my ($c_date)= $dbh->selectrow_array( "SELECT creationdate 
+                                         FROM posix_account_details 
+                                         WHERE id='$id'
+                                        ");
+
+    if (defined $c_date){
+        print "Deleting entry\n";
+
+        sleep 3;
+        my $sql="DELETE FROM posix_account_details
+                 WHERE id=$id 
+                ";	
+    } else {
+       $sql="INSERT INTO posix_account_details
+	   ( id,schoolnumber,unid,adminclass,exitadminclass,subclass,
+             creationdate,sophomorixstatus,quota,mailquota,firstpassword,
+             birthname,title,gender,birthday,birthpostalcode,
+             birthcity,denomination,class,classentry,schooltype,
+             chiefinstructor,nationality,religionparticipation,
+             ethicsparticipation,education,occupation,
+             starttraining,endtraining)
+	 VALUES
+	  ($id,
+           1,
+           '',
+           '$admin_class',
+           '',
+           '',
+           '2007-07-02 00:00:00',
+           'P',
+           '',
+           -1,
+           '',
+           '',
+           '',
+           '', 
+           '2007-07-02',
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           TRUE,
+           FALSE,
+           '',
+           '',
+           '19700101',
+           '19700101')";
+    }
     print "\nSQL: $sql\n";
-    $dbh->do($sql);
+#    $dbh->do($sql);
 }
 
 
