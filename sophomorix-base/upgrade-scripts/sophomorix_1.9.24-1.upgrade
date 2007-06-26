@@ -38,12 +38,14 @@ foreach my $user (@users){
          WHERE id = $id";
     print "\nSQL: $sql\n";
     $dbh->do($sql);
+
+    my $smb_homepath="\\${hostname}\${user}";
     $sql="UPDATE samba_sam_account
             SET description='$gecos',
                 cn='$gecos',
                 displayname='$gecos',
                 sambahomedrive='H:'
-                sambahomepath='\\$hostname\$user'
+                sambahomepath='$smb_homepath'
          WHERE id = $id";
     print "\nSQL: $sql\n";
     $dbh->do($sql);
