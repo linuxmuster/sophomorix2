@@ -1799,28 +1799,26 @@ technischen Grund dass man den givenName immer braucht.
 
 
 
-1.9.22:
-bei der Installation kommt hier folgende Meldung:
-
-=> bdb_tool_entry_put: id2entry_add failed: DB_KEYEXIST: Key/data pair
-already exists (-30996)
-=> bdb_tool_entry_put: txn_aborted! DB_KEYEXIST: Key/data pair already
-exists (-30996)
-slapadd: could not add entry dn="dc=linuxmuster,dc=local" (line=14):
-txn_aborted! DB_KEYEXIST: Key/data pair already exists (-30996)
-
-danach gefühlte 10 min. Pause, bis es weitergeht.
-
-
-
 
 use ldapsearch instead of smbldap-usershow and compare these values as well
 
 ldapsearch -x -D cn=admin,dc=bszleo,dc=de,dc=local -y /etc/ldap.secret uid=roe >/root/log3
 
 
+sophomorix-vampire:
+care about printers,
+sort them out of wimport_data
 
 
+
+slapd.conf
+by read
+check this with tho
+
+sind die indexe noch notwendig in postgres?
+
+auth_adduser_to_project doesnt check if user is in this group.
+creates smbldap-usermod -G administrators,administrators
 
 
 
@@ -1828,9 +1826,15 @@ ldapsearch -x -D cn=admin,dc=bszleo,dc=de,dc=local -y /etc/ldap.secret uid=roe >
 
 Last code changes for 2.0.0: 26.6.07
 
+1.9.25-1 (2007-06-xx)
 
-1.9.24-1 (2007-06-xx)
 
+1.9.24-1 (2007-06-26)
+    - created upgrade script, that upgrades ExamAccounts and 
+      Computers
+    - modified sophomorix-paswd to accept domadmin as user without
+      checking if it is a ml user
+    - Added $Id$-Tags to repairhome.*
 
 1.9.23-1 (2007-06-25)
     - resolved #221, 'Claire Schlamm' without action
