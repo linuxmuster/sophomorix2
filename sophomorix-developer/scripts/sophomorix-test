@@ -43,7 +43,7 @@ system("install -d /root/sophomorix-test");
 &fetch_repairhome();
 
 #my $server="server";
-my $server=`hostname`;
+my $server=`hostname -s`;
 chomp($server);
 
 my $win_magic="2147483647";

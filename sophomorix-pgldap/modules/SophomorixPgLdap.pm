@@ -1348,7 +1348,7 @@ sub create_user_db_entry {
     my $gidnumber;
     my $uidnumber_auth;
     my $sambapwdmustchange;
-    my $servername=`hostname`;
+    my $servername=`hostname -s`;
     chomp($servername);
     my $smb_homepath;
     my $smb_ldap_homepath;
@@ -5571,10 +5571,12 @@ sub dump_slapd_to_ldif {
 sub add_slapd_from_ldif {
     my $dump_dir=$DevelConf::log_pfad_slapd_ldif;
     my $ldif_file=$dump_dir."/old-patched.ldif";
-#    my $ldif_file=$dump_dir."/old.ldif";
     print "adding file $ldif_file\n";
     if (-e "$ldif_file"){
-        system("slapadd -c -l $ldif_file"); 
+        if (not -e ${DevelConf::log_pfad_package_update}){
+	    system("mkdir -p ${DevelConf::log_pfad_pack_up}");
+        }
+        system("slapadd -c -l $ldif_file 1> ${DevelConf::log_pfad_pack_up}/slapadd-ldif.log"); 
     }
 }
 
