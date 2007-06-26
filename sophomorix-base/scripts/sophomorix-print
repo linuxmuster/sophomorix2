@@ -712,7 +712,7 @@ if ($classlist ne ""){
 if ($one_per_page==1){
     &titel("Creating a login list (1 per page)");
     # fetch dnsdomainname and hostname
-    my $hostname=`hostname`;
+    my $hostname=`hostname -s`;
     chomp($hostname);
     my $dnsdomainname=`dnsdomainname`;
     chomp($dnsdomainname);
