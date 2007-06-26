@@ -1635,13 +1635,12 @@ sub create_user_db_entry {
          print "Test:   Wrote entry into database\n";
       }
   }
-  } # end 
-
   # create entry in auth system (no secondary groups)
   &auth_useradd($login,$uidnumber_auth,$gecos,$homedir,
                 $admin_class,"",$sh,$type,$smb_ldap_homepath,
                 $nachname)
   &db_disconnect($dbh);
+  } # end 
 
 }
 
