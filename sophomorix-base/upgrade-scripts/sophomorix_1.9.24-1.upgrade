@@ -39,7 +39,7 @@ foreach my $user (@users){
     print "\nSQL: $sql\n";
     $dbh->do($sql);
 
-    my $smb_homepath="\\${hostname}\${user}";
+    my $smb_homepath="\\".${hostname}."\".${user};
     $sql="UPDATE samba_sam_account
             SET description='$gecos',
                 cn='$gecos',
