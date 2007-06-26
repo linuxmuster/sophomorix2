@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-PASSWD 8 "June 13, 2007"
+.TH SOPHOMORIX-PASSWD 8 "June 26, 2007"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -46,38 +46,59 @@ Sagt für welche User Passwörter verändert werden würden.
 gibt xxxxxx aus anstelle der Passwörter
 .TP
 .B --force
-versucht das Passwort auch zu ändern wenn der user nicht in der sophomorix-datenbank ist (Bei Workstations im Moment notwendig). 
+versucht das Passwort auch zu ändern wenn der user nicht in der
+sophomorix-datenbank ist.
+.TP
+.B --interactive
+fragt das Passwort zweimal ab nach, ohne es auszugeben. Das
+Klartextpasswort in der Datenbank wird nicht upgedated.
+.TP
+.B --nofirstpassupdate
+verhindert, dass ein Klartextpasswort in der Datenbank abgelegt wird.
 .TP
 .B Optionen, die angeben, wie das Passwort lauten soll:
 .TP
-Wenn keine dieser Option angegeben wird, dann werden die Einstellungen aus sophomorix.conf verwendet.
+Wenn keine dieser Option angegeben wird, dann werden die Einstellungen
+aus sophomorix.conf verwendet.
 .TP
 .B --pass geheim, --password geheim
 setzt das Passwort auf den Wert geheim. 
 .TP
 .B --common
-erzeugt nach den Angaben in sophomorix.conf jeweils ein Passwort für Lehrer und eines für Schüler . Alle Lehrer bzw. Schüler bekommen dasselbe Passwort. 
+erzeugt nach den Angaben in sophomorix.conf jeweils ein Passwort für
+Lehrer und eines für Schüler . Alle Lehrer bzw. Schüler bekommen
+dasselbe Passwort.
 .TP
-Wird eine Längenangabe mit --plength num gemacht, dann wird ein Zufallspasswort generiert.
+Wird eine Längenangabe mit --plength num gemacht, dann wird ein
+Zufallspasswort generiert.
 .TP
 .B --reset
-setzt das Passwort auf den Wert, der beim ersten Anlegen des Users gültig war. Dieser Wert wird aus der sophomorix Datenbank geholt. 
+setzt das Passwort auf den Wert, der beim ersten Anlegen des Users
+gültig war. Dieser Wert wird aus der sophomorix Datenbank geholt.
 .TP
 .B --random
-setzt das Passwort bei Lehrern und Schülern auf einen neuen, individuellen Zufallswert. Jeder User bekommt ein eigenes Zufallspasswort. Die Länge richtet sich nach den Angaben in sophomorix.conf. 
+setzt das Passwort bei Lehrern und Schülern auf einen neuen,
+individuellen Zufallswert. Jeder User bekommt ein eigenes
+Zufallspasswort. Die Länge richtet sich nach den Angaben in
+sophomorix.conf.
 .TP
 .B --plength num
-Setzt die Länge der Zufalls-Passwörter auf den Wert num. Die Länge richtet sich somit nicht mehr nach den Angaben in sophomorix.conf.  
+Setzt die Länge der Zufalls-Passwörter auf den Wert num. Die Länge
+richtet sich somit nicht mehr nach den Angaben in sophomorix.conf.
 .TP
 .B Optionen die angeben welchen Usern das Passwort geändert wird:
 .TP
-Die Auswahl erfolgt anhäufend. Das bedeutet, dass durch Angabe mehrerer Optionen eine Userliste erzeugt wird, in der kein User doppelt vorkommt, aber jeder enthalten ist.
+Die Auswahl erfolgt anhäufend. Das bedeutet, dass durch Angabe
+mehrerer Optionen eine Userliste erzeugt wird, in der kein User
+doppelt vorkommt, aber jeder enthalten ist.
 .TP
 .B -u user1,user2,... / --users user1,user2,... 
-setzt das Passwort der  User user1,user2, ... . Der user kann auch eine Workstation sein.
+setzt das Passwort der User user1,user2, ... . Der user kann auch eine
+Workstation sein.
 .TP
 .B -c class1,class2,... / --class class1,class2,...
-setzt das Passwort für jeden User in der Klasse class. Class kann auch die Gruppe der Lehrer sein (lehrer im Moment).
+setzt das Passwort für jeden User in der Klasse class. Class kann auch
+die Gruppe der Lehrer sein (lehrer im Moment).
 .TP
 .B --project project1,project2,...
 setzt das Passwort für jeden User im Projekt project1,... 
