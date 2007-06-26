@@ -1,3 +1,7 @@
+
+
+
+
 #!/usr/bin/perl -w
 # this script is created by jeffbeck@web.de
 # Licence GPL
@@ -64,6 +68,10 @@ sub update_ws {
     my $firstname;
     my $surname;
 
+    my ($id,$admin_class)= $dbh->selectrow_array( "SELECT id,gid 
+                                         FROM userdata 
+                                         WHERE uid='$user'
+                                        ");
 
     if ($exam_account==1){
         $gecos="ExamAccount";
@@ -73,6 +81,7 @@ sub update_ws {
         $surname="Account";
         
     } else {
+        $admin_class="";
         $gecos="Computer";
         $drive="";
         $smb_homepath="";
@@ -81,10 +90,8 @@ sub update_ws {
     }
 
 
-    my ($id,$admin_class)= $dbh->selectrow_array( "SELECT id,gid 
-                                         FROM userdata 
-                                         WHERE uid='$user'
-                                        ");
+
+
 
     if (not defined $id){
         print "Workstation $user is not in the database\n";
@@ -111,6 +118,22 @@ sub update_ws {
 
     print "\nSQL: $sql\n";
     $dbh->do($sql);
+
+
+    if ($exam_account==0){
+	my $magic="2147483647";
+       $sql="UPDATE samba_sam_account
+               SET sambalogontime='0',
+                   sambalogofftime='$magic',
+                   sambakickofftime='$magic',
+                   sambapwdcanchange='0',
+                   sambahomepath='$smb_homepath'
+            WHERE id = $id";
+
+       print "\nSQL: $sql\n";
+       $dbh->do($sql);
+    }
+
 
 
 
