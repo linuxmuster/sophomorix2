@@ -41,7 +41,6 @@ foreach my $user (@users){
     $sql="UPDATE samba_sam_account
             SET description='$gecos',
                 cn='$gecos',
-                gecos='$gecos',
                 displayname='$gecos',
                 sambahomedrive='H:',
                 sambahomepath='\\$hostname\$user',
