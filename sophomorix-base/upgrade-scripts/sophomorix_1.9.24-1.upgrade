@@ -42,14 +42,14 @@ foreach my $user (@users){
             SET description='$gecos',
                 cn='$gecos',
                 displayname='$gecos',
-                sambahomedrive='H:',
-                sambahomepath='\\$hostname\$user',
+                sambahomedrive='H:'
+                sambahomepath='\\$hostname\$user'
          WHERE id = $id";
     print "\nSQL: $sql\n";
     $dbh->do($sql);
     $sql="UPDATE posix_account_details
             SET sophomorixstatus='P',
-                creationdate='2007-01-01',
+                creationdate='2007-07-02 00:00:00'
          WHERE id = $id";
     print "\nSQL: $sql\n";
     $dbh->do($sql);
