@@ -247,6 +247,11 @@ if ($config_file==0){
 #------------------------------------------------------------
 my $domainname_debconf=
     &get_debconf_value("linuxmuster-base", "domainname",0);
+
+if (not defined $domainname_debconf){
+    print "\nUndef\n\n";
+}
+
 # process debconf data
 if ($domainname_debconf ne 0){
     # from debconf
@@ -900,7 +905,7 @@ if ($slapd_standalone==1){
     if (not -e ${DevelConf::log_pfad_package_update}){
 	system("mkdir -p ${DevelConf::log_pfad_pack_up}");
     }
-    system("slapadd -l $ldif_local > ${DevelConf::log_pfad_pack_up}/slapadd-previous.log");
+    system("slapadd -c -l $ldif_local > ${DevelConf::log_pfad_pack_up}/slapadd-previous.log 2>&1");
 
     if ($new_database==1){
         # new database doesnt need to be filled
@@ -1011,13 +1016,21 @@ if ($slapd_standalone==1){
 }
 
 
+# group teachers part 1
+&create_class_db_entry(${DevelConf::teacher},4);
+
+
 
 # adding users
 &setup_verzeichnis("\$homedir_all_admins","$DevelConf::homedir_all_admins");
 
+
+# grouplist for administrator
+my $grouplist="administrators,printoperators,${DevelConf::teacher}";
+
 if ($slapd_standalone==1){
     # administrator is equal to admin in ml 2.x
-    system("sophomorix-useradd --skiplock --administrator administrator --uidnumber 998 --gecos administrator --unix-group 'domadmins' --secondary-groups 'administrators,printoperators' --shell /bin/bash");
+    system("sophomorix-useradd --skiplock --administrator administrator --uidnumber 998 --gecos administrator --unix-group 'domadmins' --secondary-groups '$grouplist' --shell /bin/bash");
 
     # pgmadmin is to install programs on the win clients
     system("sophomorix-useradd --skiplock --administrator pgmadmin --uidnumber 999 --gecos 'Programm Administrator' --unix-group 'domadmins' --shell /bin/false");
@@ -1030,7 +1043,7 @@ if ($slapd_standalone==1){
 
 } else { 
     # administrator is equal to admin in ml 2.x
-    system("smbldap-useradd -u 998 -a  -c administrator -m -d /home/administrators/administrator -g 'domadmins' -G 'administrators,printoperators' -s /bin/bash administrator");
+    system("smbldap-useradd -u 998 -a -c administrator -m -d /home/administrators/administrator -g 'domadmins' -G '$grouplist' -s /bin/bash administrator");
 
     # pgmadmin is to install programs on the win clients
     system("smbldap-useradd -u 999 -a  -c 'Programm Administrator' -m -d /home/administrators/pgmadmin -g 'domadmins' -s /bin/false pgmadmin");
@@ -1041,9 +1054,6 @@ if ($slapd_standalone==1){
     # domadmin (for joining the domain)
     system("smbldap-useradd -a -u 996 -c 'Domain Admin' -m -d /dev/null -g 'domadmins' -s /bin/false domadmin");
 }
-
-# group teachers part 1
-&create_class_db_entry(${DevelConf::teacher},4);
 
 
 &setup_verzeichnis("\$share_share","$DevelConf::share_share");
@@ -1320,7 +1330,7 @@ sub upgrade_database {
 #    if ($old_version eq "0.0.0-0"){
 #        print "NOT upgrading database ldap (Old package is $old_version) \n";
 #    } else {
-        print "Upgrading database ldap with the following files: \n";
+        print "Upgrading postgres database ldap with the following files: \n";
         foreach my $file_id (@upgrade_sql_id){
             my $file = ${DevelConf::sql_upgrade_path}.
                        $upgrade_sql_id_filename{$file_id};
