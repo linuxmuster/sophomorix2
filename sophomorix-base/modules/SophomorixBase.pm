@@ -2765,6 +2765,7 @@ sub log_script_end {
 }
 
 sub log_script_exit {
+    # what to print to the log file
     my $message=shift;
     # return 0: normal end, return=1 unexpected end 
     my $return=shift;
@@ -4657,8 +4658,12 @@ sub get_debconf_value {
     if ($show==1){
        print "$result\n\n";
     }
+
     if (m/doesn.?t exist/){
 	return 0;
+    } elsif (m/locked by/){
+        # debconf is locked
+	return undef;
     } else {
        my ($value,$ret)=split(/ /, $result);
        if ($show==1){
