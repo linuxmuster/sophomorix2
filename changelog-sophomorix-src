@@ -596,7 +596,7 @@ A) Installation from Debian CD's
 
   Hit RETURN to all questions
 
-5. run tho following script:
+5. run the following script:
        sophomorix-test
    this will test your system
    (if all test are ok, you are ready to use your server,
@@ -1741,9 +1741,9 @@ To do Beck:
 given Name: 'Vorname' is not existing 
 (no smbldap-usermod option for this)
 
-check this out:
-disabling a user doesnt modify the linux password in ldap???, so the
-account is not disabled ???
+
+disabling a user doesnt modify the linux password in ldap!, so the
+account is not disabled.
 
 
 
@@ -1827,7 +1827,7 @@ add a working hostname function (hostname -s )
 
 
 
-
+NEXT: disable posix user
 
 
 ================== CHANGELOG ========================================
@@ -1835,7 +1835,14 @@ add a working hostname function (hostname -s )
 Last code changes for 2.0.0: 26.6.07
 
 1.9.25-1 (2007-06-xx)
-
+    - sophomorix-setup-pgldap:
+       - made option --slapd-standalone standard
+         (i.E. sophomorix-setup-pgldap configures a standalone ldap)
+       - added option --slapd-integrated
+       - made script exit when debconf is locked
+       - minimized typeout (warnings)
+    - add user administrator in group teachers
+    - print warnings 
 
 1.9.24-1 (2007-06-26)
     - call sophomorix-dump-pg2ldap with --skiplock 
