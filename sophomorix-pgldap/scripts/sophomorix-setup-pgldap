@@ -47,7 +47,8 @@ my $dbpw="";
 my $info=0;
 my $help=0;
 
-my $slapd_standalone=0;
+my $slapd_standalone=1;
+my $slapd_integrated=0;
 
 my $new_database=0;
 my $keep_database=0;
@@ -90,6 +91,7 @@ my $testopt=GetOptions(
            "drop-indices-only" => \$drop_indices_only,
            "update-indices-only" => \$update_indices,
            "slapd-standalone" => \$slapd_standalone,
+           "slapd-integrated" => \$slapd_integrated,
           );
 
 
@@ -101,6 +103,7 @@ my $testopt=GetOptions(
 ############################################################
 # manage indices
 ############################################################
+
 
 # --update-indices
 if ($update_indices==1) {
@@ -221,6 +224,18 @@ indices are update automatically if you do not specify one of the following opti
 }
 
 
+############################################################
+# standalone ldap or integrated
+############################################################
+
+# standard is standalone
+if ($slapd_integrated==1){
+    $slapd_standalone=0;
+    print "Configuring integrated ldap\n";
+} else {
+    print "Configuring standalone ldap\n";
+}
+
 print "Using the following values to configure the system\n";
 ############################################################
 # read the values from the config file
@@ -248,9 +263,16 @@ if ($config_file==0){
 my $domainname_debconf=
     &get_debconf_value("linuxmuster-base", "domainname",0);
 
+
+# exit if debconf database is locked
+# i.e. when dpkg-reconfigure sophomorix-pgldap is called
 if (not defined $domainname_debconf){
-    print "\nUndef\n\n";
+    print STDERR "\nPackage sophomorix-pgldap cannot be configured\n";
+    print STDERR "because the debconf database was locked\n\n";
+    print STDERR "Try the command sophomorix-setup-pgldap.\n\n";
+    &log_script_exit("Debconf locked",1,1,0,@arguments);
 }
+
 
 # process debconf data
 if ($domainname_debconf ne 0){
@@ -334,6 +356,7 @@ printf "   dbpassword   %23s : ********** \n","($db_explanation)";
 # sid 
 # use debconf (if existing), else net getlocalsid
 $sid=&get_smb_sid();
+
 
 
 # institutes
