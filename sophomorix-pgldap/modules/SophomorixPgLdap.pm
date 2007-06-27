@@ -5563,20 +5563,23 @@ sub dump_slapd_to_ldif {
 	system("mkdir -p $dump_dir");
     }
   
-    print "$dump_dir\n";
-    system("slapcat -l $dump_file"); 
+    print "Dumping slapd to $dump_file\n";
+    if (not -e ${DevelConf::log_pfad_package_update}){
+	system("mkdir -p ${DevelConf::log_pfad_pack_up}");
+    }
+    system("slapcat -l $dump_file > ${DevelConf::log_pfad_pack_up}/slapcat.log 2>&1"); 
 }
 
 
 sub add_slapd_from_ldif {
     my $dump_dir=$DevelConf::log_pfad_slapd_ldif;
     my $ldif_file=$dump_dir."/old-patched.ldif";
-    print "adding file $ldif_file\n";
+    print "Adding file $ldif_file to ldap\n";
     if (-e "$ldif_file"){
         if (not -e ${DevelConf::log_pfad_package_update}){
 	    system("mkdir -p ${DevelConf::log_pfad_pack_up}");
         }
-        system("slapadd -c -l $ldif_file 1> ${DevelConf::log_pfad_pack_up}/slapadd-ldif.log"); 
+        system("slapadd -c -l $ldif_file > ${DevelConf::log_pfad_pack_up}/slapadd-ldif.log 2>&1"); 
     }
 }
 
@@ -5587,13 +5590,13 @@ sub patch_ldif {
     my ($base_dn,$smbworkgroup) = @_;
     my ($dc)=split(/,/,$base_dn);
     $dc=~s/dc=//;
-    print "basedn:   ---$base_dn---\n";
-    print "dc    :   ---$dc---\n";
     my $orig="$DevelConf::log_pfad_slapd_ldif"."/old.ldif";
     my $patched="$DevelConf::log_pfad_slapd_ldif/"."old-patched.ldif";
     open(ORIG, "$orig");
     open(PATCHED, ">$patched");
-    print "Patching $orig to $patched\n"; 
+    print "Patching $orig to $patched:\n"; 
+    print "   New basedn :   $base_dn\n";
+    print "   New dc     :   $dc\n";
     while(<ORIG>){
         chomp();
 	if (m/^dn:/){
@@ -5607,7 +5610,6 @@ sub patch_ldif {
                 my $line=$1.$smbworkgroup.$2;
                 $new_dc=$line;
 	    }
-            print "$new_dc\n";
             print PATCHED "$new_dc\n";
 	} elsif (m/^sambaDomainName/){
             print PATCHED "sambaDomainName: $smbworkgroup\n";
