@@ -5564,6 +5564,7 @@ sub dump_slapd_to_ldif {
     }
   
     print "Dumping slapd to $dump_file\n";
+    print "This can take a while ...\n";
     if (not -e ${DevelConf::log_pfad_package_update}){
 	system("mkdir -p ${DevelConf::log_pfad_pack_up}");
     }
@@ -5575,6 +5576,7 @@ sub add_slapd_from_ldif {
     my $dump_dir=$DevelConf::log_pfad_slapd_ldif;
     my $ldif_file=$dump_dir."/old-patched.ldif";
     print "Adding file $ldif_file to ldap\n";
+    print "This can take a while ...\n";
     if (-e "$ldif_file"){
         if (not -e ${DevelConf::log_pfad_package_update}){
 	    system("mkdir -p ${DevelConf::log_pfad_pack_up}");
