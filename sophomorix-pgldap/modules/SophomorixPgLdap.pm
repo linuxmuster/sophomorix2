@@ -3341,15 +3341,45 @@ sub user_deaktivieren {
       print "Deactivating $login ...\n";
    }
 
-   # disabling in auth system
+   # disabling samba login in auth system
    &auth_disable($login);
+
+   # disabling posix login in auth system
+   my $ldap=&auth_connect();
+   print "   * ldap: Disabling posix account of $login:\n";
+   my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
+   my $msg = $ldap->search(
+          base => "ou=accounts,$suffix",
+          scope => "sub",
+          filter => ("uid=$login")
+      );
+
+   my $entry = $msg->entry(0);
+   my $oldpass;
+
+   $oldpass=$entry->get_value('userPassword');
+   print "       Unix password: $oldpass\n";
+
+   if (not defined $oldpass){
+       print "   User $login not found in ldap to disable posix-account!\n";
+   } elsif ($oldpass=~m/!$/) {
+       print "       Posix account of $login is already disabled in ldap!\n";
+   } else {
+       # append ! to pasword
+       $oldpass="$oldpass"."!";
+       # replace password
+       print "       Replacing password with ${oldpass}\n";
+       my $result = $ldap->modify( $entry->dn(),
+                    'replace' => { 'userPassword' => $oldpass }); 
+   }
+   &auth_disconnect($ldap);
 
    # disable in pg
    my $dbh=&db_connect();
    my $sql="";
 
    # samba
-   print "Disabling samba account in pg\n";
+   print "   * pg: Disabling samba account\n";
    $sql="UPDATE samba_sam_account
          SET 
          sambaacctflags = '[DUX]'
@@ -3361,24 +3391,24 @@ sub user_deaktivieren {
    $dbh->do($sql);
 
    # linux
+   print "   * pg: Disabling posix account\n";
    # fetch the old crypted password
    $sql="SELECT userpassword FROM userdata WHERE uid='$login'";
    if($Conf::log_level>=3){
       print "\nSQL: $sql\n";
    }
    my ($crypt_pass)= $dbh->selectrow_array($sql);
-   print "   Unix password: $crypt_pass\n";
+   print "       Unix password: $crypt_pass\n";
 
    if (not defined $crypt_pass){
-       print "   User $login not found in database to disable unix-account!\n";
+       print "       User $login not found in pg to disable posix-account!\n";
    } elsif ($crypt_pass=~m/!$/) {
-       print "   Unix account of $login is already disabled!\n";
+       print "       Unix account of $login is already disabled in pg!\n";
    } else {
-       print "   Disabling unix account of $login!\n";
        # append ! to pasword
        $crypt_pass="$crypt_pass"."!";
        # replace password
-       print "Replacing password with --$crypt_pass-- \n";
+       print "       Replacing password with $crypt_pass in pg\n";
        $sql="UPDATE posix_account
              SET 
              userpassword = '$crypt_pass'
@@ -3392,11 +3422,7 @@ sub user_deaktivieren {
    }
    &db_disconnect($dbh);
 
-#   my $linux_string="usermod -L $login >/dev/null";
-#   system("$linux_string");
-   if($Conf::log_level>=2){
-      print "Samba:  $samba_string\n";
-   }
+
    # ToDo
    # mailabruf
    # ToDo
@@ -3424,15 +3450,45 @@ sub user_reaktivieren {
       print "Reactivating $login ...\n";
    }
 
-   # enabling in auth system
+   # enabling samba login in auth system
    &auth_enable($login);
 
-   # enabling in pg
+   # enabling posix login in auth system
+   my $ldap=&auth_connect();
+   print "   * ldap: Enabling posix account of $login:\n";
+   my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
+   my $msg = $ldap->search(
+          base => "ou=accounts,$suffix",
+          scope => "sub",
+          filter => ("uid=$login")
+      );
+
+   my $entry = $msg->entry(0);
+   my $oldpass;
+
+   $oldpass=$entry->get_value('userPassword');
+   print "       Unix password: $oldpass\n";
+
+   if (not defined $oldpass){
+       print "   User $login not found in ldap to enable posix-account!\n";
+   } elsif (not $oldpass=~m/!/) {
+       print "       Posix account of $login is already enabled in ldap!\n";
+   } else {
+       # remove ! from pasword
+       $oldpass=~s/!$//g;
+       # replace password
+       print "       Replacing password with ${oldpass}\n";
+       my $result = $ldap->modify( $entry->dn(),
+                    'replace' => { 'userPassword' => $oldpass }); 
+   }
+   &auth_disconnect($ldap);
+
+   # enable in pg
    my $dbh=&db_connect();
    my $sql="";
 
    # samba
-   print "Enabling samba account in pg\n";
+   print "   * pg: Enabling samba account\n";
    $sql="UPDATE samba_sam_account
          SET 
          sambaacctflags = '[UX]'
@@ -3444,26 +3500,24 @@ sub user_reaktivieren {
    $dbh->do($sql);
 
    # linux
+   print "   * pg: Enabling posix account\n";
    # fetch the old crypted password
    $sql="SELECT userpassword FROM userdata WHERE uid='$login'";
    if($Conf::log_level>=3){
       print "\nSQL: $sql\n";
    }
    my ($crypt_pass)= $dbh->selectrow_array($sql);
-   if($Conf::log_level>=3){
-      print "   Unix password: $crypt_pass\n";
-   }
+   print "       Unix password: $crypt_pass\n";
 
    if (not defined $crypt_pass){
-       print "   User $login not found in database to enable unix-account!\n";
+       print "       User $login not found in pg to enable posix-account!\n";
    } elsif (not $crypt_pass=~m/!/) {
-       print "   Unix account of $login is already enabled!\n";
+       print "       Unix account of $login is already enabled in pg!\n";
    } else {
-       print "   Enabling unix account of $login!\n";
        # remove ! from pasword
        $crypt_pass=~s/!$//g;
        # replace password
-       print "Replacing password with --$crypt_pass-- \n";
+       print "       Replacing password with $crypt_pass \n";
        $sql="UPDATE posix_account
              SET 
              userpassword = '$crypt_pass'
@@ -5377,7 +5431,7 @@ sub auth_userkill {
 sub auth_disable {
     my ($login)=@_;
     my $command="smbldap-usermod -I $login";
-    print "   * $command\n";
+    print "   * ldap: Disabling samba account ($command)\n";
     system("$command");
 }
 
@@ -5386,7 +5440,7 @@ sub auth_disable {
 sub auth_enable {
     my ($login)=@_;
     my $command="smbldap-usermod -J $login";
-    print "   * $command\n";
+    print "   * ldap: Enabling samba account ($command)\n";
     system("$command");
 }
 
