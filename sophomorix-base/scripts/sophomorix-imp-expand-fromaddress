@@ -45,6 +45,8 @@ use strict;
 #require "/usr/sbin/sophomorix-lib";
 
 my $username="";
+my $file="/etc/aliases";
+
 
 $username=$ARGV[0];
 my $liste=$ARGV[1];
@@ -84,7 +86,7 @@ sub get_mail_alias_from {
       $begin_automatisch=1;
    }
 
-   open(ALIASES, "</etc/aliases");
+   open(ALIASES, "<$file");
       while (<ALIASES>) {
           # Erste ab dieser Zeile beginnen
           if(/^\#\#\# Entries after here are managed by sophomorix-mail/){
@@ -125,10 +127,12 @@ sub get_mail_alias_from {
 
    close(ALIASES);
    if ($param eq "liste") {
-      return @liste;
+        return @liste;
     } else {
-      # wenn nichts gefunden, dann username zurückgeben
-      return $username;
+#	my $last=pop(@liste);
+#	print "Last $last\n";
+#        return $last;
+        return $username
     }
 
 
