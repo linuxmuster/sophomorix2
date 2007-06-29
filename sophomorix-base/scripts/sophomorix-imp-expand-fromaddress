@@ -87,7 +87,10 @@ sub get_mail_alias_from {
    open(ALIASES, "</etc/aliases");
       while (<ALIASES>) {
           # Erste ab dieser Zeile beginnen
-          if(/^\# Automatisch erzeugt:/){$begin_automatisch=1}
+          if(/^\#\#\# Entries after here are managed by sophomorix-mail/){
+              #print "Found sophomorix-mail line\n";
+              $begin_automatisch=1
+          }
 
           if ($begin_automatisch==1) {
              # wenn die Automatischen Einträge erreicht sind
