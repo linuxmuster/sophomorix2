@@ -1,0 +1,135 @@
+#!/usr/bin/perl -w
+# Dieses Script (sophomorix-ipm-expand-from-address) wurde von 
+# Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+
+# Alte Anleitung:
+# soll diese Funktion genutzt werden, tragen sie im imp folgende 
+# php-Funktion ein:
+# Debian:  ???
+# ML 2.0: /usr/local/httpd/htdocs/webmail/horde/imp/config/conf.php
+# Owner von conf.php MUSS  wwwrun.root sein (wwwrun muss die Datei lesen können)
+
+
+
+#      $conf['hooks']['from'] = 'imp_expand_fromaddress';
+#
+#
+#      # ... weiter unten ...
+#
+#
+#      if (!function_exists('imp_expand_fromaddress')) {
+#          function imp_expand_fromaddress ($imp) {
+#            $cmd = "/usr/sbin/sophomorix-imp-expand-fromaddress ".$imp['user'];
+#            $name = `$cmd`;
+#            return (empty($name) ? $imp['user'] : $name);
+#          }
+#      }
+
+
+
+
+
+# Neue Anleitung ML 3.0
+
+
+
+
+# Bibliotheken
+use strict;
+
+# Einlesen der Konfigurationsdatei
+#require "/usr/sbin/sophomorix-lib";
+
+my $username="";
+
+$username=$ARGV[0];
+my $liste=$ARGV[1];
+
+if(not defined $liste) {
+   $liste="";
+}
+
+
+if ($liste ne "liste") {
+   # Einzelwert ausgeben
+   my $mail=&get_mail_alias_from($username);
+   print "$mail";
+} else {
+   # Liste ausgeben
+   my @mail=&get_mail_alias_from($username, "liste");
+   print "@mail";
+}
+
+
+
+
+
+sub get_mail_alias_from {
+   my ($username, $param) = @_;
+   if (not defined $param) {
+       $param="";
+   }
+
+   my $begin_automatisch=0;
+   my @liste=();
+   if ($param eq "liste") {
+      # jede Zeile durchsuchen, auch manuell konfigurierte
+      $begin_automatisch=1;
+   }
+
+   open(ALIASES, "</etc/aliases");
+      while (<ALIASES>) {
+          # Erste ab dieser Zeile beginnen
+          if(/^\# Automatisch erzeugt:/){$begin_automatisch=1}
+
+          if ($begin_automatisch==1) {
+             # wenn die Automatischen Einträge erreicht sind
+             s/\s//g; # Spezialzeichen raus
+             if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+             if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+             if(not /:/){next;} # Bei fehlendem Doppelpunkt aussteigen
+
+             # gültige Zeilen untersuchen
+             my($alias, $login)=split(/:/);
+
+             if (not defined $username) {
+               # ungültige Zeile/Listenzeile/kein Parameter übergeben
+                return "";
+                close(ALIASES);
+                exit;
+             }
+
+             if ($login eq $username) {
+                #print "$alias";
+	       if ($param eq "liste") {
+                   push @liste, $alias;     
+	       } else {
+                   return $alias;
+                   close(ALIASES);
+                   exit; 
+	      }
+             }
+          }
+
+      }
+
+   close(ALIASES);
+   if ($param eq "liste") {
+      return @liste;
+    } else {
+      # wenn nichts gefunden, dann username zurückgeben
+      return $username;
+    }
+
+
+}
+
+
+
+
+
+
