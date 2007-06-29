@@ -34,7 +34,7 @@
 
 
 # Neue Anleitung ML 3.0
-
+# .....
 
 
 
@@ -49,6 +49,9 @@ my $username="";
 $username=$ARGV[0];
 my $liste=$ARGV[1];
 
+if(not defined $username) {
+   $username="";
+}
 if(not defined $liste) {
    $liste="";
 }
