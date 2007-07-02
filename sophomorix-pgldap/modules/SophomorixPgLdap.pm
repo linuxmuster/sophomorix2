@@ -4984,7 +4984,7 @@ sub show_room_list {
     my $number=0;
     my $sum=0;
     my $dbh=&db_connect();
-    print "The following rooms exist already:\n\n";
+    print "-----------------+--------------+\n";
     printf "%-16s | %-13s|\n","Room","workstations";
     print "-----------------+--------------+\n";
     foreach my $room (@rooms){
