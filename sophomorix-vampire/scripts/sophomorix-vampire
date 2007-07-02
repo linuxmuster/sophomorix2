@@ -38,6 +38,7 @@ my $sync_mail_data=0;
 my $sync_mail=0;
 my $sync_dirs=0;
 my $sync_shares=0;
+my $sync_workstations=0;
 my $configure_quota=0;
 my $update_quota=0;
 my $mlscripts=0;
@@ -68,6 +69,7 @@ my $testopt=GetOptions(
            "sync-mail" => \$sync_mail,
            "sync-dirs" => \$sync_dirs,
            "sync-shares" => \$sync_shares,
+           "sync-workstations" => \$sync_workstations,
            "mlscripts" => \$mlscripts,
            "key" => \$key,
            "fetch-files" => \$fetch_files,
@@ -716,12 +718,11 @@ if ($sync_mail==1){
 # Step 11: sync/add the workstations
 ############################################################
 
-# copy the wimport_data to the new location
-# (convert it if necessary)
-
-# sync data is not necessary
-
-
+# run import_workstations
+if ($sync_workstations==1){
+   print "* Step 11:  importing the workstations\n";
+   system("/usr/sbin/import_workstations");
+}
 
 
 ############################################################
