@@ -68,13 +68,19 @@ Daten eines alten Servers.
 .br
 .TP
 .B Step 0: 
-Sorgen sie dafuer, dass der neue Server üueber seine interne Netzwerkkarte auf den alten Server zugreifen kann:
+Sorgen sie dafuer, dass der neue Server über seine interne Netzwerkkarte auf den alten Server zugreifen kann:
 .br
-1) Physikalische Verbindung herstellen.
+1) Neuer Server: 
 .br
-2) Dem neuen Server eine zusaetzliche IP/Netmask geben, die im alten Netz liegt, und noch nicht vergeben ist, z.B. mit:
+   /etc/init.d/dhcp3-server stop
 .br
-.B ifconfig br_intern:10 netmask 255.255.0.0 10.1.1.244 
+   /etc/init.d/rembo stop
+.br
+2) Physikalische Verbindung herstellen.
+.br
+3) Dem neuen Server eine zusaetzliche IP/Netmask geben, die im alten Netz liegt, und noch nicht vergeben ist, z.B. mit:
+.br
+.B ifconfig br_intern:10 netmask 255.255.0.0 10.1.1.245 
 
 .br
 
