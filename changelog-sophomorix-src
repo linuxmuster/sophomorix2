@@ -1825,14 +1825,20 @@ creates smbldap-usermod -G administrators,administrators
 add a working hostname function (hostname -s )
 
 
+BUGSin 1.9.25:
+
+when adding workstations with sophomorix-useradd they are 
+added without quota
 
 
 ================== CHANGELOG ========================================
 
 1.9.26-1 (2007-06-xx)
+    - typos fixed in
+       sophomorix-useradd
+       sophomorix-quota
 
-
-1.9.25-1 (2007-06-28)
+1.9.25-1 (2007-06-28) (CD ML 3.0 Release)
     - user_deaktivieren/user_reaktivieren:
       update the posix-account in the userPassword field in ldap
     - sophomorix-setup-pgldap:
