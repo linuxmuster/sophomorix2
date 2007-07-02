@@ -5,36 +5,41 @@
 # Bei Fehlern wenden Sie sich bitte an mich.
 # jeffbeck@web.de  oder  jeffbeck@gmx.de
 
+# Anleitung fuer ML 3.0
+# 1) In /etc/horde/horde3/hooks.php folgendes eintragen:
 
-# Alte Anleitung:
-# soll diese Funktion genutzt werden, tragen sie im imp folgende 
-# php-Funktion ein:
-# Debian:  ???
-# ML 2.0: /usr/local/httpd/htdocs/webmail/horde/imp/config/conf.php
-# Owner von conf.php MUSS  wwwrun.root sein (wwwrun muss die Datei lesen können)
+# if (!function_exists('_prefs_hook_from_addr')) {
+#     function _prefs_hook_from_addr($name = null)
+#     {
+#         if (is_null($name)) {
+#             $name = Auth::getAuth();
+#         }
+#         if (!empty($name)) {
+#             $cmd='sophomorix-imp-expand-from-address $name';
+#             $mail=`$cmd`;
+#             return (empty($mail) ? '' : $mail);
+#         }
+#         return '';
+#     }
+# }
 
-
-
-#      $conf['hooks']['from'] = 'imp_expand_fromaddress';
+# 2) Hook einschalten
+# Folgende Zeile  zum hook 'from_addr' hinzufügen: 
 #
+#     'hook' => 'true',
 #
-#      # ... weiter unten ...
+# in /etc/horde/horde3/conf.php
 #
+# Sodass folgendes dasteht:
 #
-#      if (!function_exists('imp_expand_fromaddress')) {
-#          function imp_expand_fromaddress ($imp) {
-#            $cmd = "/usr/sbin/sophomorix-imp-expand-fromaddress ".$imp['user'];
-#            $name = `$cmd`;
-#            return (empty($name) ? $imp['user'] : $name);
-#          }
-#      }
-
-
-
-
-
-# Neue Anleitung ML 3.0
-# .....
+# $_prefs['from_addr'] = array(
+#     'value' => '',
+#     'hook' => 'true',
+#     'locked' => false,
+#     'shared' => true,
+#    'type' => 'text',
+#    'desc' =>  _("Your From: address:")
+#);
 
 
 
