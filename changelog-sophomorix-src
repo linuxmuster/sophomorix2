@@ -1825,6 +1825,23 @@ creates smbldap-usermod -G administrators,administrators
 add a working hostname function (hostname -s )
 
 
+HORDE STUFF:
+
+avoid that users can sent mail with arbitrary names
+
+Remove from_addr and identities stuff:
+
+DELETE FROM horde_prefs WHERE ((pref_name='identities' OR pref_name='from_addr') AND pref_uid='bz';
+
+IDEA: Remove this stuff and recreate it with decent values.
+
+Dump one INSERT per line:
+mysqldump --extended-insert=0 horde > file.sql
+
+
+
+
+
 BUGSin 1.9.25:
 
 when adding workstations with sophomorix-useradd they are 
@@ -1840,9 +1857,13 @@ and quota.txt contains 2 partition values
 ================== CHANGELOG ========================================
 
 1.9.26-1 (2007-06-xx)
+    - sophomorix-vampire:
+       added option --sync-workstations
+
     - typos fixed in
        sophomorix-useradd
        sophomorix-quota
+       sophomorix-room
 
 1.9.25-1 (2007-06-28) (CD ML 3.0 Release)
     - user_deaktivieren/user_reaktivieren:
