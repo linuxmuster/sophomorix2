@@ -129,14 +129,18 @@ Quota konfigurieren:
 .br
 1) Bearbeiten sie die Datei /etc/sophomorix/vampire/quota.config 
 .br
-2) updaten sie die Angaben in lehrer.txt, Datenbank(pg), ... durch den Befehl:
+2) updaten sie die Angaben in den Konfigurationsdateien lehrer.txt, ... durch den Befehl:
 .br
 sophomorix-vampire --configure-quota
 .TP
 .B Step 7: --update-quota 
 .br Quota im System anpassen. 
 .br
-Die Quota werden im System gesetzt.
+Die Quota werden in die Datenbank(postgres) geschrieben und im System
+gesetzt.
+.br
+Prüfen Sie danach, ob die Quota wie erwartet gesetzt wurden. Falls das
+nicht der Fall ist, wiederholen Sie Schritt 6 und 7.
 .TP
 .B Step 8: --sync-homes
 .br
