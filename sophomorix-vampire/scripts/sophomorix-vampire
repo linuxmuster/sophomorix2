@@ -426,7 +426,6 @@ if ($sync_user==1){
 
 if ($configure_quota==1){
     print "* Step 6:  configure quota\n";
-
     my $quota_config_file = "${dir_config_files}"."quota.config";
     if (-e "$quota_config_file"){
         print "READING $quota_config_file\n";
@@ -494,7 +493,13 @@ if ($configure_quota==1){
     open (COMMANDS, ">${dir_config_files}quota.commands");
     while (<CLASS>){
         chomp();
+        s/^ //g; # Leerzeichen am Zeilenangfang entfernen
+
         if(/^\#/){
+            # Comented line
+            next;
+        } elsif ($_ eq "") {
+            # empty line
             next;
         } else {
             my $mailquota="";
