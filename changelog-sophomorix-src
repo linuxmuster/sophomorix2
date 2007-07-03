@@ -1848,18 +1848,28 @@ pgmadmin, administrator, ... are not recognised from
 sophomorix-quota as sophomorix users
 Fixed. but check for mailquota
 
-
-
 catch warning on a one partition system when running sophomorix-quota 
 and quota.txt contains 2 partition values
+
+
+TODO in 1.9.26:
+
+Problem with sophomorix-quota 1.9.26 script:
+- wants to update quota in postgres, but posix_account_details is missing
+
+solution: upgrade script creates posix_account_details for 
+the 4 administrators
+
+check the upgrade
+
 
 
 ================== CHANGELOG ========================================
 
 1.9.26-1 (2007-06-xx)
     - sophomorix-quota:
-       updatequota for admnistrator,pgmadmin,wwwadmin in
-       postgres, so that quotahasnot to be set again and again
+       update quota for admnistrator,pgmadmin,wwwadmin in
+       postgres, so that quota has not to be set again and again
 
     - sophomorix-vampire:
        added option --sync-workstations
