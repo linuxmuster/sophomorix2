@@ -1,0 +1,160 @@
+#!/usr/bin/perl -w
+# this script is created by jeffbeck@web.de
+# Licence GPL
+use DBI;
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
+use Sophomorix::SophomorixPgLdap qw(db_disconnect
+                                    db_connect
+                                   );
+
+print "\n1) Hello, sophomorix_1.9.26-1.upgrade modifies postgres\n\n";
+sleep 2;
+
+my $dbh=&db_connect();
+
+my @users=("administrator",
+           "pgmadmin",
+           "wwwadmin",
+           "domadmin");
+
+my $hostname=`hostname -s`;
+chomp($hostname);
+print "Hostname: $hostname\n";
+
+
+
+foreach my $user (@users){
+    &update_admin($user);
+}
+
+
+&db_disconnect($dbh);
+
+
+
+print "\n2) Hello, sophomorix_1.9.26-1.upgrade recreates ldap\n\n";
+sleep 2;
+
+
+# dumping database to ldap
+system("sophomorix-dump-pg2ldap --skiplock");
+
+
+
+
+sub update_admin {
+    my ($user) = @_;
+    my $smb_homepath;
+    my $drive;
+    my $gecos;
+    my $firstname;
+    my $surname;
+
+    my ($id,$admin_class)= $dbh->selectrow_array( "SELECT id,gid 
+                                         FROM userdata 
+                                         WHERE uid='$user'
+                                        ");
+
+    if ($user eq "administrator"){
+        $gecos="administrator";
+    } elsif ($user eq "pgmadmin"){
+        $gecos="Programm Administrator";
+    } elsif ($user eq "wwwadmin"){
+        $gecos="Web Administrator";
+    } elsif ($user eq "domadmin"){
+        $gecos="Domain Admin";
+    }
+
+
+
+    $drive="H:";
+    $smb_homepath="\\\\\\\\".${hostname}."\\\\".${user};
+    $firstname="Exam";
+    $surname="Account";
+
+
+    if (not defined $id){
+        print "Administrator $user is not in the database\n";
+        next;
+    }
+
+    print "Working on administrator $user (postgres id: $id)\n";
+    $sql="UPDATE posix_account 
+            SET description='$gecos',
+                gecos='$gecos'
+         WHERE id = $id";
+    print "\nSQL: $sql\n";
+    $dbh->do($sql);
+
+    # update samba
+    $sql="UPDATE samba_sam_account
+            SET description='$gecos',
+                cn='$gecos',
+                displayname='$gecos',
+                sambahomedrive='$drive',
+                sambahomepath='$smb_homepath'
+         WHERE id = $id";
+
+    print "\nSQL: $sql\n";
+    $dbh->do($sql);
+
+
+    # update posix_account_details
+    my ($c_date)= $dbh->selectrow_array( "SELECT creationdate 
+                                         FROM posix_account_details 
+                                         WHERE id='$id'
+                                        ");
+
+    if (defined $c_date){
+        print "Deleting entry $user:\n";
+        my $sql="DELETE FROM posix_account_details
+                 WHERE id=$id 
+                ";	
+        print "\nSQL: $sql\n";
+        $dbh->do($sql);
+    }
+
+
+    $sql="INSERT INTO posix_account_details
+	   ( id,schoolnumber,unid,adminclass,exitadminclass,subclass,
+             creationdate,sophomorixstatus,quota,mailquota,firstpassword,
+             birthname,title,gender,birthday,birthpostalcode,
+             birthcity,denomination,class,classentry,schooltype,
+             chiefinstructor,nationality,religionparticipation,
+             ethicsparticipation,education,occupation,
+             starttraining,endtraining)
+	VALUES
+	  ($id,
+           1,
+           '',
+           'admin',
+           '',
+           '',
+           '2007-07-02 00:00:00',
+           'P',
+           '',
+           -1,
+           '',
+           '',
+           '',
+           '', 
+           '2007-07-02',
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           TRUE,
+           FALSE,
+           '',
+           '',
+           '19700101',
+           '19700101')";
+    print "\nSQL: $sql\n";
+    $dbh->do($sql);
+}
