@@ -1846,6 +1846,9 @@ BUGS in 1.9.25:
 
 pgmadmin, administrator, ... are not recognised from 
 sophomorix-quota as sophomorix users
+Fixed. but check for mailquota
+
+
 
 catch warning on a one partition system when running sophomorix-quota 
 and quota.txt contains 2 partition values
@@ -1854,11 +1857,14 @@ and quota.txt contains 2 partition values
 ================== CHANGELOG ========================================
 
 1.9.26-1 (2007-06-xx)
+    - sophomorix-quota:
+       updatequota for admnistrator,pgmadmin,wwwadmin in
+       postgres, so that quotahasnot to be set again and again
+
     - sophomorix-vampire:
        added option --sync-workstations
        Bugfix: --configure-quota skip empty lines in class_db
        Bugfix: --mlscripts (remboinit.rbc's were not copied)
-)
 
     - typos fixed in
        sophomorix-useradd
