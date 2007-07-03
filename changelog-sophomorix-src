@@ -1842,10 +1842,7 @@ mysqldump --extended-insert=0 horde > file.sql
 
 
 
-BUGSin 1.9.25:
-
-when adding workstations with sophomorix-useradd they are 
-added without quota
+BUGS in 1.9.25:
 
 pgmadmin, administrator, ... are not recognised from 
 sophomorix-quota as sophomorix users
@@ -1859,6 +1856,9 @@ and quota.txt contains 2 partition values
 1.9.26-1 (2007-06-xx)
     - sophomorix-vampire:
        added option --sync-workstations
+       Bugfix: --configure-quota skip empty lines in class_db
+       Bugfix: --mlscripts (remboinit.rbc's were not copied)
+)
 
     - typos fixed in
        sophomorix-useradd

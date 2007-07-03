@@ -851,20 +851,18 @@ if ($mlscripts==1){
         my $new_dir_tmp=$new_ml_tmp_dir."/".$hwc;        
         my $new_dir=$new_ml_dir."/".$hwc;        
 
+        system("mkdir -p $new_dir_tmp");
         my $command="scp -i $key_dsa root\@${server}:$old_dir/$filename $new_dir_tmp/$filename";
+	# print "$command \n";
+        system($command);
 
         if (-e "${new_dir_tmp}/${filename}"){
             my $command_sed=
                "sed $replace $new_dir_tmp/$filename > $new_dir/$filename"; 
-   	    print "$command\n";
-	    print "$command_sed\n";
+	    # print "$command_sed\n";
 
-            # do it!
-            system("mkdir -p $new_dir_tmp");
-            system("mkdir -p $new_dir");
-            system($command);
-    
             # modify files and put them into place
+            system("mkdir -p $new_dir");
             system($command_sed);
         }
     }
