@@ -542,9 +542,9 @@ sub set_quota {
 
    # skip updating db, when user is administrator, ...
    if ($login_type{$user} eq "passwd"
-       or $user eq "administrator"
-       or $user eq "pgmadmin"
-       or $user eq "wwwadmin"
+       #or $user eq "administrator"
+       #or $user eq "pgmadmin"
+       #or $user eq "wwwadmin"
        or $user eq "www-data"
       ){
       print "NOT updating db ($user is not a sophomorix user)\n";
