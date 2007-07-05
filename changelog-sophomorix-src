@@ -1863,6 +1863,15 @@ the 4 administrators
 check the upgrade
 
 
+Bug:
+
+1) add a user with useradd -> gets free userid
+2) add a user with sophomorix -> uses the same uid
+3) smbldap doesnt work because of existing uid
+
+Solution: 
+A) make sophomorix check if uid exists in ldap as well 
+B) add user with useradd before 10000
 
 ================== CHANGELOG ========================================
 
