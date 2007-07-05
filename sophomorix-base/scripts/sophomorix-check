@@ -360,7 +360,7 @@ my %old_id_login=();
 my %old_id_password=();
 my %old_id_id=();
 my %old_gname_gid=();
-
+my %new_id_old_id=();
 
 
 # Allgemein
@@ -569,7 +569,8 @@ if ($old_info_dir ne ""){
    my ($ref_old_id_login, 
        $ref_old_id_password,
        $ref_old_id_id,
-       $ref_old_group_gid
+       $ref_old_group_gid,
+       $ref_new_id_old_id
       ) = &get_old_info($old_info_dir, $no_kclass);
    # old files: identifier - old_login 
    %old_id_login = %$ref_old_id_login;
@@ -579,6 +580,8 @@ if ($old_info_dir ne ""){
    %old_id_id = %$ref_old_id_id;
    # old files: groupname - old_id 
    %old_gname_gid = %$ref_old_group_gid;
+   # old files: groupname - old_id 
+   %new_id_old_id = %$ref_new_id_old_id;
 
    #print "\n\nDas ist der old-id-login hash\n";
    #while (($k,$v) = each %old_id_login){
@@ -2956,6 +2959,11 @@ sub generate_add_file {
             $identifier=~tr/A-Z/a-z/;
             $identifier=~s/-//g;
 
+	    print "Looking for $identifier \n";
+            if (exists $new_id_old_id{$identifier}){
+		print "Old identifier found (Using it!)\n";
+                $identifier=$new_id_old_id{$identifier};
+            }
 	    print "Looking for $identifier \n";
 
 	    if (exists $old_id_login{$identifier}){

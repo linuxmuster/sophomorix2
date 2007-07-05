@@ -796,6 +796,7 @@ sub get_old_info {
    my %old_unix_ids=();
    my %old_group_gid=();  
    my %old_unix_gids=();
+   my %new_id_old_id=();
    # index: system identifier
    my %old_teach_in_sys=();
    # index: administration software identifier
@@ -805,7 +806,7 @@ sub get_old_info {
    my ($passwd_login,$spass,$id,$gid,$passwd_gecos,$home,$shell)=();
    my ($gname,$gpass,$group_gid);
    my ($identifier_sys,$identifier_admin);
-
+   print "Teach-in: $teach_in\n";
    open(TEACHINDATEN,"$teach_in") || die "Fehler: $!";
    &titel("Extracting data from old teach-in.txt ...");
    while(<TEACHINDATEN>){
@@ -826,17 +827,31 @@ sub get_old_info {
       } else {
          $old_teach_in_sys{$identifier_sys}="$identifier_admin";
       }
+      # create hash with new_id old_id
+      if (exists $new_id_old_id{$identifier_admin}){ 
+	   print "   ERROR: Identifier  $identifier_admin exists ",
+                 "multiple times in old teach-in.txt.\n";
+      } else {
+         $new_id_old_id{$identifier_admin}="$identifier_sys";
+      }
+
    }
    close(TEACHINDATEN);
 
-#   print "Old_teach_in_admin \n\n";
-#     while (($key,$value) = each %old_teach_in_admin){
-#         printf "%-40s %40s\n","$key","$value";
-#      }
-#   print "Old_teach_in_sys \n\n";
-#     while (($key,$value) = each %old_teach_in_sys){
-#         printf "%-40s %40s\n","$key","$value";
-#      }
+   #print "\nOld_teach_in_admin \n";
+   #  while (($key,$value) = each %old_teach_in_admin){
+   #      printf "%-39s %39s\n","$key","$value";
+   #   }
+   #print "\nOld_teach_in_sys \n";
+   #  while (($key,$value) = each %old_teach_in_sys){
+   #      printf "%-39s %39s\n","$key","$value";
+   #   }
+   #print "\nnew_id_old_id \n";
+   # my $count_up=0; 
+   # while (($key,$value) = each %new_id_old_id){
+   #	$count_up++;
+   #      printf "%-39s %39s\n","$count_up $key","$value";
+   #   }
 
    # creating login -> unix-id hash
    open(PASSWD, "<$passwd") || die "Fehler: $!";
@@ -902,11 +917,13 @@ sub get_old_info {
           print "   save this in old_id_login: $identifier   $login \n";
        }
 
-       # if identifier exists in teach in as system identifier
+       # if identifier exists in teach-in as system identifier
        # then it has a changed administration identifier and is not needed
-       if (exists $old_teach_in_sys{$identifier}){
-           next;
-       }
+     # It is needed to find the new password
+
+     #  if (exists $old_teach_in_sys{$identifier}){
+     #      next;
+     #  }
 
        # identifier -> login hash
        $old_id_login{$identifier}="$login";
@@ -957,11 +974,18 @@ sub get_old_info {
    }
    close(GROUP);
 
+   #print "\nold_id_login \n";
+   # while (($key,$value) = each %old_id_login){
+   #      printf "%-39s %39s\n","$key","$value";
+   # }
+
+
    # return references to the hashes
    return(\%old_id_login,
           \%old_id_password,
           \%old_id_id,
-          \%old_group_gid 
+          \%old_group_gid, 
+          \%new_id_old_id 
          );
 }
 
