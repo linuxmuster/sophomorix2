@@ -1877,6 +1877,9 @@ Bug: sophomorix-vampire does not include /etc/sophomorix/vampire/user.mailsync
      added line in sophomorix-vampire.install, check if package 
      sophomorix-vampire includes this file
 
+Bug workstationpassword wird nicht gesetzt:
+    (ws$ is not a ml user)
+    Fast hack: use sophomorix-passwd --force
 
 ================== CHANGELOG ========================================
 
@@ -1886,6 +1889,7 @@ Bug: sophomorix-vampire does not include /etc/sophomorix/vampire/user.mailsync
        postgres, so that quota has not to be set again and again
 
     - sophomorix-vampire:
+       added option to sync program share
        added option --sync-workstations
        Bugfix: --configure-quota skip empty lines in class_db
        Bugfix: --mlscripts (remboinit.rbc's were not copied)
