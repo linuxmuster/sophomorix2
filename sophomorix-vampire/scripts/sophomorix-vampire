@@ -38,6 +38,7 @@ my $sync_mail_data=0;
 my $sync_mail=0;
 my $sync_dirs=0;
 my $sync_shares=0;
+my $sync_prog_share=0;
 my $sync_workstations=0;
 my $configure_quota=0;
 my $update_quota=0;
@@ -69,6 +70,7 @@ my $testopt=GetOptions(
            "sync-mail" => \$sync_mail,
            "sync-dirs" => \$sync_dirs,
            "sync-shares" => \$sync_shares,
+           "sync-prog-share" => \$sync_prog_share,
            "sync-workstations" => \$sync_workstations,
            "mlscripts" => \$mlscripts,
            "key" => \$key,
@@ -870,6 +872,22 @@ if ($mlscripts==1){
 
 
 
+
+
+if ($sync_prog_share==1){
+    print "* Step 14:  sync the program share \n";
+    my $old_share="/usr/local/samba/progs";
+    my $new_share="/home/samba";
+    $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av --delete  root\@${server}:$old_share $new_share";
+  
+     print "$command\n";
+     system($command); 
+
+     # adjust owner
+     $command="chown -R pgmadmin:domadmins ${new_share}/progs";
+     print "$command\n";
+     system($command); 
+}
 
 
 
