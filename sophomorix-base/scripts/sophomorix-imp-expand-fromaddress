@@ -118,6 +118,7 @@ sub get_mail_alias_from {
 
              if ($login eq $username) {
                 #print "$alias";
+                $alias=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
 	       if ($param eq "liste") {
                    push @liste, $alias;     
 	       } else {
