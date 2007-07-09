@@ -383,9 +383,11 @@ sub generate_mail_alias_classes {
              &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
            if (${Conf::mail_aliases} eq "vorname.nachname"){
 	       $gecos=&recode_to_ascii($gecos);
+               $gecos=~tr/A-Z/a-z/; # make lowercase
                printf ALIASESTMP "%-35s %-20s \n",$gecos.":",$user;
            } elsif (${Conf::mail_aliases} eq "vorname_nachname"){
 	       $gecos=&recode_to_ascii($gecos);
+               $gecos=~tr/A-Z/a-z/; # make lowercase
                printf ALIASESTMP "%-35s %-20s \n",$gecos.":",$user;
            }
        }
