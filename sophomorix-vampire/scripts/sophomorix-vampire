@@ -38,6 +38,7 @@ my $sync_mail_data=0;
 my $sync_mail=0;
 my $sync_dirs=0;
 my $sync_shares=0;
+my $sync_teacher_share=0;
 my $sync_prog_share=0;
 my $sync_workstations=0;
 my $configure_quota=0;
@@ -70,6 +71,7 @@ my $testopt=GetOptions(
            "sync-mail" => \$sync_mail,
            "sync-dirs" => \$sync_dirs,
            "sync-shares" => \$sync_shares,
+           "sync-teacher-share" => \$sync_teacher_share,
            "sync-prog-share" => \$sync_prog_share,
            "sync-workstations" => \$sync_workstations,
            "mlscripts" => \$mlscripts,
@@ -84,6 +86,13 @@ my $testopt=GetOptions(
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
+
+if ($sync_teacher_share==1){
+    print "* Step 13:  synchronizing the teacher share\n";
+    $sync_shares=1;
+    $classes=${DevelConf::teacher};
+}
+
 
 # repair.directories einlesen ???
 &get_alle_verzeichnis_rechte();
@@ -732,6 +741,8 @@ if ($sync_workstations==1){
 }
 
 
+
+
 ############################################################
 # Step 12: synchronize the shares
 ############################################################
@@ -773,14 +784,21 @@ if ($sync_shares==1){
         $new_group_old_id{$group}="$old_id"; 
     }
 
-    print "* Step 12:  synchronizing the shares\n";
+    print "* Step 12:  synchronizing the student shares\n";
     #my $group="m3kb2t";
     # do this for all groups
     foreach my $group (@classes){
        # in 3.x no k before class ???
-       my $old_share="/home/tausch/klassen/k$group/*";
-       my $new_share="/home/share/classes/$group/";
-       my $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avg --delete  root\@${server}:$old_share $new_share";
+       my $old_share;
+       my $new_share;
+       if ( $group eq ${DevelConf::teacher} ){
+           $old_share="/home/tausch/lehrer/*";
+           $new_share="/home/share/teachers/";
+       } else {
+           $old_share="/home/tausch/klassen/k$group/*";
+           $new_share="/home/share/classes/$group/";
+       }
+       my $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avg  root\@${server}:$old_share $new_share";
        print "$command \n";
        system($command);
 
@@ -789,9 +807,11 @@ if ($sync_shares==1){
        print "\nFixing groupowner\n";
        foreach my $group_to_check (@grouplist){
            if (defined $new_group_old_id{$group_to_check}){
-               $command="find $new_share -group $new_group_old_id{$group_to_check}".
-                        " -print0 | xargs -0 chown :${group_to_check}";
-               print "\n$command :\n";
+               $command="find $new_share -group ".
+                        "$new_group_old_id{$group_to_check}".
+                        " -print0 | xargs -0 chown :${group_to_check}".
+                        " $new_share";
+               print "\n$command\n";
                system("$command");
            } else {
                print "WARNING: Could not find old id of $group_to_check \n";
@@ -799,6 +819,9 @@ if ($sync_shares==1){
        }
     }
 }
+
+
+
 
 
 
@@ -815,7 +838,7 @@ if ($sync_shares==1){
 
 
 if ($mlscripts==1){
-    print "* Step 11:  mlscripts stuff (rembo interface)\n";
+    print "* Step 14:  mlscripts stuff (rembo interface)\n";
 
     # fetching rembo.key
     my $old_rembo_key="/usr/local/rembo/rembo.key";
@@ -875,7 +898,7 @@ if ($mlscripts==1){
 
 
 if ($sync_prog_share==1){
-    print "* Step 14:  sync the program share \n";
+    print "* Step 15:  sync the program share \n";
     my $old_share="/usr/local/samba/progs";
     my $new_share="/home/samba";
     $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av --delete  root\@${server}:$old_share $new_share";
