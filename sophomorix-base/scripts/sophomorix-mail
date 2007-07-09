@@ -431,7 +431,12 @@ sub generate_maillist_classes {
 
    if (defined $user[0]){
       # Gruppen-Mailingliste erzeugen:
-      print ALIASESTMP "$group:\n";
+      if (defined ${Conf::teachers_alias_name}){
+	  print "Alias found";
+          print ALIASESTMP "${Conf::teachers_alias_name}:\n";
+      } else {
+          print ALIASESTMP "$group:\n";
+      }
       $ende=$#user;
       $letzter_user=$user[ $ende ];
       if($Conf::log_level>=3){
