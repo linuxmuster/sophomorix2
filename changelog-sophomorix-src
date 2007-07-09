@@ -1831,7 +1831,7 @@ avoid that users can sent mail with arbitrary names
 
 Remove from_addr and identities stuff:
 
-DELETE FROM horde_prefs WHERE ((pref_name='identities' OR pref_name='from_addr') AND pref_uid='bz';
+DELETE FROM horde_prefs WHERE ((pref_name='identities' OR pref_name='from_addr') AND pref_uid='bz');
 
 IDEA: Remove this stuff and recreate it with decent values.
 
@@ -1888,9 +1888,21 @@ Todo: Konfigurierbarer Namen für die lehrer-mailingliste
 
 Bug in mailsync, Unterverzeichnisse werden nicht gesynct.
 
+##############################################
+new variables (add to new major release):    #
+##############################################
+sophomorix.conf:
+# alias name for mailist teachers (must be activated)
+$teachers_alias_name="lehrer";
+
 ================== CHANGELOG ========================================
 
+
 1.9.26-1 (2007-06-xx)
+    -sophomorix-mail:
+       - add aliases lowercase (some mailers might have a problem)
+       - make name of teacher maillist configurable with
+         $teachers_alias_name in sophomorix.conf.
     - sophomorix-quota:
        update quota for admnistrator,pgmadmin,wwwadmin in
        postgres, so that quota has not to be set again and again
