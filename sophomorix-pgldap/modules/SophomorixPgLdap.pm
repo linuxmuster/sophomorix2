@@ -516,7 +516,6 @@ sub deleteuser_from_project {
     if (not defined $by_option){
         $by_option=0;
     }
-    print "Gruppe : $project  $adminclass\n\n";
     my $dbh=&db_connect();
     # fetching gidnumber
     my ($gidnumber_sys)= $dbh->selectrow_array( "SELECT gidnumber 
@@ -5190,7 +5189,7 @@ sub auth_useradd {
                    system("$command");           
 
                    # command 3
-                   $command="smbldap-usermod -H '[WX]' ".
+                   $command="/usr/sbin/smbldap-usermod -H '[WX]' ".
 		            "-S 'Computer' ".
 		            "-N 'Computer' $login";
       	           print "   * $command\n";
@@ -5209,7 +5208,7 @@ sub auth_useradd {
                             " -s $shell $login";
 	           print "   * $command\n";
                    system("$command");
-                   $command="smbldap-usermod -D 'H:'".
+                   $command="/usr/sbin/smbldap-usermod -D 'H:'".
                             " -C '${smb_ldap_homepath}'".
                             " -S '${lastname}'".
                             " -N '${gecos}'".
@@ -5397,7 +5396,8 @@ sub auth_usermove {
         }
         my $group_csv=join(",",@newgroups);
 
-        my $command="smbldap-usermod -g $gid -G '$group_csv' -d $home $login";
+        my $command="/usr/sbin/smbldap-usermod -g $gid -G".
+                    " '$group_csv' -d $home $login";
         print "   * $command\n";
         system("$command");
     } else { 
@@ -5430,7 +5430,7 @@ sub auth_userkill {
 
 sub auth_disable {
     my ($login)=@_;
-    my $command="smbldap-usermod -I $login";
+    my $command="/usr/sbin/smbldap-usermod -I $login";
     print "   * ldap: Disabling samba account ($command)\n";
     system("$command");
 }
@@ -5439,7 +5439,7 @@ sub auth_disable {
 
 sub auth_enable {
     my ($login)=@_;
-    my $command="smbldap-usermod -J $login";
+    my $command="/usr/sbin/smbldap-usermod -J $login";
     print "   * ldap: Enabling samba account ($command)\n";
     system("$command");
 }
@@ -5447,7 +5447,7 @@ sub auth_enable {
 sub auth_deleteuser_from_all_projects {
     # deletes user from all secondary memberships
     my ($login)=@_;
-    my $command="smbldap-usermod -G '' $login";
+    my $command="/usr/sbin/smbldap-usermod -G '' $login";
     print "   * $command\n";
     system("$command");
 }
@@ -5456,7 +5456,7 @@ sub auth_deleteuser_from_all_projects {
 sub auth_adduser_to_her_projects {
     # add user to all secondary groups
     my ($login,$group_string) = @_;
-    my $command="smbldap-usermod -G '$group_string' $login";
+    my $command="/usr/sbin/smbldap-usermod -G '$group_string' $login";
     print "   * $command\n";
     system("$command");
 
@@ -5476,7 +5476,7 @@ sub auth_adduser_to_project {
         push @newgroups,$project;
         my $group_csv=join(",",@newgroups);
 
-        my $command="smbldap-usermod -G '$group_csv' $login";
+        my $command="/usr/sbin/smbldap-usermod -G '$group_csv' $login";
         print "   * $command\n";
         system("$command");
 }
@@ -5503,7 +5503,7 @@ sub auth_deleteuser_from_project {
         }
         my $group_csv=join(",",@newgroups);
 
-        my $command="smbldap-usermod -G '$group_csv' $login";
+        my $command="/usr/sbin/smbldap-usermod -G '$group_csv' $login";
         print "   * $command\n";
         system("$command");
 }
@@ -5523,7 +5523,7 @@ sub auth_firstnameupdate {
 
 sub auth_lastnameupdate {
    my ($login,$lastname) = @_;
-        my $command="smbldap-usermod -S '$lastname' $login";
+        my $command="/usr/sbin/smbldap-usermod -S '$lastname' $login";
         print "   * $command\n";
         system("$command");
 
@@ -5535,7 +5535,7 @@ sub auth_gecosupdate {
    my ($login,$gecos) = @_;
    # -c (comment) This is the gecos field
    # -N This is the cn: (common name) 
-   my $command="smbldap-usermod -c '$gecos' -N '$gecos' $login";
+   my $command="/usr/sbin/smbldap-usermod -c '$gecos' -N '$gecos' $login";
    print "   * $command\n";
    system("$command");
 }
