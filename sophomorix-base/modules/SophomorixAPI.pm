@@ -305,8 +305,10 @@ sub add_my_adminclass {
     &Sophomorix::SophomorixBase::create_share_link($login,
          $class,$class,"adminclass");
 
-    # join group
+    # join group in pg
     &pg_adduser($login,$class);
+    # join group in ldap
+    &auth_adduser_to_project($login,$class);
 
     # create dirs in tasks and collect
     &Sophomorix::SophomorixBase::create_share_directory($login,
@@ -346,8 +348,10 @@ sub remove_my_adminclass {
     # remove admin     
     &deleteadmin_from_adminclass($login,$class);
 
-    # remove secondary membership
+    # remove secondary membership in pg
     &deleteuser_from_project($login,$class,0,1);
+    # remove secondary membership in ldap
+    &auth_deleteuser_from_project($login,$class);
 
     # remove link
     &Sophomorix::SophomorixBase::remove_share_link($login,
