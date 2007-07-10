@@ -586,7 +586,7 @@ if ($sync_homes==1){
      my $target="${new_home}${Language::user_attic}";
      &titel("Synchronizig home of user $user (windows):");
      print "   $source \n     --> $target\n";
-     $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av --delete  root\@${server}:$source $target";
+     $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av root\@${server}:$source $target";
      print "$command\n";
 
      system($command); 
