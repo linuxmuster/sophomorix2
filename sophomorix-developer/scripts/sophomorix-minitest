@@ -14,7 +14,6 @@ use Getopt::Long;
 use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
 use Sophomorix::SophomorixAPI;
-#use Sophomorix::SophomorixFiles;
 use Sophomorix::SophomorixPgLdap;
 use Sophomorix::SophomorixTest;
 use Test::More "no_plan";
@@ -23,25 +22,27 @@ Getopt::Long::Configure ("bundling");
 use DBI;
 use Crypt::SmbHash;
 use Net::LDAP;
-#use DebAux::Debconf;
 use IMAP::Admin;
 
-#my $unix_group="printoperators";
-
-#my ($g_type,$g_name,$g_gidnumber)=&pg_get_group_type($unix_group);
-
-#print "$g_type    $g_name    $g_gidnumber  \n";
-
-#&patch_ldif("dc=mydom,dc=org","myschool");
 
 
-# &fill_smb_groupmap();
+my $student=1;
+my @userlist=&create_userlist("",$DevelConf::teacher,0,
+                                 "",0,$student,
+                                 "",0,1,0);
 
-my %hash=&forbidden_login_hash();
 
-print "$hash{'root6'}\n";
+foreach my $user (@userlist){
+    print "User $user\n";
+}
+
+exit;
 
 
+#&user_reaktivieren($login);
+
+#&patch_ldif("dc=linuxmuster,dc=de","schule")
+#&add_slapd_from_ldif();
 
 #sub ok_ldap_account{
 #    # Hash must be in %account, wich is global in this file
