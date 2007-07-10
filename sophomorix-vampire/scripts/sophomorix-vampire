@@ -602,6 +602,9 @@ if ($sync_homes==1){
      # permissions and owner
      my ($unused_path,$dir_perm,$file_perm,
            $owner,$gowner)=&show_smb_conf_umask("homes");
+     # owner,gowner are empty
+     $owner=$user;
+     $gowner=$group;
      &chmod_chown_dir("$new_home/${Language::user_attic}/windows",
                       $dir_perm,$file_perm,
                       $owner,$gowner);
