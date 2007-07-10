@@ -46,6 +46,9 @@ my $update_quota=0;
 my $mlscripts=0;
 my $key=0;
 
+my $delete=0;
+my $delstr="";
+
 my $loginname="";
 my $classes="";
 my $projects="";
@@ -76,6 +79,7 @@ my $testopt=GetOptions(
            "sync-workstations" => \$sync_workstations,
            "mlscripts" => \$mlscripts,
            "key" => \$key,
+           "delete" => \$delete,
            "fetch-files" => \$fetch_files,
            "install-files" => \$install_files,
            "user|u=s" => \$loginname,
@@ -93,6 +97,10 @@ if ($sync_teacher_share==1){
     $classes=${DevelConf::teacher};
 }
 
+
+if ($delete==1){
+    $delstr="--delete";
+}
 
 # repair.directories einlesen ???
 &get_alle_verzeichnis_rechte();
@@ -586,7 +594,7 @@ if ($sync_homes==1){
      my $target="${new_home}${Language::user_attic}";
      &titel("Synchronizig home of user $user (windows):");
      print "   $source \n     --> $target\n";
-     $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av root\@${server}:$source $target";
+     $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av $delstr root\@${server}:$source $target";
      print "$command\n";
 
      system($command); 
@@ -604,7 +612,7 @@ if ($sync_homes==1){
      my $lin_target="${new_home}${Language::user_attic}/linux";
 
      print "   $lin_source \n     --> $lin_target\n";
-     $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av --delete  --exclude $lin_exclude root\@${server}:$lin_source $lin_target";
+     $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av $delstr --exclude $lin_exclude root\@${server}:$lin_source $lin_target";
      print "$command\n";
      system($command); 
      &chmod_chown_dir("$new_home/${Language::user_attic}/linux",
@@ -642,7 +650,7 @@ if ($sync_mail_data==1){
      my $mail_source="/var/spool/mail/${user}";
      my $mail_target="${new_home}${Language::user_attic}/mail/${user}";
      #system("scp -i $key_dsa root\@${server}:${mail_source} $mail_target");
-     $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av root\@${server}:$mail_source $mail_target";
+     $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av $delstr root\@${server}:$mail_source $mail_target";
      print "$command\n";
      system($command); 
      system("chown ${user}:${group} $new_home/${Language::user_attic}/mail");
@@ -798,7 +806,7 @@ if ($sync_shares==1){
            $old_share="/home/tausch/klassen/k$group/*";
            $new_share="/home/share/classes/$group/";
        }
-       my $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avg  root\@${server}:$old_share $new_share";
+       my $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avg $delstr root\@${server}:$old_share $new_share";
        print "$command \n";
        system($command);
 
@@ -850,7 +858,7 @@ if ($mlscripts==1){
     # copying mac files
     my $old_hosts="/usr/local/rembo/files/global/hosts";
     my $new_hosts="/var/lib/rembo/files/global/hosts";
-    my $rsync_command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av --exclude '.*' root\@${server}:$old_hosts/ $new_hosts/";
+    my $rsync_command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av $delstr --exclude '.*' root\@${server}:$old_hosts/ $new_hosts/";
 
     print "\n$rsync_command\n\n";
     system("$rsync_command");
@@ -901,7 +909,7 @@ if ($sync_prog_share==1){
     print "* Step 15:  sync the program share \n";
     my $old_share="/usr/local/samba/progs";
     my $new_share="/home/samba";
-    $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av --delete  root\@${server}:$old_share $new_share";
+    $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -av $delstr root\@${server}:$old_share $new_share";
   
      print "$command\n";
      system($command); 
@@ -1042,7 +1050,7 @@ sub rsync_dirs {
         print"  - OLD: $old\n",
              "    NEW: $new\n";
         system("mkdir -p $new");
-        $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avz --delete  root\@${server}:$old $new";
+        $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avz $delstr  root\@${server}:$old $new";
         print "$command\n";
         system($command); 
     }
