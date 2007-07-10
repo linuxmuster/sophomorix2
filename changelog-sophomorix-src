@@ -1840,6 +1840,9 @@ mysqldump --extended-insert=0 horde > file.sql
 
 
 
+Bug: home of extraschueler is not synchronized
+     (remove --delete from rsync of other users)
+
 
 
 BUGS in 1.9.25:
@@ -1863,28 +1866,7 @@ the 4 administrators
 check the upgrade
 
 
-Bug:
-
-1) add a user with useradd -> gets free userid
-2) add a user with sophomorix -> uses the same uid
-3) smbldap doesnt work because of existing uid
-
-Solution: 
-A) make sophomorix check if uid exists in ldap as well 
-B) add user with useradd before 10000
-
-Bug: sophomorix-vampire does not include /etc/sophomorix/vampire/user.mailsync
-     added line in sophomorix-vampire.install, check if package 
-     sophomorix-vampire includes this file
-
-Bug workstationpassword wird nicht gesetzt:
-    (ws$ is not a ml user)
-    Fast hack: use sophomorix-passwd --force
-
 Bug: sophomorix-vampire --sync-homes doesn't change owners recursively
-
-Todo: Konfigurierbarer Namen für die lehrer-mailingliste
-      (kollegium)
 
 Bug in mailsync, Unterverzeichnisse werden nicht gesynct.
 
@@ -1900,6 +1882,10 @@ $teachers_alias_name="lehrer";
 
 1.9.26-1 (2007-06-xx)
 
+    - Bugfix: user/group's uidnumber/gidnumber added with useradd/groupadd 
+      are not seen by the database (manuel_get_next_free_...).
+      Solution: check result of manual_bet_next_free... with
+                auth system until I get a really free uidnumber/gidnumber
     - Bugfix: add/remove user in ldap to secondary group when using
       sophomorix-teacher --teacher name --add/--remove class
     -sophomorix-mail:
