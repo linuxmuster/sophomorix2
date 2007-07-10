@@ -1465,11 +1465,30 @@ sub create_user_db_entry {
        }
 
        #Freie UID holen
-       $sql="select manual_get_next_free_uid()";
-       if($Conf::log_level>=3){
-          print "SQL: $sql\n";
+       my $uidnumber;
+       my $stay_in_loop=1;
+       my $name_of_uid;
+       while($stay_in_loop==1) {
+          $sql="select manual_get_next_free_uid()";
+          if($Conf::log_level>=3){
+             print "SQL: $sql\n";
+          }
+          $uidnumber = $dbh->selectrow_array($sql);
+
+          # check in auth
+          print "Checking uidnumber $uidnumber for existance: ";
+          ($name_of_uid) = getpwuid($uidnumber);
+          if (defined $name_of_uid){
+              print "used by $name_of_uid\n";
+              # stay in while loop
+              $stay_in_loop=1;
+          } else {
+              $stay_in_loop=0;
+              print "unused (using $uidnumber)\n";
+          }
        }
-       my $uidnumber = $dbh->selectrow_array($sql);
+
+
        if (defined $id_force and $id_force ne "" and $id_force!=-1){
            # force the id if given as parameter
 	   $uidnumber=$id_force;
@@ -1828,13 +1847,28 @@ sub create_class_db_entry {
 	    $gidnumber=$gid_force_number;
             print "Forcing nonexisting $gidnumber as gidnumber\n";
         } else {
+           my $name_of_gid;
+           my $stay_in_loop=1;
            #Freie GID holen
-           $sql="select manual_get_next_free_gid()";
-           if($Conf::log_level>=3){
-              print "\nSQL: $sql\n";
+           while($stay_in_loop==1) {
+               $sql="select manual_get_next_free_gid()";
+               if($Conf::log_level>=3){
+                  print "\nSQL: $sql\n";
+               }
+               $gidnumber = $dbh->selectrow_array($sql);
+
+               # check in auth
+               print "Checking gidnumber $gidnumber for existance: ";
+               ($name_of_gid) = getgrgid($gidnumber);
+               if (defined $name_of_gid){
+                   print "used by $name_of_gid\n";
+                   # stay in while loop
+                   $stay_in_loop=1;
+               } else {
+                   $stay_in_loop=0;
+                   print "unused (using $gidnumber)\n";
+               }
            }
-           $gidnumber = $dbh->selectrow_array($sql);
-           print "Received $gidnumber as next free gidnumber\n";
         }
 
     # Gruppe anlegen, Funktion
