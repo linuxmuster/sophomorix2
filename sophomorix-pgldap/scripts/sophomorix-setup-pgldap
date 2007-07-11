@@ -958,37 +958,6 @@ system("/etc/init.d/slapd start");
 
 sleep 2;
 
-
-############################################################
-# SID
-############################################################
-#$sid=&get_smb_sid();
-
-#$sid=`net getlocalsid`;
-#($a,$sid)=split(/:/,$sid);
-#$sid=~s/ //g;
-#chomp($sid);
-#print "   SID from the system         :   $sid \n";
-#print "---$sid---\n";
-
-
-## change the great replacement string (with new sid)
-#$replace= " -e 's/\@\@basedn\@\@/${basedn}/g'". 
-#          " -e 's/\@\@servername\@\@/${servername}/g'". 
-#          " -e 's/\@\@internip\@\@/${internip}/g'". 
-#          " -e 's/\@\@serverip\@\@/${internip}/g'". 
-#          " -e 's/\@\@internmask\@\@/${internmask}/g'". 
-#          " -e 's/\@\@sid\@\@/${sid}/g'". 
-#          " -e 's/\@\@workgroup\@\@/${smbworkgroup}/g'". 
-#          " -e 's/\@\@smbserverstring\@\@/${smbserverstring}/g'". 
-#          " -e 's/\@\@ldappassword\@\@/${ldappassword}/g'". 
-#          " -e 's/\@\@dbpassword\@\@/${dbpassword}/g'". 
-#          " -e 's/\@\@dbname\@\@/${dbname}/g'". 
-#          " -e 's/\@\@message1\@\@/${message1}/g'". 
-#          " -e 's/\@\@message2\@\@/${message2}/g'".
-#          " -e 's/\@\@message3\@\@/${message3}/g'"; 
-
-
 # patch smbtools
 system("sed $replace ${template}/ldap/smbldap.conf.template > $smb_ldap_conf"); 
 system("sed $replace ${template}/ldap/smbldap_bind.conf.template > $smb_ldap_bind_conf"); 
@@ -1025,6 +994,21 @@ if ($slapd_standalone==1){
     system("sophomorix-groupadd --skiplock --unix-group administrators --nt-group 'Administrators' --local --gidnumber 544");
     system("sophomorix-groupadd --skiplock --unix-group accountoperators --nt-group 'Account Operators' --local --gidnumber 548");
     system("sophomorix-groupadd --skiplock --unix-group backupoperators --nt-group 'Backup Operators' --local --gidnumber 551");
+
+    # correct the groups-sids
+    &update_groupsid("domadmins","512",$sid);
+    &update_groupsid("domusers","513",$sid);
+    &update_groupsid("domguests","514",$sid);
+    &update_groupsid("domcomputers","515",$sid);
+
+    &update_groupsid("administrators","544");
+    &update_groupsid("accountoperators","548");
+    &update_groupsid("printoperators","550");
+    &update_groupsid("backupoperators","551");
+    &update_groupsid("replicators","552");
+
+    # delete groupmapping
+    &delete_groupmap("Web Administrators");
 
 } else { 
     # adding groups with smbldap-tools
@@ -1068,6 +1052,10 @@ if ($slapd_standalone==1){
     # domadmin (for joining the domain)
     system("sophomorix-useradd --skiplock --administrator domadmin --uidnumber 996 --gecos 'Domain Admin' --unix-group 'domadmins' --shell /bin/false --home /dev/null");
 
+    # correct the sids
+    &update_sid("administrator","998","512",$sid);
+    &update_sid("domadmin","996","512",$sid);
+    &update_sid("pgmadmin","999","512",$sid);
 } else { 
     # administrator is equal to admin in ml 2.x
     system("smbldap-useradd -u 998 -a -c administrator -m -d /home/administrators/administrator -g 'domadmins' -G '$grouplist' -s /bin/bash administrator");
@@ -1081,6 +1069,9 @@ if ($slapd_standalone==1){
     # domadmin (for joining the domain)
     system("smbldap-useradd -a -u 996 -c 'Domain Admin' -m -d /dev/null -g 'domadmins' -s /bin/false domadmin");
 }
+
+
+
 
 
 &setup_verzeichnis("\$share_share","$DevelConf::share_share");
@@ -1153,6 +1144,71 @@ system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlog
 ############################################################
 # sub
 ############################################################
+
+
+
+
+sub update_sid {
+    # update the sambasid and sambagroupsid of a user (pg and ldap)
+    my ($user,$smb_sid,$smb_groupsid,$sid) = @_;
+    if (not defined $sid){
+        return;
+    }
+    $smb_sid=$sid."-".$smb_sid;
+    $smb_groupsid=$sid."-".$smb_groupsid;
+    print "Updating samba account $user:\n";
+    print "   * sid:     $smb_sid\n";
+    print "   * grp-sid: $smb_groupsid\n";
+    my $dbh=&db_connect();
+    my $sql="UPDATE samba_sam_account
+             SET sambasid='$smb_sid',
+                 sambaprimarygroupsid='$smb_groupsid'
+             WHERE id=(SELECT id from userdata where uid='$user')";
+    #print "\nSQL: $sql\n";
+    $dbh->do($sql);
+    &db_disconnect($dbh);
+    # update ldap
+    system("/usr/bin/pdbedit -r -U $smb_sid -G $smb_groupsid $user > /dev/null");
+}
+
+
+
+sub update_groupsid {
+    my ($group,$smb_groupsid,$sid) = @_;
+    if (not defined $sid){
+        $sid="S-1-5-32";
+    }
+    $smb_groupsid=$sid."-".$smb_groupsid;
+    print "Updating samba group $group:\n";
+    print "   * grp-sid: $smb_groupsid\n";
+    my $dbh=&db_connect();
+    my $sql="UPDATE samba_group_mapping
+             SET sambasid='$smb_groupsid'
+             WHERE id=(SELECT id from classdata where gid='$group')";
+    #print "\nSQL: $sql\n";
+    $dbh->do($sql);
+    &db_disconnect($dbh);
+    # update ldap
+    system("/usr/sbin/smbldap-groupmod -s $smb_groupsid $group > /dev/null");
+}
+
+
+
+sub delete_groupmap {
+    my ($group) = @_;
+    if (not defined $group){
+        return;
+    }
+    print "Deleting groupmap for ntgroup $group\n";
+    my $dbh=&db_connect();
+    my $sql="DELETE FROM  samba_group_mapping
+             WHERE displayname='$group'";
+    #print "\nSQL: $sql\n";
+    $dbh->do($sql);
+    &db_disconnect($dbh);
+    # update ldap
+    system("net groupmap delete ntgroup='$group' > /dev/null");
+}
 
 
 
