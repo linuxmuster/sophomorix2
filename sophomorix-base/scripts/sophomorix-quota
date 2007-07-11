@@ -485,6 +485,10 @@ sub set_quota {
       chomp($quota);
       $quota=~s/ //g;
 
+      if ($quota eq ""){
+          next;
+      }
+
       # Softlimit ca. 20% unter Hardlimit
       $q_opt1=$quota-int($quota/5);
       # 80% des Hardlimits
@@ -603,6 +607,7 @@ sub set_quota_if_needed {
            }
            # check the new quotastring
            my @q_list = &check_quotastring($quota_fs_num,$new_quota);
+
            if ($q_list[0]!=-3 and $q_list[1] ne "quota"){
 	       &set_quota(0,$login,\@quota_fs,\@q_list);
            } else {

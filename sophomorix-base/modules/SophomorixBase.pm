@@ -3796,6 +3796,10 @@ sub check_quotastring {
     if (not $result[0]==-3){
 	@result=@list;
     }
+    if (not defined $result[1]){
+        # only one partition
+        $result[1]="";
+    }
     return @result;
 }
 
