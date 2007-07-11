@@ -717,22 +717,32 @@ if ($sync_mail==1){
      print "Mailsync: $mailsync_dir\n";
      print "Mailbox: $mailbox_file\n";
 
-     # create config file for mailsync
-
-     my $mailsync_template="/etc/sophomorix/vampire/user.mailsync";
      my $replace= " -e 's/\@\@user\@\@/${user}/g'". 
           " -e 's/\@\@user_attic\@\@/${Language::user_attic}/g'". 
           " -e 's/\@\@user_passwd\@\@/${first_passwd}/g'". 
           " -e 's/\@\@servername\@\@/${host}/g'"; 
 
+     # 1) create config file for mailsync INBOX
+     my $mailsync_template="/etc/sophomorix/vampire/user.mailsync";
      system("sed $replace ${mailsync_template} > ${mailsync_dotfile}"); 
-
      system("chown ${user}:${group} $mailsync_dir");
 
      # load mailbox file with this config
      $command="HOME=$new_home mailsync -f $mailsync_dotfile -m migrate";
      print "$command\n";
      system("$command");
+
+
+     # 2) create config file for mailsync Folders
+     $mailsync_dotfile=$mailsync_dir.".mailsync.folder";
+     $mailsync_template="/etc/sophomorix/vampire/user.mailsync.folder";
+     system("sed $replace ${mailsync_template} > ${mailsync_dotfile}"); 
+     system("chown ${user}:${group} $mailsync_dir");
+
+     # load mailbox file with this config
+     $command="HOME=$new_home mailsync -f $mailsync_dotfile -m migrate";
+     print "$command\n";
+     #system("$command");
    }
 }
 

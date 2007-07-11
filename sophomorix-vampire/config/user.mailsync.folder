@@ -1,13 +1,13 @@
 # call with
 #
-# HOME="/home/teacher/@@user_attic@@" mailsync -f /home/teacher/@@user_attic@@/path/.mailsync
+# HOME="/home/teacher/@@user_attic@@" mailsync -f /home/teacher/@@user_attic@@/path/.mailsync.folder
 #
 
 
 # old mail
 store localdir {
-	pat     @@user_attic@@/mail/*
-	prefix  @@user_attic@@/mail/
+	pat     @@user_attic@@/linux/mail/*
+	prefix  @@user_attic@@/linux/mail/
 }
 
 # new mail
@@ -21,5 +21,5 @@ store cyrus {
 
 
 channel migrate localdir cyrus {
-	msinfo  @@user_attic@@/mailsync/.mailsync.info
+	msinfo  @@user_attic@@/mailsync/.mailsync.info.folder
 }
