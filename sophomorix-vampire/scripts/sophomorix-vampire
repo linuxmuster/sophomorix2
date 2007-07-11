@@ -702,7 +702,7 @@ if ($sync_mail==1){
 
      # upgrade from 2.x
      my $mailsync_dir=$new_home."/".${Language::user_attic}."/"."mailsync/";
-     system("mkdir -p $mailsync_dir=");
+     system("mkdir -p $mailsync_dir");
      my $mailsync_dotfile=$mailsync_dir.".mailsync";
 
      my $mailbox_file=$new_home."/".${Language::user_attic}."/".
