@@ -269,6 +269,7 @@ install-vampire:
 	@install -oroot -groot --mode=0644 sophomorix-vampire/config/vampire*dirs $(CONF)/vampire
 	@install -oroot -groot --mode=0644 sophomorix-vampire/config/*.config $(CONF)/vampire
 	@install -oroot -groot --mode=0644 sophomorix-vampire/config/*.mailsync $(CONF)/vampire
+	@install -oroot -groot --mode=0644 sophomorix-vampire/config/*.mailsync.folder $(CONF)/vampire
 
 #install-ldap:
 #	##### Copy the module
