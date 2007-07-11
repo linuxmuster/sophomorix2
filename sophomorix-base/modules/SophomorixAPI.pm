@@ -171,10 +171,15 @@ sub create_userlist {
     my %logins=();
     my @unique_userlist=();
     my ($login,
-        $classes,$add_class_teachers,
-        $projects,$add_project_admins,
+        $classes,
+        $add_class_teachers,
+        $projects,
+        $add_project_admins,
         $student,
-        $rooms,$ws,$administrators,$check) = @_;
+        $rooms,
+        $ws,
+        $administrators,
+        $check) = @_;
     if (not defined $login){$login=""}   
     if (not defined $classes){$classes=""}   
     if (not defined $add_class_teachers){$add_class_teachers=0}   
