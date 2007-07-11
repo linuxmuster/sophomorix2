@@ -1861,8 +1861,6 @@ check the upgrade
 
 
 
-Bug in mailsync, Unterverzeichnisse werden nicht gesynct.
-
 ##############################################
 new variables (add to new major release):    #
 ##############################################
@@ -1874,12 +1872,12 @@ $teachers_alias_name="lehrer";
 
 
 1.9.26-1 (2007-06-xx)
+    - Bugfix(closes # 266): 
+        fix SID's for admin groups
+        fix delete win group 'Web Administrators'
+        fix admin account SID's
     - Bugfix:
       catch warning on a one partition system when running sophomorix-quota 
-    - Bugfix in sophomoeix-vampire:
-      make files owned by correct user,group after
-         --sync-homes
-         --sync-maildata
     - Bugfix: user/group's uidnumber/gidnumber added with useradd/groupadd 
       are not seen by the database (manuel_get_next_free_...).
       Solution: check result of manual_bet_next_free... with
@@ -1895,6 +1893,10 @@ $teachers_alias_name="lehrer";
        postgres, so that quota has not to be set again and again
 
     - sophomorix-vampire:
+       Bugfix: sync dirs from linux/mail/* to cyrus as subdirs 
+       Bugfix: make files owned by correct user,group after
+           --sync-homes
+           --sync-maildata
        added option --delete to switch on/off --delete in rsync
        added option to sync teacher share
        added option to sync program share
