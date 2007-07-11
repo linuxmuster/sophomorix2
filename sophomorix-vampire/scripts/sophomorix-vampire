@@ -742,7 +742,7 @@ if ($sync_mail==1){
      # load mailbox file with this config
      $command="HOME=$new_home mailsync -f $mailsync_dotfile -m migrate";
      print "$command\n";
-     #system("$command");
+     system("$command");
    }
 }
 
