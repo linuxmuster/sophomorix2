@@ -1840,10 +1840,6 @@ mysqldump --extended-insert=0 horde > file.sql
 
 
 
-Bug: home of extraschueler is not synchronized
-     (remove --delete from rsync of other users)
-
-
 
 BUGS in 1.9.25:
 
@@ -1866,7 +1862,6 @@ the 4 administrators
 check the upgrade
 
 
-Bug: sophomorix-vampire --sync-homes doesn't change owners recursively
 
 Bug in mailsync, Unterverzeichnisse werden nicht gesynct.
 
@@ -1881,7 +1876,10 @@ $teachers_alias_name="lehrer";
 
 
 1.9.26-1 (2007-06-xx)
-
+    - Bugfix in sophomoeix-vampire:
+      make files owned by correct user,group after
+         --sync-homes
+         --sync-maildata
     - Bugfix: user/group's uidnumber/gidnumber added with useradd/groupadd 
       are not seen by the database (manuel_get_next_free_...).
       Solution: check result of manual_bet_next_free... with
@@ -1897,6 +1895,7 @@ $teachers_alias_name="lehrer";
        postgres, so that quota has not to be set again and again
 
     - sophomorix-vampire:
+       added option --delete to switch on/off --delete in rsync
        added option to sync teacher share
        added option to sync program share
        added option --sync-workstations
