@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-VAMPIRE 8 "February 28, 2005"
+.TH SOPHOMORIX-VAMPIRE 8 "July 1, 2007"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -148,14 +148,23 @@ Daten im Home der Benutzer abgleichen, ein user nach dem anderen. Das kann dauer
 .TP
 .B Step 9: --sync-mail-data
 .br
-Mail Dateien synchronisieren:
+Mail Dateien synchronisieren (Vorher MUSS --sync-homes aufgerufen worden sein):
 .br
    /var/spool/mail/$user   --->  $HOME/__dachboden/mail/$user
    $HOME/.forward          --->  $HOME/.forward
+.br
+(Die Mailbox unter __dachboden wurde schon bei --sync-homes synchronisiert.)
 .TP
 .B Step 10: --sync-mail
 .br
-Mail aus $HOME/__dachboden/mail/$user in cyrus synchronisieren (cyrus-Unterordner __dachboden)
+A) Mail aus $HOME/__dachboden/mail/$user nach cyrus synchronisieren
+(cyrus-Unterordner __dachboden/user). Das ist die ehemalige INBOX des
+alten Servers.
+.br
+B) Mail-Ordner aus $HOME/__dachboden/linux/mail/* nach cyrus
+synchronisieren (cyrus-Unterordner __dachboden/ORDNER). Für
+ORDNER steht sent-mail,drafts und alle selbst angelegten Ordner.
+
 .br
 Achten sie darauf, dass der neue Server ausreichend große Mailanhänge
 empfangen kann.
