@@ -811,22 +811,25 @@ if ($sync_shares==1){
        my $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avg $delstr root\@${server}:$old_share $new_share";
        print "$command \n";
        system($command);
+       $command="chown -R :${group} ${new_share}";
+       print "$command \n";
+       system($command);
 
        # fix groupowner
-       my @grouplist=(${DevelConf::teacher},$group);
-       print "\nFixing groupowner\n";
-       foreach my $group_to_check (@grouplist){
-           if (defined $new_group_old_id{$group_to_check}){
-               $command="find $new_share -group ".
-                        "$new_group_old_id{$group_to_check}".
-                        " -print0 | xargs -0 chown :${group_to_check}".
-                        " $new_share";
-               print "\n$command\n";
-               system("$command");
-           } else {
-               print "WARNING: Could not find old id of $group_to_check \n";
-           }
-       }
+#       my @grouplist=(${DevelConf::teacher},$group);
+#       print "\nFixing groupowner\n";
+#       foreach my $group_to_check (@grouplist){
+#           if (defined $new_group_old_id{$group_to_check}){
+#               $command="find $new_share -group ".
+#                        "$new_group_old_id{$group_to_check}".
+#                        " -print0 | xargs -0 chown :${group_to_check}".
+#                        " $new_share";
+#               print "\n$command\n";
+#               system("$command");
+#           } else {
+#               print "WARNING: Could not find old id of $group_to_check \n";
+#           }
+#       }
     }
 }
 
