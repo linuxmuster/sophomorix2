@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-MAIL 8 "August 08, 2006"
+.TH SOPHOMORIX-MAIL 8 "July 19, 2007"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -71,9 +71,23 @@ also auch dann aus, wenn andere sophomorix-Befehle gerade laufen. Sollte nur
 benutzt werden, wenn man weiss, was man tut.
 .PP
 .SH IMAP OPTIONS
+.TP
 .B --showmailboxes
 Fragt den IMAP server nach vorhandenen Mailboxen. Zeigt Mailboxname,
 benutztes mailquota und nutzbares mailquota an.
+.TP
+.B --showtype --showmailboxes
+Gibt zusätzlich den Typ der Mailbox an. (CYRUS=nur in cyrus, kein
+posix account). Diese Option verlangsamt die Ausgabe erheblich.
+.TP
+.B --add-mailbox user1,user2,...
+Legt eine IMAP mailbox an, falls für user1,user2,... ein posix account
+existiert. (Für Reparaturzwecke).
+.TP
+.TP
+.B --kill-mailbox user1,user2,...
+Entfernt eine IMAP mailbox, falls KEIN posix account für
+user1,user2,... existiert. (Für Reparaturzwecke).
 .TP
 .TP
 .SH SEE ALSO

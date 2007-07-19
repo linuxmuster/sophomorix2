@@ -46,15 +46,17 @@ my $show_mailbox=0;
 my $skiplock=0;
 my $show_type=0;
 my $kill_mailbox="";
+my $add_mailbox="";
 
 # Parsen der Optionen
 my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
-           "showmailbox|showmailboxes" => \$show_mailbox,
+           "showmailboxes|showmailbox" => \$show_mailbox,
            "skiplock" => \$skiplock,
            "showtype" => \$show_type,
            "kill-mailbox=s" => \$kill_mailbox,
+           "add-mailbox=s" => \$add_mailbox,
            "info|i" => \$info
           );
 
@@ -93,6 +95,7 @@ Imap-Server Options
   --showmailboxes
   --showmailboxes --showtype   (slow)
   --kill-mailbox user1,user2,...
+  --add-mailbox user1,user2,...
 
 Please see the sophomorix-mail(8) man pages for full documentation
 ');
@@ -180,6 +183,55 @@ if ($kill_mailbox ne "") {
     }
     exit;
 }
+
+
+
+# --add-mailbox
+if ($add_mailbox ne "") {
+    my $login="";
+    my $mailbox="";
+    my $string="";
+
+    my @mailboxes=split(/,/,$add_mailbox);
+
+    foreach my $k_mailbox (@mailboxes){
+        if ($k_mailbox =~m/^user\./){
+            # user.login given
+            ($string,$login)=split(/\./, $k_mailbox);
+	    $mailbox=$k_mailbox;
+        } else {
+            # login given
+	    $login=$k_mailbox;
+            $mailbox="user.".$k_mailbox; 
+        }
+
+        # checks
+        my ($home,$group)=
+            &Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
+        if ($group eq ""){
+            # no unix account exists
+            print "\nUser $login has no unix account.",
+                  " I will not add a mailbox ...\n\n";
+        } else {
+            # its a unix account
+            print "\nUser $login has a unix account.",
+                  " I will try to add its mailbox!\n\n";
+            my $imap=&Sophomorix::SophomorixBase::imap_connect("localhost",
+                                                 ${DevelConf::imap_admin});
+            &Sophomorix::SophomorixBase::imap_create_mailbox($imap,$login);
+            &Sophomorix::SophomorixBase::imap_disconnect($imap);
+        }
+    }
+    # set quota
+    if ($Conf::use_quota eq "yes"){ 
+    system("${DevelConf::executable_pfad}/sophomorix-quota --skiplock --users $add_mailbox --noninteractive --set");
+    }
+    exit;
+}
+
+
+
+
 
 ################################################################################
 # Programm
