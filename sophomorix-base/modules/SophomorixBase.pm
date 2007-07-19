@@ -42,6 +42,7 @@ use Quota;
               lehrer_ordnen
               zeit_stempel
               recode_to_ascii
+              recode_to_ascii_underscore
               do_falls_nicht_testen
               check_options
               check_datei_exit
@@ -1873,6 +1874,20 @@ sub recode_to_ascii {
     $string=~s/ß/ss/g;
     return $string;
 }
+
+sub recode_to_ascii_underscore {
+    my ($string) = @_;
+    $string=~s/ /_/g;
+    $string=~s/ü/ue/g;
+    $string=~s/Ü/ue/g;
+    $string=~s/ö/oe/g;
+    $string=~s/Ö/oe/g;
+    $string=~s/ä/ae/g;
+    $string=~s/Ä/ae/g;
+    $string=~s/ß/ss/g;
+    return $string;
+}
+
 
 
 
