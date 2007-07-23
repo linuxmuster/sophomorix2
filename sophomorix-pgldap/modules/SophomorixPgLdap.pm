@@ -5763,10 +5763,11 @@ sub compare_pg_with_ldap {
     # ldap
     my $ldap=&Sophomorix::SophomorixPgLdap::auth_connect();
     my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
+    # search in ou=accounts and ou=machines (i.e. suffix alone)
     my $msg = $ldap->search(
-          base => "ou=accounts,$suffix",
+          base => "$suffix",
           scope => "sub",
-          filter => ("uid=$login")
+          filter => "(uid=$login)"
        );
     if($Conf::log_level>=3){
         print "  Ldap has returned ",$msg->count(), 
@@ -5810,11 +5811,11 @@ sub compare_pg_with_ldap {
         } else {
             if (not defined $entry->get_value( $ldap_attr ) ){
                 if($Conf::log_level>=3){
-                   print "    ERROR:$ldap_attr and $pg_col} (ldap undef)\n";
+                   print "    ERROR:$ldap_attr and $pg_col (ldap undef)\n";
 	        }
             } elsif (not defined $pg_hash{$pg_col} ){
                 if($Conf::log_level>=3){
-                   print "    ERROR:$ldap_attr and $pg_col} (pg undef)\n";
+                   print "    ERROR:$ldap_attr and $pg_col (pg undef)\n";
 	        }
             }
         }
