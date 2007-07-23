@@ -5190,6 +5190,7 @@ sub auth_useradd {
        $sec_groups,$shell,$type,$smb_ldap_homepath,$lastname) = @_; 
    my ($u_home,$u_type,$u_gecos,$u_group,
        $u_uidnumber)=&fetchdata_from_account($login);
+   my ($g_type,$g_name,$g_gidnumber)=&pg_get_group_type($unix_group);
    # add entry to seperate ldap
    if (defined $u_uidnumber){
        if ($u_uidnumber eq $uid_number){
@@ -5231,14 +5232,15 @@ sub auth_useradd {
 	       } elsif ($type eq "unixadmin") {
                    # user account, unix only
                    $command="smbldap-useradd $uid_string -c '$gecos'".
-                            " -d $home -m -g $unix_group $sec_string".
+                            " -d $home -m -g $g_gidnumber $sec_string".
                             " -s $shell $login";
 	           print "   * $command\n";
                    system("$command");           
 	       } else {
+                   
                    # user account, unix and windows
                    $command="smbldap-useradd -a $uid_string -c '$gecos'".
-                            " -d $home -m -g $unix_group $sec_string".
+                            " -d $home -m -g $g_gidnumber $sec_string".
                             " -s $shell $login";
 	           print "   * $command\n";
                    system("$command");
