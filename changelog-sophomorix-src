@@ -1860,7 +1860,15 @@ the 4 administrators
 check the upgrade
 
 
+
 check if computer$ are dumped to ou=machines
+
+checkin from svn the following files:
+        smb.conf
+        logon.bat
+        login.bat
+        common.bat
+
 
 
 ##############################################
@@ -1873,6 +1881,11 @@ $teachers_alias_name="lehrer";
 ================== CHANGELOG ========================================
 
 1.9.27-1 (2007-07-xx)
+    - Bugfix: added correct path to linuxmuster-basefiles:
+        smb.conf
+        logon.bat
+        login.bat
+        common.bat
     - Bugfix: dont find computers in ou=machines
     - Bugfix: adding users with gidnumber (instead of name)
       This makes it possible to add users in a group 7 
