@@ -28,6 +28,9 @@ use Net::LDAP;
 use Sophomorix::SophomorixPgLdap qw(check_connections
                                     get_print_data
                                     fetchadmins_from_adminclass
+                                    fetchdata_from_account
+                                    fetchnetexamplix_from_account
+                                    fetchstudents_from_adminclass
                                    );
 
 my @arguments = @ARGV;
@@ -136,6 +139,7 @@ my $show=0;
 my $alle=0;
 my $lehrer=0;
 my $caller="";
+my $netexamplix="";
 my $command="latex";
 my $gruppe="";
 my $classlist="";
@@ -152,6 +156,7 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "teacher|t" => \$lehrer,
            "caller|postfix=s" => \$caller,
+           "netexamplix=s" => \$netexamplix,
            "command=s" => \$command,
            "one-per-page" => \$one_per_page,
            "skiplock" => \$skiplock,
@@ -179,7 +184,7 @@ if ($help==1) {
 sophomorix-print prints user account data of recently added users to 
   /var/lib/sophomorix/print-data
 
-Options
+Options:
   -h  / --help
   -v  / --verbose
   -vv / --verbose --verbose
@@ -187,9 +192,12 @@ Options
   -t / --teacher
   -c class / --class class
   -s  / --show
-  --caller
+  --caller / --postfix  name
   --command pdflatex  (standard is latex)
   -i / --info         (print to standard out)
+
+Options for netexamplix:
+  --netexamplix name_of_exam --caller user --class class1,class2,...
 
 Please see the sophomorix-print(8) man pages for full documentation
 ');
@@ -197,6 +205,79 @@ Please see the sophomorix-print(8) man pages for full documentation
    exit;
 }
 
+
+
+# ===========================================================================
+# netexamplix
+# ===========================================================================
+
+if ($netexamplix ne ""){
+    print "Creating file for netexamplix:\n";
+    if ($gruppe eq ""){
+        print "   ERROR: You must use option --class class1,class2,... \n";
+        exit;
+    }
+    if ($caller eq ""){
+        print "   ERROR: You must use option --caller teacher \n";
+        exit;
+    }
+
+    # decide where to create the file
+    my ($homedir,$type,$gecos)=&fetchdata_from_account($caller);
+    if ($type ne "teacher"){
+        print "ERROR: Caller must be a teacher\n";
+        exit;
+    }
+
+    my $netex_dir  = $homedir."/netexamplix";
+    my $dir  = $netex_dir."/".$netexamplix;
+    my $file = $dir."/students.cfg";
+
+    print "Creating the following file for $caller ($gecos, $type):\n";
+    # print "   $netex_dir\n";
+    # print "   $dir\n";
+    print "   $file\n";
+
+    my @classlist_to_fetch = split(/,/,$gruppe);
+
+    my @students=();
+
+    foreach my $class_to_fetch (@classlist_to_fetch){
+        print "Fetching users of class $class_to_fetch\n";
+        my @users = &fetchstudents_from_adminclass($class_to_fetch);
+        @students = (@students,@users);
+
+    }
+
+    if (not -e $netex_dir){
+	system("mkdir $netex_dir");
+        system("chown ${caller}.${DevelConf::teacher} $netex_dir");
+    }
+    if (not -e $dir){
+	system("mkdir $dir");
+        system("chown ${caller}.${DevelConf::teacher} $dir");
+    }
+
+    if (not $file=~/^$DevelConf::homedir_teacher\//){
+        print "ERROR: I'm not creating file $file\n",
+              "       outside $DevelConf::homedir_teacher\n";
+        exit;
+    }
+
+    open(STUDENTS, ">$file");
+    foreach my $user (@students){
+        my $line=&fetchnetexamplix_from_account($user);
+        #printf "  %-12s %-62s\n",$user,$line;
+	print STUDENTS "$line\n";
+    }
+
+    close(STUDENTS);
+    system("chown ${caller}.${DevelConf::teacher} $file");
+    exit;
+}
+
+
+ 
 
 
 # ===========================================================================

@@ -36,6 +36,7 @@ require Exporter;
              fetchusers_from_adminclass
              fetch_my_adminclasses
              fetchdata_from_account
+             fetchnetexamplix_from_account
 	     create_user_db_entry
              date_perl2pg
              date_pg2perl
@@ -1315,6 +1316,49 @@ sub fetchdata_from_account {
         return ("","","","",-1,"","");
     }
 }
+
+
+
+
+sub fetchnetexamplix_from_account {
+    my ($login) = @_;
+    my $dbh=&db_connect();
+    my ($surname,
+        $firstname,
+        $birthday,
+        $birthcity,
+        $group,
+        $uidnumber,
+       )= $dbh->selectrow_array( "SELECT surname,firstname,birthday,
+                                         birthcity,
+                                         gid,uidnumber
+                                         FROM userdata 
+                                         WHERE uid='$login'
+                                        ");
+    &db_disconnect($dbh);
+
+    if (not defined $birthcity){
+        $birthcity="";
+    }
+    if ($birthcity==0){
+        $birthcity="";
+    }
+
+    $birthday_pl = &date_pg2perl($birthday);
+
+
+    if (defined $group){
+        my $line=$surname.", ".$firstname.":".
+                 $birthday_pl.":".
+                 $birthcity.":".
+                 $group.":".
+                 $uidnumber.":";
+        return ($line);
+    } else {
+        return ("");
+    }
+}
+
 
 
 
