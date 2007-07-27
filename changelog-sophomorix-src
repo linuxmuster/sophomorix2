@@ -1841,25 +1841,7 @@ mysqldump --extended-insert=0 horde > file.sql
 
 
 
-BUGS in 1.9.25:
-
-pgmadmin, administrator, ... are not recognised from 
-sophomorix-quota as sophomorix users
-Fixed. but check for mailquota
-
-
-
-TODO in 1.9.26:
-
-Problem with sophomorix-quota 1.9.26 script:
-- wants to update quota in postgres, but posix_account_details is missing
-
-solution: upgrade script creates posix_account_details for 
-the 4 administrators
-
-check the upgrade
-
-
+TODO in 1.9.27:
 
 check if computer$ are dumped to ou=machines
 
@@ -1881,6 +1863,8 @@ $teachers_alias_name="lehrer";
 ================== CHANGELOG ========================================
 
 1.9.27-1 (2007-07-xx)
+    - added option sophomorix-print --netexamplix ...
+      (for package netexemplix)
     - Bugfix: added correct path to linuxmuster-basefiles:
         smb.conf
         logon.bat
@@ -1889,7 +1873,7 @@ $teachers_alias_name="lehrer";
     - Bugfix: dont find computers in ou=machines
     - Bugfix: adding users with gidnumber (instead of name)
       This makes it possible to add users in a group 7 
-      I don't know if this makes sense
+      But it is recommended NOT to use groupnames like 7
 
 
 1.9.26-1 (2007-07-21)
