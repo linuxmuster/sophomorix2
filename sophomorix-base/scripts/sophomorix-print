@@ -139,7 +139,10 @@ my $show=0;
 my $alle=0;
 my $lehrer=0;
 my $caller="";
+
 my $netexamplix="";
+my $netexamplix_teachers=0;
+
 my $command="latex";
 my $gruppe="";
 my $classlist="";
@@ -157,6 +160,7 @@ my $testopt=GetOptions(
            "teacher|t" => \$lehrer,
            "caller|postfix=s" => \$caller,
            "netexamplix=s" => \$netexamplix,
+           "netexamplix-teachers" => \$netexamplix_teachers,
            "command=s" => \$command,
            "one-per-page" => \$one_per_page,
            "skiplock" => \$skiplock,
@@ -198,6 +202,7 @@ Options:
 
 Options for netexamplix:
   --netexamplix name_of_exam --caller user --class class1,class2,...
+  --netexamplix-teachers
 
 Please see the sophomorix-print(8) man pages for full documentation
 ');
@@ -212,7 +217,6 @@ Please see the sophomorix-print(8) man pages for full documentation
 # ===========================================================================
 
 if ($netexamplix ne ""){
-    print "Creating file for netexamplix:\n";
     if ($gruppe eq ""){
         print "   ERROR: You must use option --class class1,class2,... \n";
         exit;
@@ -233,17 +237,17 @@ if ($netexamplix ne ""){
     my $dir  = $netex_dir."/".$netexamplix;
     my $file = $dir."/students.cfg";
 
-    print "Creating the following file for $caller ($gecos, $type):\n";
+    print "Creating the following files for $caller ($gecos, $type):\n";
     # print "   $netex_dir\n";
     # print "   $dir\n";
-    print "   $file\n";
+    print "  $file\n";
 
     my @classlist_to_fetch = split(/,/,$gruppe);
 
     my @students=();
 
     foreach my $class_to_fetch (@classlist_to_fetch){
-        print "Fetching users of class $class_to_fetch\n";
+        print "     * Fetching users of class $class_to_fetch\n";
         my @users = &fetchstudents_from_adminclass($class_to_fetch);
         @students = (@students,@users);
 
@@ -273,9 +277,21 @@ if ($netexamplix ne ""){
 
     close(STUDENTS);
     system("chown ${caller}.${DevelConf::teacher} $file");
+
+    # writing teachers login:Surname, Firstname
+    my $file_teacher = $dir."/teachers.cfg";
+    print "  $file_teacher\n";
+    my @teachers = &fetchstudents_from_adminclass(${DevelConf::teacher});
+    open(TEACHERS, ">$file_teacher");
+    foreach my $teacher (@teachers){
+        my $line = &fetchnetexamplix_from_account($teacher);
+        my ($name)=split(/:/,$line);
+        print TEACHERS "$teacher:$name\n";
+    }
+    close(TEACHERS);
+    system("chown ${caller}.${DevelConf::teacher} $file");
     exit;
 }
-
 
  
 
