@@ -141,7 +141,6 @@ my $lehrer=0;
 my $caller="";
 
 my $netexamplix="";
-my $netexamplix_teachers=0;
 
 my $command="latex";
 my $gruppe="";
@@ -160,7 +159,6 @@ my $testopt=GetOptions(
            "teacher|t" => \$lehrer,
            "caller|postfix=s" => \$caller,
            "netexamplix=s" => \$netexamplix,
-           "netexamplix-teachers" => \$netexamplix_teachers,
            "command=s" => \$command,
            "one-per-page" => \$one_per_page,
            "skiplock" => \$skiplock,
@@ -202,7 +200,6 @@ Options:
 
 Options for netexamplix:
   --netexamplix name_of_exam --caller user --class class1,class2,...
-  --netexamplix-teachers
 
 Please see the sophomorix-print(8) man pages for full documentation
 ');
