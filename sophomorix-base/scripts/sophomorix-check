@@ -384,6 +384,7 @@ my $value="";
 &check_config_template("sperrklassen.txt");
 &check_config_template("extrakurse.txt");
 &check_config_template("extraschueler.txt");
+&check_config_template("class.map");
 
 # ===========================================================================
 # Verzeichnisse und Dateien anlegen
@@ -504,6 +505,21 @@ if ($Conf::filter_script eq ""){
 # Open the output-files
 # ===========================================================================
 &open_report_files();
+
+# ===========================================================================
+# Get a hash of classes from schueler.txt
+# ===========================================================================
+my %schueler_classes = &get_schueler_classes();
+
+# ===========================================================================
+# read class.map
+# ===========================================================================
+my %class_map = &get_class_map();
+
+while (($k,$v) = each %class_map){
+    print $k , " ", $v, "\n";
+}
+
 
 # ===========================================================================
 # Get information from the System
@@ -1573,6 +1589,65 @@ sub get_entfern_klassen {
 
 
 
+sub get_schueler_classes {
+    my %classes=();
+    open(TXT,"${DevelConf::schueler_datei}") || die "Fehler: $!";
+    while(<TXT>){
+       chomp($_); # Returnzeichen abschneiden
+       s/^ //g; # Leerzeichen am Zeilenangfang entfernen
+       if(/^\#/){ # # am Anfang bedeutet Kommentarzeile
+           next;
+       }
+       if($_ eq ""){ # # am Anfang bedeutet Kommentarzeile
+	   next;
+       }
+       my ($class)=split(/;/);
+       if (not exists $classes{$class}){
+           $classes{$class}="exists";
+       }
+    }
+    close(TXT);
+    return %classes;
+}
+
+
+sub get_class_map {
+    my %map=();
+    open(MAP,"${DevelConf::config_pfad}/class.map");
+    while(<MAP>){
+       chomp($_); # Returnzeichen abschneiden
+       s/^ //g; # Leerzeichen am Zeilenangfang entfernen
+       if(/^\#/){ # # am Anfang bedeutet Kommentarzeile
+           next;
+       }
+       if($_ eq ""){ # # am Anfang bedeutet Kommentarzeile
+	   next;
+       }
+       my ($old_name,$new_name)=split(/;/);
+       $map{$old_name}="$new_name";
+    }
+    close(MAP);
+    return %map;
+
+}
+
+
+
+sub rename_admin_class {
+    my ($old_name) = @_;
+    my $new_name="";
+    # check for entry in class.map
+    if (exists $class_map{$old_name}){
+	$new_name=$class_map{$old_name};
+    } else {
+        $new_name=$old_name;
+	until (not exists $schueler_classes{$new_name}){
+            $new_name=$new_name."y";
+        }
+    }
+    return $new_name;
+}
+
 
 
 sub get_sperrklassen {
@@ -1592,7 +1667,7 @@ sub get_sperrklassen {
 
     &titel("Reading sperrklassen.txt ...");
 
-    open(SPERRKLASSEN,"${DevelConf::config_pfad}/sperrklassen.txt") || die "Fehler: $!";;
+    open(SPERRKLASSEN,"${DevelConf::config_pfad}/sperrklassen.txt") || die "Fehler: $!";
     while(<SPERRKLASSEN>){
        chomp($_); # Returnzeichen abschneiden
        # Wenn ein # vorkommt, Zeile nicht beachten, da Kommentarzeile
@@ -3018,6 +3093,12 @@ sub generate_add_file {
          if (not exists $wunsch_login_forbidden{$login}){
             # loginname is allowed
             push @admin_list_add, "$string";
+            # check if class must be renamed
+            if ($admin_class=~/[^0-9]/){
+                  # adminclass is string, nothing to do
+            } else {
+		$admin_class=&rename_admin_class($admin_class);
+            }
             # Put admin_class and string in file
             print SOPHOMORIXADD ("$admin_class"."::"."$string");
             $schueler_hinzu_anzahl++;
