@@ -1855,9 +1855,6 @@ checkin from svn the following files:
 
 
 Todo:
-
-John Doe ersetzen: Netzwerkberater(in) administrator(in) 
-(Osterei)
  
 
 Schulkonsole-Befehle zum internet sperren usw.
@@ -1884,17 +1881,6 @@ sophomorix-groupmod, ... Befehle (Liste von Thomas)
 user in zusätzliche sekundäre gruppen eintragen/austragen in (pg und ldap) 
 
 
-
-- vorstellen von s
-  bei 12, 13 und wenn kein Buchstabe.
-- oder alternativ konfigurierbar machen per hash:
-  /etc/sophomorix/user/class.map
-
-
-
-
-
-
 sophomorix-lock
 
 mehrmals probieren,nach 2s Pause
@@ -1903,7 +1889,10 @@ nach 8s beenden
 
 
 
+NEXT:
 
+sophomorix-check:
+print warning, when groups were automatically renamed
 
 
 
@@ -1919,6 +1908,9 @@ $teachers_alias_name="lehrer";
 ================== CHANGELOG ========================================
 
 1.9.27-1 (2007-07-xx)
+    - added automatic renaming of classes
+      - append 'y' to numerical class names
+      - make use of class.map possible
     - added option sophomorix-print --netexamplix ...
       (for package netexemplix)
     - Bugfix: added correct path to linuxmuster-basefiles:
