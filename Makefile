@@ -147,7 +147,8 @@ install-base:
 	@install -oroot -groot --mode=0644 sophomorix-base/config/projects.create $(CONF)/project
 	@install -oroot -groot --mode=0644 sophomorix-base/config/projects.update $(CONF)/project
 # config-templates
-	@install -oroot -groot --mode=0600 sophomorix-base/config-templates/*[!CVS] $(CTEMPDIR)
+	@install -oroot -groot --mode=0600 sophomorix-base/config-templates/*.txt $(CTEMPDIR)
+	@install -oroot -groot --mode=0600 sophomorix-base/config-templates/*.map $(CTEMPDIR)
 	@install -oroot -groot --mode=0600 sophomorix-base/config/sophomorix.conf $(CTEMPDIR)
 # configs for developers
 	@install -d -m755 -oroot -groot $(DEVELCONF)/devel
