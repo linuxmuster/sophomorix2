@@ -115,6 +115,7 @@ use Quota;
               group_private_noupload
               get_debconf_value
               basedn_from_domainname
+              unlink_immutable_tree
               );
 
 
@@ -4733,6 +4734,66 @@ sub basedn_from_domainname {
    $basedn = join "," , @ldapdomains;
    return ($basedn,$dc);
 }
+
+
+################################################################################
+# immutable bit stuff 
+################################################################################
+
+sub unlink_immutable_tree {
+    my ($dir) = @_;
+    if (not $dir=~/^\/home\//){
+        print "unlink_immutable_tree: I do not delete outside /home/\n";
+        return 0;
+    }
+    if (not -e $dir){
+        print "WARNING: directory/file $dir does not exist. Doing nothing.\n";
+        return 0;
+    }
+    # remove immutable bit recursively
+    if (-e ${DevelConf::chattr_path}){
+        system("${DevelConf::chattr_path} -i -R $dir");
+    } else {
+        print "${DevelConf::chattr_path} not fount/not executable\n";
+    }
+    # remove dir recursively
+    system("rm -rf $dir");
+}
+
+
+sub set_immutable_bit {
+    my ($dir) = @_;
+    if (not -e $dir){
+        print "WARNING: directory/file $dir does not exist. Doing nothing.\n";
+        return 0;
+    }
+    # remove immutable bit recursively
+    if (-e ${DevelConf::chattr_path}){
+        system("${DevelConf::chattr_path} +i $dir");
+    } else {
+        print "${DevelConf::chattr_path} not fount/not executable\n";
+    }
+}
+
+
+sub unset_immutable_bit {
+    my ($dir) = @_;
+    if (not -e $dir){
+        print "WARNING: directory/file $dir does not exist. Doing nothing.\n";
+        return 0;
+    }
+    # remove immutable bit recursively
+    if (-e ${DevelConf::chattr_path}){
+        system("${DevelConf::chattr_path} ii $dir");
+    } else {
+        print "${DevelConf::chattr_path} not fount/not executable\n";
+    }
+}
+
+
+
+
+
 
 
 
