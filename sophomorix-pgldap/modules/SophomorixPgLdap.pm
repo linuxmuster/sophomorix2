@@ -4811,12 +4811,37 @@ sub show_class_list {
 
 sub show_class_teacher_list {
     print "\n";
-    my @classes=&fetchadminclasses_from_school();    
+    my @classes=&fetchadminclasses_from_school();
+    print "+--------------+----------------------",
+          "---------------------------------------+\n";    
+    print "| Classes      | Member Teachers      ",
+          "                                       |\n";
     foreach my $class (@classes){
         my @teachers=&fetchadmins_from_adminclass($class);
-	&Sophomorix::SophomorixBase::print_list_column(6,
-                              "Teacher von $class",@teachers);
+        my $count=0;
+
+        if ($#teachers+1>0){
+            print "+--------------+----------------------",
+                  "---------------------------------------+\n";    
+        }
+
+        while ($#teachers+1>0){
+	   $count++;
+           my @new = splice(@teachers, 0, 5);
+           while ($#new<4){
+	       push @new,"";
+           }
+           if ($count==1){
+               printf "| %-12s | %-12s%-12s%-12s%-12s%-12s|\n",
+                      $class,@new;
+           } else {
+               printf  "| %12s | %-12s%-12s%-12s%-12s%-12s|\n",
+                      $class,@new;
+           }
+        }
     }
+    print "+--------------+----------------------",
+          "---------------------------------------+\n";    
 }
 
 
@@ -4827,9 +4852,31 @@ sub show_teacher_class_list {
     my @teachers=&fetchusers_from_adminclass(${DevelConf::teacher});
     foreach my $teacher (@teachers){
         my @classes=&fetch_my_adminclasses($teacher);
-        &Sophomorix::SophomorixBase::print_list_column(6,
-                              "Klassen von $teacher",@classes);
+ 
+        my $count=0;
+
+        if ($#classes+1>0){
+            print "+--------------+----------------------",
+                  "---------------------------------------+\n";    
+        }
+
+        while ($#classes+1>0){
+	   $count++;
+           my @new = splice(@classes, 0, 5);
+           while ($#new<4){
+	       push @new,"";
+           }
+           if ($count==1){
+               printf "| %-12s | %-12s%-12s%-12s%-12s%-12s|\n",
+                      $teacher,@new;
+           } else {
+               printf  "| %12s | %-12s%-12s%-12s%-12s%-12s|\n",
+                      $teacher,@new;
+           }
+        }
     }
+    print "+--------------+----------------------",
+          "---------------------------------------+\n";    
 }
 
 

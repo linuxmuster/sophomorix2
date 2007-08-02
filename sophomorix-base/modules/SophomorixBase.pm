@@ -374,7 +374,9 @@ sub fetch_repairhome {
          exit;
       }
       open(REPAIRHOME, "<$file");
-      &titel("Reading $file");
+      if($Conf::log_level>=2){
+          &titel("Reading $file");
+      }
       while (<REPAIRHOME>) {
           chomp(); # Returnzeichen abschneiden
           s/\s//g; # Spezialzeichen raus
