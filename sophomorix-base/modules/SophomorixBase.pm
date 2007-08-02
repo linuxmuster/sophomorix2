@@ -117,6 +117,7 @@ use Quota;
               get_debconf_value
               basedn_from_domainname
               unlink_immutable_tree
+              move_immutable_tree
               set_immutable_bit
               fetch_immutable_bit
               );
@@ -2676,21 +2677,6 @@ sub remove_share_directory {
         ##############################
         # all users
         ##############################
-        # einsammeln
-        # is NOT removed anymore, cause no subdirs exist here 
-#        my $collect_dir=$homedir."/".
-#           ${Language::collect_dir}."/".$share_long_name;
-#        if (-e $collect_dir){
-#            if($Conf::log_level>=2){
-#                print "   Removing $collect_dir if empty.\n";
-#            }
-#            system("rsync -a $collect_dir $attic");
-#            if ($collect_dir=~/^\/home\//){
-#                system("rm -rf $collect_dir");
-#	    }
-#            system("rmdir --ignore-fail-on-non-empty $attic/${Language::collect_dir}/$share_long_name");
-#            #system("rmdir $collect_dir");
-#        }
         # austeilen
         my $handoutcopy_dir=$homedir."/".
            ${Language::handoutcopy_dir}."/".
@@ -4827,6 +4813,11 @@ sub unlink_immutable_tree {
         return 0;
     }
     # remove immutable bit recursively
+    # remember and remove immutable bit on parent dir
+    my $parent_dir = dirname $dir;
+    my $immutable_bit=&fetch_immutable_bit($parent_dir);
+    &set_immutable_bit($parent_dir,0);
+
     if (-e ${DevelConf::chattr_path}){
         system("${DevelConf::chattr_path} -i -R $dir");
     } else {
@@ -4834,6 +4825,40 @@ sub unlink_immutable_tree {
     }
     # remove dir recursively
     system("rm -rf $dir");
+
+    # restore stored value for immutable bit of parent
+    &set_immutable_bit($parent_dir,$immutable_bit);
+}
+
+
+
+sub move_immutable_tree {
+    my ($old_dir,$new_dir) = @_;
+    if (not $old_dir=~/^\/home\//){
+        print "unlink_immutable_tree: I do not delete outside /home/\n";
+        return 0;
+    }
+    if (not -e $old_dir){
+        print "WARNING: directory/file $old_dir does not exist. Doing nothing.\n";
+        return 0;
+    }
+    # remove immutable bit recursively
+    # remember and remove immutable bit on parent dir
+    my $parent_dir = dirname $old_dir;
+    my $immutable_bit=&fetch_immutable_bit($parent_dir);
+    &set_immutable_bit($parent_dir,0);
+
+    if (-e ${DevelConf::chattr_path}){
+        system("${DevelConf::chattr_path} -i -R $old_dir");
+    } else {
+        print "${DevelConf::chattr_path} not fount/not executable\n";
+    }
+    # move
+    system("mkdir -p $new_dir");
+    system("mv $old_dir $new_dir");
+
+    # restore stored value for immutable bit of parent
+    &set_immutable_bit($parent_dir,$immutable_bit);
 }
 
 
