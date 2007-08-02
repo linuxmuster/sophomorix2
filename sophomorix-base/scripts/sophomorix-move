@@ -304,10 +304,11 @@ while(<USERVERSETZEN>){
                            $alte_klasse,$alte_klasse,"adminclass");
 
    # move home directory
-   &do_falls_nicht_testen(
-        "mkdir -p $new_homedir_above",
-        "mv $old_home $new_homedir_above"
-	);
+   &move_immutable_tree($old_home,$new_homedir_above);
+#   &do_falls_nicht_testen(
+#        "mkdir -p $new_homedir_above",
+#        "mv $old_home $new_homedir_above"
+#	);
    # change primary group
    # neue gruppe anlegen und gidnumber holen, falls erforderlich
    my $gidnumber=&create_class_db_entry($neue_klasse);
