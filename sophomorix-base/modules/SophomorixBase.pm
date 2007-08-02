@@ -2244,6 +2244,11 @@ sub create_school_link {
     my ($login) = @_;
     my ($home)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
     if ($home ne ""){
+       # remember and remove immutable bit on parent dir
+       my $parent_dir = $home."/${Language::share_dir}";
+       my $immutable_bit=&fetch_immutable_bit($parent_dir);
+       &set_immutable_bit($parent_dir,0);
+
        my $link_name=$home.
         "/${Language::share_dir}/${Language::share_string}".
         "${Language::school}";
@@ -2256,6 +2261,8 @@ sub create_school_link {
            print "   Target    (school): $link_target\n";
        }
        symlink $link_target, $link_name;
+       &set_immutable_bit($parent_dir,$immutable_bit);
+
     }
 }
 
@@ -2359,10 +2366,15 @@ sub create_share_link {
 
     # Only act if uid is valid
     if ($homedir ne ""){
-       # save immutable bit and unset it
-       my $immutable_dir=$homedir."/${Language::share_dir}";
-       my $immutable_bit=&fetch_immutable_bit($immutable_dir);
-       &set_immutable_bit($immutable_dir,0);
+       # save immutable bit on share_dir and unset it
+       my $immutable_share_dir=$homedir."/${Language::share_dir}";
+       my $immutable_share_bit=&fetch_immutable_bit($immutable_share_dir);
+       &set_immutable_bit($immutable_share_dir,0);
+
+       # save immutable bit on task_dir and unset it
+       my $immutable_task_dir=$homedir."/${Language::task_dir}";
+       my $immutable_task_bit=&fetch_immutable_bit($immutable_task_dir);
+       &set_immutable_bit($immutable_task_dir,0);
 
        my $link_name=$homedir.
           "/${Language::share_dir}/${Language::share_string}".
@@ -2378,7 +2390,7 @@ sub create_share_link {
            $link_target_tasks="${DevelConf::tasks_projects}/${share_name}";
        } elsif ($type eq "adminclass"){
            # class
-	   if ($share_name  ne ${DevelConf::teacher}){
+	   if ($share_name ne ${DevelConf::teacher}){
                # student
                $link_target="${DevelConf::share_classes}/${share_name}";
                $link_target_tasks="${DevelConf::tasks_classes}/${share_name}";
@@ -2439,7 +2451,8 @@ sub create_share_link {
                  "nonexisting/nondirectory $link_target_tasks\n";
        }
        # restore immutable bit
-       &set_immutable_bit($immutable_dir,$immutable_bit);
+       &set_immutable_bit($immutable_share_dir,$immutable_share_bit);
+       &set_immutable_bit($immutable_task_dir,$immutable_task_bit);
     } else {
         print "   NOT removing directories: ",
               "Home of user $login not known.\n";
@@ -4808,8 +4821,10 @@ sub unlink_immutable_tree {
         print "unlink_immutable_tree: I do not delete outside /home/\n";
         return 0;
     }
-    if (not -e $dir){
-        print "WARNING: directory/file $dir does not exist. Doing nothing.\n";
+    my $dir_check = $dir;
+    $dir_check=~s/\*$//;
+    if (not -e $dir_check){
+        print "WARNING: directory/file $dir_check does not exist. Doing nothing.\n";
         return 0;
     }
     # remove immutable bit recursively
@@ -4898,11 +4913,11 @@ sub fetch_immutable_bit {
         #print "+++$bits+++\n";
         if ($bits=~/i/){
             # immutable bit is set
-            print "immutable bit SET on $dir\n";
+            #print "immutable bit SET on $dir\n";
             return 1;
         } else {
             # immutable bit is NOT set
-            print "immutable bit NOT SET on $dir\n";
+            #print "immutable bit NOT SET on $dir\n";
             return 0;
         }
     } else {
