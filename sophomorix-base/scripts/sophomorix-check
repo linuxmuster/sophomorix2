@@ -296,6 +296,8 @@ my %klasse_schueleranzahl=();
 my $klass="";
 my $sch_zahl="";
 
+my @auto_class_rename=();
+
 my $name="";
 my $passwort="";
 my $loginname_passwd="";
@@ -1069,14 +1071,21 @@ my %come_points=();
 
 
 # ===========================================================================
+# Empfehlung in Admin-Report und Konsole zum umbenennen von Nummern-Klassen
+# ===========================================================================
+if (defined $auto_class_rename[0]){
+    print RED "Sie sollten folgende Klassen in /etc/sophomorix/user/class.map\n";
+    print RED "umbenennen, da sie nur Ziffern enthalten:\n";
+    print RED "  @auto_class_rename\n";
+}
+
+# ===========================================================================
 # Empfehlung in Admin-Report und Konsole zum Teach-in
 # ===========================================================================
 if($schueler_hinzu_anzahl!=0 
-   and ($schueler_duldungs_beginn_anzahl!=0 
-   or $schueler_weg_anzahl!=0)){
-
-print RED "Sie sollten sophomorix-teach-in aufrufen!\n";
-
+      and ($schueler_duldungs_beginn_anzahl!=0 
+      or $schueler_weg_anzahl!=0)){
+    print RED "Sie sollten sophomorix-teach-in aufrufen!\n";
 }
 
 
@@ -1112,12 +1121,6 @@ print RED "Sie sollten sophomorix-teach-in aufrufen!\n";
 sub append_move_entry {
     # appends a line to sophomorix.move
     my ($identifier, $old_class, $new_class,$old_status) = @_;
-    if ($new_class=~/[^0-9]/){
-                  # adminclass is string, nothing to do
-    } else {
-		$new_class=&rename_admin_class($new_class);
-    }
-
     if (not defined $old_status){$old_status=""};
     my $login=$schueler_im_system_loginname{$identifier};
     my $move_line = ();
@@ -1172,7 +1175,11 @@ sub u_u_check {
          if ("$new_class" ne "$old_class"){
            $schueler_zuversetzen_anzahl++;
            $count++;
-           #print "   +++++$login  $old_class ---> $new_class\n";
+           if ($new_class=~/[^0-9]/){
+                  # adminclass is string, nothing to do
+           } else {
+		$new_class=&rename_admin_class($new_class);
+           }
            # Admin-Report
            push @admin_list_move, "$login  $old_class ---> $new_class\n";
            # File
@@ -1310,6 +1317,11 @@ sub a_u_check {
          my $old=$schueler_im_system_hash{$identifier};
          if (not defined $new){
              return;
+         }
+         if ($new=~/[^0-9]/){
+             # adminclass is string, nothing to do
+         } else {
+	     $new=&rename_admin_class($new);
          }
          if ($old ne $new){
             &append_move_entry($identifier,$old,$new,"A");
@@ -1646,6 +1658,7 @@ sub rename_admin_class {
     if (exists $class_map{$old_name}){
 	$new_name=$class_map{$old_name};
     } else {
+        push @auto_class_rename, $old_name;
         $new_name=$old_name;
 	until (not exists $schueler_classes{$new_name}){
             $new_name=$new_name."y";
@@ -2897,6 +2910,20 @@ sub generate_admin_report {
     print REPORTADMIN "########################################",
                       "########################################";
     print REPORTADMIN "\n";
+
+    if (defined $auto_class_rename[0]){
+        print REPORTADMIN "\n\n";
+        print REPORTADMIN "########################################",
+                          "########################################\n";
+        print REPORTADMIN "Sie sollten folgende Klassen in ",
+                          "/etc/sophomorix/user/class.map\n";
+        print REPORTADMIN "umbenennen, da sie nur Ziffern enthalten:\n";
+        print REPORTADMIN "  @auto_class_rename\n";
+
+        print REPORTADMIN "########################################",
+                          "########################################";
+        print REPORTADMIN "\n";
+    }
     close(REPORTADMIN);
 }
 
