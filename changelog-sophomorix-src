@@ -1891,8 +1891,8 @@ nach 8s beenden
 
 NEXT:
 
-sophomorix-check:
-print warning, when groups were automatically renamed
+put all numerical classes into a group noclass or so
+to avoid trouble
 
 
 sophomorix-teacher --showteachers
@@ -1921,11 +1921,12 @@ $teachers_alias_name="lehrer";
 ================== CHANGELOG ========================================
 
 1.9.27-1 (2007-07-xx)
-    - added additional Value in repairhome.students
+    - added additional value in repairhome.students
       and repairhome.teachers to add immutable bit
     - added automatic renaming of classes
       - append 'y' to numerical class names
       - make use of class.map possible
+      - print to stdout and report.admin when a class should be renamed
     - added option sophomorix-print --netexamplix ...
       (for package netexemplix)
     - Bugfix: added correct path to linuxmuster-basefiles:
