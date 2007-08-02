@@ -13,6 +13,7 @@
 
 package Sophomorix::SophomorixBase;
 require Exporter;
+use File::Basename;
 use Time::Local;
 use Time::localtime;
 use Quota;
@@ -116,6 +117,8 @@ use Quota;
               get_debconf_value
               basedn_from_domainname
               unlink_immutable_tree
+              set_immutable_bit
+              fetch_immutable_bit
               );
 
 
@@ -1343,7 +1346,7 @@ sub repair_repairhome {
 
     print "Repairing \$HOME of user $user (type: $type)\n";
     foreach my $line (@permissions){
-        my ($path,$owner,$gowner,$octal,$locked)=split(/::/,$line);
+        my ($path,$owner,$gowner,$octal,$immutable)=split(/::/,$line);
         if($Conf::log_level>=2){
             print "    * $line\n";
         }
@@ -1406,13 +1409,13 @@ sub repair_repairhome {
 		}
                 &repair_directory_no_var($path_to_change,
                                          $owner,$gowner,
-                                         $locked,@octal);
+                                         $immutable,@octal);
                 }
         } else {
             # no variable detected
             &repair_directory_no_var($path_static_modified,
                                      $owner,$gowner,
-                                     $locked,@octal);
+                                     $immutable,@octal);
         }
     }
 } 
@@ -1420,7 +1423,12 @@ sub repair_repairhome {
 
 # following sub is not exported, user only herein
 sub repair_directory_no_var {
-    my ($path,$owner,$gowner,$locked,@octal) = @_;
+    my ($path,$owner,$gowner,$immutable,@octal) = @_;
+
+    # remember and remove immutable bit on parent dir
+    my $parent_dir = dirname $path;
+    my $immutable_bit=&fetch_immutable_bit($parent_dir);
+    &set_immutable_bit($parent_dir,0);
 
     # create if nonexisting
     if (not -e "$path"){
@@ -1428,12 +1436,9 @@ sub repair_directory_no_var {
     }  
 
     if (-e "$path"){
-        # locked
-        if (defined $locked){
-           if ($locked eq "locked"){
-               &make_dir_locked($path);
-           }
-        }
+        # remove immutable bit
+	&set_immutable_bit($path,0);
+
         # owner
         my $command_1="chown ${owner}:${gowner} $path";
         if($Conf::log_level>=2){
@@ -1462,13 +1467,32 @@ sub repair_directory_no_var {
                    if($Conf::log_level>=2){
                        print "        Mode must be set to $octal[0]!\n";
                    }
+                   if($Conf::log_level>=2){
+                       print "        chmod $octal[0] $path\n";
+                   }
                    chmod oct($octal[0]), $path;
                } 
            }
         } else {
+            if($Conf::log_level>=2){
+                print "        chmod $octal[0] $path\n";
+            }
             chmod oct($octal[0]), $path;
         }
+
+        # set immutable bit if necesary
+        if (defined $immutable){
+           if ($immutable eq "immutable"){
+               if($Conf::log_level>=2){
+                   print "        setting immutable bit to $path\n";
+               }
+	       &set_immutable_bit($path,1);
+           }
+        }
     }
+
+    # restore stored value for immutable bit of parent
+    &set_immutable_bit($parent_dir,$immutable_bit);
     return;
 }
 
@@ -2260,7 +2284,8 @@ sub reset_user {
            &Sophomorix::SophomorixPgLdap::pg_get_group_list($user);
         if (-e $homedir){
             print "   Removing contents of $homedir\n";
-            system("rm -rf ${homedir}/*"); 
+            #system("rm -rf ${homedir}/*");
+            &unlink_immutable_tree("${homedir}/*"); 
             print "   Creating directories in $homedir\n";
             my $pri_group=shift(@groups);
             &provide_user_files($user,$pri_group);
@@ -2333,6 +2358,11 @@ sub create_share_link {
 
     # Only act if uid is valid
     if ($homedir ne ""){
+       # save immutable bit and unset it
+       my $immutable_dir=$homedir."/${Language::share_dir}";
+       my $immutable_bit=&fetch_immutable_bit($immutable_dir);
+       &set_immutable_bit($immutable_dir,0);
+
        my $link_name=$homedir.
           "/${Language::share_dir}/${Language::share_string}".
           "${share_long_name}";   
@@ -2407,12 +2437,17 @@ sub create_share_link {
            print "   NOT creating Link to ",
                  "nonexisting/nondirectory $link_target_tasks\n";
        }
+       # restore immutable bit
+       &set_immutable_bit($immutable_dir,$immutable_bit);
     } else {
         print "   NOT removing directories: ",
               "Home of user $login not known.\n";
 
     }
 }
+
+
+
 
 sub create_share_directory {
     my ($login,$share_name,$share_long_name) = @_;
@@ -2441,6 +2476,13 @@ sub create_share_directory {
             ##############################
             # teacher
             ##############################
+
+            # handout_parent
+            my $handout_parent=$homedir."/".${Language::handout_dir};
+            my $immutable_bit_handout_parent=
+                &fetch_immutable_bit($handout_parent);
+            &set_immutable_bit($handout_parent,0);
+
             my $handout_dir=$homedir."/".
                 ${Language::handout_dir}."/".
                 ${Language::handout_string}.$share_long_name;
@@ -2448,9 +2490,20 @@ sub create_share_directory {
                 if($Conf::log_level>=2){
                     print "   Adding directory ${handout_dir}\n"; 
 	        }
-                system("mkdir $handout_dir");
-                system("chown $login:root $handout_dir");
             }
+            system("mkdir $handout_dir");
+            system("chown $login:root $handout_dir");
+            # restore immutable bit
+            &set_immutable_bit($handout_parent,
+                               $immutable_bit_handout_parent);
+
+
+            # to_handoutcopy_parent
+            my $to_handoutcopy_parent=$homedir."/".${Language::to_handoutcopy_dir};
+            my $immutable_bit_to_handoutcopy_parent=
+                &fetch_immutable_bit($to_handoutcopy_parent);
+            &set_immutable_bit($to_handoutcopy_parent,0);
+
             my $to_handoutcopy_dir=$homedir."/".
                 ${Language::to_handoutcopy_dir}."/".
                 ${Language::to_handoutcopy_string}.$share_long_name;
@@ -2458,9 +2511,20 @@ sub create_share_directory {
                 if($Conf::log_level>=2){
                     print "   Adding directory ${to_handoutcopy_dir}\n"; 
 	        }
-                system("mkdir $to_handoutcopy_dir");
-                system("chown $login:root $to_handoutcopy_dir");
             }
+            system("mkdir $to_handoutcopy_dir");
+            system("chown $login:root $to_handoutcopy_dir");
+            # restore immutable bit
+            &set_immutable_bit($to_handoutcopy_parent,
+                               $immutable_bit_handoutcopy_parent);
+
+
+            # collected_dir
+            my $collected_parent=$homedir."/".${Language::collected_dir};
+            my $immutable_bit_collected_parent=
+               &fetch_immutable_bit($collected_parent);
+            &set_immutable_bit($collected_parent,0);
+
             my $collected_dir=$homedir."/".
                 ${Language::collected_dir}."/".
                 ${Language::collected_string}.$share_long_name;
@@ -2468,13 +2532,20 @@ sub create_share_directory {
                 if($Conf::log_level>=2){
                     print "   Adding directory ${collected_dir}\n"; 
 	        }
-                system("mkdir $collected_dir");
-                system("chown $login:root $collected_dir");
             }
+            system("mkdir $collected_dir");
+            system("chown $login:root $collected_dir");
+            # restore immutable bit
+            &set_immutable_bit($collected_parent,$immutable_bit_collected_parent);
         }
         ##############################
         # all users
         ##############################
+        my $handoutcopy_parent=$homedir."/".${Language::handoutcopy_dir};
+        my $immutable_bit_handoutcopy_parent=
+            &fetch_immutable_bit($handoutcopy_parent);
+        &set_immutable_bit($handoutcopy_parent,0);
+
         my $handoutcopy_dir=$homedir."/".
             ${Language::handoutcopy_dir}."/".
             ${Language::handoutcopy_string}.$share_long_name;
@@ -2485,7 +2556,8 @@ sub create_share_directory {
             system("mkdir $handoutcopy_dir");
             system("chown $login:root $handoutcopy_dir");
         }
-
+        # restore immutable bit
+        &set_immutable_bit($handoutcopy_parent,$immutable_bit_handoutcopy_parent);
     } else {
         print "   NOT creating directories: ",
               "Home of user $login not known.\n";
@@ -2562,7 +2634,8 @@ sub remove_share_directory {
 
                 system("rsync -a $handout_dir $attic");
                 if ($handout_dir=~/^\/home\//){
-                    system("rm -rf $handout_dir");
+                    #system("rm -rf $handout_dir");
+                    &unlink_immutable_tree($handout_dir); 
 	        }
                 system("rmdir --ignore-fail-on-non-empty $attic/${Language::handout_string}$share_long_name");
                 #system("rmdir $handout_dir");
@@ -2577,7 +2650,8 @@ sub remove_share_directory {
                 }
                 system("rsync -a $to_handoutcopy_dir $attic");
                 if ($to_handoutcopy_dir=~/^\/home\//){
-                    system("rm -rf $to_handoutcopy_dir");
+                    #system("rm -rf $to_handoutcopy_dir");
+                    &unlink_immutable_tree($to_handoutcopy_dir); 
 	        }
                 system("rmdir --ignore-fail-on-non-empty $attic/${Language::to_handoutcopy_string}$share_long_name");
                 #system("rmdir $to_handoutcopy_dir");
@@ -2592,7 +2666,8 @@ sub remove_share_directory {
                 }
                 system("rsync -a $collected_dir $attic");
                 if ($collected_dir=~/^\/home\//){
-                    system("rm -rf $collected_dir");
+                    #system("rm -rf $collected_dir");
+                    &unlink_immutable_tree($collected_dir); 
 	        }
                 system("rmdir --ignore-fail-on-non-empty $attic/${Language::collected_string}$share_long_name");
                 #system("rmdir $collected_dir");
@@ -2626,7 +2701,8 @@ sub remove_share_directory {
             }
             system("rsync -a $handoutcopy_dir $attic");
             if ($handoutcopy_dir=~/^\/home\//){
-                system("rm -rf $handoutcopy_dir");
+                #system("rm -rf $handoutcopy_dir");
+                &unlink_immutable_tree($handoutcopy_dir); 
 	    }
             system("rmdir --ignore-fail-on-non-empty $attic/${Language::handoutcopy_string}$share_long_name");
             #system("rmdir $handoutcopy_dir");
@@ -4761,36 +4837,54 @@ sub unlink_immutable_tree {
 }
 
 
+
 sub set_immutable_bit {
-    my ($dir) = @_;
+    my ($dir,$bit) = @_;
     if (not -e $dir){
         print "WARNING: directory/file $dir does not exist. Doing nothing.\n";
         return 0;
     }
-    # remove immutable bit recursively
+    # set immutable bit
     if (-e ${DevelConf::chattr_path}){
-        system("${DevelConf::chattr_path} +i $dir");
+        if ($bit==0){
+            system("${DevelConf::chattr_path} -i $dir");
+        } elsif ($bit==1){
+            system("${DevelConf::chattr_path} +i $dir");
+        }
     } else {
         print "${DevelConf::chattr_path} not fount/not executable\n";
     }
 }
 
-
-sub unset_immutable_bit {
+sub fetch_immutable_bit {
+    # 0 not set
+    # 1 set
+    # 2 lsattr executable not found
+    # 3 not a filesystem with ext3 bits
     my ($dir) = @_;
-    if (not -e $dir){
-        print "WARNING: directory/file $dir does not exist. Doing nothing.\n";
-        return 0;
-    }
     # remove immutable bit recursively
     if (-e ${DevelConf::chattr_path}){
-        system("${DevelConf::chattr_path} ii $dir");
+        my $result=`${DevelConf::lsattr_path} -d $dir 2> /dev/null`;
+        if ($result eq ""){
+            # no result on stdout
+            return 3;     
+        }
+        my ($bits,$res_dir)=split(/ /,$result);
+        #print "+++$bits+++\n";
+        if ($bits=~/i/){
+            # immutable bit is set
+            print "immutable bit SET on $dir\n";
+            return 1;
+        } else {
+            # immutable bit is NOT set
+            print "immutable bit NOT SET on $dir\n";
+            return 0;
+        }
     } else {
-        print "${DevelConf::chattr_path} not fount/not executable\n";
+        print "${DevelConf::lsattr_path} not fount/not executable\n";
+        return 2;
     }
 }
-
-
 
 
 
