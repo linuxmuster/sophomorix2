@@ -1890,14 +1890,6 @@ put all numerical classes into a group noclass or so
 to avoid trouble
 
 
-
-show one line per teacher/class, nicely formatted
-if classes string is to long show one class per line
-
-
-sophomorix-user --reset-user tycho 
-shows:  unknown type teacher
-
 sophomorix-test:
 sophomorix -F mahnol
 Use of uninitialized value in string at /usr/sbin/smbldap-usermod line 458, <DATA> line 283.
@@ -1914,6 +1906,8 @@ $teachers_alias_name="lehrer";
 ================== CHANGELOG ========================================
 
 1.9.27-1 (2007-07-xx)
+    - Bugfix: sophomorix-user --reset-user tycho 
+      showed: unknown type teacher 
     - formatted the following commands nicely:
          sophomorix-teacher --showteachers
          sophomorix-teacher --showclasses
