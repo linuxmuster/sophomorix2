@@ -1169,17 +1169,17 @@ sub u_u_check {
       if (exists $schueler_im_system_hash{$identifier}) {
          # schueler, die im System sind 
          # und in sophomorix.ok weitervergleichen
-	  my $old_class=$schueler_im_system_hash{$identifier};
-	  my $old_status=$sophomorix_status{$identifier};
-	  my $login=$schueler_im_system_loginname{$identifier};
+	 my $old_class=$schueler_im_system_hash{$identifier};
+	 my $old_status=$sophomorix_status{$identifier};
+	 my $login=$schueler_im_system_loginname{$identifier};
+         if ($new_class=~/[^0-9]/){
+             # adminclass is string, nothing to do
+         } else {
+	     $new_class=&rename_admin_class($new_class);
+         }
          if ("$new_class" ne "$old_class"){
            $schueler_zuversetzen_anzahl++;
            $count++;
-           if ($new_class=~/[^0-9]/){
-                  # adminclass is string, nothing to do
-           } else {
-		$new_class=&rename_admin_class($new_class);
-           }
            # Admin-Report
            push @admin_list_move, "$login  $old_class ---> $new_class\n";
            # File
