@@ -1250,8 +1250,8 @@ sub provide_user_files {
         # add htaccess to /var/www/people/.../user
         &user_private_upload($login);
 
-        &create_share_link($login,$class,$class,"adminclass");
-        &create_share_directory($login,$class,$class,"adminclass");
+        &create_share_link($login,$class,$class,"teacher");
+        &create_share_directory($login,$class,$class,"teacher");
         &create_school_link($login);
     } elsif ($type eq "adminclass") { 
         ####################
@@ -1347,7 +1347,9 @@ sub repair_repairhome {
     # use permissions according to type
     my @permissions=@{$all_repairhome{$type}};
 
-    print "Repairing \$HOME of user $user (type: $type)\n";
+    if($Conf::log_level>=2){
+        print "Repairing \$HOME of user $user (type: $type)\n";
+    }
     foreach my $line (@permissions){
         my ($path,$owner,$gowner,$octal,$immutable)=split(/::/,$line);
         if($Conf::log_level>=2){
@@ -2385,22 +2387,19 @@ sub create_share_link {
        my $link_name_tasks=$homedir.
           "/${Language::task_dir}/${Language::task_string}".
           "${share_long_name}";
-   
+
        if ($type eq "project"){
            # project
            $link_target="${DevelConf::share_projects}/${share_name}";
            $link_target_tasks="${DevelConf::tasks_projects}/${share_name}";
        } elsif ($type eq "adminclass"){
            # class
-	   if ($share_name ne ${DevelConf::teacher}){
-               # student
-               $link_target="${DevelConf::share_classes}/${share_name}";
-               $link_target_tasks="${DevelConf::tasks_classes}/${share_name}";
-	   } else {
-               # teacher
-               $link_target="${DevelConf::share_teacher}";
-               $link_target_tasks="${DevelConf::tasks_teachers}";
-	   }
+           $link_target="${DevelConf::share_classes}/${share_name}";
+           $link_target_tasks="${DevelConf::tasks_classes}/${share_name}";
+       }elsif ($type eq "teacher"){
+           # teacher
+           $link_target="${DevelConf::share_teacher}";
+           $link_target_tasks="${DevelConf::tasks_teachers}";
        }elsif ($type eq "subclass"){
            # subclass
            $link_target="${DevelConf::share_subclasses}/${share_name}";
