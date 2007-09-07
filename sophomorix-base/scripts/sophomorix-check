@@ -1659,10 +1659,11 @@ sub rename_admin_class {
 	$new_name=$class_map{$old_name};
     } else {
         push @auto_class_rename, $old_name;
-        $new_name=$old_name;
-	until (not exists $schueler_classes{$new_name}){
-            $new_name=$new_name."y";
-        }
+        $new_name="noclass";
+        #$new_name=$old_name;
+	#until (not exists $schueler_classes{$new_name}){
+        #    $new_name=$new_name."y";
+        #}
     }
     return $new_name;
 }
