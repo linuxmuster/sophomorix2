@@ -505,6 +505,8 @@ foreach (@print_data){
     $geburtsdatum_protokoll
    )=split(/;/);
 
+   $loginname_protokoll=&latexize_string($loginname_protokoll);
+
    # Name aufsplitten
    ($vorname_protokoll,$nachname_protokoll)=split(/ /,$name_protokoll);
    # Zusammenhängen zu identifier
@@ -1261,6 +1263,8 @@ sub latexize_string {
     my ($string) = @_;
     #replace  _   with   \_
     $string=~s/_/\\_/g;
+    #replace  $   with   \$
+    $string=~s/\$/\\\$/g;
     return $string; 
 }
 
