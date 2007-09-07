@@ -1883,11 +1883,33 @@ nach 8s beenden
 
 
 
+Für die Admins muss man es noch extra so machen:
+# sophomorix-repair --repairhome -u administrator,pgmadmin,wwwadmin
+
+Ist das so?
+
+
+
+
+
+Insofern müsste die Datei
+/usr/share/sophomorix/devel/repair.directories
+angepasst werden:
+<snip>
+### TASKS
+
+$tasks_tasks::root::root::1775 (statt 1771)
+<snap>
+
+
+sophomorix-print -a shows computer accounts
+
+
+
 
 NEXT:
 
-put all numerical classes into a group noclass or so
-to avoid trouble
+remove immutable bit in repair*
 
 
 sophomorix-test:
@@ -1906,6 +1928,9 @@ $teachers_alias_name="lehrer";
 ================== CHANGELOG ========================================
 
 1.9.27-1 (2007-07-xx)
+    - Bugfix: Get along with $ in login names when calling 
+              sophomorix-print
+    - move users in numerical classes to 'noclass'
     - Bugfix: sophomorix-user --reset-user tycho 
       showed: unknown type teacher 
     - formatted the following commands nicely:
