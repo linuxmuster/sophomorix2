@@ -1719,31 +1719,10 @@ test stuff, that is only in ldap???
 
 
 upgrade:
-Klassenarbeitsbenutzer in ExamAccount umwandeln statt HostAccount
-bei räumen den typ auf ExamAccount setzen
-Gruppen, deren Mitglieder /home/workstations haben, sollen den typ 
-room bekommen.
-
-am besten: vor dem upgrade au 1.9.23 ws entfernen, 
-           paket upgraden und wieder anlegen
-
-
-User
-gecos in der Datenbank nach 
-cn, displayname(sambasamaccount),
-description(sambasamaccount UND posix_account)
-
-
-
-
 
 To do Beck:
 given Name: 'Vorname' is not existing 
 (no smbldap-usermod option for this)
-
-
-disabling a user doesnt modify the linux password in ldap!, so the
-account is not disabled.
 
 
 
@@ -1841,7 +1820,7 @@ mysqldump --extended-insert=0 horde > file.sql
 
 
 
-TODO in 1.9.27:
+TODO in 1.9.28:
 
 check if computer$ are dumped to ou=machines
 
@@ -1883,25 +1862,6 @@ nach 8s beenden
 
 
 
-Für die Admins muss man es noch extra so machen:
-# sophomorix-repair --repairhome -u administrator,pgmadmin,wwwadmin
-
-Ist das so?
-
-
-
-
-
-Insofern müsste die Datei
-/usr/share/sophomorix/devel/repair.directories
-angepasst werden:
-<snip>
-### TASKS
-
-$tasks_tasks::root::root::1775 (statt 1771)
-<snap>
-
-
 sophomorix-print -a shows computer accounts
    $-Problem fixed
    - do somthing useful when latex hangs
@@ -1910,7 +1870,6 @@ sophomorix-print -a shows computer accounts
 
 NEXT:
 
-remove immutable bit in repair*
 
 
 sophomorix-test:
@@ -1928,7 +1887,12 @@ $teachers_alias_name="lehrer";
 
 ================== CHANGELOG ========================================
 
-1.9.27-1 (2007-07-xx)
+1.9.27-1 (2007-09-09)
+    - Bugfix: sophomorix-room --reset-room room
+              resets homedirs of workstations even if they dont exist
+    - Bugfix: sophomorix-repair --repairhome:
+              repairing homes of administrators as well
+    - removed ::immutable:: from 
     - Bugfix: Get along with $ in login names when calling 
               sophomorix-print
     - move users in numerical classes to 'noclass'
