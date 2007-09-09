@@ -2294,7 +2294,7 @@ sub reset_user {
         # do some work
         my (@groups) = 
            &Sophomorix::SophomorixPgLdap::pg_get_group_list($user);
-        if (-e $homedir){
+#        if (-e $homedir){
             print "   Removing contents of $homedir\n";
             #system("rm -rf ${homedir}/*");
             &unlink_immutable_tree("${homedir}/*"); 
@@ -2324,9 +2324,9 @@ sub reset_user {
                 }
                 &create_share_directory($user,$group,$longname,$type);
             }
-        } else {
-            print "Directory $homedir does not exist\n";
-        }
+#        } else {
+#            print "Directory $homedir does not exist\n";
+#        }
     }
 }
 
