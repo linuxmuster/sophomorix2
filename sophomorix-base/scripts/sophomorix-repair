@@ -196,6 +196,12 @@ my @schueler=&fetchstudents_from_school();
 my @lehrer=&fetchstudents_from_adminclass(${DevelConf::teacher});
 &print_list("The list of every teacher:",@lehrer);
 
+# admins
+&titel("Creating list of every administrator ...");
+#my @lehrer=&get_lehrer_in_schule();
+my @admins=&fetchadministrators_from_school();
+&print_list("The list of every administrator:",@admins);
+
 # workstations
 &titel("Creating list of every workstation ...");
 #my @workstations=&get_workstations_in_schule();
@@ -242,7 +248,7 @@ if ($repairhome==1){
                                0,0,0,1);
     } else {
        # teachers and students
-       @users=(@lehrer,@schueler);
+       @users=(@lehrer,@schueler,@admins);
     }
     foreach my $user (@users){
         &repair_repairhome($user);
