@@ -3061,51 +3061,42 @@ sub get_teach_in_sys_users {
 
 sub get_print_data {
     my @lines=();
-
     my $dbh=&db_connect();
-
-    # select the columns that i need
+    # select for students and teachers 
+    # the columns that i need
     my $sth= $dbh->prepare( "SELECT uid, firstname, 
                                     surname, birthday, 
                                     adminclass, firstpassword,
-                                    sophomorixstatus 
-                             FROM userdata" );
-$sth->execute();
+                                    sophomorixstatus
+                             FROM userdata
+                             WHERE (homedirectory LIKE '/home/students%'
+                                OR gid='$DevelConf::teacher') 
+                            " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
 
-my $array_ref = $sth->fetchall_arrayref();
-
-foreach my $row (@$array_ref){
-    # split the array, to give better names
-
-
-    my ($login,
-        $firstname,
-        $surname,
-        $birthday_pg,
-        $admin_class,
-        $firstpass,
-        $sophomorixstatus
-        ) = @$row;
-
-    if (not defined $sophomorixstatus){
-        next;
+    foreach my $row (@$array_ref){
+        # split the array, to give better names
+        my ($login,
+            $firstname,
+            $surname,
+            $birthday_pg,
+            $admin_class,
+            $firstpass,
+            $sophomorixstatus
+           ) = @$row;
+        if (not defined $sophomorixstatus){
+            next;
+        }
+        my $birthday = &date_pg2perl($birthday_pg);
+        # assemble string
+        my $string="$admin_class".";".
+                   "$firstname $surname".";".
+                   "$login".";".
+                   "$firstpass".";".
+                   "$birthday".";"."\n";    
+        push @lines, $string;
     }
-
-    my $birthday = &date_pg2perl($birthday_pg);
-
-    # assemble string
-    my $string="$admin_class".";".
-               "$firstname $surname".";".
-               "$login".";".
-               "$firstpass".";".
-               "$birthday".";"."\n";    
-
-
-    
-
-    push @lines, $string;
-
-}
     return @lines;
 }
 
