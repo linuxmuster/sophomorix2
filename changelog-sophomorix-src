@@ -1873,7 +1873,11 @@ sophomorix-passwd: option um firstpassword zu leeren leeren (password bleibt gle
 
 NEXT:
 
+sophomorix-teach-in -i : make output more compact
 
+sophomorix-teach-in -l : leaves sophomorix locked
+
+marriage: sophomorix-check line 2310 ... check this
 
 sophomorix-test:
 sophomorix -F mahnol
@@ -1890,6 +1894,11 @@ $teachers_alias_name="lehrer";
 
 ================== CHANGELOG ========================================
 1.9.28-1 (2007-09-xx)
+    - Bugfix: sophomorix-check:
+              auto-teach-in sees to much matches:
+              - marriage in comletely different classes
+              - narrowed matches
+    - Bugfix: sophomorix-teach-in --redo login (works now)
     - Bugfix: select only students and teachers when doing
               sophomorix-print -a
 
