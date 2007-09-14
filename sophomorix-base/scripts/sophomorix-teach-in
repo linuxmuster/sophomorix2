@@ -239,7 +239,7 @@ if ($info==1){
     &log_script_exit("",1,1,0,@arguments);
 }
 
-# --redo
+# --undo login
 if ($undo_login ne ""){
     print "Undoing changes to account $undo_login:\n\n";
     open(LOG,
@@ -262,13 +262,13 @@ if ($undo_login ne ""){
     close(LOG);
 
     if ($count>=1){
-       &update_user_db_entry($login, 
+       &update_user_db_entry($undo_login, 
                              "Name=$first",
                              "LastName=$last",
                              "Birthday=$birth");
        # update the system
        $gecos="$first"." "."$last";
-       &Sophomorix::SophomorixPgLdap::update_user_db_entry($login,
+       &Sophomorix::SophomorixPgLdap::update_user_db_entry($undo_login,
                       "Gecos=$gecos");
 
        # removing last entry in log-lines
@@ -276,10 +276,13 @@ if ($undo_login ne ""){
        "${DevelConf::log_files}/user-modify.log") 
        || die "Fehler: $!";
        my @log_lines = reverse <LOG>;
+       close(LOG);
+
        my @log_lines_tmp;
        my $hit=0;
        foreach my $line (@log_lines){
-          ($kind,$date,$login,$identifier_old,$a,$identifier_sys)=split(/::/,$line);
+          ($kind,$date,$login,$identifier_old,
+           $a,$identifier_sys)=split(/::/,$line);
 	  if ($login eq $undo_login and $hit==0){
               # dont print line
               $hit=1;
