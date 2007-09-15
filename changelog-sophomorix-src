@@ -523,7 +523,6 @@ Think about:
    - cups 
    - moodle (add users to classes, add teachers to admins)
    - deleting /home/exams
-   - log password changes securely
    - create loginnames initial.name.birthday
      (what about changes to this data)
    - sophomorix-info for ALL users (show my account data)
@@ -1359,7 +1358,7 @@ add option
 sophomorix-mail --create-mailbox to add mailbox without unix account 
 (user the name of these mailboxes to avoid loginnmaes)
 
-replace cp /etc/passwd with getent paaswd > file;scp file
+replace cp /etc/passwd with getent passwd > file;scp file
 
 check if sophomorix-check --use-gid works
                           --use-uid
@@ -1873,9 +1872,6 @@ sophomorix-passwd: option um firstpassword zu leeren leeren (password bleibt gle
 
 NEXT:
 
-sophomorix-teach-in -i : make output more compact
-
-sophomorix-teach-in -l : leaves sophomorix locked
 
 marriage: sophomorix-check line 2310 ... check this
 
@@ -1894,6 +1890,17 @@ $teachers_alias_name="lehrer";
 
 ================== CHANGELOG ========================================
 1.9.28-1 (2007-09-xx)
+    - all acripts:
+      avoid logging of the argument of option --pa,--pas .... --password
+    - sophomorix-teach-in
+      (avoid locking when wrong option is specified)
+      all scripts: option-test BEFORE logging to command log 
+                   (log is more compact) 
+    - sophomorix-teach-in --info : 
+        make output more compact
+        show only:
+          man-teach-in
+          auto-teach-in
     - Bugfix: sophomorix-check:
               auto-teach-in sees to much matches:
               - marriage in comletely different classes
