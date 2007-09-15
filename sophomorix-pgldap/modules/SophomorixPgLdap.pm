@@ -713,6 +713,14 @@ sub deleteuser_from_all_projects {
        print "\nSQL: $sql\n";
     }
     $dbh->do($sql);
+
+    $sql="DELETE FROM projects_members 
+             WHERE memberuidnumber=$uidnumber_sys ";	
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    $dbh->do($sql);
+
     if (not defined $admin){
        print "   Removing admin $user($uidnumber_sys) from all projects \n";
        $sql="DELETE FROM projects_admins 
