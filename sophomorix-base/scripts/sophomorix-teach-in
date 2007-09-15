@@ -222,14 +222,21 @@ if ($info==1){
     while (<HISTORY>){
       chomp();
       my @line=split(/::/);
+      # show only the following:
+      #   man-taech-in
+      #   auto-teach-in
+      if (not ( $line[0] eq "auto-teach-in"
+                or $line[0] eq "man-teach-in" )){
+	  next;
+      }
       if (not defined $line[6]){$line[6]=""}
-      my $info=$line[0]."(".$line[1]."): ";
+      my $data="(".$line[0]." ".$line[1]." Unid: $line[6])";
       if (($undo_login ne "" and $line[2] eq $undo_login) or
           ($undo_login eq "") ){
         $count++;
-        print "Loginname  $line[2]($count):\n";
-        printf "  %-27s %-12s %-55s \n",$info,"Old entry:",$line[3];
-        printf "%-8s %-20s %-12s %-55s \n\n","  Unid:",$line[6],"System:",$line[5];
+        print "$count) $line[2] $data:\n";
+        printf "   %-7s %-65s\n","Old:",$line[3];
+        printf "   %-7s %-65s\n","System:",$line[5];
       }
     }
     if ($undo_login ne ""){
