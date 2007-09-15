@@ -1872,8 +1872,14 @@ sophomorix-passwd: option um firstpassword zu leeren leeren (password bleibt gle
 
 NEXT:
 
-
+avoid double code:
 marriage: sophomorix-check line 2310 ... check this
+
+
+error: when a user is killed,
+       she was not deleted from members_projects
+   Write a cleanup script
+
 
 sophomorix-test:
 sophomorix -F mahnol
@@ -1890,7 +1896,8 @@ $teachers_alias_name="lehrer";
 
 ================== CHANGELOG ========================================
 1.9.28-1 (2007-09-xx)
-    - all acripts:
+    - Bugfix: remove killed user from table members_projects
+    - all scripts:
       avoid logging of the argument of option --pa,--pas .... --password
     - sophomorix-teach-in
       (avoid locking when wrong option is specified)
