@@ -24,8 +24,6 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
 
 my @arguments = @ARGV;
 
-&check_connections();
-&log_script_start(@arguments);
 
 # ===========================================================================
 # Variablen
@@ -65,6 +63,9 @@ my $testopt=GetOptions(
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
+&check_connections();
+&log_script_start(@arguments);
+
 
 # --help
 if ($help==1) {
