@@ -1930,7 +1930,7 @@ $teachers_alias_name="lehrer";
 
 1.9.28-1 (2007-09-16)
     - Bugfix: Add users with correct sambapwdoption as configured 
-              in sophomorix-conf
+              in sophomorix.conf
     - Bugfix: remove killed user from table members_projects
     - all scripts:
       avoid logging of the argument of option --pa,--pas .... --password
@@ -1945,7 +1945,7 @@ $teachers_alias_name="lehrer";
           auto-teach-in
     - Bugfix: sophomorix-check:
               auto-teach-in sees to much matches:
-              - marriage in comletely different classes
+              - marriage in completely different classes
               - narrowed matches
     - Bugfix: sophomorix-teach-in --redo login (works now)
     - Bugfix: select only students and teachers when doing
@@ -1956,7 +1956,7 @@ $teachers_alias_name="lehrer";
               resets homedirs of workstations even if they dont exist
     - Bugfix: sophomorix-repair --repairhome:
               repairing homes of administrators as well
-    - removed ::immutable:: from 
+    - removed ::immutable:: from repairhome.* 
     - Bugfix: Get along with $ in login names when calling 
               sophomorix-print
     - move users in numerical classes to 'noclass'
