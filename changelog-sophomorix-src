@@ -1819,7 +1819,7 @@ mysqldump --extended-insert=0 horde > file.sql
 
 
 
-TODO in 1.9.28:
+TODO in 1.9.29:
 
 check if computer$ are dumped to ou=machines
 
@@ -1828,8 +1828,6 @@ checkin from svn the following files:
         logon.bat
         login.bat
         common.bat
-
-
 
 
 Todo:
@@ -1845,8 +1843,6 @@ rm /var/cache/linuxmuster/logins/*
 
 
 
-# 134 bug anschauen
-# 208 bug anschauen
 
 
 
@@ -1886,6 +1882,40 @@ sophomorix -F mahnol
 Use of uninitialized value in string at /usr/sbin/smbldap-usermod line 458, <DATA> line 283.
 
 
+Problem: der erste ist angelegt, der zweite kommt dazu
+
+11A;Paice;Ian;12.04.1974;1234;
+11A;Paice;Jan;12.04.1974;
+
+
+
+
+
+wir haben nun wiederholt beobachtet, dass sich beim Anlegen neuer
+Benutzer über die Schulkonsole das Schulkonsolenpasswort einiger
+(nicht aller) bereits bestehender Benutzer ändert. Das betrifft auch
+"nur" das Passwort für die Schulkonsole, die betroffenen Benutzer
+können sich weiterhin am System anmelden. Außerdem komisch: wenn man
+sich die Passwörter dieser Benutzer dann anzeigen lässt, haben sie
+alle dasselbe Erstpasswort (eingestellt ist Zufallspasswort).  Machen
+wir etwas falsch oder ist das ein Bug?
+
+Danke und Gruß,
+
+Jochen Rupp
+KKS Esslingen
+
+
+
+
+Treffen:
+
+    - sophomorix für Experten
+    - passwortänderung bei erstanmeldung, 
+    # 134 bug Zeilentrenner
+    # 208 bug tritt nicht wieder auf
+    - windows-Passwortänderung
+
 
 ##############################################
 new variables (add to new major release):    #
@@ -1896,6 +1926,11 @@ $teachers_alias_name="lehrer";
 
 ================== CHANGELOG ========================================
 1.9.28-1 (2007-09-xx)
+
+
+1.9.28-1 (2007-09-16)
+    - Bugfix: Add users with correct sambapwdoption as configured 
+              in sophomorix-conf
     - Bugfix: remove killed user from table members_projects
     - all scripts:
       avoid logging of the argument of option --pa,--pas .... --password
