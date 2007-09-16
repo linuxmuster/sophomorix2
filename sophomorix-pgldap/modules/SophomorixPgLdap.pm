@@ -5327,10 +5327,21 @@ sub auth_useradd {
 	           print "   * $command\n";
                    system("$command");           
 	       } else {
-                   
+                   # sambapwdmustchange
+                   # standard: dont change
+                   my $option=" -B 0 ";
+                   if ($u_type eq "teacher" 
+                       and ${Conf::teacher_samba_pw_must_change} eq "yes"){
+                       $option=" -B 1 ";
+                   } elsif ($u_type eq "student" 
+                       and ${Conf::student_samba_pw_must_change} eq "yes"){
+                       $option=" -B 1 ";
+                   }
+
                    # user account, unix and windows
                    $command="smbldap-useradd -a $uid_string -c '$gecos'".
                             " -d $home -m -g $g_gidnumber $sec_string".
+                            "$option".
                             " -s $shell $login";
 	           print "   * $command\n";
                    system("$command");
