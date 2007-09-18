@@ -1656,8 +1656,6 @@ This should be moved to the sophomorix-scripts
 sophomorix-repair repariert workstations im falschen Verzeichnis
 check this
 
-can sophomorix-groupdel delete an empty adminclass group?
-- add option to do this
 
 Checken:
 Die Abfrage zum Finden von Schuelern sieht bei mir in etwa so aus:
@@ -1709,7 +1707,6 @@ add more check of ldap attributes to tests, and compare (sophomorix-user)
 
 
 sophomorix-sync users: add ldap comparison
-
 
 test stuff, that is only in ldap???
 
@@ -1867,8 +1864,23 @@ sophomorix-passwd: option um firstpassword zu leeren leeren (password bleibt gle
 
 NEXT:
 
+sophomorix-kill --allstudents  
+                --allteachers
+                schueler.txt,lehrer.txt umbenennen
+                Daten auch löschen
+
 avoid double code:
 marriage: sophomorix-check line 2310 ... check this
+
+
+man sophomorix-vampire:
+Hinweis auf 12 12er und class.db
+Hinweis: neuestes Paket installieren
+
+
+
+man sophomorix-passwd:
+welche Zeichen sind als Passwort zulässig:
 
 
 error: when a user is killed,
@@ -1905,16 +1917,92 @@ Jochen Rupp
 KKS Esslingen
 
 
-check if sophomorix-imp-expand-from-address is in package
 
 
 Treffen:
 
-    - sophomorix für Experten
     - passwortänderung bei erstanmeldung, 
     # 134 bug Zeilentrenner
     # 208 bug tritt nicht wieder auf
     - windows-Passwortänderung
+    - sophomorix-support Befehl
+    doppelte Doku:
+      --sophomorix-vampire
+      --sophomorix für experten
+
+
+sophomorix-groupdel erweitern um 'leere' klassen zu löschen
+can sophomorix-groupdel delete an empty adminclass group?
+- add option to do this
+
+sophomorix-usermod um user zusätzlich in einer Gruppe einzutragen:
+  hauptsächlich admins in zusatzgruppe
+
+
+man sophomorix-vampire:
+mit scp auf localhost:
+mounten des externen Dateisystem mit mount
+ssh local stoppen 3.0
+chroot auf gemountetes system
+ssh dort starten 2.2
+neue konsole benutzen
+dort sophomorix-vampire aufrufen
+als alter server localhost angeben
+
+
+vmware 6: Lizenz für 6 : 5.7.2007
+
+
+
+
+sophomorix-useradd:
+
+Beispiele in manpage:
+1) user areca mit password, das in webfrontend eingetragen wird
+   (erscheint in schulkonsole! Muss verhindert werden! Info an Aike)
+2) weiterer pgmadmin
+     win und unix, in gruppe pgmadmin
+    
+
+Bug: in Gruppe haustechnik,areca kann man sich zuordnen
+Lösungsmöglichkeit ohne Datenbankänderung:
+   - statt adminclass den typ 'hiddenclass'
+
+
+sophomorix-locked:
+   - Anzeige in schulkonsole
+
+   - Änderungen für Aike: 
+                  - bei allen Seiten, die sophomorix-Befehle aufrufen
+                  - lesen von /var/lib/sophomorix/lock/sophomorix.lock
+                     ...::scriptname::prozessid::
+                  A) testen, ob lockfile existiert
+                  B) wenn ja, schauen ob prozess mit 'prozessid' existiert
+
+                  A) nein ---> alles wie bisher
+                  A) ja B) ja --> Versuchen sie es später nochmal
+                  A) ja B) nein --> Informieren sie den Administrator
+
+                  Achtung: Zwischen A und B vergeht Zeit, deshalb :
+                  Nach A) B) NOCHMALS A) prüfen:
+                  nur wenn lockfile bei A) GLEICH wie beim ersten prüfen, 
+                  dann: Informieren Sie den Administrator 
+
+                  Knopf für administrator: Wo? Andy
+
+                  Unlocken:
+
+                  Aufrufen von: sophomorix-support --unlock-report
+                                (existiert in 1.9.28 noch nicht)       
+                  Das macht folgendes:
+                  - sichern von /var/lib/sophomorix/lock/sophomorix.lock
+                  - sichern der letzten 30 Zeilen von 
+                       /var/log/sophomorix/command.log
+
+
+    - offene und geschlossene Projekte
+       ausarbeiten und Aike schicken
+ 
 
 
 ##############################################
@@ -1924,9 +2012,20 @@ sophomorix.conf:
 # alias name for mailist teachers (must be activated)
 $teachers_alias_name="lehrer";
 
+# auf 2005 setzen
+$geburts_jahreszahl_stop=2001;
+
+
+
+
+
+
+
 ================== CHANGELOG ========================================
+
 1.9.29-1 (2007-09-xx)
-    - added sophomorix-imp-expanf-from-address to package 
+    - added script and manpage:
+       sophomorix-imp-expand-fromaddress
 
 
 1.9.28-1 (2007-09-16)
