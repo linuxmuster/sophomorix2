@@ -42,11 +42,14 @@ Diese Mailbox wird in cyrus eingelesen (Unterverzeichnis __dachboden)
 .TP
 .B Klassennamen:
 .br
-Achtung: Beim update von 2.x auf 3.x wird aus k7a die Klasse 7a.
+Achtung: Beim update von 2.x auf 3.x wird aus der Klasse k7a die Klasse 7a.
+.br
+Wenn dadurch Klassen nur mit Ziffern entstehen müssen diese umbenannt
+werden(siehe unten).
 .TP
 .B Todo: Rembo/myshn 
 .br
-Achtung: Beim update von 2.x auf 3.x wird aus k7a die Klasse 7a.
+Todo
 .br
 .SH WELCHE DATEN WERDEN NICHT ÜBERNOMMEN?
 .TP
@@ -120,8 +123,13 @@ Einige Verzeichnisse auf den neuen Server kopieren
 .br
 Benutzer mit gleichen Loginnamen anlegen (numerische user id kann sich ändern). 
 .br
-Stellen sie sicher, dass sie zuvor sophomorix konfiguriert haben
-(/etc/sophomorix/user/sophomorix.conf).
+Stellen ZUVOR sicher:
+ - dass sie sophomorix konfiguriert haben:
+     /etc/sophomorix/user/sophomorix.conf
+.br
+ - dass Klassen, die nur aus Ziffern bestehen (z.B. 12) 
+   auf einen anderen Namen umgeschrieben werden (z.B. 12er):
+      /etc/sophomorix/user/class.map
 .TP
 .B Step 6: --configure-quota 
 .br
