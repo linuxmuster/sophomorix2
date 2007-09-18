@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-IMP-EXPAND-FROMADDRESS 8 "May 31, 2007"
+.TH SOPHOMORIX-IMP-EXPAND-FROMADDRESS 8 "September 18, 2007"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -16,27 +16,20 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for manpage-specific macros, see man(7)
 .SH NAME
-sophomorix-imp-expand-fromaddress \- Holt die lange Email-Adresse in Horde/IMP
+sophomorix-imp-expand-fromaddress \- Holt in Horde/IMP die lange Email-Adresse
 .SH SYNOPSIS
 .B sophomorix-imp-expand-fromaddress
 .RI [ options ] loginname
 .br
 .SH DESCRIPTION
 .B sophomorix-imp-expand-fromaddress
-holt die lange Emailadresse (z. B. vorname.nachname) in Horde/IMP und setzt
-diese anstelle des loginnamens in imp ein.
+holt in Horde/IMP die lange Emailadresse (z. B. vorname.nachname) aus
+der sophomorix Datenbank und setzt diese Anstelle des kurzen
+loginnamens beim versenden von Email in IMP ein.
 .br
-Zur Konfiguration siehe Kommentare in
+Zur Konfiguration und Optionen siehe Kommentare in
 /usr/sbin/sophomorix-imp-expand-fromadress.
 .PP
-.SH OPTIONS
-.B sophomorix-imp-expand-fromaddress
-benützt die GNU command line syntax, mit langen Optionen, die mit zwei
-Bindestrichen (`-') beginnen:
-.TP
-.B -h, --help
-Kurzübersicht über Optionen
-.TP
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
