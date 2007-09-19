@@ -1990,33 +1990,24 @@ Lösungsmöglichkeit ohne Datenbankänderung:
 Testen an Schule:
 
 adminclass auf hiddenclass setzen
+(OK, sind nicht mehr zu sehen)
+1) SELECT gid,type,id from classdata WHERE gid='11a';
 
-SELECT gid,type,id from classdata WHERE gid='11a';
-
-UPDATE class_details SET type='hiddenclass' WHERE id=(SELECT id from classdata WHERE gid='11a');
-
-
-cp sophomorix-class
-   SophomorixPgldap
-
-
-
+2) UPDATE class_details SET type='hiddenclass' WHERE id=(SELECT id from classdata WHERE gid='11a');
 
 
 
 sophomorix-teacher --showclasses
                    --showteachers
-                   mit optionalem Argument lehrer
+                   mit optionalem Argument lehrerlogin
 
 evtl. neue option showteacher login (ohne s)
 
 
 To check:
 
-- where is 'adminclass' selected and must be 'hiddenclass' also?
-
-   added an option to fetchadminclasses ("showhidden")
-   that shows also hidden classes
+- in the code: where is 'adminclass' selected and must 
+  be 'hiddenclass' also?
 
 - add option --hidden, --nohidden to sophomorix-class
 - Beitritt in class verhindern, wenn sie hidden ist
@@ -2085,6 +2076,10 @@ $geburts_jahreszahl_stop=2001;
 ================== CHANGELOG ========================================
 
 1.9.29-1 (2007-09-xx)
+    - sophomorix-class -i:
+      show classes with type adminclass/hiddenclass with H=0 or H=1
+    - added an option to fetchadminclasses ("showhidden")
+      to select also hidden classes
     - added script and manpage:
        sophomorix-imp-expand-fromaddress
 
