@@ -1960,13 +1960,74 @@ sophomorix-useradd:
 Beispiele in manpage:
 1) user areca mit password, das in webfrontend eingetragen wird
    (erscheint in schulkonsole! Muss verhindert werden! Info an Aike)
+
+sophomorix-useradd --unixadmin areca --unix-group areca
+Edit quota.txt
+Edit mailquota.txt
+sophomorix-mail --add-mailbox areca
+sophomorix-passwd --interactive -u areca
+sophomorix-quota
+
+- todo hide group areca
+
+Prüfen:
+
+sophomorix-mail --showmailboxes | grep areca
+quota -v areca
+
 2) weiterer pgmadmin
      win und unix, in gruppe pgmadmin
     
 
+
+
 Bug: in Gruppe haustechnik,areca kann man sich zuordnen
 Lösungsmöglichkeit ohne Datenbankänderung:
    - statt adminclass den typ 'hiddenclass'
+
+
+
+Testen an Schule:
+
+adminclass auf hiddenclass setzen
+
+SELECT gid,type,id from classdata WHERE gid='11a';
+
+UPDATE class_details SET type='hiddenclass' WHERE id=(SELECT id from classdata WHERE gid='11a');
+
+
+cp sophomorix-class
+   SophomorixPgldap
+
+
+
+
+
+
+sophomorix-teacher --showclasses
+                   --showteachers
+                   mit optionalem Argument lehrer
+
+evtl. neue option showteacher login (ohne s)
+
+
+To check:
+
+- where is 'adminclass' selected and must be 'hiddenclass' also?
+
+   added an option to fetchadminclasses ("showhidden")
+   that shows also hidden classes
+
+- add option --hidden, --nohidden to sophomorix-class
+- Beitritt in class verhindern, wenn sie hidden ist
+  - Fehlermeldung sophomorix 
+  (beigetretene bleiben erhalten)
+- add a checkbox/Button to schuko (as administrator)
+  to switch a class hidden (and unhide it)
+
+- sophomorix-teacher --showclasses should show H=0,1 for hidden
+
+
 
 
 sophomorix-locked:
