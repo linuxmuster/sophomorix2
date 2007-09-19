@@ -2409,14 +2409,25 @@ sub pg_get_adminclasses {
 }
 
 sub fetchadminclasses_from_school {
+    my ($option) = @_;
     # fetch all entries with type adminclasses
     my @admin_classes=();
     my $dbh=&db_connect();
-    my $sth= $dbh->prepare( "SELECT gid from classdata 
+
+    my $sth;
+    if ($option eq "showhidden"){
+        $sth= $dbh->prepare( "SELECT gid from classdata 
+                              WHERE (type='adminclass' OR type='hiddenclass') 
+                                AND NOT gid='${DevelConf::teacher}'
+                              ORDER BY gid" );
+    } else {
+        $sth= $dbh->prepare( "SELECT gid from classdata 
                               WHERE type='adminclass'
                                 AND NOT gid='${DevelConf::teacher}'
                               ORDER BY gid" );
-      $sth->execute();
+    }
+
+    $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
     my $i=0;
     foreach ( @{ $array_ref } ) {
@@ -4752,17 +4763,19 @@ sub show_project_list {
 
 
 sub show_class_list {
-    print "---------------+----------+-----",
-          "+-+-+--------------------+---------------------\n";
-    printf "%-14s | %8s |%4s |%1s|%1s| %-19s| %-20s\n","AdminClass",
-           "Quota", "MQ","A","L","SchoolType","Department";
-    print "---------------+----------+-----",
-          "+-+-+--------------------+---------------------\n";
+    print "---------------+-+----------+-----",
+          "+-+-+--------------------+--------------------\n";
+    printf "%-14s |%1s| %8s |%4s |%1s|%1s| %-19s| %-18s\n","AdminClass",
+           "H","Quota", "MQ","A","L","SchoolType","Department";
+    print "---------------+-+----------+-----",
+          "+-+-+--------------------+--------------------\n";
     my $dbh=&db_connect();
     my $sth= $dbh->prepare( "SELECT gid,quota,mailquota,mailalias,
-                                    maillist,schooltype,department
+                                    maillist,schooltype,department,type
                              FROM classdata
-                             WHERE (type='adminclass' OR type='teacher')
+                             WHERE (type='adminclass' 
+                                 OR type='teacher'
+                                 OR type='hiddenclass')
                              ORDER BY gid" );
     $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
@@ -4775,6 +4788,13 @@ sub show_class_list {
         my $maillist=${$array_ref}[$i][4];
         my $schooltype=${$array_ref}[$i][5];
         my $department=${$array_ref}[$i][6];
+        my $type=${$array_ref}[$i][7];
+        my $type_short="";
+        if ($type eq "adminclass"){
+            $type_short="0";
+        } elsif ($type eq "hiddenclass"){
+            $type_short="1";
+        }
         if (not defined $gid){
 	    $gid="";
         }
@@ -4792,15 +4812,15 @@ sub show_class_list {
         }
 #        if (not ($gid eq "speicher" or $gid eq "dachboden")){
         if (not ($gid eq "attic")){
-        printf "%-15s|%10s|%4s |%1s|%1s| %-19s| %-18s\n",$gid,
-                $quota,$mailquota,$mailalias,$maillist,
-                $schooltype,$department;
+        printf "%-15s|%1s|%10s|%4s |%1s|%1s| %-19s| %-18s\n",$gid,
+                $type_short,$quota,$mailquota,$mailalias,
+                $maillist,$schooltype,$department;
         }
         $i++;
     }   
-    print "---------------+----------+-----",
-          "+-+-+--------------------+---------------------\n";
-    print "$i classes    (MQ=MailQuota, A=Mailalias,",
+    print "---------------+-+----------+-----",
+          "+-+-+--------------------+--------------------\n";
+    print "$i classes    (H=Hidden, MQ=MailQuota, A=Mailalias,",
           " L=Mailist)\n";
     &db_disconnect($dbh);
 }
@@ -4810,7 +4830,7 @@ sub show_class_list {
 
 sub show_class_teacher_list {
     print "\n";
-    my @classes=&fetchadminclasses_from_school();
+    my @classes=&fetchadminclasses_from_school("showhidden");
     print "+--------------+----------------------",
           "---------------------------------------+\n";    
     print "| Classes      | Member Teachers      ",
