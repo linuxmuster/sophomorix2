@@ -1968,6 +1968,7 @@ sophomorix-useradd:
 Beispiele in manpage:
 1) user areca mit password, das in webfrontend eingetragen wird
    (erscheint in schulkonsole! Muss verhindert werden! Info an Aike)
+   ??? verstehe ich nicht mehr
 
 sophomorix-useradd --unixadmin areca --unix-group areca
 Edit quota.txt
@@ -2029,7 +2030,7 @@ To check:
 - sophomorix-teacher --showclasses should show H=0,1 for hidden
 
 
-
+Aike:
 
 sophomorix-locked:
    - Anzeige in schulkonsole
@@ -2061,9 +2062,18 @@ sophomorix-locked:
                   - sichern der letzten 30 Zeilen von 
                        /var/log/sophomorix/command.log
 
+- sophomorix-www logt nicht mit, wer eines Schülers 
+  Homepage freigegeben hat.
+  Sollte aber so sein.
+  Loggen in command-log (evtl. zusätzlich in die .htaccess-Datei rein)
+  Aike: sophomorix-www mit Parameter --caller login aufrufen
 
-    - offene und geschlossene Projekte
-       ausarbeiten und Aike schicken
+  sophomorix-www -i 
+  sollte alle user mit freigegebenem Verzeichnis angeben.  
+  und ob sie einen Inhalt (außer .htacess haben. MB-Angabe?)
+
+- offene und geschlossene Projekte
+  ausarbeiten und Aike schicken
  
 
 changelog-sophomorix-source aufspalten in:
@@ -2073,6 +2083,11 @@ changelog-sophomorix-source aufspalten in:
 
 dann ins entsprechende Paket (changelog in sophomorix2)
 ins Readme.debian ein Verweis darauf
+
+
+sophomorix-teach-in:
+Idee: auto teach in nur, wenn das anlegedatum WENIGER als 3 Monate 
+(oder 7 Monate(erstes Zeugnis?)) zurückliegt? 
 
 
 ##############################################
@@ -2094,6 +2109,8 @@ $geburts_jahreszahl_stop=2001;
 ================== CHANGELOG ========================================
 
 1.9.29-1 (2007-09-xx)
+    - avoid exiting sophomorix-www with missing function
+      log_script_exit
     - sophomorix-class -i:
       show classes with type adminclass/hiddenclass with H=0 or H=1
     - added an option to fetchadminclasses ("showhidden")
