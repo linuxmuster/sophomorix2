@@ -4441,7 +4441,7 @@ sub user_public_noupload {
 
     if ($type ne "student"){
         print "     * WARNING: $user is not a student (type: $type)\n",
-              "     (cannot user-public-noupload)\n";
+              "       (cannot user-public-noupload)\n";
         return 0;
     } else {
         $ht_template="${DevelConf::apache_templates}"."/".
@@ -4491,7 +4491,7 @@ sub user_private_upload {
     } else {
         # not student, not teacher
         print "     * WARNING: $user is not a student/teacher (type: $type)\n",
-              "     (cannot user-private-upload)\n";
+              "       (cannot user-private-upload)\n";
         return 0;
     }
 
@@ -4627,8 +4627,8 @@ sub group_public_upload {
         $ht_target_dir=${DevelConf::www_projects}."/".$group;
     } else {
         # not adminclass, not project
-        print "   WARNING: $group is not a adminclass/project",
-              " (cannot group-public-upload)\n";
+        print "   * WARNING: $group is not a adminclass/project\n",
+              "     (cannot group-public-upload)\n";
         return 0;
     }
 
@@ -4671,8 +4671,8 @@ sub group_public_noupload {
         $ht_target_dir=${DevelConf::www_projects}."/".$group;
     } else {
         # not adminclass, not project
-        print "   WARNING: $group is not a adminclass/project",
-              " (cannot group-public-noupload)\n";
+        print "   * WARNING: $group is not a adminclass/project\n",
+              "     (cannot group-public-noupload)\n";
         return 0;
     }
     
@@ -4714,8 +4714,8 @@ sub group_private_upload {
         $ht_target_dir=${DevelConf::www_projects}."/".$group;
     } else {
         # not adminclass, not project
-        print "   WARNING: $group is not a adminclass/project",
-              " (cannot group-private-upload)\n";
+        print "   * WARNING: $group is not a adminclass/project\n",
+              "     (cannot group-private-upload)\n";
         return 0;
     }
 
@@ -4758,8 +4758,8 @@ sub group_private_noupload {
         $ht_target_dir=${DevelConf::www_projects}."/".$group;
     } else {
         # not adminclass, not project
-        print "   WARNING: $group is not a adminclass/project",
-              " (cannot group-private-noupload)\n";
+        print "   * WARNING: $group is not a adminclass/project\n",
+              "     (cannot group-private-noupload)\n";
         return 0;
     }
 
@@ -4851,7 +4851,8 @@ sub unlink_immutable_tree {
     my $dir_check = $dir;
     $dir_check=~s/\*$//;
     if (not -e $dir_check){
-        print "WARNING: directory/file $dir_check does not exist. Doing nothing.\n";
+        print "WARNING: Directory/file $dir_check does not exist.\n";
+        print "         Doing nothing.\n";
         return 0;
     }
     # remove immutable bit recursively
@@ -4881,7 +4882,8 @@ sub move_immutable_tree {
         return 0;
     }
     if (not -e $old_dir){
-        print "WARNING: directory/file $old_dir does not exist. Doing nothing.\n";
+        print "WARNING: Directory/file $old_dir does not exist.\n";
+        print "         Doing nothing.\n";
         return 0;
     }
     # remove immutable bit recursively
@@ -4908,7 +4910,8 @@ sub move_immutable_tree {
 sub set_immutable_bit {
     my ($dir,$bit) = @_;
     if (not -e $dir){
-        print "WARNING: directory/file $dir does not exist. Doing nothing.\n";
+        print "WARNING: Directory/file $dir does not exist.\n";
+        print "         Doing nothing.\n";
         return 0;
     }
     # set immutable bit
