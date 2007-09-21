@@ -4439,8 +4439,8 @@ sub user_public_noupload {
     my $ht_target="";
     my $ht_target_dir="";
 
-    if ($type ne "student"){
-        print "     * WARNING: $user is not a student (type: $type)\n",
+    if ($type ne "student" and $type ne "attic"){
+        print "     * WARNING: $user is not a student/attic (type: $type)\n",
               "       (cannot user-public-noupload)\n";
         return 0;
     } else {
@@ -4518,14 +4518,14 @@ sub user_private_upload {
 sub user_private_noupload {
     my ($user) = @_;
     my ($home,$type)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
-        my $ht_replace= " -e 's/\@\@username\@\@/${user}/g'".
-                " -e 's/\@\@teachergroup\@\@/${DevelConf::teacher}/g'";
+    my $ht_replace= " -e 's/\@\@username\@\@/${user}/g'".
+                    " -e 's/\@\@teachergroup\@\@/${DevelConf::teacher}/g'";
     my $ht_template="";
     my $ht_target="";
     my $ht_target_dir="";
 
-    if ($type ne "student"){
-        print "     * WARNING: $user is not a student (type: $type)\n",
+    if ($type ne "student" and $type ne "attic"){
+        print "     * WARNING: $user is not a student/attic (type: $type)\n",
               "       (cannot user-private-noupload)\n";
         return 0;
     } else {
