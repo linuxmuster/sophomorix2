@@ -1237,7 +1237,7 @@ sub provide_user_files {
            if($Conf::log_level>=3){
    	       print "$htaccess_sed_command\n";
            } else {
-   	       print "   modifying  $htaccess_target\n";
+   	       print "   modifying $htaccess_target\n";
            }
            system("$htaccess_sed_command"); 
            chmod 0400, $htaccess_target;
@@ -4411,7 +4411,8 @@ sub user_public_upload {
 
     # do it
     my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-    print "     * modifying  $ht_target (user-public-upload)\n";
+    print "     * modifying $ht_target\n";
+    print "       (user-public-upload)\n";
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
@@ -4451,7 +4452,8 @@ sub user_public_noupload {
     
     # do it
     my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-    print "     * modifying $ht_target (user-public-noupload)\n";
+    print "     * modifying $ht_target\n";
+    print "       (user-public-noupload)\n";
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
@@ -4495,7 +4497,8 @@ sub user_private_upload {
 
     # do it
     my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-    print "     * modifying  $ht_target (user-private-upload)\n";
+    print "     * modifying $ht_target\n";
+    print "       (user-private-upload)\n";
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
@@ -4534,7 +4537,8 @@ sub user_private_noupload {
 
     # do it
     my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-    print "     * modifying $ht_target (user-private-noupload)\n";
+    print "     * modifying $ht_target\n";
+    print "       (user-private-noupload)\n";
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
@@ -4630,7 +4634,8 @@ sub group_public_upload {
 
     # do it
     my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-    print "     * modifying  $ht_target (group-public-upload)\n";
+    print "     * modifying $ht_target\n";
+    print "       (group-public-upload)\n";
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
@@ -4673,7 +4678,8 @@ sub group_public_noupload {
     
     # do it
     my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-    print "     * modifying $ht_target (group-public-noupload)\n";
+    print "     * modifying $ht_target\n";
+    print "       (group-public-noupload)\n";
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
@@ -4715,7 +4721,8 @@ sub group_private_upload {
 
     # do it
     my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-    print "     * modifying  $ht_target (group-private-upload)\n";
+    print "     * modifying $ht_target\n";
+    print "       (group-private-upload)\n";
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
@@ -4758,7 +4765,8 @@ sub group_private_noupload {
 
     # do it
     my $sed_command = "sed $ht_replace $ht_template > $ht_target";
-    print "     * modifying $ht_target (group-private-noupload)\n";
+    print "     * modifying $ht_target\n";
+    print "       (group-private-noupload)\n";
     if($Conf::log_level>=3){
         print "$sed_command \n";
     }
