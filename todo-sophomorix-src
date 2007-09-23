@@ -1374,17 +1374,6 @@ check if sophomorix-check --use-gid works
                           update man page
 
 
-sophomorix-vampire:
-    sync mail:
-       imapsync 3.x -> 3.x
-       pop2imap ?
-       offlineimap (debian-Paket)
-       mb2md (debian-Paket) mailbox -> maildir
-       mailsync
-
-       /usr/local/samba/cds
-                        progs
-
 nagios
 https://servername/nagios2/
 
@@ -1519,9 +1508,6 @@ evtl. Bug: does a user has to change its password when he first authenticates
            AND $student_samba_pw_must_change="yes" in sophomorix.conf?
 
 
-sophomorix-vampire: check 2 semicolon in the end of wimport_data
-
-          
 
 To check:
 
@@ -1596,26 +1582,6 @@ wwwadmin should have /dev/null as home
 
 add option for this
  
-
-
-
-
-
-sophomorix-vampire:
-
-copy rembo.key, rembo.conf, .... rembo stuff to /root/sophomorix-vampire
-
-In allen Verzeichnissen, die es in
-
-/usr/local/rembo/files/global/myshn/groups/
-
-gibt (Das sind die Hardwareklassen), werden nur die Dateien kopiert,
-die 'config' heissen.
-
-vgl. Code bei mlscripts
-
-
-
 
 
 
@@ -1881,12 +1847,6 @@ avoid double code:
 marriage: sophomorix-check line 2310 ... check this
 
 
-man sophomorix-vampire:
-Hinweis auf 12 12er und class.db
-Hinweis: neuestes Paket installieren
-
-
-
 man sophomorix-passwd:
 welche Zeichen sind als Passwort zulässig:
 
@@ -1945,18 +1905,6 @@ can sophomorix-groupdel delete an empty adminclass group?
 
 sophomorix-usermod um user zusätzlich in einer Gruppe einzutragen:
   hauptsächlich admins in zusatzgruppe
-
-
-man sophomorix-vampire:
-mit scp auf localhost:
-mounten des externen Dateisystem mit mount
-ssh local stoppen 3.0
-chroot auf gemountetes system
-ssh dort starten 2.2
-neue konsole benutzen
-dort sophomorix-vampire aufrufen
-als alter server localhost angeben
-
 
 
 sophomorix-useradd:

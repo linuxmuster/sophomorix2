@@ -45,7 +45,7 @@ Diese Mailbox wird in cyrus eingelesen (Unterverzeichnis __dachboden)
 Achtung: Beim update von 2.x auf 3.x wird aus der Klasse k7a die Klasse 7a.
 .br
 Wenn dadurch Klassen nur mit Ziffern entstehen müssen diese umbenannt
-werden(siehe unten).
+werden (siehe unten).
 .TP
 .B Todo: Rembo/myshn 
 .br
@@ -70,7 +70,12 @@ wird auf einem neuen Server gestartet und holt dann Benutzer und und
 Daten eines alten Servers.
 .br
 .TP
-.B Step 0: 
+.B Step 0: Vorbereitungen
+Installieren sie das aktuellste Paket von sophomorix-vampire:
+.br
+   aptitude update
+   aptitude install sophomorix-vampire
+.br
 Sorgen sie dafuer, dass der neue Server über seine interne Netzwerkkarte auf den alten Server zugreifen kann:
 .br
 1) Neuer Server: 
@@ -103,9 +108,34 @@ für die Migration wieder einschalten.
 .TP
 oder:
 .TP
-.B Todo Step 1: --localdisk  rootdir
+.B Step 1: Von einer lokalen gemounteten Wechselplatte migrieren:
 .br
-Holen der Daten von einer gemounteten Wechselplatte(noch nicht implementiert).
+Das sollte so gehen (von mir ungetestet):
+.br
+Loggen sie sich auf 2 Konsolen ein:
+.br
+   Konsole 1: neuer Server
+   Konsole 2: alter Server
+.br
+1) Konsole 2: mounten des Dateisystems mit mount
+.br 
+              an beliebige Stelle (z.B. /mnt)
+.br
+2) Konsole 1: Den ssh-server auf dem neuen Server stoppen:
+              /etc/init.d/ssh stop
+.br
+3) Konsole 2: chroot auf das gemountete Dateisystem 
+.br
+              des alten Servers:
+.br
+              chroot /mnt
+.br
+4) Konsole 2: ssh-server auf dem alten Server starten:
+              rcsshd start
+.br
+5) Konsole 1: sophomorix-vampire benutzen:
+.br
+.B            --key --server localhost
 .TP
 .B Step 2: --fetch-files
 .br
