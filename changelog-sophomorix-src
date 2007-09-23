@@ -4,6 +4,11 @@
 ============SOPHOMORIX2 CHANGELOG ====================================
 
 1.9.29-1 (2007-09-xx)
+    - added this file changelog-sophomorix-src to package sophomorix2
+      as /usr/share/doc/sophomorix2/changelog-sophomorix-src.gz
+    - splitted changelog-sophomorix-src into:
+           A) changelog-sophomorix-src  (the changelog)
+           B) todo-sophomorix-src       (the todo and other stuff)
     - sophomorix-useradd --unixadmin login --unix-group group 
       adding the group of this user as as type 'hiddenclass'
     - avoid joining a 'hiddenclass' with 
@@ -1645,43 +1650,3 @@
 
 
 
-############################################################
-Old obsolete stuff
-############################################################
-
-
-
-
-sophomorix-webmin (obsolete in ml 3.0)
-   - totally configure webmin
-   - option --noninteractive 
-
-   ** ml_account  : Benutzerkonto  (alle user)
-   ** ml_teacher  : Unterricht (alle)
-   ** ml_admin    : Administration
-
-
-check: is user taken out of webmin, when she is Disabled? Is this necessary or is the !-sign in /etc/shadow enough?
-
-miniserv.users: letztes Feld : hosts von denen man zugreifen darf 
-
-
-   -  Be aware: problem group student would need 1 entrys for every student 
-       (this will be a very loooooooooong line)
-
-     problem: when a module is added to webmin.users only (own script)
-              then this module is NOT added to webmin.acl 
-                 -> the user doesnt see this module
-           better: create webmin.acl from some configuration files
-                   in /usr/sbin (webmin-teacher-modules, ...-admin-, -student-)
-                   which can be overwritten by files in /etc/sophomorix/webmin
-
-   - if users are added without webmin installed, root and admin are missing
-      - create root,admin, when creating files
-      - or better do nothing when they dont exist
-
-
-   - usermin-modules will be converted to webmin by thomas
-       -> usermin is not running on the ml-server
-       -> postinstall-script muss sich in gruppe student, teacher eintragen
-   -abfrage in sophomorix-webmin, ob paket webmin installiert ist

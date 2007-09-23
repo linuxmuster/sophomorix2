@@ -2058,16 +2058,6 @@ sophomorix-locked:
  
 
 
-
-changelog-sophomorix-source aufspalten in:
- - changelog
- - packaging
- - todo
-
-dann ins entsprechende Paket (changelog in sophomorix2)
-ins Readme.debian ein Verweis darauf
-
-
 sophomorix-teach-in:
 Idee: auto-teach-in nur, wenn das anlegedatum WENIGER als 3 Monate 
 (oder 7 Monate(erstes Zeugnis?)) zurückliegt? 
@@ -2081,6 +2071,18 @@ Beim versetzen in den attic,löschen,... muss das public html auf
 user-private-noupload gesetzt werden
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 ##############################################
 new variables (add to new major release):    #
 ##############################################
@@ -2091,3 +2093,60 @@ $teachers_alias_name="lehrer";
 # auf 2005 setzen
 $geburts_jahreszahl_stop=2001;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################################
+Old obsolete stuff
+############################################################
+
+sophomorix-webmin (obsolete in ml 3.0)
+   - totally configure webmin
+   - option --noninteractive 
+
+   ** ml_account  : Benutzerkonto  (alle user)
+   ** ml_teacher  : Unterricht (alle)
+   ** ml_admin    : Administration
+
+
+check: is user taken out of webmin, when she is Disabled? Is this necessary or is the !-sign in /etc/shadow enough?
+
+miniserv.users: letztes Feld : hosts von denen man zugreifen darf 
+
+
+   -  Be aware: problem group student would need 1 entrys for every student 
+       (this will be a very loooooooooong line)
+
+     problem: when a module is added to webmin.users only (own script)
+              then this module is NOT added to webmin.acl 
+                 -> the user doesnt see this module
+           better: create webmin.acl from some configuration files
+                   in /usr/sbin (webmin-teacher-modules, ...-admin-, -student-)
+                   which can be overwritten by files in /etc/sophomorix/webmin
+
+   - if users are added without webmin installed, root and admin are missing
+      - create root,admin, when creating files
+      - or better do nothing when they dont exist
+
+
+   - usermin-modules will be converted to webmin by thomas
+       -> usermin is not running on the ml-server
+       -> postinstall-script muss sich in gruppe student, teacher eintragen
+   -abfrage in sophomorix-webmin, ob paket webmin installiert ist
