@@ -2341,6 +2341,9 @@ sub pg_get_group_type {
     } elsif ($type eq "adminclass"){
         # adminclass
         return ("adminclass",$gid,$gidnumber_sys);
+    } elsif ($type eq "hiddenclass"){
+        # hiddenclass
+        return ("hiddenclass",$gid,$gidnumber_sys);
     } elsif ($type eq "room"){
         # adminclass
         return ("room",$gid,$gidnumber_sys);
@@ -4829,19 +4832,34 @@ sub show_class_list {
 
 
 sub show_class_teacher_list {
+    my $count_class_total=0;
+    my $count_class=0;
     print "\n";
     my @classes=&fetchadminclasses_from_school("showhidden");
-    print "+--------------+----------------------",
+    print "+--------------+-+----------------------",
           "---------------------------------------+\n";    
-    print "| Classes      | Member Teachers      ",
+    print "| Class        |H| Member Teachers      ",
           "                                       |\n";
     foreach my $class (@classes){
+        $count_class_total++;
         my @teachers=&fetchadmins_from_adminclass($class);
+
         my $count=0;
+        my $type_string;
 
         if ($#teachers+1>0){
-            print "+--------------+----------------------",
+            print "+--------------+-+----------------------",
                   "---------------------------------------+\n";    
+            # decide adminclass or hiddenclass
+            my ($g_type)=&pg_get_group_type($class);
+            if ($g_type eq "adminclass"){
+                $type_string="0";
+            } elsif ($g_type eq "hiddenclass"){
+                $type_string="1";
+                print ""
+            } else {
+                $type_string="";
+            }
         }
 
         while ($#teachers+1>0){
@@ -4851,16 +4869,19 @@ sub show_class_teacher_list {
 	       push @new,"";
            }
            if ($count==1){
-               printf "| %-12s | %-12s%-12s%-12s%-12s%-12s|\n",
-                      $class,@new;
+               $count_class++;
+               printf "| %-12s |%-1s| %-12s%-12s%-12s%-12s%-12s|\n",
+                      $class,$type_string,@new;
            } else {
-               printf  "| %12s | %-12s%-12s%-12s%-12s%-12s|\n",
-                      $class,@new;
+               printf  "| %12s |%-1s| %-12s%-12s%-12s%-12s%-12s|\n",
+                      $class,$type_string,@new;
            }
         }
     }
-    print "+--------------+----------------------",
-          "---------------------------------------+\n";    
+    print "+--------------+-+----------------------",
+          "---------------------------------------+\n";
+    print "$count_class from $count_class_total classes",
+          " have teachers (H=Hidden)\n";    
 }
 
 
