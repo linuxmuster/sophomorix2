@@ -303,6 +303,12 @@ Adds the valid AdminClass to MyAdminClasses of the user Login.
 sub add_my_adminclass {
     my ($login,$class) = @_;
 
+    my ($type)=&pg_get_group_type($class);
+    if ($type eq "hiddenclass"){
+        print "\nYou cannot join $class ($class is of type hiddenclass)\n\n";
+        return 0;
+    }
+
     # add my adminclass to database
     &addadmin_to_adminclass($login,$class);
 
@@ -332,6 +338,7 @@ sub add_my_adminclass {
         &Sophomorix::SophomorixBase::create_share_directory($login,
             $subclass,$subclass,"subclass");
    }
+   return 1;
 }
 
 
