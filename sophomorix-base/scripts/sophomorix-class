@@ -29,6 +29,7 @@ $Conf::log_level=1;
 my $help=0;
 my $info=0;
 my $class="";
+my $hide="";
 my $quota;
 my $mailquota;
 my $mailalias;
@@ -40,6 +41,7 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
            "class|c=s" => \$class,
+           "hide!" => \$hide,
            "quota=s" => \$quota,
            "mailquota=i" => \$mailquota,
            "mailalias!" => \$mailalias,
@@ -77,7 +79,8 @@ Options
   -vv / --verbose --verbose
   -i  / --info
   -c adminclass, / --class adminclass
-    (can set values also for the group teachers with --class teachers) 
+    (can set values also for the group teachers with --class teachers)
+  --hide --class adminclass, --nohide --class hiddenclass 
   --quota quotastring
   --mailquota number
   --mailalias, --nomailalias
@@ -127,6 +130,22 @@ if (defined $maillist){
         &update_class_db_entry($class,"Maillist=TRUE");
     }
 }
+
+
+# --hide
+if (defined $hide and $class ne ""){
+    if ($hide==0){
+        print "Unhiding class $class\n";
+        &update_class_db_entry($class,"Type=adminclass");
+    }
+    if ($hide==1){
+        print "Hiding class $class\n";
+        &update_class_db_entry($class,"Type=hiddenclass");
+    }
+}
+
+
+
 
 
 # --quota
