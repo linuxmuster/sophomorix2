@@ -250,10 +250,12 @@ if (defined $shares and not @users){
 
 # --add class
 if ($add ne ""){
-   &add_my_adminclass($login,$add);
+   my $result=&add_my_adminclass($login,$add);
    $info=1;
    # Creating Mailing Aliases and Lists
-   system("/usr/sbin/sophomorix-mail");
+   if ($result==1){
+       system("/usr/sbin/sophomorix-mail");
+   }
    exit;
 }
 
