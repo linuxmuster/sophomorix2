@@ -1,0 +1,2093 @@
+# $Id$
+
+############################################################
+Problems
+############################################################
+
+
+cups-pdf: not necessary for Administrator (not a user account)
+
+Other Questions
+- problems: a teacher can fill the HD space easily with 
+  handing out lots of data
+
+
+
+############################################################
+KNOWN BUGS
+############################################################
+BUG: a user in dachboden is reactivated by a similar
+     (=must be identical) new user
+
+BUG: 
+ps2pdf cuts away the footer when sophomorix-print is running
+
+
+
+
+############################################################
+DOKUMENTATION To do
+############################################################
+
+dokumentation:
+   * grafik workflow aktualisieren
+   * write how to test sophomorix
+      - sophomorix2
+      - sophomorix-doc-html
+      - perldoc Sophomorix::SophpmorixAPI
+   * logging   
+
+
+############################################################
+PACKAGING for DEBIAN To do
+############################################################
+
+packaging:
+   - Makefile creates directories with correct permissions, 
+     how can I package this directories with its permissions?
+   - sophomorix-vampire version x.x braucht sophomorix2 1.2.2
+     (das steht in den abhängigkeiten), falls es installiert werden soll (optional)
+     andersherum braucht sophomorix-vampire dieselbe Versionsnummer von sophomorix2 
+     wie macht man das?
+   - optionen in postinst-scripten upgrade)
+
+
+
+############################################################
+MAKING a Package
+############################################################
+
+1. update versions in debian/control
+   (so that apt-get update sophomorix2 updates all sophomorix-* packages)
+
+2. update date of release in changelog-sophomorix-src
+
+3. cd cvs/sophomorix2
+
+4. dch -i 
+   add a comment to the changelog
+
+5. make deb  (old: dpkg-buildpackage -rfakeroot)
+
+6. Tag all files in the cvs repository with the tag 'Version-x-y-z'
+
+
+############################################################
+Repositories
+############################################################
+
+lml30-updates  stable updates  
+lml30-testing  testpakete
+lml30-unstable testpakete, die es vielleicht nach updates 
+lml30-sources  sources der updates
+
+incoming directory 
+
+lml30-linbotesting
+
+
+
+stable   testing
+lml40  stable   testing
+
+
+############################################################
+MODIFY directries when user is created or repaired
+############################################################
+
+1. To make it possible to rename such a dir:
+   add variables in sophomorix-lang.de, ...
+2. SophomorixBase has a function provide user files:
+     A) decide if teacher or student
+     B) create a setup_verzeichnis entry
+3. create an entry in repair.directories with permissions, 
+   owners and groupowners
+4. To make sophomorix-repair replce the placeholders
+   in repair.directories:
+   - insert replacement string in function repair_directories
+
+(If unsure where to find tho correct place in the scripts, 
+ grep for 'handout')
+
+
+
+############################################################
+SCRIPTS To do
+############################################################
+
+sophomorix-repair
+   - use function create_userlist to specify users
+     Call with option -u user should be fast (= do only this)
+
+sophomorix-quota
+   * option --sum still missing
+   - check if quota is really set (how?, grep through 'quota user' ?)
+     do this as cronjob. check if quota in the os is the same as in the 
+     database
+   - find users without quota, report them (cron)
+
+
+sophomorix-teach-in (seems ok so far)
+
+
+sophomorix-check
+   - what about the shell (/bin/bash) when updating from old files?
+   - what about the quota  when updating from old files?
+       lehrer.txt: automatically used, when copied
+       quota.txt:  automatically used, when copied
+       projects:   did not exist, ok
+       classes:    schulinfo.txt should be copied/used to class_db
+             --> check this
+   - add more auto-teach-in
+      - exchange of firstname and lastname should be detected automatically
+   * filter out users in schueler.txt that have groupname "lehrer" or "teacher"
+     for security reasons
+   - add use of field 6, upload Field 6 Data automatically into database
+      - add entry for every user in user_db: "Department"
+      - for every department create entry in the postgres database
+      department_ contains:
+         - Name of department i.e. "Hauptschule"
+         - Name String, i.e. "HS Sydney", which is used by printing things.
+         - Mail suffix, i.e "hs-sydney.de" -> user@hs-sydney.de
+         - short name, i.e. "hss"
+         - automatisch: Schülerzahl, Klassenzahl ?????? oder besser dynamisch
+         - ....
+   - Format report.office with latex          
+   - throw error, when unid is double in schueler.txt 
+
+
+sophomorix-add
+   - add standard linux GUI (kde3 (configurable))
+     (sophomorix-user --copy-to-home filename --teacher, ...)
+
+sophomorix-move
+   - move Data from share into home, even if 'hidden' in another owners directory
+   - quick-move of a user (move user with a command, and keep him somehow out of 
+     way, when calling sophomorix-move)
+
+
+sophomorix-kill
+
+
+sophomorix-user 
+   - wenn user is activated, then add her automatically in her ExitAdminClass, 
+     if she is in dachboden 
+       now, you still have to do -check and -move
+     or in the class specified by  -c class option
+   - Changing a state of a user (make Permanent, Killable, ...)
+     by using function create_userlist, i.e. make all pupils killable
+   - option --move moves a pupil at once in the new class 
+     i.e. (calls sophomorix-move -u user)
+   - user with status U,E must not be activated?
+   - option --activatable (or -i -D -T shows info about Disabled or Tolerated users)
+   - when reactivating a user, set a date in the future to keep her longer acctive 
+     (optional parameter, configurable)
+   - option --clean-account: remove all data from the account, without removing
+     the account, password, ... itself (useful for guest accounts)
+   - option --newest shows/modifies users added on the latest day/latest run
+   - group display: separate primary groups from secondary (more logical) or not 
+                    (like id -nG user) 
+
+   - create lists of users (move to sophomorix-print)
+       - one or more classes, projects, ... or the whole school
+       - csv,xls,pdf, ....
+
+
+sophomorix-split
+   - sophomorix-split options: 
+        split randomly in 2,3 parts
+        split a class into projects(is this necessary?)
+
+
+sophomorix-passwd
+   - generate login-cards with changed passwords automatically
+     (passwd_change.pdf)
+   - make this an option to sophomorix-user
+   - make shell changeable (-> bin/bash)
+     and modify /etc/security/access.conf
+
+
+sophomorix-print
+   - print subclass on login-card?
+   - option --project to print login cards for members of projects
+   - what about projects, show project membership?
+   - put school-logo on login-card, watermark, ...
+   - generate a onepage-printout for teachers (help, mail, webmin-login, ...)
+   - root can allow teachers to move his students in a special permanent class
+     i.e. to allow some of its students to participate in a wiki permanently
+     admin should be able to define an 'veteran project', i.e. 
+     m4kb2t --> mkb-veterans
+   - allow other than [a-z0-9_] in strings that is used for latex
+
+
+sophomorix-project
+   - ML 3.0: allow open projects only (--join)
+   - add status stuff/lifetime stuff to projects
+      P= Permanent, will not be automatically removed
+      ... see drawing in doku
+      when a project is disabled:
+       - no data exchange
+       - no database access, ...
+       - mail to project teacher
+       - delete after xxx days (cron-job)
+   - when killing a project: 
+       - delete line
+       - delete exchange dir
+       - delete links from users to exchange dir
+       - move data back to homedir of user?
+
+   - allow teachers to add a project (if no addquota is involved)
+     - (maximum of Projects is configurable for each teacher: standard 30)
+     - standard final date: one year from now or schoolyears end (if configured)
+     - maximum length is 3 years
+     - extension of length is possible
+     - deleten of a project is only possible as the creator (-> field in database) 
+
+   - allow admin:
+     - projects with additional quota
+     - permanent projects
+     - delete a project at once
+     - push a project into the deletion cycle (send mail,deactivate,autom. deletion)
+     
+
+sophomorix-class
+   - count users in classes, display with -i
+     show total of clases with users / without users
+   - if no class is found,-> message
+   --kill  remove a class from database,
+           delete the exchange directory
+           ...
+
+
+sophomorix-test
+   - include testing the log file.
+      - log in different file while testing
+      - check this file for correctness
+      - remove this file
+
+
+sophomorix-test-bunchofusers
+   - option --exam (distribute, collect, exams)
+   - option --split (split a class)
+   - option --project (create a project, check members, exam, ...)
+   - choose uncommon loginnames/groupnames so that it can be 
+     run on a working system
+   - interrupt *-bunchofusers before doing anything 
+     when loginnames that are to be created are present already
+
+sophomorix-vampire:
+   * create config-files (perl-syntax):
+       - list of files with abs-path to get them from old server
+       - file with /path/on/old/server::/path/on/new/server
+         sync them automatically
+
+       - /usr/local/samba/progs  -> /home/samba/progs
+       - /usr/local/samba/cds    -> /home/samba/cds
+       - /usr/local/httpdocs     -> /var/www
+
+   * backup /etc to /etc/sophomorix-vampire
+   * backup old login scripts
+
+     neuer server mit laufendem cyrus-server, dann aus /var/spool/mail/user
+     mit cyrdeliver zuschicken
+
+     siehe: http://cyrusimap.web.cmu.edu/twiki/bin/view/Cyrus/MboxCyrusMigration
+
+     von cyrus auf cyrus: imapsync
+
+   - generate a log file what went wrong
+
+
+   - strategie for rembo:
+
+     garbage that should not be taken to a new system
+
+     images:
+     /var/lib/myshn  /usr/local/rembo/files/global/myshn/groups
+                                                         hosts
+                                                         users
+                                                         hdimages
+                                                         nicht die patch.*
+                                                         Konfigurationsdateien
+                                                         Nicht: bin
+     rembo beenden
+     /var/lib/rembo  /usr/local/rembo/files/shared
+
+     rembo -chkshared zeigt die zu entfernenden an     
+     
+     konfigurationsdaten:
+     rembo.conf
+     /etc/myshn ist link
+
+    Projektgruppen nach Anleitung T.Schnitt übernehmen
+
+
+   
+sophomorix-mail
+
+
+sophomorix-teacher
+   - read perlsec
+   - distribute _Collect to one pupil
+   - backups after rsync are temporarily owned by group 'lehrer', 
+      because sophomorix does not run setgid root
+     (this could cause problems, when using grpquotas (No problem now!))
+   - think about copy/delete for rsync
+   - how should it be managed to clear a  _Collect directory?
+     (dont do this at all?)
+   - when doing --(no)share, then dont do it for teachers
+
+
+   --common naming with windows,novell ZEN:
+     Naming:
+       Menu: Klassenarbeiten
+             Klassenarbeitsmodus (aktiviert=green, deaktiviert=red)
+     - teachers aktivates modus
+     - pc-based login (reason: limited gruppenrichtlinien, if used)
+     - relogin is impossible
+     - no internet   (make it choosable in linux-ml)
+     - no exchange dir 
+         - users can exchange on writeable programm share
+           when bad software must be used thar requires write access
+     - no mail
+     - collect data in a special dir
+          from _einsammeln
+          to   _einsammeln/klasse/lehrer_datum_uhrzeit
+
+
+     austeilen (homeverzeichnis): - cp data 
+                - change the owner
+                - 'save' button after editing
+          from _austeilen/gruppe
+               _austeilen/aktueller_raum
+
+old:      to   _austeilen/klasse/lehrer_datum_uhrzeit/*files
+better:   to   _austeilen/lehrer/*files
+
+          _austeilen/klasse: files are missing, because they are moved
+
+           (moved to _verteilt/klasse/lehrer_datum_uhrzeit)
+       
+     vorlagen (bereitstellen):
+                - a class/project/subclass must be given  
+                - use links to share data 
+                - data is readonly  
+                - 'save as ...' is necessary
+
+     new features: - select data to distribute 
+                     (different groups in one room, exams!)
+                   - use empty or known password, 
+                     loginscript changes password to arbitrary
+                   - after login, student has to type in his name
+
+
+sophomorix-end-of-year (new script)
+   - remove content of share-directories
+   - exclude classes of type extra
+
+
+sophomorix-check --cron 
+   - zip files in /var/log/sophomorix/exam
+
+
+Functions in SophomorixBase:
+   - code cleanup
+
+
+############################################################
+ALL SCRIPTS To do
+############################################################
+
+   - show quota values larger than 9999MB as GB
+     9999 -> 10G  (what about accuracy?)
+   - if a class is to be added and the groupname is given to a project already
+     make something correct
+   - remove global variable alle_verzeichnis_rechte
+     (sophomorix-split needs return value, sophomorix-add not ???)
+   - /home/share/tasks/dachboden is of no use?
+   - remove compatibility-mode to ml 1.1.1
+   - replace sperrklassen.txt and entfernklassen.txt with filter.txt
+   - test csv-output on windows and linux
+   - clear a user: (The same as clearing a workstation after the exam)
+           - keep his login, passwd, homedir
+           - keep entry in database
+           - restore directories (sammelordner, ...)
+           - restore permissions 
+        but:
+           - empty its home (with options)
+           - delete all mail (with option)
+           - delete all files in share dir (with options)
+           - linux-dotfiles only (with options)
+
+     (Status C = can be cleared, sophomorix-clear, ...)
+
+   - read the config-files from thomas
+     (file:  debconf datenbank, perl-lib zum auslesen benutzen ist dabei)
+      - debconf-show linuxmuster-base
+         zeigt alle werte von linuxmuster-base
+      - echo get cupsys/raw-print | debconf-communicate | awk '{print $2}'
+         (' ist shift-#)
+         liest einzelne Werte aus
+
+   * set/check file-permissions at the and of each sophomorix-* run. 
+   - unify the options for all scripts (create rfc), where a common
+     naming system is used, i.e what options are used to refer to a AdminClass:
+         -c AdminClass --class AdminClass --adminclass AdminClass
+         ...
+   - add references to all other man pages in every man-page
+
+
+
+############################################################
+DATABASE To do
+############################################################
+Postgres:
+   - dump old database, before doing anything
+                 pg_dump ldap > file.sql
+
+
+SQL-DBI/OpenLDAP related:
+
+- Transaction: combine inserts in create_user_entry 
+- Load DBI (use:DBI;) only if necessary
+- update database: combine select and updates to transaction
+- NextFreeUnidId beim update ausnehmen
+
+- avoid inserting an identical,existing line once again
+  --using SQL
+  (SQL can't do that)
+
+
+
+############################################################
+LDAP To do
+############################################################
+
+
+
+
+############################################################
+SAMBA To do
+############################################################
+
+Samba net Befehl ansehen
+
+
+
+
+############################################################
+IMAP To do
+############################################################
+
+imap:  call
+system("su --command='mkmaildir' postgres")   ????????
+ 
+check if dir exists /var/lib/cyrus  ??? kommt mit paket
+
+paket: cyrus21-imapd
+
+
+
+
+############################################################
+MOODLE To do
+############################################################
+
+
+
+
+############################################################
+Administration Software
+############################################################
+
+Administration software:
+   schueler.txt:   class;lastname;firstname;birthday;unid;department;
+   lehrer.txt:     class;lastname;firstname;birthday;wish-loginname
+
+Software Vendors:
+   - SPLAN
+   - IBIS
+   - LUSD (mandatory in Hessen, Germany)
+   - Schulkartei
+
+
+
+
+============================================================
+============================================================
+Think about:
+============================================================
+============================================================
+   - tar.gz-ing /var/www/people when deleting a user
+     (for teachers only)
+   - cups 
+   - moodle (add users to classes, add teachers to admins)
+   - deleting /home/exams
+   - create loginnames initial.name.birthday
+     (what about changes to this data)
+   - sophomorix-info for ALL users (show my account data)
+   - make standard-passwort linux configurable
+   - commands for every user (sophomorix-show-my account, ...)
+   - quick-self-add-mode
+   - Mail notification for events (i.e. new student in your class, ...) 
+   - use of sperrklassen.txt or entfernen.txt (-> filter.txt)
+   - think about getting user in class lists from the database
+     for correction of exams, ...
+   - think about lehrer.txt handling
+     allow comments to be added in a new field
+   think about ext-lehrer (teacher fo only one class).
+     probably needed for vhs-Kurse, etc., ...
+   - think about acl's and their handling in repair-directory
+   - think about self adding of users
+   - think about grpquota in projects
+   - think about manually moving students in other classes
+      - restrict manually moving to Permanent,Frozen?
+      - manually create classes for Permanent
+        or automatically create a class permanent, where all Permanent/Frozen users 
+        a moved to?
+        do they have an exchange directory?
+   - Think about removing ALL files of a user when she is deleted
+     (find /home/share ... and kill them)
+     think about renaming every file in an exchange-directory
+     of a user that wil be killed shortly to
+       filename.txt   -> will_be_deleted_filename.txt
+   - easy to hook in prefilter-scripts, that are run automatically
+
+
+
+
+############################################################
+STANDARDS:
+############################################################
+SCHULKONSOLE:
+   - we are using perl (Nov,2005)
+
+
+Quota in /var/www/people ?
+without individual quota. owner of all uploaded files is www-data
+
+The group teachers is added with mailaliases:
+sophomorix-class --class teachers --mailalias
+
+Standard alias is vorname.nachname
+
+
+
+############################################################
+INSTALLATION TESTSERVER:
+############################################################
+
+openldap 2.3.x is necessary (use our package)
+
+
+A) Installation from Debian CD's
+==================================================
+
+1. install debian sarge
+
+2. edit /etc/apt-sources.list
+
+   add deb cvs.bszleo.de/sophomorix ./ 
+
+3. apt-get update   
+
+4. apt-get install sophomorix2 sophomorix-developer
+
+  Hit RETURN to all questions
+
+5. run the following script:
+       sophomorix-test
+   this will test your system
+   (if all test are ok, you are ready to use your server,
+    if not: send mail)
+
+
+
+B) Installation from LMZ CD's
+==================================================
+
+CD-Installation:
+  - boot with option    auto26 or expert26
+  - reboot without CD
+  - internal NIC: eth1
+  - externel NIC  eth0
+    (vmware: eth0 is the card on top: briged)
+    (vmware: eth1 is the card on the bottom: host only)
+
+
+Testing lml3 in Network with 2.x:
+ - set dhcp-range in both ml to nothing
+   ml3: uncomment rangesetting in /etc/dhcp/dhcp3.conf
+
+
+############################################################
+RELEASES:
+############################################################
+
+? Workstation
+   view für workstationaccounts (mit $)
+   view für workstationuser
+
+lehrer.txt zusatzfeld 'comment' (Platz in Datenbank suchen)
+
+   sophomorix-setup-pgldap
+
+   ??? folgendes ist eher schlecht
+
+   Options --deb         (debconf-datenbank)
+           --file        (/etc/sophomorix/pgldap/pgldap.conf)
+
+           --Kommandozeilenoptionen
+
+   SID: -- Beim erstanlegen in debconf-Datenbank wird SID gespeichert
+        -- Beim Netbiosnamen ändern wird  
+           vom linuxmuster Setup script
+
+           linuxmuster/sambasid   
+
+        -- Option --force-sid (forced die sid auch in schon 
+               vorhandene Usereinträge in pg)
+
+   NETBIOS Name:
+
+         muss von sophomorix-pgldap-setup angepasst werden
+         (evtl. mit --new-netbiosname)
+
+
+   backpgsql zusätzlich im slapd -lml paket von Thomas S.
+
+
+        sophomorix-setup-pgldap: database cannot be dropped, if user is connected
+        (throw out users or what?)
+        ldap vorher beenden.
+
+
+        function  manual_delete_groups 
+        (deletes a group altogether from the database)
+        - check function
+        - intelligently remove groups
+
+        Funktionen für API:
+         %data=get_userdata(user);
+         Schlüssel wie in der Datenbank
+         $name = $data{'name'};
+
+         Database fields for cups (what is needed?)
+
+         counting the users when sophomorix-class -i
+         SELECT count(uid) FROM posix_account;
+                 * alle Zeilen
+                 uid alles wo uid NOT NULL
+
+         SophomorixAPI to select users and groups
+
+
+         test login
+
+
+         make sid available in ldap
+
+         save sid in database
+
+         use transactions to modify the database
+         (this is more complicated, than I thought)
+
+         add tests to sophomorix-test (check groups, check_provided_files)
+
+           
+
+   - smbldap-usershow entspricht in etwa sophomorix-user
+   - crypt zu md5 (Passwort-decription)
+   - system() in perl mit sysrun tauschen (oder noch besseres)
+
+   - use groups_admin in display ???
+  
+   - removing a project:
+      - remove also project_memberships
+      - remove all links to this project
+      - ..
+
+
+   - Disabling a project:
+      - remove users,admins,groups,projects from this projects
+               (Make the empty -> nobody is user in this project anymore)
+        backup this membership data in a log-file
+               to reactivate the group, issue sophomorix-project ...
+               using this Data
+
+     /var/log/sophomorix/project-modify.log
+     /var/log/sophomorix/project-modify-archive.log
+
+
+  BUGS: adding 3000 users:
+          owner of some /home/teachers/name is root.root
+                of some it is teachername.teachers
+  has not reappeared when testing again.
+   
+
+
+
+Performance bug:
+Reactivation is very slow (when a user reappears in schueler.txt)
+
+
+------------------------------------------------------------
+Code cleanup
+------------------------------------------------------------
+- move show ... loaded to higher loglevel
+- move show Language ... loaded to higher loglevel
+
+- use perl tidy
+
+- remove?:  get_adminclasses_sub_school
+            pg_get_adminclasses
+            get_projects_school
+            get_rooms_school (schneller)
+            get_workstations_school (schneller)
+
+show_....list:
+should call fetch ... and just display the results
+(avoid code doubling)
+
+------------------------------------------------------------
+
+
+
+- check what to do with quota, when removing a user???
+
+
+- use mailaliases,mailist in subclasses ???? (do this later) 
+
+
+- Begriffe 'standard-lehrer', standard-schueler aus quota.txt,mailquota.txt 
+  (auch entsprechende Englische zulassen:
+      standard-teacher
+      standard-student
+      standard-workstation
+  )
+
+
+- create_user_db_entry: parameter mailquota
+  (is this necessary ?)
+
+
+what about setting quota/mailquota for domcomp,workstation,Administrator ...
+
+
+
+Bug: when sophomorix-quota -l galli
+     dann : manchmal galli is not a sophomorix user
+- tritt nicht mehr auf
+
+
+
+
+BUG: skip empty lines in config files (review that)
+
+
+Name avoidance: (problems with mailinglists):
+avoid naming a longname/name of a project like:
+  - another project
+  - another group
+  - anothers project longname
+
+avoid adding a adminclass with the name/longname of a project
+
+
+
+
+
+
+IS THIS REALLY NECESSARY
+ table subclass_details
+  class_details.type not necessary
+  dont add to class_details, when adding a subclass
+  view subclassdata
+NO VIEW subclassdata (so far)
+
+
+deleteadmin_from_pro : Fehler abfangen
+usw. alle fetch_ delete ... durchguggen
+
+
+meeting 21.3.2006
+
+NOT creating a dir  in galli/_vorlagen and others, when user is added 
+to a nonexisting class
+
+
+Is this necessary?
+wohin einsammeln soll konfigurierbar sein 
+   A):  loginname
+   B):  vorname.nachname
+   C):  nachname
+
+
+invent sysrun??:
+sysrun needs package libsysadm-install-perl
+and use Sysadm::Install qw(:all);
+
+
+
+NEXT:
+
+create a group students with all students (for testing) 
+sophomorix-projects --update-studentsgroup
+
+Schulkonsole:
+
+funktion zum Tauschverzeichnis löschen
+funktion zum ALLE links wiederherstellen
+
+
+beim cp von netlogon stimmt was nicht
+
+
+
+
+zusammenarbeit mit Schulkonsole:
+
+variablen nutzen siehe perldoc Sophomorix::SophomorixAPI
+
+1) alles was aus SophomorixPgLdap gebraucht wird in
+   SophomorixAPI eintragen
+
+   Liste function1,function2, ...
+
+   Reihenfolge ergibt wichtigkeit
+
+   -- bisher noch nichts
+
+
+2) jeffbeck verschiebt die Funktionen und dokumentiert sie
+
+   problem beim verschieben
+       function wird in anderem paket gesucht
+
+
+   -- später
+
+   gibt es tools die funktionsaufrufe suchen und in einem script 
+   zeigen, welche funktionen aus anderen Paketen verwendet werden??
+
+   etags, ctags für perl?
+
+
+   Klasse Error 
+   /usr/share/schulkonsole
+   use Schulkonsole::Error;
+
+
+
+   zuerst linuxmuster-base, svn auschecken, debian paket machen
+   URL:  https://hostname/schulkonsole/
+
+??? smbldap-useradd adds user also in the secondary group ??? check this
+
+
+
+TESTS:
+- existence of new dirs from 1.6.1-1
+- switching shares on/off
+- creating data in tausch an being moved. Is data moved with user in home?
+
+
+
+RENAMING loginname of a user:
+- update DB
+- update lehrer.txt (wishlogin)
+- update /etc/mail/aliases (run sophomorix-mail)
+- create mail alias for old loginname?
+- mv homedir 
+- mv maildir (rename account??)
+- (mv webmin stuff)
+
+
+
+variablen in SophomorixPgldap scheinen global zu gelten.
+SphomorixBase: remove unused functions
+
+
+
+Projekte:
+
+- switch --join zur funktion bringen
+- make a teacher join a project if --join
+
+
+
+
+Austritt aus Klasse/Projekt/:
+
+Ordner bleibt erhalten wenn nicht leer, User bekommt löschrecht (owner)
+Schulkonsole.
+
+Bei wiedereintritt soll Ordner mit korrekten Daten da sein
+
+
+
+Is this necessary?
+====================
+add a field male/female to lehrer.txt
+make configurable if a 
+Lehrerinnen-Liste 
+Lehrer-Liste
+Kollegium-Liste
+is created
+
+
+
+userliste in allen sophomorix-*:    -u --users user1,user2,...
+  - sophomorix-kill
+  - sophomorix-add
+  - sophomorix-move
+  - sophomorix-repair
+  - sophomorix-kill
+
+Datei kann nicht eingesammelt werden da sich die Zeit ändert?
+
+subclassen als projekte hinzufügen? Tut das?
+
+
+BUG: /etc/aliases root.root 0644  (who changes this values) 
+sophomorix-mail does not change these values (but should do it with umask)
+
+
+Next: option --unignore
+
+double loginname: 
+newer user receives NO alias
+older user keeps alias
+later: override with database entry
+
+.locked in __einsammeln
+           cups-pdf
+
+
+speed up the call to sophomorix-quota in
+sophomorix-kill ??
+the following way:
+does quota need to be removed when killing a user???
+  
+
+sophomorix-add insert db_disconnect (grep for ???)
+sophomorix-quota "  and imap_disconnect
+sophomorix-kill imap_disconnect and db_disconnect
+
+
+Multi-Treffen:
+
+Feature Request:
+  - austeilen an lehrer soll gehen (auch an einzelne)
+ 
+IMAP-cyrus
+ - bisher noch keine subdirs im cyrus
+ - wenn ein user kein postfach hat mit *-repair oder *-quota anlegen
+ - postfächer sind in /var/spool/cyrus/mail/
+ - maildir-format
+   Konvertieren: /usr/share/doc/cyrus(-common)/example/mbox to cyrus oder so
+
+
+
+
+
+lml.mine.nu schulkonsole/shtml: descriptions
+
+
+sophomorix-user: remove getpwnam???
+save_tausch_klassen: getpwuid ersetzen.
+getgrnam 
+   bei collect in SophomorixBase
+   sophomorix-subclass
+   sophomorix-repair
+
+
+
+log_script_exit:
+use parameter to create return value for all exits
+
+   Info: Rückgabewerte scripte 0-127 (evtl. 255) (ab 2 benutzen)
+   z.B. mit exit 7;
+
+   Return Values:
+   ?   script called with wrong options
+
+
+
+
+
+
+show return values of scripts:
+ls -al [return]
+echo $?
+
+
+
+
+check list of systemusers in debian developers manual
+
+
+when a teacher/students is disabled remove him from /etc/aliases???
+
+
+
+
+
+
+use field 'scheduled_delete' for teachers (and other users) in the database
+sophomorix-check --cron to 
+
+   1. send mail to the teacher and a copy to root 
+   - you will be removed from the system
+     in xxx days aaa happens toleration
+     in yyy days bbb happens
+     list of files in the exchange dirs
+     files in apache are kept
+     email will be deleted
+ 
+     please reply to root@xxx.de or contact the administrators
+     if that is not correct
+
+   - add  '### scheduled_delete 60::90### before the teacher entry in lehrer.txt
+     where 60::90 is xxx::yyy
+     (this has to be done at the start of sophomorix-check --cron)  
+
+
+
+
+
+sophomorix-repair options:
+
+--delete-from-homedir path-to-file
+
+go through all homedirs to delete the file $home/path-to-file
+
+--delete-old-dotfiles path-to-/etc/skel
+
+    - read all files from path-to-/etc/skel and create md5sums
+    - go through all homedirs
+      delete the files that exist in path-from-/etc/skel 
+      in the homedirs when they exist and and are NOT modified
+
+
+when a user that exists (wwwadmin) and no quota in quota.txt is given,
+there is a warning (check if the script is interrupted)
+
+
+add a custom login-info:
+
+first line: REPLACE_TEMPLATE=no  (add the contents to the template)
+                             yes (replace contents to the template)
+
+
+
+
+
+sonstiges
+
+http://ekiga.net/
+
+mediawiki mit .htaccess absuchern (aktuelle ct, 26.9.06)
+
+
+
+KNOWN BUG: smbpasswd -d user tut nicht bei usern mitöäüÖÄÜß.
+
+
+Feature Request:
+
+Klassen/Raum/... wechseln. wieso nicht schon, wenn ich im pulldown
+menue was wähle (Wechseln-button weglassen?)
+
+Austeilen an einzelne Lehrer/Alle Lehrer wäre möglich, wenn
+im Klassen wechseln menue die 'Klasse' Lehrer(Kollegium) erscheinen 
+würde.
+
+Andere ML's haben bunte Knöpfe in der Schulkonsole, linux nicht? 
+Why? Styleguide?
+
+
+
+
+print Befehl (in Werkvertrag ergänzen):
+
+sophomorix-print --classlist klasse --postfix username
+(oder statt --postfix ... --caller  : so wie bei der Passwortliste erstellen)
+Die Dateien entstehen in /var/lib/sophomorix/print-data/klasse-classlist.csv
+bzw. *.pdf
+
+
+printing userlists: print *.csv *.xls of classes in schulkonsole
+ist there a independant spreadsheet::write (like Spreadsheet::Read)
+
+
+
+check teachers, lehrer   different naming
+
+if teacher is scheduled_tolerated, it cant be moved to the attic
+after ONE run of sophomorix-check
+It can be moved after the second run
+
+
+sophomorix-developer:
+script to create a IDE: 
+- emacs21
+- perldoc
+- cvs and checkout of sophomorix2
+
+
+
+############################################################
+Cron Jobs
+############################################################
+see manpage for run-parts for checking cron jobs
+cronjob execution sends mail
+cron itself doesn't log use logger
+
+add a cronjob?  (weekly) with  "exec? quotacheck -a"  S. 147/151 LPI(O'Reilly)
+add a cronjob?  fsck (so that no fscheck is necessary when rebooting)
+
+
+Nagios: public url, so that users can check status of deamons:
+   - is www available?
+   - can mail be sent, ...
+decreased quostioning to admins
+
+
+
+
+############################################################
+sophomorix-vampire
+############################################################
+
+sophomorix-project
+   --lock / --unlock / --skiplock
+
+   create/delete /var/lib/sophomorix/lock/project.lock
+   if lockfile exists, interrupt sophomorix-project without modifying anything
+   useful when migrating, updating, ...
+
+sophomorix-class --dump
+   dump ADDITIONAL data of a class: maillist,...
+   to be used ba sophomorix-vampire   
+
+
+############################################################
+Next Meeting:
+############################################################
+
+- freeze users as paedagigical measure?
+  what must be frozen?
+
+- create command to lock access to schulkonsole
+
+- when log in (from thomas script) is created, then log information to see
+  which teacher is in which room, -> create a maillist for the room automatically
+
+
+
+############################################################
+updateable package:
+############################################################
+
+
+BUG: (check this)
+mein Testsystem: das tut (LANG ist )de_DE@euro)
+ml3cd: LANG ist leer
+(mail sent)
+man sophomorix-mail : es wird zuerst nach der nicht existierenden
+en manpage gesucht un die Deutsch nicht gefunden, obwwohl existent.
+
+created request in RT
+
+
+next: use pid of lockfile
+
+next: put send_mail in a function:
+   - recipient-list, commaseparated, add @domain
+   - cc list
+   - template-name
+   - replacements for template
+
+files:
+   name-body.de
+   name-header.de
+
+replace name with: 
+   mailquota_warning,
+   project_deletion_warning,
+   ...
+
+database-field my language??
+
+man 5 schueler.txt, ...
+ 
+
+
+Unterordner spam anlegen: spam (ordner-trenn-parameter . oder /)
+
+
+Modify printout of sophomorix-project -p astro -i
+
+   Admins :           user1,user2,user3, ...
+                      user18,user20
+   Members(by option) user1,user2,
+   Membergroups       group1:
+                      user1,user2,user3            
+   Memberprojects:    
+   
+ODER BESSER:
++------------------------++--------+-----------+-------------+----------------+
+p_astro                  || admins | Members   | Member      | Member         |
+                         ||        | by option | groups      | projects       |
++------------------------++--------+-----------+-------------+----------------+
+LongName: p_astro        || bz     | myuser    | m3kb2t      | p_chemie       |
+usw...
+
+
+-v unfolds membergroups
+-vv shows alphabetical list of all users
+    and the membership reason:
+         user1 (admin)
+         user2 (admin)
+         user3 (member_by_option)
+         user4 (member_group: m2kb3t)
+         user5 (member_group: m2kb3t)
+         user6 (member_project: project1)
+         user7 (member_project: project1
+                                -> project2)
+
+use this to check information:
+
+drop all secondary group memberships 
+      find out if this user is admin
+                            is member_by_option
+                            is member by group
+                            is member _by project
+                            is member by project-> project
+there must be no users left
+
+if left: Warning: no reason for membership of userx
+
+check the other way around:
+list members of memberprojects, membergroups and check 
+membership
+
+
+
+create more tests for projects
+
+
+make function fetchinfo_from_project return something useful, when 
+project does not exist 
+
+
+vmware:
+
+vmware server frei downloadbar (früherer GSX Server)
+anleitung von Rainer in /root/software/vmware-server
+
+
+Nagios:
+
+/etc/nagios/   hosts.cfg contacts.cfg escalations.cfg
+/etc/nagios/services 
+/etc/linuxmuster/nagios.conf
+
+script von Frank
+linuxmuster-nagios-setup
+
+scripte dessen Rückgabewerte genutzt werden 
+0=OK
+1=WARNING
+2=CRITICAL
+3=UNKNOWN
+printoutput erscheint auf Nagios homepage
+/usr/lib/nagios/plugins (wenn paket nagios-plugins installiert ist)
+
+wohin lege ich nagios scripte die sophomorix checken?
+
+
+https://server/nagios  administrator 
+
+schnittstelle zu sophomorix?
+
+Tests: 
+- tut:  id administrator
+- ist sophomorix.add leer?
+- ist sophomorix.move leer?
+- ist sophomorix.kill leer?
+
+Scriptnamen
+check_sophopmorix_id
+check_sophomorix_add ...
+
+
+/usr/lib/nagios/linuxmuster-plugins
+
+suggests nagios nagios-plugins
+
+
+
+
+
+Fernwartung:
+
+mehrere Mailadressen, falls es probleme gibt
+
+mails verschicken per cron oder scripte von Nagios abprüfen lassen?
+
+verändeungen durch remote admin loggen
+a) Zugriff jederzeit durch support möglich
+b) Zugriff nur per Erlaubnis
+
+
+
+next steps in sophomorix-vampire:
+
+Messages: connect internal devices of servers
+give ip and subnet of old server
+give ip and subnet of new server
+
+shut down services
+- rembo
+- dhcp
+
+add additional ip to internal interface of new server
+
+
+restart services
+- dhcp 
+- rembo
+
+
+
+add option
+sophomorix-mail --create-mailbox to add mailbox without unix account 
+(user the name of these mailboxes to avoid loginnmaes)
+
+replace cp /etc/passwd with getent passwd > file;scp file
+
+check if sophomorix-check --use-gid works
+                          --use-uid
+                          --no-kclass needed?
+                          update man page
+
+
+sophomorix-vampire:
+    sync mail:
+       imapsync 3.x -> 3.x
+       pop2imap ?
+       offlineimap (debian-Paket)
+       mb2md (debian-Paket) mailbox -> maildir
+       mailsync
+
+       /usr/local/samba/cds
+                        progs
+
+nagios
+https://servername/nagios2/
+
+
+mail an hoth wegen tickets, running
+
+#129: close it
+#130: close it when passwords work
+  
+add share of teachers to be synced as well
+
+option ;ml; in wimport_data not in correct place?
+is it needed?
+
+sophomorix-user -i 
+   other users: differ
+     - workstation accounts (exams)
+     - computer accounts (with a $)
+     - ...
+
+
+create funcion to fetch standard permissions  from smb.conf . homes
+
+parameter sharename, return "create mask" and "directory mask"
+
+create function that gives a director trees permissions
+different values for dirs and files 
+
+
+??? 
+create dirlist ... __einsammeln
+
+and command 
+
+that recursively changes permissions
+???
+ 
+ 
+create forbidden projectnames 
+   - NOT existing classes
+   - NOT existing classes-[A,B,C,D]
+   - NOT existing projects
+
+
+
+use new configuration files when 
+
+resetting a user
+
+make him a member in a project,
+
+move him, ...
+
+
+Think about, if something has to be done with permissions, when a user 
+comes into the attic (make sure user can cause trouble)
+
+add more permission tests to SophomorixTest.pm
+   - test also $mygroup stuff
+
+ 
+performance
+
+add parameter $regex to repair_repairhome:
+not set ALL permissions from repairhome.usertype.
+set only for lines matching $regex
+$regex van be $mygroups 
+
+
+sophomorix-repair:
+add option --repairhome-path path/prefix
+to read repairhome permissions from 
+   - path/prefix.student
+   - path/prefix.teacher
+   - path/prefix.workstation
+   - path/prefix.attic
+script must exit, when one of these files are missing
+
+
+
+Which gowner must be forced when
+   - in sophomorix-move (chown -R .gownwer ...)
+   - in function handoutcopy
+
+idea: when smb.conf has no content for gowner, then use 
+      the users primary group (that what would happen without force group)
+
+
+smb.conf force create_mode, create mask dito. for dirs
+
+
+make use of __dachboden when removing dirs (user exits project, subclass, ...)
+
+chown without file Fehlermeldung in sophomorix-move
+
+
+how handle htaccess when user is in the attic (type attic)?
+
+INFO:
+%all_repairhome contains all permission in $HOME
+
+
+BUG: if sophomorix-test is run, then
+     /var/www/people/students/oeztuemeo/...
+                     teachers/darmin/...
+     still exists
+
+
+
+Permissions:
+
+
+/home/students/$klasse/$schueler    $schueler.teachers    3751
+(Die 3 von 3751 bewirkt, dass die Gruppe teachers geforced wird.)
+
+Im Tauschverzeichnis gehört alles der Klasse.
+/home/share/classes/$klassen     administrator.$klassen    3770 
+
+
+
+MIGRATION:
+sophpmorix-vampire:
+Programdir:
+make owner recursively to administrator:domadmins (file:dir 664:775)
+
+wenn die Daten auf den neuen Server migriert werden,
+dann sollen die die Rechte haben: 2644/2755, owner:group
+(bisher 0700/0700 owner:group)
+
+
+evtl. Bug: does a user has to change its password when he first authenticates 
+           AND $student_samba_pw_must_change="yes" in sophomorix.conf?
+
+
+sophomorix-vampire: check 2 semicolon in the end of wimport_data
+
+          
+
+To check:
+
+db name ldap is not correct anymore?
+
+Verwirrend ist m.E. noch der Unterschied zwische
+workstation-account(=Klassenarbeitsbenutzer) und Computeraccount
+($account), da in der engl. Literatur beim $account vom
+workstationaccount (z.B. accountflag W) gesprochen wird.
+
+Ich würde es gerne in der ML3 so machen
+
+ComputerAccount  : $-Account
+ExamAccount      : Klassenarbeitaccount/Prüfungsaccount
+
+
+Das würde bedeuten, das Gecos-Feld, cn=, und die optionen bei den Befehlsaufrufen 
+anzupassen(statt --workstation --examaccount).
+
+
+
+Interface to create/manage accounts:
+
+- Create group for room:
+----------------------------------------
+not necessary, groups are added when user is added
+(replaces smbldap-groupadd -a <raum>)
+
+- Create Workstationaccount (Klassenarbeitsnutzer)
+----------------------------------------
+sophomorix-useradd --workstation <wsname> --unix-group <raum>
+(replaces 'smbldap-useradd -a -d <homedir> -c HostAccount -g <raum> -m -s /bin/bash
+<hostname>')
+
+- Create Computer account
+----------------------------------------
+sophomorix-useradd --computer <hostname$>
+
+replaces:
+1) smbldap-useradd -w -g 515 -c Computer -d /dev/null -s /bin/false <hostname>$
+
+2) smbpasswd -u -m hostname (without $)
+
+3) smbldap-usermod -H '[WX]' <hostname>$
+
+Delete an account:
+----------------------------------------
+sophomorix-kill --killuser loginname1,loginame2,...   
+($ mit übergeben im loginnamen)
+(replaces smbldap-userdel <hostname>)
+
+To do : Delete a room group
+----------------------------------------
+smbldap-groupdel <raum>
+  - is project removed completely?
+  
+
+
+Set a password of a user:
+----------------------------------------
+sophomorix-passwd --interactive --user name 
+(replaces 'smbldap-passwd name')
+
+
+
+
+sophomorix-useradd:
+
+set quota when needed
+
+wwwadmin should have /dev/null as home
+
+add option for this
+ 
+
+
+
+
+
+sophomorix-vampire:
+
+copy rembo.key, rembo.conf, .... rembo stuff to /root/sophomorix-vampire
+
+In allen Verzeichnissen, die es in
+
+/usr/local/rembo/files/global/myshn/groups/
+
+gibt (Das sind die Hardwareklassen), werden nur die Dateien kopiert,
+die 'config' heissen.
+
+vgl. Code bei mlscripts
+
+
+
+
+
+
+Problems:
+
+if you give user a shell:   
+   smbldap-usermod -s /bin/bash user
+and do 
+   su user
+then: user has no name
+
+
+but getent passwd/id as root shows user and its id correctly
+whoami als user sagt, kein loginname für id 10016 
+
+
+
+add some checks to auth_* functions, (see ?????)
+
+add warning, when connect to ldap failed
+
+
+sophomorix-kill --killuser name deletes in the wrong place:
+
+   Removing recursively /home/workstations/r717/may1
+Deleted User may1 (10021)
+Killing user in ldap
+   * smbldap-userdel may1
+File LOG is /var/log/sophomorix/user-modify.log
+-->rmdir: ,,/home/students/r717": Datei oder Verzeichnis nicht gefunden
+-->rmdir: ,,/home/share/classes/r717": Datei oder Verzeichnis nicht gefunden
+
+
+Careful:
+sophomorix-useradd --workstation ... no homedir created
+
+adding a workstation does not add class-dirs and user-dirs
+(this does the script of workstation import)
+
+deleting groups does not delete workstation dirs
+
+This should be moved to the sophomorix-scripts
+
+
+
+sophomorix-repair repariert workstations im falschen Verzeichnis
+check this
+
+
+Checken:
+Die Abfrage zum Finden von Schuelern sieht bei mir in etwa so aus:
+SELECT uid FROM userdata
+  RIGHT JOIN classdata ON userdata.gidnumber = classdata.gidnumber
+  WHERE classdata.type = 'adminclass'
+
+D.h. also alle Accounts, die als Initial Group eine Klasse haben, die
+vom Typ adminclass ist.
+
+
+wwwadmin account should not be windows account
+check if this is correct
+
+
+
+add parameter to auth_groupadd: unixonly
+  if unixonly==1 -> do NOT issue net groupmap command 
+               0 -> do     issue net groupmap command
+check if this is the difference from a group appearing in windows
+
+
+komischer Wert bei slapcat:
+sambaDomainName:: c2NodWxlIA==
+
+
+
+Bugs:
+# 117
+# 238 schreiben in __vorlagen und __tauschen
+
+
+diff pg to ldap:
+  - use it in sophomorix-sync-check
+  - with -vv make it more noisy (show what is has found)
+
+
+Bug (cosmetical):
+fetch_ldap_pg_passwords finds lines twice (they exist only once)
+
+Check: 
+frueher: smbldap-useradd legte homedirs von examaccounts an
+neu    : sophomorix-useradd macht das nicht mehr
+beim nutzen der examaccounts werden diese erstmal zurückgesetzt
+also werden die homes nicht gebraucht
+
+
+add more check of ldap attributes to tests, and compare (sophomorix-user)
+
+
+sophomorix-sync users: add ldap comparison
+
+test stuff, that is only in ldap???
+
+
+
+
+upgrade:
+
+To do Beck:
+given Name: 'Vorname' is not existing 
+(no smbldap-usermod option for this)
+
+
+
+
+
+ich hab mal ldap mit smbldaptools befüllt(=mit sophmorix) und dann mit
+smbldap-usershow angezeigt Dann habe ich deine scripte angewendet und
+den ldap-baum neu erzeugt um ihn dann neu anzeigen zu lassen mit
+smbldap-usershow.
+
+Eigentlich sollte der dann aufgebaute ldap-Baum gleich sein.
+
+Das ist so, bis auf folgende Ausnahmen:
+
+1)
+Beim $-Account steht:
+dn: uid=test12$,ou=accounts,dc=linuxmuster,dc=de
+
+muss ou=machines stehen
+
+Alle $-accounts müssten also mit ou=machines gedumpt werden.
+
+
+
+2) Reihenfolge in objectClass ist anders: 
+Hat keine Auswirkungen
+
+
+3) sambaprimarygroupsid (postgres) bzw. sambaPrimaryGroupSID(ldap)
+ist z.B. S-1-5-21-1800012640-1621739038-321154774-515 für $-accounts, wenn mit 
+smbldaptools angelegt (letzte Zahlen sind unix-group id)
+
+bei unserem bisherigen setup (postgres alleine) wird die letzte Zahl berechnet
+nach 2*unixgidnumber+1001
+
+Das würde bedeuten: 
+A) nach dem anlegen S-*-515
+B) nach dem ersten dump 2031 
+
+Was ist nun richtig?
+Soll ich in der Datenbank auch mit *-515 anlegen?
+
+
+4) givenName
+Dafür gibts in den smbldap-tools keine Option. Das bedeutet:
+A) nach dem anlegen ist givenName leer.
+B) nach dem ersten dump ist givenName ausgefüllt
+
+(Da müsste ich also nachbessern: givenName beim Anlegen )
+
+Ich denke nicht, dass uns das stören wird. Aber vielleicht gibts einen
+technischen Grund dass man den givenName immer braucht.
+
+
+
+
+add option --ldapsearch to sophomorix-dump-pg2ldap:
+
+use ldapsearch instead of smbldap-usershow and compare these values as well
+
+ldapsearch -x -D cn=admin,dc=bszleo,dc=de,dc=local -y /etc/ldap.secret uid=roe >/root/log3
+
+
+sophomorix-vampire:
+care about printers,
+sort them out of wimport_data
+
+
+
+slapd.conf
+by read
+check this with tho
+
+sind die indexe noch notwendig in postgres?
+
+auth_adduser_to_project doesnt check if user is in this group.
+creates smbldap-usermod -G administrators,administrators
+
+add a working hostname function (hostname -s )
+
+
+HORDE STUFF:
+
+avoid that users can sent mail with arbitrary names
+
+Remove from_addr and identities stuff:
+
+DELETE FROM horde_prefs WHERE ((pref_name='identities' OR pref_name='from_addr') AND pref_uid='bz');
+
+IDEA: Remove this stuff and recreate it with decent values.
+
+Dump one INSERT per line:
+mysqldump --extended-insert=0 horde > file.sql
+
+
+
+
+TODO in 1.9.29:
+
+check if computer$ are dumped to ou=machines
+
+checkin from svn the following files:
+        smb.conf
+        logon.bat
+        login.bat
+        common.bat
+
+
+Todo:
+ 
+
+Schulkonsole-Befehle zum internet sperren usw.
+
+noch (scheinbar) angemeldete user loeschen:
+rm /var/cache/linuxmuster/logins/*
+
+/usr/share/linuxmuster/scripts/urlfileter_on_off.sh
+
+
+
+
+
+
+
+sophomorix-groupmod, ... Befehle (Liste von Thomas)
+user in zusätzliche sekundäre gruppen eintragen/austragen in (pg und ldap) 
+
+
+sophomorix-lock
+
+mehrmals probieren,nach 2s Pause
+nach 8s beenden
+
+
+
+sophomorix-print
+   - do somthing useful when latex hangs
+
+
+sophomorix-mail: auch nur 1 usermailbox anzeigen lassen
+
+sophomorix-passwd: option um firstpassword zu leeren leeren (password bleibt gleich)
+
+
+NEXT:
+
+sophomorix-kill --allstudents  
+                --allteachers
+                schueler.txt,lehrer.txt umbenennen
+                Daten auch löschen
+
+avoid double code:
+marriage: sophomorix-check line 2310 ... check this
+
+
+man sophomorix-vampire:
+Hinweis auf 12 12er und class.db
+Hinweis: neuestes Paket installieren
+
+
+
+man sophomorix-passwd:
+welche Zeichen sind als Passwort zulässig:
+
+
+error: when a user is killed,
+       she was not deleted from members_projects
+   Write a cleanup script
+
+
+sophomorix-test:
+sophomorix -F mahnol
+Use of uninitialized value in string at /usr/sbin/smbldap-usermod line 458, <DATA> line 283.
+
+
+Problem: der erste ist angelegt, der zweite kommt dazu
+
+11A;Paice;Ian;12.04.1974;1234;
+11A;Paice;Jan;12.04.1974;
+
+
+
+
+
+wir haben nun wiederholt beobachtet, dass sich beim Anlegen neuer
+Benutzer über die Schulkonsole das Schulkonsolenpasswort einiger
+(nicht aller) bereits bestehender Benutzer ändert. Das betrifft auch
+"nur" das Passwort für die Schulkonsole, die betroffenen Benutzer
+können sich weiterhin am System anmelden. Außerdem komisch: wenn man
+sich die Passwörter dieser Benutzer dann anzeigen lässt, haben sie
+alle dasselbe Erstpasswort (eingestellt ist Zufallspasswort).  Machen
+wir etwas falsch oder ist das ein Bug?
+
+Danke und Gruß,
+
+Jochen Rupp
+KKS Esslingen
+
+
+
+
+Treffen:
+
+    - passwortänderung bei erstanmeldung, 
+    # 134 bug Zeilentrenner
+    # 208 bug tritt nicht wieder auf
+    - windows-Passwortänderung
+    - sophomorix-support Befehl
+    doppelte Doku:
+      --sophomorix-vampire
+      --sophomorix für experten
+
+
+sophomorix-groupdel erweitern um 'leere' klassen zu löschen
+can sophomorix-groupdel delete an empty adminclass group?
+- add option to do this
+
+sophomorix-usermod um user zusätzlich in einer Gruppe einzutragen:
+  hauptsächlich admins in zusatzgruppe
+
+
+man sophomorix-vampire:
+mit scp auf localhost:
+mounten des externen Dateisystem mit mount
+ssh local stoppen 3.0
+chroot auf gemountetes system
+ssh dort starten 2.2
+neue konsole benutzen
+dort sophomorix-vampire aufrufen
+als alter server localhost angeben
+
+
+vmware 6: Lizenz für 6 : 5.7.2007
+
+
+
+
+sophomorix-useradd:
+
+Beispiele in manpage:
+1) user areca mit password, das in webfrontend eingetragen wird
+   (erscheint in schulkonsole! Muss verhindert werden! Info an Aike)
+   ??? verstehe ich nicht mehr
+
+sophomorix-useradd --unixadmin areca --unix-group areca
+Edit quota.txt
+Edit mailquota.txt
+sophomorix-mail --add-mailbox areca
+sophomorix-passwd --interactive -u areca
+sophomorix-quota
+
+Prüfen:
+
+sophomorix-mail --showmailboxes | grep areca
+quota -v areca
+
+2) weiterer pgmadmin
+     win und unix, in gruppe pgmadmin
+     wwwadmin ist in keiner Gruppe?!
+     (domadmin ist type domaingroup)
+
+
+sophomorix-teacher --showclasses
+                   --showteachers
+                   mit optionalem Argument lehrerlogin
+                   zeigt nur die Klassen dieses Lehrers
+evtl. neue option showteacher login (ohne s)
+
+
+To check:
+
+- in the code: where is 'adminclass' selected and must 
+  be 'hiddenclass' also?
+
+- add a checkbox/Button to schuko (as administrator)
+  to switch a class hidden (and unhide it)
+
+- wie kann man das /var/www/people/students löschen, wenn man nicht weiss,
+  welcher ob der user im attic in teacher oder students war?  
+  (Use ExitAdminClass)
+
+Aike:
+
+sophomorix-locked:
+   - Anzeige in schulkonsole
+
+   - Änderungen für Aike: 
+                  - bei allen Seiten, die sophomorix-Befehle aufrufen
+                  - lesen von /var/lib/sophomorix/lock/sophomorix.lock
+                     ...::scriptname::prozessid::
+                  A) testen, ob lockfile existiert
+                  B) wenn ja, schauen ob prozess mit 'prozessid' existiert
+
+                  A) nein ---> alles wie bisher
+                  A) ja B) ja --> Versuchen sie es später nochmal
+                  A) ja B) nein --> Informieren sie den Administrator
+
+                  Achtung: Zwischen A und B vergeht Zeit, deshalb :
+                  Nach A) B) NOCHMALS A) prüfen:
+                  nur wenn lockfile bei A) GLEICH wie beim ersten prüfen, 
+                  dann: Informieren Sie den Administrator 
+
+                  Knopf für administrator: Wo? Andy
+
+                  Unlocken:
+
+                  Aufrufen von: sophomorix-support --unlock-report
+                                (existiert in 1.9.28 noch nicht)       
+                  Das macht folgendes:
+                  - sichern von /var/lib/sophomorix/lock/sophomorix.lock
+                  - sichern der letzten 30 Zeilen von 
+                       /var/log/sophomorix/command.log
+
+- sophomorix-www logt nicht mit, wer eines Schülers 
+  Homepage freigegeben hat.
+  Sollte aber so sein.
+  Loggen in command-log (evtl. zusätzlich in die .htaccess-Datei rein)
+  Aike: sophomorix-www mit Parameter --caller login aufrufen
+
+- sophomorix-www -i 
+  sollte alle user mit freigegebenem Verzeichnis angeben.  
+  und ob sie einen Inhalt (außer .htacess haben. MB-Angabe?)
+
+- Auruf von sophomorix-passwd sollte mit ' ' erfolgen, also
+  sophomorix-passwd -u bz --pass '{my#cking}Pass' 
+  (wegen Sonderzeichen)
+
+- offene und geschlossene Projekte
+  ausarbeiten und Aike schicken
+ 
+
+
+
+changelog-sophomorix-source aufspalten in:
+ - changelog
+ - packaging
+ - todo
+
+dann ins entsprechende Paket (changelog in sophomorix2)
+ins Readme.debian ein Verweis darauf
+
+
+sophomorix-teach-in:
+Idee: auto-teach-in nur, wenn das anlegedatum WENIGER als 3 Monate 
+(oder 7 Monate(erstes Zeugnis?)) zurückliegt? 
+Variable time in sophomorix.conf
+
+
+sophomorix-passwd --pass 'my\file' setzt passwort nicht korrekt 
+                  mit my\\file steht my/fie in der Datenbank
+
+Beim versetzen in den attic,löschen,... muss das public html auf
+user-private-noupload gesetzt werden
+
+
+##############################################
+new variables (add to new major release):    #
+##############################################
+sophomorix.conf:
+# alias name for mailist teachers (must be activated)
+$teachers_alias_name="lehrer";
+
+# auf 2005 setzen
+$geburts_jahreszahl_stop=2001;
+
