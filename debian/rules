@@ -71,6 +71,7 @@ binary-indep: build install
 	dh_installchangelogs
 # install debian/copyright file in every package:
 	dh_installdocs
+	dh_installdocs -psophomorix2 changelog-sophomorix-src
 	dh_installdocs -psophomorix-doc-html sophomorix-doc/html
 #	dh_installexamples
 #	dh_installmenu
