@@ -1566,6 +1566,9 @@ sub create_user_db_entry {
           if ($type eq "examaccount"){
               # neue gruppe anlegen und gidnumber holen, falls erforderlich
               $gidnumber=&create_class_db_entry($admin_class,5);
+          } elsif ($type eq "unixadmin"){
+              # neue gruppe anlegen und gidnumber holen, falls erforderlich
+              $gidnumber=&create_class_db_entry($admin_class,7);
 	  } else {
               # neue gruppe anlegen und gidnumber holen, falls erforderlich
               $gidnumber=&create_class_db_entry($admin_class);
@@ -1831,6 +1834,10 @@ sub create_class_db_entry {
         $local_group=1;
         $samba_group_type="4";
         $description="Local Unix group";
+    } elsif ($sub==7) {
+        # unixadmin, ...
+	$sub=0;
+        $type="hiddenclass";
     } else {
         $type="subclass";
     }
