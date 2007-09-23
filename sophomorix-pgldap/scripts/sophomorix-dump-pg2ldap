@@ -19,16 +19,24 @@ use Sophomorix::SophomorixBase;
 
 my @arguments = @ARGV;
 
-
-
 my $help=0;
 my $info=0;
 $Conf::log_level=1;
-
 my $dump=0;
 my $load_dump=0;
 my $domainname="";
-my $skiplock=0;
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "verbose|v+" => \$Conf::log_level,
+           "help|h" => \$help,
+           "info|i" => \$info,
+           "dump" => \$dump,
+           "load-dump" => \$load_dump,
+          );
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
 
 
 ############################################################
@@ -48,37 +56,57 @@ my $domainname_debconf=
 # process debconf data
 if ($domainname_debconf ne 0){
     # from debconf
-    $domainname=$domainname_debconf;    
-    print "   Domainname from debconf              : $domainname \n";
+    $domainname=$domainname_debconf;
+    if($Conf::log_level>=2){
+       print "   Domainname from debconf              : $domainname \n";
+    }
 } else {
     # from config file
-    print "   Domainname from pgldap.conf          : $domainname \n";
+    if($Conf::log_level>=2){
+       print "   Domainname from pgldap.conf          : $domainname \n";
+    }
 }
 
 
 my ($basedn,$dc)=&basedn_from_domainname($domainname);
 my $timestamp=&zeit_stempel();
 
-# Parsen der Optionen
-my $testopt=GetOptions(
-           "verbose|v+" => \$Conf::log_level,
-           "help|h" => \$help,
-           "skiplock" => \$skiplock,
-           "info|i" => \$info,
-           "dump" => \$dump,
-           "load_dump" => \$load_dump,
-          );
-
-# Prüfen, ob Optionen erkannt wurden
-&check_options($testopt);
-&log_script_start(@arguments);
-
-
 
 my $dump_dir=${DevelConf::log_pfad_pg2ldif};
 my $ldif_file="slapd.ldif";
 
 
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlbeschreibung
+   print "\n$scriptname dumps the postgres database to a ldif file\n",
+         "and loads it into slapd:\n";
+   print('
+Options
+
+  without option: --dump and --load-dump
+
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  --dump
+  --load-dump
+');
+   print "\n";
+   exit;
+}
+
+# --info
+if ($info==1) {
+   print "\nThe option --info does nothing at the moment\n\n";
+   exit;
+}
+
+
+&log_script_start(@arguments);
 
 
 
