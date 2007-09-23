@@ -1977,9 +1977,6 @@ sophomorix-mail --add-mailbox areca
 sophomorix-passwd --interactive -u areca
 sophomorix-quota
 
-- todo hide group areca automatically 
-  (use hiddenclass as type instead of adminclass(Bug))
-
 Prüfen:
 
 sophomorix-mail --showmailboxes | grep areca
@@ -1991,27 +1988,10 @@ quota -v areca
      (domadmin ist type domaingroup)
 
 
-
-Bug: in Gruppe haustechnik,areca kann man sich zuordnen
-Lösungsmöglichkeit ohne Datenbankänderung:
-   - statt adminclass den typ 'hiddenclass'
-
-
-
-Testen an Schule:
-
-adminclass auf hiddenclass setzen
-(OK, sind nicht mehr zu sehen)
-1) SELECT gid,type,id from classdata WHERE gid='11a';
-
-2) UPDATE class_details SET type='hiddenclass' WHERE id=(SELECT id from classdata WHERE gid='11a');
-
-
-
 sophomorix-teacher --showclasses
                    --showteachers
                    mit optionalem Argument lehrerlogin
-
+                   zeigt nur die Klassen dieses Lehrers
 evtl. neue option showteacher login (ohne s)
 
 
@@ -2020,14 +2000,8 @@ To check:
 - in the code: where is 'adminclass' selected and must 
   be 'hiddenclass' also?
 
-- add option --hidden, --nohidden to sophomorix-class
-- Beitritt in class verhindern, wenn sie hidden ist
-  - Fehlermeldung sophomorix 
-  (beigetretene bleiben erhalten)
 - add a checkbox/Button to schuko (as administrator)
   to switch a class hidden (and unhide it)
-
-- sophomorix-teacher --showclasses should show H=0,1 for hidden
 
 - wie kann man das /var/www/people/students löschen, wenn man nicht weiss,
   welcher ob der user im attic in teacher oder students war?  
@@ -2071,13 +2045,19 @@ sophomorix-locked:
   Loggen in command-log (evtl. zusätzlich in die .htaccess-Datei rein)
   Aike: sophomorix-www mit Parameter --caller login aufrufen
 
-  sophomorix-www -i 
+- sophomorix-www -i 
   sollte alle user mit freigegebenem Verzeichnis angeben.  
   und ob sie einen Inhalt (außer .htacess haben. MB-Angabe?)
+
+- Auruf von sophomorix-passwd sollte mit ' ' erfolgen, also
+  sophomorix-passwd -u bz --pass '{my#cking}Pass' 
+  (wegen Sonderzeichen)
 
 - offene und geschlossene Projekte
   ausarbeiten und Aike schicken
  
+
+
 
 changelog-sophomorix-source aufspalten in:
  - changelog
@@ -2089,8 +2069,13 @@ ins Readme.debian ein Verweis darauf
 
 
 sophomorix-teach-in:
-Idee: auto teach in nur, wenn das anlegedatum WENIGER als 3 Monate 
+Idee: auto-teach-in nur, wenn das anlegedatum WENIGER als 3 Monate 
 (oder 7 Monate(erstes Zeugnis?)) zurückliegt? 
+Variable time in sophomorix.conf
+
+
+sophomorix-passwd --pass 'my\file' setzt passwort nicht korrekt 
+                  mit my\\file steht my/fie in der Datenbank
 
 Beim versetzen in den attic,löschen,... muss das public html auf
 user-private-noupload gesetzt werden
@@ -2115,6 +2100,19 @@ $geburts_jahreszahl_stop=2001;
 ================== CHANGELOG ========================================
 
 1.9.29-1 (2007-09-xx)
+    - sophomorix-useradd --unixadmin login --unix-group group 
+      adding the group of this user as as type 'hiddenclass'
+    - avoid joining a 'hiddenclass' with 
+      sophomorix-teacher -add class --teacher name
+    - added option --hide/--nohide to sophomorix-class
+      and updated manpage of sophomorix-class
+    - show hiddenclass/adminclass 
+      in sophomorix-teacher --showclasses
+    - Bugfix: print #,&,%,{,},\ nicely without interuption with latex
+              (\ must be set using \\ on the command line)
+    - Bugfix: added help to sophomorix-dump-pg2ldap
+              (made -h and -i NOT run the script)
+    - fixed typo in sophomorix-check --help
     - avoid exiting sophomorix-www with missing function
       log_script_exit
     - sophomorix-class -i:
