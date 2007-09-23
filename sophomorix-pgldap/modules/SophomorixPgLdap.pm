@@ -2067,6 +2067,7 @@ sub update_class_db_entry {
     my $mailquota;
     my $mailalias;
     my $maillist;
+    my $type;
     foreach my $param (@_){
        ($attr,$value) = split(/=/,$param);
        if($Conf::log_level>=2){
@@ -2122,6 +2123,12 @@ sub update_class_db_entry {
        if ($attr eq "Maillist"){
 	   $maillist="$value";
 	   push @class_details, "maillist = $maillist";
+       }
+
+       # type
+       if ($attr eq "Type"){
+	   $type="$value";
+	   push @class_details, "type='$type'";
        }
     }
 
