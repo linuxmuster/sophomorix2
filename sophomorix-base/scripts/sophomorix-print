@@ -840,6 +840,9 @@ if ($one_per_page==1){
                  "in   $klasse_protokoll \n";
         }
 
+        # replace some characters
+        my $latex_passwort_protokoll=&latexize_string($passwort_protokoll);
+
         # write header/contents of page
         print LATEX '\chead{\LARGE \bf ',
                    "$name_protokoll ($klasse_protokoll)",'}';
@@ -866,15 +869,17 @@ if ($one_per_page==1){
         print LATEX ('{',"Klasse: $klasse_protokoll",'}');
         # 4 Login
         print LATEX ('{',"Login: $loginname_protokoll",'}');
+
+
         # 5 Passwort
-        print LATEX ('{',"Passwort: $passwort_protokoll",'}',"\n");
+        print LATEX ('{',"Passwort: $latex_passwort_protokoll",'}',"\n");
 
         # windows
         print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
         print LATEX "Anmeldung an einem Windowsrechner:\n\n";
         print LATEX "\\begin{tabbing}\n";
         print LATEX " Benutzername:\\qquad \\= \\texttt{$loginname_protokoll} \\\\ \n";
-        print LATEX " Kennwort:     \\> \\texttt{$passwort_protokoll} \\\\ \n";
+        print LATEX " Kennwort:     \\> \\texttt{$latex_passwort_protokoll} \\\\ \n";
         print LATEX " Domäne:       \\> \\texttt{???} \\\\ \n";
         print LATEX "\\end{tabbing}\n\n";
         print LATEX "\\vspace{-6mm}\n\n";
@@ -884,7 +889,7 @@ if ($one_per_page==1){
         print LATEX "Anmeldung an einem Linuxrechner:\n";
         print LATEX "\\begin{tabbing}\n";
         print LATEX " Login:\\qquad\\qquad \\= \\texttt{$loginname_protokoll} \\\\ \n";
-        print LATEX " Passwort: \\> \\texttt{$passwort_protokoll} \\\\ \n";
+        print LATEX " Passwort: \\> \\texttt{$latex_passwort_protokoll} \\\\ \n";
         print LATEX "\\end{tabbing}\n";
         print LATEX "\\vspace{-6mm}\n\n";
 
@@ -956,11 +961,15 @@ if ($one_per_page==0 and $classlist eq ""){
     $passwort_protokoll,
     $geburtsdatum_protokoll
    )=split(/;/,$schueler_protokoll_zeile);
-    # Ausgabe
-    if($Conf::log_level>=2){
-       print "Erstelle Login-Karte für  $loginname_protokoll  ",
-             "in   $klasse_protokoll \n";
-     }
+   # Ausgabe
+   if($Conf::log_level>=2){
+      print "Erstelle Login-Karte für  $loginname_protokoll  ",
+            "in   $klasse_protokoll \n";
+   }
+
+   # replace some characters
+   my $latex_passwort_protokoll=&latexize_string($passwort_protokoll);
+
    # Vorheriger Eintrag speichern
    $eintrag_typ_alt=$eintrag_typ;
 
@@ -1109,7 +1118,7 @@ if ($one_per_page==0 and $classlist eq ""){
    # 4 Login
    print LATEX ('{',"Login: $loginname_protokoll",'}');
    # 5 Passwort
-   print LATEX ('{',"Passwort: $passwort_protokoll",'}',"\n");
+   print LATEX ('{',"Passwort: $latex_passwort_protokoll",'}',"\n");
    # Eintag ferig, Zähler erhöhen
    $anzahl_karten_pro_seite++;
    $anzahl_karten_pro_zeile++;
@@ -1265,7 +1274,20 @@ sub latexize_string {
     $string=~s/_/\\_/g;
     #replace  $   with   \$
     $string=~s/\$/\\\$/g;
-    return $string; 
+    #replace  #   with   \#
+    $string=~s/\#/\\\#/g;
+    #replace  &   with   \&
+    $string=~s/\&/\\\&/g;
+    #replace  %   with   \%
+    $string=~s/\%/\\\%/g;
+    #replace  {   with   \{
+    $string=~s/\{/\\\{/g;
+    #replace  }   with   \}
+    $string=~s/\}/\\\}/g;
+    #replace  \   with   \textbackslash{}
+    $string=~s/\\/\\textbackslash\{\}/g;
+    # [] seem to work
+     return $string; 
 }
 
 
