@@ -346,7 +346,8 @@ sub get_mail_alias_classes {
     my $sth= $dbh->prepare( "SELECT gid,mailalias 
                             FROM classdata 
                             WHERE (mailalias='t'
-                              AND (type='adminclass' OR type='teacher')) 
+                              AND (type='adminclass' OR type='teacher'
+                               OR type='hiddenclass')) 
                            " );
     $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
@@ -387,7 +388,8 @@ sub get_mail_list_classes {
     my $sth= $dbh->prepare( "SELECT gid,maillist 
                             FROM classdata 
                             WHERE (maillist='t'
-                              AND (type='adminclass' OR type='teacher')) 
+                              AND (type='adminclass' OR type='teacher'
+                               OR type='hiddenclass')) 
                            " );
     $sth->execute();
     my $array_ref = $sth->fetchall_arrayref();
