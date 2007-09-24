@@ -353,6 +353,7 @@ if ($install_files==1){
             }
 
             my ($oct1,$oct2,$oct3,$oct4)=split(/\./,$ip);
+            $oct1="10";
 	    $oct2=$second_octett_client;
             $ip=join(".",$oct1,$oct2,$oct3,$oct4);
 
@@ -536,7 +537,9 @@ if ($update_quota==1){
     print "* Step 7:  update quota in the system\n";
     system("sophomorix-check");
     chmod 755, "${dir_config_files}quota.commands";
-    system("${dir_config_files}quota.commands");
+    if (-e "${dir_config_files}quota.commands"){
+        system("${dir_config_files}quota.commands");
+    }
     system("sophomorix-quota");
 }
 
@@ -926,6 +929,13 @@ if ($myshn==1){
     
     system "$rembo_key_command";
 
+    # fetching myshn.key
+    my $old_myshn_key="/usr/local/rembo/files/global/myshn/myshn*.key";
+    my $new_myshn_key="/var/lib/myshn";
+    my $myshn_key_command="scp -i $key_dsa root\@${server}:$old_myshn_key $new_myshn_key";
+    
+    system "$rembo_key_command";
+
     # copying mac files
     #my $old_hosts="/usr/local/rembo/files/global/hosts";
     #my $new_hosts="/var/lib/rembo/files/global/hosts";
@@ -936,7 +946,7 @@ if ($myshn==1){
 
 
     # copying config
-    my $old_ml_dir="/usr/local/rembo/files/global/groups";  
+    my $old_ml_dir="/usr/local/rembo/files/global/myshn/groups";  
     my $new_ml_tmp_dir=$dir_old_files."myshn";  
     my $new_ml_dir="/var/lib/myshn/groups";  
 
@@ -946,8 +956,8 @@ if ($myshn==1){
     system("mkdir -p $new_ml_tmp_dir");
 
     # patch config files
-    #my $replace= " -e 's/\\/mlscripten\\//\\/mlscripts\\//g'"; 
-    my $replace= ""; 
+    my $replace= " -e 's/NoSIDPatch/\#NoSIDPatch/g'"; 
+    #my $replace= ""; 
 
     my @hw=&fetch_hw_classes();
     foreach my $hwc (@hw){
@@ -973,6 +983,7 @@ if ($myshn==1){
             # modify files and put them into place
             system("mkdir -p $new_dir");
             system($command_sed);
+            #system("cp $new_dir_tmp/$filename $new_dir/$filename");
         }
     }
 }

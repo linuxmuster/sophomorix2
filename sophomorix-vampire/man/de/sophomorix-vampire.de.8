@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-VAMPIRE 8 "July 1, 2007"
+.TH SOPHOMORIX-VAMPIRE 8 "September 23, 2007"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -46,10 +46,6 @@ Achtung: Beim update von 2.x auf 3.x wird aus der Klasse k7a die Klasse 7a.
 .br
 Wenn dadurch Klassen nur mit Ziffern entstehen müssen diese umbenannt
 werden (siehe unten).
-.TP
-.B Todo: Rembo/myshn 
-.br
-Todo
 .br
 .SH WELCHE DATEN WERDEN NICHT ÜBERNOMMEN?
 .TP
@@ -76,6 +72,12 @@ Installieren sie das aktuellste Paket von sophomorix-vampire:
    aptitude update
    aptitude install sophomorix-vampire
 .br
+
+.br
+
+.TP
+.B Step 1: Von einem laufenden alten Server 2.x migrieren
+.br
 Sorgen sie dafuer, dass der neue Server über seine interne Netzwerkkarte auf den alten Server zugreifen kann:
 .br
 1) Neuer Server: 
@@ -84,42 +86,51 @@ Sorgen sie dafuer, dass der neue Server über seine interne Netzwerkkarte auf den
 .br
    /etc/init.d/rembo stop
 .br
-2) Physikalische Verbindung herstellen.
+2) Physikalische Verbindung herstellen (Netzwerkkabel,Switch, ...).
 .br
 3) Dem neuen Server eine zusaetzliche IP/Netmask geben, die im alten Netz liegt, und noch nicht vergeben ist, z.B. mit:
 .br
+
 .B ifconfig br_intern:10 netmask 255.255.0.0 10.1.1.245 
-
 .br
 
-.TP
-.B Step 1: --key --server 10.1.x.y
-.br
 Erzeugen eins passwortlosen ssh-keys und ablegen auf dem alten Server mit der IP 10.1.x.y. Obligatorisch, wenn von einem anderen Rechner migriert wird.
 .br
+
+.B sophomorix-vampire --key --server 10.1.x.y
+
+Falls das nicht funktioniert:
+
 Um den ssh-key auf dem alten Server ablegen zu können, muss dort ein
 ssh login als root möglich sein. Falls sie das rootlogin abgeschaltet
-haben, sollten sie es in /etc/ssh/sshd_config mit
+haben, sollten sie es in 
+.br
+/etc/ssh/sshd_config mit
 
 PermitRootLogin yes
 
 für die Migration wieder einschalten.
+
  
 .TP
-oder:
+ODER:
 .TP
 .B Step 1: Von einer lokalen gemounteten Wechselplatte migrieren:
-.br
-Das sollte so gehen (von mir ungetestet):
 .br
 Loggen sie sich auf 2 Konsolen ein:
 .br
    Konsole 1: neuer Server
    Konsole 2: alter Server
 .br
-1) Konsole 2: mounten des Dateisystems mit mount
+1) Konsole 2: mounten des Dateisystems mit mount:
 .br 
-              an beliebige Stelle (z.B. /mnt)
+              zum Beispiel: mount /dev/sda1 /mnt
+.br
+              Befindet sich noch Daten auf einer weiteren Partition,
+.br        
+              so müssen sie so zusammengemountet werden, dass unter /mnt
+.br
+              das gesamte /-Filesystem zugänglich ist.
 .br
 2) Konsole 1: Den ssh-server auf dem neuen Server stoppen:
               /etc/init.d/ssh stop
@@ -133,9 +144,9 @@ Loggen sie sich auf 2 Konsolen ein:
 4) Konsole 2: ssh-server auf dem alten Server starten:
               rcsshd start
 .br
-5) Konsole 1: sophomorix-vampire benutzen:
+5) Konsole 1: sophomorix-vampire mit folgenden Optionen benutzen:
 .br
-.B            --key --server localhost
+              --key --server localhost
 .TP
 .B Step 2: --fetch-files
 .br
@@ -149,27 +160,45 @@ Konfigurationsdateien von sophomorix patchen und ins neue System kopieren
 .br
 Einige Verzeichnisse auf den neuen Server kopieren
 .TP
-.B Step 5: --sync-users
+.B Step 5:
 .br
-Benutzer mit gleichen Loginnamen anlegen (numerische user id kann sich ändern). 
 .br
-Stellen ZUVOR sicher:
+Stellen sie VOR dem nächsten Schritt sicher,
  - dass sie sophomorix konfiguriert haben:
      /etc/sophomorix/user/sophomorix.conf
 .br
  - dass Klassen, die nur aus Ziffern bestehen (z.B. 12) 
    auf einen anderen Namen umgeschrieben werden (z.B. 12er):
       /etc/sophomorix/user/class.map
+.br
+Dann legen Sie die Benutzer mit dem gleichen Loginnamen an 
+(numerische user id kann sich ändern) mit:
+.B sophomorix-vampire --sync-users
 .TP
 .B Step 6: --configure-quota 
 .br
 Quota konfigurieren:
 .br
+
 1) Bearbeiten sie die Datei /etc/sophomorix/vampire/quota.config 
 .br
+
 2) updaten sie die Angaben in den Konfigurationsdateien lehrer.txt, ... durch den Befehl:
 .br
+
 sophomorix-vampire --configure-quota
+.TP
+ODER:
+
+Editieren Sie in folgenden Dateien die Quotaangaben mit einem Editor:
+
+   /etc/sophomorix/user/quota.txt
+   /etc/sophomorix/user/mailquota.txt
+   /etc/sophomorix/user/lehrer.txt
+
+   OHNE sophomorix-vampire --configure-quota aufzurufen!
+
+
 .TP
 .B Step 7: --update-quota 
 .br Quota im System anpassen. 
@@ -220,21 +249,36 @@ Workstation-accounts auf dem neuen Server anlegen.
 .br
 .B  Synchronisieren des Tausch-Verzeichnisses der Lehrer
 .TP
-.B Step 14:
-.br
-.B Todo: Synchronisieren der Konfigurationsdateien der Imaging Systems. 
-   (--mlscripts) Fertig! 
-   (--myshn) Todo!
+.B Step 14: Synchronisieren der Dateien des Imaging Systems.
+ 
+   --myshn
+     
+   kopiert rembo.key
+           myshn*.key
+
+   ODER:
+
+   --mlscripts 
+     
+   kopiert rembo.key
+           alle MAC Files
+           alle remboinit.rbc
+
 .TP 
 .B Step 15:
 .br
 .B Synchronisieren des Program-Shares pgm (P: bzw. neu K:)
-   (--sync-prog-share)
-.TP 
-.B Step 16:
-.br
-.B Todo: Synchronisieren sonstiger Verzeichnisse
-   (--sync-network-shares)
+
+   --sync-prog-share
+   
+Wenn sie weiterhin ein P: Laufwerk brauchen (also wenn sie
+Programme auf dem alten Server auf dem Netzlaufwerk P: installiert hatten),
+dann führen sie folgende Befehle aus:
+
+cd /home/samba/netlogon
+
+cp login.bat.compat login.bat
+
 .TP 
 .PP
 .SH OPTIONS
