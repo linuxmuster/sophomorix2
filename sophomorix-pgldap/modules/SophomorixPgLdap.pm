@@ -5048,48 +5048,107 @@ sub show_project {
     my ($longname,$addquota,$add_mail_quota,
         $status,$join,$time,$max_members,
         $mailalias,$maillist)=&fetchinfo_from_project($project);
+    my @project_data=();
     if (defined $longname){
-       print "Project:             $project\n";
-       print "   LongName:         $longname\n";
-       print "   AddQuota:         $addquota MB\n";
-       print "   AddMailQuota:     $add_mail_quota MB\n";
-       print "   MailAlias:        $mailalias\n";
-       print "   MailList:         $maillist\n";
-       print "   SophomorixStatus: $status\n";
-       print "   Joinable:         $join\n";
-       print "   MaxMembers:       $max_members\n";
-       print "   CreationTime:     $time\n";
+        # create list
+        if ($addquota eq "quota"){
+            $addquota="0";
+        }
+	@project_data=("LongName:",
+                       "  $longname",
+                       "AddQuota: $addquota MB",
+                       "AddMailQuota: $add_mail_quota MB",
+                       "MailAlias: $mailalias",
+                       "MailList: $maillist",
+                       "SophomorixStatus: $status",
+                       "Joinable: $join",
+                       "MaxMembers: $max_members",
+                       "CreationTime:",
+                       "  $time"
+        );
     }
 
     my @admins=&fetchadmins_from_project($project);
+    my $admins=$#admins+1;
     @admins = sort @admins;
-    &Sophomorix::SophomorixBase::print_list_column(4,
-       "Admins of $project",@admins);
-    print "\n";
+
     # show only by_option members, not admins (admins are shown earlier)
     my @user_bo=&fetchmembers_by_option_from_project($project);
+    my $user_bo=$#user_bo+1;
     @user_bo = sort @user_bo;
-    &Sophomorix::SophomorixBase::print_list_column(4,
-       "Members by_option from $project",@user_bo);
-    print "\n";
+ 
     my @groups=&fetchgroups_from_project($project);
+    my $groups=$#groups+1;
     @groups = sort @groups;
-    &Sophomorix::SophomorixBase::print_list_column(4,
-      "MemberGroups of $project",@groups);
-    print "\n";
+
     my @pro=&fetchprojects_from_project($project);
+    my $pro=$#pro+1;
     @pro = sort @pro;
-    &Sophomorix::SophomorixBase::print_list_column(4,
-      "MemberProjects of $project",@pro);
+
+    # calculate length colums
+    my $max=$#project_data;
+    if ($#admins > $max){
+	$max=$#admins;
+    }
+    if ($#user_bo > $max){
+	$max=$#user_bo;
+    }
+    if ($#groups > $max){
+	$max=$#groups;
+    }
+    if ($#pro > $max){
+	$max=$#pro;
+    }
+
+
+    print "+----------------------+----------+----------+",
+          "--------------+-----------------+\n";
+    printf "|%-22s|%-10s|%-10s|%-14s|%-17s|\n",
+           "Project:",""," Members "," Member "," Member ";
+    printf "|%-22s|%-10s|%-10s|%-14s|%-17s|\n",
+           "   $project"," Admins "," byOption "," Groups "," Projects ";
+
+    print "+----------------------+----------+----------+",
+          "--------------+-----------------+\n";
+    for (my $i=0;$i<=$max;$i++){
+        if (not defined $admins[$i]){
+	    $admins[$i]="";
+        }
+        if (not defined $user_bo[$i]){
+	    $user_bo[$i]="";
+        }
+        if (not defined $groups[$i]){
+	    $groups[$i]="";
+        }
+        if (not defined $pro[$i]){
+	    $pro[$i]="";
+        }
+        printf "|%-22s| %-9s| %-9s|%-14s|%-17s|\n",
+               $project_data[$i],
+               $admins[$i],
+               $user_bo[$i],
+               $groups[$i],
+               $pro[$i];
+
+    }
+
+    # show all members, not admins (admins are shown earlier)
+    my @user=&fetchmembers_from_project($project);
+    my $user=$#user+1;
+
+    print "+----------------------+----------+----------+",
+          "--------------+-----------------+\n";
+    printf "|%21s |%9s |%9s |%13s |%16s |\n",
+           "users: $user",$admins,$user_bo,$groups,$pro;
+    print "+----------------------+----------+----------+",
+          "--------------+-----------------+\n";
 
     if($Conf::log_level>=2){
-       print "\n";
        # show all members, not admins (admins are shown earlier)
-       my @user=&fetchmembers_from_project($project);
        @user = sort @user;
        &Sophomorix::SophomorixBase::print_list_column(4,
           "All Members  from $project",@user);
-       }
+    }
 }
 
 
