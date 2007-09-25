@@ -2003,7 +2003,7 @@ sophomorix-locked:
                   - sichern der letzten 30 Zeilen von 
                        /var/log/sophomorix/command.log
 
-- sophomorix-www logt nicht mit, wer eines Schülers 
+- sophomorix-www loggt nicht mit, wer eines Schülers 
   Homepage freigegeben hat.
   Sollte aber so sein.
   Loggen in command-log (evtl. zusätzlich in die .htaccess-Datei rein)
@@ -2053,6 +2053,18 @@ new variables (add to new major release):    #
 sophomorix.conf:
 # alias name for mailist teachers (must be activated)
 $teachers_alias_name="lehrer";
+
+# additional recipients for maillist teachers
+# separate entries with commas
+# use groups(classes) when possible
+# Example:
+# $teachers_alias_additions="secretaries,social";
+# Where secretaries and social is a class from extraschueler.txt 
+$teachers_alias_additions="blackmri,jonesjo";
+
+
+
+
 
 # auf 2005 setzen
 $geburts_jahreszahl_stop=2001;
