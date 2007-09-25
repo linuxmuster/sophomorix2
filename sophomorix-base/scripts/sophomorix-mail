@@ -521,6 +521,14 @@ sub generate_maillist_classes {
       foreach my $user (@user) {
          print ALIASESTMP "   $user";
          if ($user eq $letzter_user){
+            # add additional aliases for group teachers
+            if ($group eq ${DevelConf::teacher} and
+                defined ${Conf::teachers_alias_additions}){
+                if (${Conf::teachers_alias_additions} ne ""){               
+                    print ALIASESTMP ",\n";
+                    print ALIASESTMP "   ${Conf::teachers_alias_additions}\n";
+	        }
+            }
             print ALIASESTMP "\n";
          } else {
             print ALIASESTMP ",\n"; 
