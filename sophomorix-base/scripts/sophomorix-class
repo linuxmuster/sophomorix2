@@ -133,7 +133,7 @@ if (defined $maillist){
 
 
 # --hide
-if (defined $hide and $class ne ""){
+if ($hide ne "" and $class ne ""){
     if ($hide==0){
         print "Unhiding class $class\n";
         &update_class_db_entry($class,"Type=adminclass");
