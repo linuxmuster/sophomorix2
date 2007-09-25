@@ -44,12 +44,14 @@ my $group_public_noupload="";
 my $group_private_upload="";
 my $group_private_noupload="";
 
+my $caller="";
 
 # Parsen der Optionen
 my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
            "verbose|v+" => \$Conf::log_level,
+           "caller=s" => \$caller,
            "user-public-upload=s" => \$user_public_upload,
            "user-public-noupload=s" => \$user_public_noupload,
            "user-private-upload=s" => \$user_private_upload,
