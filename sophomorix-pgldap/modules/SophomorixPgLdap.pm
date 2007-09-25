@@ -517,6 +517,7 @@ sub deleteuser_from_project {
     if (not defined $by_option){
         $by_option=0;
     }
+
     my $dbh=&db_connect();
     # fetching gidnumber
     my ($gidnumber_sys)= $dbh->selectrow_array( "SELECT gidnumber 
@@ -985,7 +986,8 @@ sub addgroup_to_project {
                                          WHERE (id=(SELECT id 
                                          FROM groups 
                                          WHERE gid='$group')
-                                         AND type='adminclass')");
+                                         AND (type='adminclass'
+                                          OR type='hiddenclass')");
     # fetching gidnumber of group
     my ($group_gidnumber)= $dbh->selectrow_array( "SELECT gidnumber 
                                          FROM groups 
@@ -2405,29 +2407,9 @@ sub pg_get_group_members {
 
 
 
-sub pg_get_adminclasses {
-    # fetch all entries with type adminclasses
-    my ($group) = @_;
-    my %classes=();
-    my $dbh=&db_connect();
-    my $sth= $dbh->prepare( "SELECT gid from classdata WHERE type='adminclass'" );
-      $sth->execute();
-
-    my $array_ref = $sth->fetchall_arrayref();
-
-    my $i=0;
-    foreach ( @{ $array_ref } ) {
-        my $gid=${$array_ref}[$i][0];
-        $classes{$gid}="";
-        $i++;
-    }   
-    &db_disconnect($dbh);
-    return %classes;
-}
-
 sub fetchadminclasses_from_school {
     my ($option) = @_;
-    # fetch all entries with type adminclasses
+    # fetch all entries with type adminclasses (or hiddenclass)
     my @admin_classes=();
     my $dbh=&db_connect();
 

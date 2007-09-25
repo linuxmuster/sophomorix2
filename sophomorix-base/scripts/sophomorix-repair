@@ -16,7 +16,6 @@ use Sophomorix::SophomorixPgLdap;
 Getopt::Long::Configure ("bundling");
 use DBI;
 use Sophomorix::SophomorixPgLdap qw(show_modulename
-                                    pg_get_adminclasses
                                    );
 my @arguments = @ARGV;
 
@@ -157,26 +156,21 @@ if ($filename ne "") {
 
 # Klassen
 &titel("Creating list of every AdminClass ...");
-#my @klassen=&get_adminclasses_school(); 
-#my @klassen=&pg_get_adminclasses(); 
-my @klassen=&fetchadminclasses_from_school(); 
+my @klassen=&fetchadminclasses_from_school("showhidden"); 
 &print_list("The list of every AdminClass:",@klassen);
 
 # Subclasses
 &titel("Creating list of every AdminClass with subclasses...");
-#my @klassen_sub=&get_adminclasses_sub_school(); 
 my @klassen_sub=&fetchsubclasses_from_school(); 
 &print_list("The list of every AdminClass with subclasses:",@klassen_sub);
 
 # Projects
 &titel("Creating list of every Project ...");
-#my @projects=&get_projects_school(); 
 my @projects=&fetchprojects_from_school(); 
 &print_list("The list of every Project:",@projects);
 
 # Räume
 &titel("Creating list of every room ...");
-#my @raeume=&get_raeume_in_schule(); 
 my @raeume=&fetchrooms_from_school(); 
 &print_list("The list of every room:",@raeume);
 

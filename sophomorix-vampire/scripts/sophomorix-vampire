@@ -762,7 +762,7 @@ if ($sync_workstations==1){
 if ($sync_shares==1){
     my @classes=();
     if ($classes eq ""){
-        @classes=&Sophomorix::SophomorixPgLdap::fetchadminclasses_from_school();
+        @classes=&Sophomorix::SophomorixPgLdap::fetchadminclasses_from_school("showhidden");
     } else {
         @classes=split(/,/,$classes);
     }
@@ -783,7 +783,7 @@ if ($sync_shares==1){
     my %new_group_old_id=();
     # add teacher
     $new_group_old_id{$DevelConf::teacher}=$old_id_old_group{"lehrer"};
-    my @groups=&Sophomorix::SophomorixPgLdap::fetchadminclasses_from_school();
+    my @groups=&Sophomorix::SophomorixPgLdap::fetchadminclasses_from_school("showhidden");
     foreach my $group (@groups){
         my $old_group="k".$group;
         my $old_id;

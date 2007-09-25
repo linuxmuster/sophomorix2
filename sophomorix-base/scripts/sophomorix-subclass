@@ -151,7 +151,8 @@ my $dbh=&db_connect();
 # fetching gidnumber
 my ($found)= $dbh->selectrow_array( "SELECT gid 
                                          FROM classdata 
-                                         WHERE (type='adminclass'
+                                         WHERE ((type='adminclass' OR 
+                                                 type='hiddenclass')
                                          AND gid='$class' )" );
 &db_disconnect($dbh);
 
@@ -188,14 +189,14 @@ my @old_teachers=&fetchadmins_from_adminclass($class);
 
 my @old_subclasses=&fetch_used_subclasses($class);
 
-print "Removing all teachers from  subclasses of $class}\n";
+print "Removing all teachers from  subclasses of ${class}\n";
 
 foreach my $sub (@old_subclasses){
     my $subclass=$class."-".$sub;
     print "   Subclass $subclass is used\n";
     foreach my $user (@old_teachers){
         # remove the teacher
-        &deleteuser_from_project($user, $subclass);
+        &deleteuser_from_project($user, $subclass,0,1);
         # remove links
         &Sophomorix::SophomorixBase::remove_share_link($user,
                                   $subclass,$subclass,"subclass");
