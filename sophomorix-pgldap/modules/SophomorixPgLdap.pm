@@ -5030,23 +5030,23 @@ sub show_project {
     my ($longname,$addquota,$add_mail_quota,
         $status,$join,$time,$max_members,
         $mailalias,$maillist)=&fetchinfo_from_project($project);
-    my @project_data=();
+    my @project_attribs=();
     if (defined $longname){
         # create list
         if ($addquota eq "quota"){
             $addquota="0";
         }
-	@project_data=("LongName:",
-                       "  $longname",
-                       "AddQuota: $addquota MB",
-                       "AddMailQuota: $add_mail_quota MB",
-                       "MailAlias: $mailalias",
-                       "MailList: $maillist",
-                       "SophomorixStatus: $status",
-                       "Joinable: $join",
-                       "MaxMembers: $max_members",
-                       "CreationTime:",
-                       "  $time"
+	@project_attribs=("LongName:",
+                          "  $longname",
+                          "AddQuota: $addquota MB",
+                          "AddMailQuota: $add_mail_quota MB",
+                          "MailAlias: $mailalias",
+                          "MailList: $maillist",
+                          "SophomorixStatus: $status",
+                          "Joinable: $join",
+                          "MaxMembers: $max_members",
+                          "CreationTime:",
+                          "  $time"
         );
     }
 
@@ -5068,7 +5068,7 @@ sub show_project {
     @pro = sort @pro;
 
     # calculate length colums
-    my $max=$#project_data;
+    my $max=$#project_attribs;
     if ($#admins > $max){
 	$max=$#admins;
     }
@@ -5093,6 +5093,9 @@ sub show_project {
     print "+----------------------+----------+----------+",
           "--------------+-----------------+\n";
     for (my $i=0;$i<=$max;$i++){
+        if (not defined $project_attribs[$i]){
+	    $project_attribs[$i]="";
+        }
         if (not defined $admins[$i]){
 	    $admins[$i]="";
         }
@@ -5106,7 +5109,7 @@ sub show_project {
 	    $pro[$i]="";
         }
         printf "|%-22s| %-9s| %-9s|%-14s|%-17s|\n",
-               $project_data[$i],
+               $project_attribs[$i],
                $admins[$i],
                $user_bo[$i],
                $groups[$i],
