@@ -987,7 +987,7 @@ sub addgroup_to_project {
                                          FROM groups 
                                          WHERE gid='$group')
                                          AND (type='adminclass'
-                                          OR type='hiddenclass')");
+                                          OR type='hiddenclass'))");
     # fetching gidnumber of group
     my ($group_gidnumber)= $dbh->selectrow_array( "SELECT gidnumber 
                                          FROM groups 
@@ -5119,12 +5119,14 @@ sub show_project {
 
     # show all members, not admins (admins are shown earlier)
     my @user=&fetchmembers_from_project($project);
-    my $user=$#user+1;
+    my @adm=&fetchadmins_from_project($project);
+    my @all_users=(@adm,@user);
+    my $all_users=$#all_users+1;
 
     print "+----------------------+----------+----------+",
           "--------------+-----------------+\n";
     printf "|%21s |%9s |%9s |%13s |%16s |\n",
-           "users: $user",$admins,$user_bo,$groups,$pro;
+           "users: $all_users",$admins,$user_bo,$groups,$pro;
     print "+----------------------+----------+----------+",
           "--------------+-----------------+\n";
 
