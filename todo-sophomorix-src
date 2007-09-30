@@ -118,6 +118,25 @@ MAKING a Package
 6. Tag all files in the cvs repository with the tag 'Version-x-y-z'
 
 
+Testing:
+
+1. install sophomorix-developer
+
+2. Tests
+   A) sophomorix-test
+   B) sophomorix-test-bunchofusers --add
+   C) sophomorix-test-bunchofusers --wsadd
+
+   sophomorix-repair --permissions
+   sophomorix-repair --repairhome
+ 
+   D) sophomorix-test-bunchofusers --handout
+   E) sophomorix-test-bunchofusers --collect
+   F) sophomorix-test-bunchofusers --handoutcopy
+
+3. No test is allowed to throw an error.
+
+
 ############################################################
 Repositories
 ############################################################
