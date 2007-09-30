@@ -20,7 +20,9 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     remove_class_db_entry
                                     pg_get_group_type
                                     fetchworkstations_from_room
+                                    fetchstudents_from_adminclass
                                     fetchrooms_from_school
+                                    fetchadminclasses_from_school
                                    );
 
 
@@ -39,6 +41,7 @@ my $help=0;
 # ==========================================================================
 
 my $room="";
+my $class="";
 
 my $explanation="";
 my $skiplock=0;
@@ -49,6 +52,7 @@ my $type=-1; # 3: domain group
 my $testopt=GetOptions(
            "help|h" => \$help,
            "room=s" => \$room,
+           "c|class=s" => \$class,
            "skiplock" => \$skiplock,
           );
 
@@ -58,7 +62,8 @@ my $testopt=GetOptions(
 &log_script_start(@arguments);
 
 
-if ($room eq ""){
+if ($room eq ""
+    and $class eq ""){
     $help=1;
 }
 
@@ -69,14 +74,15 @@ if ($help==1) {
    my $scriptname = pop @list;
    # Befehlsbeschreibung
    print('
-sophomorix-groupdel deletes a group from the sophomorix database (and ldap)
+sophomorix-groupdel deletes groups without users from the sophomorix database (and ldap)
 
 Options
   -h  / --help
   -v  / --verbose
   -vv / --verbose --verbose
   -i  / --info
-  --room   (a group for some workstations))
+  --room name  (a group for workstations)
+  --class name (a group for students)
 
 Please see the sophomorix-groupdel(8) man pages for full documentation
 ');
@@ -86,7 +92,7 @@ Please see the sophomorix-groupdel(8) man pages for full documentation
 
 
 
-
+# --room name
 if ($room ne ""){
     # 1) check if $room is really a room
     print "Checking if room $room is a room: ";
@@ -124,6 +130,69 @@ if ($room ne ""){
     # Do it
     &remove_class_db_entry($room);
 }
+
+
+
+# --class name
+if ($class ne ""){
+    # 1) check if $class is really a adminclass/hiddenclass
+    print "Checking if class $class is a adminclass/hiddenclass: ";
+    my $seen=0;
+    my @classes = &fetchadminclasses_from_school("showhidden");
+    foreach my $existing_class (@classes){
+        if ($class eq $existing_class){
+            my ($type)=&pg_get_group_type($class);
+	    $seen=1;
+            print "Yes ($type)\n";
+            last;
+        }
+    }
+    if ($seen==0){
+        my ($type)=&pg_get_group_type($class);
+        print "No ($type)\n";
+        print "   WARNING: Not removing class $class\n";
+        exit;
+    }
+
+    # 2) check if there are no users in this room
+    print "Checking if class $class can be removed\n";
+    my @users = &fetchstudents_from_adminclass($class);
+    my $members=$#users+1;
+    print "   $class has $members students\n";
+    if ($members==0){
+	print "   Removing class $class from pg\n";
+    } else {
+        print "   Group $class is not empty\n";
+        print "   WARNING: Not removing class $class\n";
+        exit;
+    } 
+
+    # Remove files/dirs
+    &backup_dir_to_attic("${DevelConf::homedir_pupil}/$class",
+                         "groupdel",
+                         "groupdel_${class}",
+                         "homedir_${class}",
+                         "");
+    &backup_dir_to_attic("${DevelConf::share_classes}/$class",
+                         "groupdel",
+                         "groupdel_${class}",
+                         "share_${class}",
+                         "");
+    &backup_dir_to_attic("${DevelConf::tasks_classes}/$class",
+                         "groupdel",
+                         "groupdel_${class}",
+                         "tasks_${class}",
+                         "");
+    &backup_dir_to_attic("${DevelConf::www_classes}/$class",
+                         "groupdel",
+                         "groupdel_${class}",
+                         "www_${class}",
+                         "bzip2");
+    # Do it
+    &remove_class_db_entry($class);
+}
+
+
 
 
 &log_script_end(@arguments);

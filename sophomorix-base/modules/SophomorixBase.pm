@@ -31,6 +31,7 @@ use Quota;
               get_alle_verzeichnis_rechte
               get_v_rechte
               setup_verzeichnis
+              backup_dir_to_attic
               make_some_files_root_only
               chmod_chown_dir
               fetch_smb_conf
@@ -576,6 +577,52 @@ sub setup_verzeichnis {
      system("chown ${owner}.${gowner} $pfad");
      system("chmod $permissions $pfad");
    }
+}
+
+
+
+sub backup_dir_to_attic {
+    # backup an zip dir to attic
+    # 1: Directory to be backuped
+    # 2: /home/attic/2
+    # 3: /home/attic/dir/date_3
+    # 4: /home/attic/dir/date_name/4
+    # 5: bzip2 --> compress /home/attic/dir/date_3
+    #
+    # multiple backup_dir_to_attic can be run with same value for 1-3
+    # 4 shows subdir in 1-3; 5=bzip2 compresses all
+
+    my ($dir,$attic_dir,$attic_name,$attic_short,$compress)=@_;
+    if (not defined $compress){
+	$compress="";
+    }
+
+    my $attic=${DevelConf::attic}."/"."$attic_dir";
+    if (not -e "$attic"){
+        system("mkdir $attic");
+    }
+    my $timestamp=&zeit_stempel();
+    my $attic_subdir=$attic."/".$timestamp."_".$attic_name;
+    if (not -e "$attic_subdir"){
+        system("mkdir $attic_subdir");
+    }
+    my $mv_target=$attic_subdir."/".$attic_short;
+    print "Backing up $dir to \n";
+    print " $mv_target\n";
+    if (not -e "$mv_target"){
+        system("mkdir $mv_target");
+    }
+    system("mv $dir $mv_target");
+    
+    # backup
+    my $bz2_file=$timestamp."_".$attic_name.".tar.bz2";
+    my $bz2_dir=$timestamp."_".$attic_name;
+    if ($compress eq "bzip2"){
+        $command="cd $attic; tar -cjf  $bz2_file $bz2_dir ".
+                 "&& rm -rf $bz2_dir; chmod 600 $bz2_file;";
+        print "$command\n";
+        system("$command");
+    }
 }
 
 

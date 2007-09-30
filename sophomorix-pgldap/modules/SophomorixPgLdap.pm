@@ -2167,10 +2167,6 @@ sub update_class_db_entry {
 
 
 
-
-
-
-
 # removes a class from the user database
 sub remove_class_db_entry {
     my ($group) = @_;
@@ -2181,7 +2177,6 @@ sub remove_class_db_entry {
     if($Conf::log_level>=3){
         print "\nSQL: $sql\n";
     }
-    #$dbh->do($sql);
 
     my $return = $dbh->selectrow_array($sql);
     if (defined $return){
