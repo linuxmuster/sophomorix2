@@ -51,9 +51,13 @@ my $rooms="";
 my $ws=0;
 
 my $password="";
+my $config=0;
 my $reset=0;
 my $common=0;
 my $random=0;
+
+my $shell="";
+my $no_shell_no_pass=0;
 
 my $interactive=0;
 my $nofirstpassupdate=0;
@@ -80,6 +84,7 @@ my $testopt=GetOptions(
            "room|rooms|r=s" => \$rooms,
            "workstations|workstation|w" => \$ws,
            "password|passwd|pass=s" => \$password,
+           "config" => \$config,
            "reset" => \$reset,
            "common" => \$common,
            "random" => \$random,
@@ -88,6 +93,7 @@ my $testopt=GetOptions(
            "plength=i" => \$char_num,
            "verbose|v+" => \$Conf::log_level,
            "hide" => \$hide,
+           "shell|loginshell=s" => \$shell,
            "force" => \$force,
            "info|i" => \$info,
            "help|h" => \$help
@@ -112,7 +118,9 @@ Options
   -v  / --verbose
   -vv / --verbose --verbose
   -i  / --info
-  --hide
+
+Create a password:
+  --config  (use sophomorix.conf)
   --pass password, --password password
   --common
   --interactive
@@ -120,6 +128,14 @@ Options
   --reset
   --random
   --plength number
+  --hide
+
+Shell:
+
+  --shell /bin/bash
+
+Create userlist:
+
   -s / --students
   -t / --teachers
   -w / --workstations
@@ -202,11 +218,18 @@ if ($char_num!=0 and($common==0 and $random==0)){
 # use the charlist of SophomorixBase
 my @chars=&get_passwd_charlist();
 
+
+#
+# Create a password
+#
+
+# --password
 if ($password ne ""){
    $info_line="Password will be '$password'";
    $password_given=1;
 }
 
+# --common
 if ($common==1){
    if ($char_num==0){
       $password_lehrer=&get_plain_password(${DevelConf::teacher},@chars);
@@ -221,11 +244,12 @@ if ($common==1){
 
 }
 
-
+# --reset
 if ($reset==1){
    $info_line="Passwords will be looked up in the sophomorix database";
 }
 
+# --random
 if ($random==1){
    $info_line="Every user will have its own a random password";
 }
@@ -282,16 +306,33 @@ if ($interactive==1){
 }
 
 
+# --shell
+#if ($shell ne ""){
+#   foreach my $user (@users){
+#      print "  Setting shell of user $user to $shell\n";
+#      &update_user_db_entry($user,"LoginShell=$shell");
+#   }
+#}
 
 
 
-
-
+# without option
 # Setting the passwords noninteractive
 foreach my $user (@users){
     # gruppe ermitteln
     my ($home,$type,$gecos,$group)=
         &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
+
+    # --shell
+    if ($shell ne ""){
+       print "  Setting shell of $user in $group ($type) to $shell\n";
+       &update_user_db_entry($user,"LoginShell=$shell");
+    } else {
+       if($Conf::log_level>=2){
+          print "  Not changing shell for $user in $group ($type)\n";
+       }
+    }
+
     # which password to set
     if ($password_given==1){
         # use $password, do nothing
@@ -308,10 +349,17 @@ foreach my $user (@users){
     } elsif ($random==1){
        # set password randomly
        $password=&get_random_password($char_num,$group,@chars);
-    } else {
-       #print "No password option specified: using sophomorix.conf\n";
+    } elsif ($config==1){
        # nothing specified: use sophomorix.conf
        $password=&get_plain_password($group,@chars)
+    } else {
+       if ($shell eq ""){
+           $no_shell_no_pass=1;
+       }
+       if($Conf::log_level>=2){
+          print "  Not setting password for $user in $group ($type)\n";
+       }
+       next;
     }
     if ($hide==1){
        print "  Setting password for user $user in ".
@@ -328,6 +376,11 @@ foreach my $user (@users){
     }
 }
 
+# show mor help when no password could be generated
+# and no --shell option was given
+if ($no_shell_no_pass==1){
+    print "\nUse the --shell option or one of the password options\n\n";
+}
 
 
 &log_script_end(@arguments);
