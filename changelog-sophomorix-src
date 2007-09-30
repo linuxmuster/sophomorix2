@@ -4,15 +4,16 @@
 ============SOPHOMORIX2 CHANGELOG ====================================
 
 1.9.30-1 (2007-10-xx)
+    - updated manpage sophomorix to reflect new path to
+      CVS and packages.bszleo.de 
     - Added cvs keywords to all manpages, so that Date is visible 
       on the bottom of the page.
     - Bugfix: add a class as membergroup to a project correctly
               (Bug was introduced in 1.9.29)
     - Bugfix: avoid uninitialized value, when calling 
               sophomorix-project -i -p name
-              and userlist is longer than project
+              and userlist is longer than project attributes
  
-
 
 1.9.29-1 (2007-09-25)
     - looked through the code and added  'hiddenclass'
@@ -22,14 +23,14 @@
       for the maillist of teachers,
     - Bugfix: dont run --nohide when option --hide/--nohide is missing
               (Bug introduced in 1.9.29)
-    - sophomorix-www: added option 
+    - sophomorix-www: added for logging purposes the option 
          --caller name
       to be used in the schulkonsole 
     - formatted sophomorix-project -p name -i nicely and compact
     - fixed manpage of sophomorix-vampire after Multi-Tagung
     - fixed some Bugs in sophomorix-vampire after Multi-Tagung
     - removed analyze stuff from cron.weekly
-    - added this file changelog-sophomorix-src to package sophomorix2
+    - added the file changelog-sophomorix-src to package sophomorix2
       as /usr/share/doc/sophomorix2/changelog-sophomorix-src.gz
     - splitted changelog-sophomorix-src into:
            A) changelog-sophomorix-src  (the changelog)
