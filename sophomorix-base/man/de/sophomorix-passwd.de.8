@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-PASSWD 8 "June 26, 2007"
+.TH SOPHOMORIX-PASSWD 8 "September 30, 2007"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -16,14 +16,14 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for manpage-specific macros, see man(7)
 .SH NAME
-sophomorix-passwd \- Setzen von Passwörtern anderer user durch root
+sophomorix-passwd \- Setzen von Passwörtern/Shell durch root
 .SH SYNOPSIS
 .B sophomorix-passwd
 .RI [ options ]
 .br
 .SH DESCRIPTION
 .B sophomorix-passwd  
-setzt Passwörter einzelner User oder auch Gruppen von Usern auf vorgegebene bzw. auch zufällige Werte. Es ist nur für den Systemadministrator gedacht.
+setzt Passwörter/Shell einzelner User oder auch Gruppen von Usern auf vorgegebene bzw. auch zufällige Werte. Es ist nur für den Systemadministrator gedacht.
 .PP
 .SH OPTIONS
 .B sophomorix-passwd
@@ -42,33 +42,33 @@ Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .B -i, --info
 Sagt für welche User Passwörter verändert werden würden.
 .TP
-.B --hide
-gibt xxxxxx aus anstelle der Passwörter
-.TP
 .B --force
-versucht das Passwort auch zu ändern wenn der user nicht in der
-sophomorix-datenbank ist.
+versucht das Passwort/die Shell auch zu ändern wenn der user nicht in der
+sophomorix-Datenbank ist (Vorsicht!).
 .TP
-.B --interactive
-fragt das Passwort zweimal ab nach, ohne es auszugeben. Das
+.B Interaktive Passwortändeung:
+.TP
+Dieser Befehl wird für samba, root, ... bereitgestellt.
+.TP
+.B --interactive --user user
+fragt das Passwort von user zweimal ab, ohne es auszugeben. Das
 Klartextpasswort in der Datenbank wird nicht upgedated.
-.TP
-.B --nofirstpassupdate
-verhindert, dass ein Klartextpasswort in der Datenbank abgelegt wird.
 .TP
 .B Optionen, die angeben, wie das Passwort lauten soll:
 .TP
-Wenn keine dieser Option angegeben wird, dann werden die Einstellungen
-aus sophomorix.conf verwendet.
+Eine dieser Optionen ist zum ändern eines Passwords Pflicht.
+.TP
+.B --config
+Das Passwort wird nach den Angaben in sophomorix.conf erzeugt. 
 .TP
 .B --pass geheim, --password geheim
 setzt das Passwort auf den Wert geheim. 
 .TP
 .B --common
 erzeugt nach den Angaben in sophomorix.conf jeweils ein Passwort für
-Lehrer und eines für Schüler . Alle Lehrer bzw. Schüler bekommen
+Lehrer und eines für Schüler. Alle Lehrer bzw. Schüler bekommen
 dasselbe Passwort.
-.TP
+
 Wird eine Längenangabe mit --plength num gemacht, dann wird ein
 Zufallspasswort generiert.
 .TP
@@ -82,23 +82,35 @@ individuellen Zufallswert. Jeder User bekommt ein eigenes
 Zufallspasswort. Die Länge richtet sich nach den Angaben in
 sophomorix.conf.
 .TP
+.B Weitere freiwillige Optionen zur Passwortänderung:
+.TP
 .B --plength num
 Setzt die Länge der Zufalls-Passwörter auf den Wert num. Die Länge
 richtet sich somit nicht mehr nach den Angaben in sophomorix.conf.
 .TP
-.B Optionen die angeben welchen Usern das Passwort geändert wird:
+.B --hide
+gibt xxxxxx anstelle der Passwörter aus.
 .TP
-Die Auswahl erfolgt anhäufend. Das bedeutet, dass durch Angabe
-mehrerer Optionen eine Userliste erzeugt wird, in der kein User
-doppelt vorkommt, aber jeder enthalten ist.
+.B --nofirstpassupdate
+verhindert, dass ein Klartextpasswort in der Datenbank abgelegt wird.
+.TP
+.B Optionen zur Änderung der loginshell:
+.TP
+.B --shell /my/shell
+Setzt die Shell eines users auf /my/shell. Wenn man das Passwort nicht
+gleichzeitig ändern möchte, darf keine Option zur Passwortangabe
+verwendet werden.
+.TP
+.B Optionen zur Angabe von Usern:
+.TP
+Die Auswahl erfolgt anhäufend. Das bedeutet, dass durch Angabe mehrerer Optionen eine Userliste erzeugt wird, in der kein User doppelt vorkommt, aber jeder enthalten ist.
 .TP
 .B -u user1,user2,... / --users user1,user2,... 
 setzt das Passwort der User user1,user2, ... . Der user kann auch eine
 Workstation sein.
 .TP
 .B -c class1,class2,... / --class class1,class2,...
-setzt das Passwort für jeden User in der Klasse class. Class kann auch
-die Gruppe der Lehrer sein (lehrer im Moment).
+setzt das Passwort für jeden User in der Klasse class. 
 .TP
 .B --project project1,project2,...
 setzt das Passwort für jeden User im Projekt project1,... 
