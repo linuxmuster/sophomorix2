@@ -3153,12 +3153,14 @@ sub update_user_db_entry {
     my $quota="";
     my $mailquota=-1;
     my $new_login="";
+    my $login_shell="";
 
     # decide if auth_usermove must be called (1) or not
     my $usermove=0;
     my $firstnameupdate=0;
     my $lastnameupdate=0;
     my $gecosupdate=0;
+    my $shellupdate=0;
 
     my @posix=();
     my @posix_details=();
@@ -3191,6 +3193,11 @@ sub update_user_db_entry {
            $lastnameupdate=1;
            $lastname="$value";
 	   push @posix, "surname = '$lastname'";
+       }
+       elsif ($attr eq "LoginShell"){
+           $shellupdate=1;
+           $login_shell="$value";
+	   push @posix, "loginshell = '$login_shell'";
        }
        elsif ($attr eq "Gecos"){
            $gecosupdate=1;
@@ -3385,6 +3392,11 @@ sub update_user_db_entry {
     if ($gecosupdate==1){
        &auth_gecosupdate($login,$gecos);
     }
+
+    if ($shellupdate==1){
+       &auth_shellupdate($login,$login_shell);
+    }
+
     # ??? besser was sinnvolles
     return 1;
 }
@@ -5777,6 +5789,17 @@ sub auth_gecosupdate {
    print "   * $command\n";
    system("$command");
 }
+
+
+
+sub auth_shellupdate {
+   my ($login,$shell) = @_;
+   # -s /new/shell
+   my $command="/usr/sbin/smbldap-usermod -s '$shell' $login";
+   print "   * $command\n";
+   system("$command");
+}
+
 
 
 sub auth_connect {
