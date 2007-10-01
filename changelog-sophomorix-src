@@ -4,10 +4,14 @@
 ============SOPHOMORIX2 CHANGELOG ====================================
 
 1.9.31-1 (2007-10-xx)
+    - Bugfix: removing entry of a group in table class_details
+              (was not done until now)
+    - added manpage for sophomorix-groupdel
     - sophomorix-groupdel:
       - added option --class name to:
         delete adminclasses/hiddenclasses without users 
-      -added option --nobackup
+      - added option --nobackup
+        added option --delete-all-empty-classes
     - sophomorix-passwd:
       - added option to change shell
       - added option --config to use sophomorix.conf
