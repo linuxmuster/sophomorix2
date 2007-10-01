@@ -261,11 +261,17 @@ if ($user_nummer>0) {
 }
 
 
+&imap_disconnect($imap);
 
 &titel("$user_nummer users killed");
 &log_script_end(@arguments);
 
 
+
+
+############################################################
+# subs
+############################################################
 
 sub kill_user {
      my ($login_name_to_kill,$identifier_to_kill) = @_;

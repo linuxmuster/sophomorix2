@@ -509,7 +509,7 @@ if ($user_nummer>0) {
 
 
 
-# ??? db_disconnect
+&db_disconnect($dbh);
 &imap_disconnect($imap);
 
 &titel("$user_nummer users added");
