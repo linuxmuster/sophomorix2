@@ -1609,6 +1609,7 @@ sub get_entfern_klassen {
 
 sub get_schueler_classes {
     my %classes=();
+    my %unids=();
     open(TXT,"${DevelConf::schueler_datei}") || die "Fehler: $!";
     while(<TXT>){
        chomp($_); # Returnzeichen abschneiden
@@ -1619,9 +1620,23 @@ sub get_schueler_classes {
        if($_ eq ""){ # # am Anfang bedeutet Kommentarzeile
 	   next;
        }
-       my ($class)=split(/;/);
+       my ($class,$a2,$a3,$a4,$unid)=split(/;/);
        if (not exists $classes{$class}){
            $classes{$class}="exists";
+       }
+       # exit, when unid is double!
+       if (not defined $unid){
+           # do nothing
+       } else {
+           # check for doubling
+           if (exists $unids{$unid}){
+               if ($unid ne ""){
+                   &log_script_exit("ERROR: Unid $unid was seen twice already!",
+                         1,1,0,@arguments);
+	       }
+           } else {
+               $unids{$unid}="seen";
+           }
        }
     }
     close(TXT);
