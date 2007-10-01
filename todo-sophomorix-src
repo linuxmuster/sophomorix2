@@ -226,13 +226,10 @@ sophomorix-check
 
 
 sophomorix-add
-   - add standard linux GUI (kde3 (configurable))
-     (sophomorix-user --copy-to-home filename --teacher, ...)
+
 
 sophomorix-move
    - move Data from share into home, even if 'hidden' in another owners directory
-   - quick-move of a user (move user with a command, and keep him somehow out of 
-     way, when calling sophomorix-move)
 
 
 sophomorix-kill
@@ -320,10 +317,6 @@ sophomorix-project
 sophomorix-class
    - count users in classes, display with -i
      show total of clases with users / without users
-   - if no class is found,-> message
-   --kill  remove a class from database,
-           delete the exchange directory
-           ...
 
 
 sophomorix-test
@@ -394,7 +387,6 @@ sophomorix-mail
 
 
 sophomorix-teacher
-   - read perlsec
    - distribute _Collect to one pupil
    - backups after rsync are temporarily owned by group 'lehrer', 
       because sophomorix does not run setgid root
@@ -786,13 +778,6 @@ lehrer.txt zusatzfeld 'comment' (Platz in Datenbank suchen)
      /var/log/sophomorix/project-modify-archive.log
 
 
-  BUGS: adding 3000 users:
-          owner of some /home/teachers/name is root.root
-                of some it is teachername.teachers
-  has not reappeared when testing again.
-   
-
-
 
 Performance bug:
 Reactivation is very slow (when a user reappears in schueler.txt)
@@ -825,6 +810,7 @@ should call fetch ... and just display the results
 - use mailaliases,mailist in subclasses ???? (do this later) 
 
 
+tut noch nicht:
 - Begriffe 'standard-lehrer', standard-schueler aus quota.txt,mailquota.txt 
   (auch entsprechende Englische zulassen:
       standard-teacher
@@ -838,12 +824,6 @@ should call fetch ... and just display the results
 
 
 what about setting quota/mailquota for domcomp,workstation,Administrator ...
-
-
-
-Bug: when sophomorix-quota -l galli
-     dann : manchmal galli is not a sophomorix user
-- tritt nicht mehr auf
 
 
 
@@ -882,12 +862,6 @@ NOT creating a dir  in galli/_vorlagen and others, when user is added
 to a nonexisting class
 
 
-Is this necessary?
-wohin einsammeln soll konfigurierbar sein 
-   A):  loginname
-   B):  vorname.nachname
-   C):  nachname
-
 
 invent sysrun??:
 sysrun needs package libsysadm-install-perl
@@ -899,6 +873,8 @@ NEXT:
 
 create a group students with all students (for testing) 
 sophomorix-projects --update-studentsgroup
+on hold
+
 
 Schulkonsole:
 
@@ -1010,16 +986,12 @@ userliste in allen sophomorix-*:    -u --users user1,user2,...
   - sophomorix-repair
   - sophomorix-kill
 
-Datei kann nicht eingesammelt werden da sich die Zeit ändert?
-
 subclassen als projekte hinzufügen? Tut das?
 
 
 BUG: /etc/aliases root.root 0644  (who changes this values) 
 sophomorix-mail does not change these values (but should do it with umask)
 
-
-Next: option --unignore
 
 double loginname: 
 newer user receives NO alias
@@ -1035,10 +1007,6 @@ sophomorix-kill ??
 the following way:
 does quota need to be removed when killing a user???
   
-
-sophomorix-add insert db_disconnect (grep for ???)
-sophomorix-quota "  and imap_disconnect
-sophomorix-kill imap_disconnect and db_disconnect
 
 
 Multi-Treffen:
@@ -1214,12 +1182,6 @@ add a cronjob?  (weekly) with  "exec? quotacheck -a"  S. 147/151 LPI(O'Reilly)
 add a cronjob?  fsck (so that no fscheck is necessary when rebooting)
 
 
-Nagios: public url, so that users can check status of deamons:
-   - is www available?
-   - can mail be sent, ...
-decreased quostioning to admins
-
-
 
 
 ############################################################
@@ -1334,50 +1296,6 @@ project does not exist
 
 vmware:
 
-vmware server frei downloadbar (früherer GSX Server)
-anleitung von Rainer in /root/software/vmware-server
-
-
-Nagios:
-
-/etc/nagios/   hosts.cfg contacts.cfg escalations.cfg
-/etc/nagios/services 
-/etc/linuxmuster/nagios.conf
-
-script von Frank
-linuxmuster-nagios-setup
-
-scripte dessen Rückgabewerte genutzt werden 
-0=OK
-1=WARNING
-2=CRITICAL
-3=UNKNOWN
-printoutput erscheint auf Nagios homepage
-/usr/lib/nagios/plugins (wenn paket nagios-plugins installiert ist)
-
-wohin lege ich nagios scripte die sophomorix checken?
-
-
-https://server/nagios  administrator 
-
-schnittstelle zu sophomorix?
-
-Tests: 
-- tut:  id administrator
-- ist sophomorix.add leer?
-- ist sophomorix.move leer?
-- ist sophomorix.kill leer?
-
-Scriptnamen
-check_sophopmorix_id
-check_sophomorix_add ...
-
-
-/usr/lib/nagios/linuxmuster-plugins
-
-suggests nagios nagios-plugins
-
-
 
 
 
@@ -1394,27 +1312,6 @@ b) Zugriff nur per Erlaubnis
 
 
 next steps in sophomorix-vampire:
-
-Messages: connect internal devices of servers
-give ip and subnet of old server
-give ip and subnet of new server
-
-shut down services
-- rembo
-- dhcp
-
-add additional ip to internal interface of new server
-
-
-restart services
-- dhcp 
-- rembo
-
-
-
-add option
-sophomorix-mail --create-mailbox to add mailbox without unix account 
-(user the name of these mailboxes to avoid loginnmaes)
 
 replace cp /etc/passwd with getent passwd > file;scp file
 
@@ -1433,34 +1330,7 @@ mail an hoth wegen tickets, running
 #129: close it
 #130: close it when passwords work
   
-add share of teachers to be synced as well
 
-option ;ml; in wimport_data not in correct place?
-is it needed?
-
-sophomorix-user -i 
-   other users: differ
-     - workstation accounts (exams)
-     - computer accounts (with a $)
-     - ...
-
-
-create funcion to fetch standard permissions  from smb.conf . homes
-
-parameter sharename, return "create mask" and "directory mask"
-
-create function that gives a director trees permissions
-different values for dirs and files 
-
-
-??? 
-create dirlist ... __einsammeln
-
-and command 
-
-that recursively changes permissions
-???
- 
  
 create forbidden projectnames 
    - NOT existing classes
@@ -1479,7 +1349,7 @@ move him, ...
 
 
 Think about, if something has to be done with permissions, when a user 
-comes into the attic (make sure user can cause trouble)
+comes into the attic (make sure user cannot cause trouble)
 
 add more permission tests to SophomorixTest.pm
    - test also $mygroup stuff
@@ -1637,35 +1507,12 @@ add option for this
 
 Problems:
 
-if you give user a shell:   
-   smbldap-usermod -s /bin/bash user
-and do 
-   su user
-then: user has no name
-
-
-but getent passwd/id as root shows user and its id correctly
-whoami als user sagt, kein loginname für id 10016 
-
-
 
 add some checks to auth_* functions, (see ?????)
 
-add warning, when connect to ldap failed
-
-
-sophomorix-kill --killuser name deletes in the wrong place:
-
-   Removing recursively /home/workstations/r717/may1
-Deleted User may1 (10021)
-Killing user in ldap
-   * smbldap-userdel may1
-File LOG is /var/log/sophomorix/user-modify.log
--->rmdir: ,,/home/students/r717": Datei oder Verzeichnis nicht gefunden
--->rmdir: ,,/home/share/classes/r717": Datei oder Verzeichnis nicht gefunden
-
 
 Careful:
+--------------------
 sophomorix-useradd --workstation ... no homedir created
 
 adding a workstation does not add class-dirs and user-dirs
