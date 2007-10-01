@@ -585,43 +585,54 @@ sub backup_dir_to_attic {
     # backup an zip dir to attic
     # 1: Directory to be backuped
     # 2: /home/attic/2
-    # 3: /home/attic/dir/date_3
+    # 3: /home/attic/dir/3        (prefix: date suggested)
     # 4: /home/attic/dir/date_name/4
     # 5: bzip2 --> compress /home/attic/dir/date_3
+    # 6: backup(1) or no backup(0)
     #
     # multiple backup_dir_to_attic can be run with same value for 1-3
     # 4 shows subdir in 1-3; 5=bzip2 compresses all
-
-    my ($dir,$attic_dir,$attic_name,$attic_short,$compress)=@_;
+    my ($dir,$attic_dir,$attic_name,
+        $attic_short,$compress,$backup)=@_;
     if (not defined $compress){
 	$compress="";
     }
 
-    my $attic=${DevelConf::attic}."/"."$attic_dir";
-    if (not -e "$attic"){
-        system("mkdir $attic");
-    }
-    my $timestamp=&zeit_stempel();
-    my $attic_subdir=$attic."/".$timestamp."_".$attic_name;
-    if (not -e "$attic_subdir"){
-        system("mkdir $attic_subdir");
-    }
-    my $mv_target=$attic_subdir."/".$attic_short;
-    print "Backing up $dir to \n";
-    print " $mv_target\n";
-    if (not -e "$mv_target"){
-        system("mkdir $mv_target");
-    }
-    system("mv $dir $mv_target");
-    
-    # backup
-    my $bz2_file=$timestamp."_".$attic_name.".tar.bz2";
-    my $bz2_dir=$timestamp."_".$attic_name;
-    if ($compress eq "bzip2"){
-        $command="cd $attic; tar -cjf  $bz2_file $bz2_dir ".
-                 "&& rm -rf $bz2_dir; chmod 600 $bz2_file;";
-        print "$command\n";
-        system("$command");
+    if ($backup==0){
+       # no backup
+       &unlink_immutable_tree("$dir",1);
+       #my $command="rm -rf $dir";
+       #print "$command\n";
+       #system("$command");
+    } else {
+       # backup
+       my $attic=${DevelConf::attic}."/"."$attic_dir";
+       if (not -e "$attic"){
+           system("mkdir $attic");
+       }
+       my $attic_subdir=$attic."/".$attic_name;
+       if (not -e "$attic_subdir"){
+           system("mkdir $attic_subdir");
+       }
+       my $mv_target=$attic_subdir."/".$attic_short;
+       if (not -e "$mv_target"){
+           system("mkdir $mv_target");
+       }
+
+       print "Backing up $dir to \n",
+             " $mv_target\n";
+       &move_immutable_tree("$dir","$mv_target");
+       #my $command="mv $dir $mv_target";
+       #print "$command\n";
+       #system("$command");
+       my $bz2_file= $attic_name.".tar.bz2";
+       my $bz2_dir = $attic_name;
+       if ($compress eq "bzip2"){
+           my $command="cd $attic; tar -cjf  $bz2_file $bz2_dir ".
+                    "&& rm -rf $bz2_dir; chmod 600 $bz2_file;";
+           print "$command\n";
+           system("$command");
+       }
     }
 }
 
@@ -4890,8 +4901,12 @@ sub basedn_from_domainname {
 ################################################################################
 
 sub unlink_immutable_tree {
-    my ($dir) = @_;
-    if (not $dir=~/^\/home\//){
+    my ($dir,$force) = @_;
+    if (not defined $force){
+        # do not force removal
+	$force=0;
+    }
+    if (not $dir=~/^\/home\// and $force==0){
         print "unlink_immutable_tree: I do not delete outside /home/\n";
         return 0;
     }
@@ -4924,10 +4939,10 @@ sub unlink_immutable_tree {
 
 sub move_immutable_tree {
     my ($old_dir,$new_dir) = @_;
-    if (not $old_dir=~/^\/home\//){
-        print "unlink_immutable_tree: I do not delete outside /home/\n";
-        return 0;
-    }
+    #if (not $old_dir=~/^\/home\//){
+    #    print "unlink_immutable_tree: I do not delete outside /home/\n";
+    #    return 0;
+    #}
     if (not -e $old_dir){
         print "WARNING: Directory/file $old_dir does not exist.\n";
         print "         Doing nothing.\n";
