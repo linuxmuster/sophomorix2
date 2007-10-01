@@ -316,10 +316,6 @@ sub add_my_adminclass {
     &Sophomorix::SophomorixBase::create_share_link($login,
          $class,$class,"adminclass");
 
-# join group in pg
-#&pg_adduser($login,$class);
-# join group in ldap
-#&auth_adduser_to_project($login,$class);
     # join user (pg,ldap)
     &adduser_to_project($login,$class,0);
 
@@ -334,8 +330,7 @@ sub add_my_adminclass {
         # create link
         &Sophomorix::SophomorixBase::create_share_link($login,
             $subclass,$subclass,"subclass");
-# join group
-#&pg_adduser($login,$subclass);
+
         # join user (pg,ldap)
         &adduser_to_project($login,$subclass,0);
 
@@ -385,8 +380,7 @@ sub remove_my_adminclass {
         # remove link
         &Sophomorix::SophomorixBase::remove_share_link($login,
             $subclass,$subclass,"subclass");
-#        # join group
-#        &pg_adduser($login,$subclass);
+
         # join user (pg,ldap)
         &adduser_to_project($login,$subclass,0);
 

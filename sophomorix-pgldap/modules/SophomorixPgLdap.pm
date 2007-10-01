@@ -502,7 +502,7 @@ sub fetchprojects_from_project {
 
 sub deleteuser_from_project {
     # remove user from its secondary membership in project(group)
-    # (adding a user is pg_adduser)
+    # (adding a user is adduser_to_project)
     # adminclass = 0 : use groupname  with p_ in the beginning ($project)
     # adminclass = 1 : use groupname as given
     my ($user,$project,$by_option,$adminclass)=@_;
