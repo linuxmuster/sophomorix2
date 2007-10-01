@@ -23,7 +23,9 @@ sophomorix-groupdel \- Löschen von sophomorix-Gruppen ohne Mitglieder.
 .br
 .SH DESCRIPTION
 .B sophomorix-groupdel
-löscht Gruppen, in denen sich keine User mehr befinden und entfernt Dateien in deren Tauschverzeichnis, usw ... 
+löscht Gruppen, in denen sich keine User mehr befinden und entfernt Lehrer sowie Dateien im Klassen-Tauschverzeichnis, usw ... 
+
+WARNUNG: Falls eine Klasse nur vorübergehend keine Schüler hat (z. B. Schuljahreswechsel), sollte sie NICHT entfernt werden.
 .PP
 .SH OPTIONS
 .B sophomorix-groupdel
@@ -42,11 +44,32 @@ Sagt, was das Programm gerade macht (verbose)
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
 .B --room raum
-Entfernt den Raum raum. Es wird kein Backup gemacht.
-.TP
+Entfernt den Raum raum, falls keine Worstations als Mitglieder existieren. 
+
+Es wird kein Backup gemacht und kann auch nicht eingeschaltet werden!
 .TP
 .B --class klasse
-Entfernt die Klasse klasse. Dabei kann es sich um eine adminclass oder auch hiddenclass handeln. Es wird ein backup gemacht. 
+Entfernt die Klasse klasse, falls kein Schüler Mitglied ist und kein Lehrer eingetragen ist (siehe --remove-teachers). 
+
+Dabei kann es sich um eine adminclass oder auch hiddenclass handeln. 
+
+Es wird ein Backup gemacht. 
+.TP
+.B --nobackup / --backup
+Es wird beim Entfernen von Klassen kein Backup/ein Backup gemacht. 
+
+Standard ist: Backup machen. 
+.TP
+.B --remove-teachers
+Entfernt Lehrer, die in einer leeren Klasse eingetragen sind, damit die Klasse entfernt werden kann. 
+.TP
+.B Entfernen aller leerer Klassen:
+.TP
+.B --delete-all-empty-classes
+Sucht alle Klassen, die keine Mitglieder mehr haben und entfernt die Klassen. (siehe auch --remove-teachers)
+
+Es wird ein Backup gemacht. 
+
 .TP
 .TP
 .SH SEE ALSO
