@@ -2172,6 +2172,14 @@ sub remove_class_db_entry {
     my ($group) = @_;
     my $dbh=&db_connect();
 
+    my $id_sys=$dbh->selectrow_array( "SELECT id 
+                                        FROM groups 
+                                        WHERE gid='$group'");
+    if (not defined $id_sys){
+        print "ERROR: Could not find id of $group\n";
+        return;
+    }
+
     # Gruppe loeschen, Funktion
     my $sql="SELECT manual_delete_groups('$group')";
     if($Conf::log_level>=3){
@@ -2180,6 +2188,13 @@ sub remove_class_db_entry {
 
     my $return = $dbh->selectrow_array($sql);
     if (defined $return){
+        my $sql="DELETE FROM class_details
+                 WHERE id=$id_sys
+                ";
+        if($Conf::log_level>=3){
+            print "\nSQL: $sql\n";
+        }
+        $dbh->do($sql);
         print "Group $return ($group) removed!\n";
     } else {
         print "\nERROR: Could not delete group $group \n\n";
