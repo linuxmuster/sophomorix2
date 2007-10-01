@@ -245,6 +245,7 @@ if ($repairhome==1){
        @users=(@lehrer,@schueler,@admins);
     }
     foreach my $user (@users){
+        print "Repairing \$HOME of $user\n";
         &repair_repairhome($user);
     }
 }
