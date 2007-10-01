@@ -23,7 +23,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     update_user_db_entry
                                     check_connections
                                     create_class_db_entry
-                                    pg_adduser
+                                    adduser_to_project
                                     pg_remove_all_secusers
                                     deleteuser_from_project
                                     fetchadmins_from_adminclass
@@ -271,7 +271,9 @@ foreach my $sub (@new_subclasses){
     print "   Subclass $subclass is used\n";
     foreach my $user (@new_teachers){
         # add the teacher
-        &pg_adduser($user, $subclass);
+#        &pg_adduser($user, $subclass);
+         &adduser_to_project($user,$subclass,0);
+
         # add links
         &Sophomorix::SophomorixBase::create_share_link($user,
                                   $subclass,$subclass,"subclass");
@@ -373,16 +375,20 @@ sub create_subclass{
 
     # adding the users to their subclass
     foreach $user (@sub_a) {
-        &pg_adduser($user, "$class-A");
+#        &pg_adduser($user, "$class-A");
+        &adduser_to_project($user, "$class-A",0);
     }
     foreach $user (@sub_b) {
-        &pg_adduser($user, "$class-B");
+#        &pg_adduser($user, "$class-B");
+        &adduser_to_project($user, "$class-B",0);
     }
     foreach $user (@sub_c) {
-        &pg_adduser($user, "$class-C");
+#        &pg_adduser($user, "$class-C");
+        &adduser_to_project($user, "$class-C",0);
     }
     foreach $user (@sub_d) {
-        &pg_adduser($user, "$class-D");
+#        &pg_adduser($user, "$class-D");
+        &adduser_to_project($user, "$class-D",0);
     }
 }
 

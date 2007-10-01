@@ -43,7 +43,7 @@ require Exporter;
              create_class_db_entry
              update_class_db_entry
              remove_class_db_entry
-             pg_adduser
+             pg_adduser_old
              pg_remove_all_secusers
              pg_get_group_list
              pg_get_group_type
@@ -858,30 +858,55 @@ sub add_newuser_to_her_projects {
 
 sub adduser_to_project {
     # add a user as secondary membership to a project(group)
+    # 3rd option: $by_option: 
+    #    add to by option table as well (1) 
+    #    or not add to option table (0) standard
     my ($user,$project,$by_option)=@_;
+    my $sql;
     if (not defined $by_option){
         $by_option=0;
     }
     my $dbh=&db_connect();
     # fetching gidnumber
+# from classdata was groups ???
     my ($gidnumber_sys)= $dbh->selectrow_array( "SELECT gidnumber 
-                                         FROM groups 
+                                         FROM classdata 
                                          WHERE gid='$project'");
     # fetching uidnumber
+# from userdata was posix_account
     my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
-                                         FROM posix_account 
+                                         FROM userdata 
                                          WHERE uid='$user'");
 
+    # if user and group exist in db 
     if (defined $uidnumber_sys and defined $gidnumber_sys){
-        print "   Adding user $user($uidnumber_sys) to $project($gidnumber_sys) \n";
-        my $sql="INSERT INTO groups_users
-                (gidnumber,memberuidnumber)
-	        VALUES
-	        ($gidnumber_sys,'$uidnumber_sys')";	
+
+        # is user added already
+        $sql="SELECT memberuidnumber FROM groups_users 
+                                  WHERE (gidnumber=$gidnumber_sys
+                                  AND memberuidnumber=$uidnumber_sys)";
         if($Conf::log_level>=3){
-           print "\nSQL: $sql\n";
+            print "\nSQL: $sql\n";
         }
-        $dbh->do($sql);
+        my ($old_id)= $dbh->selectrow_array($sql);
+        if (not defined $old_id){
+            # add user
+            print "   Adding user $user($uidnumber_sys)",
+                  " to $project($gidnumber_sys) \n";
+
+            $sql="INSERT INTO groups_users
+                    (gidnumber,memberuidnumber)
+	          VALUES
+	            ($gidnumber_sys,'$uidnumber_sys')";	
+            if($Conf::log_level>=3){
+                print "\nSQL: $sql\n";
+            }
+            $dbh->do($sql);
+        } else {
+            # dont add
+            print "   User $user(${uidnumber_sys}) exists ",
+                  "already in $project ($gidnumber_sys)\n";
+        }
 
         # adding user to secondary group
         &auth_adduser_to_project($user,$project);
@@ -2207,19 +2232,21 @@ sub remove_class_db_entry {
 }
 
 
-sub pg_adduser {
+sub pg_adduser_old {
     # add a user to a secondary group
     # (removing a user is deleteuser_from_project)
     my ($user,$group) = @_;
     my $sql="";
     my $dbh=&db_connect();
 
+    # fetching uidnumber
     $sql="SELECT uidnumber FROM userdata WHERE uid='$user'";
     if($Conf::log_level>=3){
        print "\nSQL: $sql\n";
     }
     my ($uidnumber)= $dbh->selectrow_array($sql);
 
+    # fetching gidnumber
     $sql="SELECT gidnumber FROM classdata WHERE gid='$group'";
     if($Conf::log_level>=3){
        print "\nSQL: $sql\n";

@@ -46,7 +46,8 @@ my $gidnumber=&create_class_db_entry($all_user);
 
 foreach my $user (@users){
     # add user to a group
-    &Sophomorix::SophomorixPgLdap::pg_adduser($user,,$all_user);
+#    &Sophomorix::SophomorixPgLdap::pg_adduser($user,,$all_user);
+    &Sophomorix::SophomorixPgLdap::adduser_to_project($user,$all_user,0);
     print "$user\n";
 
     # rm a dir in the home
