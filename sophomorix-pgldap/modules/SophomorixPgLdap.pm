@@ -196,7 +196,7 @@ sub check_connections {
        print "   Checking ldap connection... \n";
     }
     my $ldap = Net::LDAP->new( '127.0.0.1' ) or 
-       &Sophomorix::SophomorixBase::log_script_exit("No connection to sldapd!",
+       &Sophomorix::SophomorixBase::log_script_exit("No connection to slapd!",
          1,1,0,@arguments);
 }
 
