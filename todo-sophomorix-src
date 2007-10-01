@@ -43,7 +43,7 @@ sophomorix-class -i -c name sollte
 Klassendaten anzeigen (wer ist seit wann mitglied, status, etc...)
      vgl. mit sophomorix-project
 
-beim löschen von Räumen  wird evtl nicht in der Tabelle 
+beim löschen von Räumen  wurde evtl. nicht in der Tabelle 
 class_details gelöscht
 muss evtl. nachgeholt werden
 
@@ -105,6 +105,9 @@ packaging:
 MAKING a Package
 ############################################################
 
+Packaging:
+-----------
+
 1. update versions in debian/control
    (so that apt-get update sophomorix2 updates all sophomorix-* packages)
 
@@ -121,6 +124,7 @@ MAKING a Package
 
 
 Testing:
+----------
 
 1. install sophomorix-developer
 
@@ -182,9 +186,8 @@ MODIFY directries when user is created or repaired
 SCRIPTS To do
 ############################################################
 
-sophomorix-repair
-   - use function create_userlist to specify users
-     Call with option -u user should be fast (= do only this)
+sophomorix-repair (seems OK so far)
+   
 
 sophomorix-quota
    * option --sum still missing
@@ -194,7 +197,7 @@ sophomorix-quota
    - find users without quota, report them (cron)
 
 
-sophomorix-teach-in (seems ok so far)
+sophomorix-teach-in (seems OK so far)
 
 
 sophomorix-check
@@ -220,7 +223,6 @@ sophomorix-check
          - automatisch: Schülerzahl, Klassenzahl ?????? oder besser dynamisch
          - ....
    - Format report.office with latex          
-   - throw error, when unid is double in schueler.txt 
 
 
 sophomorix-add

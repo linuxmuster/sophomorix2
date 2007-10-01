@@ -4,6 +4,10 @@
 ============SOPHOMORIX2 CHANGELOG ====================================
 
 1.9.31-1 (2007-10-xx)
+    - Bugfix: changing a users unid (identifier remains the same)
+              needed only one run of sophomorix-check 
+              (With Bug it needed two runs)
+    - exit sophomorix-check when unid in schueler.txt is seen twice
     - united functions pg_adduser and adduser_to_project
       pg_adduser is not needed anymore
     - Bugfix: removing entry of a group in table class_details
