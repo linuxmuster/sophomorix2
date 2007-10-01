@@ -39,10 +39,11 @@ my $help=0;
 # ===========================================================================
 # Optionen verarbeiten
 # ==========================================================================
-
+$Conf::log_level=1;
 my $room="";
 my $class="";
 
+my $backup=1;
 my $explanation="";
 my $skiplock=0;
 
@@ -50,10 +51,12 @@ my $type=-1; # 3: domain group
 
 # Parsen der Optionen
 my $testopt=GetOptions(
+           "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
            "room=s" => \$room,
            "c|class=s" => \$class,
            "skiplock" => \$skiplock,
+           "backup!" => \$backup
           );
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
@@ -80,9 +83,14 @@ Options
   -h  / --help
   -v  / --verbose
   -vv / --verbose --verbose
-  -i  / --info
+  --skiplock
+
   --room name  (a group for workstations)
   --class name (a group for students)
+  
+  --backup   (default)
+  --nobackup
+  
 
 Please see the sophomorix-groupdel(8) man pages for full documentation
 ');
@@ -132,7 +140,6 @@ if ($room ne ""){
 }
 
 
-
 # --class name
 if ($class ne ""){
     # 1) check if $class is really a adminclass/hiddenclass
@@ -167,27 +174,33 @@ if ($class ne ""){
         exit;
     } 
 
+    my $timestamp=&zeit_stempel;
+
     # Remove files/dirs
     &backup_dir_to_attic("${DevelConf::homedir_pupil}/$class",
                          "groupdel",
-                         "groupdel_${class}",
+                         "${timestamp}_groupdel_${class}",
                          "homedir_${class}",
-                         "");
+                         "",
+                         "$backup");
     &backup_dir_to_attic("${DevelConf::share_classes}/$class",
                          "groupdel",
-                         "groupdel_${class}",
+                         "${timestamp}_groupdel_${class}",
                          "share_${class}",
-                         "");
+                         "",
+                         "$backup");
     &backup_dir_to_attic("${DevelConf::tasks_classes}/$class",
                          "groupdel",
-                         "groupdel_${class}",
+                         "${timestamp}_groupdel_${class}",
                          "tasks_${class}",
-                         "");
+                         "",
+                         "$backup");
     &backup_dir_to_attic("${DevelConf::www_classes}/$class",
                          "groupdel",
-                         "groupdel_${class}",
+                         "${timestamp}_groupdel_${class}",
                          "www_${class}",
-                         "bzip2");
+                         "bzip2",
+                         "$backup");
     # Do it
     &remove_class_db_entry($class);
 }
