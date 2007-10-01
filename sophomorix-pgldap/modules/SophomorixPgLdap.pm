@@ -5587,7 +5587,7 @@ sub auth_groupdel {
         print "   * $command\n";
         system("$command");
    } else {
-        print "Group $group still exists in ldap\n";
+        print "Group $group still exists in pg\n";
         print "   NOT removing group $group from ldap",
    }
 }
