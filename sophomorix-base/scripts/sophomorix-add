@@ -208,7 +208,7 @@ if ($gruppe ne "") {
   print "Gruppe/Klasse $gruppe angegeben.\n";
 }
 
-
+&check_connections();
 &log_script_start(@arguments);
 
 
@@ -218,8 +218,6 @@ if ($gruppe ne "") {
 my $epoche_jetzt=time;
    print "Epochenzeit:                                 ",
          "$epoche_jetzt (right now)\n";
-
-&check_connections();
 
 my $dbh=&db_connect();
 my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
