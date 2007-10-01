@@ -868,16 +868,13 @@ sub adduser_to_project {
     }
     my $dbh=&db_connect();
     # fetching gidnumber
-# from classdata was groups ???
     my ($gidnumber_sys)= $dbh->selectrow_array( "SELECT gidnumber 
                                          FROM classdata 
                                          WHERE gid='$project'");
     # fetching uidnumber
-# from userdata was posix_account
     my ($uidnumber_sys)= $dbh->selectrow_array( "SELECT uidnumber 
                                          FROM userdata 
                                          WHERE uid='$user'");
-
     # if user and group exist in db 
     if (defined $uidnumber_sys and defined $gidnumber_sys){
 
