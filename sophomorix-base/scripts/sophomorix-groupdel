@@ -19,6 +19,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     check_connections
                                     remove_class_db_entry
                                     pg_get_group_type
+                                    fetchadmins_from_adminclass
                                     fetchworkstations_from_room
                                     fetchstudents_from_adminclass
                                     fetchrooms_from_school
@@ -45,6 +46,8 @@ my $class="";
 my $delete_all_empty_classes=0;
 
 my $backup=1;
+my $remove_teachers=0;
+
 my $explanation="";
 my $skiplock=0;
 
@@ -59,7 +62,8 @@ my $testopt=GetOptions(
            "c|class=s" => \$class,
            "skiplock" => \$skiplock,
            "delete-all-empty-classes" => \$delete_all_empty_classes,
-           "backup!" => \$backup
+           "remove-teachers" => \$remove_teachers,
+           "backup!" => \$backup,
           );
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
@@ -73,9 +77,13 @@ if ($info==1){
     foreach my $class (@classes){
         my @users = &fetchstudents_from_adminclass($class);
         my $members=$#users+1;
+
+        my @teachers=&fetchadmins_from_adminclass($class);
+        my $teacher=$#teachers+1;
+
         if ($members==0){
 	    $count++;
-            print "  * $class has $members members\n";
+            print "  * $class has $members members ($teacher teachers)\n";
        }
     }
     print "$count classes are without users.\n";
@@ -219,21 +227,46 @@ sub remove_class {
         exit;
     }
 
-    # 2) check if there are no users in this room
+    # 2) check if there are no users in this class
     print "Checking if class $class can be removed\n";
     my @users = &fetchstudents_from_adminclass($class);
     my $members=$#users+1;
     print "   $class has $members students\n";
     if ($members==0){
-	print "   Removing class $class from pg\n";
+	#print "   Removing class $class\n";
     } else {
         print "   Group $class is not empty\n";
         print "   WARNING: Not removing class $class\n";
         exit;
     } 
 
-    my $timestamp=&zeit_stempel;
+    # 3) check if teachers are in this class (as admins)
+    my @teachers=&fetchadmins_from_adminclass($class);
+    my $teacher=$#teachers+1;
+    print "   $class has $teacher teachers\n";
+    if ($teacher==0){
+	#print "   Removing class $class\n";
+    } else {
+        print "   Group $class is not empty\n";
+        print "   WARNING: Not removing class $class\n";
+        if ($remove_teachers==1){
+            print "   I am removing the teachers as you wish!\n";
+            foreach my $teach (@teachers){
+                print "Removing $teach from $class\n";
+                my $command="sophomorix-teacher --remove $class --teacher $teach";
+                print "   $command\n";
+                system("$command");
+            }
+        } else {
+            print "   Use --remove-teachers if you want to go on!\n";
+            exit;
+        }
+    } 
 
+
+    # Do it!
+    print "   Removing class $class\n";
+    my $timestamp=&zeit_stempel;
     # Remove files/dirs
     &backup_dir_to_attic("${DevelConf::homedir_pupil}/$class",
                          "groupdel",
@@ -259,6 +292,5 @@ sub remove_class {
                          "www_${class}",
                          "bzip2",
                          "$backup");
-    # Do it
     &remove_class_db_entry($class);
 }
