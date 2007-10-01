@@ -4,28 +4,9 @@
 Next
 ############################################################
 
-pg_adduser should also add to ldap
-
-in SophomorixAPI after pg_adduser is 
-    &auth_adduser_to_project($login,$class);
-executed, which must be removed
-
-or should adduser_to_project benutzt werden statt pg_adduser????
-
-
-renamed pg_adduser to pg_adduser_old
-delete it in the future
-
-
-
-        &auth_adduser_to_project($user,$project);
-shoul look in db if user is added already. dont add again
-
-
-
-
 check if latex can be made uninteruptible with option.
-(checked, but not found)
+(checked, but no solution found)
+
 
 gerade zufällig bemerkt, dass das homeverzeichnis von wwwadmin nicht
 der Gruppe domadmins gehört,
