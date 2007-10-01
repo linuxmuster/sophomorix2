@@ -34,7 +34,7 @@ my @arguments = @ARGV;
 # ==========================================================================
 
 my $help=0;
-
+my $info=0;
 
 # ===========================================================================
 # Optionen verarbeiten
@@ -42,6 +42,7 @@ my $help=0;
 $Conf::log_level=1;
 my $room="";
 my $class="";
+my $delete_all_empty_classes=0;
 
 my $backup=1;
 my $explanation="";
@@ -53,20 +54,37 @@ my $type=-1; # 3: domain group
 my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
+           "info|i" => \$info,
            "room=s" => \$room,
            "c|class=s" => \$class,
            "skiplock" => \$skiplock,
+           "delete-all-empty-classes" => \$delete_all_empty_classes,
            "backup!" => \$backup
           );
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
-&check_connections();
-&log_script_start(@arguments);
 
+# --info
+if ($info==1){
+    my $count=0;
+    print "Looking for classes without users:\n";
+    my @classes = &fetchadminclasses_from_school("showhidden");
+    foreach my $class (@classes){
+        my @users = &fetchstudents_from_adminclass($class);
+        my $members=$#users+1;
+        if ($members==0){
+	    $count++;
+            print "  * $class has $members members\n";
+       }
+    }
+    print "$count classes are without users.\n";
+    exit;
+}
 
 if ($room eq ""
-    and $class eq ""){
+    and $class eq ""
+    and $delete_all_empty_classes==0){
     $help=1;
 }
 
@@ -87,6 +105,7 @@ Options
 
   --room name  (a group for workstations)
   --class name (a group for students)
+  --delete-all-empty-classes
   
   --backup   (default)
   --nobackup
@@ -97,6 +116,13 @@ Please see the sophomorix-groupdel(8) man pages for full documentation
    print "\n";
    exit;
 }
+
+
+
+
+&check_connections();
+&log_script_start(@arguments);
+
 
 
 
@@ -142,6 +168,38 @@ if ($room ne ""){
 
 # --class name
 if ($class ne ""){
+    &remove_class($class,$backup);
+}
+
+
+# --delete-all-empty-classes
+if ($delete_all_empty_classes==1){
+    my @classes = &fetchadminclasses_from_school("showhidden");
+    foreach my $class (@classes){
+        my @users = &fetchstudents_from_adminclass($class);
+        my $members=$#users+1;
+        if ($members==0){
+	    &remove_class($class,$backup);
+       }
+    }
+    exit;
+
+}
+
+
+
+&log_script_end(@arguments);
+
+
+
+
+
+######################################################################
+# subs
+######################################################################
+
+sub remove_class {
+    my ($class,$backup) = @_;
     # 1) check if $class is really a adminclass/hiddenclass
     print "Checking if class $class is a adminclass/hiddenclass: ";
     my $seen=0;
@@ -204,8 +262,3 @@ if ($class ne ""){
     # Do it
     &remove_class_db_entry($class);
 }
-
-
-
-
-&log_script_end(@arguments);
