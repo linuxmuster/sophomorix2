@@ -2446,7 +2446,6 @@ sub update_unids {
                 print "  I'm updating because of identical UNID!\n";
 	     }
 
-
              # identifiers are similar
              $login=$schueler_im_system_loginname{$identifier_sys};
              if($Conf::log_level>=3){
@@ -2461,10 +2460,10 @@ sub update_unids {
                                            "Birthday=$birthday");
              # log
              &append_teach_in_log("update_unids",
-                                       $login,
-                                       $identifier_sys,
-                                       $identifier_file,
-                                       $unid_file);
+                                  $login,
+                                  $identifier_sys,
+                                  $identifier_file,
+                                  $unid_file);
 
              # update the system
              $gecos="$first"." "."$last";
@@ -2496,13 +2495,24 @@ sub update_unids {
 	    print "  Uploading Unid $unid_file to user $login \n";
 	    &update_user_db_entry($login, "Unid=$unid_file");
             &append_teach_in_log("new-unid",
-                                      $login,
-                                      $id_sys,
-                                      $identifier_file,
-                                      $unid_file);
-            # updating the unid, identifier-hash
-           $unid_ok_system{$unid_file} = "$id_sys";
-
+                                 $login,
+                                 $id_sys,
+                                 $identifier_file,
+                                 $unid_file);
+            # deleting the old entry
+            my $unid_sys_old;
+            # find old unid of $id_sys
+            while (my ($unid_1,$ident_1) = each %unid_ok_system){
+		if ($ident_1 eq $id_sys){
+                    # remove this entry
+		    $unid_sys_old=$unid_1;
+                }  
+            }
+            # delete this old unid
+            delete $unid_ok_system{$unid_sys_old};
+            # create entry with the new unid, identifier-hash
+            $unid_ok_system{$unid_file} = "$id_sys";
+            $count++;
 	}
      }
    }
@@ -2516,12 +2526,12 @@ sub remove_unids {
    my $login="";
    &titel("remove_unids: Modifying the following accounts:");
    while ( my ($unid_system, $identifier_system) = each %unid_ok_system ) { 
-       if ($unid_system eq ""){
-	   next;
-       }
-       if($Conf::log_level>=3){
-          print "Working on $unid_system from  $identifier_system\n";
-       }
+     if ($unid_system eq ""){
+	 next;
+     }
+     if($Conf::log_level>=3){
+         print "Working on $unid_system from  $identifier_system\n";
+     }
      if (exists $unid_ok_file{$unid_system}) {
          if($Conf::log_level>=3){
             print "   UNID $unid_system exists in the System and Files:",
@@ -2531,21 +2541,10 @@ sub remove_unids {
         if($Conf::log_level>=3){
   	   print "   UNID $unid_system of $identifier_system missing in files\n";
         }
-# commented: delete only when identifier is still in schueler.txt
-#        if (exists $schueler_ok_hash{ $identifier_system } ){
-             $login=$schueler_im_system_loginname{$identifier_system};
-    #         if($Conf::log_level>=3){
-    #	        print "      ... and $identifier_system is OK in files\n";
-    #	     }
-                &update_user_db_entry($login,"Unid=","ExitUnid=$unid_system");
-                print "   Removing UNID $unid_system from account $login\n"; 
-                $count++;
-#	 } else {
-#             if($Conf::log_level>=3){
-#                print "      ... and $identifier_system also missing.\n";
-#	     }
-#         }
-
+        $login=$schueler_im_system_loginname{$identifier_system};
+        &update_user_db_entry($login,"Unid=","ExitUnid=$unid_system");
+        print "   Removing UNID $unid_system from account $login\n"; 
+        $count++;
      }
    }
    &titel("remove_unids: ... $count unid in system removed.");
