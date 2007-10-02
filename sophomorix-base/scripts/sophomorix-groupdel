@@ -266,7 +266,7 @@ sub remove_class {
 
     # Do it!
     print "   Removing class $class\n";
-    my $timestamp=&zeit_stempel;
+    my $timestamp=&zeit_stempel();
     # Remove files/dirs
     &backup_dir_to_attic("${DevelConf::homedir_pupil}/$class",
                          "groupdel",
