@@ -18,6 +18,11 @@ drwx--s--x  11 pgmadmin      domadmins 4096 2007-09-27 10:31 pgmadmin/
 drwx------   4 wwwadmin            997 4096 2007-09-17 15:34 wwwadmin/
 
 
+Reparatur:
+
+INSERT INTO samba_group_mapping (id,gidnumber,sambasid,sambagrouptype,displayname,description,sambasidlist) VALUES ((SELECT id FROM groups WHERE gid='wwwadmin'),997,'S-1-5-32-997',2,'Web Administrators','Local Unix group',NULL);  
+
+
 
 Prüfen, ob manpages nach Postscript konvertiert werden kann
 (und dann pdf) 
