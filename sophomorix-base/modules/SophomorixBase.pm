@@ -2954,6 +2954,7 @@ sub log_script_end {
         &titel("Removing lock in $DevelConf::lock_file");    
     }
     &titel("$0 terminated regularly");
+    exit;
 }
 
 sub log_script_exit {
