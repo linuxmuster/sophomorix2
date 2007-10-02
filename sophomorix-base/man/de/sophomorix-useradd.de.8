@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-USERADD 8 "June 12, 2007"
+.TH SOPHOMORIX-USERADD 8 "October 2, 2007"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -23,9 +23,9 @@ sophomorix-useradd \- Anlegen von Nicht-Lehrern und Nicht-Schülern.
 .br
 .SH DESCRIPTION
 .B sophomorix-useradd
-Das anlegen von Nicht-Lehrern und Nicht-Schülern erfolgt normalerweise
+Das Anlegen von Nicht-Lehrern und Nicht-Schülern erfolgt normalerweise
 aus anderen Scripten heraus. Der Netzwerkbetreuer sollte
-sophomorix-useradd NIE aufrufen müssen.
+sophomorix-useradd NIE aufrufen müssen (Ausnahmen: siehe EXAMPLES unten).
 .PP
 .SH OPTIONS
 .B sophomorix-useradd
@@ -85,7 +85,39 @@ Netzwerkbetreuer sollte keine Computeraccounts anlegen müssen.
 .TP
 .B --computer name
 Legt den Computeraccount name an. Das erste Zeichen von name muss $ sein.
+.SH EXAMPLES
+.B Unix-Account mit Mailbox
+.br
+Für einen Areca-SATA-Kontroller wird ein emailfähiger Account mit dem Namen areca in einer eigenen Gruppe areca gebraucht:
 .TP
+1) User areca in gruppe areca anlegen:
+.br
+sophomorix-useradd --unixadmin areca --unix-group areca
+.TP
+2) Passwort setzten
+.br
+sophomorix-passwd --interactive -u areca
+.TP
+3) Mailbox hinzufügen:
+.br
+sophomorix-mail --add-mailbox areca
+.TP
+4) Quota einstellen:
+.br
+Edititen sie quota.txt
+.br
+Editieren sie Mailquota.txt
+.br
+sophomorix-quota -u areca
+.TP
+5) Prüfen, ob alles geklappt hat:
+.br
+sophomorix-mail --showmailboxes | grep areca
+.br
+quota -v areca
+
+
+
 .SH SEE ALSO
 .BR sophomorix (8),
 .BR sophomorix-teach-in (8),
