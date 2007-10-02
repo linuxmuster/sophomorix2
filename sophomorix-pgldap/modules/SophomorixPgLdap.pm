@@ -4427,11 +4427,15 @@ sub search_user {
        my $deact=&date_pg2perl($deactivation_date_pg);
        my $sched_del=&date_pg2perl($scheduled_toleration);
 
+
        # Gruppen-Zugehoerigkeit
        $pri_group_string="";
        $grp_string="";
        @group_list=&Sophomorix::SophomorixPgLdap::pg_get_group_list($login);
        $pri_group_string=$group_list[0];
+
+       my ($group_type)=&pg_get_group_type($admin_class);
+       my $admin_class_string=$admin_class." (${group_type})";
 
        # standard Values for nonsophomorix users
        if (not defined $admin_class){$admin_class=""}
@@ -4456,7 +4460,7 @@ sub search_user {
        print "=======================================";
        print "=======================================\n";
 
-       printf "  AdminClass         : %-45s %-11s\n",$admin_class,$login;
+       printf "  AdminClass         : %-45s %-11s\n",$admin_class_string,$login;
        printf "  PrimaryGroup       : %-45s %-11s\n",$pri_group_string,$login;
 
        foreach my $gr (@group_list){
