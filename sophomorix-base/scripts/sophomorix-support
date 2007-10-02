@@ -40,6 +40,11 @@ my $add_files="";
 my @add_files=();
 my $add_dirlists="";
 my @add_dirlists=();
+my $unlock=0;
+
+# this script skips the lock automatically
+my $skiplock=1;
+push @arguments, "--skiplock";
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -47,6 +52,7 @@ my $testopt=GetOptions(
            "info|i" => \$info,
            "add-files=s" => \$add_files,
            "add-dirlists=s" => \$add_dirlists,
+           "unlock" => \$unlock,
           );
 
 if ($add_files ne ""){
@@ -77,6 +83,8 @@ Options
   --add-files file1,file2,...        (absolute paths)
   --add-dirlists dir1,dir2,...       (absolute paths)
 
+  --unlock
+
 Please see the sophomorix-support(8) man pages for full documentation
 ');
    print "\n";
@@ -101,6 +109,15 @@ if ($info==1) {
         print "   $dir \n";
     }
     exit;
+}
+
+
+
+# --unlock
+if ($unlock==1){
+    # unlock sophomorix with backup
+    &unlock_sophomorix();
+    &log_script_end(@arguments);
 }
 
 
@@ -166,6 +183,9 @@ print "\n";
 &titel("${create_dir}/${treename}.zip");
 &titel("WARNING: This file contains sensible data!");
 &titel("         Do not send unencrypted!");
+
+
+&log_script_end(@arguments);
 
 
 
