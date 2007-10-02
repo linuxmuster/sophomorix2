@@ -4,6 +4,11 @@
 ============SOPHOMORIX2 CHANGELOG ====================================
 
 1.9.31-1 (2007-10-xx)
+    - added exit command to sub log_script_end
+      so it can be used to end a script regularly without running 
+      the remaining code
+    - show grouptype (i. e. adminclass/hiddenclass) using
+      sophomorix-user -s searchstring
     - added disconnects (imap,db) to *-kill, *-quota, *-add
     - Bugfix: changing a users unid (identifier remains the same)
               needed only one run of sophomorix-check 

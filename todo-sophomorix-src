@@ -1808,13 +1808,11 @@ sophomorix-useradd:
 
 Beispiele in manpage:
 1) user areca mit password, das in webfrontend eingetragen wird
-   (erscheint in schulkonsole! Muss verhindert werden! Info an Aike)
-   ??? verstehe ich nicht mehr
 
 sophomorix-useradd --unixadmin areca --unix-group areca
-Edit quota.txt
-Edit mailquota.txt
-sophomorix-mail --add-mailbox areca
+   Edit quota.txt
+   Edit mailquota.txt
+   sophomorix-mail --add-mailbox areca
 sophomorix-passwd --interactive -u areca
 sophomorix-quota
 
@@ -1822,6 +1820,14 @@ Prüfen:
 
 sophomorix-mail --showmailboxes | grep areca
 quota -v areca
+
+Problem: nach sophomorix-dump-pg2ldap ist es ein samba user!
+
+
+
+
+
+
 
 2) weiterer pgmadmin
      win und unix, in gruppe pgmadmin
@@ -1838,72 +1844,127 @@ evtl. neue option showteacher login (ohne s)
 
 To check:
 
-- in the code: where is 'adminclass' selected and must 
-  be 'hiddenclass' also?
-
-
 - wie kann man das /var/www/people/students löschen, wenn man nicht weiss,
   welcher ob der user im attic in teacher oder students war?  
   (Use ExitAdminClass)
 
+
+
 Aike:
 
-sophomorix-locked:
-   - Anzeige in schulkonsole
-
-   - add a checkbox/Button to schuko (as administrator)
-     to switch a class hidden (and unhide it)
+1) Problem: sophomorix-locked 
+   Lösung: A) Anzeige in schulkonsole erforderlich
+           B) Knopf unlocken
 
    - Änderungen für Aike: 
-                  - bei allen Seiten, die sophomorix-Befehle aufrufen
+                  - bei allen Seiten, die sophomorix-Befehle aufrufen:
+
                   - lesen von /var/lib/sophomorix/lock/sophomorix.lock
                      ...::scriptname::prozessid::
+
+                  und folgende tests machen:
+
                   A) testen, ob lockfile existiert
                   B) wenn ja, schauen ob prozess mit 'prozessid' existiert
 
-                  A) nein ---> alles wie bisher
-                  A) ja B) ja --> Versuchen sie es später nochmal
+                  A) nein ---> weitermachen wie wie bisher
+                               (Entsprechende Seite anzeigen)
+                  A) ja B) ja --> Text: 
+                                  Es wird gerade ein Befehl ausgeführt
+                                  Versuchen sie es später nochmal
+                         
                   A) ja B) nein --> Informieren sie den Administrator
 
                   Achtung: Zwischen A und B vergeht Zeit, deshalb :
-                  Nach A) B) NOCHMALS A) prüfen:
-                  nur wenn lockfile bei A) GLEICH wie beim ersten prüfen, 
+                  Nach A), B) NOCHMALS A) prüfen:
+                  nur wenn Inhalt des lockfile bei A) 
+                  GLEICH wie beim ersten prüfen, 
                   dann: Informieren Sie den Administrator 
 
-                  Knopf für administrator: Wo? Andy
+                  Knopf für administrator: Wo? Andy ???
 
                   Unlocken:
 
-                  Aufrufen von: sophomorix-support --unlock-report
-                                (existiert in 1.9.28 noch nicht)       
+                  Aufrufen von: sophomorix-support --unlock
+                                (existiert erst ab sophomorix 1.9.31)
+                                (oder sophomorix-check --unlock,
+                                 das gibts schon länger)    
                   Das macht folgendes:
                   - sichern von /var/lib/sophomorix/lock/sophomorix.lock
                   - sichern der letzten 30 Zeilen von 
                        /var/log/sophomorix/command.log
 
-- sophomorix-www loggt nicht mit, wer eines Schülers 
-  Homepage freigegeben hat.
-  Sollte aber so sein.
-  Loggen in command-log (evtl. zusätzlich in die .htaccess-Datei rein)
-  Aike: sophomorix-www mit Parameter --caller login aufrufen
 
-- sophomorix-www -i 
-  sollte alle user mit freigegebenem Verzeichnis angeben.  
-  und ob sie einen Inhalt (außer .htacess haben. MB-Angabe?)
 
-- Auruf von sophomorix-passwd sollte mit ' ' erfolgen, also
+2) zusätzlich eine checkbox/Button in der Schuko des administrators 
+   Wo ? Wo admin alle Klasse sieht Andy ???
+    
+   zum verstecken/wieder sichtbarmachen einer Klasse:
+
+   Befehle:
+       /usr/sbin/sophomorix-class --hide --class 10c
+       /usr/sbin/sophomorix-class --nohide --class 10c
+      
+ 
+
+3) Problem: sophomorix-www loggt nicht mit, wer eines Schülers 
+           Homepage freigegeben hat.
+  Minimallösung: Loggen in command.log 
+        (evtl. zusätzlich in die .htaccess-Datei rein)
+      Aike: sophomorix-www immer mit Parameter 
+         --caller login 
+         aufrufen, sonst weiss sophomorix-www nicht wer 
+         in der Schulkonsole diesen Befehl aufgerufen hat
+  Die Option --caller login ist ab sophomorix 1.9.30 drin
+
+
+
+
+4) Aike bitte checken:
+  Auruf von sophomorix-passwd sollte mit ' ' erfolgen, also
   sophomorix-passwd -u bz --pass '{my#cking}Pass' 
-  (wegen Sonderzeichen)
+  (wegen Sonderzeichen, ..)
+
+
 
 - offene und geschlossene Projekte
+  Ein Project ist entweder beitrittbar 
+  (alle Lehrer) via Schulkonsole
+  oder nicht beitrittbar
+  (admins des Projects passen die Mitgliederliste an).
+
+  In der Postgres-Datenbank:
+  Tabelle projectdata.joinable ist TRUE/FALSE  
+  
+
+  Bei nicht beitretbaren Projekte (joinable=FALSE),
+  Darf die Beitrittseite nicht angezeigt werden
+    
+
+
   ausarbeiten und Aike schicken
  
+
+
+
+
+
+
 
 
 sophomorix-teach-in:
 Idee: auto-teach-in nur, wenn das anlegedatum WENIGER als 3 Monate 
 (oder 7 Monate(erstes Zeugnis?)) zurückliegt? 
 Variable time in sophomorix.conf
+
+
+
+NEXT:
+sophomorix-www -i 
+  sollte alle user mit freigegebenem Verzeichnis angeben.  
+  und ob sie einen Inhalt (außer .htacess haben. MB-Angabe?)
+
+
 
 
 sophomorix-passwd --pass 'my\file' setzt passwort nicht korrekt 
@@ -1913,6 +1974,12 @@ Beim versetzen in den attic,löschen,... muss das public html auf
 user-private-noupload gesetzt werden
 
 
+In sophomorix-class -i --class name
+              project -i project
+                Zusatzinfos wie 
+                    Gruppen-gidnumber,
+                    Datenbank id,
+                    ... 
 
 
 
@@ -1939,9 +2006,6 @@ $teachers_alias_name="lehrer";
 # $teachers_alias_additions="secretaries,social";
 # Where secretaries and social is a class from extraschueler.txt 
 $teachers_alias_additions="blackmri,jonesjo";
-
-
-
 
 
 # auf 2005 setzen
