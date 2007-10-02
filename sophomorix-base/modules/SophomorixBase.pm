@@ -2834,8 +2834,31 @@ sub append_teach_in_log {
 
 sub unlock_sophomorix {
     &titel("Removing lock in $DevelConf::lock_file");
+    my $timestamp=&zeit_stempel();
+    my $unlock_dir=$DevelConf::lock_logdir."/".$timestamp."_unlock";
+    # make sure logdir exists
+    if (not -e "$DevelConf::lock_logdir"){
+        system("mkdir $DevelConf::lock_logdir");
+    }
+
     if (-e $DevelConf::lock_file){
-        system("rm $DevelConf::lock_file")
+        # create timestamped dir
+        if (not -e "$unlock_dir"){
+            system("mkdir $unlock_dir");
+        }
+        
+        # save sophomorix.lock
+        system("mv $DevelConf::lock_file $unlock_dir");
+
+        # saving last lines of command.log
+        $command="tail -n 100  ${DevelConf::log_command} ".
+	         "> ${unlock_dir}/command.log.tail";
+        if($Conf::log_level>=3){
+   	    print "$command\n";
+        }
+	system("$command");
+
+        print "Created log data in ${unlock_dir}\n";
     } else {
         &titel("Lock $DevelConf::lock_file did not exist");
     }
