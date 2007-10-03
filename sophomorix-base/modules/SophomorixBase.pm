@@ -116,6 +116,7 @@ use Quota;
               group_private_upload
               group_private_noupload
               get_debconf_value
+              get_debian_version
               basedn_from_domainname
               unlink_immutable_tree
               move_immutable_tree
@@ -4899,6 +4900,20 @@ sub get_debconf_value {
        }
        return $ret;
     }
+}
+
+
+sub get_debian_version {
+    my $version="";
+    open(VERSION, "/etc/debian_version");
+    while (<VERSION>) {
+      chomp();
+      s/\s//g; # Spezialzeichen raus
+      if ($_ ne ""){
+          $version=$_;
+      }
+    }
+    return $version;
 }
 
 
