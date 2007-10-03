@@ -24,20 +24,41 @@ use Crypt::SmbHash;
 use Net::LDAP;
 use IMAP::Admin;
 
+my $num=$ARGV[0];
+
+#my @list=("item1","item2","item3","item4","item5","item6","item7","item8","item9","item10","item11","item12","item13","item14","item15","item16","item17","item18","item19","item20","item21",);
 
 
-my $student=1;
-my @userlist=&create_userlist("",$DevelConf::teacher,0,
-                                 "",0,$student,
-                                 "",0,1,0);
+#my @new = splice(@list, 0, 5);
 
 
-foreach my $user (@userlist){
-    print "User $user\n";
-}
+#while ($#list>0){
+#    my @new = splice(@list, 0, 5);
+#    print "New:  @new\n";
+#}
 
-exit;
 
+#print "List: @list\n";
+#print "New:  @new\n";
+
+
+#my @ws=&fetchmembers_by_option_from_project("astro");
+
+#&addgroup_to_project("11a","p_micro");
+
+#&backup_dir_to_attic("/root/software","groupdel","software_14c","tasks_14c","bzip2");
+
+#&update_user_db_entry("kueblefe","Enable=Yes");
+
+
+my $deb=&get_debian_version();
+
+print "---$deb---";
+
+
+#foreach my $memb (@ws){
+#    print "---$memb---\n";
+#}
 
 #&user_reaktivieren($login);
 
