@@ -1320,8 +1320,9 @@ sub fetchdata_from_account {
         $uidnumber,
         $sambahomepath,
         $firstpassword,
+        $sambaacctflags
        )= $dbh->selectrow_array( "SELECT homedirectory,gid,gecos,uidnumber,
-                                         sambahomepath,firstpassword 
+                                         sambahomepath,firstpassword,sambaacctflags
                                          FROM userdata 
                                          WHERE uid='$login'
                                         ");
@@ -1343,9 +1344,9 @@ sub fetchdata_from_account {
             $type="none";
         }
         return ($home,$type,$gecos,$group,$uidnumber,$sambahomepath,
-                $firstpassword);
+                $firstpassword,$sambaacctflags);
     } else {
-        return ("","","","",-1,"","");
+        return ("","","","",-1,"","","");
     }
 }
 
@@ -3188,6 +3189,7 @@ sub update_user_db_entry {
     my $mailquota=-1;
     my $new_login="";
     my $login_shell="";
+    my $enable; # 0: disable, 1: enable
 
     # decide if auth_usermove must be called (1) or not
     my $usermove=0;
@@ -3195,6 +3197,7 @@ sub update_user_db_entry {
     my $lastnameupdate=0;
     my $gecosupdate=0;
     my $shellupdate=0;
+    my $enableupdate=0;
 
     my @posix=();
     my @posix_details=();
@@ -3204,9 +3207,9 @@ sub update_user_db_entry {
     my $sql="";
 
     # fetch old data
-    my ($old_home,$old_type,$old_gecos,$old_group,$old_uidnumber,
-        $old_sambahomepath) = &fetchdata_from_account($login);
-
+    my ($old_home,$old_type,$old_gecos,$old_group,
+        $old_uidnumber,$old_sambahomepath,$old_firstpassword,
+        $old_sambaacctflags) = &fetchdata_from_account($login);
     
     # Check of Parameters
     foreach my $param (@_){
@@ -3339,6 +3342,39 @@ sub update_user_db_entry {
            $account_type="$value";
            # todo
        }
+       elsif ($attr eq "Enable"){
+           print "Enabling $login\n";
+           print "   * Old sambaAcctFlags: $old_sambaacctflags\n";
+           $old_sambaacctflags=~s/[\[\]]//g;
+           if ($old_sambaacctflags =~ m/D/) {
+               print "   * $login is disabled\n";
+               my $flag=$old_sambaacctflags;
+               $flag=~s/D//g;
+               $flag="[".$flag."]";
+               print "   * Setting sambaAcctFlags to $flag\n";
+               push @samba, "sambaacctflags = '$flag'";
+               $enableupdate=1;
+               $enable=1;
+           } else {
+               print "   * $login is enabled already! Doing nothing!\n";
+           }
+       }
+       elsif ($attr eq "Disable"){
+           print "Disabling $login\n";
+           print "   * Old sambaAcctFlags: $old_sambaacctflags\n";
+           $old_sambaacctflags=~s/[\[\]]//g;
+           if ($old_sambaacctflags =~ m/D/) {
+               print "   * $login is disabled already! Doing nothing!\n";
+           } else {
+               my $flag=$old_sambaacctflags;
+               $flag="[D".$old_sambaacctflags."]";
+               print "   * $login is enabled\n";
+               print "   * Setting sambaAcctFlags to $flag\n";
+               push @samba, "sambaacctflags = '$flag'";
+               $enableupdate=1;
+               $enable=0;
+           }
+       }
        elsif ($attr eq "Quota"){
            $quota="$value";
            push @posix_details, "quota = '$quota'";
@@ -3429,6 +3465,9 @@ sub update_user_db_entry {
 
     if ($shellupdate==1){
        &auth_shellupdate($login,$login_shell);
+    }
+    if ($enableupdate==1){
+       &auth_enableupdate($login,$enable);
     }
 
     # ??? besser was sinnvolles
@@ -5836,6 +5875,25 @@ sub auth_shellupdate {
    my $command="/usr/sbin/smbldap-usermod -s '$shell' $login";
    print "   * $command\n";
    system("$command");
+}
+
+
+sub auth_enableupdate {
+   my ($login,$enable) = @_;
+   my $command="";
+   if ($enable==0){
+       # -I : disable
+       $command="/usr/sbin/smbldap-usermod -I $login";
+       print "   * $command\n";
+       system("$command");
+   } elsif ($enable==1){
+       # -J : enable
+       $command="/usr/sbin/smbldap-usermod -J $login";
+       print "   * $command\n";
+       system("$command");
+   } else {
+       print "auth_enableupdate: dont know what to to\n";
+   }
 }
 
 
