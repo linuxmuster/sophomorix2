@@ -17,8 +17,7 @@ use Net::LDAP;
 
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     check_connections
-                                    create_user_db_entry
-                                    adduser_to_project
+                                    update_user_db_entry
                                    );
 
 
@@ -85,6 +84,7 @@ Please see the sophomorix-usermod(8) man pages for full documentation
 # --enable
 if ($enable ne ""){
      print "Enabling user $enable in samba (Todo)\n";
+     &update_user_db_entry($enable,"Enable=Yes");
 }
 
 
@@ -93,6 +93,7 @@ if ($enable ne ""){
 # --disable
 if ($disable ne ""){
      print "Disabling user $disable in samba (Todo)\n";
+     &update_user_db_entry($disable,"Disable=Yes");
 }
 
 
