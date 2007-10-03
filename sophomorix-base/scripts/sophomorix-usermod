@@ -1,0 +1,102 @@
+#!/usr/bin/perl -w
+# $Id$
+# Dieses Script (sophomorix-usermod) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+# Bibliotheken
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
+use DBI;
+use Net::LDAP;
+
+use Sophomorix::SophomorixPgLdap qw(show_modulename
+                                    check_connections
+                                    create_user_db_entry
+                                    adduser_to_project
+                                   );
+
+
+my @arguments = @ARGV;
+
+
+# ===========================================================================
+# Variablen
+# ==========================================================================
+
+my $help=0;
+my $login="";
+
+my $enable="";
+my $disable="";
+
+$Conf::log_level=1;
+
+
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "help|h" => \$help,
+           "enable|J=s" => \$enable,
+           "disable|I=s" => \$disable,
+          );
+
+# Prüfen, ob Optionen erkannt wurden, sonst Abbruch
+&check_options($testopt);
+&check_connections();
+&log_script_start(@arguments);
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlsbeschreibung
+   print('
+sophomorix-usermod modifies a user in the sophomorix database (and ldap)
+
+()
+
+Options
+  -h  / --help
+
+For samba users:
+  -I user  (disable a user in samba)
+  -J user  (enable a user in samba)
+
+Please see the sophomorix-usermod(8) man pages for full documentation
+');
+   print "\n";
+   exit;
+}
+
+
+
+
+# --enable
+if ($enable ne ""){
+     print "Enabling user $enable in samba (Todo)\n";
+}
+
+
+
+
+# --disable
+if ($disable ne ""){
+     print "Disabling user $disable in samba (Todo)\n";
+}
+
+
+
+
+
+&log_script_end(@arguments);
