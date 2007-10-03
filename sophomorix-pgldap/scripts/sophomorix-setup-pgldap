@@ -241,6 +241,12 @@ if ($slapd_integrated==1){
 }
 
 print "Using the following values to configure the system\n";
+
+############################################################
+# Debian Version
+############################################################
+my $deb_version = &get_debian_version();
+
 ############################################################
 # read the values from the config file
 ############################################################
@@ -697,38 +703,87 @@ my $seen_local_ldap=0;
 my $seen_host_ldap=0;
 my @line=();
 
+my $postgres_conf_dir="";
+my $postgres_init_script="";
+
+if ($deb_version eq "3.1"){
+   $postgres_conf_dir="/etc/postgresql";
+   $postgres_init_script="/etc/init.d/postgresql";
+} elsif ($deb_version eq "4.0"){
+   $postgres_conf_dir="/etc/postgresql/7.4/main";
+   $postgres_init_script="/etc/init.d/postgresql-7.4";
+   # 8.1 also exists on etch(4.0)
+   #$postgres_conf_dir="/etc/postgresql/8.1/main";
+   #$postgres_init_script="/etc/init.d/postgresql-8.1";
+} else {
+    &log_script_exit("Debian Version $deb_version is not supported",
+                     1,1,0,@arguments);
+}
+
+
+# Debian Version dependant
+my $pg_hba_conf = $postgres_conf_dir."/pg_hba.conf";
+#my $file_ident="/etc/postgresql/pg_ident.conf";
+#my $file_ident_tmp="/etc/postgresql/pg_ident.conf.tmp";
+
+my $file_ident = $postgres_conf_dir."/pg_ident.conf";
+my $file_ident_tmp = $postgres_conf_dir."/pg_ident.conf.tmp";
+
+
 &insert_line_before("local;all;postgres;ident;postgres",
                     "local;all;postgres;ident;sameuser",
-                    "/etc/postgresql/pg_hba.conf");
+                    "$pg_hba_conf");
 
 &insert_line_before("local;all;ldap;ident;ldap",
                     "local;all;postgres;ident;sameuser",
-                    "/etc/postgresql/pg_hba.conf");
+                    "$pg_hba_conf");
 
 
 &insert_line_before("local;template1;ldap;password;",
                     "local;all;all;ident;sameuser",
-                    "/etc/postgresql/pg_hba.conf");
+                    "$pg_hba_conf");
 
 &insert_line_before("local;ldap;ldap;password;",
                     "local;all;all;ident;sameuser",
-                    "/etc/postgresql/pg_hba.conf");
+                    "$pg_hba_conf");
 
 &insert_line_before("host;template1;ldap;127.0.0.1;255.255.255.255;password",
                     "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
-                    "/etc/postgresql/pg_hba.conf");
+                    "$pg_hba_conf");
 
 &insert_line_before("host;ldap;ldap;127.0.0.1;255.255.255.255;password",
                     "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
-                    "/etc/postgresql/pg_hba.conf");
+                    "$pg_hba_conf");
 
+#&insert_line_before("local;all;postgres;ident;postgres",
+#                    "local;all;postgres;ident;sameuser",
+#                    "/etc/postgresql/pg_hba.conf");
+#
+#&insert_line_before("local;all;ldap;ident;ldap",
+#                    "local;all;postgres;ident;sameuser",
+#                    "/etc/postgresql/pg_hba.conf");
+#
+#
+#&insert_line_before("local;template1;ldap;password;",
+#                    "local;all;all;ident;sameuser",
+#                    "/etc/postgresql/pg_hba.conf");
+#
+#&insert_line_before("local;ldap;ldap;password;",
+#                    "local;all;all;ident;sameuser",
+#                    "/etc/postgresql/pg_hba.conf");
+#
+#&insert_line_before("host;template1;ldap;127.0.0.1;255.255.255.255;password",
+#                    "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
+#                    "/etc/postgresql/pg_hba.conf");
+#
+#&insert_line_before("host;ldap;ldap;127.0.0.1;255.255.255.255;password",
+#                    "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
+#                    "/etc/postgresql/pg_hba.conf");
 
 # pg_ident.conf
 my $seen_ident_postgres=0;
 my $seen_ident_postgres_pg=0;
 my $seen_ident_ldap=0;
-my $file_ident="/etc/postgresql/pg_ident.conf";
-my $file_ident_tmp="/etc/postgresql/pg_ident.conf.tmp";
 print "Working on pg-ident.conf\n";
 open(IDENT, "<$file_ident") || die "Fehler: $!";
 open(IDENTMP, ">$file_ident_tmp") || die "Fehler: $!";
@@ -773,7 +828,9 @@ if ($seen_ident_ldap==0){
 
 close(IDENT);
 close(IDENTMP);
-system("mv /etc/postgresql/pg_ident.conf.tmp /etc/postgresql/pg_ident.conf");
+#system("mv /etc/postgresql/pg_ident.conf.tmp /etc/postgresql/pg_ident.conf");
+# updating pg_ident_conf
+system("mv $file_ident_tmp $file_ident");
 
 # what to do:
 # 3x basedn
@@ -830,13 +887,13 @@ system("killall slapd");
 
 
 # stop postgres
-system("/etc/init.d/postgresql stop");
+system("$postgres_init_script stop");
 sleep 5;
 system("killall postmaster");
 
 
 # starting postgres
-system("/etc/init.d/postgresql start");
+system("$postgres_init_script start");
 
 sleep 5;
 
