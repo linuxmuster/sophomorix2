@@ -2927,10 +2927,13 @@ sub log_script_start {
     open(LOG,">>$DevelConf::log_command");
     print LOG "$log";
     close(LOG);
-
+    my $try_count=0;
+    my $max_try_count=5;
     # exit if lockfile exists
-    if (-e $DevelConf::lock_file and $skiplock==0){
-        my @lock=(); 
+    while (-e $DevelConf::lock_file and $skiplock==0){
+#    if (-e $DevelConf::lock_file and $skiplock==0){
+        my @lock=();
+        $try_count++; 
         open(LOCK,"<$DevelConf::lock_file") || die "Cannot create lock file \n";;
         while (<LOCK>) {
             @lock=split(/::/);
@@ -2943,8 +2946,13 @@ sub log_script_start {
         $locking_pid=$lock[4];
         
         &titel("sophomorix locked (${locking_script}, PID: $locking_pid)");
-        &titel("try again later ...");
-        exit;
+        #exit;
+        if ($try_count==$max_try_count){
+            &titel("try again later ...");
+            exit;
+        } else {
+            sleep 1;
+        }
     }
     if (exists ${DevelConf::lock_scripts}{$0}){
 	&lock_sophomorix(@arguments);
