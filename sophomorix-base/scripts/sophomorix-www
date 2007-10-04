@@ -18,6 +18,8 @@ use Sophomorix::SophomorixBase qw(
                                   log_script_start
                                   log_script_exit
                                   log_script_end
+                                  fetchhtaccess_from_user
+                                  fetchhtaccess_from_group
                                  );
 use Sophomorix::SophomorixAPI;
 use Sophomorix::SophomorixPgLdap;
@@ -119,8 +121,54 @@ Please see the sophomorix-www(8) man pages for full documentation
 
 &check_connections();
 
+# show size or not
+my $size="size";
+
 # --info
 if ($info==1){
+   # teacher
+   my @teachers=&fetchstudents_from_adminclass(${DevelConf::teacher});
+   &print_head("Teachers");
+   foreach my $teacher (@teachers){
+       my ($ht_access,$www_size) = &fetchhtaccess_from_user($teacher,$size);
+       if ($ht_access ne "user-private-upload"){
+           &print_ht_line($teacher,$ht_access,$www_size);
+       }
+   }
+   &print_foot();
+
+   # students
+   my @students=&Sophomorix::SophomorixAPI::fetchstudents_from_school();
+   &print_head("Students");
+   foreach my $student (@students){
+       my ($ht_access,$www_size) = &fetchhtaccess_from_user($student,$size);
+       if ($ht_access ne "user-private-noupload"){
+           &print_ht_line($student,$ht_access,$www_size);
+       }
+   }
+   &print_foot();
+
+   # classes
+   my @admin_classes = &fetchadminclasses_from_school();
+   &print_head("Classes");
+   foreach my $class (@admin_classes){
+       my ($ht_access,$www_size) = &fetchhtaccess_from_group($class,$size);
+       if ($ht_access ne "group-private-noupload"){
+           &print_ht_line($class,$ht_access,$www_size);
+       }
+   }
+   &print_foot();
+
+   # projects
+   my @projects = &fetchprojects_from_school();
+   &print_head("Projects");
+   foreach my $project (@projects){
+       my ($ht_access,$www_size) = &fetchhtaccess_from_group($project,$size);
+       if ($ht_access ne "group-private-noupload"){
+           &print_ht_line($project,$ht_access,$www_size);
+       }
+   }
+   &print_foot();
 
    exit;
 }
@@ -202,3 +250,47 @@ if ($group_private_noupload ne ""){
 
 
 &log_script_end(@arguments);
+
+
+
+
+
+
+############################################################
+# sub
+############################################################
+
+sub print_foot {
+    # print "+-----------------+--------+",
+    #        "--------+-------+--------------+\n\n";
+    print "\n";
+}
+
+sub print_head {
+    my ($header) = @_;
+    # print "+-----------------+--------+",
+    #       "--------+-------+--------------+\n";
+    printf "%-18s| %-6s | %-6s | %-5s | %12s |\n",
+            $header ,"upload","public","type","used size";
+    print "+-----------------+--------+",
+          "--------+-------+--------------+\n";
+}
+
+sub print_ht_line {
+    my ($item,$ht_access,$www_size) = @_;
+    my ($type,$pub,$up)=split(/-/,$ht_access);
+    if ($pub eq "public"){
+        $pub="pub";
+    } else {
+        $pub="";
+    }
+    if ($up eq "upload"){
+        $up="up";
+    } else {
+        $up="";
+    }
+    
+    printf "%-18s|   %-2s   |   %-3s  | %-5s | %12s |\n",
+            $item ,"$up","$pub","$type","$www_size";
+
+}
