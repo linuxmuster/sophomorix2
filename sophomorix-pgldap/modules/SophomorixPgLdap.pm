@@ -5460,7 +5460,7 @@ sub auth_passwd {
     # if the program will terminate by itself, finish up with
     $command->soft_close( );
 
-    print "auth_passwd: Done!\n";
+    print "Chatting with /usr/sbin/smbldap-passwd: Done!\n";
     # if the program must be explicitly killed, finish up with
     #$command->hard_close( );
 }
