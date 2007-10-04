@@ -2444,6 +2444,9 @@ sub pg_get_group_members {
 
 sub fetchadminclasses_from_school {
     my ($option) = @_;
+    if (not defined $option){
+        $option="";
+    }
     # fetch all entries with type adminclasses (or hiddenclass)
     my @admin_classes=();
     my $dbh=&db_connect();
