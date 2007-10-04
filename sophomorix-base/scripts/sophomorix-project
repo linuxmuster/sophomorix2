@@ -91,6 +91,9 @@ my $p_status;
 my $join; # 0,1
 my $p_join="TRUE"; # FALSE,TRUE
 
+my $caller="";
+
+
 my $dump_all_projects=""; 
 my $create_from_file="";
 my $update_from_file="";
@@ -109,6 +112,7 @@ my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
            "join!" => \$join,
            "tree" => \$tree,
+           "caller=s" => \$caller,
            "addmembers=s" => \$addmembers,
            "removemembers=s" => \$removemembers,
            "addadmins=s" => \$addadmins,
@@ -119,9 +123,9 @@ my $testopt=GetOptions(
            "removememberprojects=s" => \$removememberprojects,
            "name|project|p=s" => \$project,
            "longname=s" => \$p_long_name,
-           "membergroups=s" => \$p_groups,
            "admins=s" => \$p_admins,
            "members=s" => \$p_members,
+           "membergroups=s" => \$p_groups,
            "memberprojects=s" => \$p_projects,
            "addquota=s" => \$p_add_quota,
            "addmailquota=s" => \$p_add_mail_quota,
@@ -138,20 +142,25 @@ my $testopt=GetOptions(
 &log_script_start(@arguments);
 
 
-if ($project eq ""
-    and $addmembers eq ""
-    and $removemembers eq ""
-    and $addadmins eq ""
-    and $removeadmins eq ""
-    and $addmembergroups eq ""
-    and $removemembergroups eq ""
-    and $addmemberprojects eq ""
-    and $removememberprojects eq ""
-    and $info==0
-    and $tree==0
-    and $dump_all_projects eq ""
-    and $create_from_file eq ""
-    and $update_from_file eq ""
+
+if ($project eq "" or
+    ($addmembers eq ""
+     and $removemembers eq ""
+     and $addadmins eq ""
+     and $removeadmins eq ""
+     and $addmembergroups eq ""
+     and $removemembergroups eq ""
+     and $addmemberprojects eq ""
+     and $removememberprojects eq ""
+     and $info==0
+     and $tree==0
+     and not defined $maillist
+     and not defined $mailalias
+     and not defined $join
+     and $dump_all_projects eq ""
+     and $create_from_file eq ""
+     and $update_from_file eq ""
+    )
     ){
     $help=1;
 }
@@ -191,14 +200,14 @@ Options
   --mailalias, --nomailalias
   --maillist, --nomaillist 
 
-  -p project --addmembers
-  -p project --removemembers 
-  -p project --addadmins 
-  -p project --removeadmins 
-  -p project --addmembergroups
-  -p project --removemembergroups
-  -p project --addmemberprojects
-  -p project --removememberprojects
+  -p project --addmembers user1,user2,user3, ...
+  -p project --removemembers user1,user2,user3, ...
+  -p project --addadmins user1,user2,user3, ...
+  -p project --removeadmins user1,user2,user3, ...
+  -p project --addmembergroups group1,group2,group3, ...
+  -p project --removemembergroups group1,group2,group3, ...
+  -p project --addmemberprojects project1,project2,project3, ...
+  -p project --removememberprojects project1,project2,project3, ...
 
   --dump file
   --create-from-file file
@@ -270,6 +279,51 @@ if ($project eq "" and $info==1){
     &show_project_list();
     exit;
 }
+
+
+# --caller and --nojoin
+if ($project ne ""
+    and 
+    ($addmembers ne ""
+     or $removemembers ne ""
+     or $addadmins ne ""
+     or $removeadmins ne ""
+     or $addmembergroups ne ""
+     or $removemembergroups ne ""
+     or $addmemberprojects ne ""
+     or $removememberprojects ne ""
+     or defined $p_admins
+     or defined $p_members
+     or defined $p_groups
+     or defined $p_projects)
+    ){
+    print "Changing something, eh ----\n";
+    my ($a1,$a2,$a3,$a4,$join_val) = &fetchinfo_from_project($project);
+    if ($join_val==0){
+        print "Project is NOT joinable\n";
+        if ($caller eq ""){
+           print "You must use --caller name to modify such a project!\n";
+        } else {
+           print "I must check if $caller is allowed\n";
+           my @admins_val=&fetchadmins_from_project($project);
+           my $go_on=0;
+           foreach my $admin_val (@admins_val){
+               print "Checking ---$admin_val--- and ---$caller---\n";
+               if ($caller eq $admin_val){
+                   $go_on=1;
+                   print "$caller is admin!\n";
+               }
+           }
+           if ($go_on==0){
+               print "$caller is NOT admin of $project\n";
+               print "$caller is NOT allowed to change userlist\n";
+               exit;
+           }
+        }
+    }
+}
+
+
 
 
 
