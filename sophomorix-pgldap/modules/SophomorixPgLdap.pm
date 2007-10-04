@@ -5444,14 +5444,14 @@ sub auth_passwd {
     }
 
     # wait 10 seconds
-    unless ($command->expect(10, "New password :")) {
+    unless ($command->expect(20,"New password")) {
         exit;
         # timed out
     }
     print $command "$new_password\n";
 
     # wait 10 seconds
-    unless ($command->expect(10, "Retype new password :")) {
+    unless ($command->expect(20,"Retype new password")) {
         exit;
         # timed out
     }
@@ -5460,6 +5460,7 @@ sub auth_passwd {
     # if the program will terminate by itself, finish up with
     $command->soft_close( );
 
+    print "auth_passwd: Done!\n";
     # if the program must be explicitly killed, finish up with
     #$command->hard_close( );
 }
