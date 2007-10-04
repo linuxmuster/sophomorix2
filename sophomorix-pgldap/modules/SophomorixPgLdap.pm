@@ -1736,7 +1736,7 @@ sub create_user_db_entry {
   # create entry in auth system (no secondary groups)
   &auth_useradd($login,$uidnumber_auth,$gecos,$homedir,
                 $admin_class,"",$sh,$type,$smb_ldap_homepath,
-                $nachname)
+                $nachname);
   &db_disconnect($dbh);
   } # end 
 
