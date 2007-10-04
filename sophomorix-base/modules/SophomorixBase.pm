@@ -4430,14 +4430,23 @@ sub collect {
 
 # users
 sub fetchhtaccess_from_user {
-    my ($user) = @_;
+    my ($user,$size) = @_;
+    if (not defined $size){
+        $size="";
+    }
     my $upload=0;
     my $public=0,
     my $result="user-";
+    my $size_result="";
+
+    my $size_target;
+    my $ht_target;
     my ($home,$type)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
     if ($type eq "teacher"){
+        $size_target=${DevelConf::www_teachers}."/".$user;
         $ht_target=${DevelConf::www_teachers}."/".$user."/.htaccess";
     } elsif ($type eq "student"){
+        $size_target=${DevelConf::www_students}."/".$user;
         $ht_target=${DevelConf::www_students}."/".$user."/.htaccess";
     } else {
         return "";
@@ -4471,7 +4480,18 @@ sub fetchhtaccess_from_user {
     } else {
         $result=$result."noupload";
     }
-    return $result;
+
+    if ($size eq "size"){
+        my $www_size_cmd=`du -sh $size_target`;
+	#print "$www_size_cmd";
+        chomp($www_size_cmd);
+        my ($www_size,$dir) = split(/\s/,$www_size_cmd);
+        $size_result = $www_size;
+	#print "Size: $www_size\n";
+    }
+
+    
+    return $result,$size_result;
 }
 
 sub user_public_upload {
@@ -4652,16 +4672,25 @@ sub user_private_noupload {
 
 # groups
 sub fetchhtaccess_from_group {
-    my ($group) = @_;
+    my ($group,$size) = @_;
+    if (not defined $size){
+        $size="";
+    }
     my $upload=0;
     my $public=0,
     my $result="group-";
+    my $size_result="";
+
+    my $size_target;
+    my $ht_target;
     my ($type,$longname)=
        &Sophomorix::SophomorixPgLdap::pg_get_group_type($group);
 
     if ($type eq "adminclass"){
+        $size_target=${DevelConf::www_classes}."/".$group;
         $ht_target=${DevelConf::www_classes}."/".$group."/.htaccess";
     } elsif ($type eq "project"){
+        $size_target=${DevelConf::www_projects}."/".$group;
         $ht_target=${DevelConf::www_projects}."/".$group."/.htaccess";
     } else {
 	return "";
@@ -4695,7 +4724,18 @@ sub fetchhtaccess_from_group {
     } else {
         $result=$result."noupload";
     }
-    return $result;
+
+    if ($size eq "size"){
+        my $www_size_cmd=`du -h $size_target`;
+	#print "$www_size_cmd";
+        chomp($www_size_cmd);
+        my ($www_size,$dir) = split(/\s/,$www_size_cmd);
+        $size_result = $www_size;
+	#print "Size: $www_size\n";
+    }
+
+
+    return $result,$size_result;
 }
 
 
