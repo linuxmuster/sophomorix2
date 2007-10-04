@@ -1956,18 +1956,55 @@ Aike:
 
 
 - offene und geschlossene Projekte
-  Ein Project ist entweder beitrittbar 
-  (alle Lehrer) via Schulkonsole
-  oder nicht beitrittbar
-  (admins des Projects passen die Mitgliederliste an).
+
+  Zur Klarstellung: Eigenschaft 'joinable'=true heisst von ALLEN Schuko Lehrern 
+                    darf die userliste editiert werden.
+    
+                    joinable=false heisst, nur von den projektadmins darf die 
+                    userliste verändert werden (und root)
 
   In der Postgres-Datenbank:
   Tabelle projectdata.joinable ist TRUE/FALSE  
   
+  Todo für Aike:
+  Schritt 1) Bei jedem Aufruf von sophomorix aus der Schulkonsole, muss der
+             aufrufende Lehrer/User übergeben werden:
+             --caller lehrer1 
+             (sophomorix prüft dann, ob dieser user die userliste ändern 
+              darf oder nicht)    
 
-  Bei nicht beitretbaren Projekte (joinable=FALSE),
-  Darf die Beitrittseite nicht angezeigt werden
-    
+  Schritt 2) Ziel: Wenn man an der Schuko nichts ändern kann, 
+             sollen auch keine Knöpfe usw gezeigt werden:
+
+             Das betrifft 2 Seiten(A,B): 
+
+             A ) Startseite -> hozizontal(gelb) -Projekte  OHNE Projektauswahl
+                 Eintragen in Projekte SOWIE Austragen aus Projekten 
+
+                 A1) In Projektliste zum Eintragen nur joinable=true 
+                 Projekte anzeigen.
+
+                 A2) Knopf zum austragen NUR zeigen, 
+                     wenn das Projekt joinable ist.
+
+             B ) Startseite -> hozizontal(gelb) -Projekte MIT AUSWAHL 
+                 eines Projektes in dem man Mitglied ist
+
+             Wenn das projekt joinable=true ist: wie bisher
+
+             Wenn es joinable=false ist, und der eingeloggte 
+             user IST admin des projekts: wie bisher
+
+             Wenn es joinable=false ist, und der eingeloggte 
+             user IST KEIN admin:
+
+
+                  B1) Statt "Mitglieder hinzufügen" + Such-Eingabefeld:
+                      Mitglieder hinzufügen ist nicht gestattet!
+              
+                  B2) Statt Knopf "Mitgliedschaft beenden" 
+                      ausgegraute Schrift "Nicht gestattet"
+
 
 
   ausarbeiten und Aike schicken
