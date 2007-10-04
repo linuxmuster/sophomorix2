@@ -17,11 +17,11 @@ drwx------  29 administrator domadmins 4096 2007-09-27 13:07 administrator/
 drwx--s--x  11 pgmadmin      domadmins 4096 2007-09-27 10:31 pgmadmin/
 drwx------   4 wwwadmin            997 4096 2007-09-17 15:34 wwwadmin/
 
-
 Reparatur:
 
 INSERT INTO samba_group_mapping (id,gidnumber,sambasid,sambagrouptype,displayname,description,sambasidlist) VALUES ((SELECT id FROM groups WHERE gid='wwwadmin'),997,'S-1-5-32-997',2,'Web Administrators','Local Unix group',NULL);  
 
+Es wird dann die Gruppe unter windows sichtbar=???!!!
 
 
 Prüfen, ob manpages nach Postscript konvertiert werden kann
@@ -51,6 +51,23 @@ Klassendaten anzeigen (wer ist seit wann mitglied, status, etc...)
 beim löschen von Räumen  wurde evtl. nicht in der Tabelle 
 class_details gelöscht
 muss evtl. nachgeholt werden
+
+
+############################################################
+Migration to etch
+############################################################
+
+What had to be done:
+
+- packege dependency to odbcinst1 had to be removed
+- path to config files postgresql had changed
+  /etc/postgres  --> /etc/postgres/7.4/main
+- name of initscript postgres had changed
+  /etc/init.d/postgresql  /etc/init.d/postgresql
+- smbldap-passwd had different output when askin user to 
+  type password
+
+
 
 
 ############################################################
