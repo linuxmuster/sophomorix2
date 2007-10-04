@@ -4,6 +4,14 @@
 ============SOPHOMORIX2 CHANGELOG ====================================
 
 1.9.31-1 (2007-10-xx)
+    - sophomorix-www -i
+      show all users/groups with state of their www-dir
+      show size of that dir also
+    - sophomorix-project:
+        - manage only joinable=TRUE projects WITHOUT --caller login
+          (works as before, but not for joinable=FALSE projects)
+        - for joinable=FALSE projects the option --caller must be given
+          and the caller must be an administrator to modify the userlist
     - when sophomorix is locked: try 5 times with one second delay 
       if sophomorix.lock is still there
 
