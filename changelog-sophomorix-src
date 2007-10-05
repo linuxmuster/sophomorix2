@@ -4,6 +4,8 @@
 ============SOPHOMORIX2 CHANGELOG ====================================
 
 1.9.31-1 (2007-10-xx)
+    - sophomorix-project --memberprojects pro1,pro2,...: 
+      use prefixed (p_*) or not prefixed name as pro1,pro2,...
     - sophomorix-www -i
       show all users/groups with state of their www-dir
       show size of that dir also
@@ -12,9 +14,9 @@
           (works as before, but not for joinable=FALSE projects)
         - for joinable=FALSE projects the option --caller must be given
           and the caller must be an administrator to modify the userlist
+        - to set a project to joinable=TRUE, --caller must be given
     - when sophomorix is locked: try 5 times with one second delay 
       if sophomorix.lock is still there
-
     - function added to read the /etc/debian_version file
     - added manpage of sophomorix-usermod
     - added sophomorix-usermod script to:
