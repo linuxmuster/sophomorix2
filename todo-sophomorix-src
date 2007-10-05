@@ -8,6 +8,11 @@ check if latex can be made uninteruptible with option.
 (checked, but no solution found)
 
 
+
+
+Für folgendes einen nachträglichen fix schreiben:
+
+
 gerade zufällig bemerkt, dass das homeverzeichnis von wwwadmin nicht
 der Gruppe domadmins gehört,
  
@@ -22,6 +27,16 @@ Reparatur:
 INSERT INTO samba_group_mapping (id,gidnumber,sambasid,sambagrouptype,displayname,description,sambasidlist) VALUES ((SELECT id FROM groups WHERE gid='wwwadmin'),997,'S-1-5-32-997',2,'Web Administrators','Local Unix group',NULL);  
 
 Es wird dann die Gruppe unter windows sichtbar=???!!!
+
+
+
+
+
+
+
+
+
+
 
 
 Prüfen, ob manpages nach Postscript konvertiert werden kann
