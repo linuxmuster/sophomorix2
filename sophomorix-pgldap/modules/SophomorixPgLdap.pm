@@ -3946,6 +3946,7 @@ sub create_project {
     }
     if (defined $p_projects){
         @new_projects=split(/,/,$p_projects);
+        
     } else {
         @new_projects=@old_projects;          
     }
@@ -3992,6 +3993,11 @@ sub create_project {
     # Add the users in the projects
     foreach my $m_project (@new_projects){
         my @new_users_sec=();
+   
+        # prefix p_ if necesary
+        unless ($m_project =~ m/^p\_/) { 
+            $m_project="p_".$m_project;
+        }
 
         # check if project must be skipped
         # A) project seen
