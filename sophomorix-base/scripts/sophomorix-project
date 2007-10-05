@@ -143,8 +143,12 @@ my $testopt=GetOptions(
 
 
 
-if ($project eq "" or
-    ($addmembers eq ""
+if (($project eq "" and $info==0)or
+    (not defined $p_admins
+     and not defined $p_members
+     and not defined $p_groups eq ""
+     and not defined $p_projects eq ""
+     and $addmembers eq ""
      and $removemembers eq ""
      and $addadmins eq ""
      and $removeadmins eq ""
@@ -162,6 +166,7 @@ if ($project eq "" or
      and $update_from_file eq ""
     )
     ){
+    print "Need help?\n";
     $help=1;
 }
 
@@ -295,7 +300,8 @@ if ($project ne ""
      or defined $p_admins
      or defined $p_members
      or defined $p_groups
-     or defined $p_projects)
+     or defined $p_projects
+     or defined $join)
     ){
     print "Changing something, eh ----\n";
     my ($a1,$a2,$a3,$a4,$join_val) = &fetchinfo_from_project($project);
@@ -303,21 +309,33 @@ if ($project ne ""
         print "Project is NOT joinable\n";
         if ($caller eq ""){
            print "You must use --caller name to modify such a project!\n";
+           &Sophomorix::SophomorixBase::log_script_exit(
+               "Request to modify nojoin project without --caller!",
+               1,1,0,@arguments);
+
         } else {
            print "I must check if $caller is allowed\n";
            my @admins_val=&fetchadmins_from_project($project);
            my $go_on=0;
-           foreach my $admin_val (@admins_val){
-               print "Checking ---$admin_val--- and ---$caller---\n";
-               if ($caller eq $admin_val){
-                   $go_on=1;
-                   print "$caller is admin!\n";
+           if ($caller eq "root"){
+	       $go_on=1;
+               print "$caller is root!\n";
+           } else {
+               foreach my $admin_val (@admins_val){
+                   #print "Checking ---$admin_val--- and ---$caller---\n";
+                   if ($caller eq $admin_val){
+                       $go_on=1;
+                       print "$caller is admin!\n";
+                       last;
+                   }
                }
            }
            if ($go_on==0){
                print "$caller is NOT admin of $project\n";
                print "$caller is NOT allowed to change userlist\n";
-               exit;
+               &Sophomorix::SophomorixBase::log_script_exit(
+               "Nonadmin tried to change nojoin project!",
+               1,1,0,@arguments);
            }
         }
     }
@@ -350,8 +368,6 @@ if ($project eq "" and $update_from_file ne ""){
     &project_from_file($update_from_file,"");
     exit;
 }
-
-
 
 
 
@@ -436,16 +452,19 @@ if ($addmemberprojects ne "" and $project ne ""){
 
 # --removememberprojects
 if ($removememberprojects ne "" and $project ne ""){
-    my @projects = split(/,/,$removememberprojects);
+    # can contain_non_prefixed projects
+    my @projects= split(/,/,$removememberprojects);
+    foreach my $n_pro (@projects){
+        unless ($n_pro =~ m/^p\_/) { 
+            $n_pro="p_".$n_pro;
+        }
+    }
     my @old_projects = 
        &Sophomorix::SophomorixPgLdap::fetchprojects_from_project($project);
     my @new_projects=&remove_duplicates_from_first_list(\@old_projects,\@projects);
     $p_projects=join(",",@new_projects);
     print "   Using: --MemberProjects=$p_projects\n";
 }
-
-
-
 
 
 
