@@ -1,0 +1,67 @@
+#!/usr/bin/perl -w
+# this script is created by jeffbeck@web.de
+# Licence GPL
+use DBI;
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
+use Sophomorix::SophomorixPgLdap qw(db_disconnect
+                                    db_connect
+                                   );
+
+print "\n1) Hello, sophomorix_1.9.31-1.upgrade modifies postgres\n\n";
+
+my $dbh=&db_connect();
+
+print "Trying to add the group of wwwadmin:\n";
+
+
+my ($id)= $dbh->selectrow_array( "SELECT id 
+                                  FROM groups 
+                                  WHERE gid='wwwadmin'
+                                 ");
+
+if (defined $id){
+    print "   * group wwwadmin has id $id\n";
+    my ($disp)= $dbh->selectrow_array( "SELECT displayname 
+                                      FROM samba_group_mapping 
+                                      WHERE id='$id'
+                                     ");
+    if (defined $disp){
+        print "   * $disp has entry for samba as wwwadmin\n";
+        print "   * I guess nothing has to be done!\n";
+    } else {
+        print "   * Entry with id $id has to be added\n";
+        my $sql="INSERT INTO samba_group_mapping (id,gidnumber,
+                             sambasid,sambagrouptype,displayname,
+                             description,sambasidlist) 
+                        VALUES ('$id',997,'S-1-5-32-997',4,
+                                'Web Administrators',
+                                'Local Unix group',NULL)";
+        print "\nSQL: $sql\n";
+        $dbh->do($sql);
+        print "   * Entry added\n";
+    }
+
+
+} else {
+    print "Could not find id of wwwadmin\n";
+    print "Cannot repair wwwadmin\n\n";
+    exit;
+}
+
+&db_disconnect($dbh);
+
+
+
+print "\n2) Hello, sophomorix_1.9.31-1.upgrade recreates ldap\n\n";
+sleep 1;
+
+
+# dumping database to ldap
+#system("sophomorix-dump-pg2ldap --skiplock");
+
+
+
+
+
