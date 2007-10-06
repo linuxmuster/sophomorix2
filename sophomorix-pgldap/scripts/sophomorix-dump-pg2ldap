@@ -25,6 +25,8 @@ $Conf::log_level=1;
 my $dump=0;
 my $load_dump=0;
 my $domainname="";
+my $skiplock=0;
+
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -33,6 +35,7 @@ my $testopt=GetOptions(
            "info|i" => \$info,
            "dump" => \$dump,
            "load-dump" => \$load_dump,
+           "skiplock" => \$skiplock,
           );
 
 # Prüfen, ob Optionen erkannt wurden
@@ -94,6 +97,7 @@ Options
   -vv / --verbose --verbose
   --dump
   --load-dump
+  --skiplock
 ');
    print "\n";
    exit;
