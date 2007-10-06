@@ -1,4 +1,5 @@
 #!/usr/bin/perl -w
+# $Id$
 # this script is created by jeffbeck@web.de
 # Licence GPL
 use DBI;
@@ -14,8 +15,6 @@ print "\n1) Hello, sophomorix_1.9.31-1.upgrade modifies postgres\n\n";
 my $dbh=&db_connect();
 
 print "Trying to add the group of wwwadmin:\n";
-
-
 my ($id)= $dbh->selectrow_array( "SELECT id 
                                   FROM groups 
                                   WHERE gid='wwwadmin'
@@ -42,9 +41,8 @@ if (defined $id){
         $dbh->do($sql);
         print "   * Entry added\n";
     }
-
-
 } else {
+    # no repair
     print "Could not find id of wwwadmin\n";
     print "Cannot repair wwwadmin\n\n";
     exit;
@@ -56,10 +54,15 @@ if (defined $id){
 
 print "\n2) Hello, sophomorix_1.9.31-1.upgrade recreates ldap\n\n";
 sleep 1;
-
-
 # dumping database to ldap
-#system("sophomorix-dump-pg2ldap --skiplock");
+system("sophomorix-dump-pg2ldap --skiplock");
+sleep 1;
+
+# make sure that user wwwadmin is disabled:
+system("sophomorix-usermod --disable wwwadmin");
+
+
+
 
 
 

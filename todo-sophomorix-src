@@ -28,6 +28,23 @@ INSERT INTO samba_group_mapping (id,gidnumber,sambasid,sambagrouptype,displaynam
 
 Es wird dann die Gruppe unter windows sichtbar=???!!!
 
+Bugfix: 
+        1) wenn man areca anlegt, bleibt das nach einem dump erhalten?
+           ist areca in windows disabled?
+        2) wenn user wie wwwadmin angelegt wird. ist das dann OK?
+           Legt man wwwadmin2 (zuerst gruppe, dann user) so an, 
+           fehlen vor dem dump die sambafelder. nach
+             sophomorix-dump-pg2ldap sind sie da.
+           BUG: der account ist NICHT Disabled
+           dite bei 1)
+
+
+Bug auf schulserver bei sophomorix-dump-pg2ldap:
+slapadd: dn="sambaDomainName=bszleo,dc=bszleo,dc=de" (line=26): (64) value of naming attribute 'sambaDomainName' is not present in entry
+loading dump ...
+
+
+
 
 
 
