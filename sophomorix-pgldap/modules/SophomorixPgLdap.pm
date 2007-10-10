@@ -1587,7 +1587,11 @@ sub create_user_db_entry {
           $smb_homepath="\\\\\\\\$servername\\\\$login";
           $smb_ldap_homepath="\\\\$servername\\$login";
           $smb_homedrive="H:";
-          $smb_acctflags="[UX]";
+          if ($type eq "unixadmin"){
+              $smb_acctflags="[DUX]";
+          } else {
+              $smb_acctflags="[UX]";
+          }
           if ($type eq "examaccount"){
               # neue gruppe anlegen und gidnumber holen, falls erforderlich
               $gidnumber=&create_class_db_entry($admin_class,5);
@@ -1863,6 +1867,10 @@ sub create_class_db_entry {
         # unixadmin, ...
 	$sub=0;
         $type="hiddenclass";
+        $domain_group=0;
+        $local_group=1;
+        $samba_group_type="4";
+        $description="Local Unix group";
     } else {
         $type="subclass";
     }
@@ -5519,13 +5527,13 @@ sub auth_useradd {
 		            "-N 'Computer' $login";
       	           print "   * $command\n";
                    system("$command");           
-	       } elsif ($type eq "unixadmin") {
-                   # user account, unix only
-                   $command="smbldap-useradd $uid_string -c '$gecos'".
-                            " -d $home -m -g $g_gidnumber $sec_string".
-                            " -s $shell $login";
-	           print "   * $command\n";
-                   system("$command");           
+#	       } elsif ($type eq "unixadmin") {
+#                   # user account, unix only
+#                   $command="smbldap-useradd $uid_string -c '$gecos'".
+#                            " -d $home -m -g $g_gidnumber $sec_string".
+#                            " -s $shell $login";
+#	           print "   * $command\n";
+#                   system("$command");           
 	       } else {
                    # sambapwdmustchange
                    # standard: dont change
@@ -5553,7 +5561,14 @@ sub auth_useradd {
 	           print "   * $command\n";
                    system("$command");           
                }
-           }
+               if ($type eq "unixadmin") {
+                   # disable windows account
+                   $command="/usr/sbin/smbldap-usermod -I $login";
+	           print "   * $command\n";
+                   system("$command");           
+                   
+               }
+          }
        } else {
            print "ERROR: Adding user did not suceed in pg as expected!\n";
            print "       Not Adding user to ldap!\n";
