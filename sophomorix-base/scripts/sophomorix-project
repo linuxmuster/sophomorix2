@@ -143,7 +143,13 @@ my $testopt=GetOptions(
 
 
 
-if (($project eq "" and $info==0)or
+if (($project eq "" 
+     and $info==0
+     and $dump_all_projects eq ""
+     and $create_from_file eq ""
+     and $update_from_file eq ""
+    )
+    or
     (not defined $p_admins
      and not defined $p_members
      and not defined $p_groups eq ""
@@ -287,7 +293,7 @@ if ($project eq "" and $info==1){
 
 
 # --caller and --nojoin
-if ($project ne ""
+if ($project ne "" and $create==0
     and 
     ($addmembers ne ""
      or $removemembers ne ""
@@ -306,7 +312,7 @@ if ($project ne ""
     print "Changing something, eh ----\n";
     my ($a1,$a2,$a3,$a4,$join_val) = &fetchinfo_from_project($project);
     if ($join_val==0){
-        print "Project is NOT joinable\n";
+        print "Project is NOT joinable $join_val\n";
         if ($caller eq ""){
            print "You must use --caller name to modify such a project!\n";
            &Sophomorix::SophomorixBase::log_script_exit(
