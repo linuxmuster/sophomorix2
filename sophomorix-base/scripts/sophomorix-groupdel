@@ -184,6 +184,7 @@ if ($class ne ""){
 if ($delete_all_empty_classes==1){
     my @classes = &fetchadminclasses_from_school("showhidden");
     foreach my $class (@classes){
+        print "Checking if $class can be deleted\n";
         my @users = &fetchstudents_from_adminclass($class);
         my $members=$#users+1;
         if ($members==0){
