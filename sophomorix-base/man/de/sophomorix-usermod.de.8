@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-USERMOD 8 "October 3, 2007"
+.TH SOPHOMORIX-USERMOD 8 "October 16, 2007"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -23,7 +23,9 @@ sophomorix-usermod \- Modifizieren von Sophomorix Benutzern
 .br
 .SH DESCRIPTION
 .B sophomorix-usermod
-modifiziert mit sophomorix angelegte Benutzer
+modifiziert mit sophomorix angelegte Benutzer in der Datenbank(postgres) und im Authentifizierungssystem(ldap). 
+.br
+Weitere Möglichkeiten User zu modifizieren (Password/Shell/sambaPwdMustChange) gibt es in sophomorix-passwd. 
 .PP
 .SH OPTIONS
 .B sophomorix-usermod
@@ -50,6 +52,7 @@ vgl.: smbldap-usermod -J user
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
+.BR sophomorix-passwd (8),
 .BR sophomorix-teach-in (8),
 .BR sophomorix-add (8),
 .BR sophomorix-move (8),
