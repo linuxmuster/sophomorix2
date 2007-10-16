@@ -325,8 +325,7 @@ if (-e "$new_aliases"){
     system("$new_aliases");
     print "done!\n";
 } else {
-    print "ERROR $new_aliases not found\n";
-
+    print "WARNING: Script $new_aliases not found\n";
 }
 
 
