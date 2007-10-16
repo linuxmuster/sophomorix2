@@ -56,8 +56,10 @@ my $reset=0;
 my $common=0;
 my $random=0;
 
+my $smb_pw_m_change=2;
+
 my $shell="";
-my $no_shell_no_pass=0;
+my $show_help=0;
 
 my $interactive=0;
 my $nofirstpassupdate=0;
@@ -93,6 +95,7 @@ my $testopt=GetOptions(
            "plength=i" => \$char_num,
            "verbose|v+" => \$Conf::log_level,
            "hide" => \$hide,
+           "samba-pwd-must-change!" => \$smb_pw_m_change,
            "shell|loginshell=s" => \$shell,
            "force" => \$force,
            "info|i" => \$info,
@@ -129,6 +132,10 @@ Create a password:
   --random
   --plength number
   --hide
+
+Password change:
+
+  --samba-pwd-must-change/nosamba-pwd-must-change
 
 Shell:
 
@@ -333,6 +340,21 @@ foreach my $user (@users){
        }
     }
 
+    # --samba-pwd-must-change/samba-pwd-must-change
+    if ($smb_pw_m_change==1){
+       # Must change
+       print "  Setting user $user to sambaPwdMustChange=Yes\n";
+       &update_user_db_entry($user,"sambaPwdMustChange=Yes");
+    } elsif ($smb_pw_m_change==0){
+       # NOT Must change
+       print "  Setting user $user to sambaPwdMustChange=No\n";
+       &update_user_db_entry($user,"sambaPwdMustChange=No");
+    } else {
+       if($Conf::log_level>=2){
+          print "  Not changing sambaPwdMustChange for $user in $group ($type)\n";
+       }
+    }
+
     # which password to set
     if ($password_given==1){
         # use $password, do nothing
@@ -352,15 +374,17 @@ foreach my $user (@users){
     } elsif ($config==1){
        # nothing specified: use sophomorix.conf
        $password=&get_plain_password($group,@chars)
-    } else {
-       if ($shell eq ""){
-           $no_shell_no_pass=1;
-       }
+    } elsif ($shell eq "" and $smb_pw_m_change==2){
+       $show_help=1;
        if($Conf::log_level>=2){
           print "  Not setting password for $user in $group ($type)\n";
        }
        next;
+    } else {
+       # no options at all
+       next;
     }
+
     if ($hide==1){
        print "  Setting password for user $user in ".
              "$group ($type) to xxxxxxxx ...\n";
@@ -378,8 +402,13 @@ foreach my $user (@users){
 
 # show mor help when no password could be generated
 # and no --shell option was given
-if ($no_shell_no_pass==1){
-    print "\nUse the --shell option or one of the password options\n\n";
+#if ($no_shell_no_pass==1 and $no_pw_m_change_no_pass=1){
+if ($show_help==1){
+    print "\nUse one of the following options:\n";
+    print "   A) one of the password options\n";
+    print "   B) the --shell option\n";
+    print "   C) the --samba-pwd-must-change/nosamba-pwd-must-change option\n";
+    print "\n";
 }
 
 
