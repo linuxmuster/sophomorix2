@@ -2992,7 +2992,10 @@ sub  forbidden_login_hash{
         open(STUDENTS, "$DevelConf::users_pfad/schueler.txt");
         while(<STUDENTS>) {
             my ($group)=split(/;/);
-            $forbidden_login_hash{$group}="future group in schueler.txt";
+            chomp($group);
+            if ($group ne ""){
+                $forbidden_login_hash{$group}="future group in schueler.txt";
+	    }
          }
      close(STUDENTS);
 
@@ -3200,6 +3203,8 @@ sub update_user_db_entry {
     my $mailquota=-1;
     my $new_login="";
     my $login_shell="";
+    my $pw_change="";     # 'Yes' or 'No'
+    my $pw_change_db=2;  # 0 or 2147483647 (postgres value)
     my $enable; # 0: disable, 1: enable
 
     # decide if auth_usermove must be called (1) or not
@@ -3209,6 +3214,7 @@ sub update_user_db_entry {
     my $gecosupdate=0;
     my $shellupdate=0;
     my $enableupdate=0;
+    my $pwmustchangeupdate=0;
 
     my @posix=();
     my @posix_details=();
@@ -3246,6 +3252,17 @@ sub update_user_db_entry {
            $shellupdate=1;
            $login_shell="$value";
 	   push @posix, "loginshell = '$login_shell'";
+       }
+       elsif ($attr eq "sambaPwdMustChange"){
+           $pwmustchangeupdate=1;
+           $pw_change="$value";
+           # what to insert into postgres
+           if ($pw_change eq "Yes"){
+	       $pw_change_db="0";
+           } elsif ($pw_change eq "No"){
+	       $pw_change_db="2147483647";
+           }
+	   push @samba, "sambaPwdMustChange = '$pw_change_db'";
        }
        elsif ($attr eq "Gecos"){
            $gecosupdate=1;
@@ -3476,6 +3493,9 @@ sub update_user_db_entry {
 
     if ($shellupdate==1){
        &auth_shellupdate($login,$login_shell);
+    }
+    if ($pwmustchangeupdate==1){
+       &auth_pwmustchangeupdate($login,$pw_change);
     }
     if ($enableupdate==1){
        &auth_enableupdate($login,$enable);
@@ -5905,6 +5925,22 @@ sub auth_shellupdate {
    print "   * $command\n";
    system("$command");
 }
+
+
+sub auth_pwmustchangeupdate {
+   my ($login,$value) = @_;
+   # -B 0 : Must not change
+   # -B 1 : Must change
+   my $command="";
+   if ($value eq "Yes"){    
+       $command="/usr/sbin/smbldap-usermod -B 1 $login";
+   } elsif ($value eq "No"){
+       $command="/usr/sbin/smbldap-usermod -B 0 $login";
+   }
+   print "   * $command\n";
+   system("$command");
+}
+
 
 
 sub auth_enableupdate {
