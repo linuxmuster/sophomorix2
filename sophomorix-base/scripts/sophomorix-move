@@ -204,6 +204,12 @@ if ($info==1) {
 print ("sophomorix-move startet ...\n");
 # ===========================================================================
 
+# stop nscd
+if (-e $DevelConf::nscd_script){
+    system("$DevelConf::nscd_stop");
+}
+#system("/etc/init.d/nscd status ");
+
 # repair.directories einlesen
 &get_alle_verzeichnis_rechte();
 
@@ -383,7 +389,11 @@ if ($DevelConf::testen==0) {
    system("rm -f ${DevelConf::ergebnis_pfad}/sophomorix.move.neu > /dev/null");
  }
 
-
+# start nscd
+if (-e $DevelConf::nscd_script){
+    system("$DevelConf::nscd_start");
+}
+#system("/etc/init.d/nscd status ");
 
 # Setting Quota
 if ($Conf::use_quota eq "yes" 
