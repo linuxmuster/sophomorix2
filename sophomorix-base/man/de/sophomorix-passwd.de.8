@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-PASSWD 8 "September 30, 2007"
+.TH SOPHOMORIX-PASSWD 8 "October 16, 2007"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -16,14 +16,14 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for manpage-specific macros, see man(7)
 .SH NAME
-sophomorix-passwd \- Setzen von Passwörtern/Shell durch root
+sophomorix-passwd \- Setzen von Passwörtern/Shell/PwdMustChange durch den User root
 .SH SYNOPSIS
 .B sophomorix-passwd
 .RI [ options ]
 .br
 .SH DESCRIPTION
 .B sophomorix-passwd  
-setzt Passwörter/Shell einzelner User oder auch Gruppen von Usern auf vorgegebene bzw. auch zufällige Werte. Es ist nur für den Systemadministrator gedacht.
+setzt Passwörter/Shell/PwdMustChange einzelner User oder auch Gruppen von Usern auf vorgegebene bzw. auch zufällige Werte. Es ist nur für den Systemadministrator gedacht.
 .PP
 .SH OPTIONS
 .B sophomorix-passwd
@@ -43,7 +43,8 @@ Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 Sagt für welche User Passwörter verändert werden würden.
 .TP
 .B --force
-versucht das Passwort/die Shell auch zu ändern wenn der user nicht in der
+versucht das Passwort/die Shell/PwdMustChange auch zu ändern wenn der 
+User nicht in der
 sophomorix-Datenbank ist (Vorsicht!).
 .TP
 .B Interaktive Passwortändeung:
@@ -59,7 +60,7 @@ Klartextpasswort in der Datenbank wird nicht upgedated.
 Eine dieser Optionen ist zum ändern eines Passwords Pflicht.
 .TP
 .B --config
-Das Passwort wird nach den Angaben in sophomorix.conf erzeugt. 
+Für jeden user wird ein Passwort nach den Angaben in sophomorix.conf erzeugt. 
 .TP
 .B --pass geheim, --password geheim
 setzt das Passwort auf den Wert geheim. 
@@ -97,7 +98,20 @@ verhindert, dass ein Klartextpasswort in der Datenbank abgelegt wird.
 .B Optionen zur Änderung der loginshell:
 .TP
 .B --shell /my/shell
-Setzt die Shell eines users auf /my/shell. Wenn man das Passwort nicht
+Setzt die Shell eines Users auf /my/shell. 
+.br
+Wenn man das Passwort nicht
+gleichzeitig ändern möchte, darf keine Option zur Passwortangabe
+verwendet werden.
+.TP
+.B Optionen zur Änderung von sambaPwdMustChange:
+.TP
+.B --samba-pwd-must-change / --nosamba-pwd-must-change
+Setzt den Wert von sambaPwdMustChange 
+auf 0 (MustChange) oder 
+2147483647 (Must NOT Change) 
+.br
+Wenn man das Passwort nicht
 gleichzeitig ändern möchte, darf keine Option zur Passwortangabe
 verwendet werden.
 .TP
@@ -106,7 +120,7 @@ verwendet werden.
 Die Auswahl erfolgt anhäufend. Das bedeutet, dass durch Angabe mehrerer Optionen eine Userliste erzeugt wird, in der kein User doppelt vorkommt, aber jeder enthalten ist.
 .TP
 .B -u user1,user2,... / --users user1,user2,... 
-setzt das Passwort der User user1,user2, ... . Der user kann auch eine
+setzt das Passwort der User user1,user2, ... . Der User kann auch eine
 Workstation sein.
 .TP
 .B -c class1,class2,... / --class class1,class2,...
