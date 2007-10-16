@@ -117,6 +117,7 @@ use Quota;
               group_private_noupload
               get_debconf_value
               get_debian_version
+              deb_system
               basedn_from_domainname
               unlink_immutable_tree
               move_immutable_tree
@@ -4953,7 +4954,14 @@ sub get_debconf_value {
 
 sub get_debian_version {
     my $version="";
-    open(VERSION, "/etc/debian_version");
+    my $file="/etc/debian_version";
+    if (-e $file){
+        open(VERSION, $file);
+    } else {
+        print "\nERROR: Could not determine debian version:\n";
+        print "       File $file not found!\n\n";
+        return "";
+    }
     while (<VERSION>) {
       chomp();
       s/\s//g; # Spezialzeichen raus
@@ -4962,6 +4970,29 @@ sub get_debian_version {
       }
     }
     return $version;
+}
+
+
+sub deb_system {
+    my @command_list = @_; 
+    my $command_number=($#command_list+1)/2;
+    my $deb_installed=&get_debian_version();
+    if($Conf::log_level>=2){
+        print "deb_system has found $command_number commands\n";
+    }
+    for (my $i=1;$i<=$command_number;$i++){
+        my $deb_version=shift(@command_list);
+        my $command=shift(@command_list);
+        #print "if $deb_version then $command\n";
+        if ($deb_version eq $deb_installed){
+            print "Running $command\n";
+            system "$command";
+        } else {
+            if($Conf::log_level>=2){
+                print "Not running $command\n";
+	    }
+        }
+    }
 }
 
 
