@@ -114,7 +114,7 @@ if ($help==1) {
    my $scriptname = pop @list;
    # Befehlsbeschreibung
    print('
-sophomorix-passwd adds users to the sophomorix database and the authentification system
+sophomorix-passwd modifies users in the sophomorix database and the authentification system (see also sophomorix-usermod)
 
 Options
   -h  / --help
@@ -134,15 +134,12 @@ Create a password:
   --hide
 
 Password change:
-
   --samba-pwd-must-change/nosamba-pwd-must-change
 
 Shell:
-
   --shell /bin/bash
 
 Create userlist:
-
   -s / --students
   -t / --teachers
   -w / --workstations
