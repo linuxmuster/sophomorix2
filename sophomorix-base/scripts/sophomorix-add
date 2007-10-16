@@ -251,6 +251,8 @@ if (-e $DevelConf::nscd_script){
     system("$DevelConf::nscd_stop");
 }
 
+system("/etc/init.d/nscd status ");
+
 my @passwort_zeichen=&get_passwd_charlist();
 
 
@@ -447,6 +449,7 @@ close(NOCHANLEGEN);
 if (-e $DevelConf::nscd_script){
     system("$DevelConf::nscd_start");
 }
+system("/etc/init.d/nscd status ");
 
 
 if ($user_nummer==0){ 
