@@ -4,8 +4,23 @@
 ============SOPHOMORIX2 CHANGELOG ====================================
 
 1.9.32-1 (2007-10-xx)
-    - Bugfix: do not use windows linefeed in schueler.txt as 
-              unid
+    - updated manpage of 
+         sophomorix-passwd
+         sophomorix-usermod
+    - sophomorix-passwd:
+      added option --samba-pwd-must-change/nosamba-pwd-must-change 
+      to change sambaPwdMustChange value
+    - Bugfix: avoid linfeed characters to be listed in forbidden_logins
+    - made auth_useradd compatible with etch
+      (using smbldap-useradd -c comment ... does not update description in etch
+       solution: use smbldap-usermod -c comment ... afterwards)
+    - added nscd start/stop to:
+      sophomorix-move
+      sophomorix-check??
+    - corrected nscd start/stop commands, which didn't do what they should
+    - added sub deb_system to run scripts only in certain debian versions
+    - Bugfix: do not use windows linefeed in schueler.txt 
+              as unid (do not interrupt sophomorix-check (unid seen twice))
 
 1.9.31-1 (2007-10-14)
     - sophomorix-useradd --unixadmin ...

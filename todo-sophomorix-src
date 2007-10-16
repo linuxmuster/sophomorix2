@@ -14,6 +14,17 @@ check if latex can be made uninteruptible with option.
 (checked, but no solution found)
 
 
+sophomorix-test > /root/log shows warnings:
+ 
+Use of uninitialized value in string at /usr/sbin/smbldap-usermod line 458, <DATA> line 283.
+Use of uninitialized value in delete at /usr/sbin/sophomorix-check line 2512.
+Use of uninitialized value in string at /usr/sbin/smbldap-usermod line 458, <DATA> line 283.
+chown: zu wenige Argumente
+,,chown --help" gibt weitere Informationen.
+Use of uninitialized value in string at /usr/sbin/smbldap-usermod line 458, <DATA> line 283.
+chown: zu wenige Argumente
+,,chown --help" gibt weitere Informationen.
+
 
 
 Bug auf schulserver bei sophomorix-dump-pg2ldap:
@@ -52,9 +63,16 @@ class_details gelöscht
 muss evtl. nachgeholt werden
 
 
+
 ############################################################
 Migration to etch
 ############################################################
+
+nscd ist beim standard etch dabei
+   - Zusatzoption 'status' in /etc/init.d/nscd status
+
+nscd muss der mit kill -9 abgeschossen werden?
+
 
 To check:
 
@@ -71,6 +89,9 @@ What had to be done:
   /etc/init.d/postgresql  /etc/init.d/postgresql
 - smbldap-passwd had different output when askin user to 
   type password
+- smbldap-useradd:
+  Option -c setzt nicht mehr das Feld 'description'
+  smbldap-usermod -c tuts.
 
 
 
