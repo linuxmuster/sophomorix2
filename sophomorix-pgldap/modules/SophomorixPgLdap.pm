@@ -5553,10 +5553,14 @@ sub auth_useradd {
                             " -s $shell $login";
 	           print "   * $command\n";
                    system("$command");
+                   # -c in smbldap-usermod makes sure, that
+                   # description field is also changed
+                   # (its not changed with smbldap useradd -c )
                    $command="/usr/sbin/smbldap-usermod -D 'H:'".
                             " -C '${smb_ldap_homepath}'".
                             " -S '${lastname}'".
                             " -N '${gecos}'".
+                            " -c '${gecos}'".
                             " $login";
 	           print "   * $command\n";
                    system("$command");           
