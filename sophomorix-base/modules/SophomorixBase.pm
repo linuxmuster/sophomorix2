@@ -1812,6 +1812,16 @@ sub lehrer_ordnen {
       $quota,
       $mailquota)=split(/;/);
 
+     if ($typ eq "lehrer" or
+         $typ eq "Lehrer" or
+         $typ eq "teacher" or
+         $typ eq "Teacher" or
+         $typ eq "teachers" or
+         $typ eq "Teachers"
+         ){
+         $typ=$Conf::teacher_group_name;
+     }
+
      if(not defined $wunsch_login){
         # go to next user when final ; is missing
         print LEHRERTMP ("$_\n");
