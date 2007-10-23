@@ -2234,7 +2234,8 @@ sub get_passwd_charlist {
                 'm','n','o','p','q','r','s','t','u','v',
                 'w','x','y','z',
                 'A','B','D','E','F','G','H','L','M','N','Q','R','T',
-                '2','3','4','5','6','7','8','9');
+                '2','3','4','5','6','7','8','9',
+                '_','-','.');
    return @zeichen;
 }
 
@@ -2932,7 +2933,6 @@ sub log_script_start {
     my $max_try_count=5;
     # exit if lockfile exists
     while (-e $DevelConf::lock_file and $skiplock==0){
-#    if (-e $DevelConf::lock_file and $skiplock==0){
         my @lock=();
         $try_count++; 
         open(LOCK,"<$DevelConf::lock_file") || die "Cannot create lock file \n";;
@@ -2947,7 +2947,6 @@ sub log_script_start {
         $locking_pid=$lock[4];
         
         &titel("sophomorix locked (${locking_script}, PID: $locking_pid)");
-        #exit;
         if ($try_count==$max_try_count){
             &titel("try again later ...");
             exit;
@@ -2958,6 +2957,11 @@ sub log_script_start {
     if (exists ${DevelConf::lock_scripts}{$0}){
 	&lock_sophomorix(@arguments);
     }
+    # stop nscd
+    if (-e $DevelConf::nscd_script){
+        system("$DevelConf::nscd_stop");
+    }
+    #system("/etc/init.d/nscd status ");
 }
 
 sub log_script_end {
@@ -2986,6 +2990,11 @@ sub log_script_end {
 	unlink $DevelConf::lock_file;
         &titel("Removing lock in $DevelConf::lock_file");    
     }
+    # start nscd
+    if (-e $DevelConf::nscd_script){
+        system("$DevelConf::nscd_start");
+    }
+    #system("/etc/init.d/nscd status ");
     &titel("$0 terminated regularly");
     exit;
 }
