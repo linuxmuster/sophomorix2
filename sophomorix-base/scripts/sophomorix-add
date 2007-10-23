@@ -247,9 +247,9 @@ if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.add")) {
 &backup_amk_file($zeit,"add","before");
 
 # stop nscd
-if (-e $DevelConf::nscd_script){
-    system("$DevelConf::nscd_stop");
-}
+#if (-e $DevelConf::nscd_script){
+#    system("$DevelConf::nscd_stop");
+#}
 #system("/etc/init.d/nscd status ");
 
 my @passwort_zeichen=&get_passwd_charlist();
@@ -445,9 +445,9 @@ close(NOCHANLEGEN);
 
 
 # start nscd
-if (-e $DevelConf::nscd_script){
-    system("$DevelConf::nscd_start");
-}
+#if (-e $DevelConf::nscd_script){
+#    system("$DevelConf::nscd_start");
+#}
 #system("/etc/init.d/nscd status ");
 
 
