@@ -4,6 +4,9 @@
 ============SOPHOMORIX2 CHANGELOG ====================================
 
 1.9.32-1 (2007-10-xx)
+    - added to allowed login-names: .-_ (in extraschueler.txt)
+    - added dump-pg2ldap to sophomorix-setup-pgldap --new-databse
+      to have administrators enabled [UX]
     - updated manpage of 
          sophomorix-passwd
          sophomorix-usermod
@@ -15,8 +18,7 @@
       (using smbldap-useradd -c comment ... does not update description in etch
        solution: use smbldap-usermod -c comment ... afterwards)
     - added nscd start/stop to:
-      sophomorix-move
-      sophomorix-check??
+      log_script_start and log_script end
     - corrected nscd start/stop commands, which didn't do what they should
     - added sub deb_system to run scripts only in certain debian versions
     - Bugfix: do not use windows linefeed in schueler.txt 

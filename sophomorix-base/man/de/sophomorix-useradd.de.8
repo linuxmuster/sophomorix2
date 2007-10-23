@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-USERADD 8 "October 2, 2007"
+.TH SOPHOMORIX-USERADD 8 "October 23, 2007"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -85,7 +85,7 @@ Netzwerkbetreuer sollte keine Computeraccounts anlegen müssen.
 .TP
 .B --computer name
 Legt den Computeraccount name an. Das erste Zeichen von name muss $ sein.
-.SH EXAMPLES
+.SH EXAMPLE 1:
 .B Unix-Account mit Mailbox
 .br
 Für einen Areca-SATA-Kontroller wird ein emailfähiger Account mit dem Namen areca in einer eigenen Gruppe areca gebraucht:
@@ -94,7 +94,7 @@ Für einen Areca-SATA-Kontroller wird ein emailfähiger Account mit dem Namen arec
 .br
 sophomorix-useradd --unixadmin areca --unix-group areca
 .TP
-2) Passwort setzten
+2) Passwort setzen
 .br
 sophomorix-passwd --interactive -u areca
 .TP
@@ -115,9 +115,33 @@ sophomorix-quota -u areca
 sophomorix-mail --showmailboxes | grep areca
 .br
 quota -v areca
-
-
-
+.SH
+.SH EXAMPLE 2:
+.B Zusätzlicher pgmadmin
+.br
+Zur Softwareinstallation wir ein weiter Account gebraucht, der
+Programme auf dem Netzlaufwerk installieren kann.
+.TP
+1) User pgmadmin in gruppe domadmins anlegen:
+.br
+sophomorix-useradd --administrator pgmadmin2 --unix-group domadmins --shell /bin/false --gecos 'pgmamin Maier'
+.TP
+2) Passwort setzen
+.br
+sophomorix-passwd --interactive -u pgmadmin2
+.TP
+3) Quota einstellen:
+.br
+Edititen sie quota.txt
+.br
+sophomorix-quota -u pgmadmin2
+.TP
+4) Prüfen, ob alles geklappt hat:
+.br
+sophomorix-mail --showmailboxes | grep pgmadmin2
+.br
+quota -v pgmadmin2
+.TP
 .SH SEE ALSO
 .BR sophomorix (8),
 .BR sophomorix-teach-in (8),
