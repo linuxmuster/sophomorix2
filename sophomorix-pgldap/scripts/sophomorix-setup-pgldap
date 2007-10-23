@@ -1128,7 +1128,10 @@ if ($slapd_standalone==1){
 }
 
 
-
+# updating ldap
+if ($new_database==1){
+    system("sophomorix-dump-pg2ldap --skiplock");
+}           
 
 
 &setup_verzeichnis("\$share_share","$DevelConf::share_share");
