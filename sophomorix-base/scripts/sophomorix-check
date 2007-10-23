@@ -1972,7 +1972,7 @@ sub syntax_check_entry {
     # Zulassen: a-z  sowie 0-9
     if ($wish_login eq "---") {
         # nix tun, kein wunsch_login angegeben
-    }  elsif ($wish_login=~/[^a-z0-9]/){
+    }  elsif ($wish_login=~/[^a-z0-9]_-\./){
         # Fehlerhafter Wunsch-Login
 #        print "\n\n\nSYNTAXFEHLER!\n";
 #        print "\n\n  ---$wish_login---    enthält Sonderzeichen\n\n";
