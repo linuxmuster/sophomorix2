@@ -12,11 +12,6 @@ Bug: Achtung, die Accounts sind deaktiviert. #274
      gefixed. sollte Thomas noch testen.
 
 
-wenn innerhalb sophomorix-script ein anderes aufgerufen wird, dann wird evtl. 
-wieder nscd gestartet. (option um nscd aus zu lassen???) 
-
-
-
 after update to 1.9.31:
 
 wwwadmin is still enabled UX
@@ -38,6 +33,18 @@ Use of uninitialized value in string at /usr/sbin/smbldap-usermod line 458, <DAT
 chown: zu wenige Argumente
 ,,chown --help" gibt weitere Informationen.
 
+
+
+sophomorix-vampire:
+add nscd stop commands alter sophomorix script calls
+
+
+sophomorix-move:
+  chown: zu wenige Argumente
+  ,,chown --help" gibt weitere Informationen.
+wenn der user keine Dateien hat
+
+sophomorix-user enthält noch viele exit; statements (mit log_script_exit ersetzen??)
 
 
 loginname umbenennen noch anschauen.
