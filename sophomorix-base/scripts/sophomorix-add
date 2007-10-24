@@ -479,7 +479,7 @@ if ($Conf::use_quota eq "yes"
     and $user_nummer<101) {
     my $users=join(",",@users_for_quota);
     system("${DevelConf::executable_pfad}/sophomorix-quota --skiplock --users $users --noninteractive");
-    &stop_nscd():
+    &stop_nscd();
 } elsif ($Conf::use_quota eq "yes" and $user_nummer>100){
     system("${DevelConf::executable_pfad}/sophomorix-quota --skiplock --students --teachers --noninteractive");
     &stop_nscd();
