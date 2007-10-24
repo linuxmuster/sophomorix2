@@ -20,7 +20,8 @@
       (using smbldap-useradd -c comment ... does not update description in etch
        solution: use smbldap-usermod -c comment ... afterwards)
     - added nscd start/stop to:
-      log_script_start and log_script end
+      log_script_start, log_script_exit and log_script_end
+    - added stop_nscd after every call to a sophomorix-script  
     - corrected nscd start/stop commands, which didn't do what they should
     - added sub deb_system to run scripts only in certain debian versions
     - Bugfix: do not use windows linefeed in schueler.txt 
