@@ -9,7 +9,7 @@
 1.9.32-1 (2007-10-24)
     - dont replace \ with \textbackslash in latex-password-printouts
       when \ starts a command (and is NOT part of the password)
-    - # 309: extended allowed names for the group of teachersin lehrer.txt: 
+    - # 309: extended allowed names for the group of teachers in lehrer.txt: 
         - lehrer,Lehrer,Teacher,Teachers,teacher,teachers
     - added to allowed login-names: .-_ (in extraschueler.txt)
     - # 274: added dump-pg2ldap to sophomorix-setup-pgldap --new-databse
@@ -20,7 +20,8 @@
     - sophomorix-passwd:
       added option --samba-pwd-must-change/nosamba-pwd-must-change 
       to change sambaPwdMustChange value
-    - Bugfix: avoid linfeed characters to be listed in forbidden_logins
+    - Bugfix: avoid linefeed characters to be listed in forbidden_logins
+              (introduced in 1.9.32)
     - made auth_useradd compatible with etch
       (using smbldap-useradd -c comment ... does not update description in etch
        solution: use smbldap-usermod -c comment ... afterwards)
