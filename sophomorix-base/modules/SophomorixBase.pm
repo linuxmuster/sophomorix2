@@ -46,6 +46,8 @@ use Quota;
               recode_to_ascii
               recode_to_ascii_underscore
               do_falls_nicht_testen
+              start_nscd
+              stop_nscd
               check_options
               check_datei_exit
               check_config_template
@@ -2021,6 +2023,30 @@ sub do_falls_nicht_testen {
 
 
 
+
+sub start_nscd {
+    # start nscd
+    if (-e $DevelConf::nscd_script){
+        system("$DevelConf::nscd_start");
+    }
+    #system("/etc/init.d/nscd status ");
+}
+
+
+
+sub stop_nscd {
+    # stop nscd
+    if (-e $DevelConf::nscd_script){
+        system("$DevelConf::nscd_stop");
+    }
+    #system("/etc/init.d/nscd status ");
+}
+
+
+
+
+
+
 # ===========================================================================
 # Abbruchmeldung bei Fehlerhafter Optionsangabe
 # ===========================================================================
@@ -2967,11 +2993,8 @@ sub log_script_start {
     if (exists ${DevelConf::lock_scripts}{$0}){
 	&lock_sophomorix(@arguments);
     }
-    # stop nscd
-    if (-e $DevelConf::nscd_script){
-        system("$DevelConf::nscd_stop");
-    }
-    #system("/etc/init.d/nscd status ");
+    &titel("$0 started ...");
+    &stop_nscd();
 }
 
 sub log_script_end {
@@ -3000,11 +3023,7 @@ sub log_script_end {
 	unlink $DevelConf::lock_file;
         &titel("Removing lock in $DevelConf::lock_file");    
     }
-    # start nscd
-    if (-e $DevelConf::nscd_script){
-        system("$DevelConf::nscd_start");
-    }
-    #system("/etc/init.d/nscd status ");
+    &start_nscd();
     &titel("$0 terminated regularly");
     exit;
 }
@@ -3037,6 +3056,7 @@ sub log_script_exit {
     if ($message ne ""){
         &titel("$message");
     }
+    &start_nscd();
     exit;
 }
 
