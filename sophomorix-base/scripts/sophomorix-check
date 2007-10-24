@@ -2436,8 +2436,9 @@ sub update_unids {
 	    }
              next;
          } else {
+             # dentifier has changed, unid is the same
              if (amatch("$identifier_sys", ["i 35%"], $identifier_file) ) {
-                # OK
+                # OK, identifiers are similar
              } else {
                 # very different, show warning
                 print "  Warning: Unid $unid_file:\n";
@@ -2446,7 +2447,6 @@ sub update_unids {
                 print "  I'm updating because of identical UNID!\n";
 	     }
 
-             # identifiers are similar
              $login=$schueler_im_system_loginname{$identifier_sys};
              if($Conf::log_level>=3){
                 print "Looks like the same person --> ";
@@ -2481,7 +2481,7 @@ sub update_unids {
          if($Conf::log_level>=3){
            # UNID doesn't exist
            print "   UNID  $unid_file  doesn't exist in the System\n";
-           # ermittle den identifier zu diese unid
+           # ermittle den identifier zu dieser unid
            print "   UNID  $unid_file  has identifier ",
                  " $identifier_file (file)\n";
          }
@@ -2508,8 +2508,11 @@ sub update_unids {
 		    $unid_sys_old=$unid_1;
                 }  
             }
-            # delete this old unid
-            delete $unid_ok_system{$unid_sys_old};
+            if (defined $unid_sys_old){
+                # delete this old unid if existing
+                # (doesnt exist when user had no unid before)
+                delete $unid_ok_system{$unid_sys_old};
+            }
             # create entry with the new unid, identifier-hash
             $unid_ok_system{$unid_file} = "$id_sys";
             $count++;
