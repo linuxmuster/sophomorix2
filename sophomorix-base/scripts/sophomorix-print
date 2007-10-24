@@ -1270,6 +1270,11 @@ if ($show==1) {
 sub latexize_string {
     # make string usable by latex (convert)
     my ($string) = @_;
+
+    #replace existing \   with   \textbackslash{}
+    $string=~s/\\/\\textbackslash\{\}/g;
+
+    # here a \ added again as escape characters:
     #replace  _   with   \_
     $string=~s/_/\\_/g;
     #replace  $   with   \$
@@ -1284,8 +1289,6 @@ sub latexize_string {
     $string=~s/\{/\\\{/g;
     #replace  }   with   \}
     $string=~s/\}/\\\}/g;
-    #replace  \   with   \textbackslash{}
-    $string=~s/\\/\\textbackslash\{\}/g;
     # [] seem to work
      return $string; 
 }
