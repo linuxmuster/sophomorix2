@@ -591,6 +591,7 @@ if ($Conf::use_quota eq "yes"
     ) {
     # system("sophomorix-quota --students --teachers --noninteractive");
     system("${DevelConf::executable_pfad}/sophomorix-quota --project $project --noninteractive");
+    &stop_nscd();
 } else {
     &titel("NOT setting quota (nothing quota related changed)");
 }
@@ -610,6 +611,7 @@ if (defined $p_admins
     or $kill==1
    ) {
     system("${DevelConf::executable_pfad}/sophomorix-mail");
+    &stop_nscd();
 } else {
     &titel("NOT creating mailaliases/lists (nothing mail related changed)");
 }

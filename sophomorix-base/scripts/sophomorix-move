@@ -107,7 +107,6 @@ Please see the sophomorix-move(8) man pages for full documentation
 ');
    print "\n";
    exit;
-   #&log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -146,13 +145,13 @@ if ($lock==1) {
 }
 
 
-&log_script_start(@arguments);
-
 # ===========================================================================
 # Abbruch, wenn sophomorix.move fehlt oder leer
 # ===========================================================================
 if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.move")) {
-  &log_script_exit("No users to move!",1,1,0,@arguments);
+    print "\nNo users to move!\n\n";
+    exit;
+  #&log_script_exit("No users to move!",1,1,0,@arguments);
 }
 
 
@@ -201,14 +200,10 @@ if ($info==1) {
 
 
 # ===========================================================================
-print ("sophomorix-move startet ...\n");
+# start
 # ===========================================================================
+&log_script_start(@arguments);
 
-# stop nscd
-if (-e $DevelConf::nscd_script){
-    system("$DevelConf::nscd_stop");
-}
-#system("/etc/init.d/nscd status ");
 
 # repair.directories einlesen
 &get_alle_verzeichnis_rechte();
@@ -389,20 +384,16 @@ if ($DevelConf::testen==0) {
    system("rm -f ${DevelConf::ergebnis_pfad}/sophomorix.move.neu > /dev/null");
  }
 
-# start nscd
-if (-e $DevelConf::nscd_script){
-    system("$DevelConf::nscd_start");
-}
-#system("/etc/init.d/nscd status ");
-
 # Setting Quota
 if ($Conf::use_quota eq "yes" 
     and $user_nummer>0
     and $user_nummer<101) {
     my $users=join(",",@users_for_quota);
     system("${DevelConf::executable_pfad}/sophomorix-quota --skiplock --users $users --noninteractive");
+    &stop_nscd();
 } elsif ($Conf::use_quota eq "yes" and $user_nummer>100){
     system("${DevelConf::executable_pfad}/sophomorix-quota --skiplock --students --teachers --noninteractive");
+    &stop_nscd();
 } else {
     if ($user_nummer==0){ 
         &titel("NOT setting quota (0 users moved)");
@@ -414,6 +405,7 @@ if ($Conf::use_quota eq "yes"
 # Creating Mailing Aliases and Lists
 if ($user_nummer>0) {
     system("${DevelConf::executable_pfad}/sophomorix-mail --skiplock");
+    &stop_nscd();
 } else {
     &titel("NOT creating mailaliases/lists (0 users moved)");
 }

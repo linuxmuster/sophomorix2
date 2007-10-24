@@ -256,6 +256,7 @@ if ($DevelConf::testen==0) {
 # Creating Mailing Aliases and Lists
 if ($user_nummer>0) {
     system("${DevelConf::executable_pfad}/sophomorix-mail --skiplock");
+    &stop_nscd();
 } else {
     &titel("NOT creating mailaliases/lists (0 users removed)");
 }
@@ -335,7 +336,6 @@ sub kill_user {
       if ($home_verzeichnis_to_kill=~/^\/home\//){
           if ($DevelConf::testen==0) {
 	    print "   Removing recursively $home_verzeichnis_to_kill \n";
-            #system("rm -rf $home_verzeichnis_to_kill");
             &unlink_immutable_tree("$home_verzeichnis_to_kill"); 
 	} else {
 	    print "Test: Removing recursively $home_verzeichnis_to_kill \n";

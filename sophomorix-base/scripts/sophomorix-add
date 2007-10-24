@@ -246,12 +246,6 @@ if (not (-s "${DevelConf::ergebnis_pfad}/sophomorix.add")) {
 # sophomorix.add mitloggen
 &backup_amk_file($zeit,"add","before");
 
-# stop nscd
-#if (-e $DevelConf::nscd_script){
-#    system("$DevelConf::nscd_stop");
-#}
-#system("/etc/init.d/nscd status ");
-
 my @passwort_zeichen=&get_passwd_charlist();
 
 
@@ -444,13 +438,6 @@ close(NOCHANLEGEN);
 #}
 
 
-# start nscd
-#if (-e $DevelConf::nscd_script){
-#    system("$DevelConf::nscd_start");
-#}
-#system("/etc/init.d/nscd status ");
-
-
 if ($user_nummer==0){ 
     &titel("NOT creating userlists (0 users added)");
 } else {
@@ -492,8 +479,10 @@ if ($Conf::use_quota eq "yes"
     and $user_nummer<101) {
     my $users=join(",",@users_for_quota);
     system("${DevelConf::executable_pfad}/sophomorix-quota --skiplock --users $users --noninteractive");
+    &stop_nscd():
 } elsif ($Conf::use_quota eq "yes" and $user_nummer>100){
     system("${DevelConf::executable_pfad}/sophomorix-quota --skiplock --students --teachers --noninteractive");
+    &stop_nscd();
 } else {
     if ($user_nummer==0){ 
         &titel("NOT setting quota (0 users added)");
@@ -505,6 +494,7 @@ if ($Conf::use_quota eq "yes"
 # Creating Mailing Aliases and Lists
 if ($user_nummer>0) {
     system("${DevelConf::executable_pfad}/sophomorix-mail --skiplock");
+    &stop_nscd();
 } else {
     &titel("NOT creating mailaliases/lists (0 users added)");
 }
@@ -530,6 +520,7 @@ sub print {
    if ($DevelConf::testen==0) {
       # Mit 1mal sophomorix-print aufrufen sollte es tun, tut es aber nicht
       system("$DevelConf::executable_pfad/sophomorix-print --skiplock");
+      &stop_nscd();
    } else {
        &titel("NOT generating print data (Test)");
 #      print "\n\nDruckdaten werden NICHT erzeugt: Testmodus\n\n"; 
