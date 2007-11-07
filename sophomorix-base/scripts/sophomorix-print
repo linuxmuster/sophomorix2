@@ -251,11 +251,11 @@ if ($netexamplix ne ""){
     }
 
     if (not -e $netex_dir){
-	system("mkdir $netex_dir");
+	system("mkdir -p $netex_dir");
         system("chown ${caller}.${DevelConf::teacher} $netex_dir");
     }
     if (not -e $dir){
-	system("mkdir $dir");
+	system("mkdir -p $dir");
         system("chown ${caller}.${DevelConf::teacher} $dir");
     }
 
