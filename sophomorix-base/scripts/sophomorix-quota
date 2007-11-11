@@ -92,7 +92,6 @@ my $testopt=GetOptions(
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
 &check_connections();
-&log_script_start(@arguments);
 
 
 my $check;
@@ -104,18 +103,6 @@ if ($force==1){
 
 
 
-# check if I have to ...
-if($Conf::use_quota ne "yes" and $noninteractive==0){
-  # ... abort
-  print "\nsophomorix.conf says:  You don't want to use quota.\n\n";
-  print "Set  \$use_quota=\"yes\"  in sophomorix.conf to use quota.\n\n";
-  print "For more information:  man sophomorix-quota \n\n";
-  &log_script_exit("",1,1,0,@arguments);
-} elsif ($Conf::use_quota ne "yes" and $noninteractive==1){
-  # ... or do nothing
-  &titel("sphomorix-quota: Not Setting quota ... \$use_quota=\"no\"");
-  &log_script_exit("",1,1,0,@arguments);
-}
 
 
 # --help
@@ -147,7 +134,8 @@ Options
 Please see the sophomorix-quota(8) man page for full documentation
 ');
    print "\n";
-   &log_script_exit("",1,1,0,@arguments);
+   exit;
+   #&log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -217,8 +205,28 @@ if ($info==1) {
    }
    print "\n\n";
 
-   &log_script_exit("",1,1,0,@arguments);
+   exit;
+   #&log_script_exit("",1,1,0,@arguments);
 }
+
+
+&log_script_start(@arguments);
+
+
+# check if I have to ...
+if($Conf::use_quota ne "yes" and $noninteractive==0){
+  # ... abort
+  print "\nsophomorix.conf says:  You don't want to use quota.\n\n";
+  print "Set  \$use_quota=\"yes\"  in sophomorix.conf to use quota.\n\n";
+  print "For more information:  man sophomorix-quota \n\n";
+  &log_script_exit("",1,1,0,@arguments);
+} elsif ($Conf::use_quota ne "yes" and $noninteractive==1){
+  # ... or do nothing
+  &titel("sphomorix-quota: Not Setting quota ... \$use_quota=\"no\"");
+  &log_script_exit("",1,1,0,@arguments);
+}
+
+
 
 # --sum
 if ($sum==1){

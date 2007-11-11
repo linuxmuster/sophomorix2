@@ -52,7 +52,6 @@ my $testopt=GetOptions(
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
 &check_connections();
-&log_script_start(@arguments);
 
 # --help
 if ($help==1) {
@@ -78,6 +77,7 @@ Please see the sophomorix-usermod(8) man pages for full documentation
 }
 
 
+&log_script_start(@arguments);
 
 
 # --enable

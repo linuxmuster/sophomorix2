@@ -65,7 +65,6 @@ if ($add_dirlists ne ""){
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
-&log_script_start(@arguments);
 
 
 # --help
@@ -111,6 +110,8 @@ if ($info==1) {
     exit;
 }
 
+
+&log_script_start(@arguments);
 
 
 # --unlock

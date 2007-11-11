@@ -105,7 +105,6 @@ my $testopt=GetOptions(
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
 &check_connections();
-&log_script_start(@arguments);
 
 # --help
 if ($help==1) {
@@ -153,6 +152,7 @@ Please see the sophomorix-passwd(8) man pages for full documentation
    print "\n";
    exit;
 }
+
 
 
 
@@ -217,6 +217,14 @@ if ($char_num!=0 and($common==0 and $random==0)){
 # Start
 ################################################################################
 
+# --info, show only the users
+if ($info==1) {
+   &print_list_column(6,"Passwörter setzen für user ",@users);
+   print "INFO: $info_line  \n";
+   exit;
+}
+
+&log_script_start(@arguments);
 
 
 # use the charlist of SophomorixBase
@@ -258,13 +266,6 @@ if ($random==1){
    $info_line="Every user will have its own a random password";
 }
 
-
-# --info, show only the users
-if ($info==1) {
-   &print_list_column(6,"Passwörter setzen für user ",@users);
-   print "INFO: $info_line  \n";
-   exit;
-}
 
 
 # Setting passwords interacive
