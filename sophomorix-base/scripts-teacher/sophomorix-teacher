@@ -94,7 +94,6 @@ my $testopt=GetOptions(
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
-&log_script_start(@arguments);
 
 
 # repair.directories einlesen
@@ -181,6 +180,7 @@ Please see the sophomorix-teacher(1) man pages for full documentation
 }
 
 
+
 if ($users ne ""){
     (@users) = split(/,/,$users);
 }
@@ -214,10 +214,6 @@ if ($login eq "root"){
 
 
 
-
-
-
-
 ############################################################
 # Managing MyAdminClasses
 ############################################################
@@ -240,35 +236,6 @@ if ($add eq "" and
 if (defined $shares and not @users){
     print "You must give users to switch shares on/off\n";
     exit;
-}
-
-
-
-
-
-
-
-# --add class
-if ($add ne ""){
-   my $result=&add_my_adminclass($login,$add);
-   $info=1;
-   # Creating Mailing Aliases and Lists
-   if ($result==1){
-       system("/usr/sbin/sophomorix-mail");
-   }
-   exit;
-}
-
-
-
-
-# --remove class
-if ($remove ne ""){
-   &remove_my_adminclass($login,$remove);
-   $info=1;
-   # Creating Mailing Aliases and Lists
-   system("/usr/sbin/sophomorix-mail");
-   exit;
 }
 
 
@@ -336,6 +303,35 @@ if ($info==1
     }
     exit;
 }
+
+
+&log_script_start(@arguments);
+
+
+
+# --add class
+if ($add ne ""){
+   my $result=&add_my_adminclass($login,$add);
+   $info=1;
+   # Creating Mailing Aliases and Lists
+   if ($result==1){
+       system("/usr/sbin/sophomorix-mail");
+   }
+   exit;
+}
+
+
+
+
+# --remove class
+if ($remove ne ""){
+   &remove_my_adminclass($login,$remove);
+   $info=1;
+   # Creating Mailing Aliases and Lists
+   system("/usr/sbin/sophomorix-mail");
+   exit;
+}
+
 
 
 
