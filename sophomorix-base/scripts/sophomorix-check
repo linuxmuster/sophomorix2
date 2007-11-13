@@ -1630,8 +1630,9 @@ sub get_schueler_classes {
        } else {
            # check for doubling
            if (exists $unids{$unid}){
+               $unid =~ s/\s//g;
                if ($unid ne "" and $unid ne "" ){
-                   &log_script_exit("ERROR: Unid $unid was seen twice already!",
+                   &log_script_exit("ERROR: Unid ->$unid<- was seen twice already!",
                          1,1,0,@arguments);
 	       }
            } else {
