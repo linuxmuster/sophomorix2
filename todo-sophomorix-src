@@ -12,11 +12,6 @@ Bug: sophomorix-move -i users
      restarts nscd (doesnt stop nscd)
 
 
-after update to 1.9.31:
-
-wwwadmin is still enabled UX
-
-
 Saving the Real Name of a class (Konfigurable, needs a field in the database?)
 i.e.    m1kb2t  --> M1KB2T
         wg111   --> WG11/1
@@ -27,11 +22,26 @@ for netexamplix and others
 
 
 
+######################################
+ACL: (filesystem ACLs)
+#####################################
+Where ACL's can help:
+
+1) pgmadmin should be allowed to look into shares of classes/projects,...
+   (alternative/not so good: add pgmadmin to the projects)
+ 
+2) shares of a project should be open only for members
+
 
 check if latex can be made uninteruptible with option.
 (checked, but no solution found)
 
-
+Feature request: Projekte umbenennen
+Könnte so gelöst werden
+  1) auspielen der Daten eines Projekts in Textdatei
+  2) anlegen desselben Projekts mit neuem Namen
+  3) Daten in Tausch, ... was noch kopieren/moven
+  4) altes Projekt löschen 
 
 sophomorix-teacher --teacher galli --add 11a
 liefert fehler beim start des nscd:
