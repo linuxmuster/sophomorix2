@@ -4,6 +4,14 @@
 Next
 ############################################################
 
+
+Bug im Backup Script:
+
+nach dem starten unterbricht das script bei mkdir '/media/backup/server' , wenn
+das Verzeichnis /media/backup/server schon da ist.
+--> Lösung: mkdir -p /media/backup/server
+
+
 Fortbildungen fürs Kollegium:
 
 http://lehrerfortbildung-bw.de/netz/muster/linux/material/unterricht/paedml/index.html
