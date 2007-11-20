@@ -5,13 +5,6 @@ Next
 ############################################################
 
 
-Bug im Backup Script:
-
-nach dem starten unterbricht das script bei mkdir '/media/backup/server' , wenn
-das Verzeichnis /media/backup/server schon da ist.
---> Lösung: mkdir -p /media/backup/server
-
-
 Fortbildungen fürs Kollegium:
 
 http://lehrerfortbildung-bw.de/netz/muster/linux/material/unterricht/paedml/index.html
@@ -37,6 +30,12 @@ sophomorix-class --reset-class name
 
 sophomorix-project --reset-project name
 (dangerous, when teacher is a member of this project!!!)
+
+
+hidden option in sophomorix.conf, um
+ - Benutzername mit vorname.nachname erlauben.
+   Was passiert, wenn schon vorhanden (mendyk meldet sich) 
+
 
 
 ######################################
