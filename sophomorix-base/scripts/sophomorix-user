@@ -398,7 +398,7 @@ if ($old_uid ne "" and $new_uid ne ""){
 
     print "5) Updating /etc/aliases.\n";
 #    system("${DevelConf::executable_pfad}/sophomorix-mail --skiplock");
-#    &stop_nscd();
+#    &nscd_stop();
     exit;
 }
 
@@ -508,7 +508,7 @@ if ($kill_all_users==1){
         print "Mark $user_kill as killable. ($count/$max) \n";
         system("sophomorix-user -K $user_kill");
     }
-    # kein stop_nscd, da exit folgt.
+    # kein nscd_stop, da exit folgt.
     exit;
 }
 

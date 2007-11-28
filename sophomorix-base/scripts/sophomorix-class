@@ -29,6 +29,7 @@ $Conf::log_level=1;
 my $help=0;
 my $info=0;
 my $class="";
+my $reset_class="";
 my $hide="";
 my $quota;
 my $mailquota;
@@ -41,6 +42,7 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
            "class|c=s" => \$class,
+           "reset-class|c=s" => \$reset_class,
            "hide!" => \$hide,
            "quota=s" => \$quota,
            "mailquota=i" => \$mailquota,
@@ -58,7 +60,8 @@ if (not defined $quota
     and $info==0 
     and not defined $mailalias
     and not defined $maillist
-    and $class eq ""){
+    and $class eq ""
+    and $reset_class eq ""){
     $help=1;
 }
 
@@ -84,6 +87,8 @@ Options
   --mailquota number
   --mailalias, --nomailalias
   --maillist, --nomaillist
+  --reset-class class
+
 Please see the sophomorix-class(8) man pages for full documentation
 ');
    print "\n";
@@ -97,7 +102,7 @@ Please see the sophomorix-class(8) man pages for full documentation
 
 
 # --info
-if ($info==1){
+if ($info==1 and $reset_class eq ""){
    &show_class_list();
    exit;
 }
@@ -176,6 +181,28 @@ if (defined $mailquota){
 }
 
 
+# --reset-class
+if (defined $reset_class){
+    my @students=&fetchstudents_from_adminclass($reset_class);
+
+    # repair.directories einlesen
+    &get_alle_verzeichnis_rechte();
+    # fetch permission for all homes
+    &fetch_repairhome();
+
+    print "Resetting all users of class $reset_class:\n";
+    foreach my $user (@students){
+        if ($info==0){
+            &reset_user($user);
+        } else {
+            print "   I would reset $user\n";
+        }
+    }
+    if ($info==1){
+        print "\nWARNING: To actually reset a class remove the --info/-i\n\n";
+    }
+}
+
 
 
 
@@ -185,7 +212,7 @@ if ($Conf::use_quota eq "yes"
     and (defined $quota or defined $mailquota)
     ) {
     system("${DevelConf::executable_pfad}/sophomorix-quota --class $class  --noninteractive");
-    &stop_nscd();
+    &nscd_stop();
 } else {
     &titel("NOT setting quota (nothing quota related changed)");
 }
@@ -199,7 +226,7 @@ if ($class ne ""
     and (defined $mailalias or defined $maillist)
    ) {
     system("${DevelConf::executable_pfad}/sophomorix-mail");
-    &stop_nscd();
+    &nscd_stop();
 } else {
     &titel("NOT creating mailaliases/lists (nothing mail related changed)");
 }

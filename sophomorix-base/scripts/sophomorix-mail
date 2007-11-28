@@ -228,7 +228,7 @@ if ($add_mailbox ne "") {
     if ($Conf::use_quota eq "yes"){ 
     system("${DevelConf::executable_pfad}/sophomorix-quota --skiplock --users $add_mailbox --noninteractive --set");
     }
-    # kein stop_nscd da exit folgt.
+    # kein nscd_stop da exit folgt.
     exit;
 }
 

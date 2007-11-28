@@ -256,7 +256,7 @@ if ($DevelConf::testen==0) {
 # Creating Mailing Aliases and Lists
 if ($user_nummer>0) {
     system("${DevelConf::executable_pfad}/sophomorix-mail --skiplock");
-    &stop_nscd();
+    &nscd_stop();
 } else {
     &titel("NOT creating mailaliases/lists (0 users removed)");
 }

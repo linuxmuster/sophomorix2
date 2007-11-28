@@ -390,10 +390,10 @@ if ($Conf::use_quota eq "yes"
     and $user_nummer<101) {
     my $users=join(",",@users_for_quota);
     system("${DevelConf::executable_pfad}/sophomorix-quota --skiplock --users $users --noninteractive");
-    &stop_nscd();
+    &nscd_stop();
 } elsif ($Conf::use_quota eq "yes" and $user_nummer>100){
     system("${DevelConf::executable_pfad}/sophomorix-quota --skiplock --students --teachers --noninteractive");
-    &stop_nscd();
+    &nscd_stop();
 } else {
     if ($user_nummer==0){ 
         &titel("NOT setting quota (0 users moved)");
@@ -405,7 +405,7 @@ if ($Conf::use_quota eq "yes"
 # Creating Mailing Aliases and Lists
 if ($user_nummer>0) {
     system("${DevelConf::executable_pfad}/sophomorix-mail --skiplock");
-    &stop_nscd();
+    &nscd_stop();
 } else {
     &titel("NOT creating mailaliases/lists (0 users moved)");
 }
