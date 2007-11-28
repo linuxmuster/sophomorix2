@@ -4,6 +4,10 @@
 ============SOPHOMORIX2 CHANGELOG ====================================
 
 1.9.34-1 (2007-12-xx)
+    - added function nscd_flush_cache to flush the cashed data
+      on a running nscd server (needed in etch)
+    - renamed function stop_nscd -> nscd_stop
+    - renamed function start_nscd -> nscd_start
     - combinded multiple smbldap-usermod commands to one,
       when joining/leaving an adminclass and therefore $CLASS-A, $CLASS-B, ...
     - Bugfix: not unjoining  $CLASS-A, $CLASS-B, ... when calling
