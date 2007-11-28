@@ -42,7 +42,7 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
            "class|c=s" => \$class,
-           "reset-class|c=s" => \$reset_class,
+           "reset-class=s" => \$reset_class,
            "hide!" => \$hide,
            "quota=s" => \$quota,
            "mailquota=i" => \$mailquota,
@@ -113,8 +113,8 @@ if ($info==1 and $reset_class eq ""){
 # --mailalias
 if (defined $mailalias){
     if ($class eq ""){
-        print "   You must give a class to use --mailalias\n";
-	exit;
+        &log_script_exit("ERROR: You must give a class to use --mailalias",
+                         1,1,0,@arguments);
     }
     if ($mailalias==0){
         &update_class_db_entry($class,"Mailalias=FALSE");
@@ -128,7 +128,8 @@ if (defined $mailalias){
 if (defined $maillist){
     if ($class eq ""){
         print "   You must give a class to use --maillist\n";
-	exit;
+        &log_script_exit("ERROR: You must give a class to use --maillist",
+                         1,1,0,@arguments);
     }
     if ($maillist==0){
         &update_class_db_entry($class,"Maillist=FALSE");
@@ -158,7 +159,8 @@ if ($hide ne "" and $class ne ""){
 if (defined $quota){
     if ($class eq ""){
         print "   You must give a class to use --quota\n";
-	exit;
+        &log_script_exit("You must give a class to use --quota",
+                         1,1,0,@arguments);
     }
     if ($quota eq "" or 
         $quota eq "quota" or 
@@ -174,8 +176,8 @@ if (defined $quota){
 # --mailquota
 if (defined $mailquota){
     if ($class eq ""){
-        print "   You must give a class to use --mailquota\n";
-	exit;
+        &log_script_exit("ERROR: You must give a class to use --mailquota",
+                         1,1,0,@arguments);
     }
     &update_class_db_entry($class,"MailQuota=$mailquota");
 }
@@ -183,12 +185,45 @@ if (defined $mailquota){
 
 # --reset-class
 if (defined $reset_class){
+    if ($reset_class eq ${DevelConf::teacher}){
+        &log_script_exit("ERROR: This option cannot be used with $reset_class",
+                         1,1,0,@arguments);
+    }
+
+    my ($group_type)=&pg_get_group_type($reset_class);
+
+    if ($group_type ne "adminclass"
+        and $group_type ne "hiddenclass"){
+        print "\nWARNING: Type of ${reset_class}: $group_type\n";
+        print   "         The option --reset-class can only be used\n",
+                "         with type adminclass/hiddenclass\n\n";
+        &log_script_exit("ERROR: option works only with admin/hiddenclass",
+                         1,1,0,@arguments);
+    }
+
+    print "Type: $group_type\n";
+
     my @students=&fetchstudents_from_adminclass($reset_class);
 
     # repair.directories einlesen
     &get_alle_verzeichnis_rechte();
     # fetch permission for all homes
     &fetch_repairhome();
+
+    # remove data from __vorlagen ($tasks_rooms)
+    my $command_1="rm -rf ${DevelConf::tasks_classes}/${reset_class}/*";
+    my $command_2="rm -rf ${DevelConf::share_classes}/${reset_class}/*";
+
+    if ($info==0){
+        print "Removing common stuff:\n";
+        print "   $command_1\n";
+        system("$command_1");
+        print "   $command_2\n";
+        system("$command_2");
+    } else {
+        print "   I would: $command_1\n";
+        print "   I would: $command_2\n";
+    }
 
     print "Resetting all users of class $reset_class:\n";
     foreach my $user (@students){
