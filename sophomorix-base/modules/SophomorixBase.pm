@@ -2027,7 +2027,9 @@ sub do_falls_nicht_testen {
 sub start_nscd {
     # start nscd
     if (-e $DevelConf::nscd_script){
-        system("$DevelConf::nscd_start");
+        # fix: add /sbin to $PATH, because
+        # sophomorix-teacher runs with different path
+        system("OLDPATH=\$PATH;PATH=\$PATH:/sbin; $DevelConf::nscd_start; PATH=\$OLDPATH");
     }
     #system("/etc/init.d/nscd status ");
 }
@@ -2037,7 +2039,9 @@ sub start_nscd {
 sub stop_nscd {
     # stop nscd
     if (-e $DevelConf::nscd_script){
-        system("$DevelConf::nscd_stop");
+        # fix: add /sbin to $PATH, because
+        # sophomorix-teacher runs with different path
+        system("OLDPATH=\$PATH;PATH=\$PATH:/sbin; $DevelConf::nscd_stop; PATH=\$OLDPATH");
     }
     #system("/etc/init.d/nscd status ");
 }
