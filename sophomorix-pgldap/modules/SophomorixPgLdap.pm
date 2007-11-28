@@ -540,6 +540,7 @@ sub deleteuser_from_project {
         }
         $dbh->do($sql);
 
+
         # removing user from secondary group
         &auth_deleteuser_from_project($user,$project);
 
@@ -5741,11 +5742,6 @@ sub fetch_nt_groupmap {
 
 
 
-
-
-
-
-
 sub auth_usermove {
     # change primary group
     # change home
@@ -5782,6 +5778,8 @@ sub auth_usermove {
     }
 
 }
+
+
 
 sub auth_userkill {
     # change home
@@ -5844,17 +5842,38 @@ sub auth_adduser_to_project {
 
     # check if adding in pgldap was sucessful ?????
 
-        # fetch oldgroups
-        my $oldgroups=`id -n -G $login`;
-        chomp($oldgroups);
 
-        my @newgroups=split(/ /,$oldgroups);
-        push @newgroups,$project;
-        my $group_csv=join(",",@newgroups);
+    # fetch oldgroups
+    my $oldgroups=`id -n -G $login`;
+    chomp($oldgroups);
 
-        my $command="/usr/sbin/smbldap-usermod -G '$group_csv' $login";
-        print "   * $command\n";
-        system("$command");
+    my @newgroups=split(/ /,$oldgroups);
+
+    # the group given by sub parameter 
+    push @newgroups,$project;
+
+    # is it an adminclass
+    my ($g_type)=&pg_get_group_type($project);
+
+    if ($g_type eq "adminclass"){
+        my @appends=("-A","-B","-C","-D");
+        if($Conf::log_level>=3){
+            print "Group Typeof $project: $g_type\n";
+        }
+        foreach my $apps (@appends){
+            my $subclass=$project.$apps;
+            if($Conf::log_level>=3){
+                print "   Also adding $subclass\n";
+            }
+            push @newgroups,$subclass;
+        }
+    }
+
+    my $group_csv=join(",",@newgroups);
+
+    my $command="/usr/sbin/smbldap-usermod -G '$group_csv' $login";
+    print "   * $command\n";
+    system("$command");
 }
 
 
@@ -5865,23 +5884,46 @@ sub auth_deleteuser_from_project {
 
     # check if deletion in pgldap was sucessful ?????
 
-        # fetch oldgroups
-        my $oldgroups=`id -n -G $login`;
-        chomp($oldgroups);
-        my @oldgroups=split(/ /,$oldgroups);
+    # list of groups to remove user from
+    my %groups_to_remove=();
+    # the group given by sub parameter
+    $groups_to_remove{$project}="project";
 
-        # create new list of groups
-        my @newgroups=();
-        foreach my $gr (@oldgroups){
-            if ($gr ne $project){
-               push @newgroups,$gr;
-	    }
+    # is it an adminclass
+    my ($g_type)=&pg_get_group_type($project);
+
+    # add also -A, -B, -C and -D to hash for adminclasses
+    if ($g_type eq "adminclass"){
+        my @appends=("-A","-B","-C","-D");
+        if($Conf::log_level>=3){
+            print "Group Typeof $project: $g_type\n";
         }
-        my $group_csv=join(",",@newgroups);
+        foreach my $apps (@appends){
+            my $subclass=$project.$apps;
+            if($Conf::log_level>=3){
+                print "   Also removing $subclass\n";
+            }
+            $groups_to_remove{$subclass}="subclass";
+        }
+    }
 
-        my $command="/usr/sbin/smbldap-usermod -G '$group_csv' $login";
-        print "   * $command\n";
-        system("$command");
+    # fetch oldgroups
+    my $oldgroups=`id -n -G $login`;
+    chomp($oldgroups);
+    my @oldgroups=split(/ /,$oldgroups);
+
+    # create new list of groups
+    my @newgroups=();
+    foreach my $gr (@oldgroups){
+       if (not exists $groups_to_remove{$gr}){
+          push @newgroups,$gr;
+       }
+    }
+    my $group_csv=join(",",@newgroups);
+
+    my $command="/usr/sbin/smbldap-usermod -G '$group_csv' $login";
+    print "   * $command\n";
+    system("$command");
 }
 
 
