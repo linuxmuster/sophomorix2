@@ -3,7 +3,17 @@
 
 ============SOPHOMORIX2 CHANGELOG ====================================
 
-1.9.34-1 (2007-11-xx)
+1.9.34-1 (2007-12-xx)
+    - combinded multiple smbldap-usermod commands to one,
+      when joining/leaving an adminclass and therefore $CLASS-A, $CLASS-B, ...
+    - Bugfix: not unjoining  $CLASS-A, $CLASS-B, ... when calling
+              sophomorix-teacher --remove class --teacher name
+    - Bugfix: Bug seen only on etch:
+              when calling /etc/init.d/nscd start/stop, which calls 
+              'start-stop-deamon' which is (for security reasons) not in root's
+              $PATH-Variable, this fails
+              Workaround: when calling /etc/init.d/nscd, the PATH is modified 
+              before the command and reset after the command
     - added more files to rotate command.log 
       (logs a kept half a year (27 weeks))
 
