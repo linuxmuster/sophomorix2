@@ -46,8 +46,9 @@ use Quota;
               recode_to_ascii
               recode_to_ascii_underscore
               do_falls_nicht_testen
-              start_nscd
-              stop_nscd
+              nscd_start
+              nscd_stop
+              nscd_flush_cache
               check_options
               check_datei_exit
               check_config_template
@@ -2024,7 +2025,7 @@ sub do_falls_nicht_testen {
 
 
 
-sub start_nscd {
+sub nscd_start {
     # start nscd
     if (-e $DevelConf::nscd_script){
         # fix: add /sbin to $PATH, because
@@ -2036,7 +2037,7 @@ sub start_nscd {
 
 
 
-sub stop_nscd {
+sub nscd_stop {
     # stop nscd
     if (-e $DevelConf::nscd_script){
         # fix: add /sbin to $PATH, because
@@ -2046,7 +2047,15 @@ sub stop_nscd {
     #system("/etc/init.d/nscd status ");
 }
 
-
+sub nscd_flush_cache {
+    # flush_cache tut nur bei laufendem nscd
+    if (-e "/usr/sbin/nscd"){
+        print "Flushing nscd cache\n";
+	system("/usr/sbin/nscd -i passwd -i group -i hosts");
+    } else {
+        print "WARNING: couldnt flush nscd cache\n";
+    }
+}
 
 
 
@@ -2998,7 +3007,7 @@ sub log_script_start {
 	&lock_sophomorix(@arguments);
     }
     &titel("$0 started ...");
-    &stop_nscd();
+    &nscd_stop();
 }
 
 sub log_script_end {
@@ -3027,7 +3036,9 @@ sub log_script_end {
 	unlink $DevelConf::lock_file;
         &titel("Removing lock in $DevelConf::lock_file");    
     }
-    &start_nscd();
+    &nscd_start();
+    # flush_cache tut nur bei laufendem nscd
+    &nscd_flush_cache();
     &titel("$0 terminated regularly");
     exit;
 }
@@ -3060,7 +3071,7 @@ sub log_script_exit {
     if ($message ne ""){
         &titel("$message");
     }
-    &start_nscd();
+    &nscd_start();
     exit;
 }
 
