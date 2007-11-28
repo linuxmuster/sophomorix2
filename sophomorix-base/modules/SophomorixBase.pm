@@ -3044,11 +3044,13 @@ sub log_script_end {
 }
 
 sub log_script_exit {
-    # what to print to the log file
+    # 1) what to print to the log file/console
     my $message=shift;
-    # return 0: normal end, return=1 unexpected end 
+    # 2) return 0: normal end, return=1 unexpected end 
     my $return=shift;
+    # 3) unlock (unused)
     my $unlock=shift;
+    # 4) skiplock (unused)
     my $skiplock=shift;
 
     my @arguments = @_;
