@@ -332,7 +332,7 @@ sub add_my_adminclass {
             $subclass,$subclass,"subclass");
 
         # join user (pg,ldap)
-        &adduser_to_project($login,$subclass,0);
+        #&adduser_to_project($login,$subclass,0);
 
         # create dirs in tasks and collect
         &Sophomorix::SophomorixBase::create_share_directory($login,
@@ -363,7 +363,7 @@ sub remove_my_adminclass {
     # remove secondary membership in pg
     &deleteuser_from_project($login,$class,0,1);
     # remove secondary membership in ldap
-    &auth_deleteuser_from_project($login,$class);
+#    &auth_deleteuser_from_project($login,$class);
 
     # remove link
     &Sophomorix::SophomorixBase::remove_share_link($login,
@@ -381,8 +381,11 @@ sub remove_my_adminclass {
         &Sophomorix::SophomorixBase::remove_share_link($login,
             $subclass,$subclass,"subclass");
 
+       # not needed is done before
         # join user (pg,ldap)
-        &adduser_to_project($login,$subclass,0);
+       #print "Remove $subclass\n"; 
+       #&adduser_to_project($login,$subclass,0);
+#       &deleteuser_from_project($login,$class,0,1);
 
         # remove dirs in tasks and collect
         &Sophomorix::SophomorixBase::remove_share_directory($login,
