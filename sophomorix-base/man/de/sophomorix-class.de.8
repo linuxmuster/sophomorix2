@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-CLASS 8 "August 08, 2006"
+.TH SOPHOMORIX-CLASS 8 "November 28, 2007"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -34,7 +34,8 @@ verwaltete Klasse hat folgende Eigenschaften:
 .br
                         z.B. Grundschule
 .br
-     Type:           Typ der Klasse (nicht genutzt)
+     Type:           adminclass (standard)
+                     hiddenclass (in der Schulkonsole nicht sichtbar/beitretbar)
 .br
      Mail:           Maileinstellungen der Klasse (nicht genutzt)
 .br
@@ -93,6 +94,17 @@ Schaltet eine Klasse vom Typ 'adminclass' auf Typ 'hiddenclass' um bzw.
 zurück. Eine Klasse mit Typ 'hiddenclass' verhindert ein Anzeigen der
 Klasse in der Schulkonsole sowie das Eintragen eines Lehrers in diese
 Klasse.
+.TP
+.B --reset-class class / --info --reset-class class 
+Löscht alle Daten in den $HOME der Schüler in dieser Klasse (nicht der Lehrer). 
+Außerdem werden das Vorlagenverzeichnis und das Tauschverzeichnis gelöscht 
+(auch Lehrerdaten).
+.br
+Dieser Befehl dient dazu eine Gästeklasse für Fortbildungen usw. wieder in den 
+Ausgangszustand zu versetzen. 
+.br
+Da mit dieser Option ziemlich viele Daten gelöscht werden, kann mit der 
+Zusatzoption --info angezeigt werden, was ohne sie passieren würde.
 .TP
 .br
 .TP
