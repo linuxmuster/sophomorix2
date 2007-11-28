@@ -26,11 +26,22 @@ Bug: sophomorix-user --reset-user doesnt reset the users .files
 --> then it is recreated again
 
 
+Tests für unid schreiben:
+- kurz vor dem entfernen der user:
 
-sophomorix-class --reset-class name
-(resets the homes AND exchangedir, ...
- should not work with class teachers
-)
+  - unid hochladen (teilweise) zu bekannten accounts
+  - restliche unids hochladen
+  - Daten leicht ändern
+  - Daten stark ändern
+  - unid entfernen (SVP update simulieren)
+  - andere unid hochladen
+
+  - doppelte unid : nix darf sich in der Datenbank ändern
+  - unid ändert sich bei gleichem identifier
+
+- accounts löschen
+
+
 
 sophomorix-project --reset-project name
 (dangerous, when teacher is a member of this project!!!)
