@@ -86,7 +86,7 @@ my @users_to_add=(
      "",
      "m4kb;Maier;Jörg;12.10.1982;12345;",
      "7A;Öztürk;Mohammed;2.4.82;54321",
-     "2C;Wall;Larry;2.4.72;",
+     "2C;Wall;Larry;2.4.72;1234567",
      "m1kb;M\203hn;\223liver;12.10.1982;987654321;",
    );
 
@@ -196,7 +196,7 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Joerg Maier");
-&ok_account("unid", "123");
+&ok_account("unid", "12345");
 &ok_account("exitunid", "");
 &ok_account("gid", "m4kb");
 &ok_account("homedirectory", "/home/students/m4kb/$account{'uid'}");
@@ -267,7 +267,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
-&ok_account("unid", "");
+&ok_account("unid", "1234567");
 &ok_account("exitunid", "");
 &ok_account("gid", "2c");
 &ok_account("homedirectory", "/home/students/2c/$account{'uid'}");
@@ -390,8 +390,10 @@ print '
 &ok_account("sophomorixstatus", "T");
 &ok_account("tolerationdate", $today_pg);
 &ok_account("gecos", "Joerg Maier");
-&ok_account("unid", "123");
-&ok_account("exitunid", "");
+# unid is empty, user removed from schueler.txt
+&ok_account("unid", "");
+# extunid has now the unid
+&ok_account("exitunid", "12345");
 &ok_account("gid", "m4kb");
 &ok_account("homedirectory", "/home/students/m4kb/$account{'uid'}");
 # samba
@@ -432,8 +434,8 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 &ok_account("exitadminclass", "m4kb");
 &ok_account("gecos", "Joerg Maier");
-&ok_account("unid", "123");
-&ok_account("exitunid", "");
+&ok_account("unid", "");
+&ok_account("exitunid", "12345");
 &ok_account("gid", "attic");
 &ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
@@ -476,8 +478,8 @@ $login = &fetch_login("surname='Maier'
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "");
 &ok_account("gecos", "Joerg Maier");
-&ok_account("unid", "123");
-&ok_account("exitunid", "");
+&ok_account("unid", "");
+&ok_account("exitunid", "12345");
 &ok_account("gid", "attic");
 &ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
@@ -515,8 +517,8 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("exitadminclass", "m4kb");
 &ok_account("gecos", "Joerg Maier");
-&ok_account("unid", "123");
-&ok_account("exitunid", "");
+&ok_account("unid", "");
+&ok_account("exitunid", "12345");
 &ok_account("gid", "attic");
 &ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
@@ -557,8 +559,8 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("deactivationdate", "1971-01-01");
 &ok_account("exitadminclass", "m4kb");
 &ok_account("gecos", "Joerg Maier");
-&ok_account("unid", "123");
-&ok_account("exitunid", "");
+&ok_account("unid", "");
+&ok_account("exitunid", "12345");
 &ok_account("gid", "attic");
 &ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
@@ -640,8 +642,8 @@ $login = &fetch_login("surname='Oeztuerk'
 &ok_account("sophomorixstatus", "T");
 &ok_account("tolerationdate", $today_pg);
 &ok_account("gecos", "Mohammed Oeztuerk");
-&ok_account("unid", "54321");
-&ok_account("exitunid", "");
+&ok_account("unid", "");
+&ok_account("exitunid", "54321");
 &ok_account("gid", "7a");
 &ok_account("homedirectory", "/home/students/7a/$account{'uid'}");
 # samba
@@ -663,7 +665,8 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # The users shows up again in schueler.txt in a different class
-&append_line("7C;Öztürk;Mohammed;2.4.82;","${DevelConf::users_pfad}/schueler.txt");
+# has the same unid
+&append_line("7C;Öztürk;Mohammed;2.4.82;54321;","${DevelConf::users_pfad}/schueler.txt");
 
 &run_command("sophomorix-check",$verbose);
 
@@ -689,7 +692,8 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "");
 &ok_account("gecos", "Mohammed Oeztuerk");
 &ok_account("unid", "54321");
-&ok_account("exitunid", "");
+# exit id is as it was before
+&ok_account("exitunid", "54321");
 &ok_account("gid", "7a");
 &ok_account("homedirectory", "/home/students/7a/$account{'uid'}");
 # samba
@@ -724,7 +728,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "");
 &ok_account("gecos", "Mohammed Oeztuerk");
 &ok_account("unid", "54321");
-&ok_account("exitunid", "");
+&ok_account("exitunid", "54321");
 &ok_account("gid", "7c");
 # samba
 &ok_account("displayname", "Mohammed Oeztuerk");
@@ -781,7 +785,7 @@ print '
 &ok_account("tolerationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
 &ok_account("unid", "");
-&ok_account("exitunid", "");
+&ok_account("exitunid", "1234567");
 &ok_account("gid", "2c");
 &ok_account("homedirectory", "/home/students/2c/$account{'uid'}");
 # samba
@@ -839,7 +843,7 @@ $login = &fetch_login("surname='Wall'
 &ok_account("deactivationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
 &ok_account("unid", "");
-&ok_account("exitunid", "");
+&ok_account("exitunid", "1234567");
 &ok_account("exitadminclass", "2c");
 &ok_account("gid", "attic");
 &ok_account("homedirectory", "/home/attic/$account{'uid'}");
@@ -867,7 +871,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # The users shows up again in schueler.txt in a different class
-&append_line("3C;Wall;Larry;2.4.72;","${DevelConf::users_pfad}/schueler.txt");
+&append_line("3C;Wall;Larry;2.4.72;1234567;","${DevelConf::users_pfad}/schueler.txt");
 
 &run_command("sophomorix-check",$verbose);
 
@@ -896,8 +900,8 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("exitadminclass", "2c");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
-&ok_account("unid", "");
-&ok_account("exitunid", "");
+&ok_account("unid", "1234567");
+&ok_account("exitunid", "1234567");
 &ok_account("gid", "3c");
 &ok_account("homedirectory", "/home/students/3c/$account{'uid'}");
 # samba
@@ -929,9 +933,9 @@ print '
 ';
 
 # updating the name Öz -> Ötz
-&exchange_line_in_file("7C;Öztürk;Mohammed;2.4.82;*",
+&exchange_line_in_file("7C;Öztürk;Mohammed;2.4.82;54321;*",
    "/etc/sophomorix/user/schueler.txt",
-   "7C;Ötztürk;Mohammed;2.4.82;");
+   "7C;Ötztürk;Mohammed;2.4.82;54321;");
 
 &run_command("sophomorix-check",$verbose);
 
@@ -951,7 +955,7 @@ print '
 &ok_account("sophomorixstatus", "E");
 &ok_account("gecos", "Mohammed Oetztuerk");
 &ok_account("unid", "54321");
-&ok_account("exitunid", "");
+&ok_account("exitunid", "54321");
 &ok_account("gid", "7c");
 &ok_account("homedirectory", "/home/students/7c/$account{'uid'}");
 # samba
@@ -971,9 +975,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # updating the first Mohhammed -> Mohammad
-&exchange_line_in_file("7C;Ötztürk;Mohammed;2.4.82;*",
+&exchange_line_in_file("7C;Ötztürk;Mohammed;2.4.82;54321;*",
    "/etc/sophomorix/user/schueler.txt",
-   "7C;Ötztürk;Mohammad;2.4.82;");
+   "7C;Ötztürk;Mohammad;2.4.82;54321;");
 
 &run_command("sophomorix-check",$verbose);
 
@@ -995,7 +999,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sophomorixstatus", "E");
 &ok_account("gecos", "Mohammad Oetztuerk");
 &ok_account("unid", "54321");
-&ok_account("exitunid", "");
+&ok_account("exitunid", "54321");
 &ok_account("gid", "7c");
 &ok_account("homedirectory", "/home/students/7c/$account{'uid'}");
 # samba
@@ -1015,9 +1019,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # updating birth 82 -> 83
-&exchange_line_in_file("7C;Ötztürk;Mohammad;2.4.82;*",
+&exchange_line_in_file("7C;Ötztürk;Mohammad;2.4.82;54321;*",
    "/etc/sophomorix/user/schueler.txt",
-   "7C;Ötztürk;Mohammad;2.4.83;");
+   "7C;Ötztürk;Mohammad;2.4.83;54321;");
 
 &run_command("sophomorix-check",$verbose);
 
@@ -1037,7 +1041,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sophomorixstatus", "E");
 &ok_account("gecos", "Mohammad Oetztuerk");
 &ok_account("unid", "54321");
-&ok_account("exitunid", "");
+&ok_account("exitunid", "54321");
 &ok_account("gid", "7c");
 &ok_account("homedirectory", "/home/students/7c/$account{'uid'}");
 # samba
@@ -1067,7 +1071,7 @@ print '
 ';
 
 # updating the unid automatically
-&exchange_line_in_file("3C;Wall;Larry;2.4.72;*",
+&exchange_line_in_file("3C;Wall;Larry;2.4.72;1234567;*",
    "/etc/sophomorix/user/schueler.txt",
    "3C;Wall;Larry;2.4.72;123456789;");
 
@@ -1090,7 +1094,8 @@ print '
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
 &ok_account("unid", "123456789");
-&ok_account("exitunid", "");
+# unid has changed from 1234567 to 123456789
+&ok_account("exitunid", "1234567");
 &ok_account("gid", "3c");
 &ok_account("homedirectory", "/home/students/3c/$account{'uid'}");
 # samba
@@ -1110,7 +1115,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # new name, first, birth
-&exchange_line_in_file("3C;Wall;Larry;2.4.72;*",
+&exchange_line_in_file("3C;Wall;Larry;2.4.72;123456789;*",
    "/etc/sophomorix/user/schueler.txt",
    "3C;Stallman;Richard;2.4.62;123456789;");
 
@@ -1131,7 +1136,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Richard Stallman");
 &ok_account("unid", "123456789");
-&ok_account("exitunid", "");
+&ok_account("exitunid", "1234567");
 &ok_account("gid", "3c");
 &ok_account("homedirectory", "/home/students/3c/$account{'uid'}");
 # samba
@@ -1271,7 +1276,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "oliver Mahn");
 &ok_account("unid", "");
-&ok_account("exitunid", "");
+&ok_account("exitunid", "987654321");
 &ok_account("gid", "m1kb");
 &ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
 # samba
@@ -1397,8 +1402,8 @@ foreach my $login (@logins){
 &ok_account("deactivationdate", "1971-01-01");
 &ok_account("exitadminclass", "m4kb");
 &ok_account("gecos", "Joerg Maier");
-&ok_account("unid", "123");
-&ok_account("exitunid", "");
+&ok_account("unid", "");
+&ok_account("exitunid", "12345");
 &ok_account("gid", "attic");
 &ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
@@ -1430,8 +1435,8 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
 &ok_account("gecos", "Mohammad Oetztuerk");
-&ok_account("unid", "54321");
-&ok_account("exitunid", "");
+&ok_account("unid", "");
+&ok_account("exitunid", "54321");
 &ok_account("gid", "attic");
 &ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
@@ -1914,25 +1919,6 @@ $gsid=2*$account{'gidnumber'}+1001;
 ####  Todo Mahnol should reappear and be merged
 ####
 ####
-
-
-
-
-print '
-###########################################################################
-#                                                                         #
-#                             UPLOAD UNIDS                                #
-#                                                                         #
-###########################################################################
-';
-
-
-
-
-
-
-
-
 
 
 
