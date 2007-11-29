@@ -1,0 +1,127 @@
+#!/usr/bin/perl -w
+# $Id$
+# Dieses Script (sophomorix-mediawiki) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+
+# ===========================================================================
+# Bibliotheken
+# ===========================================================================
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
+use Sophomorix::SophomorixPgLdap;
+use DBI;
+use Net::LDAP;
+
+my @arguments = @ARGV;
+
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+# Variablen für Optionen
+$Conf::log_level=1;
+my $help=0;
+my $info=0;
+my $class="";
+my $reset_class="";
+my $hide="";
+my $quota;
+my $mailquota;
+my $mailalias;
+my $maillist;
+$Conf::log_level=1;
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "help|h" => \$help,
+           "info|i" => \$info,
+          );
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
+&check_connections();
+
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlbeschreibung
+   print('
+sophomorix-mediawiki creates mediawikis 1.11.
+
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -i  / --info
+
+Please see the sophomorix-class(8) man pages for full documentation
+');
+   print "\n";
+   exit;
+}
+
+############################################################
+# config values
+############################################################
+
+
+
+# --info
+if ($info){
+   exit;
+}
+
+&log_script_start(@arguments);
+
+if (not -x "/usr/bin/dpkg"){
+    print "\nERROR: This script was made for debian etch!\n\n";
+    print "";
+}
+
+
+
+
+my @package_list=("php5","apache2");
+
+# checking for preliminaries
+print "\nChecking for installed etch packages:\n";
+
+foreach my $package (@package_list){
+    my $return=system("dpkg -l $package > /dev/null");
+#    my $value=`dpkg -l $package`;
+#    my @values=split(/\s/,$value);
+    print "$values[0]";
+    if ($return==1){
+	print "   ERROR: Package $package is not installed!\n";
+        exit;
+    } else {
+        print "   OK:    Package $package is installed!\n";
+    }
+}
+
+
+print "\nAll needed etch packages are installed.\n";
+
+
+
+
+# ===========================================================================
+# Ende des Scripts
+# ===========================================================================
+&log_script_end(@arguments);
+
+
+
+
+
+
+
