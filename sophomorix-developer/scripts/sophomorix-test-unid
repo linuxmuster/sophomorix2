@@ -1,0 +1,2145 @@
+#!/usr/bin/perl -w
+# $Id$
+# Dieses Script (sophomorix-test-unid) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
+
+
+# weiter:
+
+#Auswertung .add, .move, .kill
+
+
+# Bibliotheken
+
+use strict;
+use Getopt::Long;
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+#use Sophomorix::SophomorixFiles;
+use Sophomorix::SophomorixPgLdap;
+use Sophomorix::SophomorixTest;
+use Test::More "no_plan";
+Getopt::Long::Configure ("bundling");
+
+use DBI;
+use Net::LDAP;
+
+my @arguments = @ARGV;
+
+system("install -d /root/sophomorix-test");
+
+############################################################
+# Start
+############################################################
+&check_connections();
+&log_script_start(@arguments);
+
+# repair.directories einlesen ???
+&get_alle_verzeichnis_rechte();
+
+# fetch permission for all homes
+&fetch_repairhome();
+
+#my $server="server";
+my $server=`hostname -s`;
+chomp($server);
+
+my $win_magic="2147483647";
+
+# sid
+my $sid_string=`net getlocalsid`;
+chomp($sid_string);
+my ($rubbish,$sid) = split(/: /,$sid_string);
+
+my $usid;
+my $gsid;
+
+
+my $today=`date +%d.%m.%Y`;
+my $today_pg=`date +%Y-%m-%d`;
+chomp($today);
+chomp($today_pg);
+
+print "\nToday is $today (pg: $today_pg)\n";
+my $verbose=0;
+
+my %account=();
+my %account_ldap=();
+
+&run_command("sophomorix-check",$verbose);
+
+print '
+###########################################################################
+#                                                                         #
+#                                ADDING USERS                             #
+#                                                                         #
+###########################################################################
+';
+
+###########################################################################
+# user in schueler.txt hinzufügen
+my $user="";
+my $login="";
+my @users_to_add=(
+     "",
+     "m4kb;Maier;Jörg;12.10.1982;12345;",
+     "7A;Öztürk;Mohammed;2.4.82;54321",
+     "2C;Wall;Larry;2.4.72;",
+     "m1kb;M\203hn;\223liver;12.10.1982;987654321;",
+   );
+
+
+my @teachers_to_add=(
+     "",
+     "lehrer;Darwin;Charles;12.10.1942;darwin;",
+   );
+
+
+foreach my $user (@users_to_add){
+   &append_line("$user","${DevelConf::users_pfad}/schueler.txt");
+}
+
+foreach my $teacher (@teachers_to_add){
+   &append_line("$teacher","${DevelConf::users_pfad}/lehrer.txt");
+}
+
+
+###########################################################################
+# Check
+print "   *** Adding $#users_to_add users to schueler.txt\n";
+&run_command("sophomorix-check",$verbose);
+
+
+
+
+###########################################################################
+# Ergebnisdateien pruefen
+# Test
+&check_line_in_file(
+  "m4kb::Maier;Joerg;12.10.1982::[-a-z]{2,}::[-a-z]{3,}",
+  "${DevelConf::ergebnis_pfad}/sophomorix.add");
+# Test
+&check_line_in_file(
+  "7a::Oeztuerk;Mohammed;02.04.1982::[-a-z]{2,}::[-a-z]{3,}",
+  "${DevelConf::ergebnis_pfad}/sophomorix.add");
+# Test
+&check_line_in_file(
+  "2c::Wall;Larry;02.04.1972::[-a-z]{2,}::[-a-z]{3,}",
+  "${DevelConf::ergebnis_pfad}/sophomorix.add");
+# Test
+&check_line_in_file(
+  "m1kb::Mahn;oliver;12.10.1982::[-a-z]{2,}::[-a-z]{3,}",
+  "${DevelConf::ergebnis_pfad}/sophomorix.add");
+# Test
+&check_line_in_file(
+  "teachers::Darwin;Charles;12.10.1942::darwin::[-a-z]{3,}",
+  "${DevelConf::ergebnis_pfad}/sophomorix.add");
+
+# Test
+&check_emptyness("sophomorix.move");
+# Test
+&check_emptyness("sophomorix.kill");
+
+
+###########################################################################
+# user anlegen
+&run_command("sophomorix-add",$verbose);
+
+# doppelt, wegen bug
+&run_command("sophomorix-add",$verbose);
+
+
+###########################################################################
+# Ergebnisdateien prüfen
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+&check_emptyness("sophomorix.kill");
+
+
+
+###########################################################################
+# Druckdaten prüfen
+# add.tex
+&check_existence("${DevelConf::druck_pfad}/add.tex");
+&check_line_in_file("Joerg Maier",
+                    "${DevelConf::druck_pfad}/add.tex");
+&check_line_in_file("Mohammed Oeztuerk",
+                    "${DevelConf::druck_pfad}/add.tex");
+&check_line_in_file("Larry Wall",
+                    "${DevelConf::druck_pfad}/add.tex");
+&check_line_in_file("oliver Mahn",
+                    "${DevelConf::druck_pfad}/add.tex");
+&check_line_in_file("Charles Darwin",
+                    "${DevelConf::druck_pfad}/add.tex");
+
+# andere
+&check_existence("${DevelConf::druck_pfad}/add.dvi");
+&check_existence("${DevelConf::druck_pfad}/add.ps");
+&check_existence("${DevelConf::druck_pfad}/add.pdf");
+
+
+
+###########################################################################
+# Datenbank prüfen
+
+
+%account = &fetch_single_account("surname='Maier'
+                                  AND firstname='Joerg'
+                                  AND birthday='1982-10-12'
+                                  AND adminclass='m4kb'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "U");
+&ok_account("creationdate", $today_pg);
+&ok_account("gecos", "Joerg Maier");
+&ok_account("unid", "123");
+&ok_account("exitunid", "");
+&ok_account("gid", "m4kb");
+&ok_account("homedirectory", "/home/students/m4kb/$account{'uid'}");
+# samba
+&ok_account("displayname", "Joerg Maier");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+&check_provided_files($account{ 'uid' },"m4kb");
+&check_groups($account{ 'uid' },"m4kb");
+
+
+
+
+%account = &fetch_single_account("surname='Oeztuerk' 
+                                  AND firstname='Mohammed'
+                                  AND birthday='1982-04-02'
+                                  AND adminclass='7a'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "U");
+&ok_account("creationdate", $today_pg);
+&ok_account("gecos", "Mohammed Oeztuerk");
+&ok_account("unid", "54321");
+&ok_account("exitunid", "");
+&ok_account("gid", "7a");
+&ok_account("homedirectory", "/home/students/7a/$account{'uid'}");
+# samba
+&ok_account("displayname", "Mohammed Oeztuerk");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+&check_provided_files($account{ 'uid' },"7a");
+&check_groups($account{ 'uid' },"7a");
+
+
+
+%account = &fetch_single_account("surname='Wall' 
+                                  AND firstname='Larry'
+                                  AND birthday='1972-04-02'
+                                  AND adminclass='2c'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "U");
+&ok_account("creationdate", $today_pg);
+&ok_account("gecos", "Larry Wall");
+&ok_account("unid", "");
+&ok_account("exitunid", "");
+&ok_account("gid", "2c");
+&ok_account("homedirectory", "/home/students/2c/$account{'uid'}");
+# samba
+&ok_account("displayname", "Larry Wall");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+&check_provided_files($account{ 'uid' },"2c");
+&check_groups($account{ 'uid' },"2c");
+
+
+
+%account = &fetch_single_account("surname='Mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1982-10-12'
+                                  AND adminclass='m1kb'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "U");
+&ok_account("creationdate", $today_pg);
+&ok_account("gecos", "oliver Mahn");
+&ok_account("unid", "987654321");
+&ok_account("exitunid", "");
+&ok_account("gid", "m1kb");
+&ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver Mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+&check_provided_files($account{ 'uid' },"m1kb");
+&check_groups($account{ 'uid' },"m1kb");
+
+
+%account = &fetch_single_account("surname='Darwin' 
+                                  AND firstname='Charles'
+                                  AND birthday='1942-10-12'
+                                  AND adminclass='teachers'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "U");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "");
+&ok_account("deactivationdate", "");
+&ok_account("gecos", "Charles Darwin");
+&ok_account("unid", "");
+&ok_account("exitunid", "");
+&ok_account("gid", "teachers");
+&ok_account("homedirectory", "/home/teachers/$account{'uid'}");
+# samba
+&ok_account("displayname", "Charles Darwin");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+&check_provided_files($account{ 'uid' },"teachers");
+&check_groups($account{ 'uid' },"teachers");
+
+
+
+print '
+###########################################################################
+#                                                                         #
+#                TOLERATE, DEACTIVATE AND DELETE USERS                    #
+#                                                                         #
+###########################################################################
+';
+
+
+&remove_line(
+  "m4kb;Maier;Jörg;12.10.1982;",
+  "${DevelConf::users_pfad}/schueler.txt");
+
+&run_command("sophomorix-check",$verbose);
+
+
+# Is toleration set
+%account = &fetch_single_account("surname='Maier' 
+                                  AND firstname='Joerg'
+                                  AND birthday='1982-10-12'
+                                  AND adminclass='m4kb'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "T");
+&ok_account("tolerationdate", $today_pg);
+&ok_account("gecos", "Joerg Maier");
+&ok_account("unid", "123");
+&ok_account("exitunid", "");
+&ok_account("gid", "m4kb");
+&ok_account("homedirectory", "/home/students/m4kb/$account{'uid'}");
+# samba
+&ok_account("displayname", "Joerg Maier");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+# Test if user is moveable to attic
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.kill");
+&check_line_in_file(
+  "${login}::m4kb::attic",
+  "${DevelConf::ergebnis_pfad}/sophomorix.move");
+
+
+# move user
+&run_command("sophomorix-move",$verbose);
+
+# check movement
+%account = &fetch_single_account("surname='Maier' 
+                                AND firstname='Joerg'
+                                AND birthday='1982-10-12'
+                                AND adminclass='attic'",
+                              );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("exitadminclass", "m4kb");
+&ok_account("gecos", "Joerg Maier");
+&ok_account("unid", "123");
+&ok_account("exitunid", "");
+&ok_account("gid", "attic");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
+# samba
+&ok_account("displayname", "Joerg Maier");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+
+
+# Fetch login of user
+$login = &fetch_login("surname='Maier' 
+                       AND firstname='Joerg'
+                       AND birthday='1982-10-12'
+                       AND adminclass='attic'",
+                     );
+
+
+# make user tolerated for a looooong time
+&update_user_db_entry($login,"TolerationDate=01.01.1970");
+%account = &fetch_single_account("surname='Maier' 
+                                  AND firstname='Joerg'
+                                  AND birthday='1982-10-12'
+                                  AND adminclass='attic'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "T");
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "");
+&ok_account("gecos", "Joerg Maier");
+&ok_account("unid", "123");
+&ok_account("exitunid", "");
+&ok_account("gid", "attic");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
+# samba
+&ok_account("displayname", "Joerg Maier");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+
+&run_command("sophomorix-check",$verbose);
+
+
+
+# Is deactivation set
+%account = &fetch_single_account("surname='Maier' 
+                                  AND firstname='Joerg'
+                                  AND birthday='1982-10-12'
+                                  AND adminclass='attic'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "D");
+&ok_account("deactivationdate", $today_pg);
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("exitadminclass", "m4kb");
+&ok_account("gecos", "Joerg Maier");
+&ok_account("unid", "123");
+&ok_account("exitunid", "");
+&ok_account("gid", "attic");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
+# samba
+&ok_account("displayname", "Joerg Maier");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DUX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+# todo ????????????
+#&check_account($login,"disabled");
+
+
+# make user deactivated for a looooong time
+&update_user_db_entry($login,"DeactivationDate=01.01.1971");
+
+# check if this was succesful
+%account = &fetch_single_account("surname='Maier' 
+                                  AND firstname='Joerg'
+                                  AND birthday='1982-10-12'
+                                  AND adminclass='attic'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "D");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
+&ok_account("exitadminclass", "m4kb");
+&ok_account("gecos", "Joerg Maier");
+&ok_account("unid", "123");
+&ok_account("exitunid", "");
+&ok_account("gid", "attic");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
+# samba
+&ok_account("displayname", "Joerg Maier");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DUX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+&run_command("sophomorix-check",$verbose);
+
+
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+
+&check_line_in_file(
+  "Maier;Joerg;12.10.1982::${login}",
+  "${DevelConf::ergebnis_pfad}/sophomorix.kill");
+
+
+
+# todo ?????????????ß
+#&run_command("sophomorix-kill",$verbose);
+
+#&check_account($login,"nonexisting");
+
+
+
+
+print '
+###########################################################################
+#                                                                         #
+#                STUDENT IS TOLERATED - COMES BACK AGAIN                  #
+#                           =========                                     #
+###########################################################################
+';
+
+&remove_line(
+  "7A;Öztürk;Mohammed;2.4.82;",
+  "${DevelConf::users_pfad}/schueler.txt");
+
+&run_command("sophomorix-check",$verbose);
+
+
+
+# Test
+$login = &fetch_login("surname='Oeztuerk' 
+                       AND firstname='Mohammed'
+                       AND birthday='1982-04-02'
+                       AND adminclass='7a'",
+                     );
+&check_emptyness("sophomorix.add");
+
+# Fetch login of user
+&check_line_in_file(
+  "${login}::7a::attic",
+  "${DevelConf::ergebnis_pfad}/sophomorix.move");
+
+
+
+# Is user tolerated?
+%account = &fetch_single_account("surname='Oeztuerk' 
+                                  AND firstname='Mohammed'
+                                  AND birthday='1982-04-02'
+                                  AND adminclass='7a'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "T");
+&ok_account("tolerationdate", $today_pg);
+&ok_account("gecos", "Mohammed Oeztuerk");
+&ok_account("unid", "54321");
+&ok_account("exitunid", "");
+&ok_account("gid", "7a");
+&ok_account("homedirectory", "/home/students/7a/$account{'uid'}");
+# samba
+&ok_account("displayname", "Mohammed Oeztuerk");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+
+
+# The users shows up again in schueler.txt in a different class
+&append_line("7C;Öztürk;Mohammed;2.4.82;","${DevelConf::users_pfad}/schueler.txt");
+
+&run_command("sophomorix-check",$verbose);
+
+# Test
+&check_emptyness("sophomorix.add");
+
+&check_line_in_file(
+  "${login}::7a::7c",
+  "${DevelConf::ergebnis_pfad}/sophomorix.move");
+
+
+
+# Reactivation OK?
+%account = &fetch_single_account("surname='Oeztuerk' 
+                                  AND firstname='Mohammed'
+                                  AND birthday='1982-04-02'
+                                  AND adminclass='7a'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "E");
+&ok_account("tolerationdate", "");
+&ok_account("gecos", "Mohammed Oeztuerk");
+&ok_account("unid", "54321");
+&ok_account("exitunid", "");
+&ok_account("gid", "7a");
+&ok_account("homedirectory", "/home/students/7a/$account{'uid'}");
+# samba
+&ok_account("displayname", "Mohammed Oeztuerk");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+&run_command("sophomorix-move",$verbose);
+
+
+# Move OK?
+%account = &fetch_single_account("surname='Oeztuerk' 
+                                  AND firstname='Mohammed'
+                                  AND birthday='1982-04-02'
+                                  AND adminclass='7c'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "E");
+&ok_account("tolerationdate", "");
+&ok_account("gecos", "Mohammed Oeztuerk");
+&ok_account("unid", "54321");
+&ok_account("exitunid", "");
+&ok_account("gid", "7c");
+# samba
+&ok_account("displayname", "Mohammed Oeztuerk");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+
+
+
+# todo ???????????
+#&check_account($login,"enabled");
+
+
+
+print '
+###########################################################################
+#                                                                         #
+#                  STUDENT IS DEACTIVATED - COMES BACK                    #
+#                             ===========                                 #
+###########################################################################
+';
+
+&remove_line(
+  "2C;Wall;Larry;2.4.72;",
+  "${DevelConf::users_pfad}/schueler.txt");
+
+&run_command("sophomorix-check",$verbose);
+#&run_command("sophomorix-check",$verbose);
+
+
+
+# Is user tolerated now? 
+%account = &fetch_single_account("surname='Wall' 
+                                  AND firstname='Larry'
+                                  AND birthday='1972-04-02'
+                                  AND adminclass='2c'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "T");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", $today_pg);
+&ok_account("gecos", "Larry Wall");
+&ok_account("unid", "");
+&ok_account("exitunid", "");
+&ok_account("gid", "2c");
+&ok_account("homedirectory", "/home/students/2c/$account{'uid'}");
+# samba
+&ok_account("displayname", "Larry Wall");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+
+# Test
+$login = &fetch_login("surname='Wall' 
+                       AND firstname='Larry'
+                       AND birthday='1972-04-02'
+                       AND adminclass='2c'",
+                     );
+&check_emptyness("sophomorix.add");
+#&check_emptyness("sophomorix.kill");
+&check_line_in_file(
+  "${login}::2c::attic",
+  "${DevelConf::ergebnis_pfad}/sophomorix.move");
+
+
+
+&run_command("sophomorix-move",$verbose);
+
+
+# make user tolerated for a looooong time
+&update_user_db_entry($login,"TolerationDate=01.01.1970");
+
+&run_command("sophomorix-check",$verbose);
+
+
+# Is user deactivated now? 
+%account = &fetch_single_account("surname='Wall' 
+                                  AND firstname='Larry'
+                                  AND birthday='1972-04-02'
+                                  AND adminclass='attic'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "D");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", $today_pg);
+&ok_account("gecos", "Larry Wall");
+&ok_account("unid", "");
+&ok_account("exitunid", "");
+&ok_account("exitadminclass", "2c");
+&ok_account("gid", "attic");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
+# samba
+&ok_account("displayname", "Larry Wall");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DUX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+
+
+
+# todo ????????
+#&check_account($login,"disabled");
+
+
+# The users shows up again in schueler.txt in a different class
+&append_line("3C;Wall;Larry;2.4.72;","${DevelConf::users_pfad}/schueler.txt");
+
+&run_command("sophomorix-check",$verbose);
+
+# Test
+&check_emptyness("sophomorix.add");
+#&check_emptyness("sophomorix.kill");
+
+&check_line_in_file(
+  "${login}::attic::3c",
+  "${DevelConf::ergebnis_pfad}/sophomorix.move");
+
+&run_command("sophomorix-move",$verbose);
+
+
+# Is user Moved and Enabled
+%account = &fetch_single_account("surname='Wall' 
+                                  AND firstname='Larry'
+                                  AND birthday='1972-04-02'
+                                  AND adminclass='3c'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "E");
+&ok_account("creationdate", $today_pg);
+&ok_account("exitadminclass", "2c");
+&ok_account("creationdate", $today_pg);
+&ok_account("gecos", "Larry Wall");
+&ok_account("unid", "");
+&ok_account("exitunid", "");
+&ok_account("gid", "3c");
+&ok_account("homedirectory", "/home/students/3c/$account{'uid'}");
+# samba
+&ok_account("displayname", "Larry Wall");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+# todo ????????ß
+#&check_account($login,"enabled");
+
+
+print '
+###########################################################################
+#                                                                         #
+#                    TESTING  AUTO-TEACH-IN OF STUDENTS                   #
+#                                                                         #
+###########################################################################
+';
+
+# updating the name Öz -> Ötz
+&exchange_line_in_file("7C;Öztürk;Mohammed;2.4.82;*",
+   "/etc/sophomorix/user/schueler.txt",
+   "7C;Ötztürk;Mohammed;2.4.82;");
+
+&run_command("sophomorix-check",$verbose);
+
+# Test
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+#&check_emptyness("sophomorix.kill");
+
+%account = &fetch_single_account("surname='Oetztuerk' 
+                                  AND firstname='Mohammed'
+                                  AND birthday='1982-04-02'
+                                  AND adminclass='7c'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "E");
+&ok_account("gecos", "Mohammed Oetztuerk");
+&ok_account("unid", "54321");
+&ok_account("exitunid", "");
+&ok_account("gid", "7c");
+&ok_account("homedirectory", "/home/students/7c/$account{'uid'}");
+# samba
+&ok_account("displayname", "Mohammed Oetztuerk");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+# updating the first Mohhammed -> Mohammad
+&exchange_line_in_file("7C;Ötztürk;Mohammed;2.4.82;*",
+   "/etc/sophomorix/user/schueler.txt",
+   "7C;Ötztürk;Mohammad;2.4.82;");
+
+&run_command("sophomorix-check",$verbose);
+
+# Test
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+#&check_emptyness("sophomorix.kill");
+
+
+
+%account = &fetch_single_account("surname='Oetztuerk' 
+                                  AND firstname='Mohammad'
+                                  AND birthday='1982-04-02'
+                                  AND adminclass='7c'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "E");
+&ok_account("gecos", "Mohammad Oetztuerk");
+&ok_account("unid", "54321");
+&ok_account("exitunid", "");
+&ok_account("gid", "7c");
+&ok_account("homedirectory", "/home/students/7c/$account{'uid'}");
+# samba
+&ok_account("displayname", "Mohammad Oetztuerk");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+# updating birth 82 -> 83
+&exchange_line_in_file("7C;Ötztürk;Mohammad;2.4.82;*",
+   "/etc/sophomorix/user/schueler.txt",
+   "7C;Ötztürk;Mohammad;2.4.83;");
+
+&run_command("sophomorix-check",$verbose);
+
+# Test
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+#&check_emptyness("sophomorix.kill");
+
+%account = &fetch_single_account("surname='Oetztuerk' 
+                                  AND firstname='Mohammad'
+                                  AND birthday='1983-04-02'
+                                  AND adminclass='7c'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "E");
+&ok_account("gecos", "Mohammad Oetztuerk");
+&ok_account("unid", "54321");
+&ok_account("exitunid", "");
+&ok_account("gid", "7c");
+&ok_account("homedirectory", "/home/students/7c/$account{'uid'}");
+# samba
+&ok_account("displayname", "Mohammad Oetztuerk");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+
+
+print '
+###########################################################################
+#                                                                         #
+#              TESTING UPLOADING UNID, CHANGE DATA USING UNID             #
+#                                                                         #
+###########################################################################
+';
+
+# updating the unid automatically
+&exchange_line_in_file("3C;Wall;Larry;2.4.72;*",
+   "/etc/sophomorix/user/schueler.txt",
+   "3C;Wall;Larry;2.4.72;123456789;");
+
+&run_command("sophomorix-check",$verbose);
+
+# Test
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+#&check_emptyness("sophomorix.kill");
+
+%account = &fetch_single_account("surname='Wall' 
+                                  AND firstname='Larry'
+                                  AND birthday='1972-04-02'
+                                  AND adminclass='3c'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "E");
+&ok_account("creationdate", $today_pg);
+&ok_account("gecos", "Larry Wall");
+&ok_account("unid", "123456789");
+&ok_account("exitunid", "");
+&ok_account("gid", "3c");
+&ok_account("homedirectory", "/home/students/3c/$account{'uid'}");
+# samba
+&ok_account("displayname", "Larry Wall");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+# new name, first, birth
+&exchange_line_in_file("3C;Wall;Larry;2.4.72;*",
+   "/etc/sophomorix/user/schueler.txt",
+   "3C;Stallman;Richard;2.4.62;123456789;");
+
+
+&run_command("sophomorix-check",$verbose);
+
+
+
+%account = &fetch_single_account("surname='Stallman' 
+                                  AND firstname='Richard'
+                                  AND birthday='1962-04-02'
+                                  AND adminclass='3c'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "E");
+&ok_account("creationdate", $today_pg);
+&ok_account("gecos", "Richard Stallman");
+&ok_account("unid", "123456789");
+&ok_account("exitunid", "");
+&ok_account("gid", "3c");
+&ok_account("homedirectory", "/home/students/3c/$account{'uid'}");
+# samba
+&ok_account("displayname", "Richard Stallman");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+
+
+print '
+###########################################################################
+#                                                                         #
+#                               DELETE UNID                               #
+#                                                                         #
+###########################################################################
+';
+
+# removing the whole line should delete UNID
+&remove_line(
+  "m1kb;M\203hn;\223liver;12.10.1982;",
+  "${DevelConf::users_pfad}/schueler.txt");
+
+
+&run_command("sophomorix-check",$verbose);
+
+
+
+# check if user is tolerated and unid is removed
+%account = &fetch_single_account("surname='Mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1982-10-12'
+                                  AND adminclass='m1kb'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "T");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", $today_pg);
+&ok_account("gecos", "oliver Mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+&ok_account("gid", "m1kb");
+&ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver Mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+# User comes back with correction (Birthday), but same unid as in system
+&append_line("m1kb;M\203hn;\223liver;12.10.1984;987654321;",
+              "${DevelConf::users_pfad}/schueler.txt");
+
+
+&run_command("sophomorix-check",$verbose);
+
+
+
+# check if data is uploaded
+%account = &fetch_single_account("surname='Mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='m1kb'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "E");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "");
+&ok_account("gecos", "oliver Mahn");
+&ok_account("unid", "987654321");
+&ok_account("exitunid", "987654321");
+&ok_account("gid", "m1kb");
+&ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver Mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+
+
+
+# removing the unid from userfile
+&exchange_line_in_file("m1kb;M\203hn;\223liver;12.10.1984;987654321;",
+   "/etc/sophomorix/user/schueler.txt",
+   "m1kb;M\203hn;\223liver;12.10.1984;");
+
+
+
+&run_command("sophomorix-check",$verbose);
+
+
+# check if unid is removed
+%account = &fetch_single_account("surname='Mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='m1kb'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "E");
+&ok_account("creationdate", $today_pg);
+&ok_account("gecos", "oliver Mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "");
+&ok_account("gid", "m1kb");
+&ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver Mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+
+
+
+
+print '
+###########################################################################
+#                                                                         #
+#                   MAKE ALL USERS REMOVEABLE                             #
+#                                                                         #
+###########################################################################
+';
+
+# remove the lines
+&remove_line(
+  "7C;Ötztürk;Mohammad;2.4.83;",
+  "${DevelConf::users_pfad}/schueler.txt");
+&remove_line(
+  "3C;Stallman;Richard;2.4.62;",
+  "${DevelConf::users_pfad}/schueler.txt");
+&remove_line(
+  "m1kb;M\203hn;\223liver;12.10.1984;",
+  "${DevelConf::users_pfad}/schueler.txt");
+
+&remove_line(
+  "lehrer\\s*;Darwin\\s*;Charles\\s*;12.10.1942.*",
+  "${DevelConf::users_pfad}/lehrer.txt");
+
+
+&run_command("sophomorix-check",$verbose);
+
+
+# colecting all logins
+my @logins=();
+
+$login = &fetch_login("surname='Oetztuerk' 
+                       AND firstname='Mohammad'
+                       AND birthday='1983-04-02'
+                       AND adminclass='7c'",
+                     );
+push @logins, $login;
+
+$login = &fetch_login("surname='Stallman' 
+                       AND firstname='Richard'
+                       AND birthday='1962-04-02'
+                       AND adminclass='3c'",
+                     );
+push @logins, $login;
+
+$login = &fetch_login("surname='Mahn' 
+                       AND firstname='oliver'
+                       AND birthday='1984-10-12'
+                       AND adminclass='m1kb'",
+                     );
+push @logins, $login;
+
+$login = &fetch_login("surname='Darwin' 
+                       AND firstname='Charles'
+                       AND birthday='1942-10-12'
+                       AND adminclass='teachers'",
+                     );
+push @logins, $login;
+
+
+
+
+# make user tolerated for a looooong time
+foreach my $login (@logins){
+    &update_user_db_entry($login,"TolerationDate=01.01.1970");
+}
+
+
+
+&run_command("sophomorix-check",$verbose);
+&run_command("sophomorix-move",$verbose);
+
+
+foreach my $login (@logins){
+   # todo ???????
+   #&check_account($login,"disabled");
+}
+
+
+# make user deactivated for a looooong time
+foreach my $login (@logins){
+   &update_user_db_entry($login,"DeactivationDate=01.01.1971");
+}
+
+
+&run_command("sophomorix-check",$verbose);
+
+
+
+# check if users are removeable (R)
+%account = &fetch_single_account("surname='Maier' 
+                                  AND firstname='Joerg'
+                                  AND birthday='1982-10-12'
+                                  AND adminclass='attic'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "R");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
+&ok_account("exitadminclass", "m4kb");
+&ok_account("gecos", "Joerg Maier");
+&ok_account("unid", "123");
+&ok_account("exitunid", "");
+&ok_account("gid", "attic");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
+# samba
+&ok_account("displayname", "Joerg Maier");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DUX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+%account = &fetch_single_account("surname='Oetztuerk' 
+                                  AND firstname='Mohammad'
+                                  AND birthday='1983-04-02'
+                                  AND adminclass='attic'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "R");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
+&ok_account("gecos", "Mohammad Oetztuerk");
+&ok_account("unid", "54321");
+&ok_account("exitunid", "");
+&ok_account("gid", "attic");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
+# samba
+&ok_account("displayname", "Mohammad Oetztuerk");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DUX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+%account = &fetch_single_account("surname='Stallman' 
+                                  AND firstname='Richard'
+                                  AND birthday='1962-04-02'
+                                  AND adminclass='attic'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "R");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
+&ok_account("gecos", "Richard Stallman");
+&ok_account("unid", "");
+&ok_account("exitunid", "123456789");
+&ok_account("gid", "attic");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
+# samba
+&ok_account("displayname", "Richard Stallman");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DUX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+# 
+%account = &fetch_single_account("surname='Mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='attic'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "R");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
+&ok_account("gecos", "oliver Mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+&ok_account("gid", "attic");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver Mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DUX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+%account = &fetch_single_account("surname='Darwin' 
+                                  AND firstname='Charles'
+                                  AND birthday='1942-10-12'
+                                  AND adminclass='attic'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "R");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
+&ok_account("gecos", "Charles Darwin");
+&ok_account("unid", "");
+&ok_account("exitunid", "");
+&ok_account("gid", "attic");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
+# samba
+&ok_account("displayname", "Charles Darwin");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DUX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+
+print '
+###########################################################################
+#                                                                         #
+#                     MANUALLY CHANGE USERSTATUS                          #
+#                                                                         #
+###########################################################################
+';
+
+# user the user Mahn
+$login = &fetch_login("surname='Mahn' 
+                       AND firstname='oliver'
+                       AND birthday='1984-10-12'
+                       AND adminclass='attic'",
+                     );
+
+
+# Make the account Permanent
+&run_command("sophomorix-user -P $login",$verbose);
+
+
+# check if permanent 
+%account = &fetch_single_account("surname='Mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='attic'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "P");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
+&ok_account("gecos", "oliver Mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+&ok_account("gid", "attic");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver Mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+# todo?????? check_account
+
+# Make the account Killable
+&run_command("sophomorix-user -K $login",$verbose);
+
+
+#?????
+
+# check if Killable 
+%account = &fetch_single_account("surname='Mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='attic'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "K");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
+&ok_account("gecos", "oliver Mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+&ok_account("gid", "attic");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver Mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DUX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+# This should not change anything
+&run_command("sophomorix-check",$verbose);
+
+# Ergebnisdateien prüfen
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+#&check_emptyness("sophomorix.kill");
+
+
+
+# check if still Killable 
+%account = &fetch_single_account("surname='Mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='attic'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "K");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
+&ok_account("gecos", "oliver Mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+&ok_account("gid", "attic");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver Mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DUX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+# Make the account Freeze
+&run_command("sophomorix-user -F $login",$verbose);
+
+
+# check if Frozen 
+%account = &fetch_single_account("surname='Mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='attic'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "F");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
+&ok_account("gecos", "oliver Mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+&ok_account("gid", "attic");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver Mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DUX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+# This should not change anything
+&run_command("sophomorix-check",$verbose);
+
+
+# Ergebnisdateien prüfen
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+#&check_emptyness("sophomorix.kill");
+
+
+# check if still Frozen
+%account = &fetch_single_account("surname='Mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='attic'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "F");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "1970-01-01");
+&ok_account("deactivationdate", "1971-01-01");
+&ok_account("gecos", "oliver Mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+&ok_account("gid", "attic");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver Mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[DUX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+
+# Activate the Account
+&run_command("sophomorix-user -A $login",$verbose);
+
+
+# check 
+%account = &fetch_single_account("surname='Mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='attic'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "A");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "$today_pg");
+&ok_account("deactivationdate", "");
+&ok_account("gecos", "oliver Mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+&ok_account("gid", "attic");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver Mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+# Check if the account can be moved to exitadminclass
+&run_command("sophomorix-check",$verbose);
+
+# Ergebnisdateien prüfen
+&check_emptyness("sophomorix.add");
+#&check_emptyness("sophomorix.kill");
+
+&check_line_in_file(
+  "${login}::attic::m1kb",
+  "${DevelConf::ergebnis_pfad}/sophomorix.move");
+
+
+# Move the account
+&run_command("sophomorix-move",$verbose);
+
+
+# check movement and activation 
+%account = &fetch_single_account("surname='Mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='m1kb'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "A");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "");
+&ok_account("deactivationdate", "");
+&ok_account("gecos", "oliver Mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+&ok_account("gid", "m1kb");
+&ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver Mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+# since it was manually activated it should not be moved
+
+
+# Check if the account can be moved to exitadminclass
+&run_command("sophomorix-check ",$verbose);
+
+
+&check_emptyness("sophomorix.add");
+&check_emptyness("sophomorix.move");
+
+
+# Move the account
+&run_command("sophomorix-move",$verbose);
+
+
+# check that account stays activated and was NOT moved to attic
+%account = &fetch_single_account("surname='Mahn' 
+                                  AND firstname='oliver'
+                                  AND birthday='1984-10-12'
+                                  AND adminclass='m1kb'",
+                      );
+
+%account_ldap=&fetch_ldap_account($account{'uid'});
+
+&ok_account("sophomorixstatus", "A");
+&ok_account("creationdate", $today_pg);
+&ok_account("tolerationdate", "");
+&ok_account("deactivationdate", "");
+&ok_account("gecos", "oliver Mahn");
+&ok_account("unid", "");
+&ok_account("exitunid", "987654321");
+&ok_account("gid", "m1kb");
+&ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
+# samba
+&ok_account("displayname", "oliver Mahn");
+&ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
+&ok_account("sambahomedrive", "H:");
+&ok_account("sambalogontime", "0");
+&ok_account("sambalogofftime", "$win_magic");
+&ok_account("sambakickofftime", "$win_magic");
+&ok_account("sambapwdcanchange", "0");
+&ok_account("sambapwdmustchange", "$win_magic");
+&ok_account("sambaacctflags","[UX]");
+$usid=2*$account{'uidnumber'}+1000;
+$gsid=2*$account{'gidnumber'}+1001;
+&ok_account("sambasid", "${sid}-${usid}");
+&ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
+
+
+
+####
+####
+####  Todo Mahnol should reappear and be merged
+####
+####
+
+
+
+
+print '
+###########################################################################
+#                                                                         #
+#                             UPLOAD UNIDS                                #
+#                                                                         #
+###########################################################################
+';
+
+
+
+
+
+
+
+
+
+
+
+# make the account removeable again
+
+
+# make user tolerated for a looooong time
+&update_user_db_entry($login,"TolerationDate=01.01.1970");
+
+# make account disabled
+&run_command("sophomorix-check",$verbose);
+
+
+
+# make user deactivated for a looooong time
+&update_user_db_entry($login,"DeactivationDate=01.01.1971");
+
+# make account removeable
+&run_command("sophomorix-check",$verbose);
+
+
+#check account again
+
+
+
+&run_command("sophomorix-user -K $login",$verbose);
+&run_command("sophomorix-check",$verbose);
+
+
+# todo ?????????ß
+&run_command("sophomorix-kill",$verbose);
+
+# todo ??????
+#&check_emptyness("sophomorix.kill");
+
+
+foreach my $login (@logins){
+   #&check_account($login,"nonexisting");
+}
+
+
+
+&log_script_end(@arguments);
+
+
+###########################################################################
+# SUB
+###########################################################################
+
+
+sub ok_account{
+    # Hash must be in %account, wich is global in this file
+    my ($col, $v) = @_;
+    my $ldap_gid;
+    my $ldap_cn;
+    my $pg_gidnumber;
+    my $ldap_gidnumber;
+
+    # pg
+
+    # Make sure that its defined
+    if (not defined $account{$col} ){
+	$account{$col}="";
+    };
+    # replace spaces in the sambaaccountflags
+    if ($col eq "sambaacctflags"){
+       $account{$col}=~s/ //g;
+    }
+    if ($col eq "creationdate"){
+       # use a special regex
+       like( $account{$col},qr/^$v.*/, "pgcheck:   $v is $col of $account{uid}");
+    } elsif ($col eq "gecos"){
+       # check gecos
+       is( $account{$col},$v, "pgcheck:   $v is $col of $account{uid}");
+       # check cn
+       is( $account{'cn'},$v, "pgcheck:   $v is cn of $account{uid}");
+       # check description
+       # remove whitespace at the end
+       my $mod=$account{'description'};
+       $mod=~s/\s*$//;
+       is( $mod,$v, 
+            "pgcheck:   $mod is description of $account{uid}");
+    } else {
+       # check for equality
+       is( $account{$col},$v, "pgcheck:   $v is $col of $account{uid}");
+    }
+
+    if ($col eq "gid"){
+        # fetch gidnumbers
+        $pg_gidnumber=$account{'gidnumber'};
+        $ldap_gidnumber=$account_ldap{'gidNumber'};
+        # expect ldap to be equal
+        is( $pg_gidnumber,$ldap_gidnumber, 
+            "gidnums:   ${pg_gidnumber}(pg) = ${ldap_gidnumber}(ldap) of $account_ldap{uid}");
+
+        # fetch gid of ldap
+        my $ldap=&Sophomorix::SophomorixPgLdap::auth_connect();
+
+        my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=
+            &Sophomorix::SophomorixPgLdap::fetch_ldap_pg_passwords();
+        my $msg = $ldap->search(
+            base => "ou=groups,$suffix",
+            scope => "sub",
+            filter => ("gidNumber=$pg_gidnumber")
+        );
+
+        # print $msg->count(), " entries returned\n";
+        my $entry = $msg->entry(0);
+        ($ldap_cn)=$entry->get_value('cn');
+        ($ldap_gid)=$entry->get_value('displayname');
+
+        is( $ldap_cn,$v, 
+            "cn:        ${v}(pg->gid) = ${ldap_cn}(ldap->cn) of $account_ldap{uid}");
+        is( $ldap_gid,$v, 
+            "gid:       ${v}(pg->gid) = ${ldap_gid}(ldap->displayname) of $account_ldap{uid}");
+        &Sophomorix::SophomorixPgLdap::auth_disconnect($ldap);
+    }
+
+    # ldap
+    my $attr;
+    
+    # key: which pg columns must be checked in ldap
+    # value: how is the attribute name in ldap
+    my %check= (
+          "gecos" => "gecos",
+          "homedirectory" => "homeDirectory",
+          "displayname" => "displayName",
+          "sambahomepath" => "sambaHomePath",
+          "sambahomedrive" => "sambaHomeDrive",
+          "sambalogontime" => "sambaLogonTime",
+          "sambalogofftime" => "sambaLogoffTime",
+          "sambakickofftime" => "sambaKickoffTime",
+          "sambapwdcanchange" => "sambaPwdCanChange",
+          "sambapwdmustchange" => "sambaPwdMustChange",
+          "sambaacctflags" => "sambaAcctFlags",
+          "sambasid" => "sambaSID",
+          "sambaprimarygroupsid" => "sambaPrimaryGroupSID",
+          "" => "",
+       );
+
+    if (not exists $check{$col}){
+	return;
+    } else {
+        $attr=$check{$col};
+    }
+
+    # Make sure that its defined
+    if (not defined $account_ldap{$attr} ){
+	$account_ldap{$attr}="";
+    };
+    ## replace spaces in the sambaaccountflags
+    #if ($attr eq "sambaacctflags"){
+    #   $account_ldap{$attr}=~s/ //g;
+    #}
+
+    # check for equality
+    is( $account_ldap{$attr},$v, "ldapcheck: $v is $attr of $account_ldap{uid}");
+
+    # check if in cn is the same value as in gecos
+    if ($attr eq "gecos"){
+        is( $account_ldap{'cn'},$v, "ldapcheck: $v is cn of $account_ldap{uid}");
+        is( $account_ldap{'description'},$v, 
+                     "ldapcheck: $v is description of $account_ldap{uid}");
+    }
+}
+
+
+
+
+sub old_ok_account{
+    # Hash must be in %account, wich is global in this file
+    my ($col, $v) = @_;
+
+    # pg
+
+    # Make sure that its defined
+    if (not defined $account{$col} ){
+	$account{$col}="";
+    };
+    # replace spaces in the sambaaccountflags
+    if ($col eq "sambaacctflags"){
+       $account{$col}=~s/ //g;
+    }
+    if ($col eq "creationdate"){
+       # use a special regex
+       like( $account{$col},qr/^$v.*/, "pgcheck: $v is $col of $account{uid}");
+    } else {
+       # check for equality
+       is( $account{$col},$v, "pgcheck: $v is $col of $account{uid}");
+    }
+
+    # ldap
+
+    # Make sure that its defined
+    if (not defined $account_ldap{$col} ){
+	$account_ldap{$col}="";
+    };
+    # replace spaces in the sambaaccountflags
+    if ($col eq "sambaacctflags"){
+       $account_ldap{$col}=~s/ //g;
+    }
+    if ($col eq "creationdate"){
+       # use a special regex
+       like( $account_ldap{$col},qr/^$v.*/, "ldapcheck: $v is $col of $account_ldap{uid}");
+    } else {
+       # check for equality
+       is( $account_ldap{$col},$v, "ldapcheck: $v is $col of $account_ldap{uid}");
+    }
+}
+
