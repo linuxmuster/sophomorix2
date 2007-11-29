@@ -9,10 +9,6 @@ scripte, die noch keine --info option haben, aber evtl. mal eine bekommen werden
 
 
 
-Fortbildungen fürs Kollegium:
-
-http://lehrerfortbildung-bw.de/netz/muster/linux/material/unterricht/paedml/index.html
-
 Saving the Real Name of a class (Konfigurable, needs a field in the database?)
 i.e.    m1kb2t  --> M1KB2T
         wg111   --> WG11/1S	
@@ -21,25 +17,19 @@ Saving the Real Name of a student incl. öäüß in one field
 for netexamplix and others
 
 Bug: sophomorix-user --reset-user doesnt reset the users .files
-(how can all files be removed?)
+(how can also dotfiles be removed?)
 --> the whole homedir has to be removed using rm -rf/rmtree
 --> then it is recreated again
+
+sophomorix-move:
+chown Fehler auf Gruppe hat keine Dateien, schlägt fehl: > unschoen
 
 
 Tests für unid schreiben:
 - kurz vor dem entfernen der user:
 
-  - unid hochladen (teilweise) zu bekannten accounts
-  - restliche unids hochladen
-  - Daten leicht ändern
-  - Daten stark ändern
-  - unid entfernen (SVP update simulieren)
-  - andere unid hochladen
-
   - doppelte unid : nix darf sich in der Datenbank ändern
   - unid ändert sich bei gleichem identifier
-
-- accounts löschen
 
 
 
