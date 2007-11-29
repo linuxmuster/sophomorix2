@@ -510,7 +510,8 @@ sub generate_maillist_classes {
 
    if (defined $user[0]){
       # Gruppen-Mailingliste erzeugen:
-      if (defined ${Conf::teachers_alias_name}){
+      if (defined ${Conf::teachers_alias_name} and 
+          $group eq ${DevelConf::teacher}){
           print ALIASESTMP "${Conf::teachers_alias_name}:\n";
       } else {
           print ALIASESTMP "$group:\n";
