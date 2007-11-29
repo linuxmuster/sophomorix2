@@ -196,6 +196,7 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Joerg Maier");
+&ok_account("unid", "");
 &ok_account("gid", "m4kb");
 &ok_account("homedirectory", "/home/students/m4kb/$account{'uid'}");
 # samba
@@ -230,6 +231,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Mohammed Oeztuerk");
+&ok_account("unid", "");
 &ok_account("gid", "7a");
 &ok_account("homedirectory", "/home/students/7a/$account{'uid'}");
 # samba
@@ -263,6 +265,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
+&ok_account("unid", "");
 &ok_account("gid", "2c");
 &ok_account("homedirectory", "/home/students/2c/$account{'uid'}");
 # samba
@@ -383,6 +386,7 @@ print '
 &ok_account("sophomorixstatus", "T");
 &ok_account("tolerationdate", $today_pg);
 &ok_account("gecos", "Joerg Maier");
+&ok_account("unid", "");
 &ok_account("gid", "m4kb");
 &ok_account("homedirectory", "/home/students/m4kb/$account{'uid'}");
 # samba
@@ -423,6 +427,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 &ok_account("exitadminclass", "m4kb");
 &ok_account("gecos", "Joerg Maier");
+&ok_account("unid", "");
 &ok_account("gid", "attic");
 &ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
@@ -465,6 +470,7 @@ $login = &fetch_login("surname='Maier'
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "");
 &ok_account("gecos", "Joerg Maier");
+&ok_account("unid", "");
 &ok_account("gid", "attic");
 &ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
@@ -502,6 +508,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("exitadminclass", "m4kb");
 &ok_account("gecos", "Joerg Maier");
+&ok_account("unid", "");
 &ok_account("gid", "attic");
 &ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
@@ -625,6 +632,7 @@ $login = &fetch_login("surname='Oeztuerk'
 &ok_account("sophomorixstatus", "T");
 &ok_account("tolerationdate", $today_pg);
 &ok_account("gecos", "Mohammed Oeztuerk");
+&ok_account("unid", "");
 &ok_account("gid", "7a");
 &ok_account("homedirectory", "/home/students/7a/$account{'uid'}");
 # samba
@@ -671,6 +679,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sophomorixstatus", "E");
 &ok_account("tolerationdate", "");
 &ok_account("gecos", "Mohammed Oeztuerk");
+&ok_account("unid", "");
 &ok_account("gid", "7a");
 &ok_account("homedirectory", "/home/students/7a/$account{'uid'}");
 # samba
@@ -704,6 +713,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sophomorixstatus", "E");
 &ok_account("tolerationdate", "");
 &ok_account("gecos", "Mohammed Oeztuerk");
+&ok_account("unid", "");
 &ok_account("gid", "7c");
 # samba
 &ok_account("displayname", "Mohammed Oeztuerk");
@@ -759,6 +769,7 @@ print '
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
+&ok_account("unid", "");
 &ok_account("gid", "2c");
 &ok_account("homedirectory", "/home/students/2c/$account{'uid'}");
 # samba
@@ -815,6 +826,7 @@ $login = &fetch_login("surname='Wall'
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
+&ok_account("unid", "");
 &ok_account("exitadminclass", "2c");
 &ok_account("gid", "attic");
 &ok_account("homedirectory", "/home/attic/$account{'uid'}");
@@ -871,6 +883,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("exitadminclass", "2c");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
+&ok_account("unid", "");
 &ok_account("gid", "3c");
 &ok_account("homedirectory", "/home/students/3c/$account{'uid'}");
 # samba
@@ -923,6 +936,7 @@ print '
 
 &ok_account("sophomorixstatus", "E");
 &ok_account("gecos", "Mohammed Oetztuerk");
+&ok_account("unid", "");
 &ok_account("gid", "7c");
 &ok_account("homedirectory", "/home/students/7c/$account{'uid'}");
 # samba
@@ -965,6 +979,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 &ok_account("sophomorixstatus", "E");
 &ok_account("gecos", "Mohammad Oetztuerk");
+&ok_account("unid", "");
 &ok_account("gid", "7c");
 &ok_account("homedirectory", "/home/students/7c/$account{'uid'}");
 # samba
@@ -1005,6 +1020,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 &ok_account("sophomorixstatus", "E");
 &ok_account("gecos", "Mohammad Oetztuerk");
+&ok_account("unid", "");
 &ok_account("gid", "7c");
 &ok_account("homedirectory", "/home/students/7c/$account{'uid'}");
 # samba
@@ -2087,16 +2103,4 @@ sub old_ok_account{
        is( $account_ldap{$col},$v, "ldapcheck: $v is $col of $account_ldap{uid}");
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
