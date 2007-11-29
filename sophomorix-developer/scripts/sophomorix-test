@@ -197,6 +197,7 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Joerg Maier");
 &ok_account("unid", "");
+&ok_account("exitunid", "");
 &ok_account("gid", "m4kb");
 &ok_account("homedirectory", "/home/students/m4kb/$account{'uid'}");
 # samba
@@ -232,6 +233,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Mohammed Oeztuerk");
 &ok_account("unid", "");
+&ok_account("exitunid", "");
 &ok_account("gid", "7a");
 &ok_account("homedirectory", "/home/students/7a/$account{'uid'}");
 # samba
@@ -266,6 +268,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
 &ok_account("unid", "");
+&ok_account("exitunid", "");
 &ok_account("gid", "2c");
 &ok_account("homedirectory", "/home/students/2c/$account{'uid'}");
 # samba
@@ -300,6 +303,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "oliver Mahn");
 &ok_account("unid", "987654321");
+&ok_account("exitunid", "");
 &ok_account("gid", "m1kb");
 &ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
 # samba
@@ -387,6 +391,7 @@ print '
 &ok_account("tolerationdate", $today_pg);
 &ok_account("gecos", "Joerg Maier");
 &ok_account("unid", "");
+&ok_account("exitunid", "");
 &ok_account("gid", "m4kb");
 &ok_account("homedirectory", "/home/students/m4kb/$account{'uid'}");
 # samba
@@ -428,6 +433,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("exitadminclass", "m4kb");
 &ok_account("gecos", "Joerg Maier");
 &ok_account("unid", "");
+&ok_account("exitunid", "");
 &ok_account("gid", "attic");
 &ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
@@ -471,6 +477,7 @@ $login = &fetch_login("surname='Maier'
 &ok_account("deactivationdate", "");
 &ok_account("gecos", "Joerg Maier");
 &ok_account("unid", "");
+&ok_account("exitunid", "");
 &ok_account("gid", "attic");
 &ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
@@ -509,6 +516,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("exitadminclass", "m4kb");
 &ok_account("gecos", "Joerg Maier");
 &ok_account("unid", "");
+&ok_account("exitunid", "");
 &ok_account("gid", "attic");
 &ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
@@ -633,6 +641,7 @@ $login = &fetch_login("surname='Oeztuerk'
 &ok_account("tolerationdate", $today_pg);
 &ok_account("gecos", "Mohammed Oeztuerk");
 &ok_account("unid", "");
+&ok_account("exitunid", "");
 &ok_account("gid", "7a");
 &ok_account("homedirectory", "/home/students/7a/$account{'uid'}");
 # samba
@@ -680,6 +689,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "");
 &ok_account("gecos", "Mohammed Oeztuerk");
 &ok_account("unid", "");
+&ok_account("exitunid", "");
 &ok_account("gid", "7a");
 &ok_account("homedirectory", "/home/students/7a/$account{'uid'}");
 # samba
@@ -714,6 +724,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "");
 &ok_account("gecos", "Mohammed Oeztuerk");
 &ok_account("unid", "");
+&ok_account("exitunid", "");
 &ok_account("gid", "7c");
 # samba
 &ok_account("displayname", "Mohammed Oeztuerk");
@@ -770,6 +781,7 @@ print '
 &ok_account("tolerationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
 &ok_account("unid", "");
+&ok_account("exitunid", "");
 &ok_account("gid", "2c");
 &ok_account("homedirectory", "/home/students/2c/$account{'uid'}");
 # samba
@@ -827,6 +839,7 @@ $login = &fetch_login("surname='Wall'
 &ok_account("deactivationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
 &ok_account("unid", "");
+&ok_account("exitunid", "");
 &ok_account("exitadminclass", "2c");
 &ok_account("gid", "attic");
 &ok_account("homedirectory", "/home/attic/$account{'uid'}");
@@ -884,6 +897,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
 &ok_account("unid", "");
+&ok_account("exitunid", "");
 &ok_account("gid", "3c");
 &ok_account("homedirectory", "/home/students/3c/$account{'uid'}");
 # samba
@@ -937,6 +951,7 @@ print '
 &ok_account("sophomorixstatus", "E");
 &ok_account("gecos", "Mohammed Oetztuerk");
 &ok_account("unid", "");
+&ok_account("exitunid", "");
 &ok_account("gid", "7c");
 &ok_account("homedirectory", "/home/students/7c/$account{'uid'}");
 # samba
@@ -980,6 +995,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sophomorixstatus", "E");
 &ok_account("gecos", "Mohammad Oetztuerk");
 &ok_account("unid", "");
+&ok_account("exitunid", "");
 &ok_account("gid", "7c");
 &ok_account("homedirectory", "/home/students/7c/$account{'uid'}");
 # samba
@@ -1021,6 +1037,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sophomorixstatus", "E");
 &ok_account("gecos", "Mohammad Oetztuerk");
 &ok_account("unid", "");
+&ok_account("exitunid", "");
 &ok_account("gid", "7c");
 &ok_account("homedirectory", "/home/students/7c/$account{'uid'}");
 # samba
@@ -1073,6 +1090,7 @@ print '
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
 &ok_account("unid", "123456789");
+&ok_account("exitunid", "");
 &ok_account("gid", "3c");
 &ok_account("homedirectory", "/home/students/3c/$account{'uid'}");
 # samba
@@ -1113,6 +1131,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Richard Stallman");
 &ok_account("unid", "123456789");
+&ok_account("exitunid", "");
 &ok_account("gid", "3c");
 &ok_account("homedirectory", "/home/students/3c/$account{'uid'}");
 # samba
@@ -1252,6 +1271,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "oliver Mahn");
 &ok_account("unid", "");
+&ok_account("exitunid", "987654321");
 &ok_account("gid", "m1kb");
 &ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
 # samba
@@ -1894,6 +1914,25 @@ $gsid=2*$account{'gidnumber'}+1001;
 ####  Todo Mahnol should reappear and be merged
 ####
 ####
+
+
+
+
+print '
+###########################################################################
+#                                                                         #
+#                             UPLOAD UNIDS                                #
+#                                                                         #
+###########################################################################
+';
+
+
+
+
+
+
+
+
 
 
 
