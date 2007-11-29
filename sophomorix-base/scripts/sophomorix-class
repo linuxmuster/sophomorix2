@@ -184,7 +184,7 @@ if (defined $mailquota){
 
 
 # --reset-class
-if (defined $reset_class){
+if ($reset_class ne ""){
     if ($reset_class eq ${DevelConf::teacher}){
         &log_script_exit("ERROR: This option cannot be used with $reset_class",
                          1,1,0,@arguments);
