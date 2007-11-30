@@ -169,10 +169,6 @@ my $testopt=GetOptions(
 &check_connections();
 
 
-# --info
-if ($info==0){
-    &titel("sophomorix-print is creating output ...");
-}
 
 
 # --help
@@ -207,6 +203,12 @@ Please see the sophomorix-print(8) man pages for full documentation
 }
 
 &log_script_start(@arguments);
+
+# --info
+if ($info==0){
+    &titel("sophomorix-print is creating output ...");
+}
+
 
 
 # ===========================================================================
