@@ -30,7 +30,7 @@ my @arguments = @ARGV;
 # ==========================================================================
 
 my $help=0;
-
+my $info=0;
 
 # ===========================================================================
 # Optionen verarbeiten
@@ -52,6 +52,7 @@ my $type=-1; # 3: domain group
 # Parsen der Optionen
 my $testopt=GetOptions(
            "help|h" => \$help,
+           "info|i" => \$info,
            "domain" => \$domain_group,
            "local" => \$local_group,
            "room" => \$room_group,
@@ -79,7 +80,7 @@ Options
   -h  / --help
   -v  / --verbose
   -vv / --verbose --verbose
-  -i  / --info
+  -i  / --info (unused)
   --unix-group groupname
   --nt-group name
   --domain (manually added domain group))
@@ -91,6 +92,14 @@ Please see the sophomorix-groupadd(8) man pages for full documentation
    print "\n";
    exit;
 }
+
+
+# --info
+if ($info==1){
+    print "No Option --info\n";
+    exit;
+}
+
 
 &log_script_start(@arguments);
 

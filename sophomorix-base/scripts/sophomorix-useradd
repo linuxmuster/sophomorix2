@@ -30,6 +30,7 @@ my @arguments = @ARGV;
 # ==========================================================================
 
 my $help=0;
+my $info=0;
 my $login="";
 my $type="";
 my $shell="";
@@ -71,6 +72,7 @@ $Conf::log_level=1;
 # Parsen der Optionen
 my $testopt=GetOptions(
            "help|h" => \$help,
+           "info|i" => \$info,
            "administrator=s" => \$administrator,
            "unixadmin=s" => \$unixadmin,
            "examaccount=s" => \$examaccount,
@@ -117,6 +119,14 @@ Please see the sophomorix-useradd(8) man pages for full documentation
 ');
    print "\n";
    exit;
+}
+
+
+
+# --info
+if ($info==1){
+    print "No Option --info\n";
+    exit;
 }
 
 
