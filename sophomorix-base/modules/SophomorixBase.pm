@@ -2944,7 +2944,7 @@ sub log_script_start {
     my @arguments = @_;
     my $timestamp = `date '+%Y-%m-%d %H:%M:%S'`;
     chomp($timestamp);
-    my $locking_script="";
+#    my $locking_script="";
     my $skiplock=0;
     # scripts that are locking the system
     my $log="${timestamp}::start::  $0";
@@ -2980,22 +2980,37 @@ sub log_script_start {
     close(LOG);
     my $try_count=0;
     my $max_try_count=5;
+
     # exit if lockfile exists
     while (-e $DevelConf::lock_file and $skiplock==0){
         my @lock=();
         $try_count++; 
-        open(LOCK,"<$DevelConf::lock_file") || die "Cannot create lock file \n";;
-        while (<LOCK>) {
-            @lock=split(/::/);
-        }
-        close(LOCK);
-        open(LOG,">>$DevelConf::log_command");
-        print LOG "$log_locked";
-        close(LOG);
-        $locking_script=$lock[3];
-        $locking_pid=$lock[4];
-        
+        my ($locking_script,$locking_pid)=&read_lockfile($log_locked);
+#        open(LOCK,"<$DevelConf::lock_file") || die "Cannot create lock file \n";;
+#        while (<LOCK>) {
+#            @lock=split(/::/);
+#        }
+#        close(LOCK);
+#        open(LOG,">>$DevelConf::log_command");
+#        print LOG "$log_locked";
+#        close(LOG);
+#        $locking_script=$lock[3];
+#        $locking_pid=$lock[4];
         &titel("sophomorix locked (${locking_script}, PID: $locking_pid)");
+        print "Checking if PID $locking_pid exists\n";
+        my $ps_string=`ps --pid $locking_pid | grep $locking_pid`;
+        #print "---$ps_string---";
+        $ps_string=~s/\s//g; 
+        if ($ps_string eq ""){
+	    print "PID $locking_pid not running anymore\n";
+            # opening once again the lockfile 
+
+	    print "   I'm removing the lockfile\n";
+        } else {
+	    print "PID $locking_pid is running\n";
+        }
+
+
         if ($try_count==$max_try_count){
             &titel("try again later ...");
             exit;
@@ -3009,6 +3024,22 @@ sub log_script_start {
     &titel("$0 started ...");
     &nscd_stop();
 }
+
+sub read_lockfile {
+    my ($log_locked) = @_;
+    open(LOCK,"<$DevelConf::lock_file") || die "Cannot create lock file \n";;
+    while (<LOCK>) {
+        @lock=split(/::/);
+    }
+    close(LOCK);
+    open(LOG,">>$DevelConf::log_command");
+    print LOG "$log_locked";
+    close(LOG);
+    my $locking_script=$lock[3];
+    my $locking_pid=$lock[4];
+    return ($locking_script,$locking_pid);
+}
+
 
 sub log_script_end {
     my @arguments = @_;
