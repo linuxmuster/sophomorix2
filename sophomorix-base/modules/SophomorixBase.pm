@@ -2884,7 +2884,7 @@ sub append_teach_in_log {
 
 }
 
-sub unlock_sophomorix {
+sub unlock_sophomorix{
     &titel("Removing lock in $DevelConf::lock_file");
     my $timestamp=&zeit_stempel();
     my $unlock_dir=$DevelConf::lock_logdir."/".$timestamp."_unlock";
@@ -2918,7 +2918,12 @@ sub unlock_sophomorix {
 
 
 sub lock_sophomorix {
-    my @arguments = @_;
+    my ($type,$pid,@arguments) = @_;
+    # $type: lock (lock when not existing)
+    # $type, steal when existing
+    # $pid: steal only when this pid is in the lock file
+
+    # prepare datastring to write into lockfile
     my $timestamp = `date '+%Y-%m-%d %H:%M:%S'`;
     chomp($timestamp);
     my $lock="lock::${timestamp}::creator::$0";
@@ -2933,18 +2938,42 @@ sub lock_sophomorix {
         }
     }
     $lock=$lock."::$$"."::\n";
-    &titel("Creating lock in $DevelConf::lock_file");
-    open(LOCK,">$DevelConf::lock_file") || die "Cannot create lock file \n";;
-    print LOCK "$lock";
-    close(LOCK);
+
+
+    if ($type eq "lock"){
+        # lock , only when nonexisting
+        if (not -e $DevelConf::lock_file){
+           &titel("Creating lock in $DevelConf::lock_file");
+           open(LOCK,">$DevelConf::lock_file") || die "Cannot create lock file \n";;
+           print LOCK "$lock";
+           close(LOCK);
+        } else {
+           print "Cold not create lock file (file exists already!)\n";
+           exit;
+        }
+    } elsif ($type eq "steal"){
+        # steal, only when existing with pid $pid
+        my ($l_script,$l_pid)=&read_lockfile();
+	if (-e $DevelConf::lock_file
+           and $l_pid==$pid){
+           &titel("Stealing lock in $DevelConf::lock_file");
+           open(LOCK,">$DevelConf::lock_file") || die "Cannot create lock file \n";;
+           print LOCK "$lock";
+           close(LOCK);
+           return 1;
+       } else {
+           print "Coldnt steal lock file (file vanished! or pid changed)\n";
+           exit;
+       }
+    }
 }
 
 
 sub log_script_start {
+    my $stolen=0;
     my @arguments = @_;
     my $timestamp = `date '+%Y-%m-%d %H:%M:%S'`;
     chomp($timestamp);
-#    my $locking_script="";
     my $skiplock=0;
     # scripts that are locking the system
     my $log="${timestamp}::start::  $0";
@@ -2986,30 +3015,21 @@ sub log_script_start {
         my @lock=();
         $try_count++; 
         my ($locking_script,$locking_pid)=&read_lockfile($log_locked);
-#        open(LOCK,"<$DevelConf::lock_file") || die "Cannot create lock file \n";;
-#        while (<LOCK>) {
-#            @lock=split(/::/);
-#        }
-#        close(LOCK);
-#        open(LOG,">>$DevelConf::log_command");
-#        print LOG "$log_locked";
-#        close(LOG);
-#        $locking_script=$lock[3];
-#        $locking_pid=$lock[4];
-        &titel("sophomorix locked (${locking_script}, PID: $locking_pid)");
-        print "Checking if PID $locking_pid exists\n";
-        my $ps_string=`ps --pid $locking_pid | grep $locking_pid`;
-        #print "---$ps_string---";
-        $ps_string=~s/\s//g; 
-        if ($ps_string eq ""){
-	    print "PID $locking_pid not running anymore\n";
-            # opening once again the lockfile 
-
-	    print "   I'm removing the lockfile\n";
-        } else {
-	    print "PID $locking_pid is running\n";
+        if ($try_count==1){
+           &titel("sophomorix locked (${locking_script}, PID: $locking_pid)");
         }
+        my $ps_string=`ps --pid $locking_pid | grep $locking_pid`;
+        $ps_string=~s/\s//g; 
 
+        if ($ps_string eq ""){
+            # locking process nonexisting
+	    print "PID $locking_pid not running anymore\n";
+	    print "   I'm stealing the lockfile\n";
+            $stolen=&lock_sophomorix("steal",$locking_pid,@arguments);
+            last;
+        } else {
+	    print "Process with PID $locking_pid is still running\n";
+        }
 
         if ($try_count==$max_try_count){
             &titel("try again later ...");
@@ -3018,8 +3038,9 @@ sub log_script_start {
             sleep 1;
         }
     }
-    if (exists ${DevelConf::lock_scripts}{$0}){
-	&lock_sophomorix(@arguments);
+    
+    if (exists ${DevelConf::lock_scripts}{$0} and $stolen==0){
+	&lock_sophomorix("lock",0,@arguments);
     }
     &titel("$0 started ...");
     &nscd_stop();
@@ -3032,9 +3053,14 @@ sub read_lockfile {
         @lock=split(/::/);
     }
     close(LOCK);
-    open(LOG,">>$DevelConf::log_command");
-    print LOG "$log_locked";
-    close(LOG);
+
+    # write to command.log
+    if (defined $log_locked){
+       open(LOG,">>$DevelConf::log_command");
+       print LOG "$log_locked";
+       close(LOG);
+    }
+
     my $locking_script=$lock[3];
     my $locking_pid=$lock[4];
     return ($locking_script,$locking_pid);
