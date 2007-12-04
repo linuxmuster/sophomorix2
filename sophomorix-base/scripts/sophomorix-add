@@ -125,7 +125,7 @@ if ($unlock==1) {
 
 # --lock
 if ($lock==1) {
-    &lock_sophomorix(@arguments);
+    &lock_sophomorix("lock",0,@arguments);
     exit;
 }
 
@@ -147,7 +147,7 @@ if ($info==1) {
    &linie;
 
    open(SOPHOMORIXADD,"${DevelConf::ergebnis_pfad}/sophomorix.add") || 
-             die "Fehler: $!";
+             die "Fehler: sophomorix.add not found!";
 
    my @lines=();
    while(<SOPHOMORIXADD>){

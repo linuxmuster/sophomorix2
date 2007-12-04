@@ -145,7 +145,7 @@ if ($unlock==1) {
 
 # --lock
 if ($lock==1) {
-    &lock_sophomorix(@arguments);
+    &lock_sophomorix("lock",0,@arguments);
     exit;
 }
 
