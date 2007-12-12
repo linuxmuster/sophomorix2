@@ -217,19 +217,19 @@ if ($info==0){
 
 if ($netexamplix ne ""){
     if ($gruppe eq ""){
-        print "   ERROR: You must use option --class class1,class2,... \n";
-        exit;
+        &log_script_exit("ERROR: You must use option --class class1,class2,...",
+                         1,1,0,@arguments);
     }
     if ($caller eq ""){
-        print "   ERROR: You must use option --caller teacher \n";
-        exit;
+        &log_script_exit("ERROR: You must use option --caller teacher",
+                         1,1,0,@arguments);
     }
 
     # decide where to create the file
     my ($homedir,$type,$gecos)=&fetchdata_from_account($caller);
     if ($type ne "teacher"){
-        print "ERROR: Caller must be a teacher\n";
-        exit;
+        &log_script_exit("ERROR: Caller must be a teacher",
+                         1,1,0,@arguments);
     }
 
     my $netex_dir  = $homedir."/netexamplix";
@@ -262,9 +262,8 @@ if ($netexamplix ne ""){
     }
 
     if (not $file=~/^$DevelConf::homedir_teacher\//){
-        print "ERROR: I'm not creating file $file\n",
-              "       outside $DevelConf::homedir_teacher\n";
-        exit;
+        &log_script_exit("ERROR: I'm not creating file $file outside $DevelConf::homedir_teacher ",
+                         1,1,0,@arguments);
     }
 
     open(STUDENTS, ">$file");
@@ -289,8 +288,9 @@ if ($netexamplix ne ""){
     }
     close(TEACHERS);
     system("chown ${caller}.${DevelConf::teacher} $file");
-    exit;
+    &log_script_end(@arguments);
 }
+
 
  
 
