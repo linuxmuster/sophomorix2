@@ -25,6 +25,28 @@ Passwort checken
 
 
 
+.forward und die alternative von Horde:
+/var/spool/sieve/r/roe/ingo.script
+
+
+
+# Sieve Filter
+# Erzeugt von Ingo (http://www.horde.org/ingo/) (December 20, 2007, 5:33 pm)
+
+# Weiterleitung
+if true { 
+    redirect "roesslerrr@gmx.de";
+    redirect "roesslerrr@web.de";
+    keep;
+} 
+
+
+weiterleitungen umstellen:
+1. falls .forward vorhanden:
+   inhalt lesen
+   nicht vorhanden: nix tun
+2. Wenn kein ingo.script
+   ??? gibts
 
 
 
