@@ -30,6 +30,7 @@ use Sophomorix::SophomorixBase qw (
              create_userlist
              add_my_adminclass
              remove_my_adminclass
+             fetch_error_string
             );
 
 
@@ -394,6 +395,22 @@ sub remove_my_adminclass {
 }
 
 
+
+
+sub fetch_error_string {
+    my $string = "Unknown Error\n";
+    my $file="/usr";
+    #print "Opening: $DevelConf::lang_err_file\n";
+    open(ERRFILE, "<${DevelConf::lang_err_file}");
+    while (<ERRFILE>) {
+        chomp();
+        if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+        if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+	print "$_ \n";
+    }
+    close(ERRFILE);
+    return $string;
+}
 
 
 
