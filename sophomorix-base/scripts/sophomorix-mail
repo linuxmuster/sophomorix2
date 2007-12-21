@@ -43,6 +43,7 @@ $Conf::log_level=1;
 my $help=0;
 my $info=0;
 my $show_mailbox=0;
+my $show_redirect=0;
 my $skiplock=0;
 my $show_type=0;
 my $kill_mailbox="";
@@ -53,6 +54,7 @@ my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
            "showmailboxes|showmailbox" => \$show_mailbox,
+           "showredirect|showforward" => \$show_redirect,
            "skiplock" => \$skiplock,
            "showtype" => \$show_type,
            "kill-mailbox=s" => \$kill_mailbox,
@@ -91,6 +93,7 @@ Options
   
 Imap-Server Options
 
+  --showredirect --showforward
   --showmailboxes
   --showmailboxes --showtype   (slow)
   --kill-mailbox user1,user2,...
@@ -133,6 +136,12 @@ if ($info==1) {
 &log_script_start(@arguments);
 
 
+if ($show_redirect==1){
+    &log_script_end(@arguments);
+}
+
+
+
 if ($show_mailbox==1) {
     my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
     # fetch list of mailboxes
@@ -142,8 +151,11 @@ if ($show_mailbox==1) {
         &imap_show_mailbox_info($imap);
     }
     &imap_disconnect($imap);
-    exit;
+    &log_script_end(@arguments);
 }
+
+
+
 
 
 # --killmailbox
@@ -183,7 +195,7 @@ if ($kill_mailbox ne "") {
                   " I will not delete its maibox!\n\n";
         }
     }
-    exit;
+    &log_script_end(@arguments);
 }
 
 
@@ -229,7 +241,7 @@ if ($add_mailbox ne "") {
     system("${DevelConf::executable_pfad}/sophomorix-quota --skiplock --users $add_mailbox --noninteractive --set");
     }
     # kein nscd_stop da exit folgt.
-    exit;
+    &log_script_end(@arguments);
 }
 
 
