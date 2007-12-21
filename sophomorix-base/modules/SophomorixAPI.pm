@@ -38,38 +38,34 @@ use Sophomorix::SophomorixBase qw (
 
 
 B<sophomorix> is a user administration tool for a school server. It
-lets you administrate a huge amount of users by exporting all students of
-a school into a file and reading them into a linux system.
+uses a file with all students dumped from a school administration
+software. The users in this file are synchronised into a linux system
+running postgres, ldap and samba.
 
-B<Sophomorix> will in the future use different backends (files, ldap,
-SQL-Databases, ...) to store its data. If you want to access this data
-you could talk to the backend directly, but this would mean, that you
-would have to update your scripts when the data organisation in the
-backend changes.
+Using SophomorixAPI.pm in perl scripts gives acces to the data of
+sophomorix without knowing the internals (sophomorixologie). 
 
-A better way is to ONLY use the functions of B<SophomorixAPI>. So if
-the data organisation changes you only have to get a current version
-of B<SophomorixAPI> and you're done.
+Using SophomorixAPI.pm will avoid breaking your scripts when
+sophomorix internals change.
 
 A very good example, when you should use SophomorixAPI.pm is writing
-webmin modules for sophomorix.
-
+webmin modules for sophomorix. Another example is the B<Schulkonsole> of paedML.
 
 =head2 SYNOPSIS
 
-   # This is for configuration variables
+   # This is for access to configuration variables
    use Sophomorix::SophomorixConfig;
 
-   # This is for functions in SophomorixAPI
+   # This is for access of functions in SophomorixAPI
    use Sophomorix::SophomorixAPI;
    
-   # access variables in sophomorix.conf    
+   # example: access variables in sophomorix.conf    
    my $school = $Conf::schul_name;
  
-   # access variables in sophomorix-devel.conf    
+   # example: access variables in sophomorix-devel.conf    
    my $smb_home = $DevelConf::homedir_samba_netlogon;
 
-   # access variables in sophomorix-lang.NAME
+   # example: access variables in sophomorix-lang.NAME
    # where NAME is one of de, en, ...    
    my $directory = $Language::collect_dir;
 
@@ -78,27 +74,66 @@ Note: If you want to use funcions you have to use BOTH packages
 (SophomorixConfig AND SophomorixAPI, in this order)
 
 
+=head2 FUNCTIONS
 
-=pod
+=head2 General Functions
 
-=head2 TODO: FUNCTIONS from Sophomorix::SophomorixPgldap to put here:
-  (Top priority is on top)
+=over 4
 
-  function1
-  function2
+=item I<$err_string = fetch_error_string(number,type)>
+
+Returns the error string for a given integer return value. 
+
+The following types exist:
+
+type=1  : return console error string
+
+type=2  : return schulkonsole error string (standard)
 
 =cut
 
+
+
+sub fetch_error_string {
+    my ($number,$type) = @_;
+    # type: 0 empty
+    #       1 console 
+    #       2 schuko  (standard)
+    if (not defined $type){
+        $type=2;
+    }
+    my $string = "Unknown Error in errors.lang\n";
+    open(ERRFILE, "<${DevelConf::lang_err_file}");
+    while (<ERRFILE>) {
+        chomp();
+        if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+        if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+        my ($ret,$console,$schuko) = split(/::/);
+        if ($ret==$number){
+            if ($type==2){
+		$string=$schuko;
+                last;
+            } elsif ($type==1){
+                $string=$console;
+                last;
+            }
+        }
+    }
+    close(ERRFILE);
+    return $string;
+}
+
+
+
+
+
 =pod
 
-=head2 FUNCTIONS
+
 
 =head2 Query users or groups of users 
 
 =over 4
-
-=cut
-
 
 =item I<@list = fetchstudents_from_school()>
 
@@ -106,6 +141,7 @@ Returns an asciibetical list of all students of the school. No teachers
 are returned
 
 =cut
+
 
 # replaces get_students_school
 sub fetchstudents_from_school {
@@ -397,20 +433,7 @@ sub remove_my_adminclass {
 
 
 
-sub fetch_error_string {
-    my $string = "Unknown Error\n";
-    my $file="/usr";
-    #print "Opening: $DevelConf::lang_err_file\n";
-    open(ERRFILE, "<${DevelConf::lang_err_file}");
-    while (<ERRFILE>) {
-        chomp();
-        if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
-        if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
-	print "$_ \n";
-    }
-    close(ERRFILE);
-    return $string;
-}
+
 
 
 
