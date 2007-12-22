@@ -136,7 +136,55 @@ if ($info==1) {
 &log_script_start(@arguments);
 
 
+# --showredirect/showforward
 if ($show_redirect==1){
+    my @teachers = &Sophomorix::SophomorixPgLdap::fetchstudents_from_adminclass(${DevelConf::teacher});
+    my @users = (@teachers);
+    foreach my $user (@users){
+        my @column_user=($user);
+        my @column_forward=();
+        my ($home) = &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
+        if (-e "$home/.forward"){
+            # open file and read .forward
+            open(FORWARD, "<$home/.forward");
+            while (<FORWARD>){
+                chomp();
+                push @column_forward, $_;
+            }
+            close (FORWARD);
+
+        }
+        my @column_cyrus=&read_cyrus_redirect($user);
+
+        # look for longest column
+        my $max_index=$#column_user;
+        if ($#column_forward>$max_index){
+            $max_index=$#column_forward
+        }
+        if ($#column_cyrus>$max_index){
+            $max_index=$#column_cyrus
+        }
+
+        # fill other columns with empty string
+        while ($#column_user<$max_index){
+            push @column_user, " $user";
+        }
+        while ($#column_forward<$max_index){
+            push @column_forward, "";
+        }
+        while ($#column_cyrus<$max_index){
+            push @column_cyrus, "";
+        }
+
+        for (my $i=0;$i<=$max_index;$i++){
+            #print "$column_user[$i] \n";
+            #print "$column_forward[$i] \n";
+            #print "$column_cyrus[$i] \n";
+            
+            printf "| %-9s| %-32s| %-32s|\n",$column_user[$i],$column_forward[$i],$column_cyrus[$i];
+ 
+        }
+    }
     &log_script_end(@arguments);
 }
 
@@ -594,3 +642,14 @@ sub generate_maillist_projects {
 }
 
 
+
+
+sub read_cyrus_redirect {
+    my ($user) = @_;
+    my $firstletter = substr($user,0,1);;
+    my $file = "/var/spool/sieve/".$firstletter."/".$user."/ingo.script";
+    if (-e $file){
+        return "sieve";
+    }
+    return "todo"
+}
