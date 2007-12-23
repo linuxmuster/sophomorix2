@@ -2280,7 +2280,7 @@ sub read_cyrus_redirect {
         open(INGO, "<$file");
         while (<INGO>){
             if ($print==1){
-                if (m/[a-z{}\[\]].*/){
+                if (m/[0-9a-z;,.:{}\[\]].*/){
                     s/\s$//g; # Spezialzeichen am ende entfernen
    		    print "  $_\n";
                 } 
