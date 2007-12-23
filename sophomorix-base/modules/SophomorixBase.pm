@@ -57,6 +57,7 @@ use Quota;
               get_user_history
               get_group_list
               print_forward
+              read_cyrus_redirect
               get_passwd_charlist
               get_random_password
               get_plain_password
@@ -2263,6 +2264,52 @@ sub print_forward {
        print "  User $login has no mail forwarding.\n";
    }
 }
+
+
+sub read_cyrus_redirect {
+    my ($user,$print) = @_;
+    if (not defined $print){
+	$print=0;
+    }
+
+    my @redir_list = ();
+    my $firstletter = substr($user,0,1);;
+    my $file = "/var/spool/sieve/".$firstletter."/".$user."/ingo.script";
+    if (-e $file){
+        $cross++;
+        open(INGO, "<$file");
+        while (<INGO>){
+            if ($print==1){
+                if (m/[a-z{}\[\]].*/){
+                    s/\s$//g; # Spezialzeichen am ende entfernen
+   		    print "  $_\n";
+                } 
+            }
+            chomp();
+            if (m/redirect/){
+                # add email address at the end
+                my ($a,$mail_address,$b) = split(/"/);
+                push @redir_list, $mail_address;   
+            }
+            if (m/keep/){
+                # add keep at the beginning
+                # unshift @redir_list, "keep";   
+                push @redir_list, "keep";   
+            }
+            if (m/discard/){
+                push @redir_list, "discard";   
+            }
+            if (m/stop/){
+                push @redir_list, "stop";   
+            }
+        }
+        close(INGO);
+        return @redir_list;
+    }
+    return "";
+}
+
+
 
 
 =pod

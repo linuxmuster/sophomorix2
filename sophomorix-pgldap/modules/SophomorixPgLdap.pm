@@ -120,6 +120,7 @@ use Sophomorix::SophomorixBase qw ( titel
                                     provide_project_files
                                     get_user_history
                                     print_forward
+                                    read_cyrus_redirect
                                     print_list_column
                                   );
 use Crypt::SmbHash;
@@ -4696,8 +4697,10 @@ sub search_user {
           # history, database independent
           print "History of $login:\n";
           &Sophomorix::SophomorixBase::get_user_history($login);
-          print "Mail forwarding of $login:\n";
+          print ".forward of $login:\n";
           &Sophomorix::SophomorixBase::print_forward($login, $home);
+          print "ingo.script of $login:\n";
+          &Sophomorix::SophomorixBase::read_cyrus_redirect($login,1);
        }
        print "\n";
 
