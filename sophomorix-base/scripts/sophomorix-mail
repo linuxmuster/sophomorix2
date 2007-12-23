@@ -177,7 +177,7 @@ if ($show_redirect==1 or $show_all_redirect==1){
             close(FORWARD);
         }
 
-        @column_cyrus=&read_cyrus_redirect($user);
+        @column_cyrus=&Sophomorix::SophomorixBase::read_cyrus_redirect($user);
 
         # look for longest column
         my $max_index=$#column_user;
@@ -674,35 +674,3 @@ sub generate_maillist_projects {
 
 
 
-sub read_cyrus_redirect {
-    my ($user) = @_;
-    my @redir_list = ();
-    my $firstletter = substr($user,0,1);;
-    my $file = "/var/spool/sieve/".$firstletter."/".$user."/ingo.script";
-    if (-e $file){
-        $cross++;
-        open(INGO, "<$file");
-        while (<INGO>){
-            chomp();
-            if (m/redirect/){
-                # add email address at the end
-                my ($a,$mail_address,$b) = split(/"/);
-                push @redir_list, $mail_address;   
-            }
-            if (m/keep/){
-                # add keep at the beginning
-                # unshift @redir_list, "keep";   
-                push @redir_list, "keep";   
-            }
-            if (m/discard/){
-                push @redir_list, "discard";   
-            }
-            if (m/stop/){
-                push @redir_list, "stop";   
-            }
-        }
-        close(INGO);
-        return @redir_list;
-    }
-    return "";
-}
