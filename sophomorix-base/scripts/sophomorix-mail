@@ -45,6 +45,7 @@ my $help=0;
 my $info=0;
 my $show_mailbox=0;
 my $show_redirect=0;
+my $show_all_redirect=0;
 my $skiplock=0;
 my $show_type=0;
 my $kill_mailbox="";
@@ -56,6 +57,7 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "showmailboxes|showmailbox" => \$show_mailbox,
            "showredirect|showforward" => \$show_redirect,
+           "showallredirect|showallforward" => \$show_all_redirect,
            "skiplock" => \$skiplock,
            "showtype" => \$show_type,
            "kill-mailbox=s" => \$kill_mailbox,
@@ -137,10 +139,19 @@ if ($info==1) {
 &log_script_start(@arguments);
 
 
+
 # --showredirect/showforward
-if ($show_redirect==1){
+if ($show_redirect==1 or $show_all_redirect==1){
     my @teachers = &Sophomorix::SophomorixPgLdap::fetchstudents_from_adminclass(${DevelConf::teacher});
-    my @users = (@teachers);
+    my @users=();
+
+    if ($show_all_redirect==1){
+        my @students=&Sophomorix::SophomorixAPI::fetchstudents_from_school();
+        @users = (@teachers,@students);
+    } elsif ($show_redirect==1){
+        @users = (@teachers);
+    }
+
     print "+----------+---------------------------------+",
           "---------------------------------+-+\n";
     print "| Login    | .forward                        |",
@@ -161,7 +172,6 @@ if ($show_redirect==1){
                 push @column_forward, $_;
             }
             close(FORWARD);
-
         }
 
         @column_cyrus=&read_cyrus_redirect($user);
