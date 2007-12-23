@@ -37,6 +37,7 @@ my $file="/etc/aliases";
 my $file_tmp="/etc/aliases-tmp";
 my $new_aliases="/usr/bin/newaliases";
 my %seen_aliases=();
+my $cross;
 
 # Variablen für Optionen
 $Conf::log_level=1;
@@ -140,21 +141,30 @@ if ($info==1) {
 if ($show_redirect==1){
     my @teachers = &Sophomorix::SophomorixPgLdap::fetchstudents_from_adminclass(${DevelConf::teacher});
     my @users = (@teachers);
+    print "+----------+---------------------------------+",
+          "---------------------------------+-+\n";
+    print "| Login    | .forward                        |",
+          " /var/spool/sieve/*/ingo.script  |n|\n";
+
     foreach my $user (@users){
         my @column_user=($user);
         my @column_forward=();
+        my @column_cyrus=();
+        $cross=0;
         my ($home) = &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
         if (-e "$home/.forward"){
+            $cross++;
             # open file and read .forward
             open(FORWARD, "<$home/.forward");
             while (<FORWARD>){
                 chomp();
                 push @column_forward, $_;
             }
-            close (FORWARD);
+            close(FORWARD);
 
         }
-        my @column_cyrus=&read_cyrus_redirect($user);
+
+        @column_cyrus=&read_cyrus_redirect($user);
 
         # look for longest column
         my $max_index=$#column_user;
@@ -176,15 +186,22 @@ if ($show_redirect==1){
             push @column_cyrus, "";
         }
 
-        for (my $i=0;$i<=$max_index;$i++){
-            #print "$column_user[$i] \n";
-            #print "$column_forward[$i] \n";
-            #print "$column_cyrus[$i] \n";
-            
-            printf "| %-9s| %-32s| %-32s|\n",$column_user[$i],$column_forward[$i],$column_cyrus[$i];
- 
+        if ($column_cyrus[0] ne "" or $column_forward[0] ne ""){
+           # separator for new users
+           print "+----------+---------------------------------+",
+                 "---------------------------------+-+\n";
+           for (my $i=0;$i<=$max_index;$i++){
+               printf "| %-9s| %-32s| %-32s|%-1s|\n",$column_user[$i],
+                                                     $column_forward[$i],
+                                                     $column_cyrus[$i],
+                                                     $cross;
+           }
         }
+
     }
+    print "+----------+---------------------------------+",
+          "---------------------------------+-+\n";
+    print "n: number of existing files (.forward, ingo.script)\n";
     &log_script_end(@arguments);
 }
 
@@ -646,10 +663,33 @@ sub generate_maillist_projects {
 
 sub read_cyrus_redirect {
     my ($user) = @_;
+    my @redir_list = ();
     my $firstletter = substr($user,0,1);;
     my $file = "/var/spool/sieve/".$firstletter."/".$user."/ingo.script";
     if (-e $file){
-        return "sieve";
+        $cross++;
+        open(INGO, "<$file");
+        while (<INGO>){
+            chomp();
+            if (m/redirect/){
+                # add email address at the end
+                my ($a,$mail_address,$b) = split(/"/);
+                push @redir_list, $mail_address;   
+            }
+            if (m/keep/){
+                # add keep at the beginning
+                # unshift @redir_list, "keep";   
+                push @redir_list, "keep";   
+            }
+            if (m/discard/){
+                push @redir_list, "discard";   
+            }
+            if (m/stop/){
+                push @redir_list, "stop";   
+            }
+        }
+        close(INGO);
+        return @redir_list;
     }
-    return "todo"
+    return "";
 }
