@@ -99,6 +99,9 @@ Imap-Server Options
   --showredirect --showforward
   --showmailboxes
   --showmailboxes --showtype   (slow)
+  --showforward/--showredirect
+  --showallforward/--showallredirect
+
   --kill-mailbox user1,user2,...
   --add-mailbox user1,user2,...
 
@@ -152,8 +155,8 @@ if ($show_redirect==1 or $show_all_redirect==1){
         @users = (@teachers);
     }
 
-    print "+----------+---------------------------------+",
-          "---------------------------------+-+\n";
+    print "+----------+--------------------------------+",
+          "--------------------------------+-+\n";
     print "| Login    | .forward                        |",
           " /var/spool/sieve/*/ingo.script  |n|\n";
 
@@ -198,10 +201,10 @@ if ($show_redirect==1 or $show_all_redirect==1){
 
         if ($column_cyrus[0] ne "" or $column_forward[0] ne ""){
            # separator for new users
-           print "+----------+---------------------------------+",
-                 "---------------------------------+-+\n";
+           print "+----------+--------------------------------+",
+                 "--------------------------------+-+\n";
            for (my $i=0;$i<=$max_index;$i++){
-               printf "| %-9s| %-32s| %-32s|%-1s|\n",$column_user[$i],
+               printf "| %-9s| %-31s| %-31s|%-1s|\n",$column_user[$i],
                                                      $column_forward[$i],
                                                      $column_cyrus[$i],
                                                      $cross;
@@ -209,8 +212,8 @@ if ($show_redirect==1 or $show_all_redirect==1){
         }
 
     }
-    print "+----------+---------------------------------+",
-          "---------------------------------+-+\n";
+    print "+----------+--------------------------------+",
+          "--------------------------------+-+\n";
     print "n: number of existing files (.forward, ingo.script)\n";
     &log_script_end(@arguments);
 }
