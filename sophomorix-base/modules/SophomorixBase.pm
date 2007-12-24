@@ -56,8 +56,6 @@ use Quota;
               check_verzeichnis_mkdir
               get_user_history
               get_group_list
-              print_forward
-              read_cyrus_redirect
               get_passwd_charlist
               get_random_password
               get_plain_password
@@ -127,6 +125,8 @@ use Quota;
               move_immutable_tree
               set_immutable_bit
               fetch_immutable_bit
+              print_forward
+              read_cyrus_redirect
               );
 
 
@@ -2244,71 +2244,6 @@ sub get_group_list {
 }
 
 
-=pod
-
-=item I<print_forward(login,home)>
-
-Gibt den Inhalt von .forward aus
-
-=cut
-# this sjould be true for all db and auth-systems
-sub print_forward {
-    my ($login, $home) = @_;
-    if (-e "$home/.forward"){
-       open(FORWARD,"$home/.forward");
-       while (<FORWARD>){
-           chomp();
-	   print "  "."$_ \n";
-       }
-   } else {
-       print "  User $login has no mail forwarding.\n";
-   }
-}
-
-
-sub read_cyrus_redirect {
-    my ($user,$print) = @_;
-    if (not defined $print){
-	$print=0;
-    }
-
-    my @redir_list = ();
-    my $firstletter = substr($user,0,1);;
-    my $file = "/var/spool/sieve/".$firstletter."/".$user."/ingo.script";
-    if (-e $file){
-        $cross++;
-        open(INGO, "<$file");
-        while (<INGO>){
-            if ($print==1){
-                if (m/[0-9a-z;,.:{}\[\]].*/){
-                    s/\s$//g; # Spezialzeichen am ende entfernen
-   		    print "  $_\n";
-                } 
-            }
-            chomp();
-            if (m/redirect/){
-                # add email address at the end
-                my ($a,$mail_address,$b) = split(/"/);
-                push @redir_list, $mail_address;   
-            }
-            if (m/keep/){
-                # add keep at the beginning
-                # unshift @redir_list, "keep";   
-                push @redir_list, "keep";   
-            }
-            if (m/discard/){
-                push @redir_list, "discard";   
-            }
-            if (m/stop/){
-                push @redir_list, "stop";   
-            }
-        }
-        close(INGO);
-        return @redir_list;
-    }
-    return "";
-}
-
 
 
 
@@ -3080,7 +3015,9 @@ sub log_script_start {
 
         if ($try_count==$max_try_count){
             &titel("try again later ...");
-            exit;
+            my $string = &Sophomorix::SophomorixAPI::fetch_error_string(42);
+            &titel($string);
+            exit 42;
         } else {
             sleep 1;
         }
@@ -3149,8 +3086,10 @@ sub log_script_end {
 
 sub log_script_exit {
     # 1) what to print to the log file/console
+    # (unused)
     my $message=shift;
-    # 2) return 0: normal end, return=1 unexpected end 
+    # 2) return 0: normal end, return=1 unexpected end
+    # search with this value for 
     my $return=shift;
     # 3) unlock (unused)
     my $unlock=shift;
@@ -5304,6 +5243,79 @@ sub fetch_immutable_bit {
 ################################################################################
 # WEBMIN
 ################################################################################
+
+
+################################################################################
+# REDIRECT (FORWARD, INGO, ...)
+################################################################################
+
+
+=pod
+
+=item I<print_forward(login,home)>
+
+Gibt den Inhalt von .forward aus
+
+=cut
+# this sjould be true for all db and auth-systems
+sub print_forward {
+    my ($login, $home) = @_;
+    if (-e "$home/.forward"){
+       open(FORWARD,"$home/.forward");
+       while (<FORWARD>){
+           chomp();
+	   print "  "."$_ \n";
+       }
+   } else {
+       print "  User $login has no mail forwarding.\n";
+   }
+}
+
+
+sub read_cyrus_redirect {
+    my ($user,$print) = @_;
+    if (not defined $print){
+	$print=0;
+    }
+
+    my @redir_list = ();
+    my $firstletter = substr($user,0,1);;
+    my $file = "/var/spool/sieve/".$firstletter."/".$user."/ingo.script";
+    if (-e $file){
+        $cross++;
+        open(INGO, "<$file");
+        while (<INGO>){
+            if ($print==1){
+                if (m/[0-9a-z;,.:{}\[\]].*/){
+                    s/\s$//g; # Spezialzeichen am ende entfernen
+   		    print "  $_\n";
+                } 
+            }
+            chomp();
+            if (m/redirect/){
+                # add email address at the end
+                my ($a,$mail_address,$b) = split(/"/);
+                push @redir_list, $mail_address;   
+            }
+            if (m/keep/){
+                # add keep at the beginning
+                # unshift @redir_list, "keep";   
+                push @redir_list, "keep";   
+            }
+            if (m/discard/){
+                push @redir_list, "discard";   
+            }
+            if (m/stop/){
+                push @redir_list, "stop";   
+            }
+        }
+        close(INGO);
+        return @redir_list;
+    }
+    return "";
+}
+
+
 
 # ENDE DER DATEI
 # Wert wahr=1 zurückgeben
