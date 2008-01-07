@@ -490,8 +490,7 @@ if ($Conf::filter_script eq ""){
         &titel("Running filter script $Conf::filter_script.");
         system("$Conf::filter_script");
     } else {
-        &log_script_exit("ERROR: Filter script not found or not executable!",
-                         1,1,0,@arguments);
+        &log_script_exit("",200,1,0,@arguments);
     }
 }
 
