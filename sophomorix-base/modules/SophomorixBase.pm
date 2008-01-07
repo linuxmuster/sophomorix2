@@ -3032,7 +3032,7 @@ sub log_script_start {
 
 sub read_lockfile {
     my ($log_locked) = @_;
-    open(LOCK,"<$DevelConf::lock_file") || die "Cannot create lock file \n";;
+    open(LOCK,"<$DevelConf::lock_file") || die "Cannot create lock file \n";
     while (<LOCK>) {
         @lock=split(/::/);
     }
@@ -3076,6 +3076,7 @@ sub log_script_end {
          and exists ${DevelConf::lock_scripts}{$0}){
 	unlink $DevelConf::lock_file;
         &titel("Removing lock in $DevelConf::lock_file");    
+
     }
     &nscd_start();
     # flush_cache tut nur bei laufendem nscd
@@ -3100,6 +3101,12 @@ sub log_script_exit {
     my $timestamp = `date '+%Y-%m-%d %H:%M:%S'`;
     chomp($timestamp);
     my $log="${timestamp}::exit ::  $0";
+
+    # get correct message
+    if ($return!=1){
+        $message = &Sophomorix::SophomorixAPI::fetch_error_string($return);
+    } 
+
     foreach my $arg (@arguments){
 	$log=$log." ".$arg ;
     }
@@ -3110,8 +3117,9 @@ sub log_script_exit {
     # remove lock file
     if (-e $DevelConf::lock_file
          and exists ${DevelConf::lock_scripts}{$0}){
-        &titel("Removing lock in $DevelConf::lock_file");    
-	unlink $DevelConf::lock_file;
+        &titel("Removing lock in $DevelConf::lock_file");
+        #&unlock_sophomorix();
+        unlink $DevelConf::lock_file;
     }
     if ($message ne ""){
         &titel("$message");
