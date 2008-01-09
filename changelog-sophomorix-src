@@ -4,6 +4,8 @@
 ============SOPHOMORIX2 CHANGELOG ====================================
 
 1.9.35-1 (2008-01-xx)
+    - Bugfix: exit scrits with correct return value
+              (applies only for the example from 1.9.34)
     - sophomorix-kill: 
        - avoid warning when using next instead of return
        - Bugfix: /var/www/people/students|teachers/user is now deleted, 
@@ -11,7 +13,7 @@
 
 1.9.34-1 (2008-01-07)
     - changed log_script_exit funcion to uses errors.lang
-       - call it the new way oncee as example
+       - call it the new way once as example
     - sophomorix-mail:
        - sophomorix-user -s string shows ingo.script
        - exit correctly (start nscd) when using options
