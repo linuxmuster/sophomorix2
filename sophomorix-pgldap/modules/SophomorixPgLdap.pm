@@ -1322,9 +1322,11 @@ sub fetchdata_from_account {
         $uidnumber,
         $sambahomepath,
         $firstpassword,
-        $sambaacctflags
+        $sambaacctflags,
+        $exitadminclass
        )= $dbh->selectrow_array( "SELECT homedirectory,gid,gecos,uidnumber,
-                                         sambahomepath,firstpassword,sambaacctflags
+                                         sambahomepath,firstpassword,sambaacctflags,
+                                         exitadminclass
                                          FROM userdata 
                                          WHERE uid='$login'
                                         ");
@@ -1346,9 +1348,9 @@ sub fetchdata_from_account {
             $type="none";
         }
         return ($home,$type,$gecos,$group,$uidnumber,$sambahomepath,
-                $firstpassword,$sambaacctflags);
+                $firstpassword,$sambaacctflags,$exitadminclass);
     } else {
-        return ("","","","",-1,"","","");
+        return ("","","","",-1,"","","","");
     }
 }
 

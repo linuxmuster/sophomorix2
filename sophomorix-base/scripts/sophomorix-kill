@@ -283,7 +283,12 @@ sub kill_user {
      my ($home_verzeichnis_to_kill,
          $type_to_kill,
          $gecos_to_kill,
-         $linux_gruppe_to_kill) = 
+         $linux_gruppe_to_kill,
+         $uidnumber,
+         $sambahomepath,
+         $firstpassword,
+         $sambaacctflags,
+         $exitadminclass) = 
          &fetchdata_from_account($login_name_to_kill);
 
      if ($home_verzeichnis_to_kill eq ""){
@@ -300,6 +305,17 @@ sub kill_user {
      } elsif ($type_to_kill eq "student") {
          $public_html_to_kill = ${DevelConf::www_students}.
                                 "/".$login_name_to_kill;
+     } elsif ($type_to_kill eq "attic") {
+         # find out type before attic
+         if ($exitadminclass eq ${DevelConf::teacher}){
+             # it was a teacher
+             $public_html_to_kill = ${DevelConf::www_teachers}.
+                                    "/".$login_name_to_kill;
+         } else {
+             # it was a student
+             $public_html_to_kill = ${DevelConf::www_students}.
+                                    "/".$login_name_to_kill;
+         }
      } else {
          print "Not deleting public_html (Type is $type_to_kill)\n";
      }
@@ -313,7 +329,6 @@ sub kill_user {
           # Merken, dass user noch nicht entfernt wird
           print YETTOKILL "$_\n";
           return 0;
-          #next;
        }
      }
 
