@@ -312,7 +312,8 @@ sub kill_user {
                 "be deleted(not given by option).\n";
           # Merken, dass user noch nicht entfernt wird
           print YETTOKILL "$_\n";
-          next;
+          return 0;
+          #next;
        }
      }
 
@@ -384,13 +385,6 @@ sub kill_user {
      } else {
 
      }
-
-
-
-
-
-
-
 #      if ($linux_gruppe_to_kill ne ${DevelConf::teacher}) {
 #         # Es ist ein Schüler
 #       }
