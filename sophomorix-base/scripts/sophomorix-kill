@@ -308,7 +308,8 @@ sub kill_user {
      # and user to be killed is not one of these
      if ($loginname ne "") {
        if ($login_name_to_kill ne $loginname) {
-          print "$login_name_to_kill will  NOT be deleted(not given by option).\n";
+          print "$login_name_to_kill will  NOT ",
+                "be deleted(not given by option).\n";
           # Merken, dass user noch nicht entfernt wird
           print YETTOKILL "$_\n";
           next;
