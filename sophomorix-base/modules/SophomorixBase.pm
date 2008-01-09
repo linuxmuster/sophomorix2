@@ -3125,7 +3125,7 @@ sub log_script_exit {
         &titel("$message");
     }
     &nscd_start();
-    exit;
+    exit $return;
 }
 
 
