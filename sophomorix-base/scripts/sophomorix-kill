@@ -296,7 +296,9 @@ sub kill_user {
          return 0;
      }
 
-     print "Type of user to kill is $type_to_kill\n";
+     if($Conf::log_level>=2){
+         print "Type of user to kill is $type_to_kill\n";
+     }
 
      my $public_html_to_kill ="";
      if ($type_to_kill eq "teacher"){
@@ -324,8 +326,10 @@ sub kill_user {
      # and user to be killed is not one of these
      if ($loginname ne "") {
        if ($login_name_to_kill ne $loginname) {
-          print "$login_name_to_kill will  NOT ",
-                "be deleted(not given by option).\n";
+          if($Conf::log_level>=2){
+              print "$login_name_to_kill will  NOT ",
+                    "be deleted(not given by option).\n";
+          }
           # Merken, dass user noch nicht entfernt wird
           print YETTOKILL "$_\n";
           return 0;
@@ -352,11 +356,11 @@ sub kill_user {
       
       if ($home_verzeichnis_to_kill=~/^\/home\//){
           if ($DevelConf::testen==0) {
-	    print "   Removing recursively $home_verzeichnis_to_kill \n";
-            &unlink_immutable_tree("$home_verzeichnis_to_kill"); 
-	} else {
-	    print "Test: Removing recursively $home_verzeichnis_to_kill \n";
-        }
+	     print "   Removing recursively $home_verzeichnis_to_kill \n";
+             &unlink_immutable_tree("$home_verzeichnis_to_kill"); 
+	 } else {
+	     print "Test: Removing recursively $home_verzeichnis_to_kill \n";
+         }
       }
 
       # remove public_html in /var/www
