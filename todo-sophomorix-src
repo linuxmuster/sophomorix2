@@ -5,6 +5,18 @@ Next
 ############################################################
 
 
+
+Retun values anpassen:
+
+1 bis 63     adminfehler
+64 bis 127   schukofehler
+
+if ($rc & 0x40) { print "userfehler\n"; }
+if ($rc & 0x80) { print "schulkonsolenfehler\n"; })
+
+
+
+
 log_script_exit benutzen und error.de/en
 
 
