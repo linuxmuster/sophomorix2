@@ -1887,6 +1887,8 @@ sub syntax_check_entry {
     }
  
     # Nachname
+    # Punkt mit Nix ersetzen    
+    $surname=~s/\.//g;
     # Zulassen: a-z  und - (Für Doppelnamen) sowie ' (O'Reilly)
     if (($surname=~/[^A-Za-zÄäÖöÜüß\-\']/) &&
        ($filename eq $schueler_to_check_dateien[0]))# Schülerdatei 
@@ -3599,6 +3601,7 @@ sub filter_school_admin_software {
      #evtl recode ibmpc..lat1
      # Falsches ' in richtiges umwandeln
      $line=~s/`/'/g;
+
      # ü umwandeln
      if ($DevelConf::allow_umlaut eq "no"){
            # ü
