@@ -4,6 +4,41 @@
 Next
 ############################################################
 
+link zu code suchmaschine von Thomas
+
+
+pyquota:
+
+
+in die konfigurationsdatei rein, ob user für druckquota mit pykota
+eingestellt werden sollen, Wenn script dann da ist, dann beim anlegen ausführen
+
+verzeichnisse erstellen
+/etc/sophomorix/scripts/postadd
+/etc/sophomorix/scripts/postkill
+                            move
+                            ...
+
+in diesen Verzeichnissen nach ausführbaren scripten suchen und dann
+der reihenfolge nach ausführen:
+
+script user group homedir
+
+README in diesen Verzeichnissen:
+
+# Do not change this file
+# it will be automatically updated
+#
+# Alle executable files in this directory
+# will be run with the following parameters
+# 
+# scriptname user group home
+#
+# where 
+#  user   is the linux username
+#  group  is the primary group aof the user
+#  home   is the homedir of the user
+
 
 Linux-client:
 
