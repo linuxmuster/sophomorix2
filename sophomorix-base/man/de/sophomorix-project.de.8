@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-PROJECT 8 "July 19, 2007"
+.TH SOPHOMORIX-PROJECT 8 "March 23, 2008"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -69,6 +69,8 @@ verwaltetes Projekt hat folgende Eigenschaften:
                          z.B.:  16
      mailalias:      Mailaliase erzeugen (1) oder nicht (0)
      maillist:       MailingListe erzeugen (1) oder nicht (0)
+     joinable:       Alle Lehrer können die userliste ändern (1) oder nur
+                     Administratoren des Projekts (0)
 .PP
 .SH OPTIONS
 .B sophomorix-project
@@ -179,6 +181,17 @@ Trägt für alle Mitglieder dieses Projekts einen Mailalias ein
 Trägt alle Mitglieder dieses Projekts in eine Mailingliste ein. Alle
 Mitglieder sind somit unter dem Projektnamen UND dem langen
 Projektnamen (LongName) erreichbar.
+.TP
+.B \-\-join \-\-nojoin
+Setzt ein Projekt auf joinable oder nicht joinable. Wenn ein Projekt
+nicht joinable ist, dann können nur die Administratoren des Projekts
+die userliste ändern (d.h. mit der option --caller muss ein momentaner
+administrator übergeben werden, auch als root)
+.TP
+.B \-\-caller user
+Übergibt einen user. Abhängig von den Berechtigungen von user,
+können manche Aktionen nicht durchgeführt werden (siehe
+--join/--nojoin).
 .TP
 .B \-\-maxmembers anzahl
 Trägt anzahl als maxmembers in das Projekt ein. Die bisher vorhandene

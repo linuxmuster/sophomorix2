@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-PRINT 8 "November 30, 2004"
+.TH SOPHOMORIX-PRINT 8 "March 23, 2008"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -54,7 +54,7 @@ Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .B -a / --all
 Erzeugt ein Datei, in der ALLE angelegten User enthalten sind.
 .TP
-.B -t lehrer / --teacher lehrer
+.B -t / --teacher
 Erzeugt eine Datei, in der nur Lehrer enthalten sind.
 .TP
 .B -c class / --class class
@@ -73,6 +73,9 @@ Verfügung steht).
 Der Dateiname und der Inhalt der Datei enthält den String name. Dies
 kann z.B beim Aufruf aus webmin verwendet werden, um den Aufrufenden
 Lehrer (caller) mit auszudrucken.
+.TP
+.B --command pdflatex
+Benützt den Befehl pdflatex um aus *.tex *.pdf zu erzeugen. Standard ist die folgende Reihenfolge: *.tex -> *.dvi -> *.ps -> *.pdf 
 .TP
 .B --skiplock
 prüft nicht, ob die sophomorix lock-Datei existiert. Führt das Script

@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-CHECK 8 "November 16, 2006"
+.TH SOPHOMORIX-CHECK 8 "March 23, 2008"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -62,9 +62,12 @@ holt die numerische uid aus alten Dateien und nutzt sie. Nur in Verbindung mit O
 .B --use-gid
 holt die numerische gid aus alten Dateien und nutzt sie. Nur in Verbindung mit Option --get-info-from-old-files sinnvoll.
 .TP
+.B --file filename
+liest die angegebene Datei filename zusätzlich ein, bevor die standard-Dateien eingelesen werden
+.TP
 .B --no-kclass
 Entfernt NICHT das führende k in Gruppennamen aus der alten
-group-Datei.
+group-Datei. Sollte nie benötigt werden.
 .br
 Sollte angegeben werden, wenn eine alte group Datei eingelesen wird,
 bei deren Gruppennamen KEIN k vorangestellt wurde.  Nur in Verbindung
