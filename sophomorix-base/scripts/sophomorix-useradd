@@ -101,19 +101,31 @@ if ($help==1) {
 sophomorix-useradd adds a user to the sophomorix database (and ldap)
 
 Options
-  -h  / --help
+  -h / --help
+  -v / --verbose
+  -vv /--verbose --verbose
+  --skiplock
+
+Klassenarbeitsaccount:
   --examaccount name         account for exams
+
+Administrator:
   --administrator name       administrator
+  --uidnumber number
+  --secondary-groups group1,group2
   --unixadmin name           login (no windows account)
+
+  optional
+    --shell /bin/sh
+    --home /dev/null
+    --gecos "my gecos field"
+
+Computeraccount:
   --computer name            $ account
 
 and for examaccounts, administrators and unixadmin:
   --unix-group groupname
 
-optional
-  --shell /bin/sh
-  --home /dev/null
-  --gecos "my gecos field"
 
 Please see the sophomorix-useradd(8) man pages for full documentation
 ');
