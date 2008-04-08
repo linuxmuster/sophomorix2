@@ -73,6 +73,7 @@ teilt Daten als Kopien aus. Es muss zusätzlich eine Liste (mit
 .B --collect
 sammelt Daten ein durch verschieben der Daten in das Homeverzeichnis des Lehrers. 
 Es muss zusätzlich --class, --subclass oder --project angegeben werden.
+Mit --exam kann als Klassenarbeit eingesammelt werden (Anderer Ordnername, zusatzbackup für root, ...).
 .TP
 .B --collectcopy
 sammelt Daten ein durch kopieren der Daten in das Homeverzeichnis des Lehrers. 
@@ -80,6 +81,9 @@ Es muss zusätzlich --class, --subclass oder --project angegeben werden.
 .TP
 .B [--handout|--collect] -i , [--handout|--collect] --info
 zeigt an welche Dateien Eingesammelt/ausgeteilt werden würden
+.TP
+.B --exam
+siehe --collect
 .TP
 .B Angabe von Räumen beim Austeilen/Einsammeln/Bereitstellen
 .TP
@@ -102,6 +106,13 @@ Einsammeln/Austeilen/Bereitstellen an das Projekt Project.
 .TP
 .B --users user1,user2,...
 Einsammeln/Austeilen (NICHT beim Bereitstellen) an eine Liste von usern.
+Mit --fromclass bzw. --fromproject kann noch ein Projekt angegeben werden.
+.TP
+.B --fromclass
+siehe --users
+.TP
+.B --fromproject
+siehe --users
 .TP
 .B --share|--noshare --users user1,user2,user3,...
 Erlaube dem User user1,user2,... sein _tauschen zu benutzen oder nicht.
