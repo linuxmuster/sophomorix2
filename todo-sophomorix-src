@@ -4,6 +4,37 @@
 Next
 ############################################################
 
+RT:
+# 399
+# 404
+# 190
+
+immutable bit testen
+
+Bug: nscd bleibt gestoppt, wenn 
+sophomorix-project --dump filename
+und: keine projecte ???
+
+
+Websachen werden entfernt:
+- in /var/www/people verzeichnisse anlegen
+- private_html gestrichen
+- noch in 1.9.35 rein
+
+
+# 421
+alle scripte Durchgreppen nach 
+exit;
+
+besonders
+sophomorix-groupadd
+sophomorix-useraddadd
+sophomorix-kill
+sophomorix-quota
+sophomorix-passwd
+
+
+
 link zu code suchmaschine von Thomas
 
 Bug!?
@@ -86,8 +117,8 @@ geoeffnet werden
 
 Retun values anpassen:
 
-1 bis 63     adminfehler
-64 bis 127   schukofehler
+1 bis 63     adminfehler  (schuko: interner Fehler)
+64 bis 127   schukofehler (schuko: userfehler)
 
 if ($rc & 0x40) { print "userfehler\n"; }
 if ($rc & 0x80) { print "schulkonsolenfehler\n"; })
