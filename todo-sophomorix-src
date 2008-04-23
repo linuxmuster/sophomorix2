@@ -16,6 +16,22 @@ sophomorix-project --dump filename
 und: keine projecte ???
 
 
+
+sophomorix-mail --showmailboxes:
+
+| oder ähnlich laufen lassen? Dann müsste der cyrus abgefragt werden und
+die Mailboxen der user ausspucken.
+|
+
+es werden die Mailboxen aller User aufgelistet, aber Ende der Ausgabe kommt
+das:
+
+183 mailboxes (use --showtype to show Group/Type of a mailbox)
+~   Group/Type = 'CYRUS': no unix account matching the box's name exists
+
+Und nscd wird nicht wieder gestartet. 
+
+
 Frank Schiebel schrieb:
 | Hai nochmal!
 |
