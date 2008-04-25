@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-VAMPIRE 8 "September 23, 2007"
+.TH SOPHOMORIX-VAMPIRE 8 "April 25, 2008"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -64,7 +64,10 @@ Anmeldungskärtchen ausgedruckt). Veränderte Passwörter werden NICHT
 .B sophomorix-vampire  
 wird auf einem neuen Server gestartet und holt dann Benutzer und und
 Daten eines alten Servers.
+
 .br
+Wichtig: Auf dem neuen Server sollten noch keine Benutzer
+bzw. Workstations angelegt sein.
 .TP
 .B Step 0: Vorbereitungen
 Installieren sie das aktuellste Paket von sophomorix-vampire:
@@ -88,10 +91,17 @@ Sorgen sie dafuer, dass der neue Server über seine interne Netzwerkkarte auf den
 .br
 2) Physikalische Verbindung herstellen (Netzwerkkabel,Switch, ...).
 .br
-3) Dem neuen Server eine zusaetzliche IP/Netmask geben, die im alten Netz liegt, und noch nicht vergeben ist, z.B. mit:
+3) Dem neuen Server eine zusaetzliche IP/Netmask geben, die im alten Netz liegt, und noch nicht vergeben ist, z.B. mit (integrierter ipcop):
 .br
 
 .B ifconfig br_intern:10 netmask 255.255.0.0 10.1.1.245 
+.br
+
+oder (dedizierter ipcop):
+.br
+
+.B ifconfig intern:10 netmask 255.255.0.0 10.1.1.245
+.B 
 .br
 
 Erzeugen eins passwortlosen ssh-keys und ablegen auf dem alten Server mit der IP 10.1.x.y. Obligatorisch, wenn von einem anderen Rechner migriert wird.
@@ -163,7 +173,8 @@ Einige Verzeichnisse auf den neuen Server kopieren
 .B Step 5:
 .br
 .br
-Stellen sie VOR dem nächsten Schritt sicher,
+sophomorix.conf wird nicht vom alten System übernommen. Stellen sie
+deshalb VOR dem nächsten Schritt sicher,
  - dass sie sophomorix konfiguriert haben:
      /etc/sophomorix/user/sophomorix.conf
 .br
@@ -177,7 +188,7 @@ Dann legen Sie die Benutzer mit dem gleichen Loginnamen an
 .TP
 .B Step 6: --configure-quota 
 .br
-Quota konfigurieren:
+Quota konfigurieren (wenn auf dem alten System mit quota gearbeitet wurde):
 .br
 
 1) Bearbeiten sie die Datei /etc/sophomorix/vampire/quota.config 
@@ -188,7 +199,7 @@ Quota konfigurieren:
 
 sophomorix-vampire --configure-quota
 .TP
-ODER:
+ODER (bisher keine quota benutzt bzw. neue Überlegungen):
 
 Editieren Sie in folgenden Dateien die Quotaangaben mit einem Editor:
 
@@ -211,7 +222,11 @@ nicht der Fall ist, wiederholen Sie Schritt 6 und 7.
 .TP
 .B Step 8: --sync-homes
 .br
-Daten im Home der Benutzer abgleichen, ein user nach dem anderen. Das kann dauern.
+Daten im Home der Benutzer abgleichen, ein user nach dem anderen. Das
+kann dauern. 
+.br
+Man kann auch mit der zusätzlichen Option -u name erst einmal testweise für nur
+einen Benutzer die Daten abgleichen, und die restlichen Homes am Ende nachholen.
 .TP
 .B Step 9: --sync-mail-data
 .br
@@ -227,6 +242,7 @@ Mail Dateien synchronisieren (Vorher MUSS --sync-homes aufgerufen worden sein):
 A) Mail aus $HOME/__dachboden/mail/$user nach cyrus synchronisieren
 (cyrus-Unterordner __dachboden/user). Das ist die ehemalige INBOX des
 alten Servers.
+
 .br
 B) Mail-Ordner aus $HOME/__dachboden/linux/mail/* nach cyrus
 synchronisieren (cyrus-Unterordner __dachboden/ORDNER). Für
@@ -235,6 +251,10 @@ ORDNER steht sent-mail,drafts und alle selbst angelegten Ordner.
 .br
 Achten sie darauf, dass der neue Server ausreichend große Mailanhänge
 empfangen kann.
+
+.br
+Man kann die Schritte --sync-mail-data und danach --sync-mail auch
+später nachholen.
 .TP
 .B Step 11: --sync-workstations
 .br
@@ -242,12 +262,17 @@ Workstation-accounts auf dem neuen Server anlegen.
 .TP
 .B Step 12: --sync-shares
 .br
-.B  Synchronisieren der Klassentausch-Verzeichnisse aller Klassen des neuen Servers
-.TP
+Synchronisieren der Klassentausch-Verzeichnisse aller Klassen des neuen Servers
+.br
+
+Das kann auch später nachgeholt werden.
 .TP
 .B Step 13: --sync-teacher-share
 .br
-.B  Synchronisieren des Tausch-Verzeichnisses der Lehrer
+Synchronisieren des Tausch-Verzeichnisses der Lehrer
+.br
+
+Das kann auch später nachgeholt werden.
 .TP
 .B Step 14: Synchronisieren der Dateien des Imaging Systems.
  
