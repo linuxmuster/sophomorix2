@@ -5273,11 +5273,12 @@ sub show_project {
 
 
 sub dump_all_projects {
-    my ($file) = @_;
+    my ($file,@arguments) = @_;
     &titel("dumping all projects to $file");
     if (-e $file){
-        print "ERROR: File $file exists. I will not overwrite!\n";
-        exit;
+        &Sophomorix::SophomorixBase::log_script_exit(
+        "File $file exists. I will not overwrite!",
+        1,1,0,@arguments);
     }
     my @projects=&fetchprojects_from_school();
 
