@@ -4,17 +4,17 @@
 Next
 ############################################################
 
+changed in Nurnberg:
+sophomorix-vampire
+sophomorix-project
+
+
 RT:
 # 399
 # 404
 # 190
 
 immutable bit testen
-
-Bug: nscd bleibt gestoppt, wenn 
-sophomorix-project --dump filename
-und: keine projecte ???
-
 
 
 sophomorix-mail --showmailboxes:
@@ -186,6 +186,11 @@ Retun values anpassen:
 
 1 bis 63     adminfehler  (schuko: interner Fehler)
 64 bis 127   schukofehler (schuko: userfehler)
+
+return 0 bedeutet: kein Fehler, Ausgabe ins log: Option
+return 1 bedeutet: Fehler ohne Eintrag in errors.lang
+                   Ausgabe ins log: Option:
+                        englischer Fehler
 
 if ($rc & 0x40) { print "userfehler\n"; }
 if ($rc & 0x80) { print "schulkonsolenfehler\n"; })
