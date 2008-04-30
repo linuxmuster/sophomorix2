@@ -355,24 +355,28 @@ if ($project ne "" and $create==0
 
 # --dump
 if ($project eq "" and $dump_all_projects ne ""){
-    &dump_all_projects("$dump_all_projects");
-    exit;
+    &dump_all_projects("$dump_all_projects",@arguments);
+    &Sophomorix::SophomorixBase::log_script_exit(
+    "All projects dumped!",
+    0,1,0,@arguments);
 }
 
 
 # --create-from-file
 if ($project eq "" and $create_from_file ne ""){
-    #&alpha_warning();
-    &project_from_file($create_from_file,"--create");
-    exit;
+    &project_from_file($create_from_file,"--create",@arguments);
+    &Sophomorix::SophomorixBase::log_script_exit(
+    "All projects created!",
+    0,1,0,@arguments);
 }
 
 
 # --update-from-file
 if ($project eq "" and $update_from_file ne ""){
-    #&alpha_warning();
-    &project_from_file($update_from_file,"");
-    exit;
+    &project_from_file($update_from_file,"",@arguments);
+    &Sophomorix::SophomorixBase::log_script_exit(
+    "All projects updated!",
+    0,1,0,@arguments);
 }
 
 
@@ -509,7 +513,8 @@ if (defined $p_long_name) {
        print "\nArgument of --longname\n";
        print "   contains invalid characters. \n";
        print "   or is too short or too long (6-32 characters). \n\n";
-       exit;
+       &log_script_exit("Invalid characters in argument!",
+                         1,1,0,@arguments);
    }
 }
 
@@ -523,7 +528,8 @@ if (defined $project) {
        print "\nArgument of --project\n";
        print "   contains invalid characters. \n";
        print "   or is too short or too long (3-14 characters after p_). \n\n";
-       exit;
+       &log_script_exit("Invalid characters in argument!",
+                         1,1,0,@arguments);
    }
 }
 
@@ -533,7 +539,8 @@ if (defined $project) {
 # --info --project name
 if ($project ne "" and $info==1){
     &show_project($project);
-    exit;
+    &log_script_exit("Projects showed!",
+                      1,1,0,@arguments);
 }
 
 
@@ -656,12 +663,18 @@ sub remove_duplicates_from_first_list {
 
 
 sub project_from_file {
-    my ($file,$parm)= @_;
+    my ($file,$parm,@arguments)= @_;
     #print "file: $file \n";
     #print "parm: $parm \n";
 
     my @pro_list=(); # list of all projects, order: file appearance
     %all_projects=();
+
+    if (not -e $file){
+        &Sophomorix::SophomorixBase::log_script_exit(
+        "File $file does not exist.",
+        1,1,0,@arguments);
+    }
 
     # fetch project list
     open(PROS, "<$file");

@@ -3087,7 +3087,7 @@ sub log_script_end {
 
 sub log_script_exit {
     # 1) what to print to the log file/console
-    # (unused)
+    # (unused when return =!0)
     my $message=shift;
     # 2) return 0: normal end, return=1 unexpected end
     # search with this value for 
@@ -3103,8 +3103,12 @@ sub log_script_exit {
     my $log="${timestamp}::exit ::  $0";
 
     # get correct message
-    if ($return!=1){
-        $message = &Sophomorix::SophomorixAPI::fetch_error_string($return);
+    if ($return!=0){
+        if ($return==1){
+            # use message given by option 1)
+        } else {
+            $message = &Sophomorix::SophomorixAPI::fetch_error_string($return);
+        }
     } 
 
     foreach my $arg (@arguments){
