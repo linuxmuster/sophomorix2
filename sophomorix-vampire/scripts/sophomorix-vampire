@@ -1140,7 +1140,7 @@ sub rsync_dirs {
         print"  - OLD: $old\n",
              "    NEW: $new\n";
         system("mkdir -p $new");
-        $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avz $delstr  root\@${server}:$old $new";
+        $command="/usr/bin/rsync -e \"ssh -i $key_dsa\" -avz --copy-dirs --keep-dirlinks $delstr  root\@${server}:$old $new";
         print "$command\n";
         system($command); 
     }
