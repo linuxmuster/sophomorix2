@@ -4,6 +4,17 @@
 ============SOPHOMORIX2 CHANGELOG ====================================
 
 1.9.35-1 (2008-02-xx)
+    - removed www stuff (security issues)
+      - added variable to switch it on/off: 
+        $www_create in sophomorix-devel.conf
+        see there to switch it on again
+      - removed private_html in $HOME
+      - removed private_html in sophomorix-repair --repairhome
+      - removed creation of /var/www/people/students/$user
+      - removed creation of /var/www/people/teacherss/$user
+      - removed creation of /var/www/classes|projects
+      - removed reairig the above stuff with
+         sophomorix-repair --htaccess
     - sophomorix-project:
        - checked that all exits log and restart nscd
     - sophomorix-vampire: 
