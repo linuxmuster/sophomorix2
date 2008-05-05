@@ -1141,17 +1141,20 @@ sub provide_class_files {
 	$type="";
     }
     if ($type eq "examaccount"){
-
+      # nothing
     } elsif ($class eq ${DevelConf::teacher}){
       &setup_verzeichnis("\$share_teacher",
                     "${DevelConf::share_teacher}");
-      &setup_verzeichnis("\$www_teachers",
-                    "${DevelConf::www_teachers}");
+      if ($DevelConf::create_www==1){
+         &setup_verzeichnis("\$www_teachers",
+                       "${DevelConf::www_teachers}");
+      }
     } else {
       my $klassen_homes="${DevelConf::homedir_pupil}/$class";
       my $klassen_tausch="${DevelConf::share_classes}/$class";
       my $klassen_aufgaben="${DevelConf::tasks_classes}/$class";
       my $klassen_www="${DevelConf::www_classes}/$class";
+
       my $ht_access_target=$klassen_www."/.htaccess";
       &setup_verzeichnis("\$homedir_pupil/\$klassen",
                     "$klassen_homes");
@@ -1161,11 +1164,14 @@ sub provide_class_files {
                     "$class");
       &setup_verzeichnis("\$tasks_classes/\$klassen",
                     "$klassen_aufgaben");
-      &setup_verzeichnis("\$www_classes/\$klassen",
-                    "$klassen_www");
-      # create .htaccess file if nonexisting
-      if (not -e $ht_access_target){
-          &group_private_noupload($class);
+
+      if ($DevelConf::create_www==1){
+          &setup_verzeichnis("\$www_classes/\$klassen",
+                            "$klassen_www");
+          # create .htaccess file if nonexisting
+          if (not -e $ht_access_target){
+              &group_private_noupload($class);
+          }
       }
     }
 }
@@ -1221,11 +1227,13 @@ sub provide_project_files {
                        $project);
     &setup_verzeichnis("\$tasks_projects/\$projects",
                        "$project_aufgaben");
-    &setup_verzeichnis("\$www_projects/\$projects",
-                       "$project_www");
-    # create .htaccess file if nonexisting
-    if (not -e $ht_access_target){
-        &group_private_noupload($project);
+    if ($DevelConf::create_www==1){
+        &setup_verzeichnis("\$www_projects/\$projects",
+                           "$project_www");
+        # create .htaccess file if nonexisting
+        if (not -e $ht_access_target){
+            &group_private_noupload($project);
+        }
     }
 }
 
@@ -1287,13 +1295,14 @@ sub provide_user_files {
         $home = "${DevelConf::homedir_teacher}/$login";
         $www_home = "${DevelConf::homedir_teacher}/$login/www";
         $share_class = "${DevelConf::share_teacher}";
-        $htaccess_template="${DevelConf::apache_templates}"."/".
-                           "htaccess.teacher.private_html-template";
-        $htaccess_target=$home."/private_html/.htaccess";
-        $htaccess_sed_command=
-            "sed $htaccess_replace $htaccess_template > $htaccess_target";
 
-        if ($DevelConf::testen==0) {
+        if ($DevelConf::create_www==1){
+           $htaccess_template="${DevelConf::apache_templates}"."/".
+                           "htaccess.teacher.private_html-template";
+           $htaccess_target=$home."/private_html/.htaccess";
+           $htaccess_sed_command=
+               "sed $htaccess_replace $htaccess_template > $htaccess_target";
+
            # create dirs outside $HOME
            &setup_verzeichnis("\$www_teachers/\$lehrer",
                               "${DevelConf::www_teachers}/$login",
@@ -1309,10 +1318,10 @@ sub provide_user_files {
 	   print "   Setting owner/gowner ${DevelConf::apache_user}($uid)/".
                  "${DevelConf::apache_user}($gid) to:\n     $htaccess_target\n";
            chown $uid, $gid, $htaccess_target;
-        }
 
-        # add htaccess to /var/www/people/.../user
-        &user_private_upload($login);
+           # add htaccess to /var/www/people/.../user
+           &user_private_upload($login);
+        }
 
         &create_share_link($login,$class,$class,"teacher");
         &create_share_directory($login,$class,$class,"teacher");
@@ -1325,12 +1334,13 @@ sub provide_user_files {
         $home = "${DevelConf::homedir_pupil}/$class/$login";
         $www_home = "${DevelConf::homedir_pupil}/$class/$login/www";
         $share_class = "${DevelConf::share_classes}/$class";
-        $htaccess_template="${DevelConf::apache_templates}"."/".
-                           "htaccess.student.private_html-template";
-        $htaccess_target=$home."/private_html/.htaccess";
-        $htaccess_sed_command=
-            "sed $htaccess_replace $htaccess_template > $htaccess_target";
-        if ($DevelConf::testen==0) {
+
+        if ($DevelConf::create_www==1) {
+           $htaccess_template="${DevelConf::apache_templates}"."/".
+                              "htaccess.student.private_html-template";
+           $htaccess_target=$home."/private_html/.htaccess";
+           $htaccess_sed_command=
+              "sed $htaccess_replace $htaccess_template > $htaccess_target";
            # create dirs outside $HOME
            # what is this for ?
            #system("chown -R $login:${DevelConf::teacher} $home");
@@ -1352,11 +1362,10 @@ sub provide_user_files {
            
            # add htaccess to /var/www/people/.../user
            &user_private_noupload($login);
-
-           &create_share_link($login,$class,$class,"adminclass");
-           &create_share_directory($login,$class,$class,"adminclass");
-           &create_school_link($login);
-         }
+        }
+        &create_share_link($login,$class,$class,"adminclass");
+        &create_share_directory($login,$class,$class,"adminclass");
+        &create_school_link($login);
     } elsif ($type eq "room"){
         ####################
         # workstation

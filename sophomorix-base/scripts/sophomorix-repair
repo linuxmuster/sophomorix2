@@ -268,30 +268,34 @@ if ($repairhome==1){
 
 
 sub repair_htaccess {
-    print "Repairing htaccess files of adminclasses:\n";
-    foreach my $group (@klassen){
+  if ($DevelConf::create_www==1) {
+     print "Repairing htaccess files of adminclasses:\n";
+     foreach my $group (@klassen){
         print "   ${group}:\n";
         my ($access)=&fetchhtaccess_from_group($group);
         &set_htaccess_for_group($group,$access);
-    }
-    print "Repairing htaccess files of projects:\n";
-    foreach my $group (@projects){
+     }
+     print "Repairing htaccess files of projects:\n";
+     foreach my $group (@projects){
         print "   ${group}:\n";
         my ($access)=&fetchhtaccess_from_group($group);
         &set_htaccess_for_group($group,$access);
-    }
-    print "Repairing htaccess files of students:\n";
-    foreach my $student (@schueler){
+     }
+     print "Repairing htaccess files of students:\n";
+     foreach my $student (@schueler){
         print "   ${student}:\n";
         my ($access)=&fetchhtaccess_from_user($student);
         &set_htaccess_for_user($student,$access);
-    }
-    print "Repairing htaccess files of teachers:\n";
-    foreach my $teacher (@lehrer){
+     }
+     print "Repairing htaccess files of teachers:\n";
+     foreach my $teacher (@lehrer){
         print "   ${teacher}:\n";
         my ($access)=&fetchhtaccess_from_user($teacher);
         &set_htaccess_for_user($teacher,$access);
-    }
+     }
+ } else {
+     print "sophomorix is configured not to repair .htaccess files\n";
+ }
 }
 
 
