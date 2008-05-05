@@ -559,16 +559,18 @@ sub check_provided_files {
     #}
 
     # private_html
-    if ($class eq ${DevelConf::teacher}){
-        &check_file("private_html",$login,$class,
-                    "administrator",
-                    "www-data",
-                    "3757");
-    } else {
-        &check_file("private_html",$login,$class,
-                    "administrator",
-                    "www-data",
-                    "3757");
+    if ($DevelConf::create_www==1){
+       if ($class eq ${DevelConf::teacher}){
+           &check_file("private_html",$login,$class,
+                       "administrator",
+                       "www-data",
+                       "3757");
+       } else {
+           &check_file("private_html",$login,$class,
+                       "administrator",
+                       "www-data",
+                       "3757");
+       }
     }
 
     # __austeilen
