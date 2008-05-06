@@ -14,10 +14,18 @@ RT:
 
 wie lautet der Befehl mit der in der Schulkonsole ein projekt gelöscht wird?
 
+sophomorix-project --caller teacher --project name --kill
+
+
 # 404
 # 190
 
 immutable bit testen
+
+
+sophomorix-repair --repairhome-from-file /path/to/file
+
+nutzt eigene Datei statt repairhome.students, teacher, ...
 
 
 sophomorix-mail --showmailboxes:
@@ -90,16 +98,9 @@ is done
 
 
 # 421
-alle scripte Durchgreppen nach 
-exit;
 
-besonders
-sophomorix-groupadd
-sophomorix-useraddadd
-sophomorix-kill
-sophomorix-quota
-sophomorix-passwd
-
+sophomorix-passwd mit exits
+is done
 
 
 link zu code suchmaschine von Thomas
@@ -331,6 +332,12 @@ sophomorix-teacher --teacher galli --add 11a
 liefert fehler beim start des nscd:
 Starting Name Service Cache Daemon: nscd/etc/init.d/nscd: line 36: start-stop-daemon: command not found
 
+
+sophomorix-mail nochmal checken
+
+in sophomorix-test einbauen
+
+
 bei anderen scriten startet der nscd problemlos
 
 
@@ -394,6 +401,18 @@ muss evtl. nachgeholt werden
 ############################################################
 Migration to etch
 ############################################################
+
+Nicht standardmäßig etch:
+
+moodle ist 1.9 etch wäre 1.6
+mondi und mindi
+
+script zum update von 7.4 auf 8.0
+gibts script in postgres 8.0
+
+Bem: ext3 hat neue Features auf etch. sarge kann kein ext3 von etch checken
+
+
 
 nscd ist beim standard etch dabei
    - Zusatzoption 'status' in /etc/init.d/nscd status

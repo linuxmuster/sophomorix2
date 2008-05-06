@@ -11,12 +11,16 @@
       - removed private_html in $HOME
       - removed private_html in sophomorix-repair --repairhome
       - removed creation of /var/www/people/students/$user
-      - removed creation of /var/www/people/teacherss/$user
+      - removed creation of /var/www/people/teachers/$user
       - removed creation of /var/www/classes|projects
       - removed reairig the above stuff with
          sophomorix-repair --htaccess
-    - sophomorix-project:
-       - checked that all exits log and restart nscd
+    - checked that the following scripts exit log and restart nscd:
+        - sophomorix-kill (nothing to do)
+        - sophomorix-quota (nothing to do)
+        - sophomorix-project
+        - sophomorix-groupadd
+        - sophomorix-useradd
     - sophomorix-vampire: 
        - updated manpage
        - changed --sync-dirs so that rsync follows symlinks (files and directories)
