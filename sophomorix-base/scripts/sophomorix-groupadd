@@ -102,8 +102,6 @@ if ($info==1){
 }
 
 
-&log_script_start(@arguments);
-
 
 # exit if options are missing
 if ($unix_group eq "" or $nt_group eq "" 
@@ -139,6 +137,7 @@ if ($room_group==1){
     $explanation="Room Group";
 }
 
+&log_script_start(@arguments);
 
 
 

@@ -136,7 +136,6 @@ Please see the sophomorix-quota(8) man page for full documentation
 ');
    print "\n";
    exit;
-   #&log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -205,9 +204,7 @@ if ($info==1) {
      print"  repquota -tsv $fs \n";
    }
    print "\n\n";
-
    exit;
-   #&log_script_exit("",1,1,0,@arguments);
 }
 
 
