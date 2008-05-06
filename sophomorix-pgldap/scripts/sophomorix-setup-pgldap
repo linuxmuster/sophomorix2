@@ -1177,11 +1177,13 @@ system("sed $replace ${template}/samba/netlogon/logon.bat.template > $smb_netlog
 system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlogin_bat"); 
 
 # www stuff
-&setup_verzeichnis("/var/www","/var/www");
-&setup_verzeichnis("\$www_people","$DevelConf::www_people");
-&setup_verzeichnis("\$www_students","$DevelConf::www_students");
-&setup_verzeichnis("\$www_classes","$DevelConf::www_classes");
-&setup_verzeichnis("\$www_projects","$DevelConf::www_projects");
+if ($DevelConf::create_www==1){
+   &setup_verzeichnis("/var/www","/var/www");
+   &setup_verzeichnis("\$www_people","$DevelConf::www_people");
+   &setup_verzeichnis("\$www_students","$DevelConf::www_students");
+   &setup_verzeichnis("\$www_classes","$DevelConf::www_classes");
+   &setup_verzeichnis("\$www_projects","$DevelConf::www_projects");
+}
 
 # make important data readable by root only
 &setup_verzeichnis("\$var_lib_pfad","$DevelConf::var_lib_pfad");
