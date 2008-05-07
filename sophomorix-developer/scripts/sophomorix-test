@@ -30,11 +30,51 @@ my @arguments = @ARGV;
 
 system("install -d /root/sophomorix-test");
 
+$Conf::log_level=1;
+my $help=0;
+my $info=0;
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "verbose|v+" => \$Conf::log_level,
+           "help|h" => \$help,
+           "info|i" => \$info,
+          );
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlbeschreibung
+   print "\n$scriptname tests the sophomorix suite.\n",
+         " It should only be used on test systems!\n";
+   print('
+Options
+  -h  / --help
+
+Please see the sophomorix-test(8) man pages for full documentation
+');
+   print "\n";
+   exit;
+}
+
+# --info
+if ($info==1) {
+    print "Option --info not defined.\n";
+    exit;
+}
+
 ############################################################
 # Start
 ############################################################
-&check_connections();
+
+
 &log_script_start(@arguments);
+&check_connections();
 
 # repair.directories einlesen ???
 &get_alle_verzeichnis_rechte();
