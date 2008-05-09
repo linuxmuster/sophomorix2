@@ -57,6 +57,7 @@ $Conf::log_level=1;
 my $help=0;
 my $tree=0;
 my $info=0;
+my $admininfo=0;
 my $create=0;
 my $kill=0;
 $Conf::log_level=1;
@@ -107,6 +108,7 @@ my @addorder_list=();   # order in which projects have to be added
 my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
+           "admininfo" => \$admininfo,
            "create" => \$create,
            "kill" => \$kill,
            "verbose|v+" => \$Conf::log_level,
@@ -143,6 +145,7 @@ my $testopt=GetOptions(
 
 if (($project eq "" 
      and $info==0
+     and $admininfo==0
      and $dump_all_projects eq ""
      and $create_from_file eq ""
      and $update_from_file eq ""
@@ -161,6 +164,7 @@ if (($project eq ""
      and $addmemberprojects eq ""
      and $removememberprojects eq ""
      and $info==0
+     and $admininfo==0
      and $tree==0
      and not defined $maillist
      and not defined $mailalias
@@ -190,6 +194,7 @@ Options
   -v  / --verbose
   -vv / --verbose --verbose
   -i  / --info
+  --admininfo
   --tree
   -i -p projectname
   -p projectname, / --project projectname 
@@ -236,19 +241,19 @@ if ($tree==1) {
         print "$pro: \n";
         my @projects=&fetchprojects_from_project($pro);
         foreach my $pro (@projects){
-           print "   ### $pro (project) \n";
+           print " ### $pro (project) \n";
         }
         my @groups=&fetchgroups_from_project($pro);
         foreach my $group (@groups){
-           print "     # $group (group) \n";
+           print "   # $group (group) \n";
         }
         my @admins=&fetchadmins_from_project($pro);
-           print "   *** admin:";
+           print " *** admin:";
         foreach my $adm (@admins){
            print " $adm,";
         }
         print "\n";
-        print "     * users: \n";
+        print "   * users: \n";
         my @users=&fetchusers_from_project($pro);
 
 	my $number=6;
@@ -268,7 +273,7 @@ if ($tree==1) {
       foreach my $user (@users){
           push @linelist, $user;
           if ($#linelist==$index_number){
-	      printf "       %-12s %-12s %-12s %-12s %-12s %-12s\n",@linelist;
+	      printf "     %-12s%-12s%-12s%-12s%-12s%-12s\n",@linelist;
           @linelist=();
           } 
       }
@@ -285,6 +290,12 @@ if ($tree==1) {
 # --info
 if ($project eq "" and $info==1){
     &show_project_list();
+    exit;
+}
+
+# --admininfo
+if ($project eq "" and $admininfo==1){
+    print "Admininfo\n";
     exit;
 }
 
