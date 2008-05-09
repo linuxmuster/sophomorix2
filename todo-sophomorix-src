@@ -4,10 +4,6 @@
 Next
 ############################################################
 
-changed in Nurnberg:
-sophomorix-vampire
-sophomorix-project
-
 
 RT:
 # 399
@@ -29,74 +25,6 @@ sophomorix-repair --repairhome-from-file /path/to/file
 nutzt eigene Datei statt repairhome.students, teacher, ...
 
 
-
-es werden die Mailboxen aller User aufgelistet, aber Ende der Ausgabe kommt
-das:
-
-183 mailboxes (use --showtype to show Group/Type of a mailbox)
-~   Group/Type = 'CYRUS': no unix account matching the box's name exists
-
-Und nscd wird nicht wieder gestartet. 
-
-
-Frank Schiebel schrieb:
-| Hai nochmal!
-|
-|> * Entferne Klassenarbeits-Account: nwtibm-lt02 * Entferne
-|> Maschinen-Account: nwtibm-lt02$ * Entferne Klassenarbeits-Account:
-|> nwt-lt02 * Entferne Maschinen-Account: nwt-lt02$
-|
-| Das geht jetzt: Aus Gründen, die mir nicht nachvollziehbar waren,
-| existierten die Homeverzeichnisse der beiden Hosts noch, darum hat er
-| jedesmal versucht die nochmal zu entfernen (soviel .rb (Ruby?) konnte
-| ich lesen ...)
-|
-| *ABER*: Es ist noch schlimmer... Bei einigen meiner am Freitag neu
-| angekommenen Rechnern ist das löschen/neuanlegen gar nicht mehr drin :(
-|
-| import_workstations schietert mit folgendem Fehler
-|
-| Lege Klassenarbeits-Account an: r202-pc08
-|   * Setze quota: r202-pc08
-|   * Lege Maschinen-Account an: r202-pc08$
-| failed to add entry: Already exists at /usr/share/perl5/smbldap_tools.pm
-| line 395, <DATA> line 283.
-| Failed to initialise SAM_ACCOUNT for user r202-pc08$. Does this user
-| exist in the UNIX password database ?
-| Failed to modify password entry for user r202-pc08$
-|
-| Entfernen aus der wimport Data: Angeblich wird alles toll entfernt und
-| so, nur die Neuaufnahme klappt halt nicht.
-
-ich vermute das sind Probleme, die mit einem nicht laufenden nscd
-zusammenhängen. import_workstation prüfte mit id, ob Accounts vorhanden
-sind. Ich denke, dass das nicht zuverlässig funktionierte, da der nscd
-manchmal nicht läuft, weil er von irgendeinem sophomorix-Skript gestoppt
-aber nicht wieder gestartet wird.
-Das neue import_workstations prüft nicht mehr mit id sondern mit
-smbldap-usershow, sodass die Fehlerquelle nscd ausgeschaltet ist.
-
-Teste doch mal mit dem neuen import_workstations, ob das die Accounts
-repariert. 
-
-
-
-
-
-
-Websachen werden entfernt:
-- in /var/www/people verzeichnisse anlegen
-- private_html gestrichen
-- noch in 1.9.35 rein
-
-is done
-
-
-
-# 421
-
-sophomorix-passwd mit exits
-is done
 
 
 link zu code suchmaschine von Thomas
