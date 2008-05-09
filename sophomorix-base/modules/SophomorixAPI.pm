@@ -102,7 +102,7 @@ sub fetch_error_string {
     if (not defined $type){
         $type=2;
     }
-    my $string = "Unknown Error in errors.lang";
+    my $string = "Unknown Error $number in errors.lang";
     open(ERRFILE, "<${DevelConf::lang_err_file}");
     while (<ERRFILE>) {
         chomp();
