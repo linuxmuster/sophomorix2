@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-PROJECT 8 "March 23, 2008"
+.TH SOPHOMORIX-PROJECT 8 "May 08, 2008"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -43,18 +43,18 @@ verwaltetes Projekt hat folgende Eigenschaften:
 .br
                          z.B.:  muellepe,maierjo
 .br
-     membergroups:   Primäre Gruppen (adminclass, also Schulklassen und teachers), 
+     membergroups:   Primäre Gruppen (Schulklassen/Lehrer), 
                      deren Mitglieder dem Projekt angehören.
 .br
                          z.B.:  12c,7a,teachers
 .br
-     memberprojects: Sekundäre Gruppen (Projekte), deren Mitglieder dem Projekt 
-                     angehören.
+     memberprojects: Sekundäre Gruppen (Projekte), deren Mitglieder 
+                     dem Projekt angehören.
 .br
                          z.B.:  12c,7a,teachers
 .br
-     addquota:       Zuätzliches Festplatten-Quota in MB, das Mitglieder 
-                     des Projekts bekommen.
+     addquota:       Zuätzliches Festplatten-Quota in MB, das 
+                     Mitglieder des Projekts bekommen.
 .br
      addmailquota:   Zuätzliches Mail-Quota in MB, das Mitglieder 
                      des Projekts bekommen.
@@ -69,8 +69,8 @@ verwaltetes Projekt hat folgende Eigenschaften:
                          z.B.:  16
      mailalias:      Mailaliase erzeugen (1) oder nicht (0)
      maillist:       MailingListe erzeugen (1) oder nicht (0)
-     joinable:       Alle Lehrer können die userliste ändern (1) oder nur
-                     Administratoren des Projekts (0)
+     joinable:       Alle Lehrer können die userliste ändern (1) 
+                     oder nur Administratoren des Projekts (0)
 .PP
 .SH OPTIONS
 .B sophomorix-project
@@ -84,6 +84,9 @@ Sagt, was das Programm gerade macht (verbose)
 .TP
 .B \-i, \-\-info
 Informationen über alle Projekte (Übersicht).
+.TP
+.B \-\-admininfo
+Informationen über alle admins und ihre Projekte.
 .TP
 .B \-\-tree
 .br
