@@ -22,6 +22,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     db_disconnect
                                     check_connections
                                     show_project_list
+                                    show_project_admin_list
                                     show_project
                                     dump_all_projects
                                     create_project
@@ -295,7 +296,7 @@ if ($project eq "" and $info==1){
 
 # --admininfo
 if ($project eq "" and $admininfo==1){
-    print "Admininfo\n";
+    &show_project_admin_list();
     exit;
 }
 

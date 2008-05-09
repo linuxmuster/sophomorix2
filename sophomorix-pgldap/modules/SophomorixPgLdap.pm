@@ -74,6 +74,7 @@ require Exporter;
              get_first_password
              check_sophomorix_user
              show_project_list
+             show_project_admin_list
              show_class_list
              show_class_teacher_list
              show_teacher_class_list
@@ -4888,7 +4889,65 @@ sub show_project_list {
     &db_disconnect($dbh);
 }
 
+sub show_project_admin_list {
+    my $dbh=&db_connect();
+    my @userlist=();
+    my %userlist=();
+    @projectlist=();
+    # select all admins
+    my $sth= $dbh->prepare( "SELECT uidnumber 
+                             FROM projects_admins 
+                            " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+       # fetch uid from uidnumber
+       my ($uidnumber)=@$row;
+       my ($uid_sys)= $dbh->selectrow_array( "SELECT uid 
+                                         FROM posix_account 
+                                         WHERE uidnumber=$uidnumber");
+       # add admins in a hash
+       if (not exists $userlist{$uid_sys}){
+	   $userlist{$uid_sys}="$uidnumber";
+       }
+    }
 
+    # sort the admins
+    while(my ($user, $uidnumber) = each(%userlist)) {
+        push @userlist,$user;
+    }
+    @userlist = sort @userlist;
+
+    # print the admins 
+    foreach my $user (@userlist){
+        print "+-----------------------------+\n";
+        printf "|%-14s               |\n",$user;
+        # print the projects
+        my $sth= $dbh->prepare( "SELECT projectid 
+                             FROM projects_admins
+                             WHERE uidnumber=$userlist{$user} 
+                            " );
+        $sth->execute();
+        my $array_ref = $sth->fetchall_arrayref();
+        @projectlist=();
+        foreach my $row (@$array_ref){
+           my ($project_id)=@$row;
+           my ($project)= $dbh->selectrow_array( "SELECT gid 
+                                         FROM projectdata 
+                                         WHERE id=$project_id
+                                        ");
+           $project=~s/^p_//;
+           push @projectlist, $project;
+        }
+        @projectlist = sort @projectlist;
+        foreach my $pro (@projectlist){
+           printf "|    %-25s|\n",$pro;
+        }
+    }
+    # print final line
+    print "+-----------------------------+\n";
+    &db_disconnect($dbh);
+}
 
 
 
