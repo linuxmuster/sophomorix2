@@ -3099,7 +3099,7 @@ sub log_script_exit {
     # (unused when return =!0)
     my $message=shift;
     # 2) return 0: normal end, return=1 unexpected end
-    # search with this value for 
+    # search with this value in errors.lang 
     my $return=shift;
     # 3) unlock (unused)
     my $unlock=shift;
@@ -3350,6 +3350,8 @@ sub imap_connect {
     if ($status ne 'No Errors') {
         print "$status \n";
 	$imap->close();
+        print "Password for cyrus in /etc/imap.secret wrong?\n";
+        &log_script_exit("",43,1,0,@arguments);
 	return undef;
     }
     return $imap;
