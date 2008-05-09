@@ -9,9 +9,7 @@ RT:
 # 399
 
 wie lautet der Befehl mit der in der Schulkonsole ein projekt gelöscht wird?
-
-sophomorix-project --caller teacher --project name --kill
-
+   sophomorix-project --caller teacher --project name --kill
 
 # 404
 # 190
@@ -56,19 +54,10 @@ nach update auf 1.9.35:
     06.05.       886
                 2398
 
-
-
-cyrus-Passwort:
-
-wenn in /etc/imap.secret kein passendes Passwort steht zum authentifizieren, 
-dann mit sinnvoller Fehlermeldung beenden (Tipp angeben)
-
-
-
+am 8.5. 16:20   2398
 
 
 pyquota:
-
 
 in die konfigurationsdatei rein, ob user für druckquota mit pykota
 eingestellt werden sollen, Wenn script dann da ist, dann beim anlegen ausführen
@@ -104,8 +93,6 @@ README in diesen Verzeichnissen:
 sophomorix-kill --killuser
 -> exit at once if user is a workstation, ...
 
-test connect to cyrus before running any scripts
-
 
 Linux-client:
 
@@ -126,18 +113,36 @@ Retun values anpassen:
 1 bis 63     adminfehler  (schuko: interner Fehler)
 64 bis 127   schukofehler (schuko: userfehler)
 
-return 0 bedeutet: kein Fehler, Ausgabe ins log: Option
-return 1 bedeutet: Fehler ohne Eintrag in errors.lang
-                   Ausgabe ins log: Option:
-                        englischer Fehler
+log_script_exit: In der zweiten Option steht die Fehlernummer:
+
+return 0 bedeutet: kein Fehler, Ausgabe ins log: Option 1
+                   (Option 1 sollte in englisch sein)
+return 1 bedeutet: Fehler OHNE Eintrag in errors.lang
+                   Ausgabe ins log: Option 1
+                   (Option 1 sollte in englisch sein)
+AIKE??: Meldung: bitte sehen sie in /var/log/sophomorix/command.log nach
+
+return 2- 63 bedeutet:
+                   - Option 1 wird NICHT BEACHTET
+                   - Fehlermeldung wird in errors.lang gesucht
+                   - Der Fehler wird von der Schuko als adminfehler 
+                     betrachtet:
+                       als user:  interner Fehler
+                       als admin: Fehlermeldung wie in errors.lang gezeigt
+
+AIKE?? sollte 64 wie 1 behandelt werden? siehe command.log
+
+return 65- 127 bedeutet:
+                   - Option 1 wird NICHT BEACHTET
+                   - Fehlermeldung wird in errors.lang gesucht
+                   - Der Fehler wird von der Schuko als userfehler 
+                     betrachtet:
+                       als user und admin: 
+                           Fehlermeldung wie in errors.lang gezeigt
 
 if ($rc & 0x40) { print "userfehler\n"; }
 if ($rc & 0x80) { print "schulkonsolenfehler\n"; })
 
-
-
-
-log_script_exit benutzen und error.de/en
 
 
 Pre-depends für libnss-ldap? und andere?
@@ -168,6 +173,12 @@ aike schulkonsole abschalten
 
 linbo testen in wlan/ipcop
 
+
+/etc/linuxmuster/workstations:
+
+Idee: Textfile bearbeiten und Schulkonsole zusammenbringen:
+Die # Zeile wird als Kommentar in der Schulkonsole angezeigt
+...
 
 
 neues script:
