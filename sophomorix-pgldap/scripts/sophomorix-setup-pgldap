@@ -915,7 +915,8 @@ if ($new_database==1){
 
 
 # trying to connect
-my $dbh = DBI->connect("dbi:Pg:dbname=ldap", "ldap","pass",
+my $dbh = DBI->connect("dbi:Pg:dbname=ldap;port=${DevelConf::sql_port}", 
+                       "ldap","pass",
           { RaiseError => 0, PrintError => 0});
 
 # create new database if necessary
