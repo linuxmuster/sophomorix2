@@ -159,7 +159,8 @@ sub db_connect {
     # in pg_hba.conf pg_ident.conf
     my $pass_saved="";
     # needs at UNIX sockets:   local all all  trust sameuser
-    my $dbh = DBI->connect("dbi:Pg:dbname=$dbname", "$dbuser","$pass_saved",
+    my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;port=${DevelConf::sql_port}",
+                           "$dbuser","$pass_saved",
                { RaiseError => $raise_error, PrintError => 0, AutoCommit => 1 });
     if (defined $dbh){
     } else {

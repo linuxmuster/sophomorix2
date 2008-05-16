@@ -1278,7 +1278,7 @@ sub delete_groupmap {
 sub create_indices {
     # read indices from file
     &titel("Creating indices in $DevelConf::sql_create_index");
-    system("psql -U ldap ldap < $DevelConf::sql_create_index");
+    system("psql -p ${DevelConf::sql_port} -U ldap ldap < $DevelConf::sql_create_index");
 }
 
 
@@ -1464,9 +1464,9 @@ sub create_database {
     my $file_admin = ${DevelConf::sql_create_path}."sophomorix-admin.sql";
     my $file_lang = ${DevelConf::sql_create_path}."sophomorix-lang.sql";
     my $file_db = ${DevelConf::sql_create_path}."sophomorix.sql";
-    system("psql -U postgres template1 < $file_admin");
-    system("psql -U postgres ldap < $file_lang");
-    system("psql -U ldap ldap < $file_db");
+    system("psql -p ${DevelConf::sql_port} -U postgres template1 < $file_admin");
+    system("psql -p ${DevelConf::sql_port} -U postgres ldap < $file_lang");
+    system("psql -p ${DevelConf::sql_port} -U ldap ldap < $file_db");
 }
 
 
@@ -1480,7 +1480,7 @@ sub upgrade_database {
             my $file = ${DevelConf::sql_upgrade_path}.
                        $upgrade_sql_id_filename{$file_id};
             print "  $file \n";
-            system("psql -U ldap ldap < $file");
+            system("psql -p ${DevelConf::sql_port} -U ldap ldap < $file");
         }
 #    }
 }
