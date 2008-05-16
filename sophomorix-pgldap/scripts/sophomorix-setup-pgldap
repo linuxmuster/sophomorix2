@@ -572,6 +572,25 @@ if ($info==1){
 }
 
 
+
+############################################################
+# upgrade the postgres database on dist upgrade
+############################################################
+
+my $upgrade_file="/var/log/sophomorix/postgres-upgrade-7.4-8.1";
+
+if (not -e "$upgrade_file" and $new_version eq "2.0.0-1"){
+    print "\n\nUpgrading from postgres 7.4 to 8.1\n\n\n"; 
+    #system("pg_dropcluster 8.1 main --stop");
+    #system("pg_upgradecluster 7.4 main");
+    #system("psql -U ldap ldap");
+      ##system("pg_dropcluster 7.4 main");
+    system("touch $upgrade_file");
+}
+
+
+exit;
+
 ############################################################
 # Replace the following config-files
 ############################################################
@@ -705,16 +724,20 @@ my @line=();
 
 my $postgres_conf_dir="";
 my $postgres_init_script="";
+my $psql="";
 
 if ($deb_version eq "3.1"){
    $postgres_conf_dir="/etc/postgresql";
    $postgres_init_script="/etc/init.d/postgresql";
+   $psql="/usr/lib/postgresql/bin/psql";
 } elsif ($deb_version eq "4.0"){
-   $postgres_conf_dir="/etc/postgresql/7.4/main";
-   $postgres_init_script="/etc/init.d/postgresql-7.4";
+   #$postgres_conf_dir="/etc/postgresql/7.4/main";
+   #$postgres_init_script="/etc/init.d/postgresql-7.4";
+   #$psql="/usr/lib/postgresql/7.4/bin/psql";
    # 8.1 also exists on etch(4.0)
-   #$postgres_conf_dir="/etc/postgresql/8.1/main";
-   #$postgres_init_script="/etc/init.d/postgresql-8.1";
+   $postgres_conf_dir="/etc/postgresql/8.1/main";
+   $postgres_init_script="/etc/init.d/postgresql-8.1";
+   $psql="/usr/lib/postgresql/8.1/bin/psql";
 } else {
     &log_script_exit("Debian Version $deb_version is not supported",
                      1,1,0,@arguments);
@@ -1279,7 +1302,7 @@ sub delete_groupmap {
 sub create_indices {
     # read indices from file
     &titel("Creating indices in $DevelConf::sql_create_index");
-    system("psql -p ${DevelConf::sql_port} -U ldap ldap < $DevelConf::sql_create_index");
+    system("$psql -p ${DevelConf::sql_port} -U ldap ldap < $DevelConf::sql_create_index");
 }
 
 
@@ -1465,9 +1488,9 @@ sub create_database {
     my $file_admin = ${DevelConf::sql_create_path}."sophomorix-admin.sql";
     my $file_lang = ${DevelConf::sql_create_path}."sophomorix-lang.sql";
     my $file_db = ${DevelConf::sql_create_path}."sophomorix.sql";
-    system("psql -p ${DevelConf::sql_port} -U postgres template1 < $file_admin");
-    system("psql -p ${DevelConf::sql_port} -U postgres ldap < $file_lang");
-    system("psql -p ${DevelConf::sql_port} -U ldap ldap < $file_db");
+    system("$psql -p ${DevelConf::sql_port} -U postgres template1 < $file_admin");
+    system("$psql -p ${DevelConf::sql_port} -U postgres ldap < $file_lang");
+    system("$psql -p ${DevelConf::sql_port} -U ldap ldap < $file_db");
 }
 
 
@@ -1481,7 +1504,7 @@ sub upgrade_database {
             my $file = ${DevelConf::sql_upgrade_path}.
                        $upgrade_sql_id_filename{$file_id};
             print "  $file \n";
-            system("psql -p ${DevelConf::sql_port} -U ldap ldap < $file");
+            system("$psql -p ${DevelConf::sql_port} -U ldap ldap < $file");
         }
 #    }
 }
