@@ -351,8 +351,29 @@ Nicht standardm‰ﬂig etch:
 moodle ist 1.9 etch w‰re 1.6
 mondi und mindi
 
-script zum update von 7.4 auf 8.0
-gibts script in postgres 8.0
+script zum update von 7.4 auf 8.1
+gibts script in postgres 8.1
+
+
+Test:
+ - 8.1 zus‰tzlich installiert:
+
+aptitude install postgresql-8.1
+
+das installiert:
+    postgresql-client-8.1 postgresql-8.1
+
+
+port 7.4: 5432
+port 8.1: 5433
+
+psql -U ldap ldap              : geht auf 7.4.17
+psql -p 5432 -U ldap ldap      : geht auf 7.4.17
+
+psql -U ldap ldap   geht auf 8.1?
+
+
+
 
 Bem: ext3 hat neue Features auf etch. sarge kann kein ext3 von etch checken
 
