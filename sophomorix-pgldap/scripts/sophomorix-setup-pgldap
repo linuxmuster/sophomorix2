@@ -581,15 +581,13 @@ my $upgrade_file="/var/log/sophomorix/postgres-upgrade-7.4-8.1";
 
 if (not -e "$upgrade_file" and $new_version eq "2.0.0-1"){
     print "\n\nUpgrading from postgres 7.4 to 8.1\n\n\n"; 
-    #system("pg_dropcluster 8.1 main --stop");
-    #system("pg_upgradecluster 7.4 main");
-    #system("psql -U ldap ldap");
-      ##system("pg_dropcluster 7.4 main");
+    system("pg_dropcluster 8.1 main --stop");
+    system("pg_upgradecluster 7.4 main");
+    system("pg_dropcluster 7.4 main");
     system("touch $upgrade_file");
 }
 
 
-exit;
 
 ############################################################
 # Replace the following config-files
