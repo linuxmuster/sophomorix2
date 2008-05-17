@@ -370,7 +370,29 @@ port 8.1: 5433
 psql -U ldap ldap              : geht auf 7.4.17
 psql -p 5432 -U ldap ldap      : geht auf 7.4.17
 
-psql -U ldap ldap   geht auf 8.1?
+
+
+
+Upgrade the debian way:
+
+1)  pg_dropcluster 8.1 main --stop
+2)  pg_upgradecluster 7.4 main
+3)  pg_dropcluster 7.4 main   (um den alten cluster zu entfernen)
+
+
+danach geht 
+   psql -U ldap ldap 
+auf 8.1
+
+port von 8.1 ist: 5432
+(auf port 5433 läuft keine postgres mehr)
+
+Ein Paket zum update packen:
+ - Versionsnummer 2.0.0-1
+ - In debian/control 
+   Pre-Depends: postgresql (>=8.1.9)
+ 
+
 
 
 
