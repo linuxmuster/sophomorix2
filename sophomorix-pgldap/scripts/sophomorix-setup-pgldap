@@ -579,7 +579,13 @@ if ($info==1){
 
 my $upgrade_file="/var/log/sophomorix/postgres-upgrade-7.4-8.1";
 
-if (not -e "$upgrade_file" and $new_version eq "2.0.0-1"){
+# upgrade postgres when:
+# upgrade is NOT already done ($upgrade_file exists)
+# new version is this package
+# old version was installed (oldversion is NOT 0.0.0-0)
+if (not -e "$upgrade_file" and 
+    $new_version eq "2.0.0-2"
+    and $old_version ne "0.0.0-0"){
     print "\n\nUpgrading from postgres 7.4 to 8.1\n\n\n"; 
     system("pg_dropcluster 8.1 main --stop");
     system("pg_upgradecluster 7.4 main");
