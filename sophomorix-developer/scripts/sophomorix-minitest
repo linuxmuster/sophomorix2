@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
-# Dieses Script (sophomorix-minitest) wurde von Rüdiger Beck erstellt
-# Es ist freie Software
-# Bei Fehlern wenden Sie sich bitte an mich.
-# jeffbeck@web.de  oder  jeffbeck@gmx.de
+# This script (sophomorix-minitest) is maintained by Rüdiger Beck
+# It is Free Software (License GPLv3)
+# If you find errors, contact the author
+# jeffbeck@web.de  or  jeffbeck@gmx.de
 
 # Dieses Script ist NICHT im Paket sophomorix-developer enthalten
 
@@ -24,124 +24,7 @@ use Crypt::SmbHash;
 use Net::LDAP;
 use IMAP::Admin;
 
-my $num=$ARGV[0];
-
-#my @list=("item1","item2","item3","item4","item5","item6","item7","item8","item9","item10","item11","item12","item13","item14","item15","item16","item17","item18","item19","item20","item21",);
-
-
-#my @new = splice(@list, 0, 5);
-
-
-#while ($#list>0){
-#    my @new = splice(@list, 0, 5);
-#    print "New:  @new\n";
-#}
-
-
-#print "List: @list\n";
-#print "New:  @new\n";
-
-
-#my @ws=&fetchmembers_by_option_from_project("astro");
-
-#&addgroup_to_project("11a","p_micro");
-
-#&backup_dir_to_attic("/root/software","groupdel","software_14c","tasks_14c","bzip2");
-
-#&update_user_db_entry("kueblefe","Enable=Yes");
-
-
-my $deb=&get_debian_version();
-
-print "---$deb---";
-
-
-#foreach my $memb (@ws){
-#    print "---$memb---\n";
-#}
-
-#&user_reaktivieren($login);
-
-#&patch_ldif("dc=linuxmuster,dc=de","schule")
-#&add_slapd_from_ldif();
-
-#sub ok_ldap_account{
-#    # Hash must be in %account, wich is global in this file
-#    my ($col, $v) = @_;
-#    # Make sure that its defined
-#    if (not defined $account_ldap{$col} ){
-#	$account_ldap{$col}="";
-#    };
-#    # repace spaces in the sambaaccountflags
-#    if ($col eq "sambaacctflags"){
-#       $account_ldap{$col}=~s/ //g;
-#    }
-#    if ($col eq "creationdate"){
-#       # use a special regex
-#       like( $account_ldap{$col},qr/^$v.*/, "ldapcheck: $v is $col of $account_ldap{uid}");
-#    } else {
-#       # check for equality
-#       is( $account_ldap{$col},$v, "ldapcheck: $v is $col of $account_ldap{uid}");
-#    }
-#}
-
-
-
-#my $ldif_local="/usr/share/sophomorix/config-templates/ldap/local-gen.ldif";
-
-
-# dump the contents of slapd to ldif
-# works when slapd is running or not
-##system("slapcat -l /root/old.ldif"); 
-
-##&dump_slapd_to_ldif();
-
-# stop ldap
-##system("/etc/init.d/slapd stop"); 
-
-# do this with a stopped ldap
-
-# saving DB_CONFIG is not necessary, it is created anew
-# cp /var/lib/ldap/DB_CONFIG /tmp/
-
-
-##system("rm -rf /var/lib/ldap/*");
-
-
-# mv /tmp/DB_CONFIG /var/lib/ldap/
-# chown openldap /var/lib/ldap/DB_CONFIG
-
-# start ldap, so that files are created again
-#
-##system("/etc/init.d/slapd start");
-
-# ok
-##system("/etc/init.d/slapd stop");
-
-
-# smbldap-populate (oder was entsprechendes von dir)
-# ok
-##system("slapadd -l $ldif_local");
-
-# reload the old ldif file
-##system("slapadd -c -l /root/old2.ldif");
-# ok
-#&add_slapd_from_ldif();
-
-# cat user.ldif | slapadd
-# cat group.ldif | slapadd
-# cat user_group | slapadd
-# ok
-##system("chown -R openldap.openldap /var/lib/ldap/");
-
-
-# start ldap
-# ok
-##system("/etc/init.d/slapd start"); 
-
-
-
-
+&db_connect();
 
 
 
