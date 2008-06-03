@@ -1,9 +1,10 @@
 #!/usr/bin/perl -w
 # $Id$
-# Dieses Modul (SophomorixBase.pm) wurde von Rüdiger Beck erstellt
-# Es ist freie Software
-# Bei Fehlern wenden Sie sich bitte an mich.
-# jeffbeck@web.de  oder  jeffbeck@gmx.de
+# This perl module is maintained by Rüdiger Beck
+# It is Free Software (License GPLv3)
+# If you find errors, contact the author
+# jeffbeck@web.de  or  jeffbeck@gmx.de
+
 
 # aufspalten in:  
 #    SophomorixBase
