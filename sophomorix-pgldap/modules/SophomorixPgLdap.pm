@@ -5548,14 +5548,14 @@ sub auth_passwd {
        $command->log_stdout(0);
     }
 
-    # wait 10 seconds
+    # wait 20 seconds
     unless ($command->expect(20,"New password")) {
         exit;
         # timed out
     }
     print $command "$new_password\n";
 
-    # wait 10 seconds
+    # wait 20 seconds
     unless ($command->expect(20,"Retype new password")) {
         exit;
         # timed out
