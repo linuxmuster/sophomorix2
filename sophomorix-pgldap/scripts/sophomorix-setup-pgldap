@@ -578,22 +578,29 @@ if ($info==1){
 # upgrade the postgres database on dist upgrade
 ############################################################
 
-my $upgrade_file="/var/log/sophomorix/postgres-upgrade-7.4-8.1";
+# which postgres is running
 
-# upgrade postgres when:
-# upgrade is NOT already done ($upgrade_file exists)
-# new version is this package
-# old version was installed (oldversion is NOT 0.0.0-0)
-if (not -e "$upgrade_file" and 
-    $new_version eq "2.0.0-2"
-    and $old_version ne "0.0.0-0"){
-    print "\n\nUpgrading from postgres 7.4 to 8.1\n\n\n"; 
-    system("pg_dropcluster 8.1 main --stop");
-    system("pg_upgradecluster 7.4 main");
-    system("pg_dropcluster 7.4 main");
-    system("touch $upgrade_file");
-}
+#my $dbh=&db_connect();
+#&db_disconnect($dbh);
 
+#my $upgrade_file="/var/log/sophomorix/postgres-upgrade-7.4-8.1";
+
+## upgrade postgres when:
+## upgrade is NOT already done ($upgrade_file exists)
+## new version is this package
+## old version was installed (oldversion is NOT 0.0.0-0)
+#if (not -e "$upgrade_file" and 
+#    $new_version eq "2.0.0-2"
+#    and $old_version ne "0.0.0-0"){
+#    print "\n\nUpgrading from postgres 7.4 to 8.1\n\n\n"; 
+#    system("pg_dropcluster 8.1 main --stop");
+#    system("pg_upgradecluster 7.4 main");
+#    system("pg_dropcluster 7.4 main");
+#    system("touch $upgrade_file");
+#}
+
+
+#exit;
 
 
 ############################################################
@@ -924,6 +931,34 @@ system("killall postmaster");
 system("$postgres_init_script start");
 
 sleep 5;
+
+############################################################
+# upgrade the postgres database on dist upgrade
+############################################################
+
+# which postgres is running
+
+my $pg_version=&get_pg_server_version();
+#my $pg_version2=&get_pg_server_version("5433");
+
+my $upgrade_file="/var/log/sophomorix/postgres-upgrade-7.4-8.1";
+
+# upgrade postgres when:
+# upgrade is NOT already done ($upgrade_file exists)
+# new version is this package
+# old version was installed (oldversion is NOT 0.0.0-0)
+if (not -e "$upgrade_file" and 
+    $new_version eq "2.0.0-2"
+    and $old_version ne "0.0.0-0"){
+    print "\n\nUpgrading from postgres 7.4 to 8.1\n\n\n"; 
+    system("pg_dropcluster 8.1 main --stop");
+    system("pg_upgradecluster 7.4 main");
+    system("pg_dropcluster 7.4 main");
+    system("touch $upgrade_file");
+}
+
+
+
 
 #system("su --command='createdb -U postgres ldap' postgres");
 #system("createdb -U postgres ldap");
@@ -1605,6 +1640,25 @@ sub save_password {
 }
 
 
+sub get_pg_server_version {
+    my ($port) = @_;
+    if (not defined $port){
+	$port="5432";
+    }
+    my $pg_version="";
+
+    my $dbh = DBI->connect("dbi:Pg:dbname=template1;port=$port",
+                           "postgres","",
+               { RaiseError => 1, PrintError => 0, AutoCommit => 1 });
+    if (defined $dbh){
+        $pg_version=$dbh->{'pg_server_version'};
+        print "   Server on port ${port}: $pg_version \n";
+    } else {
+        print "   Could not connect to database with password xxx\n";
+    }
+    &db_disconnect($dbh);
+    return $pg_version;
+}
 
 
 
