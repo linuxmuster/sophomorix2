@@ -369,7 +369,6 @@ printf "   dbpassword   %23s : ********** \n","($db_explanation)";
 $sid=&get_smb_sid();
 
 
-
 # institutes
 #------------------------------------------------------------
 my (@institutes)= split(/\./,$domainname);
@@ -579,6 +578,8 @@ if ($info==1){
 ############################################################
 
 # which postgres is running
+&get_pg_server_version("5432");
+&get_pg_server_version("5433");
 
 #my $dbh=&db_connect();
 #&db_disconnect($dbh);
@@ -937,9 +938,8 @@ sleep 5;
 ############################################################
 
 # which postgres is running
-
-my $pg_version=&get_pg_server_version();
-#my $pg_version2=&get_pg_server_version("5433");
+my $pg_version =  &get_pg_server_version("5432");
+my $pg_version2 = &get_pg_server_version("5433");
 
 
 # upgrade postgres when:
@@ -1009,7 +1009,7 @@ if ( ($old_version eq "0.0.0-0" and not defined $dbh) or $new_database==1){
     print "\ncreating the postgresql database ldap \n\n";
     &create_database();
 } else {
-    print "\nNOT creating the postgresql database ldap \n\n";
+    print "\nNOT creating empty postgresql database ldap from scratch\n\n";
 }
 
 
@@ -1171,8 +1171,16 @@ if ($slapd_standalone==1){
 
 
 # group teachers part 1
-&create_class_db_entry(${DevelConf::teacher},4);
-
+my $dbh_create_class_db_entry = 
+         DBI->connect("dbi:Pg:dbname=ldap;port=${DevelConf::sql_port}", 
+                       "ldap","",
+           { RaiseError => 0, PrintError => 0});
+if (not defined $dbh_create_class_db_entry){
+    print "   WARNING: Could not create class ${DevelConf::teacher}.\n";
+    print "   Database ldap not running on port ${DevelConf::sql_port}\n";
+} else {
+    &create_class_db_entry(${DevelConf::teacher},4);
+}
 
 
 # adding users
@@ -1307,6 +1315,16 @@ sub update_sid {
     print "Updating samba account $user:\n";
     print "   * sid:     $smb_sid\n";
     print "   * grp-sid: $smb_groupsid\n";
+
+    my $dbh = DBI->connect("dbi:Pg:dbname=ldap;port=${DevelConf::sql_port}", 
+                           "ldap","",
+               { RaiseError => 0, PrintError => 0});
+    if (not defined $dbh){
+        print "   WARNING: Could not update samba account $user.\n";
+        print "   Database ldap not running on port ${DevelConf::sql_port}\n";
+	return 0;
+    }
+
     my $dbh=&db_connect();
     my $sql="UPDATE samba_sam_account
              SET sambasid='$smb_sid',
@@ -1329,6 +1347,16 @@ sub update_groupsid {
     $smb_groupsid=$sid."-".$smb_groupsid;
     print "Updating samba group $group:\n";
     print "   * grp-sid: $smb_groupsid\n";
+
+    my $dbh = DBI->connect("dbi:Pg:dbname=ldap;port=${DevelConf::sql_port}", 
+                           "ldap","",
+               { RaiseError => 0, PrintError => 0});
+    if (not defined $dbh){
+        print "   WARNING: Could not update samba group $group.\n";
+        print "   Database ldap not running on port ${DevelConf::sql_port}\n";
+	return 0;
+    }
+
     my $dbh=&db_connect();
     my $sql="UPDATE samba_group_mapping
              SET sambasid='$smb_groupsid'
@@ -1348,6 +1376,16 @@ sub delete_groupmap {
         return;
     }
     print "Deleting groupmap for ntgroup $group\n";
+
+    my $dbh = DBI->connect("dbi:Pg:dbname=ldap;port=${DevelConf::sql_port}", 
+                           "ldap","",
+               { RaiseError => 0, PrintError => 0});
+    if (not defined $dbh){
+        print "   WARNING: Could not delete groupmap for $group.\n";
+        print "   Database ldap not running on port ${DevelConf::sql_port}\n";
+	return 0;
+    }
+
     my $dbh=&db_connect();
     my $sql="DELETE FROM  samba_group_mapping
              WHERE displayname='$group'";
@@ -1362,6 +1400,16 @@ sub delete_groupmap {
 
 
 sub create_indices {
+    &titel("Creating indices for Postgresql");
+    my $dbh = DBI->connect("dbi:Pg:dbname=ldap;port=${DevelConf::sql_port}", 
+                           "ldap","",
+               { RaiseError => 0, PrintError => 0});
+    if (not defined $dbh){
+        print "   WARNING: Could not create indices.\n";
+        print "   Database ldap not running on port ${DevelConf::sql_port}\n";
+	return 0;
+    }
+
     # read indices from file
     &titel("Creating indices in $DevelConf::sql_create_index");
     system("$psql -p ${DevelConf::sql_port} -U ldap ldap < $DevelConf::sql_create_index");
@@ -1369,11 +1417,16 @@ sub create_indices {
 
 
 sub drop_indices {
-#    my ($restart) = @_;
-#    if (not defined $restart){
-#        $restart=0;
-#    }
     &titel("Dropping indices in $DevelConf::sql_drop_index");
+    my $dbh = DBI->connect("dbi:Pg:dbname=ldap;port=${DevelConf::sql_port}", 
+                           "ldap","",
+               { RaiseError => 0, PrintError => 0});
+    if (not defined $dbh){
+        print "   WARNING: Could not drop indices.\n";
+        print "   Database ldap not running on port ${DevelConf::sql_port}\n";
+	return 0;
+    }
+
     open(DROP, "<$DevelConf::sql_drop_index") || die "Fehler: $!";
     while (<DROP>) {
         chomp(); # Returnzeichen abschneiden
@@ -1401,17 +1454,11 @@ sub drop_indices {
             } else {
                 # other languages
 		print "      $err_str";
-
             }
         }
         &db_disconnect($dbh);
     }
     close(DROP);
-    #if ($restart==1){
-        #system("/etc/init.de/slapd stop");
-        #sleep 1;    
-        #system("/etc/init.de/slapd start");    
-    #}
 }
 
 
@@ -1501,6 +1548,16 @@ sub set_ldap_institutes {
 
 sub set_db_passwd {
     my ($pass) = @_;
+    &titel("Updating password  for user ldap in Postgresql");
+    my $dbh = DBI->connect("dbi:Pg:dbname=ldap;port=${DevelConf::sql_port}", 
+                           "ldap","",
+               { RaiseError => 0, PrintError => 0});
+    if (not defined $dbh){
+        print "   WARNING: Could not update password of user ldap in postgres.\n";
+        print "   Database ldap not running on port ${DevelConf::sql_port}\n";
+	return 0;
+    }
+
     my $dbh=&db_connect();
     my $sql="";
     print "\nUpdating password of user ldap \n";
@@ -1512,7 +1569,16 @@ sub set_db_passwd {
 }
 
 sub set_ldap_suffix_pg {
+    &titel("Setting ldap suffix  for Postgresql");
     my ($suffix) = @_;
+    my $dbh = DBI->connect("dbi:Pg:dbname=ldap;port=${DevelConf::sql_port}", 
+                           "ldap","",
+               { RaiseError => 0, PrintError => 0});
+    if (not defined $dbh){
+        print "   WARNING: Could not update ldap suffix.\n";
+        print "   Database ldap not running on port ${DevelConf::sql_port}\n";
+	return 0;
+    }
     if (not defined $suffix or $suffix eq ""){
         print "I won't set a empty ldap suffix!\n "
     } else {
@@ -1561,7 +1627,7 @@ sub upgrade_database {
 #    if ($old_version eq "0.0.0-0"){
 #        print "NOT upgrading database ldap (Old package is $old_version) \n";
 #    } else {
-        print "Upgrading postgres database ldap with the following files: \n";
+        print "Modifying postgres database ldap with the following SQL-files: \n";
         foreach my $file_id (@upgrade_sql_id){
             my $file = ${DevelConf::sql_upgrade_path}.
                        $upgrade_sql_id_filename{$file_id};
@@ -1662,25 +1728,27 @@ sub save_password {
 }
 
 
+
+
 sub get_pg_server_version {
     my ($port) = @_;
     if (not defined $port){
 	$port="5432";
     }
     my $pg_version="";
-
+    print "Checking for Postgres version on port ${port}:";
     my $dbh = DBI->connect("dbi:Pg:dbname=template1;port=$port",
                            "postgres","",
-               { RaiseError => 1, PrintError => 0, AutoCommit => 1 });
+               { RaiseError => 0, PrintError => 0, AutoCommit => 1 } );
     if (defined $dbh){
         $pg_version=$dbh->{'pg_server_version'};
-        print "   Server on port ${port}: $pg_version \n";
+        print " $pg_version \n";
+        &db_disconnect($dbh);
     } else {
-        print "   Could not connect to database with password xxx\n";
+        $pg_version="00000";
+        print " not running ($pg_version)\n";
     }
-    &db_disconnect($dbh);
     return $pg_version;
 }
-
 
 
