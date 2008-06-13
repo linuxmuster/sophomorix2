@@ -941,22 +941,43 @@ sleep 5;
 my $pg_version=&get_pg_server_version();
 #my $pg_version2=&get_pg_server_version("5433");
 
-my $upgrade_file="/var/log/sophomorix/postgres-upgrade-7.4-8.1";
 
 # upgrade postgres when:
-# upgrade is NOT already done ($upgrade_file exists)
-# new version is this package
+# postgres 8.1 exists
 # old version was installed (oldversion is NOT 0.0.0-0)
-if (not -e "$upgrade_file" and 
-    $new_version eq "2.0.0-2"
-    and $old_version ne "0.0.0-0"){
-    print "\n\nUpgrading from postgres 7.4 to 8.1\n\n\n"; 
-    system("pg_dropcluster 8.1 main --stop");
-    system("pg_upgradecluster 7.4 main");
-    system("pg_dropcluster 7.4 main");
-    system("touch $upgrade_file");
-}
+if ( $pg_version > 80000 and  # 80109
+     $pg_version < 85000 and  
+     $old_version ne "0.0.0-0"){
+    # postgres 8.1 running
+    # and NOT install from scratch
 
+    # trying to connect to ldap
+    my $dbh = DBI->connect("dbi:Pg:dbname=ldap;port=${DevelConf::sql_port}", 
+                           "ldap","pass",
+               { RaiseError => 0, PrintError => 0});
+    if (not defined $dbh){
+        # no database 8.1 exists
+        # create it via upgrade from 7.4
+        print "\n\nUpgrading from postgres 7.4 to 8.1\n\n\n";
+        my $command="/etc/init.d/postgresql-7.4 start";
+        print "   $command \n"; 
+        system("$command");
+        sleep 1;
+        $command="pg_dropcluster 8.1 main --stop";
+        print "   $command \n"; 
+        system("$command");
+        sleep 1;
+        $command="pg_upgradecluster 7.4 main";
+        print "   $command \n"; 
+        system("$command");
+        sleep 1;
+#        $command="pg_dropcluster 7.4 main";
+#        print "   $command \n"; 
+#        system("$command");
+    } else {
+        print "Databese ldap exists already in postgres $pg_version\n"; 
+    }
+}
 
 
 
@@ -984,6 +1005,7 @@ my $dbh = DBI->connect("dbi:Pg:dbname=ldap;port=${DevelConf::sql_port}",
 
 # create new database if necessary
 if ( ($old_version eq "0.0.0-0" and not defined $dbh) or $new_database==1){
+    # first installation
     print "\ncreating the postgresql database ldap \n\n";
     &create_database();
 } else {
