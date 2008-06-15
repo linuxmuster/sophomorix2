@@ -1751,48 +1751,47 @@ sub get_pg_server_version {
 
 
 sub fix_pg_ports {
-    print "Make sure new postgres runs on Standard port 5432\n";
+    print "\nMake sure new Postgres runs on standard port 5432\n";
     # which postgres runs on 5432
     my $pg_version =  &get_pg_server_version("5432");
     if ($pg_version  > 80000){
-        print "Thats fine: $pg_version on port 5432 \n";
+        print "   Thats fine: $pg_version on port 5432 (nothing to do)\n";
         return;
     } elsif ($pg_version <80000
              and $pg_version > 1){
-        print "not OK: shutting down old postgres on 5432 \n";
+        print "   NOT OK: shutting down old Postgres on 5432 \n";
         my $command="/etc/init.d/postgresql-7.4 stop \n";
-        print "   $command \n";
-        print "WARNING: Please change /etc/postgresql/7.4/main/postgresql.conf \n";
-        print "         manually to port=5433 \n";
-        print "         and run sophomorix-setup-pgldap again\n ";
-        
-    } elsif ($pg_version=0){
+        print "      $command \n";
+        print "   WARNING: Change /etc/postgresql/7.4/main/postgresql.conf\n";
+        print "            manually to port=5433 \n";
+        print "            and run sophomorix-setup-pgldap again\n ";
+    } elsif ($pg_version==0){
         # nothing running on 5432
-        print "not OK: no postgres running on 5432\n";
-        print "Checking if new postgres is running on port 5433\n";        
+        print "   NOT OK: no Postgres running on 5432\n";
         my $pg_version =  &get_pg_server_version("5433");
         if ($pg_version  > 80000){
-            print "not OK: $pg_version on port 5433 \n";
-            print "        shutting down $pg_version on port 5433 \n";
-            # stop postgres
+            print "   NOT OK: Postgres $pg_version on port 5433 \n";
+            print "           shutting down $pg_version on port 5433 \n";
+            # stop postgres (restart does not change ports???)
             system("$postgres_init_script stop");
             sleep 5;
             system("killall postmaster");
             # patching postgres.conf for port 5432
             # backup
             my $conf="/etc/postgresql/8.1/main/postgresql.conf";
-            my $patch="/etc/postgresql/8.1/main/postgresql.conf";
+            my $patch="/etc/postgresql/8.1/main/postgresql.conf.patch";
             my $backup="/etc/postgresql/8.1/main/postgresql.conf.backup";
 
+            print "Patching $conf to use port 5432\n";
             system("cp $conf $backup");
-
             system("sed -e 's/^port\\s*=\\s*[0-9]*/port = 5432/g' $conf > $patch");
-
             system("cp $patch $conf");
 
             # starting postgres
             system("$postgres_init_script start");
-            sleep 5;
+            sleep 2;
+            &get_pg_server_version("5432");
+            sleep 3;
         }    
     }
 }
