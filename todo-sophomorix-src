@@ -5,6 +5,36 @@ Next
 ############################################################
 
 
+Hallo Rüdiger!
+
+Ich habe gerade mit der Klassenarbeit experimentiert und dabei folgenden Fehler festgestellt:
+Wenn man als Lehrer in seinem Heimatverzeichnis unter _eingesammelt ein Unterverzeichnis löscht (z.B. eingesammelt-klassenarbeit) wird dieses beim nächsten Einsammeln wieder erzeugt, allerdings gehört dieses Verzeichnis dann nicht mehr dem Lehrer und der Gruppe root, wie es vorher war und auch korrekt in der Datei "/usr/share/sophomorix/devel/repairhome.teacher" steht,
+
+<snip>
+# _eingesammelt (collected)::immutable
+$collected_dir::administrator::$teachers::1770
+#
+$collected_dir/$collected_string$mygroups::$user::root::0770
+$collected_dir/$collected_string$exam::$user::root::0770
+$collected_dir/$collected_string$current_room::$user::root::0770
+<snap>
+
+sondern root und der Gruppe www-data.
+Mit "eingesammelt-aktueller_raum" hab ich es ebenso nachvollziehen können - neu angelegte Verzeichnisse haben die falschen Besitzer.
+(nachfolgend Auszug aus meinem home mit korrektem "eingesammelt-Lehrer"-Verzeichnis)
+
+<snip>
+drwxr-xr-x   3 root          www-data 4096 2008-06-13 17:01 eingesammelt-aktueller_raum
+drwxr-xr-x   3 root          www-data 4096 2008-06-13 18:05 eingesammelt-klassenarbeit
+drwxrwx---   2 roe           root     4096 2007-07-02 13:50 eingesammelt-Lehrer
+<snap>
+
+Dadurch ist es dem Lehrer nicht mehr möglich, die Unterverzeichnisse beispielsweise von einer alten Klassenarbeit zu löschen.
+
+Gruß - Rainer
+
+
+
 paket update auf etch
 
 sophomorix-quota steigt nun mit Fehler aus, wenn in
@@ -2462,13 +2492,11 @@ $teachers_alias_additions="blackmri,jonesjo";
 $geburts_jahreszahl_stop=2001;
 
 
+# change comment in for 
 
-
-
-
-
-
-
+# Einloggen der Sch\ufffdler per ssh erm\ufffdglichen
+# (yes -> /bin/bash) oder unterbinden (no -> /bin/false)
+$schueler_per_ssh="yes";
 
 
 
