@@ -941,18 +941,43 @@ sleep 5;
 my $pg_version =  &get_pg_server_version("5432");
 my $pg_version2 = &get_pg_server_version("5433");
 
+# ????
+# check if the following throws no error when already running
+# check on sarge without dist-upgrade
+if (-e "/etc/init.d/postgresql-7.4"){
+    system("/etc/init.d/postgresql-7.4 start");
+}
+if (-e "/etc/init.d/postgresql-8.1"){
+    system("/etc/init.d/postgresql-8.1 start");
+}
 
+# check which postgres is running on which port
+my $port_of_81=0;
+my $port_of_74=0;
+
+# port 5432
+if ($pg_version > 80000 and $pg_version < 85000){
+    $port_of_81=5432;
+} elsif ($pg_version > 74000 and $pg_version < 78000){
+    $port_of_74=5432;
+}
+
+# port 5433
+if ($pg_version2 > 80000 and $pg_version2 < 85000){
+    $port_of_81=5433;
+} elsif ($pg_version2 > 74000 and $pg_version2 < 78000){
+    $port_of_74=5433;
+}
+
+
+print "Checking if postgres must be upgraded from 7.4 to 8.1\n";
 # upgrade postgres when:
-# postgres 8.1 exists
+# postgres 8.1 exists ($port_of_81 > 0)
 # old version was installed (oldversion is NOT 0.0.0-0)
-if ( $pg_version > 80000 and  # 80109
-     $pg_version < 85000 and  
+if ( $port_of_81 > 0 and
      $old_version ne "0.0.0-0"){
-    # postgres 8.1 running
-    # and NOT install from scratch
-
-    # trying to connect to ldap
-    my $dbh = DBI->connect("dbi:Pg:dbname=ldap;port=${DevelConf::sql_port}", 
+    # trying to connect to db ldap on postgres 8.1
+    my $dbh = DBI->connect("dbi:Pg:dbname=ldap;port=$port_of_81", 
                            "ldap","pass",
                { RaiseError => 0, PrintError => 0});
     if (not defined $dbh){
