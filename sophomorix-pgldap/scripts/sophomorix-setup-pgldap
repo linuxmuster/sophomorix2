@@ -938,8 +938,20 @@ sleep 5;
 ############################################################
 
 # which postgres is running
-my $pg_version =  &get_pg_server_version("5432");
-my $pg_version2 = &get_pg_server_version("5433");
+#my $pg_version =  &get_pg_server_version("5432");
+#my $pg_version2 = &get_pg_server_version("5433");
+
+
+# make sure:
+# new version of postgres is running on port 5432 (standard port)
+# old version of postgres is running on port 5433
+&fix_pg_ports();
+
+#$pg_version =  &get_pg_server_version("5432");
+#$pg_version2 = &get_pg_server_version("5433");
+
+
+
 
 # ????
 # check if the following throws no error when already running
@@ -955,29 +967,34 @@ if (-e "/etc/init.d/postgresql-8.1"){
 my $port_of_81=0;
 my $port_of_74=0;
 
-# port 5432
-if ($pg_version > 80000 and $pg_version < 85000){
-    $port_of_81=5432;
-} elsif ($pg_version > 74000 and $pg_version < 78000){
-    $port_of_74=5432;
-}
-
-# port 5433
-if ($pg_version2 > 80000 and $pg_version2 < 85000){
-    $port_of_81=5433;
-} elsif ($pg_version2 > 74000 and $pg_version2 < 78000){
-    $port_of_74=5433;
-}
+## port 5432
+#if ($pg_version > 80000 and $pg_version < 85000){
+#    $port_of_81=5432;
+#} elsif ($pg_version > 74000 and $pg_version < 78000){
+#    $port_of_74=5432;
+#}
+#
+## port 5433
+#if ($pg_version2 > 80000 and $pg_version2 < 85000){
+#    $port_of_81=5433;
+#} elsif ($pg_version2 > 74000 and $pg_version2 < 78000){
+#    $port_of_74=5433;
+#}
 
 
 print "Checking if postgres must be upgraded from 7.4 to 8.1\n";
 # upgrade postgres when:
 # postgres 8.1 exists ($port_of_81 > 0)
 # old version was installed (oldversion is NOT 0.0.0-0)
-if ( $port_of_81 > 0 and
-     $old_version ne "0.0.0-0"){
+#if ( $port_of_81 > 0 and
+#     $old_version ne "0.0.0-0"){
+##################################################
+# move database to new postgres, if necessary
+##################################################
+if ( $old_version ne "0.0.0-0"){
+    # its an sophomorix upgrade: there is data in the ldap db
     # trying to connect to db ldap on postgres 8.1
-    my $dbh = DBI->connect("dbi:Pg:dbname=ldap;port=$port_of_81", 
+    my $dbh = DBI->connect("dbi:Pg:dbname=ldap;port=5432", 
                            "ldap","pass",
                { RaiseError => 0, PrintError => 0});
     if (not defined $dbh){
@@ -1000,33 +1017,36 @@ if ( $port_of_81 > 0 and
 #        print "   $command \n"; 
 #        system("$command");
     } else {
-        print "Databese ldap exists already in postgres $pg_version\n"; 
+        print "Database ldap exists already in postgres \n"; 
     }
 }
 
 
-# make sure new version of postgres is running on port 5432 (standard port)
+
 &fix_pg_ports();
 
 
-# Drop old database
+# Drop old database, when --new-database
 if ($new_database==1){
     print "\nWARNING: I will drop your database ldap in 5 seconds!\n";
     print "\n Hit Control-C to abort, ...!\n\n";
     sleep 5;
-    system("droplang -U postgres plpgsql ldap");
-    system("dropdb -U postgres ldap");
-    system("dropuser -U postgres ldap");
+    system("droplang -p ${DevelConf::sql_port} -U postgres plpgsql ldap");
+    system("dropdb -p ${DevelConf::sql_port} -U postgres ldap");
+    system("dropuser -p ${DevelConf::sql_port} -U postgres ldap");
     sleep 2;
 }
 
 
-# trying to connect
+
+##################################################
+# create new database if necessary
+##################################################
+# trying to connect (check if database ldap exists on 5432)
 my $dbh = DBI->connect("dbi:Pg:dbname=ldap;port=${DevelConf::sql_port}", 
                        "ldap","pass",
           { RaiseError => 0, PrintError => 0});
 
-# create new database if necessary
 if ( ($old_version eq "0.0.0-0" and not defined $dbh) or $new_database==1){
     # first installation
     print "\ncreating the postgresql database ldap \n\n";
@@ -1035,8 +1055,9 @@ if ( ($old_version eq "0.0.0-0" and not defined $dbh) or $new_database==1){
     print "\nNOT creating empty postgresql database ldap from scratch\n\n";
 }
 
-
-# upgrade database if necessary
+##################################################
+# upgrade database structure if necessary
+##################################################
 if ($keep_database==1){
     print "\nNOT running upgrades on postgresql database ldap (option given)\n\n";
 } else {
@@ -1775,7 +1796,7 @@ sub get_pg_server_version {
 }
 
 
-sub fix_pg_ports {
+sub fix_pg_ports_old {
     print "\nMake sure new Postgres runs on standard port 5432\n";
     # which postgres runs on 5432
     my $pg_version =  &get_pg_server_version("5432");
@@ -1787,9 +1808,28 @@ sub fix_pg_ports {
         print "   NOT OK: shutting down old Postgres on 5432 \n";
         my $command="/etc/init.d/postgresql-7.4 stop \n";
         print "      $command \n";
-        print "   WARNING: Change /etc/postgresql/7.4/main/postgresql.conf\n";
-        print "            manually to port=5433 \n";
-        print "            and run sophomorix-setup-pgldap again\n ";
+        system($command);
+
+        my $conf="/etc/postgresql/7.4/main/postgresql.conf";
+        my $patch="/etc/postgresql/7.4/main/postgresql.conf.patch";
+        my $backup="/etc/postgresql/7.4/main/postgresql.conf.backup";
+
+        print "Patching $conf to use port 5433\n";
+        system("cp $conf $backup");
+        system("sed -e 's/^port\\s*=\\s*[0-9]*/port = 5433/g' $conf > $patch");
+        system("cp $patch $conf");
+
+        # starting postgres
+        $command="/etc/init.d/postgresql-7.4 start \n";
+        print "      $command \n";
+        system($command);
+        sleep 2;
+        # check
+        &get_pg_server_version("5433");
+        sleep 3;
+        #print "   WARNING: Change /etc/postgresql/7.4/main/postgresql.conf\n";
+        #print "            manually to port=5433 \n";
+        #print "            and run sophomorix-setup-pgldap again\n ";
     } elsif ($pg_version==0){
         # nothing running on 5432
         print "   NOT OK: no Postgres running on 5432\n";
@@ -1819,4 +1859,53 @@ sub fix_pg_ports {
             sleep 3;
         }    
     }
+}
+
+
+sub fix_pg_ports {
+    print "\nMake sure new Postgres runs on port 5432\n";
+    print "Make sure old Postgres runs on port 5433\n";
+    # before fixing
+    &get_pg_server_version("5432");
+    &get_pg_server_version("5433");
+
+    # stopping
+    my $command="/etc/init.d/postgresql-7.4 stop";
+    print "$command \n";
+    system($command);
+    $command="/etc/init.d/postgresql-8.1 stop";
+    print "$command \n";
+    system($command);
+
+    # patching 7.4
+    my $conf="/etc/postgresql/7.4/main/postgresql.conf";
+    my $patch="/etc/postgresql/7.4/main/postgresql.conf.patch";
+    my $backup="/etc/postgresql/7.4/main/postgresql.conf.backup";
+
+    print "Patching $conf to use port 5433\n";
+    system("cp $conf $backup");
+    system("sed -e 's/^port\\s*=\\s*[0-9]*/port = 5433/g' $conf > $patch");
+    system("cp $patch $conf");
+
+    # patching 8.1
+    $conf="/etc/postgresql/8.1/main/postgresql.conf";
+    $patch="/etc/postgresql/8.1/main/postgresql.conf.patch";
+    $backup="/etc/postgresql/8.1/main/postgresql.conf.backup";
+
+    print "Patching $conf to use port 5432\n";
+    system("cp $conf $backup");
+    system("sed -e 's/^port\\s*=\\s*[0-9]*/port = 5432/g' $conf > $patch");
+    system("cp $patch $conf");
+
+    # starting
+    $command="/etc/init.d/postgresql-7.4 start";
+    print "$command \n";
+    system($command);
+    $command="/etc/init.d/postgresql-8.1 start";
+    print "$command \n";
+    system($command);
+
+    # check
+    &get_pg_server_version("5432");
+    &get_pg_server_version("5433");
 }
