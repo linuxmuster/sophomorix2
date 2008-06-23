@@ -438,16 +438,21 @@ sub get_alle_verzeichnis_rechte {
    my $permissions="";
    my $key="";
    my $value="";
-   open(REPAIR, "<$DevelConf::devel_pfad/repair.directories");
-   while (<REPAIR>) {
-      chomp(); # Returnzeichen abschneiden
-      s/\s//g; # Spezialzeichen raus
-      if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
-      if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
-      ($verzeichnis,$owner,$gowner,$permissions)=split(/::/);
-      $alle_verzeichnis_rechte{$verzeichnis}=$_;
+   my @files_to_read=("$DevelConf::devel_pfad/repair.directories",
+                      "$DevelConf::devel_pfad/repairhome.teacher",
+                     );
+   foreach my $file (@files_to_read){
+       open(REPAIR, "<$file");
+       while (<REPAIR>) {
+           chomp(); # Returnzeichen abschneiden
+           s/\s//g; # Spezialzeichen raus
+           if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+           if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+           ($verzeichnis,$owner,$gowner,$permissions)=split(/::/);
+           $alle_verzeichnis_rechte{$verzeichnis}=$_;
+       }
+       close(REPAIR);
    }
-   close(REPAIR);
    
 #   if($Conf::log_level>=3){
 #      # Hash ausgeben
@@ -518,7 +523,6 @@ sub setup_verzeichnis {
    }    
       my $linie=$alle_verzeichnis_rechte{$key};
       my ($verzeichnis,$owner,$gowner,$permissions)=split(/::/,$linie);
-      
       # Ersetzungen durchführen
       # wenn mehrere duch / getrennte Dateirechte, dann erste nehmen
       if ($permissions =~m/\//) {
@@ -531,17 +535,16 @@ sub setup_verzeichnis {
       # $webserver ersetzen
       $pfad=~s/\/\$webserver/$DevelConf::apache_root/;
 
-      # group override
+      # user override
       if (defined $user) {
-          # owner ersetzen, falls $schueler, $leher
+          # owner ersetzen, falls $schueler, $lehrer
           $owner=~s/\$schueler/$user/;
           $owner=~s/\$lehrer/$user/;
           $owner=~s/\$workstation/$user/;
-
-          #$owner=$user;
+          $owner=~s/\$user/$user/;
       }
 
-      # user override
+      # group override
       if (defined $gruppe) {
           # group is ALWAYS overridden, when specified in function 
           $gowner=$gruppe;
@@ -4424,24 +4427,48 @@ sub collect {
   # where to save the collected data
   my ($homedir_col)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
   my $to_dir="";
-
+  my $to_dir_above="";
   if (defined $users and $type eq "current room"){ 
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
                    "${Language::collected_string}${Language::current_room}/".
                    "${login}_${date}_${Language::current_room}";
+         $to_dir_above = "${homedir_col}/${Language::collected_dir}/".
+                   "${Language::collected_string}${Language::current_room}";
+         &setup_verzeichnis(
+                   "\$collected_dir\/\$collected_string\$current_room",
+                   "$to_dir_above",
+                   "$login");
   } elsif (defined $users) {
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
                    "${Language::collected_string}${longname}/".
                    "${login}_${date}_${longname}";
+         $to_dir_above = "${homedir_col}/${Language::collected_dir}/".
+                   "${Language::collected_string}${longname}";
+         &setup_verzeichnis(
+                   "\$collected_dir\/\$collected_string\$mygroups",
+                   "$to_dir_above",
+                   "$login");
   } else {
      if ($exam==1){
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
                    "${Language::collected_string}${Language::exam}/".
                     "EXAM_${login}_${date}_${longname}";
+         $to_dir_above = "${homedir_col}/${Language::collected_dir}/".
+                   "${Language::collected_string}${Language::exam}";
+         &setup_verzeichnis(
+                   "\$collected_dir\/\$collected_string\$exam",
+                   "$to_dir_above",
+                   "$login");
      } else {
          $to_dir = "${homedir_col}/${Language::collected_dir}/".
                    "${Language::collected_string}${longname}/".
                    "${login}_${date}_${longname}";
+         $to_dir_above = "${homedir_col}/${Language::collected_dir}/".
+                   "${Language::collected_string}${longname}";
+         &setup_verzeichnis(
+                   "\$collected_dir\/\$collected_string\$mygroups",
+                   "$to_dir_above",
+                   "$login");
      }
   }
 
