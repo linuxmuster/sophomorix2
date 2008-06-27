@@ -1269,6 +1269,8 @@ if ($slapd_standalone==1){
 # updating ldap
 if ($new_database==1){
     system("sophomorix-dump-pg2ldap --skiplock");
+    # make sure slapd is running for the following chown commands
+    sleep 5;
 }           
 
 
