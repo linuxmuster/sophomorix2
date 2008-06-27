@@ -27,8 +27,7 @@ RT:
 wie lautet der Befehl mit der in der Schulkonsole ein projekt gelöscht wird?
    sophomorix-project --caller teacher --project name --kill
 
-# 404
-# 190
+# 190 - . _ in loginnamen
 
 immutable bit testen
 
@@ -42,7 +41,7 @@ nutzt eigene Datei statt repairhome.students, teacher, ...
 
 link zu code suchmaschine von Thomas
 
-Bug!?
+Bug # 404
 
 Mich sprechen Kollegen an, die die eingesammelten Ordner unterhalb
 H:\_eingesammelt\  nicht mehr löschen können.
@@ -74,6 +73,16 @@ am 9.5. 18:40   2398
 
 am 23.6.         894
                 2406
+
+Ergebnis 27.6. .locked nehmen zu. weil sie im ordner der Schüler sind und eingesammelt werden (kopiert)
+- habe alle .locked gelöscht mit:
+  find /home -name '.locked' -print0 | xargs -0 rm
+
+Testen ob alle gelöscht sind: 
+find /home -name '.locked' | wc    -->  0 
+
+Weiter: nach einiger Zeit nochmal testen
+
 
 pyquota:
 
