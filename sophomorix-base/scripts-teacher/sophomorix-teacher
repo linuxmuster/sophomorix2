@@ -319,7 +319,8 @@ if ($add ne ""){
    if ($result==1){
        system("/usr/sbin/sophomorix-mail");
    }
-   exit;
+   &log_script_end(@arguments);
+   #exit;
 }
 
 
@@ -331,7 +332,8 @@ if ($remove ne ""){
    $info=1;
    # Creating Mailing Aliases and Lists
    system("/usr/sbin/sophomorix-mail");
-   exit;
+   #exit;
+   &log_script_end(@arguments);
 }
 
 
@@ -362,7 +364,8 @@ if ($handout==1 and ($class ne ""
     if ($room ne ""){
            &handout($login, $room,"room",$rsync);
     }
-    exit;
+    &log_script_end(@arguments);
+    #exit;
 }
 
 
@@ -390,7 +393,8 @@ if ($handoutcopy==1 and (
         print "Calling handoutcopy\n";
         &handoutcopy($login, $class,$type,"unused",$users);
     }
-    exit;
+    &log_script_end(@arguments);
+    #exit;
 } elsif ($handoutcopy==1) {
     print "Cannot handoutcopy to class/subclass/project.\n";
     print "Use --users user1,user2,...\n";
@@ -458,7 +462,8 @@ if ($collect==1 and ($class ne ""
         #  collect from a userlist
         &collect($login,$fromclass,"adminclass",$rsync,$exam,$users);
     }
-    exit;
+    &log_script_end(@arguments);
+    #exit;
 }
 
 
@@ -503,7 +508,8 @@ if ($collectcopy==1 and ($class ne ""
         #  collect from a userlist
         &collect($login,$fromclass,"adminclass",$rsync,$exam,$users);
     }
-    exit;
+    &log_script_end(@arguments);
+    #exit;
 }
 
 
