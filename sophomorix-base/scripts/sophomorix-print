@@ -1,10 +1,9 @@
 #!/usr/bin/perl -w
 # $Id$
-# This script (sophomorix-print) is maintained by Rüdiger Beck
-# It is Free Software (License GPLv3)
-# If you find errors, contact the author
-# jeffbeck@web.de  or  jeffbeck@gmx.de
-
+# Dieses Script (sophomorix-print) wurde von Rüdiger Beck erstellt
+# Es ist freie Software
+# Bei Fehlern wenden Sie sich bitte an mich.
+# jeffbeck@web.de  oder  jeffbeck@gmx.de
 
 # Ziel: Dieses Script erzeugt aus der Liste mit
 # Hinzukommenden Schülern Latex-Code, der in PDF und
@@ -817,19 +816,47 @@ if ($one_per_page==1){
     chomp($hostname);
     my $dnsdomainname=`dnsdomainname`;
     chomp($dnsdomainname);
+
+    # internal server name
     my $server=$hostname.".".$dnsdomainname;
+    if (defined $Conf::server_fqdn_internal_print){
+        if ($Conf::server_fqdn_internal_print ne ""){
+	    $server=$Conf::server_fqdn_internal_print;
+        }
+    }
+    # external server name
+    my $server_external=$server;
+    if (defined $Conf::server_fqdn_external_print){
+        if ($Conf::server_fqdn_external_print ne ""){
+	    $server_external=$Conf::server_fqdn_external_print;
+        }
+    }
+    # samba domain
+    my $smb_domain="";
+    if (defined $Conf::smb_domain_print){
+        if ($Conf::smb_domain_print ne ""){
+	    $smb_domain=$Conf::smb_domain_print;
+        }
+    }
+
+    # common changes to the template
+    my $admins="";
+    if (defined $Conf::admins_print){
+        if ($Conf::admins_print ne ""){
+	    $admins=$Conf::admins_print;
+        }
+    }
+
 
     # read the template into variable
-    my $template=${DevelConf::latex_templates}."/login-info-".${Conf::lang}.".tex";
+    my $template=${DevelConf::latex_templates}.
+       "/login-info-".${Conf::lang}.".tex";
     my $template_content="\n\n";
     open(TEMPLATE,"<$template") || die "Fehler: $!";
     while(<TEMPLATE>){
         $template_content=$template_content.$_;
     }
     close (TEMPLATE);
-
-    # common changes to the template
-    my $admins="admin1, admin2, ...";
 
     foreach $eintrag (@drucken_reihenfolge) {
         $schueler_protokoll_zeile=$schueler_im_system_hash{$eintrag};
@@ -883,9 +910,9 @@ if ($one_per_page==1){
         print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
         print LATEX "Anmeldung an einem Windowsrechner:\n\n";
         print LATEX "\\begin{tabbing}\n";
-        print LATEX " Benutzername:\\qquad \\= \\texttt{$loginname_protokoll} \\\\ \n";
-        print LATEX " Kennwort:     \\> \\texttt{$latex_passwort_protokoll} \\\\ \n";
-        print LATEX " Domäne:       \\> \\texttt{???} \\\\ \n";
+        print LATEX "\\qquad Benutzername:\\qquad \\= \\texttt{$loginname_protokoll} \\\\ \n";
+        print LATEX "\\qquad Kennwort:     \\> \\texttt{$latex_passwort_protokoll} \\\\ \n";
+        print LATEX "\\qquad Domäne:       \\> \\texttt{$smb_domain} \\\\ \n";
         print LATEX "\\end{tabbing}\n\n";
         print LATEX "\\vspace{-6mm}\n\n";
 
@@ -893,40 +920,40 @@ if ($one_per_page==1){
         print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
         print LATEX "Anmeldung an einem Linuxrechner:\n";
         print LATEX "\\begin{tabbing}\n";
-        print LATEX " Login:\\qquad\\qquad \\= \\texttt{$loginname_protokoll} \\\\ \n";
-        print LATEX " Passwort: \\> \\texttt{$latex_passwort_protokoll} \\\\ \n";
+        print LATEX "\\qquad Login:\\qquad\\qquad \\= \\texttt{$loginname_protokoll} \\\\ \n";
+        print LATEX "\\qquad Passwort: \\> \\texttt{$latex_passwort_protokoll} \\\\ \n";
         print LATEX "\\end{tabbing}\n";
         print LATEX "\\vspace{-6mm}\n\n";
 
         # schulkonsole
         print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
         print LATEX "Pädagogische Funktionen mit der Schulkonsole im Intranet:\n\n";
-        print LATEX " URL: \\texttt{https://${server}/schulkonsole/}\n\n";
+        print LATEX " URL: \\texttt{https://${server}:242}\n\n";
 
         # horde
         print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
         print LATEX "Webmail mit Horde: \n\n";
-        print LATEX " URL: \\texttt{https://${server}/horde3}\n\n";
+        print LATEX " URL: \\texttt{https://${server_external}/horde3}\n\n";
 
         # ogo
-        print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
-        print LATEX " Groupware mit OpenGroupware: \n\n";
-        print LATEX " URL: \\texttt{https://${server}/OpenGroupware}\n\n";
+        #print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
+        #print LATEX " Groupware mit OpenGroupware: \n\n";
+        #print LATEX " URL: \\texttt{https://${server_external}/OpenGroupware}\n\n";
 
         # moodle
         print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
         print LATEX " Lernplattform mit Moodle: \n\n";
-        print LATEX " URL: \\texttt{https://${server}/moodle}\n\n";
+        print LATEX " URL: \\texttt{https://${server_external}/moodle}\n\n";
 
         # phpmyadmin
-        print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
-        print LATEX " Datenbankzugriff mit phpmyadmin: \n\n";
-        print LATEX " URL: \\texttt{https://${server}/phpmyadmin}\n\n";
+        #print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
+        #print LATEX " Datenbankzugriff mit phpmyadmin: \n\n";
+        #print LATEX " URL: \\texttt{https://${server}/phpmyadmin}\n\n";
 
         # websvn
-        print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
-        print LATEX " Versionskontrolle mit svn per Webfrontend: \n\n";
-        print LATEX " URL: \\texttt{https://${server}/websvn}\n\n";
+        #print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
+        #print LATEX " Versionskontrolle mit svn per Webfrontend: \n\n";
+        #print LATEX " URL: \\texttt{https://${server}/websvn}\n\n";
 
 
 
