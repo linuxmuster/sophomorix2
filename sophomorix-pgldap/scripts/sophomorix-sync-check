@@ -75,7 +75,6 @@ my $user="";
 
 # Parsen der Optionen
 my $testopt=GetOptions(
-           "info|i" => \$info,
            "u|user=s" => \$user,
            "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
@@ -98,13 +97,9 @@ Options
   -h  / --help
   -v  / --verbose
   -vv / --verbose --verbose
-  -i  / --info
   --u user / --users user
-  -c class / --class class
-  --test
-  --lock / --unlock
 
-Please see the sophomorix-add(8) man pages for full documentation
+Please see the sophomorix-sync-check(8) man pages for full documentation
 ');
    print "\n";
    exit;
@@ -113,6 +108,9 @@ Please see the sophomorix-add(8) man pages for full documentation
 if ($info==1) {
    print "Option --info given.\n";
 }
+
+&check_connections();
+
 
 
 # --user
@@ -134,11 +132,10 @@ if ($user ne "") {
   }
 
   &auth_disconnect($ldap);
+  exit;
 }    
 
-&log_script_start(@arguments);
 
 
 
-&check_connections();
 
