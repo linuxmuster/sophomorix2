@@ -81,6 +81,7 @@ my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
            "info|i" => \$info,
+           "testports" => \$testports,
            "configfile" => \$config_file,
            "oldversion|=s" => \$old_version,
            "newversion|=s" => \$new_version,
@@ -1887,7 +1888,9 @@ sub fix_pg_ports {
     print "Patching $conf to use port 5433\n";
     system("cp $conf $backup");
     system("sed -e 's/^port\\s*=\\s*[0-9]*/port = 5433/g' $conf > $patch");
-    system("cp $patch $conf");
+    if (-e $patch){
+        system("cp $patch $conf");
+    }
 
     # patching 8.1
     $conf="/etc/postgresql/8.1/main/postgresql.conf";
@@ -1897,8 +1900,9 @@ sub fix_pg_ports {
     print "Patching $conf to use port 5432\n";
     system("cp $conf $backup");
     system("sed -e 's/^port\\s*=\\s*[0-9]*/port = 5432/g' $conf > $patch");
-    system("cp $patch $conf");
-
+    if (-e $patch){
+        system("cp $patch $conf");
+    }
     # starting
     $command="/etc/init.d/postgresql-7.4 start";
     print "$command \n";
