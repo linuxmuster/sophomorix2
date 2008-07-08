@@ -66,6 +66,30 @@ my $file="/etc/aliases";
 $username=$ARGV[0];
 my $liste=$ARGV[1];
 
+
+if ($username eq "--help" or
+    $username eq "-h"){
+   print('
+sophomorix-imp-expand-from-address returns the alias name in /etc/aliases 
+
+Options
+  -h  / --help
+
+Example:
+
+  sophomorix-imp-expand-fromaddress login
+
+returns i.e. firstname.surname of login from /etc/aliases 
+(or login, if there is no alias)
+
+
+Please see the sophomorix-workstation(8) man pages for full documentation
+');
+   print "\n";
+   exit;
+
+}
+
 if(not defined $username) {
    $username="";
 }
