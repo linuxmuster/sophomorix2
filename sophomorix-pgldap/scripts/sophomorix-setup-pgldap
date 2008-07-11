@@ -165,7 +165,8 @@ indices are update automatically if you do not specify one of the following opti
       This is for testing only
 
   --update-indices-only 
-      Drop indices listed in drop-index.sql and create indices in create-index.sql
+      Drop indices listed in drop-index.sql and create indices in 
+      create-index.sql.
       Use this, when you edit the above files  files and you want to check 
       performance gain (or loss).
       This is for testing only
@@ -1835,9 +1836,11 @@ sub fix_pg_ports_old {
         my $backup="/etc/postgresql/7.4/main/postgresql.conf.backup";
 
         print "Patching $conf to use port 5433\n";
-        system("cp $conf $backup");
-        system("sed -e 's/^port\\s*=\\s*[0-9]*/port = 5433/g' $conf > $patch");
-        system("cp $patch $conf");
+        if (-e $conf){
+            system("cp $conf $backup");
+            system("sed -e 's/^port\\s*=\\s*[0-9]*/port = 5433/g' $conf > $patch");
+            system("cp $patch $conf");
+        }
 
         # starting postgres
         $command="/etc/init.d/postgresql-7.4 start \n";
@@ -1903,9 +1906,10 @@ sub fix_pg_ports {
     my $backup="/etc/postgresql/7.4/main/postgresql.conf.backup";
 
     print "Patching $conf to use port 5433\n";
-    system("cp $conf $backup");
-    system("sed -e 's/^port\\s*=\\s*[0-9]*/port = 5433/g' $conf > $patch");
-    if (-e $patch){
+
+    if (-e $conf){
+        system("cp $conf $backup");
+        system("sed -e 's/^port\\s*=\\s*[0-9]*/port = 5433/g' $conf > $patch");
         system("cp $patch $conf");
     }
 
@@ -1915,9 +1919,9 @@ sub fix_pg_ports {
     $backup="/etc/postgresql/8.1/main/postgresql.conf.backup";
 
     print "Patching $conf to use port 5432\n";
-    system("cp $conf $backup");
-    system("sed -e 's/^port\\s*=\\s*[0-9]*/port = 5432/g' $conf > $patch");
-    if (-e $patch){
+    if (-e $conf){
+        system("cp $conf $backup");
+        system("sed -e 's/^port\\s*=\\s*[0-9]*/port = 5432/g' $conf > $patch");
         system("cp $patch $conf");
     }
     # starting

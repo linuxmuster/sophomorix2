@@ -4,7 +4,9 @@
 ============SOPHOMORIX2 CHANGELOG ====================================
 
 2.0.2-1 (2008-07-xx)
-
+    - sophomorix-setup-pgldap: removed copying/patching of postgresql.conf
+      when it doesn't exits (avoids warning on package upgrade) 
+    - added sophomorix-setup-pgldap --testports to help
 
 2.0.1-1 (2008-07-09)
     - sophomorix-sync-check: dont stop/start nscd
