@@ -124,15 +124,17 @@ Options
   -h  / --help
   -i  / --info      show values used for configuration, do nothing
 
+Check which version of postgres is running on ports 5432 and 5433
+   --testports
+
 What settings to use:
   --configfile      use values from /etc/sophomorix/pgldap/pgldap.conf
 
-Use a standalone ldap (this is standard
+Use a standalone ldap (this is the default)
   --slapd-standalone
 
 Use a integrated ldap (this must be specified)
   --slapd-integrated
-
 
 How to handle the database
   Version numbers are correctly set when using the debian package system
