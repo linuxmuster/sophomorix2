@@ -69,10 +69,10 @@ access to *
 
 #######################################################################
 # TLS:
-TLSCipherSuite HIGH:MEDIUM:+SSLv2
-TLSCACertificateFile /etc/ssl/private/server.pem
-TLSCertificateFile /etc/ssl/private/server.pem
-TLSCertificateKeyFile /etc/ssl/private/server.pem
+@@tls_comment@@TLSCipherSuite HIGH:MEDIUM:+SSLv2
+@@tls_comment@@TLSCACertificateFile /etc/ssl/private/server.pem
+@@tls_comment@@TLSCertificateFile /etc/ssl/private/server.pem
+@@tls_comment@@TLSCertificateKeyFile /etc/ssl/private/server.pem
 
 # Use the following if client authentication is required
 #TLSVerifyClient demand
