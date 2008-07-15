@@ -75,7 +75,7 @@ my $testopt=GetOptions(
        "help|h" => \$help,
        "i|info" => \$info,
        "s|search=s" => \$search,
-       "S|Search=s" => \$search_login,
+       "u|user=s" => \$search_login,
        "F|freeze=s" => \$freeze,
        "P|permanent=s" => \$permanent,
        "R|removable=s" => \$removable,
@@ -111,7 +111,7 @@ Options
   -v   /  --verbose
   -vv  /  --verbose --verbose
   -s string /   --search string
-  -S user   /   --Search user
+  -u user   /   --user user
   -F user   /   --freeze user
   -P user   /   --permanent user
   -R user   /   --removable user
@@ -348,9 +348,8 @@ if ($old_uid ne "" and $new_uid ne ""){
     my %forbidden_login_hash=&forbidden_login_hash();
 
     if (exists($forbidden_login_hash{$new_uid})){
-        print "\nERROR: New login $new_uid exists in the system.\n\n";
-        print "I'm doing nothing!\n\n";
-        exit;
+        &log_script_exit("New login $new_uid exists in the system",
+                         1,1,0,@arguments);
     }
 
     # fetch old data
@@ -358,9 +357,8 @@ if ($old_uid ne "" and $new_uid ne ""){
        $old_sambahomepath) = &fetchdata_from_account($old_uid);
 
     if ($old_home eq ""){
-        print "\nERROR: Could not find old-uid $old_uid\n\n";
-        print "I'm doing nothing!\n\n";
-        exit;
+        &log_script_exit("Could not find old-uid $old_uid",
+                         1,1,0,@arguments);
     }
 
     print "\nOld uid: $old_uid \n";
@@ -406,19 +404,19 @@ if ($old_uid ne "" and $new_uid ne ""){
     print "5) Updating /etc/aliases.\n";
 #    system("${DevelConf::executable_pfad}/sophomorix-mail --skiplock");
 #    &nscd_stop();
-    exit;
+    &log_script_exit("",0,1,0,@arguments);
 }
 
 
 # --freeze
 if ($freeze ne""){
-    print "Freezing the account of $freeze:\n";
     # check if it is really an account
     if (getpwnam("$freeze")){
+        print "Freezing the account of $freeze:\n";
 	print "   - $freeze is a valid username.\n";
     } else {
-	print "   - $freeze is not a valid username.\n";
-        exit;
+        &log_script_exit("$freeze is not a valid username",
+                         1,1,0,@arguments);
     }
     # doing the freeze
     &update_user_db_entry($freeze, 
@@ -427,20 +425,20 @@ if ($freeze ne""){
        #                   "DeactivationDate="
                          );
     &user_deaktivieren($freeze);
-    exit;
+    &log_script_exit("",0,1,0,@arguments);
 }
 
 
 
 # --permanent
 if ($permanent ne""){
-    print "Making the account of $permanent permanent:\n";
     # check if it is really an account
     if (getpwnam("$permanent")){
+        print "Making the account of $permanent permanent:\n";
 	print "   - $permanent is a valid username.\n";
     } else {
-	print "   - $permanent is not a valid username.\n";
-        exit;
+        &log_script_exit("$permanent is not a valid username",
+                         1,1,0,@arguments);
     }
     # making the account permanent
     &update_user_db_entry($permanent, 
@@ -449,7 +447,7 @@ if ($permanent ne""){
     #                      "DeactivationDate="
                          );
     &user_reaktivieren($permanent);
-    exit;
+    &log_script_exit("",0,1,0,@arguments);
 }
 
 
@@ -457,13 +455,13 @@ if ($permanent ne""){
 
 # --removable
 if ($removable ne""){
-    print "Making the account of $removable removable by sophomorix-kill:\n";
     # check if it is really an account
     if (getpwnam("$removable")){
+        print "Making the account of $removable removable by sophomorix-kill:\n";
 	print "   - $removable is a valid username.\n";
     } else {
-	print "   - $removable is not a valid username.\n";
-        exit;
+        &log_script_exit("$removable is not a valid username",
+                         1,1,0,@arguments);
     }
     # doing the removable
     &update_user_db_entry($removable, 
@@ -471,7 +469,7 @@ if ($removable ne""){
                           "TolerationDate=01.01.1970",
                           "DeactivationDate=01.01.1970");
     &user_deaktivieren($removable);
-    exit;
+    &log_script_exit("",0,1,0,@arguments);
 }
 
 
@@ -479,13 +477,13 @@ if ($removable ne""){
 
 # --killable
 if ($killable ne""){
-    print "Making the account of $killable killable by sophomorix-kill:\n";
     # check if it is really an account
     if (&check_sophomorix_user("$killable")==1){
+        print "Making the account of $killable killable by sophomorix-kill:\n";
 	print "   - $killable is a valid username.\n";
     } else {
-	print "   - $killable is not a valid username.\n";
-        exit;
+        &log_script_exit("$killable is not a valid username",
+                         1,1,0,@arguments);
     }
     # doing the killable
     &update_user_db_entry($killable, 
@@ -494,7 +492,7 @@ if ($killable ne""){
  #                         "DeactivationDate=01.01.1970"
                          );
     &user_deaktivieren($killable);
-    exit;
+    &log_script_exit("",0,1,0,@arguments);
 }
 
 
@@ -516,20 +514,20 @@ if ($kill_all_users==1){
         system("sophomorix-user -K $user_kill");
     }
     # kein nscd_stop, da exit folgt.
-    exit;
+    &log_script_exit("",0,1,0,@arguments);
 }
 
 
 
 # --activate
 if ($activate ne""){
-    print "Actvating the account of $activate:\n";
     # check if it is really an account
     if (getpwnam("$activate")){
+        print "Actvating the account of $activate:\n";
 	print "   - $activate is a valid username.\n";
     } else {
-	print "   - $activate is not a valid username.\n";
-        exit;
+        &log_script_exit("$activate is not a valid username",
+                         1,1,0,@arguments);
     }
     # activating the account
     &update_user_db_entry($activate, 
@@ -537,7 +535,7 @@ if ($activate ne""){
                           "TolerationDate=$today",
                           "DeactivationDate=");
     &user_reaktivieren($activate);
-    exit;
+    &log_script_exit("",0,1,0,@arguments);
 }
 
 
@@ -548,8 +546,8 @@ if ($teacher ne"" and $sc_toleration ne "empty"){
     my ($home,$type,$gecos,$group,$uidnumber)=&fetchdata_from_account($teacher);
  
     if ($type ne "teacher"){
-        print "   - $teacher is NOT a valid username of type 'teacher'\n";
-        exit;
+        &log_script_exit("$teacher is NOT a valid username of type teacher",
+                         1,1,0,@arguments);
     } else {
         print "   - $teacher is a valid username and of type 'teacher'\n";
     }
@@ -602,7 +600,7 @@ if ($teacher ne"" and $sc_toleration ne "empty"){
         &update_user_db_entry($teacher, 
                               "ScheduledToleration=$sc_toleration");
     }
-    exit;
+    &log_script_exit("",0,1,0,@arguments);
 }
 
 
@@ -614,13 +612,13 @@ if ($reset_user ne""){
     # fetch permission for all homes
     &fetch_repairhome();
     foreach my $user (@users){
-        print "Resetting the account of $user:\n";
         # check if it is really an account
         if (getpwnam("$user")){
+            print "Resetting the account of $user:\n";
 	    print "   - $user is a valid username.\n";
         } else {
-	    print "   - $user is not a valid username.\n";
-            exit;
+            &log_script_exit("$user is not a valid username",
+                         1,1,0,@arguments);
         }
         # reset the account
         &reset_user($user);
@@ -629,7 +627,7 @@ if ($reset_user ne""){
             &set_sophomorix_passwd($user,"");
         }
     }
-    exit;
+    &log_script_exit("",0,1,0,@arguments);
 }
 
 
@@ -641,7 +639,7 @@ if ($reset_user ne""){
 
 if ($search eq "" and $search_login eq ""){
    print "I don't know what to search for! (searchstring is empty)\n";
-   exit;  
+   &log_script_exit("",0,1,0,@arguments);
 }
 
 
@@ -660,5 +658,3 @@ if ($search_login ne ""){
 
 
 &log_script_end(@arguments);
-
-
