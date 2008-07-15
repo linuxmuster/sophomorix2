@@ -3,6 +3,10 @@
 ##### @@message3@@
 # $Id$
 #######################################################################
+# added TLS support
+# 11.07.08, tschmitt
+#######################################################################
+#
 # Global Directives:
 
 # Features to permit
@@ -11,6 +15,7 @@ allow bind_v2
 # Schema and objectClass definitions
 include         /etc/ldap/schema/core.schema
 include         /etc/ldap/schema/cosine.schema
+include         /etc/ldap/schema/misc.schema
 include         /etc/ldap/schema/nis.schema
 include         /etc/ldap/schema/inetorgperson.schema
 include         /etc/ldap/schema/samba.schema
@@ -63,6 +68,18 @@ access to *
        by * read
 
 #######################################################################
+# TLS:
+TLSCipherSuite HIGH:MEDIUM:+SSLv2
+TLSCACertificateFile /etc/ssl/private/server.pem
+TLSCertificateFile /etc/ssl/private/server.pem
+TLSCertificateKeyFile /etc/ssl/private/server.pem
+
+# Use the following if client authentication is required
+#TLSVerifyClient demand
+# ... or not desired at all
+#TLSVerifyClient never 
+
+#######################################################################
 # Specific Directives for database #1, of type sql:
 # Database specific directives apply to this databasse until another
 # 'database' directive occurs
@@ -87,3 +104,9 @@ dbcachesize 1000000
 # Indexing options for database #1
 index   objectClass,uid,uidNumber,gidNumber     eq
 index   cn,mail,surname,givenname               eq,subinitial
+
+#######################################################################
+# include your own stuff
+include		/etc/ldap/slapd.conf.custom
+
+
