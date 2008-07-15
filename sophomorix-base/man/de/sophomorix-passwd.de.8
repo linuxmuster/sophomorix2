@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-PASSWD 8 "October 16, 2007"
+.TH SOPHOMORIX-PASSWD 8 "July 15, 2008"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -56,6 +56,8 @@ Dieser Befehl wird für samba, root, ... bereitgestellt.
 .B --interactive --user user
 fragt das Passwort von user zweimal ab, ohne es auszugeben. Das
 Klartextpasswort in der Datenbank wird nicht upgedated.
+.br
+Wenn zusätzlich die Option --shell angegeben wird, wird diese ignoriert.
 .TP
 .B Optionen, die angeben, wie das Passwort lauten soll:
 .TP
