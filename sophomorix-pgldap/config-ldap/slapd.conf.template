@@ -46,6 +46,20 @@ password-hash {CRYPT}
 backend		bdb
 checkpoint 512 30
 
+
+#######################################################################
+# TLS:
+@@tls_comment@@TLSCipherSuite HIGH:MEDIUM:+SSLv2
+@@tls_comment@@TLSCACertificateFile /etc/ssl/private/server.pem
+@@tls_comment@@TLSCertificateFile /etc/ssl/private/server.pem
+@@tls_comment@@TLSCertificateKeyFile /etc/ssl/private/server.pem
+
+# Use the following if client authentication is required
+#TLSVerifyClient demand
+# ... or not desired at all
+#TLSVerifyClient never 
+
+
 #######################################################################
 #Limits Access:
 access to attrs=sambaLMPassword,sambaNTPassword,sambaPwdLastSet,sambaPwdMustChange,sambaAcctFlags
