@@ -36,6 +36,15 @@ $Conf::log_level=1;
 
 my $domainname="";
 my $servername="";
+
+# comment TLS entries in slapd.conf
+my $tls_comment="# ";
+if (-e $DevelConf::slapd_pem_file){
+    # do not comment TLS entries in slapd.conf
+    # use them with $DevelConf::slapd_pem_file 
+    $tls_comment="";
+}
+
 my $smbworkgroup="";
 my $internip="";
 my $internmask="";
@@ -600,28 +609,6 @@ if ($info==1){
 &get_pg_server_version("5432");
 &get_pg_server_version("5433");
 
-#my $dbh=&db_connect();
-#&db_disconnect($dbh);
-
-#my $upgrade_file="/var/log/sophomorix/postgres-upgrade-7.4-8.1";
-
-## upgrade postgres when:
-## upgrade is NOT already done ($upgrade_file exists)
-## new version is this package
-## old version was installed (oldversion is NOT 0.0.0-0)
-#if (not -e "$upgrade_file" and 
-#    $new_version eq "2.0.0-2"
-#    and $old_version ne "0.0.0-0"){
-#    print "\n\nUpgrading from postgres 7.4 to 8.1\n\n\n"; 
-#    system("pg_dropcluster 8.1 main --stop");
-#    system("pg_upgradecluster 7.4 main");
-#    system("pg_dropcluster 7.4 main");
-#    system("touch $upgrade_file");
-#}
-
-
-#exit;
-
 
 ############################################################
 # Replace the following config-files
@@ -718,6 +705,7 @@ $replace= " -e 's/\@\@basedn\@\@/${basedn}/g'".
           " -e 's/\@\@administrator\@\@/${DevelConf::smb_administrator}/g'". 
           " -e 's/\@\@domadmin\@\@/${DevelConf::smb_domadmin}/g'". 
           " -e 's/\@\@domadmins\@\@/${DevelConf::smb_domadmin_group}/g'". 
+          " -e 's/\@\@tls_comment\@\@/${tls_comment}/g'". 
           " -e 's/\@\@message1\@\@/${message1}/g'". 
           " -e 's/\@\@message2\@\@/${message2}/g'".
           " -e 's/\@\@message3\@\@/${message3}/g'"; 
@@ -729,6 +717,8 @@ my %permissions=&get_alle_verzeichnis_rechte();
 
 # do it, ldap 
 system("sed $replace ${template}/ldap/ldap.conf.template > $ldap_conf");
+
+
 
 if ($slapd_standalone==1){
    system("sed $replace ${template}/ldap/slapd-standalone.conf.template > $slapd_conf");
@@ -742,6 +732,13 @@ system("sed $replace ${template}/ldap/ldap.secret.template > $ldap_secret");
 system("sed $replace ${template}/ldap/nsswitch.conf.template > $nsswitch_conf"); 
 system("sed $replace ${template}/ldap/libnss-ldap.conf.template > $libnssldap_conf"); 
 system("sed $replace ${template}/ldap/standalone.ldif.template > $ldif_local"); 
+
+# make sure a dummy custom template is there, so that 
+# slapd starts
+if (not -e $DevelConf::slapd_custom_file){
+    system("cp $DevelConf::slapd_custom_template $DevelConf::slapd_custom_file");
+}
+
 
 # do it, pg
 system("sed $replace ${template}/pg/odbc.ini.template > $odbc_ini"); 
@@ -1355,11 +1352,6 @@ if ($DevelConf::create_www==1){
 &make_some_files_root_only();
 
 
-# make sure a dummy custom template is there, so that 
-# slapd starts
-if (not -e $slapd_custom_file){
-    system("cp $slapd_custom_template $slapd_custom_file");
-}
 
 
 # run upgrade scripts
