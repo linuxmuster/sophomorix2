@@ -4436,7 +4436,10 @@ Creates a line.
 
 sub search_user {
   # database dependent
-  my ($string,$auth) = @_;
+  my ($string,$auth,$search_login) = @_;
+  if (not defined $search_login){
+      $search_login="";
+  }
   my $str="'\%$string\%'";
 
   my ($class,$gec_user,$login,$first_pass,$birth,$unid,
@@ -4451,13 +4454,28 @@ sub search_user {
   my $grp_string="";
   my $home_ex="---";
 
-  &Sophomorix::SophomorixBase::titel("I'm looking for $str in postgresql ...");
   my $dbh=&db_connect();
-
   my $sql="";
+  my $sth;
 
-  # select the columns that i need
-  my $sth= $dbh->prepare( "SELECT DISTINCT uid, firstname, surname, 
+  if ($search_login ne ""){
+      &Sophomorix::SophomorixBase::titel("I'm looking for user $search_login in postgresql ...");
+      # select the columns that i need
+      $sth= $dbh->prepare( "SELECT DISTINCT uid, firstname, surname, 
+                            loginshell, birthday, adminclass, exitadminclass, 
+                            unid, subclass, creationdate,tolerationdate, 
+                            deactivationdate, sophomorixstatus,
+                            gecos, homedirectory, firstpassword, quota, 
+                            mailquota, sambaacctflags, sambahomepath, 
+                            sambahomedrive, sambalogonscript, 
+                            sambaprofilepath, usertoken, scheduled_toleration 
+                         FROM userdata
+                         WHERE uid='$search_login'
+                         ");
+  } else {
+      &Sophomorix::SophomorixBase::titel("I'm looking for $str in postgresql ...");
+      # select the columns that i need
+      $sth= $dbh->prepare( "SELECT DISTINCT uid, firstname, surname, 
                             loginshell, birthday, adminclass, exitadminclass, 
                             unid, subclass, creationdate,tolerationdate, 
                             deactivationdate, sophomorixstatus,
@@ -4470,7 +4488,10 @@ sub search_user {
                             OR firstname LIKE $str
                             OR surname LIKE $str
                             OR gecos LIKE $str
-                            OR displayname LIKE $str" );
+                            OR displayname LIKE $str
+                           ");
+  }
+
   $sth->execute();
 
   my $array_ref = $sth->fetchall_arrayref();

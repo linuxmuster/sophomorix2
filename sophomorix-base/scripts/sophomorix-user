@@ -64,6 +64,7 @@ my $teacher="";
 my $sc_toleration="empty";
 my $reset_user="";
 my $search="";
+my $search_login="";
 my $old_uid="";
 my $new_uid="";
 my $auth=0;
@@ -74,6 +75,7 @@ my $testopt=GetOptions(
        "help|h" => \$help,
        "i|info" => \$info,
        "s|search=s" => \$search,
+       "S|Search=s" => \$search_login,
        "F|freeze=s" => \$freeze,
        "P|permanent=s" => \$permanent,
        "R|removable=s" => \$removable,
@@ -104,16 +106,17 @@ if ($help==1) {
 sophomorix-user edits the sophomorix user database.
 
 Options
-  -h  / --help
-  -i  / --info
-  -v  / --verbose
-  -vv / --verbose --verbose
-  -s string / --search string
+  -h   /  --help
+  -i   /  --info
+  -v   /  --verbose
+  -vv  /  --verbose --verbose
+  -s string /   --search string
+  -S user   /   --Search user
   -F user   /   --freeze user
   -P user   /   --permanent user
   -R user   /   --removable user
   -K user   /   --killable user
-  -A    /   --activate user
+  -A user   /   --activate user
 
   --empty-password
 
@@ -636,7 +639,7 @@ if ($reset_user ne""){
 # Standard: suchen nach string
 ######################################################################
 
-if ($search eq ""){
+if ($search eq "" and $search_login eq ""){
    print "I don't know what to search for! (searchstring is empty)\n";
    exit;  
 }
@@ -649,7 +652,12 @@ if ($search eq ""){
 ############################################################
 # Start
 ############################################################
-&search_user($search,$auth);
+if ($search_login ne ""){
+    &search_user($search,$auth,$search_login);
+} else {
+    &search_user($search,$auth);
+}
+
 
 &log_script_end(@arguments);
 
