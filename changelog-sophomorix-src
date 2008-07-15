@@ -4,6 +4,10 @@
 ============SOPHOMORIX2 CHANGELOG ====================================
 
 2.0.2-1 (2008-07-xx)
+    - slapd.conf:
+      - added TLS stuff for encrypted access (Thomas Schmitt)
+      - added include for custom slapd stuff, make sure the file exists:
+        /etc/ldap/slapd.conf.custom
     - sophomorix-user: 
          added option --user to search for a login name
          changed 'exit' to 'log_script_exit'

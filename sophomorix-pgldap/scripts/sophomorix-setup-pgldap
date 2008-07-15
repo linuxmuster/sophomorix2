@@ -1354,6 +1354,14 @@ if ($DevelConf::create_www==1){
 # make some files owned by root.root and 0600
 &make_some_files_root_only();
 
+
+# make sure a dummy custom template is there, so that 
+# slapd starts
+if (not -e $slapd_custom_file){
+    system("cp $slapd_custom_template $slapd_custom_file");
+}
+
+
 # run upgrade scripts
 &run_upgrade_scripts();
 
