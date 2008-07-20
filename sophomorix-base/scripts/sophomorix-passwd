@@ -297,18 +297,18 @@ if ($interactive==1){
             # Passwort für user setzen
             &set_sophomorix_passwd($users[0],$password_1);
             # do NOT set password in the Database as FirstPassword
-            system("/etc/init.d/nscd start");
+            &nscd_start();
             exit 0;
         } else {
             print "New passwords don't match!\n";
-            system("/etc/init.d/nscd start");
+            &nscd_start();
             exit 10;
         }
     } else {
         print "ERROR: I can set password interactively only for one user\n";
         print "Unable to change password\n";
         # smbldap-passwd returns 0 (10 should be better)
-        system("/etc/init.d/nscd start");
+        &nscd_start();
         exit 0;
     }
 
