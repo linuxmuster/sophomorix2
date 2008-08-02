@@ -7,15 +7,38 @@ Next
 sophomorix-endofyear:
 
 - Alle Klassentauschverzeichnisse leeren.
+  (Mit bz2 backup oder ohne)
 - Den Dachboden der Schüler leeren.
+  (geht automatisch)
 - Austeilen, Einsammeln, Vorlagen der Schüler leeren.
-- Nach dem Versetzen nicht mehr vorhandene Klassen löschen.
+- Nach dem Versetzen nicht mehr vorhandene Klassen (ohne Schüler als Mitglieder) 
+  löschen.
+  -> sophomorix-groupdel --delete-all-empty-classes
 - Alle Klassen bei den Lehrern automatisch austragen.
+  (sollte jeder Lehrer selber machen)
+
+
+
+Passwortänderung serverseiting für workstations nicht mehr zulassen.
+
+Mit
+# smbldap-usermod -A0 -B0 host$
+werden die Einträge korrekterweise so gesetzt:
+sambaPwdCanChange: 2147483647
+sambaPwdMustChange: 2147483647
+Damit wird sambaseitig die Passwortänderungen unterbunden.
+Danach hatte ich das Problem nicht mehr. 
+
+
 
 
 
 Gruppe 
 wwwadmin fehlt 
+
+beim paket-upgrade wwwadmin und gruppe wwwadmin incl samba anlegen, aber deaktiviert
+
+
 
 script um sambasid zu reparieren???? Wenn sich Michael nochmal meldet.
 
