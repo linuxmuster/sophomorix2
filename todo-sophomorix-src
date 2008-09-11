@@ -13,6 +13,16 @@ error checken, der kommt
 vorher ist mailquota -1 danach 70MB
 
 
+der Kunde hat das Problem selbst gelöst: das Problem wurde durch
+Setzen der Berechtigung von 600 auf 644 bei der Datei
+"/etc/libnss-ldap.conf" behoben.  Dies muß nach jedem Neustart des
+Servers jetzt durchgeführt werden.
+
+Quelle laut Kunde:
+https://bugs.launchpad.net/ubuntu/+source/libnss-ldap/+bug/64396
+
+
+
 Nach größeren Änderungen an schueler.txt
 einer dieser Befehle startet nscd nicht neu:
 
