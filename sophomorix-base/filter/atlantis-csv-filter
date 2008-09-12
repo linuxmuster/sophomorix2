@@ -1,0 +1,164 @@
+#!/usr/bin/perl -w
+# This script converts the cvs dump of Atlantis to the schueler.txt format
+#
+#
+# Fetch data from Atlantis the followwing way
+#
+#
+#
+#
+#
+# jeffbeck@web.de  or  jeffbeck@gmx.de
+
+
+
+# configure 
+
+# what is the current school year (format:  2008/2009)
+# must be updated each year
+my $year_to_use="2008/09";
+
+# number of semicolons in each line
+# script returns error if this is not correct in EACH line
+# key: number of selicolons
+# value: max allowed number
+my %semicolons_allowed = qw(
+    18     30000
+    19     2 
+);
+
+
+
+
+#my $tmp="/root/atlantis-cvs-filter.tmp";
+my $tmp="atlantis-cvs-filter.tmp";
+my $source="Schueler-von-atlantis.csv";
+#my $source="atlantis-cvs-filter.tmp";
+my $target="Schueler-von-atlantis.mod";
+
+my %semicolons_seen=();
+
+
+
+open(SOURCE, "<$source") || die "Fehler: $! $source not found!"; 
+open(TMP, ">$tmp") || die "Fehler: $! $tmp not found!"; 
+
+while (<SOURCE>){
+    #print $_;
+    my ($number,
+        $type,
+        $a,
+        $name,
+        $birthday,
+        $b,
+        $c,
+        $d,
+        $year,
+        $type2,
+        $class,
+        @rest)=split("\";\"");
+
+    $number = &format_number($number);
+ 
+    my ($lastname, @firstnames) = split(" ",$name);
+
+    my $firstname = join(" ", @firstnames);
+
+    my $semicolons_per_line=tr/;//;
+
+    #print "SEMICOLONS: $semicolons_per_line\n";
+    my $old_num=$semicolons_seen{$semicolons_per_line};
+    my $new_num=$old_num+1;
+    $semicolons_seen{$semicolons_per_line}="$new_num";
+
+    if (not exists $semicolons_allowed{$semicolons_per_line}){ 
+        print "ERROR: Line with unallowed number of semicolons: ",
+              "$semicolons_per_line \n"; 
+        print "$_"; 
+    }
+
+    my $line = $class.";".$lastname.";".$firstname.";".$birthday.";\n";
+    if ($type eq "Schüler"
+        and $year eq $year_to_use
+        and not $class=~m/^_/  # remove data with leading _ in classname
+        ){
+        #print "$number\n";
+        print TMP "$line";
+    }
+
+}
+
+
+
+
+close(SOURCE);
+close(TARGET);
+
+
+
+
+
+# check if file was correct
+my $error=0;
+
+print "\n";
+while ( ($semi, $seminum) = each %semicolons_seen ){
+    my $line_err=0;
+    printf "I have seen %6s of allowed %6s lines with %3s semicolons: ",
+      $seminum,
+      $semicolons_allowed{$semi},
+      $semi;
+    if (not exists $semicolons_allowed{$semi}){
+	$error++;
+        $line_err=1;
+    } else {
+        # correct
+    }
+
+    if ($seminum <= $semicolons_allowed{$semi}){
+        # correct
+    } else {
+	$error++;
+        $line_err=1;
+    }
+
+
+ 
+    if ($line_err==0){
+        print "CORRECT!\n";
+    } else {
+        print "ERROR!\n";
+    }
+}
+print "\n";
+
+
+
+exit 0;
+
+
+if ($error==0){
+    # exit regularly
+    print "Last typeout of filter script: ended regularly\n";
+    exit 0;
+} else {
+    # exit with error
+    print "Last typeout of filter script: ended with ERROR!\n";
+    exit 1;
+}
+
+
+
+
+
+
+
+
+
+
+sub format_number {
+    my ($number) = @_;
+    $number=~s/^"//;
+    $number=~s/\.$//;
+    return $number;
+}
