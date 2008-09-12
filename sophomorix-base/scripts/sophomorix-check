@@ -79,6 +79,7 @@ my $use_gid=0;
 my $cron=0;
 my $lock=0;
 my $unlock=0;
+my $filter_only=0;
 my $no_auto_teach_in=0;
 
 # Parsen der Optionen
@@ -91,6 +92,7 @@ my $testopt=GetOptions(
            "cron" => \$cron,
            "lock" => \$lock,
            "unlock" => \$unlock,
+           "filter-only" => \$filter_only,
            "no-kclass" => \$no_kclass,
            "no-auto-teach-in|no-sync" => \$no_auto_teach_in,
            "file=s" => \$file_to_check,
@@ -494,6 +496,12 @@ if ($Conf::filter_script eq ""){
         &log_script_exit("",200,1,0,@arguments);
     }
 }
+
+if ($filter_only==1){
+    print "\nScript ended by option --filter-only\n\n";
+    &log_script_exit("",1,1,0,@arguments);
+}
+
 
 # replace the configured name for teacher with teacher
 &rename_teacher_groupname();
