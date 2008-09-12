@@ -1,16 +1,24 @@
 #!/usr/bin/perl -w
+# $Id$
 # This script converts the cvs dump of Atlantis to the schueler.txt format
 #
+# This script might be updated after installing an sophomorix-base package.
+# You must copy it by hand to its location and adjust the configuration.
 #
-# Fetch data from Atlantis the followwing way
 #
+# Fetch data from Atlantis the following way:
 #
-#
+#   1. Suchen (Fernglas Knopf)  
+#   2. Schüler: *
+#   3. Exportieren nach cvs
 #
 #
 # jeffbeck@web.de  or  jeffbeck@gmx.de
+#
 
-
+# todo:
+# adjust path
+# sophomorix-check: stop when filter is returned with error
 
 # configure 
 
@@ -56,18 +64,26 @@ while (<SOURCE>){
         $year,
         $type2,
         $class,
-        @rest)=split("\";\"");
+        @rest)=split(";");
 
     $number = &format_number($number);
- 
-    my ($lastname, @firstnames) = split(" ",$name);
+    $class = &format_field($class);
+    $name = &format_field($name);
+    $birthday = &format_field($birthday);
+    $type = &format_field($type);
+    $type2 = &format_field($type2);
+    $year = &format_field($year);
+    
 
+    my ($lastname, @firstnames) = split(" ",$name);
     my $firstname = join(" ", @firstnames);
 
     my $semicolons_per_line=tr/;//;
 
-    #print "SEMICOLONS: $semicolons_per_line\n";
     my $old_num=$semicolons_seen{$semicolons_per_line};
+    if (not defined $old_num){
+       $old_num=0;        
+    }
     my $new_num=$old_num+1;
     $semicolons_seen{$semicolons_per_line}="$new_num";
 
@@ -77,25 +93,21 @@ while (<SOURCE>){
         print "$_"; 
     }
 
+    $lastname="" if not defined $lastname;
+    $firstname="" if not defined $firstname;
+
     my $line = $class.";".$lastname.";".$firstname.";".$birthday.";\n";
+
     if ($type eq "Schüler"
         and $year eq $year_to_use
         and not $class=~m/^_/  # remove data with leading _ in classname
         ){
-        #print "$number\n";
         print TMP "$line";
     }
-
 }
 
-
-
-
 close(SOURCE);
-close(TARGET);
-
-
-
+close(TMP);
 
 
 # check if file was correct
@@ -134,16 +146,14 @@ print "\n";
 
 
 
-exit 0;
-
-
 if ($error==0){
     # exit regularly
-    print "Last typeout of filter script: ended regularly\n";
+    system("cp $tmp $target");
+    print "Last message from filter script: ended regularly\n";
     exit 0;
 } else {
     # exit with error
-    print "Last typeout of filter script: ended with ERROR!\n";
+    print "Last message from filter script: ended with ERROR!\n";
     exit 1;
 }
 
@@ -151,8 +161,16 @@ if ($error==0){
 
 
 
+############################################################
+# subs
+############################################################
 
-
+sub format_field {
+    my ($string) = @_;
+    $string=~s/^"//;
+    $string=~s/"$//;
+    return $string;
+}
 
 
 
@@ -162,3 +180,4 @@ sub format_number {
     $number=~s/\.$//;
     return $number;
 }
+
