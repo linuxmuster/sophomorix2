@@ -51,8 +51,11 @@ SCHEMA=$(DESTDIR)/etc/ldap/schema
 # Developer
 DEVELCONF=$(DESTDIR)/usr/share/sophomorix
 
-# Developer
+# Language
 LANGUAGE=$(DESTDIR)/usr/share/sophomorix/lang
+
+# Filter
+FILTER=$(DESTDIR)/usr/share/sophomorix/filter
 
 # SAMBADEBCONFDIR für Debian 
 SAMBADEBCONFDIR=$(DESTDIR)/etc/samba
@@ -171,6 +174,9 @@ install-base:
 	@install -oroot -groot --mode=0644 sophomorix-base/lang/errors.*[a-z] $(LANGUAGE)
 	@install -d -m755 -oroot -groot $(LANGUAGE)/latex-templates
 	@install -oroot -groot --mode=0644 sophomorix-base/latex-templates/*.tex $(LANGUAGE)/latex-templates
+# filter scripts
+	@install -d -m755 -oroot -groot $(FILTER)
+	@install -oroot -groot --mode=0755 sophomorix-base/filter/*filter $(FILTER)
 # Copy the module
 	@install -d -m755 -oroot -groot $(PERLMOD)
 	@install -oroot -groot --mode=0644 sophomorix-base/modules/Sophomorix*[A-Za-z1-9].pm $(PERLMOD)
