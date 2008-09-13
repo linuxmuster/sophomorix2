@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-CHECK 8 "March 23, 2008"
+.TH SOPHOMORIX-CHECK 8 "September 14, 2008"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -64,6 +64,9 @@ holt die numerische gid aus alten Dateien und nutzt sie. Nur in Verbindung mit O
 .TP
 .B --file filename
 liest die angegebene Datei filename zusätzlich ein, bevor die standard-Dateien eingelesen werden
+.TP
+.B --filter-only
+stoppt, nachdem das in sophomorix.conf angegebene filter script die schueler.txt gefiltert hat. Das Resultat der Filterung kann in /var/lib/sophomorix.tmp/schueler.txt.tmp kontrolliert werden. 
 .TP
 .B --no-kclass
 Entfernt NICHT das führende k in Gruppennamen aus der alten
