@@ -406,9 +406,12 @@ mkdir("${DevelConf::ergebnis_pfad}",0700)
 
 # remove tmp
 system("rm -r ${DevelConf::pruef_pfad}");
-mkdir("${DevelConf::pruef_pfad}",0700) 
-       || die "Kann Verzeichnis ${DevelConf::pruef_pfad} nicht anlegen: $!"; 
-
+#system("rm ${DevelConf::schueler_datei}");
+#system("rm ${DevelConf::lehrer_datei}");
+if (not -e ${DevelConf::pruef_pfad}){
+    mkdir("${DevelConf::pruef_pfad}",0700) 
+           || die "Kann Verzeichnis ${DevelConf::pruef_pfad} nicht anlegen: $!"; 
+}
 &check_verzeichnis_mkdir("${DevelConf::var_lib_pfad}");
 &check_verzeichnis_mkdir("${DevelConf::pruef_pfad}");
 &check_verzeichnis_mkdir("${DevelConf::ergebnis_pfad}");
@@ -486,13 +489,14 @@ if($Conf::log_level>=3){
 
 # copy the schueler.txt to location where it is checked, or
 # call the filter script
+my $filter_return=12;
 if ($Conf::filter_script eq ""){
     &titel("No filter script defined, copying schueler.txt ...");
     system("cp ${DevelConf::users_pfad}/schueler.txt ${DevelConf::schueler_datei}");
 } else {
     if (-x $Conf::filter_script){
         &titel("Running filter script $Conf::filter_script.");
-        system("$Conf::filter_script");
+        $filter_return = system("$Conf::filter_script");
     } else {
         &log_script_exit("",200,1,0,@arguments);
     }
@@ -502,6 +506,14 @@ if ($filter_only==1){
     print "\nScript ended by option --filter-only\n\n";
     &log_script_exit("",1,1,0,@arguments);
 }
+
+if (not $filter_return==0){
+    print "\n\nFilter script $Conf::filter_script",
+          " ended with errors($filter_return)\n\n";
+    print "I do not continue!\n\n";
+    &log_script_exit("",1,1,0,@arguments);
+}
+
 
 
 # replace the configured name for teacher with teacher
