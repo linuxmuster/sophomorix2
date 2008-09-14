@@ -31,18 +31,18 @@ my $year_to_use="2008/09";
 # key: number of selicolons
 # value: max allowed number
 my %semicolons_allowed = qw(
-    18     30000
+    17     30000
     19     2 
 );
 
 
 
 
-#my $tmp="/root/atlantis-cvs-filter.tmp";
-my $tmp="atlantis-cvs-filter.tmp";
-my $source="Schueler-von-atlantis.csv";
-#my $source="atlantis-cvs-filter.tmp";
-my $target="Schueler-von-atlantis.mod";
+
+# keep this settings
+my $tmp="/var/lib/sophomorix/tmp/schueler.txt.filter.tmp";
+my $source="/etc/sophomorix/user/schueler.txt";
+my $target="/var/lib/sophomorix/tmp/schueler.txt.tmp";
 
 my %semicolons_seen=();
 
@@ -116,9 +116,13 @@ my $error=0;
 print "\n";
 while ( ($semi, $seminum) = each %semicolons_seen ){
     my $line_err=0;
+    my $print_semicolons_allowed=$semicolons_allowed{$semi};
+    if(not defined $print_semicolons_allowed){
+        $print_semicolons_allowed=0;
+    }
     printf "I have seen %6s of allowed %6s lines with %3s semicolons: ",
       $seminum,
-      $semicolons_allowed{$semi},
+      $print_semicolons_allowed,
       $semi;
     if (not exists $semicolons_allowed{$semi}){
 	$error++;
@@ -127,7 +131,7 @@ while ( ($semi, $seminum) = each %semicolons_seen ){
         # correct
     }
 
-    if ($seminum <= $semicolons_allowed{$semi}){
+    if ($seminum <= $print_semicolons_allowed){
         # correct
     } else {
 	$error++;
@@ -149,6 +153,7 @@ print "\n";
 if ($error==0){
     # exit regularly
     system("cp $tmp $target");
+    #system("rm $tmp");
     print "Last message from filter script: ended regularly\n";
     exit 0;
 } else {
