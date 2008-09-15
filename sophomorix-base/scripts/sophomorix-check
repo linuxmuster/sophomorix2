@@ -821,6 +821,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
 	 }
        }
        # Falls unterstrichklassen ausgefiltert werden sollen:
+       if (defined $Conf::underscore_klassen_filtern) {
        if ($Conf::underscore_klassen_filtern eq "yes") {
          if($klasse=~/^\_/){ # Bei * am Beginn des Klassennamens aussteigen
                  # Underscoreklassen ausfiltern
@@ -834,6 +835,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
                  #$schueler_sternchenklasse_anzahl++;
 	         next;
 	 }
+       }
        }
     
        # =====================================================================
