@@ -2551,6 +2551,10 @@ In sophomorix-class -i --class name
 ##############################################
 new variables (add to new major release):    #
 ##############################################
+
+
+
+
 sophomorix.conf:
 # alias name for mailist teachers (must be activated)
 $teachers_alias_name="lehrer";
@@ -2562,6 +2566,10 @@ $teachers_alias_name="lehrer";
 # $teachers_alias_additions="secretaries,social";
 # Where secretaries and social is a class from extraschueler.txt 
 $teachers_alias_additions="blackmri,jonesjo";
+
+# remove entries in schueler.txt with leading underscore
+$underscore_klassen_filtern="yes";
+
 
 
 New databse/Datenbank values:
