@@ -26,6 +26,10 @@ use Net::LDAP;
 
 my @arguments = @ARGV;
 
+# Scriptname ermitteln
+my @list = split(/\//,$0);
+my $scriptname = pop @list;
+
 # nach jedem Printbefehl wieder auf Standardfarbe zurücksetzen
 $Term::ANSIColor::AUTORESET = 1;
 use Sophomorix::SophomorixPgLdap qw(show_modulename
@@ -103,9 +107,6 @@ my $testopt=GetOptions(
 
 # --help
 if ($help==1) {
-   # Scriptname ermitteln
-   my @list = split(/\//,$0);
-   my $scriptname = pop @list;
    # Befehlbeschreibung
    print "\n$scriptname examines and synchronises the following files\n",
          "with the system:\n";
@@ -510,7 +511,7 @@ if ($Conf::filter_script eq ""){
 }
 
 if ($filter_only==1){
-    print "\nScript ended by option --filter-only\n\n";
+    print "\n$scriptname ended by option --filter-only\n\n";
     &log_script_exit("",1,1,0,@arguments);
 }
 
