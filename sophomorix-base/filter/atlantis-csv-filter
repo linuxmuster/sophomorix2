@@ -71,7 +71,7 @@ if ($prefilter_error==0){
     print "Last message from filter script: ended regularly\n";
     exit 0;
 } else {
-    print "\nPrefilter: file must be filtered!\n";
+    print "\nPrefilter: file must be filtered!\n\n";
 }
 
 ############################################################
@@ -103,10 +103,10 @@ while (<SOURCE>){
     $type = &format_field($type);
     $type2 = &format_field($type2);
     $year = &format_field($year);
-    
 
     my ($lastname, @firstnames) = split(" ",$name);
     my $firstname = join(" ", @firstnames);
+
 
     my $semicolons_per_line=tr/;//;
 
@@ -126,12 +126,33 @@ while (<SOURCE>){
     $lastname="" if not defined $lastname;
     $firstname="" if not defined $firstname;
 
-    my $line = $class.";".$lastname.";".$firstname.";".$birthday.";\n";
 
     if ($type eq "Schüler"
         and $year eq $year_to_use
         and not $class=~m/^_/  # remove data with leading _ in classname
         ){
+
+        my $save="First: ".$firstname." \nLast: ".$lastname;
+        # when 
+        my $count=0;
+        while ( $firstname=~/\./ ){
+            $count++;
+            my ($add, @rest)=split(". ",$firstname);
+            #print "$add\n";
+   	    $lastname=$lastname." ".$add.".";
+            $firstname=join(". ", @rest);
+	    #print "$firstname\n";
+            if ($count==3){
+                # when name still contains '.', then there is something wrong
+                # exit with error
+                print "Last message from filter script: ended with ERROR: indefinite loop \n";
+                exit 2;
+            }
+        }
+        if ($count>1){
+            print "$save \n   renamed to \nFirst: $firstname \nLast: $lastname\n";
+        }
+        my $line = $class.";".$lastname.";".$firstname.";".$birthday.";\n";
         print TMP "$line";
     }
 }
