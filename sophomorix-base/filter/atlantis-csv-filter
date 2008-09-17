@@ -47,6 +47,36 @@ my $target="/var/lib/sophomorix/tmp/schueler.txt.tmp";
 my %semicolons_seen=();
 
 
+############################################################
+# Pre-Filter
+############################################################
+# copy the file, when the original seems corect
+my $prefilter_error=0;
+open(SOURCE, "<$source") || die "Fehler: $! $source not found!"; 
+while (<SOURCE>){
+    my $semicolons_per_line=tr/;//;
+    if (not $semicolons_per_line==4){
+        $prefilter_error=1;
+        #print "SEM: $semicolons_per_line\n";
+    }
+}
+
+close(SOURCE);
+
+if ($prefilter_error==0){
+    print "All Lines contain 4 semicolons\n";
+    print "I consider the file correct without filtering it\n\n";
+    print "Copying the file without modification\n\n";
+    system("cp $source $target");
+    print "Last message from filter script: ended regularly\n";
+    exit 0;
+} else {
+    print "\nPrefilter: file must be filtered!\n";
+}
+
+############################################################
+# Filter
+############################################################
 
 open(SOURCE, "<$source") || die "Fehler: $! $source not found!"; 
 open(TMP, ">$tmp") || die "Fehler: $! $tmp not found!"; 
@@ -113,14 +143,14 @@ close(TMP);
 # check if file was correct
 my $error=0;
 
-print "\n";
+print "\nFilter results:\n";
 while ( ($semi, $seminum) = each %semicolons_seen ){
     my $line_err=0;
     my $print_semicolons_allowed=$semicolons_allowed{$semi};
     if(not defined $print_semicolons_allowed){
         $print_semicolons_allowed=0;
     }
-    printf "I have seen %6s of allowed %6s lines with %3s semicolons: ",
+    printf "   I have seen %6s of allowed %6s lines with %3s semicolons: ",
       $seminum,
       $print_semicolons_allowed,
       $semi;
