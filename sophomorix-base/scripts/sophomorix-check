@@ -3702,6 +3702,8 @@ sub filter_school_admin_software {
 
       # Atlantis-Sonderzeichen START  
       $line=~s/\264//g;
+      $line=~s/\351/e/g;
+      $line=~s/\363/o/g;
       # Atlantis-Sonderzeichen ENDE  
 
       # ß umwandeln
