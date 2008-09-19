@@ -2,7 +2,12 @@
 
 ============SOPHOMORIX2 CHANGELOG ====================================
 
-2.0.3-1 (2008-07-xx)
+2.0.3-1 (2008-09-xx)
+    - Bugfix: sophomorix-check, ... calls other sophomorix-scripts 
+              with option --skiplock.
+              The called script has to skip 'creating a lockfile', 
+              because it would overwrite the lock of sophomorix-check, ...
+    - Added replacement line  in schueler.txt for atlantis
     - added filter script atlantis-csv-filter
       - moves firstnames that end with '.' to last name
     - updated man page of sophomorix-check

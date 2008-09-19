@@ -4,67 +4,6 @@
 Next
 ############################################################
 
-Beim neuanlegen von usern wird die mailbox nicht richtig angelegt
-mit sophomorix-mail --add-maibox user gehts dann.
-Es kommt aber maibox of user existed already
-error checken, der kommt
-/root/addmail.pl
-
-vorher ist mailquota -1 danach 70MB
-
-
-der Kunde hat das Problem selbst gelöst: das Problem wurde durch
-Setzen der Berechtigung von 600 auf 644 bei der Datei
-"/etc/libnss-ldap.conf" behoben.  Dies muß nach jedem Neustart des
-Servers jetzt durchgeführt werden.
-
-Quelle laut Kunde:
-https://bugs.launchpad.net/ubuntu/+source/libnss-ldap/+bug/64396
-
-
-
-Nach größeren Änderungen an schueler.txt
-einer dieser Befehle startet nscd nicht neu:
-
-2008-09-04 14:41:50::start::  /usr/sbin/sophomorix-check::28678::
-2008-09-04 14:43:31::end  ::  /usr/sbin/sophomorix-check::28678::
-2008-09-04 14:43:59::start::  /usr/sbin/sophomorix-kill -i::32037::
-2008-09-04 14:43:59::exit ::  /usr/sbin/sophomorix-kill -i::32037::No users to kill!
-2008-09-04 14:44:04::exit ::  /usr/sbin/sophomorix-move -i::32183::
-2008-09-04 14:44:09::start::  /usr/sbin/sophomorix-move::32192::
-2008-09-04 16:05:12::start::  /usr/sbin/sophomorix-quota --skiplock --students --teachers --noninteractive::32409::
-2008-09-04 16:05:13::start::  /usr/sbin/sophomorix-mail --skiplock::32418::
-2008-09-04 16:05:17::end  ::  /usr/sbin/sophomorix-mail --skiplock::32418::
-2008-09-04 16:05:17::end  ::  /usr/sbin/sophomorix-move::32192::
-2008-09-04 16:06:08::start::  /usr/sbin/sophomorix-check::32723::
-2008-09-04 16:07:02::end  ::  /usr/sbin/sophomorix-check::32723::
-2008-09-04 16:58:38::start::  /usr/sbin/sophomorix-add -c g3ao1t::1750::
-2008-09-04 16:58:46::start::  /usr/sbin/sophomorix-print --skiplock::1946::
-2008-09-04 16:58:50::end  ::  /usr/sbin/sophomorix-print --skiplock::1946::
-2008-09-04 16:58:51::start::  /usr/sbin/sophomorix-quota --skiplock --users rinderka --noninteractive::2009::
-2008-09-04 16:58:51::start::  /usr/sbin/sophomorix-mail --skiplock::2018::
-2008-09-04 16:58:55::end  ::  /usr/sbin/sophomorix-mail --skiplock::2018::
-2008-09-04 16:58:55::end  ::  /usr/sbin/sophomorix-add -c g3ao1t::1750::
-2008-09-04 16:59:38::start::  /usr/sbin/sophomorix-add -c g1ao5t::2332::
-2008-09-04 17:00:38::start::  /usr/sbin/sophomorix-print --skiplock::5957::
-2008-09-04 17:00:39::end  ::  /usr/sbin/sophomorix-print --skiplock::5957::
-2008-09-04 17:00:39::start::  /usr/sbin/sophomorix-quota --skiplock --users ebertma,barnerka,koppin,ueckmato,zellerma,seccolo,schoelda,bitzin,geigerca,chromiva,bauerka,pfoban,schwinra,thorta,hofmanru,kochli,aslande,derviser,benzth,eppleta,kreileja --noninteractive::6015::
-2008-09-04 17:00:40::start::  /usr/sbin/sophomorix-mail --skiplock::6024::
-2008-09-04 17:00:44::end  ::  /usr/sbin/sophomorix-mail --skiplock::6024::
-2008-09-04 17:00:44::end  ::  /usr/sbin/sophomorix-add -c g1ao5t::2332::
-2008-09-04 17:01:21::start::  /usr/sbin/sophomorix-add::6326::
-2008-09-04 17:36:29::start::  /usr/sbin/sophomorix-print --skiplock::5816::
-2008-09-04 17:36:33::end  ::  /usr/sbin/sophomorix-print --skiplock::5816::
-2008-09-04 17:36:33::start::  /usr/sbin/sophomorix-quota --skiplock --students --teachers --noninteractive::5927::
-2008-09-04 17:36:33::start::  /usr/sbin/sophomorix-mail --skiplock::5936::
-2008-09-04 17:36:38::end  ::  /usr/sbin/sophomorix-mail --skiplock::5936::
-2008-09-04 17:36:38::end  ::  /usr/sbin/sophomorix-add::6326::
-2008-09-04 17:37:26::start::  /usr/sbin/sophomorix-check::6239::
-2008-09-04 17:37:27::end  ::  /usr/sbin/sophomorix-check::6239::
-
-
-
-
 sophomorix-print:
 add mediawiki export support
 
