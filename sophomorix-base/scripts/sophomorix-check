@@ -3700,6 +3700,10 @@ sub filter_school_admin_software {
       $line=~s/\243/u/g;
       # SPLAN-Sonderzeichen ENDE
 
+      # Atlantis-Sonderzeichen START  
+      $line=~s/\264//g;
+      # Atlantis-Sonderzeichen ENDE  
+
       # ß umwandeln
       $line=~s/á/ß/g;
       # Sonderzeichen wegfallenlassen
