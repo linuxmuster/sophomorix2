@@ -3036,7 +3036,9 @@ sub log_script_start {
         }
     }
     
-    if (exists ${DevelConf::lock_scripts}{$0} and $stolen==0){
+    if (exists ${DevelConf::lock_scripts}{$0} 
+           and $stolen==0
+           and $skiplock==0){
 	&lock_sophomorix("lock",0,@arguments);
     }
     &titel("$0 started ...");
