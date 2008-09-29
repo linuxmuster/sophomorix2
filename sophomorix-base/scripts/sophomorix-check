@@ -3706,6 +3706,9 @@ sub filter_school_admin_software {
       $line=~s/\363/o/g;
       # Atlantis-Sonderzeichen ENDE  
 
+      # Jaeneke Sonderzeichen
+      $line=~s/\353/e/g;
+
       # ß umwandeln
       $line=~s/á/ß/g;
       # Sonderzeichen wegfallenlassen
