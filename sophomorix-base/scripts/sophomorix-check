@@ -3710,7 +3710,7 @@ sub filter_school_admin_software {
       $line=~s/\353/e/g;
       $line=~s/\351/e/g;
       # ' 
-      $line=~s/\047/e/g;
+      $line=~s/\047//g;
 
       # ß umwandeln
       $line=~s/á/ß/g;
