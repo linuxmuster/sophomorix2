@@ -3708,6 +3708,9 @@ sub filter_school_admin_software {
 
       # Jaeneke Sonderzeichen
       $line=~s/\353/e/g;
+      $line=~s/\351/e/g;
+      # ' 
+      $line=~s/\047/e/g;
 
       # ß umwandeln
       $line=~s/á/ß/g;
