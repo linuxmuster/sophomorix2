@@ -4175,12 +4175,12 @@ sub share_access {
     my $permission="";
     if ($share==0){
 	$on_off="off";
-        # change repair.directories permissions also, if you change here
-        $permission="1750";
+        # change repairhome.student, ... permissions also, if you change here
+        $permission="3750";
     } else {
 	$on_off="on";
-        # change repair.directories permissions also, if you change here
-        $permission="1755";
+        # change repairhome.student, ... permissions also, if you change here
+        $permission="3757";
     }
     my @users = @_;
     foreach my $user (@users){
