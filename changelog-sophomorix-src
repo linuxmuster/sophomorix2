@@ -1,7 +1,7 @@
 # $Id$
 
 ============SOPHOMORIX2 CHANGELOG ====================================
-
+=======
 2.0.3-1 (2008-10-xx)
     - Bugfix: user must be made usable (status U), when 
               it reappears in schueler.txt
@@ -11,11 +11,13 @@
               because it would overwrite the lock of sophomorix-check, ...
     - Added replacement lines in schueler.txt for atlantis
     - added filter script atlantis-csv-filter
-      - moves firstnames that end with '.' to last name
+      Documentation included in the script itself:
+         /usr/share/sophomorix/filter/atlantis-csv-filter
+       - moves firstnames that end with '.' to last name
     - updated man page of sophomorix-check
     - sophomorix-check:
-      - added option --filter-only
-      - do not continue if filter script returns error(!=0)
+       - added option --filter-only
+       - do not continue if filter script returns error(!=0)
 
 2.0.2-2 (2008-07-22)
     - sophomorix-passwd -u user --interactive:

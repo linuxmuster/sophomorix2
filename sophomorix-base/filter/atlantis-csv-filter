@@ -8,21 +8,42 @@
 #
 # Fetch data from Atlantis the following way:
 #
+#   0. Atlantis starten
 #   1. Adressen-Schnellsuche (Fernglas Knopf)  
 #   2. Schüler: *
 #      Suche Starten
 #        => Anzeige füllt sich
-#   3. Exportieren CSV-Format
+#   3. Exportieren CVS-Format
+#
+#
+#   Testen:
+#    1) Aufruf von 
+#         sophomorix-check --filter-only
+#    2) Die gefilterte Datei liegt in
+#         /var/lib/sophomorix/tmp/schueler.txt.filter.tmp  
+#
+#
+#   WARNING:
+#   Die entstehende Datei exportiert auch
+#    - Adressen
+#    - Lehrer
+#    - Betriebe
+#    - alte Einträge der Vorjahre
+#   Aus Datenschutzgründen darf die Datei nicht auf dem System bleiben.
+#   Deshalb wird die gefilterte (nachdem sie getestet wurde) über die
+#   ungefilterte kopiert:
+#
+#     cp /var/lib/sophomorix/tmp/schueler.txt.filter.tmp \
+#        /etc/sophomorix/user/schueler.txt
 #
 # In case of Problems:
 # jeffbeck@web.de  or  jeffbeck@gmx.de
 #
 
-# todo:
-# adjust path
-# sophomorix-check: stop when filter is returned with error
 
-# configure 
+############################################################
+# Start configure 
+############################################################
 
 # what is the current school year (format:  2008/2009)
 # must be updated each year
@@ -37,8 +58,9 @@ my %semicolons_allowed = qw(
     19     2 
 );
 
-
-
+############################################################
+# End configure 
+############################################################
 
 
 # keep this settings
@@ -48,6 +70,8 @@ my $target="/var/lib/sophomorix/tmp/schueler.txt.tmp";
 
 my %semicolons_seen=();
 
+<<<<<<< atlantis-csv-filter
+=======
 
 ############################################################
 # Pre-Filter
@@ -80,6 +104,7 @@ if ($prefilter_error==0){
 # Filter
 ############################################################
 
+>>>>>>> 1.8
 open(SOURCE, "<$source") || die "Fehler: $! $source not found!"; 
 open(TMP, ">$tmp") || die "Fehler: $! $tmp not found!"; 
 
