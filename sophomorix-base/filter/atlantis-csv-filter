@@ -58,10 +58,21 @@ my %semicolons_allowed = qw(
     19     2 
 );
 
+
+
 ############################################################
 # End configure 
 ############################################################
 
+my %double_lastname = qw (
+    van     none
+    von     none
+    der     none
+    de      none
+    De      none
+    el      none
+    El      none
+);
 
 # keep this settings
 my $tmp="/var/lib/sophomorix/tmp/schueler.txt.filter.tmp";
@@ -70,8 +81,6 @@ my $target="/var/lib/sophomorix/tmp/schueler.txt.tmp";
 
 my %semicolons_seen=();
 
-<<<<<<< atlantis-csv-filter
-=======
 
 ############################################################
 # Pre-Filter
@@ -104,7 +113,6 @@ if ($prefilter_error==0){
 # Filter
 ############################################################
 
->>>>>>> 1.8
 open(SOURCE, "<$source") || die "Fehler: $! $source not found!"; 
 open(TMP, ">$tmp") || die "Fehler: $! $tmp not found!"; 
 
@@ -176,6 +184,22 @@ while (<SOURCE>){
                 exit 2;
             }
         }
+
+        # correct van, von, ... stuff 
+        my $newlast=$lastname;
+        while (exists $double_lastname{$lastname}){
+            my ($last, @first) = split(" ",$firstname);
+            $firstname=join(" ",@first);
+            $lastname=$last;
+            $newlast=$newlast." ".$last;
+        }
+
+        if ($newlast ne $lastname){
+            $lastname=$newlast;
+            print "$lastname   : $firstname \n";
+        }
+
+
         if ($count>1){
             print "$save \n   renamed to \nFirst: $firstname \nLast: $lastname\n";
         }
