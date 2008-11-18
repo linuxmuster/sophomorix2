@@ -4583,9 +4583,9 @@ sub search_user {
        printf "  Gecos              : %-44s %-1s%-11s\n", 
                $gecos,$gcos_diff,$login;
        if($Conf::log_level>=2){
-           printf "  Surname            : %-44s %-11s\n", 
+           printf "  Surname            : %-44s  %-11s\n", 
                   $surname,$login;
-           printf "  Firstname          : %-44s %-11s\n", 
+           printf "  Firstname          : %-44s  %-11s\n", 
                   $firstname,$login;
        }
        if (-e $home){
