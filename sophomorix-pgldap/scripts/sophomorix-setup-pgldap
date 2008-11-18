@@ -1258,7 +1258,10 @@ if ($slapd_standalone==1){
     system("sophomorix-useradd --skiplock --administrator pgmadmin --uidnumber 999 --gecos 'Programm Administrator' --unix-group 'domadmins' --shell /bin/false");
 
     # wwwadmin for web services (moodle, opengroupware, imp ...) NOT a windows user
-    system("sophomorix-useradd --skiplock --unixadmin wwwadmin --uidnumber 997 --gecos 'Web Administrator' --unix-group 'wwwadmin' --shell /bin/false");
+    system("sophomorix-useradd --skiplock --unixadmin wwwadmin --uidnumber 997 --gecos 'Web Administrator' --unix-group 'administrators' --shell /bin/false");
+
+    # disable the windows account of wwwadmin
+    # ???
 
     # domadmin (for joining the domain)
     system("sophomorix-useradd --skiplock --administrator domadmin --uidnumber 996 --gecos 'Domain Admin' --unix-group 'domadmins' --shell /bin/false --home /dev/null");
@@ -1267,6 +1270,7 @@ if ($slapd_standalone==1){
     &update_sid("administrator","998","512",$sid);
     &update_sid("domadmin","996","512",$sid);
     &update_sid("pgmadmin","999","512",$sid);
+    &update_sid("wwwadmin","997","544",$sid);
 } else { 
     # administrator is equal to admin in ml 2.x
     system("smbldap-useradd -u 998 -a -c administrator -m -d /home/administrators/administrator -g 'domadmins' -G '$grouplist' -s /bin/bash administrator");
