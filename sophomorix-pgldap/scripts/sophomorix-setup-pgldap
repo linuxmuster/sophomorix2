@@ -1257,11 +1257,13 @@ if ($slapd_standalone==1){
     # pgmadmin is to install programs on the win clients
     system("sophomorix-useradd --skiplock --administrator pgmadmin --uidnumber 999 --gecos 'Programm Administrator' --unix-group 'domadmins' --shell /bin/false");
 
-    # wwwadmin for web services (moodle, opengroupware, imp ...) NOT a windows user
-    system("sophomorix-useradd --skiplock --unixadmin wwwadmin --uidnumber 997 --gecos 'Web Administrator' --unix-group 'administrators' --shell /bin/false");
+#    # wwwadmin for web services (moodle, opengroupware, imp ...) NOT a windows user
+#    system("sophomorix-useradd --skiplock --unixadmin wwwadmin --uidnumber 997 --gecos 'Web Administrator' --unix-group 'administrators' --shell /bin/false");
 
-    # disable the windows account of wwwadmin
-    # ???
+    # wwwadmin for web services (moodle, opengroupware, imp ...) NOT a windows user
+    system("sophomorix-useradd --skiplock --administrator wwwadmin --uidnumber 997 --gecos 'Web Administrator' --unix-group 'administrators' --shell /bin/false");
+
+
 
     # domadmin (for joining the domain)
     system("sophomorix-useradd --skiplock --administrator domadmin --uidnumber 996 --gecos 'Domain Admin' --unix-group 'domadmins' --shell /bin/false --home /dev/null");

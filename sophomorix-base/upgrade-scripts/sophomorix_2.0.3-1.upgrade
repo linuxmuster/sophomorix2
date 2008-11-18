@@ -1,0 +1,87 @@
+#!/usr/bin/perl -w
+# $Id$
+# this script is created by jeffbeck@web.de
+# Licence GPL
+use DBI;
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
+use Sophomorix::SophomorixPgLdap qw(db_disconnect
+                                    db_connect
+                                   );
+
+print "\n1) Hello, sophomorix_2.0.3-1.upgrade modifies postgres\n\n";
+
+my $dbh=&db_connect();
+my ($id,
+    $uid,
+    $u_pass,
+    $lm_pass,
+    $nt_pass)= $dbh->selectrow_array( "SELECT id,uid,userpassword,
+                                         sambalmpassword,sambantpassword 
+                                       FROM userdata where uid='wwwadmin';
+                                      ");
+&db_disconnect($dbh);
+
+
+
+if (not defined $lm_pass){
+    $lm_pass="";
+}
+if (not defined $nt_pass){
+    $nt_pass="";
+}
+
+
+print "User $uid has: \n";
+print "id:              $u_pass \n";
+print "userpassword:    $u_pass \n";
+print "sambalmpassword: $lm_pass \n";
+print "sambantpassword: $nt_pass \n";
+
+# removing wwwadmin
+system ("sophomorix-kill --killuser wwwadmin");
+
+# add user again
+system ("sophomorix-setup-pgldap --skiplock");
+
+sleep 2;
+
+$dbh=&db_connect();
+
+# set passwords
+my $sql="UPDATE posix_account SET userpassword='$u_pass' 
+            WHERE id = $id";
+
+print "$sql \n";
+$dbh->do($sql);
+
+
+$sql="UPDATE samba_sam_account 
+      SET sambalmpassword='$lm_pass', sambantpassword='$nt_pass'
+      WHERE id = $id";
+
+print "$sql \n";
+$dbh->do($sql);
+
+
+&db_disconnect($dbh);
+
+
+print "\n2) Hello, sophomorix_2.0.3-1.upgrade recreates ldap\n\n";
+sleep 1;
+# dumping database to ldap
+system("sophomorix-dump-pg2ldap --skiplock");
+sleep 1;
+
+# make sure that user wwwadmin is disabled:
+print "sophomorix-usermod --skiplock --disable wwwadmin\n";
+system("sophomorix-usermod --skiplock --disable wwwadmin");
+
+
+
+
+
+
+
+
