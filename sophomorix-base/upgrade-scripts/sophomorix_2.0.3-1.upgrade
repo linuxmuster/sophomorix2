@@ -40,10 +40,10 @@ print "sambalmpassword: $lm_pass \n";
 print "sambantpassword: $nt_pass \n";
 
 # removing wwwadmin
-system ("sophomorix-kill --killuser wwwadmin");
+system ("sophomorix-kill --skiplock --killuser wwwadmin");
 
 # add user again
-system ("sophomorix-setup-pgldap --skiplock");
+system("sophomorix-useradd --skiplock --administrator wwwadmin --uidnumber 997 --gecos 'Web Administrator' --unix-group 'administrators' --shell /bin/false");
 
 sleep 2;
 
