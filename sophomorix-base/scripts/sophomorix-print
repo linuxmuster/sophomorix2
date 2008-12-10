@@ -338,6 +338,11 @@ if($Conf::log_level>=3){
 open(LATEX,
      ">${DevelConf::druck_pfad}/${output_file_basename}.tex") || die "Fehler: $!";
 
+if ($classlist ne ""){
+    # *.mediawiki-Datei ˆffnen
+    open(MEDIAWIKI,
+         ">${DevelConf::druck_pfad}/${output_file_basename}.mediawiki") || die "Fehler: $!";
+}
 # *.csv-Datei ˆffnen (windows)
 open(CSV,
         ">${DevelConf::druck_pfad}/${output_file_basename}.csv") || die "Fehler: $!";
@@ -365,11 +370,13 @@ print LATEX ('\rhead{\bf \large Seite \thepage}');
 
 if ($gruppe ne "") {
    # Klassenangabe gemacht  
+  print MEDIAWIKI "===$gruppe===\n"; 
   print LATEX ('
       \chead{\LARGE \bf ',"$gruppe",'}
    ');
 } elsif ($classlist ne "") {
-   # Klassenangabe gemacht  
+   # Klassenangabe gemacht
+  print MEDIAWIKI "===$classlist===\n"; 
   print LATEX ('
       \chead{\LARGE \bf ',"$classlist",'}
    ');
@@ -769,11 +776,12 @@ if ($classlist ne ""){
     &titel("Creating classlist of $classlist");
     my $count=0;
 
+    print MEDIAWIKI "{|border=\"1\"\n";
+    print MEDIAWIKI "|Nr.\n|Name\n|SP1\n|SP2\n|SP3\n|SP4\n|SP5\n|SP6\n|SP7\n|-\n";
+
     print LATEX "\\begin{tabular}{|r|p{55mm}|p{116mm}|}\\hline \n";
     print LATEX "\\rule[-2mm]{0mm}{7mm}\\textbf{Nr}& \\textbf{Name, Vorname} & \\\\ \\hline\\hline
 ";
-
-
 
     foreach $eintrag (@drucken_reihenfolge) {
         $count++;
@@ -795,11 +803,12 @@ if ($classlist ne ""){
         }
 
         print LATEX "\\rule[-2mm]{0mm}{6.7mm} $count & $name &  \\\\  \\hline \n";
-
+        print MEDIAWIKI "|$count\n|$name\n|\n|\n|\n|\n|\n|\n|\n|-\n";
 
     }
 
     print LATEX "\\end{tabular} \n";
+    print MEDIAWIKI "|}";
 
 
 }# End CLASSLIST
@@ -1255,6 +1264,10 @@ if ($gruppe ne "") {
 
 
 # ===========================================================================
+if ($classlist ne ""){
+    # mediawiki-Dokument schlieﬂen
+    close(MEDIAWIKI);
+}
 # Latex-Dokument schlieﬂen
 close(LATEX);
 # CSV-Dokument schlieﬂen
