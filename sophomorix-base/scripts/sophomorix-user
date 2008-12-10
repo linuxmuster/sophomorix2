@@ -264,13 +264,19 @@ if ($info==1){
                                        OR adminclass='speicher')
                                      ");
 
-    # WORKSTATIONS
+    # EXAM ACCOUNTS
     ##################################################
-    my ($permanent_w)= $dbh->selectrow_array( "SELECT count(uid) 
+    my ($permanent_e)= $dbh->selectrow_array( "SELECT count(uid) 
                                        FROM userdata
                                        WHERE sophomorixstatus='P'
                                        AND homedirectory 
                                        LIKE '/home/workstations/%'");
+    # WORKSTATION ACCOUNTS
+    ##################################################
+    my ($permanent_w)= $dbh->selectrow_array( "SELECT count(uid) 
+                                       FROM userdata
+                                       WHERE sophomorixstatus='P'
+                                       AND uid LIKE '%\$'");
 
     # ADMINS
     ##################################################
@@ -297,43 +303,43 @@ if ($info==1){
 	$disabled_t+$removeable_t+$killable_t+$frozen_t+$permanent_t;
 
     my $total_a=$permanent_a;
-    my $total_w=$permanent_w;
+    my $total_w=$permanent_e;
     my $total_total=$total+$total_t+$total_w+$total_a;
 
 
     # OUTPUT
     ##################################################
-    print "----------------+---+----------+----------+--------------+--------+\n";
-    print "status          |   | students | teachers | workstations | admins |\n";
-    print "----------------+---+----------+----------+--------------+--------+\n";
-    printf "%-19s | %8s | %8s | %12s | %6s |\n",
-           "usable/unlocked | U",$usable,$usable_t,"","";
-    printf "%-19s | %8s | %8s | %12s | %6s |\n",
-           "enabled         | E",$enabled,$enabled_t,"","";
-    printf "%-19s | %8s | %8s | %12s | %6s |\n",
-           "tolerated       | T",$tolerated,$tolerated_t,"","";
-    printf "%-19s | %8s | %8s | %12s | %6s |\n",
-           "activated       | A",$activated,$activated_t,"","";
-    printf "%-19s | %8s | %8s | %12s | %6s |\n",
-           "selfactivated   | S",$selfactivated,$selfactivated_t,"","";
-    printf "%-19s | %8s | %8s | %12s | %6s |\n",
-           "disabled        | D",$disabled,$disabled_t,"","";
-    printf "%-19s | %8s | %8s | %12s | %6s |\n",
-           "removeable      | R",$removeable,$removeable_t,"","";
-    printf "%-19s | %8s | %8s | %12s | %6s |\n",
-           "killable        | K",$killable,$killable_t,"","";
-    printf "%-19s | %8s | %8s | %12s | %6s |\n",
-           "frozen          | F",$frozen,$frozen_t,"","";
-    printf "%-19s | %8s | %8s | %12s | %6s |\n",
-           "permanent       | P",$permanent,$permanent_t,$permanent_w,$permanent_a;
-    print "----------------+---+----------+----------+--------------+--------+\n";
-    printf "%-6s %8s |   | %8s | %8s | %12s | %6s |\n",
+    print "----------------+---+----------+----------+------+----------+--------+\n";
+    print "status          |   | students | teachers | exam | computer | admins |\n";
+    print "----------------+---+----------+----------+------+----------+--------+\n";
+    printf "%-19s | %8s | %8s | %4s | %8s | %6s |\n",
+           "usable/unlocked | U",$usable,$usable_t,"","","";
+    printf "%-19s | %8s | %8s | %4s | %8s | %6s |\n",
+           "enabled         | E",$enabled,$enabled_t,"","","";
+    printf "%-19s | %8s | %8s | %4s | %8s | %6s |\n",
+           "tolerated       | T",$tolerated,$tolerated_t,"","","";
+    printf "%-19s | %8s | %8s | %4s | %8s | %6s |\n",
+           "activated       | A",$activated,$activated_t,"","","";
+    printf "%-19s | %8s | %8s | %4s | %8s | %6s |\n",
+           "selfactivated   | S",$selfactivated,$selfactivated_t,"","","";
+    printf "%-19s | %8s | %8s | %4s | %8s | %6s |\n",
+           "disabled        | D",$disabled,$disabled_t,"","","";
+    printf "%-19s | %8s | %8s | %4s | %8s | %6s |\n",
+           "removeable      | R",$removeable,$removeable_t,"","","";
+    printf "%-19s | %8s | %8s | %4s | %8s | %6s |\n",
+           "killable        | K",$killable,$killable_t,"","","";
+    printf "%-19s | %8s | %8s | %4s | %8s | %6s |\n",
+           "frozen          | F",$frozen,$frozen_t,"","","";
+    printf "%-19s | %8s | %8s | %4s | %8s | %6s |\n",
+           "permanent       | P",$permanent,$permanent_t,$permanent_e,$permanent_w,$permanent_a;
+    print "----------------+---+----------+----------+------+----------+--------+\n";
+    printf "%-6s %8s |   | %8s | %8s | %4s | %8s | %6s |\n",
            "sum:","",
                                                $total,$total_t,
-                                               $permanent_w,$permanent_a;
-    print "----------------+---+----------+----------+--------------+--------+\n";
+                                               $permanent_e,$permanent_w,$permanent_a;
+    print "----------------+---+----------+----------+------+----------+--------+\n";
 
-    print "Total users: $total_total\n\n";
+    print "Total users: $total_total (students,teachers,exam, admins) + $permanent_w (computer)\n\n";
     exit;
 }
 
