@@ -4,20 +4,11 @@
 Next
 ############################################################
 
-smb.conf in package linuxmuster was renamed 
-  smb.conf.rembo
-  smb.conf.linbo, ...
+create package and test it:
 
-ask thomas how it can be checked which imaging system is running
-
-what is correct 10.x.0.0 or 10.x.1.1 (0.0 is from debconf, 1.1 seems to be more secure)
-
-modify sophomorix-setup-pgldap
-
-update smb.conf.* in sophomorix
-
-sophomorix-user -i:
-sollte noch ein Spalte haben mit klassenarbeitsaccounts
+- is ...smb.conf.template.linbo, ... included?
+- runs sophomorix-setup-pgldap smoothly?
+- test it on the server
 
 
 
@@ -50,7 +41,7 @@ sophomorix-endofyear:
 
 
 
-Passwortänderung serverseiting für workstations nicht mehr zulassen.
+Passwortänderung serverseitig für workstations nicht mehr zulassen.
 
 Mit
 # smbldap-usermod -A0 -B0 host$
@@ -60,14 +51,6 @@ sambaPwdMustChange: 2147483647
 Damit wird sambaseitig die Passwortänderungen unterbunden.
 Danach hatte ich das Problem nicht mehr. 
 
-
-
-
-
-Gruppe 
-wwwadmin fehlt 
-
-beim paket-upgrade wwwadmin und gruppe wwwadmin incl samba anlegen, aber deaktiviert
 
 
 
