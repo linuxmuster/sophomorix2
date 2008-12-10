@@ -1,7 +1,6 @@
 ##### @@message1@@
 ##### @@message2@@
 ##### @@message3@@
-# Revision 3 from svn, server svn.lml.support-netz.de
 #
 ############################################################
 #  Include your own stuff in the following files:
@@ -59,7 +58,7 @@
 # This tells Samba to use a separate log file for each machine
 # that connects
    log file = /var/log/samba/log.%m
-   log level = 4
+   log level = 0
 # Put a capping on the size of the log files (in Kb).
    max log size = 1000
 
@@ -104,13 +103,13 @@
 # This boolean parameter controls whether Samba attempts to sync the Unix
 # password with the SMB password when the encrypted SMB password in the
 # passdb is changed.
-#   unix password sync = yes
+   unix password sync = yes
 
 # For Unix password sync to work on a Debian GNU/Linux system, the following
 # parameters must be set (thanks to Augustin Luton <aluton@hybrigenics.fr> for
 # sending the correct chat script for the passwd program in Debian Potato).
-   passwd program = /usr/sbin/smbldap-passwd %u
-   passwd chat = *Enter\snew\sUNIX\spassword:* %n\n *Retype\snew\sUNIX\spassword:* %n\n .
+   passwd program = /usr/sbin/sophomorix-passwd --interactive --user %u
+   passwd chat = *New*password*:* %n\n *Retype*new*password*:* %n\n
 
 # This boolean controls whether PAM will be used for password changes
 # when requested by an SMB client instead of the program listed in
@@ -162,12 +161,10 @@
    unix extensions = yes
    map archive = No
    delete readonly = Yes
-   case sensitive = yes
+   case sensitive = auto
    mangled names = no
 
-   ldap passwd sync = Yes
-   passwd program = /usr/sbin/smbldap-passwd %u
-   passwd chat = *New*password* %n\n *Retype*new*password* %n\n *all*authentication*tokens*updated*
+   ldap passwd sync = No
    add user script = /usr/sbin/smbldap-useradd -m "%u"
    ldap delete dn = Yes
   #delete user script = /usr/sbin/smbldap-userdel "%u"
@@ -224,18 +221,18 @@
 
 # File creation mask is set to 0700 for security reasons. If you want to
 # create files with group=rw permissions, set next parameter to 0775.
-   create mask = 2644
+   create mode = 2644
 
 # Directory creation mask is set to 0700 for security reasons. If you want to
 # create dirs. with group=rw permissions, set next parameter to 0775.
-   directory mask = 2755
+   directory mode = 2755
    
 # linuxmuster settings
    wide links = Yes
    path = %H
    valid users = %S
-   root preexec = samba-userlog --log=in --username=%U --hostname=%m --homedir=%H
-   root postexec = samba-userlog --log=out --username=%U --hostname=%m --homedir=%H
+   root preexec = samba-userlog --log=in --username=%U --hostname=%I --homedir=%H
+   root postexec = samba-userlog --log=out --username=%U --hostname=%I --homedir=%H
    veto files = /.locked/.htaccess/
    delete veto files = no
 
@@ -246,7 +243,7 @@
    path = /home/samba/netlogon
    guest ok = yes
    writable = no
-   create mask = 664
+   force create mode = 664
    share modes = no
    write list = @@@domadmins@@
    force group = @@domadmins@@
@@ -282,19 +279,29 @@
    writable = no
    write list = @@@domadmins@@
    force group = @@domadmins@@
-   create mask = 664
-   directory mask = 775
+   force create mode = 664
+   force directory mode = 775
    guest ok = Yes
 
 [cdrom]
    comment = CD-Images
    path = /home/samba/cds
    force group = @@domadmins@@
-   create mask = 664
-   directory mask = 775
+   force create mode = 664
+   force directory mode = 775
    write list = @@@domadmins@@
    writable = no
    guest ok = Yes
+
+[linbo-repo]
+   comment = LINBO repository
+   path = /var/linbo
+   wide links = yes
+   write list = @@administrator@@,linbo
+   valid users = @@administrator@@,linbo
+   admin users = @@administrator@@,linbo
+   writable = no
+   guest ok = no
 
 # following shares are only used by linux clients
 [students]
@@ -310,8 +317,8 @@
    comment = Shares
    path = /home/share
    writeable = yes
-   create mask = 2644
-   directory mask = 2755
+   create mode = 2664
+   directory mode = 2775
    browseable = No
    guest ok = No
 
