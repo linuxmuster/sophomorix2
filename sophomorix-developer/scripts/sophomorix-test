@@ -1875,7 +1875,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 %account_ldap=&fetch_ldap_account($account{'uid'});
 
-&ok_account("sophomorixstatus", "A");
+&ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "");
 &ok_account("deactivationdate", "");
@@ -1908,7 +1908,10 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 &check_emptyness("sophomorix.add");
-&check_emptyness("sophomorix.move");
+#&check_emptyness("sophomorix.move");
+&check_line_in_file(
+  "$account{'uid'}::m1kb::attic",
+  "${DevelConf::ergebnis_pfad}/sophomorix.move");
 
 
 # Move the account
@@ -1919,20 +1922,20 @@ $gsid=2*$account{'gidnumber'}+1001;
 %account = &fetch_single_account("surname='Mahn' 
                                   AND firstname='oliver'
                                   AND birthday='1984-10-12'
-                                  AND adminclass='m1kb'",
+                                  AND adminclass='attic'",
                       );
 
 %account_ldap=&fetch_ldap_account($account{'uid'});
 
-&ok_account("sophomorixstatus", "A");
+&ok_account("sophomorixstatus", "T");
 &ok_account("creationdate", $today_pg);
-&ok_account("tolerationdate", "");
+&ok_account("tolerationdate", $today_pg);
 &ok_account("deactivationdate", "");
 &ok_account("gecos", "oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
-&ok_account("gid", "m1kb");
-&ok_account("homedirectory", "/home/students/m1kb/$account{'uid'}");
+&ok_account("gid", "attic");
+&ok_account("homedirectory", "/home/attic/$account{'uid'}");
 # samba
 &ok_account("displayname", "oliver Mahn");
 &ok_account("sambahomepath", "\\\\${server}\\$account{'uid'}");
