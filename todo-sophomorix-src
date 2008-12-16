@@ -4,11 +4,30 @@
 Next
 ############################################################
 
-create package and test it:
+select * from groups_users where gidnumber=10000;
 
-- is ...smb.conf.template.linbo, ... included?
-- runs sophomorix-setup-pgldap smoothly?
-- test it on the server
+liefert mehrere administratoren in teachers (10000)
+
+
+sophomorix-setup-pgldap --new-database bricht ab.
+
+
+dumpd ldif:
+slapcat -l dump.ldif 
+
+
+ldap forschung:
+
+smbldap-groupshow teachers zeigt nicht alle lehrer als mitglieder
+in klassengruppen sind nur die lehrer zu sehen
+
+Vermutung: smbldap-tools machen das richtig, aber das dump-script machts falsch
+
+ 
+
+
+/usr/bin/sophomorix-teacher --teacher bz --add m2kk3t 
+works on console for bck
 
 
 
@@ -16,8 +35,6 @@ trac: lml.linuxmuster.net/trac (Frank)
       Doku zu pykota
 
 
-sophomorix-print:
-add mediawiki export support
 octal dumper:
 
 Bugfix: sophomorix-quota
@@ -51,10 +68,6 @@ sambaPwdMustChange: 2147483647
 Damit wird sambaseitig die Passwortänderungen unterbunden.
 Danach hatte ich das Problem nicht mehr. 
 
-
-
-
-script um sambasid zu reparieren???? Wenn sich Michael nochmal meldet.
 
 wenn man extraschüler anlegt (klasse sekretariat), dann kommt Fehler: cannot determine type of sekretariat.
 
