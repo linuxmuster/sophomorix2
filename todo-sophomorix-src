@@ -4,6 +4,12 @@
 Next
 ############################################################
 
+
+sophomorix-user -s bz 
+
+  - liefert viele secondary groups -> tabelle angeben, mehrzeilig gut formatiert
+  - primäre gruppe taucht auch auf bei sekundären
+
 select * from groups_users where gidnumber=10000;
 
 liefert mehrere administratoren in teachers (10000)
@@ -12,11 +18,14 @@ liefert mehrere administratoren in teachers (10000)
 sophomorix-setup-pgldap --new-database bricht ab.
 
 
-dumpd ldif:
-slapcat -l dump.ldif 
+
+
 
 
 ldap forschung:
+
+dumpd ldif:
+slapcat -l dump.ldif 
 
 smbldap-groupshow teachers zeigt nicht alle lehrer als mitglieder
 in klassengruppen sind nur die lehrer zu sehen
