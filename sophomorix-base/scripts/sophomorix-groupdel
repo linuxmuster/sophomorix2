@@ -152,7 +152,8 @@ if ($room ne ""){
         my ($type)=&pg_get_group_type($room);
         print "No ($type)\n";
         print "   WARNING: Not removing room $room\n";
-        exit;
+        &log_script_exit("WARMING: Not removing room $room",1,1,0,@arguments);
+        #exit;
     }
 
     # 2) check if there are no users in this room
@@ -165,7 +166,8 @@ if ($room ne ""){
     } else {
         print "   Group $room is not empty\n";
         print "   WARNING: Not removing room $room\n";
-        exit;
+        &log_script_exit("WARMING: Not removing room $room",1,1,0,@arguments);
+        #exit;
     } 
 
     # Remove files/dirs
@@ -192,8 +194,8 @@ if ($delete_all_empty_classes==1){
 	    &remove_class($class,$backup);
        }
     }
+    &log_script_exit("All empty classes deleted",1,1,0,@arguments);
     exit;
-
 }
 
 
