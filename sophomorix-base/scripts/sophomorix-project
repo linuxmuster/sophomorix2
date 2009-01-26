@@ -552,7 +552,7 @@ if (defined $project) {
 # --info --project name
 if ($project ne "" and $info==1){
     &show_project($project);
-    &log_script_exit("Projects showed!",
+    &log_script_exit("Project $project showed!",
                       1,1,0,@arguments);
 }
 
