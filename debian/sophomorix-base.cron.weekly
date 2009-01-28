@@ -8,10 +8,10 @@ logger $0 started
 
 
 # bzip2 database dumps
-find /var/log/sophomorix/user -name *.sql -exec bzip2 {} \; && logger 'bzip2 dumps run succesfully' || logger 'bzip2 dumps run with ERROR'
+find /var/log/sophomorix/user -name '*.sql' -exec bzip2 {} \; && logger 'bzip2 dumps run succesfully' || logger 'bzip2 dumps run with ERROR'
 
 # delete old database dumps +90 = older than 90 days
-find /var/log/sophomorix/user -name *.sql.bz2 -atime +90 -exec rm {} \; && logger 'delete bzip2 dumps run succesfully' || logger 'delete bzip2 dumps run with ERROR'
+find /var/log/sophomorix/user -name '*.sql.bz2' -atime +90 -exec rm {} \; && logger 'delete bzip2 dumps run succesfully' || logger 'delete bzip2 dumps run with ERROR'
 
 # log end
 logger $0 ended
