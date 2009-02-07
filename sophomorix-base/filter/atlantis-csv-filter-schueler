@@ -33,19 +33,20 @@
 # Start configure 
 ############################################################
 
-# what is the current school year (format:  2008/2009)
-# must be updated each year
-my $year_to_use="2008/09";
-
 # number of semicolons in each line
 # script returns error if this is not correct in EACH line
 # key: number of selicolons
 # value: max allowed number
 my %semicolons_allowed = qw(
-    18     30000
-    19     2 
+    244     3500
+    255     20 
 );
 
+
+# do you want to try to dump the unique id
+# 0: do NOT dump
+# 1: dump it!
+my $dump_id=0;
 
 
 ############################################################
@@ -66,6 +67,10 @@ my %double_lastname = qw (
 my $tmp="/var/lib/sophomorix/tmp/schueler.txt.filter.tmp";
 my $source="/etc/sophomorix/user/schueler.txt";
 my $target="/var/lib/sophomorix/tmp/schueler.txt.tmp";
+
+$tmp="/home/bz/atlantis-test/file.tmp";
+$source="/home/bz/atlantis-test/test.csv";
+$target="/home/bz/atlantis-test/file.target";
 
 my %semicolons_seen=();
 
@@ -104,34 +109,60 @@ if ($prefilter_error==0){
 open(SOURCE, "<$source") || die "Fehler: $! $source not found!"; 
 open(TMP, ">$tmp") || die "Fehler: $! $tmp not found!"; 
 
+my %header=();
+my $line_num=0;
 while (<SOURCE>){
-    #print $_;
-    my ($number,
-        $type,
-        $a,
-        $name,
-        $birthday,
-        $b,
-        $c,
-        $d,
-        $year,
-        $type2,
-        $class,
-        @rest)=split(";");
+    chomp();
+    my @line=split(";");
+    my $field_num=0;
 
-    $number = &format_number($number);
-    $class = &format_field($class);
-    $name = &format_field($name);
-    $birthday = &format_field($birthday);
-    $type = &format_field($type);
-    $type2 = &format_field($type2);
-    $year = &format_field($year);
+    if($line_num==0 and $line[5] eq "Klasse"){
+        # read the headers
+        foreach my $item (@line){
+            $header{$field_num}="$item";
+            $field_num++;
+        }    
+        $line_num++;
+        next;
+    }
 
-    my ($lastname, @firstnames) = split(" ",$name);
-    my $firstname = join(" ", @firstnames);
+    #$field_num=0;
+    if($line_num==100){
+        print "Line ${line_num}:\n";
+        foreach my $item (@line){
+	    #print "$field_num ($header{$field_num})  $item   \n";
+            printf "|%4s | %-28s| %-43s|\n",$field_num,$header{$field_num},$item;
+            $field_num++;
+        }
+    }
 
+    my $name=$line[1];
+    my $birthday=$line[2];
+    my $class=$line[5];
+    # 13 Klassenlehrer
+    my $id_0=$line[63]; # Externe ID:  -id
+    my $id_1=$line[57]; # Barcode   :  ABCid
+    my $id_2=$line[70]; # Externe ID Behinderungsart:  -id
+    my $id_3=$line[72]; # Externe ID GS Empfehlung:  -id
+
+    my ($lastname, $firstname) = split(",",$name);
+
+#    # Do not use header
+#    if ($class eq "Klasse"){
+#	next;
+#    }
+
+
+    $lastname = &format_field($lastname);
+    $firstname = &format_field($firstname);
 
     my $semicolons_per_line=tr/;//;
+
+    #print "  $semicolons_per_line \n";
+
+#    if ($semicolons_per_line==255){
+#        print "$_";
+#    }
 
     my $old_num=$semicolons_seen{$semicolons_per_line};
     if (not defined $old_num){
@@ -150,50 +181,18 @@ while (<SOURCE>){
     $firstname="" if not defined $firstname;
 
 
-    if ($type eq "Schüler"
-        and $year eq $year_to_use
-        and not $class=~m/^_/  # remove data with leading _ in classname
-        ){
-
-        my $save="First: ".$firstname." \nLast: ".$lastname;
-        # when 
-        my $count=0;
-        while ( $firstname=~/\./ ){
-            $count++;
-            my ($add, @rest)=split(". ",$firstname);
-            #print "$add\n";
-   	    $lastname=$lastname." ".$add.".";
-            $firstname=join(". ", @rest);
-	    #print "$firstname\n";
-            if ($count==3){
-                # when name still contains '.', then there is something wrong
-                # exit with error
-                print "Last message from filter script: ended with ERROR: indefinite loop \n";
-                exit 2;
-            }
-        }
-
-        # correct van, von, ... stuff 
-        my $newlast=$lastname;
-        while (exists $double_lastname{$lastname}){
-            my ($last, @first) = split(" ",$firstname);
-            $firstname=join(" ",@first);
-            $lastname=$last;
-            $newlast=$newlast." ".$last;
-        }
-
-        if ($newlast ne $lastname){
-            $lastname=$newlast;
-            print "$lastname   : $firstname \n";
-        }
-
-
-        if ($count>1){
-            print "$save \n   renamed to \nFirst: $firstname \nLast: $lastname\n";
-        }
-        my $line = $class.";".$lastname.";".$firstname.";".$birthday.";\n";
-        print TMP "$line";
+    my $out_line;
+    if ($dump_id==0){
+        $out_line = $class.";".$lastname.";".$firstname.";".$birthday.";\n";
+    } elsif ($dump_id==1){
+        $out_line = $class.";".$lastname.";".$firstname.";".$birthday.";".$id_0.";\n";
+    } else {
+        print "Could not dump into file\n\n";
+        exit;
     }
+    print TMP "$out_line";
+
+    $line_num++;
 }
 
 close(SOURCE);
@@ -203,7 +202,6 @@ close(TMP);
 # check if file was correct
 my $error=0;
 
-print "\nFilter results:\n";
 while ( ($semi, $seminum) = each %semicolons_seen ){
     my $line_err=0;
     my $print_semicolons_allowed=$semicolons_allowed{$semi};
@@ -264,15 +262,9 @@ sub format_field {
     my ($string) = @_;
     $string=~s/^"//;
     $string=~s/"$//;
+    $string=~s/^ //;
+    $string=~s/ $//;
     return $string;
 }
 
-
-
-sub format_number {
-    my ($number) = @_;
-    $number=~s/^"//;
-    $number=~s/\.$//;
-    return $number;
-}
 
