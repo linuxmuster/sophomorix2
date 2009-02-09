@@ -53,27 +53,11 @@ my $dump_id=0;
 # End configure 
 ############################################################
 
-my %double_lastname = qw (
-    van     none
-    von     none
-    der     none
-    de      none
-    De      none
-    el      none
-    El      none
-);
-
 # keep this settings
 my $tmp="/var/lib/sophomorix/tmp/schueler.txt.filter.tmp";
 my $source="/etc/sophomorix/user/schueler.txt";
 my $target="/var/lib/sophomorix/tmp/schueler.txt.tmp";
-
-$tmp="/home/bz/atlantis-test/file.tmp";
-$source="/home/bz/atlantis-test/test.csv";
-$target="/home/bz/atlantis-test/file.target";
-
 my %semicolons_seen=();
-
 
 ############################################################
 # Pre-Filter
@@ -126,8 +110,7 @@ while (<SOURCE>){
         next;
     }
 
-    #$field_num=0;
-    if($line_num==100){
+    if($line_num==300){
         print "Line ${line_num}:\n";
         foreach my $item (@line){
 	    #print "$field_num ($header{$field_num})  $item   \n";
@@ -137,6 +120,8 @@ while (<SOURCE>){
     }
 
     my $name=$line[1];
+    my $lastname=$line[28];
+    my $firstname=$line[29];
     my $birthday=$line[2];
     my $class=$line[5];
     # 13 Klassenlehrer
@@ -145,24 +130,10 @@ while (<SOURCE>){
     my $id_2=$line[70]; # Externe ID Behinderungsart:  -id
     my $id_3=$line[72]; # Externe ID GS Empfehlung:  -id
 
-    my ($lastname, $firstname) = split(",",$name);
-
-#    # Do not use header
-#    if ($class eq "Klasse"){
-#	next;
-#    }
-
-
     $lastname = &format_field($lastname);
     $firstname = &format_field($firstname);
 
     my $semicolons_per_line=tr/;//;
-
-    #print "  $semicolons_per_line \n";
-
-#    if ($semicolons_per_line==255){
-#        print "$_";
-#    }
 
     my $old_num=$semicolons_seen{$semicolons_per_line};
     if (not defined $old_num){
