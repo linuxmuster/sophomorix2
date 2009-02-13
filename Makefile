@@ -177,6 +177,7 @@ install-base:
 # filter scripts
 	@install -d -m755 -oroot -groot $(FILTER)
 	@install -oroot -groot --mode=0755 sophomorix-base/filter/*-filter $(FILTER)
+	@install -oroot -groot --mode=0755 sophomorix-base/filter/*-schueler $(FILTER)
 # Copy the module
 	@install -d -m755 -oroot -groot $(PERLMOD)
 	@install -oroot -groot --mode=0644 sophomorix-base/modules/Sophomorix*[A-Za-z1-9].pm $(PERLMOD)
