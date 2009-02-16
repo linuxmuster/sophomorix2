@@ -110,21 +110,23 @@ Options
   -i   /  --info
   -v   /  --verbose
   -vv  /  --verbose --verbose
+
+Search for a user:
   -s string /   --search string
   -u user   /   --user user
+
+Changing status of a user:
   -F user   /   --freeze user
   -P user   /   --permanent user
   -R user   /   --removable user
   -K user   /   --killable user
   -A user   /   --activate user
 
-  --empty-password
-
-  --teacher teacher --scheduled-toleration yyyy-mm--dd
-
-  --kill-all-users
-
+Actions:
   --reset-user user1,user2,...
+  --reset-user user1,user2,... --empty-password
+  --teacher teacher --scheduled-toleration yyyy-mm--dd
+  --kill-all-users
 
 Please see the sophomorix-user(8) man pages for full documentation
 ');
