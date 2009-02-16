@@ -138,48 +138,6 @@ nutzt eigene Datei statt repairhome.students, teacher, ...
 
 link zu code suchmaschine von Thomas
 
-Bug # 404
-
-Mich sprechen Kollegen an, die die eingesammelten Ordner unterhalb
-H:\_eingesammelt\  nicht mehr löschen können.
-
-Eine kurzer Blick auf der Konsole zeigt, dass die Ordner eine Datei
-.locked enthalten.
-Wird diese von mir entfernt, lassen sich die Ordner von den Kollegen
-auch wieder löschen.
-
-Machen wir irgendetwas falsch?
-Wie kann man verhindern, dass den einsammelnden Kollegen das
-Löschrecht ihrer Ordner genommen wird? 
-
-Test auf majestix (18.04.08): 
-  find /home/teachers -name '.locked' | wc    -->  814 
-  ...  /home           ....                   --> 2359
-
-Beobachten ob die Anzahl sich ändert.
-am 05.05.08:     886
-                2431
-
-Da ist was faul
-nach update auf 1.9.35:
-    07.05.       886
-                2398
-
-am 9.5. 16:20   2398
-am 9.5. 18:40   2398
-
-am 23.6.         894
-                2406
-
-Ergebnis 27.6. .locked nehmen zu. weil sie im ordner der Schüler sind und eingesammelt werden (kopiert)
-- habe alle .locked gelöscht mit:
-  find /home -name '.locked' -print0 | xargs -0 rm
-
-Testen ob alle gelöscht sind: 
-find /home -name '.locked' | wc    -->  0 
-
-Weiter: nach einiger Zeit nochmal testen
-
 
 pyquota:
 
