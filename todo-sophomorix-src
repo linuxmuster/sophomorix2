@@ -31,14 +31,12 @@ sophomorix-groupdel --delete-all-empty-classes
   option angezeigt wird.
 
 
-sophomorix-user -s bz 
-
-  - liefert viele secondary groups -> tabelle angeben, mehrzeilig gut formatiert
-  - primäre gruppe taucht auch auf bei sekundären
+Bug:
 
 select * from groups_users where gidnumber=10000;
 
 liefert mehrere administratoren in teachers (10000)
+
 
 
 sophomorix-setup-pgldap --new-database bricht ab.
