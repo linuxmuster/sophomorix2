@@ -1109,7 +1109,13 @@ print "\n\n";
 
 
 # setting the password in pg
-&set_db_passwd($dbpassword);
+if ( ($old_version eq "0.0.0-0" and not defined $dbh) or $new_database==1){
+    # first installation
+    &set_db_passwd($dbpassword);
+} else {
+    &titel("NOT updating password  for user ldap in Postgresql");
+}
+
 
 
 # setting the ldap suffix dn=x in pg
