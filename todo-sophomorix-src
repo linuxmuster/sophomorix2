@@ -14,6 +14,24 @@ evtl. einzelne server nur holte: hole rembo server, hole linbo server
 
 
 
+Bug 48:
+
+schulkonsole wird modifiziert
+
+Bug ???:
+
+Links in die Tausch-Verzeichnisse.
+
+tun nicht immer sie bck. 
+
+Analyse script erzeugen:
+   - sophomorix-repair --check-share-links user
+   - sophomorix-repair --check-all-share-links
+   - user und gruppen listen
+   - mit id deren gruppen zugehörigkeiten testen
+   - existieren die Links dazu in _tauschen
+Reperatur script erzeugen.
+
 
 
 
@@ -43,12 +61,8 @@ sophomorix-setup-pgldap --new-database bricht ab.
 
 
 sophomorix-setup-pgldap --keep-database
-  - danach ist das password in 
-
-
-
-
-
+  - danach ist das password der postgres Datenbank modifiziert
+  - ist modifiziert im cvs, testen mit paketupdate 
 
 
 
@@ -68,6 +82,10 @@ Vermutung: smbldap-tools machen das richtig, aber das dump-script machts falsch
 /usr/bin/sophomorix-teacher --teacher bz --add m2kk3t 
 works on console for bck
 
+
+linbo:
+
+hwinfo (debian-Paket) um anzeigen 
 
 
 trac: lml.linuxmuster.net/trac (Frank)
