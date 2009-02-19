@@ -44,8 +44,7 @@
 # key: number of selicolons
 # value: max allowed number
 my %semicolons_allowed = qw(
-    244     3500
-    255     20 
+    291     3500
 );
 
 
@@ -104,11 +103,13 @@ my $line_num=0;
 while (<SOURCE>){
     chomp();
     my @line=split(";");
+    pop @line;
     my $field_num=0;
 
-    if($line_num==0 and $line[5] eq "Klasse"){
+    if($line_num==0 and ($line[5] eq "Klasse"  or $line[5] eq "\"Klasse\"" ) ){
         # read the headers
         foreach my $item (@line){
+            $item = &format_field($item);
             $header{$field_num}="$item";
             $field_num++;
         }    
@@ -116,28 +117,37 @@ while (<SOURCE>){
         next;
     }
 
-    if($line_num==300){
+    # change the number from 10000 to the line, that you want printed
+    if($line_num==10000){
         print "Line ${line_num}:\n";
         foreach my $item (@line){
-	    #print "$field_num ($header{$field_num})  $item   \n";
+            $item = &format_field($item);
             printf "|%4s | %-28s| %-43s|\n",$field_num,$header{$field_num},$item;
             $field_num++;
         }
     }
 
+    # unused
     my $name=$line[1];
+
+    # used
     my $lastname=$line[28];
     my $firstname=$line[29];
     my $birthday=$line[2];
     my $class=$line[5];
     # 13 Klassenlehrer
+
+    # unid fields
     my $id_0=$line[63]; # Externe ID:  -id
     my $id_1=$line[57]; # Barcode   :  ABCid
     my $id_2=$line[70]; # Externe ID Behinderungsart:  -id
     my $id_3=$line[72]; # Externe ID GS Empfehlung:  -id
 
+    $class = &format_field($class);
     $lastname = &format_field($lastname);
     $firstname = &format_field($firstname);
+    $birthday = &format_field($birthday);
+    $id_0 = &format_field($id_0);
 
     my $semicolons_per_line=tr/;//;
 
@@ -179,13 +189,15 @@ close(TMP);
 # check if file was correct
 my $error=0;
 
+print "\n";
+
 while ( ($semi, $seminum) = each %semicolons_seen ){
     my $line_err=0;
     my $print_semicolons_allowed=$semicolons_allowed{$semi};
     if(not defined $print_semicolons_allowed){
         $print_semicolons_allowed=0;
     }
-    printf "   I have seen %6s of allowed %6s lines with %3s semicolons: ",
+    printf "I have seen %6s of allowed %6s lines with %3s semicolons: ",
       $seminum,
       $print_semicolons_allowed,
       $semi;
