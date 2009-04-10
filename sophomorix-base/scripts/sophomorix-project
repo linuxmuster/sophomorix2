@@ -366,7 +366,7 @@ if ($project ne "" and $create==0
 
 # writing/reading to/from a file
 
-# --dump
+# --dump filename
 if ($project eq "" and $dump_all_projects ne ""){
     &dump_all_projects("$dump_all_projects",@arguments);
     &Sophomorix::SophomorixBase::log_script_exit(
@@ -375,7 +375,7 @@ if ($project eq "" and $dump_all_projects ne ""){
 }
 
 
-# --create-from-file
+# --create-from-file filename
 if ($project eq "" and $create_from_file ne ""){
     &project_from_file($create_from_file,"--create",@arguments);
     &Sophomorix::SophomorixBase::log_script_exit(
@@ -384,7 +384,7 @@ if ($project eq "" and $create_from_file ne ""){
 }
 
 
-# --update-from-file
+# --update-from-file filename
 if ($project eq "" and $update_from_file ne ""){
     &project_from_file($update_from_file,"",@arguments);
     &Sophomorix::SophomorixBase::log_script_exit(
