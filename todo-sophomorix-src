@@ -4,7 +4,48 @@
 Next
 ############################################################
 
+sophomorrix.conf:
 
+einstellungen erscheinungsbild desktopeffekte
+
+was passiert wenn syntax fehler drin sind?
+Ziel: Abbruch wenn sie nicht bis zum Ende fehlerfrei durchläuft
+
+
+
+Dist-Upgrade auf ubuntu server 8.04: # 89 (Eigenes Ticket # 90)
+
+Wohin soll gesichert werden:
+
+/var/upgrade/linuxmuster/<paketname>
+
+Pfad wohin, soll per parameter änderbar sein.
+--prepare-dist-upgrade
+--do-dist-upgrade
+
+- schauen, ob sophomorix-support das schon kann
+  -- option --bzip zum packen (oder nicht)
+
+alternative Pfade angeben:
+/etc/smb.conf::/etc/samba/smb.conf
+
+
+- falls beide existieren -> eine muss gelöscht werden
+- Dateiliste mitsichern (da sind die Konfigs gebackuped)
+- zum Wiederherstellen die Dateiliste des neuen Pakets nutzen
+- beim Wiederherstellen:
+   gesicherte, alte Liste nehmen:
+         smb.conf wurde nach /etc/smb.conf gesichert
+   neue Liste nehmen: Datei smb.conf, wo muss die hin?
+         smb.conf muss nach /etc/samba.conf 
+
+
+
+Hotline:
+
+Befehl, um integrität von paketen zu zeigen. Am besten mit diff
+
+debsums -a paketname
 
 
 
@@ -22,17 +63,23 @@ kann usb
 
 
 Bug 48:
-
 schulkonsole wird modifiziert
 
 Bug ???:
 
-Links in die Tausch-Verzeichnisse.
+# 64: Links in die Tausch-Verzeichnisse.
 
 tun nicht immer siehe bck. 
 
 /usr/bin/sophomorix-teacher --teacher bz --add m2kk3t 
 works on console for bck
+
+
+
+
+  ? - gilt das nur bei bck
+  ? - geht net groupmap list auf windows client?
+
 
 
 Analyse script erzeugen:
@@ -73,6 +120,11 @@ Bug:
 select * from groups_users where gidnumber=10000;
 
 liefert mehrere administratoren in teachers (10000)
+
+SQL-Befehl um mehfache Einträge in groups_users herauszumachen
+
+siehe:
+select * from  groups_users ;
 
 
 
