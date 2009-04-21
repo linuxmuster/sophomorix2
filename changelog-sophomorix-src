@@ -25,7 +25,6 @@
     - Bugfix: nscd not restarted when running 
               sophomorix-groupdel
 
-
 2.0.4-1 (2008-12-11)
     - added *.mediawiki export when doing
       sophomorix-print --classlist --caller user
@@ -282,7 +281,6 @@
         (was default up to now)
       - updated manpage
 
-
 1.9.30-1 (2007-09-30)
     - updated manpage sophomorix to reflect new path to
       CVS and packages.bszleo.de 
@@ -293,7 +291,6 @@
     - Bugfix: avoid uninitialized value, when calling 
               sophomorix-project -i -p name
               and userlist is longer than project attributes
- 
 
 1.9.29-1 (2007-09-25)
     - looked through the code and added  'hiddenclass'
@@ -392,7 +389,6 @@
     - Bugfix: adding users with gidnumber (instead of name)
       This makes it possible to add users in a group 7 
       But it is recommended NOT to use groupnames like 7
-
 
 1.9.26-1 (2007-07-21)
     - sophomorix-mail: added option --add-mailbox user1,user2,...
@@ -554,7 +550,6 @@
     - integrated scripts of T. Hoth
     - updated manpage and --help od sophomorix-useradd
 
-
 1.9.17-1 (2007-06-11)
     - changing of smbworkgroup changes sambaDomainName in ldap
     - adding localgroups correctly to ldap
@@ -574,7 +569,6 @@
       (was 'unknown'). type 'unknown' is for groups, that exist, but a type 
       could not be defined. 
 
-
 1.9.15-1 (2007-06-03)
     - added empty script sophomorix-groupdel so that workstation import can 
       call it
@@ -587,7 +581,6 @@
     - removed description of option --test from manpages
     - Bugfix: gowner of class share was not class (was domadmins)
 
-
 1.9.14-1 (2007-05-30)
     - added auth_adduser_to_project function
     - changed grouptype from
@@ -595,7 +588,6 @@
     - added stuff to enable users in ldap
     - added stuff to kill users in ldap   
     - added stuff to move users in ldap   
-
 
 1.9.13-1 (2007-05-17)
     - added stuff to add users to seperate ldap
@@ -724,7 +716,6 @@
   - added support for copying remboinit.rbc's (option --mlscripts)
   - changed apt description of sophomorix-vampire
 
-
 1.9.7-1 (2007-01-25)
   - fixed Bug #130 password crypted with CRYPT
   - comment added in sophomorix.conf : /bin/bash and /bin/false
@@ -836,7 +827,6 @@
    - sophomorix-quota -i and manpage:
       - repquota -tsv /dev for a detailed list of quota
 
-
 1.9.2-1 (2006-11-08)
    - added prefixes to __austeilen and _eingesammelt
         use $handoutcopy_string="austeilen-";
@@ -943,7 +933,6 @@
    - Bugfix: sophomorix-check: remove errors when 
              user has no exitadminclass
 
-
 1.8.14-1 (2006-09-27)
    - naming conventions:
        login       without  Ä,ä,Ö,ö,Ü,ü,ß
@@ -980,7 +969,6 @@
    - created function log_script_end
    - make every project begin with p_ (name and longname identical)
    - make every project have 3-14 characters after p_
-   
 
 1.8.11-1  (2006-08-19)
    - sophomorix-quota
@@ -1007,7 +995,6 @@
        existing logins in database
        existing groups in datadase
        manual list in sophomorix-devel.conf
-
 
 1.8.10-1  (2006-08-09)
    - removed all disturbing calls via C-Library and ldap.
@@ -1065,7 +1052,6 @@
    - added option sophpomorix-print --info to print to standard out 
    - added option --teach-in login::identifier to sophomorix-teach-in
 
-
 1.8.8-1  (2006-07-18)
    - repair.directories: make /var/www/people 
      globally usable/unusable
@@ -1087,13 +1073,11 @@
    - updated help and manpage of sophomorix-teacher:
      --showclasses, --showteachers
 
-
 1.8.7-1  (2006-07-15)
    - updated man page of sophomorix-quota
    - Bugfix /var/log/sophomomorix is 0700
    - Bug closed: sophomorix-taecher --collect does nothing
    - Bugfix: __einsammeln not writeable
-
 
 1.8.6-1  (2006-07-12)
    - fixed som permission stuff
@@ -1101,7 +1085,6 @@
    - sophomorix-repair: new option to repair
      .htaccess files in /var/www/people
    - sophomorix-www: show help when options are missing
-
 
 1.8.5-1  (2006-07-11)
    - adding /var/log/sophomorix with root.root 700 to package
@@ -1111,7 +1094,6 @@
      and SophomorixTest.pm
    - missing function loading added in sophomorix-www
    - typo in sophomorix.conf removed
-
 
 1.8.4-1  (2006-07-08)
    - removed package sophomorix-sys-pgldap (not needed anymore)
@@ -1147,7 +1129,6 @@
              teached in (new user connected to old system user)  
    - Bugfix: owner,permissions of collect_dir
 
-
 1.8.2-1  (2006-07-03)
    - changed the test for __einsammeln only
    - removed all subdirs from __einsammeln when creating/resetting a user
@@ -1155,7 +1136,6 @@
      sophomorix-teacher --teacher xxx --handoutcopy 
          --users user1,2,... --fromclass class
      does work now (also: --fromproject project)
-
 
 1.8.1-1  (2006-06-25)
    - updated all scripts to common options 
@@ -1179,7 +1159,6 @@
    - renamed unused functions in SophomorixBase
    - remove dachboden, speicher from fetchadminclasses_from_school
    - removed rest of old kernel_update stuff
-
 
 1.8.0-1  (2006-06-18)
    - romoved bugs from sophomorix-test-bunchofusers
@@ -1229,7 +1208,6 @@
    - renamed account Administrator to administrator
      (Problems with uppercase) 
 
-
 1.7.4-1  (2006-05-21)
    - renamed $handoutcopy_string to $to_handoutcopy_string
    - removed $HOME/windows from tests
@@ -1262,7 +1240,6 @@
              3. student-public-noupload
              4. student-public-upload
           (1. to 4. with group instaead of student)
-
 
 1.7.2-1  (2006-05-11)
    - sophomorix-user: new option --empty-password when resetting account
@@ -1317,8 +1294,6 @@
      --> load always Sophomorix-Pgldap
    - dropped dependency from package: sophomorix-sys-files not needed anymore
 
-
-
 1.7.1-1  (2006-04-19)
    - All tests for handout/collect/tasks are working (Werkvertrag 4) 
    - Bugfix: create_share_link does not create links into subclasses
@@ -1350,7 +1325,6 @@
    - sophomorix-teacher --teacher xx --users user1,usre2,... \ 
      --fromroom --handoutcopy
    works and ist tested
-
 
 1.6.1-1  (2006-04-05)
    - dont create /var/lib/sophomorix/database anymore (tested)
@@ -1458,7 +1432,6 @@
    - option --work in sophomorix-test-bunchofusers to test:
        - distribute Files
 
-
 1.5.8-1 (2006-03-14)
    - added /home/tasks/teachers 
    - sophomorix-class calls sophomorix-mail and
@@ -1519,7 +1492,6 @@
      package installs them in the sophomorix-pgldap package
    - sophomorix-setup-pgldap can list files to upgrade in correct order
    - function  manual_delete_groups (deletes a group altogether from the database)
-
 
 1.5.0-1 (2006-02-23)
    - speeded up function login_type in sophomorix-quota using SQL
@@ -1628,7 +1600,6 @@
 
 
 1.4.6 (2005-12-10)
-
    "Netbios Domain Administrator" is smbroot for now 
     (will probably change to admin)
    
@@ -1673,7 +1644,6 @@
 
 
 1.4.5 (2005-11-16)
-
    - Bug: ids (like 10007) in gid (where names are) -> fixed
    - Bugfix: fetch classlist: new function using pg 
    - added replacements for pgldap for:
@@ -1947,6 +1917,7 @@
    - sophomorix-check with option get-info-from-old-files, that uses data from 
      a previous installation to add users with a former id, gid and login name.
    - option no-kclass disbles removing k from classnames in old group
+
 1.1.6 (2005-01-21)
    - A lot of Bugfixes 
 
