@@ -1,0 +1,29 @@
+#!/usr/bin/perl -w
+# $Id$
+# this script is created by jeffbeck@web.de
+# Licence GPL
+use DBI;
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
+use Sophomorix::SophomorixPgLdap qw(db_disconnect
+                                    db_connect
+                                   );
+
+print "\n2) Hello, sophomorix_2.0.6-2.upgrade recreates ldap\n\n";
+
+sleep 1;
+
+# dumping database to ldap
+system("sophomorix-dump-pg2ldap --skiplock");
+
+sleep 1;
+
+
+
+
+
+
+
+
+

@@ -9,7 +9,7 @@ Standards-Version: 3.5.2
 Package: sophomorix2
 Architecture: all
 Suggests: sophomorix-doc-html
-Depends:  sophomorix-base (>=2.0.6-1), sophomorix-pgldap (>=2.0.6-1)
+Depends:  sophomorix-base (>=2.0.6-2), sophomorix-pgldap (>=2.0.6-2)
 Description: sophomorix user adminitration meta package
  This package contains all the components necessary to add to your
  Debian GNU/Linux box a powerful user administration
@@ -38,7 +38,7 @@ Description: postgresql database with ldap access for sophomorix
 
 Package: sophomorix-vampire
 Architecture: all
-Depends: sophomorix2 (>=2.0.6-1), rsync (>=2.6.3), ssh (>=3.8.1), mailsync
+Depends: sophomorix2 (>=2.0.6-2), rsync (>=2.6.3), ssh (>=3.8.1), mailsync
 Description: script to migrate data from an old server to a new server
  This script is run on a new sophomorix server. It pushes a ssh-key to an 
  old sophomorix-server, fetches its users and data. Perfect for big step 
@@ -49,7 +49,7 @@ Description: script to migrate data from an old server to a new server
 Package: sophomorix-developer
 Architecture: all
 Suggests: perl-doc
-Depends:  sophomorix2 (>=2.0.6-1)
+Depends:  sophomorix2 (>=2.0.6-2)
 Description: Test suite for sophomorix
  Scripts to test sophomorix on a runnig system. These scripts can screw up 
  your server!
