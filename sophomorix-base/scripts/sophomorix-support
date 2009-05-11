@@ -31,6 +31,7 @@ my $timestamp = `date '+%Y-%m-%d_%H-%M'`;
 chomp($timestamp);
 my $treename=$hostname.".".$dnsdomainname."-".$timestamp;
 my $support_tree="${create_dir}/${treename}";
+my $upgrade_path="/var/upgrade/linuxmuster/sophomorix2";
 my $db_dump="${DevelConf::log_pfad}/current-ldap.sql";
 
 
@@ -41,7 +42,10 @@ my $add_files="";
 my @add_files=();
 my $add_dirlists="";
 my @add_dirlists=();
+my $path="";
+my $prepare_dist_upgrade=0;
 my $unlock=0;
+my $zip=1;
 
 # this script skips the lock automatically
 my $skiplock=1;
@@ -53,7 +57,10 @@ my $testopt=GetOptions(
            "info|i" => \$info,
            "add-files=s" => \$add_files,
            "add-dirlists=s" => \$add_dirlists,
+           "path=s" => \$path,
+           "zip!" => \$zip,
            "unlock" => \$unlock,
+           "prepare-dist-upgrade" => \$prepare_dist_upgrade,
           );
 
 if ($add_files ne ""){
@@ -66,6 +73,27 @@ if ($add_dirlists ne ""){
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
+
+
+
+# setting variables
+# --prepare-dist-upgrade
+if ($prepare_dist_upgrade==1){
+    $zip=0;
+    $path=$upgrade_path;
+    if (-e $path){
+        print "Cleaning previous version of prepare-dist-upgrade files\n";
+        system("rm -rf $path");
+    }
+}
+
+# --path
+if ($path ne ""){
+    $support_tree="${path}";
+} else {
+    $support_tree="${create_dir}/${treename}";
+}
+
 
 
 # --help
@@ -83,6 +111,16 @@ Options
   --add-files file1,file2,...        (absolute paths)
   --add-dirlists dir1,dir2,...       (absolute paths)
 
+  --zip   (default)
+  --nozip
+
+  --path /path/to/saved/files
+
+  --prepare-dist-upgrade 
+');
+   print "    (equal to: --nozip --path $upgrade_path)";
+   print('
+
   --unlock
 
 Please see the sophomorix-support(8) man pages for full documentation
@@ -90,6 +128,10 @@ Please see the sophomorix-support(8) man pages for full documentation
    print "\n";
    exit;
 }
+
+
+
+
 
 
 # --info
@@ -170,21 +212,23 @@ close(LOG);
 
 
 # zipping the tree
-&titel("Packaging files in ${support_tree}");
-system("cd $create_dir; zip -r  ./${treename}.zip ./${treename}");
+if ($zip==1) {
+   &titel("Packaging files in ${support_tree}");
+   system("cd $create_dir; zip -r  ./${treename}.zip ./${treename}");
+   &titel("Deleting created tree in ${create_dir}/${treename}");
+   system ("rm -rf ${create_dir}/${treename}");
+   print "\n";
+   &titel("The following file is ready to be sent to the support:");
+   &titel("${create_dir}/${treename}.zip");
+   &titel("WARNING: This file contains sensible data!");
+   &titel("         Do not send unencrypted!");
+}
 
+# cleaning up
 print "\n";
 &titel("Cleaning up ...");
 &titel("Deleting dumped database ${db_dump}");
 system ("rm ${db_dump}");
-&titel("Deleting created tree in ${create_dir}/${treename}");
-system ("rm -rf ${create_dir}/${treename}");
-
-print "\n";
-&titel("The following file is ready to be sent to the support:");
-&titel("${create_dir}/${treename}.zip");
-&titel("WARNING: This file contains sensible data!");
-&titel("         Do not send unencrypted!");
 
 
 &log_script_end(@arguments);

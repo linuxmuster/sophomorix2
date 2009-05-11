@@ -68,6 +68,16 @@ dir1,dir2,dir3,... mit ls -al \
 in die Dateien dir1/ls-al,dir2/ls-al,... \
 Die Dateien dir1/ls-al,dir2/ls-al,... werden zusätzlich eingepackt.
 .TP
+.B \--zip (default)  --nozip
+Packt das erzeugte Verzeichnis oder nicht.
+.TP
+.B \--path /absoluter/pfad/zum/erstellten/verzeichnis
+Gibt an, in welches Verzeichnis die Daten gespeichert werden.
+.TP
+.B \--prepare-dist-upgrade
+Bereitet auf einen dist-upgrade vor. Dazu werden die ungezippten Daten in \
+dem dazu vorgesehenen Verzeichnis gespeichert (Pfad zum Verzeichnis kann mit \
+der option -h angezeigt werden)
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),
