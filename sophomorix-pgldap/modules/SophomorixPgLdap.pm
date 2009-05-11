@@ -805,8 +805,10 @@ sub add_newuser_to_her_projects {
        }
     }
 
+
     # Result
     @memberships = sort @memberships;
+
 
     # Do it!
     print "   Adding user $login to the projects ...\n";
@@ -849,6 +851,9 @@ sub add_newuser_to_her_projects {
     }
     print "... done!\n";
     &db_disconnect($dbh);
+
+    # add primary group to the memberships
+    push @memberships, $adminclass;
 
     # adding user in auth system
     my $group_string=join(",",@memberships);
