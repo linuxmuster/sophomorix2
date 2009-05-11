@@ -2,6 +2,16 @@
 
 ============SOPHOMORIX2 CHANGELOG ====================================
 
+2.0.7-1 (2009-05-xx)
+    - make sophomorix scripts die, when there is nonsense in the configuration 
+      files (makes debugging problems easier)
+    - sophomorix-support
+        - added option --nozip
+        - added option --path /abs/path/to/saved/files
+        - added option --prepare-dist-upgrade
+          (is equal to --nozip --path /var/upgrade/linuxmuster/sophomorix2)
+    - updated man page of sophomorix-support
+
 2.0.6-2 (2009-05-11)
     - added sophomorix-dump-pg2ldap to the post install script
       to correct ldap groups

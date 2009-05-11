@@ -17,29 +17,22 @@ mmba usw checken. Was passiert mit frozen accounts?
 
 einstellungen erscheinungsbild desktopeffekte
 
-sophomorrix.conf:
-
-was passiert wenn syntax fehler drin sind?
-Ziel: Abbruch wenn sie nicht bis zum Ende fehlerfrei durchläuft
-
 
 
 Dist-Upgrade auf ubuntu server 8.04: # 89 (Eigenes Ticket # 90)
 
-Wohin soll gesichert werden:
+Sichern von notwendigen Dateien:
 
-/var/upgrade/linuxmuster/<paketname>
-
-Pfad wohin, soll per parameter änderbar sein.
---prepare-dist-upgrade
+   OK: sophomorix-support --nozip --path /path/to/dir
+   OK: --prepare-dist-upgrade
+         like above, saves to /var/upgrade/linuxmuster/<paketname>
+         where <paketname> is sophomorix2
+TODO:
 --do-dist-upgrade
-
-- schauen, ob sophomorix-support das schon kann
-  -- option --bzip zum packen (oder nicht)
+   
 
 alternative Pfade angeben:
 /etc/smb.conf::/etc/samba/smb.conf
-
 
 - falls beide existieren -> eine muss gelöscht werden
 - Dateiliste mitsichern (da sind die Konfigs gebackuped)
