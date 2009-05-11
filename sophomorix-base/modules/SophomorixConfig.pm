@@ -26,7 +26,9 @@ if (not -e $conf){
 }
 
 # Einlesen der Konfigurationsdatei
-{ package Conf ; do "$conf"}
+{ package Conf ; do "$conf" 
+  || die "Fehler: sophomorix.conf could not be processed (syntax error?)\n" 
+}
 # Die in sophomorix.conf als global (ohne my) deklarierten Variablen
 # können nun mit $Conf::Variablenname angesprochen werden
 
@@ -45,7 +47,9 @@ if (not -e $develconf){
 }
 
 # Einlesen der Konfigurationsdatei für Entwickler
-{ package DevelConf ; do "$develconf"}
+{ package DevelConf ; do "$develconf"
+  || die "Fehler: sophomorix-devel.conf could not be processed (syntax error?)\n" 
+}
 
 
 
