@@ -23,6 +23,7 @@ my @arguments = @ARGV;
 #my $gruppe="";
 
 my $repairhome=0;
+my $repairlinks="";
 
 my $help=0;
 my $info=0;
@@ -62,6 +63,7 @@ my $testopt=GetOptions(
            "htaccess" => \$htaccess,
            "command-number=n" => \$command_number,
            "repairhome" => \$repairhome,
+           "repairlinks=s" => \$repairlinks,
            "skiplock" => \$skiplock,
            "file|f=s" => \$filename,
            "user|u=s" => \$login,
@@ -77,7 +79,8 @@ my $testopt=GetOptions(
 if ($dateirechte==0 
     and $htaccess==0
     and $info==0
-    and $repairhome==0) {
+    and $repairhome==0
+    and $repairlinks eq "") {
    # Es muss eine Option angegeben werden, sonst hilfe
    $help=1;
 }
@@ -249,6 +252,83 @@ if ($repairhome==1){
         print "Repairing \$HOME of $user\n";
         &repair_repairhome($user);
     }
+}
+
+# --repairhome type
+if ($repairlinks ne ""){
+    my $login = $repairlinks;
+    my ($home) = &fetchdata_from_account($login);
+    my $share_dir=$home."/".$Language::share_dir;
+    my %share_dirs=();
+    my $exists_string="Exists";
+    print "-----------------------------------------------------------------------\n";
+    print "Analyzing links of $login in $share_dir\n";
+    print "-----------------------------------------------------------------------\n";
+    opendir DIR, $share_dir or die "Cannot open $share_dir: $!";
+    foreach my $file (readdir DIR) {
+        if ($file eq "." or $file eq ".."){
+	    next;
+        }
+        print "   Share Links: $file";
+        # remove string, so that the class is shown
+        $file =~ s/$Language::share_string//;
+        $share_dirs{$file}=$exists_string;
+        print " ($file)\n";
+    }
+    closedir DIR;
+
+    print "-----------------------------------------------------------------------\n";
+    print "Class          |SHARE| \n";
+    print "-----------------------------------------------------------------------\n";
+    my @classes=&fetch_my_adminclasses($login);
+    @classes = sort @classes;
+    foreach my $class (@classes){
+        my $share_link_ok=0;
+        if (exists $share_dirs{$class}){
+            $share_link_ok=1;
+            $share_dirs{$class}="Good";
+        }
+        printf "%-17s %-5s \n",$class,$share_link_ok;
+    }
+
+    # set all Standard Links to Good
+    $share_dirs{$Language::school}="Good";
+    $share_dirs{$Language::teacher}="Good";
+    # check, if the remaining files are projects
+    print "-----------------------------------------------------------------------\n";
+    print "Project        |SHARE| \n";
+    print "-----------------------------------------------------------------------\n";
+    while( my ($k, $v) = each(%share_dirs) ) {
+        my $correct=0;
+	if ($v eq $exists_string){
+            # check if  user is in project correctly
+	    my @users=&fetchusers_from_project($k);
+            foreach my $user (@users){
+                if ($login eq $user){
+                   # That is OK
+		    $correct=1;
+                }
+            }
+            printf "%-17s %-5s \n",$k,$correct;
+        }
+     }
+    print "-----------------------------------------------------------------------\n";
+
+    print "-----------------------------------------------------------------------\n";
+    print "Gruppe      |SHARE| \n";
+    print "-----------------------------------------------------------------------\n";
+    my @group_list=&Sophomorix::SophomorixPgLdap::pg_get_group_list($login);
+    foreach my $group (@group_list){
+        printf "%-17s ",$group;
+        if ($group eq $DevelConf::teacher){
+            print "not checked\n";
+        } elsif (exists $share_dirs{$group}){
+            print "OK\n";
+        } else {
+            print "---\n";
+        }
+    }
+
 }
 
 
