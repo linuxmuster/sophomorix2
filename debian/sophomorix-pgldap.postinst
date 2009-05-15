@@ -66,6 +66,17 @@ echo "Parameter 5: $5"
 
 case "$1" in
     configure)
+    # checking for linuxmuster 
+    if [ -e /usr/share/linuxmuster/config/dist.conf ]; then 
+        echo "Hmm, I'm running on linuxmuster ..." 
+ 	. /usr/share/linuxmuster/config/dist.conf 
+ 	if [ ! -e "$INSTALLED" ]; then 
+ 	    echo "Linuxmuster is not yet configured." 
+ 	    echo "Therefore I'm skipping package configuration." 
+ 	    exit 0 
+ 	fi 
+    fi 
+
     # calling the setup-script of sophomorix to create a new database
     echo "calling sophomorix-setup-pgldap --slapd-standalone --oldversion $old_version --newversion $new_version"
     sophomorix-setup-pgldap --slapd-standalone --oldversion "$old_version" --newversion "$new_version"
