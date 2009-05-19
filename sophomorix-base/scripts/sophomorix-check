@@ -256,6 +256,7 @@ my $feld_klasse_leer=0;
 my $feld_nachname_leer=0;
 my $feld_vorname_leer=0;
 my $feld_geburt_leer=0;
+my $feld_geburt_chars_error=0;
 # Unerlaubte Zeichen
 my $klasse_unerlaubtes_zeichen=0;
 my $nachname_unerlaubtes_zeichen=0;
@@ -273,6 +274,7 @@ my $feld_klasse_leer_anzahl=0;
 my $feld_nachname_leer_anzahl=0;
 my $feld_vorname_leer_anzahl=0;
 my $feld_geburt_leer_anzahl=0;
+my $feld_geburt_chars_error_anzahl=0;
 my $klasse_unerlaubtes_zeichen_anzahl=0;
 my $nachname_unerlaubtes_zeichen_anzahl=0;
 my $vorname_unerlaubtes_zeichen_anzahl=0;
@@ -697,6 +699,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
        $feld_nachname_leer=0;
        $feld_vorname_leer=0;
        $feld_geburt_leer=0;
+       $feld_geburt_chars_error=0;
 
        $klasse_unerlaubtes_zeichen=0;
        $nachname_unerlaubtes_zeichen=0;
@@ -883,6 +886,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
          +$feld_nachname_leer
          +$feld_vorname_leer
          +$feld_geburt_leer
+         +$feld_geburt_chars_error
          +$klasse_unerlaubtes_zeichen
          +$nachname_unerlaubtes_zeichen
          +$vorname_unerlaubtes_zeichen
@@ -1963,6 +1967,9 @@ sub syntax_check_entry {
        # empty, dont check for other errors
        $feld_geburt_leer=1
     } elsif ($birthdate=~/[^0-9\.]/)  {
+print "Wrong character\n";
+       # birtdate contains characters other than 0-9 and .
+       $feld_geburt_chars_error=1;
     } else {
        # check if date exists
        # return 1 when valid
@@ -2706,6 +2713,11 @@ sub report_error {
 	print "   - Feld Geburtsdatum ist leer\n";
 	$feld_geburt_leer_anzahl++;
     };
+    if ($feld_geburt_chars_error==1){
+	print REPORTSEKRETARIAT "   - Feld Geburtsdatum hat unerlaubte Zeichen\n";
+	print "   - Feld Geburtsdatum hat unerlaubte Zeichen\n";
+	$feld_geburt_chars_error_anzahl++;
+    };
     if ($klasse_unerlaubtes_zeichen==1){
 	print REPORTSEKRETARIAT "   - Unerlaubtes Zeichen in der Klasse\n";
 	print "   - Unerlaubtes Zeichen in Klasse\n";
@@ -2841,6 +2853,9 @@ sub generate_admin_report {
     printf REPORTADMIN "%-50s:%6s\n", 
                        "  Leeres Feld Geburtsdatum", 
                        $feld_geburt_leer_anzahl;
+    printf REPORTADMIN "%-50s:%6s\n", 
+                       "  Unerlaubte Zeichen in Geburtsdatum", 
+                       $feld_geburt_chars_error_anzahl;
     printf REPORTADMIN "%-50s:%6s\n", 
                        "  Unerlaubtes Zeichen in der Klasse", 
                        $klasse_unerlaubtes_zeichen_anzahl;
