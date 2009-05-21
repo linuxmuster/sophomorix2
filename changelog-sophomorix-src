@@ -2,7 +2,15 @@
 
 ============SOPHOMORIX2 CHANGELOG ====================================
 
-2.0.7-1 (2009-05-xx)
+2.0.7-1 (2009-05-21)
+    - added dependency from texlive-latex-recommended (trac: # 101)
+    - fixed installation Bug (trac: #96) when installed with CD on a 
+      linuxmuster system
+    - sophomorix-check
+      throw error when there are bad characters in the birthdate (trac: #100) 
+      (only 0-9 and . are allowed)
+    - sophomorix-repair --repairlinks user
+      analyses the links of a user (just for debugging, nothing is fixed)
     - make sophomorix scripts die, when there is nonsense in the configuration 
       files (makes debugging problems easier)
     - sophomorix-support
