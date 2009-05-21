@@ -721,7 +721,7 @@ sub fetch_smb_conf {
         if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
         if(/^\;/){next;} # Bei Kommentarzeichen aussteigen
         #print $_,"\n";
-        if (/^\[([a-z]+)\]/){
+        if (/^\[([A-Za-z_-]+)\]/){
             #print "Share $1\n";
             $current_share=$1
 	} else {
