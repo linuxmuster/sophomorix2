@@ -5,14 +5,19 @@ Next
 ############################################################
 
 
-Was passiert bei Einträgen der Art:
+$HOME des schulkonsole root scheint / zu sein
+-> eigenes home? /root als home?
 
-05D;Diallo;Youssouf;105D.01.1998;
-05D;Klein;Alicia Linda;105D.005D.1998;
 
-(Geburtsdatum falsch)
+user teilweise anlegen (Datum passt nicht in postgres)
+dann die löschfunkton testen. Sollte weitermachen und möglichst nicht abbrechen
 
-siehe Mail Aloius Raunheimer.
+Paket-Abhängigkeiten (latex):
+
+Alt:                   Neu (ubuntu 904 server, lenny)
+tetex-base            
+tetex-bin
+tetex-extra
 
 
 SophomorixBase, Zeile 1113 (Dateiversion 1.295):
@@ -20,6 +25,10 @@ SophomorixBase, Zeile 1113 (Dateiversion 1.295):
 if ($owner eq "$login") {
 
 führt zu undefined Value beim Versetzen.
+Konnte nicht nachvollzogen werden
+Liegt vielleicht daran, dass der user eine 'komische datei' 
+(Leerzeichen, Schlange, ...) in ein Tauschveruzeichnis gestellt hatte und 
+deshalb nicht der owner ermittelt werden kann.
 
 
 lehrer.txt:
@@ -38,6 +47,12 @@ einstellungen erscheinungsbild desktopeffekte
 
 
 Dist-Upgrade auf ubuntu server 8.04: # 89 (Eigenes Ticket # 90)
+
+postgresql: 
+
+Abhängigkeiten:
+etch:           postgresql-8.1(>=8.1), postgresql(>=7.4.7)
+ubuntu 9.0.4:    
 
 Sichern von notwendigen Dateien:
 
