@@ -37,6 +37,18 @@ Description: postgresql database with ldap access for sophomorix
  Database module to store the Sophomorix database in postgresql and make 
  the database available in openldap.
 
+# for ubuntu 9.04
+#Package: sophomorix-pgldap
+#Architecture: all
+#Suggests: sophomorix-doc-html
+#Pre-Depends: postgresql , slapd
+#Depends:  sophomorix-base, libpam-ldap, ldap-utils, libnss-ldap, odbc-postgresql, unixodbc, libiodbc2, iodbc, smbldap-tools, libcrypt-smbhash-perl, libdbd-pg-perl 
+#Provides: sophomorix-db
+#Description: postgresql database with ldap access for sophomorix
+# Database module to store the Sophomorix database in postgresql and make 
+# the database available in openldap.
+
+
 Package: sophomorix-vampire
 Architecture: all
 Depends: sophomorix2 (>=2.0.8-1), rsync (>=2.6.3), ssh (>=3.8.1), mailsync
