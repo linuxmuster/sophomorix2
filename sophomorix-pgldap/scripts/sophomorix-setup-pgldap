@@ -755,7 +755,7 @@ if ($deb_version eq "5.0"){
     system("rm -rf $slapd_d_bak");
     system("mv $slapd_d $slapd_d_bak");
     system("mkdir $slapd_d ");
-    system("slaptest -f -f $slapd_conf -F $slapd_d ");
+    system("slaptest -f $slapd_conf -F $slapd_d ");
     system("chown -R openldap.openldap $slapd_d ");
 }
 
@@ -1948,12 +1948,22 @@ sub fix_pg_ports {
     &get_pg_server_version("5433");
 
     # stopping
-    my $command="/etc/init.d/postgresql-7.4 stop";
-    print "$command \n";
-    system($command);
-    $command="/etc/init.d/postgresql-8.1 stop";
-    print "$command \n";
-    system($command);
+    my $command="";
+    if (-e "/etc/init.d/postgresql-7.4"){
+        $command="/etc/init.d/postgresql-7.4 stop";
+        print "$command \n";
+        system($command);
+    }
+    if (-e "/etc/init.d/postgresql-8.1"){
+        $command="/etc/init.d/postgresql-8.1 stop";
+        print "$command \n";
+        system($command);
+    }
+    if (-e "/etc/init.d/postgresql-8.3"){
+        $command="/etc/init.d/postgresql-8.3 stop";
+        print "$command \n";
+        system($command);
+    }
 
     # patching 7.4
     my $conf="/etc/postgresql/7.4/main/postgresql.conf";
@@ -1980,12 +1990,21 @@ sub fix_pg_ports {
         system("cp $patch $conf");
     }
     # starting
-    $command="/etc/init.d/postgresql-7.4 start";
-    print "$command \n";
-    system($command);
-    $command="/etc/init.d/postgresql-8.1 start";
-    print "$command \n";
-    system($command);
+    if (-e "/etc/init.d/postgresql-7.4"){
+        $command="/etc/init.d/postgresql-7.4 start";
+        print "$command \n";
+        system($command);
+    }
+    if (-e "/etc/init.d/postgresql-8.1"){
+        $command="/etc/init.d/postgresql-8.1 start";
+        print "$command \n";
+        system($command);
+    }
+    if (-e "/etc/init.d/postgresql-8.3"){
+        $command="/etc/init.d/postgresql-8.3 start";
+        print "$command \n";
+        system($command);
+    }
 
     # check
     &get_pg_server_version("5432");
