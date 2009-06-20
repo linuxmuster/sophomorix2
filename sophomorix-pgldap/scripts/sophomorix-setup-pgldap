@@ -638,6 +638,8 @@ my $template=${DevelConf::config_template_pfad};
 my $ldap_args_dir="/var/run/slapd";
 my $ldap_conf="/etc/ldap/ldap.conf";
 my $slapd_conf="/etc/ldap/slapd.conf";
+my $slapd_d="/etc/ldap/slapd.d";
+my $slapd_d_bak="/etc/ldap/slapd.d_backup";
 my $default_slapd="/etc/default/slapd";
 my $smbldap_conf="/etc/smbldap-tools/smbldap.conf";
 my $ldap_secret="/etc/ldap.secret";
@@ -746,6 +748,18 @@ if ($slapd_standalone==1){
 } else { 
    system("sed $replace ${template}/ldap/slapd.conf.template > $slapd_conf");
 } 
+
+# activate slapd.conf in ubuntu 8.10 or later see wiki.ubuntuusers.de/OpenLDAP
+if ($deb_version eq "5.0"){
+    # lenny/ubuntu jaunty
+    system("rm -rf $slapd_d_bak");
+    system("mv $slapd_d $slapd_d_bak");
+    system("mkdir $slapd_d ");
+    system("slaptest -f -f $slapd_conf -F $slapd_d ");
+    system("chown -R openldap.openldap $slapd_d ");
+}
+
+
 
 system("sed $replace ${template}/ldap/slapd.template > $default_slapd"); 
 system("sed $replace ${template}/ldap/smbldap.conf.template > $smbldap_conf"); 
@@ -1003,6 +1017,9 @@ if (-e "/etc/init.d/postgresql-7.4"){
 }
 if (-e "/etc/init.d/postgresql-8.1"){
     system("/etc/init.d/postgresql-8.1 start");
+}
+if (-e "/etc/init.d/postgresql-8.3"){
+    system("/etc/init.d/postgresql-8.3 start");
 }
 
 # check which postgres is running on which port
