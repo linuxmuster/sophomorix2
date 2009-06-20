@@ -113,6 +113,10 @@ deb:
 	@echo ''
 	@echo 'Do not forget to tag this version in cvs'
 	@echo ''
+ubuntu:
+	### Prepare to build an ubuntu package with 'make deb'
+	cp sophomorix-pgldap/config-pg/sophomorix-admin.sql.ubuntu sophomorix-pgldap/config-pg/sophomorix-admin.sql
+	cp debian/control.ubuntu debian/control
 
 
 clean: clean-doc clean-debian
