@@ -33,11 +33,11 @@ Description: scripts for sophomorix
  database (i.e. sophomorix-pgldap)
 
 
-# for Debian etch
+# for Debian ubuntu
 Package: sophomorix-pgldap
 Architecture: all
 Suggests: sophomorix-doc-html
-Pre-Depends: postgresql-8.1 (>=8.1), postgresql (>=7.4.7), slapd (>=2.3.29)
+Pre-Depends: postgresql, slapd (>=2.3.29)
 Depends:  sophomorix-base, libpam-ldap (>=178), ldap-utils (>=2.3.29), libnss-ldap (>=238), odbc-postgresql, unixodbc (>=2.2.4), libiodbc2 (>=3.52.2), iodbc (>=3.52.2), smbldap-tools (>=0.8.7), libcrypt-smbhash-perl (>=0.02), libdbd-pg-perl (>=1.41) 
 Provides: sophomorix-db
 Description: postgresql database with ldap access for sophomorix
