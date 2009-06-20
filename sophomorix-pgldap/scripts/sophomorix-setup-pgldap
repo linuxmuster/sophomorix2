@@ -788,6 +788,11 @@ if ($deb_version eq "3.1"){
    $postgres_conf_dir="/etc/postgresql/8.1/main";
    $postgres_init_script="/etc/init.d/postgresql-8.1";
    $psql="/usr/lib/postgresql/8.1/bin/psql";
+} elsif ($deb_version eq "5.0"){
+   # lenny/ubuntu jaunty
+   $postgres_conf_dir="/etc/postgresql/8.3/main";
+   $postgres_init_script="/etc/init.d/postgresql-8.3";
+   $psql="/usr/lib/postgresql/8.3/bin/psql";
 } else {
     &log_script_exit("Debian Version $deb_version is not supported",
                      1,1,0,@arguments);
