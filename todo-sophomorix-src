@@ -4,8 +4,74 @@
 Next
 ############################################################
 
+ubuntu Paket:
+
+Probleme:
+A) postgres 8.3 verlangt encoding system UTF8 statt LATIN9
+B) NEU: einlesen von slapd.conf wie in http://wiki.ubuntuusers.de/OpenLDAP beschrieben
+   slaptest führt zu Fehlern bei:
+      schemacheck on
+      checkpoint 512 30
+      dbcachesize 1000000
+
+C) user aus ldap sind nicht sichtbar (id ...)
+D) wenn sophomorix-setup-pgldap aufgerufen wird wird postgres 
+   von 7.4 auf 8.1 upgegraded. Mist
 
 
+
+1)
+2) ldap wird nicht mit usern gefüllt
+   Testen:
+     lsof -a -i TCP:389 -c slapd
+
+     liefert Ergebnis ...
+
+3) root@ubuntu904server:~# nmap localhost | grep ldap
+   Warning: Hostname localhost resolves to 2 IPs. Using 127.0.0.1.
+   389/tcp  open  ldap
+
+4) slappasswd wird nicht genutzt
+
+5) Verzeichnis /etc/ldap/slapd.d sichern und leer neu anlegen
+   chown -R openldap:openldap /etc/ldap/slapd.d
+   slaptest -f slapd.conf -F slapd.d
+   ...> liefert 3 Fehler, Zeilen auskommentiert
+    schemacheck on
+
+
+6) folgende ldif laden mit: ldapadd -x -h localhost -W -D cn=admin,dc=linuxmuster,dc=de -f base.ldif
+
+dn:dc=linuxmuster,dc=de
+objectClass: dcObject
+objectClass: organization
+o: linuxmuster
+dc: linuxmuster
+
+dn:cn=admin,dc=linuxmuster,dc=de
+objectClass: organizationalRole
+cn: admin
+
+
+7) Connection with luma:
+
+    server:389
+
+    Authentifizierung:
+    simple
+    cn=admin,dc=linuxmuster,dc=de   (Bind as ...)
+    *********                       (from /etc/ldap.secret)
+
+
+8) ldapsearch -x  (tut nur, wenn slapd läuft)
+
+
+to vm's:
+
+1) root Passwort: passwd
+2) vmware tools
+3) sources.list:
+   deb http://172.16.61.1/debian/dists/jaunty/main/binary-i386 ./
 
 $HOME des schulkonsole root scheint / zu sein
 -> eigenes home? /root als home?
