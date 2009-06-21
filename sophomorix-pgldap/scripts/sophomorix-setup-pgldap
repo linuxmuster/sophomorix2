@@ -749,6 +749,7 @@ if ($slapd_standalone==1){
    system("sed $replace ${template}/ldap/slapd.conf.template > $slapd_conf");
 } 
 
+
 # activate slapd.conf in ubuntu 8.10 or later see wiki.ubuntuusers.de/OpenLDAP
 if ($deb_version eq "5.0"){
     # lenny/ubuntu jaunty
@@ -758,7 +759,6 @@ if ($deb_version eq "5.0"){
     system("slaptest -f $slapd_conf -F $slapd_d ");
     system("chown -R openldap.openldap $slapd_d ");
 }
-
 
 
 system("sed $replace ${template}/ldap/slapd.template > $default_slapd"); 
@@ -1873,6 +1873,10 @@ sub get_pg_server_version {
 
 
 sub fix_pg_ports_old {
+    if ($deb_version eq "5.0"){
+        print "Debian $deb_version: No port fixing required\n";
+        return;
+    }
     print "\nMake sure new Postgres runs on standard port 5432\n";
     # which postgres runs on 5432
     my $pg_version =  &get_pg_server_version("5432");
