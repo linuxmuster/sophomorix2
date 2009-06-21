@@ -83,13 +83,16 @@ access to *
 # Specific Directives for database #1, of type sql:
 # Database specific directives apply to this databasse until another
 # 'database' directive occurs
+
+#old: database        bdb
 database        bdb
 
 #LDAP Suffix 
 suffix          "@@basedn@@"
 
 #LDAP Aadmin
-rootdn          "cn=admin,@@basedn@@"
+#old: rootdn          "cn=admin,@@basedn@@"
+rootdn          "cn=admin,cn=config"
 rootpw          @@ldappassword@@
 
 # Save the time that the entry gets modified, for database #1
