@@ -750,16 +750,6 @@ if ($slapd_standalone==1){
 } 
 
 
-# activate slapd.conf in ubuntu 8.10 or later see wiki.ubuntuusers.de/OpenLDAP
-if ($deb_version eq "5.0"){
-    # lenny/ubuntu jaunty
-    system("rm -rf $slapd_d_bak");
-    system("mv $slapd_d $slapd_d_bak");
-    system("mkdir $slapd_d ");
-    system("slaptest -f $slapd_conf -F $slapd_d ");
-    system("chown -R openldap.openldap $slapd_d ");
-}
-
 
 system("sed $replace ${template}/ldap/slapd.template > $default_slapd"); 
 system("sed $replace ${template}/ldap/smbldap.conf.template > $smbldap_conf"); 
@@ -772,6 +762,16 @@ system("sed $replace ${template}/ldap/standalone.ldif.template > $ldif_local");
 # slapd starts
 if (not -e $DevelConf::slapd_custom_file){
     system("cp $DevelConf::slapd_custom_template $DevelConf::slapd_custom_file");
+}
+
+# activate slapd.conf in ubuntu 8.10 or later see wiki.ubuntuusers.de/OpenLDAP
+if ($deb_version eq "5.0"){
+    # lenny/ubuntu jaunty
+    system("rm -rf $slapd_d_bak");
+    system("mv $slapd_d $slapd_d_bak");
+    system("mkdir $slapd_d ");
+    system("slaptest -f $slapd_conf -F $slapd_d ");
+    system("chown -R openldap:openldap $slapd_d ");
 }
 
 
