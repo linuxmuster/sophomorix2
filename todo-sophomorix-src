@@ -95,6 +95,80 @@ Die Datei /etc/lsb-release, in der dieselben Infos stehen, ist im Paket base-fil
 Vorschlag: output von lsb_release -a nehmen
 
 
+
+Feature Request: 
+########################
+user disablen für eine bestimmte Zeit.
+
+
+> ich wünsche mir aber immer noch ein einfach zu bedienendes feature um schüler für eine bestimmte zeit aus dem netz auszuschliessen.
+>
+> sophomorix-user -F ist ja schon mal ein guter anfang. das reaktivieren ist allerdings etwas schwieriger.
+
+Weshalb ist denn da reaktivieren schwieriger?
+
+geht denn sophomorix-user -A nicht?
+
+
+>
+>
+> wie wäre denn sowas wie:
+>
+> sophomorix-user -Z user TIME (DD-MM-YYYY oder +90days)
+>
+> in der zeit sollte sich der user nicht einloggen dürfen, aber eine ldap anfrage sollte positiv sein (wir benutzen z.b. ldap über unser moodle von belwue aus).
+>
+Nicht einloggen ist ja das vorgesehene.
+Leider weiss ich nicht wie das mit moodle und belwue geht.
+Eigentlich sollte das mit der ldap Anfrage gehen, es wird ja lediglich der login disabled.
+
+
+Als workaround könnte man das automatische wiederaktivieren mit dem Befehl 'at' machen.
+
+Gruß, Rüdiger Beck
+> spitzenklasse wäre auch eine integration in der schulkonsole für den administrator. sie könnte vielleicht so aussehen.
+>
+>
+>
+> user suspendieren:
+>
+> [       ] name  [   ] tage    [X] dauerhaft
+>
+> [user jetzt suspendieren]
+>
+> -------------------------------------------
+> suspendierten user        restzeit in tagen
+>
+> xxxxxxxxxxxxxxx      [ ]           x
+> yyyyyyyyyyyyyyy      [ ]           y
+> ...
+>
+> [markierte user sofort reaktivieren] 
+
+
+IDEE: -S suspend --startdate 01-01-2009 --stopdate 03-04-2010 
+  -> status S
+cronjob schaut , welcher user ein S als status hat
+--> neues Feld in der Datenbank:
+ScheduledActivation
+
+wenn die zeit gekommen ist, dann reaktivieren
+
+
+
+   ScheduledDectivation (gestern, heute, in zukunft)
+      - wenn startdate gestern, heute oder früher: sofort deaktvieren
+      - ansonst in Zukunft per cronjob deaktivieren lassen
+   ScheduledActivation
+      - per cronjob
+
+
+
+
+
+
+
+
 SophomorixBase, Zeile 1113 (Dateiversion 1.295):
 
 if ($owner eq "$login") {
@@ -2772,6 +2846,10 @@ A) boolean switch for 'show the mailist' or not
 show means: send monthly mail with maillists/ show maillists on schulkonsole
 
 B) comment for maillist 'Verteiler fÃ¼r Abteilung 5'
+
+C) Fields for suspending accounts
+   ScheduledDectivation (gestern, heute, in zukunft)
+   ScheduledActivation
 
 
 ###############################################################################
