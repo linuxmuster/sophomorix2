@@ -3731,6 +3731,7 @@ sub filter_school_admin_software {
 
       # ß umwandeln
       $line=~s/á/ß/g;
+      $line=~s/\303/ss/g;
       # Sonderzeichen wegfallenlassen
       # Minus streichen
 #      $line=~s/-//g;
