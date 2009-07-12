@@ -3169,7 +3169,7 @@ sub archive_log_entry {
 	   print "  Archiving log of user $line[2]\n";
     	   print ARCHIVE "$_\n";
         } else {
-	   print "  $line[2] not ready for archive.\n";
+	   print "  Log of user $line[2] not ready for archive.\n";
     	   print TMPLOG "$_\n";
         }
 
