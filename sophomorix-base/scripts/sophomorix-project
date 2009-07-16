@@ -25,6 +25,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     show_project_list
                                     show_project_admin_list
                                     show_project
+                                    show_project_userinfo
                                     dump_all_projects
                                     create_project
                                     remove_project
@@ -59,6 +60,7 @@ $Conf::log_level=1;
 my $help=0;
 my $tree=0;
 my $info=0;
+my $user_info=0;
 my $admininfo=0;
 my $create=0;
 my $kill=0;
@@ -110,6 +112,7 @@ my @addorder_list=();   # order in which projects have to be added
 my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
+           "user|user-info|u" => \$user_info,
            "admininfo" => \$admininfo,
            "create" => \$create,
            "kill" => \$kill,
@@ -196,6 +199,7 @@ Options
   -v  / --verbose
   -vv / --verbose --verbose
   -i  / --info
+  -u  / --user / --user-info
   --admininfo
   --tree
   -i -p projectname
@@ -552,6 +556,13 @@ if (defined $project) {
 # --info --project name
 if ($project ne "" and $info==1){
     &show_project($project);
+    &log_script_exit("Project $project showed!",
+                      1,1,0,@arguments);
+}
+
+# --user-info --project name
+if ($project ne "" and $user_info==1){
+    &show_project_userinfo($project);
     &log_script_exit("Project $project showed!",
                       1,1,0,@arguments);
 }

@@ -82,6 +82,7 @@ require Exporter;
              fetch_used_subclasses
              show_subclass_list
              show_project
+             show_project_userinfo
              dump_all_projects
              show_room_list
              get_smb_sid
@@ -5358,10 +5359,45 @@ sub show_project {
     if($Conf::log_level>=2){
        # show all members, not admins (admins are shown earlier)
        @user = sort @user;
-       &Sophomorix::SophomorixBase::print_list_column(4,
-          "All Members  from $project",@user);
+       foreach my $user (@user){
+           my ($home,$type,$gecos,$group,$uidnumber,$sambahomepath,
+               $firstpassword,$sambaacctflags) = &fetchdata_from_account($user);
+           printf "|%-8s| %-22s|%-10s |\n",$user,$gecos, $type;
+       }
     }
 }
+
+
+sub show_project_userinfo {
+    my ($project) = @_;
+    my @user=&fetchmembers_from_project($project);
+    my @adm=&fetchadmins_from_project($project);
+    my @all_users=(@adm,@user);
+    my $all_users=$#all_users+1;
+
+   @user = sort @user;
+    print "+--------+---------------------------+",
+          "-----------+-------------------------+\n";
+    printf "|%-8s  %-26s  %-10s  %-24s|\n","Projekt",$project,"","";
+    print "+                                     ",
+          "                                     +\n";
+    printf "|%-8s| %-26s| %-10s| %-24s|\n","Login","Gecos","Typ","";
+
+    print "+--------+---------------------------+",
+          "-----------+-------------------------+\n";
+
+   foreach my $user (@user){
+       my ($home,$type,$gecos,$group,$uidnumber,$sambahomepath,
+           $firstpassword,$sambaacctflags) = &fetchdata_from_account($user);
+       printf "|%-8s| %-26s| %-10s| %-24s|\n",$user,$gecos, $type,"";
+   }
+    print "+--------+---------------------------+",
+          "-----------+-------------------------+\n";
+    printf "|%-8s| %-26s| %-10s| %-24s|\n","","$all_users users","","";
+    print "+--------+---------------------------+",
+          "-----------+-------------------------+\n";
+}
+
 
 
 
