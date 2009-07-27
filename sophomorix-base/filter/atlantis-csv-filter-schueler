@@ -45,6 +45,7 @@
 # value: max allowed number
 my %semicolons_allowed = qw(
     291     3500
+    292     2
 );
 
 
@@ -102,7 +103,7 @@ my %header=();
 my $line_num=0;
 while (<SOURCE>){
     chomp();
-    my @line=split(";");
+    my @line=split("\";\"");
     pop @line;
     my $field_num=0;
 
@@ -249,8 +250,8 @@ if ($error==0){
 
 sub format_field {
     my ($string) = @_;
-    $string=~s/^"//;
-    $string=~s/"$//;
+#    $string=~s/^"//;
+#    $string=~s/"$//;
     $string=~s/^ //;
     $string=~s/ $//;
     return $string;
