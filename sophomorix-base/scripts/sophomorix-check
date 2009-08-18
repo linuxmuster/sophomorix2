@@ -505,7 +505,7 @@ if ($Conf::filter_script eq ""){
                   "    ${Conf::filter_script}\n",
                   "ended with errors($filter_return)\n\n";
             print "I do not continue!\n\n";
-            &log_script_exit("",1,1,0,@arguments);
+            &log_script_exit("",201,1,0,@arguments);
         }
     } else {
         &log_script_exit("",200,1,0,@arguments);
@@ -669,7 +669,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
 
    # exit if filterscript does not create schueler.txt.tmp
    if (not -e ${DevelConf::schueler_datei} and $Conf::filter_script ne ""){
-       &log_script_exit("ERROR: Filterscript $Conf::filter_script doesnt create ${schuelerdatei}",1,1,0,@arguments);
+       &log_script_exit("ERROR: Filterscript $Conf::filter_script doesnt create ${schuelerdatei}",202,1,0,@arguments);
    }
 
    open(USERDATEI, "${schuelerdatei}") || 
