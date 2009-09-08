@@ -24,6 +24,25 @@ Kann es sein, dass $strichpunkt_anzahl vielmehr $number sein müsste?
 
 
 
+nachdem ich heute einige User aus dem System mit sophomorix-kill
+entfernte, viel mir auf, dass die zugehörigen
+Klassentauschverzeichnisse verschwunden waren.
+Nach einem kurzen Blick in den Quellcode fielen mir folgende Zeilen
+(um Zeile 404) auf:
+
+          # Klassentauschverzeichnis lï¿½schen, falls leer
+          # (Ist normalerweise nicht Leer)
+          "rmdir --ignore-fail-on-non-empty
+${DevelConf::share_classes}/$linux_gruppe_to_kill > /dev/null"
+
+Kann es sein, dass dies falsch ist? Weil wenn aus der Klasse noch nie
+ein Schüler in das Tauschverzeichnis schrieb, wird es ja gelöscht?
+
+Viele Grüße,
+
+
+
+
 Unknown Error 1 in errors.lang". 
 
 
@@ -411,7 +430,14 @@ octal dumper:
 Bugfix: sophomorix-quota
 
 
-grep 'string in line' schueler.txt | od -c
+grep 'string in line' schueler.txt > log1
+grep 'string in line' schueler.txt | od -c > log1
+
+
+wobei 'string in linie' die Zeile des problematischen 
+Schülers heraussuchen sollte.
+
+Danach die Dateien log1 und log2 als E-Mail Anhang zusenden
 
 
 sophomorix-endofyear:
