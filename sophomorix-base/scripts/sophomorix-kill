@@ -400,8 +400,8 @@ sub kill_user {
          &do_falls_nicht_testen(
              "rmdir --ignore-fail-on-non-empty ${DevelConf::homedir_pupil}/$linux_gruppe_to_kill > /dev/null",
           # Klassentauschverzeichnis löschen, falls leer 
-          # (Ist normalerweise nicht Leer)
-          "rmdir --ignore-fail-on-non-empty ${DevelConf::share_classes}/$linux_gruppe_to_kill > /dev/null"
+          # (Wird nicht mehr gelöscht, da wenn nichts drinsteht trotzdem nach user in der klasse sein können)
+          #"rmdir --ignore-fail-on-non-empty ${DevelConf::share_classes}/$linux_gruppe_to_kill > /dev/null"
           );
      } elsif ($type_to_kill eq "examaccount") {
          &do_falls_nicht_testen(
