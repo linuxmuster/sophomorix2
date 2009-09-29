@@ -30,12 +30,17 @@ Kann es sein, dass $strichpunkt_anzahl vielmehr $number sein müsste?
 
 
 Mail account leichen im ldap
--> nachstellen, wieso ibts die leichen überhaupt
+-> nachstellen, wieso gibts die Leichen überhaupt
 
 
 
 Unknown Error 1 in errors.lang". 
+Unknown Error 9 in errors.lang". 
  -> siehe Mail 17.9.09 10.53
+Weiter:
+knöpfe in der Schulkonsole drücken, welche Befehle werden aufgerufen
+
+
 
 
 ubuntu Paket:
@@ -88,17 +93,26 @@ cn: admin
 
 
 7) Connection with luma:
+Anonym: 
+    server:389, keine Verschlüsselung
+    Anonym
+    Anonym binden
+    DNs vom server nutzen
 
+Simple:
     server:389
 
     Authentifizierung:
     simple
-    cn=admin,dc=linuxmuster,dc=de   (Bind as ...)
-    *********                       (from /etc/ldap.secret)
+    Bind as:         cn=admin,dc=linuxmuster,dc=de
+    Passwort:        *********                       (from /etc/ldap.secret)
+
+Was ist denn der Unterschied zwischen anonymous and simple?
+
+
 
 
 8) ldapsearch -x  (tut nur, wenn slapd läuft)
-
 
 to vm's:
 
