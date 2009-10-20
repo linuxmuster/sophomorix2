@@ -218,6 +218,8 @@ wenn die zeit gekommen ist, dann reaktivieren
 
 
 
+
+
 SophomorixBase, Zeile 1113 (Dateiversion 1.295):
 
 if ($owner eq "$login") {
@@ -2989,3 +2991,27 @@ miniserv.users: letztes Feld : hosts von denen man zugreifen darf
        -> usermin is not running on the ml-server
        -> postinstall-script muss sich in gruppe student, teacher eintragen
    -abfrage in sophomorix-webmin, ob paket webmin installiert ist
+
+
+
+############################################################
+Neue Datenbank Felder
+############################################################
+
+UserLevel:
+   beginner
+   intermediate
+   expert
+Zum Unterscheiden von Fehlermeldungen, Schulkonsolenfeldern
+
+oder besser Rollen?
+
+ScheduledActivation
+   wann soll der user vom cronjob wieder aktiviert werden?
+
+
+UTFName      oder adminName
+UTFSurname
+
+speichert die Daten so, wie sie aus dem Schulverwaltungsprogramm
+kommen
