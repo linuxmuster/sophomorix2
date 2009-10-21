@@ -132,6 +132,7 @@ if ($dump==1){
     print "Dumping to $dump_dir...\n";
     system("dump-postgres-for-ldap.sh $dump_dir");
     # convertting to ldif
+    print "Converting to $ldif_file ...\n";
     system("gen-ldif-from-sql.perl $dump_dir $basedn > $dump_dir/$ldif_file");
 } else {
     print "NOT dumping pg to ldif\n";
