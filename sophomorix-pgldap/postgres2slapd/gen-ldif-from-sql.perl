@@ -41,13 +41,27 @@ foreach $line (@accountsfile) {
 
  my @accountsspalte1 = split(/\|/, $line); #Zeile am | trennen
  my $i=0;
+
+
+  # ???
+  # remove after debugging
+  #if (not $line=~ /j1016p01/){
+  #    next;
+  #}
+
  
  if ($zeileaccounts > 1) {
   $accountsspalte1[28]=~ s/^\s+//; $accountsspalte1[28]=~ s/\s+$//;
   $accountsspalte1[30]=~ s/^\s+//; $accountsspalte1[30]=~ s/\s+$//;
   $accountsspalte1[31]=~ s/^\s+//; $accountsspalte1[31]=~ s/\s+$//;
+
+  my $ou="accounts";
+  if ($accountsspalte1[30] eq "Computer"){
+      $ou="machines";
+  }
+
   print "\n\n";
-  print "dn: uid=$accountsspalte1[28],ou=accounts,$ldapdc\n";
+  print "dn: uid=$accountsspalte1[28],ou=$ou,$ldapdc\n";
   print "objectClass: inetOrgPerson\n";
   print "objectClass: posixAccount\n";
   print "objectClass: shadowAccount\n";
