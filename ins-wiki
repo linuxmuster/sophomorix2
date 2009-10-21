@@ -5,3 +5,97 @@ siehe auch tips
 
 luma aus todo-sophomorix-search
 
+
+
+
+
+
+Schulkonsole HowTo:
+
+
+1. CODE
+
+   cgi script erstellen:  
+      - ??? hello.in editieren
+        - scriptname hello eintragen (Verbindung zum template)
+      - wird zu ??? hello.cgi 'compiliert' (Zeile use lib ... erstzt)
+      - landet im System in:
+        /usr/lib/schulkonsole/cgi-bin...
+2. LAYOUT
+
+   html template erstellen
+      - shtml/hello.shtml editieren
+        -- server side includes syntax 
+           (zum schulkonsole code includieren)
+
+3. MAKEFILE
+
+   Makefile.am gibts in jedem Verzeichnis, hierarchisch
+
+   Makefile im Verzeichnis anpassen, in dem neue Datei erstellt wurde
+    (also in cgi-bin) ??? auch in shtml?
+
+4. PERMISSIONS
+
+   gibt an, welche Gruppe, welche Seite nutzen darf
+
+   doc/etc/schulkonsole/permissions.conf editieren
+   System: /etc/linuxmuster/schulkonsole/permissions.conf
+
+
+TIPPS:
+
+Dokumentation zur library der Schulkonsole:
+
+  lib/schulkonsole/Template.pm
+
+
+
+Horizontale Menüzeile ist definiert in
+  
+  menu.shtm.inc
+
+
+
+Vertikale Menüzeile
+
+  ???
+
+
+
+WRAPPER:
+
+in src/util/
+
+System: /usr/lib/schulkonsole/bin mit S-bit gesetzt.
+   
+
+WRAPPER 1: in C geschrieben, nimmt Rechte weg (user ändern, ...)
+
+WRAPPER 2: in perl geschrieben: prüft Optionen auf sichere Werte
+
+noch mehr ???
+
+
+
+
+Settings, die user nicht ändern soll:
+
+lib/schulkonsole/config.pm
+
+dort müssen die wrapper eingetragen/exportiert sein
+
+
+
+Session Objekt:
+
+ - speichert Daten für die spätere ausführung des scripts
+
+
+gettext:
+
+alle Texte in den shtml-Seiten sehen so aus:
+
+ <gettext>Texte</gettext>
+
+später kann so sehr schnell internationalisiert werden
