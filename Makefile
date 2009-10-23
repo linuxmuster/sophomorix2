@@ -103,22 +103,38 @@ help:
 	@echo '   make deb'
 	@echo '      create a debian package'
 	@echo ' '
+	@echo '   make ubuntu'
+	@echo '   make deb'
+	@echo '      create a debian package'
+	@echo ' '
 
 # build a package
 deb:
 	### deb
+	### Prepare to build an ubuntu package with 'make deb'
+	cp sophomorix-pgldap/config-pg/sophomorix-admin.sql.etch sophomorix-pgldap/config-pg/sophomorix-admin.sql
+	cp debian/control.etch debian/control
+	cp sophomorix-pgldap/config-ldap/ldap.conf.template.etch sophomorix-pgldap/config-ldap/ldap.conf.template
+	cp sophomorix-pgldap/config-ldap/slapd-standalone.conf.template.etch sophomorix-pgldap/config-ldap/slapd-standalone.conf.template
 	@echo 'Did you do a dch -i ?'
 	@sleep 8
 	dpkg-buildpackage -tc -uc -us -sa -rfakeroot
 	@echo ''
 	@echo 'Do not forget to tag this version in cvs'
 	@echo ''
+
 ubuntu:
 	### Prepare to build an ubuntu package with 'make deb'
 	cp sophomorix-pgldap/config-pg/sophomorix-admin.sql.ubuntu sophomorix-pgldap/config-pg/sophomorix-admin.sql
 	cp debian/control.ubuntu debian/control
 	cp sophomorix-pgldap/config-ldap/ldap.conf.template.ubuntu sophomorix-pgldap/config-ldap/ldap.conf.template
 	cp sophomorix-pgldap/config-ldap/slapd-standalone.conf.template.ubuntu sophomorix-pgldap/config-ldap/slapd-standalone.conf.template
+	@echo 'Did you do a dch -i ?'
+	@sleep 8
+	dpkg-buildpackage -tc -uc -us -sa -rfakeroot
+	@echo ''
+	@echo 'Do not forget to tag this version in cvs'
+	@echo ''
 
 
 clean: clean-doc clean-debian
