@@ -5,6 +5,15 @@ Next
 ############################################################
 
 
+make ubuntu / make deb 
+
+echte Datei aus cvs entfernen (z.B. control) ud nur noch 
+    control.etch 
+und
+    control.ubuntu
+editieren
+
+
 Wenn ein user gelöscht wird, folgendes zusätzlich machen.
 
 quota.txt: sonderquota auskommentieren 
@@ -952,7 +961,7 @@ Packaging:
 4. dch -i 
    add a comment to the changelog
 
-5. make deb  (old: dpkg-buildpackage -rfakeroot)
+5. make deb    OR   make ubuntu   (old: dpkg-buildpackage -rfakeroot)
 
 6. Tag all files in the cvs repository with the tag 'Version-x-y-z'
 
