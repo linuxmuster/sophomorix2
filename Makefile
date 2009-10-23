@@ -111,7 +111,7 @@ help:
 # build a package
 deb:
 	### deb
-	### Prepare to build an ubuntu package with 'make deb'
+	### Prepare to build an debian etch package
 	cp sophomorix-pgldap/config-pg/sophomorix-admin.sql.etch sophomorix-pgldap/config-pg/sophomorix-admin.sql
 	cp debian/control.etch debian/control
 	cp sophomorix-pgldap/config-ldap/ldap.conf.template.etch sophomorix-pgldap/config-ldap/ldap.conf.template
@@ -124,7 +124,7 @@ deb:
 	@echo ''
 
 ubuntu:
-	### Prepare to build an ubuntu package with 'make deb'
+	### Prepare to build an ubuntu package
 	cp sophomorix-pgldap/config-pg/sophomorix-admin.sql.ubuntu sophomorix-pgldap/config-pg/sophomorix-admin.sql
 	cp debian/control.ubuntu debian/control
 	cp sophomorix-pgldap/config-ldap/ldap.conf.template.ubuntu sophomorix-pgldap/config-ldap/ldap.conf.template
