@@ -3703,7 +3703,7 @@ sub filter_school_admin_software {
       # a mit Akzent umwandeln
       $line=~s/À/a/g;
       $line=~s/\341/a/g;
-      $line=~s/\303/a/g;
+      #$line=~s/\303/a/g;
       # a mit Dach umwandeln
       $line=~s/\203/a/g;
       # o mit Akzent umwandeln
@@ -3733,7 +3733,7 @@ sub filter_school_admin_software {
 
       # ß umwandeln
       $line=~s/á/ß/g;
-      #$line=~s/\303/ss/g;
+      $line=~s/\303/ss/g;
       # Sonderzeichen wegfallenlassen
       # Minus streichen
 #      $line=~s/-//g;
