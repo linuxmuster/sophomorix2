@@ -68,7 +68,8 @@ foreach $line (@accountsfile) {
   print "objectClass: top\n";
   if ($accountsspalte1[1] !~ /^\s*$/) { print "objectClass: sambaSamAccount\n"; };
   
-  print "cn: $accountsspalte1[30] $accountsspalte1[31]\n";
+  # disabled, bacause cn follows later
+  #print "cn: $accountsspalte1[30] $accountsspalte1[31]\n";
  }
 
  foreach $wert (@accountsspalte1) {
