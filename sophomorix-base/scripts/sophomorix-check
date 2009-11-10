@@ -154,6 +154,12 @@ if ($lock==1) {
     exit;
 }
 
+# --cron
+if ($cron==1){
+    # do nothing special
+    # run script as usual
+}
+
 
 &log_script_start(@arguments);
 
