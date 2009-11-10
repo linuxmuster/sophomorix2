@@ -316,7 +316,8 @@ if ($cron==1) {
         }
     }
     &imap_disconnect($imap);
-    &log_script_exit("",1,1,0,@arguments);
+    #&log_script_exit("",1,1,0,@arguments);
+    &log_script_end(@arguments);
 }
 
 
