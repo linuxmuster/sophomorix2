@@ -9,6 +9,25 @@ Bug: 140 email account dumpen nach ldap
 
 Bug: ??? ldapmodify statt smbldap-useradd/usermod
 
+so vorgehen:
+   in sophomorix-dump-pg2ldap eine Option einbauen, die neue Funktion besitzt:
+   sophomorix-dump-pg2ldap --user login
+   die 
+      -jeden account:
+         Computer
+         ExamAccount
+         Lehrer
+         Schüler
+         Admins (später)
+      - exakt so im ldap generiert, wie es der dump machen würde
+        (auch gleiche Reihenfolge der Einträge, ...)
+   dieselbe Funktion wird beim Anlegen der user aufgerufen
+
+   Stellt man fest, dass der ldap etwas andern generiert werden soll (Zusatzfeld), 
+     geht man so vor
+     1. Gesamt dump so abändern, dass es passt ->  ldif dump sichern
+     2. Einzel dump so abändern dass es zusammen passt
+
 
 Bug #156: projekte werden nicht vollständig gelöscht
 
