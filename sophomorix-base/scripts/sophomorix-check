@@ -507,10 +507,10 @@ if ($Conf::filter_script eq ""){
         &titel("Running filter script $Conf::filter_script.");
         $filter_return = system("$Conf::filter_script");
         if (not $filter_return==0){
-            print "\n\nFilter script\n",
+            print "\n\n$scriptname: Filter script\n",
                   "    ${Conf::filter_script}\n",
                   "ended with errors($filter_return)\n\n";
-            print "I do not continue!\n\n";
+            print "$scriptname: I do not continue!\n\n";
             &log_script_exit("",201,1,0,@arguments);
         }
     } else {
