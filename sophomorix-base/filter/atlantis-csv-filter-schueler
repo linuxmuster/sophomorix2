@@ -100,6 +100,7 @@ open(SOURCE, "<$source") || die "Fehler: $! $source not found!";
 open(TMP, ">$tmp") || die "Fehler: $! $tmp not found!"; 
 
 my %header=();
+my %header_num=();
 my $line_num=0;
 while (<SOURCE>){
     chomp();
@@ -112,11 +113,20 @@ while (<SOURCE>){
         foreach my $item (@line){
             $item = &format_field($item);
             $header{$field_num}="$item";
+            $header{$item}="$field_num";
             $field_num++;
         }    
         $line_num++;
         next;
     }
+
+   if (not exists $header{'Geb.Datum'} or
+       not exists $header{'Klasse'} or
+       not exists $header{'Familienname'} or
+       not exists $header{'Vorname'}  ){
+       print "\nERROR: Could not analyze header \n\n";
+       exit 1;
+   }
 
     # change the number from 10000 to the line, that you want printed
     if($line_num==10000){
@@ -129,20 +139,20 @@ while (<SOURCE>){
     }
 
     # unused
-    my $name=$line[1];
+    my $name=$line[$header{'Name'}];
 
     # used
-    my $lastname=$line[28];
-    my $firstname=$line[29];
-    my $birthday=$line[2];
-    my $class=$line[5];
+    my $lastname=$line[$header{'Familienname'}];
+    my $firstname=$line[$header{'Vorname'}];
+    my $birthday=$line[$header{'Geb.Datum'}];
+    my $class=$line[$header{'Klasse'}];
     # 13 Klassenlehrer
 
     # unid fields
-    my $id_0=$line[63]; # Externe ID:  -id
-    my $id_1=$line[57]; # Barcode   :  ABCid
-    my $id_2=$line[70]; # Externe ID Behinderungsart:  -id
-    my $id_3=$line[72]; # Externe ID GS Empfehlung:  -id
+    my $id_0=$line[$header{'Externe Id'}]; # Externe ID:  -id
+    my $id_1=$line[$header{'Barcode'}]; # Barcode   :  ABCid
+    my $id_2=$line[$header{'Externe Id Behinderungsart'}]; # Externe ID Behinderungsart:  -id
+    my $id_3=$line[$header{'Externe Id Gs Empfehlung'}]; # Externe ID GS Empfehlung:  -id
 
     $class = &format_field($class);
     $lastname = &format_field($lastname);
