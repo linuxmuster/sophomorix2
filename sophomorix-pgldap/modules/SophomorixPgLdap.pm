@@ -5648,7 +5648,7 @@ sub auth_useradd {
    # add entry to seperate ldap
    if (defined $u_uidnumber){
        if ($u_uidnumber eq $uid_number){
-           print "Succesfully added $login with uidnumber $u_uidnumber to pg\n";
+           print "Successfully added $login with uidnumber $u_uidnumber to pg\n";
            print "Adding user to ldap\n";
            # do the ldap stuff
            if ($DevelConf::seperate_ldap==1){
@@ -5744,12 +5744,12 @@ sub auth_groupadd {
    my ($unix_group,$type,
        $gid_number,$nt_group,
        $domain_group,$local_group) = @_;
-   # check if adding was succesful
+   # check if adding was successful
    my ($g_type,$g_name,$g_gidnumber)=&pg_get_group_type($unix_group);
    # add entry to seperate ldap
    if (defined $g_gidnumber){
        if ($g_gidnumber eq $gid_number){
-           print "   Succesfully added $unix_group with gidnumber ",
+           print "   Successfully added $unix_group with gidnumber ",
                  "$g_gidnumber to postgres\n";
            # do the ldap stuff
            if ($DevelConf::seperate_ldap==1){
@@ -5924,7 +5924,7 @@ sub auth_userkill {
        $u_uidnumber)=&fetchdata_from_account($login);
 
     if ($u_home eq "" and $u_type eq ""){
-        # killing in pg was succesful
+        # killing in pg was successful
         print "Killing user in ldap\n";
         my $command="smbldap-userdel $login";
         print "   * $command\n";

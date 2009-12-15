@@ -95,7 +95,7 @@ sub exchange_line_in_file {
         system("rm $file.tmp");
     } else {
         system("mv $file.tmp $file");
-	print "  I succesfully replaced ONE line in $file \n";
+	print "  I successfully replaced ONE line in $file \n";
     }
     return $result;
 }
@@ -145,7 +145,7 @@ sub no_line_in_file {
       }
     }
     close(READ);
-    is($count, 0 ,"Line deletion succesful");
+    is($count, 0 ,"Line deletion successful");
 }
 
 

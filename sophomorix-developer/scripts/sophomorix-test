@@ -583,7 +583,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 # make user deactivated for a looooong time
 &update_user_db_entry($login,"DeactivationDate=01.01.1971");
 
-# check if this was succesful
+# check if this was successful
 %account = &fetch_single_account("surname='Maier' 
                                   AND firstname='Joerg'
                                   AND birthday='1982-10-12'
