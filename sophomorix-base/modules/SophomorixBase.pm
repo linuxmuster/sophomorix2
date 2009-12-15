@@ -3525,7 +3525,7 @@ sub imap_kill_mailbox {
 	}
     }
     my $err = $imap->h_delete("user.${login}");
-    print "   Return of h_delete is $err (0 = deletion succesful)\n";
+    print "   Return of h_delete is $err (0 = deletion successful)\n";
     if ($err != 0) {
        	my $status = $imap->error;
       	print "$status \n";
