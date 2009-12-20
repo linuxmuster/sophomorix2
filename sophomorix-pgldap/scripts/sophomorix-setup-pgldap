@@ -276,6 +276,9 @@ print "Using the following values to configure the system\n";
 # Debian Version
 ############################################################
 my $deb_version = &get_debian_version();
+my $lsb_release_codename = &get_lsb_release_codename();
+print "   Debian Version                       : $deb_version\n";
+print "   Codename                             : $lsb_release_codename\n";
 
 ############################################################
 # read the values from the config file
@@ -324,8 +327,6 @@ if ($domainname_debconf ne 0){
     # from config file
     print "   Domainname from pgldap.conf          : $domainname \n";
 }
-
-
 
 # servername
 #------------------------------------------------------------
@@ -765,8 +766,15 @@ if (not -e $DevelConf::slapd_custom_file){
 }
 
 # activate slapd.conf in ubuntu 8.10 or later see wiki.ubuntuusers.de/OpenLDAP
-if ($deb_version eq "5.0"){
-    # lenny/ubuntu jaunty
+if ($lsb_release_codename eq "lenny"){
+    # debian lenny
+    system("rm -rf $slapd_d_bak");
+    system("mv $slapd_d $slapd_d_bak");
+    system("mkdir $slapd_d ");
+    system("slaptest -f $slapd_conf -F $slapd_d ");
+    system("chown -R openldap:openldap $slapd_d ");
+} elsif ($lsb_release_codename eq "karmic"){
+    # ubuntu karmic
     system("rm -rf $slapd_d_bak");
     system("mv $slapd_d $slapd_d_bak");
     system("mkdir $slapd_d ");
@@ -802,13 +810,19 @@ if ($deb_version eq "3.1"){
    $postgres_conf_dir="/etc/postgresql/8.1/main";
    $postgres_init_script="/etc/init.d/postgresql-8.1";
    $psql="/usr/lib/postgresql/8.1/bin/psql";
-} elsif ($deb_version eq "5.0"){
-   # lenny/ubuntu jaunty
+} elsif ($lsb_release_codename eq "lenny"){
+   # debian lenny
+   $postgres_conf_dir="/etc/postgresql/8.3/main";
+   $postgres_init_script="/etc/init.d/postgresql-8.3";
+   $psql="/usr/lib/postgresql/8.3/bin/psql";
+} elsif ($lsb_release_codename eq "karmic"){
+   # ubuntu karmic
    $postgres_conf_dir="/etc/postgresql/8.3/main";
    $postgres_init_script="/etc/init.d/postgresql-8.3";
    $psql="/usr/lib/postgresql/8.3/bin/psql";
 } else {
-    &log_script_exit("Debian Version $deb_version is not supported",
+    &log_script_exit("Debian Version $deb_version ($lsb_release_codename) ",
+                     "is not supported",
                      1,1,0,@arguments);
 }
 
@@ -1873,8 +1887,13 @@ sub get_pg_server_version {
 
 
 sub fix_pg_ports_old {
-    if ($deb_version eq "5.0"){
-        print "Debian $deb_version: No port fixing required\n";
+    if ($lsb_release_codename eq "lenny"){
+        print "Debian $deb_version ($lsb_release_codename):",
+              " No port fixing required\n";
+        return;
+    } elsif ($lsb_release_codename eq "karmic"){
+        print "Debian $deb_version ($lsb_release_codename):",
+              " No port fixing required\n";
         return;
     }
     print "\nMake sure new Postgres runs on standard port 5432\n";
