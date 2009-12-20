@@ -5125,6 +5125,17 @@ sub get_debian_version {
 }
 
 
+sub get_lsb_release_codename {
+    my $codename="";
+    my $line=`lsb_release -c`;
+    chomp $line;
+    $line=~s/Codename://g;
+    $line=~s/\s//g; # Spezialzeichen raus
+    print "---$line---\n";
+    return $line;
+}
+
+
 sub deb_system {
     my @command_list = @_; 
     my $command_number=($#command_list+1)/2;
