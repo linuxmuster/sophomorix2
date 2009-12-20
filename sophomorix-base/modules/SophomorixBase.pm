@@ -120,6 +120,7 @@ use Quota;
               group_private_noupload
               get_debconf_value
               get_debian_version
+              get_lsb_release_codename
               deb_system
               basedn_from_domainname
               unlink_immutable_tree
