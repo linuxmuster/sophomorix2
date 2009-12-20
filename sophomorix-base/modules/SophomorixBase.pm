@@ -5132,7 +5132,6 @@ sub get_lsb_release_codename {
     chomp $line;
     $line=~s/Codename://g;
     $line=~s/\s//g; # Spezialzeichen raus
-    print "---$line---\n";
     return $line;
 }
 
