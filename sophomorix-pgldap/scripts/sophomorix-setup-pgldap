@@ -773,6 +773,10 @@ if ($lsb_release_codename eq "lenny"){
     system("mkdir $slapd_d ");
     system("slaptest -f $slapd_conf -F $slapd_d ");
     system("chown -R openldap:openldap $slapd_d ");
+    system("chmod 0640 /etc/ldap/slapd.conf");
+    system("chown .openldap /etc/ldap/slapd.conf");
+    system("chmod 0640 /etc/ldap/slapd.conf.custom");
+    system("chown .openldap /etc/ldap/slapd.conf.custom");
 } elsif ($lsb_release_codename eq "karmic"){
     # ubuntu karmic
     system("rm -rf $slapd_d_bak");
@@ -780,7 +784,12 @@ if ($lsb_release_codename eq "lenny"){
     system("mkdir $slapd_d ");
     system("slaptest -f $slapd_conf -F $slapd_d ");
     system("chown -R openldap:openldap $slapd_d ");
+    system("chmod 0640 /etc/ldap/slapd.conf");
+    system("chown .openldap /etc/ldap/slapd.conf");
+    system("chmod 0640 /etc/ldap/slapd.conf.custom");
+    system("chown .openldap /etc/ldap/slapd.conf.custom");
 }
+
 
 
 # do it, pg
