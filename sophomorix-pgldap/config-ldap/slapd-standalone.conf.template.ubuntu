@@ -22,7 +22,8 @@ include         /etc/ldap/schema/samba.schema
 
 # Schema check allows for forcing entries to
 # match schemas for their objectClasses's
-#schemacheck     on
+# lenny:
+# schemacheck     on
 
 # Where the pid file is put. The init.d script
 # will not stop the server if you change this.
@@ -47,7 +48,8 @@ password-hash {CRYPT}
 # Backend specific directives apply to this backend until another
 # 'backend' directive occurs
 backend		bdb
-#checkpoint 512 30
+# lenny:
+# checkpoint 512 30
 
 #######################################################################
 #Limits Access:
@@ -102,7 +104,8 @@ sizelimit       unlimited
 
 #The cachesize directive defines the number of entries that the LDAP backend will maintain in memory
 cachesize 10000
-#dbcachesize 1000000
+# lenny:
+# dbcachesize 1000000
 
 # Indexing options for database #1
 index   objectClass,uid,uidNumber,gidNumber     eq
