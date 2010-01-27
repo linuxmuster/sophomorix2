@@ -27,6 +27,48 @@ Lenny Update:
 
 in sophomorix-pgldap.pm anpassen
 
+- Net::LDAP wird von allen scripten schon geladen
+- sophomorix-pgldap.pm prüft Verbindungen mit Net::LDAP-> new
+- sophomorix-pgldap.pm:
+  check_connections postgres UND ldap verbindungen prüfen
+  auth_connect : Verbindung mit ldap via Net::LDAP
+  auth_disconnect : Verbindung trennen via Net::LDAP
+
+create_user_db_entry ruft auch auth_useradd auf
+dann fehlt aber die Gruppe um den user anzulegen:
+
+-> Erster Schritt: Gruppe mit Net::LDAP anlegen
+   create_class_db_entry ruft auth_groupadd auf
+
+   In auth_groupadd:
+    smbldap-groupadd-Befehle
+      A) bzw. Quickfix: nscd restart einbauen (restarten die nscd restart scripte auch auf lenny nscd?)
+         tut Sophomorix-Base.pm  nscd_flush_cache?
+      B) Quickfix: Zeitverzögerung, 
+      C) Fix: ersetzen mit Net::LDAP zeugs
+         #1 in sophomorix-test gruppenanlegen testen
+         #2 gruppe schon anlegen, funzt dann sophomrix-test?
+         #3 tuts auch beim anlegen der Gruppe kurz vor dem Test
+
+
+12:03/0 majestix ~ # smbldap-groupshow m2kk3t
+dn: cn=m2kk3t,ou=groups,dc=bszleo,dc=de
+objectClass: posixGroup,sambaGroupMapping
+gidNumber: 10285
+cn: m2kk3t
+memberUid: bz,thuermjo,schoelde,zeugan,zoderde,kratscde,schneito3,herrmasi,zerwecsa,recherse,bunkru,altsi1,wiesmuti,rodrigso,schweist,pabstac,mokoscto,schomesa,reinhapa,lorbacka,engenhpa,foellfe,muelleda1,boehmma,deckerma,eckertpa,mohran,heilemka,petzoler,ruecklka,jon,kj,bck
+sambaSID: S-1-5-21-3993262446-3865354187-2627030318-21571
+sambaGroupType: 2
+displayName: m2kk3t
+12:03/0 majestix ~ # 
+
+
+Wie kommen die user da rein? funzt smbldap useradd, wenn leere gruppe existiert
+
+
+
+  
+
 
 
 Bennennung: Workstation zweideutig (sollte Computer bzw ExamAccount heissen)
