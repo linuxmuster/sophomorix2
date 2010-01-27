@@ -1042,7 +1042,15 @@ packaging:
 
 
 ############################################################
-MAKING a Package
+host of the build-host
+############################################################
+
+
+
+
+
+############################################################
+MAKING a Package on build-host
 ############################################################
 
 Packaging:
@@ -1135,14 +1143,15 @@ kvm vorbereiten, pakete henunterladen
 
 image erstellen:
 1. kvm gast herunterfahren
-2. sudo cp /var/lib/libvirt/images/lenny.img kvm-images/lenny.img
+2. sudo cp /var/lib/libvirt/images/lenny.img /home/bz/kvm-backups/lenny.img
+   (lenny.img ist verlinkt auf /home/root/kvm)
 
 
 kvm-host wiederherstellen
-sudo cp kvm-images/lenny.img /var/lib/libvirt/images/lenny.img
+sudo cp /home/bz/kvm-backups/lenny.img /var/lib/libvirt/images/lenny.img
 
 
-ls -alh /home/bz/kvm-images zeigt immer 4GB (Festplattengröße)
+ls -alh /home/bz/kvm-backups zeigt immer 4GB (Festplattengröße)
 
 ??? Wie kann man benutzten Platz anzeigen lassen?
 
