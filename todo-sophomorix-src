@@ -66,6 +66,12 @@ displayName: m2kk3t
 Wie kommen die user da rein? funzt smbldap useradd, wenn leere gruppe existiert
 
 
+27.1.10: Hat ohne änderung funktioniert
+   Warum? -> Wirt hat mehr RAM 8GB statt 2GB
+             Gast: ???
+          -> Pakete auf lenny aktualisiert
+          -> sonst nix verändert
+
 
   
 
@@ -1089,7 +1095,56 @@ Testing:
 
 
 
+############################################################
+nfs server
+############################################################
 
+share the sophomorix sourcecode on a virtual guest
+
+Einloggen via root@lenny
+
+In /etc/hosts:
+
+192.168.122.60  lenny
+
+
+
+Server(host):
+
+1. uptitude install nfs-kernel-server
+2. edit /etc/exports:
+   /home/bz/cvs 192.168.122.0/255.255.255.0(ro,async)
+3. exportfs -ra
+
+
+Client(guest):
+1. mkdir /mnt/cvs
+2. edit /etc/fstab:
+  10.1.23.10:/home/bz/cvs  /mnt/cvs   nfs   ro   0   0
+
+############################################################
+kvm vorbereiten, pakete henunterladen
+############################################################
+
+
+1. aptitude dist-upgrade
+
+
+2. aptitude -d install sophomorix2 
+   (lädt alle Pakete herunter, ohne zu installieren)
+
+image erstellen:
+1. kvm gast herunterfahren
+2. sudo cp /var/lib/libvirt/images/lenny.img kvm-images/lenny.img
+
+
+kvm-host wiederherstellen
+sudo cp kvm-images/lenny.img /var/lib/libvirt/images/lenny.img
+
+
+ls -alh /home/bz/kvm-images zeigt immer 4GB (Festplattengröße)
+
+??? Wie kann man benutzten Platz anzeigen lassen?
 
 
 ############################################################
