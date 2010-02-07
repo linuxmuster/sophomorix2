@@ -26,20 +26,6 @@ was ist damit(fällt 3x raus?):
 by dn="cn=admin,@@basedn@@" write
 
 
-was ist damit
-
-< @@tls_comment@@TLSCipherSuite HIGH:MEDIUM:+SSLv2
-< @@tls_comment@@TLSCACertificateFile /etc/ssl/private/server.pem
-< @@tls_comment@@TLSCertificateFile /etc/ssl/private/server.pem
-< @@tls_comment@@TLSCertificateKeyFile /etc/ssl/private/server.pem
----
-> #TLSCipherSuite HIGH:MEDIUM:+SSLv2
-> TLSCACertificateFile /etc/ssl/private/server.pem
-> TLSCertificateFile /etc/ssl/private/server.pem
-> TLSCertificateKeyFile /etc/ssl/private/server.pem
-
-
-
 
 
 
