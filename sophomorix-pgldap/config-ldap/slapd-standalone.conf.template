@@ -38,7 +38,7 @@ loglevel        0
 # Where the dynamically loaded modules are stored
 modulepath	/usr/lib/ldap
 moduleload	back_bdb
-moduleload	pcache
+#moduleload	pcache
 
 # use passwords encrypted with crypt
 password-hash {CRYPT}
@@ -54,27 +54,45 @@ backend		bdb
 #######################################################################
 #Limits Access:
 access to attrs=sambaLMPassword,sambaNTPassword,sambaPwdLastSet,sambaPwdMustChange,sambaAcctFlags
-       by dn="cn=admin,@@basedn@@" write
        by anonymous auth
        by self write
        by * read
+# old
+#access to attrs=sambaLMPassword,sambaNTPassword,sambaPwdLastSet,sambaPwdMustChange,sambaAcctFlags
+#       by dn="cn=admin,@@basedn@@" write
+#       by anonymous auth
+#       by self write
+#       by * read
 
 access to attrs=userPassword
-       by dn="cn=admin,@@basedn@@" write
        by anonymous auth
        by self write
        by * read
+# old
+#access to attrs=userPassword
+#       by dn="cn=admin,@@basedn@@" write
+#       by anonymous auth
+#       by self write
+#       by * read
 
 access to *
-       by dn="cn=admin,@@basedn@@" write
        by * read
+# old
+#access to *
+#       by dn="cn=admin,@@basedn@@" write
+#       by * read
 
 #######################################################################
 # TLS:
-@@tls_comment@@TLSCipherSuite HIGH:MEDIUM:+SSLv2
-@@tls_comment@@TLSCACertificateFile /etc/ssl/private/server.pem
-@@tls_comment@@TLSCertificateFile /etc/ssl/private/server.pem
-@@tls_comment@@TLSCertificateKeyFile /etc/ssl/private/server.pem
+TLSCACertificateFile /etc/ssl/private/server.pem
+TLSCertificateFile /etc/ssl/private/server.pem
+TLSCertificateKeyFile /etc/ssl/private/server.pem
+
+# old
+#@@tls_comment@@TLSCipherSuite HIGH:MEDIUM:+SSLv2
+#@@tls_comment@@TLSCACertificateFile /etc/ssl/private/server.pem
+#@@tls_comment@@TLSCertificateFile /etc/ssl/private/server.pem
+#@@tls_comment@@TLSCertificateKeyFile /etc/ssl/private/server.pem
 
 # Use the following if client authentication is required
 #TLSVerifyClient demand
@@ -94,19 +112,38 @@ suffix          "@@basedn@@"
 rootdn          "cn=admin,@@basedn@@"
 rootpw          @@ldappassword@@
 
+# Where the database file are physically stored for database #1
+directory       "/var/lib/ldap"
+
+# For the Debian package we use 2MB as default but be sure to update this
+# value if you have plenty of RAM
+dbconfig set_cachesize 0 2097152 0
+
+# Sven Hartge reported that he had to set this value incredibly high
+# to get slapd running at all. See http://bugs.debian.org/303057 for more
+# information.
+
+# Number of objects that can be locked at the same time.
+dbconfig set_lk_max_objects 1500
+# Number of locks (both requested and granted)
+dbconfig set_lk_max_locks 1500
+# Number of lockers
+dbconfig set_lk_max_lockers 1500
+
+# Indexing options for database #1
+index   objectClass,uid,uidNumber,gidNumber     eq
+index   cn,mail,surname,givenname               eq,subinitial
+
 # Save the time that the entry gets modified, for database #1
 lastmod         off
 
 sizelimit       unlimited
 
 #The cachesize directive defines the number of entries that the LDAP backend will maintain in memory
-cachesize 10000
+# cachesize 10000
 # lenny:
 # dbcachesize 1000000
 
-# Indexing options for database #1
-index   objectClass,uid,uidNumber,gidNumber     eq
-index   cn,mail,surname,givenname               eq,subinitial
 
 #######################################################################
 # include your own stuff
