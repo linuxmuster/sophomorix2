@@ -639,6 +639,7 @@ my $template=${DevelConf::config_template_pfad};
 my $ldap_args_dir="/var/run/slapd";
 my $ldap_conf="/etc/ldap/ldap.conf";
 my $slapd_conf="/etc/ldap/slapd.conf";
+my $slapd_conf_custom="/etc/ldap/slapd.conf.custom";
 my $slapd_d="/etc/ldap/slapd.d";
 my $slapd_d_bak="/etc/ldap/slapd.d_backup";
 my $default_slapd="/etc/default/slapd";
@@ -1178,6 +1179,12 @@ if ( ($old_version eq "0.0.0-0" and not defined $dbh) or $new_database==1){
 
 # changes for the new version of slapd 2.3.27/etch that runs as openldap
 system("chmod 0644 $ldap_conf");
+if ($lsb_release_codename eq "lenny"){
+    # debian lenny
+    system("chmod 0640 $slapd_conf");
+    system("chmod 0640 $slapd_conf_custom");
+}
+
 #system("chown openldap:openldap $ldap_conf");
 system("chown root:root $ldap_conf");
 # the args dir/file
@@ -1226,7 +1233,11 @@ sleep 5;
 ## This is new ??????????????
 ## make sure owner is correct, so that slapd can start
 system("chown -R openldap.openldap /var/lib/ldap/");
-
+if ($lsb_release_codename eq "lenny"){
+    # debian lenny
+    system("chmod 700 /var/lib/ldap");
+    system("chmod 600 /var/lib/ldap/*");
+}
 
 # starting ldap
 system("/etc/init.d/slapd start");
