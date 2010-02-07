@@ -4,6 +4,46 @@
 Next
 ############################################################
 
+
+slapd.conf.template: 
+
+so drin: (noch Anpassen)
+
+# For the Debian package we use 2MB as default but be sure to update this
+# value if you have plenty of RAM
+dbconfig set_cachesize 0 2097152 0
+
+
+muss das rein oder nicht? (noch nicht drin)
+
+# Checkpoint the BerkeleyDB database periodically in case of system
+# failure and to speed slapd shutdown.
+checkpoint      512 30
+
+
+was ist damit(fällt 3x raus?):
+
+by dn="cn=admin,@@basedn@@" write
+
+
+was ist damit
+
+< @@tls_comment@@TLSCipherSuite HIGH:MEDIUM:+SSLv2
+< @@tls_comment@@TLSCACertificateFile /etc/ssl/private/server.pem
+< @@tls_comment@@TLSCertificateFile /etc/ssl/private/server.pem
+< @@tls_comment@@TLSCertificateKeyFile /etc/ssl/private/server.pem
+---
+> #TLSCipherSuite HIGH:MEDIUM:+SSLv2
+> TLSCACertificateFile /etc/ssl/private/server.pem
+> TLSCertificateFile /etc/ssl/private/server.pem
+> TLSCertificateKeyFile /etc/ssl/private/server.pem
+
+
+
+
+
+
+
 sophomorix-dump-pg2ldap dumpt
 ldap-Feld description falsch:
 
