@@ -1,0 +1,126 @@
+%% This preamble was created from sophomorix-print
+%% Muster-Latex-File zum Erstellen einzelner LoginKärtchen
+\documentclass[12pt,fleqn,oneside]{article}
+\usepackage[T1]{fontenc}
+\usepackage{german}
+\usepackage[utf8]{inputenc}		%% für Umlaute muss utf8 gewählt werden
+\usepackage{fancyheadings}
+\usepackage{multicol}
+\usepackage{graphicx}
+
+\pagestyle{fancy}
+\lhead{\today}
+
+\setlength{\voffset}{0mm}
+\setlength{\hoffset}{0mm}
+\setlength{\oddsidemargin}{0mm}
+\setlength{\evensidemargin}{0mm}
+\setlength{\marginparsep}{1.5mm}
+\setlength{\marginparwidth}{60mm}
+\setlength{\marginparpush}{1mm}
+\setlength{\parindent}{0cm} %% Einrückungen am Absatzanfang verhindern
+\setlength{\paperwidth}{210mm} %% Papierbreite angeben
+\setlength{\paperheight}{297mm} %%Papierhöhe angeben
+%% linker Rand einstellen:
+\setlength{\oddsidemargin}{-12.9mm}
+\setlength{\headsep}{3mm}      
+\setlength{\headheight}{8mm}
+\setlength{\topskip}{0mm}      
+\setlength{\topmargin}{-18mm}
+\setlength{\footskip}{-1mm}
+
+\setlength{\headwidth}{189mm}
+%% Einstellungen für die Umrahmungen:
+\setlength{\textwidth}{189mm}
+\setlength{\textheight}{261.5mm}
+
+\renewcommand{\headrulewidth}{0.25mm}
+\renewcommand{\footrulewidth}{0.25mm}
+\setlength{\fboxrule}{0.1mm}
+\renewcommand{\baselinestretch}{1}
+
+%% Datensatz in ein K�rtchen umwandeln
+\newcommand{\daten}[5]{
+\fbox{
+\begin{minipage}[b][26mm][c]{41mm}
+\begin{center}
+#1 #2 \par #3 \par #4 \par #5
+\end{center}
+\end{minipage}
+}}
+
+\newcommand{\datenoneperpage}[5]{
+\begin{center}
+\fbox{
+\begin{minipage}[b][54mm][c]{85mm}
+\begin{center}
+\Large #1 #2 \par #3 \par \vspace{2mm} #4 \par #5
+\end{center}
+\end{minipage}
+}
+\end{center}
+}
+
+%% Lehrereintrag am Seitenrand erzeugen
+\newcommand{\edvlehrer}[1]{
+\marginpar{%
+  %\begin{minipage}[t]{30mm}
+\rotatebox{90}{%
+\begin{minipage}[t]{26mm}
+\begin{center}
+\small #1
+\end{center}
+\end{minipage}
+}%
+ % \end{minipage}
+}%
+}
+
+\begin{document}
+
+%%\addtocontents{toc}{\textbf{Klasse \dotfill Seite} \par}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Hier beginnen die erzeugten Eintr�ge
+
+\chead{\LARGE 05b}
+\rhead{Fr. Helmle}
+
+%% \daten{Deniz Akbulut}{}{Klasse: k05b}{Login: akbulude}{Passwort: rhdE4y}      als Beispiel
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+
+\newpage
+
+\chead{\LARGE 05d}
+\rhead{Fr. Matt}
+
+%% \daten{Ronja Adler}{}{Klasse: k05d}{Login: adlerro}{Passwort: N8Mem8}
+
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}
+
+
+
+\newpage
+
+
+
+\end{document}
+
