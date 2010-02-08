@@ -37,7 +37,7 @@ my @accountsspalte0 = split(/\|/, $accountsfile[0]); #Zeile0 am | trennen
 my @groupsspalte0 = split(/\|/, $groupsfile[0]); #Zeile0 am | trennen
 
 # Alle Zeilen im SQL-Dump-File durchgehen
-foreach $line (@accountsfile) {                          
+foreach my $line (@accountsfile) {                          
 
  my @accountsspalte1 = split(/\|/, $line); #Zeile am | trennen
  my $i=0;
@@ -72,7 +72,7 @@ foreach $line (@accountsfile) {
   #print "cn: $accountsspalte1[30] $accountsspalte1[31]\n";
  }
 
- foreach $wert (@accountsspalte1) {
+ foreach my $wert (@accountsspalte1) {
   # fuehrende Leerzeichen entfernen
   $wert =~ s/^\s+//;
   $accountsspalte0[$i] =~ s/^\s+//;
@@ -129,7 +129,7 @@ $zeileaccounts++;
 }
 
 #Gruppen
-foreach $line (@groupsfile) {                          
+foreach my $line (@groupsfile) {                          
 
  my @groupsspalte1 = split(/\|/, $line); #Zeile am | trennen
  my $i=0;
@@ -142,7 +142,7 @@ foreach $line (@groupsfile) {
   print "objectClass: sambaGroupMapping\n";
  }
 
- foreach $wert (@groupsspalte1) {
+ foreach my $wert (@groupsspalte1) {
   # fuehrende Leerzeichen entfernen
   $wert =~ s/^\s+//;
   $groupsspalte0[$i] =~ s/^\s+//;
@@ -166,7 +166,7 @@ foreach $line (@groupsfile) {
   
   # Benutzer - Gruppen zuordnung
    
-   foreach $line (@groupsusersfile) {
+   foreach my $line (@groupsusersfile) {
     my @groupsusersspalte = split(/\|/, $line); #Zeile am | trennen
     if ( ($groupsusersspalte[0]=~ /$wert/) && ($groupsspalte0[$i]=~ /cn/) ){
      $groupsusersspalte[1] =~ s/^\s+//;
