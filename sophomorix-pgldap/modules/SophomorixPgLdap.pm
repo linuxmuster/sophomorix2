@@ -1597,6 +1597,7 @@ sub create_user_db_entry {
            $smb_homedrive="";
            $smb_acctflags="[WX]";
        } else {
+          # must be escaped with sambahomepath=E'\\\\\\\\server\\\\name';
           $smb_homepath="\\\\\\\\$servername\\\\$login";
           $smb_ldap_homepath="\\\\$servername\\$login";
           $smb_homedrive="H:";
@@ -1680,7 +1681,7 @@ sub create_user_db_entry {
          '$sambapwdmustchange',
          '$smb_acctflags',
          '$gecos',
-         '$smb_homepath',
+         E'$smb_homepath',
          '$smb_homedrive',
          NULL,
          NULL,
@@ -1695,9 +1696,9 @@ sub create_user_db_entry {
          NULL
         )
 	";
-       if($Conf::log_level>=3){
+        if($Conf::log_level>=3){
           print "SQL: $sql\n";
-       }
+        }
        $dbh->do($sql);
 
        # 3. Tabelle posix_account_details
