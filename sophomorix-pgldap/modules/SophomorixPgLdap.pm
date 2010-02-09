@@ -3502,7 +3502,7 @@ sub update_user_db_entry {
        &auth_lastnameupdate($login,$lastname);
     }
     if ($gecosupdate==1){
-       &auth_gecosupdate($login,$gecos);
+       &auth_gecosupdate($login,$gecos,$firstname);
     }
 
     if ($shellupdate==1){
@@ -6086,10 +6086,10 @@ sub auth_lastnameupdate {
 
 
 sub auth_gecosupdate {
-   my ($login,$gecos) = @_;
+   my ($login,$gecos,$firstname) = @_;
    # -c (comment) This is the gecos field
    # -N This is the cn: (common name) 
-   my $command="/usr/sbin/smbldap-usermod -c '$gecos' -N '$gecos' $login";
+   my $command="/usr/sbin/smbldap-usermod -c '$gecos' -N '$firstname' $login";
    print "   * $command\n";
    system("$command");
 }
