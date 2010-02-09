@@ -2,7 +2,13 @@
 
 ============SOPHOMORIX2 CHANGELOG ====================================
 
-2.2.1-1 (2010-02-xx)
+2.2.2-1 (2010-02-xx)
+    - fixed Warning because of:
+	 chattr -R -i dir
+      does not work on lenny. Replaced it with:
+	 chattr -i dir/*
+      hope this will work.
+      Setting immutable bits is an hidden feature at the moment.
     - fixed postgres warnings about escapes 
       (use E'string' instead of 'string')
 
