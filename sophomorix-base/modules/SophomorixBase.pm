@@ -5204,7 +5204,7 @@ sub unlink_immutable_tree {
     my $immutable_bit=&fetch_immutable_bit($parent_dir);
     &set_immutable_bit($parent_dir,0);
 
-    if (-e ${DevelConf::chattr_path}){
+    if (-x ${DevelConf::chattr_path}){
         system("${DevelConf::chattr_path} -i -R $dir");
     } else {
         print "${DevelConf::chattr_path} not fount/not executable\n";
@@ -5235,8 +5235,9 @@ sub move_immutable_tree {
     my $immutable_bit=&fetch_immutable_bit($parent_dir);
     &set_immutable_bit($parent_dir,0);
 
-    if (-e ${DevelConf::chattr_path}){
-        system("${DevelConf::chattr_path} -i -R $old_dir");
+    if (-x ${DevelConf::chattr_path}){
+        # operation nicht erlaubt:
+        system("${DevelConf::chattr_path} -i ${old_dir}/*");
     } else {
         print "${DevelConf::chattr_path} not fount/not executable\n";
     }
@@ -5258,7 +5259,7 @@ sub set_immutable_bit {
         return 0;
     }
     # set immutable bit
-    if (-e ${DevelConf::chattr_path}){
+    if (-x ${DevelConf::chattr_path}){
         if ($bit==0){
             system("${DevelConf::chattr_path} -i $dir");
         } elsif ($bit==1){
@@ -5276,7 +5277,7 @@ sub fetch_immutable_bit {
     # 3 not a filesystem with ext3 bits
     my ($dir) = @_;
     # remove immutable bit recursively
-    if (-e ${DevelConf::chattr_path}){
+    if (-x ${DevelConf::chattr_path}){
         my $result=`${DevelConf::lsattr_path} -d $dir 2> /dev/null`;
         if ($result eq ""){
             # no result on stdout
