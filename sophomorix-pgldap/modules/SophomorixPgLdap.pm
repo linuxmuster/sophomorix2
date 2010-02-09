@@ -1754,7 +1754,7 @@ sub create_user_db_entry {
   # create entry in auth system (no secondary groups)
   &auth_useradd($login,$uidnumber_auth,$gecos,$homedir,
                 $admin_class,"",$sh,$type,$smb_ldap_homepath,
-                $nachname);
+                $nachname,$vorname);
   &db_disconnect($dbh);
   } # end 
 
@@ -5642,7 +5642,7 @@ sub auth_passwd {
 
 sub auth_useradd {
    my ($login,$uid_number,$gecos,$home,$unix_group,
-       $sec_groups,$shell,$type,$smb_ldap_homepath,$lastname) = @_; 
+       $sec_groups,$shell,$type,$smb_ldap_homepath,$lastname,$firstname) = @_; 
    my ($u_home,$u_type,$u_gecos,$u_group,
        $u_uidnumber)=&fetchdata_from_account($login);
    my ($g_type,$g_name,$g_gidnumber)=&pg_get_group_type($unix_group);
@@ -5716,7 +5716,7 @@ sub auth_useradd {
                    $command="/usr/sbin/smbldap-usermod -D 'H:'".
                             " -C '${smb_ldap_homepath}'".
                             " -S '${lastname}'".
-                            " -N '${gecos}'".
+                            " -N '${firstname}'".
                             " -c '${gecos}'".
                             " $login";
 	           print "   * $command\n";
