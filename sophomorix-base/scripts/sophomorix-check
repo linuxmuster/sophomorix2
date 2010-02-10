@@ -2417,6 +2417,7 @@ sub auto_teach_in {
       &update_user_db_entry($login, 
                             "Name=$first",
                             "LastName=$last",
+                            "Gecos=$first $last",
                             "Birthday=$birth");
       # log
       &append_teach_in_log("auto-teach-in",
@@ -2426,9 +2427,9 @@ sub auto_teach_in {
                                );
 
       # update the system
-      my $gecos="$first"." "."$last";
-      &Sophomorix::SophomorixPgLdap::update_user_db_entry($login,
-                      "Gecos=$gecos");
+      #my $gecos="$first"." "."$last";
+      #&Sophomorix::SophomorixPgLdap::update_user_db_entry($login,
+      #                "Gecos=$gecos");
    }
    &titel("auto_teach-in: ... $auto_teach_in_count accounts modified");
 }
