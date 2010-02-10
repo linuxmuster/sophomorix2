@@ -3207,9 +3207,9 @@ sub update_user_db_entry {
     my $exitunid="";
     my $subclass="";
     my $status="";
-    my $toleration_date="",
+    my $toleration_date="";
     my $deactivation_date="";
-    my $sc_toleration_date="",
+    my $sc_toleration_date="";
     my $exit_admin_class="";
     my $usertoken="";
     my $account_type="";
@@ -6067,9 +6067,9 @@ sub auth_deleteuser_from_project {
 sub auth_firstnameupdate {
    my ($login,$firstname) = @_;
         # firstname is updated only in the db
-        #my $command="smbldap-usermod -N '$firstname' $login";
-        #print "   * $command\n";
-        #system("$command");
+        my $command="smbldap-usermod -N '$firstname' $login";
+        print "   * $command\n";
+        system("$command");
 
 }
 
