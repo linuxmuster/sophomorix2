@@ -2514,6 +2514,7 @@ sub update_unids {
              ($last,$first,$birthday)=split(/;/, $identifier_file);
              &update_user_db_entry($login, "LastName=$last",
                                            "Name=$first",
+                                           "Gecos=$first $last",
                                            "Birthday=$birthday");
              # log
              &append_teach_in_log("update_unids",
@@ -2523,9 +2524,9 @@ sub update_unids {
                                   $unid_file);
 
              # update the system
-             $gecos="$first"." "."$last";
-             &Sophomorix::SophomorixPgLdap::update_user_db_entry($login,
-                      "Gecos=$gecos");
+             #$gecos="$first"." "."$last";
+             #&Sophomorix::SophomorixPgLdap::update_user_db_entry($login,
+             #         "Gecos=$gecos");
 
              # updating the hashes that sophomorix uses internally
              &update_all_hashes($identifier_sys,
