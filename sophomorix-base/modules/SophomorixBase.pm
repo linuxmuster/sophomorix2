@@ -5205,7 +5205,10 @@ sub unlink_immutable_tree {
     &set_immutable_bit($parent_dir,0);
 
     if (-x ${DevelConf::chattr_path}){
-        system("${DevelConf::chattr_path} -i -R $dir");
+        system("${DevelConf::chattr_path} -i ${dir}");
+        if (-e "${dir}/*"){
+            system("${DevelConf::chattr_path} -i ${dir}/*");
+        }
     } else {
         print "${DevelConf::chattr_path} not fount/not executable\n";
     }
