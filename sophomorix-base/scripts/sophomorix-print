@@ -952,10 +952,10 @@ if ($one_per_page==1){
         # moodle
         print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
         print LATEX " Lernplattform mit Moodle: \n\n";
-        if (not defined $Conf::moodle_external){
+        if (not defined $Conf::moodle_url){
             print LATEX " URL: \\texttt{https://${server_external}/moodle}\n\n";
         } else {
-            print LATEX " URL: \\texttt{${Conf::moodle_external}}\n\n";
+            print LATEX " URL: \\texttt{${Conf::moodle_url}}\n\n";
         }
         # phpmyadmin
         #print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
