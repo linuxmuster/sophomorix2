@@ -42,17 +42,9 @@ use IMAP::Admin;
 
 my $ldap=&auth_connect();
 
+my $login="galli";
 
-  my $mesg = $ldap->modify( "uid=galli,ou=accounts,dc=linuxmuster,dc=de",
-    replace => {
-      description => 'New List of members', # Change the description
-#      member      => [ # Replace whole list with these
-#        'cn=member1,ou=people,dc=example,dc=com',   
-#        'cn=member2,ou=people,dc=example,dc=com',
-#      ],
-#      seeAlso => [],   # Remove attribute
-    }
-  );
+&update_auth_ldap($ldap,$login);
 
 
 
@@ -86,3 +78,67 @@ my $ldap=&auth_connect();
 ############################################################
 # sub
 ############################################################
+
+
+sub update_auth_ldap {
+    my ($ldap,$login) = @_;
+    my ($home,
+        $type,
+        $gecos,
+        $group,
+        $uidnumber,
+        $sambahomepath,
+        $firstpassword,
+        $sambaacctflags,
+        $exitadminclass,
+        $sambahomedrive,
+        $sambakickofftime,
+        $sambalmpassword,
+        $sambalogofftime,
+        $sambalogontime,
+        $sambantpassword,
+        $sambaprimarygroupsid,
+        $sambapwdcanchange,
+        $sambapwdlastset,
+        $sambapwdmustchange,
+        $sambasid,
+        $surname,
+        $userpassword,
+        $loginshell,
+        $gidnumber) = &fetchdata_from_account($login);
+
+    # map to names used by ldap
+    my $uid=$login;
+    my $sn=$surname;
+    my $givenname=$surname;
+    my $objectclass="inetOrgPerson,posixAccount,shadowAccount,top,sambaSamAccount";
+    my $homedirectory=$home;
+    my $displayname=$gecos;
+    my $description=$gecos;
+    my $cn=$gecos;
+
+    my $ou="accounts";
+    if ($gecos eq "Computer"){
+        $ou="machines";
+    }
+
+
+    # performance: following line must be used once:
+    # but is not a Problem
+    my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
+    my $dn="uid=".$uid.",ou=".$ou.",".$suffix;
+
+
+print "DA: $dn\n";
+
+    my $mesg = $ldap->modify( "uid=galli,ou=accounts,dc=linuxmuster,dc=de",
+       replace => {
+         description => 'Members', 
+#      member      => [ # Replace whole list with these
+#        'cn=member1,ou=people,dc=example,dc=com',   
+#        'cn=member2,ou=people,dc=example,dc=com',
+#      ],
+#      seeAlso => [],   # Remove attribute
+       }
+    );
+}
