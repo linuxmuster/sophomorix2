@@ -29,6 +29,9 @@ use IMAP::Admin;
 
 
 
+#&unlink_immutable_tree("/home/test",0);
+
+
 
 ############################################################
 # The following modifies an entry in ldap
@@ -37,7 +40,21 @@ use IMAP::Admin;
 # my $user="beckje";
 # my $new_basedn="dc=example,dc=org";
 
-# my $ldap=&auth_connect();
+my $ldap=&auth_connect();
+
+
+  my $mesg = $ldap->modify( "uid=galli,ou=accounts,dc=linuxmuster,dc=de",
+    replace => {
+      description => 'New List of members', # Change the description
+#      member      => [ # Replace whole list with these
+#        'cn=member1,ou=people,dc=example,dc=com',   
+#        'cn=member2,ou=people,dc=example,dc=com',
+#      ],
+#      seeAlso => [],   # Remove attribute
+    }
+  );
+
+
 
 # my $msg = $ldap->search(
 #        base => "ou=accounts,dc=linuxmuster,dc=de",
@@ -63,7 +80,7 @@ use IMAP::Admin;
 #                 replace => {'description' => 'test'}
 #		);
 
-#&auth_disconnect($ldap);
+&auth_disconnect($ldap);
 
 
 ############################################################
