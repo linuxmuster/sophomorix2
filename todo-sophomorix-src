@@ -1,5 +1,53 @@
 # $Id$
 
+
+upgrade: fixe dns-Einträge in db.10 eintragen:
+   db.10
+   db.linuxmuster
+
+Wie fragt man encoding system der postgrse db
+
+psql -U ldap ldap
+
+\encoding
+
+psql -l -U ldap
+
+-> nach upgrade latin9
+-> neuinstallation utf8
+
+
+
+slapd.conf
+
+checkpoint      512 30
+führt zu fehler bei mir, nicht bei thomas
+
+
+# testen am bsz
+# For the Debian package we use 2MB as default but be sure to update this
+# value if you have plenty of RAM
+dbconfig set_cachesize 0 2097152 0
+
+
+chattr -R +i dir
+tut bei thomas
+
+
+sophomorix-imp-expandfromaddress
+testen, obs tut
+-> script updaten (mindestens anleitung)
+
+
+projektanlegen, ... gruppenzugehörigkeit einer person
+nscd sollte noch geflushed werden -> checken
+
+
+Felder in ldap, die noch rein sollen:
+mailadresse
+
+
+
 ############################################################
 Next
 ############################################################
@@ -8,6 +56,7 @@ Bei ersten lauf von sophomorix-test:
 chown: fehlender Operand nach ".attic"
 chown: fehlender Operand nach ".7c"
 usw.
+????? nscd flush siehe oben
 
 
 change option and file names
@@ -18,30 +67,9 @@ Option für
 ./Latex_Musterfile_Passwortlisten.tex
 
 
-slapd.conf.template: 
+??????????????????????????
 
-so drin: (noch Anpassen)
-
-# For the Debian package we use 2MB as default but be sure to update this
-# value if you have plenty of RAM
-dbconfig set_cachesize 0 2097152 0
-
-
-muss das rein oder nicht? (noch nicht drin)
-
-# Checkpoint the BerkeleyDB database periodically in case of system
-# failure and to speed slapd shutdown.
-checkpoint      512 30
-
-
-was ist damit(fällt 3x raus?):
-
-by dn="cn=admin,@@basedn@@" write
-
-
-
-
-
+schon erledigt?
 
 sophomorix-dump-pg2ldap dumpt
 ldap-Feld description falsch:
@@ -53,7 +81,7 @@ bei alten ists ok
 
 Problem: im accounts dump (/var/log/sophomorix...) gibts bei neuen usern 
 2 Felder bei description!
-
+????????????????????????????
 
 
 
