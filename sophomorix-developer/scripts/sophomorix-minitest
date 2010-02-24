@@ -42,35 +42,22 @@ use IMAP::Admin;
 
 my $ldap=&auth_connect();
 
-my $login="galli";
+my $login="hannes";
+
+
+
+# fetch data of $login from potgresql
+# if user exists in potgres:
+#    - create ldap account (if ldap account exists) OR 
+#    - update ldap account (if ldap account does not exist)
 
 &update_auth_ldap($ldap,$login);
 
+# deleting the user $login
+# make better
+# find out if it is in accounts or machines
+#&delete_auth_ldap($ldap,$login,"accounts");
 
-
-# my $msg = $ldap->search(
-#        base => "ou=accounts,dc=linuxmuster,dc=de",
-#        scope => "sub",
-#        filter => ("uid=$user")
-#    );
-
-#  my $entry = $msg->entry(0);
-#  my $old_dn=$entry->dn();
-#  print "Old dn:  $old_dn\n";
-
-#  my ($without_basedn) = split(/dc=/,$old_dn);
-#  my $new_dn = $without_basedn.$new_basedn;
-#  print "New dn:  $new_dn \n";
-
-
-# this does not work
-#  $ldap->modify( $old_dn,
-#                 replace => {'dn' => $new_dn}
-#		);
-
-#  $ldap->modify( $old_dn,
-#                 replace => {'description' => 'test'}
-#		);
 
 &auth_disconnect($ldap);
 
@@ -107,11 +94,19 @@ sub update_auth_ldap {
         $loginshell,
         $gidnumber) = &fetchdata_from_account($login);
 
+    # return on error 
+    if ($home eq ""){
+        print "User $login does not exist in postgresql.\n";
+        print "   * Cannot create/replace ldap account.\n";
+        return 0;
+    }
+
     # map to names used by ldap
     my $uid=$login;
     my $sn=$surname;
     my $givenname=$surname;
-    my $objectclass="inetOrgPerson,posixAccount,shadowAccount,top,sambaSamAccount";
+    my @objectclass=("inetOrgPerson","posixAccount","shadowAccount",
+                     "top","sambaSamAccount");
     my $homedirectory=$home;
     my $displayname=$gecos;
     my $description=$gecos;
@@ -122,23 +117,100 @@ sub update_auth_ldap {
         $ou="machines";
     }
 
-
     # performance: following line must be used once:
     # but is not a Problem
     my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
     my $dn="uid=".$uid.",ou=".$ou.",".$suffix;
+    my @dn=split(",",$dn);
+
+    # search existing account
+    my $mesg_1 = $ldap->search( base => "$dn", attrs => '*', filter => 'cn=*');
+
+    # decide what to do
+    if ($mesg_1->count() ==0){
+        print "Adding ldap entry dn: $dn\n";
+        my $mesg_2 = $ldap->add( $dn,
+           attrs => [
+             cn                   => $cn, 
+             description          => $description, 
+             displayName          => $displayname, 
+             # kann nicht aktualisiert werden
+             #         dn                   => \@dn, 
+             gecos                => $gecos, 
+             gidNumber            => $gidnumber, 
+             givenName            => $givenname, 
+             homeDirectory        => $homedirectory, 
+             loginShell           => $loginshell, 
+             objectClass          => \@objectclass,
+             sambaAcctFlags       => $sambaacctflags, 
+             sambaHomeDrive       => $sambahomedrive, 
+             sambaHomePath        => $sambahomepath, 
+             sambaKickoffTime     => $sambakickofftime, 
+             sambaLMPassword      => $sambalmpassword, 
+             sambaLogoffTime      => $sambalogofftime, 
+             sambaLogonTime       => $sambalogontime, 
+             sambaNTPassword      => $sambantpassword, 
+             sambaPrimaryGroupSID => $sambaprimarygroupsid, 
+             sambaPwdCanChange    => $sambapwdcanchange, 
+             sambaPwdLastSet      => $sambapwdlastset, 
+             sambaPwdMustChange   => $sambapwdmustchange, 
+             sambaSID             => $sambasid, 
+             sn                   => $sn, 
+             uid                  => $uid, 
+             uidNumber            => $uidnumber, 
+             userPassword         => $userpassword, 
+           ]
+        );
+        # print errors
+        $mesg_2->code && die $mesg_2->error;
+    } else {
+        print "Replacing ldap dn: $dn\n";
+        my $mesg_2 = $ldap->modify( $dn,
+           replace => {
+             cn                   => $cn, 
+             description          => $description, 
+             displayName          => $displayname, 
+             # kann nicht aktualisiert werden
+             #         dn                   => \@dn, 
+             gecos                => $gecos, 
+             gidNumber            => $gidnumber, 
+             givenName            => $givenname, 
+             homeDirectory        => $homedirectory, 
+             loginShell           => $loginshell, 
+             objectClass          => \@objectclass,
+             sambaAcctFlags       => $sambaacctflags, 
+             sambaHomeDrive       => $sambahomedrive, 
+             sambaHomePath        => $sambahomepath, 
+             sambaKickoffTime     => $sambakickofftime, 
+             sambaLMPassword      => $sambalmpassword, 
+             sambaLogoffTime      => $sambalogofftime, 
+             sambaLogonTime       => $sambalogontime, 
+             sambaNTPassword      => $sambantpassword, 
+             sambaPrimaryGroupSID => $sambaprimarygroupsid, 
+             sambaPwdCanChange    => $sambapwdcanchange, 
+             sambaPwdLastSet      => $sambapwdlastset, 
+             sambaPwdMustChange   => $sambapwdmustchange, 
+             sambaSID             => $sambasid, 
+             sn                   => $sn, 
+             uid                  => $uid, 
+             uidNumber            => $uidnumber, 
+             userPassword         => $userpassword, 
+           }
+        );
+        # print errors
+        $mesg_2->code && die $mesg_2->error;
+    }
+}
 
 
-print "DA: $dn\n";
 
-    my $mesg = $ldap->modify( "uid=galli,ou=accounts,dc=linuxmuster,dc=de",
-       replace => {
-         description => 'Members', 
-#      member      => [ # Replace whole list with these
-#        'cn=member1,ou=people,dc=example,dc=com',   
-#        'cn=member2,ou=people,dc=example,dc=com',
-#      ],
-#      seeAlso => [],   # Remove attribute
-       }
-    );
+
+
+sub delete_auth_ldap {
+    my ($ldap,$login,$ou) = @_;
+    my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
+    my $dn="uid=".$login.",ou=".$ou.",".$suffix;
+    print "Deleting ldap dn: $dn\n";
+    my $mesg = $ldap->delete( $dn); 
+    $mesg->code && die $mesg->error;
 }
