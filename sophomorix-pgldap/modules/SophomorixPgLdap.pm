@@ -1332,10 +1332,30 @@ sub fetchdata_from_account {
         $sambahomepath,
         $firstpassword,
         $sambaacctflags,
-        $exitadminclass
+        $exitadminclass,
+        $sambahomedrive,        
+        $sambakickofftime,
+        $sambalmpassword,
+        $sambalogofftime,        
+        $sambalogontime,
+        $sambantpassword,  
+        $sambaprimarygroupsid,
+        $sambapwdcanchange,
+        $sambapwdlastset,
+        $sambapwdmustchange,
+        $sambasid,
+        $surname,
+        $userpassword,
+        $loginshell,
+        $gidnumber,
        )= $dbh->selectrow_array( "SELECT homedirectory,gid,gecos,uidnumber,
                                          sambahomepath,firstpassword,sambaacctflags,
-                                         exitadminclass
+                                         exitadminclass,sambahomedrive,sambakickofftime,
+                                         sambalmpassword,sambalogofftime,sambalogontime,
+                                         sambantpassword,sambaprimarygroupsid,
+                                         sambapwdcanchange,sambapwdlastset,
+                                         sambapwdmustchange,sambasid,surname,userpassword,
+                                         loginshell,gidnumber
                                          FROM userdata 
                                          WHERE uid='$login'
                                         ");
@@ -1357,9 +1377,13 @@ sub fetchdata_from_account {
             $type="none";
         }
         return ($home,$type,$gecos,$group,$uidnumber,$sambahomepath,
-                $firstpassword,$sambaacctflags,$exitadminclass);
+                $firstpassword,$sambaacctflags,$exitadminclass,$sambahomedrive,
+                $sambakickofftime,$sambalmpassword,$sambalogofftime,$sambalogontime,
+                $sambantpassword,$sambaprimarygroupsid,$sambapwdcanchange,
+                $sambapwdlastset,$sambapwdmustchange,$sambasid,$surname,$userpassword,
+                $loginshell,$gidnumber);
     } else {
-        return ("","","","",-1,"","","","");
+        return ("","","","",-1,"","","","","","","","","","","","","","","","","","");
     }
 }
 
