@@ -50,6 +50,18 @@ mailadresse
 kvm auf laptop umziehen
 
 
+
+postgres nach ldap, ohne smbldap-tools
+probleme:
+objectClass: inetOrgPerson,posixAccount,shadowAccount,top,sambaSamAccount
+
+ist im Moment hart reincodiert, sollte aber eigentlich generiert werden
+siehe gen-ldif-from-perl
+kann man das ldapscheme erweitern?
+
+performance: suffix wird bei jedem account aus slapd.conf geholt
+
+
 ############################################################
 Next
 ############################################################
