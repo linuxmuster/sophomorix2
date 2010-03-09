@@ -1243,17 +1243,25 @@ kvm vorbereiten, pakete henunterladen
 
 image erstellen:
 1. kvm gast herunterfahren
-2. sudo cp /var/lib/libvirt/images/lenny.img /home/bz/kvm-backups/lenny.img
-   (lenny.img ist verlinkt auf /home/root/kvm)
+2. sudo cp /var/lib/libvirt/images/lenny64.img /home/bz/kvm-backups/lenny64.img
+   (lenny64.img ist verlinkt auf /home/root/kvm)
 
 
 kvm-host wiederherstellen
-sudo cp /home/bz/kvm-backups/lenny.img /var/lib/libvirt/images/lenny.img
+sudo cp /home/bz/kvm-backups/lenny64.img /var/lib/libvirt/images/lenny64.img
 
 
 ls -alh /home/bz/kvm-backups zeigt immer 4GB (Festplattengröße)
 
 ??? Wie kann man benutzten Platz anzeigen lassen?
+
+
+Clonen auf anderen Rechner:
+
+dort ein Rechner anlegen:
+- alles gleich
+- mac adresse gleich einstellen
+- /etc/fstab (für jeden Rechner einen Eintrag ins image)
 
 
 ############################################################
