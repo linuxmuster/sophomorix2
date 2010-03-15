@@ -89,7 +89,8 @@ require Exporter;
              fetchquota_sum
              kill_user
              auth_passwd
-             auth_useradd
+             update_auth_ldap
+             auth_useradd_old
              auth_groupadd
              auth_groupdel
              auth_usermove
@@ -1778,9 +1779,12 @@ sub create_user_db_entry {
       }
   }
   # create entry in auth system (no secondary groups)
-  &auth_useradd($login,$uidnumber_auth,$gecos,$homedir,
-                $admin_class,"",$sh,$type,$smb_ldap_homepath,
-                $nachname,$vorname);
+  my $ldap=&auth_connect();
+  &update_auth_ldap($ldap,$login);
+  &auth_disconnect($ldap);
+#  &auth_useradd_old($login,$uidnumber_auth,$gecos,$homedir,
+#                $admin_class,"",$sh,$type,$smb_ldap_homepath,
+#                $nachname,$vorname);
   &db_disconnect($dbh);
   } # end 
 
@@ -5666,7 +5670,162 @@ sub auth_passwd {
 }
 
 
-sub auth_useradd {
+
+
+
+
+sub update_auth_ldap {
+    my ($ldap,$login) = @_;
+    # type: user,computer,unixadmin,examaccount
+    my ($home,
+        $type,
+        $gecos,
+        $group,
+        $uidnumber,
+        $sambahomepath,
+        $firstpassword,
+        $sambaacctflags,
+        $exitadminclass,
+        $sambahomedrive,
+        $sambakickofftime,
+        $sambalmpassword,
+        $sambalogofftime,
+        $sambalogontime,
+        $sambantpassword,
+        $sambaprimarygroupsid,
+        $sambapwdcanchange,
+        $sambapwdlastset,
+        $sambapwdmustchange,
+        $sambasid,
+        $surname,
+        $userpassword,
+        $loginshell,
+        $gidnumber) = &fetchdata_from_account($login);
+
+    # return on error 
+    if ($home eq ""){
+        print "User $login does not exist in postgresql.\n";
+        print "   * Cannot create/replace ldap account.\n";
+        return 0;
+    }
+
+    # map to names used by ldap
+    my $uid=$login;
+    my $sn=$surname;
+    my $givenname=$surname;
+    my @objectclass=("inetOrgPerson","posixAccount","shadowAccount",
+                     "top","sambaSamAccount");
+    my $homedirectory=$home;
+    my $displayname=$gecos;
+    my $description=$gecos;
+    my $cn=$gecos;
+
+    my $ou="accounts";
+    if ($gecos eq "Computer"){
+        $ou="machines";
+    }
+
+    # performance: following line must be used once:
+    # but is not a Problem
+    my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
+    my $dn="uid=".$uid.",ou=".$ou.",".$suffix;
+    my @dn=split(",",$dn);
+
+    # search existing account
+    my $mesg_1 = $ldap->search( base => "$dn", attrs => '*', filter => 'cn=*');
+
+    # decide what to do
+    if ($mesg_1->count() ==0){
+        print "Adding ldap entry dn: $dn\n";
+        my $mesg_2 = $ldap->add( $dn,
+           attrs => [
+             cn                   => $cn, 
+             description          => $description, 
+             displayName          => $displayname, 
+             # kann nicht aktualisiert werden
+             #         dn                   => \@dn, 
+             gecos                => $gecos, 
+             gidNumber            => $gidnumber, 
+             givenName            => $givenname, 
+             homeDirectory        => $homedirectory, 
+             loginShell           => $loginshell, 
+             objectClass          => \@objectclass,
+             sambaAcctFlags       => $sambaacctflags, 
+             sambaHomeDrive       => $sambahomedrive, 
+             sambaHomePath        => $sambahomepath, 
+             sambaKickoffTime     => $sambakickofftime, 
+             sambaLMPassword      => $sambalmpassword, 
+             sambaLogoffTime      => $sambalogofftime, 
+             sambaLogonTime       => $sambalogontime, 
+             sambaNTPassword      => $sambantpassword, 
+             sambaPrimaryGroupSID => $sambaprimarygroupsid, 
+             sambaPwdCanChange    => $sambapwdcanchange, 
+             sambaPwdLastSet      => $sambapwdlastset, 
+             sambaPwdMustChange   => $sambapwdmustchange, 
+             sambaSID             => $sambasid, 
+             sn                   => $sn, 
+             uid                  => $uid, 
+             uidNumber            => $uidnumber, 
+             userPassword         => $userpassword, 
+           ]
+        );
+        # print errors
+        $mesg_2->code && die $mesg_2->error;
+    } else {
+        print "Replacing ldap dn: $dn\n";
+        my $mesg_2 = $ldap->modify( $dn,
+           replace => {
+             cn                   => $cn, 
+             description          => $description, 
+             displayName          => $displayname, 
+             # kann nicht aktualisiert werden
+             #         dn                   => \@dn, 
+             gecos                => $gecos, 
+             gidNumber            => $gidnumber, 
+             givenName            => $givenname, 
+             homeDirectory        => $homedirectory, 
+             loginShell           => $loginshell, 
+             objectClass          => \@objectclass,
+             sambaAcctFlags       => $sambaacctflags, 
+             sambaHomeDrive       => $sambahomedrive, 
+             sambaHomePath        => $sambahomepath, 
+             sambaKickoffTime     => $sambakickofftime, 
+             sambaLMPassword      => $sambalmpassword, 
+             sambaLogoffTime      => $sambalogofftime, 
+             sambaLogonTime       => $sambalogontime, 
+             sambaNTPassword      => $sambantpassword, 
+             sambaPrimaryGroupSID => $sambaprimarygroupsid, 
+             sambaPwdCanChange    => $sambapwdcanchange, 
+             sambaPwdLastSet      => $sambapwdlastset, 
+             sambaPwdMustChange   => $sambapwdmustchange, 
+             sambaSID             => $sambasid, 
+             sn                   => $sn, 
+             uid                  => $uid, 
+             uidNumber            => $uidnumber, 
+             userPassword         => $userpassword, 
+           }
+        );
+        # print errors
+        $mesg_2->code && die $mesg_2->error;
+    }
+}
+
+
+
+
+sub delete_auth_ldap {
+    my ($ldap,$login,$ou) = @_;
+    my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
+    my $dn="uid=".$login.",ou=".$ou.",".$suffix;
+    print "Deleting ldap dn: $dn\n";
+    my $mesg = $ldap->delete( $dn); 
+    $mesg->code && die $mesg->error;
+}
+
+
+
+
+sub auth_useradd_old {
    my ($login,$uid_number,$gecos,$home,$unix_group,
        $sec_groups,$shell,$type,$smb_ldap_homepath,$lastname,$firstname) = @_; 
    my ($u_home,$u_type,$u_gecos,$u_group,
