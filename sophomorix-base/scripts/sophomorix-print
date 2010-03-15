@@ -25,6 +25,7 @@ use Sophomorix::SophomorixBase;
 Getopt::Long::Configure ("bundling");
 use DBI;
 use Net::LDAP;
+use Sys::Hostname;
 use Sophomorix::SophomorixPgLdap qw(check_connections
                                     get_print_data
                                     fetchadmins_from_adminclass
@@ -821,8 +822,7 @@ if ($classlist ne ""){
 if ($one_per_page==1){
     &titel("Creating a login list (1 per page)");
     # fetch dnsdomainname and hostname
-    my $hostname=`hostname -s`;
-    chomp($hostname);
+    my $hostname=&hostname();
     my $dnsdomainname=`dnsdomainname`;
     chomp($dnsdomainname);
 
