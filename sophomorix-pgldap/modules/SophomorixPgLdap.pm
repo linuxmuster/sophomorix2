@@ -1347,6 +1347,7 @@ sub fetchdata_from_account {
         $sambapwdmustchange,
         $sambasid,
         $surname,
+        $firstname,
         $userpassword,
         $loginshell,
         $gidnumber,
@@ -1356,7 +1357,7 @@ sub fetchdata_from_account {
                                          sambalmpassword,sambalogofftime,sambalogontime,
                                          sambantpassword,sambaprimarygroupsid,
                                          sambapwdcanchange,sambapwdlastset,
-                                         sambapwdmustchange,sambasid,surname,userpassword,
+                                         sambapwdmustchange,sambasid,surname,firstname,userpassword,
                                          loginshell,gidnumber
                                          FROM userdata 
                                          WHERE uid='$login'
@@ -1382,10 +1383,10 @@ sub fetchdata_from_account {
                 $firstpassword,$sambaacctflags,$exitadminclass,$sambahomedrive,
                 $sambakickofftime,$sambalmpassword,$sambalogofftime,$sambalogontime,
                 $sambantpassword,$sambaprimarygroupsid,$sambapwdcanchange,
-                $sambapwdlastset,$sambapwdmustchange,$sambasid,$surname,$userpassword,
+                $sambapwdlastset,$sambapwdmustchange,$sambasid,$surname,$firstname,$userpassword,
                 $loginshell,$gidnumber);
     } else {
-        return ("","","","",-1,"","","","","","","","","","","","","","","","","","");
+        return ("","","","",-1,"","","","","","","","","","","","","","","","","","","");
     }
 }
 
@@ -5698,6 +5699,7 @@ sub update_auth_ldap {
         $sambapwdmustchange,
         $sambasid,
         $surname,
+        $firstname,
         $userpassword,
         $loginshell,
         $gidnumber) = &fetchdata_from_account($login);
@@ -5712,7 +5714,7 @@ sub update_auth_ldap {
     # map to names used by ldap
     my $uid=$login;
     my $sn=$surname;
-    my $givenname=$surname;
+    my $givenname=$firstname;
     my @objectclass=("inetOrgPerson","posixAccount","shadowAccount",
                      "top","sambaSamAccount");
     my $homedirectory=$home;
