@@ -131,6 +131,7 @@ use Sophomorix::SophomorixAPI qw(
                                   fetchstudents_from_school
                                 );
 use IMAP::Admin;
+use Sys::Hostname;
 
 
 =head1 Documentation of SophomorixPgLdap.pm
@@ -1461,7 +1462,8 @@ sub create_user_db_entry {
     my $gidnumber;
     my $uidnumber_auth;
     my $sambapwdmustchange;
-    my $servername=`hostname -s`;
+#    my $servername=`hostname -s`;
+    my $servername=&hostname();
     chomp($servername);
     my $smb_homepath;
     my $smb_ldap_homepath;

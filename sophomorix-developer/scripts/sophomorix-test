@@ -26,6 +26,7 @@ Getopt::Long::Configure ("bundling");
 
 use DBI;
 use Net::LDAP;
+use Sys::Hostname;
 
 my @arguments = @ARGV;
 
@@ -83,8 +84,7 @@ if ($info==1) {
 # fetch permission for all homes
 &fetch_repairhome();
 
-#my $server="server";
-my $server=`hostname -s`;
+my $server=&hostname();
 chomp($server);
 
 my $win_magic="2147483647";
