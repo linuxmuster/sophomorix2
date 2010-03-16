@@ -5739,40 +5739,112 @@ sub update_auth_ldap {
     # decide what to do
     if ($mesg_1->count() ==0){
         print "Adding ldap entry dn: $dn\n";
-        my $mesg_2 = $ldap->add( $dn,
-           attrs => [
-             cn                   => $cn, 
-             description          => $description, 
-             displayName          => $displayname, 
-             # kann nicht aktualisiert werden
-             #         dn                   => \@dn, 
-             gecos                => $gecos, 
-             gidNumber            => $gidnumber, 
-             givenName            => $givenname, 
-             homeDirectory        => $homedirectory, 
-             loginShell           => $loginshell, 
-             objectClass          => \@objectclass,
-             sambaAcctFlags       => $sambaacctflags, 
-             sambaHomeDrive       => $sambahomedrive, 
-             sambaHomePath        => $sambahomepath, 
-             sambaKickoffTime     => $sambakickofftime, 
-             sambaLMPassword      => $sambalmpassword, 
-             sambaLogoffTime      => $sambalogofftime, 
-             sambaLogonTime       => $sambalogontime, 
-             sambaNTPassword      => $sambantpassword, 
-             sambaPrimaryGroupSID => $sambaprimarygroupsid, 
-             sambaPwdCanChange    => $sambapwdcanchange, 
-             sambaPwdLastSet      => $sambapwdlastset, 
-             sambaPwdMustChange   => $sambapwdmustchange, 
-             sambaSID             => $sambasid, 
-             sn                   => $sn, 
-             uid                  => $uid, 
-             uidNumber            => $uidnumber, 
-             userPassword         => $userpassword, 
-           ]
-        );
-        # print errors
-        $mesg_2->code && die $mesg_2->error;
+        if ($type eq "domcomp"){
+            # computer account (with $ at the end)
+            my $mesg_2 = $ldap->add( $dn,
+               attrs => [
+                 cn                   => $cn, 
+                 description          => $description, 
+                 displayName          => $displayname, 
+                 # kann nicht aktualisiert werden
+                 #         dn                   => \@dn, 
+                 gecos                => $gecos, 
+                 gidNumber            => $gidnumber, 
+                 givenName            => $givenname, 
+                 homeDirectory        => $homedirectory, 
+                 loginShell           => $loginshell, 
+                 objectClass          => \@objectclass,
+                 sambaAcctFlags       => $sambaacctflags, 
+                 sambaKickoffTime     => $sambakickofftime, 
+                 sambaLMPassword      => $sambalmpassword, 
+                 sambaLogoffTime      => $sambalogofftime, 
+                 sambaLogonTime       => $sambalogontime, 
+                 sambaNTPassword      => $sambantpassword, 
+                 sambaPrimaryGroupSID => $sambaprimarygroupsid, 
+                 sambaPwdCanChange    => $sambapwdcanchange, 
+                 sambaPwdLastSet      => $sambapwdlastset, 
+                 sambaPwdMustChange   => $sambapwdmustchange, 
+                 sambaSID             => $sambasid, 
+                 sn                   => $sn, 
+                 uid                  => $uid, 
+                 uidNumber            => $uidnumber, 
+                 userPassword         => $userpassword, 
+               ]
+            );
+            # print errors
+            $mesg_2->code && die $mesg_2->error;
+        } else {
+            if ($type eq "domcomp"){
+                # computer account (with $ at the end)
+                my $mesg_2 = $ldap->add( $dn,
+                   attrs => [
+                     cn                   => $cn, 
+                     description          => $description, 
+                     displayName          => $displayname, 
+                     # kann nicht aktualisiert werden
+                     #         dn                   => \@dn, 
+                     gecos                => $gecos, 
+                     gidNumber            => $gidnumber, 
+                     givenName            => $givenname, 
+                     homeDirectory        => $homedirectory, 
+                     loginShell           => $loginshell, 
+                     objectClass          => \@objectclass,
+                     sambaAcctFlags       => $sambaacctflags, 
+                     sambaKickoffTime     => $sambakickofftime, 
+                     sambaLMPassword      => $sambalmpassword, 
+                     sambaLogoffTime      => $sambalogofftime, 
+                     sambaLogonTime       => $sambalogontime, 
+                     sambaNTPassword      => $sambantpassword, 
+                     sambaPrimaryGroupSID => $sambaprimarygroupsid, 
+                     sambaPwdCanChange    => $sambapwdcanchange, 
+                     sambaPwdLastSet      => $sambapwdlastset, 
+                     sambaPwdMustChange   => $sambapwdmustchange, 
+                     sambaSID             => $sambasid, 
+                     sn                   => $sn, 
+                     uid                  => $uid, 
+                     uidNumber            => $uidnumber, 
+                     userPassword         => $userpassword, 
+                   ]
+                );
+                # print errors
+                $mesg_2->code && die $mesg_2->error;
+            } else {
+                my $mesg_2 = $ldap->add( $dn,
+                   attrs => [
+                     cn                   => $cn, 
+                     description          => $description, 
+                     displayName          => $displayname, 
+                     # kann nicht aktualisiert werden
+                     #         dn                   => \@dn, 
+                     gecos                => $gecos, 
+                     gidNumber            => $gidnumber, 
+                     givenName            => $givenname, 
+                     homeDirectory        => $homedirectory, 
+                     loginShell           => $loginshell, 
+                     objectClass          => \@objectclass,
+                     sambaAcctFlags       => $sambaacctflags, 
+                     sambaHomeDrive       => $sambahomedrive, 
+                     sambaHomePath        => $sambahomepath, 
+                     sambaKickoffTime     => $sambakickofftime, 
+                     sambaLMPassword      => $sambalmpassword, 
+                     sambaLogoffTime      => $sambalogofftime, 
+                     sambaLogonTime       => $sambalogontime, 
+                     sambaNTPassword      => $sambantpassword, 
+                     sambaPrimaryGroupSID => $sambaprimarygroupsid, 
+                     sambaPwdCanChange    => $sambapwdcanchange, 
+                     sambaPwdLastSet      => $sambapwdlastset, 
+                     sambaPwdMustChange   => $sambapwdmustchange, 
+                     sambaSID             => $sambasid, 
+                     sn                   => $sn, 
+                     uid                  => $uid, 
+                     uidNumber            => $uidnumber, 
+                     userPassword         => $userpassword, 
+                   ]
+                );
+                # print errors
+                $mesg_2->code && die $mesg_2->error;
+            }
+        }
     } else {
         print "Replacing ldap dn: $dn\n";
         my $mesg_2 = $ldap->modify( $dn,
