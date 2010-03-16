@@ -1,0 +1,104 @@
+#!/usr/bin/perl -w
+# $Id$
+# This script (sophomorix-workstation) is maintained by Rüdiger Beck
+# It is Free Software (License GPLv3)
+# If you find errors, contact the author
+# jeffbeck@web.de  or  jeffbeck@gmx.de
+
+
+# ===========================================================================
+# Bibliotheken
+# ===========================================================================
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+#use Schedule::at;
+use String::Approx 'amatch';
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+use Time::Local;
+use Time::localtime;
+use Term::ANSIColor qw(:constants); # farbiger Text RED, BLUE, ...
+# nach jedem Printbefehl wieder auf Standardfarbe zurücksetzen
+$Term::ANSIColor::AUTORESET = 1;
+use IMAP::Admin;
+use DBI;
+use Net::LDAP;
+use Date::Calc qw(check_date);
+use Sophomorix::SophomorixPgLdap qw(show_modulename
+                                    db_connect
+                                    check_connections
+                                    search_user
+                                    fetchdata_from_account
+                                    forbidden_login_hash
+                                    update_user_db_entry
+                                    date_pg2perl
+                                    user_deaktivieren
+                                    user_reaktivieren     
+                                    check_sophomorix_user
+                                    set_sophomorix_passwd
+                                    fetchstudents_from_adminclass
+                                    db_connect
+                                   );
+
+my @arguments = @ARGV;
+
+
+my $today=`date +%d.%m.%Y`;
+chomp($today);
+
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+$Conf::log_level=1;
+my $help=0;
+my $info=0;
+# Parsen der Optionen
+my $testopt=GetOptions(
+       "verbose|v+" => \$Conf::log_level,
+       "help|h" => \$help,
+       "i|info" => \$info,
+          );
+
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
+&check_connections();
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlbeschreibung
+   print('
+sophomorix-workstation adds the DomainComputer and Examaccount 
+  from /etc/linuxmuster/workstation
+
+Options
+  -h   /  --help
+  -i   /  --info
+  -v   /  --verbose
+  -vv  /  --verbose --verbose
+
+Please see the sophomorix-workstation(8) man pages for full documentation
+');
+   print "\n";
+
+   exit;
+}
+
+
+# --info
+if ($info==1){
+
+
+
+}
+
+
+&log_script_start(@arguments);
+
+
+
+&log_script_end(@arguments);
