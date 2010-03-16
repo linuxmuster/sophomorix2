@@ -3,7 +3,7 @@
 
 # next:
 # check if workstation is added right
-           computer
+           computer  (V)
            unixadmin
            ... is added right
 
@@ -27,6 +27,11 @@ psql -l -U ldap
 -> neuinstallation utf8
 
 
+sophomorix-workstation
+- noch ins Paket rein: sophomorix-base.install
+- --print: Ausdruck erzeugen (incl. Kommentare)
+- --info: welche workstation gibts, was kommt hinzu
+- accounts checken, fehlende anlegen, nicht mehr gebrauchte entfernen
 
 slapd.conf
 
@@ -54,6 +59,17 @@ testen, obs tut
 
 projektanlegen, ... gruppenzugehörigkeit einer person
 nscd sollte noch geflushed werden -> checken
+
+
+RT:
+# 399
+
+wie lautet der Befehl mit der in der Schulkonsole ein projekt gelÃ¶scht wird?
+   sophomorix-project --caller teacher --project name --kill
+   sophomorix-project --caller teacher --project name --kill
+
+
+
 
 
 Felder in ldap, die noch rein sollen:
@@ -216,7 +232,7 @@ so vorgehen:
      2. Einzel dump so abändern dass es zusammen passt
 
 
-Bug #156: projekte werden nicht vollständig gelöscht
+Bug #155: projekte werden nicht vollständig gelöscht
 
 
 make ubuntu / make deb 
@@ -703,11 +719,6 @@ $use_quota="yes" ist. Ist gefixt in linuxmuster-base 1.4.16.
 index erzeugung raus??
 
 
-RT:
-# 399
-
-wie lautet der Befehl mit der in der Schulkonsole ein projekt gelÃ¶scht wird?
-   sophomorix-project --caller teacher --project name --kill
 
 # 190 - . _ in loginnamen
 
