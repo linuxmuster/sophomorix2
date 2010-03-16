@@ -27,6 +27,7 @@ use Net::LDAP;
 use Date::Calc qw(check_date);
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     db_connect
+                                    db_disconnect
                                     check_connections
                                     search_user
                                     fetchdata_from_account
@@ -89,16 +90,153 @@ Please see the sophomorix-workstation(8) man pages for full documentation
 }
 
 
+
+
+&titel("Asking the system for users ...");
+
+my ($ref_domcomputers,$ref_rooms,$ref_examaccounts) = &get_sys_workstations();
+
+# domcomputers room
+my %domcomputers_system = %$ref_domcomputers;
+my %rooms_system = %$ref_rooms;
+my %examaccounts_system = %$ref_examaccounts; 
+
+
+
+
+
+
+
+
+
+
 # --info
 if ($info==1){
 
+    # fetch and sort rooms
+    my @rooms=();
+    while (my ($room,$v) = each %rooms_system){
+        push @rooms, $room;
+    }
+    @rooms = sort @rooms;
 
-
+    foreach my $room (@rooms){
+	print "$room\n";
+        # fetch and sort examaccounts
+        my @examaccounts=();
+        while (my ($account,$roomentry) = each %examaccounts_system){
+            #print $account , " ", $roomentry, "\n";
+            if ($roomentry eq $room){
+                push @examaccounts,$account;
+            }
+        }
+        @examaccounts = sort @examaccounts;
+        foreach my $account (@examaccounts){
+            print "    $account\n";
+        }
+    }
 }
 
 
-&log_script_start(@arguments);
+#&log_script_start(@arguments);
 
 
 
-&log_script_end(@arguments);
+
+
+
+
+
+
+sub get_sys_workstations {
+
+    my %domcomputers_system = ();
+    my %rooms_system = ();
+    my %examaccounts_system = ();
+
+    my $dbh=&db_connect();
+
+    # domcomputers
+
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT uid,gid,homedirectory 
+                               FROM userdata 
+                              WHERE gid='domcomputers'" );
+    $sth->execute();
+
+    my $array_ref = $sth->fetchall_arrayref();
+
+    foreach my $row (@$array_ref){
+        # split the array, to give better names
+        # or use numbers and look in the SELECT statement
+        my $account_type="",
+
+        my ($domcomputer,
+            $room,
+            $home,
+           ) = @$row;
+        #print "\n";
+        #print "Host:  $domcomputer\n";
+        #print "Room:  $room\n";
+        #print "Home:  $home\n";
+        $domcomputers_system{$domcomputer}=$room;
+       
+    }
+
+
+
+    # examaccounts
+
+    # select the columns that i need
+    my $sth2= $dbh->prepare( "SELECT uid,gid,homedirectory 
+                               FROM userdata 
+                              WHERE homedirectory LIKE '/home/workstations%'" );
+    $sth2->execute();
+
+    my $array_ref2 = $sth2->fetchall_arrayref();
+
+    foreach my $row (@$array_ref2){
+        # split the array, to give better names
+        # or use numbers and look in the SELECT statement
+        my $account_type="",
+
+        my ($exam_account,
+            $room,
+            $home,
+           ) = @$row;
+        #print "\n";
+        #print "EXAM:  $exam_account\n";
+        #print "Room:  $room\n";
+        #print "Home:  $home\n";
+        $examaccounts_system{$exam_account}=$room;
+        $rooms_system{$room}="seen";
+    }
+
+
+
+    # room sortieren
+
+
+
+
+    &db_disconnect($dbh);
+    # returns some Hashes, as a list
+    # 1:  workstation - room
+    # 2:  room - workstation
+    return(\%domcomputers_system, 
+           \%rooms_system, 
+           \%examaccounts_system, 
+          );
+}
+
+
+
+
+
+
+
+
+
+
+
+#&log_script_end(@arguments);
