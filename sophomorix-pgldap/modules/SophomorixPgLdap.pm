@@ -1357,12 +1357,46 @@ sub fetchdata_from_account {
                                          sambalmpassword,sambalogofftime,sambalogontime,
                                          sambantpassword,sambaprimarygroupsid,
                                          sambapwdcanchange,sambapwdlastset,
-                                         sambapwdmustchange,sambasid,surname,firstname,userpassword,
-                                         loginshell,gidnumber
+                                         sambapwdmustchange,sambasid,surname,firstname,
+                                         userpassword,loginshell,gidnumber
                                          FROM userdata 
                                          WHERE uid='$login'
                                         ");
     &db_disconnect($dbh);
+    #$type=&fetchtype_from_home=($home);
+    if (defined $home){
+        if ($home=~/^$DevelConf::homedir_pupil\//){
+            $type="student";
+        } elsif ($group  eq ${DevelConf::teacher}){
+    	    $type="teacher";
+        } elsif ($home=~/^$DevelConf::homedir_ws\//){
+            $type="examaccount";
+        } elsif ($home=~/\/dev\/null/){
+            $type="domcomp";
+        } elsif ($home=~/^$DevelConf::attic\//){
+            $type="attic";
+        } elsif ($home=~/^$DevelConf::homedir_all_admins\//){
+            $type="administrator";
+        } else {
+            $type="none";
+        }
+    #if (defined $home){
+        return ($home,$type,$gecos,$group,$uidnumber,$sambahomepath,
+                $firstpassword,$sambaacctflags,$exitadminclass,$sambahomedrive,
+                $sambakickofftime,$sambalmpassword,$sambalogofftime,$sambalogontime,
+                $sambantpassword,$sambaprimarygroupsid,$sambapwdcanchange,
+                $sambapwdlastset,$sambapwdmustchange,$sambasid,$surname,$firstname,
+                $userpassword,$loginshell,$gidnumber);
+    } else {
+        return ("","","","",-1,"","","","","","","","","","","","","","","","","","","");
+    }
+}
+
+
+
+
+sub fetchtype_from_home {
+    my ($home) = @_;
     if (defined $home){
         if ($home=~/^$DevelConf::homedir_pupil\//){
             $type="student";
@@ -1379,17 +1413,11 @@ sub fetchdata_from_account {
         } else {
             $type="none";
         }
-        return ($home,$type,$gecos,$group,$uidnumber,$sambahomepath,
-                $firstpassword,$sambaacctflags,$exitadminclass,$sambahomedrive,
-                $sambakickofftime,$sambalmpassword,$sambalogofftime,$sambalogontime,
-                $sambantpassword,$sambaprimarygroupsid,$sambapwdcanchange,
-                $sambapwdlastset,$sambapwdmustchange,$sambasid,$surname,$firstname,$userpassword,
-                $loginshell,$gidnumber);
     } else {
-        return ("","","","",-1,"","","","","","","","","","","","","","","","","","","");
-    }
+        $type="";
+    }    
+    return $type;
 }
-
 
 
 
