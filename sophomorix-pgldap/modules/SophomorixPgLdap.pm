@@ -1395,32 +1395,6 @@ sub fetchdata_from_account {
 
 
 
-sub fetchtype_from_home {
-    my ($home) = @_;
-    if (defined $home){
-        if ($home=~/^$DevelConf::homedir_pupil\//){
-            $type="student";
-        } elsif ($group  eq ${DevelConf::teacher}){
-	    $type="teacher";
-        } elsif ($home=~/^$DevelConf::homedir_ws\//){
-            $type="examaccount";
-        } elsif ($home=~/\/dev\/null/){
-            $type="domcomp";
-        } elsif ($home=~/^$DevelConf::attic\//){
-            $type="attic";
-        } elsif ($home=~/^$DevelConf::homedir_all_admins\//){
-            $type="administrator";
-        } else {
-            $type="none";
-        }
-    } else {
-        $type="";
-    }    
-    return $type;
-}
-
-
-
 sub fetchnetexamplix_from_account {
     my ($login) = @_;
     my $dbh=&db_connect();
