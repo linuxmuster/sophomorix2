@@ -324,7 +324,7 @@ while(<USERVERSETZEN>){
    &do_falls_nicht_testen(
         #"chown -R .${DevelConf::teacher} $new_home"
         # commad thrown error, when no file/dir is found ???
-        "find $new_home -group $alte_klasse -print0 | xargs -0 chown .$neue_klasse",
+        "find $new_home -group $alte_klasse -print0 | xargs --no-run-if-empty -0 chown .$neue_klasse",
    );
 
    # user in db updaten
