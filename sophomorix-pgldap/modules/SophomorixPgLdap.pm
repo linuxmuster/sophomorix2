@@ -3815,7 +3815,7 @@ sub create_project {
                          ");
     # Merging information:
     # LongName
-    if (not defined $p_long_name){
+    if (not defined $p_long_name or $p_long_name eq ""){
 	if (defined $old_long_name){
            $p_long_name=$old_long_name;          
         } else {
