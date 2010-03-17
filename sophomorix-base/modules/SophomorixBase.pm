@@ -688,14 +688,14 @@ sub chmod_chown_dir {
 
     # chmod dirs
     if ($dir_perm ne ""){
-        $command="find $path -type d -print0 | xargs -0 chmod $dir_perm";
+        $command="find $path -type d -print0 | xargs --no-run-if-empty -0 chmod $dir_perm";
         print "$command\n";
         system("$command");
     }
 
     # chmod files
     if ($file_perm ne ""){
-        $command="find $path -type f -print0 | xargs -0 chmod $file_perm";
+        $command="find $path -type f -print0 | xargs --no-run-if-empty -0 chmod $file_perm";
         print "$command\n";
         system("$command");
     }
