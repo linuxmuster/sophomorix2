@@ -590,8 +590,8 @@ if ($kill==0){
 } elsif  ($kill==1){
     # remove all users from project
     # (BEFORE removing project)
-    print "Preparing Project to kill (remove users)!\n";
-    &create_project($project,0,"",
+    print "Preparing Project $project to kill (remove users)!\n";
+    &create_project($project,0,$p_long_name,
                     0,0,
                     "K","FALSE",$pg_timestamp,
                     0,"","",
