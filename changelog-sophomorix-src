@@ -32,7 +32,7 @@
     - made auth_useradd compatible with lenny	
     - fixed Warning because of:
 	 chattr -R -i dir
-      does not work on lenny. Replaced it with:
+      does not work on lenny. Replaced it in SophomorixBase.pm with:
 	 chattr -i dir/*
       hope this will work.
       Setting immutable bits is an hidden feature at the moment.
