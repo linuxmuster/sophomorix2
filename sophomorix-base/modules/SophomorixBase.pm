@@ -5207,7 +5207,7 @@ sub unlink_immutable_tree {
     if (-x ${DevelConf::chattr_path}){
         system("${DevelConf::chattr_path} -i ${dir}");
         if (-e "${dir}/*"){
-            system("${DevelConf::chattr_path} -i ${dir}/*");
+            system("${DevelConf::chattr_path} -i -R -f $dir");
         }
     } else {
         print "${DevelConf::chattr_path} not fount/not executable\n";
@@ -5240,7 +5240,7 @@ sub move_immutable_tree {
 
     if (-x ${DevelConf::chattr_path}){
         # operation nicht erlaubt:
-        system("${DevelConf::chattr_path} -i ${old_dir}/*");
+        system("${DevelConf::chattr_path} -i -R -f $old_dir");
     } else {
         print "${DevelConf::chattr_path} not fount/not executable\n";
     }
