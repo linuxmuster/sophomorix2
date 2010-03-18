@@ -36,6 +36,11 @@ my $zeilegroups=1;
 my @accountsspalte0 = split(/\|/, $accountsfile[0]); #Zeile0 am | trennen
 my @groupsspalte0 = split(/\|/, $groupsfile[0]); #Zeile0 am | trennen
 
+
+print "# Structure from\n";
+print "#   /usr/share/sophomorix/config-templates/ldap/local-gen.ldif\n";
+print "# is prepended here\n";
+
 # Alle Zeilen im SQL-Dump-File durchgehen
 foreach my $line (@accountsfile) {                          
 
@@ -60,7 +65,7 @@ foreach my $line (@accountsfile) {
       $ou="machines";
   }
 
-  print "\n\n";
+  print "\n";
   print "dn: uid=$accountsspalte1[28],ou=$ou,$ldapdc\n";
   print "objectClass: inetOrgPerson\n";
   print "objectClass: posixAccount\n";
