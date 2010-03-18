@@ -159,6 +159,37 @@ Next
 ############################################################
 
 
+4.0.5 fix:
+
+
+access section ersetzen:
+
+
+>schnipp
+
+#######################################################################
+#Limits Access:
+access to attrs=sambaLMPassword,sambaNTPassword,sambaPwdLastSet,sambaPwdMustChange,sambaAcctFlags,userPassword
+       by dn="cn=admin,dc=paedml-linux,dc=lokal" peername.ip=127.0.0.1 write
+       by dn="cn=admin,dc=paedml-linux,dc=lokal" ssf=56 write
+       by anonymous peername.ip=127.0.0.1 auth
+       by anonymous ssf=56 auth
+       by self peername.ip=127.0.0.1 write
+       by self ssf=56 write
+       by * none
+
+access to *
+       by dn="cn=admin,dc=paedml-linux,dc=lokal" write
+       by * read
+
+
+
+
+> schnapp
+
+
+
+
 Option für
 ./Latex_Musterfile_Passwortlisten.tex
 
