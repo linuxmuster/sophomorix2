@@ -1806,10 +1806,13 @@ Setzt das Passwort string in linux, samba, ...
 
 sub set_sophomorix_passwd {
     my ($login,$pass) = @_;
-    # create crypt password for liux
+    # create crypt password for linux
     my $crypt_salt_format = '%s';
     my $salt = sprintf($crypt_salt_format,make_salt());
-    my $linux_pass = "{CRYPT}" . crypt($pass,$salt);
+#    my $linux_pass = "{CRYPT}" . crypt($pass,$salt);
+
+    my $linux_pass=&ssha_salted($pass,$salt);
+
     # create crypted passwords for samba
     my ($lmpassword,$ntpassword) = ntlmgen $pass;
     my $dbh=&db_connect();
@@ -1859,6 +1862,14 @@ sub set_sophomorix_passwd {
 
 
 
+sub ssha_salted {
+    my ($plaintext,$salt) = @_;
+    my $ctx = Digest::SHA1->new;
+    $ctx->add($plaintext);
+    $ctx->add($salt);
+    my $hashedPasswd = '{SSHA}' . MIME::Base64::encode_base64($ctx->digest . $salt ,'');
+    return $hashedPasswd;
+}
 
 
 sub make_salt {
