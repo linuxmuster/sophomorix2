@@ -141,7 +141,7 @@ ubuntu:
 	@echo ''
 
 lenny:
-	### Prepare to build an ubuntu package
+	### Prepare to build an lenny package
 	cp sophomorix-pgldap/config-pg/sophomorix-admin.sql.lenny sophomorix-pgldap/config-pg/sophomorix-admin.sql
 	cp debian/control.lenny debian/control
 	cp sophomorix-pgldap/config-ldap/ldap.conf.template.lenny sophomorix-pgldap/config-ldap/ldap.conf.template
