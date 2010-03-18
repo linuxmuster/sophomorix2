@@ -9,12 +9,6 @@
 
 
 
-
-
-
-
-
-
 sophomorix-useradd --unix-group adlerklasse --examaccount adler
 
 
@@ -55,6 +49,16 @@ slapd.conf
 
 slapd.conf: neue Version von Thomas
 
+Modifizieren aus svn:
+
+1) @@tls_comment@@ vor TLS-Einträge
+2) $Id$ in eine der ersten Zeilen
+3)  
+
+
+
+
+
 checkpoint      512 30
 führt zu fehler bei mir, nicht bei thomas
 
@@ -92,11 +96,6 @@ lastmod on
 
 
 
-
-
-sambaDomainName
-
-
 # erzeugt nur last
 moduleload pcache
 #moduleload pcache
@@ -113,9 +112,13 @@ moduleload hdb
 #
 # 1) A) sql befehl für posgres der ein passwort als SSHA abspeichert
 #    geht wohl nicht
-#    B) mit perl modul SSHA erzeugen und postgres speichern
-#       dito beim anlegen von ldap account 
+#    B) mit perl modul SSHA erzeugen und in postgres speichern
+#       --> done 
+#       dito beim anlegen von ldap account
+#       --> synchronisieren des postgres accounts 
 # /etc/smbldaptools -> CRYPT mit SSHA ersetzen
+#       --> OK
+#  TODO: weitere Konfiguration von smbldap.conf
 # dann erzeugt sophomorix-passwd SSHA in ldap
 
 
