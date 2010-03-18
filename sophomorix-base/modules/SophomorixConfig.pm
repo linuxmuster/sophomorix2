@@ -10,6 +10,8 @@ package Sophomorix::SophomorixConfig;
 require Exporter;
 use Time::Local;
 use Time::localtime;
+use Digest::SHA1;
+use MIME::Base64;
 
 
 @ISA = qw(Exporter);
