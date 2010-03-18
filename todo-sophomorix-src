@@ -4,7 +4,7 @@
 # next:
 # check if workstation is added right
            computer  (V)
-           unixadmin
+           unixadmin  (administrator V)
            ... is added right
 
 sophomorix-useradd --unix-group adlerklasse --examaccount adler
@@ -49,9 +49,6 @@ führt zu fehler bei mir, nicht bei thomas
 dbconfig set_cachesize 0 2097152 0
 
 
-chattr -R +i dir
-tut bei thomas
-
 lenny64:
 dnsdomainname -s liefert unknown host zurück
 
@@ -63,7 +60,7 @@ testen, obs tut
 
 projektanlegen, ... gruppenzugehörigkeit einer person
 nscd sollte noch geflushed werden -> checken
-
+-> getestet, nscd wird restartet
 
 
 Felder in ldap, die noch rein sollen:
@@ -86,16 +83,6 @@ performance: suffix wird bei jedem account aus slapd.conf geholt
 ############################################################
 Next
 ############################################################
-
-Bei ersten lauf von sophomorix-test:
-chown: fehlender Operand nach ".attic"
-chown: fehlender Operand nach ".7c"
-usw.
-????? nscd flush siehe oben
-
-
-change option and file names
-make ubuntu -> make lenny
 
 
 Option für
@@ -364,6 +351,35 @@ Alt:                   Neu (ubuntu 904 server, lenny)
 tetex-base            
 tetex-bin
 tetex-extra
+
+
+
+
+############################################################
+Erledigt
+############################################################
+Bei ersten lauf von sophomorix-test:
+chownen der vom user erzeugten Dateien
+   chown: fehlender Operand nach ".attic"
+   chown: fehlender Operand nach ".7c"
+   usw.
+
+   Lösung: bei find ... | xargs ...
+
+   wird der Befehl hinter xargs 1x ausgeführt, wenn nix gefunden wird:
+   --> option --no-run-if-empty behebt das
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
