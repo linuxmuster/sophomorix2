@@ -1857,7 +1857,11 @@ sub set_sophomorix_passwd {
     $dbh->disconnect();
 
     # set password in auth system
-    &auth_passwd($login,$pass);
+    # chat with smbldaptools
+    #&auth_passwd($login,$pass);
+    my $ldap=&auth_connect();
+    &update_auth_ldap($ldap,$login);
+    &auth_disconnect($ldap);
 }
 
 
