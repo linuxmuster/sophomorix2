@@ -103,6 +103,10 @@ help:
 	@echo '   make deb'
 	@echo '      create a debian package'
 	@echo ' '
+	@echo '   make lenny'
+	@echo '   make deb'
+	@echo '      create a debian lenny package'
+	@echo ' '
 	@echo '   make ubuntu'
 	@echo '   make deb'
 	@echo '      create a debian package'
@@ -129,6 +133,19 @@ ubuntu:
 	cp debian/control.ubuntu debian/control
 	cp sophomorix-pgldap/config-ldap/ldap.conf.template.ubuntu sophomorix-pgldap/config-ldap/ldap.conf.template
 	cp sophomorix-pgldap/config-ldap/slapd-standalone.conf.template.ubuntu sophomorix-pgldap/config-ldap/slapd-standalone.conf.template
+	@echo 'Did you do a dch -i ?'
+	@sleep 8
+	dpkg-buildpackage -tc -uc -us -sa -rfakeroot
+	@echo ''
+	@echo 'Do not forget to tag this version in cvs'
+	@echo ''
+
+lenny:
+	### Prepare to build an ubuntu package
+	cp sophomorix-pgldap/config-pg/sophomorix-admin.sql.lenny sophomorix-pgldap/config-pg/sophomorix-admin.sql
+	cp debian/control.lenny debian/control
+	cp sophomorix-pgldap/config-ldap/ldap.conf.template.lenny sophomorix-pgldap/config-ldap/ldap.conf.template
+	cp sophomorix-pgldap/config-ldap/slapd-standalone.conf.template.lenny sophomorix-pgldap/config-ldap/slapd-standalone.conf.template
 	@echo 'Did you do a dch -i ?'
 	@sleep 8
 	dpkg-buildpackage -tc -uc -us -sa -rfakeroot
