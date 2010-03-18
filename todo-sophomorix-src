@@ -7,6 +7,14 @@
            unixadmin  (administrator V)
            ... is added right
 
+
+
+
+
+
+
+
+
 sophomorix-useradd --unix-group adlerklasse --examaccount adler
 
 
@@ -36,8 +44,16 @@ sophomorix-workstation
 weiter: workstations lesen und analysieren
 
 
+############################################################
+lenny64:
+dnsdomainname -s liefert unknown host zurück
 
+
+############################################################
 slapd.conf
+############################################################
+
+slapd.conf: neue Version von Thomas
 
 checkpoint      512 30
 führt zu fehler bei mir, nicht bei thomas
@@ -49,26 +65,70 @@ führt zu fehler bei mir, nicht bei thomas
 dbconfig set_cachesize 0 2097152 0
 
 
-lenny64:
-dnsdomainname -s liefert unknown host zurück
+# (slappasswd -s villa   -> dann als rootpw)
+rootpw {SSHA}kkkkkllll
+#
+#schreiben mit 
+ldappasswd -x -w villa(admipw) -D cn=admin=cd=dc uid=zell,ou=accounts,
 
 
-sophomorix-imp-expandfromaddress
-testen, obs tut
--> script updaten (mindestens anleitung)
+# alt
+#password-hash {CRYPT}
+password-hash {SSHA}
+
+# Protokoll 2 nicht mehr zulassen
+allow bind_v2
+#allow bind_v2
 
 
-projektanlegen, ... gruppenzugehörigkeit einer person
-nscd sollte noch geflushed werden -> checken
--> getestet, nscd wird restartet
+# 
+#lastmod off
+lastmod on
 
 
-Felder in ldap, die noch rein sollen:
-mailadresse
+# indexe in slapd.conf setzten wegen Performance
+# /usr/share/doc/smbldap-tools/README.DEbian.gz
 
 
 
 
+
+
+sambaDomainName
+
+
+# erzeugt nur last
+moduleload pcache
+#moduleload pcache
+
+
+#moduleload bdb
+moduleload hdb
+# back_hdb paket is bei slapd dabei
+# hdb ist stabile Version von bdb, speziell für slapd
+# -> ldap neu erzeugen
+
+
+# CRYPT mit SSHA ersetzen (md5sum)
+#
+# 1) A) sql befehl für posgres der ein passwort als SSHA abspeichert
+#    geht wohl nicht
+#    B) mit perl modul SSHA erzeugen und postgres speichern
+#       dito beim anlegen von ldap account 
+# /etc/smbldaptools -> CRYPT mit SSHA ersetzen
+# dann erzeugt sophomorix-passwd SSHA in ldap
+
+
+
+# Felder in ldap, die noch rein sollen:
+# mailadresse
+
+
+
+
+
+
+############################################################
 postgres nach ldap, ohne smbldap-tools
 probleme:
 objectClass: inetOrgPerson,posixAccount,shadowAccount,top,sambaSamAccount
@@ -78,6 +138,17 @@ siehe gen-ldif-from-perl
 kann man das ldapscheme erweitern?
 
 performance: suffix wird bei jedem account aus slapd.conf geholt
+
+
+
+
+############################################################
+sophomorix-imp-expandfromaddress
+testen, obs tut
+-> script updaten (mindestens anleitung)
+
+
+
 
 
 ############################################################
@@ -358,6 +429,11 @@ tetex-extra
 ############################################################
 Erledigt
 ############################################################
+projektanlegen, ... gruppenzugehörigkeit einer person
+nscd sollte noch geflushed werden -> checken
+-> getestet, nscd wird restartet
+
+
 Bei ersten lauf von sophomorix-test:
 chownen der vom user erzeugten Dateien
    chown: fehlender Operand nach ".attic"
@@ -1920,7 +1996,6 @@ lehrer.txt zusatzfeld 'comment' (Platz in Datenbank suchen)
            
 
    - smbldap-usershow entspricht in etwa sophomorix-user
-   - crypt zu md5 (Passwort-decription)
    - system() in perl mit sysrun tauschen (oder noch besseres)
 
    - use groups_admin in display ???
@@ -2808,6 +2883,12 @@ add option --ldapsearch to sophomorix-dump-pg2ldap:
 use ldapsearch instead of smbldap-usershow and compare these values as well
 
 ldapsearch -x -D cn=admin,dc=bszleo,dc=de,dc=local -y /etc/ldap.secret uid=roe >/root/log3
+
+oder .ldaprc anlegen mit
+
+BASE  dc=bszleo, ...
+BINDDN cn=admin,dc=...
+HOST localhost
 
 
 sophomorix-vampire:
