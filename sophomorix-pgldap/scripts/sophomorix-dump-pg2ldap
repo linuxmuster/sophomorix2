@@ -24,6 +24,7 @@ my $help=0;
 my $info=0;
 $Conf::log_level=1;
 my $dump=0;
+my $new_dump=0;
 my $load_dump=0;
 my $domainname="";
 my $skiplock=0;
@@ -35,6 +36,7 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
            "dump" => \$dump,
+           "new-dump" => \$new_dump,
            "load-dump" => \$load_dump,
            "skiplock" => \$skiplock,
           );
@@ -158,9 +160,23 @@ if ($load_dump==1){
     system("cp ${template}/bdb/slapd-standalone.DB_CONFIG $db_config"); 
     system("chown openldap.openldap $ldap_dir/*"); 
 
-    # start and stop slapd to recreate files in /var/lib/ldap
-    system("/etc/init.d/slapd start");
-    system("/etc/init.d/slapd stop");
+
+    if ($new_dump==1){
+        # load structure
+        my $ldif_structure=${DevelConf::config_template_pfad}.
+                           "/pg2ldap/structure.ldif.template";
+        my $ldif_structure_target=$dump_dir."/structure.ldif";
+
+        print "cp $ldif_structure $ldif_structure_target \n";
+        system ("cp $ldif_structure $ldif_structure_target");
+
+        print "Populating ldap with $ldif_structure_target\n";
+        system("slapadd -c -l $ldif_structure_target");
+    } else {
+        # start and stop slapd to recreate files in /var/lib/ldap
+        system("/etc/init.d/slapd start");
+        system("/etc/init.d/slapd stop");
+    }
 
     # slapd must be stopped again
     # populate ldap (no users)
