@@ -1809,10 +1809,10 @@ sub set_sophomorix_passwd {
     # create crypt password for linux
     my $crypt_salt_format = '%s';
     my $salt = sprintf($crypt_salt_format,make_salt());
-#    my $linux_pass = "{CRYPT}" . crypt($pass,$salt);
-
+    # old CRYPT
+    #  my $linux_pass = "{CRYPT}" . crypt($pass,$salt);
+    # new SSHA
     my $linux_pass=&ssha_salted($pass,$salt);
-
     # create crypted passwords for samba
     my ($lmpassword,$ntpassword) = ntlmgen $pass;
     my $dbh=&db_connect();
@@ -1858,10 +1858,10 @@ sub set_sophomorix_passwd {
 
     # set password in auth system
     # chat with smbldaptools
-    #&auth_passwd($login,$pass);
-    my $ldap=&auth_connect();
-    &update_auth_ldap($ldap,$login);
-    &auth_disconnect($ldap);
+    &auth_passwd($login,$pass);
+    #my $ldap=&auth_connect();
+    #&update_auth_ldap($ldap,$login);
+    #&auth_disconnect($ldap);
 }
 
 
