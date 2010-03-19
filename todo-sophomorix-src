@@ -1310,29 +1310,26 @@ MAKING a Package on build-host make lenny make ubuntu
 Packaging:
 -----------
 
-1. On Laptop:
-   update versions in debian/control.(/lenny/ubuntu)
+1. update versions in debian/control.(/lenny/ubuntu)
    (so that apt-get update sophomorix2 updates all sophomorix-* packages)
 
 2. update date of release in changelog-sophomorix-src
 
-3. Go to the build host (lenny64)
+3. Go to the build host
 
-4. cvs update
-
-5. dch -i 
+4. dch -i 
    add a comment to the changelog
 
 
-6. cd cvs/sophomorix2
+5. cd cvs/sophomorix2
    cvs -q update -dP
    remove files which were changed by the previous build
    (i.e.: ldap.conf.template overwritten by ldap.conf.template.etch) 
 
-7. make deb    OR   make ubuntu (also for lenny)  
+6. make deb    OR   make ubuntu (also for lenny)  
    (old: dpkg-buildpackage -rfakeroot)
 
-8. Tag all files in the cvs repository with the tag 'Version-x-y-z'
+7. Tag all files in the cvs repository with the tag 'Version-x-y-z'
 
 
 
