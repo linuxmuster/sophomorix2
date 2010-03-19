@@ -44,6 +44,23 @@ dnsdomainname -s liefert unknown host zurück
 
 
 ############################################################
+smbldap.conf
+############################################################
+
+/usr/share/doc/sm...
+
+
+schema update
+
+smbldap populate
+
+un dann schauen, welche Optionen drin sein müssen
+-> diese dann evtl. nachpflegen
+
+
+
+
+############################################################
 slapd.conf
 ############################################################
 
@@ -54,9 +71,6 @@ Modifizieren aus svn:
 1) @@tls_comment@@ vor TLS-Einträge
 2) $Id$ in eine der ersten Zeilen
 3)  
-
-
-
 
 
 checkpoint      512 30
@@ -318,7 +332,7 @@ so vorgehen:
      2. Einzel dump so abändern dass es zusammen passt
 
 
-make ubuntu / make deb 
+make lenny / make ubuntu / make deb 
 
 echte Datei aus cvs entfernen (z.B. control) und nur noch 
     control.etch 
@@ -1288,32 +1302,37 @@ host of the build-host
 
 
 ############################################################
-MAKING a Package on build-host
+MAKING a Package on build-host make lenny make ubuntu
 ############################################################
+
+
 
 Packaging:
 -----------
 
-1. update versions in debian/control
+1. On Laptop:
+   update versions in debian/control.(/lenny/ubuntu)
    (so that apt-get update sophomorix2 updates all sophomorix-* packages)
 
 2. update date of release in changelog-sophomorix-src
 
-3. Go to the build host
+3. Go to the build host (lenny64)
 
-4. dch -i 
+4. cvs update
+
+5. dch -i 
    add a comment to the changelog
 
 
-5. cd cvs/sophomorix2
+6. cd cvs/sophomorix2
    cvs -q update -dP
    remove files which were changed by the previous build
    (i.e.: ldap.conf.template overwritten by ldap.conf.template.etch) 
 
-6. make deb    OR   make ubuntu (also for lenny)  
+7. make deb    OR   make ubuntu (also for lenny)  
    (old: dpkg-buildpackage -rfakeroot)
 
-7. Tag all files in the cvs repository with the tag 'Version-x-y-z'
+8. Tag all files in the cvs repository with the tag 'Version-x-y-z'
 
 
 
