@@ -9,6 +9,32 @@
 
 
 
+pdbedit benutzen, um 
+- accounts anzulegen
+- abfragen 
+- ...
+
+sollte auch in samba 4 so bleiben
+
+gosa ldap befüllen mit web gui
+
+
+connectiert mit den smbldap.conf einträgen in smb.conf
+
+
+
+grep -i fen sopho*
+
+
+1) 1. Zeile entfernen:
+file datei -> iso .......
+
+iconv -f 8859_1 -t utf-8 old_file -o new_file
+
+
+
+
+
 sophomorix-useradd --unix-group adlerklasse --examaccount adler
 
 
@@ -375,6 +401,33 @@ Unknown Error 9 in errors.lang".
  -> siehe Mail 17.9.09 10.53
 Weiter:
 knöpfe in der Schulkonsole drücken, welche Befehle werden aufgerufen
+
+
+
+
+/etc/ldap/schema:
+
+1) core.schema -> mail  -> wenn nicht single value dasteht, 
+
+benuzt im ein mailschema? 
+
+
+mail wir geleitet 
+
+
+oder 2) eigenes Schema für mail
+
+ldap alias attribut
+courier
+sendmail
+...    alle haben eigenes schema,
+
+
+postfix schema, www.postfix-buch.com/downloads.php
+
+
+
+
 
 
 
@@ -1310,30 +1363,31 @@ MAKING a Package on build-host make lenny make ubuntu
 Packaging:
 -----------
 
-1. update versions in debian/control.(/lenny/ubuntu)
+1. On Laptop:
+   update versions in debian/control.(/lenny/ubuntu)
    (so that apt-get update sophomorix2 updates all sophomorix-* packages)
 
 2. update date of release in changelog-sophomorix-src
 
-3. Go to the build host
+3. Go to the build host (lenny64)
 
-4. dch -i 
-   add a comment to the changelog
-
+4. remove files which were changed by the previous build
+   (i.e.: ldap.conf.template overwritten by ldap.conf.template.etch) 
+   cd cvs/sophomorix2
+   cvs -q update -dP
 
 5. cd cvs/sophomorix2
-   cvs -q update -dP
-   remove files which were changed by the previous build
-   (i.e.: ldap.conf.template overwritten by ldap.conf.template.etch) 
+   dch -i 
+   add a comment to the changelog
 
-6. make deb    OR   make ubuntu (also for lenny)  
+6. make deb  OR  make ubuntu  OR  make lenny  
    (old: dpkg-buildpackage -rfakeroot)
 
 7. Tag all files in the cvs repository with the tag 'Version-x-y-z'
 
 
 
-in debian/rules kann man ausnahmen definieren:
+in debian/rules kann man Ausnahmen definieren:
 dh_fixperm -Xdatei
 
 
