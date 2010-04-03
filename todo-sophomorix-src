@@ -1,6 +1,11 @@
 # $Id$
 
 
+
+Bug: beim Bereinigen der Klassenarbeitsaccounts werde die dotfiles 
+nicht entfernt
+
+
 # next:
 # check if workstation is added right
            computer  (V)
@@ -36,6 +41,27 @@ iconv -f 8859_1 -t utf-8 old_file -o new_file
 
 
 sophomorix-useradd --unix-group adlerklasse --examaccount adler
+
+
+check this out: Oject class of a group changes after dump
+added with smbldaptools: top,posixGroup,sambaGroupMapping
+after dump:              posixGroup,sambaGroupMapping
+
+What does top mean? What is correct?
+
+sophomorix-test dies after Test 37, line 2199
+
+maierjo ist in Gruppe 10005, die es nicht gibt in ldap, 
+in postgres gibt es sie 
+
+wird ein user in einer neuen gruppe angelegt, gibt es die gruppe im ldap nicht!!!!!!!!!!
+
+PRINTOUT: Adding ldap group funktioniert nicht->
+
+
+
+
+
 
 
 
