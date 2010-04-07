@@ -88,11 +88,14 @@ require Exporter;
              get_smb_sid
              fetchquota_sum
              kill_user
-             auth_passwd
-             update_auth_ldap
+             auth_passwd_old
+             update_user_ldap
+             delete_user_ldap
+             update_group_ldap
+             delete_group_ldap
              auth_useradd_old
-             auth_groupadd
-             auth_groupdel
+             auth_groupadd_old
+             auth_groupdel_old
              auth_usermove
              auth_killmove
              auth_disable
@@ -101,9 +104,9 @@ require Exporter;
              auth_adduser_to_her_projects
              auth_adduser_to_project
              auth_deleteuser_from_project
-             auth_firstnameupdate
-             auth_lastnameupdate
-             auth_gecosupdate
+             auth_firstnameupdate_old
+             auth_lastnameupdate_old
+             auth_gecosupdate_old
              auth_connect
              auth_disconnect
              fetch_ldap_pg_passwords
@@ -113,6 +116,8 @@ require Exporter;
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
+
+
 
 
 # ??????????
@@ -1783,7 +1788,7 @@ sub create_user_db_entry {
   }
   # create entry in auth system (no secondary groups)
   my $ldap=&auth_connect();
-  &update_auth_ldap($ldap,$login);
+  &update_user_ldap($ldap,$login);
   &auth_disconnect($ldap);
 #  &auth_useradd_old($login,$uidnumber_auth,$gecos,$homedir,
 #                $admin_class,"",$sh,$type,$smb_ldap_homepath,
@@ -1858,10 +1863,11 @@ sub set_sophomorix_passwd {
 
     # set password in auth system
     # chat with smbldaptools
-    &auth_passwd($login,$pass);
-    #my $ldap=&auth_connect();
-    #&update_auth_ldap($ldap,$login);
-    #&auth_disconnect($ldap);
+    #&auth_passwd($login,$pass);
+    # new: sync account
+    my $ldap=&auth_connect();
+    &update_user_ldap($ldap,$login);
+    &auth_disconnect($ldap);
 }
 
 
@@ -2153,9 +2159,14 @@ sub create_class_db_entry {
     } # end adding group
 
     # create entry in auth system
-    &auth_groupadd($class_to_add,$type,
-                   $gidnumber,$displayname,
-                   $domain_group,$local_group);
+  my $ldap=&auth_connect();
+  &update_group_ldap($ldap,$class_to_add);
+  &auth_disconnect($ldap);
+
+  # old
+  #&auth_groupadd($class_to_add,$type,
+  #                 $gidnumber,$displayname,
+  #                 $domain_group,$local_group);
     return $gidnumber;
 }
 
@@ -2293,9 +2304,12 @@ sub remove_class_db_entry {
         print "\nERROR: Could not delete group $group \n\n";
     }
     &db_disconnect($dbh);
-
     # remove entry in auth system
-    &auth_groupdel($group);
+    my $ldap=&auth_connect();
+    &delete_group_ldap($ldap,$group);
+    &auth_disconnect($ldap);
+    # old
+    #&auth_groupdel_old($group);
     return $return;
 }
 
@@ -2433,7 +2447,9 @@ sub pg_get_group_type {
         # if not in pgldap
 	return ("nonexisting",$gid,$gidnumber_sys);
     }    
-    my ($type)= $dbh->selectrow_array( "SELECT type 
+    my ($type,
+        $sambasid,
+        $sambagrouptype)= $dbh->selectrow_array( "SELECT type,sambasid,sambagrouptype 
                                         FROM classdata 
                                         WHERE id='$id_sys'");
 
@@ -2443,45 +2459,45 @@ sub pg_get_group_type {
                                             FROM userdata 
                                             WHERE gidnumber=$gidnumber_sys");
            if (not defined $home){
-	       return ("nonexisting",$gid,$gidnumber_sys);
+	       return ("nonexisting",$gid,$gidnumber_sys,$sambasid,$sambagrouptype);
            } elsif ($home=~/^\/home\/workstations\//){
                # identify a workstation 
-	       return ("room",$gid,$gidnumber_sys);
+	       return ("room",$gid,$gidnumber_sys,$sambasid,$sambagrouptype);
            } elsif ($home=~/^\/home\/administrators\//){
                # identify an administrator
-               return ("administrator",$gid,$gidnumber_sys);
+               return ("administrator",$gid,$gidnumber_sys,$sambasid,$sambagrouptype);
            } else {
-               return ("unknown",$gid,$gidnumber_sys);
+               return ("unknown",$gid,$gidnumber_sys,$sambasid,$sambagrouptype);
            }
     } elsif ($type eq "teacher"){
         # subclass
-        return ("teacher",$gid,$gidnumber_sys);
+        return ("teacher",$gid,$gidnumber_sys,$sambasid,$sambagrouptype);
     } elsif ($type eq "subclass"){
         # subclass
-        return ("subclass",$gid,$gidnumber_sys);
+        return ("subclass",$gid,$gidnumber_sys,$sambasid,$sambagrouptype);
     } elsif ($type eq "adminclass"){
         # adminclass
-        return ("adminclass",$gid,$gidnumber_sys);
+        return ("adminclass",$gid,$gidnumber_sys,$sambasid,$sambagrouptype);
     } elsif ($type eq "hiddenclass"){
         # hiddenclass
-        return ("hiddenclass",$gid,$gidnumber_sys);
+        return ("hiddenclass",$gid,$gidnumber_sys,$sambasid,$sambagrouptype);
     } elsif ($type eq "room"){
         # adminclass
-        return ("room",$gid,$gidnumber_sys);
+        return ("room",$gid,$gidnumber_sys,$sambasid,$sambagrouptype);
     } elsif ($type eq "domaingroup"){
         # manually added group
-        return ("domaingroup",$gid,$gidnumber_sys);
+        return ("domaingroup",$gid,$gidnumber_sys,$sambasid,$sambagrouptype);
     } elsif ($type eq "localgroup"){
         # manually added group
-        return ("localgroup",$gid,$gidnumber_sys);
+        return ("localgroup",$gid,$gidnumber_sys,$sambasid,$sambagrouptype);
     } elsif ($type eq "project"){
         my ($longname)= $dbh->selectrow_array( "SELECT longname
                                           FROM projectdata 
                                           WHERE id='$id_sys'");
         if (defined $longname){
-            return ("project",$longname,$gidnumber_sys);
+            return ("project",$longname,$gidnumber_sys,$sambasid,$sambagrouptype);
         } else {
-            return ("project",$gid,$gidnumber_sys);
+            return ("project",$gid,$gidnumber_sys,$sambasid,$sambagrouptype);
         }
     }
     &db_disconnect($dbh);
@@ -3539,29 +3555,36 @@ sub update_user_db_entry {
 
     $dbh->disconnect();
 
-    # update authentication system
-    if ($usermove==1){
-       &auth_usermove($login,$gid_name,$home_dir,$old_group);
-    }
-    if ($firstnameupdate==1){
-       &auth_firstnameupdate($login,$firstname);
-    }
-    if ($lastnameupdate==1){
-       &auth_lastnameupdate($login,$lastname);
-    }
-    if ($gecosupdate==1){
-       &auth_gecosupdate($login,$gecos,$firstname);
-    }
+    # new
+    my $ldap=&auth_connect();
+    &update_user_ldap($ldap,$login);
+    &auth_disconnect($ldap);
 
-    if ($shellupdate==1){
-       &auth_shellupdate($login,$login_shell);
-    }
-    if ($pwmustchangeupdate==1){
-       &auth_pwmustchangeupdate($login,$pw_change);
-    }
-    if ($enableupdate==1){
-       &auth_enableupdate($login,$enable);
-    }
+    # old
+
+    ## update authentication system
+    #if ($usermove==1){
+    #   &auth_usermove($login,$gid_name,$home_dir,$old_group);
+    #}
+    #if ($firstnameupdate==1){
+    #   &auth_firstnameupdate_old($login,$firstname);
+    #}
+    #if ($lastnameupdate==1){
+    #   &auth_lastnameupdate_old($login,$lastname);
+    #}
+    #if ($gecosupdate==1){
+    #   &auth_gecosupdate_old($login,$gecos,$firstname);
+    #}
+    #
+    #if ($shellupdate==1){
+    #   &auth_shellupdate_old($login,$login_shell);
+    #}
+    #if ($pwmustchangeupdate==1){
+    #   &auth_pwmustchangeupdate_old($login,$pw_change);
+    #}
+    #if ($enableupdate==1){
+    #   &auth_enableupdate_old($login,$enable);
+    #}
 
     # ??? besser was sinnvolles
     return 1;
@@ -5652,7 +5675,7 @@ sub fetchquota_sum {
 
 # change password calling smbldap-passwd interactively
 # use Expect; # must be loaded
-sub auth_passwd {
+sub auth_passwd_old {
     use Expect;
     my ($username,$new_password)=@_;
     my $command = Expect->spawn("/usr/sbin/smbldap-passwd $username")
@@ -5692,7 +5715,8 @@ sub auth_passwd {
 
 
 
-sub update_auth_ldap {
+sub update_user_ldap {
+    print "\n---Call---\n";
     my ($ldap,$login) = @_;
     # type: user,computer,unixadmin,examaccount
     my ($home,
@@ -5755,7 +5779,7 @@ sub update_auth_ldap {
 
     # decide what to do
     if ($mesg_1->count() ==0){
-        print "Adding ldap entry dn: $dn\n";
+        print "Adding ldap account dn: $dn\n";
         if ($type eq "domcomp"){
             # computer account (with $ at the end)
             my $mesg_2 = $ldap->add( $dn,
@@ -5863,7 +5887,7 @@ sub update_auth_ldap {
             }
         }
     } else {
-        print "Replacing ldap dn: $dn\n";
+        print "Replacing ldap account dn: $dn\n";
         my $mesg_2 = $ldap->modify( $dn,
            replace => {
              cn                   => $cn, 
@@ -5903,8 +5927,7 @@ sub update_auth_ldap {
 
 
 
-
-sub delete_auth_ldap {
+sub delete_user_ldap {
     my ($ldap,$login,$ou) = @_;
     my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
     my $dn="uid=".$login.",ou=".$ou.",".$suffix;
@@ -5912,6 +5935,78 @@ sub delete_auth_ldap {
     my $mesg = $ldap->delete( $dn); 
     $mesg->code && die $mesg->error;
 }
+
+
+
+
+
+
+sub update_group_ldap {
+    my ($ldap,$group) = @_;
+    my ($type,$cn,$gidnumber,$sambasid,$sambagrouptype)=&pg_get_group_type($group);
+
+    # return on error 
+    if ($type eq "nonexisting"){
+        print "Group $group does not exist in postgresql.\n";
+        print "   * Cannot create/replace ldap group $group.\n";
+        return 0;
+    }
+
+    my @objectclass=("posixGroup","top","sambaGroupMapping");
+    my (@memberuid) = &pg_get_group_members($group);
+    my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
+    my $dn="cn=".$cn.",ou=groups,".$suffix;
+    my @dn=split(",",$dn);
+    my $displayname=$cn;
+
+    # search existing account
+    my $mesg_1 = $ldap->search( base => "$dn", attrs => '*', filter => 'cn=*');
+
+    if ($mesg_1->count() ==0){
+        print "Adding ldap group dn: $dn @memberuid\n";
+        my $mesg_2 = $ldap->add( $dn,
+           attrs => [
+                cn                   => $cn, 
+                displayName          => $displayname, 
+                gidNumber            => $gidnumber, 
+                objectClass          => \@objectclass,
+#                memberUid            => \@memberuid,
+                sambaGroupType       => $sambagrouptype,
+                sambaSID => $sambasid, 
+             ]
+	   );
+           # print errors
+           $mesg_2->code && die $mesg_2->error;
+    } else {
+        print "Replacing ldap group dn: $dn\n";
+        my $mesg_2 = $ldap->modify( $dn,
+             replace => {
+                cn                   => $cn, 
+                displayName          => $displayname, 
+                gidNumber            => $gidnumber, 
+                objectClass          => \@objectclass,
+                memberUid            => \@memberuid,
+                sambaGroupType       => $sambagrouptype,
+                sambaSID => $sambasid, 
+	     }
+           );
+           # print errors
+           $mesg_2->code && die $mesg_2->error;
+    }
+}
+
+
+
+
+sub delete_group_ldap {
+    my ($ldap,$group) = @_;
+    my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
+    my $dn="cn=".$cn.",ou=groups,".$suffix;
+    print "Deleting ldap dn: $dn\n";
+    my $mesg = $ldap->delete( $dn); 
+    $mesg->code && die $mesg->error;
+}
+
 
 
 
@@ -6112,7 +6207,7 @@ sub auth_groupadd {
 
 
 
-sub auth_groupdel {
+sub auth_groupdel_old {
     my ($group) = @_;
 
     # find out ntgroupname
@@ -6166,24 +6261,32 @@ sub auth_usermove {
         $u_group eq $gid){
         print "Moving user in ldap\n";
 
-        # fetch oldgroups
-        my $oldgroups=`id -n -G $login`;
-        chomp($oldgroups);
-        my @oldgroups=split(/ /,$oldgroups);
 
-        # create new list of groups
-        my @newgroups=();
-        foreach my $gr (@oldgroups){
-            if ($gr ne $oldgr){
-               push @newgroups,$gr;
-	    }
-        }
-        my $group_csv=join(",",@newgroups);
+        # new 
+        my $ldap=&auth_connect();
+        &update_user_ldap($ldap,$login);
+        &auth_disconnect($ldap);
 
-        my $command="/usr/sbin/smbldap-usermod -g $gid -G".
-                    " '$group_csv' -d $home $login";
-        print "   * $command\n";
-        system("$command");
+        # old
+
+        ## fetch oldgroups
+        #my $oldgroups=`id -n -G $login`;
+        #chomp($oldgroups);
+        #my @oldgroups=split(/ /,$oldgroups);
+        #
+        ## create new list of groups
+        #my @newgroups=();
+        #foreach my $gr (@oldgroups){
+        #    if ($gr ne $oldgr){
+        #       push @newgroups,$gr;
+	#    }
+        #}
+        #my $group_csv=join(",",@newgroups);
+        #
+        #my $command="/usr/sbin/smbldap-usermod -g $gid -G".
+        #            " '$group_csv' -d $home $login";
+        #print "   * $command\n";
+        #system("$command");
     } else { 
            print "ERROR: Moving user did not suceed in pg as expected!\n";
            print "       Not moving user in ldap!\n";
@@ -6340,7 +6443,7 @@ sub auth_deleteuser_from_project {
 
 
 
-sub auth_firstnameupdate {
+sub auth_firstnameupdate_old {
    my ($login,$firstname) = @_;
         # firstname is updated only in the db
         my $command="smbldap-usermod -N '$firstname' $login";
@@ -6351,7 +6454,7 @@ sub auth_firstnameupdate {
 
 
 
-sub auth_lastnameupdate {
+sub auth_lastnameupdate_old {
    my ($login,$lastname) = @_;
         my $command="/usr/sbin/smbldap-usermod -S '$lastname' $login";
         print "   * $command\n";
@@ -6361,7 +6464,7 @@ sub auth_lastnameupdate {
 
 
 
-sub auth_gecosupdate {
+sub auth_gecosupdate_old {
    my ($login,$gecos,$firstname) = @_;
    # -c (comment) This is the gecos field
    # -N This is the cn: (common name) 
@@ -6372,7 +6475,7 @@ sub auth_gecosupdate {
 
 
 
-sub auth_shellupdate {
+sub auth_shellupdate_old {
    my ($login,$shell) = @_;
    # -s /new/shell
    my $command="/usr/sbin/smbldap-usermod -s '$shell' $login";
@@ -6381,7 +6484,7 @@ sub auth_shellupdate {
 }
 
 
-sub auth_pwmustchangeupdate {
+sub auth_pwmustchangeupdate_old {
    my ($login,$value) = @_;
    # -B 0 : Must not change
    # -B 1 : Must change
@@ -6397,7 +6500,7 @@ sub auth_pwmustchangeupdate {
 
 
 
-sub auth_enableupdate {
+sub auth_enableupdate_old {
    my ($login,$enable) = @_;
    my $command="";
    if ($enable==0){
@@ -6411,7 +6514,7 @@ sub auth_enableupdate {
        print "   * $command\n";
        system("$command");
    } else {
-       print "auth_enableupdate: dont know what to to\n";
+       print "auth_enableupdate_old: dont know what to to\n";
    }
 }
 
