@@ -254,6 +254,22 @@ access to *
 
 
 
+in slapd-standalone-template.etch
+und                         .lenny drin
+im CVS
+: probleme:
+1. Nach ersetzen von smbldap...template.etch und sophomorix-setup-pgldap
+funktioniert das externe Moodle nicht mehr (ldaps)
+2. Nach zurückstellen des templtes, sophomorix-setup-pgldap tut
+   es immer noch nicht
+3. Nach aufruf von dpkg-reconfigure linuxmuster-base
+
+-> also ist nicht klar, ob die Änderungen von 1. zum nichtfunktionieren
+   von ldaps geführt haben.
+
+Vermutung: Meldung von update ... in secrets.tdb (aus Erinnerung)
+           muss das in sophomorix-setup-pgldap noch gemacht werden?
+
 
 > schnapp
 
