@@ -20,6 +20,103 @@
 \author{}
 \date{}
 
+\title{Postgresql und OpenLDAP}
+\begin{frame}
+  \begin{overprint}
+  \begin{center}
+    \textbf{\Large Gemeinsamkeiten}
+
+    \vspace{4mm}
+
+    \begin{tabular}{cp{5mm}c}
+      \textbf{GNU/Linux System} && \textbf{Windows System}  \\[2mm]
+      Software für Computer:    && Software für Computer:   \\
+      Betriebsystem: \textcolor{red}{Linux}      
+      && Betriebsystem: \textcolor{red}{Windows}   \\
+      Textverarbeitung          && Textverarbeitung         \\
+      Tabellenkalkulation       && Tabellenkalkulation      \\
+      Webbrowser                && Webbrowser               \\
+      Email-Programm            && Email-Programm           \\
+      \ldots                    && \ldots                   \\
+      80\,000 Personen-Jahre    && 80\,000 Personen-Jahre \\
+    \end{tabular}
+    % apple etwa dieselbe Ideologie wie Windows System
+    % vermischung gewollt/nicht gewollt: firefox auf windows, ...
+  \end{center}
+  \end{overprint}
+\end{frame}
+
+
+
+\title{LDAP-Abfragen auf dem Server}
+\begin{frame}
+  \begin{overprint}
+    \textbf{LDAP-Abfragen auf dem Server:} \par
+        \begin{itemize}
+        \item<2-> \texttt{ldapsearch -x} (Alles abfragen)
+        \item<3-> Als admin:
+
+         \texttt{ldapsearch -x -D cn=admin,dc=bszleo,dc=de -y /etc/ldap.secret} 
+
+         \begin{itemize}
+         \item<3-> \texttt{-D binddn} (Wer connectet?)
+         \item<3-> \texttt{-y passwordfile} (Passwort?)
+         \item<4-> Einschrankung auf einen User: \texttt{uid=name}
+         \end{itemize}
+
+        \item<5-> Alternativen: 
+        \begin{itemize}
+          \item<5-> \texttt{sophomorix-user -u user}
+          \item<5-> \texttt{smbldap-usershow user}
+          \item<5-> \texttt{id user}
+          \item<5-> \texttt{getent passwd}, ...
+        \end{itemize}
+
+        \end{itemize}
+  \end{overprint}
+\end{frame}
+
+
+
+\title{LDAP-Abfragen vom Schulnetz aus mit GUI}
+\begin{frame}
+  \begin{overprint}
+    \textbf{LDAP-Abfragen vom Schulnetz aus mit GUI:} \par
+        \begin{itemize}
+        \item<2-> GUI-Beispiel: Luma (\texttt{aptitude install luma})
+        \item<3-> Ldap Server Kofigurieren:
+         \begin{itemize}
+         \item<3-> Network: Hostname, Port, Encryption
+         \item<3-> Authentification
+         \begin{itemize}
+            \item<4-> Anonymous Bind
+            \item<5-> Simple,cn=admin,dc=bszleo,dc=de,Password
+         \end{itemize}
+         \item<6-> LDAP Options: Base DNs provided by Server
+         \end{itemize}
+        \end{itemize}
+  \end{overprint}
+\end{frame}
+
+\title{Sinnvolle Plugins von \texttt{luma}}
+\begin{frame}
+  \begin{overprint}
+    \textbf{Sinnvolle Plugins von \texttt{luma}:} \par
+        \begin{itemize}
+        \item<2-> Browser: Inhalt anzeigen lassen
+        \item<3-> Search: Suchen im LDAP
+        \item<4-> Schemabrowser: Muss-Inhalte,Kann-Inhalte
+        \item<5-> Usermanagement: Nur zum ansehen nützlich
+        \item<6-> Admin Utilities
+        \item<7-> Verboten bei der paedML:
+         \begin{itemize}
+            \item<8-> Massive user creation
+            \item<9-> 
+         \end{itemize}
+        \end{itemize}
+  \end{overprint}
+\end{frame}
+
 
 
 \end{document}
