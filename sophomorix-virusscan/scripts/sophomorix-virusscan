@@ -16,6 +16,10 @@ use Sophomorix::SophomorixAPI;
 use DBI;
 use Net::LDAP;
 
+use Sophomorix::SophomorixPgLdap qw(show_modulename
+                                    check_connections
+                                   );
+
 
 my @arguments = @ARGV;
 

@@ -330,8 +330,7 @@ install-vampire:
 
 
 install-virusscan:
-	### install-vampire
-# installing virusscan script 
+	### install-virusscan
 	@install -d $(DESTDIR)/usr/sbin
 	@install -oroot -groot --mode=0744 sophomorix-virusscan/scripts/sophomorix-virusscan $(DESTDIR)/usr/sbin
 
