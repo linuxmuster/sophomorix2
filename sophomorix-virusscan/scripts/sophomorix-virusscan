@@ -6,6 +6,32 @@
 # jeffbeck@web.de  or  jeffbeck@gmx.de
 
 
+
+# example script
+#
+# logging to /var/log/sophomorix/sophomorix-virusscan
+
+##!/bin/sh
+#
+#/bin/mkdir -p /root/infected
+#
+#/bin/date > /var/log/virus.log
+#
+#/usr/bin/clamscan --infected --log=/var/log/virus.log -r --move=/root/infected /home
+#
+#/bin/date >> /var/log/virus.log
+#
+#/bin/cat /var/log/virus.log | /usr/bin/mail -s "Virusscan `/bin/date`" administrator@localhost
+#
+
+# optionen
+# --max-softlimit
+# --max-hardlimit
+# --teachers
+# --students 
+
+
+
 # Bibliotheken
 use strict;
 use Getopt::Long;
