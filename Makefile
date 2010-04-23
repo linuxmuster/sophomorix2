@@ -328,6 +328,15 @@ install-vampire:
 #	install -oroot -groot --mode=0644 sophomorix-ldap/modules/Sophomorix*[a-z1-9] $(PERLMOD)
 
 
+
+install-virusscan:
+	### install-vampire
+# installing virusscan script 
+	@install -d $(DESTDIR)/usr/sbin
+	@install -oroot -groot --mode=0744 sophomorix-virusscan/scripts/sophomorix-virusscan $(DESTDIR)/usr/sbin
+
+
+
 install-developer:
 	### install-developer
 ### installing test and developement tools
