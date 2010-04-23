@@ -1,0 +1,85 @@
+#!/usr/bin/perl -w
+# $Id$
+# This script (sophomorix-virusscan) is maintained by Rüdiger Beck
+# It is Free Software (License GPLv3)
+# If you find errors, contact the author
+# jeffbeck@web.de  or  jeffbeck@gmx.de
+
+
+# Bibliotheken
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
+use DBI;
+use Net::LDAP;
+
+
+my @arguments = @ARGV;
+
+
+# ===========================================================================
+# Variablen
+# ==========================================================================
+
+my $help=0;
+my $info=0;
+
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+
+
+
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "help|h" => \$help,
+           "info|i" => \$info,
+          );
+
+# Prüfen, ob Optionen erkannt wurden, sonst Abbruch
+&check_options($testopt);
+&check_connections();
+
+
+# --help
+if ($help==1) {
+   # Scriptname ermitteln
+   my @list = split(/\//,$0);
+   my $scriptname = pop @list;
+   # Befehlsbeschreibung
+   print('
+sophomorix-virusscan scans userhomes for viruses
+
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -i  / --info (unused)
+
+Please see the sophomorix-virusscan(8) man pages for full documentation
+');
+   print "\n";
+   exit;
+}
+
+
+# --info
+if ($info==1){
+    print "No Option --info\n";
+    exit;
+}
+
+
+
+&log_script_start(@arguments);
+
+
+
+# Do it !
+
+
+&log_script_end(@arguments);
