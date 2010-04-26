@@ -1,5 +1,5 @@
 #!/usr/bin/perl 
-# This script (sophomorix-setup-files) is maintained by Rüdiger Beck
+# This script (sophomorix-setup-files) is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -11,7 +11,7 @@
 #use Sophomorix::SophomorixConfig; 
 use Sophomorix::SophomorixBase; 
 
-# Einlesen der Konfigurationsdatei für Entwickler
+# Einlesen der Konfigurationsdatei fÃ¼r Entwickler
 { package DevelConf ; do "/usr/share/sophomorix/devel/sophomorix-devel.conf"}
 
 print "##### sophomorix-setup-files is configuring",
@@ -39,7 +39,7 @@ system("chmod 4750 /usr/bin/sophomorix-teacher");
 system("useradd -g admin -d /home/admin -s /bin/bash -c Windows_Systemverwalter -p admin!  admin");
 
 # admin muss in der Gruppe lehrer Mitglied sein
-# (primäre Gruppe bleibt admin)
+# (primÃ¤re Gruppe bleibt admin)
 #system("usermod -G lehrer admin");
 #system("gpasswd -a admin lehrer");
 #system("gpasswd -a admin teacher");
