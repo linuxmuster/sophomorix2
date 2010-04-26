@@ -55,7 +55,7 @@ Done:
    alles in sophomorix-files/modules
    alles in sophomorix-mediawiki/scripts
    alles in sophomorix-pgldap/scripts
-   alles in sophomorix-pgldap/modules
+alles in sophomorix-pgldap/modules
 
 Todo
 sophomorix-base/scripts/sophomorix-check (Bus Error)
@@ -71,6 +71,25 @@ tut recode to asci noch?
 The following can be upgraded, but the tests do not run anymore:
 sophomorix-developer/scripts/sophomorix-test (Bus Error) OK ??
 sophomorix-developer/scripts/sophomorix-test-unid (Bus Error) OK ??
+
+Tests:
+
+erzeuge script in iso88591 (Kopie von sophomorix-check)
+script > datei ODER print DATEI "äöüß" liefert dasselbe ergebnis 
+
+iso88591:
+mit od angucken: \344 \366 \374 \337
+
+mit od angucken: \303\244 \303\266 \303\274 \303\237
+
+
+Kann das utf8 script dieselbe Datei erzeugen wie die iso88591 
+ja, mit 
+
+print LOG3 "\344\366\374\237";
+
+In einem utf8 script kann man eine Datei mit einem iso88591-ö befüllen, 
+indem man in die Datei \366 printed
 
 
 
