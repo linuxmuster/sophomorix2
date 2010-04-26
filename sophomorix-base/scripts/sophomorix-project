@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # $Id$
-# This script (sophomorix-project) is maintained by Rüdiger Beck
+# This script (sophomorix-project) is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -55,7 +55,7 @@ my @arguments = @ARGV;
 
 my $pg_timestamp=&pg_timestamp();
 
-# Variablen für Optionen
+# Variablen fÃ¼r Optionen
 $Conf::log_level=1;
 my $help=0;
 my $tree=0;
@@ -144,7 +144,7 @@ my $testopt=GetOptions(
            "update-from-file=s" => \$update_from_file,
           );
 
-# Prüfen, ob Optionen erkannt wurden
+# PrÃ¼fen, ob Optionen erkannt wurden
 &check_options($testopt);
 
 
@@ -598,7 +598,7 @@ if ($kill==0){
                     "","",
                     0,0);
 
-    # project_details: Eintrag löschen
+    # project_details: Eintrag lÃ¶schen
     # und files loeschen 
     # (BEFORE removing group)
     &remove_project($project);

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # $Id$
-# This script (sophomorix-move) is maintained by Rüdiger Beck
+# This script (sophomorix-move) is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -56,7 +56,7 @@ my $key;
 # Optionen verarbeiten
 # ==========================================================================
 
-# Variablen für Optionen
+# Variablen fÃ¼r Optionen
 $DevelConf::testen=0;
 $Conf::log_level=1;
 my $help=0;
@@ -81,7 +81,7 @@ my $testopt=GetOptions(
            "help|h" => \$help
           );
 
-# Prüfen, ob Optionen erkannt wurden, sonst Abbruch
+# PrÃ¼fen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
 
 
@@ -217,7 +217,7 @@ if ($info==1) {
 # sophomorix.move mitloggen
 &backup_amk_file($zeit,"move","before");
 
-# Datei mit den Schülern, die nicht versetzt wurden
+# Datei mit den SchÃ¼lern, die nicht versetzt wurden
 open(NOCHVERSETZEN,">${DevelConf::ergebnis_pfad}/sophomorix.move.neu") 
      || die "Fehler: $!";
 
@@ -290,7 +290,7 @@ while(<USERVERSETZEN>){
    # 0. rember login to set quota later
    push @users_for_quota, $login_versetzen;
 
-   # die Daten aus dem Tausch-Verzeichnis dem Schüler in sein home moven
+   # die Daten aus dem Tausch-Verzeichnis dem SchÃ¼ler in sein home moven
    &save_tausch_klasse($login_versetzen, $alte_klasse);
 
    # Sicherstellen dass neue Klasse (Linux-Gruppe) existiert

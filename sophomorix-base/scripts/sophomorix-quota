@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # $Id$
-# This script (sophomorix-quota) is maintained by Rüdiger Beck
+# This script (sophomorix-quota) is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -47,7 +47,7 @@ my $quota_fs_num = &get_quota_fs_num();
 # Optionen verarbeiten
 # ==========================================================================
 
-# Variablen für Optionen
+# Variablen fÃ¼r Optionen
 $Conf::log_level=1;
 my $help=0;
 my $noninteractive=0;
@@ -90,7 +90,7 @@ my $testopt=GetOptions(
            "info|i" => \$info
           );
 
-# Prüfen, ob Optionen erkannt wurden, sonst Abbruch
+# PrÃ¼fen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
 &check_connections();
 
@@ -163,7 +163,7 @@ if ($info==1) {
       print "in sophomorix.conf. \n\nYou should know what you are doing!\n\n";
     }
 
-   # Tatsächlich benutzte Liste ausgeben
+   # TatsÃ¤chlich benutzte Liste ausgeben
    foreach $fs (@quota_fs) {
      $i=$i+1;
      print"  Filesystem $i:    $fs\n";
@@ -525,7 +525,7 @@ sub set_quota {
          print("    Inode-Softlimit:    ${q_opt3}     \n");
          print("    Inode-Hardlimit:    ${q_opt4}     \n");
       }
-      # Mit setquota die Quota der user tatsächlich anpassen
+      # Mit setquota die Quota der user tatsÃ¤chlich anpassen
       if (not $DevelConf::system==1){
          # Quota-Modul benutzen
          if(not $DevelConf::testen==1) {
@@ -937,7 +937,7 @@ sub get_quota_txt {
       }
    }
    close(QUOTATXT);
-   # Rückgabe-Hash enthält standard-quota UND Einzel-Quota
+   # RÃ¼ckgabe-Hash enthÃ¤lt standard-quota UND Einzel-Quota
    return %quota_txt;
 }
 
@@ -968,7 +968,7 @@ sub get_mail_quota_txt {
       }
    }
    close(MAILQUOTATXT);
-   # Rückgabe-Hash enthält standard-quota UND Einzel-Quota
+   # RÃ¼ckgabe-Hash enthÃ¤lt standard-quota UND Einzel-Quota
    return %mail_quota_txt;
 }
 

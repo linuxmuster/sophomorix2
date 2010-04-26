@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# This script (sophomorix-imp-expand-fromadress) is maintained by Rüdiger Beck
+# This script (sophomorix-imp-expand-fromadress) is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -24,7 +24,7 @@
 # }
 
 # 2) Hook einschalten
-# Folgende Zeile  zum hook 'from_addr' hinzufügen: 
+# Folgende Zeile  zum hook 'from_addr' hinzufÃ¼gen: 
 #
 #     'hook' => 'true',
 #
@@ -134,17 +134,17 @@ sub get_mail_alias_from {
           }
 
           if ($begin_automatisch==1) {
-             # wenn die Automatischen Einträge erreicht sind
+             # wenn die Automatischen EintrÃ¤ge erreicht sind
              s/\s//g; # Spezialzeichen raus
              if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
              if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
              if(not /:/){next;} # Bei fehlendem Doppelpunkt aussteigen
 
-             # gültige Zeilen untersuchen
+             # gÃ¼ltige Zeilen untersuchen
              my($alias, $login)=split(/:/);
 
              if (not defined $username) {
-               # ungültige Zeile/Listenzeile/kein Parameter übergeben
+               # ungÃ¼ltige Zeile/Listenzeile/kein Parameter Ã¼bergeben
                 return "";
                 close(ALIASES);
                 exit;

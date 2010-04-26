@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # $Id$
-# This script (sophomorix-add) is maintained by Rüdiger Beck
+# This script (sophomorix-add) is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -62,7 +62,7 @@ my $dev_null="1>/dev/null 2>/dev/null";
 # Optionen verarbeiten
 # ==========================================================================
 
-# Variablen für Optionen
+# Variablen fÃ¼r Optionen
 $DevelConf::testen=0;
 $DevelConf::system=0;
 $Conf::log_level=1;
@@ -88,7 +88,7 @@ my $testopt=GetOptions(
            "help|h" => \$help
           );
 
-# Prüfen, ob Optionen erkannt wurden, sonst Abbruch
+# PrÃ¼fen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
 
 # --help
@@ -223,7 +223,7 @@ my $dbh=&db_connect();
 my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
 
 ################################################################################
-# User (Schüler und Lehrer) anlegen aus sophomorix.add
+# User (SchÃ¼ler und Lehrer) anlegen aus sophomorix.add
 ################################################################################
 
 # repair.directories einlesen ???
@@ -254,7 +254,7 @@ my @passwort_zeichen=&get_passwd_charlist();
 # ===========================================================================
 %forbidden_login_hash=&forbidden_login_hash();
 
-# Datei mit den Schülern, die nicht angelegt wurden
+# Datei mit den SchÃ¼lern, die nicht angelegt wurden
 open(NOCHANLEGEN,">${DevelConf::ergebnis_pfad}/sophomorix.add.new") 
     || die "Fehler: $!";
 open(SOPHOMORIXADD,"${DevelConf::ergebnis_pfad}/sophomorix.add") 
@@ -294,19 +294,19 @@ while(<SOPHOMORIXADD>){
 
     $login_teil_1=substr($nachname_login,0,$Conf::schueler_login_nachname_zeichen);
     $login_teil_2=substr($vorname_login,0,$Conf::schueler_login_vorname_zeichen);
-    # Zu prüfender Loginname
+    # Zu prÃ¼fender Loginname
     $login_name_to_check="$login_teil_1"."$login_teil_2";
     $login_name_to_check=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
    }
 
-   # Existenz prüfen ???ldap
+   # Existenz prÃ¼fen ???ldap
    if (not exists($forbidden_login_hash{$login_name_to_check})){
-       # Wenn der zu prüfende Login-Name nicht schon vorhanden
+       # Wenn der zu prÃ¼fende Login-Name nicht schon vorhanden
        # Kann er benutzt werden 
        $login_name_ok=$login_name_to_check;
    } elsif ($wunsch_login ne "---"){
        # Wunsch-Login angegeben
-       # Abbrechen, Wunsch-Login soll nicht verändert werden
+       # Abbrechen, Wunsch-Login soll nicht verÃ¤ndert werden
        print "\nERROR:\n";
        print "Cannot add user   $vorname $nachname \n";
        print "Login   $wunsch_login   exists in the system",
@@ -315,9 +315,9 @@ while(<SOPHOMORIXADD>){
    } else {
        # Wenn schon vorhanden, muss Login-Namen modifiziert werden
        $login_name_to_check_mod="$login_name_to_check";
-       my $i=1; # Erster Wert für Zusatzziffer
+       my $i=1; # Erster Wert fÃ¼r Zusatzziffer
        while (exists($forbidden_login_hash{$login_name_to_check_mod})) { 
-          # An zu prüfenden Loginame eine Ziffer anhängen
+          # An zu prÃ¼fenden Loginame eine Ziffer anhÃ¤ngen
           $login_name_to_check_mod="$login_name_to_check"."$i";
           $i=$i+1;
        }
@@ -327,7 +327,7 @@ while(<SOPHOMORIXADD>){
 
 
    # Login-Name des anzulegenden users darf ab jetzt nicht mehr verwendet werden,
-   # deshalb dem Hash mit vorhandenen Loginnamen hinzufügen
+   # deshalb dem Hash mit vorhandenen Loginnamen hinzufÃ¼gen
    $forbidden_login_hash{$login_name_ok}="neu";
 
 
@@ -375,7 +375,7 @@ while(<SOPHOMORIXADD>){
          print("Unix-gid:         $wunsch_gid\n"); # lehrer oder klasse
       }
       print("GECOS:            $gecos\n");
-      print("Login (prüfen):   $login_name_to_check\n");
+      print("Login (prÃ¼fen):   $login_name_to_check\n");
       print("Login (OK):       $login_name_ok\n");
       print("Passwort:         $klartext_passwort\n");
       if ($wunsch_id ne "---"){
@@ -385,7 +385,7 @@ while(<SOPHOMORIXADD>){
          # Es ist ein Lehrer
          print("Shell (teachers):  $shell\n"); 
       } else {
-         # Es ist ein Schüler
+         # Es ist ein SchÃ¼ler
          print("Shell (students):  $shell\n"); 
       }
    }
@@ -534,7 +534,7 @@ sub print {
 sub shell_ermitteln {
    my ($gruppe)=@_;
    my $login_shell;
-   # Shell ermitteln (Lehrer <> Schüler)
+   # Shell ermitteln (Lehrer <> SchÃ¼ler)
       if ($gruppe eq ${DevelConf::teacher}) {
          # Es ist ein Lehrer
          if ($Conf::lehrer_per_ssh eq "yes") {
@@ -543,7 +543,7 @@ sub shell_ermitteln {
              $login_shell="/bin/false";
            }
        } else {
-         # Es ist ein Schüler
+         # Es ist ein SchÃ¼ler
          if ($Conf::schueler_per_ssh eq "yes") {
              $login_shell="/bin/bash";
            } else {
@@ -576,7 +576,7 @@ sub create_webmin_account {
    # append entry
    open (MINISERVUSERS, ">>$wmsu") ||   die "Cannot open $wmsu \n";
    if ($DevelConf::testen==0) {
-      # Ausführen: User anhängen
+      # AusfÃ¼hren: User anhÃ¤ngen
       print MINISERVUSERS "$user:x:0::\n";
    } else {
       # Ausgeben
@@ -593,7 +593,7 @@ sub create_webmin_account {
    # append entry
    open (WEBMINACL, ">>$webminacl") ||   die "Cannot open $webminacl \n";
    if ($DevelConf::testen==0) {
-      # Ausführen: User anhängen
+      # AusfÃ¼hren: User anhÃ¤ngen
       print WEBMINACL "$user:\n";
    } else {
       # Ausgeben

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # $Id$
-# This script (sophomorix-repair) is maintained by Rüdiger Beck
+# This script (sophomorix-repair) is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -72,7 +72,7 @@ my $testopt=GetOptions(
            "student|students|s" => \$student,
           );
 
-# Prüfen, ob Optionen erkannt wurden
+# PrÃ¼fen, ob Optionen erkannt wurden
 &check_options($testopt);
 
 
@@ -173,7 +173,7 @@ my @klassen_sub=&fetchsubclasses_from_school();
 my @projects=&fetchprojects_from_school(); 
 &print_list("The list of every Project:",@projects);
 
-# Räume
+# RÃ¤ume
 &titel("Creating list of every room ...");
 my @raeume=&fetchrooms_from_school(); 
 &print_list("The list of every room:",@raeume);
@@ -343,7 +343,7 @@ if ($repairlinks ne ""){
 
 
 ###############################################################################
-# Erzeugt für jede Zeile von repair.directories einen Befehl
+# Erzeugt fÃ¼r jede Zeile von repair.directories einen Befehl
 ###############################################################################
 
 
@@ -516,7 +516,7 @@ sub repair_directories {
        # Zeile zerlegen
        my ($path, $owner, $groupowner, $permission) = split(/::/);
 
-       # Gruppen auswählen
+       # Gruppen auswÃ¤hlen
        if (/\$klassen/) {
            # Liste ist Klassenliste
            @gruppen=@klassen;
@@ -560,12 +560,12 @@ sub repair_directories {
                               1,1,0,@arguments);
        }
 
-       # User auswählen
+       # User auswÃ¤hlen
        if ($path=~/\$schueler/) {
            if($Conf::log_level>=3){
-              print "\$schueler found (Schülerliste)\n";
+              print "\$schueler found (SchÃ¼lerliste)\n";
 	   }
-           # Liste ist Schülerliste
+           # Liste ist SchÃ¼lerliste
            @user=@schueler;
            $user_anzahl++;
            if($Conf::log_level>=3){
@@ -629,7 +629,7 @@ sub repair_directories {
 ###############################################################################
 
 sub repair_directory {
-   # Übergabewerte:
+   # Ãœbergabewerte:
    # pfad(string) mit variablen $gruppe und $user
    # owner(name)
    # gruppenowner(name)
@@ -637,7 +637,7 @@ sub repair_directory {
    # Referenz auf gruppen (evtl. auch leere liste)
    # Referenz auf user (evtl. auch leere liste)
 
-   # Übergabewerte zuweisen
+   # Ãœbergabewerte zuweisen
    my ($path, $owner, $groupowner, $permission, $gruppen, $user) = @_;
 
    my $korrigieren=1;
@@ -666,7 +666,7 @@ sub repair_directory {
          # Group-owner sichern
          my $save_groupowner=$groupowner; 
 
-         # Userliste evtl. einschränken
+         # Userliste evtl. einschrÃ¤nken
 	 if ($path=~/\$klassen/ && $path=~/\$schueler/) {
             @userliste=&fetchstudents_from_adminclass($gruppe);
             #print "Userliste: Nur Klasse\n";
@@ -742,7 +742,7 @@ sub repair_directory {
          }
 
          # Anlegen, falls nicht vorhanden
-         # folgendes nicht mehr verwenden, da rechte unötigerweise verändert werden
+         # folgendes nicht mehr verwenden, da rechte unÃ¶tigerweise verÃ¤ndert werden
          #system("install -d $path");
  
          if (not -e $path) {
@@ -756,21 +756,21 @@ sub repair_directory {
              # Dateirechte des Verzeichnises ermitteln
              my ($a,$b,$mode) = stat(${path});
              #print "Mode ist $mode\n";
-             # Umwandeln in übliche Schreibweise
+             # Umwandeln in Ã¼bliche Schreibweise
              $mode &=07777;
              $mode=sprintf "%04o",$mode;
 
              if($Conf::log_level>=2){
                 print "Permissions are $mode  (Permitted: $permission)\n";
 	     }
-             # Falls Verzeichnisrechte gesetzt werden müssen, 
+             # Falls Verzeichnisrechte gesetzt werden mÃ¼ssen, 
              # auf den ersten Wert setzten 
              $permission_to_set=$permission_list[0];
              # Sind die Verzeichnisrechte OK
 	     foreach my $perm (@permission_list){
                if ($mode==$perm) {
                #print "VerzeichnisrechteOK\n";
-               # Verzeichnisrechte wurden in der Liste der zulässigen gefunden
+               # Verzeichnisrechte wurden in der Liste der zulÃ¤ssigen gefunden
                # -> nicht mehr korrigieren
                $korrigieren=0;
                }
@@ -790,7 +790,7 @@ sub repair_directory {
             chown $ownerid, $gid, $path;
             print "  * $path $owner($ownerid) ",
                   "$groupowner($gid) Rechte: OK\n";
-            # Korrigier-Variable zurücksetzten
+            # Korrigier-Variable zurÃ¼cksetzten
             $korrigieren=1;
 	 }
 

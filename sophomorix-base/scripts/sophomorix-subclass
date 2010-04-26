@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # $Id$
-# This script (sophomorix-subclass) is maintained by Rüdiger Beck
+# This script (sophomorix-subclass) is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -37,7 +37,7 @@ my @arguments = @ARGV;
 # Optionen verarbeiten
 # ==========================================================================
 
-# Variablen für Optionen
+# Variablen fÃ¼r Optionen
 $Conf::log_level=1;
 my $help=0;
 my $info=0;
@@ -87,7 +87,7 @@ my $testopt=GetOptions(
            "0members|Omembers=s" => \$o_members,
           );
 
-# Prüfen, ob Optionen erkannt wurden
+# PrÃ¼fen, ob Optionen erkannt wurden
 &check_options($testopt);
 
 if ($class eq ""
@@ -418,7 +418,7 @@ sub interactive_change_subclass {
        } else {
 	   print "$gecos is in subclass $old_subclass\nNew subclass:  ";
        }
-           while(){# Endlosschleife für die Eingabe
+           while(){# Endlosschleife fÃ¼r die Eingabe
                $user_antwort= <STDIN>; # Lesen von Tastatur
                chomp($user_antwort); # Newline abschneiden
                if ($user_antwort eq ""){

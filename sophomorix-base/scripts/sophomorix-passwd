@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # $Id$
-# This script (sophomorix-passwd) is maintained by Rüdiger Beck
+# This script (sophomorix-passwd) is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -37,7 +37,7 @@ my @users=();
 # Optionen verarbeiten
 # ==========================================================================
 
-# Variablen für Optionen
+# Variablen fÃ¼r Optionen
 $DevelConf::testen=0;
 $DevelConf::system=0;
 $Conf::log_level=1;
@@ -103,7 +103,7 @@ my $testopt=GetOptions(
            "help|h" => \$help
           );
 
-# Prüfen, ob Optionen erkannt wurden, sonst Abbruch
+# PrÃ¼fen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
 &check_connections();
 
@@ -220,7 +220,7 @@ if ($char_num!=0 and($common==0 and $random==0)){
 
 # --info, show only the users
 if ($info==1) {
-   &print_list_column(6,"Passwörter setzen für user ",@users);
+   &print_list_column(6,"PasswÃ¶rter setzen fÃ¼r user ",@users);
    print "INFO: $info_line  \n";
    exit;
 }
@@ -294,7 +294,7 @@ if ($interactive==1){
 
         # Look if they match
         if ($password_1 eq $password_2){
-            # Passwort für user setzen
+            # Passwort fÃ¼r user setzen
             &set_sophomorix_passwd($users[0],$password_1);
             # do NOT set password in the Database as FirstPassword
             &nscd_start();
@@ -394,7 +394,7 @@ foreach my $user (@users){
        print "  Setting password for user $user in ".
              "$group ($type) to $password ...\n";
     }
-    # Passwort für user setzen
+    # Passwort fÃ¼r user setzen
     &set_sophomorix_passwd($user,$password);
     # updating the database
     if ($nofirstpassupdate==0){

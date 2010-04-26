@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # $Id$
-# This script (sophomorix-kill) is maintained by Rüdiger Beck
+# This script (sophomorix-kill) is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -49,7 +49,7 @@ my $v="";
 # Optionen verarbeiten
 # ===========================================================================
 
-# Variablen für Optionen
+# Variablen fÃ¼r Optionen
 $DevelConf::testen=0;
 $Conf::log_level=1;
 my $help=0;
@@ -72,7 +72,7 @@ my $testopt=GetOptions(
            "unlock" => \$unlock,
           );
 
-# Prüfen, ob Optionen erkannt wurden, sonst Abbruch
+# PrÃ¼fen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
 
 
@@ -197,7 +197,7 @@ my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
 
 
 # ===========================================================================
-# Datei mit den Schülern, die nicht gelöscht wurden
+# Datei mit den SchÃ¼lern, die nicht gelÃ¶scht wurden
 # ===========================================================================
 if (not -e "${DevelConf::ergebnis_pfad}/sophomorix.kill.neu" ){
     system("mkdir -p ${DevelConf::ergebnis_pfad}");
@@ -208,7 +208,7 @@ open(YETTOKILL,">${DevelConf::ergebnis_pfad}/sophomorix.kill.neu")
 
 
 # ===========================================================================
-# Datei mit den zu löschenden Schülern
+# Datei mit den zu lÃ¶schenden SchÃ¼lern
 # ===========================================================================
 &titel("Beginn deletion ...");
 
@@ -343,7 +343,7 @@ sub kill_user {
        }
      }
 
-     # Jetzt wird gelöscht
+     # Jetzt wird gelÃ¶scht
      # Ermittelte Daten ausgeben
      $user_nummer++;
       if($Conf::log_level>=1){
@@ -396,11 +396,11 @@ sub kill_user {
      if ($type_to_kill eq "teacher"){
 
      } elsif ($type_to_kill eq "student") {
-         # Klassenverzeichnis in denen die Homes sind löschen, falls leer
+         # Klassenverzeichnis in denen die Homes sind lÃ¶schen, falls leer
          &do_falls_nicht_testen(
              "rmdir --ignore-fail-on-non-empty ${DevelConf::homedir_pupil}/$linux_gruppe_to_kill > /dev/null",
-          # Klassentauschverzeichnis löschen, falls leer 
-          # (Wird nicht mehr gelöscht, da wenn nichts drinsteht trotzdem nach user in der klasse sein können)
+          # Klassentauschverzeichnis lÃ¶schen, falls leer 
+          # (Wird nicht mehr gelÃ¶scht, da wenn nichts drinsteht trotzdem nach user in der klasse sein kÃ¶nnen)
           #"rmdir --ignore-fail-on-non-empty ${DevelConf::share_classes}/$linux_gruppe_to_kill > /dev/null"
           );
      } elsif ($type_to_kill eq "examaccount") {
@@ -412,22 +412,22 @@ sub kill_user {
 
      }
 #      if ($linux_gruppe_to_kill ne ${DevelConf::teacher}) {
-#         # Es ist ein Schüler
+#         # Es ist ein SchÃ¼ler
 #       }
 
-      # Sonst noch löschen:
+      # Sonst noch lÃ¶schen:
 
-      # find über die Tauschverzeichnisse, löschen (evt. noch aufheben)
+      # find Ã¼ber die Tauschverzeichnisse, lÃ¶schen (evt. noch aufheben)
 
-      # Wenn letzter Schüler einer Klasse gelöscht wird:
-      # Die Gruppe Klasse löschen (kein Nachteil, wenn die Gruppe erhalten bleibt)
+      # Wenn letzter SchÃ¼ler einer Klasse gelÃ¶scht wird:
+      # Die Gruppe Klasse lÃ¶schen (kein Nachteil, wenn die Gruppe erhalten bleibt)
 
-      # Evtl. gefährlich:
-      # Klassentauschverzeichnis löschen, wenn letzter Schüler gelöscht???
+      # Evtl. gefÃ¤hrlich:
+      # Klassentauschverzeichnis lÃ¶schen, wenn letzter SchÃ¼ler gelÃ¶scht???
 
-      # Logonscript für Klasse entfernen (nicht so wichtig)
-      # Wenns die Klasse wiedergibt, wirds überbügelt
-      # Wenns die Klasse nicht mehr gibt, liegt halt a bissle Müll herum
+      # Logonscript fÃ¼r Klasse entfernen (nicht so wichtig)
+      # Wenns die Klasse wiedergibt, wirds Ã¼berbÃ¼gelt
+      # Wenns die Klasse nicht mehr gibt, liegt halt a bissle MÃ¼ll herum
 }
 
 
