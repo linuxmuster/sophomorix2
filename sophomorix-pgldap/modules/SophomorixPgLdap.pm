@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # $Id$ 
-# This perl module is maintained by Rüdiger Beck
+# This perl module is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -1960,9 +1960,9 @@ sub create_class_db_entry {
     my %classes=();
     my $sql="";
     my $gidnumber;
-    # SQL-Funktion aufrufen die Enträge in ldap_entries, ldap_entry_objclasses
-    # und NextFreeUnixId macht und groups_id zurück gibt
-    # der Username muss hier schon übergeben werden.
+    # SQL-Funktion aufrufen die EntrÃ¤ge in ldap_entries, ldap_entry_objclasses
+    # und NextFreeUnixId macht und groups_id zurÃ¼ck gibt
+    # der Username muss hier schon Ã¼bergeben werden.
     my $dbh=&db_connect();
     my $gid_sys;
     my $gid_name_sys;
@@ -2859,7 +2859,7 @@ foreach my $row (@$array_ref){
    if (not defined $usertoken){$usertoken=""}
    if (not defined $scheduled_toleration){$scheduled_toleration=""}
 
-   # exclude one user ????????ß
+   # exclude one user ???????
    if ($login eq "NextFreeUnixId"){
        next;
    }       
@@ -4471,7 +4471,7 @@ sub remove_project  {
                                          FROM groups 
                                          WHERE gid='$project'
                                         ");
-    # project_details löschen
+    # project_details lÃ¶schen
     my $sql="DELETE FROM project_details 
              WHERE id=$id; 
              ";	
@@ -6781,5 +6781,5 @@ sub compare_pg_with_ldap {
 
 
 # ENDE DER DATEI
-# Wert wahr=1 zurückgeben
+# Wert wahr=1 zurÃ¼ckgeben
 1;
