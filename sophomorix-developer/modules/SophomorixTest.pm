@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # $Id$
-# This perl module is maintained by Rüdiger Beck
+# This perl module is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -40,7 +40,7 @@ use Sophomorix::SophomorixPgLdap qw ( db_connect
                                   );
 
 
-# Dieses Modul (SophomorixTest.pm) wurde von Rüdiger Beck erstellt
+# Dieses Modul (SophomorixTest.pm) wurde von RÃ¼diger Beck erstellt
 # Es ist freie Software
 # Bei Fehlern wenden Sie sich bitte an mich.
 # jeffbeck@web.de  oder  jeffbeck@gmx.de
@@ -242,7 +242,7 @@ sub kill_user {
     my ($login) = @_;
     system("userdel  -r $login");
     system("pdbedit -x -u $login");
-    # andere dinge müssen noch gemacht werden
+    # andere dinge mÃ¼ssen noch gemacht werden
 }
 
 
@@ -314,7 +314,7 @@ sub check_dir {
        my($dev, $ino, $mode, $nlink, $uid, $gid, $rdev,
           $size, $atime, $mtime, $ctime, $blksize, $blocks)
           = stat($abs_path);
-       # Umwandeln in übliche Schreibweise
+       # Umwandeln in Ã¼bliche Schreibweise
        $mode &=07777;
        $mode=sprintf "%04o",$mode;
 
@@ -365,7 +365,7 @@ sub check_links {
             &is($link_target,"/home/share/classes/${group}" ,
                "Checking if  target of link is /home/share/classes/${group}");
           }
-          # Does Target exist??????ßß
+          # Does Target exist??????ÃŸÃŸ
         }
         # show result of existence check
         &is($exists, 1 ,"Checking if  $link is link/exists");
@@ -373,7 +373,7 @@ sub check_links {
 
     # lesen, welche Links in $link_dir sind -> Liste
     # alle gecheckten links abziehen
-    # es sollten keine restlichen Links übrig sein
+    # es sollten keine restlichen Links Ã¼brig sein
     # Link nach schule Testen
 }
 
@@ -730,7 +730,7 @@ sub check_file {
 
     ok(-e $file,"$file  exists");
     my ($dev,$ino,$mode,$nlink,$uid,$gid) = stat(${file});
-    # Umwandeln in übliche Schreibweise
+    # Umwandeln in Ã¼bliche Schreibweise
     $mode &=07777;
     $mode=sprintf "%04o",$mode;
 

@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# This perl module is maintained by Rüdiger Beck
+# This perl module is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -96,9 +96,9 @@ sub create_user_db_entry {
     my $gec = "$vorname"." "."$nachname";
     if ($DevelConf::testen==0) {
        open(PROTOKOLL,">>$DevelConf::protokoll_datei");
-       # zeile anhängen
+       # zeile anhÃ¤ngen
        print PROTOKOLL "$class;$gec;$login;$pass;$gebdat;$unid;;;;;;;$quota;\n";
-       # Datei Schließen, damit Schreiben erzwingen (Falls Programmabsturz)
+       # Datei SchlieÃŸen, damit Schreiben erzwingen (Falls Programmabsturz)
        close(PROTOKOLL);
   } else {
        print "Test:   modifying $DevelConf::protokoll_datei \n";
@@ -145,7 +145,7 @@ Setzt das Passwort string in linux, samba, ...
 sub set_sophomorix_passwd {
     my ($login,$pass) = @_;
     if ($DevelConf::testen==0) {
-       # Passwort verschlüsseln
+       # Passwort verschlÃ¼sseln
        open(PASSWD,"| /usr/sbin/chpasswd");
           print PASSWD "$login:$pass\n";     
        close(PASSWD);
@@ -227,7 +227,7 @@ system ("chmod 600 $DevelConf::protokoll_datei");
 
    # Name aufsplitten
    ($vorname_pro,$nachname_pro)=split(/ /,$name_pro);
-   # Zusammenhängen zu identifier
+   # ZusammenhÃ¤ngen zu identifier
    $identifier=join("",
          ($nachname_pro,";",
           $vorname_pro,";",
@@ -245,7 +245,7 @@ system ("chmod 600 $DevelConf::protokoll_datei");
    # GCOS-Feld aufsplitten
    if (defined $gcos_passwd){
        ($vorname_passwd,$nachname_passwd)=split(/ /,$gcos_passwd);
-   # Zusammenhängen zu identifier
+   # ZusammenhÃ¤ngen zu identifier
    $identifier_passwd=join("",
                              ($nachname_passwd,
                               ";",
@@ -257,9 +257,9 @@ system ("chmod 600 $DevelConf::protokoll_datei");
    }
    # In Hash schreiben: mit Klasse als Wert (um Versetzen herauszufinden)
    $schueler_im_system_hash{$identifier}="$admin_class";
-   # In Hash schreiben: mit loginnamen als Wert (um Löschen herauszufinden)
+   # In Hash schreiben: mit loginnamen als Wert (um LÃ¶schen herauszufinden)
    $schueler_im_system_loginname{$identifier}="$login";
-   # In Hash schreiben: mit Zeile als Wert (beim Löschen zu entfernen)
+   # In Hash schreiben: mit Zeile als Wert (beim LÃ¶schen zu entfernen)
    $schueler_im_system_protokoll_linie{$identifier}="$_";
   
    if ($DevelConf::kompatibel eq "ja"){
@@ -1087,5 +1087,5 @@ sub show_class_list {
 
 
 # ENDE DER DATEI
-# Wert wahr=1 zurückgeben
+# Wert wahr=1 zurÃ¼ckgeben
 1;

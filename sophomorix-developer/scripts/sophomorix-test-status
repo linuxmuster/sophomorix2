@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# This script (sophomorix-test-status) is maintained by Rüdiger Beck
+# This script (sophomorix-test-status) is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -22,7 +22,7 @@ use Sophomorix::SophomorixTest;
 use Test::More "no_plan";
 Getopt::Long::Configure ("bundling");
 
-# Einlesen der Konfigurationsdatei für Entwickler
+# Einlesen der Konfigurationsdatei fÃ¼r Entwickler
 #{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
 
 
@@ -39,7 +39,7 @@ my $verbose=0;
 
 &run_command("sophomorix-check",$verbose);
 
-print "\nDie Tests können beginnen\n\n";
+print "\nDie Tests kÃ¶nnen beginnen\n\n";
 
 
 print '
@@ -51,7 +51,7 @@ print '
 ';
 
 ###########################################################################
-# user in schueler.txt hinzufügen
+# user in schueler.txt hinzufÃ¼gen
 my $user="";
 my $login="";
 my @users_to_add=(
@@ -108,7 +108,7 @@ $login=&get_login_name("6a;lou reed;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1978");
 &run_command("sophomorix-check",$verbose);
 &run_command("sophomorix-check",$verbose);
 
-# unverändert ?
+# unverÃ¤ndert ?
 &check_line_in_file(
   "6a;lou reed;[a-z0-9]{2,};[a-z0-9]{3,};12.10.1978;[A-Za-z0-9]*;[A-D]?;F;;;;;",
   "$DevelConf::protokoll_pfad/user_db");
@@ -182,7 +182,7 @@ $login=&get_login_name("7a;iggy pop;[a-z0-9]{2,};[a-z0-9]{3,};10.02.1984");
 &run_command("sophomorix-check",$verbose);
 &run_command("sophomorix-check",$verbose);
 
-# unverändert ?
+# unverÃ¤ndert ?
 &check_line_in_file(
   "7a;iggy pop;[a-z0-9]{2,};[a-z0-9]{3,};10.02.1984;[A-Za-z0-9]*;[A-D]?;P;;;;;",
   "$DevelConf::protokoll_pfad/user_db");

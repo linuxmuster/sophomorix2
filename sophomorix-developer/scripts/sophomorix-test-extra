@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# This script (sophomorix-test-extra) is maintained by Rüdiger Beck
+# This script (sophomorix-test-extra) is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -20,7 +20,7 @@ use Sophomorix::SophomorixTest;
 use Test::More "no_plan";
 Getopt::Long::Configure ("bundling");
 
-# Einlesen der Konfigurationsdatei für Entwickler
+# Einlesen der Konfigurationsdatei fÃ¼r Entwickler
 #{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
 
 
@@ -37,13 +37,13 @@ my $verbose=0;
 
 &run_command("sophomorix-check",$verbose);
 
-print "\nDie Tests können beginnen\n\n";
+print "\nDie Tests kÃ¶nnen beginnen\n\n";
 
 
 print '
 ###########################################################################
 #                                                                         #
-#                       ANLEGEN VON EXTRA-SCHÜLERN                        #
+#                       ANLEGEN VON EXTRA-SCHÃœLERN                        #
 #                                                                         #
 ###########################################################################
 ';
@@ -52,13 +52,13 @@ print '
 
 
 
-# user in extraschueler.txt hinzufügen
+# user in extraschueler.txt hinzufÃ¼gen
 my $user="";
 my $login="";
 
 my @users_to_add=(
-     "vhs;Müller;Jürgen;02.11.1983;",
-     "vhs;Neumüller;Siegfried;05.02.1984;sigi;",
+     "vhs;MÃ¼ller;JÃ¼rgen;02.11.1983;",
+     "vhs;NeumÃ¼ller;Siegfried;05.02.1984;sigi;",
    );
 
 
@@ -98,7 +98,7 @@ foreach $user (@users_to_add){
 
 
 ###########################################################################
-# Ergebnisdateien prüfen
+# Ergebnisdateien prÃ¼fen
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.move");
 &check_emptyness("sophomorix.kill");
@@ -106,7 +106,7 @@ foreach $user (@users_to_add){
 
 
 ###########################################################################
-# Druckdaten prüfen
+# Druckdaten prÃ¼fen
 # hinzu.tex
 &check_existence("${DevelConf::druck_pfad}/add.tex");
 &check_line_in_file("juergen mueller",
@@ -121,7 +121,7 @@ foreach $user (@users_to_add){
 
 
 ###########################################################################
-# Datenbank prüfen
+# Datenbank prÃ¼fen
 &check_line_in_file(":juergen mueller:","/etc/passwd");
 &check_line_in_file(
   "vhs;juergen mueller;[a-z0-9]{2,};[a-z0-9]{3,};02.11.1983",
@@ -136,7 +136,7 @@ foreach $user (@users_to_add){
 print '
 ###########################################################################
 #                                                                         #
-#                SCHÜLER DULDEN, DEAKTIVIEREN, LOESCHEN                   #
+#                SCHÃœLER DULDEN, DEAKTIVIEREN, LOESCHEN                   #
 #                                                                         #
 ###########################################################################
 ';
@@ -144,7 +144,7 @@ print '
 # schueler 1
 
 &remove_line(
-  "vhs;Müller;Jürgen;02.11.1983;",
+  "vhs;MÃ¼ller;JÃ¼rgen;02.11.1983;",
   "${DevelConf::users_pfad}/extraschueler.txt");
 
 &run_command("sophomorix-check",$verbose);
@@ -229,7 +229,7 @@ $login=&get_login_name("vhs;juergen mueller;[a-z0-9]{2,};[a-z0-9]{3,};02.11.1983
 # schueler 2
 
 &remove_line(
-  "vhs;Neumüller;Siegfried;05.02.1984;sigi;",
+  "vhs;NeumÃ¼ller;Siegfried;05.02.1984;sigi;",
   "${DevelConf::users_pfad}/extraschueler.txt");
 
 &run_command("sophomorix-check",$verbose);
@@ -341,14 +341,14 @@ foreach my $num (@numbers) {
    &check_account("linuxer${num}","enabled");
 }
 
-# Zeile ändern
+# Zeile Ã¤ndern
 # 1. alte weg
 &remove_line(
   "aklinux;linuxer;${max_users};17.11.2004;linak;netz;10.01.2007;",
   "${DevelConf::users_pfad}/extrakurse.txt");
 
 
-# 2. veränderte dazu
+# 2. verÃ¤nderte dazu
 &append_line("aklinux;linuxer;${max_users};17.11.2004;linak;netz;10.01.2001;",
              "${DevelConf::users_pfad}/extrakurse.txt");
 

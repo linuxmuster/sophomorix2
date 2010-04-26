@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # $Id$
-# This perl module is maintained by Rüdiger Beck
+# This perl module is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -32,7 +32,7 @@ if (not -e $conf){
   || die "Fehler: sophomorix.conf could not be processed (syntax error?)\n" 
 }
 # Die in sophomorix.conf als global (ohne my) deklarierten Variablen
-# können nun mit $Conf::Variablenname angesprochen werden
+# kÃ¶nnen nun mit $Conf::Variablenname angesprochen werden
 
 
 =head1 Documentation of SophomorixConfig.pm
@@ -48,7 +48,7 @@ if (not -e $develconf){
     exit;
 }
 
-# Einlesen der Konfigurationsdatei für Entwickler
+# Einlesen der Konfigurationsdatei fÃ¼r Entwickler
 { package DevelConf ; do "$develconf"
   || die "Fehler: sophomorix-devel.conf could not be processed (syntax error?)\n" 
 }
@@ -76,5 +76,5 @@ sub show_language {
 
 
 # ENDE DER DATEI
-# Wert wahr=1 zurückgeben
+# Wert wahr=1 zurÃ¼ckgeben
 1;

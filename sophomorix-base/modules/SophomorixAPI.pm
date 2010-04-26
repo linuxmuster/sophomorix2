@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # $Id$
-# This perl module is maintained by Rüdiger Beck
+# This perl module is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -439,5 +439,5 @@ sub remove_my_adminclass {
 
 
 # ENDE DER DATEI
-# Wert wahr=1 zurückgeben
+# Wert wahr=1 zurÃ¼ckgeben
 1;
