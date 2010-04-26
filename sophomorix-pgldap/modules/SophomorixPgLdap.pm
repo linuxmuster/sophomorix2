@@ -5716,7 +5716,6 @@ sub auth_passwd_old {
 
 
 sub update_user_ldap {
-    print "\n---Call---\n";
     my ($ldap,$login) = @_;
     # type: user,computer,unixadmin,examaccount
     my ($home,
