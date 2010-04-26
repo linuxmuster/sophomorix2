@@ -6,7 +6,7 @@ BEGIN WORK;
 -- PostgreSQL database dump
 --
 
-SET client_encoding = 'LATIN9';
+SET client_encoding = 'UTF8';
 SET check_function_bodies = false;
 
 SET search_path = public, pg_catalog;
