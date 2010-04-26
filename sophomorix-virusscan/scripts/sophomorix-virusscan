@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # $Id$
-# This script (sophomorix-virusscan) is maintained by R�diger Beck
+# This script (sophomorix-virusscan) is maintained by Rüdiger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -25,12 +25,22 @@
 #
 
 # optionen
-# --max-softlimit
-# --max-hardlimit
+# --max-time minutes
+# Versuche die --max-time nicht zu überschreiten
+# gehe durch lehrer und schüler gleich schnell durch
 # --teachers
-# --students 
-
-
+# --students
+# --shares Mon,Tue (Scanne shares am Montag/Dienstag)
+# 1) lehrer und schueler alphabetisch mischen
+# 2) schauen, wie weit im alphabet gescannt werden kann
+# 3) scannen
+# 4) wenn noch Zeit, schüler (kleinere homes) scannen
+#    so bleiben (große) Lehrerhomes liegen
+# 5) wenn lehrer home zu groß für 1 Tag, dann Samstags/Sonntags 
+#    scannen, Mail an root 
+# option --test username:
+# scanne das userhome und merke die performance MB/min 
+# werden verlinkte tauschs auch gescannt? besser nicht
 
 # Bibliotheken
 use strict;
@@ -70,7 +80,7 @@ my $testopt=GetOptions(
            "info|i" => \$info,
           );
 
-# Pr�fen, ob Optionen erkannt wurden, sonst Abbruch
+# Prüfen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
 &check_connections();
 

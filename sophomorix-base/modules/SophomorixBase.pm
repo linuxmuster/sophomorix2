@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # $Id$
-# This perl module is maintained by Rüdiger Beck
+# This perl module is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -165,14 +165,14 @@ of B<SophomorixBase> and youre off.
 #    exit;
 #}
 
-# Einlesen der Konfigurationsdatei für Entwickler
+# Einlesen der Konfigurationsdatei fÃ¼r Entwickler
 #{ package DevelConf ; do "/etc/sophomorix/devel/user/sophomorix-devel.conf"}
 #{ package DevelConf ; do "$develconf"}
 
 # Einlesen der Konfigurationsdatei
 #{ package Conf ; do "${DevelConf::config_pfad}/sophomorix.conf"}
 # Die in sophomorix.conf als global (ohne my) deklarierten Variablen
-# können nun mit $Conf::Variablenname angesprochen werden
+# kÃ¶nnen nun mit $Conf::Variablenname angesprochen werden
 
 
 ################################################################################
@@ -218,7 +218,7 @@ sub alpha_warning {
     print "\n          that is considered DANGEROUS!";
     print "\n          It is not recommended to use it on a production server!\n";
     print "\n Type Ctrl-c to exit or 'ok' + <Return> to continue!\n\n";
-    while(){# Endlosschleife für die Eingabe
+    while(){# Endlosschleife fÃ¼r die Eingabe
          $user_antwort= <STDIN>; # Lesen von Tastatur
          chomp($user_antwort); # Newline abschneiden
          if ($user_antwort eq "ok"){
@@ -490,7 +490,7 @@ sub get_v_rechte {
    my ($verzeichnis,$owner,$gowner,$permissions)=split(/::/,$linie);
    if($Conf::log_level>=3){
       print "Verzeichnis: $verzeichnis\n";
-      print "Eigentümer: $owner\n";
+      print "EigentÃ¼mer: $owner\n";
       print "Gruppe: $gowner\n";
       print "Rechte: $permissions\n";
     }
@@ -524,7 +524,7 @@ sub setup_verzeichnis {
    }    
       my $linie=$alle_verzeichnis_rechte{$key};
       my ($verzeichnis,$owner,$gowner,$permissions)=split(/::/,$linie);
-      # Ersetzungen durchführen
+      # Ersetzungen durchfÃ¼hren
       # wenn mehrere duch / getrennte Dateirechte, dann erste nehmen
       if ($permissions =~m/\//) {
          ($permissions)=split(/\//,$permissions);
@@ -560,7 +560,7 @@ sub setup_verzeichnis {
       
     }
   
-    # vorhandene Daten prüfen
+    # vorhandene Daten prÃ¼fen
    if (not -e $pfad) {
       if($Conf::log_level>=2){
         print "Creating $pfad \n";
@@ -1072,13 +1072,13 @@ sub get_old_info {
 
 
 # ===========================================================================
-# Daten aus Klassen-Tauschverzeichnis ins home des Schülers kopieren
+# Daten aus Klassen-Tauschverzeichnis ins home des SchÃ¼lers kopieren
 # ===========================================================================
 =pod
 
 =item I<%hash = save_tausch_klasse(login, klasse)>
 
-Daten aus Klassen-Tauschverzeichnis ins home des Schülers kopieren
+Daten aus Klassen-Tauschverzeichnis ins home des SchÃ¼lers kopieren
 
 =cut
 
@@ -1535,7 +1535,7 @@ sub repair_directory_no_var {
             # Dateirechte des Verzeichnises ermitteln
             my ($a,$b,$mode) = stat(${path});
             #print "Mode ist $mode\n";
-            # Umwandeln in übliche Schreibweise
+            # Umwandeln in Ã¼bliche Schreibweise
             $mode &=07777;
             $mode=sprintf "%04o",$mode;
 
@@ -1603,7 +1603,7 @@ sub protokoll_linien_oldstuff {
         $protokoll_linien{$_}="";
       }
    close(PROTOKOLL);
-   # Rückgabe des Hashes (key=Linie, Value nicht definiert)
+   # RÃ¼ckgabe des Hashes (key=Linie, Value nicht definiert)
    return %protokoll_linien;  
 }
 
@@ -1616,7 +1616,7 @@ sub protokoll_linien_oldstuff {
 =item I<extra_kurs_schueler(tag, monat, jahr)>
 
 Datei extrakurse.students erzeugen aus extrakurse.txt. tag, monat,
-jahr soll das aktuelle Datum sein. Es werden nur Schüler derjenigen
+jahr soll das aktuelle Datum sein. Es werden nur SchÃ¼ler derjenigen
 Kurse erzeugt, deren Kusr-Ende-Datum noch nicht erreicht ist.
 
 =cut
@@ -1670,7 +1670,7 @@ sub extra_kurs_schueler {
      if ($user_anzahl=~/[^0-9]/){
            # 
            print "\n\n\nSYNTAXFEHLER!\n";
-           print "\n\n  Benutzer-Anzahl  $user_anzahl  enthält nicht nur Ziffern ";
+           print "\n\n  Benutzer-Anzahl  $user_anzahl  enthÃ¤lt nicht nur Ziffern ";
            print "(Kurs  $kursname)\n\n";
            print "\n\n  Beheben sie diesen Fehler in /etc/sophomorix/user/extrakurse.txt\n\n";
            print "\n\n  Und starten sie das Programm neu.\n\n";
@@ -1678,7 +1678,7 @@ sub extra_kurs_schueler {
               exit;
        }
 
-     # Prüfen, ob entfern-Datum überschritten ist
+     # PrÃ¼fen, ob entfern-Datum Ã¼berschritten ist
      ## Achtung, Januar=0
 
      # Datum zu Programmstart (ohne Minuten und Sekunden)
@@ -1691,18 +1691,18 @@ sub extra_kurs_schueler {
      if($Conf::log_level>=3){
         print("  Unix-Entfern-Datum :   $entfern_datum_epoche\n");
       }
-     # Wenn Entfern-Datum ÜBERSCHRITTEN, dann nächste Zeile
+     # Wenn Entfern-Datum ÃœBERSCHRITTEN, dann nÃ¤chste Zeile
      if ($datum_epoche>$entfern_datum_epoche){
-         print("  Entfern-Datum ist überschritten ...\n");
+         print("  Entfern-Datum ist Ã¼berschritten ...\n");
          next;
-      }; # Nächste Zeile einlesen
+      }; # NÃ¤chste Zeile einlesen
 
      print("  User werden generiert ...\n");
-     # Loginzeilen für den Kurs generieren
+     # Loginzeilen fÃ¼r den Kurs generieren
      for ($i=1;$i<=$user_anzahl;$i++){
        # Wunschlogin erzeugen
        if ($i<=9){
-           $i_mod="0"."$i" # Null davorhängen
+           $i_mod="0"."$i" # Null davorhÃ¤ngen
          } else {
            $i_mod=$i;      # keine Null davor
          }
@@ -1712,20 +1712,20 @@ sub extra_kurs_schueler {
 
        #print "\n$identifier\n\n";
 
-       # prüfen, ob identifier schon vorhanden -> Abbruch mit Info
+       # prÃ¼fen, ob identifier schon vorhanden -> Abbruch mit Info
          if (exists ($generated_identifiers{$identifier})) {
-            print "\n\nFehler beim Erzeugen der Schüler des Extrakurses $kursname !\n";
+            print "\n\nFehler beim Erzeugen der SchÃ¼ler des Extrakurses $kursname !\n";
             print "Erzeugt werden sollte im Kurs --$kursname-- der User-Identifier:\n\n";     
             print "    $identifier\n";
             print "\nDieser wurde jedoch im Kurs --$generated_identifiers{$identifier}-- schon erzeugt.\n";
             print "\n\nAbhilfe:\n";
             print "\nIn den beiden Zeilen der Kurse $kursname bzw. $generated_identifiers{$identifier} \n";
-            print "müssen sich das gecos-Feld ($gecos) \nODER das Anlegedatum ($datum) unterscheiden.\n";
+            print "mÃ¼ssen sich das gecos-Feld ($gecos) \nODER das Anlegedatum ($datum) unterscheiden.\n";
             print "Korrigieren Sie dies im noch nicht angelegten Kurs.\n";
             exit;
          }
 
-       # prüfen, ob Kurs schon vorhanden -> Abbruch mit Info
+       # prÃ¼fen, ob Kurs schon vorhanden -> Abbruch mit Info
          if (exists ($generated_kurs{$kursname})) {
             print "\n\nFehler beim Erzeugen des Kurses $kursname !\n";
             print "Der Kursname $kursname kommt in extrakurse.txt doppelt vor.\n";
@@ -1743,7 +1743,7 @@ sub extra_kurs_schueler {
      
        # Zeile in Datei schreiben 
        print EXTRAKURSESCHUELER ("$kursname".";".
-                                "$i_mod".";".# Nummer nutzen für untersch. identifier
+                                "$i_mod".";".# Nummer nutzen fÃ¼r untersch. identifier
                                 "$gecos".";".
                                 "$datum".";".  # Entferndatum
                                 "$wunsch_login".";".
@@ -1810,9 +1810,9 @@ sub lehrer_ordnen {
    while(<LEHRER>) {
      chomp();
      if(/^\#/){
-        # Bei Kommentarzeichen # unbearbeitet übernehmen
+        # Bei Kommentarzeichen # unbearbeitet Ã¼bernehmen
         print LEHRERTMP ("$_\n");
-        # weiter mit nächstem Lehrer
+        # weiter mit nÃ¤chstem Lehrer
         next;
      } 
      s/\s//g;
@@ -1869,12 +1869,12 @@ sub lehrer_ordnen {
      if($Conf::log_level>=2){
         print ("    $identifier\n");
      }
-     # In lehrer.txt muss IMMER der gültige Loginname stehen (wegen Quota) 
+     # In lehrer.txt muss IMMER der gÃ¼ltige Loginname stehen (wegen Quota) 
 
      if ($wunsch_login eq "") {
          # gibt es lehrer schon im system, dann dort login holen
          print("\n\n\nAbbruch:\n\n");
-         print("Für die Lehrerin/den Lehrer  $vorname $nachname   ",
+         print("FÃ¼r die Lehrerin/den Lehrer  $vorname $nachname   ",
                "ist kein Login-Name angegeben!\n\n");
          print("\n\n  Wenn   $vorname $nachname   SCHON ANGELEGT ist, ",
                "muss der im System eingetragene \n");
@@ -1885,7 +1885,7 @@ sub lehrer_ordnen {
         exit;
      }
 
-     # Füllen der Felder
+     # FÃ¼llen der Felder
      if ($erst_passwort eq "") {
          $erst_passwort="---";
      }
@@ -1966,7 +1966,7 @@ sub lehrer_ordnen {
 
 =item I<zeit_stempel()>
 
-Gibt die Zeit zurück. Geht mit `` einfacher ToDo
+Gibt die Zeit zurÃ¼ck. Geht mit `` einfacher ToDo
 
 =cut
 sub zeit_stempel {
@@ -1983,26 +1983,26 @@ sub zeit_stempel {
 sub recode_to_ascii {
     my ($string) = @_;
     $string=~s/ /./g;
-    $string=~s/ü/ue/g;
-    $string=~s/Ü/ue/g;
-    $string=~s/ö/oe/g;
-    $string=~s/Ö/oe/g;
-    $string=~s/ä/ae/g;
-    $string=~s/Ä/ae/g;
-    $string=~s/ß/ss/g;
+    $string=~s/Ã¼/ue/g;
+    $string=~s/Ãœ/ue/g;
+    $string=~s/Ã¶/oe/g;
+    $string=~s/Ã–/oe/g;
+    $string=~s/Ã¤/ae/g;
+    $string=~s/Ã„/ae/g;
+    $string=~s/ÃŸ/ss/g;
     return $string;
 }
 
 sub recode_to_ascii_underscore {
     my ($string) = @_;
     $string=~s/ /_/g;
-    $string=~s/ü/ue/g;
-    $string=~s/Ü/ue/g;
-    $string=~s/ö/oe/g;
-    $string=~s/Ö/oe/g;
-    $string=~s/ä/ae/g;
-    $string=~s/Ä/ae/g;
-    $string=~s/ß/ss/g;
+    $string=~s/Ã¼/ue/g;
+    $string=~s/Ãœ/ue/g;
+    $string=~s/Ã¶/oe/g;
+    $string=~s/Ã–/oe/g;
+    $string=~s/Ã¤/ae/g;
+    $string=~s/Ã„/ae/g;
+    $string=~s/ÃŸ/ss/g;
     return $string;
 }
 
@@ -2011,13 +2011,13 @@ sub recode_to_ascii_underscore {
 
 
 # ===========================================================================
-# System-Befehl ausführen
+# System-Befehl ausfÃ¼hren
 # ===========================================================================
 =pod
 
 =item I<do_falls_nicht_testen(systembefehl)>
 
-Wenn $testen=0 ist, soll systembefehl ausgeführt werden ansonsten wird
+Wenn $testen=0 ist, soll systembefehl ausgefÃ¼hrt werden ansonsten wird
 systembefehl nur als String ausgegeben
 
 
@@ -2028,7 +2028,7 @@ sub do_falls_nicht_testen {
    foreach $systembefehl (@liste) {
       #print "\n\n\$testen ist $DevelConf::testen\n\n";
       if ($DevelConf::testen==0) {
-         # Ausführen
+         # AusfÃ¼hren
          system("$systembefehl");
       } else {
          # Ausgeben
@@ -2116,7 +2116,7 @@ sub  check_options{
 
 =item I<check_datei_exit(file)>
 
-Bricht mit Fehlermeldung ab, wenn die übergebene Datei nicht existiert
+Bricht mit Fehlermeldung ab, wenn die Ã¼bergebene Datei nicht existiert
 
 =cut
 sub check_datei_exit {
@@ -2140,7 +2140,7 @@ sub check_datei_exit {
 
 =item I<check_datei_touch(file)>
 
-Legt leere Datei an, wenn die übergebene Datei nicht existiert
+Legt leere Datei an, wenn die Ã¼bergebene Datei nicht existiert
 
 =cut
 sub check_datei_touch {
@@ -2242,7 +2242,7 @@ sub get_user_history {
 
 =item I<get_group_list(login)>
 
-Gibt die Liste der Gruppennamen zurück, in denen der user mit dem
+Gibt die Liste der Gruppennamen zurÃ¼ck, in denen der user mit dem
 loginnamen login ist.
 
 =cut
@@ -2265,12 +2265,12 @@ sub get_group_list {
 
 =item I<get_passwd_charlist()>
 
-Gibt eine Liste aller für Zufalls-Passwörter zulässiger Zeichen zurück
+Gibt eine Liste aller fÃ¼r Zufalls-PasswÃ¶rter zulÃ¤ssiger Zeichen zurÃ¼ck
 
 =cut
 
 sub get_passwd_charlist {
-   # Zeichen, die in den verschlüsselten Passwörtern vorkommen dürfen
+   # Zeichen, die in den verschlÃ¼sselten PasswÃ¶rtern vorkommen dÃ¼rfen
    # auslassen: 1,i,l,I,L,j
    # auslassen: 0,o,O
    # auslassen: Grossbuchstaben, die mit Kleinbuchstaben 
@@ -2291,9 +2291,9 @@ sub get_passwd_charlist {
 
 =item I<get_random_password(num,group,@charlist)>
 
-Gibt ein Zufallspasswort, zusammengesetzt aus den übergebenen Zeichen,
-zurück. Ist die Länge num=0, so wird die in sophomorix.conf angegebene
-Länge für die entsprechende Gruppe group benutzt.
+Gibt ein Zufallspasswort, zusammengesetzt aus den Ã¼bergebenen Zeichen,
+zurÃ¼ck. Ist die LÃ¤nge num=0, so wird die in sophomorix.conf angegebene
+LÃ¤nge fÃ¼r die entsprechende Gruppe group benutzt.
 
 =cut
 sub get_random_password {
@@ -2333,7 +2333,7 @@ sub get_plain_password {
             $passwort="linux";
 	  }
       } else {
-         # Es ist ein Schüler
+         # Es ist ein SchÃ¼ler
          if ($Conf::schueler_zufall_passwort eq "yes") {
             # Zufallspasswort erzeugen
             for ($i=1;$i<=${Conf::zufall_passwort_anzahl_schueler};$i++)
@@ -2689,7 +2689,7 @@ sub create_share_directory {
 
 =item I<remove_share_link(login,project,project_long_name)>
 
-Löscht den Link an in das Tauschverzeichnis des Projekts.
+LÃ¶scht den Link an in das Tauschverzeichnis des Projekts.
 
 =cut
 # this should be true for all db and auth-systems
@@ -2848,7 +2848,7 @@ sub zeit {
 
 =item I<zeit(epoche)>
 
-Erzeugt Datum für den Postgresql-Datentyp 'timestamp without time zone' 
+Erzeugt Datum fÃ¼r den Postgresql-Datentyp 'timestamp without time zone' 
 aus der momentanen Zeit.
 
 =cut
@@ -3209,7 +3209,7 @@ sub backup_amk_file {
     if (-e "${inp}/sophomorix.${str}"){
        &do_falls_nicht_testen(
          "$com ${inp}/sophomorix.${str} ${outp}/${time}.sophomorix.${str}-${str2}",
-         # Nur für root lesbar machen
+         # Nur fÃ¼r root lesbar machen
          "chown root:root ${outp}/${time}.sophomorix.${str}-${str2}",
          "chmod 600 ${outp}/${time}.sophomorix.${str}-${str2}"
        );
@@ -3229,7 +3229,7 @@ sub backup_amk_file {
 
 
 ################################################################################
-# RÄUME
+# RÃ„UME
 ################################################################################
 
 
@@ -3260,17 +3260,17 @@ sub get_mail_alias_from {
           if(/^\# Automatisch erzeugt:/){$begin_automatisch=1}
 
           if ($begin_automatisch==1) {
-             # wenn die Automatischen Einträge erreicht sind
+             # wenn die Automatischen EintrÃ¤ge erreicht sind
              s/\s//g; # Spezialzeichen raus
              if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
              if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
              if(not /:/){next;} # Bei fehlendem Doppelpunkt aussteigen
 
-             # gültige Zeilen untersuchen
+             # gÃ¼ltige Zeilen untersuchen
              my($alias, $login)=split(/:/);
 
              if (not defined $username) {
-               # ungültige Zeile/Listenzeile/kein Parameter übergeben
+               # ungÃ¼ltige Zeile/Listenzeile/kein Parameter Ã¼bergeben
                 return "";
                 close(ALIASES);
                 exit;
@@ -3294,7 +3294,7 @@ sub get_mail_alias_from {
    if ($param eq "liste") {
       return @liste;
     } else {
-      # wenn nichts gefunden, dann username zurückgeben
+      # wenn nichts gefunden, dann username zurÃ¼ckgeben
       return $username;
     }
 
@@ -3617,7 +3617,7 @@ sub imap_set_mailquota {
 
 =item I<quota_addition(qutastring1, quotastring2, quotastring3, ...)>
 
-Zählt quota zusammen. Nicht alle formate weden unterstützt
+ZÃ¤hlt quota zusammen. Nicht alle formate weden unterstÃ¼tzt
 
 =cut
 sub quota_addition {
@@ -3656,8 +3656,8 @@ sub quota_addition {
 sub checked_quotastring {
    # input 1: string, der in Quotaangaben stehen kann:
    # Bsp.     156      1332+132  x-12-x-x+23
-   # input 2: Dateiname für Fehlermeldung
-   # input 3: Zeile, oder ähnliches, um Fehler zu finden
+   # input 2: Dateiname fÃ¼r Fehlermeldung
+   # input 3: Zeile, oder Ã¤hnliches, um Fehler zu finden
    my ($quota_string, $datei, $zeile)=@_;
    my @quota_liste=();
    my @quota_filesystems=&get_quota_fs_liste();
@@ -3671,7 +3671,7 @@ sub checked_quotastring {
                    "########## Abbruch: $datei nicht korrekt: ##########\n",
                    "#########################################################\n\n",
                    " Zeile: $zeile\n\n",
-                   "Es müssen bei ALLEN Usern für $quota_fs_anzahl Dateisystem(e)",
+                   "Es mÃ¼ssen bei ALLEN Usern fÃ¼r $quota_fs_anzahl Dateisystem(e)",
                    " Quotaangaben gemacht werden.\n\n";
              if ($datei ne "quota.txt") {
              print "(in schulinfo.txt oder lehrer.txt kann auch das Wort 'quota' stehen).\n\n";
@@ -3680,7 +3680,7 @@ sub checked_quotastring {
          }
 
    foreach $quotawert (@quota_liste) {
-      # Minux-Anzahl prüfen
+      # Minux-Anzahl prÃ¼fen
       my $minus_anzahl=$quotawert=~tr/-//;
       if ($minus_anzahl == 3) {
           # Angabe mit 3 -
@@ -3705,7 +3705,7 @@ sub checked_quotastring {
 
       } else {
         # Weder 0 noch 3 Minusse
-        print "Fehler: Es müssen keine oder 3 Minusse in $quota_string vorhanden sein!\n";
+        print "Fehler: Es mÃ¼ssen keine oder 3 Minusse in $quota_string vorhanden sein!\n";
         exit;
       }
   
@@ -3751,15 +3751,15 @@ sub get_quotastring {
    # $userkey:                             username
    # \@quota_filesystems                   Referenz auf Liste mit filesystemen
    # \@{ $login_quota_hash{$userkey} }     Referenz auf den Key $userkey im 
-   # Hash %login_quota_hash, der Referenz auf Liste mit Quota enthält   
+   # Hash %login_quota_hash, der Referenz auf Liste mit Quota enthÃ¤lt   
    # Beispiel: &setze_quota($userkey , 
    #                        \@quota_filesystems, 
    #                        \@{ $login_quota_hash{$userkey} } );
 sub setze_quota {
-   # neue, private Variablen für diesen Block anlegen
+   # neue, private Variablen fÃ¼r diesen Block anlegen
    my $quotastring="";
    my $minus_anzahl=0;
-   # Optionen für den setquota-Befehl
+   # Optionen fÃ¼r den setquota-Befehl
    my $q_opt1="";
    my $q_opt2="";
    my $q_opt3="";
@@ -3769,8 +3769,8 @@ sub setze_quota {
    my $uidnumber=-1;
    # Parameter 
    # $user:        username
-   # $fsliste      Referenz auf Liste mit Filesystemen (für alle user gleich)
-   # $quotastring  Referenz auf Liste mit Quota (für übergebenen user)
+   # $fsliste      Referenz auf Liste mit Filesystemen (fÃ¼r alle user gleich)
+   # $quotastring  Referenz auf Liste mit Quota (fÃ¼r Ã¼bergebenen user)
    my ($system,$user,$fsliste, $quotaliste)=@_;
    # Nun die Elemente der Dateisystem-Liste durchgehen von 1 bis j
    for ($j=0; $j < @$fsliste; $j++){
@@ -3794,7 +3794,7 @@ sub setze_quota {
          $q_opt3="x";
          $q_opt4="x";
       }
-      # Prüfen, ob x angegeben ist
+      # PrÃ¼fen, ob x angegeben ist
       # x im ersten Parameter
       if ($q_opt1 eq "x"){
         # Softlimit ca. 20% unter Hardlimit
@@ -3837,7 +3837,7 @@ sub setze_quota {
          print("  Inode-Hardlimit:   ${q_opt4}     \n");
       }
 
-      # Mit setquota die Quota der user tatsächlich anpassen
+      # Mit setquota die Quota der user tatsÃ¤chlich anpassen
       if (not $DevelConf::system==1){
          # Quota-Modul benutzen
          if(not $DevelConf::testen==1) {
@@ -3870,10 +3870,10 @@ sub setze_quota {
 
 
 
-# vgl. setze quota, unnötiges weggelassen
+# vgl. setze quota, unnÃ¶tiges weggelassen
 sub addup_quota {
    my $quotastring="";
-   # Optionen für den setquota-Befehl
+   # Optionen fÃ¼r den setquota-Befehl
    my $q_opt1="";
    my $q_opt2="";
    my $q_opt3="";
@@ -3884,8 +3884,8 @@ sub addup_quota {
 
    # Parameter 
    # $user:        username
-   # $fsliste      Referenz auf Liste mit Filesystemen (für alle user gleich)
-   # $quotastring  Referenz auf Liste mit Quota (für übergebenen user)
+   # $fsliste      Referenz auf Liste mit Filesystemen (fÃ¼r alle user gleich)
+   # $quotastring  Referenz auf Liste mit Quota (fÃ¼r Ã¼bergebenen user)
    my ($system,$user,$fsliste, $quotaliste)=@_;
    # Nun die Elemente der Dateisystem-Liste durchgehen von 1 bis j
    for ($j=0; $j < @$fsliste; $j++){
@@ -3960,7 +3960,7 @@ sub get_standard_quota {
    }
    close(QUOTASOLL);
 
-   # Für jeden User in quota.txt die Quota auf allen Filesystemen ausgeben
+   # FÃ¼r jeden User in quota.txt die Quota auf allen Filesystemen ausgeben
    if($Conf::log_level>=3){
       &titel("Extrahierte Werte aus quota.txt :");
       for my $users ( keys %standard_quota_hash ) {
@@ -3968,7 +3968,7 @@ sub get_standard_quota {
        }
       print "\n";
    }
-   # Rückgabe-Hash enthält standard-quota UND Einzel-Quota
+   # RÃ¼ckgabe-Hash enthÃ¤lt standard-quota UND Einzel-Quota
    return %standard_quota_hash;
 }
 
@@ -4016,7 +4016,7 @@ sub get_lehrer_quota {
    }
    close(LEHRER);
 
-   # Für Lehrer mit Sonderquota die Quota auf allen Filesystemen ausgeben
+   # FÃ¼r Lehrer mit Sonderquota die Quota auf allen Filesystemen ausgeben
    if($Conf::log_level>=3){
       &titel("Extrahierte Werte aus lehrer.txt :");
       for my $users ( keys %lehrer_quota_hash ) {
@@ -4024,7 +4024,7 @@ sub get_lehrer_quota {
        }
       print "\n";
    }
-   # Rückgabe-Hash enthält key=lehrer-login, value=quotaliste 
+   # RÃ¼ckgabe-Hash enthÃ¤lt key=lehrer-login, value=quotaliste 
    return %lehrer_quota_hash;
 }
 
@@ -4037,7 +4037,7 @@ sub get_lehrer_quota {
 # ===========================================================================
 
 
-#   # Rückgabe-Hash enthält key=klassen-name, value=quotaliste 
+#   # RÃ¼ckgabe-Hash enthÃ¤lt key=klassen-name, value=quotaliste 
 #   return %standard_quota_hash;
 
 # ===========================================================================
@@ -5386,5 +5386,5 @@ sub read_cyrus_redirect {
 
 
 # ENDE DER DATEI
-# Wert wahr=1 zurückgeben
+# Wert wahr=1 zurÃ¼ckgeben
 1;
