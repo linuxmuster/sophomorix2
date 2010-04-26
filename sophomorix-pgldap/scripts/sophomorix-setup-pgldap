@@ -16,6 +16,7 @@ Getopt::Long::Configure ("bundling");
 
 use Sophomorix::SophomorixConfig; 
 use Sophomorix::SophomorixBase; 
+use Net::LDAP;
 use Sophomorix::SophomorixPgLdap qw(
                                     check_connections
                                     db_connect
