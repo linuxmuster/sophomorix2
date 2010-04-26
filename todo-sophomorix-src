@@ -36,7 +36,7 @@ gosa ldap befüllen mit web gui
 connectiert mit den smbldap.conf einträgen in smb.conf
 
 
-
+Umcodierung der Scripte in UTF8
 grep -i fen sopho*
 
 
@@ -60,17 +60,17 @@ Done:
 Todo
 sophomorix-base/scripts/sophomorix-check (Bus Error)
 sophomorix-base/scripts/sophomorix-print (Bus Error)
-sophomorix-developer/scripts/sophomorix-test (Bus Error)
-sophomorix-developer/scripts/sophomorix-test-bunchofusers (Bus Error)
-sophomorix-developer/scripts/sophomorix-test-unid (Bus Error)
-sophomorix-pgldap/scripts/sophomorix-setup-pgldap (Bus Error)
-sophomorix-pgldap/scripts/sophomorix-vampire (Bus Error)
 
-sophomorix-base/modules/SophomorixBase.pm (Bus Error)
-sophomorix-pgldap/modules/SophomorixPgLdap.pm (Bus Error)
+SophomorixBase.pm
 
-Wieso?
+tut recode to asci noch?
 
+ü mit \... erstzen???
+
+
+The following can be upgraded, but the tests do not run anymore:
+sophomorix-developer/scripts/sophomorix-test (Bus Error) OK ??
+sophomorix-developer/scripts/sophomorix-test-unid (Bus Error) OK ??
 
 
 
@@ -83,19 +83,6 @@ added with smbldaptools: top,posixGroup,sambaGroupMapping
 after dump:              posixGroup,sambaGroupMapping
 
 What does top mean? What is correct?
-
-sophomorix-test dies after Test 37, line 2199
-
-maierjo ist in Gruppe 10005, die es nicht gibt in ldap, 
-in postgres gibt es sie 
-
-wird ein user in einer neuen gruppe angelegt, gibt es die gruppe im ldap nicht!!!!!!!!!!
-
-PRINTOUT: Adding ldap group funktioniert nicht->
-
-
-
-
 
 
 
