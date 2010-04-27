@@ -1,0 +1,14 @@
+#!/usr/bin/perl -w
+
+
+use utf8;
+
+open (FILE, ">schueler.txt");
+
+print FILE "# iso8859-1\n";
+print FILE "10A;B\366ck;R\374diger;10.10.1970\n";
+
+print FILE "# utf8\n";
+print FILE "10A;B\303\266ck;R\303\274diger;10.10.1970\n";
+
+close (FILE)
