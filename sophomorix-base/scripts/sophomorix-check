@@ -10,6 +10,7 @@
 # Bibliotheken
 # ===========================================================================
 use strict;
+use utf8;
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 use String::Approx 'amatch';
@@ -3657,7 +3658,7 @@ sub better_match {
 
 
 
-sub filter_school_admin_software {
+sub filter_school_admin_software_old {
      my ($line) = @_;
      # Todo: Variable with string in user.conf $admin_software="splan";
      # open splan.filter and Read the following lines from there
@@ -3752,6 +3753,27 @@ sub filter_school_admin_software {
       $line=~s/\'//g;
       return $line;
 }
+
+sub filter_school_admin_software {
+     my ($line) = @_;
+     # neu mit lenny:
+     #  Diese Funktion wandelt alle Sonderzeichen in unicode um!
+
+     if ($encoding="8859-1" or $encoding=""){
+         # iso 8859-1
+         $line=~s/\374/ue/g;
+         $line=~s/\366/oe/g;
+     }
+
+     # utf8
+     $line=~s/\303\274/ue/g;
+     $line=~s/\303\266/oe/g;
+
+
+      return $line;
+}
+
+
 
 # Ende Sub
 
