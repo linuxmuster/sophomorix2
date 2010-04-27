@@ -22,18 +22,20 @@ Klassenarbeitsaccounts bereinigt.  Leider bleiben dot-files wie
            ... is added right
 
 
-
+{
 pdbedit benutzen, um 
 - accounts anzulegen
 - abfragen 
 - ...
 
 sollte auch in samba 4 so bleiben
+}
 
+{
 gosa ldap befüllen mit web gui
 
-
 connectiert mit den smbldap.conf einträgen in smb.conf
+}
 
 
 Umcodierung der Scripte in UTF8
@@ -70,15 +72,17 @@ tut recode to asci noch?
 
 The following can be upgraded, but the tests do not run anymore:
 sophomorix-developer/scripts/sophomorix-test (Bus Error) OK ??
-sophomorix-developer/scripts/sophomorix-test-unid (Bus Error) OK ??
-
+sophomorix-developer/scripts/sophomorix-test-unid (Bus Error) OK ?
+?
 Tests:
 
 erzeuge script in iso88591 (Kopie von sophomorix-check)
 script > datei ODER print DATEI "äöüß" liefert dasselbe ergebnis 
 
-iso88591:
+iso88591:          ä    ö    ü   ß
 mit od angucken: \344 \366 \374 \337
+                        Ö
+                      \326
 
 mit od angucken: \303\244 \303\266 \303\274 \303\237
 
@@ -90,6 +94,31 @@ print LOG3 "\344\366\374\237";
 
 In einem utf8 script kann man eine Datei mit einem iso88591-ö befüllen, 
 indem man in die Datei \366 printed
+
+Weiter: sophomorix-test codierung ändern, tut test noch?
+-> fixen
+
+
+# sollte man in jedes script 
+use utf8;
+voranstellen?
+Wenn alles umgestellt ist?
+
+http://perldoc.perl.org/utf8.html
+
+
+
+
+Passwörter mit Umlauten geht schief
+
+soll sophomorix-passwd das abfangen? Nur ASCII 7bit zulassen.
+
+---> nach lenny upgrade
+
+
+
+
+
 
 
 
