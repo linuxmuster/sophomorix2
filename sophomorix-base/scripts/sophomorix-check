@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # $Id$
-# This script (sophomorix-check) is maintained by Rüdiger Beck
+# This script (sophomorix-check) is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -30,7 +30,7 @@ my @arguments = @ARGV;
 my @list = split(/\//,$0);
 my $scriptname = pop @list;
 
-# nach jedem Printbefehl wieder auf Standardfarbe zurücksetzen
+# nach jedem Printbefehl wieder auf Standardfarbe zurÃ¼cksetzen
 $Term::ANSIColor::AUTORESET = 1;
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     get_sys_users
@@ -102,7 +102,7 @@ my $testopt=GetOptions(
            "file=s" => \$file_to_check,
           );
 
-# Prüfen, ob Optionen erkannt wurden
+# PrÃ¼fen, ob Optionen erkannt wurden
 &check_options($testopt);
 
 # --help
@@ -172,7 +172,7 @@ if ($file_to_check ne "") {
 # Die Einzelnen Dateien werden unter folgenden Variable benutzt
 my $schuelerdatei="";
 
-# Variablen für momentanes Datum und Uhrzeit
+# Variablen fÃ¼r momentanes Datum und Uhrzeit
 my $sec=0;
 my $min=0;
 my $hours=0;
@@ -195,12 +195,12 @@ my $epoche_deaktivierung_ab=0;
 my $epoche_loeschen_ab=0;
 
 
-# Erlaubte Werte für das Geburtsdatum in folgenden Variablen ablegen
+# Erlaubte Werte fÃ¼r das Geburtsdatum in folgenden Variablen ablegen
 my %convert_days=();
 my %convert_month=();
 my %geburts_jahreszahl_erlaubt=();
 my $geburts_jahreszahl_stop=0; 
-# Laufvariable für Geburtsjahreszahl
+# Laufvariable fÃ¼r Geburtsjahreszahl
 my $geburts_jahreszahl_lauf=0;
 
 # Die eingelesenen Felder
@@ -247,13 +247,13 @@ my $geburts_tag="";
 my $geburts_monat="";
 my $geburts_jahr="";
 
-# Zähler
+# ZÃ¤hler
 my $zeilen_anzahl=0;
 my $zeilen_anzahl_datei=0;
 my $leere_zeilen_anzahl=0;
 my $schueler_ok_anzahl=0;
 
-# Schalter für fehlerhafte Daten
+# Schalter fÃ¼r fehlerhafte Daten
 # Korrupter Datensatz
 my $datensatz_korrupt=0;
 my $datum_korrupt=0;
@@ -271,7 +271,7 @@ my $datum_unrealistisch=0;
 my $date_nonexistent=0;
 my $schueler_sternchenklasse=0;
 
-# Zähler für fehlerhafte Daten
+# ZÃ¤hler fÃ¼r fehlerhafte Daten
 my $strichpunkt_anzahl=0;
 # my $punkte_anzahl=0;
 my $datensatz_korrupt_anzahl=0;
@@ -300,11 +300,11 @@ my $move=0;
 my $datensatz_ok=0;
 my $datum_ok="";
 
-# Zähler für korrekte Daten
+# ZÃ¤hler fÃ¼r korrekte Daten
 my $weiterverarbeitet_anzahl=0;
 my $ungesperrt_anzahl=0;
 
-# Hash-Tabelle für Klasse-Schüleranzahl
+# Hash-Tabelle fÃ¼r Klasse-SchÃ¼leranzahl
 my %klasse_schueleranzahl=();
 my $klass="";
 my $sch_zahl="";
@@ -392,7 +392,7 @@ my $value="";
 # ===========================================================================
 
 # ===========================================================================
-# Existenz wichtiger Dateien prüfen
+# Existenz wichtiger Dateien prÃ¼fen
 # ===========================================================================
 &check_datei_touch("${DevelConf::users_pfad}/schueler.txt");
 &check_config_template("entfernen.txt");
@@ -403,7 +403,7 @@ my $value="";
 
 # ===========================================================================
 # Verzeichnisse und Dateien anlegen
-# Alle vorher erzeugten Ergebnis-dateien löschen
+# Alle vorher erzeugten Ergebnis-dateien lÃ¶schen
 # ===========================================================================
 
 &check_verzeichnis_mkdir("${DevelConf::ergebnis_pfad}");
@@ -650,16 +650,16 @@ if ($old_info_dir ne ""){
 
 
 # ===========================================================================
-# Einlesen der Schülerdateien
+# Einlesen der SchÃ¼lerdateien
 # ===========================================================================
-$zeilen_anzahl=0; # Zähler erstreckt sich über alle Dateien
+$zeilen_anzahl=0; # ZÃ¤hler erstreckt sich Ã¼ber alle Dateien
 foreach $schuelerdatei (@schueler_to_check_dateien){
    # Abbruch, wenn Dateiname leer (option --file)
    if ($schuelerdatei eq "") {
       next;
    }
-   $zeilen_anzahl_datei=0; # Zähler innerhalb der Dateien
-   # wunsch-login leeren, da er nicht von jedem Datensatz überschrieben wird
+   $zeilen_anzahl_datei=0; # ZÃ¤hler innerhalb der Dateien
+   # wunsch-login leeren, da er nicht von jedem Datensatz Ã¼berschrieben wird
    $wunsch_login="---";
    $wunsch_passwort="---";
    &titel("Reading  ${schuelerdatei} ...");
@@ -685,7 +685,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
        $wunsch_login="";
        $unid="";
        $usertoken="";
-       # Zeile abspeichern in $zeile_orig (für Fehlerreport)
+       # Zeile abspeichern in $zeile_orig (fÃ¼r Fehlerreport)
        chomp($_); # Returnzeichen abschneiden
        $zeile_orig=$_;
        $zeilen_anzahl++;
@@ -718,7 +718,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
        # =====================================================================
        # Gesamze Zeile modifizieren:
        # =====================================================================
-       # whitespace entfernen (mit nichts ersetzen) \s wäre [\r\t\n\f], 
+       # whitespace entfernen (mit nichts ersetzen) \s wÃ¤re [\r\t\n\f], 
        # Hier: ohne Return zu entfernen
        s/[\r\t\f]//g;
        # Leerzeichen ersetzen
@@ -730,22 +730,22 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
        # ????? custom-filter aus Datei, in der netzadmin was eintraegt
 
        # =====================================================================
-       # SYNTAX-PRÜFUNGEN, Teil 1
+       # SYNTAX-PRÃœFUNGEN, Teil 1
        # =====================================================================
-       # Ist Datensatz überhaupt aufspaltbar/brauchbar?)
+       # Ist Datensatz Ã¼berhaupt aufspaltbar/brauchbar?)
 
        # Bei Kommentarzeilen abbrechen
        if ( (/^\#/) && ($schuelerdatei ne $schueler_to_check_dateien[0]) ) {
-            # Kommentare zulassen, außer in der ersten Datei 
+            # Kommentare zulassen, auÃŸer in der ersten Datei 
             # (= Datei des Schulverwaltungsprogramms)
             if($Conf::log_level>=3){
                print "Kommentarzeile in $schuelerdatei\n";
 	    }
-            # Kommentarzeilen WERDEN NICHT mitgezählt 
+            # Kommentarzeilen WERDEN NICHT mitgezÃ¤hlt 
             # ($zeilen_anzahl)-> abziehen
-            # Kommentarzeilen WERDEN mitgezählt 
+            # Kommentarzeilen WERDEN mitgezÃ¤hlt 
             # ($zeilen_anzahl_datei)-> nix tun
-            # Gesamt-Zeilenzähler wurde schon erhöht, nun zurücksetzen 
+            # Gesamt-ZeilenzÃ¤hler wurde schon erhÃ¶ht, nun zurÃ¼cksetzen 
             $zeilen_anzahl--;
             next; # Abbruch
        }
@@ -821,7 +821,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
                  # Splan-Sternchenklassen ausfiltern
                  if($Conf::log_level>=2){	
   	            print "##### $vorname"." "."$nachname", 
-                          " wird NICHT überprüft (Splan-Sternchenklasse)\n\n";
+                          " wird NICHT Ã¼berprÃ¼ft (Splan-Sternchenklasse)\n\n";
 	         }
                  # Datensatz in report.splan schreiben
 	         print REPORTSPLAN "$_\n";
@@ -837,7 +837,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
                  # Underscoreklassen ausfiltern
                  if($Conf::log_level>=2){	
   	            print "##### $vorname"." "."$nachname", 
-                          " wird NICHT überprüft (Underscore-Klasse)\n\n";
+                          " wird NICHT Ã¼berprÃ¼ft (Underscore-Klasse)\n\n";
 	         }
                  # Datensatz in report.splan schreiben
 	         #print REPORTSPLAN "$_\n";
@@ -849,7 +849,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
        }
     
        # =====================================================================
-       # SYNTAX-PRÜFUNGEN, Teil 2 (Haben sich kleinere Fehler eingeschlichen)
+       # SYNTAX-PRÃœFUNGEN, Teil 2 (Haben sich kleinere Fehler eingeschlichen)
        # Wenn ein Fehler vorkommt, dann entsprechende Variable auf 1 setzen
        # =====================================================================
 
@@ -883,11 +883,11 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
        # =====================================================================
        # Alles OK(Fehlervariablen alle 0)     
        #                  --> sophomorix.ok
-       #                      variable $schueler_ok_anzahl um eins erhöhen
+       #                      variable $schueler_ok_anzahl um eins erhÃ¶hen
        # Syntaxfehler     
        #                  --> report.office
        #                      Fehlerangabe
-       # Prüfen, ob ein Sekretariats-Fehler aufgetreten ist
+       # PrÃ¼fen, ob ein Sekretariats-Fehler aufgetreten ist
        if($feld_klasse_leer
          +$feld_nachname_leer
          +$feld_vorname_leer
@@ -941,7 +941,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
 
             # Subklassen bilden
             if (exists $schueler_subklassen{$identifier_ok}) {
-              # Subklasse anhängen
+              # Subklasse anhÃ¤ngen
             }
 
             # Ausgabe des Ergebnisses
@@ -970,7 +970,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
             $schueler_ok_anzahl++;
 
             print SOPHOMORIXOK "$datensatz_ok\n"; # neu zusammengesetzt
-            # In sophomorix.ok sind nun die korrigierten Datensätze 
+            # In sophomorix.ok sind nun die korrigierten DatensÃ¤tze 
             # aus schueler.txt, ....   
             # Korrekter Datensatz in Hashtabelle %schueler_ok_hash speichern
             if ( &add_user_to_queue($datensatz_ok,
@@ -986,7 +986,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
             # ============================================================
 	    &report_error();
        }
-   } # Nächste Zeile bearbeiten
+   } # NÃ¤chste Zeile bearbeiten
    close(USERDATEI);
 } # Ende foreach, Naechste Schuelerdatei bearbeiten
 
@@ -1003,7 +1003,7 @@ close(SOPHOMORIXOK);
 close(REPORTSEKRETARIAT);
 close(REPORTGESPERRT);
 
-# Falls Sternchenklassen ausgefiltert werden sollen, Datei schließen
+# Falls Sternchenklassen ausgefiltert werden sollen, Datei schlieÃŸen
 if ($Conf::splan_sternchenklassen_filtern eq "yes") {
    close(REPORTSPLAN);
 }
@@ -1146,7 +1146,7 @@ if($schueler_hinzu_anzahl!=0
 
 
 # ===========================================================================
-# Alle Dateien admin zugänglich machen
+# Alle Dateien admin zugÃ¤nglich machen
 # ===========================================================================
 
 # Nur zum ausgeben  
@@ -1413,7 +1413,7 @@ sub t_d_check {
                print "   $identifier wurde am $heute deaktiviert\n";
                push @admin_list_deactivation, 
                    "$identifier wurde am $heute deaktiviert\n";
-               # Alle zum deaktivieren notwendigen Schritte durchführen
+               # Alle zum deaktivieren notwendigen Schritte durchfÃ¼hren
                &update_user_db_entry($login, 
                                      "Status=D", 
                                      "DeactivationDate=$heute");
@@ -1562,10 +1562,10 @@ sub open_report_files {
 open(SOPHOMORIXOK, ">${DevelConf::ergebnis_pfad}/sophomorix.ok") 
      || die "Fehler: $!";
 
-# report.office   --> Infos für das Sekretariat über zu korrigierende Datensätze
+# report.office   --> Infos fÃ¼r das Sekretariat Ã¼ber zu korrigierende DatensÃ¤tze
 open(REPORTSEKRETARIAT, ">${DevelConf::ergebnis_pfad}/report.office")
                         || die "Fehler: $!";
-print REPORTSEKRETARIAT "Report für das Sekretariat \n";
+print REPORTSEKRETARIAT "Report fÃ¼r das Sekretariat \n";
 print REPORTSEKRETARIAT "Start-Zeitpunkt: ",
                          $tag,".",
                          $monat,".",
@@ -1574,16 +1574,16 @@ print REPORTSEKRETARIAT "Start-Zeitpunkt: ",
                          $min, "-",
                          $sec;
 
-# report.filter      --> Alle Schüler in Sperrklassen, die nicht angelegt werden sollen
+# report.filter      --> Alle SchÃ¼ler in Sperrklassen, die nicht angelegt werden sollen
 open(REPORTGESPERRT, ">${DevelConf::ergebnis_pfad}/report.filter") 
                      || die "Fehler: $!";
 print REPORTGESPERRT "Gesperrt-Report:\n\n";
-print REPORTGESPERRT "Schüler, die nicht angelegt werden,\n";
+print REPORTGESPERRT "SchÃ¼ler, die nicht angelegt werden,\n";
 print REPORTGESPERRT "weil sie in einer Sperrklasse sind, und\n";
 print REPORTGESPERRT "das Ende des Sperrdatums noch nicht erreicht ist:\n\n";
 
 
-# Falls Sternchenklassen ausgefiltert werden sollen, entsprechende Datei öffnen
+# Falls Sternchenklassen ausgefiltert werden sollen, entsprechende Datei Ã¶ffnen
 if ($Conf::splan_sternchenklassen_filtern eq "yes") {
   # report.splan      --> Alle Klassen, die mit * beginnen (Splan-Sternchenklassen)
   open(REPORTSPLAN, ">${DevelConf::ergebnis_pfad}/report.splan") 
@@ -1591,7 +1591,7 @@ if ($Conf::splan_sternchenklassen_filtern eq "yes") {
   print REPORTSPLAN "Splan-Sternchenklassen-Report:\n\n";
   print REPORTSPLAN "Klassen, die ausgefiltert werden\n";
   print REPORTSPLAN "weil sie mit * beginnen\n";
-  print REPORTSPLAN "(zukünftige Klassen):\n\n";
+  print REPORTSPLAN "(zukÃ¼nftige Klassen):\n\n";
 }
 
 
@@ -1634,7 +1634,7 @@ sub get_entfern_klassen {
 	   next;
        }
        ($entfern_klasse,$entfern_datum)=split(/;/);
-       # Alle Großbuchstaben im Klassennamen in Kleinbuchstaben umwandeln
+       # Alle GroÃŸbuchstaben im Klassennamen in Kleinbuchstaben umwandeln
        $entfern_klasse=~tr/A-Z/a-z/; 
        ($entfern_tag,$entfern_monat,$entfern_jahr)=split(/\./,$entfern_datum);
        print "$entfern_klasse wird aus dem System entfernt bis $entfern_datum";
@@ -1770,10 +1770,10 @@ sub get_sperrklassen {
 	   next;
        }
        ($sperrklasse,$sperrdatum)=split(/;/);
-       # Alle Großbuchstaben im Klassennamen in Kleinbuchstaben umwandeln
+       # Alle GroÃŸbuchstaben im Klassennamen in Kleinbuchstaben umwandeln
        $sperrklasse=~tr/A-Z/a-z/; 
        ($sperr_tag,$sperr_monat,$sperr_jahr)=split(/\./,$sperrdatum);
-       print "Neuzugänge in $sperrklasse werden gesperrt bis $sperrdatum";
+       print "NeuzugÃ¤nge in $sperrklasse werden gesperrt bis $sperrdatum";
        ## Achtung, Januar=0
        $sperr_monat=$sperr_monat-1;
        $sperr_jahr=$sperr_jahr-1900;
@@ -1820,7 +1820,7 @@ sub semicolon_number_ok {
            print "Leere Zeile in  $filename\n";
         }
         $leere_zeilen_anzahl++; 
-        # Zeilenzähler wurde schon erhöht, nun zurücksetzen 
+        # ZeilenzÃ¤hler wurde schon erhÃ¶ht, nun zurÃ¼cksetzen 
         # Abbruch
         return 0;  
 #   } elsif ($number==3 && $Conf::drei_strichpunkt eq "yes"){
@@ -1829,8 +1829,8 @@ sub semicolon_number_ok {
             and $filename eq $schueler_to_check_dateien[0]){
         # 3 Strichpunkte: automatischer Korrekturversuch
         # Den letzten Strichpunkt zu vergessen  
-        # ist ein häufiger Fehler von Schulverwaltungsprogrammen
-        $_="$_;"; # Strichpunkt anhängen
+        # ist ein hÃ¤ufiger Fehler von Schulverwaltungsprogrammen
+        $_="$_;"; # Strichpunkt anhÃ¤ngen
         if($Conf::log_level>=3){
            print " ... $number semicolon found ... AUTOCORRECTING\n";
         }
@@ -1940,13 +1940,13 @@ sub syntax_check_entry {
     # Nachname
     # Punkt mit Nix ersetzen    
     $surname=~s/\.//g;
-    # Zulassen: a-z  und - (Für Doppelnamen) sowie ' (O'Reilly)
-    if (($surname=~/[^A-Za-zÄäÖöÜüß\-\']/) &&
-       ($filename eq $schueler_to_check_dateien[0]))# Schülerdatei 
+    # Zulassen: a-z  und - (FÃ¼r Doppelnamen) sowie ' (O'Reilly)
+    if (($surname=~/[^A-Za-zÃ„Ã¤Ã–Ã¶ÃœÃ¼ÃŸ\-\']/) &&
+       ($filename eq $schueler_to_check_dateien[0]))# SchÃ¼lerdatei 
     { # Wenn Zeichen nicht enthalten
         # Dann ist der Nachnamen vermutlich syntaktisch falsch
         $nachname_unerlaubtes_zeichen=1;
-    } elsif ($surname=~/[^A-Za-z0-9ÄäÖöÜüß\-\']/){# Extraschülerdatei
+    } elsif ($surname=~/[^A-Za-z0-9Ã„Ã¤Ã–Ã¶ÃœÃ¼ÃŸ\-\']/){# ExtraschÃ¼lerdatei
         $nachname_unerlaubtes_zeichen=1;
     } else { 
         if($Conf::log_level>=3){
@@ -1955,13 +1955,13 @@ sub syntax_check_entry {
     }
 
     # Vorname
-    # Zulassen: a-z  und - (Für Doppelnamen) sowie ' (z. B. O'Reilly)
-    if (($name=~/[^A-Za-zÄäÖöÜüß\-\']/) && 
-       ($filename eq $schueler_to_check_dateien[0]))# Schülerdatei
+    # Zulassen: a-z  und - (FÃ¼r Doppelnamen) sowie ' (z. B. O'Reilly)
+    if (($name=~/[^A-Za-zÃ„Ã¤Ã–Ã¶ÃœÃ¼ÃŸ\-\']/) && 
+       ($filename eq $schueler_to_check_dateien[0]))# SchÃ¼lerdatei
     { # Wenn Zeichen nicht enthalten
         # Dann ist der Klassenamen vermutlich syntaktisch falsch
         $vorname_unerlaubtes_zeichen=1;
-    } elsif ($name=~/[^A-Za-z0-9ÄäÖöÜüß\-\']/){# Extraschülerdatei
+    } elsif ($name=~/[^A-Za-z0-9Ã„Ã¤Ã–Ã¶ÃœÃ¼ÃŸ\-\']/){# ExtraschÃ¼lerdatei
         $vorname_unerlaubtes_zeichen=1;
     } else {
        if($Conf::log_level>=3){
@@ -1999,7 +1999,7 @@ print "Wrong character\n";
 
        # Geburtsjahreszahl von bis
        if ((exists($geburts_jahreszahl_erlaubt{$year})) &&
-          ($filename eq $schueler_to_check_dateien[0]))# Schülerdatei
+          ($filename eq $schueler_to_check_dateien[0]))# SchÃ¼lerdatei
        {
            # Wenn Geburtsjahreszahl im hash zu finden ist
            # Ersetze den Key(z. B. 97) mit dem Value (1997)
@@ -2031,7 +2031,7 @@ print "Wrong character\n";
     }  elsif ($wish_login=~/[^a-z0-9]_-\./){
         # Fehlerhafter Wunsch-Login
 #        print "\n\n\nSYNTAXFEHLER!\n";
-#        print "\n\n  ---$wish_login---    enthält Sonderzeichen\n\n";
+#        print "\n\n  ---$wish_login---    enthÃ¤lt Sonderzeichen\n\n";
 #        print "\n\n  Beheben sie diesen Fehler in /etc/sophomorix/user/extrakurse.txt\n\n";
 #        print "\n\n  Und starten sie das Programm neu.\n\n";
         # Programm beenden
@@ -2055,27 +2055,27 @@ sub is_in_inhibit_class {
     my ($class) = @_;
     if ($sperrklassen{"$class"}){
         print " ... $vorname $nachname ist in einer Sperrklasse!\n";
-        ## Datumscheck durchführen:
-        print " ... Sperrdatum in Epochenzeit für die Klasse $class ist: ", 
+        ## Datumscheck durchfÃ¼hren:
+        print " ... Sperrdatum in Epochenzeit fÃ¼r die Klasse $class ist: ", 
                $sperrklassen{"$class"},"\n";
         print " ... Epochenzeit zu Beginn der Programmablaufes war     : ", 
                $epoche_jetzt, "\n";
         if ($epoche_jetzt>$sperrklassen{"$class"}){
             print $vorname , " " , $nachname , 
-                  " wird weiterverarbeitet (Sperrzeit überschritten!)\n";
+                  " wird weiterverarbeitet (Sperrzeit Ã¼berschritten!)\n";
             # Datensatz in sophomorix.ok schreiben
             return 0;
         }elsif ($schueler_im_system_hash{$identifier_ok}){
-            # Wenn Schüler im System
+            # Wenn SchÃ¼ler im System
             print "########################################",
                   "########################################\n",
-                  "Der Schüler ist schon im System,",
+                  "Der SchÃ¼ler ist schon im System,",
                   " Datensatz wird deshalb NICHT ausgefiltert.\n",
-                  " (zum Ausfiltern müsste ein Eintrag in ",
+                  " (zum Ausfiltern mÃ¼sste ein Eintrag in ",
                   "entfernen.txt vorliegen)\n",
                   "########################################",
                   "########################################\n";
-            # Schüler im System lassen
+            # SchÃ¼ler im System lassen
             # Datensatz in sophomorix.ok schreiben
             return 0;
         }else {
@@ -2092,7 +2092,7 @@ sub is_in_inhibit_class {
            print " ... Keine Sperrklasse ...\n";
 	}
         return 0;
-    } #Einträge in Sperrklassen sind ausgefiltert
+    } #EintrÃ¤ge in Sperrklassen sind ausgefiltert
 }
 
 
@@ -2107,14 +2107,14 @@ sub is_in_remove_class {
     if ($entfern_klassen{"$class"}){
         print " ... $vorname $nachname ist in einer zu",
               " entfernenden Klasse!\n";
-        ## Datumscheck durchführen:
-        print " ... Einlasszeit in Epochenzeit für die Klasse $class ist: ", 
+        ## Datumscheck durchfÃ¼hren:
+        print " ... Einlasszeit in Epochenzeit fÃ¼r die Klasse $class ist: ", 
               $entfern_klassen{"$class"},"\n";
         print " ... Epochenzeit zu Beginn der Programmablaufes war      : ", 
               $epoche_jetzt, "\n";
         if ($epoche_jetzt>$entfern_klassen{"$class"}){
             print $vorname , " " , $nachname , 
-                  " wird weiterverarbeitet (Sperrzeit überschritten!)\n";
+                  " wird weiterverarbeitet (Sperrzeit Ã¼berschritten!)\n";
             # Datensatz in sophomorix.ok schreiben
             return 0;
         }else {
@@ -2136,7 +2136,7 @@ sub is_in_remove_class {
            print " ... Keine zu entfernende Klasse ...\n";
         }
         return 0;
-    } #Einträge in Entfernen-Klasse sind ausgefiltert
+    } #EintrÃ¤ge in Entfernen-Klasse sind ausgefiltert
 }
 
 
@@ -2248,7 +2248,7 @@ if (not exists $schueler_ok_hash{$identifier}){
             printf REPORTSEKRETARIAT "%38s:  %-30s\n" ,
                                      "ORIGINALDATENSATZ ", 
                                      $zeile_orig;
-            print REPORTSEKRETARIAT "Für diesen Schüler gibt es ebenfalls",
+            print REPORTSEKRETARIAT "FÃ¼r diesen SchÃ¼ler gibt es ebenfalls",
                                     " eine Zuordnung zur Klasse  ", 
                                     ,$schueler_ok_hash{$identifier},
 #                                    ,substr($schueler_ok_hash{$identifier},1,30),
@@ -2267,7 +2267,7 @@ if (not exists $schueler_ok_hash{$identifier}){
 
     # Schueler in den Klassen zaehlen
     if (exists($klasse_schueleranzahl{$admin_class})){
-        $klasse_schueleranzahl{$admin_class}++; # 1 dazuzählen
+        $klasse_schueleranzahl{$admin_class}++; # 1 dazuzÃ¤hlen
     } else {
         $klasse_schueleranzahl{$admin_class}=1;
     }
@@ -2763,7 +2763,7 @@ sub report_error {
 
 
 sub generate_admin_report {
-    # report.admin         --> Infos nur für den Administrator
+    # report.admin         --> Infos nur fÃ¼r den Administrator
     open(REPORTADMIN, ">${DevelConf::ergebnis_pfad}/report.admin") || die "Fehler: $!";
     print REPORTADMIN "Administrator-Report:\n";
     print REPORTADMIN "Start-Zeitpunkt: ",
@@ -2784,14 +2784,14 @@ sub generate_admin_report {
 
     print REPORTADMIN "\n\n";
 
-    print REPORTADMIN  "Abschluss-Report für den Administrator:\n";              
+    print REPORTADMIN  "Abschluss-Report fÃ¼r den Administrator:\n";              
     print REPORTADMIN  "----------------------------------------",
                    "----------------------------------------\n";
     printf REPORTADMIN "%-50s:%6s\n", 
                        "Eingelesene Zeilen (ohne Kommentarzeilen)", $zeilen_anzahl;
 
     printf REPORTADMIN "%-50s:%6s\n", 
-                       "Davon Korrupte Datensätze (Strichpunkt)", 
+                       "Davon Korrupte DatensÃ¤tze (Strichpunkt)", 
                        $datensatz_korrupt_anzahl;
 
     printf REPORTADMIN "%-50s:%6s\n", 
@@ -2811,10 +2811,10 @@ sub generate_admin_report {
                    -$leere_zeilen_anzahl;
 
     printf REPORTADMIN "%-50s:%6s\n", 
-                       "Weiterverarbeitete Datensätze",  
+                       "Weiterverarbeitete DatensÃ¤tze",  
                        $weiterverarbeitet_anzahl;
 
-    print REPORTADMIN  "\nVon den weiterverarbeiteten Datensätzen\n";
+    print REPORTADMIN  "\nVon den weiterverarbeiteten DatensÃ¤tzen\n";
     printf REPORTADMIN "%-50s:%6s\n", 
                        "wurden von sperrklassen.txt gesperrt", 
                        $schueler_gesperrt_anzahl;
@@ -2838,17 +2838,17 @@ sub generate_admin_report {
                    -$schueler_sternchenklasse_anzahl;# ist null, wenn ausfiltern
                
     printf REPORTADMIN "%-50s:%6s\n", 
-                       "Ungesperrte/Nicht entfernte Schüler ", 
+                       "Ungesperrte/Nicht entfernte SchÃ¼ler ", 
                        $ungesperrt_anzahl;
 
     print REPORTADMIN  "\n";
 
     printf REPORTADMIN "%-50s:%6s\n", 
-                       "Davon anzulegende Schüler", 
+                       "Davon anzulegende SchÃ¼ler", 
                        $schueler_ok_anzahl;
     print REPORTADMIN "\n";
 
-    print REPORTADMIN  "Fehler in Datensätzen:\n";
+    print REPORTADMIN  "Fehler in DatensÃ¤tzen:\n";
     printf REPORTADMIN "%-50s:%6s\n", 
                        "  Leeres Feld Klasse", 
                        $feld_klasse_leer_anzahl ;
@@ -2891,8 +2891,8 @@ sub generate_admin_report {
                        "========================================\n";
 
     # Klassen mit zuviel oder zuwenigen SchuelerInnen
-    print REPORTADMIN  "Bezüglich der Schüleranzahl befinden sich in\n";
-    print REPORTADMIN  "sophomorix.ok folgende Zweifels-Fälle:\n";
+    print REPORTADMIN  "BezÃ¼glich der SchÃ¼leranzahl befinden sich in\n";
+    print REPORTADMIN  "sophomorix.ok folgende Zweifels-FÃ¤lle:\n";
     print REPORTADMIN  "----------------------------------------",
                        "----------------------------------------\n";
     while (($klass,$sch_zahl) = each %klasse_schueleranzahl){
@@ -2901,15 +2901,15 @@ sub generate_admin_report {
 	    next;
         }
         if ($sch_zahl<=$Conf::mindest_schueler_anzahl_pro_klasse){
-	    print  REPORTADMIN "Klassenstärke ",
+	    print  REPORTADMIN "KlassenstÃ¤rke ",
                                $Conf::mindest_schueler_anzahl_pro_klasse,
-                               " oder weniger SchülerInnen:\n";
+                               " oder weniger SchÃ¼lerInnen:\n";
             printf REPORTADMIN "  %-12s:%6s\n\n", "$klass" , $sch_zahl; 
         }
         if ($sch_zahl>=$Conf::maximale_schueler_anzahl_pro_klasse){
-	    print  REPORTADMIN "Klassenstärke ",
+	    print  REPORTADMIN "KlassenstÃ¤rke ",
                                $Conf::maximale_schueler_anzahl_pro_klasse,
-                               " oder mehr SchülerInnen:\n";
+                               " oder mehr SchÃ¼lerInnen:\n";
             printf REPORTADMIN "  %-12s:%6s\n\n", "$klass" , $sch_zahl; 
         }
 
@@ -2919,11 +2919,11 @@ sub generate_admin_report {
     print REPORTADMIN  "\n";
     print REPORTADMIN  "========================================",
                    "========================================\n";
-    print REPORTADMIN  "WAS WÄRE WENN ... !\n";
+    print REPORTADMIN  "WAS WÃ„RE WENN ... !\n";
     print REPORTADMIN  "========================================",
                    "========================================\n";
 
-    print REPORTADMIN "\n\nEntfernt werden KÖNNEN:\n";
+    print REPORTADMIN "\n\nEntfernt werden KÃ–NNEN:\n";
     print REPORTADMIN "----------------------------------------",
                   "----------------------------------------\n";
 
@@ -2948,10 +2948,10 @@ sub generate_admin_report {
 
     print REPORTADMIN "----------------------------------------",
                       "----------------------------------------\n";
-    print REPORTADMIN "Insgesamt KÖNNEN $schueler_weg_anzahl", 
+    print REPORTADMIN "Insgesamt KÃ–NNEN $schueler_weg_anzahl", 
                       " User entfernt werden.\n";
 
-    print REPORTADMIN "\n\nVersetzen nach attic möglich:\n";
+    print REPORTADMIN "\n\nVersetzen nach attic mÃ¶glich:\n";
     print REPORTADMIN "----------------------------------------",
                   "----------------------------------------\n";
 
@@ -2961,10 +2961,10 @@ sub generate_admin_report {
 
     print REPORTADMIN "----------------------------------------",
                       "----------------------------------------\n";
-    print REPORTADMIN "Insgesamt KÖNNEN $schueler_duldungs_beginn_anzahl", 
+    print REPORTADMIN "Insgesamt KÃ–NNEN $schueler_duldungs_beginn_anzahl", 
                       " User nach attic versetzt werden.\n";
 
-    print REPORTADMIN "\n\nAngelegt würden:\n";
+    print REPORTADMIN "\n\nAngelegt wÃ¼rden:\n";
     print REPORTADMIN "----------------------------------------",
                       "----------------------------------------\n";
 
@@ -2974,10 +2974,10 @@ sub generate_admin_report {
 
     print REPORTADMIN "----------------------------------------", 
                       "----------------------------------------\n";
-    print REPORTADMIN "Insgesamt KÖNNEN ", "$schueler_hinzu_anzahl", 
+    print REPORTADMIN "Insgesamt KÃ–NNEN ", "$schueler_hinzu_anzahl", 
                       " User angelegt werden.\n";
 
-    print REPORTADMIN "\n\nVersetzt würden:\n";
+    print REPORTADMIN "\n\nVersetzt wÃ¼rden:\n";
     print REPORTADMIN "----------------------------------------",
                       "----------------------------------------\n";
 
@@ -2987,8 +2987,8 @@ sub generate_admin_report {
 
     print REPORTADMIN "----------------------------------------", 
                       "----------------------------------------\n";
-    print REPORTADMIN "Insgesamt KÖNNEN ", "$schueler_zuversetzen_anzahl", 
-                      " Schüler versetzt werden.\n";
+    print REPORTADMIN "Insgesamt KÃ–NNEN ", "$schueler_zuversetzen_anzahl", 
+                      " SchÃ¼ler versetzt werden.\n";
 
     print REPORTADMIN "\n\n";
     print REPORTADMIN "########################################",
@@ -3041,9 +3041,9 @@ sub close_report_files {
 
 
 # ===========================================================================
-# Erlaubte Zeichen für das Datum erzeugen
+# Erlaubte Zeichen fÃ¼r das Datum erzeugen
 sub year_ok {
-# erlaubte Zeichen für die Tage
+# erlaubte Zeichen fÃ¼r die Tage
 %convert_days = qw(
      1     01          01    01
      2     02          02    02
@@ -3067,7 +3067,7 @@ sub year_ok {
      30    30          31    31
 );
 
-# erlaubte Zeichen für die Monate
+# erlaubte Zeichen fÃ¼r die Monate
 %convert_month = qw(
      1     01          01    01
      2     02          02    02
@@ -3084,7 +3084,7 @@ sub year_ok {
 
 
 
-# erlaubte zeichen für die Jahreszahl in ein Hash schreiben
+# erlaubte zeichen fÃ¼r die Jahreszahl in ein Hash schreiben
 $geburts_jahreszahl_lauf=$Conf::geburts_jahreszahl_start;
 #print "Erlaubte Geburts-Jahreszahlen sind:\n";
 while ($geburts_jahreszahl_lauf<=$Conf::geburts_jahreszahl_stop){
@@ -3260,7 +3260,7 @@ sub get_action_date {
            $usertype="Lehrer/in";
            $days=$Conf::lehrer_duldung_tage;
        } else {
-           # Falls Schüler
+           # Falls SchÃ¼ler
            $usertype="Schueler/in";
            $days=$Conf::schueler_duldung_tage;
        }
@@ -3276,7 +3276,7 @@ sub get_action_date {
            $usertype="Lehrer/in";
            $days=$Conf::lehrer_deaktivierung_tage;
        } else {
-           # Falls Schüler
+           # Falls SchÃ¼ler
            $usertype="Schueler/in";
            $days=$Conf::schueler_deaktivierung_tage;
        }
@@ -3349,7 +3349,7 @@ if($Conf::log_level>=3){
 
 
    # Print all users in the system
-   print("Schüler im System:                   ",
+   print("SchÃ¼ler im System:                   ",
          "                        AdminClass:\n");
    &linie();
    while (($k,$v) = each %schueler_im_system_hash){
@@ -3360,7 +3360,7 @@ if($Conf::log_level>=3){
 
 
    # Print all users in the system and loginname
-   print("Schüler im System:                   ",
+   print("SchÃ¼ler im System:                   ",
          "                        Login:\n");
    &linie();
    while (($k,$v) = each %schueler_im_system_loginname){
@@ -3371,7 +3371,7 @@ if($Conf::log_level>=3){
 
 
    # Print all users in the system and subclass
-   print("Schüler im System:                   ",
+   print("SchÃ¼ler im System:                   ",
          "                        SubClass:\n");
    &linie();
    while (($k,$v) = each %schueler_subklassen){
@@ -3393,7 +3393,7 @@ if($Conf::log_level>=3){
 
    # Print all users in the files - Password
    print("User in sophomorix.ok (schueler_ok_hash):",
-         "                    Wunsch-Passwörter:\n");
+         "                    Wunsch-PasswÃ¶rter:\n");
    &linie();
    while (($k,$v) = each %schueler_ok_wunsch_passwort_hash){
      printf "%-60s %3s\n","$k","$v";
@@ -3666,62 +3666,62 @@ sub filter_school_admin_software {
      # Falsches ' in richtiges umwandeln
      $line=~s/`/'/g;
 
-     # ü umwandeln
+     # Ã¼ umwandeln
      if ($DevelConf::allow_umlaut eq "no"){
-           # ü
-           $line=~s/ü/ue/g;
+           # Ã¼
+           $line=~s/Ã¼/ue/g;
            $line=~s/\201/ue/g;
-           # Ü
-           $line=~s/Ü/Ue/g;
+           # Ãœ
+           $line=~s/Ãœ/Ue/g;
            $line=~s/\232/Ue/g;
-           # ö
-           $line=~s/ö/oe/g;
+           # Ã¶
+           $line=~s/Ã¶/oe/g;
            $line=~s/\224/oe/g;
-           # Ö
-           $line=~s/Ö/Oe/g;
+           # Ã–
+           $line=~s/Ã–/Oe/g;
            $line=~s/\231/Oe/g;
-           # ä
-           $line=~s/ä/ae/g;
+           # Ã¤
+           $line=~s/Ã¤/ae/g;
            $line=~s/\204/ae/g;
-           # Ä
-           $line=~s/Ä/Ae/g;
-           # ß
-           $line=~s/ß/ss/g;
-           #$line=~s/á/ss/g;
+           # Ã„
+           $line=~s/Ã„/Ae/g;
+           # ÃŸ
+           $line=~s/ÃŸ/ss/g;
+           #$line=~s/Ã¡/ss/g;
      } else {
-           # ü
-           $line=~s/\201/ü/g;
-           # Ü
-           $line=~s/\232/Ü/g;
-           # ö
-           $line=~s/\224/ö/g;
-           # Ö
-           $line=~s/\231/Ö/g;
-           # ä
-           $line=~s/\204/ä/g;
-           # Ä
+           # Ã¼
+           $line=~s/\201/Ã¼/g;
+           # Ãœ
+           $line=~s/\232/Ãœ/g;
+           # Ã¶
+           $line=~s/\224/Ã¶/g;
+           # Ã–
+           $line=~s/\231/Ã–/g;
+           # Ã¤
+           $line=~s/\204/Ã¤/g;
+           # Ã„
            # nothing to do
-           $line=~s/\204/Ä/g;
+           $line=~s/\204/Ã„/g;
       }
       # e mit Akzent  umwandeln
       $line=~s/\202/e/g;
       $line=~s/\212/e/g;
-      $line=~s/è/e/g;
-      $line=~s/é/e/g;
+      $line=~s/Ã¨/e/g;
+      $line=~s/Ã©/e/g;
       # a mit Akzent umwandeln
-      $line=~s/À/a/g;
+      $line=~s/Ã€/a/g;
       $line=~s/\341/a/g;
       #$line=~s/\303/a/g;
       # a mit Dach umwandeln
       $line=~s/\203/a/g;
       # o mit Akzent umwandeln
-      $line=~s/¢/o/g;
+      $line=~s/Â¢/o/g;
       # o mit Dach umwandeln
       $line=~s/\223/o/g;
       # russisches i
-      $line=~s/ï/i/g;
+      $line=~s/Ã¯/i/g;
       # u mit akzent
-      $line=~s/£/u/g;
+      $line=~s/Â£/u/g;
       $line=~s/\243/u/g;
       # SPLAN-Sonderzeichen ENDE
 
@@ -3741,8 +3741,8 @@ sub filter_school_admin_software {
       # ' 
       $line=~s/\047//g;
 
-      # ß umwandeln
-      $line=~s/á/ß/g;
+      # ÃŸ umwandeln
+      $line=~s/Ã¡/ÃŸ/g;
       $line=~s/\303/ss/g;
       # Sonderzeichen wegfallenlassen
       # Minus streichen
