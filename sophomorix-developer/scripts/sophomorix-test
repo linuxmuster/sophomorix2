@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # $Id$
-# This script (sophomorix-test) is maintained by Rüdiger Beck
+# This script (sophomorix-test) is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -43,7 +43,7 @@ my $testopt=GetOptions(
            "info|i" => \$info,
           );
 
-# Prüfen, ob Optionen erkannt wurden
+# PrÃ¼fen, ob Optionen erkannt wurden
 &check_options($testopt);
 
 # --help
@@ -120,13 +120,13 @@ print '
 ';
 
 ###########################################################################
-# user in schueler.txt hinzufügen
+# user in schueler.txt hinzufÃ¼gen
 my $user="";
 my $login="";
 my @users_to_add=(
      "",
-     "m4kb;Maier;Jörg;12.10.1982;",
-     "7A;Öztürk;Mohammed;2.4.82;",
+     "m4kb;Maier;J\366rg;12.10.1982;",
+     "7A;\326zt\374rk;Mohammed;2.4.82;",
      "2C;Wall;Larry;2.4.72;",
      "m1kb;M\203hn;\223liver;12.10.1982;987654321;",
    );
@@ -193,7 +193,7 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 
 
 ###########################################################################
-# Ergebnisdateien prüfen
+# Ergebnisdateien prÃ¼fen
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.move");
 &check_emptyness("sophomorix.kill");
@@ -201,7 +201,7 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 
 
 ###########################################################################
-# Druckdaten prüfen
+# Druckdaten prÃ¼fen
 # add.tex
 &check_existence("${DevelConf::druck_pfad}/add.tex");
 &check_line_in_file("Joerg Maier",
@@ -223,7 +223,7 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 
 
 ###########################################################################
-# Datenbank prüfen
+# Datenbank prÃ¼fen
 
 
 %account = &fetch_single_account("surname='Maier'
@@ -428,7 +428,7 @@ print '
 
 
 &remove_line(
-  "m4kb;Maier;Jörg;12.10.1982;",
+  "m4kb;Maier;J\366rg;12.10.1982;",
   "${DevelConf::users_pfad}/schueler.txt");
 
 &run_command("sophomorix-check",$verbose);
@@ -660,7 +660,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 
-# todo ?????????????ß
+# todo ?????????????
 #&run_command("sophomorix-kill",$verbose);
 
 #&check_account($login,"nonexisting");
@@ -677,7 +677,7 @@ print '
 ';
 
 &remove_line(
-  "7A;Öztürk;Mohammed;2.4.82;",
+  "7A;\326zt\374rk;Mohammed;2.4.82;",
   "${DevelConf::users_pfad}/schueler.txt");
 
 &run_command("sophomorix-check",$verbose);
@@ -737,7 +737,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # The users shows up again in schueler.txt in a different class
-&append_line("7C;Öztürk;Mohammed;2.4.82;","${DevelConf::users_pfad}/schueler.txt");
+&append_line("7C;\326zt\374rk;Mohammed;2.4.82;","${DevelConf::users_pfad}/schueler.txt");
 
 &run_command("sophomorix-check",$verbose);
 
@@ -1005,7 +1005,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sambaprimarygroupsid", "${sid}-${gsid}");
 
 
-# todo ????????ß
+# todo ????????
 #&check_account($login,"enabled");
 
 
@@ -1017,10 +1017,10 @@ print '
 ###########################################################################
 ';
 
-# updating the name Öz -> Ötz
-&exchange_line_in_file("7C;Öztürk;Mohammed;2.4.82;*",
+# updating the name Ã–z -> Ã–tz
+&exchange_line_in_file("7C;\326zt\374rk;Mohammed;2.4.82;*",
    "/etc/sophomorix/user/schueler.txt",
-   "7C;Ötztürk;Mohammed;2.4.82;");
+   "7C;\326tzt\374rk;Mohammed;2.4.82;");
 
 &run_command("sophomorix-check",$verbose);
 
@@ -1063,9 +1063,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # updating the first Mohhammed -> Mohammad
-&exchange_line_in_file("7C;Ötztürk;Mohammed;2.4.82;*",
+&exchange_line_in_file("7C;\326tzt\374rk;Mohammed;2.4.82;*",
    "/etc/sophomorix/user/schueler.txt",
-   "7C;Ötztürk;Mohammad;2.4.82;");
+   "7C;\326tzt\374rk;Mohammad;2.4.82;");
 
 &run_command("sophomorix-check",$verbose);
 
@@ -1110,9 +1110,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # updating birth 82 -> 83
-&exchange_line_in_file("7C;Ötztürk;Mohammad;2.4.82;*",
+&exchange_line_in_file("7C;\326tzt\374rk;Mohammad;2.4.82;*",
    "/etc/sophomorix/user/schueler.txt",
-   "7C;Ötztürk;Mohammad;2.4.83;");
+   "7C;\326tzt\374rk;Mohammad;2.4.83;");
 
 &run_command("sophomorix-check",$verbose);
 
@@ -1417,7 +1417,7 @@ print '
 
 # remove the lines
 &remove_line(
-  "7C;Ötztürk;Mohammad;2.4.83;",
+  "7C;\326tzt\374rk;Mohammad;2.4.83;",
   "${DevelConf::users_pfad}/schueler.txt");
 &remove_line(
   "3C;Stallman;Richard;2.4.62;",
@@ -1782,7 +1782,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 # This should not change anything
 &run_command("sophomorix-check",$verbose);
 
-# Ergebnisdateien prüfen
+# Ergebnisdateien prÃ¼fen
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.move");
 #&check_emptyness("sophomorix.kill");
@@ -1870,7 +1870,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &run_command("sophomorix-check",$verbose);
 
 
-# Ergebnisdateien prüfen
+# Ergebnisdateien prÃ¼fen
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.move");
 #&check_emptyness("sophomorix.kill");
@@ -1958,7 +1958,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 # Check if the account can be moved to exitadminclass
 &run_command("sophomorix-check",$verbose);
 
-# Ergebnisdateien prüfen
+# Ergebnisdateien prÃ¼fen
 &check_emptyness("sophomorix.add");
 #&check_emptyness("sophomorix.kill");
 
@@ -2117,7 +2117,7 @@ print '
 &run_command("sophomorix-check",$verbose);
 
 
-# todo ?????????ß
+# todo ?????????
 &run_command("sophomorix-kill",$verbose);
 
 # todo ??????
