@@ -1,5 +1,6 @@
 #!/usr/bin/perl -w
 
+# Hints:
 
 # \374 : 374 ist octal, hexadecimal ist es FC (so mit less angezeigt) 
 # also: \374 = \xFC
@@ -8,12 +9,22 @@
 
 
 # Ergebnisse checken:
-# Nur 1 Cdierung pro Zeile
-# Codiert werden nur Vornamen
-# Im Nachnamen ist die erwartete Lösung an gleicher Stelle
-# Am Geburtsdatum wird erkannt ob 
-# Erster Buchstabe codiert(Grossbuchstabe) -> Geburtstag 01
-# Zweiter Buchstabe codiert -> Geburtstag 02
+# Nur 1 Codierung pro Zeile
+# Codiert werden nur Nachnamen
+# Im Vornamen ist die erwartete Lösung an gleicher Stelle wie iM Nachnamen
+# Am Geburtsdatum wird erkannt:
+#   Tag:Welcher Buchstabe codiert ist: 01=Wortanfang, 02=zweiter Buchstabe
+#   Monat: Wievielte Version deselben Buchstaben ist es
+#   Jahr: 1971: iso8859-1 (Latin1)
+
+
+# Weiter:
+# Dasselbe für unicode,latin9,iso8859-15
+# cp1252 ist in Buchstaben betreffenden teilen identisch mit iso8850-1, aber
+# Zusatzuzeichen kommen hinzu: EURO, S mit Dach, ...
+# Diese Zusatzzeichen in konfigurierbaren Bereich von sophomorix-check
+# Durch Parameter cp1252,8859-15 in sophomorix.conf können diese Zusatzzeichen
+# so oder so codiert werden
 
 use utf8;
 
