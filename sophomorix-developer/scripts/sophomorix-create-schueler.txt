@@ -1,14 +1,89 @@
 #!/usr/bin/perl -w
 
 
+# \374 : 374 ist octal, hexadecimal ist es FC (so mit less angezeigt) 
+# also: \374 = \xFC
+# unicode
+# \303\274 = \xC4\x
+
+
+# Ergebnisse checken:
+# Nur 1 Cdierung pro Zeile
+# Codiert werden nur Vornamen
+# Im Nachnamen ist die erwartete Lösung an gleicher Stelle
+# Am Geburtsdatum wird erkannt ob 
+# Erster Buchstabe codiert(Grossbuchstabe) -> Geburtstag 01
+# Zweiter Buchstabe codiert -> Geburtstag 02
+
 use utf8;
 
-open (FILE, ">/root/schueler.txt");
+my $file="/root/schueler.txt";
+
+open (FILE, ">$file");
+
 
 print FILE "# iso8859-1\n";
-print FILE "10A;B\366ck;R\374diger;01.10.1971\n";
+# A (C0 bis C5)
+print FILE "10A;\xC0lbrecht;Andreas;01.01.1971\n";
+print FILE "10A;\xC1lbrecht;Andreas;01.02.1971\n";
+print FILE "10A;\xC2lbrecht;Andreas;01.03.1971\n";
+print FILE "10A;\xC3lbrecht;Andreas;01.04.1971\n";
+print FILE "10A;\xC4lbrecht;Andreas;01.05.1971\n";
+print FILE "10A;\xC5lbrecht;Andreas;01.06.1971\n";
+# Ae
+print FILE "10A;\xC6ro;Aero;01.01.1971\n";
+# C
+print FILE "10A;\xC7onrad;Clara;01.01.1971\n";
+# E
+print FILE "10A;\xC8ngel;Ernst;01.01.1971\n";
+print FILE "10A;\xC9ngel;Ernst;01.02.1971\n";
+print FILE "10A;\xCAngel;Ernst;01.03.1971\n";
+print FILE "10A;\xCBngel;Ernst;01.04.1971\n";
+# I
+print FILE "10A;\xCCnes;Inge;01.01.1971\n";
+print FILE "10A;\xCDnes;Inge;01.02.1971\n";
+print FILE "10A;\xCEnes;Inge;01.03.1971\n";
+print FILE "10A;\xCFnes;Inge;01.04.1971\n";
+# D
+print FILE "10A;\xD0ietrich;Dagobert;01.01.1971\n";
+# N
+print FILE "10A;\xD1eumann;Norbert;01.01.1971\n";
+# O
+print FILE "10A;\xD2tto;Oliver;01.01.1971\n";
+print FILE "10A;\xD3tto;Oliver;01.02.1971\n";
+print FILE "10A;\xD4tto;Oliver;01.03.1971\n";
+print FILE "10A;\xD5tto;Oliver;01.04.1971\n";
+print FILE "10A;\xD6tto;Oliver;01.05.1971\n";
+# -> X
+print FILE "10A;\xD8tto;Oliver;01.06.1971\n";
+# X
+print FILE "10A;\xD7aver;Xena;01.01.1971\n";
+# U
+print FILE "10A;\xD9nger;Udo;01.01.1971\n";
+print FILE "10A;\xDAnger;Udo;01.02.1971\n";
+print FILE "10A;\xDBnger;Udo;01.03.1971\n";
+print FILE "10A;\xDCnger;Udo;01.04.1971\n";
+# Y
+print FILE "10A;\xDDlmaz;Yilgrim;01.01.1971\n";
+# ????
+# SS
 
-print FILE "# utf8\n";
-print FILE "10A;B\303\266ck;R\303\274diger;02.10.1972\n";
 
-close (FILE)
+
+#print FILE "10A;B\366ck;R\374diger;01.10.1971\n";
+#print FILE "10A;\304roba;\326tz;01.10.1971\n";
+#print FILE "10A;\xDCbele;G\xFCler;01.10.1971\n";
+#print FILE "G\xFCler\n";
+#print FILE "\xc3\x9cG\xC4\x97ler\n";
+
+#print FILE "# utf8\n";
+#print FILE "10A;B\303\266ck;R\303\274diger;02.10.1972\n";
+#print FILE "10A;\303\244roba;\303\266tz;01.10.1971\n";
+#print FILE "10A;\303\274bele;G\374ler;01.10.1971\n";
+#print FILE "10A;\303\274bele;G\374ler;01.10.1971\n";
+
+
+close (FILE);
+
+print "\n* File $file created.\n\n";
+

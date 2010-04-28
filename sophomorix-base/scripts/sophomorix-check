@@ -1942,12 +1942,14 @@ sub syntax_check_entry {
     # Punkt mit Nix ersetzen    
     $surname=~s/\.//g;
     # Zulassen: a-z  und - (Für Doppelnamen) sowie ' (O'Reilly)
-    if (($surname=~/[^A-Za-zÄäÖöÜüß\-\']/) &&
+    #if (($surname=~/[^A-Za-zÄäÖöÜüß\-\']/) &&
+    if (($surname=~/[^A-Za-z\-\']/) &&
        ($filename eq $schueler_to_check_dateien[0]))# Schülerdatei 
     { # Wenn Zeichen nicht enthalten
         # Dann ist der Nachnamen vermutlich syntaktisch falsch
         $nachname_unerlaubtes_zeichen=1;
-    } elsif ($surname=~/[^A-Za-z0-9ÄäÖöÜüß\-\']/){# Extraschülerdatei
+    #} elsif ($surname=~/[^A-Za-z0-9ÄäÖöÜüß\-\']/){# Extraschülerdatei
+    } elsif ($surname=~/[^A-Za-z0-9\-\']/){# Extraschülerdatei
         $nachname_unerlaubtes_zeichen=1;
     } else { 
         if($Conf::log_level>=3){
@@ -1957,12 +1959,14 @@ sub syntax_check_entry {
 
     # Vorname
     # Zulassen: a-z  und - (Für Doppelnamen) sowie ' (z. B. O'Reilly)
-    if (($name=~/[^A-Za-zÄäÖöÜüß\-\']/) && 
+    #if (($name=~/[^A-Za-zÄäÖöÜüß\-\']/) && 
+    if (($name=~/[^A-Za-z\-\']/) && 
        ($filename eq $schueler_to_check_dateien[0]))# Schülerdatei
     { # Wenn Zeichen nicht enthalten
         # Dann ist der Klassenamen vermutlich syntaktisch falsch
         $vorname_unerlaubtes_zeichen=1;
-    } elsif ($name=~/[^A-Za-z0-9ÄäÖöÜüß\-\']/){# Extraschülerdatei
+    #} elsif ($name=~/[^A-Za-z0-9ÄäÖöÜüß\-\']/){# Extraschülerdatei
+    } elsif ($name=~/[^A-Za-z0-9\-\']/){# Extraschülerdatei
         $vorname_unerlaubtes_zeichen=1;
     } else {
        if($Conf::log_level>=3){
@@ -3759,11 +3763,57 @@ sub filter_school_admin_software {
      # neu mit lenny:
      #  Diese Funktion wandelt alle Sonderzeichen in unicode um!
 
-     if ($encoding="8859-1" or $encoding=""){
+     #if ($encoding="8859-1" or $encoding=""){
          # iso 8859-1
-         $line=~s/\374/ue/g;
-         $line=~s/\366/oe/g;
-     }
+         # A
+         $line=~s/\xC0/A/g;
+         $line=~s/\xC1/A/g;
+         $line=~s/\xC2/A/g;
+         $line=~s/\xC3/A/g;
+         $line=~s/\xC4/A/g;
+         $line=~s/\xC5/A/g;
+         # Ae
+         $line=~s/\xC6/Ae/g;
+         # C
+         $line=~s/\xC7/C/g;
+         # E
+         $line=~s/\xC8/E/g;
+         $line=~s/\xC9/E/g;
+         $line=~s/\xCA/E/g;
+         $line=~s/\xCB/E/g;
+         # I
+         $line=~s/\xCC/I/g;
+         $line=~s/\xCD/I/g;
+         $line=~s/\xCE/I/g;
+         $line=~s/\xCF/I/g;
+         # D
+         $line=~s/\xD0/D/g;
+         # I
+         $line=~s/\xD1/N/g;
+         # O
+         $line=~s/\xD2/O/g;
+         $line=~s/\xD3/O/g;
+         $line=~s/\xD4/O/g;
+         $line=~s/\xD5/O/g;
+         $line=~s/\xD6/O/g;
+         $line=~s/\xD8/O/g;
+         # X
+         $line=~s/\xD7/X/g;
+         # U
+         $line=~s/\xD9/U/g;
+         $line=~s/\xDA/U/g;
+         $line=~s/\xDB/U/g;
+         $line=~s/\xDC/U/g;
+         # Y
+         $line=~s/\xDD/Y/g;
+         # ???
+         # ss
+
+         #$line=~s/\374/ue/g;
+         #$line=~s/\366/oe/g;
+         #$line=~s/\304/Ae/g;
+         #$line=~s/\xDC/Ue/g;
+     #}
 
      # utf8
      $line=~s/\303\274/ue/g;
