@@ -1,6 +1,7 @@
 # $Id$
 
 
+
 mail eintrag in ldap: Mail vom 31.3.10, J. Richter
 
 sophomorix-virusscan
@@ -59,9 +60,17 @@ Done:
    alles in sophomorix-pgldap/scripts
 alles in sophomorix-pgldap/modules
 
-Todo
-sophomorix-base/scripts/sophomorix-check (Bus Error)
-sophomorix-base/scripts/sophomorix-print (Bus Error)
+Todo:
+###############
+sophomorix-base/scripts/sophomorix-check
+sophomorix-base/scripts/sophomorix-print
+--> \usepackage[latin1]{inputenc} latin1 erstzen mit 
+    \usepackage[utf8]{inputenc}
+... ist ersetzt, testen!!!
+sophomorix-print aufrufen:
+1. sind in den *.tex Dateien Umlaute in den Kommentaren lesbar
+2. Sind im pdf die Umlaute korrekt???
+
 
 SophomorixBase.pm
 
@@ -71,18 +80,19 @@ tut recode to asci noch?
 
 
 The following can be upgraded, but the tests do not run anymore:
-sophomorix-developer/scripts/sophomorix-test (Bus Error) OK ??
-sophomorix-developer/scripts/sophomorix-test-unid (Bus Error) OK ?
-?
+sophomorix-developer/scripts/sophomorix-test (Bus Error) im CVS OK ??
+sophomorix-developer/scripts/sophomorix-test-unid (Bus Error) im CVS OK ??
+
 Tests:
 
 erzeuge script in iso88591 (Kopie von sophomorix-check)
 script > datei ODER print DATEI "äöüß" liefert dasselbe ergebnis 
 
-iso88591:          ä    ö    ü   ß
-mit od angucken: \344 \366 \374 \337
-                        Ö
-                      \326
+iso88591:          ä     ö     ü    ß
+mit od angucken: \344  \366  \374  \337
+
+                   Ä     Ö     Ü 
+                 \304  \326  \334
 
 mit od angucken: \303\244 \303\266 \303\274 \303\237
 
