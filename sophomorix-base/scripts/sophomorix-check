@@ -3806,13 +3806,53 @@ sub filter_school_admin_software {
          $line=~s/\xDC/U/g;
          # Y
          $line=~s/\xDD/Y/g;
-         # ???
+         # Th
+         $line=~s/\xDE/Th/g;
          # ss
-
-         #$line=~s/\374/ue/g;
-         #$line=~s/\366/oe/g;
-         #$line=~s/\304/Ae/g;
-         #$line=~s/\xDC/Ue/g;
+         $line=~s/\xDF/ss/g;
+         # a
+         $line=~s/\xE0/a/g;
+         $line=~s/\xE1/a/g;
+         $line=~s/\xE2/a/g;
+         $line=~s/\xE3/a/g;
+         $line=~s/\xE4/a/g;
+         $line=~s/\xE5/a/g;
+         # ae
+         $line=~s/\xE6/ae/g;
+         # c
+         $line=~s/\xE7/c/g;
+         # e
+         $line=~s/\xE8/e/g;
+         $line=~s/\xE9/e/g;
+         $line=~s/\xEA/e/g;
+         $line=~s/\xEB/e/g;
+         # i
+         $line=~s/\xEC/i/g;
+         $line=~s/\xED/i/g;
+         $line=~s/\xEE/i/g;
+         $line=~s/\xEF/i/g;
+         # d
+         $line=~s/\xF0/d/g;
+         # n
+         $line=~s/\xF1/n/g;
+         # o
+         $line=~s/\xF2/o/g;
+         $line=~s/\xF3/o/g;
+         $line=~s/\xF4/o/g;
+         $line=~s/\xF5/o/g;
+         $line=~s/\xF6/o/g;
+         # ???
+         $line=~s/\xF8/o/g;
+         # u
+         $line=~s/\xF9/u/g;
+         $line=~s/\xFA/u/g;
+         $line=~s/\xFB/u/g;
+         $line=~s/\xFC/u/g;
+         # y
+         $line=~s/\xFD/y/g;
+         $line=~s/\xFF/y/g;
+         # FE thorn
+         $line=~s/\xFE/th/g;
      #}
 
      # utf8

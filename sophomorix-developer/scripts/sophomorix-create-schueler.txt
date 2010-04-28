@@ -23,6 +23,7 @@ open (FILE, ">$file");
 
 
 print FILE "# iso8859-1\n";
+# Quelle: Wikipedia -> Latin1
 # A (C0 bis C5)
 print FILE "10A;\xC0lbrecht;Andreas;01.01.1971\n";
 print FILE "10A;\xC1lbrecht;Andreas;01.02.1971\n";
@@ -57,16 +58,61 @@ print FILE "10A;\xD6tto;Oliver;01.05.1971\n";
 # -> X
 print FILE "10A;\xD8tto;Oliver;01.06.1971\n";
 # X
-print FILE "10A;\xD7aver;Xena;01.01.1971\n";
+print FILE "10A;\xD7aver;Xenia;01.01.1971\n";
 # U
 print FILE "10A;\xD9nger;Udo;01.01.1971\n";
 print FILE "10A;\xDAnger;Udo;01.02.1971\n";
 print FILE "10A;\xDBnger;Udo;01.03.1971\n";
 print FILE "10A;\xDCnger;Udo;01.04.1971\n";
 # Y
-print FILE "10A;\xDDlmaz;Yilgrim;01.01.1971\n";
-# ????
-# SS
+print FILE "10A;\xDDilmaz;Yilgrim;01.01.1971\n";
+# Th \xDE (thorn)
+print FILE "10A;\xDEiel;Thomas;01.01.1971\n";
+# ss
+print FILE "10A;A\xDFmann;Asmus;02.01.1971\n";
+# a
+print FILE "10A;W\xE0gner;Waltraud;02.01.1971\n";
+print FILE "10A;W\xE1gner;Waltraud;02.02.1971\n";
+print FILE "10A;W\xE2gner;Waltraud;02.03.1971\n";
+print FILE "10A;W\xE3gner;Waltraud;02.04.1971\n";
+print FILE "10A;W\xE4gner;Waltraud;02.05.1971\n";
+print FILE "10A;W\xE5gner;Waltraud;02.06.1971\n";
+# ae
+print FILE "10A;C\xE6ur;Caeur;02.01.1971\n";
+# c
+print FILE "10A;S\xE7hmidt;Schota;02.01.1971\n";
+# e
+print FILE "10A;M\xE8yer;Melanie;02.01.1971\n";
+print FILE "10A;M\xE9yer;Melanie;02.02.1971\n";
+print FILE "10A;M\xEAyer;Melanie;02.03.1971\n";
+print FILE "10A;M\xEByer;Melanie;02.04.1971\n";
+# e
+print FILE "10A;F\xECscher;Finn;02.01.1971\n";
+print FILE "10A;F\xEDscher;Finn;02.02.1971\n";
+print FILE "10A;F\xEEscher;Finn;02.03.1971\n";
+print FILE "10A;F\xEFscher;Finn;02.04.1971\n";
+# d
+print FILE "10A;A\xF0am;Adele;02.01.1971\n";
+# n
+print FILE "10A;E\xF1gel;Engin;02.01.1971\n";
+# o
+print FILE "10A;K\xF2ch;Konrad;02.01.1971\n";
+print FILE "10A;K\xF3ch;Konrad;02.02.1971\n";
+print FILE "10A;K\xF4ch;Konrad;02.03.1971\n";
+print FILE "10A;K\xF5ch;Konrad;02.04.1971\n";
+print FILE "10A;K\xF6ch;Konrad;02.05.1971\n";
+print FILE "10A;K\xF8ch;Konrad;02.06.1971\n";
+# F7 ist kein Buchstabe :-
+# u
+print FILE "10A;J\xF9ng;Julia;02.01.1971\n";
+print FILE "10A;J\xFAng;Julia;02.02.1971\n";
+print FILE "10A;J\xFBng;Julia;02.03.1971\n";
+print FILE "10A;J\xFCng;Julia;02.04.1971\n";
+# y
+print FILE "10A;Ho\xFDer;Hoyer;03.01.1971\n";
+print FILE "10A;Ho\xFFer;Hoyer;03.02.1971\n";
+# th
+print FILE "10A;Ro\xFE;Roth;03.01.1971\n";
 
 
 
