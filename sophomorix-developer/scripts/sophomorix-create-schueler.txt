@@ -15,7 +15,10 @@
 # Am Geburtsdatum wird erkannt:
 #   Tag:Welcher Buchstabe codiert ist: 01=Wortanfang, 02=zweiter Buchstabe
 #   Monat: Wievielte Version deselben Buchstaben ist es
-#   Jahr: 1971: iso8859-1 (Latin1)
+#   Jahr: 1971 (1970+1) : iso8859-1  (Latin1)
+#   Jahr: 1985 (1970+15): iso8859-15 (Latin9)
+#   Jahr: 1952          : windows 1252
+#   Jahr: 1988          : utf8
 
 
 # Weiter:
@@ -26,106 +29,187 @@
 # Durch Parameter cp1252,8859-15 in sophomorix.conf können diese Zusatzzeichen
 # so oder so codiert werden
 
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+
 use utf8;
 
-my $file="/root/schueler.txt";
-
-open (FILE, ">$file");
 
 
-print FILE "# iso8859-1\n";
-# Quelle: Wikipedia -> Latin1
-# A (C0 bis C5)
-print FILE "10A;\xC0lbrecht;Andreas;01.01.1971\n";
-print FILE "10A;\xC1lbrecht;Andreas;01.02.1971\n";
-print FILE "10A;\xC2lbrecht;Andreas;01.03.1971\n";
-print FILE "10A;\xC3lbrecht;Andreas;01.04.1971\n";
-print FILE "10A;\xC4lbrecht;Andreas;01.05.1971\n";
-print FILE "10A;\xC5lbrecht;Andreas;01.06.1971\n";
-# Ae
-print FILE "10A;\xC6ro;Aero;01.01.1971\n";
-# C
-print FILE "10A;\xC7onrad;Clara;01.01.1971\n";
-# E
-print FILE "10A;\xC8ngel;Ernst;01.01.1971\n";
-print FILE "10A;\xC9ngel;Ernst;01.02.1971\n";
-print FILE "10A;\xCAngel;Ernst;01.03.1971\n";
-print FILE "10A;\xCBngel;Ernst;01.04.1971\n";
-# I
-print FILE "10A;\xCCnes;Inge;01.01.1971\n";
-print FILE "10A;\xCDnes;Inge;01.02.1971\n";
-print FILE "10A;\xCEnes;Inge;01.03.1971\n";
-print FILE "10A;\xCFnes;Inge;01.04.1971\n";
-# D
-print FILE "10A;\xD0ietrich;Dagobert;01.01.1971\n";
-# N
-print FILE "10A;\xD1eumann;Norbert;01.01.1971\n";
-# O
-print FILE "10A;\xD2tto;Oliver;01.01.1971\n";
-print FILE "10A;\xD3tto;Oliver;01.02.1971\n";
-print FILE "10A;\xD4tto;Oliver;01.03.1971\n";
-print FILE "10A;\xD5tto;Oliver;01.04.1971\n";
-print FILE "10A;\xD6tto;Oliver;01.05.1971\n";
-# -> X
-print FILE "10A;\xD8tto;Oliver;01.06.1971\n";
-# X
-print FILE "10A;\xD7aver;Xenia;01.01.1971\n";
-# U
-print FILE "10A;\xD9nger;Udo;01.01.1971\n";
-print FILE "10A;\xDAnger;Udo;01.02.1971\n";
-print FILE "10A;\xDBnger;Udo;01.03.1971\n";
-print FILE "10A;\xDCnger;Udo;01.04.1971\n";
-# Y
-print FILE "10A;\xDDilmaz;Yilgrim;01.01.1971\n";
-# Th \xDE (thorn)
-print FILE "10A;\xDEiel;Thomas;01.01.1971\n";
-# ss
-print FILE "10A;A\xDFmann;Asmus;02.01.1971\n";
-# a
-print FILE "10A;W\xE0gner;Waltraud;02.01.1971\n";
-print FILE "10A;W\xE1gner;Waltraud;02.02.1971\n";
-print FILE "10A;W\xE2gner;Waltraud;02.03.1971\n";
-print FILE "10A;W\xE3gner;Waltraud;02.04.1971\n";
-print FILE "10A;W\xE4gner;Waltraud;02.05.1971\n";
-print FILE "10A;W\xE5gner;Waltraud;02.06.1971\n";
-# ae
-print FILE "10A;C\xE6ur;Caeur;02.01.1971\n";
-# c
-print FILE "10A;S\xE7hmidt;Schota;02.01.1971\n";
-# e
-print FILE "10A;M\xE8yer;Melanie;02.01.1971\n";
-print FILE "10A;M\xE9yer;Melanie;02.02.1971\n";
-print FILE "10A;M\xEAyer;Melanie;02.03.1971\n";
-print FILE "10A;M\xEByer;Melanie;02.04.1971\n";
-# e
-print FILE "10A;F\xECscher;Finn;02.01.1971\n";
-print FILE "10A;F\xEDscher;Finn;02.02.1971\n";
-print FILE "10A;F\xEEscher;Finn;02.03.1971\n";
-print FILE "10A;F\xEFscher;Finn;02.04.1971\n";
-# d
-print FILE "10A;A\xF0am;Adele;02.01.1971\n";
-# n
-print FILE "10A;E\xF1gel;Engin;02.01.1971\n";
-# o
-print FILE "10A;K\xF2ch;Konrad;02.01.1971\n";
-print FILE "10A;K\xF3ch;Konrad;02.02.1971\n";
-print FILE "10A;K\xF4ch;Konrad;02.03.1971\n";
-print FILE "10A;K\xF5ch;Konrad;02.04.1971\n";
-print FILE "10A;K\xF6ch;Konrad;02.05.1971\n";
-print FILE "10A;K\xF8ch;Konrad;02.06.1971\n";
-# F7 ist kein Buchstabe :-
-# u
-print FILE "10A;J\xF9ng;Julia;02.01.1971\n";
-print FILE "10A;J\xFAng;Julia;02.02.1971\n";
-print FILE "10A;J\xFBng;Julia;02.03.1971\n";
-print FILE "10A;J\xFCng;Julia;02.04.1971\n";
-# y
-print FILE "10A;Ho\xFDer;Hoyer;03.01.1971\n";
-print FILE "10A;Ho\xFFer;Hoyer;03.02.1971\n";
-# th
-print FILE "10A;Ro\xFE;Roth;03.01.1971\n";
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+$Conf::log_level=1;
+my $help=0;
+my $file_encoding="";
+my $output_file="/root/schueler.txt";
 
 
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "verbose|v+" => \$Conf::log_level,
+           "help|h" => \$help,
+           "output-file=s" => \$output_file,
+           "file-encoding=s" => \$file_encoding,
+          );
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
+
+
+
+open (FILE, ">$output_file");
+
+if ($file_encoding eq "" or $file_encoding eq "8859-1"){
+   print FILE "# iso8859-1\n";
+   # 
+   # Quelle: Wikipedia -> iso 8859-1 (Latin1)
+   #
+   # A (C0 bis C5)
+   print FILE "10A;\xC0lbrecht;Andreas;01.01.1971\n";
+   print FILE "10A;\xC1lbrecht;Andreas;01.02.1971\n";
+   print FILE "10A;\xC2lbrecht;Andreas;01.03.1971\n";
+   print FILE "10A;\xC3lbrecht;Andreas;01.04.1971\n";
+   print FILE "10A;\xC4lbrecht;Andreas;01.05.1971\n";
+   print FILE "10A;\xC5lbrecht;Andreas;01.06.1971\n";
+   # Ae
+   print FILE "10A;\xC6ro;Aero;01.01.1971\n";
+   # C
+   print FILE "10A;\xC7onrad;Clara;01.01.1971\n";
+   # E
+   print FILE "10A;\xC8ngel;Ernst;01.01.1971\n";
+   print FILE "10A;\xC9ngel;Ernst;01.02.1971\n";
+   print FILE "10A;\xCAngel;Ernst;01.03.1971\n";
+   print FILE "10A;\xCBngel;Ernst;01.04.1971\n";
+   # I
+   print FILE "10A;\xCCnes;Inge;01.01.1971\n";
+   print FILE "10A;\xCDnes;Inge;01.02.1971\n";
+   print FILE "10A;\xCEnes;Inge;01.03.1971\n";
+   print FILE "10A;\xCFnes;Inge;01.04.1971\n";
+   # D
+   print FILE "10A;\xD0ietrich;Dagobert;01.01.1971\n";
+   # N
+   print FILE "10A;\xD1eumann;Norbert;01.01.1971\n";
+   # O
+   print FILE "10A;\xD2tto;Oliver;01.01.1971\n";
+   print FILE "10A;\xD3tto;Oliver;01.02.1971\n";
+   print FILE "10A;\xD4tto;Oliver;01.03.1971\n";
+   print FILE "10A;\xD5tto;Oliver;01.04.1971\n";
+   print FILE "10A;\xD6tto;Oliver;01.05.1971\n";
+   # -> X
+   print FILE "10A;\xD8tto;Oliver;01.06.1971\n";
+   # X
+   print FILE "10A;\xD7aver;Xenia;01.01.1971\n";
+   # U
+   print FILE "10A;\xD9nger;Udo;01.01.1971\n";
+   print FILE "10A;\xDAnger;Udo;01.02.1971\n";
+   print FILE "10A;\xDBnger;Udo;01.03.1971\n";
+   print FILE "10A;\xDCnger;Udo;01.04.1971\n";
+   # Y
+   print FILE "10A;\xDDilmaz;Yilgrim;01.01.1971\n";
+   # Th \xDE (thorn)
+   print FILE "10A;\xDEiel;Thomas;01.01.1971\n";
+   # ss
+   print FILE "10A;A\xDFmann;Asmus;02.01.1971\n";
+   # a
+   print FILE "10A;W\xE0gner;Waltraud;02.01.1971\n";
+   print FILE "10A;W\xE1gner;Waltraud;02.02.1971\n";
+   print FILE "10A;W\xE2gner;Waltraud;02.03.1971\n";
+   print FILE "10A;W\xE3gner;Waltraud;02.04.1971\n";
+   print FILE "10A;W\xE4gner;Waltraud;02.05.1971\n";
+   print FILE "10A;W\xE5gner;Waltraud;02.06.1971\n";
+   # ae
+   print FILE "10A;C\xE6ur;Caeur;02.01.1971\n";
+   # c
+   print FILE "10A;S\xE7hmidt;Schota;02.01.1971\n";
+   # e
+   print FILE "10A;M\xE8yer;Melanie;02.01.1971\n";
+   print FILE "10A;M\xE9yer;Melanie;02.02.1971\n";
+   print FILE "10A;M\xEAyer;Melanie;02.03.1971\n";
+   print FILE "10A;M\xEByer;Melanie;02.04.1971\n";
+   # e
+   print FILE "10A;F\xECscher;Finn;02.01.1971\n";
+   print FILE "10A;F\xEDscher;Finn;02.02.1971\n";
+   print FILE "10A;F\xEEscher;Finn;02.03.1971\n";
+   print FILE "10A;F\xEFscher;Finn;02.04.1971\n";
+   # d
+   print FILE "10A;A\xF0am;Adele;02.01.1971\n";
+   # n
+   print FILE "10A;E\xF1gel;Engin;02.01.1971\n";
+   # o
+   print FILE "10A;K\xF2ch;Konrad;02.01.1971\n";
+   print FILE "10A;K\xF3ch;Konrad;02.02.1971\n";
+   print FILE "10A;K\xF4ch;Konrad;02.03.1971\n";
+   print FILE "10A;K\xF5ch;Konrad;02.04.1971\n";
+   print FILE "10A;K\xF6ch;Konrad;02.05.1971\n";
+   print FILE "10A;K\xF8ch;Konrad;02.06.1971\n";
+   # F7 ist kein Buchstabe :-
+   # u
+   print FILE "10A;J\xF9ng;Julia;02.01.1971\n";
+   print FILE "10A;J\xFAng;Julia;02.02.1971\n";
+   print FILE "10A;J\xFBng;Julia;02.03.1971\n";
+   print FILE "10A;J\xFCng;Julia;02.04.1971\n";
+   # y
+   print FILE "10A;Ho\xFDer;Hoyer;03.01.1971\n";
+   print FILE "10A;Ho\xFFer;Hoyer;03.02.1971\n";
+   # th
+   print FILE "10A;Ro\xFE;Roth;03.01.1971\n";
+}
+
+if ($file_encoding eq "" or $file_encoding eq "8859-15"){
+   #
+   # ISO 8859-15 
+   #
+   print FILE "# iso8859-15 additions to iso8859-1\n";
+   # S
+   print FILE "10A;\xA6ommer;Sonja;01.01.1985\n";
+   # s
+   print FILE "10A;A\xA8mussen;Astrid;02.01.1985\n";
+   # Z
+   print FILE "10A;\xB4iegler;Zacharias;01.01.1985\n";
+   # z
+   print FILE "10A;A\xB8imi;Azadeh;02.01.1985\n";
+   # Oe
+   print FILE "10A;\xBCler;Oeler;01.01.1985\n";
+   # oe
+   print FILE "10A;B\xBDr;Boer;02.01.1985\n";
+   # y
+   print FILE "10A;\xBEaso;Yannik;01.01.1985\n";
+}
+
+
+
+if ($file_encoding eq "" or $file_encoding eq "win1252"){
+   #
+   # win 1252
+   #
+   print FILE "# win1252 additions to iso8859-1\n";
+   # S
+   print FILE "10A;\x8Aommer;Sonja;01.01.1952\n";
+   # s
+   print FILE "10A;A\x9Amussen;Astrid;02.01.1952\n";
+   # Z
+   print FILE "10A;\x8Eiegler;Zacharias;01.01.1952\n";
+   # z
+   print FILE "10A;A\x9Eimi;Azadeh;02.01.1952\n";
+   # Oe
+   print FILE "10A;\x8Cler;Oeler;01.01.1952\n";
+   # oe
+   print FILE "10A;B\x9Cr;Boer;02.01.1952\n";
+   # y
+   print FILE "10A;\x9Faso;Yannik;01.01.1952\n";
+}
+
+
+if ($file_encoding eq "" or $file_encoding eq "utf8"){
+   #
+   # UTF-8
+   #
+   print FILE "# UTF-8\n";
+
+}
 
 #print FILE "10A;B\366ck;R\374diger;01.10.1971\n";
 #print FILE "10A;\304roba;\326tz;01.10.1971\n";
@@ -142,5 +226,5 @@ print FILE "10A;Ro\xFE;Roth;03.01.1971\n";
 
 close (FILE);
 
-print "\n* File $file created.\n\n";
+print "\n* File $output_file created.\n\n";
 
