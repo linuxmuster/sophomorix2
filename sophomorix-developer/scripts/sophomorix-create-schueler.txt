@@ -112,7 +112,7 @@ if ($file_encoding eq "" or $file_encoding eq "8859-1"){
    # Th \xDE (thorn)
    print FILE "10A;\xDEiel;Thomas;01.01.1971\n";
    # ss
-   print FILE "10A;A\xDFmann;Asmus;02.01.1971\n";
+   print FILE "10A;A\xDFmann;Assmus;02.01.1971\n";
    # a
    print FILE "10A;W\xE0gner;Waltraud;02.01.1971\n";
    print FILE "10A;W\xE1gner;Waltraud;02.02.1971\n";
@@ -144,8 +144,8 @@ if ($file_encoding eq "" or $file_encoding eq "8859-1"){
    print FILE "10A;K\xF4ch;Konrad;02.03.1971\n";
    print FILE "10A;K\xF5ch;Konrad;02.04.1971\n";
    print FILE "10A;K\xF6ch;Konrad;02.05.1971\n";
-   print FILE "10A;K\xF8ch;Konrad;02.06.1971\n";
    # F7 ist kein Buchstabe :-
+   print FILE "10A;K\xF8ch;Konrad;02.06.1971\n";
    # u
    print FILE "10A;J\xF9ng;Julia;02.01.1971\n";
    print FILE "10A;J\xFAng;Julia;02.02.1971\n";
@@ -208,20 +208,117 @@ if ($file_encoding eq "" or $file_encoding eq "utf8"){
    # UTF-8
    #
    print FILE "# UTF-8\n";
+   # A 
+   print FILE "10A;\xC3\x80lbrecht;Andreas;01.01.1988\n";
+   print FILE "10A;\xC3\x81lbrecht;Andreas;01.02.1988\n";
+   print FILE "10A;\xC3\x82lbrecht;Andreas;01.03.1988\n";
+   print FILE "10A;\xC3\x83lbrecht;Andreas;01.04.1988\n";
+   print FILE "10A;\xC3\x84lbrecht;Andreas;01.05.1988\n";
+   print FILE "10A;\xC3\x85lbrecht;Andreas;01.06.1988\n";
+   # Ae
+   print FILE "10A;\xC3\x86ro;Aero;01.01.1988\n";
+   # C
+   print FILE "10A;\xC3\x87onrad;Clara;01.01.1988\n";
+   # E
+   print FILE "10A;\xC3\x88ngel;Ernst;01.01.1988\n";
+   print FILE "10A;\xC3\x89ngel;Ernst;01.02.1988\n";
+   print FILE "10A;\xC3\x8Angel;Ernst;01.03.1988\n";
+   print FILE "10A;\xC3\x8Bngel;Ernst;01.04.1988\n";
+   # I
+   print FILE "10A;\xC3\x8Cnes;Inge;01.01.1988\n";
+   print FILE "10A;\xC3\x8Dnes;Inge;01.02.1988\n";
+   print FILE "10A;\xC3\x8Enes;Inge;01.03.1988\n";
+   print FILE "10A;\xC3\x8Fnes;Inge;01.04.1988\n";
+   # D
+   print FILE "10A;\xC3\x90ietrich;Dagobert;01.01.1988\n";
+   # N
+   print FILE "10A;\xC3\x91eumann;Norbert;01.01.1988\n";
+   # O
+   print FILE "10A;\xC3\x92tto;Oliver;01.01.1988\n";
+   print FILE "10A;\xC3\x93tto;Oliver;01.02.1988\n";
+   print FILE "10A;\xC3\x94tto;Oliver;01.03.1988\n";
+   print FILE "10A;\xC3\x95tto;Oliver;01.04.1988\n";
+   print FILE "10A;\xC3\x96tto;Oliver;01.05.1988\n";
+   # -> X
+   print FILE "10A;\xC3\x98tto;Oliver;01.06.1988\n";
+   # X
+   print FILE "10A;\xC3\x97aver;Xenia;01.01.1988\n";
+   # U
+   print FILE "10A;\xC3\x99nger;Udo;01.01.1988\n";
+   print FILE "10A;\xC3\x9Anger;Udo;01.02.1988\n";
+   print FILE "10A;\xC3\x9Bnger;Udo;01.03.1988\n";
+   print FILE "10A;\xC3\x9Cnger;Udo;01.04.1988\n";
+   # Y
+   print FILE "10A;\xC3\x9Dilmaz;Yilgrim;01.01.1988\n";
+   # Th \xDE (thorn)
+   print FILE "10A;\xC3\x9Eiel;Thomas;01.01.1988\n";
+   # ss
+   print FILE "10A;A\xC3\x9Fmann;Assmus;02.01.1988\n";
+   # a
+   print FILE "10A;W\xC3\xA0gner;Waltraud;02.01.1988\n";
+   print FILE "10A;W\xC3\xA1gner;Waltraud;02.02.1988\n";
+   print FILE "10A;W\xC3\xA2gner;Waltraud;02.03.1988\n";
+   print FILE "10A;W\xC3\xA3gner;Waltraud;02.04.1988\n";
+   print FILE "10A;W\xC3\xA4gner;Waltraud;02.05.1988\n";
+   print FILE "10A;W\xC3\xA5gner;Waltraud;02.06.1988\n";
+   # ae
+   print FILE "10A;C\xC3\xA6ur;Caeur;02.01.1988\n";
+   # c
+   print FILE "10A;S\xC3\xA7hmidt;Schota;02.01.1988\n";
+   # e
+   print FILE "10A;M\xC3\xA8yer;Melanie;02.01.1988\n";
+   print FILE "10A;M\xC3\xA9yer;Melanie;02.02.1988\n";
+   print FILE "10A;M\xC3\xAAyer;Melanie;02.03.1988\n";
+   print FILE "10A;M\xC3\xAByer;Melanie;02.04.1988\n";
+   # e
+   print FILE "10A;F\xC3\xACscher;Finn;02.01.1988\n";
+   print FILE "10A;F\xC3\xADscher;Finn;02.02.1988\n";
+   print FILE "10A;F\xC3\xAEscher;Finn;02.03.1988\n";
+   print FILE "10A;F\xC3\xAFscher;Finn;02.04.1988\n";
+   # d
+   print FILE "10A;A\xC3\xB0am;Adele;02.01.1988\n";
+   # n
+   print FILE "10A;E\xC3\xB1gel;Engin;02.01.1988\n";
+   # o
+   print FILE "10A;K\xC3\xB2ch;Konrad;02.01.1988\n";
+   print FILE "10A;K\xC3\xB3ch;Konrad;02.02.1988\n";
+   print FILE "10A;K\xC3\xB4ch;Konrad;02.03.1988\n";
+   print FILE "10A;K\xC3\xB5ch;Konrad;02.04.1988\n";
+   print FILE "10A;K\xC3\xB6ch;Konrad;02.05.1988\n";
+   # B7 ist kein Buchstabe :-
+   print FILE "10A;K\xC3\xB8ch;Konrad;02.06.1988\n";
+   # u
+   print FILE "10A;J\xC3\xB9ng;Julia;02.01.1988\n";
+   print FILE "10A;J\xC3\xBAng;Julia;02.02.1988\n";
+   print FILE "10A;J\xC3\xBBng;Julia;02.03.1988\n";
+   print FILE "10A;J\xC3\xBCng;Julia;02.04.1988\n";
+   # y
+   print FILE "10A;Ho\xC3\xBDer;Hoyer;03.01.1988\n";
+   print FILE "10A;Ho\xC3\xBFer;Hoyer;03.02.1988\n";
+   # th
+   print FILE "10A;Ro\xC3\xBE;Roth;03.01.1988\n";
+
+
+# ab hier OK
+
+   # S
+   print FILE "10A;\xC5\x9Commer;Sonja;01.01.1988\n";
+   # s
+   print FILE "10A;A\xC5\x9Dmussen;Astrid;02.01.1988\n";
+   # Z
+   print FILE "10A;\xC5\xBDiegler;Zacharias;01.01.1988\n";
+   # z
+   print FILE "10A;A\xC5\xBEimi;Azadeh;02.01.1988\n";
+   # Oe
+   print FILE "10A;\xC5\x92ler;Oeler;01.01.1988\n";
+   # oe
+   print FILE "10A;B\xC5\x93r;Boer;02.01.1988\n";
+   # Y
+   print FILE "10A;\xC5\xB8aso;Yannik;01.01.1988\n";
+
+
 
 }
-
-#print FILE "10A;B\366ck;R\374diger;01.10.1971\n";
-#print FILE "10A;\304roba;\326tz;01.10.1971\n";
-#print FILE "10A;\xDCbele;G\xFCler;01.10.1971\n";
-#print FILE "G\xFCler\n";
-#print FILE "\xc3\x9cG\xC4\x97ler\n";
-
-#print FILE "# utf8\n";
-#print FILE "10A;B\303\266ck;R\303\274diger;02.10.1972\n";
-#print FILE "10A;\303\244roba;\303\266tz;01.10.1971\n";
-#print FILE "10A;\303\274bele;G\374ler;01.10.1971\n";
-#print FILE "10A;\303\274bele;G\374ler;01.10.1971\n";
 
 
 close (FILE);
