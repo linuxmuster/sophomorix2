@@ -62,9 +62,9 @@ if (not -e $develconf){
 
 
 sub show_language {
-#    if($Conf::log_level>=2){
+    if($Conf::log_level>=2){
        &titel("Language:   $Conf::lang");
-#   }
+   }
 }
 
 
