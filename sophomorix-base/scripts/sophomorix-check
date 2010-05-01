@@ -86,6 +86,8 @@ my $lock=0;
 my $unlock=0;
 my $filter_only=0;
 my $no_auto_teach_in=0;
+my $file_encoding="";
+
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -101,6 +103,7 @@ my $testopt=GetOptions(
            "no-kclass" => \$no_kclass,
            "no-auto-teach-in|no-sync" => \$no_auto_teach_in,
            "file=s" => \$file_to_check,
+           "file-encoding=s" => \$file_encoding,
           );
 
 # Prüfen, ob Optionen erkannt wurden
@@ -134,6 +137,7 @@ Options
   --use-gid
   --file filename
   --filter-only
+  --file-encoding encoding
   --lock / --unlock
 
 Please see the sophomorix-check(8) man pages for full documentation
@@ -153,6 +157,21 @@ if ($unlock==1) {
 if ($lock==1) {
     &lock_sophomorix("lock",0,@arguments);
     exit;
+}
+
+# --file-encoding
+if ($file_encoding ne ""){
+    if ($file_encoding ne "ascii" and
+        $file_encoding ne "8859-1" and
+        $file_encoding ne "8859-15" and
+        $file_encoding ne "win1252" and
+        $file_encoding ne "utf8"
+       ){
+	print "\nFile encoding $file_encoding is not supported.\n";
+	print "Use ascii, 8859-1, 8859-15, win1252, utf8 instead.\n\n";
+        exit;
+    }
+    $Conf::file_encoding=$file_encoding;
 }
 
 # --cron
@@ -3763,7 +3782,15 @@ sub filter_school_admin_software {
      # neu mit lenny:
      #  Diese Funktion wandelt alle Sonderzeichen in unicode um!
 
-     #if ($encoding="8859-1" or $encoding=""){
+     # file_coding: 8859-1,8859-15,win1252,utf8 
+     if (not defined $Conf::file_encoding){
+	 $Conf::file_encoding="8859-15";
+     }
+
+
+     if ($Conf::file_encoding eq "8859-1" or 
+         $Conf::file_encoding eq "8859-15" or
+         $Conf::file_encoding eq "win1252" ){
          # iso 8859-1
          # A
          $line=~s/\xC0/A/g;
@@ -3853,7 +3880,46 @@ sub filter_school_admin_software {
          $line=~s/\xFF/y/g;
          # FE thorn
          $line=~s/\xFE/th/g;
-     #}
+     }
+
+
+     if ($Conf::file_encoding eq "8859-15"){
+         # S
+         $line=~s/\xA6/S/g;
+         # s
+         $line=~s/\xA8/s/g;
+         # Z
+         $line=~s/\xB4/Z/g;
+         # z
+         $line=~s/\xB8/z/g;
+         # Oe
+         $line=~s/\xBC/Oe/g;
+         # oe
+         $line=~s/\xBD/oe/g;
+         # y
+         $line=~s/\xBE/Y/g;
+     }
+
+
+     if ($Conf::file_encoding eq "win1252"){
+         # S
+         $line=~s/\x8A/S/g;
+         # s
+         $line=~s/\x9A/s/g;
+         # Z
+         $line=~s/\x8E/Z/g;
+         # z
+         $line=~s/\x9E/z/g;
+         # Oe
+         $line=~s/\x8C/Oe/g;
+         # oe
+         $line=~s/\x9C/oe/g;
+         # y
+         $line=~s/\x9F/Y/g;
+     }
+
+
+
 
      # utf8
      $line=~s/\303\274/ue/g;
