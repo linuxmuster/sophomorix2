@@ -6,9 +6,12 @@
 
       recode sophomorix-test-unid
       recode man pages
-      add utf8 support
+      add more utf8 support
 
 2.2.7-1 (2010-05-xx)
+    - utf8 support:
+      - ISO 8859 characters
+      - additional characters until \xc5\x82 (U+0142)
     - sophomorix.conf:
       Possible Option $file_encoding="..."; added 
     - sophomorix-check:
@@ -19,9 +22,9 @@
         - ISO 8859-15 (Latin9)
         - Windows-1252
       - recoded to utf8:
-      - sophomorix-check
-      - sophomorix-print
-      - scripts/sophomorix-test
+        - sophomorix-check
+        - sophomorix-print
+        - scripts/sophomorix-test
 
 2.2.6-1 (2010-04-26)
     - recoded lot of relevant scripts to utf8 except:
