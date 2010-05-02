@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # $Id$
-# This script (sophomorix-test-unid) is maintained by Rüdiger Beck
+# This script (sophomorix-test-unid) is maintained by RÃ¼diger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -79,7 +79,7 @@ print '
 ';
 
 ###########################################################################
-# user in schueler.txt hinzufügen
+# user in schueler.txt hinzufÃ¼gen
 my $user="";
 my $login="";
 my @users_to_add=(
@@ -152,7 +152,7 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 
 
 ###########################################################################
-# Ergebnisdateien prüfen
+# Ergebnisdateien prÃ¼fen
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.move");
 &check_emptyness("sophomorix.kill");
@@ -160,7 +160,7 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 
 
 ###########################################################################
-# Druckdaten prüfen
+# Druckdaten prÃ¼fen
 # add.tex
 &check_existence("${DevelConf::druck_pfad}/add.tex");
 &check_line_in_file("Joerg Maier",
@@ -182,7 +182,7 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 
 
 ###########################################################################
-# Datenbank prüfen
+# Datenbank prÃ¼fen
 
 
 %account = &fetch_single_account("surname='Maier'
@@ -932,7 +932,7 @@ print '
 ###########################################################################
 ';
 
-# updating the name Öz -> Ötz
+# updating the name Ãz -> Ãtz
 &exchange_line_in_file("7C;\326zt\374rk;Mohammed;2.4.82;54321;*",
    "/etc/sophomorix/user/schueler.txt",
    "7C;\326tzt\374rk;Mohammed;2.4.82;54321;");
@@ -1653,7 +1653,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 # This should not change anything
 &run_command("sophomorix-check",$verbose);
 
-# Ergebnisdateien prüfen
+# Ergebnisdateien prÃ¼fen
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.move");
 #&check_emptyness("sophomorix.kill");
@@ -1735,7 +1735,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &run_command("sophomorix-check",$verbose);
 
 
-# Ergebnisdateien prüfen
+# Ergebnisdateien prÃ¼fen
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.move");
 #&check_emptyness("sophomorix.kill");
@@ -1817,7 +1817,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 # Check if the account can be moved to exitadminclass
 &run_command("sophomorix-check",$verbose);
 
-# Ergebnisdateien prüfen
+# Ergebnisdateien prÃ¼fen
 &check_emptyness("sophomorix.add");
 #&check_emptyness("sophomorix.kill");
 
