@@ -3800,7 +3800,9 @@ sub filter_school_admin_software {
          $line=~s/\xC1/A/g;
          $line=~s/\xC2/A/g;
          $line=~s/\xC3/A/g;
-         $line=~s/\xC4/A/g;
+         # Ae
+         $line=~s/\xC4/Ae/g;
+         # A
          $line=~s/\xC5/A/g;
          # Ae
          $line=~s/\xC6/Ae/g;
@@ -3825,7 +3827,9 @@ sub filter_school_admin_software {
          $line=~s/\xD3/O/g;
          $line=~s/\xD4/O/g;
          $line=~s/\xD5/O/g;
-         $line=~s/\xD6/O/g;
+         # Oe
+         $line=~s/\xD6/Oe/g;
+         # O
          $line=~s/\xD8/O/g;
          # X
          $line=~s/\xD7/X/g;
@@ -3833,7 +3837,8 @@ sub filter_school_admin_software {
          $line=~s/\xD9/U/g;
          $line=~s/\xDA/U/g;
          $line=~s/\xDB/U/g;
-         $line=~s/\xDC/U/g;
+         # Ue
+         $line=~s/\xDC/Ue/g;
          # Y
          $line=~s/\xDD/Y/g;
          # Th
@@ -3845,7 +3850,9 @@ sub filter_school_admin_software {
          $line=~s/\xE1/a/g;
          $line=~s/\xE2/a/g;
          $line=~s/\xE3/a/g;
+         # ae 
          $line=~s/\xE4/a/g;
+         # a
          $line=~s/\xE5/a/g;
          # ae
          $line=~s/\xE6/ae/g;
@@ -3870,14 +3877,16 @@ sub filter_school_admin_software {
          $line=~s/\xF3/o/g;
          $line=~s/\xF4/o/g;
          $line=~s/\xF5/o/g;
-         $line=~s/\xF6/o/g;
+         # oe
+         $line=~s/\xF6/oe/g;
          # ???
          $line=~s/\xF8/o/g;
          # u
          $line=~s/\xF9/u/g;
          $line=~s/\xFA/u/g;
          $line=~s/\xFB/u/g;
-         $line=~s/\xFC/u/g;
+         # ue
+         $line=~s/\xFC/ue/g;
          # y
          $line=~s/\xFD/y/g;
          $line=~s/\xFF/y/g;
@@ -4107,9 +4116,6 @@ sub filter_school_admin_software {
          $line=~s/\xC5\x93/oe/g;
          # Y
          $line=~s/\xC5\xB8/Y/g;
-
-         
-
      }
 
       return $line;
