@@ -21,11 +21,11 @@ sophomorix-vampire \- Migration eines Servers auf neue Hardware und neue Softwar
 .B sophomorix-vampire
 .RI [ options ]
 .br
-.SH WELCHE DATEN KÖNNEN ÜBERNOMMEN WERDEN?
+.SH WELCHE DATEN KÃ–NNEN ÃœBERNOMMEN WERDEN?
 .TP
 .B Loginnamen:
 .br
-Jeder Lehrer und Schüler behält seinen Loginnamen/Benutzernamen.
+Jeder Lehrer und SchÃ¼ler behÃ¤lt seinen Loginnamen/Benutzernamen.
 .TP
 .B Private Userdaten:
 .br
@@ -44,21 +44,21 @@ Diese Mailbox wird in cyrus eingelesen (Unterverzeichnis __dachboden)
 .br
 Achtung: Beim update von 2.x auf 3.x wird aus der Klasse k7a die Klasse 7a.
 .br
-Wenn dadurch Klassen nur mit Ziffern entstehen müssen diese umbenannt
+Wenn dadurch Klassen nur mit Ziffern entstehen mÃ¼ssen diese umbenannt
 werden (siehe unten).
 .br
-.SH WELCHE DATEN WERDEN NICHT ÜBERNOMMEN?
+.SH WELCHE DATEN WERDEN NICHT ÃœBERNOMMEN?
 .TP
 .B User, die nicht mehr in schueler.txt bzw. lehrer.txt sind. 
 .br
 Also user, die toleriert oder deaktiviert sind. Damit werden auch
-deren Daten NICHT übernommen.
+deren Daten NICHT Ã¼bernommen.
 .TP
-.B Veränderte Passwörter:
+.B VerÃ¤nderte PasswÃ¶rter:
 .br 
 Jeder Benutzer bekommt wieder sein Erstpasswort (so wie auf den
-Anmeldungskärtchen ausgedruckt). Veränderte Passwörter werden NICHT
-übernommen.
+AnmeldungskÃ¤rtchen ausgedruckt). VerÃ¤nderte PasswÃ¶rter werden NICHT
+Ã¼bernommen.
 .br
 .SH DESCRIPTION
 .B sophomorix-vampire  
@@ -81,7 +81,7 @@ Installieren sie das aktuellste Paket von sophomorix-vampire:
 .TP
 .B Step 1: Von einem laufenden alten Server 2.x migrieren
 .br
-Sorgen sie dafuer, dass der neue Server über seine interne Netzwerkkarte auf den alten Server zugreifen kann:
+Sorgen sie dafuer, dass der neue Server Ã¼ber seine interne Netzwerkkarte auf den alten Server zugreifen kann:
 .br
 1) Neuer Server: 
 .br
@@ -111,15 +111,15 @@ Erzeugen eins passwortlosen ssh-keys und ablegen auf dem alten Server mit der IP
 
 Falls das nicht funktioniert:
 
-Um den ssh-key auf dem alten Server ablegen zu können, muss dort ein
-ssh login als root möglich sein. Falls sie das rootlogin abgeschaltet
+Um den ssh-key auf dem alten Server ablegen zu kÃ¶nnen, muss dort ein
+ssh login als root mÃ¶glich sein. Falls sie das rootlogin abgeschaltet
 haben, sollten sie es in 
 .br
 /etc/ssh/sshd_config mit
 
 PermitRootLogin yes
 
-für die Migration wieder einschalten.
+fÃ¼r die Migration wieder einschalten.
 
  
 .TP
@@ -138,9 +138,9 @@ Loggen sie sich auf 2 Konsolen ein:
 .br
               Befindet sich noch Daten auf einer weiteren Partition,
 .br        
-              so müssen sie so zusammengemountet werden, dass unter /mnt
+              so mÃ¼ssen sie so zusammengemountet werden, dass unter /mnt
 .br
-              das gesamte /-Filesystem zugänglich ist.
+              das gesamte /-Filesystem zugÃ¤nglich ist.
 .br
 2) Konsole 1: Den ssh-server auf dem neuen Server stoppen:
               /etc/init.d/ssh stop
@@ -173,8 +173,8 @@ Einige Verzeichnisse auf den neuen Server kopieren
 .B Step 5:
 .br
 .br
-sophomorix.conf wird nicht vom alten System übernommen. Stellen sie
-deshalb VOR dem nächsten Schritt sicher,
+sophomorix.conf wird nicht vom alten System Ã¼bernommen. Stellen sie
+deshalb VOR dem nÃ¤chsten Schritt sicher,
  - dass sie sophomorix konfiguriert haben:
      /etc/sophomorix/user/sophomorix.conf
 .br
@@ -183,7 +183,7 @@ deshalb VOR dem nächsten Schritt sicher,
       /etc/sophomorix/user/class.map
 .br
 Dann legen Sie die Benutzer mit dem gleichen Loginnamen an 
-(numerische user id kann sich ändern) mit:
+(numerische user id kann sich Ã¤ndern) mit:
 .B sophomorix-vampire --sync-users
 .TP
 .B Step 6: --configure-quota 
@@ -199,7 +199,7 @@ Quota konfigurieren (wenn auf dem alten System mit quota gearbeitet wurde):
 
 sophomorix-vampire --configure-quota
 .TP
-ODER (bisher keine quota benutzt bzw. neue Überlegungen):
+ODER (bisher keine quota benutzt bzw. neue Ãœberlegungen):
 
 Editieren Sie in folgenden Dateien die Quotaangaben mit einem Editor:
 
@@ -217,7 +217,7 @@ Editieren Sie in folgenden Dateien die Quotaangaben mit einem Editor:
 Die Quota werden in die Datenbank(postgres) geschrieben und im System
 gesetzt.
 .br
-Prüfen Sie danach, ob die Quota wie erwartet gesetzt wurden. Falls das
+PrÃ¼fen Sie danach, ob die Quota wie erwartet gesetzt wurden. Falls das
 nicht der Fall ist, wiederholen Sie Schritt 6 und 7.
 .TP
 .B Step 8: --sync-homes
@@ -225,7 +225,7 @@ nicht der Fall ist, wiederholen Sie Schritt 6 und 7.
 Daten im Home der Benutzer abgleichen, ein user nach dem anderen. Das
 kann dauern. 
 .br
-Man kann auch mit der zusätzlichen Option -u name erst einmal testweise für nur
+Man kann auch mit der zusÃ¤tzlichen Option -u name erst einmal testweise fÃ¼r nur
 einen Benutzer die Daten abgleichen, und die restlichen Homes am Ende nachholen.
 .TP
 .B Step 9: --sync-mail-data
@@ -246,16 +246,16 @@ alten Servers.
 
 .br
 B) Mail-Ordner aus $HOME/__dachboden/linux/mail/* nach cyrus
-synchronisieren (cyrus-Unterordner __dachboden/ORDNER). Für
+synchronisieren (cyrus-Unterordner __dachboden/ORDNER). FÃ¼r
 ORDNER steht sent-mail,drafts und alle selbst angelegten Ordner.
 
 .br
-Achten sie darauf, dass der neue Server ausreichend große Mailanhänge
+Achten sie darauf, dass der neue Server ausreichend groÃŸe MailanhÃ¤nge
 empfangen kann.
 
 .br
 Man kann die Schritte --sync-mail-data und danach --sync-mail auch
-später nachholen.
+spÃ¤ter nachholen.
 .TP
 .B Step 11: --sync-workstations
 .br
@@ -266,14 +266,14 @@ Workstation-accounts auf dem neuen Server anlegen.
 Synchronisieren der Klassentausch-Verzeichnisse aller Klassen des neuen Servers
 .br
 
-Das kann auch später nachgeholt werden.
+Das kann auch spÃ¤ter nachgeholt werden.
 .TP
 .B Step 13: --sync-teacher-share
 .br
 Synchronisieren des Tausch-Verzeichnisses der Lehrer
 .br
 
-Das kann auch später nachgeholt werden.
+Das kann auch spÃ¤ter nachgeholt werden.
 .TP
 .B Step 14: Synchronisieren der Dateien des Imaging Systems.
  
@@ -299,7 +299,7 @@ Das kann auch später nachgeholt werden.
    
 Wenn sie weiterhin ein P: Laufwerk brauchen (also wenn sie
 Programme auf dem alten Server auf dem Netzlaufwerk P: installiert hatten),
-dann führen sie folgende Befehle aus:
+dann fÃ¼hren sie folgende Befehle aus:
 
 cd /home/samba/netlogon
 
@@ -309,11 +309,11 @@ cp login.bat.compat login.bat
 .PP
 .SH OPTIONS
 .B sophomorix-vampire
-benützt die GNU command line syntax, mit langen Optionen, die mit zwei
+benÃ¼tzt die GNU command line syntax, mit langen Optionen, die mit zwei
 Bindestrichen (`-') beginnen:
 .TP
 .B -h, --help
-Kurzübersicht über Optionen, sowie eine Liste der eingelesenen Dateien.
+KurzÃ¼bersicht Ã¼ber Optionen, sowie eine Liste der eingelesenen Dateien.
 .TP
 .B -v, --verbose
 Sagt, was das Programm gerade macht (verbose)
@@ -322,10 +322,10 @@ Sagt, was das Programm gerade macht (verbose)
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
 .B --server ip, --server name
-gibt an von welchem Server die Daten geholt werden sollen. Wenn die Namensauflösung funktioniert kann auch der name des servers benutzt werden.
+gibt an von welchem Server die Daten geholt werden sollen. Wenn die NamensauflÃ¶sung funktioniert kann auch der name des servers benutzt werden.
 .TP
 .B --clear
-löscht das Verzeichnis /root/sophomorix-vampire in dem Konfigurationsdateien des alten Servers liegen.
+lÃ¶scht das Verzeichnis /root/sophomorix-vampire in dem Konfigurationsdateien des alten Servers liegen.
 .SH FAQ
 .br
 .B Question 1:
