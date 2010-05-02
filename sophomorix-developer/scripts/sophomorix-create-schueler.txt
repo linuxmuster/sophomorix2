@@ -52,7 +52,7 @@ my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
            "output-file=s" => \$output_file,
-           "file-encoding=s" => \$file_encoding,
+           "file-encoding|encoding|e=s" => \$file_encoding,
           );
 
 # Prüfen, ob Optionen erkannt wurden

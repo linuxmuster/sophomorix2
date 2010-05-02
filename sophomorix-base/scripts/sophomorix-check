@@ -103,7 +103,7 @@ my $testopt=GetOptions(
            "no-kclass" => \$no_kclass,
            "no-auto-teach-in|no-sync" => \$no_auto_teach_in,
            "file=s" => \$file_to_check,
-           "file-encoding=s" => \$file_encoding,
+           "file-encoding|encoding|e=s" => \$file_encoding,
           );
 
 # Prüfen, ob Optionen erkannt wurden
