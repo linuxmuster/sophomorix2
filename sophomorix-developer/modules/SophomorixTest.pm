@@ -365,7 +365,7 @@ sub check_links {
             &is($link_target,"/home/share/classes/${group}" ,
                "Checking if  target of link is /home/share/classes/${group}");
           }
-          # Does Target exist??????ßß
+          # Does Target exist??????
         }
         # show result of existence check
         &is($exists, 1 ,"Checking if  $link is link/exists");
