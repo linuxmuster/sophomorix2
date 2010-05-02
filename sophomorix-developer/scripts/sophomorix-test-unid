@@ -87,7 +87,7 @@ my @users_to_add=(
      "m4kb;Maier;J\366rg;12.10.1982;12345;",
      "7A;\326zt\374rk;Mohammed;2.4.82;54321",
      "2C;Wall;Larry;2.4.72;1234567",
-     "m1kb;M\203hn;\223liver;12.10.1982;987654321;",
+     "m1kb;M\341hn;\323liver;12.10.1982;987654321;",
    );
 
 
@@ -1167,7 +1167,7 @@ print '
 
 # removing the whole line should delete UNID
 &remove_line(
-  "m1kb;M\203hn;\223liver;12.10.1982;",
+  "m1kb;M\341hn;\323liver;12.10.1982;",
   "${DevelConf::users_pfad}/schueler.txt");
 
 
@@ -1209,7 +1209,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # User comes back with correction (Birthday), but same unid as in system
-&append_line("m1kb;M\203hn;\223liver;12.10.1984;987654321;",
+&append_line("m1kb;M\341hn;\323liver;12.10.1984;987654321;",
               "${DevelConf::users_pfad}/schueler.txt");
 
 
@@ -1254,9 +1254,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # removing the unid from userfile
-&exchange_line_in_file("m1kb;M\203hn;\223liver;12.10.1984;987654321;",
+&exchange_line_in_file("m1kb;M\341hn;\323liver;12.10.1984;987654321;",
    "/etc/sophomorix/user/schueler.txt",
-   "m1kb;M\203hn;\223liver;12.10.1984;");
+   "m1kb;M\341hn;\323liver;12.10.1984;");
 
 
 
@@ -1315,7 +1315,7 @@ print '
   "3C;Stallman;Richard;2.4.62;",
   "${DevelConf::users_pfad}/schueler.txt");
 &remove_line(
-  "m1kb;M\203hn;\223liver;12.10.1984;",
+  "m1kb;M\341hn;\323liver;12.10.1984;",
   "${DevelConf::users_pfad}/schueler.txt");
 
 &remove_line(
