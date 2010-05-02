@@ -5,21 +5,23 @@
 
 2.2.7-1 (2010-05-02)
     - utf8 support:
-      - ISO 8859 characters
-      - additional characters until \xc5\x82 (U+0142)
+      - converted all german (de) man pages to utf8
+      - All ISO 8859-15 characters supported
+      - additional characters until \xc5\x82 (U+0142) supported
     - sophomorix.conf:
       Possible Option $file_encoding="..."; added 
     - sophomorix-check:
       - updated manpage
-      --option --file-encoding ancoding added
+      - option --file-encoding|-e ancoding added
       - added complete support for the following encodings of schueler.txt:
         - ISO 8859-1 (Latin1)
         - ISO 8859-15 (Latin9)
         - Windows-1252
-      - recoded to utf8:
+      - recoded to utf8 (all scripts completed):
         - sophomorix-check
         - sophomorix-print
-        - scripts/sophomorix-test
+        - sophomorix-test
+        - sophomorix-test-unid
 
 2.2.6-1 (2010-04-26)
     - recoded lot of relevant scripts to utf8 except:
