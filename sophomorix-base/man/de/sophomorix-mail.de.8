@@ -24,36 +24,36 @@ sophomorix-mail \- Adding aliases and mailing lists to /etc/aliases
 .SH DESCRIPTION
 .B sophomorix-mail
 .br
-In /etc/aliases können zusätzliche Mailadressen eingetragen werden und an
+In /etc/aliases kÃ¶nnen zusÃ¤tzliche Mailadressen eingetragen werden und an
 welches Mail-Konto diese Mail weitergeleitet wird.
 .TP 
 Das kann genutzt werden, um:
    - Einem User eine weitere Empfangsadresse zu geben (mailalias)
-   - Eine gemeinsame Mailadresse für eine Gruppe von Usern festzulegen (maillist) 
+   - Eine gemeinsame Mailadresse fÃ¼r eine Gruppe von Usern festzulegen (maillist) 
 .TP
-Sophomorix bietet an, das automatisch für Klassen und Projekte (später
+Sophomorix bietet an, das automatisch fÃ¼r Klassen und Projekte (spÃ¤ter
 subclasses) zu nutzen.
 .TP
 Dazu wird das entsprechende Merkmal (mailalias oder maillist) mit
-   sophomorix-class    (für Klassen und Lehrer)
-   sophomorix-project  (für Projekte)
-   sophomorix-subclass (für Subklassen)
+   sophomorix-class    (fÃ¼r Klassen und Lehrer)
+   sophomorix-project  (fÃ¼r Projekte)
+   sophomorix-subclass (fÃ¼r Subklassen)
 .TP
 aktiviert oder deaktiviert.
 .TP
 Danach wird sophomorix-mail aufgerufen, um diese Einstellungen ins
-System zu übertragen. Kommen später user dazu, oder werden user
+System zu Ã¼bertragen. Kommen spÃ¤ter user dazu, oder werden user
 entfernt, so werden die maillists automatisch upgedated.
 .TP
 Wie ein Mailalias zusammengesetzt ist, wird in sophomorix.conf konfiguriert.
 .PP
 .SH OPTIONS
 .B sophomorix-mail
-benützt die GNU command line syntax, mit langen Optionen, die mit zwei
+benÃ¼tzt die GNU command line syntax, mit langen Optionen, die mit zwei
 Bindestrichen (`-') beginnen:
 .TP
 .B -h, --help
-Kurzübersicht über Optionen
+KurzÃ¼bersicht Ã¼ber Optionen
 .TP
 .B -v, --verbose
 Sagt, was das Programm gerade macht (verbose)
@@ -62,11 +62,11 @@ Sagt, was das Programm gerade macht (verbose)
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
 .B -i , --info
-Listet gruppen, für die mailinglisten (maillist) bzw. mailaliase
-bestehen, ohne am System etwas zu ändern.
+Listet gruppen, fÃ¼r die mailinglisten (maillist) bzw. mailaliase
+bestehen, ohne am System etwas zu Ã¤ndern.
 .TP
 .B --skiplock
-prüft nicht, ob die sophomorix lock-Datei existiert. Führt das Script
+prÃ¼ft nicht, ob die sophomorix lock-Datei existiert. FÃ¼hrt das Script
 also auch dann aus, wenn andere sophomorix-Befehle gerade laufen. Sollte nur
 benutzt werden, wenn man weiss, was man tut.
 .PP
@@ -77,7 +77,7 @@ Fragt den IMAP server nach vorhandenen Mailboxen. Zeigt Mailboxname,
 benutztes mailquota und nutzbares mailquota an.
 .TP
 .B --showtype/--showmailboxes
-Gibt zusätzlich den Typ der Mailbox an. (CYRUS=nur in cyrus, kein
+Gibt zusÃ¤tzlich den Typ der Mailbox an. (CYRUS=nur in cyrus, kein
 posix account). Diese Option verlangsamt die Ausgabe erheblich.
 .TP
 .B --showforward/--showredirect
@@ -86,15 +86,15 @@ Gibt die existierenden Mailweiterleitungen aller Lehrer aus.
 .TP
 .B --showallforward/--showallredirect
 Gibt die existierenden Mailweiterleitungen (.forward und ingo.script)
-aller Lehrer und Schüler aus. Das dauert etwas.
+aller Lehrer und SchÃ¼ler aus. Das dauert etwas.
 .TP
 .B --add-mailbox user1,user2,...
-Legt eine IMAP mailbox an, falls für user1,user2,... ein posix account
-existiert. (Für Reparaturzwecke).
+Legt eine IMAP mailbox an, falls fÃ¼r user1,user2,... ein posix account
+existiert. (FÃ¼r Reparaturzwecke).
 .TP
 .B --kill-mailbox user1,user2,...
-Entfernt eine IMAP mailbox, falls KEIN posix account für
-user1,user2,... existiert. (Für Reparaturzwecke).
+Entfernt eine IMAP mailbox, falls KEIN posix account fÃ¼r
+user1,user2,... existiert. (FÃ¼r Reparaturzwecke).
 .TP
 .TP
 .SH SEE ALSO

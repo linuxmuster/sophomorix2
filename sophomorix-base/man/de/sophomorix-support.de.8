@@ -22,24 +22,24 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for manpage-specific macros, see man(7)
 .SH NAME
-sophomorix-support \- Dateien für Support packen
+sophomorix-support \- Dateien fÃ¼r Support packen
 .SH SYNOPSIS
 .B sophomorix-support
 .RI [ options ]
 .br
 .SH DESCRIPTION
 Mit sophomorix-support kann man eine Auswahl von Dateien packen, die
-als wichtige Informationen zum Support geschickt werden können.
+als wichtige Informationen zum Support geschickt werden kÃ¶nnen.
 .TP
-WARNUNG: Diese Dateien enthalten sensible Daten wie Passwörter, Namen \
-von Lehrern und Schülern, sowie deren Geburtstage. Geben sie diese \
-Daten nur vertrauenswürdigen Personen!
+WARNUNG: Diese Dateien enthalten sensible Daten wie PasswÃ¶rter, Namen \
+von Lehrern und SchÃ¼lern, sowie deren Geburtstage. Geben sie diese \
+Daten nur vertrauenswÃ¼rdigen Personen!
 .TP
 Die Dateien, die gepackt werden sind in sophomorix-support.conf \
 angegeben. Diese Datei wird bei einem Paketupdate von sophomorix-base \
-überschrieben.
+Ã¼berschrieben.
 .TP
-Sollen zusätzliche Dateien gepackt werden verwenden sie die unten \
+Sollen zusÃ¤tzliche Dateien gepackt werden verwenden sie die unten \
 angegebenen Optionen.
 .TP
 Den Inhalt der entstandenen *.zip-Datei kann mit 'unzip -l file.zip' angezeigt \
@@ -50,23 +50,23 @@ die Dateien wieder in demselben Pfad wie auf dem Originalsystem vor.
 .TP
 .SH OPTIONS
 .B sophomorix-support
-benützt die GNU command line syntax, mit langen Optionen, die mit zwei Bindestrichen (`-') beginnen:
+benÃ¼tzt die GNU command line syntax, mit langen Optionen, die mit zwei Bindestrichen (`-') beginnen:
 .TP
 .B \-h, \-\-help
-Kurzübersicht über Optionen.
+KurzÃ¼bersicht Ã¼ber Optionen.
 .TP
 .B \-i, \-\-info
 Listet auf, welche Dateien gepackt werden.
 .TP
 .B \--add-files file1,file2,file3,...
-Packt die Dateien file1,file2,file3,... zusätzlich in das Paket. \
-Die Dateien müssen mit absolutem Pfad angegeben werden.
+Packt die Dateien file1,file2,file3,... zusÃ¤tzlich in das Paket. \
+Die Dateien mÃ¼ssen mit absolutem Pfad angegeben werden.
 .TP
 .B \--add-dirlists dir1,dir2,dir3,...
 Listet den Inhalt der mit absolutem Pfad anzugebenden Verzeichnisse \
 dir1,dir2,dir3,... mit ls -al \
 in die Dateien dir1/ls-al,dir2/ls-al,... \
-Die Dateien dir1/ls-al,dir2/ls-al,... werden zusätzlich eingepackt.
+Die Dateien dir1/ls-al,dir2/ls-al,... werden zusÃ¤tzlich eingepackt.
 .TP
 .B \--zip (default)  --nozip
 Packt das erzeugte Verzeichnis oder nicht.

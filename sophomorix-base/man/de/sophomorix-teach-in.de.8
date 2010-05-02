@@ -16,7 +16,7 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for manpage-specific macros, see man(7)
 .SH NAME
-sophomorix-teach-in \- Trägt verändete Schülerdaten (Name, Vorname,
+sophomorix-teach-in \- TrÃ¤gt verÃ¤ndete SchÃ¼lerdaten (Name, Vorname,
 Geburtsdatum) in einen vorhandenen Account der sophomorix Datenbank ein.
 .SH SYNOPSIS
 .B sophomorix-teach-in
@@ -27,21 +27,21 @@ Geburtsdatum) in einen vorhandenen Account der sophomorix Datenbank ein.
 .br
 liest die User, die anzulegen sind aus sophomorix.add und die User,
 die nicht mehr in den Konfigurationsdateien sind ein. Sind sich 2 User
-aus diesen Bereichen ähnlich (Name, Vorname, Geburtsdatum), können bei
-Bestätigung durch den Administrator diese Accounts ineinander
-überführt werden. Dabei werden die Daten in der sophomorix Datenbank aktualisiert.
+aus diesen Bereichen Ã¤hnlich (Name, Vorname, Geburtsdatum), kÃ¶nnen bei
+BestÃ¤tigung durch den Administrator diese Accounts ineinander
+Ã¼berfÃ¼hrt werden. Dabei werden die Daten in der sophomorix Datenbank aktualisiert.
 .TP
-Bei jedem Einpflegen von Änderungen werden log-Dateien angelegt. Bei Bedarf können diese Änderungen Rückgängig gemacht werden.
+Bei jedem Einpflegen von Ã„nderungen werden log-Dateien angelegt. Bei Bedarf kÃ¶nnen diese Ã„nderungen RÃ¼ckgÃ¤ngig gemacht werden.
 .TP
-Gibt es zu einem Account mehrere Aktionen, die rückgängig gemacht werden können, so wird immer die letzte Änderung rückgängig gemacht. Auf diese Weise kann man sich in den jeweiligen Schritten zurücktasten.
+Gibt es zu einem Account mehrere Aktionen, die rÃ¼ckgÃ¤ngig gemacht werden kÃ¶nnen, so wird immer die letzte Ã„nderung rÃ¼ckgÃ¤ngig gemacht. Auf diese Weise kann man sich in den jeweiligen Schritten zurÃ¼cktasten.
 .PP
 .SH OPTIONS
 .B sophomorix-teach-in
-benützt die GNU command line syntax, mit langen Optionen, die mit zwei
+benÃ¼tzt die GNU command line syntax, mit langen Optionen, die mit zwei
 Bindestrichen (`-') beginnen:
 .TP
 .B -h, --help
-Kurzübersicht über Optionen, sowie eine Liste der eingelesenen Dateien.
+KurzÃ¼bersicht Ã¼ber Optionen, sowie eine Liste der eingelesenen Dateien.
 .TP
 .B -v, --verbose
 Sagt, was das Programm gerade macht (verbose)
@@ -50,13 +50,13 @@ Sagt, was das Programm gerade macht (verbose)
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
 .B -a wert, --approx wert
-gibt an, wie genau es sophomorix-teach-in nehmen soll bei der Suche nach ähnlichen Usern. Erlaubt sind Werte von 5 bis 60. Der Standardwert ist 25. Je höher der Wert, desto mehr User werden gefunden.
+gibt an, wie genau es sophomorix-teach-in nehmen soll bei der Suche nach Ã¤hnlichen Usern. Erlaubt sind Werte von 5 bis 60. Der Standardwert ist 25. Je hÃ¶her der Wert, desto mehr User werden gefunden.
 .TP
 .B --undo login
-Nimmt die am Account login zuletzt gemachte Änderung zurück.
+Nimmt die am Account login zuletzt gemachte Ã„nderung zurÃ¼ck.
 .TP
 .B --teach-in 'user1::identifier1,user2::identifier2,...'
-Führt user1 im System mit dem neuen identifier1 zusammen usw. Da
+FÃ¼hrt user1 im System mit dem neuen identifier1 zusammen usw. Da
 identifier Strichpunkte enthalten, muss das Argument quotiert werden.
 .TP
 .TP
@@ -70,12 +70,12 @@ Zeigt die User an, die beim vormaligen Aufruf von sophomorix-teach-in schon
 als zu ignorieren markiert wurden (Auswahl (0)). 
 .TP
 .B --next number
-Zeigt die nächsten number user an, die abgefragt werden müssen. Siese Option wird für die Schulkonsole bereitgestellt.
+Zeigt die nÃ¤chsten number user an, die abgefragt werden mÃ¼ssen. Siese Option wird fÃ¼r die Schulkonsole bereitgestellt.
 .TP
 .B -i, --info
-Zeigt alle Aktionen an, die Rückgängig gemacht werden können. 
+Zeigt alle Aktionen an, die RÃ¼ckgÃ¤ngig gemacht werden kÃ¶nnen. 
 .br
-In Kombination mit --redo login werden diejenigen Aktionen angezeigt, die beim Account login rückgängig gemacht werden können.
+In Kombination mit --redo login werden diejenigen Aktionen angezeigt, die beim Account login rÃ¼ckgÃ¤ngig gemacht werden kÃ¶nnen.
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),

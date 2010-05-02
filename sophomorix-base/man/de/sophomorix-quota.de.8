@@ -29,10 +29,10 @@ Datenbank ein und berechnet daraus die Quota jedes einzelnen users.
 .br
 Das ermittelte Quota wird dann in die sophomorix-Datenbank eingetragen
 (userdata.quota) und die Quota werden (wenn sich der Datenbank-Wert
-verändert hat) im System gesetzt.
+verÃ¤ndert hat) im System gesetzt.
 .br
 Wenn sich der Quotawert in der Datenbank (userdata.quota) nicht
-ändert, dann werden die quota im system NICHT upgedatet (siehe auch Option
+Ã¤ndert, dann werden die quota im system NICHT upgedatet (siehe auch Option
 --all)
 
 .TP
@@ -41,7 +41,7 @@ Folgende Dateien/Befehle dienen zur Konfiguration von Quotaangaben:
 .B 1. Generelles Einschalten bzw. ausschalten von Quota
 Datei:  /etc/sophomorix/user/sophomorix.conf
 .TP
-.B 2. Standard-Quotawerte für Lehrer, Schüler, Workstation
+.B 2. Standard-Quotawerte fÃ¼r Lehrer, SchÃ¼ler, Workstation
 Dateien:  /etc/sophomorix/user/quota.txt
           /etc/sophomorix/user/mailquota.txt
 .TP
@@ -52,25 +52,25 @@ Dateien:  /etc/sophomorix/user/quota.txt
 .B 4. Quota einzelner lehrer
 Datei:  /etc/sophomorix/user/lehrer.txt
 .TP
-.B 5. Quotaangaben für Klassen (AdminClass):
+.B 5. Quotaangaben fÃ¼r Klassen (AdminClass):
 Diese Quotaangaben werden mit dem Befehl
 sophomorix-class direkt in die sophomorix-Datenbank eingetragen.
 .TP
-.B 6. Quotaangaben für Projekte: 
+.B 6. Quotaangaben fÃ¼r Projekte: 
 Diese Quotaangaben werden mit dem Befehl
 sophomorix-project direkt in die sophomorix-Datenbank eingetragen.
 .br
-Achtung: Bei diesen Quotaangaben handelt es sich um zusätzliche Quota
+Achtung: Bei diesen Quotaangaben handelt es sich um zusÃ¤tzliche Quota
 (AddQuota), die zu den aus obigen Dateien ermittelten Quota DAZUKOMMEN.
 .PP
-Wird eine dieser Dateien (1. bis 4.) verändert, dann muss
+Wird eine dieser Dateien (1. bis 4.) verÃ¤ndert, dann muss
 sophomorix-quota aufgerufen werden, um diese Angaben ins System zu
-übertragen.
+Ã¼bertragen.
 .br
-Werden Befehle (5. und 6.) zur Quotaänderung aufgerufen, so werden die
-veränderten Werte automatisch ins System übertragen.
+Werden Befehle (5. und 6.) zur QuotaÃ¤nderung aufgerufen, so werden die
+verÃ¤nderten Werte automatisch ins System Ã¼bertragen.
 .PP
-Ein User, der in den Dachboden (Gruppe 'attic') versetzt wird, behält
+Ein User, der in den Dachboden (Gruppe 'attic') versetzt wird, behÃ¤lt
 sein in der Datenbank stehendes Quota/Mailquota bei. 
 .br
 Muss das Quota/Mailquota eines Users im Dachboden (Gruppe 'attic')
@@ -90,7 +90,7 @@ Mehr Informationen beim Aufruf von:
 .br
 Dazu muss in sophomorix.conf use_quota="yes" gesetzt sein.   
 .SH Vorbereitung/Installation
-Für ein Debian System mit Debian-Kernel unterscheidet sich die
+FÃ¼r ein Debian System mit Debian-Kernel unterscheidet sich die
 Installation je nach verwendeter Kernelversion:
 .TP
 .B Kernel 2.4.x:
@@ -100,14 +100,14 @@ Dies ist schon erledigt, wenn sie das paket sophomorix2
 installiert haben.
 .TP
 2. Editieren Sie /etc/fstab 
-Tragen sie in /etc/fstab für diejenigen Filesysteme die mountoption
-usrquota ein, die sie quotieren wollen. Prüfen sie durch einen reboot,
+Tragen sie in /etc/fstab fÃ¼r diejenigen Filesysteme die mountoption
+usrquota ein, die sie quotieren wollen. PrÃ¼fen sie durch einen reboot,
 ob die Einstellung dauerhaft funktionieren.
 .TP
 3. Entfernen unpassender Quotadateien
 In jedem quotierten Filesystem entsteht beim mounten evtl. die Datei
-aquota.user. Diese Datei hat für den Kernel 2.4.x das falsche Format
-und muss gelöscht werden.
+aquota.user. Diese Datei hat fÃ¼r den Kernel 2.4.x das falsche Format
+und muss gelÃ¶scht werden.
 .TP
 3. quotacheck
 Erzeugen sie nun die passende Quotadatei quota.user mit dem Befehl:
@@ -121,13 +121,13 @@ Damit sophomorix beim Anlegen von Usern Quota setzt, setzen sie in sophomorix.co
 folgende Variable:
    use_quota="yes"
 .TP
-6. Setzen von Standard-Werten für Quota Setzen Sie in den obigen
-Dateien die Standard-Werte für Quota auf passende Werte. Beachten sie,
+6. Setzen von Standard-Werten fÃ¼r Quota Setzen Sie in den obigen
+Dateien die Standard-Werte fÃ¼r Quota auf passende Werte. Beachten sie,
 dass die Quotaangaben mit der Anzahl der quotierten
-Filesysteme(Windows-Begriff: Partitionen) übereinstimmt (siehe Syntax
+Filesysteme(Windows-Begriff: Partitionen) Ã¼bereinstimmt (siehe Syntax
 der Quotaangaben).
 .TP
-7. Rufen Sie folgenden Befehl auf, um Quota für alle user zu setzen:
+7. Rufen Sie folgenden Befehl auf, um Quota fÃ¼r alle user zu setzen:
    sophomorix-quota --set
 .PP
 .B Kernel 2.6.x:
@@ -137,8 +137,8 @@ Dies ist schon erledigt, wenn sie das paket sophomorix-base
 installiert haben.
 .TP
 2. Editieren Sie /etc/fstab 
-Tragen sie in /etc/fstab für diejenigen Filesysteme die mountoption
-usrquota ein, die sie quotieren wollen. Prüfen sie durch einen reboot,
+Tragen sie in /etc/fstab fÃ¼r diejenigen Filesysteme die mountoption
+usrquota ein, die sie quotieren wollen. PrÃ¼fen sie durch einen reboot,
 ob die Einstellung dauerhaft funktionieren.
 .TP
 3. quotacheck
@@ -153,23 +153,23 @@ Damit sophomorix beim Anlegen von Usern Quota setzt, setzen sie in sophomorix.co
 folgende Variable:
    use_quota="yes"
 .TP
-6. Setzen von Standard-Werten für Quota Setzen Sie in den obigen
-Dateien die Standard-Werte für Quota auf passende Werte. Beachten sie,
+6. Setzen von Standard-Werten fÃ¼r Quota Setzen Sie in den obigen
+Dateien die Standard-Werte fÃ¼r Quota auf passende Werte. Beachten sie,
 dass die Quotaangaben mit der Anzahl der quotierten
-Filesysteme(Windows-Begriff: Partitionen) übereinstimmt (siehe Syntax
+Filesysteme(Windows-Begriff: Partitionen) Ã¼bereinstimmt (siehe Syntax
 der Quotaangaben).
 .TP
-7. Rufen Sie folgenden Befehl auf, um Quota für alle user zu setzen:
+7. Rufen Sie folgenden Befehl auf, um Quota fÃ¼r alle user zu setzen:
    sophomorix-quota --set
 .PP
 .PP
 .SH OPTIONS
 .B sophomorix-quota
-benützt die GNU command line syntax, mit langen Optionen, die mit zwei
+benÃ¼tzt die GNU command line syntax, mit langen Optionen, die mit zwei
 Bindestrichen (`-') beginnen:
 .TP
 .B -h, --help
-Kurzübersicht über Optionen
+KurzÃ¼bersicht Ã¼ber Optionen
 .TP
 .B -v, --verbose
 Sagt, was das Programm gerade macht (verbose)
@@ -180,24 +180,24 @@ Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .B -i , --info
 Listet Dateisysteme auf, die aktuell mit der Option usrquota gemountet
 sind. Auf diesen Dateisystemen kann sophomorix-quota die Quota
-verändern.
+verÃ¤ndern.
 .br
-Außerdem wird angegeben mit welchen repquota-Befehlen die Liste aller \
-quota angegeben werden können. 
+AuÃŸerdem wird angegeben mit welchen repquota-Befehlen die Liste aller \
+quota angegeben werden kÃ¶nnen. 
 .TP
 .B --set
-prüft nicht, ob sich das Quota verändert hat, sondern setzt es auf
+prÃ¼ft nicht, ob sich das Quota verÃ¤ndert hat, sondern setzt es auf
 jeden Fall.
 .br
 Dies ist zum Beispiel notwendig, wenn die Quotainformationen im System
-verlorengegangen sind (aquota.user gelöscht, ...) und sie neu gesetzt
-werden müssen.
+verlorengegangen sind (aquota.user gelÃ¶scht, ...) und sie neu gesetzt
+werden mÃ¼ssen.
 .TP
 .B --force
-prüft nicht, ob die übergebenen loginnamen sinnvoll sind. 
+prÃ¼ft nicht, ob die Ã¼bergebenen loginnamen sinnvoll sind. 
 .TP
 .B --skiplock
-prüft nicht, ob die sophomorix lock-Datei existiert. Führt das Script
+prÃ¼ft nicht, ob die sophomorix lock-Datei existiert. FÃ¼hrt das Script
 also auch dann aus, wenn andere sophomorix-Befehle gerade laufen. Sollte nur
 benutzt werden, wenn man weiss, was man tut.
 .TP
@@ -206,10 +206,10 @@ zeigt am Ende die Gesamtsumme der vergebenen Quota an.(Todo)
 .TP
 .B --cron
 sendet mail an user, wenn der in sophomorix.conf angegebene
-Prozentsatz für mail nicht mehr frei ist, oder weniger als die
+Prozentsatz fÃ¼r mail nicht mehr frei ist, oder weniger als die
 angegebene Menge an mailquota noch frei ist.
 .br
-sophomorix-quota --cron wird als wöchentlicher cronjob aufgerufen.
+sophomorix-quota --cron wird als wÃ¶chentlicher cronjob aufgerufen.
 .TP
 .B --system
 sophomorix-quota benutzt anstelle des Perl-Moduls Quota:: den
@@ -217,33 +217,33 @@ Systembefehl des Betriebssystems Linux, Kernel 2.4.x (2.6.x ????):
 
 .B   setquota -u username 
 
-um Quota zu setzten. Dies wird nicht empfohlen, da es länger dauert
-und vom Betriebsystem bzw. Kernel-Version abhängig ist.
+um Quota zu setzten. Dies wird nicht empfohlen, da es lÃ¤nger dauert
+und vom Betriebsystem bzw. Kernel-Version abhÃ¤ngig ist.
 .TP
-.B Optionen, die angeben für welche User Quota gesetzt werden sollen.
+.B Optionen, die angeben fÃ¼r welche User Quota gesetzt werden sollen.
 .TP
-Die Auswahl erfolgt anhäufend. Das bedeutet, dass durch Angabe mehrerer Optionen eine Userliste erzeugt wird, in der kein User doppelt vorkommt, aber jeder enthalten ist.
+Die Auswahl erfolgt anhÃ¤ufend. Das bedeutet, dass durch Angabe mehrerer Optionen eine Userliste erzeugt wird, in der kein User doppelt vorkommt, aber jeder enthalten ist.
 .TP
 .B -u user1,user2,... / --users user1,user2,... 
 setzt Quota der  User user1,user2, ... . Der user kann auch eine Workstation oder Administrator sein.
 .TP
 .B -c class1,class2,... / --class class1,class2,...
-setzt Quota für jeden User in der Klasse class. Class kann auch die Gruppe der Lehrer sein (lehrer im Moment).
+setzt Quota fÃ¼r jeden User in der Klasse class. Class kann auch die Gruppe der Lehrer sein (lehrer im Moment).
 .TP
 .B -p project1,project2,... / --project project1,project2,...
-setzt Quota für jeden User im Projekt project1,.... 
+setzt Quota fÃ¼r jeden User im Projekt project1,.... 
 .TP
 .B -r raum1,raum2,... / --room raum1,raum2,...
-setzt Quota für jede Workstation im raum raum1,raum2 ...
+setzt Quota fÃ¼r jede Workstation im raum raum1,raum2 ...
 .TP
 .B -s / --students 
-setzt Quota für alle Schüler der Schule.
+setzt Quota fÃ¼r alle SchÃ¼ler der Schule.
 .TP
 .B -t / --teachers 
-setzt Quota für alle Lehrer der Schule.
+setzt Quota fÃ¼r alle Lehrer der Schule.
 .TP
 .B  -w / --workstations 
-setzt Quota für alle Workstations der Schule.
+setzt Quota fÃ¼r alle Workstations der Schule.
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),

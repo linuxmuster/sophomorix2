@@ -24,17 +24,17 @@ sophomorix-teacher \- Lehreraufgaben erledigen
 .SH DESCRIPTION
 .B sophomorix-teacher
 .TP
-Mit sophomorix-teacher trägt sich ein Lehrer in eine Klasse ein (MyAdminClasses). Dann kann er in diese Klassen Daten austeilen bzw. einsammeln und archivieren. 
+Mit sophomorix-teacher trÃ¤gt sich ein Lehrer in eine Klasse ein (MyAdminClasses). Dann kann er in diese Klassen Daten austeilen bzw. einsammeln und archivieren. 
 .TP
-Da hierbei Zugriff auf private Verzeichnisse der Schüler bzw. Systemverzeichnisse erforderlich ist, läuft dieses Script mit root-Rechten.
+Da hierbei Zugriff auf private Verzeichnisse der SchÃ¼ler bzw. Systemverzeichnisse erforderlich ist, lÃ¤uft dieses Script mit root-Rechten.
 .PP
 .SH OPTIONS
 .B sophomorix-teacher
-benützt die GNU command line syntax, mit langen Optionen, die mit zwei
+benÃ¼tzt die GNU command line syntax, mit langen Optionen, die mit zwei
 Bindestrichen (`-') beginnen:
 .TP
 .B -h, --help
-Kurzübersicht über Optionen
+KurzÃ¼bersicht Ã¼ber Optionen
 .TP
 .B -v, --verbose
 Sagt, was das Programm gerade macht (verbose)
@@ -63,29 +63,29 @@ Zeigt Lehrer und Klassen, in denen sie Mitglied sind.
 .TP
 .B --handout 
 teilt Daten in ein gemeinsames Verzeichnis der class/subclass/project
-nur lesbar aus. Die Es muss zusätzlich --class, --subclass oder
+nur lesbar aus. Die Es muss zusÃ¤tzlich --class, --subclass oder
 --project angegeben werden.
 .TP
 .B --handoutcopy 
-teilt Daten als Kopien aus. Es muss zusätzlich eine Liste (mit
+teilt Daten als Kopien aus. Es muss zusÃ¤tzlich eine Liste (mit
 --users) angegeben werden.
 .TP
 .B --collect
 sammelt Daten ein durch verschieben der Daten in das Homeverzeichnis des Lehrers. 
-Es muss zusätzlich --class, --subclass oder --project angegeben werden.
-Mit --exam kann als Klassenarbeit eingesammelt werden (Anderer Ordnername, zusatzbackup für root, ...).
+Es muss zusÃ¤tzlich --class, --subclass oder --project angegeben werden.
+Mit --exam kann als Klassenarbeit eingesammelt werden (Anderer Ordnername, zusatzbackup fÃ¼r root, ...).
 .TP
 .B --collectcopy
 sammelt Daten ein durch kopieren der Daten in das Homeverzeichnis des Lehrers. 
-Es muss zusätzlich --class, --subclass oder --project angegeben werden.
+Es muss zusÃ¤tzlich --class, --subclass oder --project angegeben werden.
 .TP
 .B [--handout|--collect] -i , [--handout|--collect] --info
-zeigt an welche Dateien Eingesammelt/ausgeteilt werden würden
+zeigt an welche Dateien Eingesammelt/ausgeteilt werden wÃ¼rden
 .TP
 .B --exam
 siehe --collect
 .TP
-.B Angabe von Räumen beim Austeilen/Einsammeln/Bereitstellen
+.B Angabe von RÃ¤umen beim Austeilen/Einsammeln/Bereitstellen
 .TP
 .B --room raumname
 Einsammeln von Raum raumname
@@ -139,7 +139,7 @@ Erlaube dem User user1,user2,... sein _tauschen zu benutzen oder nicht.
 .TP
       /home/teachers/tom/_bereitstellen/7a
 .TP 
-   der Klasse 7a (/home/tasks/classes/7a) bereit. Die Schüler sehen die Dateien in
+   der Klasse 7a (/home/tasks/classes/7a) bereit. Die SchÃ¼ler sehen die Dateien in
 .TP 
       $HOME/__vorlagen/11a/tom
 .TP
@@ -160,10 +160,10 @@ ein.
 .TP
 .B sophomorix-teacher tom --users user1,user2 --collectcopy --room A102 
 .TP
-.B Optionen, die nur als root angegeben werden können.
+.B Optionen, die nur als root angegeben werden kÃ¶nnen.
 .TP
 .B --teacher login
-Lässt diese Script so ablaufen, als ob es der Lehrer login aufgerufen hätte. 
+LÃ¤sst diese Script so ablaufen, als ob es der Lehrer login aufgerufen hÃ¤tte. 
 .TP
 .SH SEE ALSO
 .BR sophomorix-teacher (1),

@@ -16,24 +16,24 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for manpage-specific macros, see man(7)
 .SH NAME
-sophomorix-passwd \- Setzen von Passwörtern/Shell/PwdMustChange durch den User root
+sophomorix-passwd \- Setzen von PasswÃ¶rtern/Shell/PwdMustChange durch den User root
 .SH SYNOPSIS
 .B sophomorix-passwd
 .RI [ options ]
 .br
 .SH DESCRIPTION
 .B sophomorix-passwd  
-setzt Passwörter/Shell/PwdMustChange einzelner User oder auch Gruppen von Usern auf vorgegebene bzw. auch zufällige Werte. Es ist nur für den Systemadministrator gedacht.
+setzt PasswÃ¶rter/Shell/PwdMustChange einzelner User oder auch Gruppen von Usern auf vorgegebene bzw. auch zufÃ¤llige Werte. Es ist nur fÃ¼r den Systemadministrator gedacht.
 .br
 (siehe auch sophomorix-usermod)
 .PP
 .SH OPTIONS
 .B sophomorix-passwd
-benützt die GNU command line syntax, mit langen Optionen, die mit zwei
+benÃ¼tzt die GNU command line syntax, mit langen Optionen, die mit zwei
 Bindestrichen (`-') beginnen:
 .TP
 .B -h, --help
-Kurzübersicht über Optionen, sowie eine Liste der eingelesenen Dateien.
+KurzÃ¼bersicht Ã¼ber Optionen, sowie eine Liste der eingelesenen Dateien.
 .TP
 .B -v, --verbose
 Sagt, was das Programm gerade macht (verbose)
@@ -42,73 +42,73 @@ Sagt, was das Programm gerade macht (verbose)
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
 .B -i, --info
-Sagt für welche User Passwörter verändert werden würden.
+Sagt fÃ¼r welche User PasswÃ¶rter verÃ¤ndert werden wÃ¼rden.
 .TP
 .B --force
-versucht das Passwort/die Shell/PwdMustChange auch zu ändern wenn der 
+versucht das Passwort/die Shell/PwdMustChange auch zu Ã¤ndern wenn der 
 User nicht in der
 sophomorix-Datenbank ist (Vorsicht!).
 .TP
-.B Interaktive Passwortändeung:
+.B Interaktive PasswortÃ¤ndeung:
 .TP
-Dieser Befehl wird für samba, root, ... bereitgestellt.
+Dieser Befehl wird fÃ¼r samba, root, ... bereitgestellt.
 .TP
 .B --interactive --user user
 fragt das Passwort von user zweimal ab, ohne es auszugeben. Das
 Klartextpasswort in der Datenbank wird nicht upgedated.
 .br
-Wenn zusätzlich die Option --shell angegeben wird, wird diese ignoriert.
+Wenn zusÃ¤tzlich die Option --shell angegeben wird, wird diese ignoriert.
 .TP
 .B Optionen, die angeben, wie das Passwort lauten soll:
 .TP
-Eine dieser Optionen ist zum ändern eines Passwords Pflicht.
+Eine dieser Optionen ist zum Ã¤ndern eines Passwords Pflicht.
 .TP
 .B --config
-Für jeden user wird ein Passwort nach den Angaben in sophomorix.conf erzeugt. 
+FÃ¼r jeden user wird ein Passwort nach den Angaben in sophomorix.conf erzeugt. 
 .TP
 .B --pass geheim, --password geheim
 setzt das Passwort auf den Wert geheim. 
 .TP
 .B --common
-erzeugt nach den Angaben in sophomorix.conf jeweils ein Passwort für
-Lehrer und eines für Schüler. Alle Lehrer bzw. Schüler bekommen
+erzeugt nach den Angaben in sophomorix.conf jeweils ein Passwort fÃ¼r
+Lehrer und eines fÃ¼r SchÃ¼ler. Alle Lehrer bzw. SchÃ¼ler bekommen
 dasselbe Passwort.
 
-Wird eine Längenangabe mit --plength num gemacht, dann wird ein
+Wird eine LÃ¤ngenangabe mit --plength num gemacht, dann wird ein
 Zufallspasswort generiert.
 .TP
 .B --reset
 setzt das Passwort auf den Wert, der beim ersten Anlegen des Users
-gültig war. Dieser Wert wird aus der sophomorix Datenbank geholt.
+gÃ¼ltig war. Dieser Wert wird aus der sophomorix Datenbank geholt.
 .TP
 .B --random
-setzt das Passwort bei Lehrern und Schülern auf einen neuen,
+setzt das Passwort bei Lehrern und SchÃ¼lern auf einen neuen,
 individuellen Zufallswert. Jeder User bekommt ein eigenes
-Zufallspasswort. Die Länge richtet sich nach den Angaben in
+Zufallspasswort. Die LÃ¤nge richtet sich nach den Angaben in
 sophomorix.conf.
 .TP
-.B Weitere freiwillige Optionen zur Passwortänderung:
+.B Weitere freiwillige Optionen zur PasswortÃ¤nderung:
 .TP
 .B --plength num
-Setzt die Länge der Zufalls-Passwörter auf den Wert num. Die Länge
+Setzt die LÃ¤nge der Zufalls-PasswÃ¶rter auf den Wert num. Die LÃ¤nge
 richtet sich somit nicht mehr nach den Angaben in sophomorix.conf.
 .TP
 .B --hide
-gibt xxxxxx anstelle der Passwörter aus.
+gibt xxxxxx anstelle der PasswÃ¶rter aus.
 .TP
 .B --nofirstpassupdate
 verhindert, dass ein Klartextpasswort in der Datenbank abgelegt wird.
 .TP
-.B Optionen zur Änderung der loginshell:
+.B Optionen zur Ã„nderung der loginshell:
 .TP
 .B --shell /my/shell
 Setzt die Shell eines Users auf /my/shell. 
 .br
 Wenn man das Passwort nicht
-gleichzeitig ändern möchte, darf keine Option zur Passwortangabe
+gleichzeitig Ã¤ndern mÃ¶chte, darf keine Option zur Passwortangabe
 verwendet werden.
 .TP
-.B Optionen zur Änderung von sambaPwdMustChange:
+.B Optionen zur Ã„nderung von sambaPwdMustChange:
 .TP
 .B --samba-pwd-must-change / --nosamba-pwd-must-change
 Setzt den Wert von sambaPwdMustChange 
@@ -116,34 +116,34 @@ auf 0 (MustChange) oder
 2147483647 (Must NOT Change) 
 .br
 Wenn man das Passwort nicht
-gleichzeitig ändern möchte, darf keine Option zur Passwortangabe
+gleichzeitig Ã¤ndern mÃ¶chte, darf keine Option zur Passwortangabe
 verwendet werden.
 .TP
 .B Optionen zur Angabe von Usern:
 .TP
-Die Auswahl erfolgt anhäufend. Das bedeutet, dass durch Angabe mehrerer Optionen eine Userliste erzeugt wird, in der kein User doppelt vorkommt, aber jeder enthalten ist.
+Die Auswahl erfolgt anhÃ¤ufend. Das bedeutet, dass durch Angabe mehrerer Optionen eine Userliste erzeugt wird, in der kein User doppelt vorkommt, aber jeder enthalten ist.
 .TP
 .B -u user1,user2,... / --users user1,user2,... 
 setzt das Passwort der User user1,user2, ... . Der User kann auch eine
 Workstation (ExamAccount) sein.
 .TP
 .B -c class1,class2,... / --class class1,class2,...
-setzt das Passwort für jeden User in der Klasse class. 
+setzt das Passwort fÃ¼r jeden User in der Klasse class. 
 .TP
 .B --project project1,project2,...
-setzt das Passwort für jeden User im Projekt project1,... 
+setzt das Passwort fÃ¼r jeden User im Projekt project1,... 
 .TP
 .B -r raum1,raum2,... / --room raum1,raum2,...
-setzt das Passwort für jede Workstation (ExamAccount) im raum raum1,raum2 ...
+setzt das Passwort fÃ¼r jede Workstation (ExamAccount) im raum raum1,raum2 ...
 .TP
 .B -s / --students
-setzt das Passwort für alle Schüler der Schule.
+setzt das Passwort fÃ¼r alle SchÃ¼ler der Schule.
 .TP
 .B -t / --teachers
-setzt das Passwort für alle Lehrer der Schule.
+setzt das Passwort fÃ¼r alle Lehrer der Schule.
 .TP
 .B -w / --workstations 
-setzt das Passwort für alle Workstations (ExamAccounts) der Schule.
+setzt das Passwort fÃ¼r alle Workstations (ExamAccounts) der Schule.
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),

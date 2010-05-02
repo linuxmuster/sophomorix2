@@ -16,23 +16,23 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for manpage-specific macros, see man(7)
 .SH NAME
-sophomorix-useradd \- Anlegen von Nicht-Lehrern und Nicht-Schülern.
+sophomorix-useradd \- Anlegen von Nicht-Lehrern und Nicht-SchÃ¼lern.
 .SH SYNOPSIS
 .B sophomorix-useradd
 .RI [ options ] loginname
 .br
 .SH DESCRIPTION
 .B sophomorix-useradd
-Das Anlegen von Nicht-Lehrern und Nicht-Schülern erfolgt normalerweise
+Das Anlegen von Nicht-Lehrern und Nicht-SchÃ¼lern erfolgt normalerweise
 aus anderen Scripten heraus. Der Netzwerkbetreuer sollte
-sophomorix-useradd NIE aufrufen müssen (Ausnahmen: siehe EXAMPLES unten).
+sophomorix-useradd NIE aufrufen mÃ¼ssen (Ausnahmen: siehe EXAMPLES unten).
 .PP
 .SH OPTIONS
 .B sophomorix-useradd
-benützt die GNU command line syntax, mit langen Optionen, die mit zwei Bindestrichen (`-') beginnen:
+benÃ¼tzt die GNU command line syntax, mit langen Optionen, die mit zwei Bindestrichen (`-') beginnen:
 .TP
 .B -h, --help
-Kurzübersicht über Optionen
+KurzÃ¼bersicht Ã¼ber Optionen
 .TP
 .B -i, --info
 Ohne Funktion
@@ -44,20 +44,20 @@ Sagt, was das Programm gerade macht (verbose)
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
 .B --skiplock
-bricht nicht ab, wenn gerade ein anderes sophomorix script läuft.
+bricht nicht ab, wenn gerade ein anderes sophomorix script lÃ¤uft.
 (erforderlich wenn sophomorix-useradd von anderen sophomorix-scripten
 aufgerufen wird)
 .TP
 .B Anlegen eines Administrators
-Dies geschieht üblicherweise bei der Paketinstallation. Der
-Netzwerkbetreuer sollte keine Administratoren anlegen müssen.
+Dies geschieht Ã¼blicherweise bei der Paketinstallation. Der
+Netzwerkbetreuer sollte keine Administratoren anlegen mÃ¼ssen.
 .TP
 .B --administrator user --unix-group group 
 Legt den administrator user mit unix- und windows-Account in der
-primären Gruppe group an. (/home/administrator/user)
+primÃ¤ren Gruppe group an. (/home/administrator/user)
 .TP
 .B --unixadmin user --unix-group group
-Legt den administrator user mit unix-Account in der primären Gruppe
+Legt den administrator user mit unix-Account in der primÃ¤ren Gruppe
 group an. (/home/administrator/user)
 .TP
 .B --uidnumber num
@@ -67,28 +67,28 @@ Gibt dem user die User-id num.
 Gibt dem user den Kommentar 'The Gecos Comment'.
 .TP
 .B --secondary-groups group1,group2
-Legt den user in den sekundären Gruppen group1 und group2 an. 
+Legt den user in den sekundÃ¤ren Gruppen group1 und group2 an. 
 .TP
 .B --shell /bin/bash
 Legt den user mit der shell /bin/bash an.
 .TP
 .B Anlegen eines Klassenarbeitsaccount
-Dies geschieht üblicherweise beim workstation import. Der
-Netzwerkbetreuer sollte keine Klassenarbeitsaccounts anlegen müssen.
+Dies geschieht Ã¼blicherweise beim workstation import. Der
+Netzwerkbetreuer sollte keine Klassenarbeitsaccounts anlegen mÃ¼ssen.
 .TP
 .B --examaccount name --unix-group raum
-Erzeugt den Klassenarbeitsbenutzer name in der primären Gruppe raum.
+Erzeugt den Klassenarbeitsbenutzer name in der primÃ¤ren Gruppe raum.
 .TP
 .B Anlegen eines Computeraccounts ($-account)
-Dies geschieht üblicherweise beim workstation import. Der
-Netzwerkbetreuer sollte keine Computeraccounts anlegen müssen.
+Dies geschieht Ã¼blicherweise beim workstation import. Der
+Netzwerkbetreuer sollte keine Computeraccounts anlegen mÃ¼ssen.
 .TP
 .B --computer name
 Legt den Computeraccount name an. Das erste Zeichen von name muss $ sein.
 .SH EXAMPLE 1:
 .B Unix-Account mit Mailbox
 .br
-Für einen Areca-SATA-Kontroller wird ein emailfähiger Account mit dem Namen areca in einer eigenen Gruppe areca gebraucht:
+FÃ¼r einen Areca-SATA-Kontroller wird ein emailfÃ¤higer Account mit dem Namen areca in einer eigenen Gruppe areca gebraucht:
 .TP
 1) User areca in gruppe areca anlegen:
 .br
@@ -98,7 +98,7 @@ sophomorix-useradd --unixadmin areca --unix-group areca
 .br
 sophomorix-passwd --interactive -u areca
 .TP
-3) Mailbox hinzufügen:
+3) Mailbox hinzufÃ¼gen:
 .br
 sophomorix-mail --add-mailbox areca
 .TP
@@ -110,14 +110,14 @@ Editieren sie Mailquota.txt
 .br
 sophomorix-quota -u areca
 .TP
-5) Prüfen, ob alles geklappt hat:
+5) PrÃ¼fen, ob alles geklappt hat:
 .br
 sophomorix-mail --showmailboxes | grep areca
 .br
 quota -v areca
 .SH
 .SH EXAMPLE 2:
-.B Zusätzlicher pgmadmin
+.B ZusÃ¤tzlicher pgmadmin
 .br
 Zur Softwareinstallation wir ein weiter Account gebraucht, der
 Programme auf dem Netzlaufwerk installieren kann.
@@ -136,7 +136,7 @@ Edititen sie quota.txt
 .br
 sophomorix-quota -u pgmadmin2
 .TP
-4) Prüfen, ob alles geklappt hat:
+4) PrÃ¼fen, ob alles geklappt hat:
 .br
 sophomorix-mail --showmailboxes | grep pgmadmin2
 .br

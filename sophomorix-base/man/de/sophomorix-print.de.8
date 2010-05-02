@@ -27,7 +27,7 @@ sophomorix-print \- Drucken von Benutzeraccount-Daten
 Sofern User angelegt wurden werden diejenigen User ausgedruckt, die im
 letzten Schritt angelegt wurden. 
 .br
-Mit den Optionen können User auch klassenweise, ... ausgedruckt
+Mit den Optionen kÃ¶nnen User auch klassenweise, ... ausgedruckt
 werden.
 .br
 Die erzeugten Daten finden sich in /var/lib/sophomorix/print-data.
@@ -36,11 +36,11 @@ Im Moment funktioniert sophomorix-print nur ohne Optionen!!
 .PP
 .SH OPTIONS
 .B sophomorix-print
-benützt die GNU command line syntax, mit langen Optionen, die mit zwei
+benÃ¼tzt die GNU command line syntax, mit langen Optionen, die mit zwei
 Bindestrichen (`-') beginnen:
 .TP
 .B -h, --help
-Kurzübersicht über Optionen
+KurzÃ¼bersicht Ã¼ber Optionen
 .TP
 .B -v, --verbose
 Sagt, was das Programm gerade macht (verbose)
@@ -66,19 +66,19 @@ Erzeugt eine formatierte Klassenliste.
 .TP
 .B -s, --show,
 Startet nach dem erzeugen der Datei einen Viewer, um die Datei gleich
-anzusehen. (Macht nur Sinn, wenn eine grafische Oberfläche zur
-Verfügung steht).
+anzusehen. (Macht nur Sinn, wenn eine grafische OberflÃ¤che zur
+VerfÃ¼gung steht).
 .TP
 .B --caller name, --postfix name
-Der Dateiname und der Inhalt der Datei enthält den String name. Dies
+Der Dateiname und der Inhalt der Datei enthÃ¤lt den String name. Dies
 kann z.B beim Aufruf aus webmin verwendet werden, um den Aufrufenden
 Lehrer (caller) mit auszudrucken.
 .TP
 .B --command pdflatex
-Benützt den Befehl pdflatex um aus *.tex *.pdf zu erzeugen. Standard ist die folgende Reihenfolge: *.tex -> *.dvi -> *.ps -> *.pdf 
+BenÃ¼tzt den Befehl pdflatex um aus *.tex *.pdf zu erzeugen. Standard ist die folgende Reihenfolge: *.tex -> *.dvi -> *.ps -> *.pdf 
 .TP
 .B --skiplock
-prüft nicht, ob die sophomorix lock-Datei existiert. Führt das Script
+prÃ¼ft nicht, ob die sophomorix lock-Datei existiert. FÃ¼hrt das Script
 also auch dann aus, wenn andere sophomorix-Befehle gerade laufen. Sollte nur
 benutzt werden, wenn man weiss, was man tut.
 .TP

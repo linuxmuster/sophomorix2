@@ -23,17 +23,17 @@ sophomorix-user \- Modifying the user database of a school-server
 .br
 .SH DESCRIPTION
 .B sophomorix-user
-ändert den Benutzerstatus in der Benutzerdatenbank.
+Ã¤ndert den Benutzerstatus in der Benutzerdatenbank.
 .PP
 .SH OPTIONS
 .B sophomorix-user
-benützt die GNU command line syntax, mit langen Optionen, die mit zwei Bindestrichen (`-') beginnen:
+benÃ¼tzt die GNU command line syntax, mit langen Optionen, die mit zwei Bindestrichen (`-') beginnen:
 .TP
 .B -h, --help
-Kurzübersicht über Optionen
+KurzÃ¼bersicht Ã¼ber Optionen
 .TP
 .B -i, --info
-Übersicht über angelegte user und sophomorixstatus.
+Ãœbersicht Ã¼ber angelegte user und sophomorixstatus.
 .TP
 .B -v, --verbose
 Sagt, was das Programm gerade macht (verbose)
@@ -48,17 +48,17 @@ aller passenden User an.
 .B -u user, --user user
 Sucht nach dem User user in der sophomorix Datenbank und zeigt seine Daten an.
 .TP
-.B Zurücksetzen eines Users:
+.B ZurÃ¼cksetzen eines Users:
 .TP
 .B --reset-user user1,user2,...
-Löscht alle Dateien im homedirectory und erzeugt darin eine neue
+LÃ¶scht alle Dateien im homedirectory und erzeugt darin eine neue
 Verzeichnisstruktur. Daten in den Tauschverzeichnissen werden nicht
-entfernt. Der Status des users wird NICHT verändert.
+entfernt. Der Status des users wird NICHT verÃ¤ndert.
 .TP
 .B -empty-password
-setzt ein leeres Passwort für den User. Nur zusammen mit --reset-user
+setzt ein leeres Passwort fÃ¼r den User. Nur zusammen mit --reset-user
 .TP
-.B Ändern des Status eines Users:
+.B Ã„ndern des Status eines Users:
 .TP
 .B -F loginname, --freeze loginame
 Friert den Account unbenutzbar ein. Der Account kann nicht mehr von
@@ -69,39 +69,39 @@ Macht den Account dauerhaft benutzbar. Der Account kann nicht mehr von
 sophomorix-kill entfernt werden.
 .TP
 .B -R loginname, --removeable loginame
-Macht den Account ab sofort mit sophomorix-kill löschbar. Beim
-Entfernen mit sophomorix-kill werden die Userdaten endgültig gelöscht.
+Macht den Account ab sofort mit sophomorix-kill lÃ¶schbar. Beim
+Entfernen mit sophomorix-kill werden die Userdaten endgÃ¼ltig gelÃ¶scht.
 .TP
 .B -K loginname, --removeable loginame
-Macht den Account ab sofort mit sophomorix-kill löschbar, ohne dass
-loginname bei wiederauftauchen seinen Status ändern wird. Beim Entfernen
-mit sophomorix-kill werden die Userdaten endgültig gelöscht.
+Macht den Account ab sofort mit sophomorix-kill lÃ¶schbar, ohne dass
+loginname bei wiederauftauchen seinen Status Ã¤ndern wird. Beim Entfernen
+mit sophomorix-kill werden die Userdaten endgÃ¼ltig gelÃ¶scht.
 .TP
 .B -A loginname, --activate loginame
-Aktiviert den Account vorübergehend. Nach der Aktivierung wird der
+Aktiviert den Account vorÃ¼bergehend. Nach der Aktivierung wird der
 Account toleriert (TolerationDate ist erstmal leer).
 .br
-Um den user in seine alte (letzte) Klasse zurückzuversetzten muss noch
+Um den user in seine alte (letzte) Klasse zurÃ¼ckzuversetzten muss noch
 sophomorix-check und sophomorix-move aufgerufen werden. 
 .br
 Tauchen die Benutzerdaten in den Konfigurationsdateien
-(z. B. Schülerdatei) auf, so wird dieser Account Usable (U). Tauchen
+(z. B. SchÃ¼lerdatei) auf, so wird dieser Account Usable (U). Tauchen
 die Daten nicht auf, wird der Account nach verstreichen des
-Tolerierungs-Zeitraumes deaktiviert (D) und schließlich löschbar (R).
+Tolerierungs-Zeitraumes deaktiviert (D) und schlieÃŸlich lÃ¶schbar (R).
 .TP
 .B --teacher teacher --scheduled-toleration yyyy-mm-dd
 Legt fest, dass der Lehrer teacher zum yyyy-mm-dd automatisch aus lehrer.txt \
 auskommentiert werden soll, und dann nur noch toleriert wird.
 .br
-Will man das Datum zurücknehmen (keine automatisches tolerieren), muss das 
+Will man das Datum zurÃ¼cknehmen (keine automatisches tolerieren), muss das 
 Datum mit einem Leerstring angegeben werden, also '' oder "".
 .br
 Ist der Lehrer schon im Tolerierungszustand, muss in lehrer.txt der
-auskommentierte Eintrag wieder gültig gemacht werden, um den Lehrer zu \
+auskommentierte Eintrag wieder gÃ¼ltig gemacht werden, um den Lehrer zu \
 reaktivieren.
 .TP
 .B --kill-all-users
-VORSICHT: Löscht alle user!
+VORSICHT: LÃ¶scht alle user!
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),

@@ -25,27 +25,27 @@ sophomorix-subclass \- Aufteilen einer Klasse in Gruppen A, B, C, D.
 .B sophomorix-subclass
 .br
 splittet eine Klasse in mehrere Subklassen (SubClass). Dadurch
-erhalten die Schüler eine zusätzliche Tauschmöglichkeit für Daten. Die
-Lehrer können in die Klasse austeilen, aber auch nur in die Subklasse.
+erhalten die SchÃ¼ler eine zusÃ¤tzliche TauschmÃ¶glichkeit fÃ¼r Daten. Die
+Lehrer kÃ¶nnen in die Klasse austeilen, aber auch nur in die Subklasse.
 .br
-Standardmäßig arbeitet sophomorix-subclass interaktiv, d. h. nach dem
+StandardmÃ¤ÃŸig arbeitet sophomorix-subclass interaktiv, d. h. nach dem
 Aufruf von sophomorix-subclass wird root der Reihe nach abgefragt in
-welche Subklasse ein Schüler kommt. 
+welche Subklasse ein SchÃ¼ler kommt. 
 .br
-Für den Aufruf per Webmin können die Subklassenzugehörigkeiten auch
+FÃ¼r den Aufruf per Webmin kÃ¶nnen die SubklassenzugehÃ¶rigkeiten auch
 nicht interaktiv (--noninteractive) als Parameterliste angegeben
 werden.
 .br
-Ebenfalls für webmin sinnvoll ist die Option --lastchange mit der der
+Ebenfalls fÃ¼r webmin sinnvoll ist die Option --lastchange mit der der
 Aufrufende Lehrer in die Datenbank der Subklassen eingetragen wird.
 .PP
 .SH OPTIONS
 .B sophomorix-subclass
-benützt die GNU command line syntax, mit langen Optionen, die mit zwei
+benÃ¼tzt die GNU command line syntax, mit langen Optionen, die mit zwei
 Bindestrichen (`-') beginnen:
 .TP
 .B -h, --help
-Kurzübersicht über Optionen
+KurzÃ¼bersicht Ã¼ber Optionen
 .TP
 .B -v, --verbose
 Sagt, was das Programm gerade macht (verbose)
@@ -58,20 +58,20 @@ Splittet die Klasse class
 .TP
 .B --lastchange login, -l login
 Information, dass der User login als letztes die Subklassenzuteilung
-verändert hat.
+verÃ¤ndert hat.
 .TP
 .B -A Kommentar, -B Kommentar, -C Kommentar, -D Kommentar
-Hängt den Kommentar an den langen Namen der SubClass an.
+HÃ¤ngt den Kommentar an den langen Namen der SubClass an.
 .TP
 .B --split
 Teilt eine Klasse interaktiv auf (mit option --class anzugeben)
 .TP
 .B --noninteractive
-Frägt nicht nach Gruppenzugekörigkeiten der User ab, sondern erwartet
+FrÃ¤gt nicht nach GruppenzugekÃ¶rigkeiten der User ab, sondern erwartet
 --Amembers, --Bmembers, ...
 .TP
 .B --Amembers user1,user2, ... --Dmembers user1,user2,user,...
-Userzugehörigkeiten zu den Subclassen A,B,C,D,O per Option (wird nur bei
+UserzugehÃ¶rigkeiten zu den Subclassen A,B,C,D,O per Option (wird nur bei
 --noninteractive ausgewertet).
 .br
 Bei Angabe der Subclasse O werden user1,user2,... aus allen Subclassen entfernt. 

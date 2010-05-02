@@ -16,27 +16,27 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for manpage-specific macros, see man(7)
 .SH NAME
-sophomorix-check \- Synchronisieren und prüfen von Schulverwaltungsprogramm-Dateien
+sophomorix-check \- Synchronisieren und prÃ¼fen von Schulverwaltungsprogramm-Dateien
 .SH SYNOPSIS
 .B sophomorix-check
 .RI [ options ]
 .br
 .SH DESCRIPTION
 .B sophomorix-check  
-liest mehrere Konfigurationsdateien ein und und informiert sich über
+liest mehrere Konfigurationsdateien ein und und informiert sich Ã¼ber
 die schon angelegten Benutzer, um dann zu entscheiden, welche Benutzer
 angelegt, versetzt, toleriert, deaktiviert oder sonstwas werden
-müssen.
+mÃ¼ssen.
 .br
 Korrigierte Benutzerdaten werden automagisch im aktualisiert.
 .PP
 .SH OPTIONS
 .B sophomorix-check
-benützt die GNU command line syntax, mit langen Optionen, die mit zwei
+benÃ¼tzt die GNU command line syntax, mit langen Optionen, die mit zwei
 Bindestrichen (`-') beginnen:
 .TP
 .B \-h, \-\-help
-Kurzübersicht über Optionen, sowie eine Liste der eingelesenen Dateien.
+KurzÃ¼bersicht Ã¼ber Optionen, sowie eine Liste der eingelesenen Dateien.
 .TP
 .B \-v, \-\-verbose
 Sagt, was das Programm gerade macht (verbose)
@@ -49,12 +49,12 @@ macht keine automatischen updates der Benutzerdatenbank (kein auto-teach-in).
 .TP
 .B --file-encoding encoding
 verarbeitet die einzulesenden Dateien in einer bestimmten
-Zeichencodierung. Standard ist ISO 8859-1. Mögliche Optionen sind
+Zeichencodierung. Standard ist ISO 8859-1. MÃ¶gliche Optionen sind
 ascii, 8859-1, 8859-15, win1252, utf8. Bei verwendung der Option utf8
-werden nicht alle möglichen Zeichen unterstützt
+werden nicht alle mÃ¶glichen Zeichen unterstÃ¼tzt
 .TP
 .B --lock, --unlock
-legt die Datei sophomorix.lock an, bzw. löscht sie, falls vorhanden. 
+legt die Datei sophomorix.lock an, bzw. lÃ¶scht sie, falls vorhanden. 
 .TP
 .B Daten aus Dateien einer bisherigen Installation holen (siehe auch: man sophomorix-vampire).
 .TP
@@ -69,14 +69,14 @@ holt die numerische uid aus alten Dateien und nutzt sie. Nur in Verbindung mit O
 holt die numerische gid aus alten Dateien und nutzt sie. Nur in Verbindung mit Option --get-info-from-old-files sinnvoll.
 .TP
 .B --file filename
-liest die angegebene Datei filename zusätzlich ein, bevor die standard-Dateien eingelesen werden
+liest die angegebene Datei filename zusÃ¤tzlich ein, bevor die standard-Dateien eingelesen werden
 .TP
 .B --filter-only
 stoppt, nachdem das in sophomorix.conf angegebene filter script die schueler.txt gefiltert hat. Das Resultat der Filterung kann in /var/lib/sophomorix.tmp/schueler.txt.tmp kontrolliert werden. 
 .TP
 .B --no-kclass
-Entfernt NICHT das führende k in Gruppennamen aus der alten
-group-Datei. Sollte nie benötigt werden.
+Entfernt NICHT das fÃ¼hrende k in Gruppennamen aus der alten
+group-Datei. Sollte nie benÃ¶tigt werden.
 .br
 Sollte angegeben werden, wenn eine alte group Datei eingelesen wird,
 bei deren Gruppennamen KEIN k vorangestellt wurde.  Nur in Verbindung
