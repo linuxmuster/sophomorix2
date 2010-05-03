@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # $Id$
-# This script (sophomorix-test-unid) is maintained by RÃ¼diger Beck
+# This script (sophomorix-test-unid) is maintained by Rüdiger Beck
 # It is Free Software (License GPLv3)
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
@@ -31,11 +31,51 @@ my @arguments = @ARGV;
 
 system("install -d /root/sophomorix-test");
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ############################################################
 # Start
 ############################################################
-&check_connections();
 &log_script_start(@arguments);
+&check_connections();
 
 # repair.directories einlesen ???
 &get_alle_verzeichnis_rechte();
@@ -70,6 +110,8 @@ my %account_ldap=();
 
 &run_command("sophomorix-check",$verbose);
 
+
+
 print '
 ###########################################################################
 #                                                                         #
@@ -79,7 +121,7 @@ print '
 ';
 
 ###########################################################################
-# user in schueler.txt hinzufÃ¼gen
+# user in schueler.txt hinzufügen
 my $user="";
 my $login="";
 my @users_to_add=(
@@ -152,7 +194,7 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 
 
 ###########################################################################
-# Ergebnisdateien prÃ¼fen
+# Ergebnisdateien prüfen
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.move");
 &check_emptyness("sophomorix.kill");
@@ -160,7 +202,7 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 
 
 ###########################################################################
-# Druckdaten prÃ¼fen
+# Druckdaten prüfen
 # add.tex
 &check_existence("${DevelConf::druck_pfad}/add.tex");
 &check_line_in_file("Joerg Maier",
@@ -182,7 +224,7 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 
 
 ###########################################################################
-# Datenbank prÃ¼fen
+# Datenbank prüfen
 
 
 %account = &fetch_single_account("surname='Maier'
@@ -196,6 +238,9 @@ print "   *** Adding $#users_to_add users to schueler.txt\n";
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Joerg Maier");
+&ok_account("firstname", "Joerg");
+&ok_account("surname", "Maier");
+&ok_account("cn", "Joerg Maier");
 &ok_account("unid", "12345");
 &ok_account("exitunid", "");
 &ok_account("gid", "m4kb");
@@ -232,6 +277,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Mohammed Oeztuerk");
+&ok_account("firstname", "Mohammed");
+&ok_account("surname", "Oeztuerk");
+&ok_account("cn", "Mohammed Oeztuerk");
 &ok_account("unid", "54321");
 &ok_account("exitunid", "");
 &ok_account("gid", "7a");
@@ -267,6 +315,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
+&ok_account("firstname", "Larry");
+&ok_account("surname", "Wall");
+&ok_account("cn", "Larry Wall");
 &ok_account("unid", "1234567");
 &ok_account("exitunid", "");
 &ok_account("gid", "2c");
@@ -302,6 +353,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sophomorixstatus", "U");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Oliver Mahn");
+&ok_account("firstname", "Oliver");
+&ok_account("surname", "Mahn");
+&ok_account("cn", "Oliver Mahn");
 &ok_account("unid", "987654321");
 &ok_account("exitunid", "");
 &ok_account("gid", "m1kb");
@@ -338,6 +392,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "");
 &ok_account("deactivationdate", "");
 &ok_account("gecos", "Charles Darwin");
+&ok_account("firstname", "Charles");
+&ok_account("surname", "Darwin");
+&ok_account("cn", "Charles Darwin");
 &ok_account("unid", "");
 &ok_account("exitunid", "");
 &ok_account("gid", "teachers");
@@ -390,6 +447,9 @@ print '
 &ok_account("sophomorixstatus", "T");
 &ok_account("tolerationdate", $today_pg);
 &ok_account("gecos", "Joerg Maier");
+&ok_account("firstname", "Joerg");
+&ok_account("surname", "Maier");
+&ok_account("cn", "Joerg Maier");
 # unid is empty, user removed from schueler.txt
 &ok_account("unid", "");
 # extunid has now the unid
@@ -434,6 +494,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 &ok_account("exitadminclass", "m4kb");
 &ok_account("gecos", "Joerg Maier");
+&ok_account("firstname", "Joerg");
+&ok_account("surname", "Maier");
+&ok_account("cn", "Joerg Maier");
 &ok_account("unid", "");
 &ok_account("exitunid", "12345");
 &ok_account("gid", "attic");
@@ -478,6 +541,9 @@ $login = &fetch_login("surname='Maier'
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "");
 &ok_account("gecos", "Joerg Maier");
+&ok_account("firstname", "Joerg");
+&ok_account("surname", "Maier");
+&ok_account("cn", "Joerg Maier");
 &ok_account("unid", "");
 &ok_account("exitunid", "12345");
 &ok_account("gid", "attic");
@@ -517,6 +583,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("exitadminclass", "m4kb");
 &ok_account("gecos", "Joerg Maier");
+&ok_account("firstname", "Joerg");
+&ok_account("surname", "Maier");
+&ok_account("cn", "Joerg Maier");
 &ok_account("unid", "");
 &ok_account("exitunid", "12345");
 &ok_account("gid", "attic");
@@ -559,6 +628,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("deactivationdate", "1971-01-01");
 &ok_account("exitadminclass", "m4kb");
 &ok_account("gecos", "Joerg Maier");
+&ok_account("firstname", "Joerg");
+&ok_account("surname", "Maier");
+&ok_account("cn", "Joerg Maier");
 &ok_account("unid", "");
 &ok_account("exitunid", "12345");
 &ok_account("gid", "attic");
@@ -642,6 +714,9 @@ $login = &fetch_login("surname='Oeztuerk'
 &ok_account("sophomorixstatus", "T");
 &ok_account("tolerationdate", $today_pg);
 &ok_account("gecos", "Mohammed Oeztuerk");
+&ok_account("firstname", "Mohammed");
+&ok_account("surname", "Oeztuerk");
+&ok_account("cn", "Mohammed Oeztuerk");
 &ok_account("unid", "");
 &ok_account("exitunid", "54321");
 &ok_account("gid", "7a");
@@ -691,6 +766,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sophomorixstatus", "E");
 &ok_account("tolerationdate", "");
 &ok_account("gecos", "Mohammed Oeztuerk");
+&ok_account("firstname", "Mohammed");
+&ok_account("surname", "Oeztuerk");
+&ok_account("cn", "Mohammed Oeztuerk");
 &ok_account("unid", "54321");
 # exit id is as it was before
 &ok_account("exitunid", "54321");
@@ -727,6 +805,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sophomorixstatus", "E");
 &ok_account("tolerationdate", "");
 &ok_account("gecos", "Mohammed Oeztuerk");
+&ok_account("firstname", "Mohammed");
+&ok_account("surname", "Oeztuerk");
+&ok_account("cn", "Mohammed Oeztuerk");
 &ok_account("unid", "54321");
 &ok_account("exitunid", "54321");
 &ok_account("gid", "7c");
@@ -784,6 +865,9 @@ print '
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
+&ok_account("firstname", "Larry");
+&ok_account("surname", "Wall");
+&ok_account("cn", "Larry Wall");
 &ok_account("unid", "");
 &ok_account("exitunid", "1234567");
 &ok_account("gid", "2c");
@@ -842,6 +926,9 @@ $login = &fetch_login("surname='Wall'
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
+&ok_account("firstname", "Larry");
+&ok_account("surname", "Wall");
+&ok_account("cn", "Larry Wall");
 &ok_account("unid", "");
 &ok_account("exitunid", "1234567");
 &ok_account("exitadminclass", "2c");
@@ -900,6 +987,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("exitadminclass", "2c");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
+&ok_account("firstname", "Larry");
+&ok_account("surname", "Wall");
+&ok_account("cn", "Larry Wall");
 &ok_account("unid", "1234567");
 &ok_account("exitunid", "1234567");
 &ok_account("gid", "3c");
@@ -932,7 +1022,7 @@ print '
 ###########################################################################
 ';
 
-# updating the name Ãz -> Ãtz
+# updating the name Öz -> Ötz
 &exchange_line_in_file("7C;\326zt\374rk;Mohammed;2.4.82;54321;*",
    "/etc/sophomorix/user/schueler.txt",
    "7C;\326tzt\374rk;Mohammed;2.4.82;54321;");
@@ -954,6 +1044,9 @@ print '
 
 &ok_account("sophomorixstatus", "E");
 &ok_account("gecos", "Mohammed Oetztuerk");
+&ok_account("firstname", "Mohammed");
+&ok_account("surname", "Oetztuerk");
+&ok_account("cn", "Mohammed Oetztuerk");
 &ok_account("unid", "54321");
 &ok_account("exitunid", "54321");
 &ok_account("gid", "7c");
@@ -998,6 +1091,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 &ok_account("sophomorixstatus", "E");
 &ok_account("gecos", "Mohammad Oetztuerk");
+&ok_account("firstname", "Mohammad");
+&ok_account("surname", "Oetztuerk");
+&ok_account("cn", "Mohammad Oetztuerk");
 &ok_account("unid", "54321");
 &ok_account("exitunid", "54321");
 &ok_account("gid", "7c");
@@ -1040,6 +1136,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 &ok_account("sophomorixstatus", "E");
 &ok_account("gecos", "Mohammad Oetztuerk");
+&ok_account("firstname", "Mohammad");
+&ok_account("surname", "Oetztuerk");
+&ok_account("cn", "Mohammad Oetztuerk");
 &ok_account("unid", "54321");
 &ok_account("exitunid", "54321");
 &ok_account("gid", "7c");
@@ -1093,6 +1192,9 @@ print '
 &ok_account("sophomorixstatus", "E");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Larry Wall");
+&ok_account("firstname", "Larry");
+&ok_account("surname", "Wall");
+&ok_account("cn", "Larry Wall");
 &ok_account("unid", "123456789");
 # unid has changed from 1234567 to 123456789
 &ok_account("exitunid", "1234567");
@@ -1135,6 +1237,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sophomorixstatus", "E");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Richard Stallman");
+&ok_account("firstname", "Richard");
+&ok_account("surname", "Stallman");
+&ok_account("cn", "Richard Stallman");
 &ok_account("unid", "123456789");
 &ok_account("exitunid", "1234567");
 &ok_account("gid", "3c");
@@ -1188,6 +1293,9 @@ print '
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", $today_pg);
 &ok_account("gecos", "Oliver Mahn");
+&ok_account("firstname", "Oliver");
+&ok_account("surname", "Mahn");
+&ok_account("cn", "Oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "m1kb");
@@ -1230,6 +1338,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("creationdate", $today_pg);
 &ok_account("tolerationdate", "");
 &ok_account("gecos", "Oliver Mahn");
+&ok_account("firstname", "Oliver");
+&ok_account("surname", "Mahn");
+&ok_account("cn", "Oliver Mahn");
 &ok_account("unid", "987654321");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "m1kb");
@@ -1275,6 +1386,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("sophomorixstatus", "E");
 &ok_account("creationdate", $today_pg);
 &ok_account("gecos", "Oliver Mahn");
+&ok_account("firstname", "Oliver");
+&ok_account("surname", "Mahn");
+&ok_account("cn", "Oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "m1kb");
@@ -1402,6 +1516,9 @@ foreach my $login (@logins){
 &ok_account("deactivationdate", "1971-01-01");
 &ok_account("exitadminclass", "m4kb");
 &ok_account("gecos", "Joerg Maier");
+&ok_account("firstname", "Joerg");
+&ok_account("surname", "Maier");
+&ok_account("cn", "Joerg Maier");
 &ok_account("unid", "");
 &ok_account("exitunid", "12345");
 &ok_account("gid", "attic");
@@ -1435,6 +1552,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
 &ok_account("gecos", "Mohammad Oetztuerk");
+&ok_account("firstname", "Mohammad");
+&ok_account("surname", "Oetztuerk");
+&ok_account("cn", "Mohammad Oetztuerk");
 &ok_account("unid", "");
 &ok_account("exitunid", "54321");
 &ok_account("gid", "attic");
@@ -1468,6 +1588,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
 &ok_account("gecos", "Richard Stallman");
+&ok_account("firstname", "Richard");
+&ok_account("surname", "Stallman");
+&ok_account("cn", "Richard Stallman");
 &ok_account("unid", "");
 &ok_account("exitunid", "123456789");
 &ok_account("gid", "attic");
@@ -1502,6 +1625,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
 &ok_account("gecos", "Oliver Mahn");
+&ok_account("firstname", "Oliver");
+&ok_account("surname", "Mahn");
+&ok_account("cn", "Oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "attic");
@@ -1535,6 +1661,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
 &ok_account("gecos", "Charles Darwin");
+&ok_account("firstname", "Charles");
+&ok_account("surname", "Darwin");
+&ok_account("cn", "Charles Darwin");
 &ok_account("unid", "");
 &ok_account("exitunid", "");
 &ok_account("gid", "attic");
@@ -1590,6 +1719,9 @@ $login = &fetch_login("surname='Mahn'
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
 &ok_account("gecos", "Oliver Mahn");
+&ok_account("firstname", "Oliver");
+&ok_account("surname", "Mahn");
+&ok_account("cn", "Oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "attic");
@@ -1631,6 +1763,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
 &ok_account("gecos", "Oliver Mahn");
+&ok_account("firstname", "Oliver");
+&ok_account("surname", "Mahn");
+&ok_account("cn", "Oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "attic");
@@ -1653,7 +1788,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 # This should not change anything
 &run_command("sophomorix-check",$verbose);
 
-# Ergebnisdateien prÃ¼fen
+# Ergebnisdateien prüfen
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.move");
 #&check_emptyness("sophomorix.kill");
@@ -1674,6 +1809,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
 &ok_account("gecos", "Oliver Mahn");
+&ok_account("firstname", "Oliver");
+&ok_account("surname", "Mahn");
+&ok_account("cn", "Oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "attic");
@@ -1712,6 +1850,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
 &ok_account("gecos", "Oliver Mahn");
+&ok_account("firstname", "Oliver");
+&ok_account("surname", "Mahn");
+&ok_account("cn", "Oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "attic");
@@ -1735,7 +1876,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &run_command("sophomorix-check",$verbose);
 
 
-# Ergebnisdateien prÃ¼fen
+# Ergebnisdateien prüfen
 &check_emptyness("sophomorix.add");
 &check_emptyness("sophomorix.move");
 #&check_emptyness("sophomorix.kill");
@@ -1755,6 +1896,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "1970-01-01");
 &ok_account("deactivationdate", "1971-01-01");
 &ok_account("gecos", "Oliver Mahn");
+&ok_account("firstname", "Oliver");
+&ok_account("surname", "Mahn");
+&ok_account("cn", "Oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "attic");
@@ -1794,6 +1938,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "$today_pg");
 &ok_account("deactivationdate", "");
 &ok_account("gecos", "Oliver Mahn");
+&ok_account("firstname", "Oliver");
+&ok_account("surname", "Mahn");
+&ok_account("cn", "Oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "attic");
@@ -1817,7 +1964,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 # Check if the account can be moved to exitadminclass
 &run_command("sophomorix-check",$verbose);
 
-# Ergebnisdateien prÃ¼fen
+# Ergebnisdateien prüfen
 &check_emptyness("sophomorix.add");
 #&check_emptyness("sophomorix.kill");
 
@@ -1844,6 +1991,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", "");
 &ok_account("deactivationdate", "");
 &ok_account("gecos", "Oliver Mahn");
+&ok_account("firstname", "Oliver");
+&ok_account("surname", "Mahn");
+&ok_account("cn", "Oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "m1kb");
@@ -1874,6 +2024,10 @@ $gsid=2*$account{'gidnumber'}+1001;
 &check_emptyness("sophomorix.add");
 #&check_emptyness("sophomorix.move");
 
+&check_line_in_file(
+  "$account{'uid'}::m1kb::attic",
+  "${DevelConf::ergebnis_pfad}/sophomorix.move");
+
 
 # Move the account
 &run_command("sophomorix-move",$verbose);
@@ -1893,6 +2047,9 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("tolerationdate", $today_pg);
 &ok_account("deactivationdate", "");
 &ok_account("gecos", "Oliver Mahn");
+&ok_account("firstname", "Oliver");
+&ok_account("surname", "Mahn");
+&ok_account("cn", "Oliver Mahn");
 &ok_account("unid", "");
 &ok_account("exitunid", "987654321");
 &ok_account("gid", "attic");
@@ -1919,6 +2076,25 @@ $gsid=2*$account{'gidnumber'}+1001;
 ####  Todo Mahnol should reappear and be merged
 ####
 ####
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2046,6 +2222,8 @@ sub ok_account{
           "gecos" => "gecos",
           "homedirectory" => "homeDirectory",
           "displayname" => "displayName",
+          "firstname" => "givenName",
+          "surname" => "sn",
           "sambahomepath" => "sambaHomePath",
           "sambahomedrive" => "sambaHomeDrive",
           "sambalogontime" => "sambaLogonTime",
