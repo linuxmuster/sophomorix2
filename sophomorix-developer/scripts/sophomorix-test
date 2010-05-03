@@ -74,8 +74,6 @@ if ($info==1) {
 ############################################################
 # Start
 ############################################################
-
-
 &log_script_start(@arguments);
 &check_connections();
 
@@ -450,7 +448,9 @@ print '
 &ok_account("firstname", "Joerg");
 &ok_account("surname", "Maier");
 &ok_account("cn", "Joerg Maier");
+
 &ok_account("unid", "");
+
 &ok_account("exitunid", "");
 &ok_account("gid", "m4kb");
 &ok_account("homedirectory", "/home/students/m4kb/$account{'uid'}");
@@ -738,6 +738,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 
 # The users shows up again in schueler.txt in a different class
+
 &append_line("7C;\326zt\374rk;Mohammed;2.4.82;","${DevelConf::users_pfad}/schueler.txt");
 
 &run_command("sophomorix-check",$verbose);
@@ -767,6 +768,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 &ok_account("surname", "Oeztuerk");
 &ok_account("cn", "Mohammed Oeztuerk");
 &ok_account("unid", "");
+
 &ok_account("exitunid", "");
 &ok_account("gid", "7a");
 &ok_account("homedirectory", "/home/students/7a/$account{'uid'}");
@@ -1192,6 +1194,7 @@ print '
 &ok_account("surname", "Wall");
 &ok_account("cn", "Larry Wall");
 &ok_account("unid", "123456789");
+
 &ok_account("exitunid", "");
 &ok_account("gid", "3c");
 &ok_account("homedirectory", "/home/students/3c/$account{'uid'}");
@@ -2018,6 +2021,7 @@ $gsid=2*$account{'gidnumber'}+1001;
 
 &check_emptyness("sophomorix.add");
 #&check_emptyness("sophomorix.move");
+
 &check_line_in_file(
   "$account{'uid'}::m1kb::attic",
   "${DevelConf::ergebnis_pfad}/sophomorix.move");
