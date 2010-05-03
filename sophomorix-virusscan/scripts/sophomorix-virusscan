@@ -69,6 +69,14 @@ my $help=0;
 my $info=0;
 my $test="";
 
+my $logfile="/var/log/clamav/sophomorix-virusscan.log";
+my $logfile_stout="/var/log/clamav/sophomorix-virusscan.stout.log";
+my $quarantine="/var/log/clamav/quarantine";
+system("mkdir -p $quarantine");
+
+
+open(STOUT, ">>$logfile_stout");
+
 # ===========================================================================
 # Optionen verarbeiten
 # ==========================================================================
@@ -128,44 +136,48 @@ my $start_time=time;
 
 
 if ($test ne ""){
-    print "\nRunning performance test on user $test ...\n";
-    print "   * start time is $start_time\n";
+    print STOUT "############################################################\n";
+    print STOUT "\nRunning performance test on user $test ...\n";
+    print STOUT "   * start time is $start_time\n";
 
     my ($home) = &fetchdata_from_account($test);
 
-
     # amount of data to scan
     my $data_kb=`du -s $home`;
-
     # kB or kiB???????
     ($data_kb)=split(/\s+/,$data_kb);
 
     # scanning
     # add clamscan command here ??????
-    sleep 3;
 
-
-
+    # getestet:
+    # clamav geht keinen links nach
+    my $command="clamscan -v -r -i -l $logfile --move=$quarantine ".
+                "$home >> $logfile_stout 2>&1";
+    print STOUT "$command\n\n";
+    # Do it!
+    system($command);
 
     my $now=time;
     my $scan_time=$now-$start_time;
+    if ($scan_time==0){
+        $scan_time=1;
+    }
     my $performance=$data_kb/$scan_time;
     $performance=int($performance);
-    print "   * end time is $now\n";
-
-    print "Performance results:\n";
-    printf "   Scanning time: %15s seconds\n", $scan_time;
-    printf "   Scanned data : %15s kB\n", $data_kb;
-    printf "   Performance  : %15s kB/second\n", $performance;
-
-    
-
+    print STOUT "\nEnd time is $now\n";
+    print STOUT  "Performance results for user $test:\n";
+    printf STOUT "   Scanning time: %15s seconds\n", $scan_time;
+    printf STOUT "   Scanned data : %15s kB\n", $data_kb;
+    printf STOUT "   Performance  : %15s kB/second\n", $performance;
+    print "Data logged into file $logfile_stout\n";
     exit;
 }
 
 # Do it !
 
 
+close(STOUT);
 
 exit;
 #&log_script_end(@arguments);
