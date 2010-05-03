@@ -54,6 +54,7 @@ use Net::LDAP;
 
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     check_connections
+                                    fetchdata_from_account
                                    );
 
 
@@ -66,6 +67,7 @@ my @arguments = @ARGV;
 
 my $help=0;
 my $info=0;
+my $test="";
 
 # ===========================================================================
 # Optionen verarbeiten
@@ -78,6 +80,7 @@ my $info=0;
 my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
+           "test=s" => \$test,
           );
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
@@ -99,6 +102,7 @@ Options
   -v  / --verbose
   -vv / --verbose --verbose
   -i  / --info (unused)
+  --test (Test performance of scan)
 
 Please see the sophomorix-virusscan(8) man pages for full documentation
 ');
@@ -115,11 +119,53 @@ if ($info==1){
 
 
 
-&log_script_start(@arguments);
+#&log_script_start(@arguments);
+
+# Start date in unix seconds
+my $start_time=time;
 
 
+
+
+if ($test ne ""){
+    print "\nRunning performance test on user $test ...\n";
+    print "   * start time is $start_time\n";
+
+    my ($home) = &fetchdata_from_account($test);
+
+
+    # amount of data to scan
+    my $data_kb=`du -s $home`;
+
+    # kB or kiB???????
+    ($data_kb)=split(/\s+/,$data_kb);
+
+    # scanning
+    # add clamscan command here ??????
+    sleep 3;
+
+
+
+
+    my $now=time;
+    my $scan_time=$now-$start_time;
+    my $performance=$data_kb/$scan_time;
+    $performance=int($performance);
+    print "   * end time is $now\n";
+
+    print "Performance results:\n";
+    printf "   Scanning time: %15s seconds\n", $scan_time;
+    printf "   Scanned data : %15s kB\n", $data_kb;
+    printf "   Performance  : %15s kB/second\n", $performance;
+
+    
+
+    exit;
+}
 
 # Do it !
 
 
-&log_script_end(@arguments);
+
+exit;
+#&log_script_end(@arguments);
