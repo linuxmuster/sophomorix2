@@ -2436,13 +2436,11 @@ sub reset_user {
                 }    
                 &create_share_link($user,$group,$longname,$type);
                 if($Conf::log_level>=2){
-                    print "   Creating Directories for secondary group $group\n";
+                    print "   Creating Directories for ",
+                          "secondary group $group\n";
                 }
                 &create_share_directory($user,$group,$longname,$type);
             }
-#        } else {
-#            print "Directory $homedir does not exist\n";
-#        }
     }
 }
 
@@ -5222,8 +5220,10 @@ sub unlink_immutable_tree {
     } else {
         print "${DevelConf::chattr_path} not fount/not executable\n";
     }
-    # remove dir recursively
-    system("rm -rf $dir");
+    # remove contents of dir recursively
+    my $command="GLOBIGNORE=/; rm -rf $dir";
+    print "$command\n";
+    system("$command");
 
     # restore stored value for immutable bit of parent
     &set_immutable_bit($parent_dir,$immutable_bit);
