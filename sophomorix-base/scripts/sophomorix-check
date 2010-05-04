@@ -2814,7 +2814,7 @@ sub generate_admin_report {
     printf REPORTADMIN "%-50s:%6s\n", 
                        "Eingelesene Zeilen (ohne Kommentarzeilen)", $zeilen_anzahl;
 
-    printf REPORTADMIN "%-50s:%6s\n", 
+    printf REPORTADMIN "%-50s:%6s\n",
                        "Davon Korrupte Datensätze (Strichpunkt)", 
                        $datensatz_korrupt_anzahl;
 
@@ -3941,9 +3941,9 @@ sub filter_school_admin_software {
          $line=~s/\xC3\x81/A/g;
          $line=~s/\xC3\x82/A/g;
          $line=~s/\xC3\x83/A/g;
-         $line=~s/\xC3\x84/A/g;
          $line=~s/\xC3\x85/A/g;
          # Ae
+         $line=~s/\xC3\x84/Ae/g;
          $line=~s/\xC3\x86/Ae/g;
          # C
          $line=~s/\xC3\x87/C/g;
@@ -3966,8 +3966,9 @@ sub filter_school_admin_software {
          $line=~s/\xC3\x93/O/g;
          $line=~s/\xC3\x94/O/g;
          $line=~s/\xC3\x95/O/g;
-         $line=~s/\xC3\x96/O/g;
          $line=~s/\xC3\x98/O/g;
+         # Oe
+         $line=~s/\xC3\x96/Oe/g;
          # X
          $line=~s/\xC3\x97/X/g;
          # U
@@ -4011,10 +4012,11 @@ sub filter_school_admin_software {
          $line=~s/\xC3\xB3/o/g;
          $line=~s/\xC3\xB4/o/g;
          $line=~s/\xC3\xB5/o/g;
-         $line=~s/\xC3\xB6/o/g;
          # \xC3\xB7 is DIVISION SIGN
          # o
          $line=~s/\xC3\xB8/o/g;
+         # oe
+         $line=~s/\xC3\xB6/oe/g;
          # u
          $line=~s/\xC3\xB9/u/g;
          $line=~s/\xC3\xBA/u/g;
@@ -4098,27 +4100,91 @@ sub filter_school_admin_software {
          $line=~s/\xC5\x81/L/g;
          $line=~s/\xC5\x82/l/g;
 
+         $line=~s/\xC5\x83/N/g;
+         $line=~s/\xC5\x84/n/g;
+         $line=~s/\xC5\x85/N/g;
+         $line=~s/\xC5\x86/n/g;
+         $line=~s/\xC5\x87/N/g;
+         $line=~s/\xC5\x88/n/g;
+         $line=~s/\xC5\x89/n/g;
+         $line=~s/\xC5\x8A/N/g;
+         $line=~s/\xC5\x8B/n/g;
+         $line=~s/\xC5\x8C/O/g;
+         $line=~s/\xC5\x8D/o/g;
+         $line=~s/\xC5\x8E/O/g;
+         $line=~s/\xC5\x8F/o/g;
+         $line=~s/\xC5\x90/O/g;
+         $line=~s/\xC5\x91/o/g;
+         $line=~s/\xC5\x92/Oe/g;
+         $line=~s/\xC5\x93/oe/g;
+         $line=~s/\xC5\x94/R/g;
+         $line=~s/\xC5\x95/r/g;
+         $line=~s/\xC5\x96/R/g;
+         $line=~s/\xC5\x97/r/g;
+         $line=~s/\xC5\x98/R/g;
+         $line=~s/\xC5\x99/r/g;
+         $line=~s/\xC5\x9A/S/g;
+         $line=~s/\xC5\x9B/s/g;
+         $line=~s/\xC5\x9C/S/g;
+         $line=~s/\xC5\x9D/s/g;
+         $line=~s/\xC5\x9E/S/g;
+         $line=~s/\xC5\x9F/s/g;
+         $line=~s/\xC5\xA0/S/g;
+         $line=~s/\xC5\xA1/s/g;
+         $line=~s/\xC5\xA2/T/g;
+         $line=~s/\xC5\xA3/t/g;
+         $line=~s/\xC5\xA4/T/g;
+         $line=~s/\xC5\xA5/t/g;
+         $line=~s/\xC5\xA6/T/g;
+         $line=~s/\xC5\xA7/t/g;
+         $line=~s/\xC5\xA8/U/g;
+         $line=~s/\xC5\xA9/u/g;
+         $line=~s/\xC5\xAA/U/g;
+         $line=~s/\xC5\xAB/u/g;
+         $line=~s/\xC5\xAC/U/g;
+         $line=~s/\xC5\xAD/u/g;
+         $line=~s/\xC5\xAE/U/g;
+         $line=~s/\xC5\xAF/u/g;
+         $line=~s/\xC5\xB0/U/g;
+         $line=~s/\xC5\xB1/u/g;
+         $line=~s/\xC5\xB2/U/g;
+         $line=~s/\xC5\xB3/u/g;
+         $line=~s/\xC5\xB4/W/g;
+         $line=~s/\xC5\xB5/w/g;
+         $line=~s/\xC5\xB6/Y/g;
+         $line=~s/\xC5\xB7/y/g;
+         $line=~s/\xC5\xB8/Y/g;
+         $line=~s/\xC5\xB9/Z/g;
+         $line=~s/\xC5\xBA/z/g;
+         $line=~s/\xC5\xBB/Z/g;
+         $line=~s/\xC5\xBC/z/g;
+         $line=~s/\xC5\xBD/Z/g;
+         $line=~s/\xC5\xBE/z/g;
+         $line=~s/\xC5\xBF/s/g;
+         $line=~s/\xC6\x80/b/g;
+         $line=~s/\xC6\x81/B/g;
+         $line=~s/\xC6\x82/B/g;
+         $line=~s/\xC6\x83/b/g;
+         # not a letter
+         $line=~s/\xC6\x84/6/g;
+         # not a letter
+         $line=~s/\xC6\x85/6/g;
+         $line=~s/\xC6\x86/O/g;
+         $line=~s/\xC6\x87/C/g;
+         $line=~s/\xC6\x88/c/g;
+         $line=~s/\xC6\x89/D/g;
+         $line=~s/\xC6\x8A/D/g;
+         $line=~s/\xC6\x8B/D/g;
+         $line=~s/\xC6\x8C/d/g;
+         $line=~s/\xC6\x8D/d/g;
+         $line=~s/\xC6\x8E/E/g;
+         # grosses Schwa
+         $line=~s/\xC6\x8F/E/g;
+
          # ?????? continue here
 
-
-         # iso 8859-15 additions 
-         # S
-         $line=~s/\xC5\x9C/S/g;
-         # s
-         $line=~s/\xC5\x9D/s/g;
-         # Z
-         $line=~s/\xC5\xBD/Z/g;
-         # z
-         $line=~s/\xC5\xBE/z/g;
-         # Oe
-         $line=~s/\xC5\x92/Oe/g;
-         # oe
-         $line=~s/\xC5\x93/oe/g;
-         # Y
-         $line=~s/\xC5\xB8/Y/g;
      }
-
-      return $line;
+     return $line;
 }
 
 

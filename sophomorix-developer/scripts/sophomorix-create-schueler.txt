@@ -36,6 +36,9 @@ use Sophomorix::SophomorixBase;
 
 use utf8;
 
+# Scriptname ermitteln
+my @list = split(/\//,$0);
+my $scriptname = pop @list;
 
 
 # ===========================================================================
@@ -51,12 +54,31 @@ my $output_file="/root/schueler.txt";
 my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
            "help|h" => \$help,
-           "output-file=s" => \$output_file,
+           "output-file|o=s" => \$output_file,
            "file-encoding|encoding|e=s" => \$file_encoding,
           );
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
+
+
+
+# --help
+if ($help==1) {
+   # Befehlbeschreibung
+   print "\n$scriptname cretes a schueler.txt file with special characters\n";
+
+   print('
+Options
+  -h  / --help
+  -e / --encoding / --file-encoding iso8859-1|iso8859-15|win1252|utf8
+  -o / --output-file /path/to/file
+
+');
+   print "\n";
+   exit;
+}
+
 
 
 
@@ -207,20 +229,25 @@ if ($file_encoding eq "" or $file_encoding eq "utf8"){
    #
    # UTF-8
    #
-   print FILE "# UTF-8\n";
+   ###############################################
+   print FILE "# UTF-8 CAPITAL LETTERS\n";
    # A 
    print FILE "UTF8;\xC3\x80lbrecht;Albert;01.01.1988\n";
    print FILE "UTF8;\xC3\x81lbrecht;Albert;01.02.1988\n";
    print FILE "UTF8;\xC3\x82lbrecht;Albert;01.03.1988\n";
    print FILE "UTF8;\xC3\x83lbrecht;Albert;01.04.1988\n";
-   print FILE "UTF8;\xC3\x84lbrecht;Albert;01.05.1988\n";
-   print FILE "UTF8;\xC3\x85lbrecht;Albert;01.06.1988\n";
+   print FILE "UTF8;\xC3\x85lbrecht;Albert;01.05.1988\n";
    # \xc4
-   print FILE "UTF8;\xC4\x80lbrecht;Albert;01.07.1988\n";
-   print FILE "UTF8;\xC4\x82lbrecht;Albert;01.08.1988\n";
-   print FILE "UTF8;\xC4\x84lbrecht;Albert;01.09.1988\n";
+   print FILE "UTF8;\xC4\x80lbrecht;Albert;01.06.1988\n";
+   print FILE "UTF8;\xC4\x82lbrecht;Albert;01.07.1988\n";
+   print FILE "UTF8;\xC4\x84lbrecht;Albert;01.08.1988\n";
    # Ae
-   print FILE "UTF8;\xC3\x86ro;Aero;01.01.1988\n";
+   print FILE "UTF8;\xC3\x84ro;Aero;01.01.1988\n";
+   print FILE "UTF8;\xC3\x86ro;Aero;01.02.1988\n";
+   # B
+   # \xc6
+   print FILE "UTF8;\xC6\x81auer;Barbara;01.01.1988\n";
+   print FILE "UTF8;\xC6\x82auer;Barbara;01.02.1988\n";
    # C
    print FILE "UTF8;\xC3\x87onrad;Clara;01.01.1988\n";
    # \xc4
@@ -228,6 +255,17 @@ if ($file_encoding eq "" or $file_encoding eq "utf8"){
    print FILE "UTF8;\xC4\x88onrad;Clara;01.03.1988\n";
    print FILE "UTF8;\xC4\x8Aonrad;Clara;01.04.1988\n";
    print FILE "UTF8;\xC4\x8Conrad;Clara;01.05.1988\n";
+   # \xc6
+   print FILE "UTF8;\xC6\x87onrad;Clara;01.06.1988\n";
+   # D
+   print FILE "UTF8;\xC3\x90ietrich;Dieter;01.01.1988\n";
+   # \xc4
+   print FILE "UTF8;\xC4\x8Eietrich;Dieter;01.02.1988\n";
+   print FILE "UTF8;\xC4\x90ietrich;Dieter;01.03.1988\n";
+   # \xc6
+   print FILE "UTF8;\xC6\x89ietrich;Dieter;01.04.1988\n";
+   print FILE "UTF8;\xC6\x8Aietrich;Dieter;01.05.1988\n";
+   print FILE "UTF8;\xC6\x8Bietrich;Dieter;01.06.1988\n";
    # E
    print FILE "UTF8;\xC3\x88ngel;Ernst;01.01.1988\n";
    print FILE "UTF8;\xC3\x89ngel;Ernst;01.02.1988\n";
@@ -239,6 +277,9 @@ if ($file_encoding eq "" or $file_encoding eq "utf8"){
    print FILE "UTF8;\xC4\x96ngel;Ernst;01.07.1988\n";
    print FILE "UTF8;\xC4\x98ngel;Ernst;01.08.1988\n";
    print FILE "UTF8;\xC4\x9Angel;Ernst;01.09.1988\n";
+   # \xc6
+   print FILE "UTF8;\xC6\x8Engel;Ernst;01.10.1988\n";
+   print FILE "UTF8;\xC6\x8Fngel;Ernst;01.11.1988\n";
    # G
    # \xc4
    print FILE "UTF8;\xC4\x9Craf;Gregor;01.01.1988\n";
@@ -277,34 +318,79 @@ if ($file_encoding eq "" or $file_encoding eq "utf8"){
    print FILE "UTF8;\xC4\xBFange;Lara;01.04.1988\n";
    # \xc5
    print FILE "UTF8;\xC5\x81ange;Lara;01.05.1988\n";
-   # D
-   print FILE "UTF8;\xC3\x90ietrich;Dagobert;01.01.1988\n";
-   # \xc4
-   print FILE "UTF8;\xC4\x8eietrich;Dagobert;01.02.1988\n";
-   print FILE "UTF8;\xC4\x90ietrich;Dagobert;01.03.1988\n";
    # N
    print FILE "UTF8;\xC3\x91eumann;Norbert;01.01.1988\n";
+   # \xc5
+   print FILE "UTF8;\xC5\x83eumann;Norbert;01.02.1988\n";
+   print FILE "UTF8;\xC5\x85eumann;Norbert;01.03.1988\n";
+   print FILE "UTF8;\xC5\x87eumann;Norbert;01.04.1988\n";
+   print FILE "UTF8;\xC5\x8Aeumann;Norbert;01.05.1988\n";
    # O
    print FILE "UTF8;\xC3\x92tto;Oliver;01.01.1988\n";
    print FILE "UTF8;\xC3\x93tto;Oliver;01.02.1988\n";
    print FILE "UTF8;\xC3\x94tto;Oliver;01.03.1988\n";
    print FILE "UTF8;\xC3\x95tto;Oliver;01.04.1988\n";
-   print FILE "UTF8;\xC3\x96tto;Oliver;01.05.1988\n";
-   # -> X
-   print FILE "UTF8;\xC3\x98tto;Oliver;01.06.1988\n";
-   # X
-   print FILE "UTF8;\xC3\x97aver;Xenia;01.01.1988\n";
+   print FILE "UTF8;\xC3\x98tto;Oliver;01.05.1988\n";
+   # \xc5
+   print FILE "UTF8;\xC5\x8Ctto;Oliver;01.06.1988\n";
+   print FILE "UTF8;\xC5\x8Etto;Oliver;01.07.1988\n";
+   print FILE "UTF8;\xC5\x90tto;Oliver;01.08.1988\n";
+   # \xc6
+   print FILE "UTF8;\xC6\x86tto;Oliver;01.09.1988\n";
+   # Oe
+   print FILE "UTF8;\xC3\x96ler;Oeler;01.01.1988\n";
+   # \xc5
+   print FILE "UTF8;\xC5\x92ler;Oeler;01.02.1988\n";
+   # R
+   # \xc5
+   print FILE "UTF8;\xC5\x94ichter;Richard;01.01.1988\n";
+   print FILE "UTF8;\xC5\x96ichter;Richard;01.02.1988\n";
+   print FILE "UTF8;\xC5\x98ichter;Richard;01.03.1988\n";
+   # S
+   # \xc5
+   print FILE "UTF8;\xC5\x9Aommer;Sonja;01.01.1988\n";
+   print FILE "UTF8;\xC5\x9Commer;Sonja;01.02.1988\n";
+   print FILE "UTF8;\xC5\x9Eommer;Sonja;01.03.1988\n";
+   print FILE "UTF8;\xC5\xA0ommer;Sonja;01.04.1988\n";
+   # T
+   # \xc5
+   print FILE "UTF8;\xC5\xA2imm;Tina;01.01.1988\n";
+   print FILE "UTF8;\xC5\xA4imm;Tina;01.02.1988\n";
+   print FILE "UTF8;\xC5\xA6imm;Tina;01.03.1988\n";
    # U
    print FILE "UTF8;\xC3\x99nger;Udo;01.01.1988\n";
    print FILE "UTF8;\xC3\x9Anger;Udo;01.02.1988\n";
    print FILE "UTF8;\xC3\x9Bnger;Udo;01.03.1988\n";
-   print FILE "UTF8;\xC3\x9Cnger;Udo;01.04.1988\n";
+   # \xc5
+   print FILE "UTF8;\xC5\xA8nger;Udo;01.04.1988\n";
+   print FILE "UTF8;\xC5\xAAnger;Udo;01.05.1988\n";
+   print FILE "UTF8;\xC5\xACnger;Udo;01.06.1988\n";
+   print FILE "UTF8;\xC5\xAEnger;Udo;01.07.1988\n";
+   print FILE "UTF8;\xC5\xB0nger;Udo;01.08.1988\n";
+   print FILE "UTF8;\xC5\xB2nger;Udo;01.09.1988\n";
+   # Ue
+   print FILE "UTF8;\xC3\x9Cber;Ueli;01.01.1988\n";
+   # W
+   print FILE "UTF8;\xC5\xB4eber;Werner;01.01.1988\n";
+   # X
+   print FILE "UTF8;\xC3\x97aver;Xenia;01.01.1988\n";
    # Y
    print FILE "UTF8;\xC3\x9Dilmaz;Yilgrim;01.01.1988\n";
+   # \xc5
+   print FILE "UTF8;\xC5\xB6ilmaz;Yilgrim;01.02.1988\n";
+   print FILE "UTF8;\xC5\xB8ilmaz;Yilgrim;01.03.1988\n";
+   # Z
+   # \xc5
+   print FILE "UTF8;\xC5\xB9iegler;Zacharias;01.01.1988\n";
+   print FILE "UTF8;\xC5\xBBiegler;Zacharias;01.02.1988\n";
+   print FILE "UTF8;\xC5\xBDiegler;Zacharias;01.03.1988\n";
    # Th \xDE (thorn)
    print FILE "UTF8;\xC3\x9Eiel;Thomas;01.01.1988\n";
    # ss
    print FILE "UTF8;A\xC3\x9Fmann;Assmus;02.01.1988\n";
+
+   ###############################################
+   print FILE "# UTF-8 SMALL LETTERS\n";
    # a
    print FILE "UTF8;W\xC3\xA0gner;Waltraud;02.01.1988\n";
    print FILE "UTF8;W\xC3\xA1gner;Waltraud;02.02.1988\n";
@@ -318,6 +404,9 @@ if ($file_encoding eq "" or $file_encoding eq "utf8"){
    print FILE "UTF8;W\xC4\x85gner;Waltraud;02.09.1988\n";
    # ae
    print FILE "UTF8;C\xC3\xA6ur;Caeur;02.01.1988\n";
+   # b
+   # \xc6
+   print FILE "UTF8;A\xC6\x83el;Abigail;01.01.1988\n";
    # c
    print FILE "UTF8;S\xC3\xA7hmidt;Schota;02.01.1988\n";
    # \xc4
@@ -325,29 +414,16 @@ if ($file_encoding eq "" or $file_encoding eq "utf8"){
    print FILE "UTF8;S\xC4\x89hmidt;Schota;02.03.1988\n";
    print FILE "UTF8;S\xC4\x8bhmidt;Schota;02.04.1988\n";
    print FILE "UTF8;S\xC4\x8dhmidt;Schota;02.05.1988\n";
-   # ij
-   # \xc4
-   print FILE "UTF8;W\xC4\xB3chen;Wijchen;01.01.1988\n";
-   # j
-   # \xc4
-   print FILE "UTF8;L\xC4\xB5ubow;Ljubow;01.01.1988\n";
-   # k
-   # \xc4
-   print FILE "UTF8;I\xC4\xB7ert;Iker;01.01.1988\n";
-   print FILE "UTF8;I\xC4\xB8ert;Iker;01.02.1988\n";
-   # l
-   # \xc4
-   print FILE "UTF8;A\xC4\xBAtmann;Alfons;01.01.1988\n";
-   print FILE "UTF8;A\xC4\xBCtmann;Alfons;01.02.1988\n";
-   print FILE "UTF8;A\xC4\xBEtmann;Alfons;01.03.1988\n";
-   # \xc5
-   print FILE "UTF8;A\xC5\x80tmann;Alfons;01.04.1988\n";
-   print FILE "UTF8;A\xC5\x82tmann;Alfons;01.05.1988\n";
+   # \xc6
+   print FILE "UTF8;S\xC6\x88hmidt;Schota;02.06.1988\n";
    # d
+   print FILE "UTF8;A\xC3\xB0ler;Adele;02.01.1988\n";
    # \xc4
-   print FILE "UTF8;A\xC4\x8fler;Adele;02.01.1988\n";
-   print FILE "UTF8;A\xC4\x91ler;Adele;02.02.1988\n";
-
+   print FILE "UTF8;A\xC4\x8Fler;Adele;02.02.1988\n";
+   print FILE "UTF8;A\xC4\x91ler;Adele;02.03.1988\n";
+   # \xc6
+   print FILE "UTF8;A\xC6\x8Cler;Adele;02.04.1988\n";
+   print FILE "UTF8;A\xC6\x8Dler;Adele;02.05.1988\n";
    # e
    print FILE "UTF8;M\xC3\xA8yer;Melanie;02.01.1988\n";
    print FILE "UTF8;M\xC3\xA9yer;Melanie;02.02.1988\n";
@@ -380,48 +456,90 @@ if ($file_encoding eq "" or $file_encoding eq "utf8"){
    print FILE "UTF8;F\xC4\xADscher;Finn;02.07.1988\n";
    print FILE "UTF8;F\xC4\xAFscher;Finn;02.08.1988\n";
    print FILE "UTF8;F\xC4\xB1scher;Finn;02.09.1988\n";
-   # d
-   print FILE "UTF8;A\xC3\xB0am;Adele;02.01.1988\n";
+   # ij
+   # \xc4
+   print FILE "UTF8;W\xC4\xB3chen;Wijchen;01.01.1988\n";
+   # j
+   # \xc4
+   print FILE "UTF8;L\xC4\xB5ubow;Ljubow;01.01.1988\n";
+   # k
+   # \xc4
+   print FILE "UTF8;I\xC4\xB7ert;Iker;01.01.1988\n";
+   print FILE "UTF8;I\xC4\xB8ert;Iker;01.02.1988\n";
+   # l
+   # \xc4
+   print FILE "UTF8;A\xC4\xBAtmann;Alfons;01.01.1988\n";
+   print FILE "UTF8;A\xC4\xBCtmann;Alfons;01.02.1988\n";
+   print FILE "UTF8;A\xC4\xBEtmann;Alfons;01.03.1988\n";
+   # \xc5
+   print FILE "UTF8;A\xC5\x80tmann;Alfons;01.04.1988\n";
+   print FILE "UTF8;A\xC5\x82tmann;Alfons;01.05.1988\n";
    # n
    print FILE "UTF8;E\xC3\xB1gel;Engin;02.01.1988\n";
+   # \xc5
+   print FILE "UTF8;E\xC5\x84gel;Engin;02.02.1988\n";
+   print FILE "UTF8;E\xC5\x86gel;Engin;02.03.1988\n";
+   print FILE "UTF8;E\xC5\x88gel;Engin;02.04.1988\n";
+   print FILE "UTF8;E\xC5\x89gel;Engin;02.05.1988\n";
+   print FILE "UTF8;E\xC5\x8bgel;Engin;02.06.1988\n";
    # o
    print FILE "UTF8;K\xC3\xB2ch;Konrad;02.01.1988\n";
    print FILE "UTF8;K\xC3\xB3ch;Konrad;02.02.1988\n";
    print FILE "UTF8;K\xC3\xB4ch;Konrad;02.03.1988\n";
    print FILE "UTF8;K\xC3\xB5ch;Konrad;02.04.1988\n";
-   print FILE "UTF8;K\xC3\xB6ch;Konrad;02.05.1988\n";
-   # B7 ist kein Buchstabe :-
-   print FILE "UTF8;K\xC3\xB8ch;Konrad;02.06.1988\n";
+   print FILE "UTF8;K\xC3\xB8ch;Konrad;02.05.1988\n";
+   # \xc5
+   print FILE "UTF8;K\xC5\x8dch;Konrad;02.06.1988\n";
+   print FILE "UTF8;K\xC5\x8fch;Konrad;02.07.1988\n";
+   print FILE "UTF8;K\xC5\x91ch;Konrad;02.08.1988\n";
+   # oe ligatur,umlaut
+   print FILE "UTF8;B\xC5\x93rek;Boerek;02.01.1988\n";
+   # \xc5
+   print FILE "UTF8;B\xC3\xB6rek;Boerek;02.02.1988\n";
+   # r
+   # \xc5
+   print FILE "UTF8;G\xC5\x95einer;Grischa;02.01.1988\n";
+   print FILE "UTF8;G\xC5\x97einer;Grischa;02.02.1988\n";
+   print FILE "UTF8;G\xC5\x99einer;Grischa;02.03.1988\n";
+   # s
+   # \xc5
+   print FILE "UTF8;A\xC5\x9Bmussen;Astrid;02.01.1988\n";
+   print FILE "UTF8;A\xC5\x9Dmussen;Astrid;02.02.1988\n";
+   print FILE "UTF8;A\xC5\x9Fmussen;Astrid;02.03.1988\n";
+   print FILE "UTF8;A\xC5\xA1mussen;Astrid;02.04.1988\n";
+   print FILE "UTF8;A\xC5\xBFmussen;Astrid;02.05.1988\n";
+   # t
+   # \xc5
+   print FILE "UTF8;A\xC5\xA3es;Atarah;02.01.1988\n";
+   print FILE "UTF8;A\xC5\xA5es;Atarah;02.02.1988\n";
+   print FILE "UTF8;A\xC5\xA7es;Atarah;02.03.1988\n";
+   # C3B7 ist kein Buchstabe :-
    # u
    print FILE "UTF8;J\xC3\xB9ng;Julia;02.01.1988\n";
    print FILE "UTF8;J\xC3\xBAng;Julia;02.02.1988\n";
    print FILE "UTF8;J\xC3\xBBng;Julia;02.03.1988\n";
    print FILE "UTF8;J\xC3\xBCng;Julia;02.04.1988\n";
+   # \xc5
+   print FILE "UTF8;J\xC5\xA9ng;Julia;02.05.1988\n";
+   print FILE "UTF8;J\xC5\xABng;Julia;02.06.1988\n";
+   print FILE "UTF8;J\xC5\xADng;Julia;02.07.1988\n";
+   print FILE "UTF8;J\xC5\xAFng;Julia;02.08.1988\n";
+   print FILE "UTF8;J\xC5\xB1ng;Julia;02.09.1988\n";
+   print FILE "UTF8;J\xC5\xB3ng;Julia;02.10.1988\n";
+   # w
+   print FILE "UTF8;S\xC5\xB5oboda;Swetlana;02.01.1988\n";
    # y
    print FILE "UTF8;Ho\xC3\xBDer;Hoyer;03.01.1988\n";
    print FILE "UTF8;Ho\xC3\xBFer;Hoyer;03.02.1988\n";
+   # \xc5
+   print FILE "UTF8;Ho\xC5\xB7er;Hoyer;03.03.1988\n";
+   # z
+   # \xc5
+   print FILE "UTF8;A\xC5\xBAimi;Azadeh;02.01.1988\n";
+   print FILE "UTF8;A\xC5\xBCimi;Azadeh;02.02.1988\n";
+   print FILE "UTF8;A\xC5\xBEimi;Azadeh;02.03.1988\n";
    # th
    print FILE "UTF8;Ro\xC3\xBE;Roth;03.01.1988\n";
-
-
-# ab hier OK
-
-   # S
-   print FILE "UTF8;\xC5\x9Commer;Sonja;01.01.1988\n";
-   # s
-   print FILE "UTF8;A\xC5\x9Dmussen;Astrid;02.01.1988\n";
-   # Z
-   print FILE "UTF8;\xC5\xBDiegler;Zacharias;01.01.1988\n";
-   # z
-   print FILE "UTF8;A\xC5\xBEimi;Azadeh;02.01.1988\n";
-   # Oe
-   print FILE "UTF8;\xC5\x92ler;Oeler;01.01.1988\n";
-   # oe
-   print FILE "UTF8;B\xC5\x93r;Boer;02.01.1988\n";
-   # Y
-   print FILE "UTF8;\xC5\xB8aso;Yannik;01.01.1988\n";
-
-
 
 }
 
