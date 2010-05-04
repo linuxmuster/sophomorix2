@@ -2449,9 +2449,10 @@ sub pg_get_group_type {
     }    
     my ($type,
         $sambasid,
-        $sambagrouptype)= $dbh->selectrow_array( "SELECT type,sambasid,sambagrouptype 
-                                        FROM classdata 
-                                        WHERE id='$id_sys'");
+        $sambagrouptype)= $dbh->selectrow_array( "SELECT type,sambasid,
+                                                    sambagrouptype 
+                                                    FROM classdata 
+                                                    WHERE id='$id_sys'");
 
     if (not defined $type){
         # look at a users home
@@ -2459,13 +2460,15 @@ sub pg_get_group_type {
                                             FROM userdata 
                                             WHERE gidnumber=$gidnumber_sys");
            if (not defined $home){
-	       return ("nonexisting",$gid,$gidnumber_sys,$sambasid,$sambagrouptype);
+	       return ("nonexisting",$gid,$gidnumber_sys,
+                        $sambasid,$sambagrouptype);
            } elsif ($home=~/^\/home\/workstations\//){
                # identify a workstation 
 	       return ("room",$gid,$gidnumber_sys,$sambasid,$sambagrouptype);
            } elsif ($home=~/^\/home\/administrators\//){
                # identify an administrator
-               return ("administrator",$gid,$gidnumber_sys,$sambasid,$sambagrouptype);
+               return ("administrator",$gid,$gidnumber_sys,
+                       $sambasid,$sambagrouptype);
            } else {
                return ("unknown",$gid,$gidnumber_sys,$sambasid,$sambagrouptype);
            }
@@ -2495,7 +2498,8 @@ sub pg_get_group_type {
                                           FROM projectdata 
                                           WHERE id='$id_sys'");
         if (defined $longname){
-            return ("project",$longname,$gidnumber_sys,$sambasid,$sambagrouptype);
+            return ("project",$longname,$gidnumber_sys,
+                    $sambasid,$sambagrouptype);
         } else {
             return ("project",$gid,$gidnumber_sys,$sambasid,$sambagrouptype);
         }
