@@ -283,6 +283,14 @@ print "    Password         : $password\n";
 print "    Quota            : $quota\n";
 
 
+# repair.directories einlesen ???
+&get_alle_verzeichnis_rechte();
+
+# fetch permission for all homes
+&fetch_repairhome();
+
+
+
 # 1. create postgres entry
 &create_user_db_entry($surname,$given_name,"01.01.1970",
                       $unix_group,$login,$password,
@@ -290,14 +298,14 @@ print "    Quota            : $quota\n";
                       $uid_number,$home,$gecos,$type);
 
 ## 2. Add the class (db and dirs,links, ...)
-#&provide_class_files($unix_group);
+&provide_class_files($unix_group,$type);
 
 ## 3. set a password
 ## my $klartext_passwort="12345678";
 #&set_sophomorix_passwd($login,$klartext_passwort);
 
 ## 4. Creating dirs, links for the user
-#&provide_user_files($login,$unix_group);
+&provide_user_files($login,$unix_group);
 
 # add to secondary groups
 if ($sec_groups ne ""){

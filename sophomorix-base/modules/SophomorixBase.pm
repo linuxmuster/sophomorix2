@@ -1146,7 +1146,12 @@ sub provide_class_files {
 	$type="";
     }
     if ($type eq "examaccount"){
-      # nothing
+      my $workstation_homes="${DevelConf::homedir_ws}/$class";
+      &setup_verzeichnis("\$homedir_ws",
+                    "${DevelConf::homedir_ws}");
+      &setup_verzeichnis("\$homedir_ws/\$raeume",
+                    "$workstation_homes");
+
     } elsif ($class eq ${DevelConf::teacher}){
       &setup_verzeichnis("\$share_teacher",
                     "${DevelConf::share_teacher}");
