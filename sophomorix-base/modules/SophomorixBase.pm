@@ -1387,6 +1387,11 @@ sub provide_user_files {
            # Wozu ist das gut ???
            #system("chown -R $login:${DevelConf::teacher} $home");
          }
+    } elsif ($type eq "domaingroup"){
+        ####################
+        # computer
+        ####################
+        # nothing to do
     } else {
         print "\nERROR: Could not determine type of $class\n\n";
     }

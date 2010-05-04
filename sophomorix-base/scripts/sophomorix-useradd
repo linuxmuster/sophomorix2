@@ -186,6 +186,7 @@ if ($password eq ""){
 
 if ($computer ne ""){
     $type="computer";
+    $unix_group="domcomputers";
     $login=$computer;
     if ($shell eq ""){
         $shell="/bin/false";
