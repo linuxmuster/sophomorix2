@@ -48,6 +48,33 @@
 # scanne das userhome und merke die performance MB/min 
 # werden verlinkte tauschs auch gescannt? besser nicht
 
+# Szenario der Esklation
+# Wenn Virus gefunden, dann
+# A) 
+#    1) Mail an user
+#    2) Tauschverzeichnisse auf die er Zugriff hatte mitscannen
+#    3) Mail????, was noch
+# B) 
+#    1) Scanergebnisse werden gesammelt (später in ldap db)
+#       Datenfelder:   (jeder user eine) Datei mit 1 Scan pro Zeile
+#                      User:Datum:Infected files
+#    2) Punktesystem:
+#       bei Anzahl Infected files gehts um Anzahl*10 hoch (max auf 30)
+#       bei 0 infected files gehts um 1*y runter, minimal aber 0
+#    3) Wer >5 hat, wird täglich wieder gescannt, bis auf 0
+#       Wer <5,>0 hat, wird an geraden Tagen gescannt bis auf 0
+# C) In einer Konfigurationsdatei wird eingetragen, wer regelmäßig 
+#    gescannt werden soll
+#    user::1,3,19,30
+#    user::daily
+#    user::weekly
+#    -> user soll am 1., 3., 19.,30. eines Monats gescannt werden 
+#       (höchste Priorität)
+
+
+
+
+
 # Bibliotheken
 use strict;
 use Getopt::Long;
