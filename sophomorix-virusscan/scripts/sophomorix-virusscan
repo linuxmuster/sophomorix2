@@ -72,7 +72,38 @@
 #       (höchste Priorität)
 
 
-
+# neu
+# allg. keinen 'scan_object' 2x am tag
+# 1) top priority user scannen (configdatei, gestern virus)
+# 2) user ((lehrer und schueler, gruppen)=scan_object, klassentausch geloescht) 
+# aneinanderhaengen, alphab sortieren, bis zum letzten user gehen, 
+# der gescannt wurde
+# 3) alphabetisch scannen , wenn quota vermuten laesst das 
+#    scan_max ueberschritten, dann beenden, 
+#    (ohne quotaresult(gruppen) -> du -s /home/share/*/scan_object auf share, 
+#           teachers extra)
+#    und diesen user als naechster zu scannender user merken -> Datei
+#     wenn letzter in liste, Datei loeschen (--> beginn bei a, 
+#     beim naechten scriptaufruf)
+# 4) --> 1)
+#
+#
+# 
+# 2 Logdateien
+# Datei 1: logdatei von clamav
+# 1 zeile wenn sophomorix-virusscan startet
+# 1 zeile davor: date: befehlaufruf
+#    --> clamav schreibt summary
+#
+# Datei 2 (redundant):
+#   date::scan_object::owner??::number_of_infected_files???::file_dateiname
+#
+# Datei 3 (redundant):
+#   date::scan_object::owner??::virendatei_in_home::virendatei_in_quarantaene:
+#
+# Datei 2: hitlist update am ende, hits merken
+#
+# Testen: gruppen, projekte, subclasses
 
 
 # Bibliotheken
