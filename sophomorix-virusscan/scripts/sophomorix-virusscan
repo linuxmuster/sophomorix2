@@ -134,12 +134,12 @@ my $info=0;
 my $test="";
 
 my $logfile="/var/log/clamav/sophomorix-virusscan.log";
-my $logfile_stout="/var/log/clamav/sophomorix-virusscan.stout.log";
+my $logfile_clamav="/var/log/clamav/sophomorix-virusscan.clamav.log";
 my $quarantine="/var/log/clamav/quarantine";
 system("mkdir -p $quarantine");
 
 
-open(STOUT, ">>$logfile_stout");
+open(LOG, ">>$logfile");
 
 # ===========================================================================
 # Optionen verarbeiten
@@ -180,7 +180,7 @@ Options
 
 print "Quarantine:  $quarantine\n"; 
 print "Logfile:     $logfile\n";
-print "Stout:       $logfile_stout\n";
+print "Clamav:       $logfile_clamav\n";
 
    print('
 Please see the sophomorix-virusscan(8) man pages for full documentation
@@ -202,14 +202,14 @@ if ($info==1){
 
 # Start date in unix seconds
 my $start_time=time;
+my ($start_time_human)=&time;
 
 
 
 
 if ($test ne ""){
-    print STOUT "############################################################\n";
-    print STOUT "\nRunning performance test on user $test ...\n";
-    print STOUT "   * start time is $start_time\n";
+    print LOG "\n######## $test: $start_time_human ############\n";
+    #print LOG "   * start time is $start_time\n";
 
     my ($home) = &fetchdata_from_account($test);
 
@@ -219,15 +219,14 @@ if ($test ne ""){
     ($data_kb)=split(/\s+/,$data_kb);
 
     # scanning
-    # add clamscan command here ??????
-
-    # getestet:
     # clamav geht keinen links nach
-    my $command="clamscan -v -r -i -l $logfile --move=$quarantine ".
-                "$home >> $logfile_stout 2>&1";
-    print STOUT "$command\n\n";
-    # Do it!
-    system($command);
+    my $result=`clamscan  -r -i -l $logfile_clamav --move=$quarantine $home`;
+    #my $command="clamscan -v -r -i -l $logfile_clamav --move=$quarantine ".
+    #            "$home >> $logfile 2>&1";
+
+    # analize result
+    my ($infected) = &get_infected($result);
+
 
     my $now=time;
     my $scan_time=$now-$start_time;
@@ -236,19 +235,61 @@ if ($test ne ""){
     }
     my $performance=$data_kb/$scan_time;
     $performance=int($performance);
-    print STOUT "\nEnd time is $now\n";
-    print STOUT  "Performance results for user $test:\n";
-    printf STOUT "   Scanning time: %15s seconds\n", $scan_time;
-    printf STOUT "   Scanned data : %15s kB\n", $data_kb;
-    printf STOUT "   Performance  : %15s kB/second\n", $performance;
-    print "Data logged into file $logfile_stout\n";
+    #print LOG "\nEnd time is $now\n";
+    #print LOG  "Performance results for user $test:\n";
+    #printf LOG "   Scanning time: %15s seconds\n", $scan_time;
+    #printf LOG "   Scanned data : %15s kB\n", $data_kb;
+    #printf LOG "\nsophomorix-virusscan ($test): %18s kB/second\n", 
+    #           $performance;
+
+    print LOG "$result\n";
+    print LOG "######## $test:      $performance kB/second ##########\n";
+    print LOG "######## $test:      $infected viruses ##############\n";
     exit;
 }
 
-# Do it !
 
+# End of script
+print "Data logged into file $logfile\n";
+print "Data logged into file $logfile_clamav\n";
 
-close(STOUT);
+close(LOG);
 
 exit;
 #&log_script_end(@arguments);
+
+
+
+
+############################################################
+# subs
+############################################################
+
+
+sub time {
+    my $date = `date +%Y-%m-%d_%H-%M-%S`;
+    chomp($date);
+    my ($year,$month,$day,$hour,$minute,$second)=split(/[-_:]/,$date);
+    my $human=$year."-".$month."-".$day." at ".$hour.":".$minute;
+    return ($human,$year,$month,$day,$hour,$minute,$second);
+}
+
+
+sub get_infected {
+    my ($result) = @_;
+    my $text;
+    my $infected="";
+    my @lines = split(/\n/,$result);
+    foreach my $line (@lines){
+        if ($line=~m/Infected files:/){
+            ($text,$infected) = split(/:/, $line);
+            $infected=~s/ //g;
+            #print "Infect: ---$infected---\n";
+        }
+        #print LOG "HE: $line\n";
+    }
+    if ($infected eq ""){
+        print "\nERROR: Could not retrieve number of infected files\n\n";
+    }
+    return $infected;
+}
