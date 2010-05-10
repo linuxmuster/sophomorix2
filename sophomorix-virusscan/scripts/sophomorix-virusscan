@@ -92,18 +92,11 @@
 # 2 Logdateien
 # Datei 1: logdatei von clamav
 # 1 zeile wenn sophomorix-virusscan startet
-# 1 zeile davor: date: befehlaufruf
+# paar zeile davor: date: befehlaufruf
 #    --> clamav schreibt summary
-#
-# Datei 2 (redundant):
-#   date::scan_object::owner??::number_of_infected_files???::file_dateiname
-#
-# Datei 3 (redundant):
-#   date::scan_object::owner??::virendatei_in_home::virendatei_in_quarantaene:
 #
 # Datei 2: hitlist update am ende, hits merken
 #
-# Testen: gruppen, projekte, subclasses
 
 
 # Bibliotheken
@@ -131,12 +124,35 @@ my @arguments = @ARGV;
 
 my $help=0;
 my $info=0;
-my $test="";
+my $scan_object="";
+
+
 
 my $logfile="/var/log/clamav/sophomorix-virusscan.log";
-my $logfile_clamav="/var/log/clamav/sophomorix-virusscan.clamav.log";
+my $log_clam="/var/log/clamav/sophomorix-virusscan.clamav.log";
 my $quarantine="/var/log/clamav/quarantine";
 system("mkdir -p $quarantine");
+
+
+# ???? after upgrade to lenny
+#my $config=$DevelConf::$virusscan_conf."/sophomorix-virusscan.conf";
+my $config_dir="/etc/sophomorix/virusscan";
+my $config=$config_dir."/sophomorix-virusscan.conf";
+
+if (not -e "$config"){
+    my $template="/usr/share/sophomorix-virusscan/config/sophomorix-virusscan.conf";
+    # ???? after upgrade to lenny
+    #my $template=$DevelConf::virusscan_config_templete_pfad.
+    #             "/sophomorix-virusscan.conf";
+    #my $command_1="mkdir -p $DevelConf::$virusscan_conf";
+    my $command_1="mkdir -p $config_dir";
+    print "$command_1\n";
+    system("$command_1");
+
+    my $command_2="cp $template $config";
+    print "$command_2\n";
+    system("$command_2");
+}
 
 
 open(LOG, ">>$logfile");
@@ -152,7 +168,7 @@ open(LOG, ">>$logfile");
 my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
-           "test=s" => \$test,
+           "test|scan-object=s" => \$scan_object,
           );
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
@@ -180,7 +196,7 @@ Options
 
 print "Quarantine:  $quarantine\n"; 
 print "Logfile:     $logfile\n";
-print "Clamav:       $logfile_clamav\n";
+print "Clamav:       $log_clam\n";
 
    print('
 Please see the sophomorix-virusscan(8) man pages for full documentation
@@ -207,53 +223,93 @@ my ($start_time_human)=&time;
 
 
 
-if ($test ne ""){
-    my ($home) = &fetchdata_from_account($test);
+if ($scan_object ne ""){
+    my ($scan_dir) = &fetchdata_from_account($scan_object);
+    if ($scan_dir eq ""){
+        # its not a users home
+        #$scan_dir="$DevelConf::share_classes/$scan_object";
+        if (-e "$DevelConf::share_classes/$scan_object"){
+            print "Its a class\n";
+            $scan_dir="$DevelConf::share_classes/$scan_object";
+	} elsif (-d "$DevelConf::share_subclasses/$scan_object"){
+            print "Its a subclass\n";
+            $scan_dir="$DevelConf::share_subclasses/$scan_object";
+	} elsif (-d "$DevelConf::share_projects/$scan_object"){
+            print "Its a project\n";
+            $scan_dir="$DevelConf::share_projects/$scan_object";
+	} elsif (-d "$DevelConf::share_projects/p_$scan_object"){
+            print "Its a project\n";
+            $scan_dir="$DevelConf::share_projects/p_$scan_object";
+	} elsif (-d "$DevelConf::share_share/$scan_object"){
+            print "Its the school share/parent share\n";
+            $scan_dir="$DevelConf::share_share/$scan_object";
+	} elsif (-d "$scan_object"){
+            print "Its an absolute path to a directory\n";
+            $scan_dir="$scan_object";
+	} elsif (-f "$scan_object"){
+            print "Its an absolute path to a file\n";
+            $scan_dir="$scan_object";
+	} else {
+            $scan_dir="$scan_object";
+        }
+    } 
 
-    print LOG "\n\n#########################################\n";
-    print LOG "####### $test: $start_time_human  #######\n";
-    printf LOG "####### %-25s #######\n",$home;
+    print LOG "\n\n##############################",
+              "##################################\n";
+    printf LOG "####### %-26s: %20s #######\n",
+               $scan_object,
+               $start_time_human;
+    printf LOG "####### %-48s #######\n",$scan_dir;
     #print LOG "   * start time is $start_time\n";
 
-    # amount of data to scan
-    my $data_kb=`du -s $home`;
-    # kB or kiB???????
-    ($data_kb)=split(/\s+/,$data_kb);
+    my $result="";
+    my $infected=-1;
+    my $performance="";
 
-    # scanning
-    # clamav geht keinen links nach
-    my $result=`clamscan  -r -i -l $logfile_clamav --move=$quarantine $home`;
-    #my $command="clamscan -v -r -i -l $logfile_clamav --move=$quarantine ".
-    #            "$home >> $logfile 2>&1";
+    if  (-e $scan_dir){
+        # scanning
+        # clamav geht keinen links nach
+        # amount of data to scan
+        my $data_kb=`du -s $scan_dir`;
+        # kB or kiB???????
+        ($data_kb)=split(/\s+/,$data_kb);
+        # calculation MB for printout
+        my $data_mb=$data_kb/1024;
+        $data_mb=int($data_mb);
+        printf LOG "####### Predicted size of Scan Object: %24s MB #######\n",
+                    $data_mb;
 
-    # analize result
-    my ($infected) = &get_infected($result);
+        $result=`clamscan  -r -i -l $log_clam --move=$quarantine $scan_dir`;
+        #my $command="clamscan -v -r -i -l $log_clam --move=$quarantine ".
+        #            "$scan_dir >> $logfile 2>&1";
+        # analize result
+        ($infected) = &get_infected($result);
+        my $now=time;
+        my $scan_time=$now-$start_time;
+        if ($scan_time==0){
+            $scan_time=1;
+        }
+        $performance=$data_kb/$scan_time;
+        $performance=int($performance);
 
 
-    my $now=time;
-    my $scan_time=$now-$start_time;
-    if ($scan_time==0){
-        $scan_time=1;
+    } else {
+        # no scanning
+        $result="\nERROR: $scan_dir is nonexistent\n\n";
     }
-    my $performance=$data_kb/$scan_time;
-    $performance=int($performance);
-    #print LOG "\nEnd time is $now\n";
-    #print LOG  "Performance results for user $test:\n";
-    #printf LOG "   Scanning time: %15s seconds\n", $scan_time;
-    #printf LOG "   Scanned data : %15s kB\n", $data_kb;
-    #printf LOG "\nsophomorix-virusscan ($test): %18s kB/second\n", 
-    #           $performance;
 
     print LOG "$result\n";
-    printf LOG "####### $test: %10s kB/second #######\n",$performance;
-    printf LOG "####### $test: %10s viruses   #######\n",$infected;
+    printf LOG "####### %-28s: %8s kB/second #######\n",
+               $scan_object,$performance;
+    printf LOG "####### %-28s: %8s viruses   #######\n",
+               $scan_object,$infected;
     exit;
 }
 
 
 # End of script
 print "Data logged into file $logfile\n";
-print "Data logged into file $logfile_clamav\n";
+print "Data logged into file $log_clam\n";
 
 close(LOG);
 
