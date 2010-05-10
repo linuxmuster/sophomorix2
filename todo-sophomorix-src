@@ -2,6 +2,17 @@
 
 
 
+added options to sophomorix-check:
+  - --encoding-students    -> schueler.txt
+  - --encoding-teachers    -> lehrer.txt
+  - --encoding-extra    -> extraschueler.txt
+
+all defaults of these options in sophomorix-devel.conf
+overrride in sophomorix.conf
+- final override as options
+
+
+
 
 mail eintrag in ldap: Mail vom 31.3.10, J. Richter
 
@@ -13,21 +24,7 @@ sophomorix-virusscan
   d) Im script die Pfadvariablen nutzen fuer /etc/... /usr/share/sopho...
 
 
-# Next:
-# check if workstation is added right
-           computer  (V)
-           unixadmin  (administrator V)
-           ... is added right
 
-
-{
-pdbedit benutzen, um 
-- accounts anzulegen
-- abfragen 
-- ...
-
-sollte auch in samba 4 so bleiben
-}
 
 {
 gosa ldap befüllen mit web gui
