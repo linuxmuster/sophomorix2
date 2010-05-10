@@ -208,10 +208,12 @@ my ($start_time_human)=&time;
 
 
 if ($test ne ""){
-    print LOG "\n######## $test: $start_time_human ############\n";
-    #print LOG "   * start time is $start_time\n";
-
     my ($home) = &fetchdata_from_account($test);
+
+    print LOG "\n\n#########################################\n";
+    print LOG "####### $test: $start_time_human  #######\n";
+    printf LOG "####### %-25s #######\n",$home;
+    #print LOG "   * start time is $start_time\n";
 
     # amount of data to scan
     my $data_kb=`du -s $home`;
@@ -243,8 +245,8 @@ if ($test ne ""){
     #           $performance;
 
     print LOG "$result\n";
-    print LOG "######## $test:      $performance kB/second ##########\n";
-    print LOG "######## $test:      $infected viruses ##############\n";
+    printf LOG "####### $test: %10s kB/second #######\n",$performance;
+    printf LOG "####### $test: %10s viruses   #######\n",$infected;
     exit;
 }
 
