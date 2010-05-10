@@ -69,6 +69,9 @@ CTEMPDIR=$(DESTDIR)/usr/share/sophomorix/config-templates
 # Testfiles
 DEVELOPERDIR=$(DESTDIR)/usr/share/sophomorix-developer
 
+# sophomorix-virusscan
+VIRUSSCAN=$(DESTDIR)/usr/share/sophomorix-virusscan
+
 # WEBMINCONFDIR ML und Debian
 #WEBMINCONFDIR=$(DESTDIR)/etc/webmin
 
@@ -331,6 +334,9 @@ install-vampire:
 
 install-virusscan:
 	### install-virusscan
+	@install -d $(VIRUSSCAN)
+	@install -d $(VIRUSSCAN)/config
+	@install sophomorix-virusscan/config/sophomorix-virusscan.conf $(VIRUSSCAN)/config
 	@install -d $(DESTDIR)/usr/sbin
 	@install -oroot -groot --mode=0744 sophomorix-virusscan/scripts/sophomorix-virusscan $(DESTDIR)/usr/sbin
 
