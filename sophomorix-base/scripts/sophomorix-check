@@ -770,14 +770,12 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
    $wunsch_passwort="---";
    &titel("Reading  ${schuelerdatei} ...");
 
-   print REPORTSEKRETARIAT  "\n\n########################################", 
-                            "########################################\n";
-   printf REPORTSEKRETARIAT "%-10s %-60s %-10s\n",
-                            "########",
-                            "Bearbeite ${schuelerdatei} ...",
-                            "########";
-   print REPORTSEKRETARIAT  "########################################",
-                            "########################################\n\n";
+   print REPORTSEKRETARIAT  "\n\n#####################################", 
+                            "#########################################\n";
+   printf REPORTSEKRETARIAT "######## %-60s ########\n",$schuelerdatei;
+   printf REPORTSEKRETARIAT "######## Encoding: %-50s ########\n",$encoding;
+   print REPORTSEKRETARIAT  "#######################################",
+                            "#######################################\n\n";
 
    # exit if filterscript does not create schueler.txt.tmp
    if (not -e ${DevelConf::schueler_datei} and $Conf::filter_script ne ""){
