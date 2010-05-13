@@ -71,7 +71,7 @@ if ($help==1) {
    print('
 Options
   -h  / --help
-  -e / --encoding / --file-encoding iso8859-1|iso8859-15|win1252|utf8
+  -e / --encoding / --file-encoding 8859-1|8859-15|win1252|utf8
   -o / --output-file /path/to/file
 
 ');
@@ -85,7 +85,7 @@ Options
 open (FILE, ">$output_file");
 
 if ($file_encoding eq "" or $file_encoding eq "8859-1"){
-   print FILE "# iso8859-1\n";
+   print FILE "# ISO 8859-1\n";
    # 
    # Quelle: Wikipedia -> iso 8859-1 (Latin1)
    #
@@ -184,7 +184,7 @@ if ($file_encoding eq "" or $file_encoding eq "8859-15"){
    #
    # ISO 8859-15 
    #
-   print FILE "# iso8859-15 additions to iso8859-1\n";
+   print FILE "# ISO 8859-15 additions to ISO 8859-1\n";
    # S
    print FILE "ISO885915;\xA6ommer;Sonja;01.01.1985\n";
    # s
@@ -207,7 +207,7 @@ if ($file_encoding eq "" or $file_encoding eq "win1252"){
    #
    # win 1252
    #
-   print FILE "# win1252 additions to iso8859-1\n";
+   print FILE "# win1252 additions to ISO 8859-1\n";
    # S
    print FILE "WIN1252;\x8Aommer;Sonja;01.01.1952\n";
    # s
