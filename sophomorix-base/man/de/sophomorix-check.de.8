@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-CHECK 8 "May 2, 2010"
+.TH SOPHOMORIX-CHECK 8 "May 13, 2010"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -47,11 +47,16 @@ Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .B --no-auto-teach-in, --no-sync
 macht keine automatischen updates der Benutzerdatenbank (kein auto-teach-in).
 .TP
-.B --file-encoding encoding, --encoding encoding, -e encoding
-verarbeitet die einzulesenden Dateien in einer bestimmten
-Zeichencodierung. Standard ist ISO 8859-1. Mögliche Optionen sind
-ascii, 8859-1, 8859-15, win1252, utf8. Bei verwendung der Option utf8
-werden nicht alle möglichen Zeichen unterstützt
+.B --encoding-students encoding, --encoding-students-extra encoding, --encoding-courses-extra encoding, --encoding-teachers encoding,
+verarbeitet die einzulesenden 4 Dateien in einer bestimmten
+Zeichencodierung. Standard ist ISO 8859-15. 
+.br
+Mögliche Optionen sind ascii, 8859-1, 8859-15, win1252, utf8. Bei
+Verwendung der Option utf8 werden nicht alle möglichen Zeichen
+unterstützt.
+.TP
+.B --filter-only
+stoppt, nachdem das in sophomorix.conf angegebene filter script die schueler.txt gefiltert hat. Das Resultat der Filterung kann in /var/lib/sophomorix.tmp/schueler.txt.tmp kontrolliert werden. 
 .TP
 .B --lock, --unlock
 legt die Datei sophomorix.lock an, bzw. löscht sie, falls vorhanden. 
@@ -70,9 +75,6 @@ holt die numerische gid aus alten Dateien und nutzt sie. Nur in Verbindung mit O
 .TP
 .B --file filename
 liest die angegebene Datei filename zusätzlich ein, bevor die standard-Dateien eingelesen werden
-.TP
-.B --filter-only
-stoppt, nachdem das in sophomorix.conf angegebene filter script die schueler.txt gefiltert hat. Das Resultat der Filterung kann in /var/lib/sophomorix.tmp/schueler.txt.tmp kontrolliert werden. 
 .TP
 .B --no-kclass
 Entfernt NICHT das führende k in Gruppennamen aus der alten
