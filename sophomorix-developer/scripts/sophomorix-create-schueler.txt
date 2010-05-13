@@ -94,12 +94,12 @@ if ($file_encoding eq "" or $file_encoding eq "8859-1"){
    print FILE "ISO88591;\xC1lbrecht;Albert;01.02.1971\n";
    print FILE "ISO88591;\xC2lbrecht;Albert;01.03.1971\n";
    print FILE "ISO88591;\xC3lbrecht;Albert;01.04.1971\n";
-   print FILE "ISO88591;\xC4lbrecht;Albert;01.05.1971\n";
-   print FILE "ISO88591;\xC5lbrecht;Albert;01.06.1971\n";
+   print FILE "ISO88591;\xC5lbrecht;Albert;01.05.1971\n";
    # Ae
-   print FILE "ISO88591;\xC6ro;Aero;01.01.1971\n";
+   print FILE "ISO88591;\xC4ro;Aero;01.01.1971\n";
+   print FILE "ISO88591;\xC6ro;Aero;01.02.1971\n";
    # C
-   print FILE "ISO88591;\xC7onrad;Clara;01.01.1971\n";
+   print FILE "ISO88591;\xC7onrad;Cornel;01.01.1971\n";
    # E
    print FILE "ISO88591;\xC8ngel;Ernst;01.01.1971\n";
    print FILE "ISO88591;\xC9ngel;Ernst;01.02.1971\n";
@@ -111,7 +111,7 @@ if ($file_encoding eq "" or $file_encoding eq "8859-1"){
    print FILE "ISO88591;\xCEnes;Inge;01.03.1971\n";
    print FILE "ISO88591;\xCFnes;Inge;01.04.1971\n";
    # D
-   print FILE "ISO88591;\xD0ietrich;Dagobert;01.01.1971\n";
+   print FILE "ISO88591;\xD0ietrich;Dieter;01.01.1971\n";
    # N
    print FILE "ISO88591;\xD1eumann;Norbert;01.01.1971\n";
    # O
@@ -119,16 +119,18 @@ if ($file_encoding eq "" or $file_encoding eq "8859-1"){
    print FILE "ISO88591;\xD3tto;Oliver;01.02.1971\n";
    print FILE "ISO88591;\xD4tto;Oliver;01.03.1971\n";
    print FILE "ISO88591;\xD5tto;Oliver;01.04.1971\n";
-   print FILE "ISO88591;\xD6tto;Oliver;01.05.1971\n";
    # -> X
-   print FILE "ISO88591;\xD8tto;Oliver;01.06.1971\n";
+   print FILE "ISO88591;\xD8tto;Oliver;01.05.1971\n";
+   # Oe
+   print FILE "ISO88591;\xD6hler;Oehler;01.01.1971\n";
    # X
    print FILE "ISO88591;\xD7aver;Xenia;01.01.1971\n";
    # U
    print FILE "ISO88591;\xD9nger;Udo;01.01.1971\n";
    print FILE "ISO88591;\xDAnger;Udo;01.02.1971\n";
    print FILE "ISO88591;\xDBnger;Udo;01.03.1971\n";
-   print FILE "ISO88591;\xDCnger;Udo;01.04.1971\n";
+   # Ue
+   print FILE "ISO88591;\xDCber;Ueli;01.01.1971\n";
    # Y
    print FILE "ISO88591;\xDDilmaz;Yilgrim;01.01.1971\n";
    # Th \xDE (thorn)
@@ -165,14 +167,16 @@ if ($file_encoding eq "" or $file_encoding eq "8859-1"){
    print FILE "ISO88591;K\xF3ch;Konrad;02.02.1971\n";
    print FILE "ISO88591;K\xF4ch;Konrad;02.03.1971\n";
    print FILE "ISO88591;K\xF5ch;Konrad;02.04.1971\n";
-   print FILE "ISO88591;K\xF6ch;Konrad;02.05.1971\n";
-   # F7 ist kein Buchstabe :-
-   print FILE "ISO88591;K\xF8ch;Konrad;02.06.1971\n";
+   # F7 ist kein Buchstabe :- (geteilt-Zeichen, Taschenrechner)
+   print FILE "ISO88591;K\xF8ch;Konrad;02.05.1971\n";
+   # oe
+   print FILE "ISO88591;K\xF6hler;Koehler;02.01.1971\n";
    # u
    print FILE "ISO88591;J\xF9ng;Julia;02.01.1971\n";
    print FILE "ISO88591;J\xFAng;Julia;02.02.1971\n";
    print FILE "ISO88591;J\xFBng;Julia;02.03.1971\n";
-   print FILE "ISO88591;J\xFCng;Julia;02.04.1971\n";
+   # ue
+   print FILE "ISO88591;M\xFCller;Juergen;02.04.1971\n";
    # y
    print FILE "ISO88591;Ho\xFDer;Hoyer;03.01.1971\n";
    print FILE "ISO88591;Ho\xFFer;Hoyer;03.02.1971\n";
