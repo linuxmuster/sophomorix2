@@ -85,7 +85,10 @@ my $lock=0;
 my $unlock=0;
 my $filter_only=0;
 my $no_auto_teach_in=0;
-my $file_encoding="";
+my $encoding_students="";
+my $encoding_students_extra="";
+my $encoding_courses_extra="";
+my $encoding_teachers="";
 
 
 # Parsen der Optionen
@@ -102,7 +105,10 @@ my $testopt=GetOptions(
            "no-kclass" => \$no_kclass,
            "no-auto-teach-in|no-sync" => \$no_auto_teach_in,
            "file=s" => \$file_to_check,
-           "file-encoding|encoding|e=s" => \$file_encoding,
+           "encoding-students=s" => \$encoding_students,
+           "encoding-students-extra=s" => \$encoding_students_extra,
+           "encoding-courses-extra=s" => \$encoding_courses_extra,
+           "encoding-teachers=s" => \$encoding_teachers,
           );
 
 # Prüfen, ob Optionen erkannt wurden
@@ -136,7 +142,10 @@ Options
   --use-gid
   --file filename
   --filter-only
-  --file-encoding encoding
+  --encoding-students encoding
+  --encoding-students-extra encoding
+  --encoding-courses-extra encoding
+  --encoding-teachers encoding
   --lock / --unlock
 
 Please see the sophomorix-check(8) man pages for full documentation
@@ -152,31 +161,55 @@ if ($unlock==1) {
     exit;
 }
 
+
 # --lock
 if ($lock==1) {
     &lock_sophomorix("lock",0,@arguments);
     exit;
 }
 
-# --file-encoding
-if ($file_encoding ne ""){
-    if ($file_encoding ne "ascii" and
-        $file_encoding ne "8859-1" and
-        $file_encoding ne "8859-15" and
-        $file_encoding ne "win1252" and
-        $file_encoding ne "utf8"
-       ){
-	print "\nFile encoding $file_encoding is not supported.\n";
-	print "Use ascii, 8859-1, 8859-15, win1252, utf8 instead.\n\n";
-        exit;
-    }
-    $Conf::file_encoding=$file_encoding;
-}
 
 # --cron
 if ($cron==1){
     # do nothing special
     # run script as usual
+}
+
+
+
+# --encoding-*-*
+my %supported_encodings = qw(
+    ascii    supported
+    8859-1   supported
+    8859-15  supported
+    win1252  supported
+    utf8     supported
+);
+if ($encoding_students ne ""){
+    if (not exists $supported_encodings{$encoding_students}){
+        print "\nERROR: Encoding $encoding_students is not supported!\n\n";
+        exit;
+    }
+}
+if ($encoding_students_extra ne ""){
+    if (not exists $supported_encodings{$encoding_students_extra}){
+        print "\nERROR: Encoding $encoding_students_extra ",
+              "is not supported!\n\n";
+        exit;
+    }
+}
+if ($encoding_courses_extra ne ""){
+    if (not exists $supported_encodings{$encoding_courses_extra}){
+        print "\nERROR: Encoding $encoding_courses_extra ",
+              "is not supported!\n\n";
+        exit;
+    }
+}
+if ($encoding_teachers ne ""){
+    if (not exists $supported_encodings{$encoding_teachers}){
+        print "\nERROR: Encoding $encoding_teachers is not supported!\n\n";
+        exit;
+    }
 }
 
 
@@ -673,6 +706,60 @@ if ($old_info_dir ne ""){
 # ===========================================================================
 $zeilen_anzahl=0; # Zähler erstreckt sich über alle Dateien
 foreach $schuelerdatei (@schueler_to_check_dateien){
+   # encoding wählen
+
+   my $encoding;
+
+   if ($schuelerdatei eq $schueler_to_check_dateien[0]){
+       # schueler
+       if ($encoding_students ne ""){
+           # option wins
+           $encoding=$encoding_students;
+       } elsif (defined $Conf::encoding_students){
+           # sophomorix.conf wins
+           $encoding=$Conf::encoding_students;
+       } elsif (defined $DevelConf::encoding_students){
+           # sophomorix-devel.conf wins
+           $encoding=$DevelConf::encoding_students;
+       }
+   } elsif ($schuelerdatei eq $schueler_to_check_dateien[1]){
+       # extraschueler
+       if ($encoding_students_extra ne ""){
+           # option wins
+           $encoding=$encoding_students_extra;
+       } elsif (defined $Conf::encoding_students_extra){
+           # sophomorix.conf wins
+           $encoding=$Conf::encoding_students_extra;
+       } elsif (defined $DevelConf::encoding_students_extra){
+           # sophomorix-devel.conf wins
+           $encoding=$DevelConf::encoding_students_extra;
+       }
+   } elsif ($schuelerdatei eq $schueler_to_check_dateien[2]){
+       # extrakurse
+       if ($encoding_courses_extra ne ""){
+           # option wins
+           $encoding=$encoding_courses_extra;
+       } elsif (defined $Conf::encoding_courses_extra){
+           # sophomorix.conf wins
+           $encoding=$Conf::encoding_courses_extra;
+       } elsif (defined $DevelConf::encoding_courses_extra){
+           # sophomorix-devel.conf wins
+           $encoding=$DevelConf::encoding_courses_extra;
+       }
+   } elsif ($schuelerdatei eq $schueler_to_check_dateien[3]){
+       # lehrer
+       if ($encoding_teachers ne ""){
+           # option wins
+           $encoding=$encoding_teachers;
+       } elsif (defined $Conf::encoding_teachers){
+           # sophomorix.conf wins
+           $encoding=$Conf::encoding_teachers;
+       } elsif (defined $DevelConf::encoding_teachers){
+           # sophomorix-devel.conf wins
+           $encoding=$DevelConf::encoding_teachers;
+       }
+   }
+
    # Abbruch, wenn Dateiname leer (option --file)
    if ($schuelerdatei eq "") {
       next;
@@ -744,7 +831,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
        s/ //g;
 
        # Sonderzeichen umwandeln
-       $_ = &filter_school_admin_software($_);
+       $_ = &filter_school_admin_software($_,$encoding);
 
        # ????? custom-filter aus Datei, in der netzadmin was eintraegt
 
@@ -3680,116 +3767,14 @@ sub better_match {
 
 
 
-sub filter_school_admin_software_old {
-     my ($line) = @_;
-     # Todo: Variable with string in user.conf $admin_software="splan";
-     # open splan.filter and Read the following lines from there
-     # SPLAN-Sonderzeichen BEGINN
-     #evtl recode ibmpc..lat1
-     # Falsches ' in richtiges umwandeln
-     $line=~s/`/'/g;
-
-     # ü umwandeln
-     if ($DevelConf::allow_umlaut eq "no"){
-           # ü
-           $line=~s/ü/ue/g;
-           $line=~s/\201/ue/g;
-           # Ü
-           $line=~s/Ü/Ue/g;
-           $line=~s/\232/Ue/g;
-           # ö
-           $line=~s/ö/oe/g;
-           $line=~s/\224/oe/g;
-           # Ö
-           $line=~s/Ö/Oe/g;
-           $line=~s/\231/Oe/g;
-           # ä
-           $line=~s/ä/ae/g;
-           $line=~s/\204/ae/g;
-           # Ä
-           $line=~s/Ä/Ae/g;
-           # ß
-           $line=~s/ß/ss/g;
-           #$line=~s/á/ss/g;
-     } else {
-           # ü
-           $line=~s/\201/ü/g;
-           # Ü
-           $line=~s/\232/Ü/g;
-           # ö
-           $line=~s/\224/ö/g;
-           # Ö
-           $line=~s/\231/Ö/g;
-           # ä
-           $line=~s/\204/ä/g;
-           # Ä
-           # nothing to do
-           $line=~s/\204/Ä/g;
-      }
-      # e mit Akzent  umwandeln
-      $line=~s/\202/e/g;
-      $line=~s/\212/e/g;
-      $line=~s/è/e/g;
-      $line=~s/é/e/g;
-      # a mit Akzent umwandeln
-      $line=~s/À/a/g;
-      $line=~s/\341/a/g;
-      #$line=~s/\303/a/g;
-      # a mit Dach umwandeln
-      $line=~s/\203/a/g;
-      # o mit Akzent umwandeln
-      $line=~s/¢/o/g;
-      # o mit Dach umwandeln
-      $line=~s/\223/o/g;
-      # russisches i
-      $line=~s/ï/i/g;
-      # u mit akzent
-      $line=~s/£/u/g;
-      $line=~s/\243/u/g;
-      # SPLAN-Sonderzeichen ENDE
-
-      # Atlantis-Sonderzeichen START  
-      $line=~s/\264//g;
-      $line=~s/\351/e/g;
-      $line=~s/\363/o/g;
-      $line=~s/\364/o/g;
-      $line=~s/\347\343/a/g;
-      $line=~s/\347/c/g;
-
-      # Atlantis-Sonderzeichen ENDE  
-
-      # Jaeneke Sonderzeichen
-      $line=~s/\353/e/g;
-      $line=~s/\351/e/g;
-      # ' 
-      $line=~s/\047//g;
-
-      # ß umwandeln
-      $line=~s/á/ß/g;
-      $line=~s/\303/ss/g;
-      # Sonderzeichen wegfallenlassen
-      # Minus streichen
-#      $line=~s/-//g;
-      # ' Streichen
-      # mit s/'//g; geht die Emacs-Formatierung nicht mehr
-      $line=~s/\'//g;
-      return $line;
-}
 
 sub filter_school_admin_software {
-     my ($line) = @_;
-     # neu mit lenny:
-     #  Diese Funktion wandelt alle Sonderzeichen in unicode um!
-
+     my ($line,$encoding) = @_;
      # file_coding: 8859-1,8859-15,win1252,utf8 
-     if (not defined $Conf::file_encoding){
-	 $Conf::file_encoding="8859-15";
-     }
 
-
-     if ($Conf::file_encoding eq "8859-1" or 
-         $Conf::file_encoding eq "8859-15" or
-         $Conf::file_encoding eq "win1252" ){
+     if ($encoding eq "8859-1" or 
+         $encoding eq "8859-15" or
+         $encoding eq "win1252" ){
          # common in 
          # iso 8859-1
          # iso 8859-15
@@ -3894,7 +3879,7 @@ sub filter_school_admin_software {
      }
 
 
-     if ($Conf::file_encoding eq "8859-15"){
+     if ($encoding eq "8859-15"){
          # additional to 8859-1
          # S
          $line=~s/\xA6/S/g;
@@ -3913,7 +3898,7 @@ sub filter_school_admin_software {
      }
 
 
-     if ($Conf::file_encoding eq "win1252"){
+     if ($encoding eq "win1252"){
          # additional to 8859-1
          # S
          $line=~s/\x8A/S/g;
@@ -3932,7 +3917,7 @@ sub filter_school_admin_software {
      }
 
 
-     if ($Conf::file_encoding eq "utf8"){
+     if ($encoding eq "utf8"){
          # utf8
          # iso 8859-1 stuff
          # A
@@ -4186,6 +4171,103 @@ sub filter_school_admin_software {
      return $line;
 }
 
+
+
+sub filter_school_admin_software_old {
+     my ($line) = @_;
+     # Todo: Variable with string in user.conf $admin_software="splan";
+     # open splan.filter and Read the following lines from there
+     # SPLAN-Sonderzeichen BEGINN
+     #evtl recode ibmpc..lat1
+     # Falsches ' in richtiges umwandeln
+     $line=~s/`/'/g;
+
+     # ü umwandeln
+     if ($DevelConf::allow_umlaut eq "no"){
+           # ü
+           $line=~s/ü/ue/g;
+           $line=~s/\201/ue/g;
+           # Ü
+           $line=~s/Ü/Ue/g;
+           $line=~s/\232/Ue/g;
+           # ö
+           $line=~s/ö/oe/g;
+           $line=~s/\224/oe/g;
+           # Ö
+           $line=~s/Ö/Oe/g;
+           $line=~s/\231/Oe/g;
+           # ä
+           $line=~s/ä/ae/g;
+           $line=~s/\204/ae/g;
+           # Ä
+           $line=~s/Ä/Ae/g;
+           # ß
+           $line=~s/ß/ss/g;
+           #$line=~s/á/ss/g;
+     } else {
+           # ü
+           $line=~s/\201/ü/g;
+           # Ü
+           $line=~s/\232/Ü/g;
+           # ö
+           $line=~s/\224/ö/g;
+           # Ö
+           $line=~s/\231/Ö/g;
+           # ä
+           $line=~s/\204/ä/g;
+           # Ä
+           # nothing to do
+           $line=~s/\204/Ä/g;
+      }
+      # e mit Akzent  umwandeln
+      $line=~s/\202/e/g;
+      $line=~s/\212/e/g;
+      $line=~s/è/e/g;
+      $line=~s/é/e/g;
+      # a mit Akzent umwandeln
+      $line=~s/À/a/g;
+      $line=~s/\341/a/g;
+      #$line=~s/\303/a/g;
+      # a mit Dach umwandeln
+      $line=~s/\203/a/g;
+      # o mit Akzent umwandeln
+      $line=~s/¢/o/g;
+      # o mit Dach umwandeln
+      $line=~s/\223/o/g;
+      # russisches i
+      $line=~s/ï/i/g;
+      # u mit akzent
+      $line=~s/£/u/g;
+      $line=~s/\243/u/g;
+      # SPLAN-Sonderzeichen ENDE
+
+      # Atlantis-Sonderzeichen START  
+      $line=~s/\264//g;
+      $line=~s/\351/e/g;
+      $line=~s/\363/o/g;
+      $line=~s/\364/o/g;
+      $line=~s/\347\343/a/g;
+      $line=~s/\347/c/g;
+
+      # Atlantis-Sonderzeichen ENDE  
+
+      # Jaeneke Sonderzeichen
+      $line=~s/\353/e/g;
+      $line=~s/\351/e/g;
+      # ' 
+      $line=~s/\047//g;
+
+      # ß umwandeln
+      $line=~s/á/ß/g;
+      $line=~s/\303/ss/g;
+      # Sonderzeichen wegfallenlassen
+      # Minus streichen
+#      $line=~s/-//g;
+      # ' Streichen
+      # mit s/'//g; geht die Emacs-Formatierung nicht mehr
+      $line=~s/\'//g;
+      return $line;
+}
 
 
 # Ende Sub
