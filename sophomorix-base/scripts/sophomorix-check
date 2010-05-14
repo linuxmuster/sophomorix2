@@ -3775,8 +3775,16 @@ sub better_match {
 
 sub filter_school_admin_software {
      my ($line,$encoding) = @_;
-     # file_coding: 8859-1,8859-15,win1252,utf8 
 
+     # nur 8859-1
+     if ($encoding eq "8859-1" or
+         $encoding eq "win1252"){
+         # '-Variation
+         $line=~s/\xB4//g;
+     }
+
+
+     # file_coding: 8859-1,8859-15,win1252,utf8 
      if ($encoding eq "8859-1" or 
          $encoding eq "8859-15" or
          $encoding eq "win1252" ){
@@ -3784,6 +3792,9 @@ sub filter_school_admin_software {
          # iso 8859-1
          # iso 8859-15
          # windows 1252
+         # '-Variation
+         $line=~s/\x27//g;
+         $line=~s/\x60//g;
          # A
          $line=~s/\xC0/A/g;
          $line=~s/\xC1/A/g;
