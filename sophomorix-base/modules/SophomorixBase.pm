@@ -205,18 +205,19 @@ sub titel {
    if($Conf::log_level>=2){
    print  "\n#########################################", 
                             "#######################################\n";
-   printf "%-3s %-67s %-2s"," #","$a","#";
+   printf " # %-70s # ",$a;
    print  "\n########################################",
                             "########################################\n";
    } else {
-         printf "%-3s %-67s %-3s\n", "#####", "$a", "#####";
+         printf "#### %-69s####\n",$a;
    }
 }
 
 sub alpha_warning {
     print "\n WARNING: you are trying to use a feature of sophomorix";
     print "\n          that is considered DANGEROUS!";
-    print "\n          It is not recommended to use it on a production server!\n";
+    print "\n          It is not recommended to use it on a ",
+          "production server!\n";
     print "\n Type Ctrl-c to exit or 'ok' + <Return> to continue!\n\n";
     while(){# Endlosschleife für die Eingabe
          $user_antwort= <STDIN>; # Lesen von Tastatur
