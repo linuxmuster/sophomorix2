@@ -768,7 +768,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
    # wunsch-login leeren, da er nicht von jedem Datensatz überschrieben wird
    $wunsch_login="---";
    $wunsch_passwort="---";
-   &titel("Reading  ${schuelerdatei} ...");
+   &titel("Open ${schuelerdatei} ($encoding)");
 
    print REPORTSEKRETARIAT  "\n\n#####################################", 
                             "#########################################\n";
@@ -856,6 +856,7 @@ foreach $schuelerdatei (@schueler_to_check_dateien){
 
        # Strichpunktanzahl checken
        $strichpunkt_anzahl=tr/;//;
+
        if ( &semicolon_number_ok($strichpunkt_anzahl, $schuelerdatei) == 0 ) {
 	   next;
        }
@@ -1911,7 +1912,8 @@ sub semicolon_number_ok {
                   " ... OK in $filename\n";
         }
         return 1;
-   } elsif ($strichpunkt_anzahl==5 && $filename eq $schueler_to_check_dateien[1] ){
+   } elsif ($strichpunkt_anzahl==5 && 
+            $filename eq $schueler_to_check_dateien[1] ){
             # 5 Strichpunkte erlaubt in extraschueler.txt
             if($Conf::log_level>=3){
                print " ... $number semicolon found",
@@ -1927,7 +1929,6 @@ sub semicolon_number_ok {
         # Zeilenzähler wurde schon erhöht, nun zurücksetzen 
         # Abbruch
         return 0;  
-#   } elsif ($number==3 && $Conf::drei_strichpunkt eq "yes"){
    } elsif ($number==3 
             and not m/;$/ 
             and $filename eq $schueler_to_check_dateien[0]){
@@ -1954,7 +1955,13 @@ sub semicolon_number_ok {
         return 1;
    } else {
         $datensatz_korrupt=1;
-        print " ... $number semicolon found in $filename ... ERROR\n";
+        if ($filename eq $schueler_to_check_dateien[0]){
+            if($Conf::log_level>=2){
+                print " ... $number semicolon found in $filename ... WARNING\n";
+            }
+        } else {
+            print " ... $number semicolon found in $filename ... ERROR\n";
+        }
         $datensatz_korrupt_anzahl++;
         push (@admin_list_corrupt, "Korrupter Datensatz (", $number ,
 	      " Strichpunkte):\n");
