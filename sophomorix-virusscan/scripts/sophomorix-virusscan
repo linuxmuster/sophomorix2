@@ -219,11 +219,71 @@ if ($info==1){
 # Start date in unix seconds
 my $start_time=time;
 my ($start_time_human)=&time;
+my $day_of_month=`date +%d`;
+chomp($day_of_month);
 
-
-
-
+# --test|--scan-object
 if ($scan_object ne ""){
+    &scan_object($scan_object);
+    &exit_script;
+}
+
+# use data from sophomorix-virusscan.conf
+open(CONF, "<$config");
+while(<CONF>){
+    if (/^#/){
+        next;
+    }
+    my ($object,$days) = split(/::/);
+    my (@days) = split(/,/,$days);
+
+    print "OBJECT: $object\n";
+    foreach my $day (@days){
+        if ($day==$day_of_month){
+            print "Heute am $day wird $object gescannt\n";
+            &scan_object($object);
+        } else {      
+            print "  $object wird nicht am  $day gescannt\n";
+        }
+    }
+
+
+}
+
+close(CONF);
+
+
+# open file
+
+# read data
+
+# create list of todays users
+
+# fuer jeden &scan_object aufrufen
+
+
+
+
+&exit_script;
+
+
+
+
+
+############################################################
+# subs
+############################################################
+
+sub exit_script {
+    # End of script
+    print "Data logged into file $logfile\n";
+    print "Data logged into file $log_clam\n";
+    close(LOG);
+    exit;
+}
+
+sub scan_object {
+    my ($scan_object) = @_;
     my ($scan_dir) = &fetchdata_from_account($scan_object);
     if ($scan_dir eq ""){
         # its not a users home
@@ -276,7 +336,7 @@ if ($scan_object ne ""){
         # calculation MB for printout
         my $data_mb=$data_kb/1024;
         $data_mb=int($data_mb);
-        printf LOG "####### Predicted size of Scan Object: %24s MB #######\n",
+        printf LOG "####### Predicted size of Scan Object: %14s MB #######\n",
                     $data_mb;
 
         $result=`clamscan  -r -i -l $log_clam --move=$quarantine $scan_dir`;
@@ -303,25 +363,8 @@ if ($scan_object ne ""){
                $scan_object,$performance;
     printf LOG "####### %-28s: %8s viruses   #######\n",
                $scan_object,$infected;
-    exit;
+    return 1;
 }
-
-
-# End of script
-print "Data logged into file $logfile\n";
-print "Data logged into file $log_clam\n";
-
-close(LOG);
-
-exit;
-#&log_script_end(@arguments);
-
-
-
-
-############################################################
-# subs
-############################################################
 
 
 sub time {
