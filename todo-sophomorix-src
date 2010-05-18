@@ -5,15 +5,25 @@ smb.conf: Soll das rein?
 	max connections = 1
 
 
-passwort test einbauen:
+passwort test einbauen: 
+      ssh user@localhost  --> yes erforderlich
+          --> falsches Passwort: 3x eingeben, 
+              dann schluss: return 255 (error)
+          --> Richtiges Password: da /bin/false wird user ausgeloggt
+              return 1 (return of remote command)
+
 - einlogversuch konsole
 - passwort ändern
 - einlogversuch konsole
 
+
 - dump-test-einbauen:
+  nicht mehr so wichtig
   nach jeder Datenbankänderung abhängig von option --with-dump
   vor dump ldif erzeugen, nach dump ldif erzeugen 
        -> ldif vergleichen, anzeigen/Fehler wenn Unterschiede
+
+
 - sophomorix-create-schueler.txt:
   add option with 5th field (6th Field?unid?) to create lehrer.txt
 
@@ -3480,8 +3490,40 @@ In sophomorix-class -i --class name
 
 
 
+###############################################################################
+# postgres slapd -> slapd
+###############################################################################
+Überlegungen zum ersetzen der postgres-Datenbank mit ldap only:
+
+Schritte:
+
+1) ldap-Baum erzeugen
+   Nach und nach werden weitere schemas dem ldap Baum hinzugefügt:
+   -> sophomorix.schema, ....
+   beim dump werden diese Felder gefüllt
+   beim modifizieren eines accounts werden sie verändert
+   ZIEL: + alle erforderlichen Daten aus postgresql in ldap
+         + zusätzliche Datenbankfelder (siehe die Datei hier)
+         + zusätzliche Felder für workstations
+         + zusätzliche felder für linbo ?
+         + ...
+   Der ldap-Baum sollte gut getestet sein, damit er sich nie wieder ändert:
+   - moodle, ...
+   - mehrere Schulen, ....
+
+2) sophomorix-dump-pg2ldap soll diesen ldap Baum perfekt erzeugen:
+   -> wird zur Konvertierung von postgres nach ldap benutzt:
+   vor upgrade auf ubuntu:
+   A) sophomorix-dump-pg2ldap erzeugt ldap-baum bzw. *.ldif
+   B) auf ubuntu wird diese ldif eingelesen, postgres nicht mehr nötig
+   
+3A) Schulkonsole fixen, soll nur noch ldap abfragen
+3B) Sophomorix-abfragen fragen ldap statt postgres
+
+4) Anlegen von usern, versetzen, ... nur noch im ldap
 
 
+Problembereiche: samba 4, was ändert sich?
 
 
 
