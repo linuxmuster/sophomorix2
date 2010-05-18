@@ -5,6 +5,17 @@ smb.conf: Soll das rein?
 	max connections = 1
 
 
+passwort test einbauen:
+- einlogversuch konsole
+- passwort ändern
+- einlogversuch konsole
+
+- dump-test-einbauen:
+  nach jeder Datenbankänderung abhängig von option --with-dump
+  vor dump ldif erzeugen, nach dump ldif erzeugen 
+       -> ldif vergleichen, anzeigen/Fehler wenn Unterschiede
+- sophomorix-create-schueler.txt:
+  add option with 5th field (6th Field?unid?) to create lehrer.txt
 
 
 mail eintrag in ldap: Mail vom 31.3.10, J. Richter
@@ -13,8 +24,9 @@ sophomorix-virusscan
 : Paketierung erst ab lenny:
   a) Makefile: in all rein
   b) neues Paket sophomorix-virusscan
-  c) man page
-  d) Im script die Pfadvariablen nutzen fuer /etc/... /usr/share/sopho...
+  c) man page zum script
+  d) Im script die Pfadvariablen aus sophomorix-devel.conf
+     nutzen fuer /etc/... /usr/share/sopho...
 
 
 
