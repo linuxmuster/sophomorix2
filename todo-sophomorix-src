@@ -6,17 +6,6 @@ smb.conf: Soll das rein?
 
 
 
-added options to sophomorix-check:
-  - --encoding-students    -> schueler.txt
-  - --encoding-teachers    -> lehrer.txt
-  - --encoding-extra    -> extraschueler.txt
-
-all defaults of these options in sophomorix-devel.conf
-overrride in sophomorix.conf
-- final override as options
-
-
-
 
 mail eintrag in ldap: Mail vom 31.3.10, J. Richter
 
@@ -31,9 +20,9 @@ sophomorix-virusscan
 
 
 {
-gosa ldap bef�llen mit web gui
+gosa ldap befüllen mit web gui
 
-connectiert mit den smbldap.conf eintr�gen in smb.conf
+connectiert mit den smbldap.conf einträgen in smb.conf
 }
 
 
@@ -72,7 +61,7 @@ sophomorix-base/scripts/sophomorix-check -> Weiter mit utf8
 
 SophomorixBase.pm
    tut recode to asci noch?
-� mit \... erstzen???
+ü mit \... erstzen???
 
 
 The following can be upgraded, but the tests do not run anymore:
@@ -82,12 +71,12 @@ sophomorix-developer/scripts/sophomorix-test-unid  im CVS OK ??
 Tests:
 
 erzeuge script in iso88591 (Kopie von sophomorix-check)
-script > datei ODER print DATEI "����" liefert dasselbe ergebnis 
+script > datei ODER print DATEI "äöüß" liefert dasselbe ergebnis 
 
-iso88591:          �     �     �    �
+iso88591:          ä     ö     ü    ß
 mit od angucken: \344  \366  \374  \337
 
-                   �     �     � 
+                   Ä     Ö     Ü 
                  \304  \326  \334
 
 mit od angucken: \303\244 \303\266 \303\274 \303\237
@@ -98,7 +87,7 @@ ja, mit
 
 print LOG3 "\344\366\374\237";
 
-In einem utf8 script kann man eine Datei mit einem iso88591-� bef�llen, 
+In einem utf8 script kann man eine Datei mit einem iso88591-ö befüllen, 
 indem man in die Datei \366 printed
 
 
@@ -112,7 +101,7 @@ B4   latin1:  '   latin9:  Z
 
 
 
-Passw�rter mit Umlauten geht schief
+Passwörter mit Umlauten geht schief
 
 soll sophomorix-passwd das abfangen? Nur ASCII 7bit zulassen.
 
@@ -138,7 +127,7 @@ What does top mean? What is correct?
 
 
 
-upgrade: fixe dns-Eintr�ge in db.10 eintragen:
+upgrade: fixe dns-Einträge in db.10 eintragen:
    db.10
    db.linuxmuster
 
@@ -165,7 +154,7 @@ weiter: workstations lesen und analysieren
 
 ############################################################
 lenny64:
-dnsdomainname -s liefert unknown host zur�ck
+dnsdomainname -s liefert unknown host zurück
 
 
 ############################################################
@@ -179,7 +168,7 @@ schema update
 
 smbldap populate
 
-un dann schauen, welche Optionen drin sein m�ssen
+un dann schauen, welche Optionen drin sein müssen
 -> diese dann evtl. nachpflegen
 
 
@@ -193,13 +182,13 @@ slapd.conf: neue Version von Thomas
 
 Modifizieren aus svn:
 
-1) @@tls_comment@@ vor TLS-Eintr�ge
+1) @@tls_comment@@ vor TLS-Einträge
 2) $Id$ in eine der ersten Zeilen
 3)  
 
 
 checkpoint      512 30
-f�hrt zu fehler bei mir, nicht bei thomas
+führt zu fehler bei mir, nicht bei thomas
 
 
 # testen am bsz
@@ -243,13 +232,13 @@ moduleload pcache
 #moduleload bdb
 moduleload hdb
 # back_hdb paket is bei slapd dabei
-# hdb ist stabile Version von bdb, speziell f�r slapd
+# hdb ist stabile Version von bdb, speziell für slapd
 # -> ldap neu erzeugen
 
 
 # CRYPT mit SSHA ersetzen (md5sum)
 #
-# 1) A) sql befehl f�r posgres der ein passwort als SSHA abspeichert
+# 1) A) sql befehl für posgres der ein passwort als SSHA abspeichert
 #    geht wohl nicht
 #    B) mit perl modul SSHA erzeugen und in postgres speichern
 #       --> done 
@@ -329,12 +318,12 @@ im CVS
 : probleme:
 1. Nach ersetzen von smbldap...template.etch und sophomorix-setup-pgldap
 funktioniert das externe Moodle nicht mehr (ldaps)
-2. Nach zur�ckstellen des templtes, sophomorix-setup-pgldap tut
+2. Nach zurückstellen des templtes, sophomorix-setup-pgldap tut
    es immer noch nicht
 3. Nach aufruf von dpkg-reconfigure linuxmuster-base
 
--> also ist nicht klar, ob die �nderungen von 1. zum nichtfunktionieren
-   von ldaps gef�hrt haben.
+-> also ist nicht klar, ob die Änderungen von 1. zum nichtfunktionieren
+   von ldaps geführt haben.
 
 Vermutung: Meldung von update ... in secrets.tdb (aus Erinnerung)
            muss das in sophomorix-setup-pgldap noch gemacht werden?
@@ -345,7 +334,7 @@ Vermutung: Meldung von update ... in secrets.tdb (aus Erinnerung)
 
 
 
-Option f�r
+Option für
 ./Latex_Musterfile_Passwortlisten.tex
 
 
@@ -395,9 +384,9 @@ Lenny Update:
 in sophomorix-pgldap.pm anpassen
 
 - Net::LDAP wird von allen scripten schon geladen
-- sophomorix-pgldap.pm pr�ft Verbindungen mit Net::LDAP-> new
+- sophomorix-pgldap.pm prüft Verbindungen mit Net::LDAP-> new
 - sophomorix-pgldap.pm:
-  check_connections postgres UND ldap verbindungen pr�fen
+  check_connections postgres UND ldap verbindungen prüfen
   auth_connect : Verbindung mit ldap via Net::LDAP
   auth_disconnect : Verbindung trennen via Net::LDAP
 
@@ -411,7 +400,7 @@ dann fehlt aber die Gruppe um den user anzulegen:
     smbldap-groupadd-Befehle
       A) bzw. Quickfix: nscd restart einbauen (restarten die nscd restart scripte auch auf lenny nscd?)
          tut Sophomorix-Base.pm  nscd_flush_cache?
-      B) Quickfix: Zeitverz�gerung, 
+      B) Quickfix: Zeitverzögerung, 
       C) Fix: ersetzen mit Net::LDAP zeugs
          #1 in sophomorix-test gruppenanlegen testen
          #2 gruppe schon anlegen, funzt dann sophomrix-test?
@@ -433,11 +422,11 @@ displayName: m2kk3t
 Wie kommen die user da rein? funzt smbldap useradd, wenn leere gruppe existiert
 
 
-27.1.10: Hat ohne �nderung funktioniert
+27.1.10: Hat ohne änderung funktioniert
    Warum? -> Wirt hat mehr RAM 8GB statt 2GB
              Gast: ???
           -> Pakete auf lenny aktualisiert
-          -> sonst nix ver�ndert
+          -> sonst nix verändert
 
 
   
@@ -461,16 +450,16 @@ so vorgehen:
          Computer
          ExamAccount
          Lehrer
-         Sch�ler
-         Admins (sp�ter)
-      - exakt so im ldap generiert, wie es der dump machen w�rde
-        (auch gleiche Reihenfolge der Eintr�ge, ...)
+         Schüler
+         Admins (später)
+      - exakt so im ldap generiert, wie es der dump machen würde
+        (auch gleiche Reihenfolge der Einträge, ...)
    dieselbe Funktion wird beim Anlegen der user aufgerufen
 
    Stellt man fest, dass der ldap etwas andern generiert werden soll (Zusatzfeld), 
      geht man so vor
-     1. Gesamt dump so ab�ndern, dass es passt ->  ldif dump sichern
-     2. Einzel dump so ab�ndern dass es zusammen passt
+     1. Gesamt dump so abändern, dass es passt ->  ldif dump sichern
+     2. Einzel dump so abändern dass es zusammen passt
 
 
 make lenny / make ubuntu / make deb 
@@ -482,7 +471,7 @@ und
 editieren
 
 
-Wenn ein user gel�scht wird, folgendes zus�tzlich machen.
+Wenn ein user gelöscht wird, folgendes zusätzlich machen.
 
 quota.txt: sonderquota auskommentieren 
 (mit Kommentarzeile davor: # sophomorix-kill has disabled the following line (user killed))
@@ -500,14 +489,14 @@ als ich eben den Quellcode Ihres Programms "sophomorix-check" (v 1.138 2009-05-1
 
    } elsif ($strichpunkt_anzahl==5 && $filename eq $schueler_to_check_dateien[1] ){
 
-Kann es sein, dass $strichpunkt_anzahl vielmehr $number sein m�sste?
+Kann es sein, dass $strichpunkt_anzahl vielmehr $number sein müsste?
 
    } elsif ($number==5 && $filename eq $schueler_to_check_dateien[1] ){
 
 
 
 Mail account leichen im ldap
--> nachstellen, wieso gibts die Leichen �berhaupt
+-> nachstellen, wieso gibts die Leichen überhaupt
 
 
 
@@ -515,7 +504,7 @@ Unknown Error 1 in errors.lang".
 Unknown Error 9 in errors.lang". 
  -> siehe Mail 17.9.09 10.53
 Weiter:
-kn�pfe in der Schulkonsole dr�cken, welche Befehle werden aufgerufen
+knöpfe in der Schulkonsole drücken, welche Befehle werden aufgerufen
 
 
 
@@ -530,7 +519,7 @@ benuzt im ein mailschema?
 mail wir geleitet 
 
 
-oder 2) eigenes Schema f�r mail
+oder 2) eigenes Schema für mail
 
 ldap alias attribut
 courier
@@ -552,7 +541,7 @@ ubuntu Paket:
 Probleme:
 A) postgres 8.3 verlangt encoding system UTF8 statt LATIN9
 B) NEU: einlesen von slapd.conf wie in http://wiki.ubuntuusers.de/OpenLDAP beschrieben
-   slaptest f�hrt zu Fehlern bei:
+   slaptest führt zu Fehlern bei:
       schemacheck on
       checkpoint 512 30
       dbcachesize 1000000
@@ -564,7 +553,7 @@ D) wenn sophomorix-setup-pgldap aufgerufen wird wird postgres
 
 
 1)
-2) ldap wird nicht mit usern gef�llt
+2) ldap wird nicht mit usern gefüllt
    Testen:
      lsof -a -i TCP:389 -c slapd
 
@@ -598,7 +587,7 @@ cn: admin
 
 7) Connection with luma:
 Anonym: 
-    server:389, keine Verschl�sselung
+    server:389, keine Verschlüsselung
     Anonym
     Anonym binden
     DNs vom server nutzen
@@ -616,7 +605,7 @@ Was ist denn der Unterschied zwischen anonymous and simple?
 
 
 
-8) ldapsearch -x  (tut nur, wenn slapd l�uft)
+8) ldapsearch -x  (tut nur, wenn slapd läuft)
 
 to vm's:
 
@@ -630,9 +619,9 @@ $HOME des schulkonsole root scheint / zu sein
 
 
 user teilweise anlegen (Datum passt nicht in postgres)
-dann die l�schfunkton testen. Sollte weitermachen und m�glichst nicht abbrechen
+dann die löschfunkton testen. Sollte weitermachen und möglichst nicht abbrechen
 
-Paket-Abh�ngigkeiten (latex):
+Paket-Abhängigkeiten (latex):
 
 Alt:                   Neu (ubuntu 904 server, lenny)
 tetex-base            
@@ -645,7 +634,7 @@ tetex-extra
 ############################################################
 Erledigt
 ############################################################
-projektanlegen, ... gruppenzugeh�rigkeit einer person
+projektanlegen, ... gruppenzugehörigkeit einer person
 nscd sollte noch geflushed werden -> checken
 -> getestet, nscd wird restartet
 
@@ -656,9 +645,9 @@ chownen der vom user erzeugten Dateien
    chown: fehlender Operand nach ".7c"
    usw.
 
-   L�sung: bei find ... | xargs ...
+   Lösung: bei find ... | xargs ...
 
-   wird der Befehl hinter xargs 1x ausgef�hrt, wenn nix gefunden wird:
+   wird der Befehl hinter xargs 1x ausgeführt, wenn nix gefunden wird:
    --> option --no-run-if-empty behebt das
 
 
@@ -677,10 +666,10 @@ chownen der vom user erzeugten Dateien
 
 Feature Request: 
 ########################
-user disablen f�r eine bestimmte Zeit.
+user disablen für eine bestimmte Zeit.
 
 
-> ich w�nsche mir aber immer noch ein einfach zu bedienendes feature um sch�ler f�r eine bestimmte zeit aus dem netz auszuschliessen.
+> ich wünsche mir aber immer noch ein einfach zu bedienendes feature um schüler für eine bestimmte zeit aus dem netz auszuschliessen.
 >
 > sophomorix-user -F ist ja schon mal ein guter anfang. das reaktivieren ist allerdings etwas schwieriger.
 
@@ -691,21 +680,21 @@ geht denn sophomorix-user -A nicht?
 
 >
 >
-> wie w�re denn sowas wie:
+> wie wäre denn sowas wie:
 >
 > sophomorix-user -Z user TIME (DD-MM-YYYY oder +90days)
 >
-> in der zeit sollte sich der user nicht einloggen d�rfen, aber eine ldap anfrage sollte positiv sein (wir benutzen z.b. ldap �ber unser moodle von belwue aus).
+> in der zeit sollte sich der user nicht einloggen dürfen, aber eine ldap anfrage sollte positiv sein (wir benutzen z.b. ldap über unser moodle von belwue aus).
 >
 Nicht einloggen ist ja das vorgesehene.
 Leider weiss ich nicht wie das mit moodle und belwue geht.
 Eigentlich sollte das mit der ldap Anfrage gehen, es wird ja lediglich der login disabled.
 
 
-Als workaround k�nnte man das automatische wiederaktivieren mit dem Befehl 'at' machen.
+Als workaround könnte man das automatische wiederaktivieren mit dem Befehl 'at' machen.
 
-Gru�, R�diger Beck
-> spitzenklasse w�re auch eine integration in der schulkonsole f�r den administrator. sie k�nnte vielleicht so aussehen.
+Gruß, Rüdiger Beck
+> spitzenklasse wäre auch eine integration in der schulkonsole für den administrator. sie könnte vielleicht so aussehen.
 >
 >
 >
@@ -727,7 +716,7 @@ Gru�, R�diger Beck
 
 IDEE: -S suspend --startdate 01-01-2009 --stopdate 03-04-2010 
   -> status S
-  - wenn stopdate mit + beginnt, dann zum startdate hinzuz�hlen 
+  - wenn stopdate mit + beginnt, dann zum startdate hinzuzählen 
 cronjob schaut , welcher user ein S als status hat
 --> neues Feld in der Datenbank:
 ScheduledActivation
@@ -737,7 +726,7 @@ wenn die zeit gekommen ist, dann reaktivieren
 
 
    ScheduledDectivation (gestern, heute, in zukunft)
-      - wenn startdate gestern, heute oder fr�her: sofort deaktvieren
+      - wenn startdate gestern, heute oder früher: sofort deaktvieren
       - ansonst in Zukunft per cronjob deaktivieren lassen
    ScheduledActivation
       - per cronjob
@@ -755,7 +744,7 @@ SophomorixBase, Zeile 1113 (Dateiversion 1.295):
 
 if ($owner eq "$login") {
 
-f�hrt zu undefined Value beim Versetzen.
+führt zu undefined Value beim Versetzen.
 Konnte nicht nachvollzogen werden
 Liegt vielleicht daran, dass der user eine 'komische datei' 
 (Leerzeichen, Schlange, ...) in ein Tauschveruzeichnis gestellt hatte und 
@@ -765,11 +754,11 @@ deshalb nicht der owner ermittelt werden kann.
 lehrer.txt:
 
 In der Spalte wo sonst "erstpw" zu finden ist, steht "---".
-Hast du eine Erkl�rung?
+Hast du eine Erklärung?
 
 mmba usw checken. Was passiert mit frozen accounts?
 - Mailempfang
-- wie reagiert restet-user, ....wird mail gel�scht, ....
+- wie reagiert restet-user, ....wird mail gelöscht, ....
 - Mailempfang bei frozen abstellen?
 
 
@@ -781,7 +770,7 @@ Dist-Upgrade auf ubuntu server 8.04: # 89 (Eigenes Ticket # 90)
 
 postgresql: 
 
-Abh�ngigkeiten:
+Abhängigkeiten:
 etch:           postgresql-8.1(>=8.1), postgresql(>=7.4.7)
 ubuntu 9.0.4:    
 
@@ -798,7 +787,7 @@ TODO:
 alternative Pfade angeben:
 /etc/smb.conf::/etc/samba/smb.conf
 
-- falls beide existieren -> eine muss gel�scht werden
+- falls beide existieren -> eine muss gelöscht werden
 - Dateiliste mitsichern (da sind die Konfigs gebackuped)
 - zum Wiederherstellen die Dateiliste des neuen Pakets nutzen
 - beim Wiederherstellen:
@@ -811,7 +800,7 @@ alternative Pfade angeben:
 
 Hotline:
 
-Befehl, um integrit�t von paketen zu zeigen. Am besten mit diff
+Befehl, um integrität von paketen zu zeigen. Am besten mit diff
 
 debsums -a paketname
 
@@ -825,7 +814,7 @@ evtl. einzelne server nur holte: hole rembo server, hole linbo server
 
 kvm:
 
-virtmanager f�r kvm von redhead
+virtmanager für kvm von redhead
 kann usb
 
 
@@ -854,7 +843,7 @@ Analyse script erzeugen:
    - sophomorix-repair --check-share-links user
    - sophomorix-repair --check-all-share-links
    - user und gruppen listen
-   - mit id deren gruppen zugeh�rigkeiten testen
+   - mit id deren gruppen zugehörigkeiten testen
    - existieren die Links dazu in _tauschen
 Reperatur script erzeugen.
 
@@ -874,12 +863,12 @@ Bug:
 sophomorix-groupdel --delete-all-empty-classes
 
 
-- sobald eine klasse gefunden wird, die nicht gelöscht werden kann endet das Program 
+- sobald eine klasse gefunden wird, die nicht gelÃ¶scht werden kann endet das Program 
   wenn man 
 
     --remove-teachers
 
-  anhängt, dann werden aber mehr klassen gelöscht, als ohne diese
+  anhÃ¤ngt, dann werden aber mehr klassen gelÃ¶scht, als ohne diese
   option angezeigt wird.
 
 
@@ -889,7 +878,7 @@ select * from groups_users where gidnumber=10000;
 
 liefert mehrere administratoren in teachers (10000)
 
-SQL-Befehl um mehfache Eintr�ge in groups_users herauszumachen
+SQL-Befehl um mehfache Einträge in groups_users herauszumachen
 
 siehe:
 select * from  groups_users ;
@@ -926,10 +915,10 @@ trac: lml.linuxmuster.net/trac (Frank)
 
 neu: lml.support-netz.de/trac/
      pkg.support-netz.de
-     (N�rnberg, Hetzner)
+     (Nürnberg, Hetzner)
 
      mailingliste testing, leute melden sich an, die testen wollen
-     tickets f�r die tests anlegbar
+     tickets für die tests anlegbar
 
      build.lml.support.netz.de
         - um pakete zu bauen
@@ -938,18 +927,18 @@ neu: lml.support-netz.de/trac/
 
      einloggen per ssh nur mit key
      private key auf stick mitnehmen
-     mit truecrypt verschlüsseln
+     mit truecrypt verschlÃ¼sseln
 
           
 
 
-n�chste Distri 8.04 LTS
+nächste Distri 8.04 LTS
         postgres 8.3
         slapd 2.5
         ...
 
 
-        ??? Idee f�r upgrade:
+        ??? Idee für upgrade:
         - sollte auch tun, wenn 
 
 
@@ -973,7 +962,7 @@ grep 'string in line' schueler.txt | od -c > log1
 
 
 wobei 'string in linie' die Zeile des problematischen 
-Sch�lers heraussuchen sollte.
+Schülers heraussuchen sollte.
 
 Danach die Dateien log1 und log2 als E-Mail Anhang zusenden
 
@@ -982,29 +971,29 @@ sophomorix-endofyear:
 
 - Alle Klassentauschverzeichnisse leeren.
   (Mit bz2 backup oder ohne)
-- Den Dachboden der Schüler leeren.
+- Den Dachboden der SchÃ¼ler leeren.
   (geht automatisch)
-- Austeilen, Einsammeln, Vorlagen der Schüler leeren.
-- Nach dem Versetzen nicht mehr vorhandene Klassen (ohne Schüler als Mitglieder) 
-  löschen.
+- Austeilen, Einsammeln, Vorlagen der SchÃ¼ler leeren.
+- Nach dem Versetzen nicht mehr vorhandene Klassen (ohne SchÃ¼ler als Mitglieder) 
+  lÃ¶schen.
   -> sophomorix-groupdel --delete-all-empty-classes
 - Alle Klassen bei den Lehrern automatisch austragen.
   (sollte jeder Lehrer selber machen)
 
 
 
-Passwortänderung serverseitig für workstations nicht mehr zulassen.
+PasswortÃ¤nderung serverseitig fÃ¼r workstations nicht mehr zulassen.
 
 Mit
 # smbldap-usermod -A0 -B0 host$
-werden die Einträge korrekterweise so gesetzt:
+werden die EintrÃ¤ge korrekterweise so gesetzt:
 sambaPwdCanChange: 2147483647
 sambaPwdMustChange: 2147483647
-Damit wird sambaseitig die Passwortänderungen unterbunden.
+Damit wird sambaseitig die PasswortÃ¤nderungen unterbunden.
 Danach hatte ich das Problem nicht mehr. 
 
 
-wenn man extraschüler anlegt (klasse sekretariat), dann kommt Fehler: cannot determine type of sekretariat.
+wenn man extraschÃ¼ler anlegt (klasse sekretariat), dann kommt Fehler: cannot determine type of sekretariat.
 
 
 paket update auf etch
@@ -1036,8 +1025,8 @@ link zu code suchmaschine von Thomas
 
 pyquota:
 
-in die konfigurationsdatei rein, ob user für druckquota mit pykota
-eingestellt werden sollen, Wenn script dann da ist, dann beim anlegen ausführen
+in die konfigurationsdatei rein, ob user fÃ¼r druckquota mit pykota
+eingestellt werden sollen, Wenn script dann da ist, dann beim anlegen ausfÃ¼hren
 
 verzeichnisse erstellen
 /etc/sophomorix/scripts/postadd
@@ -1045,8 +1034,8 @@ verzeichnisse erstellen
                             move
                             ...
 
-in diesen Verzeichnissen nach ausführbaren scripten suchen und dann
-der reihenfolge nach ausführen:
+in diesen Verzeichnissen nach ausfÃ¼hrbaren scripten suchen und dann
+der reihenfolge nach ausfÃ¼hren:
 
 script user group homedir
 
@@ -1127,14 +1116,14 @@ if ($rc & 0x80) { print "schulkonsolenfehler\n"; })
 
 
 
-Pre-depends für libnss-ldap? und andere?
+Pre-depends fÃ¼r libnss-ldap? und andere?
 
 
 Return:  0 alles OK
          1 zurecht gelockt
 
 Modul bereitstellen, das eine Funktion beinhaltet
-, die bei abfrage den schulkonsolenstring zurückgibt
+, die bei abfrage den schulkonsolenstring zurÃ¼ckgibt
 
 $string = &fetch_return_string(42);
 
@@ -1184,19 +1173,19 @@ Saving the Real Name of a class (Konfigurable, needs a field in the database?)
 i.e.    m1kb2t  --> M1KB2T
         wg111   --> WG11/1S	
 
-Saving the Real Name of a student incl. öäüß in one field
+Saving the Real Name of a student incl. Ã¶Ã¤Ã¼Ã in one field
 for netexamplix and others
 
 
 sophomorix-move:
-chown Fehler auf Gruppe hat keine Dateien, schlägt fehl: > unschön
+chown Fehler auf Gruppe hat keine Dateien, schlÃ¤gt fehl: > unschÃ¶n
 
 
-Tests für unid schreiben:
+Tests fÃ¼r unid schreiben:
 - kurz vor dem entfernen der user:
 
-  - doppelte unid : nix darf sich in der Datenbank ändern
-  - unid ändert sich bei gleichem identifier
+  - doppelte unid : nix darf sich in der Datenbank Ã¤ndern
+  - unid Ã¤ndert sich bei gleichem identifier
 
 
 Differenzen manpage/--help anpassen (mail von der Hotline)
@@ -1243,11 +1232,11 @@ check if latex can be made uninteruptible with option.
 (checked, but no solution found)
 
 Feature request: Projekte umbenennen
-Könnte so gelöst werden
+KÃ¶nnte so gelÃ¶st werden
   1) auspielen der Daten eines Projekts in Textdatei
   2) anlegen desselben Projekts mit neuem Namen
   3) Daten in Tausch, ... was noch kopieren/moven
-  4) altes Projekt löschen 
+  4) altes Projekt lÃ¶schen 
 
 sophomorix-teacher --teacher galli --add 11a
 liefert fehler beim start des nscd:
@@ -1287,7 +1276,7 @@ zu check_connection hinzunehmen, ob debian version ermittelt werden kann,
 wenn nicht abbrechen
 
 
-Prüfen, ob manpages nach Postscript konvertiert werden kann
+PrÃ¼fen, ob manpages nach Postscript konvertiert werden kann
 (und dann pdf) 
 
 
@@ -1297,7 +1286,7 @@ sophomorix-vampire --sync-homes wird // angezeigt bei chown
 
 sophomorix-mail --showforward
   - zeigt die .forward-Dateien aller Lehrer/user an
-    (evtl. zusätzliche forwards in cyrus/horde???)
+    (evtl. zusÃ¤tzliche forwards in cyrus/horde???)
     Beispiel in sophomorix-minitest
     +----------+---------------   
     + user     + .forward
@@ -1311,8 +1300,8 @@ sophomorix-class -i -c name sollte
 Klassendaten anzeigen (wer ist seit wann mitglied, status, etc...)
      vgl. mit sophomorix-project
 
-beim löschen von Räumen  wurde evtl. nicht in der Tabelle 
-class_details gelöscht
+beim lÃ¶schen von RÃ¤umen  wurde evtl. nicht in der Tabelle 
+class_details gelÃ¶scht
 muss evtl. nachgeholt werden
 
 
@@ -1321,9 +1310,9 @@ muss evtl. nachgeholt werden
 Migration to etch
 ############################################################
 
-Nicht standardmäßig etch:
+Nicht standardmÃ¤Ãig etch:
 
-moodle ist 1.9 etch wäre 1.6
+moodle ist 1.9 etch wÃ¤re 1.6
 mondi und mindi
 
 script zum update von 7.4 auf 8.1
@@ -1331,7 +1320,7 @@ gibts script in postgres 8.1
 
 
 Test:
- - 8.1 zusätzlich installiert:
+ - 8.1 zusÃ¤tzlich installiert:
 
 aptitude install postgresql-8.1
 
@@ -1360,7 +1349,7 @@ danach geht
 auf 8.1
 
 port von 8.1 ist: 5432
-(auf port 5433 läuft keine postgres mehr)
+(auf port 5433 lÃ¤uft keine postgres mehr)
 
 Ein Paket zum update packen:
  - Versionsnummer 2.0.0-1
@@ -1450,7 +1439,7 @@ packaging:
    - Makefile creates directories with correct permissions, 
      how can I package this directories with its permissions?
    - sophomorix-vampire version x.x braucht sophomorix2 1.2.2
-     (das steht in den abhängigkeiten), falls es installiert werden soll (optional)
+     (das steht in den abhÃ¤ngigkeiten), falls es installiert werden soll (optional)
      andersherum braucht sophomorix-vampire dieselbe Versionsnummer von sophomorix2 
      wie macht man das?
    - optionen in postinst-scripten upgrade)
@@ -1561,7 +1550,7 @@ kvm vorbereiten, pakete henunterladen
 
 
 2. aptitude -d install sophomorix2 
-   (l�dt alle Pakete herunter, ohne zu installieren)
+   (lädt alle Pakete herunter, ohne zu installieren)
 
 image erstellen:
 1. kvm gast herunterfahren
@@ -1573,7 +1562,7 @@ kvm-host wiederherstellen
 sudo cp /home/bz/kvm-backups/lenny64.img /var/lib/libvirt/images/lenny64.img
 
 
-ls -alh /home/bz/kvm-backups zeigt immer 4GB (Festplattengr��e)
+ls -alh /home/bz/kvm-backups zeigt immer 4GB (Festplattengröße)
 
 ??? Wie kann man benutzten Platz anzeigen lassen?
 
@@ -1586,7 +1575,7 @@ Clonen auf anderen Rechner:
 dort ein Rechner anlegen:
 - alles gleich
 - mac adresse gleich einstellen
-- /etc/fstab (f�r jeden Rechner einen Eintrag ins image)
+- /etc/fstab (für jeden Rechner einen Eintrag ins image)
 
 
 ############################################################
@@ -1676,7 +1665,7 @@ sophomorix-check
          - Name String, i.e. "HS Sydney", which is used by printing things.
          - Mail suffix, i.e "hs-sydney.de" -> user@hs-sydney.de
          - short name, i.e. "hss"
-         - automatisch: Schülerzahl, Klassenzahl ?????? oder besser dynamisch
+         - automatisch: SchÃ¼lerzahl, Klassenzahl ?????? oder besser dynamisch
          - ....
    - Format report.office with latex          
 
@@ -1835,7 +1824,7 @@ sophomorix-vampire:
      rembo.conf
      /etc/myshn ist link
 
-    Projektgruppen nach Anleitung T.Schnitt übernehmen
+    Projektgruppen nach Anleitung T.Schnitt Ã¼bernehmen
 
 
    
@@ -2140,8 +2129,8 @@ RELEASES:
 ############################################################
 
 ? Workstation
-   view für workstationaccounts (mit $)
-   view für workstationuser
+   view fÃ¼r workstationaccounts (mit $)
+   view fÃ¼r workstationuser
 
 lehrer.txt zusatzfeld 'comment' (Platz in Datenbank suchen)
 
@@ -2155,13 +2144,13 @@ lehrer.txt zusatzfeld 'comment' (Platz in Datenbank suchen)
            --Kommandozeilenoptionen
 
    SID: -- Beim erstanlegen in debconf-Datenbank wird SID gespeichert
-        -- Beim Netbiosnamen ändern wird  
+        -- Beim Netbiosnamen Ã¤ndern wird  
            vom linuxmuster Setup script
 
            linuxmuster/sambasid   
 
         -- Option --force-sid (forced die sid auch in schon 
-               vorhandene Usereinträge in pg)
+               vorhandene UsereintrÃ¤ge in pg)
 
    NETBIOS Name:
 
@@ -2169,7 +2158,7 @@ lehrer.txt zusatzfeld 'comment' (Platz in Datenbank suchen)
          (evtl. mit --new-netbiosname)
 
 
-   backpgsql zusätzlich im slapd -lml paket von Thomas S.
+   backpgsql zusÃ¤tzlich im slapd -lml paket von Thomas S.
 
 
         sophomorix-setup-pgldap: database cannot be dropped, if user is connected
@@ -2182,9 +2171,9 @@ lehrer.txt zusatzfeld 'comment' (Platz in Datenbank suchen)
         - check function
         - intelligently remove groups
 
-        Funktionen für API:
+        Funktionen fÃ¼r API:
          %data=get_userdata(user);
-         Schlüssel wie in der Datenbank
+         SchlÃ¼ssel wie in der Datenbank
          $name = $data{'name'};
 
          Database fields for cups (what is needed?)
@@ -2333,7 +2322,7 @@ on hold
 
 Schulkonsole:
 
-funktion zum Tauschverzeichnis löschen
+funktion zum Tauschverzeichnis lÃ¶schen
 funktion zum ALLE links wiederherstellen
 
 
@@ -2362,12 +2351,12 @@ variablen nutzen siehe perldoc Sophomorix::SophomorixAPI
        function wird in anderem paket gesucht
 
 
-   -- später
+   -- spÃ¤ter
 
    gibt es tools die funktionsaufrufe suchen und in einem script 
    zeigen, welche funktionen aus anderen Paketen verwendet werden??
 
-   etags, ctags für perl?
+   etags, ctags fÃ¼r perl?
 
 
    Klasse Error 
@@ -2410,7 +2399,7 @@ Projekte:
 
 Austritt aus Klasse/Projekt/:
 
-Ordner bleibt erhalten wenn nicht leer, User bekommt löschrecht (owner)
+Ordner bleibt erhalten wenn nicht leer, User bekommt lÃ¶schrecht (owner)
 Schulkonsole.
 
 Bei wiedereintritt soll Ordner mit korrekten Daten da sein
@@ -2435,7 +2424,7 @@ userliste in allen sophomorix-*:    -u --users user1,user2,...
   - sophomorix-repair
   - sophomorix-kill
 
-subclassen als projekte hinzufügen? Tut das?
+subclassen als projekte hinzufÃ¼gen? Tut das?
 
 
 BUG: /etc/aliases root.root 0644  (who changes this values) 
@@ -2466,7 +2455,7 @@ Feature Request:
 IMAP-cyrus
  - bisher noch keine subdirs im cyrus
  - wenn ein user kein postfach hat mit *-repair oder *-quota anlegen
- - postfächer sind in /var/spool/cyrus/mail/
+ - postfÃ¤cher sind in /var/spool/cyrus/mail/
  - maildir-format
    Konvertieren: /usr/share/doc/cyrus(-common)/example/mbox to cyrus oder so
 
@@ -2489,7 +2478,7 @@ getgrnam
 log_script_exit:
 use parameter to create return value for all exits
 
-   Info: Rückgabewerte scripte 0-127 (evtl. 255) (ab 2 benutzen)
+   Info: RÃ¼ckgabewerte scripte 0-127 (evtl. 255) (ab 2 benutzen)
    z.B. mit exit 7;
 
    Return Values:
@@ -2574,25 +2563,25 @@ mediawiki mit .htaccess absuchern (aktuelle ct, 26.9.06)
 
 
 
-KNOWN BUG: smbpasswd -d user tut nicht bei usern mitöäüÖÄÜß.
+KNOWN BUG: smbpasswd -d user tut nicht bei usern mitÃ¶Ã¤Ã¼ÃÃÃÃ.
 
 
 Feature Request:
 
 Klassen/Raum/... wechseln. wieso nicht schon, wenn ich im pulldown
-menue was wähle (Wechseln-button weglassen?)
+menue was wÃ¤hle (Wechseln-button weglassen?)
 
-Austeilen an einzelne Lehrer/Alle Lehrer wäre möglich, wenn
+Austeilen an einzelne Lehrer/Alle Lehrer wÃ¤re mÃ¶glich, wenn
 im Klassen wechseln menue die 'Klasse' Lehrer(Kollegium) erscheinen 
-würde.
+wÃ¼rde.
 
-Andere ML's haben bunte Knöpfe in der Schulkonsole, linux nicht? 
+Andere ML's haben bunte KnÃ¶pfe in der Schulkonsole, linux nicht? 
 Why? Styleguide?
 
 
 
 
-print Befehl (in Werkvertrag ergänzen):
+print Befehl (in Werkvertrag ergÃ¤nzen):
 
 sophomorix-print --classlist klasse --postfix username
 (oder statt --postfix ... --caller  : so wie bei der Passwortliste erstellen)
@@ -2752,10 +2741,10 @@ Fernwartung:
 
 mehrere Mailadressen, falls es probleme gibt
 
-mails verschicken per cron oder scripte von Nagios abprüfen lassen?
+mails verschicken per cron oder scripte von Nagios abprÃ¼fen lassen?
 
-verändeungen durch remote admin loggen
-a) Zugriff jederzeit durch support möglich
+verÃ¤ndeungen durch remote admin loggen
+a) Zugriff jederzeit durch support mÃ¶glich
 b) Zugriff nur per Erlaubnis
 
 
@@ -2858,7 +2847,7 @@ Permissions:
 /home/students/$klasse/$schueler    $schueler.teachers    3751
 (Die 3 von 3751 bewirkt, dass die Gruppe teachers geforced wird.)
 
-Im Tauschverzeichnis gehört alles der Klasse.
+Im Tauschverzeichnis gehÃ¶rt alles der Klasse.
 /home/share/classes/$klassen     administrator.$klassen    3770 
 
 
@@ -2887,13 +2876,13 @@ workstation-account(=Klassenarbeitsbenutzer) und Computeraccount
 ($account), da in der engl. Literatur beim $account vom
 workstationaccount (z.B. accountflag W) gesprochen wird.
 
-Ich würde es gerne in der ML3 so machen
+Ich wÃ¼rde es gerne in der ML3 so machen
 
 ComputerAccount  : $-Account
-ExamAccount      : Klassenarbeitaccount/Prüfungsaccount
+ExamAccount      : Klassenarbeitaccount/PrÃ¼fungsaccount
 
 
-Das würde bedeuten, das Gecos-Feld, cn=, und die optionen bei den Befehlsaufrufen 
+Das wÃ¼rde bedeuten, das Gecos-Feld, cn=, und die optionen bei den Befehlsaufrufen 
 anzupassen(statt --workstation --examaccount).
 
 
@@ -2925,7 +2914,7 @@ replaces:
 Delete an account:
 ----------------------------------------
 sophomorix-kill --killuser loginname1,loginame2,...   
-($ mit übergeben im loginnamen)
+($ mit Ã¼bergeben im loginnamen)
 (replaces smbldap-userdel <hostname>)
 
 To do : Delete a room group
@@ -3019,7 +3008,7 @@ fetch_ldap_pg_passwords finds lines twice (they exist only once)
 Check: 
 frueher: smbldap-useradd legte homedirs von examaccounts an
 neu    : sophomorix-useradd macht das nicht mehr
-beim nutzen der examaccounts werden diese erstmal zurückgesetzt
+beim nutzen der examaccounts werden diese erstmal zurÃ¼ckgesetzt
 also werden die homes nicht gebraucht
 
 
@@ -3043,7 +3032,7 @@ given Name: 'Vorname' is not existing
 
 
 
-ich hab mal ldap mit smbldaptools befüllt(=mit sophmorix) und dann mit
+ich hab mal ldap mit smbldaptools befÃ¼llt(=mit sophmorix) und dann mit
 smbldap-usershow angezeigt Dann habe ich deine scripte angewendet und
 den ldap-baum neu erzeugt um ihn dann neu anzeigen zu lassen mit
 smbldap-usershow.
@@ -3058,7 +3047,7 @@ dn: uid=test12$,ou=accounts,dc=linuxmuster,dc=de
 
 muss ou=machines stehen
 
-Alle $-accounts müssten also mit ou=machines gedumpt werden.
+Alle $-accounts mÃ¼ssten also mit ou=machines gedumpt werden.
 
 
 
@@ -3067,13 +3056,13 @@ Hat keine Auswirkungen
 
 
 3) sambaprimarygroupsid (postgres) bzw. sambaPrimaryGroupSID(ldap)
-ist z.B. S-1-5-21-1800012640-1621739038-321154774-515 für $-accounts, wenn mit 
+ist z.B. S-1-5-21-1800012640-1621739038-321154774-515 fÃ¼r $-accounts, wenn mit 
 smbldaptools angelegt (letzte Zahlen sind unix-group id)
 
 bei unserem bisherigen setup (postgres alleine) wird die letzte Zahl berechnet
 nach 2*unixgidnumber+1001
 
-Das würde bedeuten: 
+Das wÃ¼rde bedeuten: 
 A) nach dem anlegen S-*-515
 B) nach dem ersten dump 2031 
 
@@ -3082,13 +3071,13 @@ Soll ich in der Datenbank auch mit *-515 anlegen?
 
 
 4) givenName
-Dafür gibts in den smbldap-tools keine Option. Das bedeutet:
+DafÃ¼r gibts in den smbldap-tools keine Option. Das bedeutet:
 A) nach dem anlegen ist givenName leer.
-B) nach dem ersten dump ist givenName ausgefüllt
+B) nach dem ersten dump ist givenName ausgefÃ¼llt
 
-(Da müsste ich also nachbessern: givenName beim Anlegen )
+(Da mÃ¼sste ich also nachbessern: givenName beim Anlegen )
 
-Ich denke nicht, dass uns das stören wird. Aber vielleicht gibts einen
+Ich denke nicht, dass uns das stÃ¶ren wird. Aber vielleicht gibts einen
 technischen Grund dass man den givenName immer braucht.
 
 
@@ -3169,7 +3158,7 @@ rm /var/cache/linuxmuster/logins/*
 
 
 sophomorix-groupmod, ... Befehle (Liste von Thomas)
-user in zusätzliche sekundäre gruppen eintragen/austragen in (pg und ldap) 
+user in zusÃ¤tzliche sekundÃ¤re gruppen eintragen/austragen in (pg und ldap) 
 
 
 sophomorix-lock
@@ -3193,14 +3182,14 @@ NEXT:
 sophomorix-kill --allstudents  
                 --allteachers
                 schueler.txt,lehrer.txt umbenennen
-                Daten auch löschen
+                Daten auch lÃ¶schen
 
 avoid double code:
 marriage: sophomorix-check line 2310 ... check this
 
 
 man sophomorix-passwd:
-welche Zeichen sind als Passwort zulässig:
+welche Zeichen sind als Passwort zulÃ¤ssig:
 
 
 error: when a user is killed,
@@ -3223,15 +3212,15 @@ Problem: der erste ist angelegt, der zweite kommt dazu
 
 
 wir haben nun wiederholt beobachtet, dass sich beim Anlegen neuer
-Benutzer über die Schulkonsole das Schulkonsolenpasswort einiger
-(nicht aller) bereits bestehender Benutzer ändert. Das betrifft auch
-"nur" das Passwort für die Schulkonsole, die betroffenen Benutzer
-können sich weiterhin am System anmelden. Außerdem komisch: wenn man
-sich die Passwörter dieser Benutzer dann anzeigen lässt, haben sie
+Benutzer Ã¼ber die Schulkonsole das Schulkonsolenpasswort einiger
+(nicht aller) bereits bestehender Benutzer Ã¤ndert. Das betrifft auch
+"nur" das Passwort fÃ¼r die Schulkonsole, die betroffenen Benutzer
+kÃ¶nnen sich weiterhin am System anmelden. AuÃerdem komisch: wenn man
+sich die PasswÃ¶rter dieser Benutzer dann anzeigen lÃ¤sst, haben sie
 alle dasselbe Erstpasswort (eingestellt ist Zufallspasswort).  Machen
 wir etwas falsch oder ist das ein Bug?
 
-Danke und Gruß,
+Danke und GruÃ,
 
 Jochen Rupp
 KKS Esslingen
@@ -3241,22 +3230,22 @@ KKS Esslingen
 
 Treffen:
 
-    - passwortänderung bei erstanmeldung, 
+    - passwortÃ¤nderung bei erstanmeldung, 
     # 134 bug Zeilentrenner
     # 208 bug tritt nicht wieder auf
-    - windows-Passwortänderung
+    - windows-PasswortÃ¤nderung
     - sophomorix-support Befehl
     doppelte Doku:
       --sophomorix-vampire
-      --sophomorix für experten
+      --sophomorix fÃ¼r experten
 
 
-sophomorix-groupdel erweitern um 'leere' klassen zu löschen
+sophomorix-groupdel erweitern um 'leere' klassen zu lÃ¶schen
 can sophomorix-groupdel delete an empty adminclass group?
 - add option to do this
 
-sophomorix-usermod um user zusätzlich in einer Gruppe einzutragen:
-  hauptsächlich admins in zusatzgruppe
+sophomorix-usermod um user zusÃ¤tzlich in einer Gruppe einzutragen:
+  hauptsÃ¤chlich admins in zusatzgruppe
 
 
 sophomorix-useradd:
@@ -3271,7 +3260,7 @@ sophomorix-useradd --unixadmin areca --unix-group areca
 sophomorix-passwd --interactive -u areca
 sophomorix-quota
 
-Prüfen:
+PrÃ¼fen:
 
 sophomorix-mail --showmailboxes | grep areca
 quota -v areca
@@ -3299,7 +3288,7 @@ evtl. neue option showteacher login (ohne s)
 
 To check:
 
-- wie kann man das /var/www/people/students löschen, wenn man nicht weiss,
+- wie kann man das /var/www/people/students lÃ¶schen, wenn man nicht weiss,
   welcher ob der user im attic in teacher oder students war?  
   (Use ExitAdminClass)
 
@@ -3308,10 +3297,10 @@ To check:
 Aike:
 
 1) Problem: sophomorix-locked 
-   Lösung: A) Anzeige in schulkonsole erforderlich
+   LÃ¶sung: A) Anzeige in schulkonsole erforderlich
            B) Knopf unlocken
 
-   - Änderungen für Aike: 
+   - Ãnderungen fÃ¼r Aike: 
                   - bei allen Seiten, die sophomorix-Befehle aufrufen:
 
                   - lesen von /var/lib/sophomorix/lock/sophomorix.lock
@@ -3325,25 +3314,25 @@ Aike:
                   A) nein ---> weitermachen wie wie bisher
                                (Entsprechende Seite anzeigen)
                   A) ja B) ja --> Text: 
-                                  Es wird gerade ein Befehl ausgeführt
-                                  Versuchen sie es später nochmal
+                                  Es wird gerade ein Befehl ausgefÃ¼hrt
+                                  Versuchen sie es spÃ¤ter nochmal
                          
                   A) ja B) nein --> Informieren sie den Administrator
 
                   Achtung: Zwischen A und B vergeht Zeit, deshalb :
-                  Nach A), B) NOCHMALS A) prüfen:
+                  Nach A), B) NOCHMALS A) prÃ¼fen:
                   nur wenn Inhalt des lockfile bei A) 
-                  GLEICH wie beim ersten prüfen, 
+                  GLEICH wie beim ersten prÃ¼fen, 
                   dann: Informieren Sie den Administrator 
 
-                  Knopf für administrator: Wo? Andy ???
+                  Knopf fÃ¼r administrator: Wo? Andy ???
 
                   Unlocken:
 
                   Aufrufen von: sophomorix-support --unlock
                                 (existiert erst ab sophomorix 1.9.31)
                                 (oder sophomorix-check --unlock,
-                                 das gibts schon länger)    
+                                 das gibts schon lÃ¤nger)    
                   Das macht folgendes:
                   - sichern von /var/lib/sophomorix/lock/sophomorix.lock
                   - sichern der letzten 30 Zeilen von 
@@ -3351,7 +3340,7 @@ Aike:
 
 
 
-2) zusätzlich eine checkbox/Button in der Schuko des administrators 
+2) zusÃ¤tzlich eine checkbox/Button in der Schuko des administrators 
    Wo ? Wo admin alle Klasse sieht Andy ???
     
    zum verstecken/wieder sichtbarmachen einer Klasse:
@@ -3362,10 +3351,10 @@ Aike:
       
  
 
-3) Problem: sophomorix-www loggt nicht mit, wer eines Schülers 
+3) Problem: sophomorix-www loggt nicht mit, wer eines SchÃ¼lers 
            Homepage freigegeben hat.
-  Minimallösung: Loggen in command.log 
-        (evtl. zusätzlich in die .htaccess-Datei rein)
+  MinimallÃ¶sung: Loggen in command.log 
+        (evtl. zusÃ¤tzlich in die .htaccess-Datei rein)
       Aike: sophomorix-www immer mit Parameter 
          --caller login 
          aufrufen, sonst weiss sophomorix-www nicht wer 
@@ -3388,20 +3377,20 @@ Aike:
                     darf die userliste editiert werden.
     
                     joinable=false heisst, nur von den projektadmins darf die 
-                    userliste verändert werden (und root)
+                    userliste verÃ¤ndert werden (und root)
 
   In der Postgres-Datenbank:
   Tabelle projectdata.joinable ist TRUE/FALSE  
   
-  Todo für Aike:
+  Todo fÃ¼r Aike:
   Schritt 1) Bei jedem Aufruf von sophomorix aus der Schulkonsole, muss der
-             aufrufende Lehrer/User übergeben werden:
+             aufrufende Lehrer/User Ã¼bergeben werden:
              --caller lehrer1 
-             (sophomorix prüft dann, ob dieser user die userliste ändern 
+             (sophomorix prÃ¼ft dann, ob dieser user die userliste Ã¤ndern 
               darf oder nicht)    
 
-  Schritt 2) Ziel: Wenn man an der Schuko nichts ändern kann, 
-             sollen auch keine Knöpfe usw gezeigt werden:
+  Schritt 2) Ziel: Wenn man an der Schuko nichts Ã¤ndern kann, 
+             sollen auch keine KnÃ¶pfe usw gezeigt werden:
 
              Das betrifft 2 Seiten(A,B): 
 
@@ -3426,8 +3415,8 @@ Aike:
              user IST KEIN admin:
 
 
-                  B1) Statt "Mitglieder hinzufügen" + Such-Eingabefeld:
-                      Mitglieder hinzufügen ist nicht gestattet!
+                  B1) Statt "Mitglieder hinzufÃ¼gen" + Such-Eingabefeld:
+                      Mitglieder hinzufÃ¼gen ist nicht gestattet!
               
                   B2) Statt Knopf "Mitgliedschaft beenden" 
                       ausgegraute Schrift "Nicht gestattet"
@@ -3446,16 +3435,16 @@ so an Andy geschickt am 9.10.07.
 
 sophomorix-teach-in:
 Idee: auto-teach-in nur, wenn das anlegedatum WENIGER als 3 Monate 
-(oder 7 Monate(erstes Zeugnis?)) zurückliegt? 
+(oder 7 Monate(erstes Zeugnis?)) zurÃ¼ckliegt? 
 Variable time in sophomorix.conf
 
 
 
 NEXT:
 sophomorix-www -i 
-  kann man .htaccess bei zählen ausnehmen?
-  Der Lehrer, der die .htaccess verändert hat anzeigen
-  (dort reinschreiben, kann man das www-mäßig sehen?)
+  kann man .htaccess bei zÃ¤hlen ausnehmen?
+  Der Lehrer, der die .htaccess verÃ¤ndert hat anzeigen
+  (dort reinschreiben, kann man das www-mÃ¤Ãig sehen?)
 
 
 
@@ -3463,7 +3452,7 @@ sophomorix-www -i
 sophomorix-passwd --pass 'my\file' setzt passwort nicht korrekt 
                   mit my\\file steht my/fie in der Datenbank
 
-Beim versetzen in den attic,löschen,... muss das public html auf
+Beim versetzen in den attic,lÃ¶schen,... muss das public html auf
 user-private-noupload gesetzt werden
 
 
@@ -3531,7 +3520,7 @@ Projects:
 A) boolean switch for 'show the mailist' or not
 show means: send monthly mail with maillists/ show maillists on schulkonsole
 
-B) comment for maillist 'Verteiler für Abteilung 5'
+B) comment for maillist 'Verteiler fÃ¼r Abteilung 5'
 
 C) Fields for suspending accounts
    ScheduledDectivation (gestern, heute, in zukunft)
@@ -3554,7 +3543,7 @@ $server_fqdn_external_print="webmail.bszleo.de";
 $smb_domain_print="BSZLEO";
 
 # admins (instead of @ use \@)
-$admins_print="Kai Beck (bec\@bszleo.de), Rüdiger Beck (bz\@bszleo.de), Norbert Fischer (fi\@bszleo.de) und Rainer Rössler (roe\@bszleo.de)";
+$admins_print="Kai Beck (bec\@bszleo.de), RÃ¼diger Beck (bz\@bszleo.de), Norbert Fischer (fi\@bszleo.de) und Rainer RÃ¶ssler (roe\@bszleo.de)";
 
 
 # auf 2005 setzen
