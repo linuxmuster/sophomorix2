@@ -3776,7 +3776,27 @@ sub better_match {
 sub filter_school_admin_software {
      my ($line,$encoding) = @_;
 
-     # nur 8859-1
+     # ascii (immer filtern)
+     # '
+     $line=~s/\x27//g;
+     $line=~s/\x60//g;
+     # -
+     $line=~s/\x2D//g;
+     $line=~s/\x5F//g;
+
+
+     # nur win1252
+     if ($encoding eq "win1252"){
+         # '-Variation
+         $line=~s/\x91//g;
+         $line=~s/\x92//g;
+         # --Variation (Bindestrich)
+         $line=~s/\x96//g;
+         $line=~s/\x97//g;
+     }
+
+
+     # nur 8859-1 und win1252
      if ($encoding eq "8859-1" or
          $encoding eq "win1252"){
          # '-Variation
@@ -3792,9 +3812,8 @@ sub filter_school_admin_software {
          # iso 8859-1
          # iso 8859-15
          # windows 1252
-         # '-Variation
-         $line=~s/\x27//g;
-         $line=~s/\x60//g;
+         # -
+         $line=~s/\xAF//g;
          # A
          $line=~s/\xC0/A/g;
          $line=~s/\xC1/A/g;

@@ -83,12 +83,24 @@ Options
 
 
 open (FILE, ">$output_file");
+# ascii characters
+print FILE "# ASCII\n";
+# '
+print FILE "ASCII;O\x27Reilly;Tim;02.01.1950\n";
+print FILE "ASCII;O\x60Reilly;Tim;02.02.1950\n";
+# -
+print FILE "ASCII;Mueller\x2DLuedenscheid;Hans;02.01.1950\n";
+print FILE "ASCII;Mueller\x5FLuedenscheid;Hans;02.02.1950\n";
+
 
 if ($file_encoding eq "" or $file_encoding eq "8859-1"){
    print FILE "# ISO 8859-1\n";
    # 
    # Quelle: Wikipedia -> iso 8859-1 (Latin1)
    #
+   # -
+   print FILE "ISO88591;Mueller\xAFLuedenscheid;Hans;02.03.1950\n";
+
    # A (C0 bis C5)
    print FILE "ISO88591;\xC0lbrecht;Albert;01.01.1971\n";
    print FILE "ISO88591;\xC1lbrecht;Albert;01.02.1971\n";
