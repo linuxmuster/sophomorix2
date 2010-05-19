@@ -246,6 +246,12 @@ if ($file_encoding eq "" or $file_encoding eq "utf8"){
    # UTF-8
    #
    ###############################################
+   print FILE "# UTF-8 NON LETTERS\n";
+   # -
+   print FILE "UTF8;Mueller\xC2\xAFLuedenscheid;Hans;02.04.1988\n";
+   # '
+   print FILE "UTF8;O\xC2\xB4Reilly;Tim;02.03.1988\n";
+
    print FILE "# UTF-8 CAPITAL LETTERS\n";
    # A 
    print FILE "UTF8;\xC3\x80lbrecht;Albert;01.01.1988\n";
@@ -407,6 +413,7 @@ if ($file_encoding eq "" or $file_encoding eq "utf8"){
 
    ###############################################
    print FILE "# UTF-8 SMALL LETTERS\n";
+
    # a
    print FILE "UTF8;W\xC3\xA0gner;Waltraud;02.01.1988\n";
    print FILE "UTF8;W\xC3\xA1gner;Waltraud;02.02.1988\n";

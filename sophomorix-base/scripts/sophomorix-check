@@ -3954,6 +3954,11 @@ sub filter_school_admin_software {
 
      if ($encoding eq "utf8"){
          # utf8
+         # -
+         $line=~s/\xC2\xAF//g;
+         # -
+         $line=~s/\xC2\xB4//g;
+
          # iso 8859-1 stuff
          # A
          $line=~s/\xC3\x80/A/g;
