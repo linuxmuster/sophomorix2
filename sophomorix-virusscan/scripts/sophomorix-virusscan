@@ -126,7 +126,8 @@ my $help=0;
 my $info=0;
 my $scan_object="";
 
-
+# abs path of scanned dirs/files
+my %scanned_objects=();
 
 my $logfile="/var/log/clamav/sophomorix-virusscan.log";
 my $log_clam="/var/log/clamav/sophomorix-virusscan.clamav.log";
@@ -183,19 +184,38 @@ if ($help==1) {
    my $scriptname = pop @list;
    # Befehlsbeschreibung
    print('
-sophomorix-virusscan scans userhomes for viruses
+sophomorix-virusscan scans  scan-objects (userhomes,shares,directories,files) for viruses
 
 Options
   -h  / --help
   -v  / --verbose
   -vv / --verbose --verbose
   -i  / --info (unused)
-  --test login (Test performance of scan)
+  --test scan-object (Test performance of scan)
+
+A scan-object can be:
+  - a username                 --> scans $HOME of that user
+  - a class,subclass,project   --> scans the share of class,subclass,project
+  - an absolute path           --> scans the file/directory
+
+
+Without any options, sophomorix-virusscan scans as configured.
+
+Configuration files (in scan order):
+
+1. /etc/sophomorix/virusscan/sophomorix-virusscan.conf
+   Configure here which scan-object to scan on which days of the month.
+   Use this for unreliable users, that must be scanned regularly.
+2. NOT WORKING:
+   sophomorix-virusscan scans a scan-object again if they had a virus 
+3. NOT WORKING:
+   Scans scan-objects in alphabetical order. 
+   When option --max-time is given, it tries not to exceed this time. 
 
 ');
 
-print "Quarantine:  $quarantine\n"; 
-print "Logfile:     $logfile\n";
+print "Quarantine:   $quarantine\n"; 
+print "Logfile:      $logfile\n";
 print "Clamav:       $log_clam\n";
 
    print('
@@ -287,27 +307,26 @@ sub scan_object {
     my ($scan_dir) = &fetchdata_from_account($scan_object);
     if ($scan_dir eq ""){
         # its not a users home
-        #$scan_dir="$DevelConf::share_classes/$scan_object";
         if (-e "$DevelConf::share_classes/$scan_object"){
-            print "Its a class\n";
+            print "It is a class\n";
             $scan_dir="$DevelConf::share_classes/$scan_object";
 	} elsif (-d "$DevelConf::share_subclasses/$scan_object"){
-            print "Its a subclass\n";
+            print "It is a subclass\n";
             $scan_dir="$DevelConf::share_subclasses/$scan_object";
 	} elsif (-d "$DevelConf::share_projects/$scan_object"){
-            print "Its a project\n";
+            print "It is a project\n";
             $scan_dir="$DevelConf::share_projects/$scan_object";
 	} elsif (-d "$DevelConf::share_projects/p_$scan_object"){
-            print "Its a project\n";
+            print "It is a project\n";
             $scan_dir="$DevelConf::share_projects/p_$scan_object";
 	} elsif (-d "$DevelConf::share_share/$scan_object"){
-            print "Its the school share/parent share\n";
+            print "It is the school share/parent share\n";
             $scan_dir="$DevelConf::share_share/$scan_object";
 	} elsif (-d "$scan_object"){
-            print "Its an absolute path to a directory\n";
+            print "It is an absolute path to a directory\n";
             $scan_dir="$scan_object";
 	} elsif (-f "$scan_object"){
-            print "Its an absolute path to a file\n";
+            print "It is an absolute path to a file\n";
             $scan_dir="$scan_object";
 	} else {
             $scan_dir="$scan_object";
@@ -327,6 +346,21 @@ sub scan_object {
     my $performance="";
 
     if  (-e $scan_dir){
+        # check against double scanning
+        if (exists $scanned_objects{$scan_dir}){
+            # no scanning
+            $result="\nERROR: $scan_dir was scanned already, skipping\n\n";
+            $infected=-2;
+            $performance="";
+            print LOG "$result\n";
+            printf LOG "####### %-28s: %8s kB/second #######\n",
+                       $scan_object,$performance;
+            printf LOG "####### %-28s: %8s viruses   #######\n",
+                       $scan_object,$infected;
+            print "* $scan_object scanned already\n";
+            return 0;
+        }
+
         # scanning
         # clamav geht keinen links nach
         # amount of data to scan
@@ -351,7 +385,9 @@ sub scan_object {
         }
         $performance=$data_kb/$scan_time;
         $performance=int($performance);
-
+        
+        # remember scanned dir/file
+        $scanned_objects{$scan_dir}="scanned";
 
     } else {
         # no scanning
