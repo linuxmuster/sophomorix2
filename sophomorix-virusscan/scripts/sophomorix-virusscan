@@ -33,20 +33,6 @@
 # optionen
 # --max-time minutes
 # Versuche die --max-time nicht zu überschreiten
-# gehe durch lehrer und schüler gleich schnell durch
-# --teachers
-# --students
-# --shares Mon,Tue (Scanne shares am Montag/Dienstag)
-# 1) lehrer und schueler alphabetisch mischen
-# 2) schauen, wie weit im alphabet gescannt werden kann
-# 3) scannen
-# 4) wenn noch Zeit, schüler (kleinere homes) scannen
-#    so bleiben (große) Lehrerhomes liegen
-# 5) wenn lehrer home zu groß für 1 Tag, dann Samstags/Sonntags 
-#    scannen, Mail an root 
-# option --test username:
-# scanne das userhome und merke die performance MB/min 
-# werden verlinkte tauschs auch gescannt? besser nicht
 
 # Szenario der Esklation
 # Wenn Virus gefunden, dann
@@ -125,6 +111,18 @@ my @arguments = @ARGV;
 my $help=0;
 my $info=0;
 my $scan_object="";
+
+# penalty_database
+my $penalty_points=3;
+
+# ???? after upgrade to lenny
+#my $config=$DevelConf:: ... ";
+my $penalty_db_dir="/var/lib/sophomorix/virusscan";
+my $penalty_db=$penalty_db_dir."/penalty.db";;
+system("mkdir -p $penalty_db_dir");
+system("touch $penalty_db");
+my %penalty=&read_penalty_db;
+
 
 # abs path of scanned dirs/files
 my %scanned_objects=();
@@ -217,7 +215,7 @@ Configuration files (in scan order):
 print "Quarantine:   $quarantine\n"; 
 print "Logfile:      $logfile\n";
 print "Clamav:       $log_clam\n";
-
+print "Penalty DB:   $penalty_db\n";
    print('
 Please see the sophomorix-virusscan(8) man pages for full documentation
 ');
@@ -282,7 +280,7 @@ close(CONF);
 # fuer jeden &scan_object aufrufen
 
 
-
+&write_penalty_db;
 
 &exit_script;
 
@@ -394,6 +392,22 @@ sub scan_object {
         $result="\nERROR: $scan_dir is nonexistent\n\n";
     }
 
+    # update penalty database
+    if ($infected > 0){
+        my $old=0;
+        if (exists $penalty{$scan_dir} ){
+            $old=$penalty{$scan_dir};
+        }
+        my $new = $old + $penalty_points;
+        $penalty{$scan_dir}="$new";
+    } elsif ($infected == 0){
+        if (exists $penalty{$scan_dir} ){
+            my $old=$penalty{$scan_dir};
+            my $new = $old - 1;
+            $penalty{$scan_dir}="$new";
+        }
+    }
+
     print LOG "$result\n";
     printf LOG "####### %-28s: %8s kB/second #######\n",
                $scan_object,$performance;
@@ -429,4 +443,38 @@ sub get_infected {
         print "\nERROR: Could not retrieve number of infected files\n\n";
     }
     return $infected;
+}
+
+
+
+sub read_penalty_db {
+    my %penalty=();
+    my $penalty=0;
+    open(PENALTY, "<$penalty_db");
+    while(<PENALTY>){
+        # skip comments
+        if (/^#/){
+            next;
+        }
+        my ($object,$penalty) = split(/::/);
+        $penalty{$object}="$penalty";
+    }
+    close(PENALTY);
+    return %penalty;
+}
+
+
+
+
+sub write_penalty_db {
+    # write all penalties >0
+    open(PENALTY, ">$penalty_db");
+    print PENALTY "# penalty\n";
+    while (my ($scan_object,$penalty) = each %penalty){
+        my $line = $scan_object."::".$penalty."::\n";
+        if ($penalty > 0){
+            print PENALTY $line;
+        }
+    }
+    close(PENALTY);
 }
