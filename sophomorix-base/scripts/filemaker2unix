@@ -1,0 +1,26 @@
+#!/usr/bin/perl 
+# $Id$
+# This script (filemaker2unix) is maintained by Rüdiger Beck
+# It is Free Software (License GPLv3)
+# If you find errors, contact the author
+# jeffbeck@web.de  or  jeffbeck@gmx.de
+
+if ( $ARGV[0] eq "-h" or $ARGV[0] eq "--help"){
+    print "\nUsage:\n\n";
+    print "   filemaker2unix filemaker_file > unix_file\n\n";
+    exit;
+}
+
+if (-e $ARGV[0]){
+    open(IN,"<$ARGV[0]");
+    while(<IN>){
+        $_=~s/\v\v/\n/g;
+        $_=~s/\r$/\n/;
+        print "$_";
+    }
+    close(IN);
+    exit;
+} else {
+    print "\nERROR: File $ARGV[0] does not exist\n\n";
+    exit;
+}
