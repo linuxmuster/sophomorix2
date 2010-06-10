@@ -85,6 +85,11 @@
 #
 
 
+# ????? weiter:
+# bei einem user nach dem zuletzt gescannten weitermachen
+# zeittest: ist noch zeit weiter zu scannen?
+
+
 # Bibliotheken
 use strict;
 use Getopt::Long;
@@ -111,7 +116,9 @@ my @arguments = @ARGV;
 
 my $help=0;
 my $info=0;
+my $last=0;
 my $skip_conf=0;
+my $skip_auto=0;
 my $skip_scanning=0;
 my $scan_object="";
 
@@ -126,15 +133,16 @@ system("mkdir -p $penalty_db_dir");
 system("touch $penalty_db");
 my %penalty=&read_penalty_db;
 
-
 # abs path of scanned dirs/files
 my %scanned_objects=();
 
 my $logfile="/var/log/clamav/sophomorix-virusscan.log";
+my $log_last="/var/log/clamav/sophomorix-virusscan.last";
 my $log_clam="/var/log/clamav/sophomorix-virusscan.clamav.log";
 my $quarantine="/var/log/clamav/quarantine";
 system("mkdir -p $quarantine");
 
+my $last_scanned=&get_last_scanned();
 
 # ???? after upgrade to lenny
 #my $config=$DevelConf::$virusscan_conf."/sophomorix-virusscan.conf";
@@ -170,7 +178,9 @@ open(LOG, ">>$logfile");
 my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
+           "last" => \$last,
            "skip-conf" => \$skip_conf,
+           "skip-auto" => \$skip_auto,
            "skip-scanning" => \$skip_scanning,
            "test|scan-object=s" => \$scan_object,
           );
@@ -195,7 +205,9 @@ Options
   -vv / --verbose --verbose
   -i  / --info (unused)
   --test scan-object (Test performance of scan)
+  --last (show last scanned scan-object)
   --skip-conf (Do not scan scan-objects in sophomorix-virusscan.conf)
+  --skip-auto (Do not scan scan-objects automatically (=alphabetically))
   --skip-scanning (Do not scan ANY scan-objects)
 
 
@@ -235,6 +247,14 @@ Please see the sophomorix-virusscan(8) man pages for full documentation
 # --info
 if ($info==1){
     print "No Option --info\n";
+    exit;
+}
+
+
+# --last
+if ($last==1){
+    print "Last scanned scan-object:\n";
+    print "  $last_scanned\n";
     exit;
 }
 
@@ -287,15 +307,15 @@ close(CONF);
 
 # open file
 
-my @scan_object_list=&fetch_scan_objects();
+my @scan_object_list = &fetch_scan_objects();
 
-
-# read data
-
-# create list of todays users
-
-# fuer jeden &scan_object aufrufen
-
+foreach my $object (@scan_object_list){
+        if ($skip_auto==0){
+            &scan_object($object);
+        } else {
+            print "   * skipping $object (Option --skip-auto)\n";
+        }
+}
 
 &write_penalty_db;
 
@@ -308,6 +328,27 @@ my @scan_object_list=&fetch_scan_objects();
 ############################################################
 # subs
 ############################################################
+
+sub get_last_scanned {
+    my $last="";
+    open(LAST, "<$log_last");
+    while(<LAST>){
+        $last=$_;
+    }
+    chomp($last);
+    close(LAST);
+    return $last;
+}
+
+
+
+sub write_last_scanned {
+    my ($last) = @_;
+    open(LAST, ">$log_last");
+    print LAST "$last\n";
+    close(LAST);
+}
+
 
 
 sub fetch_scan_objects {
@@ -472,6 +513,7 @@ sub scan_object {
                $scan_object,$performance;
     printf LOG "####### %-28s: %8s viruses   #######\n",
                $scan_object,$infected;
+    &write_last_scanned($scan_object);
     return 1;
 }
 
