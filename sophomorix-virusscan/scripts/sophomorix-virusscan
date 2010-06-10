@@ -98,6 +98,7 @@ use Net::LDAP;
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     check_connections
                                     fetchdata_from_account
+                                    fetchusers_from_adminclass
                                    );
 
 
@@ -110,6 +111,8 @@ my @arguments = @ARGV;
 
 my $help=0;
 my $info=0;
+my $skip_conf=0;
+my $skip_scanning=0;
 my $scan_object="";
 
 # penalty_database
@@ -167,6 +170,8 @@ open(LOG, ">>$logfile");
 my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
+           "skip-conf" => \$skip_conf,
+           "skip-scanning" => \$skip_scanning,
            "test|scan-object=s" => \$scan_object,
           );
 
@@ -190,6 +195,9 @@ Options
   -vv / --verbose --verbose
   -i  / --info (unused)
   --test scan-object (Test performance of scan)
+  --skip-conf (Do not scan scan-objects in sophomorix-virusscan.conf)
+  --skip-scanning (Do not scan ANY scan-objects)
+
 
 A scan-object can be:
   - a username                 --> scans $HOME of that user
@@ -258,10 +266,14 @@ while(<CONF>){
     print "OBJECT: $object\n";
     foreach my $day (@days){
         if ($day==$day_of_month){
-            print "Heute am $day wird $object gescannt\n";
-            &scan_object($object);
+            print "Heute am ${day}. Tag des Monats  wird $object gescannt\n";
+            if ($skip_conf==0){
+                &scan_object($object);
+	    } else {
+                print "   * skipping $object (Option --skip-conf)\n";
+            }
         } else {      
-            print "  $object wird nicht am  $day gescannt\n";
+            print "  $object wird nicht am  ${day}. Tag des Monats gescannt\n";
         }
     }
 
@@ -271,7 +283,12 @@ while(<CONF>){
 close(CONF);
 
 
+
+
 # open file
+
+my @scan_object_list=&fetch_scan_objects();
+
 
 # read data
 
@@ -292,6 +309,41 @@ close(CONF);
 # subs
 ############################################################
 
+
+sub fetch_scan_objects {
+    my @objects=();
+    # teachers and students
+    my @teachers=&fetchusers_from_adminclass(${DevelConf::teacher});
+    my @students=&fetchstudents_from_school();
+    @objects = (@teachers,@students);
+
+    # shares
+    my @dirlist=($DevelConf::share_classes,
+                 $DevelConf::share_subclasses,
+                 $DevelConf::share_projects);
+
+    foreach my $share (@dirlist){
+        opendir SHARE, $share or return;
+        foreach my $object (readdir SHARE){
+              if ($object eq "."){next};
+              if ($object eq ".."){next};
+              push @objects, $object;
+        }
+        closedir SHARE;
+    }
+
+    # sort
+    @objects = sort @objects;
+
+    # print
+    #foreach my $object (@objects){
+    #    print "$object\n";
+    #}
+    return @objects;
+}
+
+
+
 sub exit_script {
     # End of script
     print "Data logged into file $logfile\n";
@@ -299,6 +351,8 @@ sub exit_script {
     close(LOG);
     exit;
 }
+
+
 
 sub scan_object {
     my ($scan_object) = @_;
@@ -330,6 +384,11 @@ sub scan_object {
             $scan_dir="$scan_object";
         }
     } 
+
+    if ($skip_scanning==1){
+        print "   * skipping $scan_object ($scan_dir)\n";
+        return 2;
+    }
 
     print LOG "\n\n##############################",
               "##################################\n";
