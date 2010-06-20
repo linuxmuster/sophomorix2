@@ -5821,42 +5821,6 @@ sub update_user_ldap {
             # print errors
             $mesg_2->code && die $mesg_2->error;
         } else {
-#            if ($type eq "domcomp"){
-#                # computer account (with $ at the end)
-#                my $mesg_2 = $ldap->add( $dn,
-#                   attrs => [
-#                     cn                   => $cn, 
-#                     description          => $description, 
-#                     displayName          => $displayname, 
-#                     # kann nicht aktualisiert werden
-#                     #         dn                   => \@dn, 
-#                     gecos                => $gecos, 
-#                     gidNumber            => $gidnumber, 
-#                     givenName            => $givenname, 
-#                     homeDirectory        => $homedirectory, 
-#                     loginShell           => $loginshell, 
-#                     objectClass          => \@objectclass,
-#                     sambaAcctFlags       => $sambaacctflags, 
-#                     sambaKickoffTime     => $sambakickofftime, 
-#                     sambaLMPassword      => $sambalmpassword, 
-#                     sambaLogoffTime      => $sambalogofftime, 
-#                     sambaLogonTime       => $sambalogontime, 
-#                     sambaNTPassword      => $sambantpassword, 
-#                     sambaPrimaryGroupSID => $sambaprimarygroupsid, 
-#                     sambaPwdCanChange    => $sambapwdcanchange, 
-#                     sambaPwdLastSet      => $sambapwdlastset, 
-#                     sambaPwdMustChange   => $sambapwdmustchange, 
-#                     sambaSID             => $sambasid, 
-#                     sn                   => $sn, 
-#                     uid                  => $uid, 
-#                     uidNumber            => $uidnumber, 
-#                     userPassword         => $userpassword, 
-#                   ]
-#                );
-#                # print errors
-#                $mesg_2->code && die $mesg_2->error;
-#            } else {
-
             # no computer account
             my $mesg_2 = $ldap->add( $dn,
                attrs => [
@@ -5892,7 +5856,6 @@ sub update_user_ldap {
             );
             # print errors
             $mesg_2->code && die $mesg_2->error;
-#            }
         }
     } else {
         # account does exist -> replacing 
