@@ -88,10 +88,21 @@
 # ????? weiter:
 # bei einem user nach dem zuletzt gescannten weitermachen
 # zeittest: ist noch zeit weiter zu scannen?
-# was tun, wenn es last scanned nicht mehr gibt
-#  -> jetzt wird gar keiner gescanned
-# man muesste liste durchgehen, bis last-auto-scanned erreicht(equal) oder 
-# man alphabetisch danach ist 
+#
+# # an penalty db soll immer was veraendert werden, schritt 1,2,3
+# -> checken
+# # wenn auto last zum ende gleich ist wie zu beginn:
+# oder counter fuer scanned objects 
+# -> fehlermeldung (mail)
+#
+# option --loginfo --> uerberblick
+# option --info: configuration zeigen:
+# 1) config file
+# 2) penalty db
+# 3) last scanned
+#
+# penalty scan-objects scannen
+
 
 # Bibliotheken
 use strict;
@@ -125,6 +136,9 @@ my $skip_auto=0;
 my $skip_scanning=0;
 my $scan_object="";
 my $max_start_period=1; # in minutes
+
+# counter for scanned objects
+my $scanned_objects_counter=0;
 
 # penalty_database
 my $penalty_points=3;
@@ -214,7 +228,7 @@ Options
   --skip-conf (Do not scan scan-objects in sophomorix-virusscan.conf)
   --skip-auto (Do not scan scan-objects automatically (=alphabetically))
   --skip-scanning (Do not scan ANY scan-objects)
-  --max-start-time (in minutes (default: 1 minute), 
+  --max-start-period (in minutes (default: 1 minute), 
                    start scanning a new object, if max-start-time is not over)
 
 A scan-object can be:
@@ -234,7 +248,8 @@ Configuration files (in scan order):
    sophomorix-virusscan scans a scan-object again if they had a virus 
 3. NOT WORKING:
    Scans scan-objects in alphabetical order. 
-   When option --max-time is given, it tries not to exceed this time. 
+   When option --max-start-period (in minutes, default 1 minute)is given,
+   avoid START scanning after this period. 
 
 ');
 
@@ -320,10 +335,14 @@ my @scan_object_list = &fetch_scan_objects();
 
 # alphabetic scanning
 my $continue=0;
+# was auto last found or not?
+my $auto_last_found=0;
 foreach my $object (@scan_object_list){
     if ($last_auto_scanned eq ""){
+        $auto_last_found=1;
         # continue, if no last scanned object exists
     } elsif ($object eq $last_auto_scanned){
+        $auto_last_found=1;
         # last auto scanned object reached, skip it
         $continue=1; # remember to continue next time
         next;
@@ -339,6 +358,15 @@ foreach my $object (@scan_object_list){
         print "   * skipping $object (Option --skip-auto)\n";
     }
 }
+
+    if ($auto_last_found==0){
+        # auto lst not found (user deleted, share removed, ...)
+        # --> set empty auto last
+        &write_last_auto_scanned("");
+        print "Could not find last auto-scanned scan-object\n";
+        print "Setting last auto-scanned scan-object to empty string\n";
+    }
+
 
 &write_penalty_db;
 &exit_script;
@@ -416,6 +444,7 @@ sub exit_script {
     print "Data logged into file $logfile\n";
     print "Data logged into file $log_clam\n";
     print "Penalty database is in $penalty_db\n";
+    print "$scanned_objects_counter objects scanned\n";
     close(LOG);
     exit;
 }
@@ -461,7 +490,9 @@ sub scan_object {
     # stop scanning if it is too late
     my $time_now=time;
     if ($time_now>$max_start_time){
-        print "   * too late for $scan_object ($scan_dir)\n";
+        my $overtime=$time_now-$max_start_time;
+        print "   * too late ($overtime seconds) ",
+              "for $scan_object ($scan_dir)\n";
         &write_penalty_db;
         &exit_script;
     }
@@ -507,6 +538,7 @@ sub scan_object {
                     $data_mb;
 
         $result=`clamscan  -r -i -l $log_clam --move=$quarantine $scan_dir`;
+        $scanned_objects_counter++;
         #my $command="clamscan -v -r -i -l $log_clam --move=$quarantine ".
         #            "$scan_dir >> $logfile 2>&1";
         # analize result
