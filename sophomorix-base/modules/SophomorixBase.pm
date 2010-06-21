@@ -1146,7 +1146,11 @@ sub provide_class_files {
     if (not defined $type){
 	$type="";
     }
-    if ($type eq "examaccount"){
+    if ($type eq "administrator"){
+        # nothing to do
+    } elsif ($type eq "unixadmin"){
+        # nothing to do
+    } elsif ($type eq "examaccount"){
       my $workstation_homes="${DevelConf::homedir_ws}/$class";
       &setup_verzeichnis("\$homedir_ws",
                     "${DevelConf::homedir_ws}");
