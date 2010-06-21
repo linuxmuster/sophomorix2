@@ -88,7 +88,10 @@
 # ????? weiter:
 # bei einem user nach dem zuletzt gescannten weitermachen
 # zeittest: ist noch zeit weiter zu scannen?
-
+# was tun, wenn es last scanned nicht mehr gibt
+#  -> jetzt wird gar keiner gescanned
+# man muesste liste durchgehen, bis last-auto-scanned erreicht(equal) oder 
+# man alphabetisch danach ist 
 
 # Bibliotheken
 use strict;
@@ -121,6 +124,7 @@ my $skip_conf=0;
 my $skip_auto=0;
 my $skip_scanning=0;
 my $scan_object="";
+my $max_start_period=1; # in minutes
 
 # penalty_database
 my $penalty_points=3;
@@ -137,12 +141,12 @@ my %penalty=&read_penalty_db;
 my %scanned_objects=();
 
 my $logfile="/var/log/clamav/sophomorix-virusscan.log";
-my $log_last="/var/log/clamav/sophomorix-virusscan.last";
+my $log_last_auto="/var/log/clamav/sophomorix-virusscan.last-auto-scanned";
 my $log_clam="/var/log/clamav/sophomorix-virusscan.clamav.log";
 my $quarantine="/var/log/clamav/quarantine";
 system("mkdir -p $quarantine");
 
-my $last_scanned=&get_last_scanned();
+my $last_auto_scanned=&get_last_auto_scanned();
 
 # ???? after upgrade to lenny
 #my $config=$DevelConf::$virusscan_conf."/sophomorix-virusscan.conf";
@@ -183,6 +187,7 @@ my $testopt=GetOptions(
            "skip-auto" => \$skip_auto,
            "skip-scanning" => \$skip_scanning,
            "test|scan-object=s" => \$scan_object,
+           "max-start-period=i" => \$max_start_period,
           );
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
@@ -205,11 +210,12 @@ Options
   -vv / --verbose --verbose
   -i  / --info (unused)
   --test scan-object (Test performance of scan)
-  --last (show last scanned scan-object)
+  --last (show last auto-scanned scan-object)
   --skip-conf (Do not scan scan-objects in sophomorix-virusscan.conf)
   --skip-auto (Do not scan scan-objects automatically (=alphabetically))
   --skip-scanning (Do not scan ANY scan-objects)
-
+  --max-start-time (in minutes (default: 1 minute), 
+                   start scanning a new object, if max-start-time is not over)
 
 A scan-object can be:
   - a username                 --> scans $HOME of that user
@@ -253,8 +259,8 @@ if ($info==1){
 
 # --last
 if ($last==1){
-    print "Last scanned scan-object:\n";
-    print "  $last_scanned\n";
+    print "Last auto-scanned scan-object:\n";
+    print "  $last_auto_scanned\n";
     exit;
 }
 
@@ -264,13 +270,14 @@ if ($last==1){
 
 # Start date in unix seconds
 my $start_time=time;
+my $max_start_time=$start_time+60*$max_start_period;
 my ($start_time_human)=&time;
 my $day_of_month=`date +%d`;
 chomp($day_of_month);
 
 # --test|--scan-object
 if ($scan_object ne ""){
-    &scan_object($scan_object);
+    &scan_object($scan_object,"test");
     &exit_script;
 }
 
@@ -286,9 +293,9 @@ while(<CONF>){
     print "OBJECT: $object\n";
     foreach my $day (@days){
         if ($day==$day_of_month){
-            print "Heute am ${day}. Tag des Monats  wird $object gescannt\n";
+            print "Heute am ${day}. Tag des Monats wird $object gescannt\n";
             if ($skip_conf==0){
-                &scan_object($object);
+                &scan_object($object,"config");
 	    } else {
                 print "   * skipping $object (Option --skip-conf)\n";
             }
@@ -309,16 +316,31 @@ close(CONF);
 
 my @scan_object_list = &fetch_scan_objects();
 
+
+
+# alphabetic scanning
+my $continue=0;
 foreach my $object (@scan_object_list){
-        if ($skip_auto==0){
-            &scan_object($object);
-        } else {
-            print "   * skipping $object (Option --skip-auto)\n";
-        }
+    if ($last_auto_scanned eq ""){
+        # continue, if no last scanned object exists
+    } elsif ($object eq $last_auto_scanned){
+        # last auto scanned object reached, skip it
+        $continue=1; # remember to continue next time
+        next;
+    } elsif ($continue==1) {
+        # continue
+    } else {
+	next;
+    }
+    # scan now
+    if ($skip_auto==0){
+        &scan_object($object,"auto");
+    } else {
+        print "   * skipping $object (Option --skip-auto)\n";
+    }
 }
 
 &write_penalty_db;
-
 &exit_script;
 
 
@@ -329,9 +351,13 @@ foreach my $object (@scan_object_list){
 # subs
 ############################################################
 
-sub get_last_scanned {
+sub get_last_auto_scanned {
     my $last="";
-    open(LAST, "<$log_last");
+    if (not -e $log_last_auto){
+        # file does not exit -> empty field
+        return "";
+    }
+    open(LAST, "<$log_last_auto");
     while(<LAST>){
         $last=$_;
     }
@@ -342,9 +368,9 @@ sub get_last_scanned {
 
 
 
-sub write_last_scanned {
+sub write_last_auto_scanned {
     my ($last) = @_;
-    open(LAST, ">$log_last");
+    open(LAST, ">$log_last_auto");
     print LAST "$last\n";
     close(LAST);
 }
@@ -389,6 +415,7 @@ sub exit_script {
     # End of script
     print "Data logged into file $logfile\n";
     print "Data logged into file $log_clam\n";
+    print "Penalty database is in $penalty_db\n";
     close(LOG);
     exit;
 }
@@ -396,30 +423,30 @@ sub exit_script {
 
 
 sub scan_object {
-    my ($scan_object) = @_;
+    my ($scan_object,$option) = @_;
     my ($scan_dir) = &fetchdata_from_account($scan_object);
     if ($scan_dir eq ""){
         # its not a users home
         if (-e "$DevelConf::share_classes/$scan_object"){
-            print "It is a class\n";
+            print "$scan_object is a class\n";
             $scan_dir="$DevelConf::share_classes/$scan_object";
 	} elsif (-d "$DevelConf::share_subclasses/$scan_object"){
-            print "It is a subclass\n";
+            print "$scan_object is a subclass\n";
             $scan_dir="$DevelConf::share_subclasses/$scan_object";
 	} elsif (-d "$DevelConf::share_projects/$scan_object"){
-            print "It is a project\n";
+            print "$scan_object is a project\n";
             $scan_dir="$DevelConf::share_projects/$scan_object";
 	} elsif (-d "$DevelConf::share_projects/p_$scan_object"){
-            print "It is a project\n";
+            print "$scan_object is a project\n";
             $scan_dir="$DevelConf::share_projects/p_$scan_object";
 	} elsif (-d "$DevelConf::share_share/$scan_object"){
-            print "It is the school share/parent share\n";
+            print "$scan_object is the school share/parent share\n";
             $scan_dir="$DevelConf::share_share/$scan_object";
 	} elsif (-d "$scan_object"){
-            print "It is an absolute path to a directory\n";
+            print "$scan_object is an absolute path to a directory\n";
             $scan_dir="$scan_object";
 	} elsif (-f "$scan_object"){
-            print "It is an absolute path to a file\n";
+            print "$scan_object is an absolute path to a file\n";
             $scan_dir="$scan_object";
 	} else {
             $scan_dir="$scan_object";
@@ -429,6 +456,14 @@ sub scan_object {
     if ($skip_scanning==1){
         print "   * skipping $scan_object ($scan_dir)\n";
         return 2;
+    }
+
+    # stop scanning if it is too late
+    my $time_now=time;
+    if ($time_now>$max_start_time){
+        print "   * too late for $scan_object ($scan_dir)\n";
+        &write_penalty_db;
+        &exit_script;
     }
 
     print LOG "\n\n##############################",
@@ -513,7 +548,9 @@ sub scan_object {
                $scan_object,$performance;
     printf LOG "####### %-28s: %8s viruses   #######\n",
                $scan_object,$infected;
-    &write_last_scanned($scan_object);
+    if ($option eq "auto"){
+        &write_last_auto_scanned($scan_object);
+    }
     return 1;
 }
 
