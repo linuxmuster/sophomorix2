@@ -3956,7 +3956,7 @@ sub filter_school_admin_software {
          # utf8
          # -
          $line=~s/\xC2\xAF//g;
-         # -
+         # '
          $line=~s/\xC2\xB4//g;
 
          # iso 8859-1 stuff
@@ -3994,12 +3994,13 @@ sub filter_school_admin_software {
          # Oe
          $line=~s/\xC3\x96/Oe/g;
          # X
-         $line=~s/\xC3\x97/X/g;
+         $line=~s/\xC3\x97/x/g;
          # U
          $line=~s/\xC3\x99/U/g;
          $line=~s/\xC3\x9A/U/g;
          $line=~s/\xC3\x9B/U/g;
-         $line=~s/\xC3\x9C/U/g;
+         # Ue
+         $line=~s/\xC3\x9C/Ue/g;
          # Y
          $line=~s/\xC3\x9D/Y/g;
          # Th
@@ -4011,9 +4012,9 @@ sub filter_school_admin_software {
          $line=~s/\xC3\xA1/a/g;
          $line=~s/\xC3\xA2/a/g;
          $line=~s/\xC3\xA3/a/g;
-         $line=~s/\xC3\xA4/a/g;
          $line=~s/\xC3\xA5/a/g;
          # ae
+         $line=~s/\xC3\xA4/ae/g;
          $line=~s/\xC3\xA6/ae/g;
          # c
          $line=~s/\xC3\xA7/c/g;
@@ -4045,7 +4046,8 @@ sub filter_school_admin_software {
          $line=~s/\xC3\xB9/u/g;
          $line=~s/\xC3\xBA/u/g;
          $line=~s/\xC3\xBB/u/g;
-         $line=~s/\xC3\xBC/u/g;
+         # ue
+         $line=~s/\xC3\xBC/ue/g;
          # y
          $line=~s/\xC3\xBD/y/g;
          $line=~s/\xC3\xBF/y/g;
@@ -4170,7 +4172,7 @@ sub filter_school_admin_software {
          $line=~s/\xC5\xAE/U/g;
          $line=~s/\xC5\xAF/u/g;
          $line=~s/\xC5\xB0/U/g;
-         $line=~s/\xC5\xB1/u/g;
+         $line=~s/\xC5\xB1/ue/g;
          $line=~s/\xC5\xB2/U/g;
          $line=~s/\xC5\xB3/u/g;
          $line=~s/\xC5\xB4/W/g;
