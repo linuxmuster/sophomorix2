@@ -1026,7 +1026,7 @@ sleep 5;
 # make sure:
 # new version of postgres is running on port 5432 (standard port)
 # old version of postgres is running on port 5433
-&fix_pg_ports();
+#&fix_pg_ports();
 
 #$pg_version =  &get_pg_server_version("5432");
 #$pg_version2 = &get_pg_server_version("5433");
@@ -1066,7 +1066,7 @@ my $port_of_74=0;
 #}
 
 
-print "Checking if postgres must be upgraded from 7.4 to 8.1\n";
+#print "Checking if postgres must be upgraded from 7.4 to 8.1\n";
 # upgrade postgres when:
 # postgres 8.1 exists ($port_of_81 > 0)
 # old version was installed (oldversion is NOT 0.0.0-0)
@@ -1075,39 +1075,39 @@ print "Checking if postgres must be upgraded from 7.4 to 8.1\n";
 ##################################################
 # move database to new postgres, if necessary
 ##################################################
-if ( $old_version ne "0.0.0-0"){
-    # its an sophomorix upgrade: there is data in the ldap db
-    # trying to connect to db ldap on postgres 8.1
-    my $dbh = DBI->connect("dbi:Pg:dbname=ldap;port=5432", 
-                           "ldap","pass",
-               { RaiseError => 0, PrintError => 0});
-    if (not defined $dbh){
-        # no database 8.1 exists
-        # create it via upgrade from 7.4
-        print "\n\nUpgrading from postgres 7.4 to 8.1\n\n\n";
-        my $command="/etc/init.d/postgresql-7.4 start";
-        print "   $command \n"; 
-        system("$command");
-        sleep 1;
-        $command="pg_dropcluster 8.1 main --stop";
-        print "   $command \n"; 
-        system("$command");
-        sleep 1;
-        $command="pg_upgradecluster 7.4 main";
-        print "   $command \n"; 
-        system("$command");
-        sleep 1;
-#        $command="pg_dropcluster 7.4 main";
-#        print "   $command \n"; 
-#        system("$command");
-    } else {
-        print "Database ldap exists already in postgres \n"; 
-    }
-}
+# if ( $old_version ne "0.0.0-0"){
+#     # its an sophomorix upgrade: there is data in the ldap db
+#     # trying to connect to db ldap on postgres 8.1
+#     my $dbh = DBI->connect("dbi:Pg:dbname=ldap;port=5432", 
+#                            "ldap","pass",
+#                { RaiseError => 0, PrintError => 0});
+#     if (not defined $dbh){
+#         # no database 8.1 exists
+#         # create it via upgrade from 7.4
+#         print "\n\nUpgrading from postgres 7.4 to 8.1\n\n\n";
+#         my $command="/etc/init.d/postgresql-7.4 start";
+#         print "   $command \n"; 
+#         system("$command");
+#         sleep 1;
+#         $command="pg_dropcluster 8.1 main --stop";
+#         print "   $command \n"; 
+#         system("$command");
+#         sleep 1;
+#         $command="pg_upgradecluster 7.4 main";
+#         print "   $command \n"; 
+#         system("$command");
+#         sleep 1;
+# #        $command="pg_dropcluster 7.4 main";
+# #        print "   $command \n"; 
+# #        system("$command");
+#     } else {
+#         print "Database ldap exists already in postgres \n"; 
+#     }
+# }
 
 
 
-&fix_pg_ports();
+#&fix_pg_ports();
 
 
 # Drop old database, when --new-database
