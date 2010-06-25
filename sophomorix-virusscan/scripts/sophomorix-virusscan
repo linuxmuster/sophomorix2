@@ -99,6 +99,8 @@
 # option --loginfo --> uerberblick
 #
 # penalty scan-objects scannen
+#
+# testen: wird IMMER die penalty db upgedated?
 
 
 # Bibliotheken
@@ -129,6 +131,7 @@ my @arguments = @ARGV;
 my $help=0;
 my $info=0;
 my $skip_conf=0;
+my $skip_penalty=0;
 my $skip_auto=0;
 my $skip_scanning=0;
 my $scan_object="";
@@ -182,11 +185,10 @@ if (not -e "$config"){
 
 open(LOG, ">>$logfile");
 
+
 # ===========================================================================
 # Optionen verarbeiten
 # ==========================================================================
-
-
 
 
 # Parsen der Optionen
@@ -194,6 +196,7 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
            "skip-conf" => \$skip_conf,
+           "skip-penalty" => \$skip_penalty,
            "skip-auto" => \$skip_auto,
            "skip-scanning" => \$skip_scanning,
            "test|scan-object=s" => \$scan_object,
@@ -205,6 +208,10 @@ my $testopt=GetOptions(
 &check_connections();
 
 
+# ===========================================================================
+# Help
+# ==========================================================================
+
 # --help
 if ($help==1) {
    # Scriptname ermitteln
@@ -212,39 +219,49 @@ if ($help==1) {
    my $scriptname = pop @list;
    # Befehlsbeschreibung
    print('
-sophomorix-virusscan scans  scan-objects (userhomes,shares,directories,files) for viruses
-
-Options
-  -h  / --help
-  -v  / --verbose
-  -vv / --verbose --verbose
-  -i  / --info  (show what objects will be scanned next)
-  --test scan-object (Test performance of scan)
-  --skip-conf (Do not scan scan-objects in sophomorix-virusscan.conf)
-  --skip-auto (Do not scan scan-objects automatically (=alphabetically))
-  --skip-scanning (Do not scan ANY scan-objects)
-  --max-start-period (in minutes (default: 1 minute), 
-                   start scanning a new object, if max-start-time is not over)
+sophomorix-virusscan scans scan-objects (userhomes,shares,directories,files) for viruses
 
 A scan-object can be:
   - a username                 --> scans $HOME of that user
   - a class,subclass,project   --> scans the share of class,subclass,project
   - an absolute path           --> scans the file/directory
 
+Options:
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  -i  / --info  (show what objects will be scanned next)
+  --test scan-object (Test performance of scan)
+  --max-start-period (in minutes (default: 1 minute), 
+                   start scanning a new object, if max-start-time is not over)
 
-Without any options, sophomorix-virusscan scans as configured.
+Options that skip scanning:
+  --skip-conf (Do not scan scan-objects in sophomorix-virusscan.conf)
+  --skip-penalty (Do not scan scan-objects in the penalty database)
+  --skip-auto (Do not scan scan-objects automatically (=alphabetically))
+  --skip-scanning (Do not scan ANY scan-objects, but run the script)
 
-Configuration files (in scan order):
 
-1. /etc/sophomorix/virusscan/sophomorix-virusscan.conf
+Without any options, sophomorix-virusscan scans as configured and does not 
+start a scan after 1 minute.
+
+
+Scan Order:
+
+1) Scanning using data from sophomorix-virusscan.conf:
    Configure here which scan-object to scan on which days of the month.
    Use this for unreliable users, that must be scanned regularly.
-2. NOT WORKING:
-   sophomorix-virusscan scans a scan-object again if they had a virus 
-3. NOT WORKING:
+
+2) Scanning penalty objects:
+   sophomorix-virusscan manages a database with objects that were infected. 
+   It scans a scan-object again if it had a virus. 
+
+3) Scanning automatically:
    Scans scan-objects in alphabetical order. 
    When option --max-start-period (in minutes, default 1 minute)is given,
    avoid START scanning after this period. 
+
+Files maintained by sophomorix-virusscan:
 
 ');
 
@@ -253,7 +270,7 @@ print "Logfile:      $logfile\n";
 print "Clamav:       $log_clam\n";
 print "Penalty DB:   $penalty_db\n";
    print('
-Please see the sophomorix-virusscan(8) man pages for full documentation
+TODO: Please see the sophomorix-virusscan(8) man pages for full documentation
 ');
    print "\n";
    exit;
@@ -269,13 +286,18 @@ my $day_of_month=`date +%d`;
 chomp($day_of_month);
 
 
+
+# ===========================================================================
+# Info
+# ==========================================================================
+
 # --info
 if ($info==1){
     print "\nToday is ";
     system("date");
     print "\n";
 
-    print "#######  $config  #########\n";
+    print "1) Scanning using data from sophomorix-virusscan.conf\n";
     open(CONF, "<$config");
     while(<CONF>){
         if (/^#/){
@@ -290,11 +312,10 @@ if ($info==1){
         }
     }
     close(CONF);
-    print "#######  $config  #########\n";
 
     print "\n";
 
-    print "###############  penalty db starts here  ##############################\n";
+    print "2) Scanning penalty objects\n";
     open(PENALTY, "<$penalty_db");
     while(<PENALTY>){
         if (/^#/){
@@ -305,16 +326,15 @@ if ($info==1){
 	print color 'reset';
     }
     close(PENALTY);
-    print "###############  penalty db ends here    ##############################\n";
 
     print "\n";
 
-    print "################  automatically scanned objects  ######################\n";
+    print "3) Scanning automatically\n";
     print "   $last_auto_scanned\n";
-    my @scan_object_list = &fetch_scan_objects();
+    my @autoscan_object_list = &fetch_autoscan_objects();
     my $continue=0;
     my $show_num_objects=3;
-    foreach my $object (@scan_object_list){
+    foreach my $object (@autoscan_object_list){
         if ($continue > 0){
     	    print color 'bold red';
             print "   $object\n";
@@ -331,7 +351,13 @@ if ($info==1){
             next;
         }       
     }
-    print "################  automatically scanned objects  ######################\n";
+
+    print "\nNext scan objects are in ";
+    print color 'bold red';
+    print "red color";
+    print color 'reset';
+
+    print ".\n\n";
     exit;
 }
 
@@ -344,7 +370,11 @@ if ($scan_object ne ""){
     &exit_script;
 }
 
-# use data from sophomorix-virusscan.conf
+
+# ===========================================================================
+# 1) Scanning using data from sophomorix-virusscan.conf
+# ==========================================================================
+print "1) Scanning using data from sophomorix-virusscan.conf\n";
 open(CONF, "<$config");
 while(<CONF>){
     if (/^#/){
@@ -353,39 +383,45 @@ while(<CONF>){
     my ($object,$days) = split(/::/);
     my (@days) = split(/,/,$days);
 
-    print "OBJECT: $object\n";
+    print "   OBJECT: $object\n";
     foreach my $day (@days){
         if ($day==$day_of_month){
-            print "Heute am ${day}. Tag des Monats wird $object gescannt\n";
+            print "   Heute am ${day}. Tag des Monats wird $object gescannt\n";
             if ($skip_conf==0){
                 &scan_object($object,"config");
 	    } else {
-                print "   * skipping $object (Option --skip-conf)\n";
+                print "     * skipping $object (Option --skip-conf)\n";
             }
         } else {      
-            print "  $object wird nicht am  ${day}. Tag des Monats gescannt\n";
+            print "     $object wird am ${day}. Tag des Monats gescannt, NICHT Heute!\n";
         }
     }
 
 
 }
-
 close(CONF);
 
+# ===========================================================================
+# 2) Scanning penalty objects
+# ==========================================================================
+print "2) Scanning penalty objects\n";
+my @penalty_db_list = &read_penalty_db_list();
+foreach my $object (@penalty_db_list){
+    if ($skip_penalty==0){
+        &scan_object($object,"penalty");
+    }
+}
 
 
-
-# open file
-
-my @scan_object_list = &fetch_scan_objects();
-
-
-
-# alphabetic scanning
+# ===========================================================================
+# 3) Scanning automatically
+# ==========================================================================
+print "3) Scanning automatically\n";
+my @autoscan_object_list = &fetch_autoscan_objects();
 my $continue=0;
 # was auto last found or not?
 my $auto_last_found=0;
-foreach my $object (@scan_object_list){
+foreach my $object (@autoscan_object_list){
     if ($last_auto_scanned eq ""){
         $auto_last_found=1;
         # continue, if no last scanned object exists
@@ -403,7 +439,7 @@ foreach my $object (@scan_object_list){
     if ($skip_auto==0){
         &scan_object($object,"auto");
     } else {
-        print "   * skipping $object (Option --skip-auto)\n";
+        print "     * skipping $object (Option --skip-auto)\n";
     }
 }
 
@@ -418,6 +454,7 @@ foreach my $object (@scan_object_list){
 
 &write_penalty_db;
 &exit_script;
+
 
 
 
@@ -453,7 +490,7 @@ sub write_last_auto_scanned {
 
 
 
-sub fetch_scan_objects {
+sub fetch_autoscan_objects {
     my @objects=();
     # teachers and students
     my @teachers=&fetchusers_from_adminclass(${DevelConf::teacher});
@@ -501,29 +538,34 @@ sub exit_script {
 
 sub scan_object {
     my ($scan_object,$option) = @_;
+    # options can be: 
+    # test
+    # config
+    # penalty
+    # auto
     my ($scan_dir) = &fetchdata_from_account($scan_object);
     if ($scan_dir eq ""){
         # its not a users home
         if (-e "$DevelConf::share_classes/$scan_object"){
-            print "$scan_object is a class\n";
+            print "   # $scan_object is a class\n";
             $scan_dir="$DevelConf::share_classes/$scan_object";
 	} elsif (-d "$DevelConf::share_subclasses/$scan_object"){
-            print "$scan_object is a subclass\n";
+            print "   # $scan_object is a subclass\n";
             $scan_dir="$DevelConf::share_subclasses/$scan_object";
 	} elsif (-d "$DevelConf::share_projects/$scan_object"){
-            print "$scan_object is a project\n";
+            print "   # $scan_object is a project\n";
             $scan_dir="$DevelConf::share_projects/$scan_object";
 	} elsif (-d "$DevelConf::share_projects/p_$scan_object"){
-            print "$scan_object is a project\n";
+            print "   # $scan_object is a project\n";
             $scan_dir="$DevelConf::share_projects/p_$scan_object";
 	} elsif (-d "$DevelConf::share_share/$scan_object"){
-            print "$scan_object is the school share/parent share\n";
+            print "   # $scan_object is the school share/parent share\n";
             $scan_dir="$DevelConf::share_share/$scan_object";
 	} elsif (-d "$scan_object"){
-            print "$scan_object is an absolute path to a directory\n";
+            print "   # $scan_object is an absolute path to a directory\n";
             $scan_dir="$scan_object";
 	} elsif (-f "$scan_object"){
-            print "$scan_object is an absolute path to a file\n";
+            print "   # $scan_object is an absolute path to a file\n";
             $scan_dir="$scan_object";
 	} else {
             $scan_dir="$scan_object";
@@ -531,7 +573,7 @@ sub scan_object {
     } 
 
     if ($skip_scanning==1){
-        print "   * skipping $scan_object ($scan_dir)\n";
+        print "     * skipping $scan_object ($scan_dir)\n";
         return 2;
     }
 
@@ -628,6 +670,15 @@ sub scan_object {
                $scan_object,$performance;
     printf LOG "####### %-28s: %8s viruses   #######\n",
                $scan_object,$infected;
+    if ($option eq "test"){
+        # nothing
+    }
+    if ($option eq "config"){
+        # nothing
+    }
+    if ($option eq "penalty"){
+        # nothing
+    }
     if ($option eq "auto"){
         &write_last_auto_scanned($scan_object);
     }
@@ -679,6 +730,24 @@ sub read_penalty_db {
     }
     close(PENALTY);
     return %penalty;
+}
+
+
+sub read_penalty_db_list {
+    my @penalty=();
+    my $penalty=0;
+    open(PENALTY, "<$penalty_db");
+    while(<PENALTY>){
+        # skip comments
+        if (/^#/){
+            next;
+        }
+        my ($object,$penalty) = split(/::/);
+        #$penalty{$object}="$penalty";
+        push @penalty, $object;
+    }
+    close(PENALTY);
+    return @penalty;
 }
 
 
