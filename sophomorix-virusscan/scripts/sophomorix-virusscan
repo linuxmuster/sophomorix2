@@ -86,6 +86,7 @@
 
 
 # ????? weiter:
+# --info (zeige absoluter pfad bei scanobjects)
 # bei einem user nach dem zuletzt gescannten weitermachen
 # zeittest: ist noch zeit weiter zu scannen?
 #
@@ -96,10 +97,6 @@
 # -> fehlermeldung (mail)
 #
 # option --loginfo --> uerberblick
-# option --info: configuration zeigen:
-# 1) config file
-# 2) penalty db
-# 3) last scanned
 #
 # penalty scan-objects scannen
 
@@ -131,7 +128,6 @@ my @arguments = @ARGV;
 
 my $help=0;
 my $info=0;
-my $last=0;
 my $skip_conf=0;
 my $skip_auto=0;
 my $skip_scanning=0;
@@ -197,7 +193,6 @@ open(LOG, ">>$logfile");
 my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
-           "last" => \$last,
            "skip-conf" => \$skip_conf,
            "skip-auto" => \$skip_auto,
            "skip-scanning" => \$skip_scanning,
@@ -223,9 +218,8 @@ Options
   -h  / --help
   -v  / --verbose
   -vv / --verbose --verbose
-  -i  / --info (unused)
+  -i  / --info  (show what objects will be scanned next)
   --test scan-object (Test performance of scan)
-  --last (show last auto-scanned scan-object)
   --skip-conf (Do not scan scan-objects in sophomorix-virusscan.conf)
   --skip-auto (Do not scan scan-objects automatically (=alphabetically))
   --skip-scanning (Do not scan ANY scan-objects)
@@ -264,16 +258,6 @@ Please see the sophomorix-virusscan(8) man pages for full documentation
    print "\n";
    exit;
 }
-
-
-# --last
-if ($last==1){
-    print "Last auto-scanned scan-object:\n";
-    print "  $last_auto_scanned\n";
-    exit;
-}
-
-
 
 #&log_script_start(@arguments);
 
@@ -325,7 +309,7 @@ if ($info==1){
 
     print "\n";
 
-    print "##################  automatically scanned user  #######################\n";
+    print "################  automatically scanned objects  ######################\n";
     print "   $last_auto_scanned\n";
     my @scan_object_list = &fetch_scan_objects();
     my $continue=0;
@@ -347,7 +331,7 @@ if ($info==1){
             next;
         }       
     }
-    print "##################  automatically scanned user  #######################\n";
+    print "################  automatically scanned objects  ######################\n";
     exit;
 }
 
