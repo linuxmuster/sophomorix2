@@ -113,6 +113,7 @@ use Sophomorix::SophomorixBase;
 use Sophomorix::SophomorixAPI;
 use DBI;
 use Net::LDAP;
+use Term::ANSIColor;
 
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     check_connections
@@ -265,13 +266,6 @@ Please see the sophomorix-virusscan(8) man pages for full documentation
 }
 
 
-# --info
-if ($info==1){
-    print "No Option --info\n";
-    exit;
-}
-
-
 # --last
 if ($last==1){
     print "Last auto-scanned scan-object:\n";
@@ -289,6 +283,76 @@ my $max_start_time=$start_time+60*$max_start_period;
 my ($start_time_human)=&time;
 my $day_of_month=`date +%d`;
 chomp($day_of_month);
+
+
+# --info
+if ($info==1){
+    print "\nToday is ";
+    system("date");
+    print "\n";
+
+    print "#######  $config  #########\n";
+    open(CONF, "<$config");
+    while(<CONF>){
+        if (/^#/){
+            next;
+        }
+        if (/$day_of_month/){
+  	    print color 'bold red';
+            print "   $_";
+	    print color 'reset';
+        } else {
+            print "   $_";
+        }
+    }
+    close(CONF);
+    print "#######  $config  #########\n";
+
+    print "\n";
+
+    print "###############  penalty db starts here  ##############################\n";
+    open(PENALTY, "<$penalty_db");
+    while(<PENALTY>){
+        if (/^#/){
+            next;
+        }
+  	print color 'bold red';
+        print "   $_";
+	print color 'reset';
+    }
+    close(PENALTY);
+    print "###############  penalty db ends here    ##############################\n";
+
+    print "\n";
+
+    print "##################  automatically scanned user  #######################\n";
+    print "   $last_auto_scanned\n";
+    my @scan_object_list = &fetch_scan_objects();
+    my $continue=0;
+    my $show_num_objects=3;
+    foreach my $object (@scan_object_list){
+        if ($continue > 0){
+    	    print color 'bold red';
+            print "   $object\n";
+            $continue++;
+            if ($continue > $show_num_objects){ # show
+                print "   ... \n";
+	        print color 'reset';
+                last;
+	    } else {
+                next;
+            }
+        } elsif ($object eq $last_auto_scanned){
+            $continue=1; # remember to continue next time
+            next;
+        }       
+    }
+    print "##################  automatically scanned user  #######################\n";
+    exit;
+}
+
+
+
 
 # --test|--scan-object
 if ($scan_object ne ""){
