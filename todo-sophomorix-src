@@ -1549,7 +1549,7 @@ In /etc/hosts:
 
 Server(host):
 
-1. uptitude install nfs-kernel-server
+1. aptitude install nfs-kernel-server
 2. edit /etc/exports:
    /home/bz/cvs 192.168.122.0/255.255.255.0(ro,async)
 3. exportfs -ra
@@ -1558,10 +1558,17 @@ Server(host):
 Client(guest):
 1. mkdir /mnt/cvs
 2. edit /etc/fstab:
-  10.1.23.10:/home/bz/cvs  /mnt/cvs   nfs   ro   0   0
+   # for adler
+   10.1.23.10:/home/bz/cvs   /mnt/cvs-adler   nfs   ro   0   0
+   # for dell D830
+   10.1.23.7:/home/bz/cvs   /mnt/cvs-dell   nfs   ro   0   0
+   # for thinkpad x61s
+   10.1.23.4:/home/bz/cvs   /mnt/cvs-thinkpad   nfs   ro   0   0
+
+
 
 ############################################################
-kvm vorbereiten, pakete henunterladen
+kvm vorbereiten, pakete herunterladen
 ############################################################
 
 
