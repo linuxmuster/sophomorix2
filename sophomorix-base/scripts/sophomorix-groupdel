@@ -151,9 +151,7 @@ if ($room ne ""){
     if ($seen==0){
         my ($type)=&pg_get_group_type($room);
         print "No ($type)\n";
-        print "   WARNING: Not removing room $room\n";
-        &log_script_exit("WARMING: Not removing room $room",1,1,0,@arguments);
-        #exit;
+        &log_script_exit("WARNING: Not removing room $room",1,1,0,@arguments);
     }
 
     # 2) check if there are no users in this room
@@ -165,9 +163,7 @@ if ($room ne ""){
 	print "   Removing room $room from pg\n";
     } else {
         print "   Group $room is not empty\n";
-        print "   WARNING: Not removing room $room\n";
-        &log_script_exit("WARMING: Not removing room $room",1,1,0,@arguments);
-        #exit;
+        &log_script_exit("WARNING: Not removing room $room",1,1,0,@arguments);
     } 
 
     # Remove files/dirs
