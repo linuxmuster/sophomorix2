@@ -5954,7 +5954,11 @@ sub delete_user_ldap {
 
 sub update_group_ldap {
     my ($ldap,$group) = @_;
-    my ($type,$cn,$gidnumber,$sambasid,$sambagrouptype)=&pg_get_group_type($group);
+    my ($type,
+        $cn,
+        $gidnumber,
+        $sambasid,
+        $sambagrouptype)=&pg_get_group_type($group);
 
     # return on error 
     if ($type eq "nonexisting"){
@@ -6012,6 +6016,16 @@ sub update_group_ldap {
 sub delete_group_ldap {
     my ($ldap,$group) = @_;
     my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
+    my ($type,
+        $cn,
+        $gidnumber,
+        $sambasid,
+        $sambagrouptype)=&pg_get_group_type($group);
+    if ($type eq "nonexisting"){
+        print "Group $group does not exist in postgresql.\n";
+        print "   * Cannot delete ldap group $group.\n";
+        return 0;
+    }
     my $dn="cn=".$cn.",ou=groups,".$suffix;
     print "Deleting ldap dn: $dn\n";
     my $mesg = $ldap->delete( $dn); 
