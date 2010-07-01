@@ -11,9 +11,11 @@
 # abs path in system call
 # check for binary of clamav, exit if not there
 # make sure sophomorix-check runs, when virusscan is runnung
+# Bug: bt mit eintrag 1,... wird nicht als zu scannen angezeigt, aber dann doch gescannt
+# logrotate fuer logfiles (Paket)
 
 
-# example script
+# Example script
 #
 # logging to /var/log/sophomorix/sophomorix-virusscan
 
@@ -98,9 +100,16 @@
 #
 # option --loginfo --> uerberblick
 #
-# penalty scan-objects scannen
-#
 # testen: wird IMMER die penalty db upgedated?
+#         - nein nicht bei --test
+#         - ja bei auto scanned user 
+#
+# testen: aus penalty db entfernt?
+#         - ja bei lehrer
+#
+# todo: ausgeben, welches object gescanned wird
+#       ? abs_pfad mit ausgeben bei option --info
+
 
 
 # Bibliotheken
