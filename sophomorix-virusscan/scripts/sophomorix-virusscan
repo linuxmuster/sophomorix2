@@ -8,29 +8,10 @@
 
 
 # todo:
-# abs path in system call
-# check for binary of clamav, exit if not there
-# make sure sophomorix-check runs, when virusscan is runnung
-# Bug: bt mit eintrag 1,... wird nicht als zu scannen angezeigt, aber dann doch gescannt
+# make sure sophomorix-check runs, when virusscan is runnung ???
 # logrotate fuer logfiles (Paket)
+# mail an user
 
-
-# Example script
-#
-# logging to /var/log/sophomorix/sophomorix-virusscan
-
-##!/bin/sh
-#
-#/bin/mkdir -p /root/infected
-#
-#/bin/date > /var/log/virus.log
-#
-#/usr/bin/clamscan --infected --log=/var/log/virus.log -r --move=/root/infected /home
-#
-#/bin/date >> /var/log/virus.log
-#
-#/bin/cat /var/log/virus.log | /usr/bin/mail -s "Virusscan `/bin/date`" administrator@localhost
-#
 
 # optionen
 # --max-time minutes
@@ -42,55 +23,19 @@
 #    1) Mail an user
 #    2) Tauschverzeichnisse auf die er Zugriff hatte mitscannen
 #    3) Mail????, was noch
-# B) 
-#    1) Scanergebnisse werden gesammelt (später in ldap db)
-#       Datenfelder:   (jeder user eine) Datei mit 1 Scan pro Zeile
-#                      User:Datum:Infected files
-#    2) Punktesystem:
-#       bei Anzahl Infected files gehts um Anzahl*10 hoch (max auf 30)
-#       bei 0 infected files gehts um 1*y runter, minimal aber 0
-#    3) Wer >5 hat, wird täglich wieder gescannt, bis auf 0
-#       Wer <5,>0 hat, wird an geraden Tagen gescannt bis auf 0
-# C) In einer Konfigurationsdatei wird eingetragen, wer regelmäßig 
-#    gescannt werden soll
-#    user::1,3,19,30
+#    
+# sophomorix-virusscan.conf:
 #    user::daily
 #    user::weekly
-#    -> user soll am 1., 3., 19.,30. eines Monats gescannt werden 
-#       (höchste Priorität)
-
 
 # neu
+
+# testen
 # allg. keinen 'scan_object' 2x am tag
-# 1) top priority user scannen (configdatei, gestern virus)
-# 2) user ((lehrer und schueler, gruppen)=scan_object, klassentausch geloescht) 
-# aneinanderhaengen, alphab sortieren, bis zum letzten user gehen, 
-# der gescannt wurde
-# 3) alphabetisch scannen , wenn quota vermuten laesst das 
-#    scan_max ueberschritten, dann beenden, 
-#    (ohne quotaresult(gruppen) -> du -s /home/share/*/scan_object auf share, 
-#           teachers extra)
-#    und diesen user als naechster zu scannender user merken -> Datei
-#     wenn letzter in liste, Datei loeschen (--> beginn bei a, 
-#     beim naechten scriptaufruf)
-# 4) --> 1)
-#
-#
-# 
-# 2 Logdateien
-# Datei 1: logdatei von clamav
-# 1 zeile wenn sophomorix-virusscan startet
-# paar zeile davor: date: befehlaufruf
-#    --> clamav schreibt summary
-#
-# Datei 2: hitlist update am ende, hits merken
-#
 
 
 # ????? weiter:
 # --info (zeige absoluter pfad bei scanobjects)
-# bei einem user nach dem zuletzt gescannten weitermachen
-# zeittest: ist noch zeit weiter zu scannen?
 #
 # # an penalty db soll immer was veraendert werden, schritt 1,2,3
 # -> checken
@@ -107,11 +52,10 @@
 # testen: aus penalty db entfernt?
 #         - ja bei lehrer
 #
-# todo: ausgeben, welches object gescanned wird
-#       ? abs_pfad mit ausgeben bei option --info
+# todo: 
+# ? abs_pfad mit ausgeben bei option --info
 # Zaehler fuer Lehrer,schueler, ... einzeln,
 # dann am Ende ausgeben, wievele davon gescanned wurden
-# angeben wer gescanned wird (its a class, ...)
 
 
 # Bibliotheken
@@ -158,9 +102,9 @@ my $penalty_points=3;
 #my $config=$DevelConf:: ... ";
 my $penalty_db_dir="/var/lib/sophomorix/virusscan";
 my $penalty_db=$penalty_db_dir."/penalty.db";;
-system("mkdir -p $penalty_db_dir");
-system("touch $penalty_db");
-my %penalty=&read_penalty_db;
+system("/bin/mkdir -p $penalty_db_dir");
+system("/usr/bin/touch $penalty_db");
+my %penalty=&read_penalty_db_hash;
 
 # abs path of scanned dirs/files
 my %scanned_objects=();
@@ -169,7 +113,7 @@ my $logfile="/var/log/clamav/sophomorix-virusscan.log";
 my $log_last_auto="/var/log/clamav/sophomorix-virusscan.last-auto-scanned";
 my $log_clam="/var/log/clamav/sophomorix-virusscan.clamav.log";
 my $quarantine="/var/log/clamav/quarantine";
-system("mkdir -p $quarantine");
+system("/bin/mkdir -p $quarantine");
 
 my $last_auto_scanned=&get_last_auto_scanned();
 
@@ -178,23 +122,54 @@ my $last_auto_scanned=&get_last_auto_scanned();
 my $config_dir="/etc/sophomorix/virusscan";
 my $config=$config_dir."/sophomorix-virusscan.conf";
 
+my %convert_days = qw(
+     1     01          01    01
+     2     02          02    02
+     3     03          03    03
+     4     04          04    04
+     5     05          05    05
+     6     06          06    06
+     7     07          07    07
+     8     08          08    08
+     9     09          09    09
+     10    10          11    11
+     12    12          13    13
+     14    14          15    15
+     16    16          17    17
+     18    18          19    19
+     20    20          21    21
+     22    22          23    23
+     24    24          25    25
+     26    26          27    27
+     28    28          29    29
+     30    30          31    31
+);
+
+
+
 if (not -e "$config"){
     my $template="/usr/share/sophomorix-virusscan/config/sophomorix-virusscan.conf";
     # ???? after upgrade to lenny
     #my $template=$DevelConf::virusscan_config_templete_pfad.
     #             "/sophomorix-virusscan.conf";
     #my $command_1="mkdir -p $DevelConf::$virusscan_conf";
-    my $command_1="mkdir -p $config_dir";
+    my $command_1="/bin/mkdir -p $config_dir";
     print "$command_1\n";
     system("$command_1");
 
-    my $command_2="cp $template $config";
+    my $command_2="/bin/cp $template $config";
     print "$command_2\n";
     system("$command_2");
 }
 
 
 open(LOG, ">>$logfile");
+
+if (not -x "/usr/bin/clamscan"){
+    print "\nERROR: clamscan binary not found!",
+          " (package clamav not installed?)\n\n";
+    exit;
+}
 
 
 # ===========================================================================
@@ -293,7 +268,7 @@ TODO: Please see the sophomorix-virusscan(8) man pages for full documentation
 my $start_time=time;
 my $max_start_time=$start_time+60*$max_start_period;
 my ($start_time_human)=&time;
-my $day_of_month=`date +%d`;
+my $day_of_month=`/bin/date +%d`;
 chomp($day_of_month);
 
 
@@ -305,7 +280,7 @@ chomp($day_of_month);
 # --info
 if ($info==1){
     print "\nToday is ";
-    system("date");
+    system("/bin/date");
     print "\n";
 
     print "1) Scanning using data from sophomorix-virusscan.conf\n";
@@ -314,12 +289,27 @@ if ($info==1){
         if (/^#/){
             next;
         }
-        if (/$day_of_month/){
+        # split line
+        chomp();
+        my ($object,$string) = split(/::/);
+        my @days=split(/,/,$string);
+        my $red=0;
+        foreach my $day (@days){
+            # add leading 0 if necessary
+            $day=$convert_days{$day};
+            if ($day_of_month eq $day){
+                # remember to show line in red
+                $red=1;
+            }
+        }
+
+        # show line in red, if necessary 
+        if ($red==1){
   	    print color 'bold red';
-            print "   $_";
+            print "   $_\n";
 	    print color 'reset';
         } else {
-            print "   $_";
+            print "   $_\n";
         }
     }
     close(CONF);
@@ -554,7 +544,7 @@ sub scan_object {
     # config
     # penalty
     # auto
-    my ($scan_dir) = &fetchdata_from_account($scan_object);
+    my ($scan_dir,$group) = &fetchdata_from_account($scan_object);
     if ($scan_dir eq ""){
         # its not a users home
         if (-e "$DevelConf::share_classes/$scan_object"){
@@ -581,7 +571,10 @@ sub scan_object {
 	} else {
             $scan_dir="$scan_object";
         }
-    } 
+    } else {
+        # its a user
+        print "   # $scan_object is a users home ($group)\n";
+    }
 
     if ($skip_scanning==1){
         print "     * skipping $scan_object ($scan_dir)\n";
@@ -614,7 +607,8 @@ sub scan_object {
         # check against double scanning
         if (exists $scanned_objects{$scan_dir}){
             # no scanning
-            $result="\nERROR: $scan_dir was scanned already, skipping\n\n";
+            $result="\nERROR: $scan_dir was scanned today already,".
+                    " skipping\n\n";
             $infected=-2;
             $performance="";
             print LOG "$result\n";
@@ -629,7 +623,7 @@ sub scan_object {
         # scanning
         # clamav geht keinen links nach
         # amount of data to scan
-        my $data_kb=`du -s $scan_dir`;
+        my $data_kb=`/usr/bin/du -s $scan_dir`;
         # kB or kiB???????
         ($data_kb)=split(/\s+/,$data_kb);
         # calculation MB for printout
@@ -638,7 +632,7 @@ sub scan_object {
         printf LOG "####### Predicted size of Scan Object: %14s MB #######\n",
                     $data_mb;
 
-        $result=`clamscan  -r -i -l $log_clam --move=$quarantine $scan_dir`;
+        $result=`/usr/bin/clamscan  -r -i -l $log_clam --move=$quarantine $scan_dir`;
         $scanned_objects_counter++;
         #my $command="clamscan -v -r -i -l $log_clam --move=$quarantine ".
         #            "$scan_dir >> $logfile 2>&1";
@@ -727,7 +721,7 @@ sub get_infected {
 
 
 
-sub read_penalty_db {
+sub read_penalty_db_hash {
     my %penalty=();
     my $penalty=0;
     open(PENALTY, "<$penalty_db");
