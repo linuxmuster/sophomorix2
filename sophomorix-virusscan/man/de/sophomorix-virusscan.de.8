@@ -1,0 +1,131 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH SOPHOMORIX-VIRUSSCAN 8 "July 03, 2010"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+sophomorix-virusscan \- Server nach Viren durchscannen
+.SH SYNOPSIS
+.B sophomorix-virusscan
+.RI [ options ]
+.br
+.SH DESCRIPTION
+Mit sophomorix-virusscan kann man Heimatverzeichnisse der User,
+Tauschverzeichnisse sowie beliebige andere Verzeichnisse mit Clamav
+nach Viren durchsuchen.
+
+sophomorix-virusscan ist (nur dann) sinnvoll eingesetzt, wenn man alle
+Daten nicht mehr in einem einzigen cronjob nach Viren durchsuchen kann.
+.SH ANLEITUNG
+Scan-Objekte können sein:
+.br 
+- ein Loginname                   -> Scannt das Heimatverzeichnis
+.br
+- eine Klasse, Subklasse, Projekt -> Scannt das Tauschverzeichnis
+.br
+- ein absoluter Pfad              -> Scannt die Datei/das Verzeichnis
+.TP
+In folgende Reihenfolge wird gescannt:
+.TP
+1) Scannen von Scan-Objekten aus sophomorix-virusscan.conf. Hier
+können z.B. user angegeben werden, die immer wieder Viren
+einschleusen. Die Scan-Objekte aus sophomorix-virusscan.conf werden
+unabhängig von Zeitangaben IMMER gescannt.(lehrertausch::sunday)
+.TP
+2) Scannen von Scan-Objekten in der Straf-Datenbank (penalty.db). Hier
+werde die Scan-Objekte gescannt, die wegen einem gefundenen Virus zum
+wiederholten scannen anstehen. Sie werden unabhängig von Zeitangaben
+IMMER gescannt. Wird kein Virus gefunden, werden die Penalty Punkte um
+1 erniedrigt.
+.TP
+3) Automatisches scannen von Scan-Objekten aus einer alphabetischen
+Liste mit allen Lehrern, Schulern und
+Tauschverzeichnissen. (schulweit?, lehrertausch?). Es wird ein
+weiterer Scan nur noch gestartet, wenn die bei --max-start-period
+angegebene Zeit noch nicht verstrichen ist.
+.TP
+Beispiel-Aufruf in einem Cronjob:
+.TP 
+sophomorix-virusscan --max-start-period 30
+.TP
+Bemerkungen:
+.TP
+- Es wir bei einem Programmaufruf nie ein Scan-Objekt mehrfach
+  gescannt.
+.SH OPTIONS
+.B sophomorix-virusscan
+benützt die GNU command line syntax, mit langen Optionen, die mit zwei Bindestrichen (`-') beginnen:
+.TP
+.B \-h, \-\-help
+Kurzübersicht über Optionen, sowie eine Liste der Log-, Quarantäne-
+und andere Dateien.
+.TP
+.B \-v, \-\-verbose
+Sagt, was das Programm gerade macht (verbose, noch nicht
+implementiert)
+.TP
+.B \-vv, \-\-verbose \-\-verbose
+Sagt ungeheuer genau, was das Programm gerade macht (very verbose,
+noch nicht implementiert)
+.TP
+.B \--info
+Zeigt an, welche Scan-Objekte als nächstes kommen würden, wenn man
+scannen würde.
+.TP
+.B \--max-start-period zahl
+Gibt den Zeitraum in zahl Minuten an, innerhalb dessen ein weiterer
+Scan eines Scan-Objekts gestarten werden wird. 
+.br
+Standart-Wert ist 1 Minute. Nach Ablauf dieser Minute wird also kein
+neuer Scanbefehl mehr abgesetzt.
+.br
+Es ist zu beachten, dass wenn kurz vor dem Ablaufen dieser Zeit ein
+sehr großes Scan-Objekt gestartet wird, sophomorix-virusscan WESENTLICH
+länger scannen wird als per Option angegeben.
+.SH OPTIONEN ZUM TESTEN
+.B \--test Scan-Objekt
+Scanne das Scan-Objekt zum Test. Die Penalty-Datenbank wird NICHT
+aktualisiert. Das im automatischen Scan folgende Scan-Objekt wird
+nicht beeinflusst.
+.SH OPTIONEN UM DAS SCANNEN ZU ÜBERSPRINGEN
+.B \--skip-conf
+Überspringe das scannnen der Scan Objekte in sophomorix-virusscan.conf.
+.B \--skip-penalty
+Überspringe das scannnen der Scan Objekte in die wegen zuvor
+gefundenen Viren gescannt werden sollen.
+.B \--skip-auto
+Überspringe das scannnen der Scan Objekte die im automatischen,
+alphabetischen scannen gescannt werden sollen.
+.B \--skip-scannen
+Überspringe das scannnen jeglicher Scan Objekte. 
+.TP
+.SH SEE ALSO
+.BR sophomorix (8),
+.BR sophomorix-teach-in (8),
+.BR sophomorix-search (8),
+.BR sophomorix-add (8),
+.BR sophomorix-move (8),
+.BR sophomorix-print (8),
+.BR sophomorix-kill (8),
+.BR sophomorix-subclass (8),
+.BR sophomorix-class (8),
+
+.\".BR baz (1).
+.\".br
+.\"You can see the full options of the Programs by calling for example 
+.\".IR "sophomrix-project -h" ,
+.
+.SH AUTHOR
+Written by <jeffbeck@web.de> $Date$.
