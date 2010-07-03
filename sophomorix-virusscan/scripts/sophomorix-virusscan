@@ -11,7 +11,8 @@
 # make sure sophomorix-check runs, when virusscan is runnung ???
 # logrotate fuer logfiles (Paket)
 # mail an user
-
+# penalty punkte als option --penalty übergeben
+# was ist mit schultausch?, lehrertausch
 
 # optionen
 # --max-time minutes
@@ -26,7 +27,7 @@
 #    
 # sophomorix-virusscan.conf:
 #    user::daily
-#    user::weekly
+#    user::sunday (also wöchentlich)
 
 # neu
 
@@ -244,7 +245,7 @@ Scan Order:
 
 3) Scanning automatically:
    Scans scan-objects in alphabetical order. 
-   When option --max-start-period (in minutes, default 1 minute)is given,
+   When option --max-start-period (in minutes, default 1 minute) is given,
    avoid START scanning after this period. 
 
 Files maintained by sophomorix-virusscan:
