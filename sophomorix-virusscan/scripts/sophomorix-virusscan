@@ -10,6 +10,7 @@
 # todo:
 # make sure sophomorix-check runs, when virusscan is runnung ???
 # logrotate fuer logfiles (Paket)
+# welche virus-Datei gehört wem, wie heisst sie, wohin gemoved?
 # mail an user
 # was ist mit schultausch?, lehrertausch
 
@@ -107,11 +108,13 @@ system("/bin/mkdir -p $quarantine");
 
 my $last_auto_scanned=&get_last_auto_scanned();
 
-# ???? after upgrade to lenny
-#my $config=$DevelConf::$virusscan_conf."/sophomorix-virusscan.conf";
 my $config_dir="/etc/sophomorix/virusscan";
-my $config=$config_dir."/sophomorix-virusscan.conf";
+my $config_file="sophomorix-virusscan.conf";
+my $config=$config_dir."/".$config_file;
+# ???? after upgrade to lenny
+#my $config=$DevelConf::$virusscan_conf."/".$config_file;
 
+# list of all usable number entries in sophomorix-virusscan.conf
 my %convert_days = qw(
      1     01          01    01
      2     02          02    02
@@ -136,6 +139,7 @@ my %convert_days = qw(
 );
 
 
+# list of all usable string entries in sophomorix-virusscan.conf
 my %convert_days_of_week = qw(
      monday        1 
      mondays       1 
@@ -156,10 +160,9 @@ my %convert_days_of_week = qw(
 
 
 if (not -e "$config"){
-    my $template="/usr/share/sophomorix-virusscan/config/sophomorix-virusscan.conf";
+    my $template="/usr/share/sophomorix-virusscan/config/".$config_file;
     # ???? after upgrade to lenny
-    #my $template=$DevelConf::virusscan_config_templete_pfad.
-    #             "/sophomorix-virusscan.conf";
+    #my $template=$DevelConf::virusscan_config_templete_pfad."/".$config_file;
     #my $command_1="mkdir -p $DevelConf::$virusscan_conf";
     my $command_1="/bin/mkdir -p $config_dir";
     print "$command_1\n";
@@ -297,7 +300,7 @@ if ($info==1){
     system("/bin/date");
     print "\n";
 
-    print "1) Scanning using data from sophomorix-virusscan.conf\n";
+    print "1) Scanning using data from $config_file\n";
     open(CONF, "<$config");
     while(<CONF>){
         if (/^#/){
@@ -306,23 +309,29 @@ if ($info==1){
         # split line
         chomp();
         my ($object,$string) = split(/::/);
-        my @days=split(/,/,$string);
+        my @options=split(/,/,$string);
         my $red=0;
-        foreach my $day (@days){
-            # check if its monday, ...
-            if (exists $convert_days_of_week{$day}){
-                if ($day_of_week eq $convert_days_of_week{$day}){
+        foreach my $option (@options){
+            if (exists $convert_days_of_week{$option}){
+                # check if option is a known string (monday, ...)
+                if ($day_of_week eq $convert_days_of_week{$option}){
                     # remember to show line in red
                     $red=1;
                 }
-            } else {
+            } elsif (exists $convert_days{$option}) {
+                # check if option is a known number
                 # add leading 0 if necessary
-                $day=$convert_days{$day};
-                if ($day_of_month eq $day){
+                $option=$convert_days{$option};
+                if ($day_of_month eq $option){
                     # remember to show line in red
                     $red=1;
                 }
-	    }
+	    } else {
+                # unknown option
+                print "\nERROR: $option is not an allowed option",
+                      " in $config_file\n\n";
+                exit;
+            }
         }
 
         # show line in red, if necessary 
@@ -397,40 +406,48 @@ if ($scan_object ne ""){
 # ===========================================================================
 # 1) Scanning using data from sophomorix-virusscan.conf
 # ==========================================================================
-print "1) Scanning using data from sophomorix-virusscan.conf\n";
+print "1) Scanning using data from $config_file\n";
 open(CONF, "<$config");
 while(<CONF>){
     if (/^#/){
         next;
     }
-    my ($object,$days) = split(/::/);
-    my (@days) = split(/,/,$days);
+    my ($object,$options) = split(/::/);
+    my (@options) = split(/,/,$options);
 
     print "   Scan-Object: $object\n";
-    foreach my $day (@days){
-        if (exists $convert_days_of_week{$day}){
-            # $day is monday,tuesday,...
-            if ($day_of_week eq $convert_days_of_week{$day}){
-                print "   On ${day} $object is scanned\n";
+    foreach my $option (@options){
+        if (exists $convert_days_of_week{$option}){
+            # check if $option is a known string (monday, tuesday, ...)
+            if ($day_of_week eq $convert_days_of_week{$option}){
+                print "   # On ${option} $object is scanned:\n";
                 if ($skip_conf==0){
                     &scan_object($object,"config");
 	        } else {
                     print "     * skipping $object (Option --skip-conf)\n";
                 }
             } else {
-                print "     $object will be scanned on ${day}, NOT today!\n";
+                print "     $object will be scanned on ${option}, NOT today!\n";
             }
-        } elsif ($day==$day_of_month){
-            # $day is numeric
-            print "   On the ${day}. day of the month, $object is scanned\n";
-            if ($skip_conf==0){
-                &scan_object($object,"config");
-	    } else {
-                print "     * skipping $object (Option --skip-conf)\n";
+        } elsif (exists $convert_days{$option}){
+            # check if option is a known number
+            if ($option==$day_of_month){
+                print "   # On the ${option}. day of the month,",
+                      " $object is scanned:\n";
+                if ($skip_conf==0){
+                    &scan_object($object,"config");
+	        } else {
+                    print "     * skipping $object (Option --skip-conf)\n";
+                }
+            } else {      
+                print "     $object will be scanned on the ${option}. day ",
+                      "of the month, NOT today!\n";
             }
-        } else {      
-            print "     $object will be scanned on the ${day}. day ",
-                  "of the month, NOT today!\n";
+        } else {
+            # unknown option
+            print "\nERROR: $option is not an allowed option",
+                  " in $config_file\n\n";
+            exit;
         }
     }
 
@@ -567,7 +584,7 @@ sub exit_script {
     print "Data logged into file $log_clam\n";
     print "Penalty database is in $penalty_db\n";
     print "$scanned_objects_counter objects scanned\n";
-    print "$root_mail";
+    print "\n$root_mail";
     close(LOG);
     exit;
 }
