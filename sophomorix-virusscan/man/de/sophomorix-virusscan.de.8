@@ -84,6 +84,12 @@ noch nicht implementiert)
 Zeigt an, welche Scan-Objekte als nächstes kommen würden, wenn man
 scannen würde.
 .TP
+.B \--penalty zahl
+zahl gibt an, wieviele Strafpunkte ein Scan-Objekt erhält, in dem ein
+Virus gefunden wird (Standard: 3 Strafpunkte). Bei jedem Scriptaufruf
+wird die Strafpunktzahl um 1 erniedrigt, falls kein Virus gefunden
+wird.
+.TP
 .B \--max-start-period zahl
 Gibt den Zeitraum in zahl Minuten an, innerhalb dessen ein weiterer
 Scan eines Scan-Objekts gestarten werden wird. 
