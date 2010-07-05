@@ -11,8 +11,8 @@
 # make sure sophomorix-check runs, when virusscan is runnung ???
 # logrotate fuer logfiles (Paket)
 # mail an user
-# penalty punkte als option --penalty übergeben
 # was ist mit schultausch?, lehrertausch
+# virus=-2 --> schon mal gescanned in disem script : bessere Fehlermeldung
 
 # optionen
 # --max-time minutes
@@ -28,6 +28,7 @@
 # sophomorix-virusscan.conf:
 #    user::daily
 #    user::sunday (also wöchentlich)
+# date 
 
 # neu
 
@@ -86,6 +87,8 @@ my @arguments = @ARGV;
 
 my $help=0;
 my $info=0;
+# penalty for a virus, default=3
+my $penalty=3;
 my $skip_conf=0;
 my $skip_penalty=0;
 my $skip_auto=0;
@@ -96,8 +99,6 @@ my $max_start_period=1; # in minutes
 # counter for scanned objects
 my $scanned_objects_counter=0;
 
-# penalty_database
-my $penalty_points=3;
 
 # ???? after upgrade to lenny
 #my $config=$DevelConf:: ... ";
@@ -115,6 +116,7 @@ my $log_last_auto="/var/log/clamav/sophomorix-virusscan.last-auto-scanned";
 my $log_clam="/var/log/clamav/sophomorix-virusscan.clamav.log";
 my $quarantine="/var/log/clamav/quarantine";
 system("/bin/mkdir -p $quarantine");
+
 
 my $last_auto_scanned=&get_last_auto_scanned();
 
@@ -188,6 +190,7 @@ my $testopt=GetOptions(
            "skip-scanning" => \$skip_scanning,
            "test|scan-object=s" => \$scan_object,
            "max-start-period=i" => \$max_start_period,
+           "penalty=i" => \$penalty,
           );
 
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
@@ -221,6 +224,7 @@ Options:
   --test scan-object (Test performance of scan)
   --max-start-period (in minutes (default: 1 minute), 
                    start scanning a new object, if max-start-time is not over)
+  --penalty number (penalty for finding a virus, default is 3 points)
 
 Options that skip scanning:
   --skip-conf (Do not scan scan-objects in sophomorix-virusscan.conf)
@@ -257,7 +261,7 @@ print "Logfile:      $logfile\n";
 print "Clamav:       $log_clam\n";
 print "Penalty DB:   $penalty_db\n";
    print('
-TODO: Please see the sophomorix-virusscan(8) man pages for full documentation
+Please see the sophomorix-virusscan(8) man pages for full documentation
 ');
    print "\n";
    exit;
@@ -271,6 +275,9 @@ my $max_start_time=$start_time+60*$max_start_period;
 my ($start_time_human)=&time;
 my $day_of_month=`/bin/date +%d`;
 chomp($day_of_month);
+
+# message to sent to root and add to the end of the Script
+my $root_mail="Summary:\nScan results on $start_time_human:\n";
 
 
 
@@ -532,6 +539,7 @@ sub exit_script {
     print "Data logged into file $log_clam\n";
     print "Penalty database is in $penalty_db\n";
     print "$scanned_objects_counter objects scanned\n";
+    print "$root_mail";
     close(LOG);
     exit;
 }
@@ -661,7 +669,7 @@ sub scan_object {
         if (exists $penalty{$scan_dir} ){
             $old=$penalty{$scan_dir};
         }
-        my $new = $old + $penalty_points;
+        my $new = $old + $penalty;
         $penalty{$scan_dir}="$new";
     } elsif ($infected == 0){
         if (exists $penalty{$scan_dir} ){
@@ -676,6 +684,8 @@ sub scan_object {
                $scan_object,$performance;
     printf LOG "####### %-28s: %8s viruses   #######\n",
                $scan_object,$infected;
+    $root_mail=$root_mail."   ".$infected." viruses in ".$scan_object."\n";
+    print "     --> $infected viruses in $scan_object\n";
     if ($option eq "test"){
         # nothing
     }
