@@ -12,7 +12,6 @@
 # logrotate fuer logfiles (Paket)
 # mail an user
 # was ist mit schultausch?, lehrertausch
-# virus=-2 --> schon mal gescanned in disem script : bessere Fehlermeldung
 
 # optionen
 # --max-time minutes
@@ -24,17 +23,6 @@
 #    1) Mail an user
 #    2) Tauschverzeichnisse auf die er Zugriff hatte mitscannen
 #    3) Mail????, was noch
-#    
-# sophomorix-virusscan.conf:
-#    user::daily
-#    user::sunday (also wöchentlich)
-# date +%u liefert wochentag zurueck 1=montag,2=dienstag, ....
-# variable: $day_of_week 
-
-# neu
-
-# testen
-# allg. keinen 'scan_object' 2x am tag
 
 
 # ????? weiter:
@@ -57,8 +45,6 @@
 #
 # todo: 
 # ? abs_pfad mit ausgeben bei option --info
-# Zaehler fuer Lehrer,schueler, ... einzeln,
-# dann am Ende ausgeben, wievele davon gescanned wurden
 
 
 # Bibliotheken
@@ -147,6 +133,24 @@ my %convert_days = qw(
      26    26          27    27
      28    28          29    29
      30    30          31    31
+);
+
+
+my %convert_days_of_week = qw(
+     monday        1 
+     mondays       1 
+     tuesday       2 
+     tuesdays      2 
+     wednesday     3 
+     wednesdays    3 
+     thursday      4 
+     thursdays     4 
+     friday        5
+     fridays       5
+     saturday      6
+     saturdays     6
+     sunday        7 
+     sundays       7 
 );
 
 
@@ -275,10 +279,9 @@ my $start_time=time;
 my $max_start_time=$start_time+60*$max_start_period;
 my ($start_time_human)=&time;
 my $day_of_month=`/bin/date +%d`;
-my $day_of_week=`/bin/date +%u`;
-
 chomp($day_of_month);
-
+my $day_of_week=`/bin/date +%u`;
+chomp($day_of_week);
 # message to sent to root and add to the end of the Script
 my $root_mail="Summary:\nScan results on $start_time_human:\n";
 
@@ -306,12 +309,20 @@ if ($info==1){
         my @days=split(/,/,$string);
         my $red=0;
         foreach my $day (@days){
-            # add leading 0 if necessary
-            $day=$convert_days{$day};
-            if ($day_of_month eq $day){
-                # remember to show line in red
-                $red=1;
-            }
+            # check if its monday, ...
+            if (exists $convert_days_of_week{$day}){
+                if ($day_of_week eq $convert_days_of_week{$day}){
+                    # remember to show line in red
+                    $red=1;
+                }
+            } else {
+                # add leading 0 if necessary
+                $day=$convert_days{$day};
+                if ($day_of_month eq $day){
+                    # remember to show line in red
+                    $red=1;
+                }
+	    }
         }
 
         # show line in red, if necessary 
@@ -395,17 +406,31 @@ while(<CONF>){
     my ($object,$days) = split(/::/);
     my (@days) = split(/,/,$days);
 
-    print "   OBJECT: $object\n";
+    print "   Scan-Object: $object\n";
     foreach my $day (@days){
-        if ($day==$day_of_month){
-            print "   Heute am ${day}. Tag des Monats wird $object gescannt\n";
+        if (exists $convert_days_of_week{$day}){
+            # $day is monday,tuesday,...
+            if ($day_of_week eq $convert_days_of_week{$day}){
+                print "   On ${day} $object is scanned\n";
+                if ($skip_conf==0){
+                    &scan_object($object,"config");
+	        } else {
+                    print "     * skipping $object (Option --skip-conf)\n";
+                }
+            } else {
+                print "     $object will be scanned on ${day}, NOT today!\n";
+            }
+        } elsif ($day==$day_of_month){
+            # $day is numeric
+            print "   On the ${day}. day of the month, $object is scanned\n";
             if ($skip_conf==0){
                 &scan_object($object,"config");
 	    } else {
                 print "     * skipping $object (Option --skip-conf)\n";
             }
         } else {      
-            print "     $object wird am ${day}. Tag des Monats gescannt, NICHT Heute!\n";
+            print "     $object will be scanned on the ${day}. day ",
+                  "of the month, NOT today!\n";
         }
     }
 
