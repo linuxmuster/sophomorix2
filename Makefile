@@ -90,7 +90,7 @@ DBUPGRADE=$(DESTDIR)/usr/share/dbconfig-common/data/sophomorix-pgldap/upgrade
 
 
 
-all: install-base install-pgldap install-sys-pgldap install-vampire install-developer
+all: install-base install-pgldap install-sys-pgldap install-vampire install-developer install-virusscan
 
 help:
 	@echo ' '
