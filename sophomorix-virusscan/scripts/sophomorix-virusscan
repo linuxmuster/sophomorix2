@@ -28,7 +28,8 @@
 # sophomorix-virusscan.conf:
 #    user::daily
 #    user::sunday (also wöchentlich)
-# date 
+# date +%u liefert wochentag zurueck 1=montag,2=dienstag, ....
+# variable: $day_of_week 
 
 # neu
 
@@ -274,6 +275,8 @@ my $start_time=time;
 my $max_start_time=$start_time+60*$max_start_period;
 my ($start_time_human)=&time;
 my $day_of_month=`/bin/date +%d`;
+my $day_of_week=`/bin/date +%u`;
+
 chomp($day_of_month);
 
 # message to sent to root and add to the end of the Script
