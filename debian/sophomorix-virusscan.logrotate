@@ -1,0 +1,13 @@
+# logrotate configuration file for sophomorix-virusscan
+compress
+create
+
+/var/log/clamav/sophomorix-virusscan.log {
+    rotate 30
+    daily
+}
+
+/var/log/clamav/sophomorix-virusscan.clamav.log {
+    rotate 30
+    daily
+}
