@@ -310,7 +310,7 @@ if ($info==1){
     print "1) Scanning using data from $config_file\n";
     open(CONF, "<$config");
     while(<CONF>){
-        if (/^#/){
+        if (/^#/ or /^\s*$/){
             next;
         }
         # split line
@@ -422,7 +422,7 @@ if ($scan_object ne ""){
 print "1) Scanning using data from $config_file\n";
 open(CONF, "<$config");
 while(<CONF>){
-    if (/^#/){
+    if (/^#/ or /^\s*$/){
         next;
     }
     my ($object,$options) = split(/::/);
