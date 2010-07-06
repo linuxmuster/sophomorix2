@@ -11,9 +11,11 @@
 # make sure sophomorix-check runs, when virusscan is runnung ???
 # logrotate fuer logfiles (Paket)
 # welche virus-Datei gehört wem, wie heisst sie, wohin gemoved?
+#    idee: statt --move=DIR  sollte --copy=DIR benutzt werden.
+#          danach mit script moven, und vorher owner bestimmen
 # mail an user
 # was ist mit schultausch?, lehrertausch
-
+#
 # optionen
 # --max-time minutes
 # Versuche die --max-time nicht zu überschreiten
@@ -82,6 +84,7 @@ my $skip_penalty=0;
 my $skip_auto=0;
 my $skip_scanning=0;
 my $scan_object="";
+my $copy=0;
 my $max_start_period=1; # in minutes
 
 # counter for scanned objects
@@ -192,12 +195,13 @@ if (not -x "/usr/bin/clamscan"){
 my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
+           "copy" => \$copy,
            "skip-conf" => \$skip_conf,
            "skip-penalty" => \$skip_penalty,
            "skip-auto" => \$skip_auto,
            "skip-scanning" => \$skip_scanning,
            "test|scan-object=s" => \$scan_object,
-           "max-start-period=i" => \$max_start_period,
+           "max-start-period|msp=i" => \$max_start_period,
            "penalty=i" => \$penalty,
           );
 
@@ -229,6 +233,7 @@ Options:
   -v  / --verbose
   -vv / --verbose --verbose
   -i  / --info  (show what objects will be scanned next)
+  --copy (copy viruses to quarantine, instead of moving)
   --test scan-object (Test performance of scan)
   --max-start-period (in minutes (default: 1 minute), 
                    start scanning a new object, if max-start-time is not over)
@@ -264,10 +269,12 @@ Files maintained by sophomorix-virusscan:
 
 ');
 
-print "Quarantine:   $quarantine\n"; 
-print "Logfile:      $logfile\n";
-print "Clamav:       $log_clam\n";
-print "Penalty DB:   $penalty_db\n";
+print "Quarantine:    $quarantine\n"; 
+print "Logfile:       $logfile\n";
+print "Clamav:        $log_clam\n";
+print "Penalty DB:    $penalty_db\n";
+print "Last autoscan: $log_last_auto\n";
+
    print('
 Please see the sophomorix-virusscan(8) man pages for full documentation
 ');
@@ -362,12 +369,17 @@ if ($info==1){
     print "\n";
 
     print "3) Scanning automatically\n";
-    print "   $last_auto_scanned\n";
+    #print "   $last_auto_scanned\n";
     my @autoscan_object_list = &fetch_autoscan_objects();
     my $continue=0;
-    my $show_num_objects=3;
+    my $show_num_objects=5;
     foreach my $object (@autoscan_object_list){
-        if ($continue > 0){
+        if ($last_auto_scanned eq "" and $continue==0){
+    	    print color 'bold red';
+            print "   $object\n";
+            $continue++;
+            $continue++;
+        } elsif ($continue > 0){
     	    print color 'bold red';
             print "   $object\n";
             $continue++;
@@ -379,6 +391,7 @@ if ($info==1){
                 next;
             }
         } elsif ($object eq $last_auto_scanned){
+            print "   $last_auto_scanned\n";
             $continue=1; # remember to continue next time
             next;
         }       
@@ -472,9 +485,11 @@ foreach my $object (@penalty_db_list){
 # ==========================================================================
 print "3) Scanning automatically\n";
 my @autoscan_object_list = &fetch_autoscan_objects();
+my $last_of_autoscan_object_list = $autoscan_object_list[ -1 ];
 my $continue=0;
 # was auto last found or not?
 my $auto_last_found=0;
+my $auto_end_reached=0;
 foreach my $object (@autoscan_object_list){
     if ($last_auto_scanned eq ""){
         $auto_last_found=1;
@@ -492,18 +507,33 @@ foreach my $object (@autoscan_object_list){
     # scan now
     if ($skip_auto==0){
         &scan_object($object,"auto");
+        # check if it was the last object in the list
+        if ($object eq $last_of_autoscan_object_list){
+            $auto_end_reached=1;
+        }
     } else {
         print "     * skipping $object (Option --skip-auto)\n";
     }
 }
 
-    if ($auto_last_found==0){
-        # auto lst not found (user deleted, share removed, ...)
-        # --> set empty auto last
-        &write_last_auto_scanned("");
-        print "Could not find last auto-scanned scan-object\n";
-        print "Setting last auto-scanned scan-object to empty string\n";
-    }
+
+if ($auto_last_found==0){
+    # auto last not found (user deleted, share removed, ...)
+    # --> set empty auto last
+    &write_last_auto_scanned("");
+    print "Could not find last auto-scanned scan-object\n";
+    print "Setting last auto-scanned scan-object to empty string\n";
+}
+
+
+if ($auto_end_reached==1){
+    # last object reached
+    # --> set empty auto last
+    &write_last_auto_scanned("");
+    print "Final autoscan-object was scanned\n";
+    print "Setting last auto-scanned scan-object to empty string\n";
+    print "This will continue scanning on first scan-object in list\n";
+}
 
 
 &write_penalty_db;
@@ -521,7 +551,7 @@ foreach my $object (@autoscan_object_list){
 sub get_last_auto_scanned {
     my $last="";
     if (not -e $log_last_auto){
-        # file does not exit -> empty field
+        # file does not exist -> empty field
         return "";
     }
     open(LAST, "<$log_last_auto");
@@ -602,20 +632,21 @@ sub scan_object {
     if ($scan_dir eq ""){
         # its not a users home
         if (-e "$DevelConf::share_classes/$scan_object"){
-            print "   # $scan_object is a class\n";
             $scan_dir="$DevelConf::share_classes/$scan_object";
+            print "   # $scan_object is a class: $scan_dir\n";
 	} elsif (-d "$DevelConf::share_subclasses/$scan_object"){
-            print "   # $scan_object is a subclass\n";
             $scan_dir="$DevelConf::share_subclasses/$scan_object";
+            print "   # $scan_object is a subclass: $scan_dir\n";
 	} elsif (-d "$DevelConf::share_projects/$scan_object"){
-            print "   # $scan_object is a project\n";
             $scan_dir="$DevelConf::share_projects/$scan_object";
+            print "   # $scan_object is a project: $scan_dir\n";
 	} elsif (-d "$DevelConf::share_projects/p_$scan_object"){
-            print "   # $scan_object is a project\n";
             $scan_dir="$DevelConf::share_projects/p_$scan_object";
+            print "   # $scan_object is a project: $scan_dir\n";
 	} elsif (-d "$DevelConf::share_share/$scan_object"){
-            print "   # $scan_object is the school share/parent share\n";
             $scan_dir="$DevelConf::share_share/$scan_object";
+            print "   # $scan_object is the school share/parent",
+                  " share: $scan_dir\n";
 	} elsif (-d "$scan_object"){
             print "   # $scan_object is an absolute path to a directory\n";
             $scan_dir="$scan_object";
@@ -627,7 +658,7 @@ sub scan_object {
         }
     } else {
         # its a user
-        print "   # $scan_object is a users home ($group)\n";
+        print "   # $scan_object is a users home ($group): $scan_dir\n";
     }
 
     if ($skip_scanning==1){
@@ -686,7 +717,11 @@ sub scan_object {
         printf LOG "####### Predicted size of Scan Object: %14s MB #######\n",
                     $data_mb;
 
-        $result=`/usr/bin/clamscan  -r -i -l $log_clam --move=$quarantine $scan_dir`;
+        if ($copy==1){
+           $result=`/usr/bin/clamscan -r -i -l $log_clam --copy=$quarantine $scan_dir`;
+        } else {
+           $result=`/usr/bin/clamscan  -r -i -l $log_clam --move=$quarantine $scan_dir`;
+        }
         $scanned_objects_counter++;
         #my $command="clamscan -v -r -i -l $log_clam --move=$quarantine ".
         #            "$scan_dir >> $logfile 2>&1";
