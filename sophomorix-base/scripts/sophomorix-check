@@ -3781,18 +3781,18 @@ sub filter_school_admin_software {
      $line=~s/\x27//g;
      $line=~s/\x60//g;
      # -
-     $line=~s/\x2D//g;
-     $line=~s/\x5F//g;
+     $line=~s/\x2D/-/g;
+     $line=~s/\x5F/-/g;
 
 
      # nur win1252
      if ($encoding eq "win1252"){
          # '-Variation
-         $line=~s/\x91//g;
-         $line=~s/\x92//g;
+         $line=~s/\x91/-/g;
+         $line=~s/\x92/-/g;
          # --Variation (Bindestrich)
-         $line=~s/\x96//g;
-         $line=~s/\x97//g;
+         $line=~s/\x96/-/g;
+         $line=~s/\x97/-/g;
      }
 
 
@@ -3813,7 +3813,7 @@ sub filter_school_admin_software {
          # iso 8859-15
          # windows 1252
          # -
-         $line=~s/\xAF//g;
+         $line=~s/\xAF/-/g;
          # A
          $line=~s/\xC0/A/g;
          $line=~s/\xC1/A/g;
@@ -3955,7 +3955,7 @@ sub filter_school_admin_software {
      if ($encoding eq "utf8"){
          # utf8
          # -
-         $line=~s/\xC2\xAF//g;
+         $line=~s/\xC2\xAF/-/g;
          # '
          $line=~s/\xC2\xB4//g;
 
