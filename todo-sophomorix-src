@@ -1,5 +1,50 @@
 # $Id$
 
+
+
+
+sophomorix-check geht ab Version 2.2.23 (paedml 5.0.0) davon aus, 
+dass die Dateien 
+  schueler.txt
+  lehrer.txt
+  extraschueler.txt
+  extrakurse.txt
+in einer der folgenden Zeichencodierungen abgespeichert sind:
+  ISO 8859-1
+  ISO 8859-15 (Standarteinstellung)
+  windows1252
+  UTF8
+Rufen sie nach dem upgrade auf 5.0.0 auf der Konsole 
+   sophomorix-check
+auf. Falls dabei zu Namensumbenennungen kommt, sollten sie diese anschließend 
+beheben, indem Sie sophomorix-check mit einer encoding Option aufrufen
+(alle Optionen mit sophomorix-check --help), z.B.:
+   sophomorix-check --encoding-students 8859-1
+Die liest schueler.txt als ISO 8859-1 ein. Ist/sind die richtigen Optionen 
+gefunden, werden sie in /etc/sophomorix/user/sophomorix.conf eingetragen, z.B.:
+   $encoding_students="8859-1";
+Nun kann sophomorix-check wieder ohne Option aufgerufen werden.
+
+Wenn Sie lehrer.txt auf verschiedene Weise editiert haben (mal mit emacs,
+mal vom Windows-Client aus via putty.exe mit emacs, ...), dann kann in 
+lehrer.txt ein Misch-Masch von Zeichencodierungen entstehen.
+
+In einem solchen Fall sollten Sie lehrer.txt so editieren, dass die 
+betroffenen Sonderzeichen als ASCII eingetragen werden, Das A-Umlaut 
+also als Au.
+
+
+
+
+
+
+B4   latin1:  '   latin9:  Z
+
+
+
+
+
+
 Hilfe von sophomorix-groupadd anpassen. Wie legt man raum an?
 
 lenny:
@@ -13,11 +58,10 @@ lenny:
 sophomorix-check
   - beim ersten start mit no-auto-teach-in werden unids hochgeladen. Warum?
 
-  - Bug: 2 user die mit falschen werten geteached in wurden: 
-         DAvanzo (korrekt)    -> DZAvanzo 
-         DApote  (korrekt)   -> DZApote
-         \264 ist ein ' oder?
 
+
+perl literal \xC4\x80
+hexadecimal   c4 80
 
 sophomorix-move eines Lehrers:
 
@@ -141,13 +185,6 @@ print LOG3 "\344\366\374\237";
 
 In einem utf8 script kann man eine Datei mit einem iso88591-ö befüllen, 
 indem man in die Datei \366 printed
-
-
-SCHWIERIGE Zeichen:
-
-B4   latin1:  '   latin9:  Z
-
-
 
 
 
