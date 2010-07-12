@@ -24,6 +24,7 @@ $Term::ANSIColor::AUTORESET = 1;
 use IMAP::Admin;
 use DBI;
 use Net::LDAP;
+use Net::MAC;
 use Date::Calc qw(check_date);
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     db_connect
@@ -54,6 +55,11 @@ chomp($today);
 $Conf::log_level=1;
 my $help=0;
 my $info=0;
+
+# ??? develconf ???
+my $workstation_conf="/etc/linuxmuster/workstations";
+
+
 # Parsen der Optionen
 my $testopt=GetOptions(
        "verbose|v+" => \$Conf::log_level,
@@ -138,11 +144,129 @@ if ($info==1){
 }
 
 
+
+
+
+
+print "Checking $workstation_conf for syntax errors ...\n";
+open(WORKSTATION,"<${workstation_conf}");
+while(<WORKSTATION>){
+    &analyze_line($_);
+}
+
+close(WORKSTATION);
+
+
+
+# ????
+# syntax OK: -> 0
+#return 0;
+# systax ERROR -> 1
+
+
 #&log_script_start(@arguments);
 
 
 
+sub analyze_line {
+    my ($line) = @_;
+    if (/^#/ or /^\s*$/){
+        return 0;
+    } else {
+        print "$line";
+        chomp($line);
+        my ($room,
+            $host,
+            $hwk,
+            $mac,
+            $ip,
+            $netmask,
+            $part1,
+            $part2,
+            $part3,
+            $part4,
+            $pxe,
+            $option)=split(/;/,$line);
 
+        print "   ROOM:    $room\n";
+        &check_room($room);
+        print "   HOST:    $host\n";
+        &check_host($host);
+        print "   HWK:     $hwk\n";
+        &check_hwk($hwk);
+        print "   MAC:     $mac\n";
+        &check_mac($mac);
+        print "   IP:      $ip\n";
+        print "   NETMASK: $netmask\n";
+        print "   PART 1:  $part1\n";
+        print "   PART 2:  $part2\n";
+        print "   PART 3:  $part3\n";
+        print "   PART 4:  $part4\n";
+        print "   PXE:     $pxe\n";
+        if (not defined $option){
+            $option="";
+            # ??? warning ???
+        }
+        print "   OPTION:  $option\n";
+    }
+}
+
+
+sub check_room {
+    my ($string) = @_;
+    if ( $string=~/[^A-Za-z0-9\-]/ ) {
+        print "\nERROR: $string contains invalid characters\n\n";
+        exit 1;
+    } else {
+
+    }
+}
+
+sub check_host {
+    my ($string) = @_;
+    if ( $string=~/[^A-Za-z0-9\-]/ ) {
+        print "\nERROR: $string contains invalid characters\n\n";
+        exit 1;
+    } else {
+
+    }
+}
+
+sub check_hwk {
+    # ist - erlaubt?
+    my ($string) = @_;
+    if ( $string=~/[^A-Za-z0-9]/ ) {
+        print "\nERROR: $string contains invalid characters\n\n";
+        exit 1;
+    } else {
+
+    }
+}
+
+sub check_mac {
+    my ($string) = @_;
+    my $mac = Net::MAC->new('mac' => $string , base => 16); 
+    my $new_mac = $mac->convert(
+          'base'      => 16,   # convert to base 16, if necessary
+          'bit_group' => 8,    # 16 bit grouping
+          'delimiter' => ':',  # dot-delimited
+          'die'       => 1     # die if conversion fails
+	);
+    
+   # should die when mac is wrong
+    print "      OLD: $mac\n";
+    print "      NEW: $new_mac\n";
+
+#     my @bytes=split(/:/,$string);
+#     foreach my $byte (@bytes){
+#         if ( $byte=~/[^A-Ba-b0-9]/ ) {
+#             print "\nERROR: $byte contains invalid characters\n\n";
+#             exit 1;
+#         } else {
+
+#         }
+#     }
+}
 
 
 
