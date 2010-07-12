@@ -90,9 +90,7 @@ my $max_start_period=1; # in minutes
 # counter for scanned objects
 my $scanned_objects_counter=0;
 
-
-# ???? after upgrade to lenny
-#my $config=$DevelConf:: ... ";
+# penalty database
 my $penalty_db_dir="/var/lib/sophomorix/virusscan";
 my $penalty_db=$penalty_db_dir."/penalty.db";;
 system("/bin/mkdir -p $penalty_db_dir");
@@ -111,11 +109,9 @@ system("/bin/mkdir -p $quarantine");
 
 my $last_auto_scanned=&get_last_auto_scanned();
 
-my $config_dir="/etc/sophomorix/virusscan";
+#my $config_dir="/etc/sophomorix/virusscan";
 my $config_file="sophomorix-virusscan.conf";
-my $config=$config_dir."/".$config_file;
-# ???? after upgrade to lenny
-#my $config=$DevelConf::$virusscan_conf."/".$config_file;
+my $config=$DevelConf::virusscan_conf."/".$config_file;
 
 # list of all usable number entries in sophomorix-virusscan.conf
 my %convert_days = qw(
@@ -163,11 +159,8 @@ my %convert_days_of_week = qw(
 
 
 if (not -e "$config"){
-    my $template="/usr/share/sophomorix-virusscan/config/".$config_file;
-    # ???? after upgrade to lenny
-    #my $template=$DevelConf::virusscan_config_templete_pfad."/".$config_file;
-    #my $command_1="mkdir -p $DevelConf::$virusscan_conf";
-    my $command_1="/bin/mkdir -p $config_dir";
+    my $template=$DevelConf::virusscan_config_templete_pfad."/".$config_file;
+    my $command_1="mkdir -p $DevelConf::virusscan_conf";
     print "$command_1\n";
     system("$command_1");
 
@@ -269,6 +262,7 @@ Files maintained by sophomorix-virusscan:
 
 ');
 
+print "Configuration: $config\n"; 
 print "Quarantine:    $quarantine\n"; 
 print "Logfile:       $logfile\n";
 print "Clamav:        $log_clam\n";
