@@ -6,6 +6,10 @@
 # jeffbeck@web.de  or  jeffbeck@gmx.de
 
 
+# ??? valix pxe options ???
+
+
+
 # ===========================================================================
 # Bibliotheken
 # ===========================================================================
@@ -59,6 +63,10 @@ my $info=0;
 # ??? develconf ???
 my $workstation_conf="/etc/linuxmuster/workstations";
 
+my %pxe = qw( 0 ok
+             22 ok
+             ml ok
+            );
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -188,21 +196,17 @@ sub analyze_line {
             $pxe,
             $option)=split(/;/,$line);
 
-        print "   ROOM:    $room\n";
         &check_room($room);
-        print "   HOST:    $host\n";
         &check_host($host);
-        print "   HWK:     $hwk\n";
         &check_hwk($hwk);
-        print "   MAC:     $mac\n";
         &check_mac($mac);
-        print "   IP:      $ip\n";
-        print "   NETMASK: $netmask\n";
-        print "   PART 1:  $part1\n";
-        print "   PART 2:  $part2\n";
-        print "   PART 3:  $part3\n";
-        print "   PART 4:  $part4\n";
-        print "   PXE:     $pxe\n";
+        &check_ip($ip);
+        &check_netmask($netmask);
+#        print "   PART 1:  $part1\n";
+#        print "   PART 2:  $part2\n";
+#        print "   PART 3:  $part3\n";
+#        print "   PART 4:  $part4\n";
+        &check_pxe($pxe);
         if (not defined $option){
             $option="";
             # ??? warning ???
@@ -214,6 +218,7 @@ sub analyze_line {
 
 sub check_room {
     my ($string) = @_;
+        print "   ROOM:    $string\n";
     if ( $string=~/[^A-Za-z0-9\-]/ ) {
         print "\nERROR: $string contains invalid characters\n\n";
         exit 1;
@@ -221,9 +226,11 @@ sub check_room {
 
     }
 }
+
 
 sub check_host {
     my ($string) = @_;
+    print "   HOST:    $string\n";
     if ( $string=~/[^A-Za-z0-9\-]/ ) {
         print "\nERROR: $string contains invalid characters\n\n";
         exit 1;
@@ -231,10 +238,12 @@ sub check_host {
 
     }
 }
+
 
 sub check_hwk {
     # ist - erlaubt?
     my ($string) = @_;
+    print "   HWK:     $string\n";
     if ( $string=~/[^A-Za-z0-9]/ ) {
         print "\nERROR: $string contains invalid characters\n\n";
         exit 1;
@@ -243,8 +252,10 @@ sub check_hwk {
     }
 }
 
+
 sub check_mac {
     my ($string) = @_;
+    print "   MAC:     $string";
     my $mac = Net::MAC->new('mac' => $string , base => 16); 
     my $new_mac = $mac->convert(
           'base'      => 16,   # convert to base 16, if necessary
@@ -256,16 +267,51 @@ sub check_mac {
    # should die when mac is wrong
     print "      OLD: $mac\n";
     print "      NEW: $new_mac\n";
+}
 
-#     my @bytes=split(/:/,$string);
-#     foreach my $byte (@bytes){
-#         if ( $byte=~/[^A-Ba-b0-9]/ ) {
-#             print "\nERROR: $byte contains invalid characters\n\n";
-#             exit 1;
-#         } else {
 
-#         }
-#     }
+sub check_ip {
+    my ($string) = @_;
+    print "   IP:      $string\n";
+    my @octets = split(/\./,$string);
+    foreach my $octet (@octets){
+        print "      Octet:    $octet\n";
+        if ( int($octet) < 1 or int($octet) > 255) {
+            print "\nERROR: ->$string<- is invalid Option in ip octet\n\n";
+            exit 1;
+        } else {
+
+        }
+    }
+}
+
+
+sub check_netmask {
+    my ($string) = @_;
+    print "   NETMASK: $string\n";
+    my @octets = split(/\./,$string);
+    foreach my $octet (@octets){
+        print "      Octet:    $octet\n";
+        if ( int($octet) < 0 or int($octet) > 255) {
+            print "\nERROR: ->$string<- is invalid Option in netmask\n\n";
+            exit 1;
+        } else {
+
+        }
+    }
+}
+
+
+sub check_pxe {
+    # ist - erlaubt?
+    my ($string) = @_;
+    print "   PXE:     $string\n";
+    if ( not exists $pxe{$string} ) {
+        print "\nERROR: ->$string<- is invalid Option in pxe field\n\n";
+        exit 1;
+    } else {
+
+    }
 }
 
 
