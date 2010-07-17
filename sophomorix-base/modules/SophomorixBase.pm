@@ -129,6 +129,7 @@ use Quota;
               fetch_immutable_bit
               print_forward
               read_cyrus_redirect
+              latexize_string
               );
 
 
@@ -5396,6 +5397,33 @@ sub read_cyrus_redirect {
         return @redir_list;
     }
     return "";
+}
+
+
+sub latexize_string {
+    # make string usable by latex (convert)
+    my ($string) = @_;
+
+    #replace existing \   with   \textbackslash{}
+    $string=~s/\\/\\textbackslash\{\}/g;
+
+    # here a \ added again as escape characters:
+    #replace  _   with   \_
+    $string=~s/_/\\_/g;
+    #replace  $   with   \$
+    $string=~s/\$/\\\$/g;
+    #replace  #   with   \#
+    $string=~s/\#/\\\#/g;
+    #replace  &   with   \&
+    $string=~s/\&/\\\&/g;
+    #replace  %   with   \%
+    $string=~s/\%/\\\%/g;
+    #replace  {   with   \{
+    $string=~s/\{/\\\{/g;
+    #replace  }   with   \}
+    $string=~s/\}/\\\}/g;
+    # [] seem to work
+     return $string; 
 }
 
 
