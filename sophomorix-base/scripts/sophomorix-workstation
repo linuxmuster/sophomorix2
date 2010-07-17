@@ -6,7 +6,10 @@
 # jeffbeck@web.de  or  jeffbeck@gmx.de
 
 
-# ??? valix pxe options ???
+# ??? valid pxe options ???
+# ??? avoid doule host name
+# ??? avoid double mac adress
+# ??? avoid double ip
 
 
 
@@ -59,6 +62,7 @@ chomp($today);
 $Conf::log_level=1;
 my $help=0;
 my $info=0;
+my $print=0;
 
 # ??? develconf ???
 my $workstation_conf="/etc/linuxmuster/workstations";
@@ -73,6 +77,7 @@ my $testopt=GetOptions(
        "verbose|v+" => \$Conf::log_level,
        "help|h" => \$help,
        "i|info" => \$info,
+       "p|print" => \$print,
           );
 
 
@@ -102,6 +107,159 @@ Please see the sophomorix-workstation(8) man pages for full documentation
 
    exit;
 }
+
+
+# --print
+if ($print==1){
+    if (not -e ${workstation_conf}){
+        print "\n$workstation_conf does not exist\n\n";
+        exit 1;
+    }
+
+
+# Kurzanleitung:
+# 1. Editieren sie $schule und $names
+my $schule="BSZ Leonberg";
+my $names=('R\"{u}diger Beck, Rainer R\"{o}ssler und ...');
+
+# 2. Die Ergebnisdatei entsteht in /etc/linuxmuster/
+
+# 3. Formatieren Sie /etc/linuxmuster/workstations mit Kommentaren:
+#      # Das wird eine Überschrift     (1 #-Zeichen)
+#      ## Das bleibt unberücksichtigt  (2 #-Zeichen) 
+
+# Todo für ML 5.0
+# oneside/twoside konfigurierbar
+# Unter 1 aufgeführte Variablen selber ermitteln
+# Text in lang-Datei auslagern
+
+
+
+my $out_base="/etc/linuxmuster/workstations_formatted";
+my $out_dir="/etc/linuxmuster";
+my $out_file="$out_base".".tex";
+my $out_file_dvi="$out_base".".dvi";
+my @line=();
+my $host=0; # conter for the hosts
+my $hor_lines=5; # draw a horizontal line in the table after this many lines of text
+my $line_count=1;
+
+
+print "Writing to $out_file";
+open(TEX, ">$out_file");
+
+print TEX '\documentclass[a4paper, twoside]{article}',"\n",
+          '\usepackage{longtable}',"\n",
+          '\usepackage{ngerman}',"\n",
+          '\usepackage{layout}',"\n",
+          '\usepackage{fancyhdr}',"\n",
+          '\usepackage{lastpage}',"\n",
+          '\setlength{\oddsidemargin}{-5mm}',"\n",
+          '\setlength{\evensidemargin}{-16.8mm}',"\n",
+          '\setlength{\textwidth}{180mm}',"\n",
+          '\setlength{\textheight}{255mm}',"\n",
+          '\setlength{\topmargin}{-20mm}',"\n",
+          '\pagestyle{fancy}',"\n",
+          "\\lhead{$schule}","\n",
+          "\\rhead{Seite \\thepage/\\pageref{LastPage}}","\n",
+          "\\cfoot{$names}","\n",
+          '\pagestyle{fancy}',"\n",
+          '\renewcommand{\baselinestretch}{1.2}',"\n\n",
+
+          '\begin{document}',"\n\n",
+          '\layout',"\n\n",
+
+          '\begin{longtable}{|r|c|c|c|c|c|} ',"\n",
+          '   \caption*{\large \bfseries Rechner und Drucker am BSZ Leonberg}\\\\ \\hline',"\n",
+#          '   \bfseries Nr. & \bfseries Name & \bfseries Raum & \bfseries IP & \bfseries MAC-Adresse\\\\ \hline \hline',"\n",
+#          '   \endfirsthead',"\n",
+          '   \bfseries Nr. & \bfseries DNS-Name & \bfseries Raum & \bfseries HW-Klasse & \bfseries IP-Adresse & \bfseries MAC-Adresse \\\\ \hline \hline',"\n",
+          '   \endhead',"\n",
+          '      \hline \multicolumn{6}{r}{Fortsetzung auf der n\"{a}chsten Seite ...}',"\n",
+          '   \endfoot',"\n",
+          '      \hline ',"\n",
+          '   \endlastfoot',"\n";
+
+open(IN, "<${workstation_conf}");
+while(<IN>){
+    chomp();
+    #s/\s//g;
+#    s/ä/\\\"{a}/g;
+#    s/ö/\\\"{o}/g;
+#    s/ü/\\\"{u}/g;
+#    s/ß/\\\ss /g;
+
+    if ($_ eq "") {
+	next;
+    } elsif(/^\#\#/){
+	print "Comment $_ \n";
+    } elsif (/^\#/){
+	print "Header $_ \n";
+        s/^\#//g;
+        if ($_ eq "") {
+	    next;
+        }
+        print TEX "\\hline \\hline  \\multicolumn{6}{|l|}{\\rule{0mm}{4mm}\\bfseries $_} \\\\ \\hline ","\n";
+    } else {
+        @line = split(/;/);
+        $host++;
+        print TEX "$host & $line[1] & $line[0] & $line[2] & $line[4] & \\texttt{$line[3]} \\\\ ";
+        # Horizontal lines
+        if ($line_count==$hor_lines){
+            print TEX ' \hline',"\n";
+            $line_count=0;
+        } else {
+            print TEX "\n";
+        }
+        #$host++;
+        $line_count++;
+        #print TEX "$_","\n";
+    }
+
+
+}
+
+close(IN);
+#print TEX ' \\hline',"\n"; 
+print TEX '\end{longtable}',"\n";
+
+print TEX "\\textbf{$host Rechner/Drucker sind im p\"{a}dagogischen Netz des $schule.} \n \n";
+
+print TEX "Ausdruck: \\today .",
+          "\n \n",
+          "\\textbf{Die Netzwerkadministratoren:}",
+          "\n",
+          "$names","\n";
+print TEX "\n",'\end{document}',"\n";
+close(TEX);
+
+# change to pdflatex if you want
+
+system("cd $out_dir; latex $out_file");
+system("cd $out_dir; latex $out_file");
+system("cd $out_dir; dvips $out_file_dvi");
+
+#
+#system("kdvi $out_base.dvi");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    exit;
+}
+
+
 
 
 
@@ -157,6 +315,10 @@ if ($info==1){
 
 
 print "Checking $workstation_conf for syntax errors ...\n";
+if (not -e ${workstation_conf}){
+    print "\n$workstation_conf does not exist\n\n";
+    exit 1;
+}
 open(WORKSTATION,"<${workstation_conf}");
 while(<WORKSTATION>){
     &analyze_line($_);
