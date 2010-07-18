@@ -10,6 +10,20 @@
 # ??? avoid doule host name
 # ??? avoid double mac adress
 # ??? avoid double ip
+# ad hostname
+
+## --print
+# add this to doku and man page:
+# 1. Die Ergebnisdatei entsteht in /etc/linuxmuster/
+
+# 2. Formatieren Sie /etc/linuxmuster/workstations mit Kommentaren:
+#      # Das wird eine Überschrift     (1 #-Zeichen)
+#      ## Das bleibt unberücksichtigt  (2 #-Zeichen) 
+
+# Todo für ML 5.0
+# oneside/twoside konfigurierbar
+# Unter 1 aufgeführte Variablen selber ermitteln
+# Text in lang-Datei auslagern
 
 
 
@@ -85,7 +99,9 @@ my $testopt=GetOptions(
 &check_options($testopt);
 &check_connections();
 
+# ===========================================================================
 # --help
+# ===========================================================================
 if ($help==1) {
    # Scriptname ermitteln
    my @list = split(/\//,$0);
@@ -109,46 +125,37 @@ Please see the sophomorix-workstation(8) man pages for full documentation
 }
 
 
+# ===========================================================================
 # --print
+# ===========================================================================
 if ($print==1){
     if (not -e ${workstation_conf}){
         print "\n$workstation_conf does not exist\n\n";
         exit 1;
     }
 
+    my $admins="";
+    if (defined $Conf::admins_print){
+        if ($Conf::admins_print ne ""){
+	    $admins=$Conf::admins_print;
+        }
+    }
 
-# Kurzanleitung:
-# 1. Editieren sie $schule und $names
-my $schule="BSZ Leonberg";
-my $names=('R\"{u}diger Beck, Rainer R\"{o}ssler und ...');
-
-# 2. Die Ergebnisdatei entsteht in /etc/linuxmuster/
-
-# 3. Formatieren Sie /etc/linuxmuster/workstations mit Kommentaren:
-#      # Das wird eine Überschrift     (1 #-Zeichen)
-#      ## Das bleibt unberücksichtigt  (2 #-Zeichen) 
-
-# Todo für ML 5.0
-# oneside/twoside konfigurierbar
-# Unter 1 aufgeführte Variablen selber ermitteln
-# Text in lang-Datei auslagern
-
-
-
-my $out_base="/etc/linuxmuster/workstations_formatted";
-my $out_dir="/etc/linuxmuster";
-my $out_file="$out_base".".tex";
-my $out_file_dvi="$out_base".".dvi";
-my @line=();
-my $host=0; # conter for the hosts
-my $hor_lines=5; # draw a horizontal line in the table after this many lines of text
-my $line_count=1;
+    my $out_base="/etc/linuxmuster/workstations_formatted";
+    my $out_dir="/etc/linuxmuster";
+    my $out_file="$out_base".".tex";
+    my $out_file_dvi="$out_base".".dvi";
+    my @line=();
+    my $host=0; # conter for the hosts
+    # draw a horizontal line in the table after this many lines of text
+    my $hor_lines=5; 
+    my $line_count=1;
 
 
-print "Writing to $out_file";
-open(TEX, ">$out_file");
+    print "Writing to $out_file";
+    open(TEX, ">$out_file");
 
-print TEX '\documentclass[a4paper, twoside]{article}',"\n",
+    print TEX '\documentclass[a4paper, twoside]{article}',"\n",
           '\usepackage{longtable}',"\n",
           '\usepackage{ngerman}',"\n",
           '\usepackage{layout}',"\n",
@@ -160,102 +167,80 @@ print TEX '\documentclass[a4paper, twoside]{article}',"\n",
           '\setlength{\textheight}{255mm}',"\n",
           '\setlength{\topmargin}{-20mm}',"\n",
           '\pagestyle{fancy}',"\n",
-          "\\lhead{$schule}","\n",
+          "\\lhead{$Conf::schul_name}","\n",
           "\\rhead{Seite \\thepage/\\pageref{LastPage}}","\n",
-          "\\cfoot{$names}","\n",
+          "\\cfoot{$admins}","\n",
           '\pagestyle{fancy}',"\n",
           '\renewcommand{\baselinestretch}{1.2}',"\n\n",
 
           '\begin{document}',"\n\n",
-          '\layout',"\n\n",
-
+          # show layout of page
+          # '\layout',"\n\n",
           '\begin{longtable}{|r|c|c|c|c|c|} ',"\n",
-          '   \caption*{\large \bfseries Rechner und Drucker am BSZ Leonberg}\\\\ \\hline',"\n",
-#          '   \bfseries Nr. & \bfseries Name & \bfseries Raum & \bfseries IP & \bfseries MAC-Adresse\\\\ \hline \hline',"\n",
-#          '   \endfirsthead',"\n",
-          '   \bfseries Nr. & \bfseries DNS-Name & \bfseries Raum & \bfseries HW-Klasse & \bfseries IP-Adresse & \bfseries MAC-Adresse \\\\ \hline \hline',"\n",
+          '   \caption*{\large \bfseries Rechner und ',
+          '             Drucker ',
+          "($Conf::schul_name)",
+          '}\\\\ \\hline',"\n",
+          '   \bfseries Nr. & \bfseries DNS-Name & \bfseries Raum & ',
+          '      \bfseries HW-Klasse & \bfseries IP-Adresse & ',
+          '      \bfseries MAC-Adresse \\\\ \hline \hline',"\n",
           '   \endhead',"\n",
-          '      \hline \multicolumn{6}{r}{Fortsetzung auf der n\"{a}chsten Seite ...}',"\n",
+          '      \hline \multicolumn{6}{r}{Fortsetzung auf ',
+          '          der n\"{a}chsten Seite ...}',"\n",
           '   \endfoot',"\n",
           '      \hline ',"\n",
           '   \endlastfoot',"\n";
 
-open(IN, "<${workstation_conf}");
-while(<IN>){
-    chomp();
-    #s/\s//g;
-#    s/ä/\\\"{a}/g;
-#    s/ö/\\\"{o}/g;
-#    s/ü/\\\"{u}/g;
-#    s/ß/\\\ss /g;
-
-    if ($_ eq "") {
-	next;
-    } elsif(/^\#\#/){
-	print "Comment $_ \n";
-    } elsif (/^\#/){
-	print "Header $_ \n";
-        s/^\#//g;
-        if ($_ eq "") {
+    open(IN, "<${workstation_conf}");
+    while(<IN>){
+        chomp();
+        my $line=$_;
+        if ($line eq "") {
 	    next;
-        }
-        print TEX "\\hline \\hline  \\multicolumn{6}{|l|}{\\rule{0mm}{4mm}\\bfseries $_} \\\\ \\hline ","\n";
-    } else {
-        @line = split(/;/);
-        $host++;
-        print TEX "$host & $line[1] & $line[0] & $line[2] & $line[4] & \\texttt{$line[3]} \\\\ ";
-        # Horizontal lines
-        if ($line_count==$hor_lines){
-            print TEX ' \hline',"\n";
-            $line_count=0;
+        } elsif(/^\#\#/){
+	    print "Comment $line \n";
+        } elsif (/^\#/){
+	    print "Header $line \n";
+            s/^\#//g;
+            if ($line eq "") {
+	        next;
+            }
+            $line=&latexize_string($line);
+            print TEX "\\hline \\hline  ",
+                 "\\multicolumn{6}{|l|}{\\rule{0mm}{4mm}\\bfseries $line}",
+                 " \\\\ \\hline ","\n";
         } else {
-            print TEX "\n";
+            @line = split(/;/);
+            $host++;
+            print TEX "$host & $line[1] & $line[0] & ",
+                      "$line[2] & $line[4] & \\texttt{$line[3]} \\\\ ";
+            # Horizontal lines
+            if ($line_count==$hor_lines){
+                print TEX ' \hline',"\n";
+                $line_count=0;
+            } else {
+                print TEX "\n";
+            }
+            $line_count++;
         }
-        #$host++;
-        $line_count++;
-        #print TEX "$_","\n";
     }
+    close(IN);
 
+    print TEX '\end{longtable}',"\n";
+    print TEX "\\textbf{$host Rechner/Drucker sind im p\"{a}dagogischen ",
+              "Netz ($Conf::schul_name).} \n \n";
+    print TEX "Ausdruck: \\today .",
+              "\n \n",
+              "\\textbf{Die Netzwerkadministratoren:}",
+              "\n",
+              "$admins","\n";
+    print TEX "\n",'\end{document}',"\n";
+    close(TEX);
 
-}
-
-close(IN);
-#print TEX ' \\hline',"\n"; 
-print TEX '\end{longtable}',"\n";
-
-print TEX "\\textbf{$host Rechner/Drucker sind im p\"{a}dagogischen Netz des $schule.} \n \n";
-
-print TEX "Ausdruck: \\today .",
-          "\n \n",
-          "\\textbf{Die Netzwerkadministratoren:}",
-          "\n",
-          "$names","\n";
-print TEX "\n",'\end{document}',"\n";
-close(TEX);
-
-# change to pdflatex if you want
-
-system("cd $out_dir; latex $out_file");
-system("cd $out_dir; latex $out_file");
-system("cd $out_dir; dvips $out_file_dvi");
-
-#
-#system("kdvi $out_base.dvi");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    # latex
+    system("cd $out_dir; latex $out_file");
+    system("cd $out_dir; latex $out_file");
+    system("cd $out_dir; dvips $out_file_dvi");
     exit;
 }
 
@@ -264,6 +249,10 @@ system("cd $out_dir; dvips $out_file_dvi");
 
 
 
+
+# ===========================================================================
+# fetching data
+# ===========================================================================
 &titel("Asking the system for users ...");
 
 my ($ref_domcomputers,$ref_rooms,$ref_examaccounts) = &get_sys_workstations();
@@ -281,10 +270,10 @@ my %examaccounts_system = %$ref_examaccounts;
 
 
 
-
+# ===========================================================================
 # --info
+# ===========================================================================
 if ($info==1){
-
     # fetch and sort rooms
     my @rooms=();
     while (my ($room,$v) = each %rooms_system){
@@ -313,7 +302,9 @@ if ($info==1){
 
 
 
-
+# ===========================================================================
+# checking data
+# ===========================================================================
 print "Checking $workstation_conf for syntax errors ...\n";
 if (not -e ${workstation_conf}){
     print "\n$workstation_conf does not exist\n\n";
@@ -326,18 +317,18 @@ while(<WORKSTATION>){
 
 close(WORKSTATION);
 
-
-
-# ????
 # syntax OK: -> 0
 #return 0;
 # systax ERROR -> 1
+exit 0;
 
 
-#&log_script_start(@arguments);
 
 
 
+# ===========================================================================
+# subs
+# ===========================================================================
 sub analyze_line {
     my ($line) = @_;
     if (/^#/ or /^\s*$/){
@@ -484,7 +475,6 @@ sub check_pxe {
 
 
 sub get_sys_workstations {
-
     my %domcomputers_system = ();
     my %rooms_system = ();
     my %examaccounts_system = ();
@@ -515,10 +505,7 @@ sub get_sys_workstations {
         #print "Room:  $room\n";
         #print "Home:  $home\n";
         $domcomputers_system{$domcomputer}=$room;
-       
     }
-
-
 
     # examaccounts
 
@@ -553,7 +540,6 @@ sub get_sys_workstations {
 
 
 
-
     &db_disconnect($dbh);
     # returns some Hashes, as a list
     # 1:  workstation - room
@@ -565,13 +551,3 @@ sub get_sys_workstations {
 }
 
 
-
-
-
-
-
-
-
-
-
-#&log_script_end(@arguments);
