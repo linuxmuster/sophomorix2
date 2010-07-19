@@ -1,4 +1,263 @@
-# $Id$
+Todo:
+
+- Diese Zeile aus sophomorix-setup-pgldap enfernen/kuerzen
+- INDEX Zeugs raus
+
+ Old dn:  uid=j1006p09,ou=accounts,dc=bszleo,dc=de 
+  NEW dn: uid=j1006p09,ou=accounts,dc=bszleo,dc=de 
+
+
+
+
+Bug??? bei Installation von 2.2.14 auf majestix
+
+
+
+
+
+/etc/ldap/slapd. nichtlich: Datei oder Verzeichnis nicht gefunden
+/etc/ldap/slapd.conf: line 111: rootdn is always granted unlimited privileges.
+/etc/ldap/slapd.conf: line 111: rootdn is always granted unlimited privileges.
+config file testing succeeded
+Checking if line is to be inserted into /etc/postgresql/8.3/main/pg_hba.conf:
+   Line is in /etc/postgresql/8.3/main/pg_hba.conf already ...  doing nothing.
+Checking if line is to be inserted into /etc/postgresql/8.3/main/pg_hba.conf:
+   Line is in /etc/postgresql/8.3/main/pg_hba.conf already ...  doing nothing.
+Checking if line is to be inserted into /etc/postgresql/8.3/main/pg_hba.conf:
+   Line is in /etc/postgresql/8.3/main/pg_hba.conf already ...  doing nothing.
+Checking if line is to be inserted into /etc/postgresql/8.3/main/pg_hba.conf:
+   Line is in /etc/postgresql/8.3/main/pg_hba.conf already ...  doing nothing.
+Checking if line is to be inserted into /etc/postgresql/8.3/main/pg_hba.conf:
+   Line is in /etc/postgresql/8.3/main/pg_hba.conf already ...  doing nothing.
+Checking if line is to be inserted into /etc/postgresql/8.3/main/pg_hba.conf:
+   Line is in /etc/postgresql/8.3/main/pg_hba.conf already ...  doing nothing.
+Working on pg-ident.conf
+   Line is in /etc/postgresql/8.3/main/pg_ident.conf already ...  doing nothing.
+   Line is in /etc/postgresql/8.3/main/pg_ident.conf already ...  doing nothing.
+   Line is in /etc/postgresql/8.3/main/pg_ident.conf already ...  doing nothing.
+Setting stored password for "cn=admin,dc=bszleo,dc=de" in secrets.tdb
+Stopping Samba daemons: nmbd smbd.
+nmbd: Kein Prozess abgebrochen
+Stopping OpenLDAP: slapd.
+slapd: Kein Prozess abgebrochen
+Stopping PostgreSQL 8.3 database server: main.
+postmaster: Kein Prozess abgebrochen
+Starting PostgreSQL 8.3 database server: main.
+Starting PostgreSQL 8.3 database server: main.
+
+NOT creating empty postgresql database ldap from scratch
+
+Modifying postgres database ldap with the following SQL-files: 
+
+
+#### Dropping indices in /usr/share/sophomorix/config-templates/pg/drop-index.sql####
+   Trying to drop leo_oc_name_idx ...
+      DROPPED index leo_oc_name_idx
+   Trying to drop leo_entry_id_idx ...
+      DROPPED index leo_entry_id_idx
+   Trying to drop le_id_idx ...
+      DROPPED index le_id_idx
+   Trying to drop le_keyval_idx ...
+      DROPPED index le_keyval_idx
+   Trying to drop le_oc_map_id_idx ...
+      DROPPED index le_oc_map_id_idx
+   Trying to drop g_id_idx ...
+      DROPPED index g_id_idx
+   Trying to drop pa_id_idx ...
+      DROPPED index pa_id_idx
+   Trying to drop leo_oc_name_idx ...
+      ERROR:  index "leo_oc_name_idx" does not exist#### Creating indices for Postgresql                                      ####
+#### Creating indices in /usr/share/sophomorix/config-templates/pg/create-index.sql####
+BEGIN
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+WARNING:  skipping "pg_authid" --- only table or database owner can analyze it
+WARNING:  skipping "pg_database" --- only table or database owner can analyze it
+WARNING:  skipping "pg_shdepend" --- only table or database owner can analyze it
+WARNING:  skipping "pg_shdescription" --- only table or database owner can analyze it
+WARNING: r man-db ...
+Richte sophomorix-base ein (2.2.14-1) ...
+##### sophomorix-setup is configuring the system for sophomorix-base ...
+#### /usr/sbin/sophomorix-setup started ...                               ####
+Flushing nscd cache
+#### /usr/sbin/sophomorix-setup terminated regularly                      ####
+Richte sophomorix-pgldap ein (2.2.14-1) ...
+New Version: 2.2.14-1
+Old Version: 2.2.13-1
+Parameter 1: configure
+Parameter 2: 2.2.13-1
+Parameter 3: 
+Parameter 4: 
+Parameter 5: 
+Hmm, I'm running on linuxmuster ...
+calling sophomorix-setup-pgldap --slapd-standalone --oldversion 2.2.13-1 --newversion 2.2.14-1
+#### Creating lock in /var/lib/sophomorix/lock/sophomorix.lock            ####
+#### /usr/sbin/sophomorix-setup-pgldap started ...                        ####
+Stopping Name Service Cache Daemon: nscd.
+Configuring standalone ldap
+Using the following values to configure the system
+   Debian Version                       : 5.0.5
+   Codename                             : lenny
+   Domainname from debconf              : bszleo.de 
+   Servername from debconf              : majestix 
+   Workgroup from debconf               : bszleo 
+   Internal IP from debconf             : 10.160.0.0 
+   Internal netmask from debconf        : 255.240.0.0 
+   Imaging System from debconf          : rembo 
+   ldappassword    (reuse old password) : ********** 
+   dbpassword     (new random password) : ********** 
+   String for institutes(ldap) :   bszleo 
+Package Versions:
+   Old Debian Package Version  :   2.2.13-1 
+   New Debian Package Version  :   2.2.14-1 
+Checking upgrade sql files (not ordered):
+      File sophomorix_0.3.8-2.sql is to old
+      File sophomorix_1.8.13.sql is to old
+Files to run for upgrade of database in correct order: 
+
+Checking upgrade script files (not ordered):
+      File sophomorix_0.3.3-1.upgrade is to old
+      File sophomorix_1.9.10-1.upgrade is to old
+      File sophomorix_1.9.11-1.upgrade is to old
+      File sophomorix_1.9.23-1.upgrade is to old
+      File sophomorix_1.9.24-1.upgrade is to old
+      File sophomorix_1.9.26-1.upgrade is to old
+      File sophomorix_1.9.31-1.upgrade is to old
+      File sophomorix_1.9.8-1.upgrade is to old
+      File sophomorix_2.0.3-1.upgrade is to old
+      File sophomorix_2.0.5-2.upgrade is to old
+      File sophomorix_2.0.6-2.upgrade is to old
+      File sophomorix_2.0.9-2.upgrade is to old
+Scripts to run for upgrade in correct order: 
+
+Checking for Postgres version on port 5432: 80311 
+Checking for Postgres version on port 5433: not running (0)
+   Samba Server String         :   Linux %h mit Samba %v 
+   Database name               :   ldap 
+mv: Aufruf von stat fR sophomorix2 ...
+Verarbeite Trigger fR sophomorix-pgldap ...
+Vorbereiten zum Ersetzen von sophomorix2 2.2.13-1 (durch .../sophomorix2_2.2.14-1_all.deb) ...
+Entpacke Ersatz fR sophomorix-base ...
+Vorbereiten zum Ersetzen von sophomorix-pgldap 2.2.13-1 (durch .../sophomorix-pgldap_2.2.14-1_all.deb) ...
+Entpacke Ersatz f# $id: todo-sophomorix-src,v 1.239 2010-07-18 01:19:38 jeffbeck Exp $
+
+
+
+
+
+
+
+Old dn:  uid=korenix$,ou=accounts,dc=bszleo,dc=de 
+  NEW dn: uid=korenix$,ou=accounts,dc=bszleo,dc=de 
+Dumping slapd to /var/log/sophomorix/slapd-ldif/old.ldif
+This can take a while ...
+Starting OpenLDAP: slapd.
+Stopping OpenLDAP: slapd.
+Populating ldap with /usr/share/sophomorix/config-templates/ldap/local-gen.ldif
+This can take a while ...
+Patching /var/log/sophomorix/slapd-ldif/old.ldif to /var/log/sophomorix/slapd-ldif/old-patched.ldif:
+   New basedn :   dc=bszleo,dc=de
+   New dc     :   bszleo
+Adding file /var/log/sophomorix/slapd-ldif/old-patched.ldif to ldap
+This can take a while ...
+Starting OpenLDAP: slapd.
+Starting Samba daemons: nmbd smbd.
+Restarting OpenBSD Secure Shell server: sshd.
+Stopping Name Service Cache Daemon: nscd(not running). (warning).
+nscd: Kein Prozess abgebrochen
+nscd: Kein Prozess abgebrochen
+Starting Name Service Cache Daemon: nscd.
+#### /usr/sbin/sophomorix-groupadd started ...                            ####
+Stopping Name Service Cache Daemon: nscd.
+Creating unix group domadmins (gidnumber:512)
+    nt_groupname: Domain Admins
+    group type  : 3 (Domain Group)
+group domadmins exists already (512)
+Replacing ldap group dn: cn=domadmins,ou=groups,dc=bszleo,dc=de
+Starting Name Service Cache Daemon: nscd.
+Flushing nscd cache
+#### /usr/sbin/sophomorix-groupadd terminated regularly                   ####
+#### /usr/sbin/sophomorix-groupadd started ...                            ####
+Stopping Name Service Cache Daemon: nscd.
+Creating unix group domusers (gidnumber:513)
+    nt_groupname: Domain Users
+    group type  : 3 (Domain Group)
+group domusers exists already (513)
+Replacing ldap group dn: cn=domusers,ou=groups,dc=bszleo,dc=de
+Starting Name Service Cache Daemon: nscd.
+Flushing nscd cache
+#### /usr/sbin/sophomorix-groupadd terminated regularly                   ####
+#### /usr/sbin/sophomorix-groupadd started ...                            ####
+Stopping Name Service Cache Daemon: nscd.
+Creating unix group domguests (gidnumber:514)
+    nt_groupname: Domain Guests
+    group type  : 3 (Domain Group)
+group domguests exists already (514)
+Replacing ldap group dn: cn=domguests,ou=groups,dc=bszleo,dc=de
+Starting Name Service Cache Daemon: nscd.
+Flushing nscd cache
+#### /usr/sbin/sophomorix-groupadd terminated regularly                   ####
+#### /usr/sbin/sophomorix-groupadd started ...                            ####
+Stopping Name Service Cache Daemon: nscd.
+Creating unix group domcomputers (gidnumber:515)
+    nt_groupname: Domain Computers
+    group type  : 3 (Domain Group)
+group domcomputers exists already (515)
+Replacing ldap group dn: cn=domcomputers,ou=groups,dc=bszleo,dc=de
+Starting Name Service Cache Daemon: nscd.
+Flushing nscd cache
+#### /usr/sbin/sophomorix-groupadd terminated regularly                   ####
+#### /usr/sbin/sophomorix-groupadd started ...                            ####
+Stopping Name Service Cache Daemon: nscd.
+Creating unix group wwwadmin (gidnumber:997)
+    nt_groupname: Web Administrators
+    group type  : 3 (Domain Group)
+group wwwadmin exists already (997)
+Group wwwadmin does not exist in postgresql.
+   * Cannot create/replace ldap group wwwadmin.
+Starting Name Service Cache Daemon: nscd.
+Flushing nscd cache
+#### /usr/sbin/sophomorix-groupadd terminated regularly                   ####
+#### /usr/sbin/sophomorix-groupadd started ...                            ####
+Stopping Name Service Cache Daemon: nscd.
+Creating unix group printoperators (gidnumber:550)
+    nt_groupname: Print Operators
+    group type  : 6 (Local Group)
+group printoperators exists already (550)
+Replacing ldap group dn: cn=printoperators,ou=groups,dc=bszleo,dc=de
+Starting Name Service Cache Daemon: nscd.
+Flushing nscd cache
+#### /usr/sbin/sophomorix-groupadd terminated regularly                   ####
+#### /usr/sbin/sophomorix-groupadd started ...                            ####
+Stopping Name Service Cache Daemon: nscd.
+Creating unix group replicators (gidnumber:552)
+    nt_groupname: Replicators
+    group type  : 6 (Local Group)
+group replicators exists already (552)
+Replacing ldap group dn: cn=replicat##
+Stopping Name Service Cache Daemon: nscd.
+Creating user account pgmadmin:
+    Uidnumber        : 999
+    Account Type     : administrator
+    Secondary Grp.   : 
+    Group            : domadmins
+    Home             : /home/administrators/pgmadmin
+    Gecos            : Programm Administrator
+    Shell            : /bin/false
+    SophomorixStatus : P
+    Epoch            : 1279545301
+    PasswoUpdating samba account wwwadmin:
+   * sid:  
+
+
+
+
+
 
 Bug??? bei Installation von 2.2.14
 
