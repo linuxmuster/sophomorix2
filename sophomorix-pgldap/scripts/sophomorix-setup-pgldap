@@ -477,10 +477,6 @@ foreach my $file (@all_db_upgrades){
     my @new = split(/[\.-]/,$new_version);
     my @file = split(/[\.-]/,$version);
 
-    # print "Old: ", @old, "\n";
-    # print "New: ", @new, "\n";
-    # print "File:", @file, "\n";
-
     # calculating number
     my $file_number=$file[3]
                    +$file[2]*1000
@@ -494,10 +490,6 @@ foreach my $file (@all_db_upgrades){
                   +$new[2]*1000
                   +$new[1]*1000*1000
                   +$new[0]*1000*1000*1000;
-
-    #print $file_number,"\n";
-    #print $old_number,"\n";
-    #print $new_number,"\n";
 
     #           - To old
     #  old ...  - To old
@@ -523,7 +515,7 @@ foreach my $file (@all_db_upgrades){
 @upgrade_sql_id= sort {$a <=> $b} @upgrade_sql_id;
 
 
-print "Files to run for upgrade of database in correct order: \n";
+print "Files to run for database upgrade in correct order: \n";
 
 foreach my $file_id (@upgrade_sql_id){
     printf "   %14s   %-40s \n",$file_id, $upgrade_sql_id_filename{$file_id};
@@ -559,10 +551,6 @@ foreach my $file (@all_script_upgrades){
     my @new = split(/[\.-]/,$new_version);
     my @file = split(/[\.-]/,$version);
 
-    #print "Old: ", @old, "\n";
-    #print "New: ", @new, "\n";
-    #print "File:", @file, "\n";
-
     # calculating number
     my $file_number=$file[3]
                    +$file[2]*1000
@@ -576,10 +564,6 @@ foreach my $file (@all_script_upgrades){
                   +$new[2]*1000
                   +$new[1]*1000*1000
                   +$new[0]*1000*1000*1000;
-
-    #print $file_number,"\n";
-    #print $old_number,"\n";
-    #print $new_number,"\n";
 
     #           - To old
     #  old ...  - To old
@@ -626,7 +610,7 @@ if ($info==1){
 
 # which postgres is running
 &get_pg_server_version("5432");
-&get_pg_server_version("5433");
+# &get_pg_server_version("5433");
 
 
 ############################################################
@@ -655,7 +639,6 @@ my $ldif_local="/usr/share/sophomorix/config-templates/ldap/local-gen.ldif";
 # pg
 my $odbc_ini="/etc/odbc.ini";
 my $odbcinst_ini="/etc/odbcinst.ini";
-#my $sophomorix_db="/usr/share/sophomorix/config-templates/pg/sophomorix.sql";
 my $sophomorix_db=${DevelConf::sql_create_path}."sophomorix.sql";
 
 # pam
@@ -742,10 +725,11 @@ my %permissions=&get_alle_verzeichnis_rechte();
 
 
 # do it, ldap 
+print "Creating $ldap_conf\n";
 system("sed $replace ${template}/ldap/ldap.conf.template > $ldap_conf");
 
 
-
+print "Creating $slapd_conf\n";
 if ($slapd_standalone==1){
    system("sed $replace ${template}/ldap/slapd-standalone.conf.template > $slapd_conf");
 } else { 
@@ -753,17 +737,22 @@ if ($slapd_standalone==1){
 } 
 
 
-
-system("sed $replace ${template}/ldap/slapd.template > $default_slapd"); 
+print "Creating $default_slapd\n";
+system("sed $replace ${template}/ldap/slapd.template > $default_slapd");
+print "Creating $smbldap_conf\n";
 system("sed $replace ${template}/ldap/smbldap.conf.template > $smbldap_conf"); 
+print "Creating $ldap_secret\n";
 system("sed $replace ${template}/ldap/ldap.secret.template > $ldap_secret"); 
-system("sed $replace ${template}/ldap/nsswitch.conf.template > $nsswitch_conf"); 
-system("sed $replace ${template}/ldap/libnss-ldap.conf.template > $libnssldap_conf"); 
+print "Creating $nsswitch_conf\n";
+system("sed $replace ${template}/ldap/nsswitch.conf.template > $nsswitch_conf");print "Creating $libnssldap_conf\n";
+system("sed $replace ${template}/ldap/libnss-ldap.conf.template > $libnssldap_conf");
+print "Creating $ldif_local\n";
 system("sed $replace ${template}/ldap/standalone.ldif.template > $ldif_local"); 
 
 # make sure a dummy custom template is there, so that 
 # slapd starts
 if (not -e $DevelConf::slapd_custom_file){
+    print "Creating $DevelConf::slapd_custom_file\n";
     system("cp $DevelConf::slapd_custom_template $DevelConf::slapd_custom_file");
 }
 
@@ -795,7 +784,9 @@ if ($lsb_release_codename eq "lenny"){
 
 
 # do it, pg
+print "Creating $odbc_ini\n";
 system("sed $replace ${template}/pg/odbc.ini.template > $odbc_ini"); 
+print "Creating $odbcinst_ini\n";
 system("sed $replace ${template}/pg/odbcinst.ini.template > $odbcinst_ini");
 
 
@@ -1038,7 +1029,8 @@ if ( ($old_version eq "0.0.0-0" and not defined $dbh) or $new_database==1){
     print "\ncreating the postgresql database ldap \n\n";
     &create_database();
 } else {
-    print "\nNOT creating empty postgresql database ldap from scratch\n\n";
+    print "\nNOT creating empty postgresql database ",
+          "ldap from scratch (updade)\n\n";
 }
 
 ##################################################
@@ -1054,7 +1046,9 @@ print "\n\n";
 
 # create new indices
 &drop_indices();
-&create_indices();
+
+# disabled from 2.2.15 on
+#&create_indices();
 
 
 # setting the password in pg
@@ -1062,7 +1056,7 @@ if ( ($old_version eq "0.0.0-0" and not defined $dbh) or $new_database==1){
     # first installation
     &set_db_passwd($dbpassword);
 } else {
-    &titel("NOT updating password  for user ldap in Postgresql");
+    &titel("NOT updating password  for user ldap in Postgresql (update)");
 }
 
 
@@ -1664,16 +1658,26 @@ sub set_ldap_suffix_pg {
        foreach ( @{ $array_ref } ) {
           my $old_dn=${$array_ref}[$i][0];
           my $id=${$array_ref}[$i][1];
-          print " OLD dn:  $old_dn \n";
           # split at first 'dn'
           my ($old_cn)=split(/dc=/,$old_dn);
           my $new_dn=$old_cn.$suffix;
-          print "  NEW dn: $new_dn \n";
+          if ($i<5){
+              print " OLD dn:  $old_dn \n";
+              print "  NEW dn: $new_dn \n";
+          } elsif ($i==5){
+              if($Conf::log_level>=3){
+                  print " OLD dn:  $old_dn \n";
+                  print "  NEW dn: $new_dn \n";
+              } else {
+                  print "  ... omitting some entries\n";
+              }
+           }
           $sql="UPDATE ldap_entries SET dn='$new_dn' WHERE id=$id";
           #print $sql,"\n";
           $dbh->do($sql);
           $i++;
        }
+       print "... $i entries updated\n";
        &db_disconnect($dbh);
     }
 }

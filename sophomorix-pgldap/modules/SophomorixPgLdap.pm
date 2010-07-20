@@ -6654,7 +6654,8 @@ sub patch_ldif {
     my $patched="$DevelConf::log_pfad_slapd_ldif/"."old-patched.ldif";
     open(ORIG, "$orig");
     open(PATCHED, ">$patched");
-    print "Patching $orig to $patched:\n"; 
+    print "Patching $orig\n",
+          "      to $patched:\n"; 
     print "   New basedn :   $base_dn\n";
     print "   New dc     :   $dc\n";
     while(<ORIG>){
