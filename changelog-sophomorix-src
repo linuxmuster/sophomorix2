@@ -3,13 +3,22 @@
 
 ============SOPHOMORIX2 CHANGELOG ====================================
 
+2.2.15-1 (2010-07-20)
+    - sophomorix-workstation: check works now
+    - Bugfix: return type 'localgroup' to group administrators 
+      -> avoids ERROR (actually a Warning) in sophomorix-setup-pgldap
+    - sophomorix-setup-pgldap: made typeout more informative/readable
+    - Bugfix: No ldaps service (/etc/default/slapd)
+    - Bugfix: slapd.conf template: userpassword -> userPassword
+    - Bugfix: slapd.conf template: hardcoded basedn removed
+
 2.2.14-1 (2010-07-18)
-    - added dependency to latex package (downloads 111 MB)
+    - added dependency to another latex package (downloads 111 MB)
     - updated second alpha version of sophomorix-workstation
     - moved latexize_string to SophomorixBase.pm
     - Bugfix: Converted login-info.de.tex to utf8
     - Bugfix: changed replacement of all variants of - from empty string 
-      to -, as in previous versions
+      to -, as in previous versions 2.0.x
     - added new debian package sophomorix-virusscan to the sophomorix
       packages. Depends on package clamav. 
 
