@@ -1497,8 +1497,9 @@ sub drop_indices {
             next;
         }
         my $index = $_;
-        print "   Trying to drop $index ...\n";
-
+        if($Conf::log_level>=3){
+            print "   Trying to drop $index ...\n";
+        }
         # connect, but dont raise errors
         my $dbh=&db_connect(0);
 
@@ -1512,10 +1513,14 @@ sub drop_indices {
             my $err_str=$dbh->errstr;
             if ($err_str=~/existiert nicht/){
                 # german errors
-		print "      WARNING: index $index is nonexisting\n";
+                if($Conf::log_level>=3){
+		   print "      WARNING: index $index is nonexisting\n";
+                }
             } else {
                 # other languages
-		print "      $err_str";
+                if($Conf::log_level>=3){
+		    print "      $err_str";
+                }
             }
         }
         &db_disconnect($dbh);
@@ -1671,7 +1676,10 @@ sub set_ldap_suffix_pg {
               } else {
                   print "  ... omitting some entries\n";
               }
-           }
+          } elsif ($i>5 and $Conf::log_level>=3){
+              print " OLD dn:  $old_dn \n";
+              print "  NEW dn: $new_dn \n";
+          }
           $sql="UPDATE ldap_entries SET dn='$new_dn' WHERE id=$id";
           #print $sql,"\n";
           $dbh->do($sql);
