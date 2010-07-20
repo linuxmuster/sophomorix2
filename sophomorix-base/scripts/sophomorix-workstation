@@ -7,10 +7,9 @@
 
 
 # ??? valid pxe options ???
-# ??? avoid doule host name
-# ??? avoid double mac adress
-# ??? avoid double ip
-# ad hostname
+# ??? netmask check ??? 
+# some check depend on other: 
+#   double ip can only be checked if ip is correct
 
 ## --print
 # add this to doku and man page:
@@ -81,10 +80,15 @@ my $print=0;
 # ??? develconf ???
 my $workstation_conf="/etc/linuxmuster/workstations";
 
+my %host_seen=();
+my %mac_seen=();
+my %ip_seen=();
+
 my %pxe = qw( 0 ok
              22 ok
              ml ok
             );
+
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -391,7 +395,13 @@ sub check_host {
         print "\nERROR: $string contains invalid characters\n\n";
         exit 1;
     } else {
-
+        # correct
+        if (exists $host_seen{$string}){
+            print "\nERROR: HOST $string is double!\n\n";
+            exit 1;
+        } else {
+            $host_seen{$string}="seen";
+        }
     }
 }
 
@@ -411,7 +421,7 @@ sub check_hwk {
 
 sub check_mac {
     my ($string) = @_;
-    print "   MAC:     $string";
+    print "   MAC:     $string\n";
     my $mac = Net::MAC->new('mac' => $string , base => 16); 
     my $new_mac = $mac->convert(
           'base'      => 16,   # convert to base 16, if necessary
@@ -419,8 +429,15 @@ sub check_mac {
           'delimiter' => ':',  # dot-delimited
           'die'       => 1     # die if conversion fails
 	);
-    
-   # should die when mac is wrong
+    # should die when mac is wrong
+
+    # correct
+    if (exists $mac_seen{$string}){
+        print "\nERROR: MAC $string is double!\n\n";
+        exit 1;
+    } else {
+        $mac_seen{$string}="seen";
+    }
     print "      OLD: $mac\n";
     print "      NEW: $new_mac\n";
 }
@@ -428,7 +445,17 @@ sub check_mac {
 
 sub check_ip {
     my ($string) = @_;
-    print "   IP:      $string\n";
+    print "   IP:      $string";
+
+    # check for 3 .
+    my $dots_in_string=$string=~tr/\.//;
+    print " ($dots_in_string dots)\n";
+    if ($dots_in_string!=3){
+        print "\nERROR: ->$string<- does not contain 3 dots\n\n";
+        exit 1;        
+    }
+    
+    # check for correct octets    
     my @octets = split(/\./,$string);
     foreach my $octet (@octets){
         print "      Octet:    $octet\n";
@@ -439,12 +466,29 @@ sub check_ip {
 
         }
     }
+
+    # check for double ip
+    if (exists $ip_seen{$string}){
+        print "\nERROR: IP $string is double!\n\n";
+        exit 1;
+    } else {
+        $ip_seen{$string}="seen";
+    }
 }
 
 
 sub check_netmask {
     my ($string) = @_;
     print "   NETMASK: $string\n";
+
+    # check for 3 .
+    my $dots_in_string=$string=~tr/\.//;
+    print " ($dots_in_string dots)\n";
+    if ($dots_in_string!=3){
+        print "\nERROR: ->$string<- does not contain 3 dots\n\n";
+        exit 1;        
+    }
+
     my @octets = split(/\./,$string);
     foreach my $octet (@octets){
         print "      Octet:    $octet\n";
