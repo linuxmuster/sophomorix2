@@ -1398,6 +1398,11 @@ sub provide_user_files {
         # computer
         ####################
         # nothing to do
+    } elsif ($type eq "localgroup"){
+        ####################
+        # localgroup
+        ####################
+        # nothing to do
     } else {
         print "\nERROR: Could not determine type of $class\n\n";
     }
