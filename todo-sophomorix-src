@@ -14,6 +14,48 @@ Replacing ldap group dn: cn=teachers,ou=groups,dc=bszleo,dc=de
 Stopping Name Service Cache Daemon: nscd.
 
 
+moven eines Lehrers 2.2.15:
+
+Look in class share: /home/share/teachers
+Backup to here: 
+   /home/teachers/ri/__dachboden/tausch-2010-07-21_22-48-27/
+group attic exists already (10214)
+Replacing ldap group dn: cn=attic,ou=groups,dc=bszleo,dc=de
+GLOBIGNORE=/; rm -rf /home/teachers/ri/_bereitstellen/bereitstellen-Lehrer
+GLOBIGNORE=/; rm -rf /home/teachers/ri/_auszuteilen/auszuteilen-Lehrer
+GLOBIGNORE=/; rm -rf /home/teachers/ri/_eingesammelt/eingesammelt-Lehrer
+GLOBIGNORE=/; rm -rf /home/teachers/ri/__austeilen/austeilen-Lehrer
+group attic exists already (10214)
+Replacing ldap group dn: cn=attic,ou=groups,dc=bszleo,dc=de
+chown: kann „/home/attic/ri/Desktop“ nicht derefenzieren: Datei oder Verzeichnis nicht gefunden
+chown: kann „/home/attic/ri/__dachboden/windows/public_html“ nicht derefenzieren: Datei oder Verzeichnis nicht gefunden
+chown: kann „/home/attic/ri/.local“ nicht derefenzieren: Datei oder Verzeichnis nicht gefunden
+chown: kann „/home/attic/ri/.kde“ nicht derefenzieren: Datei oder Verzeichnis nicht gefunden
+ ****adding attic
+group attic exists already (10214)
+Replacing ldap group dn: cn=attic,ou=groups,dc=bszleo,dc=de
+Replacing ldap account dn: uid=ri,ou=accounts,dc=bszleo,dc=de
+   Removing user ri(10867) from all projects 
+   * /usr/sbin/smbldap-usermod -G '' ri
+   New Group of ri is: attic
+   Adding user ri to the projects ...
+... done!
+   * /usr/sbin/smbldap-usermod -G 'attic' ri
+#### /usr/sbin/sophomorix-quota started ...                               ####
+Stopping Name Service Cache Daemon: nscd(not running). (warning).
+#### Calculating usrquota/mailquota ... (this may take a while)           ####
+#### Creating a userlist from options ...                                 ####
+INFO: ri is not a sophomorix user, skipping ri ...
+INFO: No valid users given
+
+#### Searching for users with changed quota/mailquota...                  ####
+#### Setting changed Quota for users in the userlist ...                  ####
+#### Removing lock in /var/lib/sophomorix/lock/sophomorix.lock            ####
+Starting Name Service Cache Daemon: nscd.
+Flushing nscd cache
+#### /usr/sbin/sophomorix-quota terminated regularly    
+
+
 
 
 
