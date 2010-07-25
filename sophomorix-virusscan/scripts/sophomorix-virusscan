@@ -33,6 +33,8 @@
 # user beim setzten auf 0 in der penalty db belassen
 # zusätzlicher Zähler der anzeigt wie oft schon viren gefunden wurden
 
+# was ist, wenn pfad zum virus '::' enthält
+
 
 
 # ????? weiter:
@@ -687,6 +689,7 @@ sub scan_object {
 
     my $result="";
     my $infected=-1;
+    my @viruses=();
     my $performance="";
 
     if  (-e $scan_dir){
@@ -726,8 +729,9 @@ sub scan_object {
         $scanned_objects_counter++;
         #my $command="clamscan -v -r -i -l $log_clam --move=$quarantine ".
         #            "$scan_dir >> $logfile 2>&1";
-        # analize result
+        # analyze result
         ($infected) = &get_infected($result);
+        @viruses = &get_virus_list($result);
         my $now=time;
         my $scan_time=$now-$start_time;
         if ($scan_time==0){
@@ -767,6 +771,18 @@ sub scan_object {
                $scan_object,$infected;
     $root_mail=$root_mail."   ".$infected." viruses in ".$scan_object."\n";
     print "     --> $infected viruses in $scan_object\n";
+
+    my $vir_count=1;
+    foreach my $virus (@viruses){
+        my ($found,$quarantine,$owner,$group)=split(/::/,$virus);
+        $root_mail=$root_mail."     $vir_count) Found at:  ".$found."\n";
+        $root_mail=$root_mail."        Moved to:  ".$quarantine."\n";
+        $root_mail=$root_mail."           Owner:  ".$owner."\n";
+        $root_mail=$root_mail."           Group:  ".$group."\n";
+        $vir_count++;
+    }
+
+
     if ($option eq "test"){
         # nothing
     }
@@ -809,6 +825,49 @@ sub get_infected {
         print "\nERROR: Could not retrieve number of infected files\n\n";
     }
     return $infected;
+}
+
+
+sub get_virus_list {
+    # returns a list: 
+    # /path/of/virus::/path/of/virus/in/quaratine::owner::
+    my ($result) = @_;
+    my @viruses=();
+    my @lines = split(/\n/,$result);
+    my $virus_path="";
+    my $message="";
+    my $virus_quarantine_path="";
+    print "$result\n";
+    foreach my $line (@lines){
+        if ($line=~m/FOUND/){
+            ($virus_path,$message) = split(/:/, $line);
+            # remove leading space
+            $message=~s/^\s//g;
+            print "Original path: ---$virus_path---\n";
+            print "      Message: ---$message---\n";
+            next;
+        }
+        
+        if ($line=~m/$virus_path/){
+            my ($virus_path_2,$target) = split(/moved to/, $line);
+            if ( $target =~m/^\s'(.*)'$/ ) {
+                $virus_quarantine_path=$1;
+                print "       Target: ---$virus_quarantine_path---\n";
+
+                # ??? find out owner
+                my $owner="todo owner";
+                my $group="todo group";
+                my $virus=$virus_path."::".
+                          $virus_quarantine_path."::".
+                          $owner."::".
+                          $group."::";
+                push @viruses, $virus;
+            }
+        }
+
+        #print LOG "HE: $line\n";
+    }
+    return @viruses;
 }
 
 
