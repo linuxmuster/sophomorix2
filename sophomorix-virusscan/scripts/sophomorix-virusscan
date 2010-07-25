@@ -296,7 +296,7 @@ chomp($day_of_month);
 my $day_of_week=`/bin/date +%u`;
 chomp($day_of_week);
 # message to sent to root and add to the end of the Script
-my $root_mail="Summary:\nScan results on $start_time_human:\n";
+my $root_mail="Scan results on $start_time_human:\n";
 
 
 
@@ -613,11 +613,12 @@ sub fetch_autoscan_objects {
 
 sub exit_script {
     # End of script
-    print "Data logged into file $logfile\n";
-    print "Data logged into file $log_clam\n";
-    print "Penalty database is in $penalty_db\n";
-    print "$scanned_objects_counter objects scanned\n";
-    print "\n$root_mail";
+    print "\nSummary:\n";
+    print "   Data logged into file $logfile\n";
+    print "   Data logged into file $log_clam\n";
+    print "   Penalty database is in $penalty_db\n";
+    print "   $scanned_objects_counter objects scanned\n";
+    print "$root_mail";
     close(LOG);
     exit;
 }
@@ -799,6 +800,7 @@ sub scan_object {
 }
 
 
+
 sub time {
     my $date = `date +%Y-%m-%d_%H-%M-%S`;
     chomp($date);
@@ -806,6 +808,7 @@ sub time {
     my $human=$year."-".$month."-".$day." at ".$hour.":".$minute;
     return ($human,$year,$month,$day,$hour,$minute,$second);
 }
+
 
 
 sub get_infected {
@@ -828,31 +831,36 @@ sub get_infected {
 }
 
 
+
 sub get_virus_list {
     # returns a list: 
     # /path/of/virus::/path/of/virus/in/quaratine::owner::
     my ($result) = @_;
     my @viruses=();
     my @lines = split(/\n/,$result);
+
+    # save virusdata 
     my $virus_path="";
     my $message="";
     my $virus_quarantine_path="";
-    print "$result\n";
+    my $found_first_line=0; # if 1, then search for second line
+
     foreach my $line (@lines){
+        # search for the first line
         if ($line=~m/FOUND/){
+            $found_first_line=1;
             ($virus_path,$message) = split(/:/, $line);
             # remove leading space
             $message=~s/^\s//g;
-            print "Original path: ---$virus_path---\n";
-            print "      Message: ---$message---\n";
-            next;
+            next; 
         }
         
-        if ($line=~m/$virus_path/){
+        # search for the second line 
+        if ($line=~m/$virus_path/ and $found_first_line==1){
             my ($virus_path_2,$target) = split(/moved to/, $line);
             if ( $target =~m/^\s'(.*)'$/ ) {
+                # find quaratined file
                 $virus_quarantine_path=$1;
-                print "       Target: ---$virus_quarantine_path---\n";
 
                 # find out owner/gowner of $virus_quarantine_path
                 my @statlist = stat($virus_quarantine_path);
@@ -865,14 +873,20 @@ sub get_virus_list {
                     $group = getgrgid $statlist[5];
                 }
 
+                # save data
                 my $virus=$virus_path."::".
                           $virus_quarantine_path."::".
                           $owner."::".
                           $group."::";
                 push @viruses, $virus;
+
+                # reset values
+                $found_first_line=0;
+                $virus_path="";
+                $message="";
+                $virus_quarantine_path="";
             }
         }
-
         #print LOG "HE: $line\n";
     }
     return @viruses;
@@ -897,6 +911,7 @@ sub read_penalty_db_hash {
 }
 
 
+
 sub read_penalty_db_list {
     my @penalty=();
     my $penalty=0;
@@ -913,7 +928,6 @@ sub read_penalty_db_list {
     close(PENALTY);
     return @penalty;
 }
-
 
 
 
