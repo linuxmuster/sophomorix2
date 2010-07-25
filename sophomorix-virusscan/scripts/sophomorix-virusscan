@@ -854,9 +854,17 @@ sub get_virus_list {
                 $virus_quarantine_path=$1;
                 print "       Target: ---$virus_quarantine_path---\n";
 
-                # ??? find out owner
-                my $owner="todo owner";
-                my $group="todo group";
+                # find out owner/gowner of $virus_quarantine_path
+                my @statlist = stat($virus_quarantine_path);
+                my $owner = "unknown";
+                my $group = "unknown";
+                if (defined $statlist[4]){ 
+                    $owner = getpwuid $statlist[4];
+                }
+                if (defined $statlist[5]){ 
+                    $group = getgrgid $statlist[5];
+                }
+
                 my $virus=$virus_path."::".
                           $virus_quarantine_path."::".
                           $owner."::".
