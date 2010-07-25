@@ -84,6 +84,11 @@ my %host_seen=();
 my %mac_seen=();
 my %ip_seen=();
 
+my @adding_examaccount=();
+my @killing_examaccount=();
+my @adding_computer=();
+my @killing_computer=();
+
 my %pxe = qw( 0 ok
              22 ok
              ml ok
@@ -324,6 +329,39 @@ close(WORKSTATION);
 # syntax OK: -> 0
 #return 0;
 # systax ERROR -> 1
+
+print "... checking for syntax errors done.\n";
+
+print "\nExamaccounts that must be added:\n";
+print "------------------------------------",
+      "------------------------------------\n";
+foreach my $ws (@adding_examaccount){
+    print "ADD: $ws\n";
+}
+
+print "\nExamaccounts that must be killed:\n";
+print "------------------------------------",
+      "------------------------------------\n";
+foreach my $ws (@killing_examaccount){
+    print "KILL: $ws\n";
+}
+
+
+print "\nComputers that must be added:\n";
+print "------------------------------------",
+      "------------------------------------\n";
+foreach my $ws (@adding_computer){
+    print "ADD: $ws\n";
+}
+
+print "\nComputers that must be killed:\n";
+print "------------------------------------",
+      "------------------------------------\n";
+foreach my $ws (@killing_computer){
+    print "KILL: $ws\n";
+}
+
+
 exit 0;
 
 
@@ -370,9 +408,36 @@ sub analyze_line {
         }
         if($Conf::log_level>=2){
             print "   OPTION:  $option\n";
-        }   
+        }
+
+        # workstation is correct
+
+        # check examaccount
+        if (not exists $examaccounts_system{$host}){
+            # nonexisting --> add account
+            &push_add_examaccount($line);
+        } else {
+            if ($examaccounts_system{$host} ne $room){
+                # exists in wrong room ---> kill/add account
+                &push_kill_examaccount($line);
+                &push_add_examaccount($line);
+            }
+        } 
+
+        # check computer account
+        my $host_computer = $host."\$";
+        if (not exists $domcomputers_system{$host_computer} ){
+            # nonexisting --> add account
+            &push_add_computer($line);
+        }
+
+
+
+
+
     }
 }
+
 
 
 sub check_room {
@@ -387,6 +452,7 @@ sub check_room {
 
     }
 }
+
 
 
 sub check_host {
@@ -409,6 +475,7 @@ sub check_host {
 }
 
 
+
 sub check_hwk {
     # ist - erlaubt?
     my ($string) = @_;
@@ -422,6 +489,7 @@ sub check_hwk {
 
     }
 }
+
 
 
 sub check_mac {
@@ -450,6 +518,7 @@ sub check_mac {
         print "      NEW: $new_mac\n";
     }
 }
+
 
 
 sub check_ip {
@@ -491,6 +560,7 @@ sub check_ip {
 }
 
 
+
 sub check_netmask {
     my ($string) = @_;
     if($Conf::log_level>=2){
@@ -521,6 +591,7 @@ sub check_netmask {
 }
 
 
+
 sub check_pxe {
     # ist - erlaubt?
     my ($string) = @_;
@@ -534,8 +605,6 @@ sub check_pxe {
 
     }
 }
-
-
 
 
 
@@ -615,4 +684,31 @@ sub get_sys_workstations {
           );
 }
 
+
+
+sub push_add_examaccount {
+    my ($add) = @_;
+    push @adding_examaccount, $add;
+}
+
+
+
+sub push_kill_examaccount {
+    my ($kill) = @_;
+    push @killing_examaccount, $kill;
+}
+
+
+
+sub push_add_computer {
+    my ($add) = @_;
+    push @adding_computer, $add;
+}
+
+
+
+sub push_kill_computer {
+    my ($kill) = @_;
+    push @killing_computer, $kill;
+}
 
