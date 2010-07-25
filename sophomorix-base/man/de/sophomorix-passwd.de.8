@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-PASSWD 8 "July 15, 2008"
+.TH SOPHOMORIX-PASSWD 8 "July 25, 2010"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -58,6 +58,12 @@ fragt das Passwort von user zweimal ab, ohne es auszugeben. Das
 Klartextpasswort in der Datenbank wird nicht upgedated.
 .br
 Wenn zusätzlich die Option --shell angegeben wird, wird diese ignoriert.
+.TP
+.B --all-characters
+lässt ALLE Zeichen bei der Passwortänderung zu. 
+.br
+Vorsicht: Dies kann dazu führen, dass sich der user nicht mehr
+einloggen kann.
 .TP
 .B Optionen, die angeben, wie das Passwort lauten soll:
 .TP
