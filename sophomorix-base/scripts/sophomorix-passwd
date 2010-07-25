@@ -55,6 +55,7 @@ my $config=0;
 my $reset=0;
 my $common=0;
 my $random=0;
+my $all_characters=0;
 
 my $smb_pw_m_change=2;
 
@@ -91,6 +92,7 @@ my $testopt=GetOptions(
            "common" => \$common,
            "random" => \$random,
            "interactive" => \$interactive,
+           "all-characters" => \$all_characters,
            "nofirstpassupdate" => \$nofirstpassupdate,
            "plength=i" => \$char_num,
            "verbose|v+" => \$Conf::log_level,
@@ -134,6 +136,7 @@ Create a password:
 
 Password change:
   --samba-pwd-must-change/nosamba-pwd-must-change
+  --all-characters    (allow all characters in passwords)
 
 Shell:
   --shell /bin/bash
@@ -293,6 +296,12 @@ if ($interactive==1){
 
         # Look if they match
         if ($password_1 eq $password_2){
+            # check for invalid characters
+            if ($password_1=~/[^0-9A-Za-z]/ and $all_characters==0){
+                print "New password contains unallowed characters!\n";
+                &nscd_start();
+                exit 5;
+            }
             # Passwort für user setzen
             &set_sophomorix_passwd($users[0],$password_1);
             # do NOT set password in the Database as FirstPassword
