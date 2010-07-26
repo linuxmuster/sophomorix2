@@ -297,11 +297,7 @@ if ($interactive==1){
         # Look if they match
         if ($password_1 eq $password_2){
             # check for invalid characters
-            if ($password_1=~/[^0-9A-Za-z]/ and $all_characters==0){
-                print "New password contains unallowed characters!\n";
-                &nscd_start();
-                exit 5;
-            }
+            &validate_password($password_1);
             # Passwort für user setzen
             &set_sophomorix_passwd($users[0],$password_1);
             # do NOT set password in the Database as FirstPassword
@@ -423,3 +419,14 @@ if ($show_help==1){
 
 
 &log_script_end(@arguments);
+
+
+
+sub validate_password {
+    my ($password) = @_;
+    if ($password=~/[^0-9A-Za-z]/ and $all_characters==0){
+        print "New password contains unallowed characters!\n";
+        &nscd_start();
+        exit 5;
+    }
+}
