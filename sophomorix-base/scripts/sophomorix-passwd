@@ -398,6 +398,8 @@ foreach my $user (@users){
        print "  Setting password for user $user in ".
              "$group ($type) to $password ...\n";
     }
+    # check for invalid characters
+    &validate_password($password);
     # Passwort für user setzen
     &set_sophomorix_passwd($user,$password);
     # updating the database
@@ -424,7 +426,8 @@ if ($show_help==1){
 
 sub validate_password {
     my ($password) = @_;
-    if ($password=~/[^0-9A-Za-z]/ and $all_characters==0){
+    # - and $ escaped
+    if ($password=~/[^0-9A-Za-z@!\$%&?_\-:;.,]/ and $all_characters==0){
         print "New password contains unallowed characters!\n";
         &nscd_start();
         exit 5;
