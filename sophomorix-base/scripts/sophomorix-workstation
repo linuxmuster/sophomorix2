@@ -7,17 +7,24 @@
 
 
 # import_workstation does:
-###  
+### always ????
 # /usr/sbin/sophomorix-passwd --force -u la00p92$ --pass xxxxxx
 #
-# 
+### adding examaccount
 # /usr/sbin/sophomorix-useradd --examaccount bz-eeepc --unix-group la00
 # /usr/sbin/sophomorix-passwd -u bz-eeepc --pass xxxxxx
 # /usr/sbin/sophomorix-quota -u bz-eeepc
-### computer account
+#
+### adding computer account
 # /usr/sbin/sophomorix-useradd --computer bz-eeepc$
 # /usr/sbin/sophomorix-passwd --force -u bz-eeepc$ 
-
+#
+### killing examaccount
+#
+#
+### killing computer account
+#
+#
 # printers do not have an examaccount and no computer accont
 # what to check for in /etc/linuxmuster/workstation?
 
@@ -92,6 +99,7 @@ $Conf::log_level=1;
 my $help=0;
 my $info=0;
 my $print=0;
+my $check=0;
 
 # ??? develconf ???
 my $workstation_conf="/etc/linuxmuster/workstations";
@@ -117,6 +125,7 @@ my $testopt=GetOptions(
        "help|h" => \$help,
        "i|info" => \$info,
        "p|print" => \$print,
+       "check" => \$check,
           );
 
 
@@ -349,6 +358,17 @@ close(WORKSTATION);
 print "... checking for syntax errors done.\n",
       "No errors found!\n";
 
+# ===========================================================================
+# What will be done
+# ===========================================================================
+print "\nExamaccounts that must be killed:\n";
+print "------------------------------------",
+      "------------------------------------\n";
+foreach my $ws (@killing_examaccount){
+    print "KILL: $ws\n";
+}
+
+
 print "\nExamaccounts that must be added:\n";
 print "------------------------------------",
       "------------------------------------\n";
@@ -356,10 +376,11 @@ foreach my $ws (@adding_examaccount){
     print "ADD: $ws\n";
 }
 
-print "\nExamaccounts that must be killed:\n";
+
+print "\nComputers that must be killed:\n";
 print "------------------------------------",
       "------------------------------------\n";
-foreach my $ws (@killing_examaccount){
+foreach my $ws (@killing_computer){
     print "KILL: $ws\n";
 }
 
@@ -371,12 +392,63 @@ foreach my $ws (@adding_computer){
     print "ADD: $ws\n";
 }
 
-print "\nComputers that must be killed:\n";
+
+
+
+if ($check==1){
+    print "\nCheck finished. Nothing changed!\n";
+    exit 0;
+}
+
+
+
+# ===========================================================================
+# Modifying System
+# ===========================================================================
+print "\nKilling examaccounts:\n";
+print "------------------------------------",
+      "------------------------------------\n";
+foreach my $ws (@killing_examaccount){
+    #print "KILL: $ws\n";
+}
+
+
+print "\nAdding examaccounts:\n";
+print "------------------------------------",
+      "------------------------------------\n";
+foreach my $ws (@adding_examaccount){
+    #print "ADD: $ws\n";
+    my ($g,$u,@rest)=split(/;/,$ws);
+    print "Adding $u in group $g\n";
+    system("/usr/sbin/sophomorix-useradd --examaccount $u --unix-group $g");
+    system("/usr/sbin/sophomorix-passwd -u $u --pass linux");
+    system("/usr/sbin/sophomorix-quota -u $u");
+}
+
+
+print "\nKilling computers:\n";
 print "------------------------------------",
       "------------------------------------\n";
 foreach my $ws (@killing_computer){
-    print "KILL: $ws\n";
+    #print "KILL: $ws\n";
 }
+
+
+print "\nAdding computers:\n";
+print "------------------------------------",
+      "------------------------------------\n";
+foreach my $ws (@adding_computer){
+    my ($g,$u,@rest)=split(/;/,$ws);
+    my $u_comp=$u."\$";
+    print "Adding computer $u_comp\n";
+    system("/usr/sbin/sophomorix-useradd --computer $u_comp");
+    system("/usr/sbin/sophomorix-passwd --force -u $u_comp");
+}
+
+
+
+
+
 
 
 exit 0;
