@@ -375,46 +375,38 @@ print "... checking for syntax errors done.\n",
 # ===========================================================================
 # What will be done
 # ===========================================================================
-print "\nExamaccounts that must be killed:\n";
-print "------------------------------------",
-      "------------------------------------\n";
-foreach my $ws (@killing_examaccount){
-    print "KILL: $ws\n";
-}
-
-
-print "\nExamaccounts that must be added:\n";
-print "------------------------------------",
-      "------------------------------------\n";
-foreach my $ws (@adding_examaccount){
-    print "ADD: $ws\n";
-}
-
-
-print "\nComputers that must be killed:\n";
-print "------------------------------------",
-      "------------------------------------\n";
-foreach my $ws (@killing_computer){
-    print "KILL: $ws\n";
-}
-
-
-print "\nComputers that must be added:\n";
-print "------------------------------------",
-      "------------------------------------\n";
-foreach my $ws (@adding_computer){
-    print "ADD: $ws\n";
-}
-
-
-
-
 if ($check==1){
+    print "\nExamaccounts that must be killed:\n";
+    print "------------------------------------",
+          "------------------------------------\n"; 
+    foreach my $ws (@killing_examaccount){
+        print "KILL: $ws\n";
+    }
+
+    print "\nExamaccounts that must be added:\n";
+    print "------------------------------------",
+          "------------------------------------\n";
+    foreach my $ws (@adding_examaccount){
+        print "ADD: $ws\n";
+    }
+
+    print "\nComputers that must be killed:\n";
+    print "------------------------------------",
+          "------------------------------------\n";
+    foreach my $ws (@killing_computer){
+        print "KILL: $ws\n";
+    }
+
+    print "\nComputers that must be added:\n";
+    print "------------------------------------",
+          "------------------------------------\n";
+    foreach my $ws (@adding_computer){
+        print "ADD: $ws\n";
+    }
+
     print "\nCheck finished. Nothing changed!\n";
     exit 0;
 }
-
-
 
 # ===========================================================================
 # Modifying System
