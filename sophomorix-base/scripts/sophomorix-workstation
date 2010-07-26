@@ -100,6 +100,10 @@ my $help=0;
 my $info=0;
 my $print=0;
 my $check=0;
+# temp ???
+my $i_know_what_i_do=0;
+
+
 
 # ??? develconf ???
 my $workstation_conf="/etc/linuxmuster/workstations";
@@ -126,6 +130,7 @@ my $testopt=GetOptions(
        "i|info" => \$info,
        "p|print" => \$print,
        "check" => \$check,
+       "i-know-what-i-do" => \$i_know_what_i_do,
           );
 
 
@@ -133,6 +138,14 @@ my $testopt=GetOptions(
 &check_options($testopt);
 &check_connections();
 
+# ===========================================================================
+# --help
+# ===========================================================================
+if ($i_know_what_i_do==0) {
+    print "\nsophomorix-workstation is in alpha status\n";
+    print "If you know what you do, add the special option\n\n";
+    exit;
+}
 # ===========================================================================
 # --help
 # ===========================================================================
