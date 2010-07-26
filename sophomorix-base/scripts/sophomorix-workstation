@@ -304,12 +304,13 @@ if ($print==1){
 
 my ($ref_domcomputers,$ref_rooms,$ref_examaccounts) = &get_sys_workstations();
 
-# domcomputers room
+# system
 my %domcomputers_system = %$ref_domcomputers;
 my %rooms_system = %$ref_rooms;
 my %examaccounts_system = %$ref_examaccounts; 
 
-
+# /etc/linuxmuster/workstation
+my %hosts_lines=();
 
 
 
@@ -495,26 +496,20 @@ sub analyze_line {
             $pxe,
             $option)=split(/;/,$line);
 
-        &check_room($room);
-        &check_host($host);
-        &check_hwk($hwk);
-        &check_mac($mac);
-        &check_ip($ip);
-        &check_netmask($netmask);
+        $room=&check_room($room);
+        $host=&check_host($host);
+        $hwk=&check_hwk($hwk);
+        $mac=&check_mac($mac);
+        $ip=&check_ip($ip);
+        $netmask=&check_netmask($netmask);
 #        print "   PART 1:  $part1\n";
 #        print "   PART 2:  $part2\n";
 #        print "   PART 3:  $part3\n";
 #        print "   PART 4:  $part4\n";
-        &check_pxe($pxe);
-        if (not defined $option){
-            $option="";
-            # ??? warning ???
-        }
-        if($Conf::log_level>=3){
-            print "   OPTION:  $option\n";
-        }
+        $pxe=&check_pxe($pxe);
+        $option=&check_option($option);
 
-        # do not use line, if $pxe==0
+        # do not use line, if $pxe==0 (Printer, Laptop, ...)
         if ($pxe eq 0){
             if($Conf::log_level>=2){
                 print "   * Skipping entry (pxe=0, no accounts needed!)\n";
@@ -523,6 +518,14 @@ sub analyze_line {
         }
 
         # line is correct
+        my $line_correct=$room.";".$host.";".$hwk.";".$mac.";".
+                         $ip.";".$netmask.";".
+                         $part1.";".$part2.";".$part3.";".$part4.";".
+                         $pxe.";".$option.";";
+        if($Conf::log_level>=2){
+            print "$line_correct\n";
+        }
+        $hosts_lines{$host}=$line_correct;
         # check examaccount
         if (not exists $examaccounts_system{$host}){
             # nonexisting --> add account
@@ -552,63 +555,66 @@ sub analyze_line {
 
 
 sub check_room {
-    my ($string) = @_;
+    my ($room) = @_;
     if($Conf::log_level>=3){
-        print "   ROOM:    $string\n";
+        print "   ROOM:    $room\n";
     }
-    if ( $string=~/[^A-Za-z0-9\-]/ ) {
-        print "\nERROR: $string contains invalid characters\n\n";
+    if ( $room=~/[^A-Za-z0-9\-]/ ) {
+        print "\nERROR: $room contains invalid characters\n\n";
         exit 1;
     } else {
 
     }
+    return $room;
 }
 
 
 
 sub check_host {
-    my ($string) = @_;
+    my ($host) = @_;
     if($Conf::log_level>=3){
-        print "   HOST:    $string\n";
+        print "   HOST:    $host\n";
     }
-    if ( $string=~/[^A-Za-z0-9\-]/ ) {
-        print "\nERROR: $string contains invalid characters\n\n";
+    if ( $host=~/[^A-Za-z0-9\-]/ ) {
+        print "\nERROR: $host contains invalid characters\n\n";
         exit 1;
     } else {
         # correct
-        if (exists $host_seen{$string}){
-            print "\nERROR: HOST $string is double!\n\n";
+        if (exists $host_seen{$host}){
+            print "\nERROR: HOST $host is double!\n\n";
             exit 1;
         } else {
-            $host_seen{$string}="seen";
+            $host_seen{$host}="seen";
         }
     }
+    return $host;
 }
 
 
 
 sub check_hwk {
     # ist - erlaubt?
-    my ($string) = @_;
+    my ($hwk) = @_;
     if($Conf::log_level>=3){
-        print "   HWK:     $string\n";
+        print "   HWK:     $hwk\n";
     }
-    if ( $string=~/[^A-Za-z0-9]/ ) {
-        print "\nERROR: $string contains invalid characters\n\n";
+    if ( $hwk=~/[^A-Za-z0-9]/ ) {
+        print "\nERROR: $hwk contains invalid characters\n\n";
         exit 1;
     } else {
 
     }
+    return $hwk;
 }
 
 
 
 sub check_mac {
-    my ($string) = @_;
+    my ($old_mac) = @_;
     if($Conf::log_level>=3){
-       print "   MAC:     $string\n";
+       print "   MAC:     $old_mac\n";
     }
-    my $mac = Net::MAC->new('mac' => $string , base => 16); 
+    my $mac = Net::MAC->new('mac' => $old_mac , base => 16); 
     my $new_mac = $mac->convert(
           'base'      => 16,   # convert to base 16, if necessary
           'bit_group' => 8,    # 16 bit grouping
@@ -618,43 +624,44 @@ sub check_mac {
     # should die when mac is wrong
 
     # correct
-    if (exists $mac_seen{$string}){
-        print "\nERROR: MAC $string is double!\n\n";
+    if (exists $mac_seen{$new_mac}){
+        print "\nERROR: MAC $new_mac is double!\n\n";
         exit 1;
     } else {
-        $mac_seen{$string}="seen";
+        $mac_seen{$new_mac}="seen";
     }
     if($Conf::log_level>=3){
-        print "      OLD: $mac\n";
+        print "      OLD: $old_mac\n";
         print "      NEW: $new_mac\n";
     }
+    return $new_mac;
 }
 
 
 
 sub check_ip {
-    my ($string) = @_;
+    my ($ip) = @_;
     if($Conf::log_level>=3){
-        print "   IP:      $string";
+        print "   IP:      $ip";
     }
     # check for 3 .
-    my $dots_in_string=$string=~tr/\.//;
+    my $dots_in_string=$ip=~tr/\.//;
     if($Conf::log_level>=3){
         print " ($dots_in_string dots)\n";
     }
     if ($dots_in_string!=3){
-        print "\nERROR: ->$string<- does not contain 3 dots\n\n";
+        print "\nERROR: ->$ip<- does not contain 3 dots\n\n";
         exit 1;        
     }
     
     # check for correct octets    
-    my @octets = split(/\./,$string);
+    my @octets = split(/\./,$ip);
     foreach my $octet (@octets){
         if($Conf::log_level>=3){
             print "      Octet:    $octet\n";
         }
         if ( int($octet) < 1 or int($octet) > 255) {
-            print "\nERROR: ->$string<- is invalid Option in ip octet\n\n";
+            print "\nERROR: ->$ip<- is invalid Option in ip octet\n\n";
             exit 1;
         } else {
 
@@ -662,59 +669,77 @@ sub check_ip {
     }
 
     # check for double ip
-    if (exists $ip_seen{$string}){
-        print "\nERROR: IP $string is double!\n\n";
+    if (exists $ip_seen{$ip}){
+        print "\nERROR: IP $ip is double!\n\n";
         exit 1;
     } else {
-        $ip_seen{$string}="seen";
+        $ip_seen{$ip}="seen";
     }
+    return $ip;
 }
 
 
 
 sub check_netmask {
-    my ($string) = @_;
+    my ($netmask) = @_;
     if($Conf::log_level>=3){
-        print "   NETMASK: $string";
+        print "   NETMASK: $netmask";
     }
     # check for 3 .
-    my $dots_in_string=$string=~tr/\.//;
+    my $dots_in_string=$netmask=~tr/\.//;
     if($Conf::log_level>=3){
         print " ($dots_in_string dots)\n";
     }
     if ($dots_in_string!=3){
-        print "\nERROR: ->$string<- does not contain 3 dots\n\n";
+        print "\nERROR: ->$netmask<- does not contain 3 dots\n\n";
         exit 1;        
     }
 
-    my @octets = split(/\./,$string);
+    my @octets = split(/\./,$netmask);
     foreach my $octet (@octets){
         if($Conf::log_level>=3){
             print "      Octet:    $octet\n";
         }
         if ( int($octet) < 0 or int($octet) > 255) {
-            print "\nERROR: ->$string<- is invalid Option in netmask\n\n";
+            print "\nERROR: ->$netmask<- is invalid Option in netmask\n\n";
             exit 1;
         } else {
 
         }
     }
+    return $netmask;
 }
 
 
 
 sub check_pxe {
     # ist - erlaubt?
-    my ($string) = @_;
+    my ($pxe) = @_;
     if($Conf::log_level>=3){
-        print "   PXE:     $string\n";
+        print "   PXE:     $pxe\n";
     }
-    if ( not exists $pxe{$string} ) {
-        print "\nERROR: ->$string<- is invalid Option in pxe field\n\n";
+    if ( not exists $pxe{$pxe} ) {
+        print "\nERROR: ->$pxe<- is invalid Option in pxe field\n\n";
         exit 1;
     } else {
 
     }
+    return $pxe;
+}
+
+
+
+sub check_option {
+    # ist - erlaubt?
+    my ($option) = @_;
+    if (not defined $option){
+        $option="";
+        # ??? warning ???
+    }
+    if($Conf::log_level>=3){
+        print "   OPTION:     $option\n";
+    }
+    return $option;
 }
 
 
