@@ -491,6 +491,8 @@ foreach my $com (@adding_computer){
     print "Adding computer $u_comp\n";
     system("/usr/sbin/sophomorix-useradd --computer $u_comp");
     system("/usr/sbin/sophomorix-passwd --force -u $u_comp");
+    # oder
+    #system("/usr/sbin/sophomorix-passwd --force -u $u_comp --pass 12345678");
 }
 
 
