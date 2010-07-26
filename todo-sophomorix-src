@@ -11,14 +11,6 @@ Todo:
 - sophomorix-workstation -> Schnittstelle zu import-workstation
 - sophomorix-virusscan
 
-Passwordupdate mit Schulkonsole:
-
-/usr/sbin/sophomorix-passwd --nofirstpassupdate --user wie --pass xxxxxx
-
-windows-schuko
-linux-schuko:
-   unknown error5 -> unzulaessiges Zeichen im Password
-
 
 
 
@@ -104,10 +96,6 @@ Flushing nscd cache
 check if logrotate works for sophomorix-virusscan:
 Logfile:       /var/log/clamav/sophomorix-virusscan.log
 Clamav:        /var/log/clamav/sophomorix-virusscan.clamav.log
-
-# sophomorix-workstation
-find out what accounts to sync next
-return value for: nothing to do ???
 
 
 sophomorix.conf convertieren nach utf8. script das sophomorix.conf neu schreibt
@@ -342,13 +330,7 @@ psql -l -U ldap
 -> neuinstallation utf8
 
 
-sophomorix-workstation
-- --print: Ausdruck erzeugen (incl. Kommentare)
-- --info: welche workstation gibts, was kommt hinzu
-- accounts checken, fehlende anlegen, nicht mehr gebrauchte entfernen
-- password auf 12345678 setzen
 
-weiter: workstations lesen und analysieren
 
 
 ############################################################
@@ -1403,6 +1385,11 @@ perl debugger mit history:
 
 aptitude install libterm-readline-perl-perl
 
+
+Perl Debugger:
+   Variable ausgeben: p $var
+   Hash ausgeben:  p x\%hash
+   Liste ausgeben:  p x\@list
 
 
 sophomorix-mediawiki in ein eigenes paket packen
