@@ -6,9 +6,31 @@
 # jeffbeck@web.de  or  jeffbeck@gmx.de
 
 
+
+# ist - erlaubt in HWK,hostname,raum ???
+
+
+# ??? valid pxe options ???
+# ??? pxe==0, no accounts ??? correct ??? 
+# option ml???
+# ??? netmask check ??? 
+# some check depend on other: 
+#   double ip can only be checked if ip is correct
+
+# mac:  all macs converted to lowercase. 
+# should this be uppercase?
+
+
 # import_workstation does:
-### always ????
+### always for every workstation in the system????
+### move this to an option ???
 # /usr/sbin/sophomorix-passwd --force -u la00p92$ --pass xxxxxx
+
+
+
+
+
+
 #
 ### adding examaccount
 # /usr/sbin/sophomorix-useradd --examaccount bz-eeepc --unix-group la00
@@ -20,19 +42,16 @@
 # /usr/sbin/sophomorix-passwd --force -u bz-eeepc$ 
 #
 ### killing examaccount
-#
+# /usr/sbin/sophomorix-kill --killuser bz-eeepc
 #
 ### killing computer account
-#
+# /usr/sbin/sophomorix-kill --killuser bz-eeepc$
 #
 # printers do not have an examaccount and no computer accont
 # what to check for in /etc/linuxmuster/workstation?
 
-# ??? valid pxe options ???
-# ??? pxe==0, no accounts ??? correct ???
-# ??? netmask check ??? 
-# some check depend on other: 
-#   double ip can only be checked if ip is correct
+
+
 
 ## --print
 # add this to doku and man page:
@@ -310,7 +329,7 @@ my %rooms_system = %$ref_rooms;
 my %examaccounts_system = %$ref_examaccounts; 
 
 # /etc/linuxmuster/workstation
-my %hosts_lines=();
+my %hosts_file=();
 
 
 
@@ -375,6 +394,27 @@ print "... checking for syntax errors done.\n",
 # ===========================================================================
 # What will be done
 # ===========================================================================
+
+# examaccounts to kill
+while (my ($examaccount,$room) = each %examaccounts_system){
+    if (not exists $hosts_file{$examaccount}){
+        # host is not in file anymore
+        &push_kill_examaccount($examaccount);
+    }
+}
+
+# examaccounts to kill
+while (my ($computer,$room) = each %domcomputers_system){
+    if (not exists $hosts_file{$computer}){
+        # host is not in file anymore
+        &push_kill_computer($computer);
+    }
+}
+
+
+
+
+
 if ($check==1){
     print "\nExamaccounts that must be killed:\n";
     print "------------------------------------",
@@ -414,17 +454,16 @@ if ($check==1){
 print "\nKilling examaccounts:\n";
 print "------------------------------------",
       "------------------------------------\n";
-foreach my $ws (@killing_examaccount){
-    #print "KILL: $ws\n";
+foreach my $ex (@killing_examaccount){
+    system("/usr/sbin/sophomorix-kill --killuser $ex");
 }
 
 
 print "\nAdding examaccounts:\n";
 print "------------------------------------",
       "------------------------------------\n";
-foreach my $ws (@adding_examaccount){
-    #print "ADD: $ws\n";
-    my ($g,$u,@rest)=split(/;/,$ws);
+foreach my $ex (@adding_examaccount){
+    my ($g,$u,@rest)=split(/;/,$ex);
     print "Adding $u in group $g\n";
     system("/usr/sbin/sophomorix-useradd --examaccount $u --unix-group $g");
     system("/usr/sbin/sophomorix-passwd -u $u --pass linux");
@@ -435,16 +474,16 @@ foreach my $ws (@adding_examaccount){
 print "\nKilling computers:\n";
 print "------------------------------------",
       "------------------------------------\n";
-foreach my $ws (@killing_computer){
-    #print "KILL: $ws\n";
+foreach my $com (@killing_computer){
+    system("/usr/sbin/sophomorix-kill --killuser $com");
 }
 
 
 print "\nAdding computers:\n";
 print "------------------------------------",
       "------------------------------------\n";
-foreach my $ws (@adding_computer){
-    my ($g,$u,@rest)=split(/;/,$ws);
+foreach my $com (@adding_computer){
+    my ($g,$u,@rest)=split(/;/,$com);
     my $u_comp=$u."\$";
     print "Adding computer $u_comp\n";
     system("/usr/sbin/sophomorix-useradd --computer $u_comp");
@@ -515,18 +554,20 @@ sub analyze_line {
                          $part1.";".$part2.";".$part3.";".$part4.";".
                          $pxe.";".$option.";";
         if($Conf::log_level>=2){
-            print "$line_correct\n";
+            print "$line_correct\n\n";
         }
-        $hosts_lines{$host}=$line_correct;
+        $hosts_file{$host}=$line_correct;
+        my $computer=$host."\$";
+        $hosts_file{$computer}=$line_correct;
         # check examaccount
         if (not exists $examaccounts_system{$host}){
             # nonexisting --> add account
-            &push_add_examaccount($line);
+            &push_add_examaccount($line_correct);
         } else {
             if ($examaccounts_system{$host} ne $room){
                 # exists in wrong room ---> kill/add account
-                &push_kill_examaccount($line);
-                &push_add_examaccount($line);
+                &push_kill_examaccount($host);
+                &push_add_examaccount($line_correct);
             }
         } 
 
@@ -536,11 +577,6 @@ sub analyze_line {
             # nonexisting --> add account
             &push_add_computer($line);
         }
-
-
-
-
-
     }
 }
 
@@ -705,7 +741,6 @@ sub check_netmask {
 
 
 sub check_pxe {
-    # ist - erlaubt?
     my ($pxe) = @_;
     if($Conf::log_level>=3){
         print "   PXE:     $pxe\n";
@@ -722,7 +757,6 @@ sub check_pxe {
 
 
 sub check_option {
-    # ist - erlaubt?
     my ($option) = @_;
     if (not defined $option){
         $option="";
