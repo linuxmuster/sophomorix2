@@ -6,7 +6,23 @@
 # jeffbeck@web.de  or  jeffbeck@gmx.de
 
 
+# import_workstation does:
+###  
+# /usr/sbin/sophomorix-passwd --force -u la00p92$ --pass xxxxxx
+#
+# 
+# /usr/sbin/sophomorix-useradd --examaccount bz-eeepc --unix-group la00
+# /usr/sbin/sophomorix-passwd -u bz-eeepc --pass xxxxxx
+# /usr/sbin/sophomorix-quota -u bz-eeepc
+### computer account
+# /usr/sbin/sophomorix-useradd --computer bz-eeepc$
+# /usr/sbin/sophomorix-passwd --force -u bz-eeepc$ 
+
+# printers do not have an examaccount and no computer accont
+# what to check for in /etc/linuxmuster/workstation?
+
 # ??? valid pxe options ???
+# ??? pxe==0, no accounts ??? correct ???
 # ??? netmask check ??? 
 # some check depend on other: 
 #   double ip can only be checked if ip is correct
@@ -330,7 +346,8 @@ close(WORKSTATION);
 #return 0;
 # systax ERROR -> 1
 
-print "... checking for syntax errors done.\n";
+print "... checking for syntax errors done.\n",
+      "No errors found!\n";
 
 print "\nExamaccounts that must be added:\n";
 print "------------------------------------",
@@ -376,7 +393,9 @@ sub analyze_line {
     if (/^#/ or /^\s*$/){
         return 0;
     } else {
-        print "$line";
+        if($Conf::log_level>=2){
+            print "$line";
+        }
         chomp($line);
         my ($room,
             $host,
@@ -406,12 +425,19 @@ sub analyze_line {
             $option="";
             # ??? warning ???
         }
-        if($Conf::log_level>=2){
+        if($Conf::log_level>=3){
             print "   OPTION:  $option\n";
         }
 
-        # workstation is correct
+        # do not use line, if $pxe==0
+        if ($pxe==0){
+            if($Conf::log_level>=2){
+                print "   * Skipping entry (pxe=0, no accounts needed!)\n";
+            }
+            return;
+        }
 
+        # line is correct
         # check examaccount
         if (not exists $examaccounts_system{$host}){
             # nonexisting --> add account
@@ -442,7 +468,7 @@ sub analyze_line {
 
 sub check_room {
     my ($string) = @_;
-    if($Conf::log_level>=2){
+    if($Conf::log_level>=3){
         print "   ROOM:    $string\n";
     }
     if ( $string=~/[^A-Za-z0-9\-]/ ) {
@@ -457,7 +483,7 @@ sub check_room {
 
 sub check_host {
     my ($string) = @_;
-    if($Conf::log_level>=2){
+    if($Conf::log_level>=3){
         print "   HOST:    $string\n";
     }
     if ( $string=~/[^A-Za-z0-9\-]/ ) {
@@ -479,7 +505,7 @@ sub check_host {
 sub check_hwk {
     # ist - erlaubt?
     my ($string) = @_;
-    if($Conf::log_level>=2){
+    if($Conf::log_level>=3){
         print "   HWK:     $string\n";
     }
     if ( $string=~/[^A-Za-z0-9]/ ) {
@@ -494,7 +520,7 @@ sub check_hwk {
 
 sub check_mac {
     my ($string) = @_;
-    if($Conf::log_level>=2){
+    if($Conf::log_level>=3){
        print "   MAC:     $string\n";
     }
     my $mac = Net::MAC->new('mac' => $string , base => 16); 
@@ -513,7 +539,7 @@ sub check_mac {
     } else {
         $mac_seen{$string}="seen";
     }
-    if($Conf::log_level>=2){
+    if($Conf::log_level>=3){
         print "      OLD: $mac\n";
         print "      NEW: $new_mac\n";
     }
@@ -523,12 +549,12 @@ sub check_mac {
 
 sub check_ip {
     my ($string) = @_;
-    if($Conf::log_level>=2){
+    if($Conf::log_level>=3){
         print "   IP:      $string";
     }
     # check for 3 .
     my $dots_in_string=$string=~tr/\.//;
-    if($Conf::log_level>=2){
+    if($Conf::log_level>=3){
         print " ($dots_in_string dots)\n";
     }
     if ($dots_in_string!=3){
@@ -539,7 +565,7 @@ sub check_ip {
     # check for correct octets    
     my @octets = split(/\./,$string);
     foreach my $octet (@octets){
-        if($Conf::log_level>=2){
+        if($Conf::log_level>=3){
             print "      Octet:    $octet\n";
         }
         if ( int($octet) < 1 or int($octet) > 255) {
@@ -563,12 +589,12 @@ sub check_ip {
 
 sub check_netmask {
     my ($string) = @_;
-    if($Conf::log_level>=2){
+    if($Conf::log_level>=3){
         print "   NETMASK: $string";
     }
     # check for 3 .
     my $dots_in_string=$string=~tr/\.//;
-    if($Conf::log_level>=2){
+    if($Conf::log_level>=3){
         print " ($dots_in_string dots)\n";
     }
     if ($dots_in_string!=3){
@@ -578,7 +604,7 @@ sub check_netmask {
 
     my @octets = split(/\./,$string);
     foreach my $octet (@octets){
-        if($Conf::log_level>=2){
+        if($Conf::log_level>=3){
             print "      Octet:    $octet\n";
         }
         if ( int($octet) < 0 or int($octet) > 255) {
@@ -595,7 +621,7 @@ sub check_netmask {
 sub check_pxe {
     # ist - erlaubt?
     my ($string) = @_;
-    if($Conf::log_level>=2){
+    if($Conf::log_level>=3){
         print "   PXE:     $string\n";
     }
     if ( not exists $pxe{$string} ) {
