@@ -515,7 +515,7 @@ sub analyze_line {
         }
 
         # do not use line, if $pxe==0
-        if ($pxe==0){
+        if ($pxe eq 0){
             if($Conf::log_level>=2){
                 print "   * Skipping entry (pxe=0, no accounts needed!)\n";
             }
