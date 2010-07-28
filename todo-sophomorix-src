@@ -17,9 +17,7 @@ Todo:
 2.2.26: 
 
 1) welcher Befehl wird von der Schulkonsole abgesetzt beim Passwort ändern:
-   sophomorix-passwd --interactive --user user 
-   ??? korrekt ???
-
+   /usr/sbin/sophomorix-passwd --nofirstpassupdate --user wie --pass xyz
 
 2) sind die Zeichen in Passwörtern beim Ändern per Schulkonsole 
    eingeschränkt? 
@@ -55,7 +53,7 @@ GLOBIGNORE=/; rm -rf /home/teachers/ri/_bereitstellen/bereitstellen-Lehrer
 GLOBIGNORE=/; rm -rf /home/teachers/ri/_auszuteilen/auszuteilen-Lehrer
 GLOBIGNORE=/; rm -rf /home/teachers/ri/_eingesammelt/eingesammelt-Lehrer
 GLOBIGNORE=/; rm -rf /home/teachers/ri/__austeilen/austeilen-Lehrer
-group attic exists already (10214)
+qgroup attic exists already (10214)
 Replacing ldap group dn: cn=attic,ou=groups,dc=bszleo,dc=de
 chown: kann „/home/attic/ri/Desktop“ nicht derefenzieren: Datei oder Verzeichnis nicht gefunden
 chown: kann „/home/attic/ri/__dachboden/windows/public_html“ nicht derefenzieren: Datei oder Verzeichnis nicht gefunden
