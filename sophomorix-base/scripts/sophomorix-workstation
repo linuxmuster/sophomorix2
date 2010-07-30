@@ -7,32 +7,35 @@
 
 
 
-# ist - erlaubt in HWK,hostname,raum ???
+# ist -_ erlaubt in HWK???
 
 
-# ??? valid pxe options ???
-# ??? pxe==0, no accounts ??? correct ??? 
-# option ml???
-# ??? netmask check ??? 
-# some check depend on other: 
-#   double ip can only be checked if ip is correct
+# valid pxe options
+# pxe==0 -> no pxe, accounts nach field 7
+# pxe==alle anderen -> pxe, accounts nach field 7    (option ml)
+#
+# MAC:  all macs converted to uppercase. -> todo ?????? 
 
-# mac:  all macs converted to lowercase. 
-# should this be uppercase?
 
-# Drucker und laptops mit 0 als pxe option ohne computer$ computer ???
+# field 7, first bpbatch option
+# linbo server ip:  ip server, falls ip, normale ip falls integer
+
+# field 9:
+# permanently unused
+
+# field 10, last bpbatch option
+# 0         : device ohne account
+# all others: device mit account
+
+
 
 # import_workstation does:
 ### always for every workstation in the system????
-### move this to an option ???
+### move this to an option: yes,todo ???
 # /usr/sbin/sophomorix-passwd --force -u la00p92$ --pass xxxxxx
 
 ## additional:
 # remove workstation homes that have no matching account
-
-
-
-
 
 #
 ### adding examaccount
@@ -592,6 +595,7 @@ sub check_room {
     if($Conf::log_level>=3){
         print "   ROOM:    $room\n";
     }
+    # allow a-z0-9-_ lowercase
     if ( $room=~/[^A-Za-z0-9\-]/ ) {
         print "\nERROR: $room contains invalid characters\n\n";
         exit 1;
@@ -608,6 +612,7 @@ sub check_host {
     if($Conf::log_level>=3){
         print "   HOST:    $host\n";
     }
+    # allow a-z0-9-  , only lowercase
     if ( $host=~/[^A-Za-z0-9\-]/ ) {
         print "\nERROR: $host contains invalid characters\n\n";
         exit 1;
@@ -631,6 +636,7 @@ sub check_hwk {
     if($Conf::log_level>=3){
         print "   HWK:     $hwk\n";
     }
+    # allow A-Za-z0-9   
     if ( $hwk=~/[^A-Za-z0-9]/ ) {
         print "\nERROR: $hwk contains invalid characters\n\n";
         exit 1;
@@ -655,6 +661,8 @@ sub check_mac {
           'die'       => 1     # die if conversion fails
 	);
     # should die when mac is wrong
+
+    # convert to uppercase ??????????
 
     # correct
     if (exists $mac_seen{$new_mac}){
