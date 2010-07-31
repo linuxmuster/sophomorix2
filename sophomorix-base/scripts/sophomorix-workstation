@@ -7,21 +7,34 @@
 
 # ist -_ erlaubt in HWK???
 
+
+# tests
+
+# change hostname
+# change mac,hwk,ip,netmask
+# change room
+# change linbo server ip
+# change device type
+# change pxe option
+# change option
+
 # valid pxe options
-# pxe==0 -> no pxe, accounts nach field 7
-# pxe==alle anderen -> pxe, accounts nach field 7    (option ml)
+# pxe==0 -> no pxe, accounts nach field 10
+# pxe==alle anderen -> pxe, accounts nach field 10    (option ml)
 #
 
 # field 7, first bpbatch option
 # linbo server ip:  ip server, falls ip, normale ip falls integer
 
+# field 8:
+# unused
+
 # field 9:
-# permanently unused
+# permanently unused. sysadmin can use it
 
 # field 10, last bpbatch option
 # 0         : device ohne account
 # all others: device mit account
-
 
 
 # import_workstation does:
@@ -487,7 +500,7 @@ foreach my $com (@adding_computer){
     my $u_comp=$u."\$";
     print "Adding computer $u_comp\n";
     system("/usr/sbin/sophomorix-useradd --computer $u_comp");
-    system("/usr/sbin/sophomorix-passwd --force -u $u_comp");
+    system("/usr/sbin/sophomorix-passwd --force -u $u_comp --pass 12345678");
     # oder
     #system("/usr/sbin/sophomorix-passwd --force -u $u_comp --pass 12345678");
 }
@@ -522,7 +535,7 @@ sub analyze_line {
             $mac,
             $ip,
             $netmask,
-            $part1,
+            $linbo_server,
             $part2,
             $part3,
             $dev_type,
@@ -535,7 +548,8 @@ sub analyze_line {
         $mac=&check_mac($mac);
         $ip=&check_ip($ip);
         $netmask=&check_netmask($netmask);
-#        print "   PART 1:  $part1\n";
+        # linbo server can contain an integer as well
+        #$linbo_server=&check_ip($linbo_server);
 #        print "   PART 2:  $part2\n";
 #        print "   PART 3:  $part3\n";
         $dev_type=&check_dev_type($dev_type);
@@ -555,7 +569,7 @@ sub analyze_line {
         # line is correct
         my $line_correct=$room.";".$host.";".$hwk.";".$mac.";".
                          $ip.";".$netmask.";".
-                         $part1.";".$part2.";".$part3.";".$dev_type.";".
+                         $linbo_server.";".$part2.";".$part3.";".$dev_type.";".
                          $pxe.";".$option.";";
         if($Conf::log_level>=2){
             print "$line_correct\n\n";
@@ -579,7 +593,7 @@ sub analyze_line {
         my $host_computer = $host."\$";
         if (not exists $domcomputers_system{$host_computer} ){
             # nonexisting --> add account
-            &push_add_computer($line);
+            &push_add_computer($line_correct);
         }
     }
 }
@@ -754,8 +768,7 @@ sub check_netmask {
 sub check_dev_type {
     my ($dev_type) = @_;
     if($Conf::log_level>=3){
-        print "   DEVTYPE:     $dev_type\n";
-
+        print "   DEVICE TYPE:     $dev_type\n";
     }
     return $dev_type;
 }
