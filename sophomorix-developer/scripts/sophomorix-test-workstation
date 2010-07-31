@@ -117,8 +117,8 @@ my $ws_file="/etc/linuxmuster/workstations";
 
 my @ws_to_add=(
      "",
-     "A100;A100PC01;abc;00:11:22:33:44:01;10.10.1.1;255.240.0.0;1;1;1;1;22;;",
-     "A100;A100PC02;abc;00:11:22:33:44:02;10.10.1.2;255.240.0.0;1;1;1;1;22;;",
+     "a100;a100pc01;abc;00:11:22:33:44:01;10.10.1.1;255.240.0.0;1;1;1;1;22;;",
+     "a100;a100pc02;abc;00:11:22:33:44:02;10.10.1.2;255.240.0.0;1;1;1;1;22;;",
      "B10;B10PC01;HWK-2;00:11:22:33:44:03;10.10.2.1;255.240.0.0;1;1;1;1;0;;",
      "B10;B10PC02;HWK-2;00:11:22:33:44:04;10.10.2.2;255.240.0.0;1;1;1;1;0;;",
    );
@@ -138,14 +138,15 @@ foreach my $ws (@ws_to_add){
 
 
 %account = &fetch_single_account("uid='a100pc01'");
-&ok_account("gid", "A100");
-&ok_account("adminclass", "A100");
+%account_ldap=&fetch_ldap_account($account{'uid'});
+&ok_account("gid", "a100");
+&ok_account("adminclass", "a100");
 &ok_account("firstname", "Exam");
 &ok_account("surname", "Account");
 &ok_account("gecos", "ExamAccount");
-&ok_account("cn", "Exam Account");
-&ok_account("displayname", "Exam Account");
-&check_existence("/home/students/m4kb/$account{'uid'}");
+&ok_account("cn", "ExamAccount");
+&ok_account("displayname", "ExamAccount");
+&check_existence("/home/workstations/a100/$account{'uid'}");
 &ok_account("sambaacctflags","[UX]");
 
 
@@ -153,9 +154,9 @@ foreach my $ws (@ws_to_add){
 
 
 
-&remove_line("A100;A100PC01;abc;00:11:22:33:44:01;10.10.1.1;255.240.0.0;1;1;1;1;22;;",
+&remove_line("a100;a100pc01;abc;00:11:22:33:44:01;10.10.1.1;255.240.0.0;1;1;1;1;22;;",
              $ws_file);
-&remove_line("A100;A100PC02;abc;00:11:22:33:44:02;10.10.1.2;255.240.0.0;1;1;1;1;22;;",
+&remove_line("a100;a100pc02;abc;00:11:22:33:44:02;10.10.1.2;255.240.0.0;1;1;1;1;22;;",
              $ws_file);
 &remove_line("B10;B10PC01;HWK-2;00:11:22:33:44:03;10.10.2.1;255.240.0.0;1;1;1;1;0;;",
              $ws_file);
