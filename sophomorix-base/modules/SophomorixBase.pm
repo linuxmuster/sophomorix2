@@ -2063,12 +2063,13 @@ sub do_falls_nicht_testen {
 
 sub nscd_start {
     # start nscd
+    # reload samba
+    system("/etc/init.d/samba reload");
     if (-e $DevelConf::nscd_script){
         # fix: add /sbin to $PATH, because
         # sophomorix-teacher runs with different path
         system("OLDPATH=\$PATH;PATH=\$PATH:/sbin; $DevelConf::nscd_start; PATH=\$OLDPATH");
     }
-    #system("/etc/init.d/nscd status ");
 }
 
 
@@ -2080,7 +2081,6 @@ sub nscd_stop {
         # sophomorix-teacher runs with different path
         system("OLDPATH=\$PATH;PATH=\$PATH:/sbin; $DevelConf::nscd_stop; PATH=\$OLDPATH");
     }
-    #system("/etc/init.d/nscd status ");
 }
 
 sub nscd_flush_cache {
