@@ -393,10 +393,10 @@ foreach my $user (@users){
 
     if ($hide==1){
        print "  Setting password for user $user in ".
-             "$group ($type) to xxxxxxxx ...\n";
+             "$group ($type) to xxxxxxxx\n";
     } else {
        print "  Setting password for user $user in ".
-             "$group ($type) to $password ...\n";
+             "$group ($type) to $password\n";
     }
     # check for invalid characters
     &validate_password($password);
