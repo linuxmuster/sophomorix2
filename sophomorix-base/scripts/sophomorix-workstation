@@ -5,9 +5,6 @@
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
 
-# ist -_ erlaubt in HWK???
-
-
 # tests
 
 # change hostname
@@ -48,7 +45,8 @@
 #
 ### adding examaccount
 # /usr/sbin/sophomorix-useradd --examaccount bz-eeepc --unix-group la00
-# /usr/sbin/sophomorix-passwd -u bz-eeepc --pass xxxxxx
+# /usr/sbin/sophomorix-passwd -u bz-eeepc --pass xxxxxx (Zufallspasswort)
+# besser: /usr/sbin/sophomorix-passwd -u bz-eeepc --random --hide
 # /usr/sbin/sophomorix-quota -u bz-eeepc
 #
 ### adding computer account
@@ -402,7 +400,7 @@ close(WORKSTATION);
 # systax ERROR -> 1
 
 print "... checking for syntax errors done.\n",
-      "No errors found!\n";
+      "No syntax errors found!\n";
 
 # ===========================================================================
 # What will be done
@@ -479,7 +477,7 @@ foreach my $ex (@adding_examaccount){
     my ($g,$u,@rest)=split(/;/,$ex);
     print "Adding $u in group $g\n";
     system("/usr/sbin/sophomorix-useradd --examaccount $u --unix-group $g");
-    system("/usr/sbin/sophomorix-passwd -u $u --pass linux");
+    system("/usr/sbin/sophomorix-passwd -u $u --random --hide");
     system("/usr/sbin/sophomorix-quota -u $u");
 }
 
@@ -648,7 +646,7 @@ sub check_hwk {
         print "   HWK:     $hwk\n";
     }
     # allow A-Za-z0-9   
-    if ( $hwk=~/[^A-Za-z0-9]/ ) {
+    if ( $hwk=~/[^A-Za-z0-9\-_]/ ) {
         print "\nERROR: $hwk contains invalid characters\n\n";
         exit 1;
     } else {
