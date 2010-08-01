@@ -7,9 +7,11 @@
 
 
 
-# weiter:
+# weiter: Ausgaben nach devnull
+# accounts (computer,exam) genauer checken
+# zeile mit nichtanzulegendem account
 
-#Auswertung .add, .move, .kill
+
 
 
 # Bibliotheken
@@ -146,12 +148,24 @@ foreach my $ws (@ws_to_add){
 &ok_account("gecos", "ExamAccount");
 &ok_account("cn", "ExamAccount");
 &ok_account("displayname", "ExamAccount");
-&check_existence("/home/workstations/a100/$account{'uid'}");
+&check_existence("/home/workstations/a100/a100pc01");
 &ok_account("sambaacctflags","[UX]");
 
+# exam account
+&check_account_exists_id("a100pc01");
+&check_account_exists_id("a100pc02");
+&check_account_exists_id("b10pc01");
+&check_account_exists_id("b10pc02");
+
+# computer account
+&check_account_exists_id("a100pc01\$");
+&check_account_exists_id("a100pc02\$");
+&check_account_exists_id("b10pc01\$");
+&check_account_exists_id("b10pc02\$");
 
 
-
+#%account = &fetch_single_account("uid='a100pc03'");
+#%account_ldap=&fetch_ldap_account($account{'uid'});
 
 
 &remove_line("a100;a100pc01;abc;00:11:22:33:44:01;10.10.1.1;255.240.0.0;1;1;1;1;22;;",
@@ -175,6 +189,23 @@ foreach my $ws (@ws_to_add){
 
 # hosts should not exist anymore
 
+# exam account
+&check_account_nonexists_id("a100pc01");
+&check_account_nonexists_id("a100pc02");
+&check_account_nonexists_id("b10pc01");
+&check_account_nonexists_id("b10pc02");
+&check_nonexistence("/home/workstations/a100/a100pc01");
+&check_nonexistence("/home/workstations/a100/a100pc02");
+&check_nonexistence("/home/workstations/B10/b10pc01");
+&check_nonexistence("/home/workstations/B10/b10pc02");
+
+
+# computer account
+&check_account_nonexists_id("a100pc01\$");
+&check_account_nonexists_id("a100pc02\$");
+&check_account_nonexists_id("b10pc01\$");
+&check_account_nonexists_id("b10pc02\$");
+
 
 
 
@@ -186,7 +217,20 @@ foreach my $ws (@ws_to_add){
 
 
 
+sub check_account_exists_id {
+    my ($login) = @_;
+    my $result =system("id $login > /dev/null 2>&1");
+    is( $result,0, "Account $login exists (id shows account)");
+}
 
+
+sub check_account_nonexists_id {
+    my ($login) = @_;
+    my $command="id $login > /dev/null 2>&1";
+    #print "$command\n";
+    my $result =system($command);
+    is( $result,256, "Account $login is deleted (id shows nothing)");
+}
 
 
 
