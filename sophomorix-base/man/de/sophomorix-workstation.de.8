@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-WORKSTATION 8 "March 16, 2010"
+.TH SOPHOMORIX-WORKSTATION 8 "August 03, 2010"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -35,9 +35,20 @@ benützt die GNU command line syntax, mit langen Optionen, die mit zwei Bindestr
 Kurzübersicht über Optionen
 .TP
 .B -i, --info
-Bis jetzt ohne Funktion.
-
-Zeigt, welche Accounts existieren und welche angelegt/entfernt werden würden.
+Zeigt eine Auflistung im System vorhandener Räume und Rechner.
+.TP
+.B --full-check
+Prüft die Workstations-Datei in ALLEN Feldern nach Fehlern.
+.TP
+.B --sync-accounts
+Prüft die Workstations-Datei nur im Feld Hostname und Room. Löscht
+nicht mehr gebraucht Accounts und legt neue an. 
+.TP
+Wird so vom import_workstations aufgerufen.
+.TP
+.B --set-computer-passwords xx
+Setzt für jeden Account das Computer Passwort neu. Wird kein Passwort
+angegeben, wird das Computer Passwort auf 12345678 gesetzt.
 .TP
 .B --print
 Bis jetzt ohne Funktion.
