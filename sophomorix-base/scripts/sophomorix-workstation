@@ -5,17 +5,6 @@
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
 
-# --set-computer-passwd
-
-
-# change hostname
-# change mac,hwk,ip,netmask
-# change room
-# change linbo server ip
-# change device type
-# change pxe option
-# change option
-
 # valid pxe options
 # pxe==0 -> no pxe, accounts nach field 10
 # pxe==alle anderen -> pxe, accounts nach field 10    (option ml)
@@ -35,35 +24,9 @@
 # all others: device mit account
 
 
-# import_workstation does:
-### always for every workstation in the system????
-### move this to an option: yes,todo ???
-# /usr/sbin/sophomorix-passwd --force -u la00p92$ --pass xxxxxx
 
-## additional:
+## ???? additional:
 # remove workstation homes that have no matching account
-
-#
-### adding examaccount
-# /usr/sbin/sophomorix-useradd --examaccount bz-eeepc --unix-group la00
-# /usr/sbin/sophomorix-passwd -u bz-eeepc --pass xxxxxx (Zufallspasswort)
-# besser: /usr/sbin/sophomorix-passwd -u bz-eeepc --random --hide
-# /usr/sbin/sophomorix-quota -u bz-eeepc
-#
-### adding computer account
-# /usr/sbin/sophomorix-useradd --computer bz-eeepc$
-# /usr/sbin/sophomorix-passwd --force -u bz-eeepc$ 
-#
-### killing examaccount
-# /usr/sbin/sophomorix-kill --killuser bz-eeepc
-#
-### killing computer account
-# /usr/sbin/sophomorix-kill --killuser bz-eeepc$
-#
-# printers do not have an examaccount and no computer accont
-# what to check for in /etc/linuxmuster/workstation?
-
-
 
 
 ## --print
@@ -74,7 +37,7 @@
 #      # Das wird eine Überschrift     (1 #-Zeichen)
 #      ## Das bleibt unberücksichtigt  (2 #-Zeichen) 
 
-# Todo für ML 5.0
+# Todo für ML 6.0
 # oneside/twoside konfigurierbar
 # Unter 1 aufgeführte Variablen selber ermitteln
 # Text in lang-Datei auslagern
@@ -134,6 +97,8 @@ my $print=0;
 my $full_check=0;
 my $sync_accounts=0;
 my $pass="12345678";
+my $password="";
+my $set_computer_passwords=0;
 
 # ??? develconf ???
 my $workstation_conf="/etc/linuxmuster/workstations";
@@ -161,6 +126,8 @@ my $testopt=GetOptions(
        "p|print" => \$print,
        "full-check" => \$full_check,
        "sync-accounts" => \$sync_accounts,
+       "set-computer-passwords" => \$set_computer_passwords,
+       "password=s" => \$password,
           );
 
 
@@ -458,9 +425,10 @@ if ($full_check==1 and $sync_accounts==0){
 
     print "\nCheck finished. Nothing changed!\n";
     exit 0;
-} else {
+} elsif($sync_accounts==1) {
     print "\n Only checking hostname and room\n",
           "   Use option --full-check to check all fields!\n";
+} else {
 }
 
 
@@ -515,6 +483,28 @@ if ($sync_accounts==1){
 
 
 
+if ($set_computer_passwords==1){
+    print "Setting password for all Computer accounts:\n";
+    my ($ref_domcomputers,
+        $ref_rooms,
+        $ref_examaccounts) = &get_sys_workstations();
+    # system
+    my %domcomputers_system = %$ref_domcomputers;
+    my $count=1;
+    while (my ($comp,$v) = each %domcomputers_system){
+        my $pw;
+        if ($password ne ""){
+            # password by option
+            $pw=$password;
+        } else {
+            # default password
+            $pw=$pass;
+        }
+        print "\n*** $count: $comp  --> $pw\n";
+        system("/usr/sbin/sophomorix-passwd --force -u $comp --pass $pw");
+        $count++;
+    }
+}
 
 
 
