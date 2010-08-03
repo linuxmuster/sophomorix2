@@ -5,7 +5,8 @@
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
 
-# tests
+# --set-computer-passwd
+
 
 # change hostname
 # change mac,hwk,ip,netmask
@@ -130,11 +131,9 @@ $Conf::log_level=1;
 my $help=0;
 my $info=0;
 my $print=0;
-my $check=0;
-# temp ???
-my $i_know_what_i_do=0;
-
-
+my $full_check=0;
+my $sync_accounts=0;
+my $pass="12345678";
 
 # ??? develconf ???
 my $workstation_conf="/etc/linuxmuster/workstations";
@@ -160,8 +159,8 @@ my $testopt=GetOptions(
        "help|h" => \$help,
        "i|info" => \$info,
        "p|print" => \$print,
-       "check" => \$check,
-       "i-know-what-i-do" => \$i_know_what_i_do,
+       "full-check" => \$full_check,
+       "sync-accounts" => \$sync_accounts,
           );
 
 
@@ -169,14 +168,6 @@ my $testopt=GetOptions(
 &check_options($testopt);
 &check_connections();
 
-# ===========================================================================
-# --i-know-what-i-do
-# ===========================================================================
-if ($i_know_what_i_do==0) {
-    print "\nsophomorix-workstation is in alpha status\n";
-    print "If you know what you do, add the special option\n\n";
-    exit;
-}
 # ===========================================================================
 # --help
 # ===========================================================================
@@ -194,11 +185,20 @@ Options
   -i   /  --info
   -v   /  --verbose
   -vv  /  --verbose --verbose
-
+  --check             (check ALL fields of workstation file)
+  --sync-accounts     (add, delete accounts as necessary, 
+                       check only account data: hostname,room)
 Please see the sophomorix-workstation(8) man pages for full documentation
 ');
    print "\n";
-   exit;
+   exit 0;
+}
+
+
+if ($full_check==1 and $sync_accounts==1){
+    print "\nOptions --full-check and --sync-accounts ",
+          "cannot be used together\n\n";
+    exit 0;
 }
 
 
@@ -330,7 +330,7 @@ if ($print==1){
 # ===========================================================================
 # fetching data
 # ===========================================================================
-&titel("Asking the system for users ...");
+&titel("Asking the system for exam and computer accounts ...");
 
 my ($ref_domcomputers,$ref_rooms,$ref_examaccounts) = &get_sys_workstations();
 
@@ -360,7 +360,7 @@ if ($info==1){
     @rooms = sort @rooms;
 
     foreach my $room (@rooms){
-	print "$room\n";
+	print "ROOM: $room\n";
         # fetch and sort examaccounts
         my @examaccounts=();
         while (my ($account,$roomentry) = each %examaccounts_system){
@@ -371,9 +371,10 @@ if ($info==1){
         }
         @examaccounts = sort @examaccounts;
         foreach my $account (@examaccounts){
-            print "    $account\n";
+            print "    HOST: $account\n";
         }
     }
+    exit 0;
 }
 
 
@@ -400,7 +401,7 @@ close(WORKSTATION);
 # systax ERROR -> 1
 
 print "... checking for syntax errors done.\n",
-      "No syntax errors found!\n";
+      "No syntax errors in $workstation_conf!\n";
 
 # ===========================================================================
 # What will be done
@@ -426,7 +427,7 @@ while (my ($computer,$room) = each %domcomputers_system){
 
 
 
-if ($check==1){
+if ($full_check==1 and $sync_accounts==0){
     print "\nExamaccounts that must be killed:\n";
     print "------------------------------------",
           "------------------------------------\n"; 
@@ -457,52 +458,60 @@ if ($check==1){
 
     print "\nCheck finished. Nothing changed!\n";
     exit 0;
+} else {
+    print "\n Only checking hostname and room\n",
+          "   Use option --full-check to check all fields!\n";
 }
+
 
 # ===========================================================================
 # Modifying System
 # ===========================================================================
-print "\nKilling examaccounts:\n";
-print "------------------------------------",
-      "------------------------------------\n";
-foreach my $ex (@killing_examaccount){
-    system("/usr/sbin/sophomorix-kill --killuser $ex");
+
+if ($sync_accounts==1){
+    print "\nKilling examaccounts:\n";
+    print "------------------------------------",
+          "------------------------------------\n";
+    foreach my $exam_account (@killing_examaccount){
+        system("/usr/sbin/sophomorix-kill --killuser $exam_account");
+    }
+
+
+    print "\nAdding examaccounts:\n";
+    print "------------------------------------",
+          "------------------------------------\n";
+    foreach my $exam_account (@adding_examaccount){
+        my ($g,$u,@rest)=split(/;/,$exam_account);
+        print "Adding $u in group $g\n";
+        system("/usr/sbin/sophomorix-useradd --examaccount $u --unix-group $g");
+        system("/usr/sbin/sophomorix-passwd -u $u --random --hide");
+        system("/usr/sbin/sophomorix-quota -u $u");
+    }
+
+
+    print "\nKilling computers:\n";
+    print "------------------------------------",
+          "------------------------------------\n";
+    foreach my $computer (@killing_computer){
+        system("/usr/sbin/sophomorix-kill --killuser $computer");
+    }
+
+
+    print "\nAdding computers:\n";
+    print "------------------------------------",
+          "------------------------------------\n";
+    foreach my $computer (@adding_computer){
+        my ($g,$u,@rest)=split(/;/,$computer);
+        my $u_comp=$u."\$";
+        print "Adding computer $u_comp\n";
+        system("/usr/sbin/sophomorix-useradd --computer $u_comp");
+        system("/usr/sbin/sophomorix-passwd --force -u $u_comp --pass $pass");
+    }
+} else {
+    print "\nNot syncing accounts\n",
+          "   Use option --sync-accounts to do so!\n",
+          "   This is Beta!\n";
 }
-
-
-print "\nAdding examaccounts:\n";
-print "------------------------------------",
-      "------------------------------------\n";
-foreach my $ex (@adding_examaccount){
-    my ($g,$u,@rest)=split(/;/,$ex);
-    print "Adding $u in group $g\n";
-    system("/usr/sbin/sophomorix-useradd --examaccount $u --unix-group $g");
-    system("/usr/sbin/sophomorix-passwd -u $u --random --hide");
-    system("/usr/sbin/sophomorix-quota -u $u");
-}
-
-
-print "\nKilling computers:\n";
-print "------------------------------------",
-      "------------------------------------\n";
-foreach my $com (@killing_computer){
-    system("/usr/sbin/sophomorix-kill --killuser $com");
-}
-
-
-print "\nAdding computers:\n";
-print "------------------------------------",
-      "------------------------------------\n";
-foreach my $com (@adding_computer){
-    my ($g,$u,@rest)=split(/;/,$com);
-    my $u_comp=$u."\$";
-    print "Adding computer $u_comp\n";
-    system("/usr/sbin/sophomorix-useradd --computer $u_comp");
-    system("/usr/sbin/sophomorix-passwd --force -u $u_comp --pass 12345678");
-    # oder
-    #system("/usr/sbin/sophomorix-passwd --force -u $u_comp --pass 12345678");
-}
-
 
 
 
@@ -640,8 +649,10 @@ sub check_host {
 
 
 sub check_hwk {
-    # ist - erlaubt?
     my ($hwk) = @_;
+    if ($sync_accounts==1){
+        return $hwk;
+    }
     if($Conf::log_level>=3){
         print "   HWK:     $hwk\n";
     }
@@ -659,6 +670,9 @@ sub check_hwk {
 
 sub check_mac {
     my ($old_mac) = @_;
+    if ($sync_accounts==1){
+        return $old_mac;
+    }
     if($Conf::log_level>=3){
        print "   MAC:     $old_mac\n";
     }
@@ -692,6 +706,9 @@ sub check_mac {
 
 sub check_ip {
     my ($ip) = @_;
+    if ($sync_accounts==1){
+        return $ip;
+    }
     if($Conf::log_level>=3){
         print "   IP:      $ip";
     }
@@ -733,6 +750,9 @@ sub check_ip {
 
 sub check_netmask {
     my ($netmask) = @_;
+    if ($sync_accounts==1){
+        return $netmask;
+    }
     if($Conf::log_level>=3){
         print "   NETMASK: $netmask";
     }
@@ -765,6 +785,9 @@ sub check_netmask {
 
 sub check_dev_type {
     my ($dev_type) = @_;
+    if ($sync_accounts==1){
+        return $dev_type;
+    }
     if($Conf::log_level>=3){
         print "   DEVICE TYPE:     $dev_type\n";
     }
@@ -775,6 +798,9 @@ sub check_dev_type {
 
 sub check_pxe {
     my ($pxe) = @_;
+    if ($sync_accounts==1){
+        return $pxe;
+    }
     if($Conf::log_level>=3){
         print "   PXE:     $pxe\n";
     }
@@ -794,6 +820,9 @@ sub check_option {
     if (not defined $option){
         $option="";
         # ??? warning ???
+    }
+    if ($sync_accounts==1){
+        return $option;
     }
     if($Conf::log_level>=3){
         print "   OPTION:     $option\n";
