@@ -32,6 +32,16 @@ use IMAP::Admin;
 #&unlink_immutable_tree("/home/test",0);
 
 
+# create dotfiles in kaaccount
+
+#system("mkdir -p /home/workstations/134a/pc0003/.testdir");
+
+
+#system("touch /home/workstations/134a/pc0003/.testfile");
+#system("touch /home/workstations/134a/pc0003/testfile");
+
+#exit;
+
 
 ############################################################
 # The following modifies an entry in ldap
@@ -42,7 +52,8 @@ use IMAP::Admin;
 
 my $ldap=&auth_connect();
 
-my $login="hannes";
+#my $login="hostname\$";
+my $login="beckje";
 
 
 
@@ -51,7 +62,8 @@ my $login="hannes";
 #    - create ldap account (if ldap account exists) OR 
 #    - update ldap account (if ldap account does not exist)
 
-&update_auth_ldap($ldap,$login);
+#&update_user_ldap($ldap,$login);
+&update_user_ldap($ldap,$login);
 
 # deleting the user $login
 # make better
@@ -61,10 +73,13 @@ my $login="hannes";
 
 &auth_disconnect($ldap);
 
+exit;
 
 ############################################################
 # sub
 ############################################################
+
+
 
 
 sub update_auth_ldap {
@@ -106,7 +121,7 @@ sub update_auth_ldap {
     my $sn=$surname;
     my $givenname=$surname;
     my @objectclass=("inetOrgPerson","posixAccount","shadowAccount",
-                     "top","sambaSamAccount");
+                     "top","sambaSamAccount","sophomorixData");
     my $homedirectory=$home;
     my $displayname=$gecos;
     my $description=$gecos;
