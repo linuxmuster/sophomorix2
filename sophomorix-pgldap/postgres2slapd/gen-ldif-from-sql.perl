@@ -70,6 +70,8 @@ foreach my $line (@accountsfile) {
   print "objectClass: inetOrgPerson\n";
   print "objectClass: posixAccount\n";
   print "objectClass: shadowAccount\n";
+# does not work
+#  print "objectClass: sophomorixData\n";
   print "objectClass: top\n";
   if ($accountsspalte1[1] !~ /^\s*$/) { print "objectClass: sambaSamAccount\n"; };
   

@@ -7,6 +7,16 @@ Funktion in perl zum synchronisieren des accounts tut
 slapcat tut,
 aber nicht mit slapadd einlesbar
 
+Umsetzung:
+1. sophomorix.schmema
+2. in sub update_user_ldap in SophomorixPgLdap.pm:
+   my @objectclass= ... Sophomorix dazu
+3. Beim add(ungetestet),modify(getestet) für jedes Feld hinzu
+        sophomorixstatus             => $status,
+        (vorher status holen)
+4. beim dump ldif auch die entsprechenden Einträge erzeugen (tut noch nicht) 
+
+
 
 
 
