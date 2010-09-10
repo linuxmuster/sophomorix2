@@ -18,6 +18,25 @@ Umsetzung:
 
 
 
+Bugfix: Wenn ein user ln posgres/ldap gelöscht wird, bleibt in horde seine 
+settings zurück.
+
+Kommt nach dem Löschen erneut ein user mit demselben loginnamen,
+so hat er dessen Einstellungen.
+
+Um den user auch in horde zu entfernen sollte in der datenbank horde 
+folgender Befehl abgesetzt werden:
+
+DELETE from horde_prefs where pref_uid="wag";
+
+oder besser das horde application framework benutzt werden, um einen
+user komplett zu löschen.
+
+
+
+
+
+
 
 
 
