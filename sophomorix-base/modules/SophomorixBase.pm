@@ -861,7 +861,7 @@ sub get_old_info {
 
    if($Conf::log_level>=1){
       print "I use the following old files:\n";
-      print "   user.db:          $protocol\n";
+      print "   user_db:          $protocol\n";
       print "   teach-in.txt:     $teach_in\n";
       print "   passwd:           $passwd\n";
       print "   group:            $group\n";
@@ -961,7 +961,7 @@ sub get_old_info {
    # save system identifier an their login in the system
    # for later use
    my $sysid_login=();
-   open(PROTOCOL, "<$protocol") || die "Fehler: $!";
+   open(PROTOCOL, "<$protocol") || die "Fehler: $! $protocol";
    while(<PROTOCOL>){
        chomp($_);
       my ($sys_admin_class, $sys_gecos,$sys_login, 
@@ -1023,7 +1023,7 @@ sub get_old_info {
    close(PROTOCOL);
 
    # creating groupname -> unix-gid hash
-   open(GROUP, "<$group") || die "Fehler: $!";
+   open(GROUP, "<$group") || die "Fehler: $! $group";
    &titel("Extracting data from old group ...");
    while(<GROUP>){
        chomp($_);

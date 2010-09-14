@@ -1696,8 +1696,11 @@ sub create_database {
     my $file_admin = ${DevelConf::sql_create_path}."sophomorix-admin.sql";
     my $file_lang = ${DevelConf::sql_create_path}."sophomorix-lang.sql";
     my $file_db = ${DevelConf::sql_create_path}."sophomorix.sql";
+    print "Loading $file_admin\n";
     system("$psql -p ${DevelConf::sql_port} -U postgres template1 < $file_admin");
+    print "Loading $file_lang\n";
     system("$psql -p ${DevelConf::sql_port} -U postgres ldap < $file_lang");
+    print "Loading $file_db\n";
     system("$psql -p ${DevelConf::sql_port} -U ldap ldap < $file_db");
 }
 
