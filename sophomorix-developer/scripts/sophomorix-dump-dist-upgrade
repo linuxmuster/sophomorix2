@@ -1,0 +1,118 @@
+#!/usr/bin/perl -w
+# This script (sophomorix-minitest) is maintained by Rüdiger Beck
+# It is Free Software (License GPLv3)
+# If you find errors, contact the author
+# jeffbeck@web.de  or  jeffbeck@gmx.de
+
+# Dieses Script ist NICHT im Paket sophomorix-developer enthalten
+
+
+
+# Bibliotheken
+use strict;
+use Getopt::Long;
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
+use Sophomorix::SophomorixPgLdap;
+use Sophomorix::SophomorixTest;
+use Test::More "no_plan";
+Getopt::Long::Configure ("bundling");
+
+use DBI;
+use Crypt::SmbHash;
+use Net::LDAP;
+use IMAP::Admin;
+
+
+my $dump_dir="/var/log/sophomorix/dist-upgrade";
+system("mkdir -p $dump_dir");
+
+print "dumping Data before dist-upgrade/new installation\n";
+
+
+# users:
+# login:x:uid:gid:gecos:home:shell
+my $passwd_dump="${dump_dir}/passwd";
+print "   * getent passwd --> $passwd_dump\n";
+system("getent passwd > $passwd_dump");
+my $result=`cat $passwd_dump | wc -l `;
+chomp $result;
+print "   * $result Lines dumped\n";
+
+# passwords uid:erstpassword:enc_password
+
+
+
+# group:
+# group:*:gid:uid1,uid2
+
+my $group_dump="${dump_dir}/group";
+print "   * getent group --> $group_dump\n";
+system("getent group > $group_dump");
+$result=`cat $group_dump | wc -l `;
+chomp $result;
+print "   * $result Lines dumped\n";
+
+
+# projects
+my $project_dump="${dump_dir}/sophomorix_projects";
+print "   * sophomorix-project --dump --> $project_dump\n";
+system("sophomorix-project --dump $project_dump");
+$result=`cat $project_dump | wc -l `;
+chomp $result;
+print "   * $result Lines dumped\n";
+
+
+# passwords, user_db
+open(PWD, ">${dump_dir}/sophomorix_passwords");
+open(USERDB, ">${dump_dir}/user_db");
+
+my $dbh=&db_connect();
+    my $sth= $dbh->prepare("SELECT uid,
+                                   userpassword,
+                                   firstpassword,
+                                   gecos,
+                                   adminclass,
+                                   birthday,
+                                   homedirectory 
+                              FROM userdata"
+                          );
+$sth->execute();
+my $array_ref = $sth->fetchall_arrayref();
+foreach my $row (@$array_ref){
+    my ($uid,$enc_pass,$first_pass,
+        $gecos,$adminclass,$birthday_pg,$home)=@$row;
+
+    if ($home=~/^$DevelConf::homedir_pupil\// or
+        $adminclass  eq ${DevelConf::teacher}){
+        my $birthday = &date_pg2perl($birthday_pg);
+        print PWD "$uid".":".$enc_pass.":".$first_pass.":\n";
+        print USERDB $adminclass.";".
+                     $gecos.";".
+                     $uid.";".
+                     $first_pass.";".
+                     $birthday.";\n";
+    }
+}
+
+&db_disconnect($dbh);
+
+
+
+my $teach_in_dummy_dump="${dump_dir}/teach-in.txt";
+system("touch $teach_in_dummy_dump");
+
+
+
+close(PWD);
+close(USERDB);
+exit;
+
+
+
+############################################################
+# sub
+############################################################
+
+
