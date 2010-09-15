@@ -3266,8 +3266,8 @@ sub generate_add_file {
   	    my $identifier_capital=$identifier;
 
             # only in 2.x ???
-            $identifier=~tr/A-Z/a-z/;
-            $identifier=~s/-//g;
+         #   $identifier=~tr/A-Z/a-z/;
+         #   $identifier=~s/-//g;
 
 	    print "Looking for $identifier \n";
             if (exists $new_id_old_id{$identifier}){
