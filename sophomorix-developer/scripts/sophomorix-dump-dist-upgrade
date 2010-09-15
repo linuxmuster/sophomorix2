@@ -75,19 +75,25 @@ my $dbh=&db_connect();
                                    gecos,
                                    adminclass,
                                    birthday,
-                                   homedirectory 
+                                   homedirectory,
+                                   sambalmpassword,
+                                   sambantpassword
                               FROM userdata"
                           );
 $sth->execute();
 my $array_ref = $sth->fetchall_arrayref();
 foreach my $row (@$array_ref){
-    my ($uid,$enc_pass,$first_pass,
-        $gecos,$adminclass,$birthday_pg,$home)=@$row;
+    my ($uid,$linux_pass,$first_pass,
+        $gecos,$adminclass,$birthday_pg,$home,$smb_lm,$smb_nt)=@$row;
 
     if ($home=~/^$DevelConf::homedir_pupil\// or
         $adminclass  eq ${DevelConf::teacher}){
         my $birthday = &date_pg2perl($birthday_pg);
-        print PWD "$uid".":".$enc_pass.":".$first_pass.":\n";
+        print PWD $uid.":".
+                  $linux_pass.":".
+                  $smb_lm.":".
+                  $smb_nt.":".
+                  $first_pass.":\n";
         print USERDB $adminclass.";".
                      $gecos.";".
                      $uid.";".
