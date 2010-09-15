@@ -1466,7 +1466,24 @@ sub create_user_db_entry {
        $id_force,
        $homedir_force,
        $gecos_force,
-       $type) = @_;
+       $type,
+       $gid_force) = @_;
+
+    # begin neu
+    # gid_force ist neu,
+    # und weiter unten ca. Zeile 1669
+    if (not defined $gid_force){
+       # ok
+    } elsif ($gid_force eq "---"){
+        $gid_force=undef;
+    }
+    if (not defined $id_force){
+       # ok
+    } elsif ($id_force eq "---"){
+        $id_force=undef;
+    }
+
+    # ende neu
 
     my $gidnumber;
     my $uidnumber_auth;
@@ -1649,7 +1666,7 @@ sub create_user_db_entry {
               $gidnumber=&create_class_db_entry($admin_class,7);
 	  } else {
               # neue gruppe anlegen und gidnumber holen, falls erforderlich
-              $gidnumber=&create_class_db_entry($admin_class);
+              $gidnumber=&create_class_db_entry($admin_class,undef,$gid_force);
           }
        }
 

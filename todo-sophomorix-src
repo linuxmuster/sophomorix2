@@ -1,5 +1,112 @@
 Todo:
 
+Test1:
+
+0) emacs cvs instalieren, siehe
+   http://lml.support-netz.de/trac/blog/Etch-Repos_verschoben
+
+
+1)  neues script dazukopieren und ausführen
+    # sophomorix-dump-dist-upgrade
+
+lenny64:/mnt/cvs-adler/sophomorix2# ls -l /var/log/sophomorix/dist-upgrade/
+insgesamt 116
+-rw-r--r-- 1 root root 15624 14. Sep 18:18 group
+-rw-r--r-- 1 root root 84909 14. Sep 18:18 passwd
+-rw-r--r-- 1 root root  3223 14. Sep 18:18 sophomorix_passwords
+-rw-r--r-- 1 root root  2207 14. Sep 18:18 sophomorix_projects
+-rw-r--r-- 1 root root     0 14. Sep 18:18 teach-in.txt
+-rw-r--r-- 1 root root  1535 14. Sep 18:18 user_db
+
+2) # sophomorix-setup-pgldap --new-database
+   -> neue leere Datenbank
+
+
+3) !!! 2 Zeilen in sophomorix-check auskommentieren ca. Zeile 3268
+
+            # only in 2.x ???
+         #   $identifier=~tr/A-Z/a-z/;
+         #   $identifier=~s/-//g;
+
+   sophomorix-check --get-info-from-old-files /var/log/sophomorix/dist-upgrade --no-auto-teach-in --use-uid --use-gid 
+
+4) Anzulegende user testen:
+
+   !!! Zeilen modifizieren in sophomorix-add
+                         $pg_timestamp,   # zeile 407 
+                         "",
+                         $wunsch_id,
+                         undef,
+                         undef,
+                         undef,
+                         $wunsch_gid
+                        );
+
+
+
+
+   Einige zeilen in SophomorixPgldap.pm ersetzen 
+   (von begin neu (1472) bis ende neu sowie 2 Zeilen darüber und Zeile 1669)
+
+
+
+   # sophomorix-add -i
+   !!!Achtung user, ohne id,gid entfernen aus sophomorix.add
+   (später Option dafür machen in sophomorix-add)
+   # sophomorix-add
+
+   evtl find, siehe unten
+
+5) Projects wieder einspielen -> sollte tun
+
+   sophomorix-project --create-from-file /var/log/sophomorix/dist-upgrade/sophomorix_projects
+
+!!!!!!!!!!!!!!!!!! die gid sus der datei wird nicht benutzt
+
+Idee: Die Datenbank auf die für das Projekt nötige gid stellen:
+  1) UPDATE posix_account set gidnumber=10015 WHERE uid='NextFreeUnixId';
+  2) projekt anlegen für diese gid: sophomorix-project --create -p p_name
+  3) 1,2 wiederholen für alle projekte
+
+
+6) Passwörter
+   A) Update nur in postgres
+      # sophomorix-passwords-into-pgldap
+   B) weitergeben nach ldap:   
+      # sophomorix-dump-pg2ldap 
+
+7) import_workstations
+   Suche die Größte uid und gid:
+   select uid,uidnumber,gidnumber from posix_account WHERE uid='NextFreeUnixId';
+   --> 10051 10005
+
+   Welches ist die größte uidnumber? 11785
+   select uid,uidnumber,gidnumber from posix_account ORDER BY uidnumber; 
+   Welches ist die größte gidnumber? 10014
+   select uid,uidnumber,gidnumber from posix_account ORDER BY gidnumber; 
+
+NextFreeUnixId eins darüber setzen:
+  UPDATE posix_account set uidnumber=11786 WHERE uid='NextFreeUnixId';
+  UPDATE posix_account set gidnumber=10015 WHERE uid='NextFreeUnixId';
+
+-> tut auch für import_workstations
+
+Cleanup:
+find nach Dateien, die keinem user gehören
+
+find /home -nouser -printf "%u %g %p\n"
+find /home -nogroup -printf "%u %g %p\n"
+
+
+
+
+Problem: import workstations 
+  (sophomorix-workstation) sollte auch mit der bisherigen id anlegen.
+  oder alte accounts löschen und neue anlegen (--recreate-accounts)
+
+
+
+
 1. Postgres Datenbank sichern
 
 2. sophomorix-setup-pgldap --new-database
@@ -11,12 +118,19 @@ Schule Ludwigsburg:
   - zuerst mit Datei schueler.txt VOR den Problemen 
   - dann mit aktueller Schülerdatei
   - Alle Passwörter ändern sich (könnten aber evtl gedumped werden)
-
+  - Externes Moodle
 
 Daten, die verloren gehen:
   - Lehrer, die sich in Klassen eingetragen haben
   - Projekte?
   - Passwörter?
+  - user im attic fallen weg (Daten müssen manuell gelöscht werden)
+    getent passwd | grep attic (wie findet man disabled user, die nicht in ?)
+  ldap=> select uid,surname,firstname,sophomorixstatus from userdata WHERE sophomorixstatus='T' or sophomorixstatus='R' or sophomorixstatus='K';
+  - Einstellungen in Klassen (sophomorix-class -i)
+  - Klassentauschverzeichnisse von nicht mehr existierenden Klassen 
+    gehören keinem gruppenowner mehr -> löschen
+
 
 
 
