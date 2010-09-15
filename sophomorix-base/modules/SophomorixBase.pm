@@ -886,7 +886,7 @@ sub get_old_info {
    my ($gname,$gpass,$group_gid);
    my ($identifier_sys,$identifier_admin);
    print "Teach-in: $teach_in\n";
-   open(TEACHINDATEN,"$teach_in") || die "Fehler: $!";
+   open(TEACHINDATEN,"$teach_in") || die "Fehler: $! $teach_in";
    &titel("Extracting data from old teach-in.txt ...");
    while(<TEACHINDATEN>){
       chomp();

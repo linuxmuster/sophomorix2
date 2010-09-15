@@ -136,7 +136,7 @@ if ($info==1) {
    # Ausgabe der Anlegbaren user
    print "\nThe following users can be added:\n";
    print "(Fields with --- are automatically created by sophomorix-add):\n\n";
-   printf "%-11s%-29s%-10s%-6s%-4s%-10s%-10s\n",
+   printf "%-11s%-29s%-10s%-6s%-6s%-10s%-10s\n",
           "AdminClass",
           "Identifier",
           "login",
@@ -181,7 +181,7 @@ if ($info==1) {
        $unid)=split("::",$line);
 
        my $identifier_cut=substr($identifier,0,28);
-       printf "%-11s%-29s%-10s%-6s%-4s%-10s%-10s\n",
+       printf "%-11s%-29s%-10s%-6s%-6s%-10s%-10s\n",
               "$new_admin_group",
               "$identifier_cut",
               "$wunsch_login",
@@ -404,7 +404,13 @@ while(<SOPHOMORIXADD>){
                          "",
                          $unid,
                          $epoche_jetzt,
-                         $pg_timestamp
+                         $pg_timestamp,
+                         "",
+                         $wunsch_id,
+                         undef,
+                         undef,
+                         undef,
+                         $wunsch_gid
                         );
 
   # 2. Add the class (db and dirs,links, ...)
