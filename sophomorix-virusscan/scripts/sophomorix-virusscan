@@ -8,6 +8,9 @@
 # auf majestix werden alle viren als root.root in quarantine kopiert
 
 # todo:
+
+# when reading excludes.conf, make sure that --exclude or --exclude-dir is prepended
+
 # make sure sophomorix-check runs, when virusscan is runnung ???
 # logrotate fuer logfiles (Paket)
 # welche virus-Datei gehört wem, wie heisst sie, wohin gemoved?
@@ -20,7 +23,7 @@
 # --max-time minutes
 # Versuche die --max-time nicht zu überschreiten
 
-# Szenario der Esklation
+# Szenario der Eskalation
 # Wenn Virus gefunden, dann
 # A) 
 #    1) Mail an user
@@ -137,12 +140,15 @@ my $log_clam="/var/log/clamav/sophomorix-virusscan.clamav.log";
 my $quarantine="/var/log/clamav/quarantine";
 system("/bin/mkdir -p $quarantine");
 
-
 my $last_auto_scanned=&get_last_auto_scanned();
 
 #my $config_dir="/etc/sophomorix/virusscan";
 my $config_file="sophomorix-virusscan.conf";
 my $config=$DevelConf::virusscan_conf."/".$config_file;
+my $exclude_file="excludes.conf";
+my $excludes=$DevelConf::virusscan_conf."/".$exclude_file;
+
+my %excludes=&get_excludes();
 
 # list of all usable number entries in sophomorix-virusscan.conf
 my %convert_days = qw(
@@ -654,6 +660,7 @@ sub scan_object {
     # config
     # penalty
     # auto
+    my $exclude_string="";
     my ($scan_dir,$group) = &fetchdata_from_account($scan_object);
     if ($scan_dir eq ""){
         # its not a users home
@@ -732,6 +739,19 @@ sub scan_object {
             return 0;
         }
 
+        print "DIR $scan_dir\n";
+        # create exclude string, if necessary
+        if (exists $excludes{$scan_dir}){
+	    foreach my $item ( keys %excludes ) { 
+		foreach my $i ( 0 .. $#{ $excludes{$item}} ) {
+                     $exclude_string=$exclude_string.
+                                     " ".
+                                     $excludes{$item}[$i];
+                }
+            } 
+        }
+        print "EXCL ---|$exclude_string|---\n";
+
         # scanning
         # clamav geht keinen links nach
         # amount of data to scan
@@ -745,9 +765,9 @@ sub scan_object {
                     $data_mb;
 
         if ($copy==1){
-           $result=`/usr/bin/clamscan -r -i -l $log_clam --copy=$quarantine $scan_dir`;
+           $result=`/usr/bin/clamscan -r -i -l $log_clam $exclude_string --copy=$quarantine $scan_dir `;
         } else {
-           $result=`/usr/bin/clamscan  -r -i -l $log_clam --move=$quarantine $scan_dir`;
+           $result=`/usr/bin/clamscan  -r -i -l $log_clam $exclude_string --move=$quarantine $scan_dir`;
         }
         $scanned_objects_counter++;
         #my $command="clamscan -v -r -i -l $log_clam --move=$quarantine ".
@@ -964,4 +984,23 @@ sub write_penalty_db {
         }
     }
     close(PENALTY);
+}
+
+
+sub get_excludes {
+    my %excludes=();
+    print "* Reading $excludes\n";
+    open(EXCLUDE, "<$excludes");
+    while(<EXCLUDE>){
+        # skip comments
+        if (/^#/){
+            next;
+        }
+        chomp();
+        my ($path,$excl) = split(/::/);
+        print "$path   $excl \n";
+	push @{ $excludes{$path} }, $excl; 
+    }
+    close(EXCLUDE);
+    return %excludes;
 }
