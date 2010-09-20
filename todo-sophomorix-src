@@ -1,5 +1,59 @@
 Todo:
 
+
+funktion: collect unowned files, abspeicher unter id/gid
+
+
+
+
+
+
+mv: Aufruf von stat für "/home/share/classes/bej2g/~ Bal6.doc" nicht möglich: Datei oder Verzeichnis nicht gefunden
+
+
+
+
+Backup to here: 
+   /home/students/tg111/dagmxxxxsi/__dachboden/tausch-2010-09-17_17-41-33/
+Use of uninitialized value $owner in string eq at /usr/share/perl5/Sophomorix/SophomorixBase.pm line 1116, <USERVERSETZEN> line 1700.
+group tg121 exists already (10036)
+Replacing ldap group dn: cn=tg121,ou=groups,dc=abyyyyx,dc=de
+GLOBIGNORE=/; rm -rf /home/students/tg111/dagmxxxxsi/__austeilen/austeilen-tg111
+group tg121 exists already (10036)
+
+
+
+
+#### Moving User diaxxxxxxn (1680) to another class:                        ####
+Linux-Gruppe (Alt):    2bfw21
+Linux-Gruppe (Neu):    1bk1w1
+Altes Home:            /home/students/2bfw21/diaxxxxxxn
+Neues Home:            /home/students/1bk1w1/diaxxxxxxn
+Neues Homedir:         /home/students/1bk1w1
+Alter Status:          E
+Look in class share: /home/share/classes/2bfw21
+Backup to here: 
+   /home/students/2bfw21/diaxxxxxxn/__dachboden/tausch-2010-09-17_17-40-08/
+     * Move: Dok4.doc (owner: diaxxxxxxn)
+     * Move: Strasse in Pompeji.doc (owner: diaxxxxxxn)
+Use of uninitialized value $owner in string eq at /usr/share/perl5/Sophomorix/SophomorixBase.pm line 1116, <USERVERSETZEN> line 1680.
+     * Move: Teneriffa hat viele Gesichter.doc fRANcE.doc (owner: diaxxxxxxn)
+     * Move: Wetterkapriolen.doc (owner: diaxxxxxxn)
+Use of uninitialized value $owner in string eq at /usr/share/perl5/Sophomorix/SophomorixBase.pm line 1116, <USERVERSETZEN> line 1680.
+     * Move: Vesuv.doc (owner: diaxxxxxxn)
+group 1bk1w1 exists already (10059)
+Replacing ldap group dn: cn=1bk1w1,ou=groups,dc=abyyyyx,dc=de
+GLOBIGNORE=/; rm -rf /home/students/2bfw21/diaxxxxxxn/__austeilen/austeilen-2bfw21
+group 1bk1w1 exists already (10059)
+Replacing ldap group dn: cn=1bk1w1,ou=groups,dc=abyyyyx,dc=de
+
+
+Verbesserung: Wenn kein owner gefunden wird, dann 
+nach /home/.../unowned files verschieben
+(wo soll das sein)
+
+
+
 sophomorix-class -i -c klasse
   -> auflisten der Mitglieder einer Klasse
      (Login und gecos was noch?)
