@@ -741,18 +741,25 @@ sub scan_object {
             return 0;
         }
 
-        print "DIR $scan_dir\n";
+        print "   # Excludes in $scan_dir:\n";
+        print LOG "Excludes in $scan_dir:\n";
         # create exclude string, if necessary
         if (exists $excludes{$scan_dir}){
-	    foreach my $item ( keys %excludes ) { 
-		foreach my $i ( 0 .. $#{ $excludes{$item}} ) {
-                     $exclude_string=$exclude_string.
-                                     " ".
-                                     $excludes{$item}[$i];
-                }
+	    foreach my $item ( keys %excludes ) {
+                if ($item eq $scan_dir){ 
+		    foreach my $i ( 0 .. $#{ $excludes{$item}} ) {
+                        $exclude_string=$exclude_string.
+                                        " ".
+                                        $excludes{$item}[$i];
+                    print LOG "  $excludes{$item}[$i]\n";
+                    print "     $excludes{$item}[$i]\n";
+                    }
+	        }
             } 
+        } else {
+            print LOG "  * no Excludes in $excludes\n";
+            print "      * no Excludes in $excludes\n";
         }
-        print "EXCL ---|$exclude_string|---\n";
 
         # scanning
         # clamav geht keinen links nach
@@ -766,6 +773,7 @@ sub scan_object {
         printf LOG "####### Predicted size of Scan Object: %14s MB #######\n",
                     $data_mb;
 
+        print "   # Scanning ...\n";
         if ($copy==1){
            $result=`/usr/bin/clamscan -r -i -l $log_clam $exclude_string --copy=$quarantine $scan_dir `;
         } else {
@@ -1000,7 +1008,6 @@ sub get_excludes {
         }
         chomp();
         my ($path,$excl) = split(/::/);
-        print "$path   $excl \n";
 	push @{ $excludes{$path} }, $excl; 
     }
     close(EXCLUDE);
