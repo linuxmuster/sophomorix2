@@ -337,6 +337,7 @@ install-virusscan:
 	@install -d $(VIRUSSCAN)
 	@install -d $(VIRUSSCAN)/config
 	@install sophomorix-virusscan/config/sophomorix-virusscan.conf $(VIRUSSCAN)/config
+	@install sophomorix-virusscan/config/excludes.conf $(VIRUSSCAN)/config
 	@install -d $(DESTDIR)/usr/sbin
 	@install -oroot -groot --mode=0744 sophomorix-virusscan/scripts/sophomorix-virusscan $(DESTDIR)/usr/sbin
 
