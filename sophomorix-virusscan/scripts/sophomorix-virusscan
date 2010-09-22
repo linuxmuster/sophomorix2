@@ -150,8 +150,6 @@ my $config=$DevelConf::virusscan_conf."/".$config_file;
 my $exclude_file="excludes.conf";
 my $excludes=$DevelConf::virusscan_conf."/".$exclude_file;
 
-my %excludes=&get_excludes();
-
 # list of all usable number entries in sophomorix-virusscan.conf
 my %convert_days = qw(
      1     01          01    01
@@ -196,7 +194,6 @@ my %convert_days_of_week = qw(
 );
 
 
-
 if (not -e "$config"){
     my $template=$DevelConf::virusscan_config_templete_pfad."/".$config_file;
     my $command_1="mkdir -p $DevelConf::virusscan_conf";
@@ -207,6 +204,21 @@ if (not -e "$config"){
     print "$command_2\n";
     system("$command_2");
 }
+
+
+if (not -e "$excludes"){
+    my $template=$DevelConf::virusscan_config_templete_pfad."/".$exclude_file;
+    my $command_1="mkdir -p $DevelConf::virusscan_conf";
+    print "$command_1\n";
+    system("$command_1");
+
+    my $command_2="/bin/cp $template $excludes";
+    print "$command_2\n";
+    system("$command_2");
+}
+
+
+my %excludes=&get_excludes();
 
 
 open(LOG, ">>$logfile");
