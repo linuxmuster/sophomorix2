@@ -2070,6 +2070,7 @@ sub nscd_start {
         # sophomorix-teacher runs with different path
         system("OLDPATH=\$PATH;PATH=\$PATH:/sbin; $DevelConf::nscd_start; PATH=\$OLDPATH");
     }
+    system("/etc/init.d/samba reload");
 }
 
 
