@@ -1,0 +1,76 @@
+#!/usr/bin/perl -w
+# $Id$
+# This script (sophomorix-janitor) is maintained by Rüdiger Beck
+# It is Free Software (License GPLv3)
+# If you find errors, contact the author
+# jeffbeck@web.de  or  jeffbeck@gmx.de
+
+
+# ===========================================================================
+# Bibliotheken
+# ===========================================================================
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+use Time::Local;
+use Time::localtime;
+use Term::ANSIColor qw(:constants); # farbiger Text RED, BLUE, ...
+use Date::Calc qw(check_date);
+
+use DBI;
+use Net::LDAP;
+
+my @arguments = @ARGV;
+
+# Scriptname ermitteln
+my @list = split(/\//,$0);
+my $scriptname = pop @list;
+
+# nach jedem Printbefehl wieder auf Standardfarbe zurücksetzen
+$Term::ANSIColor::AUTORESET = 1;
+#use Sophomorix::SophomorixPgLdap qw(get_sys_users
+#                                   );
+
+# ===========================================================================
+# Optionen verarbeiten
+# ==========================================================================
+$Conf::log_level=1;
+my $help=0;
+
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "verbose|v+" => \$Conf::log_level,
+           "help|h" => \$help,
+          );
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
+
+# --help
+if ($help==1) {
+   # Befehlbeschreibung
+   print "\n$scriptname does some housekeeping:\n";
+
+   print('
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+
+Please see the sophomorix-janitor(8) man pages for full documentation
+');
+   print "\n";
+   exit;
+}
+
+
+
+# ===========================================================================
+# script starts here
+# ===========================================================================
+
+
+print "\n$scriptname is alpha, do not use it!\n\n";
