@@ -34,6 +34,11 @@
 # jeffbeck@web.de  or  jeffbeck@gmx.de
 #
 
+# Options (used by examplix):
+
+#   #1: source file
+#   #2: target file
+#   #3: birthplace: use Birthplace (default: dont use it) 
 
 ############################################################
 # Start configure 
@@ -44,8 +49,8 @@
 # key: number of selicolons
 # value: max allowed number
 my %semicolons_allowed = qw(
-    291     3500
-    292     2
+    290     3500
+    291     2
 );
 
 
@@ -60,9 +65,20 @@ my $dump_id=0;
 ############################################################
 
 # keep this settings
-my $tmp="/var/lib/sophomorix/tmp/schueler.txt.filter.tmp";
 my $source="/etc/sophomorix/user/schueler.txt";
+if ($ARGV[0] ne ""){
+    $source=$ARGV[0];
+    print "Reading $source\n"; 
+}
 my $target="/var/lib/sophomorix/tmp/schueler.txt.tmp";
+if ($ARGV[1] ne ""){
+    $target=$ARGV[1];
+    print "Writing $target\n"; 
+}
+my $tmp="/var/lib/sophomorix/tmp/schueler.txt.filter.tmp";
+if (not -e "/var/lib/sophomorix/tmp"){
+    $tmp=$target.".filter";
+}
 my %semicolons_seen=();
 
 ############################################################
@@ -146,6 +162,7 @@ while (<SOURCE>){
     my $firstname=$line[$header{'Vorname'}];
     my $birthday=$line[$header{'Geb.Datum'}];
     my $class=$line[$header{'Klasse'}];
+    my $birthplace=$line[$header{'Ort'}];
     # 13 Klassenlehrer
 
     # unid fields
@@ -158,6 +175,7 @@ while (<SOURCE>){
     $lastname = &format_field($lastname);
     $firstname = &format_field($firstname);
     $birthday = &format_field($birthday);
+    $birthplace = &format_field($birthplace);
     $id_0 = &format_field($id_0);
 
     my $semicolons_per_line=tr/;//;
@@ -181,9 +199,21 @@ while (<SOURCE>){
 
     my $out_line;
     if ($dump_id==0){
-        $out_line = $class.";".$lastname.";".$firstname.";".$birthday.";\n";
+        if ($ARGV[2] eq "birthplace"){
+            $out_line = $class.";".$lastname.";".$firstname.";".
+                        $birthday.";".$birthplace.";\n";
+        } else {
+            $out_line = $class.";".$lastname.";".$firstname.";".
+                        $birthday.";\n";
+        }
     } elsif ($dump_id==1){
-        $out_line = $class.";".$lastname.";".$firstname.";".$birthday.";".$id_0.";\n";
+        if ($ARGV[2] eq "birthplace"){
+            $out_line = $class.";".$lastname.";".$firstname.";".
+                        $birthday.";".$birthplace.";\n";
+	} else {
+            $out_line = $class.";".$lastname.";".$firstname.";".
+                        $birthday.";".$id_0.";\n";
+        }
     } else {
         print "Could not dump into file\n\n";
         exit;
