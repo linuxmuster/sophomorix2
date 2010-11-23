@@ -22,6 +22,8 @@ use Date::Calc qw(check_date);
 use DBI;
 use Net::LDAP;
 
+use File::Find;
+
 my @arguments = @ARGV;
 
 # Scriptname ermitteln
@@ -38,11 +40,16 @@ $Term::ANSIColor::AUTORESET = 1;
 # ==========================================================================
 $Conf::log_level=1;
 my $help=0;
-
+my $user="";
+my $uid=0;
+my $listfiles=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
+           "user|u=s" => \$user,
+           "uid=i" => \$uid,
+           "listfiles" => \$listfiles,
            "help|h" => \$help,
           );
 
@@ -59,6 +66,8 @@ Options
   -h  / --help
   -v  / --verbose
   -vv / --verbose --verbose
+  --listfiles --user name
+  --listfiles --uid uidnumber
 
 Please see the sophomorix-janitor(8) man pages for full documentation
 ');
@@ -74,3 +83,47 @@ Please see the sophomorix-janitor(8) man pages for full documentation
 
 
 print "\n$scriptname is alpha, do not use it!\n\n";
+
+
+
+
+# ===========================================================================
+# list files and do something
+# ===========================================================================
+my @dirs=("/home/students/");
+
+if ($uid==0 and $user ne ""){
+    # fetch uid of name
+    my ($name, $pass, $uid_of_user, $gid)= getpwnam($user);
+    if (not defined $uid_of_user){
+        print "ERROR: Could not determine uid of user $user\n";
+        print "       Please specify a uid\n\n";
+        exit;
+    } else {
+        $uid=$uid_of_user;
+    }
+}
+
+
+# --listfiles and --uid or existing user (--user user)
+if ($listfiles==1 and $uid!=0 ){
+    print "Looking for files of user $user with uid $uid\n";
+    find( \&files_of_uid,  @dirs);
+    exit;
+}
+
+
+
+# ===========================================================================
+# Subs
+# ===========================================================================
+
+sub files_of_uid {
+    my ($f_dev, $f_ino, $f_mode, $f_nlink, $f_uid, $f_gid) = lstat($_);
+    if ($uid==$f_uid){
+        print "$uid $f_uid $File::Find::name\n";
+        # do something with $File::Find::name
+
+    }
+}
+
