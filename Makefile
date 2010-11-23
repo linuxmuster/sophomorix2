@@ -341,10 +341,16 @@ install-virusscan:
 	@install -d $(DESTDIR)/usr/sbin
 	@install -oroot -groot --mode=0744 sophomorix-virusscan/scripts/sophomorix-virusscan $(DESTDIR)/usr/sbin
 
+
+install-janitor:
+	### install-janitor
+	@install -d $(DESTDIR)/usr/sbin
+	@install -oroot -groot --mode=0744 sophomorix-base/scripts/sophomorix-janitor $(DESTDIR)/usr/sbin
+
+
 install-workstation:
 	### install-workstation (not for packages)
 	@install -oroot -groot --mode=0744 sophomorix-base/scripts/sophomorix-workstation $(DESTDIR)/usr/sbin
-
 
 
 install-developer:
