@@ -2088,7 +2088,9 @@ sub nscd_flush_cache {
     # flush_cache tut nur bei laufendem nscd
     if (-e "/usr/sbin/nscd"){
         print "Flushing nscd cache\n";
-	system("/usr/sbin/nscd -i passwd -i group -i hosts");
+	system("/usr/sbin/nscd -i passwd");
+	system("/usr/sbin/nscd -i group");
+	system("/usr/sbin/nscd -i hosts");
     } else {
         print "WARNING: couldnt flush nscd cache\n";
     }
