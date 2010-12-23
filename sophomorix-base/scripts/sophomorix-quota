@@ -78,7 +78,7 @@ my $testopt=GetOptions(
            "student|students|s" => \$student,
            "teacher|teachers|t" => \$teacher,
            "administrator|administrators" => \$administrator,
-           "room|rooms=s" => \$rooms,
+           "room|rooms|r=s" => \$rooms,
            "workstations|workstation|w" => \$ws,
            "force" => \$force,
            "skiplock" => \$skiplock,
@@ -144,7 +144,15 @@ Please see the sophomorix-quota(8) man page for full documentation
 
 
 # --info
-if ($info==1 and $classes eq "") {
+if ($info==1 and $classes eq "" 
+             and $projects eq ""
+             and $rooms eq ""
+             and $loginname eq ""
+             and $student==0
+             and $teacher==0
+             and $administrator==0
+             and $ws==0
+   ) {
    my $fs="";
    my $i=0;
    my $j=0;
@@ -213,10 +221,22 @@ if ($info==1 and $classes eq "") {
 
 
 # --info --class|....
-if ($info==1 and $classes ne "") {
+if ($info==1 and ($classes ne "" or
+                  $projects ne "" or
+                  $rooms ne "" or
+                  $loginname ne "" or
+                  $student!=0 or
+                  $teacher!=0 or
+                  $administrator!=0 or
+                  $ws!=0
+                 )
+   ) {
 
     print "Reporting quota for some users:\n";
     # userlist according to options
+    if ($teacher==1){
+        $classes=${DevelConf::teacher}.",".$classes;
+    }
     my @userlist=&create_userlist($loginname,$classes,0,$projects,0,$student,
                                $rooms,$ws,$administrator,$check);
 
