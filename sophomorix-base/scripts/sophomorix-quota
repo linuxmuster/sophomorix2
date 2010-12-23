@@ -37,6 +37,9 @@ my @arguments = @ARGV;
 # Liste der Filesysteme auf denen Quota gesetzt werden
 my @quota_fs=&get_quota_fs_liste();
 
+# now
+my $epoche_jetzt=time;
+
 # ===========================================================================
 # Anzahl quotierte Dateisysteme ermitteln
 # ==========================================================================
@@ -141,7 +144,7 @@ Please see the sophomorix-quota(8) man page for full documentation
 
 
 # --info
-if ($info==1) {
+if ($info==1 and $classes eq "") {
    my $fs="";
    my $i=0;
    my $j=0;
@@ -206,6 +209,24 @@ if ($info==1) {
    }
    print "\n\n";
    exit;
+}
+
+
+# --info --class|....
+if ($info==1 and $classes ne "") {
+
+    print "Reporting quota for some users:\n";
+    # userlist according to options
+    my @userlist=&create_userlist($loginname,$classes,0,$projects,0,$student,
+                               $rooms,$ws,$administrator,$check);
+
+    print "                          Block   limits             File \n";
+    print "User       BF     used     soft     hard   grace    grace \n";
+    print "------------------------------------------------------------\n";
+    foreach my $user (@userlist){
+	&print_sys_quota($system,$user,\@quota_fs);
+    }
+    exit;
 }
 
 
@@ -1007,7 +1028,77 @@ sub get_db_quota {
     return (\%db_quota,\%db_quota_mail);
 }
 
+# fetches and prints system quota of a user
+sub print_sys_quota {
+   my ($system,$user,$quota_fs) = @_;
+   my $user_display=$user;
+   # sophomorix user
+   my $uid=-1;
+   ($a,$a,$a,$a,$uid)=&fetchdata_from_account("$user");
+   my $fs="";
+   my $j=0;
+   my $quota="";
 
 
+   # for every fs in
+   for ($j=0; $j < @$quota_fs; $j++){
+      # Aus der Listenreferenz das j-te Element herausnehmen
+      $fs = $quota_fs->[$j];
+      my ($b_used,$b_soft,$b_hard,$b_grace, 
+          $i_used,$i_soft,$i_hard,$i_grace) = Quota::query($fs, $uid);
+
+      my $b="-";
+      my $f="-";
+
+      if ($j!=0){
+          $user_display="";
+      }
+
+      if ($b_grace==0){
+          $b_grace=0;
+      } else {
+          $b_grace=$b_grace-$epoche_jetzt;
+          if ($b_grace<0){
+              $b_grace="none";
+          } else {
+              $b_grace=int($b_grace/86400);
+              $b_grace=$b_grace."days";
+          }
+      }
+
+      if ($i_grace>1000000){
+          # simplified
+          $i_grace="none";
+      }
+
+      if ($b_used>$b_soft){
+          $b="+";
+      }
+
+      if ($i_used>$i_soft){
+          $f="+";
+      }
+
+      my $bf=$b.$f;
+      $b_used=&format_quota($b_used); 
+      $b_soft=&format_quota($b_soft); 
+      $b_hard=&format_quota($b_hard); 
+
+      printf "%-11s% 2s% 9s% 9s% 9s% 8s% 9s\n",
+             $user_display,$bf,$b_used,$b_soft,$b_hard,$b_grace,$i_grace;
+    }
+}
+
+
+sub format_quota {
+    my ($quota) = @_;
+    if ($quota>=1024){
+        $quota=$quota/102.4;
+        $quota=int($quota);
+        $quota=$quota/10;
+        $quota=$quota."M";
+    }
+    return $quota;
+}
 
 # EOF
