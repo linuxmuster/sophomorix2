@@ -42,6 +42,8 @@
 # Unter 1 aufgeführte Variablen selber ermitteln
 # Text in lang-Datei auslagern
 
+# show italcrooms and classrooms at --info/--print
+
 
 
 # ===========================================================================
@@ -98,6 +100,17 @@ my $full_check=0;
 my $sync_accounts=0;
 my $pass="12345678";
 my $password="";
+
+my $italc_dir="";
+
+my $italc_conf="/etc/linuxmuster/italcrooms";
+my $classroom_conf="/etc/linuxmuster/classrooms";
+
+my %italc_rooms=();
+my @italc_rooms=();
+my %class_rooms=();
+my @class_rooms=();
+
 my $set_computer_passwords=0;
 
 # ??? develconf ???
@@ -128,6 +141,7 @@ my $testopt=GetOptions(
        "sync-accounts" => \$sync_accounts,
        "set-computer-passwords" => \$set_computer_passwords,
        "password=s" => \$password,
+       "italc-dir=s" => \$italc_dir,
           );
 
 
@@ -147,16 +161,23 @@ if ($help==1) {
 sophomorix-workstation adds the DomainComputer and Examaccount 
   from /etc/linuxmuster/workstation
 
-Options
+Options:
   -h   /  --help
   -i   /  --info
   -v   /  --verbose
   -vv  /  --verbose --verbose
+
+Managing accounts:
   --check                   (check ALL fields of workstation file)
   --sync-accounts           (add, delete accounts as necessary, 
                              check only account data: hostname,room)
   --set-computer-passwords  (set computer passwords to 12345678)
   --password password       (use password instead of 12345678)
+
+Managing italc:
+  --italc-dir dir           (create italc files in dir:
+                             italcroom/globalconfig.xml)
+
 
 Please see the sophomorix-workstation(8) man pages for full documentation
 ');
@@ -170,6 +191,11 @@ if ($full_check==1 and $sync_accounts==1){
           "cannot be used together\n\n";
     exit 0;
 }
+
+
+&get_classrooms();
+&get_italcrooms();
+
 
 
 # ===========================================================================
@@ -259,16 +285,22 @@ if ($print==1){
         } else {
             @line = split(/;/);
             $host++;
-            print TEX "$host & $line[1] & $line[0] & ",
-                      "$line[2] & $line[4] & \\texttt{$line[3]} \\\\ ";
+            $host=&latexize_string($host);
+            $line[1]=&latexize_string($line[1]);
+            $line[2]=&latexize_string($line[2]);
+            $line[3]=&latexize_string($line[3]);
+            $line[4]=&latexize_string($line[4]);
+            $line="$host & $line[1] & $line[0] & $line[2]".
+                  " & $line[4] & \\texttt{$line[3]} \\\\ ";
+            print TEX $line; 
             # Horizontal lines
-            if ($line_count==$hor_lines){
-                print TEX ' \hline',"\n";
-                $line_count=0;
-            } else {
-                print TEX "\n";
-            }
-            $line_count++;
+             if ($line_count==$hor_lines){
+                 print TEX ' \hline',"\n";
+                 $line_count=0;
+             } else {
+                 print TEX "\n";
+             }
+             $line_count++;
         }
     }
     close(IN);
@@ -330,7 +362,15 @@ if ($info==1){
     @rooms = sort @rooms;
 
     foreach my $room (@rooms){
-	print "ROOM: $room\n";
+        my $classroom="";
+        my $italcroom="";
+        if (exists $class_rooms{$room}){
+            $classroom="(CLASSROOM) ";
+        }
+        if (exists $italc_rooms{$room}){
+            $italcroom="(ITALC ROOM) ";
+        }
+	print "ROOM: $room ${classroom}${italcroom}\n";
         # fetch and sort examaccounts
         my @examaccounts=();
         while (my ($account,$roomentry) = each %examaccounts_system){
@@ -439,6 +479,7 @@ if ($full_check==1 and $sync_accounts==0){
 # Modifying System
 # ===========================================================================
 
+# synchronizing user accounts
 if ($sync_accounts==1){
     print "\nKilling examaccounts:\n";
     print "------------------------------------",
@@ -486,6 +527,8 @@ if ($sync_accounts==1){
 
 
 
+
+# setting computer passwords
 if ($set_computer_passwords==1){
     print "Setting password for all Computer accounts:\n";
     my ($ref_domcomputers,
@@ -508,6 +551,22 @@ if ($set_computer_passwords==1){
         $count++;
     }
 }
+
+
+
+
+# creating italk files
+if ($italc_dir ne ""){
+    print "Creating italk files in $italc_dir\n";
+    system("mkdir -p $italc_dir");
+    # ???? permissions, owner
+}
+
+
+
+
+
+
 
 
 
@@ -927,5 +986,51 @@ sub push_add_computer {
 sub push_kill_computer {
     my ($kill) = @_;
     push @killing_computer, $kill;
+}
+
+
+
+sub get_classrooms {
+    print "* Fetching classrooms\n";
+    if (not -e $classroom_conf){
+        return;
+    }
+    open(CLASSROOM, "<$classroom_conf");
+    while(<CLASSROOM>){
+        chomp();
+        s/ //g;
+        if(/^\#/){ # # am Anfang bedeutet Kommentarzeile
+            next;
+        }
+        my $line=$_;
+        print "---$line---\n";
+        push @class_rooms, $line;
+        $class_rooms{$line}="seen";
+        
+    }
+    close(CLASSROOM);
+}
+
+
+
+sub get_italcrooms {
+    print "* Fetching italc rooms\n";
+    if (not -e $italc_conf){
+        return;
+    }
+    open(ITALCROOM, "<$italc_conf");
+    while(<ITALCROOM>){
+        chomp();
+        s/ //g;
+        if(/^\#/){ # # am Anfang bedeutet Kommentarzeile
+            next;
+        }
+        my $line=$_;
+        print "---$line---\n";
+        push @italc_rooms, $line;
+        $italc_rooms{$line}="seen";
+    }
+    close(ITALCROOM);
+
 }
 
