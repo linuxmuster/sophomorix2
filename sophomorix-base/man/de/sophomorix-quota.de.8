@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-QUOTA 8 "May 31, 2007"
+.TH SOPHOMORIX-QUOTA 8 "December 24, 2010"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -16,7 +16,7 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for manpage-specific macros, see man(7)
 .SH NAME
-sophomorix-quota \- Quota setzen (usrquota)
+sophomorix-quota \- Quota anzeigen/setzen (usrquota)
 .SH SYNOPSIS
 .B sophomorix-quota
 .RI [ options ] 
@@ -90,47 +90,7 @@ Mehr Informationen beim Aufruf von:
 .br
 Dazu muss in sophomorix.conf use_quota="yes" gesetzt sein.   
 .SH Vorbereitung/Installation
-Für ein Debian System mit Debian-Kernel unterscheidet sich die
-Installation je nach verwendeter Kernelversion:
-.TP
-.B Kernel 2.4.x:
-.TP
-1. Installieren Sie das Paket quota.
-Dies ist schon erledigt, wenn sie das paket sophomorix2
-installiert haben.
-.TP
-2. Editieren Sie /etc/fstab 
-Tragen sie in /etc/fstab für diejenigen Filesysteme die mountoption
-usrquota ein, die sie quotieren wollen. Prüfen sie durch einen reboot,
-ob die Einstellung dauerhaft funktionieren.
-.TP
-3. Entfernen unpassender Quotadateien
-In jedem quotierten Filesystem entsteht beim mounten evtl. die Datei
-aquota.user. Diese Datei hat für den Kernel 2.4.x das falsche Format
-und muss gelöscht werden.
-.TP
-3. quotacheck
-Erzeugen sie nun die passende Quotadatei quota.user mit dem Befehl:
-   quotacheck -ucvm -F vfsold -a
-.TP
-4. Schalten sie Quota ein
-   quotaon -avu
-.TP
-5. Quota in sophomorix einschalten 
-Damit sophomorix beim Anlegen von Usern Quota setzt, setzen sie in sophomorix.conf 
-folgende Variable:
-   use_quota="yes"
-.TP
-6. Setzen von Standard-Werten für Quota Setzen Sie in den obigen
-Dateien die Standard-Werte für Quota auf passende Werte. Beachten sie,
-dass die Quotaangaben mit der Anzahl der quotierten
-Filesysteme(Windows-Begriff: Partitionen) übereinstimmt (siehe Syntax
-der Quotaangaben).
-.TP
-7. Rufen Sie folgenden Befehl auf, um Quota für alle user zu setzen:
-   sophomorix-quota --set
-.PP
-.B Kernel 2.6.x:
+Für ein Debian System mit Debian-Kernel 2.6.x
 .TP
 1. Installieren Sie das Paket quota.
 Dies ist schon erledigt, wenn sie das paket sophomorix-base
@@ -185,6 +145,11 @@ verändern.
 Außerdem wird angegeben mit welchen repquota-Befehlen die Liste aller \
 quota angegeben werden können. 
 .TP
+.TP
+.B --info --class klasse | --students | --teachers | --project projekt | --room raum, ...
+Listet Quota aller Dateisysteme aller ausgewählten User auf. Ein + in
+der Zeile zeigt ein überschreiten an.
+.TP
 .B --set
 prüft nicht, ob sich das Quota verändert hat, sondern setzt es auf
 jeden Fall.
@@ -220,15 +185,19 @@ Systembefehl des Betriebssystems Linux, Kernel 2.4.x (2.6.x ????):
 um Quota zu setzten. Dies wird nicht empfohlen, da es länger dauert
 und vom Betriebsystem bzw. Kernel-Version abhängig ist.
 .TP
-.B Optionen, die angeben für welche User Quota gesetzt werden sollen.
+.B Optionen, die angeben für welche User Quota gesetzt/angezeigt werden sollen.
 .TP
-Die Auswahl erfolgt anhäufend. Das bedeutet, dass durch Angabe mehrerer Optionen eine Userliste erzeugt wird, in der kein User doppelt vorkommt, aber jeder enthalten ist.
+Die Auswahl erfolgt anhäufend. Das bedeutet, dass durch Angabe
+mehrerer Optionen eine Userliste erzeugt wird, in der kein User
+doppelt vorkommt, aber jeder enthalten ist.
 .TP
 .B -u user1,user2,... / --users user1,user2,... 
-setzt Quota der  User user1,user2, ... . Der user kann auch eine Workstation oder Administrator sein.
+setzt Quota der User user1,user2, ... . Der user kann auch eine
+Workstation oder Administrator sein.
 .TP
 .B -c class1,class2,... / --class class1,class2,...
-setzt Quota für jeden User in der Klasse class. Class kann auch die Gruppe der Lehrer sein (lehrer im Moment).
+setzt Quota für jeden User in der Klasse class. Class kann auch die
+Gruppe der Lehrer sein (lehrer im Moment).
 .TP
 .B -p project1,project2,... / --project project1,project2,...
 setzt Quota für jeden User im Projekt project1,.... 
