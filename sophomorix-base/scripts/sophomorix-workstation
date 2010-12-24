@@ -258,8 +258,7 @@ if ($print==1){
           '      \bfseries HW-Klasse & \bfseries IP-Adresse & ',
           '      \bfseries MAC-Adresse \\\\ \hline \hline',"\n",
           '   \endhead',"\n",
-          '      \hline \multicolumn{6}{r}{Fortsetzung auf ',
-          '          der n\"{a}chsten Seite ...}',"\n",
+          '      \hline \multicolumn{6}{r}{Fortsetzung auf der n\"{a}chsten Seite ...}',"\n",
           '   \endfoot',"\n",
           '      \hline ',"\n",
           '   \endlastfoot',"\n";
@@ -1003,7 +1002,7 @@ sub get_classrooms {
             next;
         }
         my $line=$_;
-        print "---$line---\n";
+        print "   * $line\n";
         push @class_rooms, $line;
         $class_rooms{$line}="seen";
         
@@ -1026,9 +1025,18 @@ sub get_italcrooms {
             next;
         }
         my $line=$_;
-        print "---$line---\n";
-        push @italc_rooms, $line;
-        $italc_rooms{$line}="seen";
+        my ($room,$host_string) = split(/::/,$line);
+        print "   * $room\n";
+        if (not defined $host_string){
+            $italc_rooms{$room}="seen";
+        } else {
+            my @teacher_hosts = split(/,/,$host_string);
+            push @italc_rooms, $room;
+            foreach my $host (@teacher_hosts){
+                print "      * $host is teacher host\n";
+                $italc_rooms{$room}{"$host"}="teacher host";
+            }
+        }
     }
     close(ITALCROOM);
 
