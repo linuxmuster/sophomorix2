@@ -101,13 +101,26 @@ my $sync_accounts=0;
 my $pass="12345678";
 my $password="";
 
+# where data from workstation file is saved
+my %domcomputers_file=();
+my %rooms_file=();
+my %examaccounts_file=();
+
+# italc
 my $italc_dir="";
 
 my $italc_conf="/etc/linuxmuster/italcrooms";
-my $classroom_conf="/etc/linuxmuster/classrooms";
+# syntax of /etc/linuxmuster/italcrooms:
+# room:classroom_name:teacher_host1,teacher_host2,teacher_host3
+# room: as in /etc/linuxmuster/workstations
+# classroom_name: the italc name
+# teacher_host1: host that are allowed to use italc
 
 my %italc_rooms=();
 my @italc_rooms=();
+
+# classrooms
+my $classroom_conf="/etc/linuxmuster/classrooms";
 my %class_rooms=();
 my @class_rooms=();
 
@@ -372,9 +385,9 @@ if ($info==1){
 	print "ROOM: $room ${classroom}${italcroom}\n";
         # fetch and sort examaccounts
         my @examaccounts=();
-        while (my ($account,$roomentry) = each %examaccounts_system){
+        while (my ($account,$room_entry) = each %examaccounts_system){
             #print $account , " ", $roomentry, "\n";
-            if ($roomentry eq $room){
+            if ($room_entry eq $room){
                 push @examaccounts,$account;
             }
         }
@@ -556,9 +569,71 @@ if ($set_computer_passwords==1){
 
 # creating italk files
 if ($italc_dir ne ""){
-    print "Creating italk files in $italc_dir\n";
+    print "Creating italc files in $italc_dir\n";
     system("mkdir -p $italc_dir");
     # ???? permissions, owner
+
+    my $file="globalconfig.xml";
+
+    foreach my $room (@italc_rooms){
+        my $classroom_name=$italc_rooms{$room}{'NAME'};
+
+        my $italc_parent=$italc_dir."/".$room;
+        my $italc_file=$italc_parent."/".$file;
+
+        print "Creating $italc_file for italcroom $room ...\n";
+        system("mkdir -p $italc_parent");
+        open(ITALC, ">$italc_file");
+        print ITALC '<?xml version="1.0"?>'."\n";
+        print ITALC '<!DOCTYPE italc-config-file>'."\n";
+        print ITALC '<globalclientconfig version="1.0.7" >'."\n";
+        print ITALC '  <body>'."\n";
+        print ITALC '    <classroom name="'.$classroom_name.'" >'."\n";
+
+        my @host_list=();
+        my %host_lines=();
+        for my $host ( keys %{ $rooms_file{$room}{"HOSTS"} } ) {
+            my $ip=$domcomputers_file{$host}{"IP"};
+            my $mac=$domcomputers_file{$host}{"MAC"};
+
+            my $type=0;
+
+            if (exists $italc_rooms{$room}{"$host"}){
+                if ($italc_rooms{$room}{"$host"} eq "teacher host"){
+		    $type=1;
+                }
+            }
+
+            # how to generate the id ???
+            my $id="unknown";
+
+	    #print "   * HOST: $host\n";
+	    #print "     *  IP: $ip\n";
+	    #print "     * MAC: $mac\n";
+
+            my $line="      <client localip=\"".$ip."\" ".
+                                       "mac=\"".$mac."\" ".
+                                      "type=\"".$type."\" ".
+                                        "id=\"".$id."\" ".
+                                      "name=\"".$host."\" ".
+                     "/>\n";
+            # for sorting
+            push @host_list, $host;
+            # for lines
+            $host_lines{$host}=$line;
+        }
+
+        @host_list = sort @host_list;
+
+        foreach my $host (@host_list){
+		print ITALC "$host_lines{$host}";
+        }
+
+        print ITALC '    </classroom>'."\n";
+        print ITALC '  </body>'."\n";
+        print ITALC '</globalclientconfig>'."\n";
+        close(ITALC);
+    }
 }
 
 
@@ -629,6 +704,17 @@ sub analyze_line {
                          $ip.";".$netmask.";".
                          $linbo_server.";".$part2.";".$part3.";".$dev_type.";".
                          $pxe.";".$option.";";
+        # save data into hashes
+        $domcomputers_file{$host}{"HWK"}=$hwk;
+        $domcomputers_file{$host}{"MAC"}=$mac;
+        $domcomputers_file{$host}{"IP"}=$ip;
+        $domcomputers_file{$host}{"NETMASK"}=$netmask;
+        $domcomputers_file{$host}{"ROOM"}=$room;
+
+        $rooms_file{$room}{"HOSTS"}{$host}="seen";
+        $rooms_file{$room}{"MAC"}{$mac}="seen";
+        $rooms_file{$room}{"IP"}{$ip}="seen";
+
         if($Conf::log_level>=2){
             print "$line_correct\n\n";
         }
@@ -1005,7 +1091,6 @@ sub get_classrooms {
         print "   * $line\n";
         push @class_rooms, $line;
         $class_rooms{$line}="seen";
-        
     }
     close(CLASSROOM);
 }
@@ -1025,13 +1110,18 @@ sub get_italcrooms {
             next;
         }
         my $line=$_;
-        my ($room,$host_string) = split(/::/,$line);
+        my ($room,$italc_classroom_name,$host_string) = split(/:/,$line);
         print "   * $room\n";
+        push @italc_rooms, $room;
+        if ($italc_classroom_name eq ""){
+            $italc_classroom_name=$room;
+        } 
+        $italc_rooms{$room}{'NAME'}=$italc_classroom_name;
+
         if (not defined $host_string){
             $italc_rooms{$room}="seen";
         } else {
             my @teacher_hosts = split(/,/,$host_string);
-            push @italc_rooms, $room;
             foreach my $host (@teacher_hosts){
                 print "      * $host is teacher host\n";
                 $italc_rooms{$room}{"$host"}="teacher host";
