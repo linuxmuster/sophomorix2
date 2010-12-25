@@ -44,8 +44,13 @@
 
 # show italcrooms/teacherhosts and classrooms at --print
 
-# add logging to command.log
+# italc todo:
 
+# id: what to use ??? mac converted to decimal is uniquely creatable
+# coordinates ???  
+#    replace xxxxxxxx and yyyyyyyy with coordinates before printing line
+#    cycle through @x_coord,@y_coord with function to step through perl lists 
+# more files
 
 
 # ===========================================================================
@@ -116,6 +121,15 @@ my $italc_conf="/etc/linuxmuster/italcrooms";
 # room: as in /etc/linuxmuster/workstations
 # classroom_name: the italc name
 # teacher_host1: host that are allowed to use italc
+
+# italc
+my $w_coord=169;
+my $h_coord=126;
+my $x_coord="xxxxxxxx";
+my $y_coord="yyyyyyyy";
+my @x_coord=(0,171,342,513); # ???
+my @y_coord=(0,0,0,0,128,128,128,128,256,256,256,256,384,384,384,384); # ???
+
 
 my %italc_rooms=();
 my @italc_rooms=();
@@ -415,8 +429,7 @@ close(WORKSTATION);
 #return 0;
 # systax ERROR -> 1
 
-print "... checking for syntax errors done.\n",
-      "No syntax errors in $workstation_conf!\n";
+print "* No syntax errors in $workstation_conf!\n";
 
 # ===========================================================================
 # What will be done
@@ -607,10 +620,11 @@ if ($italc_dir ne ""){
             my $mac=$domcomputers_file{$host}{"MAC"};
 
             my $type=0;
-
+            my $visible="yes";
             if (exists $italc_rooms{$room}{"$host"}){
                 if ($italc_rooms{$room}{"$host"} eq "teacher host"){
 		    $type=1;
+                    $visible="no";
                     # remember teacher hosts
                     push @teacher_hosts, $host;
                 }
@@ -618,22 +632,29 @@ if ($italc_dir ne ""){
 
             # how to generate the id ???
             my $id="unknown";
-	    #print "   * HOST: $host\n";
-	    #print "     *  IP: $ip\n";
-	    #print "     * MAC: $mac\n";
-            my $line="      <client localip=\"".$ip."\" ".
-                                       "mac=\"".$mac."\" ".
-                                      "type=\"".$type."\" ".
-                                        "id=\"".$id."\" ".
-                                      "name=\"".$host."\" ".
-                     "/>\n";
+            my $line_global="      <client localip=\"".$ip."\" ".
+                                              "mac=\"".$mac."\" ".
+                                             "type=\"".$type."\" ".
+                                               "id=\"".$id."\" ".
+                                             "name=\"".$host."\" ".
+                            "/>\n";
+            my $line_personal="      <client w=\"".$w_coord."\" ".
+                                            "x=\"".$x_coord."\" ".
+                                            "y=\"".$y_coord."\" ".
+                                            "h=\"".$h_coord."\" ".
+                                      "visible=\"".$visible."\" ".
+                                           "id=\"".$id."\" ".
+                              "/> <!-- $host -->\n";
             # for sorting
             push @host_list_global, $host;
-            # for lines
-            $host_lines_global{$host}=$line;
+            push @host_list_personal, $host;
+            # save lines for later
+            $host_lines_global{$host}=$line_global;
+            $host_lines_personal{$host}=$line_personal;
         }
 
         @host_list_global = sort @host_list_global;
+        @host_list_personal = sort @host_list_personal;
 
         foreach my $host (@host_list_global){
 		print ITALCGLOBAL "$host_lines_global{$host}";
@@ -648,10 +669,7 @@ if ($italc_dir ne ""){
         system("chmod 755 $italc_file_global");
 
         # italc personal file
-        # globalsettings ???
         my $master_ip=$domcomputers_file{$master_host}{"IP"};
-
-
         print ITALCPERSONAL '  <globalsettings '.
                             "demo-master-ip=\"".$master_ip."\" ".
                             'opened-tab="5" '.
@@ -1134,7 +1152,9 @@ sub get_classrooms {
             next;
         }
         my $line=$_;
-        print "   * $line\n";
+        if($Conf::log_level>=2){
+            print "   * $line\n";
+        }
         push @class_rooms, $line;
         $class_rooms{$line}="seen";
     }
@@ -1157,7 +1177,9 @@ sub get_italcrooms {
         }
         my $line=$_;
         my ($room,$italc_classroom_name,$host_string) = split(/:/,$line);
-        print "   * $room\n";
+        if($Conf::log_level>=2){
+            print "   * $room\n";
+        }
         push @italc_rooms, $room;
         if ($italc_classroom_name eq ""){
             $italc_classroom_name=$room;
@@ -1172,7 +1194,9 @@ sub get_italcrooms {
             my @teacher_hosts = split(/,/,$host_string);
             my $i=1;
             foreach my $host (@teacher_hosts){
-                print "      * $host is teacher host\n";
+                if($Conf::log_level>=2){
+                    print "      * $host is teacher host\n";
+                }
                 $italc_rooms{$room}{"$host"}="teacher host";
                 if ($i==1){
                     #remember first entry
