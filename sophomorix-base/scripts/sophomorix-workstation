@@ -87,7 +87,6 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
 
 my @arguments = @ARGV;
 
-
 my $today=`date +%d.%m.%Y`;
 chomp($today);
 
@@ -208,13 +207,31 @@ if ($full_check==1 and $sync_accounts==1){
 }
 
 
+
+
+
+# ===========================================================================
+# fetching data
+# ===========================================================================
+&titel("Asking the system for exam and computer accounts ...");
+
+my ($ref_domcomputers,$ref_rooms,$ref_examaccounts) = &get_sys_workstations();
+
+# system
+my %domcomputers_system = %$ref_domcomputers;
+my %rooms_system = %$ref_rooms;
+my %examaccounts_system = %$ref_examaccounts; 
+
+# /etc/linuxmuster/workstation
+my %hosts_file=();
+
 &get_classrooms();
 &get_italcrooms();
 
 
 
 # ===========================================================================
-# --print
+# --print     (does not modify system)
 # ===========================================================================
 if ($print==1){
     if (not -e ${workstation_conf}){
@@ -238,7 +255,6 @@ if ($print==1){
     # draw a horizontal line in the table after this many lines of text
     my $hor_lines=5; 
     my $line_count=1;
-
 
     print "Writing to $out_file";
     open(TEX, ">$out_file");
@@ -339,33 +355,8 @@ if ($print==1){
 
 
 
-
-
-
-
 # ===========================================================================
-# fetching data
-# ===========================================================================
-&titel("Asking the system for exam and computer accounts ...");
-
-my ($ref_domcomputers,$ref_rooms,$ref_examaccounts) = &get_sys_workstations();
-
-# system
-my %domcomputers_system = %$ref_domcomputers;
-my %rooms_system = %$ref_rooms;
-my %examaccounts_system = %$ref_examaccounts; 
-
-# /etc/linuxmuster/workstation
-my %hosts_file=();
-
-
-
-
-
-
-
-# ===========================================================================
-# --info
+# --info (does not modify system)
 # ===========================================================================
 if ($info==1){
     # fetch and sort rooms
@@ -449,8 +440,6 @@ while (my ($computer,$room) = each %domcomputers_system){
 
 
 
-
-
 if ($full_check==1 and $sync_accounts==0){
     print "\nExamaccounts that must be killed:\n";
     print "------------------------------------",
@@ -493,7 +482,12 @@ if ($full_check==1 and $sync_accounts==0){
 # Modifying System
 # ===========================================================================
 
-# synchronizing user accounts
+&log_script_start(@arguments);
+
+
+# ===========================================================================
+# --sync-accounts # synchronizing workstation/computer accounts to the system 
+# ===========================================================================
 if ($sync_accounts==1){
     print "\nKilling examaccounts:\n";
     print "------------------------------------",
@@ -501,7 +495,6 @@ if ($sync_accounts==1){
     foreach my $exam_account (@killing_examaccount){
         system("/usr/sbin/sophomorix-kill --killuser $exam_account");
     }
-
 
     print "\nAdding examaccounts:\n";
     print "------------------------------------",
@@ -514,14 +507,12 @@ if ($sync_accounts==1){
         system("/usr/sbin/sophomorix-quota -u $u");
     }
 
-
     print "\nKilling computers:\n";
     print "------------------------------------",
           "------------------------------------\n";
     foreach my $computer (@killing_computer){
         system("/usr/sbin/sophomorix-kill --killuser $computer");
     }
-
 
     print "\nAdding computers:\n";
     print "------------------------------------",
@@ -533,16 +524,14 @@ if ($sync_accounts==1){
         system("/usr/sbin/sophomorix-useradd --computer $u_comp");
         system("/usr/sbin/sophomorix-passwd --force -u $u_comp --pass $pass");
     }
-} else {
-    print "\nNot syncing accounts\n",
-          "   Use option --sync-accounts to do so!\n",
-          "   This is Beta!\n";
-}
+    &log_script_exit("",1,1,0,@arguments);
+} 
 
 
 
-
-# setting computer passwords
+# ===========================================================================
+# --set-computer-passwords (setting computer passwords)
+# ===========================================================================
 if ($set_computer_passwords==1){
     print "Setting password for all Computer accounts:\n";
     my ($ref_domcomputers,
@@ -564,36 +553,55 @@ if ($set_computer_passwords==1){
         system("/usr/sbin/sophomorix-passwd --force -u $comp --pass $pw");
         $count++;
     }
+    &log_script_exit("",1,1,0,@arguments);
 }
 
 
 
-
-# creating italk files
+# ===========================================================================
+# --italc-dir  (create config files for italc)
+# ===========================================================================
 if ($italc_dir ne ""){
     print "Creating italc files in $italc_dir\n";
     system("mkdir -p $italc_dir");
-    # ???? permissions, owner
+    system("chown root.${DevelConf::teacher} $italc_dir");
+    system("chmod 755 $italc_dir");
 
-    my $file="globalconfig.xml";
+    my $file_global="globalconfig.xml";
+    my $file_personal="personalconfig.xml";
 
     foreach my $room (@italc_rooms){
+        my @teacher_hosts=();
         my $classroom_name=$italc_rooms{$room}{'NAME'};
+        my $master_host=$italc_rooms{$room}{'MASTER'};
 
         my $italc_parent=$italc_dir."/".$room;
-        my $italc_file=$italc_parent."/".$file;
+        my $italc_file_global=$italc_parent."/".$file_global;
+        my $italc_file_personal=$italc_parent."/".$file_personal;
 
-        print "Creating $italc_file for italcroom $room ...\n";
         system("mkdir -p $italc_parent");
-        open(ITALC, ">$italc_file");
-        print ITALC '<?xml version="1.0"?>'."\n";
-        print ITALC '<!DOCTYPE italc-config-file>'."\n";
-        print ITALC '<globalclientconfig version="1.0.7" >'."\n";
-        print ITALC '  <body>'."\n";
-        print ITALC '    <classroom name="'.$classroom_name.'" >'."\n";
+        system("chown root.${DevelConf::teacher} $italc_parent");
+        system("chmod 755 $italc_parent");
 
-        my @host_list=();
-        my %host_lines=();
+        print "Creating $italc_file_global for italcroom $room ...\n";
+        open(ITALCGLOBAL, ">$italc_file_global");
+        print ITALCGLOBAL '<?xml version="1.0"?>'."\n";
+        print ITALCGLOBAL '<!DOCTYPE italc-config-file>'."\n";
+        print ITALCGLOBAL '<globalclientconfig version="1.0.7" >'."\n";
+        print ITALCGLOBAL '  <body>'."\n";
+        print ITALCGLOBAL '    <classroom name="'.$classroom_name.'" >'."\n";
+
+        print "Creating $italc_file_personal for italcroom $room ...\n";
+        open(ITALCPERSONAL, ">$italc_file_personal");
+        print ITALCPERSONAL '<?xml version="1.0"?>'."\n";
+        print ITALCPERSONAL '<!DOCTYPE italc-config-file>'."\n";
+        print ITALCPERSONAL '<personalconfig version="1.0.7" >'."\n";
+        print ITALCPERSONAL '  <head>'."\n";
+
+        my @host_list_global=();
+        my @host_list_personal=();
+        my %host_lines_global=();
+        my %host_lines_personal=();
         for my $host ( keys %{ $rooms_file{$room}{"HOSTS"} } ) {
             my $ip=$domcomputers_file{$host}{"IP"};
             my $mac=$domcomputers_file{$host}{"MAC"};
@@ -603,16 +611,16 @@ if ($italc_dir ne ""){
             if (exists $italc_rooms{$room}{"$host"}){
                 if ($italc_rooms{$room}{"$host"} eq "teacher host"){
 		    $type=1;
+                    # remember teacher hosts
+                    push @teacher_hosts, $host;
                 }
             }
 
             # how to generate the id ???
             my $id="unknown";
-
 	    #print "   * HOST: $host\n";
 	    #print "     *  IP: $ip\n";
 	    #print "     * MAC: $mac\n";
-
             my $line="      <client localip=\"".$ip."\" ".
                                        "mac=\"".$mac."\" ".
                                       "type=\"".$type."\" ".
@@ -620,31 +628,67 @@ if ($italc_dir ne ""){
                                       "name=\"".$host."\" ".
                      "/>\n";
             # for sorting
-            push @host_list, $host;
+            push @host_list_global, $host;
             # for lines
-            $host_lines{$host}=$line;
+            $host_lines_global{$host}=$line;
         }
 
-        @host_list = sort @host_list;
+        @host_list_global = sort @host_list_global;
 
-        foreach my $host (@host_list){
-		print ITALC "$host_lines{$host}";
+        foreach my $host (@host_list_global){
+		print ITALCGLOBAL "$host_lines_global{$host}";
         }
+        
+        # italc global file
+        print ITALCGLOBAL '    </classroom>'."\n";
+        print ITALCGLOBAL '  </body>'."\n";
+        print ITALCGLOBAL '</globalclientconfig>'."\n";
+        close(ITALCGLOBAL);
+        system("chown root.${DevelConf::teacher} $italc_file_global");
+        system("chmod 755 $italc_file_global");
 
-        print ITALC '    </classroom>'."\n";
-        print ITALC '  </body>'."\n";
-        print ITALC '</globalclientconfig>'."\n";
-        close(ITALC);
+        # italc personal file
+        # globalsettings ???
+        my $master_ip=$domcomputers_file{$master_host}{"IP"};
+
+
+        print ITALCPERSONAL '  <globalsettings '.
+                            "demo-master-ip=\"".$master_ip."\" ".
+                            'opened-tab="5" '.
+                            'demoquality="0" '.
+                            'defaultdomain="" '.
+                            'role="1" '.
+                            'demo-net-iface="eth0" '.
+                            'client-update-interval="1" '.
+                            'wincfg="AAAA/wAAAAD9AAAAAAAABAAAAAJfAAAABAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAEAAAAWAG0AYQBpAG4AdABvAG8AbABiAGEAcgEAAAAAAAAEAAAAAAAAAAAA" '.
+                            'notooltips="1" '.
+                            'win-height="663" '.
+                            'win-x="0" '.
+                            'ismaximized="1" '.
+                            'win-y="0" '.
+                            'clientdoubleclickaction="0" '.
+                            'win-width="1024" '.
+                            'showUserColumn="0" />'."\n";
+        print ITALCPERSONAL '  </head>'."\n";
+        print ITALCPERSONAL '  <body>'."\n";
+        print ITALCPERSONAL '    <classroom name="'.$classroom_name.'" >'."\n";
+        foreach my $host (@host_list_personal){
+		print ITALCPERSONAL "$host_lines_personal{$host}";
+        }
+        print ITALCPERSONAL '    </classroom>'."\n";
+        print ITALCPERSONAL '  </body>'."\n";
+        print ITALCPERSONAL '</personalconfig>'."\n";
+        close(ITALCPERSONAL);
+        system("chown root.${DevelConf::teacher} $italc_file_personal");
+        system("chmod 755 $italc_file_personal");
+
+        foreach my $teacher_host (@teacher_hosts){
+            # create links for teacher hosts
+            system("cd $italc_dir; ln -s $room $teacher_host");
+        }
     }
+    &log_script_exit("",1,1,0,@arguments);
 }
-
-
-
-
-
-
-
-
 
 exit 0;
 
@@ -1120,13 +1164,21 @@ sub get_italcrooms {
         } 
         $italc_rooms{$room}{'NAME'}=$italc_classroom_name;
 
-        if (not defined $host_string){
+        if (not defined $host_string or $host_string eq ""){
             $italc_rooms{$room}="seen";
+            # ERROR: italc rooms must have a master
+            &log_script_exit("$room without master (italc)",1,1,0,@arguments);
         } else {
             my @teacher_hosts = split(/,/,$host_string);
+            my $i=1;
             foreach my $host (@teacher_hosts){
                 print "      * $host is teacher host\n";
                 $italc_rooms{$room}{"$host"}="teacher host";
+                if ($i==1){
+                    #remember first entry
+                    $italc_rooms{$room}{'MASTER'}="$host";
+                }
+                $i++;
             }
         }
     }
