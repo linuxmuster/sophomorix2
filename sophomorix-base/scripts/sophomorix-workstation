@@ -119,7 +119,7 @@ my %examaccounts_file=();
 
 # italc
 
-my $italc_owner="roe";
+my $italc_owner="root";
 
 my $italc_dir="";
 
@@ -663,7 +663,7 @@ if ($italc_dir ne ""){
 
             # use shortend macs (8 digits)
             #print "Full MAC: $hex_mac\n";
-            $hex_mac=substr($hex_mac,4,8);
+            $hex_mac=substr($hex_mac,6,6);
             #print "Shortened: $hex_mac\n";
 
 	    my $dec_mac =  hex($hex_mac);
