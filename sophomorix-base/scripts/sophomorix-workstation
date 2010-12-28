@@ -115,12 +115,20 @@ my %examaccounts_file=();
 # italc
 my $italc_dir="";
 
-my $italc_conf="/etc/linuxmuster/italcrooms";
-# syntax of /etc/linuxmuster/italcrooms:
+my $italc_conf_dir="/etc/sophomorix/italc";
+my $italc_conf=$italc_conf_dir."/italcrooms";
+my $italc_key_dir=$italc_conf_dir."/private";
+my $italc_key_dir_admin=$italc_key_dir."/admin";
+my $italc_key_dir_supporter=$italc_key_dir."/supporter";
+my $italc_key_dir_teacher=$italc_key_dir."/teacher";
+# syntax of italcrooms:
 # room:classroom_name:teacher_host1,teacher_host2,teacher_host3
 # room: as in /etc/linuxmuster/workstations
 # classroom_name: the italc name
 # teacher_host1: host that are allowed to use italc
+# 
+# use italc
+# run sophomorix-workstation --full-check (creates /etc/sophomorix/italc/ dirs, checks workstation files)
 
 # italc
 my $w_coord=169;
@@ -196,7 +204,7 @@ Options:
   -vv  /  --verbose --verbose
 
 Managing accounts:
-  --check                   (check ALL fields of workstation file)
+  --full-check              (check ALL fields of workstation file)
   --sync-accounts           (add, delete accounts as necessary, 
                              check only account data: hostname,room)
   --set-computer-passwords  (set computer passwords to 12345678)
@@ -1140,9 +1148,12 @@ sub push_kill_computer {
 
 
 sub get_classrooms {
-    print "* Fetching classrooms\n";
+    print "* Fetching classrooms from $classroom_conf:\n";
     if (not -e $classroom_conf){
+        print "   * File $classroom_conf does not exist!\n";
         return;
+    } else {
+        print "   * File $classroom_conf exists\n";
     }
     open(CLASSROOM, "<$classroom_conf");
     while(<CLASSROOM>){
@@ -1164,9 +1175,21 @@ sub get_classrooms {
 
 
 sub get_italcrooms {
-    print "* Fetching italc rooms\n";
+    print "* Fetching italc rooms from $italc_conf:\n";
+    if (not -e $italc_conf_dir){
+        system("mkdir -p $italc_conf_dir");
+    }
     if (not -e $italc_conf){
-        return;
+        system("touch $italc_conf");
+    } 
+    if (not -e $italc_key_dir_admin){
+        system("mkdir -p $italc_key_dir_admin");
+    }
+    if (not -e $italc_key_dir_supporter){
+        system("mkdir -p $italc_key_dir_supporter");
+    }
+    if (not -e $italc_key_dir_teacher){
+        system("mkdir -p $italc_key_dir_teacher");
     }
     open(ITALCROOM, "<$italc_conf");
     while(<ITALCROOM>){
