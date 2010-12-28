@@ -56,6 +56,11 @@
 # ===========================================================================
 # Bibliotheken
 # ===========================================================================
+
+# uncomment to suppress warnings about longer than FFFFFFFF hex values as MAC
+#no warnings 'portable';  
+#no warnings 'overflow';
+
 use strict;
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
@@ -113,6 +118,9 @@ my %rooms_file=();
 my %examaccounts_file=();
 
 # italc
+
+my $italc_owner="roe";
+
 my $italc_dir="";
 
 my $italc_conf_dir="/etc/sophomorix/italc";
@@ -139,10 +147,12 @@ my $italc_key_dir_teacher=$italc_key_dir."/teacher";
 # italc
 my $w_coord=169;
 my $h_coord=126;
-my $x_coord="xxxxxxxx";
-my $y_coord="yyyyyyyy";
-my @x_coord=(0,171,342,513); # ???
-my @y_coord=(0,0,0,0,128,128,128,128,256,256,256,256,384,384,384,384); # ???
+my $x_coord="xxxxxxxxxxxx";
+my $y_coord="yyyyyyyyyyyy";
+my @x_coord=(0,171,342,513,0,171,342,513,0,171,342,513,0,171,342,513,0,171,342,513,
+             0,171,342,513,0,171,342,513,0,171,342,513,0,171,342,513,0,171,342,513); # max 40 hosts
+my @y_coord=(0,0,0,0,128,128,128,128,256,256,256,256,384,384,384,384,512,512,512,512,
+             640,640,640,640,768,768,768,768,896,896,896,896,1024,1024,1024,1024,1152,1152,1152,1152); # max 40 hosts
 
 
 my %italc_rooms=();
@@ -591,8 +601,8 @@ if ($set_computer_passwords==1){
 if ($italc_dir ne ""){
     print "Creating italc files in $italc_dir\n";
     system("mkdir -p $italc_dir");
-    system("chown root.${DevelConf::teacher} $italc_dir");
-    system("chmod 755 $italc_dir");
+    system("chown $italc_owner.${DevelConf::teacher} $italc_dir");
+    system("chmod 0755 $italc_dir");
 
     my $file_global="globalconfig.xml";
     my $file_personal="personalconfig.xml";
@@ -607,8 +617,8 @@ if ($italc_dir ne ""){
         my $italc_file_personal=$italc_parent."/".$file_personal;
 
         system("mkdir -p $italc_parent");
-        system("chown root.${DevelConf::teacher} $italc_parent");
-        system("chmod 755 $italc_parent");
+        system("chown $italc_owner.${DevelConf::teacher} $italc_parent");
+        system("chmod 0755 $italc_parent");
 
         print "Creating $italc_file_global for italcroom $room ...\n";
         open(ITALCGLOBAL, ">$italc_file_global");
@@ -644,8 +654,21 @@ if ($italc_dir ne ""){
                 }
             }
 
-            # how to generate the id ???
-            my $id="unknown";
+            # id is 8 of 12 letters of MAC-address converted to decimal
+            # warnings must be disabled if you need more
+            my $hex_mac=$mac;
+            $hex_mac=~s/://g;
+            # maximum mac
+            # my $hex_mac="FFFFFFFF";
+
+            # use shortend macs (8 digits)
+            #print "Full MAC: $hex_mac\n";
+            $hex_mac=substr($hex_mac,4,8);
+            #print "Shortened: $hex_mac\n";
+
+	    my $dec_mac =  hex($hex_mac);
+            my $id=$dec_mac;
+
             my $line_global="      <client localip=\"".$ip."\" ".
                                               "mac=\"".$mac."\" ".
                                              "type=\"".$type."\" ".
@@ -679,8 +702,8 @@ if ($italc_dir ne ""){
         print ITALCGLOBAL '  </body>'."\n";
         print ITALCGLOBAL '</globalclientconfig>'."\n";
         close(ITALCGLOBAL);
-        system("chown root.${DevelConf::teacher} $italc_file_global");
-        system("chmod 755 $italc_file_global");
+        system("chown $italc_owner.${DevelConf::teacher} $italc_file_global");
+        system("chmod 0755 $italc_file_global");
 
         # italc personal file
         my $master_ip=$domcomputers_file{$master_host}{"IP"};
@@ -704,15 +727,23 @@ if ($italc_dir ne ""){
         print ITALCPERSONAL '  </head>'."\n";
         print ITALCPERSONAL '  <body>'."\n";
         print ITALCPERSONAL '    <classroom name="'.$classroom_name.'" >'."\n";
+        my $host_index=0; # index for array: index=0 --> first element
         foreach my $host (@host_list_personal){
-		print ITALCPERSONAL "$host_lines_personal{$host}";
+	    my $line_to_print=$host_lines_personal{$host};
+            # replace coordinates
+            $line_to_print=~s/$x_coord/$x_coord[$host_index]/g;
+            $line_to_print=~s/$y_coord/$y_coord[$host_index]/g;
+            print ITALCPERSONAL "$line_to_print";
+            # old: print unmodified
+	    #print ITALCPERSONAL "$host_lines_personal{$host}";
+            $host_index++;
         }
         print ITALCPERSONAL '    </classroom>'."\n";
         print ITALCPERSONAL '  </body>'."\n";
         print ITALCPERSONAL '</personalconfig>'."\n";
         close(ITALCPERSONAL);
-        system("chown root.${DevelConf::teacher} $italc_file_personal");
-        system("chmod 755 $italc_file_personal");
+        system("chown $italc_owner.${DevelConf::teacher} $italc_file_personal");
+        system("chmod 0755 $italc_file_personal");
 
         foreach my $teacher_host (@teacher_hosts){
             # create links for teacher hosts
@@ -723,7 +754,7 @@ if ($italc_dir ne ""){
     # copying the keys
     print "* Copying italc keys to $italc_dir\n";
     system("cp -r $italc_key_dir $italc_dir");
-    system("chown -R root.${DevelConf::teacher} $italc_dir");
+    system("chown -R $italc_owner.${DevelConf::teacher} $italc_dir");
     system("chmod 440 ${italc_key_dir_admin}/key");
     system("chmod 440 ${italc_key_dir_supporter}/key");
     system("chmod 440 ${italc_key_dir_teacher}/key");
