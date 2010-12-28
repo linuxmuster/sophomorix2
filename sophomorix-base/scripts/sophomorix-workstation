@@ -128,8 +128,14 @@ my $italc_key_dir_teacher=$italc_key_dir."/teacher";
 # teacher_host1: host that are allowed to use italc
 # 
 # use italc
-# run sophomorix-workstation --full-check (creates /etc/sophomorix/italc/ dirs, checks workstation files)
-
+# 1) run sophomorix-workstation --full-check (creates /etc/sophomorix/italc/ dirs, checks workstation files)
+# 2) edit italcrooms
+# 3) copy the keys to /etc/sophomorix/italc/[admin|supporter|teacher]
+# 4) run sophomorix-workstation --italc-dir /home/share/teachers/.italc
+# 5) configure client the following:
+#     ln -s /home/share/teachers/.italc/private /etc/italc/keys
+#     on login as teacher: ln -s /home/share/teachers/.italc/$HOSTNAME/ $HOME/.italc
+#
 # italc
 my $w_coord=169;
 my $h_coord=126;
@@ -713,6 +719,14 @@ if ($italc_dir ne ""){
             system("cd $italc_dir; ln -s $room $teacher_host");
         }
     }
+
+    # copying the keys
+    print "* Copying italc keys to $italc_dir\n";
+    system("cp -r $italc_key_dir $italc_dir");
+    system("chown -R root.${DevelConf::teacher} $italc_dir");
+    system("chmod 440 ${italc_key_dir_admin}/key");
+    system("chmod 440 ${italc_key_dir_supporter}/key");
+    system("chmod 440 ${italc_key_dir_teacher}/key");
     &log_script_exit("",1,1,0,@arguments);
 }
 
