@@ -19,7 +19,7 @@
 # field 9:
 # permanently unused. sysadmin can use it
 
-# field 10, last bpbatch option
+# field 10, last bpbatch option: new: account_flag
 # 0         : device ohne account
 # all others: device mit account
 
@@ -149,12 +149,16 @@ my $w_coord=169;
 my $h_coord=126;
 my $x_coord="xxxxxxxxxxxx";
 my $y_coord="yyyyyyyyyyyy";
-my @x_coord=(0,171,342,513,0,171,342,513,0,171,342,513,0,171,342,513,0,171,342,513,
-             0,171,342,513,0,171,342,513,0,171,342,513,0,171,342,513,0,171,342,513); # max 40 hosts
-my @y_coord=(0,0,0,0,128,128,128,128,256,256,256,256,384,384,384,384,512,512,512,512,
-             640,640,640,640,768,768,768,768,896,896,896,896,1024,1024,1024,1024,1152,1152,1152,1152); # max 40 hosts
-
-
+my @x_coord=(0,171,342,513,0,171,342,513,
+             0,171,342,513,0,171,342,513,
+             0,171,342,513,0,171,342,513,
+             0,171,342,513,0,171,342,513,
+             0,171,342,513,0,171,342,513); # max 40 hosts
+my @y_coord=(0,0,0,0,128,128,128,128,
+             256,256,256,256,384,384,384,384,
+             512,512,512,512,640,640,640,640,
+             768,768,768,768,896,896,896,896,
+             1024,1024,1024,1024,1152,1152,1152,1152); # max 40 hosts
 my %italc_rooms=();
 my @italc_rooms=();
 
@@ -467,7 +471,7 @@ while (my ($examaccount,$room) = each %examaccounts_system){
     }
 }
 
-# examaccounts to kill
+# computers to kill
 while (my ($computer,$room) = each %domcomputers_system){
     if (not exists $hosts_file{$computer}){
         # host is not in file anymore
@@ -801,9 +805,9 @@ sub analyze_line {
             $ip,
             $netmask,
             $linbo_server,
-            $part2,
-            $part3,
-            $dev_type,
+            $unused,
+            $sysadmin_field,
+            $account_flag,
             $pxe,
             $option)=split(/;/,$line);
 
@@ -815,44 +819,48 @@ sub analyze_line {
         $netmask=&check_netmask($netmask);
         # linbo server can contain an integer as well
         #$linbo_server=&check_ip($linbo_server);
-#        print "   PART 2:  $part2\n";
-#        print "   PART 3:  $part3\n";
-        $dev_type=&check_dev_type($dev_type);
+#        print "   UNUSED:  $unused\n";
+#        print "   SYSADM:  $sysadmin_field\n";
+        $account_flag=&check_account_flag($account_flag);
         $pxe=&check_pxe($pxe);
         $option=&check_option($option);
 
-        # field 10
-        # $dev_type==0 (no account)
-        # $dev_type==1 (account)
-        if ($dev_type eq 0){
-            if($Conf::log_level>=2){
-                print "   * Skipping entry (dev_type=0, no accounts needed!)\n";
-            }
-            return;
-        }
-
-        # line is correct
-        my $line_correct=$room.";".$host.";".$hwk.";".$mac.";".
-                         $ip.";".$netmask.";".
-                         $linbo_server.";".$part2.";".$part3.";".$dev_type.";".
-                         $pxe.";".$option.";";
-        # save data into hashes
+        # save data into hashes for reuse
         $domcomputers_file{$host}{"HWK"}=$hwk;
         $domcomputers_file{$host}{"MAC"}=$mac;
         $domcomputers_file{$host}{"IP"}=$ip;
         $domcomputers_file{$host}{"NETMASK"}=$netmask;
         $domcomputers_file{$host}{"ROOM"}=$room;
+        $domcomputers_file{$host}{"ACCOUNT"}=$account_flag;
 
         $rooms_file{$room}{"HOSTS"}{$host}="seen";
         $rooms_file{$room}{"MAC"}{$mac}="seen";
         $rooms_file{$room}{"IP"}{$ip}="seen";
 
+
+        # line is correct
+        my $line_correct=$room.";".$host.";".$hwk.";".$mac.";".
+                         $ip.";".$netmask.";".
+                         $linbo_server.";".$unused.";".
+                         $sysadmin_field.";".$account_flag.";".
+                         $pxe.";".$option.";";
+
         if($Conf::log_level>=2){
             print "$line_correct\n\n";
         }
-        $hosts_file{$host}=$line_correct;
-        my $computer=$host."\$";
-        $hosts_file{$computer}=$line_correct;
+
+        # field 10 decides 
+        # $account_flag==0 (no account)
+        # $account_flag==1 (create account) 1and all other values
+        if ($account_flag==1){
+            $hosts_file{$host}=$line_correct;
+            my $computer=$host."\$";
+            $hosts_file{$computer}=$line_correct;
+        } else {
+            # no need to check that it should be added
+            return;
+        }
+
         # check examaccount
         if (not exists $examaccounts_system{$host}){
             # nonexisting --> add account
@@ -1052,15 +1060,17 @@ sub check_netmask {
 
 
 
-sub check_dev_type {
-    my ($dev_type) = @_;
-    if ($sync_accounts==1){
-        return $dev_type;
+sub check_account_flag {
+    my ($account_flag) = @_;
+    if ($account_flag eq 0){
+        # ok
+    } else {
+        $account_flag=1;
     }
     if($Conf::log_level>=3){
-        print "   DEVICE TYPE:     $dev_type\n";
+        print "   ACCOUNT FLAG:     $account_flag\n";
     }
-    return $dev_type;
+    return $account_flag;
 }
 
 
