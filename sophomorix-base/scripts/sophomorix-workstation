@@ -132,7 +132,7 @@ my $italc_key_dir_teacher=$italc_key_dir."/teacher";
 # syntax of italcrooms:
 # room:classroom_name:teacher_host1,teacher_host2,teacher_host3
 # room: as in /etc/linuxmuster/workstations
-# classroom_name: the italc name
+# classroom_name: the name displayed by italc
 # teacher_host1: host that are allowed to use italc
 # 
 # use italc
@@ -643,29 +643,32 @@ if ($italc_dir ne ""){
             my $ip=$domcomputers_file{$host}{"IP"};
             my $mac=$domcomputers_file{$host}{"MAC"};
 
+            # type? 0/1 
             my $type=0;
-            my $visible="yes";
-            if (exists $italc_rooms{$room}{"$host"}){
-                if ($italc_rooms{$room}{"$host"} eq "teacher host"){
+            if (exists $italc_rooms{$room}{"$host"}{'TYPE'}){
+               if ($italc_rooms{$room}{"$host"}{'TYPE'} eq "teacher host"){
 		    $type=1;
-                    $visible="no";
                     # remember teacher hosts
                     push @teacher_hosts, $host;
                 }
             }
 
-            # id is 8 of 12 letters of MAC-address converted to decimal
-            # warnings must be disabled if you need more
+            # visible? yes/no
+            my $visible="yes";
+            if (exists $italc_rooms{$room}{"$host"}{'INVISIBLE'}){
+               if ($italc_rooms{$room}{"$host"}{'INVISIBLE'} eq "yes"){
+                    $visible="no";
+                }
+            }
+
+            # id is 6 digits of MAC-address converted to decimal
+            # more digits are not suppoorted bay italc 1.0.7
+            # perl can calculate lager hex numbers.
+            # warnings must be be disabled if you need more 
+            # -> see beginning of script: no warnings ....
             my $hex_mac=$mac;
             $hex_mac=~s/://g;
-            # maximum mac
-            # my $hex_mac="FFFFFFFF";
-
-            # use shortend macs (8 digits)
-            #print "Full MAC: $hex_mac\n";
             $hex_mac=substr($hex_mac,6,6);
-            #print "Shortened: $hex_mac\n";
-
 	    my $dec_mac =  hex($hex_mac);
             my $id=$dec_mac;
 
@@ -755,9 +758,21 @@ if ($italc_dir ne ""){
     print "* Copying italc keys to $italc_dir\n";
     system("cp -r $italc_key_dir $italc_dir");
     system("chown -R $italc_owner.${DevelConf::teacher} $italc_dir");
-    system("chmod 440 ${italc_key_dir_admin}/key");
-    system("chmod 440 ${italc_key_dir_supporter}/key");
-    system("chmod 440 ${italc_key_dir_teacher}/key");
+    if (-e "${italc_key_dir_admin}/key"){
+        system("chmod 440 ${italc_key_dir_admin}/key");
+    } else {
+        print "\nPlease add a key ${italc_key_dir_admin}/key!\n\n";
+    }
+    if (-e "${italc_key_dir_supporter}/key"){
+        system("chmod 440 ${italc_key_dir_supporter}/key");
+    } else {
+        print "\nPlease add a key ${italc_key_dir_supporter}/key!\n\n";
+    }
+    if (-e "${italc_key_dir_teacher}/key"){
+        system("chmod 440 ${italc_key_dir_teacher}/key");
+    } else {
+        print "\nPlease add a key ${italc_key_dir_teacher}/key!\n\n";
+    }
     &log_script_exit("",1,1,0,@arguments);
 }
 
@@ -1243,17 +1258,27 @@ sub get_italcrooms {
         if(/^\#/){ # # am Anfang bedeutet Kommentarzeile
             next;
         }
+        if($_ eq ""){ 
+            next;
+        }
+
         my $line=$_;
-        my ($room,$italc_classroom_name,$host_string) = split(/:/,$line);
+        my ($room,$italc_classroom_name,
+            $host_string,$invisible_host_string) = split(/:/,$line);
         if($Conf::log_level>=2){
             print "   * $room\n";
         }
+
+        # room
         push @italc_rooms, $room;
+
+        # classroom name
         if ($italc_classroom_name eq ""){
             $italc_classroom_name=$room;
         } 
         $italc_rooms{$room}{'NAME'}=$italc_classroom_name;
 
+        # hosts that can use italc
         if (not defined $host_string or $host_string eq ""){
             $italc_rooms{$room}="seen";
             # ERROR: italc rooms must have a master
@@ -1263,14 +1288,28 @@ sub get_italcrooms {
             my $i=1;
             foreach my $host (@teacher_hosts){
                 if($Conf::log_level>=2){
-                    print "      * $host is teacher host\n";
+                    print "      * $host is teacher host (type=1)\n";
                 }
-                $italc_rooms{$room}{"$host"}="teacher host";
+                $italc_rooms{$room}{"$host"}{'TYPE'}="teacher host";
                 if ($i==1){
                     #remember first entry
                     $italc_rooms{$room}{'MASTER'}="$host";
                 }
                 $i++;
+            }
+        }
+
+        # invisible hosts
+        if (not defined $invisible_host_string or 
+                        $invisible_host_string eq ""){
+            # do nothing
+        } else {
+            my @invisible_hosts = split(/,/,$invisible_host_string);
+            foreach my $host (@invisible_hosts){
+                if($Conf::log_level>=2){
+                    print "      * $host is an invisible host (visible=no)\n";
+                }
+                $italc_rooms{$room}{"$host"}{'INVISIBLE'}="yes";
             }
         }
     }
