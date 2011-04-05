@@ -1937,7 +1937,7 @@ sub semicolon_number_ok {
         # ist ein häufiger Fehler von Schulverwaltungsprogrammen
         $_="$_;"; # Strichpunkt anhängen
         if($Conf::log_level>=3){
-           print " ... $number semicolon found ... AUTOCORRECTING\n";
+           print " ... $number semicolon found/last semicolon missing ... AUTOCORRECTING\n";
         }
         return 1;
    } elsif ($number==6 && $filename eq $schueler_to_check_dateien[2]) {
@@ -1955,13 +1955,9 @@ sub semicolon_number_ok {
         return 1;
    } else {
         $datensatz_korrupt=1;
-        if ($filename eq $schueler_to_check_dateien[0]){
-            if($Conf::log_level>=2){
-                print " ... $number semicolon found in $filename ... WARNING\n";
-            }
-        } else {
-            print " ... $number semicolon found in $filename ... ERROR\n";
-        }
+        # autocorrection failed before, this IS a corrupt line!
+        print  "##### Fehlerhafter Datensatz (Zeile: $zeilen_anzahl_datei)\n","$_\n";
+        print " ... $number semicolon found in $filename ... ERROR\n";
         $datensatz_korrupt_anzahl++;
         push (@admin_list_corrupt, "Korrupter Datensatz (", $number ,
 	      " Strichpunkte):\n");
