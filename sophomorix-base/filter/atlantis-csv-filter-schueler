@@ -7,6 +7,7 @@
 #
 #
 # Fetch data from Atlantis the following way:
+# Atlantis Version 3.0.0
 #
 #   1. Atlantis starten
 #   2. Button unter Menü: "Schüler aktuelles Schuljahr" 
@@ -49,8 +50,8 @@
 # key: number of selicolons
 # value: max allowed number
 my %semicolons_allowed = qw(
-    290     3500
-    291     2
+    292     3500
+    293     2
 );
 
 
@@ -124,7 +125,7 @@ while (<SOURCE>){
     pop @line;
     my $field_num=0;
 
-    if($line_num==0 and ($line[5] eq "Klasse"  or $line[5] eq "\"Klasse\"" ) ){
+    if($line_num==0 and ($line[6] eq "Klasse"  or $line[6] eq "\"Klasse\"" ) ){
         # read the headers
         foreach my $item (@line){
             $item = &format_field($item);
