@@ -605,6 +605,7 @@ if ($italc_dir ne ""){
 
     my $file_global="globalconfig.xml";
     my $file_personal="personalconfig.xml";
+    my $dir_snapshots="snapshots";
 
     foreach my $room (@italc_rooms){
         my @teacher_hosts=();
@@ -614,10 +615,14 @@ if ($italc_dir ne ""){
         my $italc_parent=$italc_dir."/".$room;
         my $italc_file_global=$italc_parent."/".$file_global;
         my $italc_file_personal=$italc_parent."/".$file_personal;
+        my $italc_snapshots_dir=$italc_parent."/".$dir_snapshots;
 
         system("mkdir -p $italc_parent");
         system("chown $italc_owner.${DevelConf::teacher} $italc_parent");
         system("chmod 0755 $italc_parent");
+
+        system("mkdir -p $italc_snapshots_dir");
+        system("chmod 0777 $italc_snapshots_dir");
 
         print "Creating $italc_file_global for italcroom $room ...\n";
         open(ITALCGLOBAL, ">$italc_file_global");
@@ -722,7 +727,7 @@ if ($italc_dir ne ""){
                             'demo-net-iface="eth0" '.
                             'client-update-interval="1" '.
                             'wincfg="AAAA/wAAAAD9AAAAAAAABAAAAAJfAAAABAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAEAAAAWAG0AYQBpAG4AdABvAG8AbABiAGEAcgEAAAAAAAAEAAAAAAAAAAAA" '.
-                            'notooltips="1" '.
+                            'notooltips="0" '.
                             'win-height="663" '.
                             'win-x="0" '.
                             'ismaximized="1" '.
