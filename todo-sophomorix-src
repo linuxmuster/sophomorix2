@@ -10,6 +10,13 @@ sophomorix-user --repairhome (wie reset-user, aber ohne zu löschen)
 sticky bits weg
 keine force groups/create mode, .... in smb.conf
 
+Fragen: 
+1) directory mode weg?
+2) wide Links
+3) suid guid auch weg
+4) Ordner,Links vor dem löschen sichern wie?
+5) immutable bit von ext3 filesystem zusätzlich nutzen
+
 ueberlegen, welche default acls gesetzt werden sollen
 
 /home/share/classes/KLASSE 
@@ -20,9 +27,33 @@ cp -a/mv -a
 cp -r ()
 rsync --acl, tar nicht mehr sondern star
 
+Umsetzung:
+####################################
+
+# sticky bit entfernen
+chmod u-s,g-s,o-t -R /home/share
+
+# fuer neu anzulegende 
 setfacl -d -m g:teachers:rwx /dir/to/dir
+-d : defaultacl
+-m : modify
+
+# fur bestehende
+setfacl -R -m g:teachers_rwx 
+(besser: mit --mask neu berechnen lassen)
+
+
+
+Entfernen von allen acls:
+
+setfacl -R -b /dir/to/dir
+
+
 
 sophomorix-repair fuer acl anpassen:
+
+Paketname: acl
+
 
 1) optionen --with-acl     (zukünftiger default) 
         und --without-acl  (momentaner default)
