@@ -22,7 +22,25 @@ rsync --acl, tar nicht mehr sondern star
 
 setfacl -d -m g:teachers:rwx /dir/to/dir
 
-sophomorix-repair fuer acl anpassen 
+sophomorix-repair fuer acl anpassen:
+
+1) optionen --with-acl     (zukünftiger default) 
+        und --without-acl  (momentaner default)
+2) sophomorix-base/config-devel/repair.directories anpassen
+
+   zusatzoptionen (checken, ob für immutable bit schon was benutzt wird)
+
+   A) erste Zusatzoption:
+   welche(r) (rekursive) Befehl(e) sind notwendig, um alle Datein im Verzeichnis
+   mit acl's zu versehen
+
+   B) zweite Zusatzoption:
+   welcher Befehl ist notwendig, um im directory alle acls zu entfernen?
+
+   Zum testen: sophomorix-repair --acl-only-class klasse 
+               schränkt das auf eine bestimmte Klasse ein
+
+
 
 
 sophomorix-class -i -c tg12 sollte sinnvolle liste anzeigen
