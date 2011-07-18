@@ -366,7 +366,7 @@ my $internsubrange_debconf=
 if ($internsubrange_debconf ne 0){
     # from debconf
     my ($min,$max)=split(/-/,$internsubrange_debconf);    
-    $internip="10.".$min.".0.0";    
+    $internip="10.".$min.".1.1";    
     print "   Internal IP from debconf             : $internip \n";
 } else {
     # from config file
