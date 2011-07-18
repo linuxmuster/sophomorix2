@@ -48,6 +48,7 @@ if (-e $DevelConf::slapd_pem_file){
 
 my $smbworkgroup="";
 my $internip="";
+my $ipcopip="";
 my $internmask="";
 my $imaging="";
 my $sid="";
@@ -292,6 +293,7 @@ if (-e $config_file) {
    $smbworkgroup=$PgLdapConf::smbworkgroup;
    $smbserverstring=$PgLdapConf::smbserverstring;
    $internip=$PgLdapConf::internip;
+   $ipcopip=$PgLdapConf::ipcopip;
    $internmask=$PgLdapConf::internmask;
    $imaging=$PgLdapConf::imaging;
    $dbname=$PgLdapConf::dbname;
@@ -367,10 +369,13 @@ if ($internsubrange_debconf ne 0){
     # from debconf
     my ($min,$max)=split(/-/,$internsubrange_debconf);    
     $internip="10.".$min.".1.1";    
+    $ipcopip="10.".$min.".1.254";
     print "   Internal IP from debconf             : $internip \n";
+    print "   Ipcop IP from Internal IP            : $ipcopip \n";
 } else {
     # from config file
     print "   Internal IP from pgldap.conf         : $internip \n";
+    print "   Ipcop IP from pgldap.conf            : $ipcopip \n";
 }
 
 
@@ -702,6 +707,7 @@ $replace= " -e 's/\@\@basedn\@\@/${basedn}/g'".
           " -e 's/\@\@dc\@\@/${dc}/g'".
           " -e 's/\@\@servername\@\@/${servername}/g'". 
           " -e 's/\@\@internip\@\@/${internip}/g'". 
+          " -e 's/\@\@ipcopip\@\@/${ipcopip}/g'". 
           " -e 's/\@\@serverip\@\@/${internip}/g'". 
           " -e 's/\@\@internmask\@\@/${internmask}/g'". 
           " -e 's/\@\@sid\@\@/${sid}/g'". 
