@@ -6,9 +6,42 @@ sophomorix-repair: zusatzoption, damit auch symlinks ALLER user repariert werden
 sophomorix-user --repairhome (wie reset-user, aber ohne zu löschen)
 
 
+Datenbank neu einspielen:
+
+1) Testen, ob man sich als user postgres verbinden kann:
+
+psql -U postgres ldap
+
+
+2) alter Stand sichern
+
+pg_dump --format=p -U ldap --file=/pfad/zum/dump.sql 
+
+
+3) Alte Datenbank löschen
+
+dropdb ldap -U ldap  
+
+
+4) Leere Datenbank wieder anlegen
+
+psql -U postgres 
+
+CREATE DATABASE ldap OWNER ldap ENCODING 'UTF8';
+
+5) Daten aus altem dump einspielen
+
+psql -U ldap ldap < datei.sql 
+
+
+
+
+
+
 
 sticky bits weg
 keine force groups/create mode, .... in smb.conf
+
 
 Fragen: 
 1) directory mode weg?
