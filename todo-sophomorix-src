@@ -6,32 +6,109 @@ sophomorix-repair: zusatzoption, damit auch symlinks ALLER user repariert werden
 sophomorix-user --repairhome (wie reset-user, aber ohne zu löschen)
 
 
-Datenbank neu einspielen:
-
-1) Testen, ob man sich als user postgres verbinden kann:
-
-psql -U postgres ldap
 
 
-2) alter Stand sichern
+Lösungsmöglichkeit zum Ticket #488:
 
-pg_dump --format=p -U ldap --file=/pfad/zum/dump.sql 
+1) Testen, ob wirklich das Problem auftritt:
+
+sophomorix-user -u user_den_es_gibt
+
+zeigt kein Status,CreationDate, ....
+aber sonstige Infos wie Name, Klasse, ...
 
 
-3) Alte Datenbank löschen
+2) Es wird der letzte Datenbankstand VOR der upgrade eingespielt
+   Das ist nur sinnvoll, wenn seitdem keine user angelegt wurden
+
+
+3) Testen, ob man sich als user postgres anmelden kann:
+
+ psql -U postgres
+
+ sollte zum prompt der postgresql führen: postgres=#
+
+ \q     (ausloggen aus posgres)
+
+Wenn das nicht klappen sollte 
+-> NICHT weitermachen, da man dann keine Datenbank anlegen kann.
+
+
+
+4) alter Datenbankstand sichern (just in case)
+
+pg_dump --format=p -U ldap --file=/root/alte_datenbank.sql 
+
+
+
+5) Alte Datenbank auf dem postgresql-server löschen
 
 dropdb ldap -U ldap  
 
 
-4) Leere Datenbank wieder anlegen
+
+6) Leere Datenbank wieder anlegen
 
 psql -U postgres 
 
 CREATE DATABASE ldap OWNER ldap ENCODING 'UTF8';
 
-5) Daten aus altem dump einspielen
+\q    (ausloggen aus posgres)
 
-psql -U ldap ldap < datei.sql 
+
+7) Language-Datei einspielen (Fehler ignorieren)
+
+psql -U postgres ldap < /usr/share/sophomorix/config-templates/pg/sophomorix-lang.sql
+
+
+8) Den Datenbankdump der eingespielt werden soll anpassen:
+
+Der letzte Stand vor dem upgrade findet sich in
+
+/var/backup/linuxmuster/ldap/ldap.lenny-upgrade.pgsql.gz
+
+Diese Datei kopieren, dann entpacken: 
+
+gunzip ldap.lenny-upgrade.pgsql.gz
+
+Die entstehende Datei ldap.lenny-upgrade.pgsql mit einem Editor (emacs, ...) öffnen,
+und alle ÄÖÜÄÖÜß ersetzen (Feld firstpassword) mit ihrem ASCII-Pendant (ä->ae, ...)
+Dabei sich den account merken in dem man geändert hat 
+(kann evtl. entfallen, dann kann man das Klartext-Passwort nicht mehr nachschauen)
+
+
+9) Diese Sonderzeichenfreie Datei wird nun eingespielt.
+
+psql -U ldap ldap < ldap.lenny-upgrade.pgsql
+
+
+10) Die mit dem Editor veränderten firstpasswords wieder korrekt setzen:
+
+    sophomorix-passwd --pass ümlautpasswört -u login
+
+
+11) sophomorix-check --no-auto-teach-in
+    Zusammenführen von accounts falls notwendig (Bindestrich-Bug #487):
+       sophomorix-teach-in
+
+
+12) sophomorix-dump-pg2ldap (testen, ob das problemlos geht, login testen)
+
+
+13) Zum Schluß empfielt es sich einen Schüler anzulegen, versetzen, löschen:
+
+    A) Schüler in schueler.txt hinzunehmen 
+    B) sophomorix-check
+    C) sophomorix-add
+    D) Login testen
+    E) Schüler in schueler.txt entfernen
+    F) sophomorix-check   (schüler --> attic)
+    G) sophomorix-move
+    H) sophomorix-kill --killuser login  (entfernt Schüler)
+    I) Ist der user weg?: sophomorix-user -u login
+    J) sophomorix-check (sollte ohne Änderungen laufen)
+    
+
 
 
 
