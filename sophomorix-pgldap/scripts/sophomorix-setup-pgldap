@@ -454,7 +454,7 @@ print "   Old Debian Package Version  :   $old_version \n";
 print "   New Debian Package Version  :   $new_version \n";
 
 
-# db upgrade
+# reading list of db upgrade *.sql files
 my @all_db_upgrades=();
 opendir(UPGRADE, ${DevelConf::sql_upgrade_path}) or 
      die "can't opendir ${DevelConf::sql_upgrade_path}: $!";
@@ -528,7 +528,7 @@ foreach my $file_id (@upgrade_sql_id){
 print "\n";
 
 
-# scripts upgrade
+# reading list of scripts upgrade files
 my @all_script_upgrades=();
 opendir(SUPGRADE, ${DevelConf::upgrade_path_script}) or 
     die "can't opendir ${DevelConf::upgrade_path_script}: $!";
@@ -617,6 +617,9 @@ if ($info==1){
 &get_pg_server_version("5432");
 # &get_pg_server_version("5433");
 
+
+
+# ????????? nur wenn kein linuxmuster-setup da
 
 ############################################################
 # Replace the following config-files
@@ -730,11 +733,11 @@ $replace= " -e 's/\@\@basedn\@\@/${basedn}/g'".
 my %permissions=&get_alle_verzeichnis_rechte();
 
 
-# do it, ldap 
+# do it, ldap.conf
 print "Creating $ldap_conf\n";
 system("sed $replace ${template}/ldap/ldap.conf.template > $ldap_conf");
 
-
+# do it, slapd.conf
 print "Creating $slapd_conf\n";
 if ($slapd_standalone==1){
    system("sed $replace ${template}/ldap/slapd-standalone.conf.template > $slapd_conf");
@@ -742,7 +745,7 @@ if ($slapd_standalone==1){
    system("sed $replace ${template}/ldap/slapd.conf.template > $slapd_conf");
 } 
 
-
+# do it, slapd
 print "Creating $default_slapd\n";
 system("sed $replace ${template}/ldap/slapd.template > $default_slapd");
 print "Creating $smbldap_conf\n";
@@ -750,7 +753,8 @@ system("sed $replace ${template}/ldap/smbldap.conf.template > $smbldap_conf");
 print "Creating $ldap_secret\n";
 system("sed $replace ${template}/ldap/ldap.secret.template > $ldap_secret"); 
 print "Creating $nsswitch_conf\n";
-system("sed $replace ${template}/ldap/nsswitch.conf.template > $nsswitch_conf");print "Creating $libnssldap_conf\n";
+system("sed $replace ${template}/ldap/nsswitch.conf.template > $nsswitch_conf");
+print "Creating $libnssldap_conf\n";
 system("sed $replace ${template}/ldap/libnss-ldap.conf.template > $libnssldap_conf");
 print "Creating $ldif_local\n";
 system("sed $replace ${template}/ldap/standalone.ldif.template > $ldif_local"); 
@@ -762,9 +766,22 @@ if (not -e $DevelConf::slapd_custom_file){
     system("cp $DevelConf::slapd_custom_template $DevelConf::slapd_custom_file");
 }
 
+# ??????
+
 # activate slapd.conf in ubuntu 8.10 or later see wiki.ubuntuusers.de/OpenLDAP
 if ($lsb_release_codename eq "lenny"){
     # debian lenny
+    system("rm -rf $slapd_d_bak");
+    system("mv $slapd_d $slapd_d_bak");
+    system("mkdir $slapd_d ");
+    system("slaptest -f $slapd_conf -F $slapd_d ");
+    system("chown -R openldap:openldap $slapd_d ");
+    system("chmod 0640 /etc/ldap/slapd.conf");
+    system("chown .openldap /etc/ldap/slapd.conf");
+    system("chmod 0640 /etc/ldap/slapd.conf.custom");
+    system("chown .openldap /etc/ldap/slapd.conf.custom");
+} elsif ($lsb_release_codename eq "squeeze"){
+    # debian squeeze
     system("rm -rf $slapd_d_bak");
     system("mv $slapd_d $slapd_d_bak");
     system("mkdir $slapd_d ");
@@ -795,6 +812,7 @@ system("sed $replace ${template}/pg/odbc.ini.template > $odbc_ini");
 print "Creating $odbcinst_ini\n";
 system("sed $replace ${template}/pg/odbcinst.ini.template > $odbcinst_ini");
 
+# ?????
 
 # pg_hba.conf
 my $seen_postgres=0;
@@ -812,6 +830,11 @@ if ($lsb_release_codename eq "lenny"){
    $postgres_conf_dir="/etc/postgresql/8.3/main";
    $postgres_init_script="/etc/init.d/postgresql-8.3";
    $psql="/usr/lib/postgresql/8.3/bin/psql";
+} elsif ($lsb_release_codename eq "squeeze"){
+   # debian squeeze ?????????????????????
+   $postgres_conf_dir="/etc/postgresql/8.3/main";
+   $postgres_init_script="/etc/init.d/postgresql-8.3";
+   $psql="/usr/lib/postgresql/8.3/bin/psql";
 } elsif ($lsb_release_codename eq "karmic"){
    # ubuntu karmic
    $postgres_conf_dir="/etc/postgresql/8.3/main";
@@ -826,9 +849,6 @@ if ($lsb_release_codename eq "lenny"){
 
 # Debian Version dependant
 my $pg_hba_conf = $postgres_conf_dir."/pg_hba.conf";
-#my $file_ident="/etc/postgresql/pg_ident.conf";
-#my $file_ident_tmp="/etc/postgresql/pg_ident.conf.tmp";
-
 my $file_ident = $postgres_conf_dir."/pg_ident.conf";
 my $file_ident_tmp = $postgres_conf_dir."/pg_ident.conf.tmp";
 
@@ -883,6 +903,8 @@ my $file_ident_tmp = $postgres_conf_dir."/pg_ident.conf.tmp";
 #                    "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
 #                    "/etc/postgresql/pg_hba.conf");
 
+# ?????
+
 # pg_ident.conf
 my $seen_ident_postgres=0;
 my $seen_ident_postgres_pg=0;
@@ -931,7 +953,6 @@ if ($seen_ident_ldap==0){
 
 close(IDENT);
 close(IDENTMP);
-#system("mv /etc/postgresql/pg_ident.conf.tmp /etc/postgresql/pg_ident.conf");
 # updating pg_ident_conf
 system("mv $file_ident_tmp $file_ident");
 
@@ -939,7 +960,6 @@ system("mv $file_ident_tmp $file_ident");
 # 3x basedn
 # 1x sid
 # ... 
-#system("sed $replace ${template}/pg/sophomorix.sql.template > $sophomorix_db"); 
 
 # do it, pam
 system("sed $replace ${template}/pam/common-account.template > $common_account"); 
@@ -1007,7 +1027,7 @@ if (-e "/etc/init.d/postgresql-8.3"){
     system("/etc/init.d/postgresql-8.3 start");
 }
 
-
+# ??????????????
 
 # Drop old database, when --new-database
 if ($new_database==1){
@@ -1039,6 +1059,8 @@ if ( ($old_version eq "0.0.0-0" and not defined $dbh) or $new_database==1){
           "ldap from scratch (updade)\n\n";
 }
 
+
+# ???????????? muss drin sein, postgres muss dazu laufen
 ##################################################
 # upgrade database structure if necessary
 ##################################################
@@ -1054,7 +1076,7 @@ print "\n\n";
 &drop_indices();
 
 # disabled from 2.2.15 on
-#&create_indices();
+# &create_indices();
 
 
 # setting the password in pg
@@ -1066,7 +1088,7 @@ if ( ($old_version eq "0.0.0-0" and not defined $dbh) or $new_database==1){
 }
 
 
-
+# ????????????????????????
 # setting the ldap suffix dn=x in pg
 &set_ldap_suffix_pg($basedn);
 
@@ -1086,6 +1108,10 @@ if ($lsb_release_codename eq "lenny"){
     # debian lenny
     system("chmod 0640 $slapd_conf");
     system("chmod 0640 $slapd_conf_custom");
+} elsif ($lsb_release_codename eq "squeeze"){
+    # debian squeeze ?????
+    #system("chmod 0640 $slapd_conf");
+    #system("chmod 0640 $slapd_conf_custom");
 }
 
 #system("chown openldap:openldap $ldap_conf");
