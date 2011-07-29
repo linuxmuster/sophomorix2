@@ -8,6 +8,8 @@ sophomorix-user --repairhome (wie reset-user, aber ohne zu löschen)
 
 
 
+
+
 Lösungsmöglichkeit zum Ticket #488:
 
 1) Testen, ob wirklich das Problem auftritt:
@@ -509,11 +511,19 @@ Herauspicken der was wohin, owner,gowner war nicht möglich:
 
 
 
-wenn linuxmuster-base da
+sophomorix-setup-pgldap:
+
+wenn /usr/sbin/linuxmuster-setup da und ausführbar
  - alle mit sed gepatchten dateien nicht anfassen
-   - wenn da, selber patchen
+   - wenn nicht da, selber patchen
+
+ - script schreiben, dass aus dem svn die config-Dateien difft
+   und anzeigt, welche sich verändert haben 
    aus svn ins cvs holen, einvchecken svn: var/ dort sind thomas configs
    script, dass diff macht
+
+
+
 
 paedml 5.0 updates, pakete selber hochladen --> account geben lassen
 
