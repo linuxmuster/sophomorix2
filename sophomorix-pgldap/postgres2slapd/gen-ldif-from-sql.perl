@@ -9,6 +9,12 @@ my ($sqlpath,$ldapdc) = @ARGV;
 #my $sqlpath="/tmp";
 #my $ldapdc="dc=linuxmuster,dc=local";
 
+# mail_dom for mail
+my $mail_dom=$ldapdc;
+$mail_dom=~s/dc=//g;
+$mail_dom=~s/,/./g;
+
+
 # Datei öffnen und in array schreiben - Datei gleich wieder schließen
 my @groupsusersfile=();
 open(DATEI, "<$sqlpath/groups_users.sql") || die "SQL-Datei nicht gefunden";
@@ -43,7 +49,7 @@ print "# is prepended here\n";
 
 # Alle Zeilen im SQL-Dump-File durchgehen
 foreach my $line (@accountsfile) {                          
-
+ my $show_mail=0;
  my @accountsspalte1 = split(/\|/, $line); #Zeile am | trennen
  my $i=0;
 
@@ -54,7 +60,7 @@ foreach my $line (@accountsfile) {
   #    next;
   #}
 
- 
+
  if ($zeileaccounts > 1) {
   $accountsspalte1[28]=~ s/^\s+//; $accountsspalte1[28]=~ s/\s+$//;
   $accountsspalte1[30]=~ s/^\s+//; $accountsspalte1[30]=~ s/\s+$//;
@@ -124,14 +130,22 @@ foreach my $line (@accountsfile) {
    if ($accountsspalte0[$i]=~ /uid$/) { $accountsspalte0[$i]='uid'; };
    if ($accountsspalte0[$i]=~ /login/) { $accountsspalte0[$i]='loginShell'; };
 
-
   # wenn wert nicht leer ist - ausgeben
   if ( ($wert !~ /^\s*$/) && ($zeileaccounts > 1 ) && ($accountsspalte0[$i] !~ /^id/) ){
    
    print "$accountsspalte0[$i]: $wert\n";
+   # remember to append mail: to this account
+   $show_mail=1;
   }
   $i++;
  }
+
+ if ($show_mail==1){ 
+    # append mail
+    my $mail=$accountsspalte1[28]."@".$mail_dom;
+    print "mail: $mail\n";
+ }
+
 $zeileaccounts++;
 }
 
