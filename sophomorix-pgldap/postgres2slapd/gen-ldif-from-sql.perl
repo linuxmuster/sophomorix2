@@ -140,7 +140,7 @@ foreach my $line (@accountsfile) {
   $i++;
  }
 
- if ($show_mail==1){ 
+ if ($show_mail==1 and $accountsspalte1[30] ne "Computer"){ 
     # append mail
     my $mail=$accountsspalte1[28]."@".$mail_dom;
     print "mail: $mail\n";
