@@ -134,7 +134,7 @@ sub update_auth_ldap {
 
     # performance: following line must be used once:
     # but is not a Problem
-    my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
+    my ($ldappw,$ldap_rootdn,$dbpw,$suffix,$mail_dom)=&fetch_ldap_pg_passwords();
     my $dn="uid=".$uid.",ou=".$ou.",".$suffix;
     my @dn=split(",",$dn);
 
@@ -223,7 +223,7 @@ sub update_auth_ldap {
 
 sub delete_auth_ldap {
     my ($ldap,$login,$ou) = @_;
-    my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
+    my ($ldappw,$ldap_rootdn,$dbpw,$suffix,$mail_dom)=&fetch_ldap_pg_passwords();
     my $dn="uid=".$login.",ou=".$ou.",".$suffix;
     print "Deleting ldap dn: $dn\n";
     my $mesg = $ldap->delete( $dn); 
