@@ -225,7 +225,7 @@ if ($create_indices_only==1) {
 ############################################################
 
 # fetch old passwords
-my ($old_ldappw,$old_rootdn,$old_dbpw)=&fetch_ldap_pg_passwords();
+my ($old_ldappw,$old_rootdn,$old_dbpw,$old_mail_dom)=&fetch_ldap_pg_passwords();
 
 # ldap password
 if ($ldappw ne ""){

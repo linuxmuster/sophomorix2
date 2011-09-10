@@ -464,7 +464,7 @@ sub fetch_ldap_account {
 
     my $ldap=&Sophomorix::SophomorixPgLdap::auth_connect();
 
-    my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=
+    my ($ldappw,$ldap_rootdn,$dbpw,$suffix,$mail_dom)=
         &Sophomorix::SophomorixPgLdap::fetch_ldap_pg_passwords();
     my $msg = $ldap->search(
           base => "ou=accounts,$suffix",
