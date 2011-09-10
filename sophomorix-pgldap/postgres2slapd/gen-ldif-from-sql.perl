@@ -67,6 +67,7 @@ foreach my $line (@accountsfile) {
   $accountsspalte1[31]=~ s/^\s+//; $accountsspalte1[31]=~ s/\s+$//;
 
   my $ou="accounts";
+  # 30 is givenName
   if ($accountsspalte1[30] eq "Computer"){
       $ou="machines";
   }
@@ -140,7 +141,10 @@ foreach my $line (@accountsfile) {
   $i++;
  }
 
- if ($show_mail==1 and $accountsspalte1[30] ne "Computer"){ 
+ # 30 is givenName
+ if ($show_mail==1 and $accountsspalte1[30] ne "Computer"
+                   and $accountsspalte1[30] ne "Exam"
+        ){ 
     # append mail
     my $mail=$accountsspalte1[28]."@".$mail_dom;
     print "mail: $mail\n";
