@@ -3655,7 +3655,7 @@ sub user_deaktivieren {
    # disabling posix login in auth system
    my $ldap=&auth_connect();
    print "   * ldap: Disabling posix account of $login:\n";
-   my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
+   my ($ldappw,$ldap_rootdn,$dbpw,$suffix,$mail_dom)=&fetch_ldap_pg_passwords();
    my $msg = $ldap->search(
           base => "ou=accounts,$suffix",
           scope => "sub",
@@ -3764,7 +3764,7 @@ sub user_reaktivieren {
    # enabling posix login in auth system
    my $ldap=&auth_connect();
    print "   * ldap: Enabling posix account of $login:\n";
-   my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
+   my ($ldappw,$ldap_rootdn,$dbpw,$suffix,$mail_dom)=&fetch_ldap_pg_passwords();
    my $msg = $ldap->search(
           base => "ou=accounts,$suffix",
           scope => "sub",
@@ -5790,10 +5790,10 @@ sub update_user_ldap {
 
     # performance: following line must be used once:
     # but is not a Problem
-    my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
+    my ($ldappw,$ldap_rootdn,$dbpw,$suffix,$mail_dom)=&fetch_ldap_pg_passwords();
     my $dn="uid=".$uid.",ou=".$ou.",".$suffix;
     my @dn=split(",",$dn);
-
+    my $mail=$uid."@".$mail_dom;
     # search existing account
     my $mesg_1 = $ldap->search( base => "$dn", attrs => '*', filter => 'cn=*');
 
@@ -5869,6 +5869,7 @@ sub update_user_ldap {
                  uid                  => $uid, 
                  uidNumber            => $uidnumber, 
                  userPassword         => $userpassword, 
+                 mail                 => $mail, 
                ]
             );
             # print errors
@@ -5945,6 +5946,7 @@ sub update_user_ldap {
                  uid                  => $uid, 
                  uidNumber            => $uidnumber, 
                  userPassword         => $userpassword, 
+                 mail                 => $mail, 
                }
             );
             # print errors
@@ -5957,7 +5959,7 @@ sub update_user_ldap {
 
 sub delete_user_ldap {
     my ($ldap,$login,$ou) = @_;
-    my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
+    my ($ldappw,$ldap_rootdn,$dbpw,$suffix,$mail_dom)=&fetch_ldap_pg_passwords();
     my $dn="uid=".$login.",ou=".$ou.",".$suffix;
     print "Deleting ldap dn: $dn\n";
     my $mesg = $ldap->delete( $dn); 
@@ -5986,7 +5988,7 @@ sub update_group_ldap {
 
     my @objectclass=("posixGroup","top","sambaGroupMapping");
     my (@memberuid) = &pg_get_group_members($group);
-    my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
+    my ($ldappw,$ldap_rootdn,$dbpw,$suffix,$mail_dom)=&fetch_ldap_pg_passwords();
     my $dn="cn=".$cn.",ou=groups,".$suffix;
     my @dn=split(",",$dn);
     my $displayname=$cn;
@@ -6032,7 +6034,7 @@ sub update_group_ldap {
 
 sub delete_group_ldap {
     my ($ldap,$group) = @_;
-    my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
+    my ($ldappw,$ldap_rootdn,$dbpw,$suffix,$mail_dom)=&fetch_ldap_pg_passwords();
     my ($type,
         $cn,
         $gidnumber,
@@ -6565,7 +6567,7 @@ sub auth_enableupdate_old {
 sub auth_connect {
     my $ldap = Net::LDAP->new( '127.0.0.1', ) or print "Not connected\n";
     # fetch passwords
-    my ($ldappw,$ldap_rootdn,$dbpw)=&fetch_ldap_pg_passwords();
+    my ($ldappw,$ldap_rootdn,$dbpw,$mail_dom)=&fetch_ldap_pg_passwords();
     my $mesg = $ldap->bind( "$ldap_rootdn",
                              password => $ldappw
                            );
@@ -6587,6 +6589,7 @@ sub fetch_ldap_pg_passwords {
     my $pg_passwd="";
     my $ldap_rootdn="";
     my $ldap_suffix="";
+    my $mail_dom="";
     if (-e $old_password_file) {
          # looking for password
  	 open (CONF, $old_password_file);
@@ -6622,10 +6625,13 @@ sub fetch_ldap_pg_passwords {
 	     }
          }
          close(CONF);
-         return ($ldap_passwd,$ldap_rootdn,$pg_passwd,$ldap_suffix);
+         $mail_dom=$ldap_suffix;
+         $mail_dom=~s/dc=//g;
+         $mail_dom=~s/,/./g;
+         return ($ldap_passwd,$ldap_rootdn,$pg_passwd,$ldap_suffix,$mail_dom);
     } else {
         print "$old_password_file doesn't exist\n";
-        return ("","","","");
+        return ("","","","","");
     }
 }
 
@@ -6750,7 +6756,7 @@ sub compare_pg_with_ldap {
 
     # ldap
     my $ldap=&Sophomorix::SophomorixPgLdap::auth_connect();
-    my ($ldappw,$ldap_rootdn,$dbpw,$suffix)=&fetch_ldap_pg_passwords();
+    my ($ldappw,$ldap_rootdn,$dbpw,$suffix,$mail_dom)=&fetch_ldap_pg_passwords();
     # search in ou=accounts and ou=machines (i.e. suffix alone)
     my $msg = $ldap->search(
           base => "$suffix",
