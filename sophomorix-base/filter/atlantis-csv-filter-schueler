@@ -7,11 +7,10 @@
 #
 #
 # Fetch data from Atlantis the following way:
-# Atlantis Version 3.0.0
 #
 #   1. Atlantis starten
 #   2. Button unter Menü: "Schüler aktuelles Schuljahr" 
-#                         (Schueler mit blauem Hemd)
+#                         (Kopf mit schwarzer Brille)
 #   3. Fenster:
 #        Schuljahr: 2008/09 (aktuelles Schuljahr wählen)
 #        Zeugnistyp/Sammelerfassung?: -> leeres Feld  
@@ -35,11 +34,6 @@
 # jeffbeck@web.de  or  jeffbeck@gmx.de
 #
 
-# Options (used by examplix):
-
-#   #1: source file
-#   #2: target file
-#   #3: birthplace: use Birthplace (default: dont use it) 
 
 ############################################################
 # Start configure 
@@ -50,7 +44,7 @@
 # key: number of selicolons
 # value: max allowed number
 my %semicolons_allowed = qw(
-    292     3500
+    292     3600
     293     2
 );
 
@@ -58,7 +52,10 @@ my %semicolons_allowed = qw(
 # do you want to try to dump the unique id
 # 0: do NOT dump
 # 1: dump it!
-my $dump_id=0;
+my $dump_id=1;
+
+# counter for ignored students
+my $count_ignored_by_class_name=0;
 
 
 ############################################################
@@ -66,20 +63,9 @@ my $dump_id=0;
 ############################################################
 
 # keep this settings
-my $source="/etc/sophomorix/user/schueler.txt";
-if ($ARGV[0] ne ""){
-    $source=$ARGV[0];
-    print "Reading $source\n"; 
-}
-my $target="/var/lib/sophomorix/tmp/schueler.txt.tmp";
-if ($ARGV[1] ne ""){
-    $target=$ARGV[1];
-    print "Writing $target\n"; 
-}
 my $tmp="/var/lib/sophomorix/tmp/schueler.txt.filter.tmp";
-if (not -e "/var/lib/sophomorix/tmp"){
-    $tmp=$target.".filter";
-}
+my $source="/etc/sophomorix/user/schueler.txt";
+my $target="/var/lib/sophomorix/tmp/schueler.txt.tmp";
 my %semicolons_seen=();
 
 ############################################################
@@ -155,6 +141,7 @@ while (<SOURCE>){
         }
     }
 
+
     # unused
     my $name=$line[$header{'Name'}];
 
@@ -163,7 +150,6 @@ while (<SOURCE>){
     my $firstname=$line[$header{'Vorname'}];
     my $birthday=$line[$header{'Geb.Datum'}];
     my $class=$line[$header{'Klasse'}];
-    my $birthplace=$line[$header{'Ort'}];
     # 13 Klassenlehrer
 
     # unid fields
@@ -176,7 +162,6 @@ while (<SOURCE>){
     $lastname = &format_field($lastname);
     $firstname = &format_field($firstname);
     $birthday = &format_field($birthday);
-    $birthplace = &format_field($birthplace);
     $id_0 = &format_field($id_0);
 
     my $semicolons_per_line=tr/;//;
@@ -200,26 +185,21 @@ while (<SOURCE>){
 
     my $out_line;
     if ($dump_id==0){
-        if ($ARGV[2] eq "birthplace"){
-            $out_line = $class.";".$lastname.";".$firstname.";".
-                        $birthday.";".$birthplace.";\n";
-        } else {
-            $out_line = $class.";".$lastname.";".$firstname.";".
-                        $birthday.";\n";
-        }
+        $out_line = $class.";".$lastname.";".$firstname.";".$birthday.";\n";
     } elsif ($dump_id==1){
-        if ($ARGV[2] eq "birthplace"){
-            $out_line = $class.";".$lastname.";".$firstname.";".
-                        $birthday.";".$birthplace.";\n";
-	} else {
-            $out_line = $class.";".$lastname.";".$firstname.";".
-                        $birthday.";".$id_0.";\n";
-        }
+        $out_line = $class.";".$lastname.";".$firstname.";".$birthday.";".$id_0.";\n";
     } else {
         print "Could not dump into file\n\n";
         exit;
     }
-    print TMP "$out_line";
+
+    # ignore classes beginning with _
+    if (not $class=~/^\_/){
+        print TMP "$out_line";
+    } else {
+        print "Ignoring $out_line";
+        $count_ignored_by_class_name++;
+    }
 
     $line_num++;
 }
@@ -231,7 +211,7 @@ close(TMP);
 # check if file was correct
 my $error=0;
 
-print "\n";
+print "\nIgnored by class name: ($count_ignored_by_class_name)\n\n";
 
 while ( ($semi, $seminum) = each %semicolons_seen ){
     my $line_err=0;
