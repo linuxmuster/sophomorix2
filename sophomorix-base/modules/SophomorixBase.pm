@@ -667,7 +667,7 @@ sub make_some_files_root_only {
                   "/etc/imap.secret"
                   );
     }
-    print "Make some files readable by root only:\n";
+    print "Making some files readable by root only:\n";
     # do it
     foreach my $root_file (@filelist){
         if (-e $root_file){
