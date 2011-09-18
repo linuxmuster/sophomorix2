@@ -84,6 +84,11 @@ my $dbpassword = "";
 my $ldap_explanation="";
 my $db_explanation="";
 
+# 2 means: option not given
+my $linuxmuster=2;
+# configuring everything or not
+my $full_config=0;
+
 
 my $timestamp=&zeit_stempel();
 
@@ -100,6 +105,7 @@ my $testopt=GetOptions(
            "ldappw|ldappassword=s" => \$ldappw,
            "dbpw|dbpassword=s" => \$dbpw,
            "new-database" => \$new_database,
+           "linuxmuster!" => \$linuxmuster,
            "keep-database" => \$keep_database,
            "create-indices-only" => \$create_indices_only,
            "drop-indices-only" => \$drop_indices_only,
@@ -119,7 +125,15 @@ if ($testports==1){
     exit;
 }
 
+if (not -e "/usr/sbin/linuxmuster-setup"){
+    $full_config=1;
+}
 
+if ($linuxmuster==1){
+    $full_config=0;
+} elsif ($linuxmuster==0){
+    $full_config=1;
+}
 
 
 ############################################################
@@ -136,6 +150,12 @@ Options
   -h  / --help
   -i  / --info      show values used for configuration, do nothing
 
+Configure the whole system or assume an openml/paedml system is decided 
+atomatically by the existence of /usr/sbin/linuxmuster-setup. 
+To manually override this behaviour use:
+   --linuxmuster
+   --nolinuxmuster
+   
 Check which version of postgres is running on ports 5432 and 5433
    --testports
 
@@ -273,6 +293,8 @@ if ($slapd_integrated==1){
 }
 
 print "Using the following values to configure the system\n";
+
+print "   Full configuration                   : $full_config\n";
 
 ############################################################
 # Debian Version
@@ -617,16 +639,15 @@ if ($info==1){
 &get_pg_server_version("5432");
 # &get_pg_server_version("5433");
 
+# repair.directories einlesen
+my %permissions=&get_alle_verzeichnis_rechte();
 
-
-# ????????? nur wenn kein linuxmuster-setup da
 
 ############################################################
 # Replace the following config-files
 ############################################################
 # path to the template-files
 my $template=${DevelConf::config_template_pfad};
-
 
 # ldap
 my $ldap_args_dir="/var/run/slapd";
@@ -661,11 +682,11 @@ my $pam_ldap_conf="/etc/pam_ldap.conf";
 my $smb_conf_template=${template}."/samba/smb.conf.template.".$imaging;
 
 # path to imaging dependant smb.conf template
-my $linuxmuster_base_smb_conf_imaging=$DevelConf::linuxmuster_base_smb_conf.".".$imaging;
+my $linuxmuster_base_smb_conf_imaging=
+     $DevelConf::linuxmuster_base_smb_conf.".".$imaging;
 if (-e $linuxmuster_base_smb_conf_imaging){
-    $smb_conf_template=$linuxmuster_base_smb_conf_imaging;
+     $smb_conf_template=$linuxmuster_base_smb_conf_imaging;
 }
-
 
 my $smb_netlogon_bat=${DevelConf::devel_netlogon_path}."/logon.bat";
 if (-e "$DevelConf::linuxmuster_base_logon_bat"){
@@ -685,7 +706,8 @@ my $db_config="/var/lib/ldap/DB_CONFIG";
 # message
 ############################################################
 my $message1="Do not change this file! It will be overwritten!";
-my $message2="This configuration file was automatically created by sophomorix-setup-pgldap";
+my $message2="This configuration file was automatically".
+             " created by sophomorix-setup-pgldap";
 my $message3="Last Modification: $timestamp";
 
 
@@ -704,142 +726,138 @@ print "   Samba Server String         :   $smbserverstring \n";
 ############################################################
 print "   Database name               :   $dbname \n";
 
-
-# the great replacement string
-$replace= " -e 's/\@\@basedn\@\@/${basedn}/g'". 
-          " -e 's/\@\@dc\@\@/${dc}/g'".
-          " -e 's/\@\@servername\@\@/${servername}/g'". 
-          " -e 's/\@\@internip\@\@/${internip}/g'". 
-          " -e 's/\@\@ipcopip\@\@/${ipcopip}/g'". 
-          " -e 's/\@\@serverip\@\@/${internip}/g'". 
-          " -e 's/\@\@internmask\@\@/${internmask}/g'". 
-          " -e 's/\@\@sid\@\@/${sid}/g'". 
-          " -e 's/\@\@workgroup\@\@/${smbworkgroup}/g'". 
-          " -e 's/\@\@smbserverstring\@\@/${smbserverstring}/g'". 
-          " -e 's/\@\@ldappassword\@\@/${ldappassword}/g'". 
-          " -e 's/\@\@dbpassword\@\@/${dbpassword}/g'". 
-          " -e 's/\@\@dbname\@\@/${dbname}/g'". 
-          " -e 's/\@\@teachersgroup\@\@/${DevelConf::teacher}/g'". 
-          " -e 's/\@\@administrator\@\@/${DevelConf::smb_administrator}/g'". 
-          " -e 's/\@\@domadmin\@\@/${DevelConf::smb_domadmin}/g'". 
-          " -e 's/\@\@domadmins\@\@/${DevelConf::smb_domadmin_group}/g'". 
-          " -e 's/\@\@tls_comment\@\@/${tls_comment}/g'". 
-          " -e 's/\@\@message1\@\@/${message1}/g'". 
-          " -e 's/\@\@message2\@\@/${message2}/g'".
-          " -e 's/\@\@message3\@\@/${message3}/g'"; 
-
-
-# repair.directories einlesen
-my %permissions=&get_alle_verzeichnis_rechte();
+if ($full_config==1){
+    # the great replacement string
+    $replace= " -e 's/\@\@basedn\@\@/${basedn}/g'". 
+              " -e 's/\@\@dc\@\@/${dc}/g'".
+              " -e 's/\@\@servername\@\@/${servername}/g'". 
+              " -e 's/\@\@internip\@\@/${internip}/g'". 
+              " -e 's/\@\@ipcopip\@\@/${ipcopip}/g'". 
+              " -e 's/\@\@serverip\@\@/${internip}/g'". 
+              " -e 's/\@\@internmask\@\@/${internmask}/g'". 
+              " -e 's/\@\@sid\@\@/${sid}/g'". 
+              " -e 's/\@\@workgroup\@\@/${smbworkgroup}/g'". 
+              " -e 's/\@\@smbserverstring\@\@/${smbserverstring}/g'". 
+              " -e 's/\@\@ldappassword\@\@/${ldappassword}/g'". 
+              " -e 's/\@\@dbpassword\@\@/${dbpassword}/g'". 
+              " -e 's/\@\@dbname\@\@/${dbname}/g'". 
+              " -e 's/\@\@teachersgroup\@\@/${DevelConf::teacher}/g'". 
+              " -e 's/\@\@administrator\@\@/${DevelConf::smb_administrator}/g'". 
+              " -e 's/\@\@domadmin\@\@/${DevelConf::smb_domadmin}/g'". 
+              " -e 's/\@\@domadmins\@\@/${DevelConf::smb_domadmin_group}/g'". 
+              " -e 's/\@\@tls_comment\@\@/${tls_comment}/g'". 
+              " -e 's/\@\@message1\@\@/${message1}/g'". 
+              " -e 's/\@\@message2\@\@/${message2}/g'".
+              " -e 's/\@\@message3\@\@/${message3}/g'"; 
 
 
-# do it, ldap.conf
-print "Creating $ldap_conf\n";
-system("sed $replace ${template}/ldap/ldap.conf.template > $ldap_conf");
 
-# do it, slapd.conf
-print "Creating $slapd_conf\n";
-if ($slapd_standalone==1){
-   system("sed $replace ${template}/ldap/slapd-standalone.conf.template > $slapd_conf");
-} else { 
-   system("sed $replace ${template}/ldap/slapd.conf.template > $slapd_conf");
-} 
 
-# do it, slapd
-print "Creating $default_slapd\n";
-system("sed $replace ${template}/ldap/slapd.template > $default_slapd");
-print "Creating $smbldap_conf\n";
-system("sed $replace ${template}/ldap/smbldap.conf.template > $smbldap_conf"); 
-print "Creating $ldap_secret\n";
-system("sed $replace ${template}/ldap/ldap.secret.template > $ldap_secret"); 
-print "Creating $nsswitch_conf\n";
-system("sed $replace ${template}/ldap/nsswitch.conf.template > $nsswitch_conf");
-print "Creating $libnssldap_conf\n";
-system("sed $replace ${template}/ldap/libnss-ldap.conf.template > $libnssldap_conf");
-print "Creating $ldif_local\n";
-system("sed $replace ${template}/ldap/standalone.ldif.template > $ldif_local"); 
+    # do it, ldap.conf
+    print "Creating $ldap_conf\n";
+    system("sed $replace ${template}/ldap/ldap.conf.template > $ldap_conf");
 
-# make sure a dummy custom template is there, so that 
-# slapd starts
-if (not -e $DevelConf::slapd_custom_file){
-    print "Creating $DevelConf::slapd_custom_file\n";
-    system("cp $DevelConf::slapd_custom_template $DevelConf::slapd_custom_file");
-}
+    # do it, slapd.conf
+    print "Creating $slapd_conf\n";
+    if ($slapd_standalone==1){
+       system("sed $replace ${template}/ldap/slapd-standalone.conf.template > $slapd_conf");
+    } else { 
+       system("sed $replace ${template}/ldap/slapd.conf.template > $slapd_conf");
+    } 
 
-# ??????
+    # do it, slapd
+    print "Creating $default_slapd\n";
+    system("sed $replace ${template}/ldap/slapd.template > $default_slapd");
+    print "Creating $smbldap_conf\n";
+    system("sed $replace ${template}/ldap/smbldap.conf.template > $smbldap_conf"); 
+    print "Creating $ldap_secret\n";
+    system("sed $replace ${template}/ldap/ldap.secret.template > $ldap_secret"); 
+    print "Creating $nsswitch_conf\n";
+    system("sed $replace ${template}/ldap/nsswitch.conf.template > $nsswitch_conf");
+    print "Creating $libnssldap_conf\n";
+    system("sed $replace ${template}/ldap/libnss-ldap.conf.template > $libnssldap_conf");
+    print "Creating $ldif_local\n";
+    system("sed $replace ${template}/ldap/standalone.ldif.template > $ldif_local"); 
 
-# activate slapd.conf in ubuntu 8.10 or later see wiki.ubuntuusers.de/OpenLDAP
+    # make sure a dummy custom template is there, so that 
+    # slapd starts
+    if (not -e $DevelConf::slapd_custom_file){
+        print "Creating $DevelConf::slapd_custom_file\n";
+        system("cp $DevelConf::slapd_custom_template $DevelConf::slapd_custom_file");
+    }
+
+    # activate slapd.conf in ubuntu 8.10 or later see wiki.ubuntuusers.de/OpenLDAP
+    if ($lsb_release_codename eq "lenny"){
+        # debian lenny
+        system("rm -rf $slapd_d_bak");
+        system("mv $slapd_d $slapd_d_bak");
+        system("mkdir $slapd_d ");
+        system("slaptest -f $slapd_conf -F $slapd_d ");
+        system("chown -R openldap:openldap $slapd_d ");
+        system("chmod 0640 /etc/ldap/slapd.conf");
+        system("chown .openldap /etc/ldap/slapd.conf");
+        system("chmod 0640 /etc/ldap/slapd.conf.custom");
+        system("chown .openldap /etc/ldap/slapd.conf.custom");
+    } elsif ($lsb_release_codename eq "squeeze"){
+        # debian squeeze
+        system("rm -rf $slapd_d_bak");
+        system("mv $slapd_d $slapd_d_bak");
+        system("mkdir $slapd_d ");
+        system("slaptest -f $slapd_conf -F $slapd_d ");
+        system("chown -R openldap:openldap $slapd_d ");
+        system("chmod 0640 /etc/ldap/slapd.conf");
+        system("chown .openldap /etc/ldap/slapd.conf");
+        system("chmod 0640 /etc/ldap/slapd.conf.custom");
+        system("chown .openldap /etc/ldap/slapd.conf.custom");
+    } elsif ($lsb_release_codename eq "karmic"){
+        # ubuntu karmic
+        system("rm -rf $slapd_d_bak");
+        system("mv $slapd_d $slapd_d_bak");
+        system("mkdir $slapd_d ");
+        system("slaptest -f $slapd_conf -F $slapd_d ");
+        system("chown -R openldap:openldap $slapd_d ");
+        system("chmod 0640 /etc/ldap/slapd.conf");
+        system("chown .openldap /etc/ldap/slapd.conf");
+        system("chmod 0640 /etc/ldap/slapd.conf.custom");
+        system("chown .openldap /etc/ldap/slapd.conf.custom");
+    }
+
+
+
+    # do it, pg
+    print "Creating $odbc_ini\n";
+    system("sed $replace ${template}/pg/odbc.ini.template > $odbc_ini"); 
+    print "Creating $odbcinst_ini\n";
+    system("sed $replace ${template}/pg/odbcinst.ini.template > $odbcinst_ini");
+} # end full_config
+
+
+    # pg_hba.conf
+    my $seen_postgres=0;
+    my $seen_local_ldap=0;
+    my $seen_host_ldap=0;
+    my @line=();
+
+    my $postgres_conf_dir="";
+    my $postgres_init_script="";
+
+    my $psql="";
+
 if ($lsb_release_codename eq "lenny"){
     # debian lenny
-    system("rm -rf $slapd_d_bak");
-    system("mv $slapd_d $slapd_d_bak");
-    system("mkdir $slapd_d ");
-    system("slaptest -f $slapd_conf -F $slapd_d ");
-    system("chown -R openldap:openldap $slapd_d ");
-    system("chmod 0640 /etc/ldap/slapd.conf");
-    system("chown .openldap /etc/ldap/slapd.conf");
-    system("chmod 0640 /etc/ldap/slapd.conf.custom");
-    system("chown .openldap /etc/ldap/slapd.conf.custom");
+    $postgres_conf_dir="/etc/postgresql/8.3/main";
+    $postgres_init_script="/etc/init.d/postgresql-8.3";
+    $psql="/usr/lib/postgresql/8.3/bin/psql";
 } elsif ($lsb_release_codename eq "squeeze"){
-    # debian squeeze
-    system("rm -rf $slapd_d_bak");
-    system("mv $slapd_d $slapd_d_bak");
-    system("mkdir $slapd_d ");
-    system("slaptest -f $slapd_conf -F $slapd_d ");
-    system("chown -R openldap:openldap $slapd_d ");
-    system("chmod 0640 /etc/ldap/slapd.conf");
-    system("chown .openldap /etc/ldap/slapd.conf");
-    system("chmod 0640 /etc/ldap/slapd.conf.custom");
-    system("chown .openldap /etc/ldap/slapd.conf.custom");
+    # debian squeeze ?????????????????????
+    $postgres_conf_dir="/etc/postgresql/8.3/main";
+    $postgres_init_script="/etc/init.d/postgresql-8.3";
+    $psql="/usr/lib/postgresql/8.3/bin/psql";
 } elsif ($lsb_release_codename eq "karmic"){
     # ubuntu karmic
-    system("rm -rf $slapd_d_bak");
-    system("mv $slapd_d $slapd_d_bak");
-    system("mkdir $slapd_d ");
-    system("slaptest -f $slapd_conf -F $slapd_d ");
-    system("chown -R openldap:openldap $slapd_d ");
-    system("chmod 0640 /etc/ldap/slapd.conf");
-    system("chown .openldap /etc/ldap/slapd.conf");
-    system("chmod 0640 /etc/ldap/slapd.conf.custom");
-    system("chown .openldap /etc/ldap/slapd.conf.custom");
-}
-
-
-
-# do it, pg
-print "Creating $odbc_ini\n";
-system("sed $replace ${template}/pg/odbc.ini.template > $odbc_ini"); 
-print "Creating $odbcinst_ini\n";
-system("sed $replace ${template}/pg/odbcinst.ini.template > $odbcinst_ini");
-
-# ?????
-
-# pg_hba.conf
-my $seen_postgres=0;
-my $seen_local_ldap=0;
-my $seen_host_ldap=0;
-my @line=();
-
-my $postgres_conf_dir="";
-my $postgres_init_script="";
-my $psql="";
-
-
-if ($lsb_release_codename eq "lenny"){
-   # debian lenny
-   $postgres_conf_dir="/etc/postgresql/8.3/main";
-   $postgres_init_script="/etc/init.d/postgresql-8.3";
-   $psql="/usr/lib/postgresql/8.3/bin/psql";
-} elsif ($lsb_release_codename eq "squeeze"){
-   # debian squeeze ?????????????????????
-   $postgres_conf_dir="/etc/postgresql/8.3/main";
-   $postgres_init_script="/etc/init.d/postgresql-8.3";
-   $psql="/usr/lib/postgresql/8.3/bin/psql";
-} elsif ($lsb_release_codename eq "karmic"){
-   # ubuntu karmic
-   $postgres_conf_dir="/etc/postgresql/8.3/main";
-   $postgres_init_script="/etc/init.d/postgresql-8.3";
-   $psql="/usr/lib/postgresql/8.3/bin/psql";
+    $postgres_conf_dir="/etc/postgresql/8.3/main";
+    $postgres_init_script="/etc/init.d/postgresql-8.3";
+    $psql="/usr/lib/postgresql/8.3/bin/psql";
 } else {
     &log_script_exit("Debian Version $deb_version ($lsb_release_codename) ",
                      "is not supported",
@@ -847,36 +865,36 @@ if ($lsb_release_codename eq "lenny"){
 }
 
 
-# Debian Version dependant
-my $pg_hba_conf = $postgres_conf_dir."/pg_hba.conf";
-my $file_ident = $postgres_conf_dir."/pg_ident.conf";
-my $file_ident_tmp = $postgres_conf_dir."/pg_ident.conf.tmp";
+if ($full_config==1){
+    # Debian Version dependant
+    my $pg_hba_conf = $postgres_conf_dir."/pg_hba.conf";
+    my $file_ident = $postgres_conf_dir."/pg_ident.conf";
+    my $file_ident_tmp = $postgres_conf_dir."/pg_ident.conf.tmp";
+
+    &insert_line_before("local;all;postgres;ident;postgres",
+                        "local;all;postgres;ident;sameuser",
+                        "$pg_hba_conf");
+
+    &insert_line_before("local;all;ldap;ident;ldap",
+                        "local;all;postgres;ident;sameuser",
+                        "$pg_hba_conf");
 
 
-&insert_line_before("local;all;postgres;ident;postgres",
-                    "local;all;postgres;ident;sameuser",
-                    "$pg_hba_conf");
+    &insert_line_before("local;template1;ldap;password;",
+                        "local;all;all;ident;sameuser",
+                        "$pg_hba_conf");
 
-&insert_line_before("local;all;ldap;ident;ldap",
-                    "local;all;postgres;ident;sameuser",
-                    "$pg_hba_conf");
+    &insert_line_before("local;ldap;ldap;password;",
+                        "local;all;all;ident;sameuser",
+                        "$pg_hba_conf");
 
+    &insert_line_before("host;template1;ldap;127.0.0.1;255.255.255.255;password",
+                        "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
+                        "$pg_hba_conf");
 
-&insert_line_before("local;template1;ldap;password;",
-                    "local;all;all;ident;sameuser",
-                    "$pg_hba_conf");
-
-&insert_line_before("local;ldap;ldap;password;",
-                    "local;all;all;ident;sameuser",
-                    "$pg_hba_conf");
-
-&insert_line_before("host;template1;ldap;127.0.0.1;255.255.255.255;password",
-                    "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
-                    "$pg_hba_conf");
-
-&insert_line_before("host;ldap;ldap;127.0.0.1;255.255.255.255;password",
-                    "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
-                    "$pg_hba_conf");
+    &insert_line_before("host;ldap;ldap;127.0.0.1;255.255.255.255;password",
+                        "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
+                       "$pg_hba_conf");
 
 #&insert_line_before("local;all;postgres;ident;postgres",
 #                    "local;all;postgres;ident;sameuser",
@@ -903,143 +921,142 @@ my $file_ident_tmp = $postgres_conf_dir."/pg_ident.conf.tmp";
 #                    "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
 #                    "/etc/postgresql/pg_hba.conf");
 
-# ?????
 
-# pg_ident.conf
-my $seen_ident_postgres=0;
-my $seen_ident_postgres_pg=0;
-my $seen_ident_ldap=0;
-print "Working on pg-ident.conf\n";
-open(IDENT, "<$file_ident") || die "Fehler: $!";
-open(IDENTMP, ">$file_ident_tmp") || die "Fehler: $!";
-while (<IDENT>) {
-    chomp(); # Returnzeichen abschneiden
-    if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
-    #if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
-    my (@line) = split(/\s+/);
-    if ($line[0] eq "postgres" and
-       $line[1] eq "root" and
-       $line[2] eq "postgres") {
-       $seen_ident_postgres=1;
-       print "   Line is in $file_ident already ...  doing nothing.\n";
+    # pg_ident.conf
+    my $seen_ident_postgres=0;
+    my $seen_ident_postgres_pg=0;
+    my $seen_ident_ldap=0;
+    print "Working on pg-ident.conf\n";
+    open(IDENT, "<$file_ident") || die "Fehler: $!";
+    open(IDENTMP, ">$file_ident_tmp") || die "Fehler: $!";
+    while (<IDENT>) {
+        chomp(); # Returnzeichen abschneiden
+        if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
+        #if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
+        my (@line) = split(/\s+/);
+        if ($line[0] eq "postgres" and
+           $line[1] eq "root" and
+           $line[2] eq "postgres") {
+           $seen_ident_postgres=1;
+           print "   Line is in $file_ident already ...  doing nothing.\n";
+        }
+        if ($line[0] eq "postgres" and
+           $line[1] eq "postgres" and
+           $line[2] eq "postgres") {
+           $seen_ident_postgres_pg=1;
+           print "   Line is in $file_ident already ...  doing nothing.\n";
+        }
+        if ($line[0] eq "ldap" and
+           $line[1] eq "root" and
+           $line[2] eq "ldap") {
+           $seen_ident_ldap=1;
+           print "   Line is in $file_ident already ...  doing nothing.\n";
+        }
+        print IDENTMP $_,"\n";
     }
-    if ($line[0] eq "postgres" and
-       $line[1] eq "postgres" and
-       $line[2] eq "postgres") {
-       $seen_ident_postgres_pg=1;
-       print "   Line is in $file_ident already ...  doing nothing.\n";
+
+    if ($seen_ident_postgres==0){
+        print IDENTMP "postgres       root       postgres\n";
     }
-    if ($line[0] eq "ldap" and
-       $line[1] eq "root" and
-       $line[2] eq "ldap") {
-       $seen_ident_ldap=1;
-       print "   Line is in $file_ident already ...  doing nothing.\n";
+
+    if ($seen_ident_postgres_pg==0){
+        print IDENTMP "postgres       postgres   postgres\n";
     }
-    print IDENTMP $_,"\n";
-}
 
-if ($seen_ident_postgres==0){
-    print IDENTMP "postgres       root       postgres\n";
-}
-
-if ($seen_ident_postgres_pg==0){
-    print IDENTMP "postgres       postgres   postgres\n";
-}
-
-if ($seen_ident_ldap==0){
-    print IDENTMP "ldap           root       ldap\n";
-}
+    if ($seen_ident_ldap==0){
+        print IDENTMP "ldap           root       ldap\n";
+    }
 
 
-close(IDENT);
-close(IDENTMP);
-# updating pg_ident_conf
-system("mv $file_ident_tmp $file_ident");
+    close(IDENT);
+    close(IDENTMP);
+    # updating pg_ident_conf
+    system("mv $file_ident_tmp $file_ident");
 
-# what to do:
-# 3x basedn
-# 1x sid
-# ... 
+    # what to do:
+    # 3x basedn
+    # 1x sid
+    # ... 
 
-# do it, pam
-system("sed $replace ${template}/pam/common-account.template > $common_account"); 
-system("sed $replace ${template}/pam/common-auth.template > $common_auth"); 
-system("sed $replace ${template}/pam/common-password.template > $common_password"); 
-system("sed $replace ${template}/pam/common-session.template > $common_session"); 
-system("sed $replace ${template}/pam/pam_ldap.conf.template > $pam_ldap_conf"); 
+    # do it, pam
+    system("sed $replace ${template}/pam/common-account.template > $common_account"); 
+    system("sed $replace ${template}/pam/common-auth.template > $common_auth"); 
+    system("sed $replace ${template}/pam/common-password.template > $common_password"); 
+    system("sed $replace ${template}/pam/common-session.template > $common_session"); 
+    system("sed $replace ${template}/pam/pam_ldap.conf.template > $pam_ldap_conf"); 
 
-# do it, samba
-# samba part 1
-&setup_verzeichnis("\$homedir_samba","$DevelConf::homedir_samba");
-system("sed $replace ${smb_conf_template} > ${DevelConf::smb_conf}"); 
+    # do it, samba
+    # samba part 1
+    &setup_verzeichnis("\$homedir_samba","$DevelConf::homedir_samba");
+    system("sed $replace ${smb_conf_template} > ${DevelConf::smb_conf}"); 
 
-if (not -e "$DevelConf::smb_conf_global_sys"){
-    system("cp $DevelConf::smb_conf_global $DevelConf::smb_conf_global_sys");
-    system("chmod 644 $DevelConf::smb_conf_global_sys");
-}
+    if (not -e "$DevelConf::smb_conf_global_sys"){
+        system("cp $DevelConf::smb_conf_global $DevelConf::smb_conf_global_sys");
+        system("chmod 644 $DevelConf::smb_conf_global_sys");
+    }
 
-# do it, bdb
-if ($slapd_standalone==1){
-    system("sed $replace ${template}/bdb/slapd-standalone.DB_CONFIG > $db_config");
-    system("chown openldap.openldap $db_config"); 
-} else { 
-    system("sed $replace ${template}/bdb/DB_CONFIG > $db_config"); 
-    system("chown openldap.openldap $db_config"); 
-} 
-
-
-# Set password in /var/lib/samba/secrets.tdb
-system("smbpasswd -w $ldappassword");
+    # do it, bdb
+    if ($slapd_standalone==1){
+        system("sed $replace ${template}/bdb/slapd-standalone.DB_CONFIG > $db_config");
+        system("chown openldap.openldap $db_config"); 
+    } else { 
+        system("sed $replace ${template}/bdb/DB_CONFIG > $db_config"); 
+        system("chown openldap.openldap $db_config"); 
+    } 
 
 
-############################################################
-# restarting services 
-############################################################
-
-# stop samba
-system("/etc/init.d/samba stop");
-sleep 2;
-system("killall smbd");
-system("killall nmbd");
+    # Set password in /var/lib/samba/secrets.tdb
+    system("smbpasswd -w $ldappassword");
 
 
-# stop ldap
-system("/etc/init.d/slapd stop");
-sleep 2;
-system("killall slapd");
+    ############################################################
+    # restarting services 
+    ############################################################
 
-
-# stop postgres
-system("$postgres_init_script stop");
-sleep 5;
-system("killall postmaster");
-
-
-# starting postgres
-system("$postgres_init_script start");
-
-sleep 5;
-
-
-# check if the following throws no error when already running
-# check on sarge without dist-upgrade
-if (-e "/etc/init.d/postgresql-8.3"){
-    system("/etc/init.d/postgresql-8.3 start");
-}
-
-# ??????????????
-
-# Drop old database, when --new-database
-if ($new_database==1){
-    print "\nWARNING: I will drop your database ldap in 5 seconds!\n";
-    print "\n Hit Control-C to abort, ...!\n\n";
-    sleep 5;
-    system("droplang -p ${DevelConf::sql_port} -U postgres plpgsql ldap");
-    system("dropdb -p ${DevelConf::sql_port} -U postgres ldap");
-    system("dropuser -p ${DevelConf::sql_port} -U postgres ldap");
+    # stop samba
+    system("/etc/init.d/samba stop");
     sleep 2;
-}
+    system("killall smbd");
+    system("killall nmbd");
 
+
+    # stop ldap
+    system("/etc/init.d/slapd stop");
+    sleep 2;
+    system("killall slapd");
+
+
+    # stop postgres
+    system("$postgres_init_script stop");
+    sleep 5;
+    system("killall postmaster");
+
+
+    # starting postgres
+    system("$postgres_init_script start");
+
+    sleep 5;
+
+
+    # check if the following throws no error when already running
+    # check on sarge without dist-upgrade
+    if (-e "/etc/init.d/postgresql-8.3"){
+        system("/etc/init.d/postgresql-8.3 start");
+    }
+
+    # ??????????????
+
+    # Drop old database, when --new-database
+    if ($new_database==1){
+        print "\nWARNING: I will drop your database ldap in 5 seconds!\n";
+        print "\n Hit Control-C to abort, ...!\n\n";
+        sleep 5;
+        system("droplang -p ${DevelConf::sql_port} -U postgres plpgsql ldap");
+        system("dropdb -p ${DevelConf::sql_port} -U postgres ldap");
+        system("dropuser -p ${DevelConf::sql_port} -U postgres ldap");
+        sleep 2;
+    }
+} # end full_config
 
 
 ##################################################
@@ -1070,243 +1087,240 @@ if ($keep_database==1){
     &upgrade_database();
 }
 
-print "\n\n";
-
-# create new indices
-&drop_indices();
-
-# disabled from 2.2.15 on
-# &create_indices();
 
 
-# setting the password in pg
-if ( ($old_version eq "0.0.0-0" and not defined $dbh) or $new_database==1){
-    # first installation
-    &set_db_passwd($dbpassword);
-} else {
-    &titel("NOT updating password  for user ldap in Postgresql (update)");
-}
+if ($full_config==1){
+    print "\n\n";
+
+    # create new indices
+    &drop_indices();
+
+    # disabled from 2.2.15 on
+    # &create_indices();
 
 
-# ????????????????????????
-# setting the ldap suffix dn=x in pg
-&set_ldap_suffix_pg($basedn);
-
-
-# setting institutes
-#&set_ldap_institutes($institutes);
-
-
-# setting the SID for existing users/groups
-# ???????
-#&set_samba_sid();
-
-
-# changes for the new version of slapd 2.3.27/etch that runs as openldap
-system("chmod 0644 $ldap_conf");
-if ($lsb_release_codename eq "lenny"){
-    # debian lenny
-    system("chmod 0640 $slapd_conf");
-    system("chmod 0640 $slapd_conf_custom");
-} elsif ($lsb_release_codename eq "squeeze"){
-    # debian squeeze ?????
-    #system("chmod 0640 $slapd_conf");
-    #system("chmod 0640 $slapd_conf_custom");
-}
-
-#system("chown openldap:openldap $ldap_conf");
-system("chown root:root $ldap_conf");
-# the args dir/file
-if (not -e "$ldap_args_dir"){
-    system("mkdir $ldap_args_dir");
-}
-system("chmod 0755 $ldap_args_dir");
-system("chown openldap:openldap $ldap_args_dir");
-
-
-
-if ($slapd_standalone==1){
-    # dump the current ldap
-    &dump_slapd_to_ldif();
-
-    # remove bdb files from slapd
-    system("rm -rf /var/lib/ldap/*");
-
-    # start and stop slapd to recreate files in /var/lib/ldap
-    system("/etc/init.d/slapd start");
-    system("/etc/init.d/slapd stop");
-
-    # slapd must be stopped again
-    # populate ldap (no users)
-    print "Populating ldap with $ldif_local\n";
-    print "This can take a while ...\n";
-    if (not -e ${DevelConf::log_pfad_package_update}){
-	system("mkdir -p ${DevelConf::log_pfad_pack_up}");
-    }
-    system("slapadd -c -l $ldif_local > ${DevelConf::log_pfad_pack_up}/slapadd-previous.log 2>&1");
-
-    if ($new_database==1){
-        # new database doesnt need to be filled
+    # setting the password in pg
+    if ( ($old_version eq "0.0.0-0" and not defined $dbh) or $new_database==1){
+        # first installation
+        &set_db_passwd($dbpassword);
     } else {
-        # use the old database
-        # modify the basedn and other stuff in the latest dump
-        &patch_ldif($basedn,$smbworkgroup);
-        # add the latest dump, if existing
-        &add_slapd_from_ldif();
+        &titel("NOT updating password  for user ldap in Postgresql (update)");
     }
-}
+
+    # setting the ldap suffix dn=x in pg
+    &set_ldap_suffix_pg($basedn);
 
 
-sleep 5;
-
-## This is new ??????????????
-## make sure owner is correct, so that slapd can start
-system("chown -R openldap.openldap /var/lib/ldap/");
-if ($lsb_release_codename eq "lenny"){
-    # debian lenny
-    system("chmod 700 /var/lib/ldap");
-    system("chmod 600 /var/lib/ldap/*");
-}
-
-# starting ldap
-system("/etc/init.d/slapd start");
-
-sleep 2;
-
-# patch smbtools
-system("sed $replace ${template}/ldap/smbldap.conf.template > $smb_ldap_conf"); 
-system("sed $replace ${template}/ldap/smbldap_bind.conf.template > $smb_ldap_bind_conf"); 
+    # setting institutes
+    #&set_ldap_institutes($institutes);
 
 
-# starting samba
-system("/etc/init.d/samba start");
-
-# ssh 
-system("/etc/init.d/ssh restart");
-
-# nscd
-if (-e "/etc/init.d/nscd"){
-   system("/etc/init.d/nscd stop");
-   sleep 2;
-   system("killall nscd");
-   sleep 2;
-   system("killall -9 nscd");
-   system("/etc/init.d/nscd start");
-}
-
-if ($slapd_standalone==1){
-    # domain groups
-    system("sophomorix-groupadd --skiplock --unix-group domadmins --nt-group 'Domain Admins' --domain --gidnumber 512");
-    system("sophomorix-groupadd --skiplock --unix-group domusers --nt-group 'Domain Users' --domain --gidnumber 513");
-    system("sophomorix-groupadd --skiplock --unix-group domguests --nt-group 'Domain Guests' --domain --gidnumber 514");
-    system("sophomorix-groupadd --skiplock --unix-group domcomputers --nt-group 'Domain Computers' --domain --gidnumber 515");
-    system("sophomorix-groupadd --skiplock --unix-group wwwadmin --nt-group 'Web Administrators' --domain --gidnumber 997");
-
-    # local groups 
-    system("sophomorix-groupadd --skiplock --unix-group printoperators --nt-group 'Print Operators' --local --gidnumber 550");
-#    system("sophomorix-groupadd --skiplock --unix-group wwwadmin --nt-group 'Web Administrators' --local --gidnumber 997");
-    system("sophomorix-groupadd --skiplock --unix-group replicators --nt-group 'Replicators' --local --gidnumber 552");
-    system("sophomorix-groupadd --skiplock --unix-group administrators --nt-group 'Administrators' --local --gidnumber 544");
-    system("sophomorix-groupadd --skiplock --unix-group accountoperators --nt-group 'Account Operators' --local --gidnumber 548");
-    system("sophomorix-groupadd --skiplock --unix-group backupoperators --nt-group 'Backup Operators' --local --gidnumber 551");
-
-    # correct the groups-sids
-    &update_groupsid("domadmins","512",$sid);
-    &update_groupsid("domusers","513",$sid);
-    &update_groupsid("domguests","514",$sid);
-    &update_groupsid("domcomputers","515",$sid);
-
-    &update_groupsid("administrators","544");
-    &update_groupsid("accountoperators","548");
-    &update_groupsid("printoperators","550");
-    &update_groupsid("backupoperators","551");
-    &update_groupsid("replicators","552");
-
-    # delete groupmapping
-    &delete_groupmap("Web Administrators");
-
-} else { 
-    # adding groups with smbldap-tools
-    &add_ldap_group("domadmins","Domain Admins",512);
-    &add_ldap_group("domusers","Domain Users",513);
-    &add_ldap_group("domguests","Domain Guests",514);
-    &add_ldap_group("domcomputers","Domain Computers",515);
-    # local groups
-    &add_local_ldap_group("printoperators","Print Operators",550);
-    #&add_local_ldap_group("pgmadmins","Program Administrators",999);
-    &add_local_ldap_group("wwwadmin","Web Administrators",997);
-    &add_local_ldap_group("replicators","Replicators",552);
-    &add_local_ldap_group("administrators","Administrators",544);
-    &add_local_ldap_group("accountoperators","Account Operators",548);
-    &add_local_ldap_group("backupoperators","Backup Operators",551);
-}
+    # setting the SID for existing users/groups
+    # ???????
+    #&set_samba_sid();
 
 
-# group teachers part 1
-my $dbh_create_class_db_entry = 
-         DBI->connect("dbi:Pg:dbname=ldap;port=${DevelConf::sql_port}", 
-                       "ldap","",
-           { RaiseError => 0, PrintError => 0});
-if (not defined $dbh_create_class_db_entry){
-    print "   WARNING: Could not create class ${DevelConf::teacher}.\n";
-    print "   Database ldap not running on port ${DevelConf::sql_port}\n";
-} else {
-    &create_class_db_entry(${DevelConf::teacher},4);
-}
+    # changes for the new version of slapd 2.3.27/etch that runs as openldap
+    system("chmod 0644 $ldap_conf");
+    if ($lsb_release_codename eq "lenny"){
+        # debian lenny
+        system("chmod 0640 $slapd_conf");
+        system("chmod 0640 $slapd_conf_custom");
+    } elsif ($lsb_release_codename eq "squeeze"){
+        # debian squeeze ?????
+        #system("chmod 0640 $slapd_conf");
+        #system("chmod 0640 $slapd_conf_custom");
+    }
 
+    #system("chown openldap:openldap $ldap_conf");
+    system("chown root:root $ldap_conf");
+    # the args dir/file
+    if (not -e "$ldap_args_dir"){
+        system("mkdir $ldap_args_dir");
+    }
+    system("chmod 0755 $ldap_args_dir");
+    system("chown openldap:openldap $ldap_args_dir");
+
+
+    if ($slapd_standalone==1){
+        # dump the current ldap
+        &dump_slapd_to_ldif();
+
+        # remove bdb files from slapd
+        system("rm -rf /var/lib/ldap/*");
+
+        # start and stop slapd to recreate files in /var/lib/ldap
+        system("/etc/init.d/slapd start");
+        system("/etc/init.d/slapd stop");
+
+        # slapd must be stopped again
+        # populate ldap (no users)
+        print "Populating ldap with $ldif_local\n";
+        print "This can take a while ...\n";
+        if (not -e ${DevelConf::log_pfad_package_update}){
+            system("mkdir -p ${DevelConf::log_pfad_pack_up}");
+        }
+        system("slapadd -c -l $ldif_local > ${DevelConf::log_pfad_pack_up}/slapadd-previous.log 2>&1");
+
+        if ($new_database==1){
+            # new database doesnt need to be filled
+        } else {
+            # use the old database
+            # modify the basedn and other stuff in the latest dump
+            &patch_ldif($basedn,$smbworkgroup);
+            # add the latest dump, if existing
+            &add_slapd_from_ldif();
+        }
+    }
+
+    sleep 5;
+
+    ## make sure owner is correct, so that slapd can start
+    system("chown -R openldap.openldap /var/lib/ldap/");
+    if ($lsb_release_codename eq "lenny"){
+        # debian lenny
+        system("chmod 700 /var/lib/ldap");
+        system("chmod 600 /var/lib/ldap/*");
+    }
+
+    # starting ldap
+    system("/etc/init.d/slapd start");
+
+    sleep 2;
+
+    # patch smbtools
+    system("sed $replace ${template}/ldap/smbldap.conf.template > $smb_ldap_conf"); 
+    system("sed $replace ${template}/ldap/smbldap_bind.conf.template > $smb_ldap_bind_conf"); 
+
+
+    # starting samba
+    system("/etc/init.d/samba start");
+
+    # ssh 
+    system("/etc/init.d/ssh restart");
+
+    # nscd
+    if (-e "/etc/init.d/nscd"){
+       system("/etc/init.d/nscd stop");
+       sleep 2;
+       system("killall nscd");
+       sleep 2;
+       system("killall -9 nscd");
+       system("/etc/init.d/nscd start");
+    }
+
+    if ($slapd_standalone==1){
+        # domain groups
+        system("sophomorix-groupadd --skiplock --unix-group domadmins --nt-group 'Domain Admins' --domain --gidnumber 512");
+        system("sophomorix-groupadd --skiplock --unix-group domusers --nt-group 'Domain Users' --domain --gidnumber 513");
+        system("sophomorix-groupadd --skiplock --unix-group domguests --nt-group 'Domain Guests' --domain --gidnumber 514");
+        system("sophomorix-groupadd --skiplock --unix-group domcomputers --nt-group 'Domain Computers' --domain --gidnumber 515");
+        system("sophomorix-groupadd --skiplock --unix-group wwwadmin --nt-group 'Web Administrators' --domain --gidnumber 997");
+
+        # local groups 
+        system("sophomorix-groupadd --skiplock --unix-group printoperators --nt-group 'Print Operators' --local --gidnumber 550");
+        #    system("sophomorix-groupadd --skiplock --unix-group wwwadmin --nt-group 'Web Administrators' --local --gidnumber 997");
+        system("sophomorix-groupadd --skiplock --unix-group replicators --nt-group 'Replicators' --local --gidnumber 552");
+        system("sophomorix-groupadd --skiplock --unix-group administrators --nt-group 'Administrators' --local --gidnumber 544");
+        system("sophomorix-groupadd --skiplock --unix-group accountoperators --nt-group 'Account Operators' --local --gidnumber 548");
+        system("sophomorix-groupadd --skiplock --unix-group backupoperators --nt-group 'Backup Operators' --local --gidnumber 551");
+
+        # correct the groups-sids
+        &update_groupsid("domadmins","512",$sid);
+        &update_groupsid("domusers","513",$sid);
+        &update_groupsid("domguests","514",$sid);
+        &update_groupsid("domcomputers","515",$sid);
+
+        &update_groupsid("administrators","544");
+        &update_groupsid("accountoperators","548");
+        &update_groupsid("printoperators","550");
+        &update_groupsid("backupoperators","551");
+        &update_groupsid("replicators","552");
+
+        # delete groupmapping
+        &delete_groupmap("Web Administrators");
+    } else { 
+        # adding groups with smbldap-tools
+        &add_ldap_group("domadmins","Domain Admins",512);
+        &add_ldap_group("domusers","Domain Users",513);
+        &add_ldap_group("domguests","Domain Guests",514);
+        &add_ldap_group("domcomputers","Domain Computers",515);
+        # local groups
+        &add_local_ldap_group("printoperators","Print Operators",550);
+        #&add_local_ldap_group("pgmadmins","Program Administrators",999);
+        &add_local_ldap_group("wwwadmin","Web Administrators",997);
+        &add_local_ldap_group("replicators","Replicators",552);
+        &add_local_ldap_group("administrators","Administrators",544);
+        &add_local_ldap_group("accountoperators","Account Operators",548);
+        &add_local_ldap_group("backupoperators","Backup Operators",551);
+    }
+
+
+    # group teachers part 1
+    my $dbh_create_class_db_entry = 
+             DBI->connect("dbi:Pg:dbname=ldap;port=${DevelConf::sql_port}", 
+                          "ldap","",
+               { RaiseError => 0, PrintError => 0});
+    if (not defined $dbh_create_class_db_entry){
+        print "   WARNING: Could not create class ${DevelConf::teacher}.\n";
+        print "   Database ldap not running on port ${DevelConf::sql_port}\n";
+    } else {
+        &create_class_db_entry(${DevelConf::teacher},4);
+    }
+} # end full_setup
 
 # adding users
 &setup_verzeichnis("\$homedir_all_admins","$DevelConf::homedir_all_admins");
 
+if ($full_config==1){
+    # grouplist for administrator
+    my $grouplist="administrators,printoperators,${DevelConf::teacher}";
 
-# grouplist for administrator
-my $grouplist="administrators,printoperators,${DevelConf::teacher}";
+    if ($slapd_standalone==1){
+        # administrator is equal to admin in ml 2.x
+        system("sophomorix-useradd --skiplock --administrator administrator --uidnumber 998 --gecos administrator --unix-group 'domadmins' --secondary-groups '$grouplist' --shell /bin/bash");
 
-if ($slapd_standalone==1){
-    # administrator is equal to admin in ml 2.x
-    system("sophomorix-useradd --skiplock --administrator administrator --uidnumber 998 --gecos administrator --unix-group 'domadmins' --secondary-groups '$grouplist' --shell /bin/bash");
-
-    # pgmadmin is to install programs on the win clients
-    system("sophomorix-useradd --skiplock --administrator pgmadmin --uidnumber 999 --gecos 'Programm Administrator' --unix-group 'domadmins' --shell /bin/false");
+        # pgmadmin is to install programs on the win clients
+        system("sophomorix-useradd --skiplock --administrator pgmadmin --uidnumber 999 --gecos 'Programm Administrator' --unix-group 'domadmins' --shell /bin/false");
 
 #    # wwwadmin for web services (moodle, opengroupware, imp ...) NOT a windows user
 #    system("sophomorix-useradd --skiplock --unixadmin wwwadmin --uidnumber 997 --gecos 'Web Administrator' --unix-group 'administrators' --shell /bin/false");
 
     # wwwadmin for web services (moodle, opengroupware, imp ...) NOT a windows user
-    system("sophomorix-useradd --skiplock --administrator wwwadmin --uidnumber 997 --gecos 'Web Administrator' --unix-group 'administrators' --shell /bin/false");
+        system("sophomorix-useradd --skiplock --administrator wwwadmin --uidnumber 997 --gecos 'Web Administrator' --unix-group 'administrators' --shell /bin/false");
 
 
 
-    # domadmin (for joining the domain)
-    system("sophomorix-useradd --skiplock --administrator domadmin --uidnumber 996 --gecos 'Domain Admin' --unix-group 'domadmins' --shell /bin/false --home /dev/null");
+        # domadmin (for joining the domain)
+        system("sophomorix-useradd --skiplock --administrator domadmin --uidnumber 996 --gecos 'Domain Admin' --unix-group 'domadmins' --shell /bin/false --home /dev/null");
 
-    # correct the sids
-    &update_sid("administrator","998","512",$sid);
-    &update_sid("domadmin","996","512",$sid);
-    &update_sid("pgmadmin","999","512",$sid);
-    &update_sid("wwwadmin","997","544",$sid);
-} else { 
-    # administrator is equal to admin in ml 2.x
-    system("smbldap-useradd -u 998 -a -c administrator -m -d /home/administrators/administrator -g 'domadmins' -G '$grouplist' -s /bin/bash administrator");
+        # correct the sids
+        &update_sid("administrator","998","512",$sid);
+        &update_sid("domadmin","996","512",$sid);
+        &update_sid("pgmadmin","999","512",$sid);
+        &update_sid("wwwadmin","997","544",$sid);
+    } else { 
+        # administrator is equal to admin in ml 2.x
+        system("smbldap-useradd -u 998 -a -c administrator -m -d /home/administrators/administrator -g 'domadmins' -G '$grouplist' -s /bin/bash administrator");
 
-    # pgmadmin is to install programs on the win clients
-    system("smbldap-useradd -u 999 -a  -c 'Programm Administrator' -m -d /home/administrators/pgmadmin -g 'domadmins' -s /bin/false pgmadmin");
+        # pgmadmin is to install programs on the win clients
+        system("smbldap-useradd -u 999 -a  -c 'Programm Administrator' -m -d /home/administrators/pgmadmin -g 'domadmins' -s /bin/false pgmadmin");
 
-    # wwwadmin for web services (moodle, opengroupware, imp ...) NOT a windows user
-    system("smbldap-useradd -u 997 -c 'Web Administrator' -m -d /home/administrators/wwwadmin -g 'wwwadmin' -s /bin/false wwwadmin");
+        # wwwadmin for web services (moodle, opengroupware, imp ...) NOT a windows user
+        system("smbldap-useradd -u 997 -c 'Web Administrator' -m -d /home/administrators/wwwadmin -g 'wwwadmin' -s /bin/false wwwadmin");
 
-    # domadmin (for joining the domain)
-    system("smbldap-useradd -a -u 996 -c 'Domain Admin' -m -d /dev/null -g 'domadmins' -s /bin/false domadmin");
-}
+        # domadmin (for joining the domain)
+        system("smbldap-useradd -a -u 996 -c 'Domain Admin' -m -d /dev/null -g 'domadmins' -s /bin/false domadmin");
+    }
 
 
-# updating ldap
-if ($new_database==1){
-    system("sophomorix-dump-pg2ldap --skiplock");
-    # make sure slapd is running for the following chown commands
-    sleep 5;
-}           
-
+    # updating ldap
+    if ($new_database==1){
+        system("sophomorix-dump-pg2ldap --skiplock");
+        # make sure slapd is running for the following chown commands
+        sleep 5;
+    }           
+} # end full_setup
 
 &setup_verzeichnis("\$share_share","$DevelConf::share_share");
 
@@ -1344,11 +1358,13 @@ if ($new_database==1){
                    "$DevelConf::homedir_samba_progs");
 &setup_verzeichnis("\$homedir_samba_cds",
                    "$DevelConf::homedir_samba_cds");
-
-#print "${template}/samba/netlogon/logon.bat.template > $smb_netlogon_bat \n";
-#print "${template}/samba/netlogon/login.bat.template > $smb_netlogin_bat \n";
-system("sed $replace ${template}/samba/netlogon/logon.bat.template > $smb_netlogon_bat"); 
-system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlogin_bat"); 
+    
+if ($full_config==1){
+    #print "${template}/samba/netlogon/logon.bat.template > $smb_netlogon_bat \n";
+    #print "${template}/samba/netlogon/login.bat.template > $smb_netlogin_bat \n";
+    system("sed $replace ${template}/samba/netlogon/logon.bat.template > $smb_netlogon_bat"); 
+    system("sed $replace ${template}/samba/netlogon/login.bat.template > $smb_netlogin_bat"); 
+} # end full_config
 
 # www stuff
 if ($DevelConf::create_www==1){
@@ -1368,20 +1384,21 @@ if ($DevelConf::create_www==1){
 
 # make some files owned by root.root and 0600
 &make_some_files_root_only();
-
-# undo some of the above changes 
-if ($lsb_release_codename eq "lenny"){
-    system("chmod 0640 /etc/ldap/slapd.conf");
-    system("chown .openldap /etc/ldap/slapd.conf");
-    system("chmod 0640 /etc/ldap/slapd.conf.custom");
-    system("chown .openldap /etc/ldap/slapd.conf.custom");
-} elsif ($lsb_release_codename eq "karmic"){
-    system("chmod 0640 /etc/ldap/slapd.conf");
-    system("chown .openldap /etc/ldap/slapd.conf");
-    system("chmod 0640 /etc/ldap/slapd.conf.custom");
-    system("chown .openldap /etc/ldap/slapd.conf.custom");
+    
+if ($full_config==1){
+    # undo some of the above changes 
+    if ($lsb_release_codename eq "lenny"){
+        system("chmod 0640 /etc/ldap/slapd.conf");
+        system("chown .openldap /etc/ldap/slapd.conf");
+        system("chmod 0640 /etc/ldap/slapd.conf.custom");
+        system("chown .openldap /etc/ldap/slapd.conf.custom");
+    } elsif ($lsb_release_codename eq "karmic"){
+        system("chmod 0640 /etc/ldap/slapd.conf");
+        system("chown .openldap /etc/ldap/slapd.conf");
+        system("chmod 0640 /etc/ldap/slapd.conf.custom");
+        system("chown .openldap /etc/ldap/slapd.conf.custom");
+    }
 }
-
 
 # run upgrade scripts
 &run_upgrade_scripts();
