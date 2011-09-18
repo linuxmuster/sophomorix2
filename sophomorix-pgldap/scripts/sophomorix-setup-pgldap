@@ -1087,15 +1087,11 @@ if ($keep_database==1){
 
 
 if ($full_config==1){
-    print "\n\n";
-
     # create new indices
     &drop_indices();
 
     # disabled from 2.2.15 on
     # &create_indices();
-
-
     # setting the password in pg
     if ( ($old_version eq "0.0.0-0" and not defined $dbh) or $new_database==1){
         # first installation
@@ -1107,15 +1103,12 @@ if ($full_config==1){
     # setting the ldap suffix dn=x in pg
     &set_ldap_suffix_pg($basedn);
 
-
     # setting institutes
     #&set_ldap_institutes($institutes);
-
 
     # setting the SID for existing users/groups
     # ???????
     #&set_samba_sid();
-
 
     # changes for the new version of slapd 2.3.27/etch that runs as openldap
     system("chmod 0644 $ldap_conf");
