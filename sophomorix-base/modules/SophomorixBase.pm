@@ -667,15 +667,15 @@ sub make_some_files_root_only {
                   "/etc/imap.secret"
                   );
     }
-
+    print "Make some files readable by root only:\n";
     # do it
     foreach my $root_file (@filelist){
         if (-e $root_file){
-            print "Making file $root_file root only\n";
+            print " * Making file $root_file root only\n";
             system("chown root.root $root_file");
             system("chmod 0600 $root_file");
         } else {
-            print "WARNING: File $root_file nonexisting, ",
+            print " * WARNING: File $root_file nonexisting, ",
                   "cannot make it root only.\n";
         }
     }
