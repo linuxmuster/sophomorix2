@@ -1,0 +1,95 @@
+#!/usr/bin/perl -w
+# $Id$
+# This script converts the cvs dump of Atlantis to the schueler.txt format
+#
+# This script might be updated after installing an sophomorix-base package.
+# You must copy it by hand to its location and adjust the configuration.
+#
+# Script was created for pmhs Nuertingen
+#
+#
+#
+# Howto:
+#
+# 1. copy this script to /etc/sophomorix/user/filter
+# 2. chmod 755 /etc/sophomorix/user/filter/splan-filter-schueler
+# 3. edit /etc/sophomorix/sophomorix.conf
+#    add:
+#    $filter_script="/etc/sophomorix/user/filter/splan-filter-schueler";
+# 4. run 
+#    sophomorix-check --filter-only 
+# 5. Verify the result of the filter script in:
+#     /var/lib/sophomorix/tmp/schueler.txt.filter.tmp
+# 6. If result is correct, continue with
+#    sophomorix-check
+#   
+#
+# Update this filter:
+#
+# 0. Achtung: KEINE Sonderzeichen in dieses Script schreiben!
+#    ASCII belassen!
+# 1. Zeile von 'User' mit Sonderzeichen in octal dumper jagen:
+#    cat schueler.txt | grep User | od -c
+# 2. Nummer des Zeichens ermitteln, z.B. \201
+# 3. Ermitteln wie das korrekte Zeichen aussieht, z.B. ue
+# 4. Replace Zeile (siehe weiter unten) erstellen der Art;
+#        $line=~s/\201/ue/g;
+# 5. Testen wie oben
+# 6. Anpassungen an jeffbeck@web.de mailen
+#
+#
+#
+# In case of Problems:
+# jeffbeck@web.de 
+#
+
+
+############################################################
+# Start configure 
+############################################################
+
+# keep this settings
+my $source="/etc/sophomorix/user/schueler.txt";
+my $target="/var/lib/sophomorix/tmp/schueler.txt.tmp";
+
+
+############################################################
+# Filter
+############################################################
+
+open(SOURCE, "<$source") || die "Fehler: $! $source not found!"; 
+open(TARGET, ">$target") || die "Fehler: $! $target not found!"; 
+
+my %header=();
+my %header_num=();
+my $line_num=0;
+while (<SOURCE>){
+    chomp();
+    my $line=$_;
+    # Replace Zeilen:
+    # ue/Ue
+    $line=~s/\201/ue/g;
+    $line=~s/\232/Ue/g;
+    # oe/Oe
+    $line=~s/\224/oe/g;
+    $line=~s/\231/Oe/g;
+    # ae/Ae
+    $line=~s/\204/ae/g;
+    $line=~s/\304/Ae/g;
+    # ss
+    $line=~s/\341/ss/g;
+    # e
+    $line=~s/\202/e/g;
+    print TARGET "$line\n";
+}
+
+close(SOURCE);
+close(TARGET);
+print "\nsplan-filter-schueler: done!\n\n";
+
+
+
+############################################################
+# subs
+############################################################
+
