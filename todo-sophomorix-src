@@ -1,5 +1,34 @@
 Todo:
 
+#299 
+#282 gucken
+#97 nochmals checken, dann als erledigt markieren. Ist wahrscheinlich erledigt
+
+
+neues sophomorix-paket 2.2.19
+abhängigkeit von posgresql-8.1
+
+
+sophomorix-check --recovery /var/....
+
+sophomorix-support ....prepare for dist upgrade
+  - verschlüsselte passwörter dumpen:   (extra option, bei prepare-for dist-upgrade gesetzt)
+    uid::sambalmpassword::sambantpassword::userPassword::firstpassword
+  - SID???
+sophomorix-passwd --update-encryped-passwords-from-file
+
+
+
+beim löschen von usern mitloggen:
+- uid -> uidnumber, Name
+wird bisher nicht gemacht, keine Möglichkeit 
+
+
+beim versetzen testen, ob soft quota überschritten wird 
+(in Datei ausgeben nach ... report.office/quota)
+
+
+
 Idee: Versetzen-Report:
 - bei welchen Schülern wurde das quota durch versetzen überschritten?
 - sonstiges?
@@ -1509,7 +1538,8 @@ Sichern von notwendigen Dateien:
          where <paketname> is sophomorix2
 TODO:
 --do-dist-upgrade
-   
+
+
 
 alternative Pfade angeben:
 /etc/smb.conf::/etc/samba/smb.conf
