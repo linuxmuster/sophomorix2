@@ -13,9 +13,12 @@ use strict;
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 
+use DBI;
+
 use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
-use Sophomorix::SophomorixPgLdap qw(check_connections
+use Sophomorix::SophomorixPgLdap qw(db_connect
+                                    db_disconnect
 				    );
 #use Sophomorix::SophomorixPgLdap qw(export_userdata_upgrade
 #                                   );
@@ -250,7 +253,35 @@ system ("rm ${db_dump}");
 
 sub export_userdata_upgrade {
     # exporting data, needed on new system
-    my ($file) = @_;
+    my ($dir) = @_;
+    system("mkdir -p $dir");
+    my $file=$dir."/user_data";
+    open(USERDATA, ">$file") 
+        || die "Fehler: $! ($file)";
+
+    my $dbh=&db_connect();
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT uidnumber,
+                                    uid,
+                                    firstpassword,
+                                    userPassword,
+                                    sambalmpassword,
+                                    sambantpassword 
+                            FROM userdata 
+                           " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+       # split the array, to give better names
+       my ($uidnumber,$uid,$firstpassword,
+           $userPassword,$sambalmpassword,$sambantpassword)=@$row;
+       # fetching uid
+       my $line=$uid."::".$uidnumber."::".$firstpassword."::"
+               .$userPassword."::".$sambalmpassword."::".$sambantpassword."::check::\n";
+       print USERDATA $line;
+    }
+    &db_disconnect($dbh);
+    close(USERDATA);
 }
 
 sub read_config {
