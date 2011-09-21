@@ -15,6 +15,10 @@ Getopt::Long::Configure ("bundling");
 
 use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixPgLdap qw(check_connections
+				    );
+#use Sophomorix::SophomorixPgLdap qw(export_userdata_upgrade
+#                                   );
 
 # Variablen für Optionen
 
@@ -31,7 +35,8 @@ my $timestamp = `date '+%Y-%m-%d_%H-%M'`;
 chomp($timestamp);
 my $treename=$hostname.".".$dnsdomainname."-".$timestamp;
 my $support_tree="${create_dir}/${treename}";
-my $upgrade_path="/var/upgrade/linuxmuster/sophomorix2";
+my $upgrade_path_fs="/var/upgrade/linuxmuster/sophomorix2";
+my $upgrade_path_data="/var/upgrade/linuxmuster/sophomorix2-data";
 my $db_dump="${DevelConf::log_pfad}/current-ldap.sql";
 
 
@@ -80,11 +85,12 @@ if ($add_dirlists ne ""){
 # --prepare-dist-upgrade
 if ($prepare_dist_upgrade==1){
     $zip=0;
-    $path=$upgrade_path;
+    $path=$upgrade_path_fs;
     if (-e $path){
         print "Cleaning previous version of prepare-dist-upgrade files\n";
         system("rm -rf $path");
     }
+    &export_userdata_upgrade($upgrade_path_data);
 }
 
 # --path
@@ -118,7 +124,7 @@ Options
 
   --prepare-dist-upgrade 
 ');
-   print "    (equal to: --nozip --path $upgrade_path)";
+   print "    (equal to: --nozip --path $upgrade_path_fs)";
    print('
 
   --unlock
@@ -242,6 +248,11 @@ system ("rm ${db_dump}");
 # sub
 ############################################################
 
+sub export_userdata_upgrade {
+    # exporting data, needed on new system
+    my ($file) = @_;
+}
+
 sub read_config {
     my @configs=();
     my @dirlist=();
@@ -266,4 +277,5 @@ sub read_config {
     @dirlist = sort @dirlist;
     return (\@configs,\@dirlist);
 }
+
 
