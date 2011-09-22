@@ -1,5 +1,17 @@
 Todo:
 
+add to string at beginning of 
+configfiles on what template it is based (absolute path)
+
+
+Todo:
+
+slapd.conf template updaten
+
+
+
+
+Todo:
 #299 
 #282 gucken
 #97 nochmals checken, dann als erledigt markieren. Ist wahrscheinlich erledigt
@@ -42,6 +54,7 @@ Ersetzen folgender Dateien:
    /usr/sbin/gen-ldif-from-sql.perl alt 1.9 -> 1.10
 
 
+>>>>>>> 1.284
 
 sophomorix-repair: zusatzoption, damit auch symlinks ALLER user repariert werden
                    (aufruf von sophomorix-user --repairhome für alle user)
@@ -243,11 +256,7 @@ Obwohl nur je 1 Zeile existiert
 Testen: wenn bei einem disableden user das Passwort geaendert wird, kann er sich wieder anmelden (roe)
 
 
-<<<<<<< todo-sophomorix-src
-
 funktion: collect unowned files, abspeichern unter id/gid
-=======
-
 
 Bug #411
 anlegen Lehrer mit GebDat: 0.01.1970
@@ -561,10 +570,14 @@ sophomorix-setup-pgldap:
 
 wenn /usr/sbin/linuxmuster-setup da und ausführbar
  - alle mit sed gepatchten dateien nicht anfassen
+<<<<<<< todo-sophomorix-src
+   - wenn nicht da, selber patchen
+=======
    - wenn nicht da, selber patchen
 
  - script schreiben, dass aus dem svn die config-Dateien difft
    und anzeigt, welche sich verändert haben 
+>>>>>>> 1.281
    aus svn ins cvs holen, einvchecken svn: var/ dort sind thomas configs
    script, dass diff macht
 
@@ -614,7 +627,7 @@ Updating samba group backupoperators:
 Updating samba group replicators:
    * grp-sid: S-1-5-32-552
 Deleting groupmap for ntgroup Web Administrators
-Unable to resolve group Web Administrators to a SID         <--------------
+Unable to resolve group Web Administrators to a SID      
 group teachers exists already (10000)
 Replacing ldap group dn: cn=teachers,ou=groups,dc=bszleo,dc=de
 #### /usr/sbin/sophomorix-useradd started ...                             ####
