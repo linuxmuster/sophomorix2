@@ -24,6 +24,8 @@ use Net::LDAP;
 
 use File::Find;
 
+use File::Basename;
+
 my @arguments = @ARGV;
 
 # Scriptname ermitteln
@@ -43,6 +45,10 @@ my $help=0;
 my $user="";
 my $uid=0;
 my $listfiles=0;
+
+# ???????
+my $list_files_path="/var/log/sophomorix/list_files";
+system("mkdir -p $list_files_path");
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -107,8 +113,54 @@ if ($uid==0 and $user ne ""){
 
 # --listfiles and --uid or existing user (--user user)
 if ($listfiles==1 and $uid!=0 ){
+    my @search_dirs = ("/home/teachers/$user","/home/share");
+    my $search_dir = "/home/teachers/$user";
     print "Looking for files of user $user with uid $uid\n";
-    find( \&files_of_uid,  @dirs);
+    my $out_file=$list_files_path."/".$user."-dir-list.txt";
+    my $out_file_summary=$list_files_path."/".$user."-dir-list-summary.txt";
+
+    my $search_command="find $search_dir -maxdepth 1 -type d -user $user > $out_file";
+
+    #system("find $search_dir -user $user >> $out_file");
+    print "Executing: $search_command\n";
+    system($search_command);
+
+    # Performance: 
+    #   A) im home eines users(20 GB): ca. 30s
+    #      Dateigroesse 6,7 MB, 72.000 Zeilen (1.800 Schreibmaschinenseiten)
+    #   B) in /home user mit 20GB: ca: 
+    #      Dateigroesse xx MB, x.000 Zeilen ( Schreibmaschinenseiten)
+
+
+
+# langsam
+#    find( \&files_of_uid,  @dirs);
+#    exit;
+
+    # processing out_file
+    my $dirname="";
+    my $dirname_last="";
+    my $count=-1;
+    open(OUT, "<$out_file");
+
+    # ignore dotfiles (--dotfiles, --nodotfiles) ?????
+    # tauschdirs:
+    # A) dirs suchen mit owner ...
+    #    B) darin Anzahl Dateien und Ordner
+    # C) alle Dateien suchen, Ordner von A) auslassen
+
+    while(<OUT>){
+        my $dir=$_;
+        chomp($dir);
+        my $count_files=`find '$dir' -type f | wc -l`;
+        my $count_dirs=`find '$dir' -type d | wc -l`;
+        chomp($count_files);
+        chomp($count_dirs);
+        $count_dirs=$count_dirs-1; # ignore ..
+        print "ORDNER: $dir  --->  $count_dirs Ordner mit $count_files Dateien \n";
+    }
+
+    close(OUT);
     exit;
 }
 
@@ -118,6 +170,12 @@ if ($listfiles==1 and $uid!=0 ){
 # Subs
 # ===========================================================================
 
+sub files_of_user {
+    my ($user) = @_;
+    # find /home -user bz > bz-files-in-home.log
+}
+
+# langsam
 sub files_of_uid {
     my ($f_dev, $f_ino, $f_mode, $f_nlink, $f_uid, $f_gid) = lstat($_);
     if ($uid==$f_uid){
