@@ -117,13 +117,17 @@ if ($listfiles==1 and $uid!=0 ){
     my $out_file_share=$list_files_path."/".$user."-dir-list-share.txt";
     my $out_file_summary=$list_files_path."/".
                          $user."-dir-list-summary.txt";
+    my $out_file_tmp=$list_files_path."/".
+                         $user."-dir-list-tmp.txt";
+    open(SUMMARY, ">$out_file_summary");
 
     ########## searching $HOME of a user ##########
     my $search_dir = "/home/teachers/$user";
     print "Looking for files of user $user with uid $uid\n";
+    print SUMMARY "##### Ordner im persoenlichen Ordner: #####\n";
     my $search_command="find $search_dir -maxdepth 1 ".
                        "-type d -user $user > $out_file";
-    print "Executing: $search_command\n";
+    print "Executing:\n $search_command\n";
     system($search_command);
 
     # Performance: 
@@ -136,21 +140,27 @@ if ($listfiles==1 and $uid!=0 ){
     #    exit;
 
     # processing out_file
-    my $dirname="";
-    my $dirname_last="";
     my $count=-1;
     open(OUT, "<$out_file");
     while(<OUT>){
         my $dir=$_;
         chomp($dir);
+        # ignore home
+        if ($dir eq $search_dir){
+            next;
+        }
         # ignore dotfiles (--dotfiles, --nodotfiles) ?????
+        if ($dir=~/$search_dir\/\./) {
+            #print "Skipping dotfile $dir\n";
+            next;
+        }
         my $count_files=`find '$dir' -type f | wc -l`;
         my $count_dirs=`find '$dir' -type d | wc -l`;
         chomp($count_files);
         chomp($count_dirs);
         $count_dirs=$count_dirs-1; # ignore ..
-        print "ORDNER: $dir  --->  $count_dirs Ordner ",
-                      "mit $count_files Dateien \n";
+        print SUMMARY "   $dir  --->  $count_dirs Ordner ",
+                      "/ $count_files Dateien \n";
     }
     close(OUT);
 
@@ -158,17 +168,72 @@ if ($listfiles==1 and $uid!=0 ){
     ########## searching /home/share ##########
     my $search_dir_share = "/home/share";
     print "Looking in $search_dir_share for dirs/files of user $user\n";
-    my $search_command_share="find $search_dir_share -maxdepth 2 ".
-                       "-type d -user $user > $out_file_share";
-    print "Executing: $search_command_share\n";
-    system($search_command_share);
+    print SUMMARY "##### Ordner in den Tausch-Ordnern: #####\n";
+    #my $search_command_share="find $search_dir_share -maxdepth 2 ".
+    #                   "-type d -user $user > $out_file_share";
+    #print "Executing:\n $search_command_share\n";
+    #system($search_command_share);
+    system("find ${search_dir_share}/teachers -maxdepth 1 -type d -user $user > $out_file_share");
+    system("find ${search_dir_share}/classes -maxdepth 2 -type d -user $user >> $out_file_share");
+    system("find ${search_dir_share}/subclasses -maxdepth 2 -type d -user $user >> $out_file_share");
+    system("find ${search_dir_share}/projects -maxdepth 2 -type d -user $user >> $out_file_share");
+    system("find ${search_dir_share}/exams -maxdepth 2 -type d -user $user >> $out_file_share");
+    system("find ${search_dir_share}/school -maxdepth 1 -type d -user $user >> $out_file_share");
+
+   # ????? -ignore_readdir_race einfuegen
+
+    my $prune_string="";
+    my %prune_hash=();
+
+    my $count_share=-1;
+    open(OUT, "<$out_file_share");
+    while(<OUT>){
+        my $dir=$_;
+        chomp($dir);
+        my $count_files=`find '$dir' -type f | wc -l`;
+        my $count_dirs=`find '$dir' -type d | wc -l`;
+        chomp($count_files);
+        chomp($count_dirs);
+        $count_dirs=$count_dirs-1; # ignore ..
+        print SUMMARY "   $dir  --->  $count_dirs Ordner ",
+                      "/ $count_files Dateien \n";
+        # save dir and prune it in next find
+        $prune_string=$prune_string."-path \"$dir\" -prune -o ";
+	$prune_hash{$dir}="seen";
+    }
+    close(OUT);
+
+# find /home/share/teachers/ -path /home/share/teachersopenoffice -prune -type f -user bz -o -print
+
+    print "Looking in $search_dir_share for files of user $user\n";
+    print SUMMARY "##### Sonstige Dateien in den Tausch-Ordnern: #####\n";
+
+    #my $search_command_share_files="find $search_dir_share $prune_string ".
+    #                   "-type f -user $user -o -print >> $out_file_summary";
+    my $search_command_share_files="find $search_dir_share  $prune_string ".
+                       "-type f -user $user >> $out_file_tmp";
+    print "Executing:\n $search_command_share_files\n";
+    system($search_command_share_files);
+
+    # remove pruned dirs from results 
+    open(TMP, "<$out_file_tmp");
+    while(<TMP>){
+        my $line = $_;
+        chomp($line);
+        if (not exists $prune_hash{$line}){
+            print SUMMARY "  $line\n";
+        } else {
+            # ignored
+        }
+    }
+    close(TMP);
 
     # tauschdirs:
     # A) dirs suchen mit owner ...
     #    B) darin Anzahl Dateien und Ordner
     # C) alle Dateien suchen, Ordner von A) auslassen
 
-
+    close(SUMMARY);
     exit;
 }
 
