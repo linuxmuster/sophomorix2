@@ -113,17 +113,16 @@ if ($uid==0 and $user ne ""){
 
 # --listfiles and --uid or existing user (--user user)
 if ($listfiles==1 and $uid!=0 ){
-    my @search_dirs = ("/home/teachers/$user","/home/share");
-    my $search_dir = "/home/teachers/$user";
-    print "Looking for files of user $user with uid $uid\n";
     my $out_file=$list_files_path."/".$user."-dir-list.txt";
+    my $out_file_share=$list_files_path."/".$user."-dir-list-share.txt";
     my $out_file_summary=$list_files_path."/".
                          $user."-dir-list-summary.txt";
 
+    ########## searching $HOME of a user ##########
+    my $search_dir = "/home/teachers/$user";
+    print "Looking for files of user $user with uid $uid\n";
     my $search_command="find $search_dir -maxdepth 1 ".
                        "-type d -user $user > $out_file";
-
-    #system("find $search_dir -user $user >> $out_file");
     print "Executing: $search_command\n";
     system($search_command);
 
@@ -132,28 +131,19 @@ if ($listfiles==1 and $uid!=0 ){
     #      Dateigroesse 6,7 MB, 72.000 Zeilen (1.800 Schreibmaschinenseiten)
     #   B) in /home user mit 20GB: ca: 
     #      Dateigroesse xx MB, x.000 Zeilen ( Schreibmaschinenseiten)
-
-
-
-# langsam
-#    find( \&files_of_uid,  @dirs);
-#    exit;
+    # langsam
+    #    find( \&files_of_uid,  @dirs);
+    #    exit;
 
     # processing out_file
     my $dirname="";
     my $dirname_last="";
     my $count=-1;
     open(OUT, "<$out_file");
-
-    # ignore dotfiles (--dotfiles, --nodotfiles) ?????
-    # tauschdirs:
-    # A) dirs suchen mit owner ...
-    #    B) darin Anzahl Dateien und Ordner
-    # C) alle Dateien suchen, Ordner von A) auslassen
-
     while(<OUT>){
         my $dir=$_;
         chomp($dir);
+        # ignore dotfiles (--dotfiles, --nodotfiles) ?????
         my $count_files=`find '$dir' -type f | wc -l`;
         my $count_dirs=`find '$dir' -type d | wc -l`;
         chomp($count_files);
@@ -162,8 +152,23 @@ if ($listfiles==1 and $uid!=0 ){
         print "ORDNER: $dir  --->  $count_dirs Ordner ",
                       "mit $count_files Dateien \n";
     }
-
     close(OUT);
+
+
+    ########## searching /home/share ##########
+    my $search_dir_share = "/home/share";
+    print "Looking in $search_dir_share for dirs/files of user $user\n";
+    my $search_command_share="find $search_dir_share -maxdepth 2 ".
+                       "-type d -user $user > $out_file_share";
+    print "Executing: $search_command_share\n";
+    system($search_command_share);
+
+    # tauschdirs:
+    # A) dirs suchen mit owner ...
+    #    B) darin Anzahl Dateien und Ordner
+    # C) alle Dateien suchen, Ordner von A) auslassen
+
+
     exit;
 }
 
