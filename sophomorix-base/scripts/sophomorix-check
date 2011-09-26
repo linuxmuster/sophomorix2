@@ -1473,12 +1473,13 @@ sub a_u_check {
          if (not defined $new){
              return;
          }
-         if ($new=~/[^0-9]/){
-             # adminclass is string, nothing to do
+         if ($new=~/[^0-9]/ or $new eq ""){
+             # new adminclass is string or empty, nothing to do
          } else {
 	     $new=&rename_admin_class($new);
          }
-         if ($old ne $new){
+         if ($old ne $new and $new ne ""){
+            # do not move in empty class
             &append_move_entry($identifier,$old,$new,"A");
 	    $count++;
          }
