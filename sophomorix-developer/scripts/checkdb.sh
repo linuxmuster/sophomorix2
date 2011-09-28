@@ -12,19 +12,19 @@ for id in `cat groups | awk '{print $1}'`; do
     if [ $tuep = "l" ]; then
         echo "localgroup"
         sql="insert into class_details (id,quota,mailquota,mailalias,maillist,type) values ('$id','quota','-1','f','f','localgroup');"
-        psql -U ldap ldap -c "$sql" 
+        #psql -U ldap ldap -c "$sql" 
         echo $sql
     fi
     if [ $tuep = "d" ]; then
         echo "domaingroup"
         sql="insert into class_details (id,quota,mailquota,mailalias,maillist,type) values ('$id','quota','-1','f','f','domaingroup');"
-        psql -U ldap ldap -c "$sql" 
+        #psql -U ldap ldap -c "$sql" 
         echo $sql
     fi
     if [ $tuep = "r" ]; then
         echo "room"
         sql="insert into class_details (id,quota,mailquota,mailalias,maillist,type) values ('$id','quota','-1','f','f','room');"
-        psql -U ldap ldap -c "$sql" 
+        #psql -U ldap ldap -c "$sql" 
         echo $sql
     fi
   fi
@@ -40,10 +40,11 @@ exam=`psql -U ldap ldap -c "select  count (*) from ldap_entries where dn like 'u
 wsacc=`psql -U ldap ldap -c "select  count (*) from ldap_entries where dn like 'uid=$host$,ou=accounts%'" -P tuples_only`
 
 if [ $exam -eq 1 ]; then
-if [ $wsacc -eq 0 ]; then
-echo "Kein WSACC für $host ! Deleting exam-account to fix..."
-psql -U ldap ldap -c "DELETE from ldap_entries where dn like 'uid=$host,ou=accounts%'" 
-fi
+   if [ $wsacc -eq 0 ]; then
+      echo "Kein WSACC für $host ! Deleting exam-account to fix..."
+      #psql -U ldap ldap -c "DELETE from ldap_entries where dn like 'uid=$host,ou=accounts%'" 
+      echo "DELETE from ldap_entries where dn like 'uid=$host,ou=accounts%'" 
+   fi
 fi
 done
  
