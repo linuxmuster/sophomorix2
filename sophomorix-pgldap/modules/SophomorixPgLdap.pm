@@ -6041,14 +6041,17 @@ sub delete_group_ldap {
         $sambasid,
         $sambagrouptype)=&pg_get_group_type($group);
     if ($type eq "nonexisting"){
-        print "Group $group does not exist in postgresql.\n";
+        # not in pg -> can be deleted in ldap
+        my $dn="cn=".$cn.",ou=groups,".$suffix;
+        print "Deleting ldap dn: $dn\n";
+        my $mesg = $ldap->delete($dn); 
+        $mesg->code && die $mesg->error;
+    } else {
+        # still in pg -> NOT deleting in ldap
+        print "Group $group still exists in postgresql.\n";
         print "   * Cannot delete ldap group $group.\n";
         return 0;
-    }
-    my $dn="cn=".$cn.",ou=groups,".$suffix;
-    print "Deleting ldap dn: $dn\n";
-    my $mesg = $ldap->delete( $dn); 
-    $mesg->code && die $mesg->error;
+    } 
 }
 
 
