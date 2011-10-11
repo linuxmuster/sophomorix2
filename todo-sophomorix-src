@@ -1,11 +1,37 @@
 Todo:
 
+sophomorix-groupdel löscht gruppe nicht aus Datenbank #494
+ delete_group_ldap modified 
+ testen ob group tatsächlich deleted wird
+
+
+sophomorix-setup-pgldap 
+   option --new-database sollte nur mit option --nolinuxmuster
+   gehen
+
+
+migration: linuxmuster-migration
+evtl. eigenes Paket namens sophomorix-migration
+- sambasid soll gleich bleiben
+- Zieldir angeben
+- 
+
+
+
+make mail domainname configurable:
+$alt_mail_domainname="myhost.de";
+
+
 move sub upgrade.... in sophomorix-support to SophomorixPgLdap.pm
 
 add to string at beginning of 
 configfiles on what template it is based (absolute path)
 
 Wieviele user haben unowned files (Anzahl der uid)
+
+homeverzeichnisse mit git?
+   tauschverzeichnisse wie aktualisieren
+
 
 
 Todo:
