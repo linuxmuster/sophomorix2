@@ -113,6 +113,7 @@ require Exporter;
              dump_slapd_to_ldif
              add_slapd_from_ldif
              patch_ldif
+             export_userdata_upgrade
 );
 # deprecated:             move_user_db_entry
 #                         move_user_from_to
@@ -6712,6 +6713,42 @@ sub patch_ldif {
     }
     close(ORIG);
     close(PATCHED);
+}
+
+
+
+
+sub export_userdata_upgrade {
+    # exporting data, needed on new system
+    my ($dir) = @_;
+    system("mkdir -p $dir");
+    my $file=$dir."/user_data";
+    open(USERDATA, ">$file") 
+        || die "Fehler: $! ($file)";
+
+    my $dbh=&db_connect();
+    # select the columns that i need
+    my $sth= $dbh->prepare( "SELECT uidnumber,
+                                    uid,
+                                    firstpassword,
+                                    userPassword,
+                                    sambalmpassword,
+                                    sambantpassword 
+                            FROM userdata 
+                           " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+       # split the array, to give better names
+       my ($uidnumber,$uid,$firstpassword,
+           $userPassword,$sambalmpassword,$sambantpassword)=@$row;
+       # fetching uid
+       my $line=$uid."::".$uidnumber."::".$firstpassword."::"
+               .$userPassword."::".$sambalmpassword."::".$sambantpassword."::check::\n";
+       print USERDATA $line;
+    }
+    &db_disconnect($dbh);
+    close(USERDATA);
 }
 
 
