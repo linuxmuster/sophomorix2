@@ -1041,10 +1041,8 @@ if ($full_config==1){
         system("/etc/init.d/postgresql-8.3 start");
     }
 
-    # ??????????????
-
     # Drop old database, when --new-database
-    if ($new_database==1){
+    if ($new_database==1 and $linuxmuster==0){
         print "\nWARNING: I will drop your database ldap in 5 seconds!\n";
         print "\n Hit Control-C to abort, ...!\n\n";
         sleep 5;
@@ -1052,6 +1050,10 @@ if ($full_config==1){
         system("dropdb -p ${DevelConf::sql_port} -U postgres ldap");
         system("dropuser -p ${DevelConf::sql_port} -U postgres ldap");
         sleep 2;
+    } else {
+        print "\nNOT dropping the database\n";
+        print "To drop the database use option --nolinuxmuster\n\n";
+        sleep 5;
     }
 } # end full_config
 
@@ -1064,7 +1066,8 @@ my $dbh = DBI->connect("dbi:Pg:dbname=ldap;port=${DevelConf::sql_port}",
                        "ldap","pass",
           { RaiseError => 0, PrintError => 0});
 
-if ( ($old_version eq "0.0.0-0" and not defined $dbh) or $new_database==1){
+if ( ($old_version eq "0.0.0-0" and not defined $dbh) or 
+     ($new_database==1 and $linuxmuster==0) ){
     # first installation
     print "\ncreating the postgresql database ldap \n\n";
     &create_database();
@@ -1093,7 +1096,8 @@ if ($full_config==1){
     # disabled from 2.2.15 on
     # &create_indices();
     # setting the password in pg
-    if ( ($old_version eq "0.0.0-0" and not defined $dbh) or $new_database==1){
+    if ( ($old_version eq "0.0.0-0" and not defined $dbh) or 
+          ($new_database==1 and $linuxmuster==0) ){
         # first installation
         &set_db_passwd($dbpassword);
     } else {
@@ -1152,7 +1156,7 @@ if ($full_config==1){
         }
         system("slapadd -c -l $ldif_local > ${DevelConf::log_pfad_pack_up}/slapadd-previous.log 2>&1");
 
-        if ($new_database==1){
+        if ($new_database==1 and $linuxmuster==0){
             # new database doesnt need to be filled
         } else {
             # use the old database
@@ -1305,7 +1309,7 @@ if ($full_config==1){
 
 
     # updating ldap
-    if ($new_database==1){
+    if ($new_database==1 and $linuxmuster==0){
         system("sophomorix-dump-pg2ldap --skiplock");
         # make sure slapd is running for the following chown commands
         sleep 5;
