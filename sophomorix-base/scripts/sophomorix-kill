@@ -295,7 +295,23 @@ sub kill_user {
          $sambahomepath,
          $firstpassword,
          $sambaacctflags,
-         $exitadminclass) = 
+         $exitadminclass,
+         $sambahomedrive,
+         $sambakickofftime,
+         $sambalmpassword,
+         $sambalogofftime,
+         $sambalogontime,
+         $sambantpassword,
+         $sambaprimarygroupsid,
+         $sambapwdcanchange,
+         $sambapwdlastset,
+         $sambapwdmustchange,
+         $sambasid,
+         $surname,
+         $firstname,
+         $userpassword,
+         $loginshell,
+         $gidnumber) = 
          &fetchdata_from_account($login_name_to_kill);
 
      if ($home_verzeichnis_to_kill eq ""){
@@ -383,7 +399,7 @@ sub kill_user {
       # Zeile aus user_db entfernen
       if ($DevelConf::testen==0) {
          &remove_user_db_entry($login_name_to_kill);
-         &archive_log_entry($login_name_to_kill);
+         &archive_log_entry($login_name_to_kill,$uidnumber,$surname,$firstname);
       } else {
         print "Test: Removing $login_name_to_kill from the",
               " sophomorix database.\n"

@@ -3172,7 +3172,7 @@ sub log_script_exit {
 
 
 sub archive_log_entry {
-    my ($login) = @_;
+    my ($login,$uidnumber,$surname,$firstname) = @_;
     my $file="${DevelConf::log_files}/user-modify.log";
     my $archive="${DevelConf::log_files}/user-modify-archive.log";
     my $today=`date +%d.%m.%Y`;
@@ -3198,7 +3198,12 @@ sub archive_log_entry {
 
     }
 
-    print ARCHIVE "user archived::".$today."::".$login."::\n";
+    print ARCHIVE "user archived::".$today."::".
+                                    $login."::".
+                                    $uidnumber."::".
+                                    $surname."::".
+                                    $firstname."::".
+                                  "\n";
     system("mv $file.tmp $file");
     close(LOG);
     close(TMPLOG);
