@@ -5,29 +5,12 @@ sinnvoll am Schuljahresende?
 
 Todo:
 
-sophomorix-groupdel löscht gruppe nicht aus Datenbank #494
- delete_group_ldap modified 
- testen ob group tatsächlich deleted wird
-
-
-sophomorix-setup-pgldap 
-   option --new-database sollte nur mit option --nolinuxmuster
-   gehen
-
-
 migration: linuxmuster-migration
 evtl. eigenes Paket namens sophomorix-migration
 - sambasid soll gleich bleiben
 - Zieldir angeben
 - 
 
-
-
-make mail domainname configurable:
-$alt_mail_domainname="myhost.de";
-
-
-move sub upgrade.... in sophomorix-support to SophomorixPgLdap.pm
 
 add to string at beginning of 
 configfiles on what template it is based (absolute path)
@@ -45,19 +28,8 @@ slapd.conf template updaten
 
 
 Todo:
-#299 
-#282 gucken
-sophomorix-project --caller bz --project p_meinpro --create --join --admins bz
-sophomorix-project --caller bz --addmembers roe --project p_meinpro
+#299 ???
 
-sophomorix-project --caller bz --project p_meinpro --kill
-
-
-#97 nochmals checken, dann als erledigt markieren. Ist wahrscheinlich erledigt
-hab ich nichts zu tun damit
-
-neues sophomorix-paket 2.2.19
-abhängigkeit von posgresql-8.1
 
 
 sophomorix-check --recovery /var/....
@@ -69,31 +41,14 @@ sophomorix-support ....prepare for dist upgrade
 sophomorix-passwd --update-encryped-passwords-from-file
 
 
-
-beim löschen von usern mitloggen:
-- uid -> uidnumber, Name
-wird bisher nicht gemacht, keine Möglichkeit 
-
-
 beim versetzen testen, ob soft quota überschritten wird 
 (in Datei ausgeben nach ... report.office/quota)
-
-
 
 Idee: Versetzen-Report:
 - bei welchen Schülern wurde das quota durch versetzen überschritten?
 - sonstiges?
 
 
-# 506 (#140,#157 not fixed)
-fixes the following:
-mail eintrag in ldap: Mail vom 31.3.10, J. Richter
-- seems to be fixed
-Ersetzen folgender Dateien:
-   /usr/sbin/gen-ldif-from-sql.perl alt 1.9 -> 1.10
-
-
->>>>>>> 1.284
 
 sophomorix-repair: zusatzoption, damit auch symlinks ALLER user repariert werden
                    (aufruf von sophomorix-user --repairhome für alle user)
@@ -105,113 +60,6 @@ sophomorix-user --repairhome (wie reset-user, aber ohne zu löschen)
 sophomorix-setup-pgldap auf minimale Dinge reduzieren, 
 wenn ...linuxmuster-base da
 sonst: alles Konfigurieren
-
-
-
-Lösungsmöglichkeit zum Ticket #488:
-
-1) Testen, ob wirklich das Problem auftritt:
-
-sophomorix-user -u user_den_es_gibt
-
-zeigt kein Status,CreationDate, ....
-aber sonstige Infos wie Name, Klasse, ...
-
-
-2) Es wird der letzte Datenbankstand VOR der upgrade eingespielt
-   Das ist nur sinnvoll, wenn seitdem keine user angelegt wurden
-
-
-3) Testen, ob man sich als user postgres anmelden kann:
-
- psql -U postgres
-
- sollte zum prompt der postgresql führen: postgres=#
-
- \q     (ausloggen aus posgres)
-
-Wenn das nicht klappen sollte 
--> NICHT weitermachen, da man dann keine Datenbank anlegen kann.
-
-
-
-4) alter Datenbankstand sichern (just in case)
-
-pg_dump --format=p -U ldap --file=/root/alte_datenbank.sql 
-
-
-
-5) Alte Datenbank auf dem postgresql-server löschen
-
-dropdb ldap -U ldap  
-
-
-
-6) Leere Datenbank wieder anlegen
-
-psql -U postgres 
-
-CREATE DATABASE ldap OWNER ldap ENCODING 'UTF8';
-
-\q    (ausloggen aus posgres)
-
-
-7) Language-Datei einspielen (Fehler ignorieren)
-
-psql -U postgres ldap < /usr/share/sophomorix/config-templates/pg/sophomorix-lang.sql
-
-
-8) Den Datenbankdump der eingespielt werden soll anpassen:
-
-Der letzte Stand vor dem upgrade findet sich in
-
-/var/backup/linuxmuster/ldap/ldap.lenny-upgrade.pgsql.gz
-
-Diese Datei kopieren, dann entpacken: 
-
-gunzip ldap.lenny-upgrade.pgsql.gz
-
-Die entstehende Datei ldap.lenny-upgrade.pgsql mit einem Editor (emacs, ...) öffnen,
-und alle ÄÖÜÄÖÜß ersetzen (Feld firstpassword) mit ihrem ASCII-Pendant (ä->ae, ...)
-Dabei sich den account merken in dem man geändert hat 
-(kann evtl. entfallen, dann kann man das Klartext-Passwort nicht mehr nachschauen)
-
-
-9) Diese Sonderzeichenfreie Datei wird nun eingespielt.
-
-psql -U ldap ldap < ldap.lenny-upgrade.pgsql
-
-
-10) Die mit dem Editor veränderten firstpasswords wieder korrekt setzen:
-
-    sophomorix-passwd --pass ümlautpasswört -u login
-
-
-11) sophomorix-check --no-auto-teach-in
-    Zusammenführen von accounts falls notwendig (Bindestrich-Bug #487):
-       sophomorix-teach-in
-
-
-12) sophomorix-dump-pg2ldap (testen, ob das problemlos geht, login testen)
-
-
-13) Zum Schluß empfielt es sich einen Schüler anzulegen, versetzen, löschen:
-
-    A) Schüler in schueler.txt hinzunehmen 
-    B) sophomorix-check
-    C) sophomorix-add
-    D) Login testen
-    E) Schüler in schueler.txt entfernen
-    F) sophomorix-check   (schüler --> attic)
-    G) sophomorix-move
-    H) sophomorix-kill --killuser login  (entfernt Schüler)
-    I) Ist der user weg?: sophomorix-user -u login
-    J) sophomorix-check (sollte ohne Änderungen laufen)
-    
-
-
-
-
 
 
 

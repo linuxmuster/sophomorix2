@@ -3,9 +3,13 @@
 
 ============SOPHOMORIX2 CHANGELOG ====================================
 
-2.2.21-1 (2011-10-xx)
-
-
+2.2.21-1 (2011-10-29)
+    - sophomorix-groupdel: remove empty groups from pg AND ldap (#494)
+    - maildomainname for <mail> in ldap configurable as 
+      $alt_mail_domainname="myhost.de"; in sophomorix.conf
+    - Deleting a user: user-modify-archive.log contained login
+      now the file contains also uidnumber, surname and firstname
+      to recover deleted owner of a file 
 
 2.2.20-1 (2011-09-27)
     - sophomorix-check: not moving users to an empty class/noclass, 
