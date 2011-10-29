@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use Sophomorix::SophomorixConfig; 
 
 my ($sqlpath,$ldapdc) = @ARGV;
 
@@ -13,7 +14,12 @@ my ($sqlpath,$ldapdc) = @ARGV;
 my $mail_dom=$ldapdc;
 $mail_dom=~s/dc=//g;
 $mail_dom=~s/,/./g;
+# change maildom if configured
+if(defined $Conf::alt_mail_domainname){
+    $mail_dom=$Conf::alt_mail_domainname;
+}
 
+print "# MAILDOM: $mail_dom\n";
 
 # Datei öffnen und in array schreiben - Datei gleich wieder schließen
 my @groupsusersfile=();
