@@ -6631,6 +6631,10 @@ sub fetch_ldap_pg_passwords {
          $mail_dom=$ldap_suffix;
          $mail_dom=~s/dc=//g;
          $mail_dom=~s/,/./g;
+         # change maildom if configured
+         if(defined $Conf::alt_mail_domainname){
+             $mail_dom=$Conf::alt_mail_domainname;
+         }
          return ($ldap_passwd,$ldap_rootdn,$pg_passwd,$ldap_suffix,$mail_dom);
     } else {
         print "$old_password_file doesn't exist\n";
