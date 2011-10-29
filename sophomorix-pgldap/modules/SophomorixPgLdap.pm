@@ -87,7 +87,6 @@ require Exporter;
              show_room_list
              get_smb_sid
              fetchquota_sum
-             kill_user
              auth_passwd_old
              update_user_ldap
              delete_user_ldap
