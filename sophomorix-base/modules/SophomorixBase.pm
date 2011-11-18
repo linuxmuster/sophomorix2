@@ -2062,15 +2062,20 @@ sub do_falls_nicht_testen {
 
 
 sub nscd_start {
-    # start nscd
-    # reload samba
-    system("/etc/init.d/samba reload");
+    &samba_reload();
+    # start ncsd
     if (-e $DevelConf::nscd_script){
         # fix: add /sbin to $PATH, because
         # sophomorix-teacher runs with different path
         system("OLDPATH=\$PATH;PATH=\$PATH:/sbin; $DevelConf::nscd_start; PATH=\$OLDPATH");
     }
-    system("/etc/init.d/samba reload");
+    &samba_reload();
+}
+
+sub samba_reload {
+   # fix: add /sbin to $PATH, because
+   # sophomorix-teacher runs with different path
+   system("OLDPATH=\$PATH;PATH=\$PATH:/sbin; /etc/init.d/samba reload; PATH=\$OLDPATH");
 }
 
 
