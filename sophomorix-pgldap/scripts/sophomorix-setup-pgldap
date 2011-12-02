@@ -1376,10 +1376,10 @@ if ($DevelConf::create_www==1){
 # group teachers part 2
 &provide_class_files(${DevelConf::teacher});
 
-# make some files owned by root.root and 0600
-&make_some_files_root_only();
     
 if ($full_config==1){
+    # make some files owned by root.root and 0600
+    &make_some_files_root_only();
     # undo some of the above changes 
     if ($lsb_release_codename eq "lenny"){
         system("chmod 0640 /etc/ldap/slapd.conf");
