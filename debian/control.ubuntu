@@ -3,20 +3,20 @@
 # 1) tetex is replaced by texlive
 # 2) Todo: dependencies on a specific package version are cancelled 
 #    (rsync instead of  rsync (>=2.6.3))
-# 3) Todo: dependancies on 2 postgres versions are cancelled
+# 3) Todo: dependencies on 2 postgres versions are cancelled
 
 Source: sophomorix
 Section: admin
 Priority: optional
 Maintainer: Ruediger Beck <jeffbeck@web.de>
-Build-Depends: debhelper (>> 3.0.0), perl-base (>=5.8.4), man2html (>=1.5), docbook-utils (>=0.6.13), fakeroot, docbook, devscripts
+Build-Depends: debhelper (>> 3.0.0), perl-base , man2html , docbook-utils , fakeroot, docbook, devscripts
 Standards-Version: 3.5.2
 
 
 Package: sophomorix2
 Architecture: all
 Suggests: sophomorix-doc-html
-Depends:  sophomorix-base (>=2.2.4-1), sophomorix-pgldap (>=2.2.4-1)
+Depends:  sophomorix-base (>=2.2.22-1), sophomorix-pgldap (>=2.2.22-1)
 Description: sophomorix user adminitration meta package
  This package contains all the components necessary to add to your
  Debian GNU/Linux box a powerful user administration
@@ -25,8 +25,8 @@ Description: sophomorix user adminitration meta package
 Package: sophomorix-base
 Architecture: all
 Suggests: sophomorix-doc-html
-Pre-Depends:  samba (>= 3.0.7)
-Depends:  libdate-calc-perl, libexpect-perl, libterm-readkey-perl, libterm-readline-perl-perl, quota (>=3.12), perl-base (>=5.8.4), perl-suid (>=5.8.4), libquota-perl (>= 1.4.9),  libstring-approx-perl (>=3.23),libmailtools-perl (>=1.62), libimap-admin-perl (>=1.6.1), texlive-base-bin, texlive-latex-base, texlive-latex-extra, texlive-pstricks, texlive-lang-german, texlive-latex-recommended, gs-common (>=0.3.6), rsync (>=2.6.3), zip, gzip (>=1.3.5), bzip2, lsb-release, libnet-mac-perl
+Pre-Depends:  samba 
+Depends:  libdate-calc-perl, libexpect-perl, libterm-readkey-perl, libterm-readline-perl-perl, quota , perl-base , perl-suid , libquota-perl ,  libstring-approx-perl ,libmailtools-perl , libimap-admin-perl , texlive-base-bin, texlive-latex-base, texlive-latex-extra, texlive-pstricks, texlive-lang-german, texlive-latex-recommended, gs-common , rsync , zip, gzip , bzip2, lsb-release, libnet-mac-perl
 Description: scripts for sophomorix
  sophomorix-base contains all database independent scripts to run sophomorix
  on the console. You additionally need a package to access the postgres 
@@ -37,8 +37,8 @@ Description: scripts for sophomorix
 Package: sophomorix-pgldap
 Architecture: all
 Suggests: sophomorix-doc-html
-Pre-Depends: postgresql, slapd (>=2.3.29)
-Depends:  sophomorix-base, libpam-ldap (>=178), ldap-utils (>=2.3.29), libnss-ldap (>=238), odbc-postgresql, unixodbc (>=2.2.4), libiodbc2 (>=3.52.2), iodbc (>=3.52.2), smbldap-tools (>=0.8.7), libcrypt-smbhash-perl (>=0.02), libdbd-pg-perl (>=1.41) 
+Pre-Depends: postgresql , slapd 
+Depends:  sophomorix-base, libpam-ldap , ldap-utils , libnss-ldap , odbc-postgresql, unixodbc , libiodbc2 , iodbc , smbldap-tools , libcrypt-smbhash-perl , libdbd-pg-perl  
 Provides: sophomorix-db
 Description: postgresql database with ldap access for sophomorix
  Database module to store the Sophomorix database in postgresql and make 
@@ -47,7 +47,7 @@ Description: postgresql database with ldap access for sophomorix
 
 Package: sophomorix-vampire
 Architecture: all
-Depends: sophomorix2 (>=2.2.4-1), rsync (>=2.6.3), ssh (>=3.8.1), mailsync
+Depends: sophomorix2 (>=2.2.22-1), rsync , ssh , mailsync
 Description: script to migrate data from an old server to a new server
  This script is run on a new sophomorix server. It pushes a ssh-key to an 
  old sophomorix-server, fetches its users and data. Perfect for big step 
@@ -58,7 +58,7 @@ Description: script to migrate data from an old server to a new server
 Package: sophomorix-developer
 Architecture: all
 Suggests: perl-doc
-Depends:  sophomorix2 (>=2.2.4-1)
+Depends:  sophomorix2 (>=2.2.22-1)
 Description: Test suite for sophomorix
  Scripts to test sophomorix on a runnig system. These scripts can screw up 
  your server!
@@ -69,3 +69,7 @@ Depends:
 Description: Html documentation for sophomorix
  This Package contains the complete documentation for sophomorix
 
+Package: sophomorix-virusscan
+Architecture: all
+Depends: sophomorix2 (>=2.2.22-1), clamav
+Description: script to scan large amounts of data for viruses with clamscan
