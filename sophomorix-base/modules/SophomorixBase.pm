@@ -2072,10 +2072,15 @@ sub nscd_start {
     &samba_reload();
 }
 
+
 sub samba_reload {
-   # fix: add /sbin to $PATH, because
-   # sophomorix-teacher runs with different path
-   system("OLDPATH=\$PATH;PATH=\$PATH:/sbin; /etc/init.d/samba reload; PATH=\$OLDPATH");
+    # fix: add /sbin to $PATH, because
+    # sophomorix-teacher runs with different path
+    if (-e "/etc/init.d/samba"){
+        system("OLDPATH=\$PATH;PATH=\$PATH:/sbin; /etc/init.d/samba reload; PATH=\$OLDPATH");
+    } else {
+        system("OLDPATH=\$PATH;PATH=\$PATH:/sbin; /usr/bin/service smbd reload; PATH=\$OLDPATH");
+    }
 }
 
 
