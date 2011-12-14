@@ -806,17 +806,6 @@ if ($full_config==1){
         system("chown .openldap /etc/ldap/slapd.conf");
         system("chmod 0640 /etc/ldap/slapd.conf.custom");
         system("chown .openldap /etc/ldap/slapd.conf.custom");
-    } elsif ($lsb_release_codename eq "karmic"){
-        # ubuntu karmic
-        system("rm -rf $slapd_d_bak");
-        system("mv $slapd_d $slapd_d_bak");
-        system("mkdir $slapd_d ");
-        system("slaptest -f $slapd_conf -F $slapd_d ");
-        system("chown -R openldap:openldap $slapd_d ");
-        system("chmod 0640 /etc/ldap/slapd.conf");
-        system("chown .openldap /etc/ldap/slapd.conf");
-        system("chmod 0640 /etc/ldap/slapd.conf.custom");
-        system("chown .openldap /etc/ldap/slapd.conf.custom");
     } elsif ($lsb_release_codename eq "oneiric"){
         # ubuntu oneiric
         system("rm -rf $slapd_d_bak");
@@ -858,35 +847,24 @@ if ($full_config==1){
     my @line=();
 
     my $postgres_conf_dir="";
-    my $postgres_init_script="";
-
     my $psql="";
 
 if ($lsb_release_codename eq "lenny"){
     # debian lenny
     $postgres_conf_dir="/etc/postgresql/8.3/main";
-    $postgres_init_script="/etc/init.d/postgresql-8.3";
     $psql="/usr/lib/postgresql/8.3/bin/psql";
 } elsif ($lsb_release_codename eq "squeeze"){
     # debian squeeze ?????????????????????
     $postgres_conf_dir="/etc/postgresql/8.3/main";
-    $postgres_init_script="/etc/init.d/postgresql-8.3";
-    $psql="/usr/lib/postgresql/8.3/bin/psql";
-} elsif ($lsb_release_codename eq "karmic"){
-    # ubuntu karmic
-    $postgres_conf_dir="/etc/postgresql/8.3/main";
-    $postgres_init_script="/etc/init.d/postgresql-8.3";
     $psql="/usr/lib/postgresql/8.3/bin/psql";
 } elsif ($lsb_release_codename eq "oneiric"){
     # ubuntu oneiric
-    $postgres_conf_dir="/etc/postgresql/8.3/main";
-    $postgres_init_script="/etc/init.d/postgresql-8.3";
-    $psql="/usr/lib/postgresql/8.3/bin/psql";
+    $postgres_conf_dir="/etc/postgresql/9.1/main";
+    $psql="sudo -u postgres /usr/lib/postgresql/9.1/bin/psql";
 } elsif ($lsb_release_codename eq "precise"){
     # ubuntu precise
-    $postgres_conf_dir="/etc/postgresql/8.3/main";
-    $postgres_init_script="/etc/init.d/postgresql-8.3";
-    $psql="/usr/lib/postgresql/8.3/bin/psql";
+    $postgres_conf_dir="/etc/postgresql/9.1/main";
+    $psql="sudo -u postgres /usr/lib/postgresql/9.1/bin/psql";
 } else {
     &log_script_exit("Debian Version $deb_version ($lsb_release_codename) ",
                      "is not supported",
@@ -1043,32 +1021,64 @@ if ($full_config==1){
     ############################################################
 
     # stop samba
-    system("/etc/init.d/samba stop");
+    if ($lsb_release_codename eq "lenny"){
+        system("/etc/init.d/samba stop");
+    } elsif ($lsb_release_codename eq "squeeze"){
+        system("/etc/init.d/samba stop");
+    } elsif ($lsb_release_codename eq "oneiric"){
+        system("/usr/sbin/service smbd stop");
+    } elsif ($lsb_release_codename eq "precise"){
+        system("/usr/sbin/service smbd stop");
+    }
     sleep 2;
     system("killall smbd");
     system("killall nmbd");
 
 
     # stop ldap
-    system("/etc/init.d/slapd stop");
+    if ($lsb_release_codename eq "lenny"){
+        system("/etc/init.d/slapd stop");
+    } elsif ($lsb_release_codename eq "squeeze"){
+        system("/etc/init.d/slapd stop");
+    } elsif ($lsb_release_codename eq "oneiric"){
+        system("/usr/sbin/service slapd stop");
+    } elsif ($lsb_release_codename eq "precise"){
+        system("/usr/sbin/service slapd stop");
+    }
     sleep 2;
     system("killall slapd");
 
 
     # stop postgres
-    system("$postgres_init_script stop");
+    if ($lsb_release_codename eq "lenny"){
+        system("/etc/init.d/postgresql-8.3 stop");
+    } elsif ($lsb_release_codename eq "squeeze"){
+        system("/etc/init.d/postgresql-8.4 stop");
+    } elsif ($lsb_release_codename eq "oneiric"){
+        system("/usr/sbin/service postgresql stop");
+    } elsif ($lsb_release_codename eq "precise"){
+        system("/usr/sbin/service postgresql stop");
+    }
     sleep 5;
     system("killall postmaster");
 
 
     # starting postgres
-    system("$postgres_init_script start");
-
+    if ($lsb_release_codename eq "lenny"){
+        system("/etc/init.d/postgresql-8.3 start");
+    } elsif ($lsb_release_codename eq "squeeze"){
+        system("/etc/init.d/postgresql-8.4 start");
+    } elsif ($lsb_release_codename eq "oneiric"){
+        system("/usr/sbin/service postgresql start");
+    } elsif ($lsb_release_codename eq "precise"){
+        system("/usr/sbin/service postgresql start");
+    }
     sleep 5;
 
 
     # check if the following throws no error when already running
     # check on sarge without dist-upgrade
+    # remove that ?????
     if (-e "/etc/init.d/postgresql-8.3"){
         system("/etc/init.d/postgresql-8.3 start");
     }
@@ -1184,8 +1194,19 @@ if ($full_config==1){
         system("rm -rf /var/lib/ldap/*");
 
         # start and stop slapd to recreate files in /var/lib/ldap
-        system("/etc/init.d/slapd start");
-        system("/etc/init.d/slapd stop");
+        if ($lsb_release_codename eq "lenny"){
+            system("/etc/init.d/slapd start");
+            system("/etc/init.d/slapd stop");
+        } elsif ($lsb_release_codename eq "squeeze"){
+            system("/etc/init.d/slapd start");
+            system("/etc/init.d/slapd stop");
+        } elsif ($lsb_release_codename eq "oneiric"){
+            system("/usr/sbin/service slapd start");
+            system("/usr/sbin/service slapd stop");
+        } elsif ($lsb_release_codename eq "precise"){
+            system("/usr/sbin/service slapd start");
+            system("/usr/sbin/service slapd stop");
+        }
 
         # slapd must be stopped again
         # populate ldap (no users)
@@ -1215,6 +1236,10 @@ if ($full_config==1){
         # debian lenny
         system("chmod 700 /var/lib/ldap");
         system("chmod 600 /var/lib/ldap/*");
+    } elsif ($lsb_release_codename eq "squeeze"){
+        # debian squeeze
+        system("chmod 700 /var/lib/ldap");
+        system("chmod 600 /var/lib/ldap/*");
     } elsif ($lsb_release_codename eq "oneiric"){
         # ubuntu oneiric
         system("chmod 700 /var/lib/ldap");
@@ -1226,7 +1251,15 @@ if ($full_config==1){
     }
 
     # starting ldap
-    system("/etc/init.d/slapd start");
+    if ($lsb_release_codename eq "lenny"){
+        system("/etc/init.d/slapd start");
+    } elsif ($lsb_release_codename eq "squeeze"){
+        system("/etc/init.d/slapd start");
+    } elsif ($lsb_release_codename eq "oneiric"){
+        system("/usr/sbin/service slapd start");
+    } elsif ($lsb_release_codename eq "precise"){
+        system("/usr/sbin/service slapd start");
+    }
 
     sleep 2;
 
@@ -1236,12 +1269,28 @@ if ($full_config==1){
 
 
     # starting samba
-    system("/etc/init.d/samba start");
+    if ($lsb_release_codename eq "lenny"){
+        system("/etc/init.d/samba start");
+    } elsif ($lsb_release_codename eq "squeeze"){
+        system("/etc/init.d/samba start");
+    } elsif ($lsb_release_codename eq "oneiric"){
+        system("/usr/sbin/service smbd start");
+    } elsif ($lsb_release_codename eq "precise"){
+        system("/usr/sbin/service smbd start");
+    }
 
     # ssh 
-    system("/etc/init.d/ssh restart");
+    if ($lsb_release_codename eq "lenny"){
+        system("/etc/init.d/ssh restart");
+    } elsif ($lsb_release_codename eq "squeeze"){
+        system("/etc/init.d/ssh restart");
+    } elsif ($lsb_release_codename eq "oneiric"){
+        system("/usr/sbin/service ssh restart");
+    } elsif ($lsb_release_codename eq "precise"){
+        system("/usr/sbin/service ssh restart");
+    }
 
-    # nscd
+    # nscd restart (works up to oneiric)
     if (-e "/etc/init.d/nscd"){
        system("/etc/init.d/nscd stop");
        sleep 2;
@@ -1249,6 +1298,13 @@ if ($full_config==1){
        sleep 2;
        system("killall -9 nscd");
        system("/etc/init.d/nscd start");
+    } else {
+       system("/usr/sbin/service nscd stop");
+       sleep 2;
+       system("killall nscd");
+       sleep 2;
+       system("killall -9 nscd");
+       system("/usr/sbin/service nscd start");
     }
 
     if ($slapd_standalone==1){
@@ -1434,7 +1490,7 @@ if ($full_config==1){
         system("chown .openldap /etc/ldap/slapd.conf");
         system("chmod 0640 /etc/ldap/slapd.conf.custom");
         system("chown .openldap /etc/ldap/slapd.conf.custom");
-    } elsif ($lsb_release_codename eq "karmic"){
+    } elsif ($lsb_release_codename eq "squeeze"){
         system("chmod 0640 /etc/ldap/slapd.conf");
         system("chown .openldap /etc/ldap/slapd.conf");
         system("chmod 0640 /etc/ldap/slapd.conf.custom");
