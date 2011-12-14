@@ -877,63 +877,66 @@ if ($full_config==1){
     my $pg_hba_conf = $postgres_conf_dir."/pg_hba.conf";
     my $file_ident = $postgres_conf_dir."/pg_ident.conf";
     my $file_ident_tmp = $postgres_conf_dir."/pg_ident.conf.tmp";
+    print "Working on pg_hba.conf\n";
 
-    &insert_line_before("local;all;postgres;ident;postgres",
-                        "local;all;postgres;ident;sameuser",
-                        "$pg_hba_conf");
-
-    &insert_line_before("local;all;ldap;ident;ldap",
-                        "local;all;postgres;ident;sameuser",
-                        "$pg_hba_conf");
-
-
-    &insert_line_before("local;template1;ldap;password;",
-                        "local;all;all;ident;sameuser",
-                        "$pg_hba_conf");
-
-    &insert_line_before("local;ldap;ldap;password;",
-                        "local;all;all;ident;sameuser",
-                        "$pg_hba_conf");
-
-    &insert_line_before("host;template1;ldap;127.0.0.1;255.255.255.255;password",
-                        "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
-                        "$pg_hba_conf");
-
-    &insert_line_before("host;ldap;ldap;127.0.0.1;255.255.255.255;password",
-                        "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
-                       "$pg_hba_conf");
-
-#&insert_line_before("local;all;postgres;ident;postgres",
-#                    "local;all;postgres;ident;sameuser",
-#                    "/etc/postgresql/pg_hba.conf");
-#
-#&insert_line_before("local;all;ldap;ident;ldap",
-#                    "local;all;postgres;ident;sameuser",
-#                    "/etc/postgresql/pg_hba.conf");
-#
-#
-#&insert_line_before("local;template1;ldap;password;",
-#                    "local;all;all;ident;sameuser",
-#                    "/etc/postgresql/pg_hba.conf");
-#
-#&insert_line_before("local;ldap;ldap;password;",
-#                    "local;all;all;ident;sameuser",
-#                    "/etc/postgresql/pg_hba.conf");
-#
-#&insert_line_before("host;template1;ldap;127.0.0.1;255.255.255.255;password",
-#                    "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
-#                    "/etc/postgresql/pg_hba.conf");
-#
-#&insert_line_before("host;ldap;ldap;127.0.0.1;255.255.255.255;password",
-#                    "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
-#                    "/etc/postgresql/pg_hba.conf");
-
+    if ($lsb_release_codename eq "lenny"){
+        &insert_line_before("local;all;postgres;ident;postgres",
+                            "local;all;postgres;ident;sameuser",
+                            "$pg_hba_conf");
+        &insert_line_before("local;all;ldap;ident;ldap",
+                            "local;all;postgres;ident;sameuser",
+                            "$pg_hba_conf");
+        &insert_line_before("local;template1;ldap;password;",
+                            "local;all;all;ident;sameuser",
+                            "$pg_hba_conf");
+        &insert_line_before("local;ldap;ldap;password;",
+                            "local;all;all;ident;sameuser",
+                            "$pg_hba_conf");
+        &insert_line_before("host;template1;ldap;127.0.0.1;255.255.255.255;password",
+                            "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
+                            "$pg_hba_conf");
+        &insert_line_before("host;ldap;ldap;127.0.0.1;255.255.255.255;password",
+                            "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
+                           "$pg_hba_conf");
+    } elsif ($lsb_release_codename eq "squeeze"){
+        &insert_line_before("local;all;postgres;ident;postgres",
+                            "local;all;postgres;ident;sameuser",
+                            "$pg_hba_conf");
+        &insert_line_before("local;all;ldap;ident;ldap",
+                            "local;all;postgres;ident;sameuser",
+                            "$pg_hba_conf");
+        &insert_line_before("local;template1;ldap;password;",
+                            "local;all;all;ident;sameuser",
+                            "$pg_hba_conf");
+        &insert_line_before("local;ldap;ldap;password;",
+                            "local;all;all;ident;sameuser",
+                            "$pg_hba_conf");
+        &insert_line_before("host;template1;ldap;127.0.0.1;255.255.255.255;password",
+                            "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
+                            "$pg_hba_conf");
+        &insert_line_before("host;ldap;ldap;127.0.0.1;255.255.255.255;password",
+                            "host;all;all;127.0.0.1;255.255.255.255;ident;sameuser",
+                           "$pg_hba_conf");
+    } elsif ($lsb_release_codename eq "oneiric"){
+        &insert_line_before("local;ldap;ldap;ident;map=ldap",
+                            "local;all;all;peer;",
+                            "$pg_hba_conf");
+        &insert_line_before("local;ldap;postgres;ident;map=postgres",
+                            "local;all;postgres;peer;",
+                            "$pg_hba_conf");
+    } elsif ($lsb_release_codename eq "precise"){
+        &insert_line_before("local;all;all;peer;",
+                            "local;ldap;ldap;ident;map=ldap",
+                            "$pg_hba_conf");
+        &insert_line_before("local;ldap;postgres;ident;map=postgres",
+                            "local;all;postgres;peer;",
+                            "$pg_hba_conf");
+    }
 
     # pg_ident.conf
     my $seen_ident_postgres=0;
     my $seen_ident_postgres_pg=0;
     my $seen_ident_ldap=0;
-    print "Working on pg-ident.conf\n";
     open(IDENT, "<$file_ident") || die "Fehler: $!";
     open(IDENTMP, ">$file_ident_tmp") || die "Fehler: $!";
     while (<IDENT>) {
@@ -1088,9 +1091,24 @@ if ($full_config==1){
         print "\nWARNING: I will drop your database ldap in 5 seconds!\n";
         print "\n Hit Control-C to abort, ...!\n\n";
         sleep 5;
-        system("droplang -p ${DevelConf::sql_port} -U postgres plpgsql ldap");
-        system("dropdb -p ${DevelConf::sql_port} -U postgres ldap");
-        system("dropuser -p ${DevelConf::sql_port} -U postgres ldap");
+
+        if ($lsb_release_codename eq "lenny"){
+            system("droplang -p ${DevelConf::sql_port} -U postgres plpgsql ldap");
+            system("dropdb -p ${DevelConf::sql_port} -U postgres ldap");
+            system("dropuser -p ${DevelConf::sql_port} -U postgres ldap");
+        } elsif ($lsb_release_codename eq "squeeze"){
+            system("droplang -p ${DevelConf::sql_port} -U postgres plpgsql ldap");
+            system("dropdb -p ${DevelConf::sql_port} -U postgres ldap");
+            system("dropuser -p ${DevelConf::sql_port} -U postgres ldap");
+        } elsif ($lsb_release_codename eq "oneiric"){
+            system("sudo -u postgres droplang -p ${DevelConf::sql_port} -U postgres plpgsql ldap");
+            system("sudo -u postgres dropdb -p ${DevelConf::sql_port} -U postgres ldap");
+            system("sudo -u postgres dropuser -p ${DevelConf::sql_port} -U postgres ldap");
+        } elsif ($lsb_release_codename eq "precise"){
+            system("sudo -u postgres droplang -p ${DevelConf::sql_port} -U postgres plpgsql ldap");
+            system("sudo -u postgres dropdb -p ${DevelConf::sql_port} -U postgres ldap");
+            system("sudo -u postgres dropuser -p ${DevelConf::sql_port} -U postgres ldap");
+        }
         sleep 2;
     } else {
         print "\nNOT dropping the database\n";
@@ -1133,7 +1151,15 @@ if ($keep_database==1){
 
 if ($full_config==1){
     # create new indices
-    &drop_indices();
+    if ($lsb_release_codename eq "lenny"){
+        &drop_indices();
+    } elsif ($lsb_release_codename eq "squeeze"){
+        &drop_indices();
+    } elsif ($lsb_release_codename eq "oneiric"){
+        # do nothing
+    } elsif ($lsb_release_codename eq "precise"){
+        # do nothing
+    }
 
     # disabled from 2.2.15 on
     # &create_indices();
@@ -1853,12 +1879,36 @@ sub create_database {
     my $file_admin = ${DevelConf::sql_create_path}."sophomorix-admin.sql";
     my $file_lang = ${DevelConf::sql_create_path}."sophomorix-lang.sql";
     my $file_db = ${DevelConf::sql_create_path}."sophomorix.sql";
-    print "Loading $file_admin\n";
-    system("$psql -p ${DevelConf::sql_port} -U postgres template1 < $file_admin");
-    print "Loading $file_lang\n";
-    system("$psql -p ${DevelConf::sql_port} -U postgres ldap < $file_lang");
-    print "Loading $file_db\n";
-    system("$psql -p ${DevelConf::sql_port} -U ldap ldap < $file_db");
+
+    if ($lsb_release_codename eq "lenny"){
+       print "Loading $file_admin\n";
+       system("$psql -p ${DevelConf::sql_port} -U postgres template1 < $file_admin");
+       print "Loading $file_lang\n";
+       system("$psql -p ${DevelConf::sql_port} -U postgres ldap < $file_lang");
+       print "Loading $file_db\n";
+       system("$psql -p ${DevelConf::sql_port} -U ldap ldap < $file_db");
+    } elsif ($lsb_release_codename eq "squeeze"){
+       print "Loading $file_admin\n";
+       system("$psql -p ${DevelConf::sql_port} -U postgres template1 < $file_admin");
+       print "Loading $file_lang\n";
+       system("$psql -p ${DevelConf::sql_port} -U postgres ldap < $file_lang");
+       print "Loading $file_db\n";
+       system("psql -p ${DevelConf::sql_port} -U ldap ldap < $file_db");
+    } elsif ($lsb_release_codename eq "oneiric"){
+       print "Loading $file_admin\n";
+       system("psql -p ${DevelConf::sql_port} -U postgres template1 < $file_admin");
+       print "Loading $file_lang\n";
+       system("psql -p ${DevelConf::sql_port} -U postgres ldap < $file_lang");
+       print "Loading $file_db\n";
+       system("psql -p ${DevelConf::sql_port} -U ldap ldap < $file_db");
+    } elsif ($lsb_release_codename eq "precise"){
+       print "Loading $file_admin\n";
+       system("psql -p ${DevelConf::sql_port} -U postgres template1 < $file_admin");
+       print "Loading $file_lang\n";
+       system("psql -p ${DevelConf::sql_port} -U postgres ldap < $file_lang");
+       print "Loading $file_db\n";
+       system("psql -p ${DevelConf::sql_port} -U ldap ldap < $file_db");
+    }
 }
 
 
@@ -1904,15 +1954,15 @@ sub insert_line_before {
     my @insert_line = split(/;/,$insert_line);
     my @before = split(/;/,$before);
     print "Checking if line is to be inserted into $file:\n";
-#    print "   Insert_Line: $insert_line[0]  ","$insert_line[1]  ",
-#                          "$insert_line[2]  ","$insert_line[3]  ",
-#                          "$insert_line[4]  ","$insert_line[5]  ",
-#                          "$insert_line[6]  \n";
+    print "   Insert_Line: $insert_line[0]  ","$insert_line[1]  ",
+                          "$insert_line[2]  ","$insert_line[3]  ",
+                          "$insert_line[4]  ","$insert_line[5]  ",
+                          "$insert_line[6]  \n";
 
-#    print "   Before:      $before[0]  " ,"$before[1]  ",
-#                          "$before[2]  ","$before[3]  ",
-#                          "$before[4]  ","$before[5]  ",
-#                          "$before[6]  \n";
+    print "   Before:      $before[0]  " ,"$before[1]  ",
+                          "$before[2]  ","$before[3]  ",
+                          "$before[4]  ","$before[5]  ",
+                          "$before[6]  \n";
 
     open(HBA, "<$file") || die "Fehler: $!";
     open(HBATMP, ">$file_tmp") || die "Fehler: $!";
