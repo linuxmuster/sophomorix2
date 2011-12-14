@@ -817,6 +817,28 @@ if ($full_config==1){
         system("chown .openldap /etc/ldap/slapd.conf");
         system("chmod 0640 /etc/ldap/slapd.conf.custom");
         system("chown .openldap /etc/ldap/slapd.conf.custom");
+    } elsif ($lsb_release_codename eq "oneiric"){
+        # ubuntu oneiric
+        system("rm -rf $slapd_d_bak");
+        system("mv $slapd_d $slapd_d_bak");
+        system("mkdir $slapd_d ");
+        system("slaptest -f $slapd_conf -F $slapd_d ");
+        system("chown -R openldap:openldap $slapd_d ");
+        system("chmod 0640 /etc/ldap/slapd.conf");
+        system("chown .openldap /etc/ldap/slapd.conf");
+        system("chmod 0640 /etc/ldap/slapd.conf.custom");
+        system("chown .openldap /etc/ldap/slapd.conf.custom");
+    } elsif ($lsb_release_codename eq "precise"){
+        # ubuntu precise
+        system("rm -rf $slapd_d_bak");
+        system("mv $slapd_d $slapd_d_bak");
+        system("mkdir $slapd_d ");
+        system("slaptest -f $slapd_conf -F $slapd_d ");
+        system("chown -R openldap:openldap $slapd_d ");
+        system("chmod 0640 /etc/ldap/slapd.conf");
+        system("chown .openldap /etc/ldap/slapd.conf");
+        system("chmod 0640 /etc/ldap/slapd.conf.custom");
+        system("chown .openldap /etc/ldap/slapd.conf.custom");
     }
 
 
@@ -852,6 +874,16 @@ if ($lsb_release_codename eq "lenny"){
     $psql="/usr/lib/postgresql/8.3/bin/psql";
 } elsif ($lsb_release_codename eq "karmic"){
     # ubuntu karmic
+    $postgres_conf_dir="/etc/postgresql/8.3/main";
+    $postgres_init_script="/etc/init.d/postgresql-8.3";
+    $psql="/usr/lib/postgresql/8.3/bin/psql";
+} elsif ($lsb_release_codename eq "oneiric"){
+    # ubuntu oneiric
+    $postgres_conf_dir="/etc/postgresql/8.3/main";
+    $postgres_init_script="/etc/init.d/postgresql-8.3";
+    $psql="/usr/lib/postgresql/8.3/bin/psql";
+} elsif ($lsb_release_codename eq "precise"){
+    # ubuntu precise
     $postgres_conf_dir="/etc/postgresql/8.3/main";
     $postgres_init_script="/etc/init.d/postgresql-8.3";
     $psql="/usr/lib/postgresql/8.3/bin/psql";
@@ -1124,6 +1156,15 @@ if ($full_config==1){
         # debian squeeze ?????
         #system("chmod 0640 $slapd_conf");
         #system("chmod 0640 $slapd_conf_custom");
+    } elsif ($lsb_release_codename eq "oneiric"){
+        # ubuntu oneiric
+        #system("chmod 0640 $slapd_conf");
+        #system("chmod 0640 $slapd_conf_custom");
+    }
+    } elsif ($lsb_release_codename eq "precise"){
+        # ubuntu precise
+        #system("chmod 0640 $slapd_conf");
+        #system("chmod 0640 $slapd_conf_custom");
     }
 
     #system("chown openldap:openldap $ldap_conf");
@@ -1173,6 +1214,14 @@ if ($full_config==1){
     system("chown -R openldap.openldap /var/lib/ldap/");
     if ($lsb_release_codename eq "lenny"){
         # debian lenny
+        system("chmod 700 /var/lib/ldap");
+        system("chmod 600 /var/lib/ldap/*");
+    } elsif ($lsb_release_codename eq "oneiric"){
+        # ubuntu oneiric
+        system("chmod 700 /var/lib/ldap");
+        system("chmod 600 /var/lib/ldap/*");
+    } elsif ($lsb_release_codename eq "precise"){
+        # ubuntu pecise
         system("chmod 700 /var/lib/ldap");
         system("chmod 600 /var/lib/ldap/*");
     }
@@ -1387,6 +1436,16 @@ if ($full_config==1){
         system("chmod 0640 /etc/ldap/slapd.conf.custom");
         system("chown .openldap /etc/ldap/slapd.conf.custom");
     } elsif ($lsb_release_codename eq "karmic"){
+        system("chmod 0640 /etc/ldap/slapd.conf");
+        system("chown .openldap /etc/ldap/slapd.conf");
+        system("chmod 0640 /etc/ldap/slapd.conf.custom");
+        system("chown .openldap /etc/ldap/slapd.conf.custom");
+    } elsif ($lsb_release_codename eq "oneiric"){
+        system("chmod 0640 /etc/ldap/slapd.conf");
+        system("chown .openldap /etc/ldap/slapd.conf");
+        system("chmod 0640 /etc/ldap/slapd.conf.custom");
+        system("chown .openldap /etc/ldap/slapd.conf.custom");
+    } elsif ($lsb_release_codename eq "precise"){
         system("chmod 0640 /etc/ldap/slapd.conf");
         system("chown .openldap /etc/ldap/slapd.conf");
         system("chmod 0640 /etc/ldap/slapd.conf.custom");
