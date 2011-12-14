@@ -8,6 +8,52 @@
 
 
 
+###### ubuntu 11.10 installation 2.2.22
+perl-suid gibts nicht mehr
+
+nicht automatisch installiert, wieso?
+libquota-perl
+texlive-latex-extra
+libstring-approx-perl
+libimap-admin-perl
+zip
+libnet-mac-perl
+texlive-lang-german
+samba
+
+setuid-perl dummy package gebaut (file evtl. mit perl-suid ersetzen):
+
+1. aptitude install equivs
+2. equivs-control file
+3. emacs file
+   Package name: perl-suid
+   Architecture: all
+4. equivs-build file 
+
+
+
+Probleme:
+- Paket nscd nicht standardmäßig installiert
+- Services neu starten ist anders
+    /sbin/service smb restart 
+    /sbin/service smb reload
+- bei smbd auch nmbd neu starten?
+- postgresql
+    postgres shell als root
+    sudo -u postgres psql
+
+postgresql update scripts können nicht mit postgres verbinden
+--> muss user postgres sein
+
+
+###### ubuntu 11.10 installation 2.2.22
+
+
+
+
+
+
+
 # openQRM:  Verwaltung von Virtuellen Rechnern
 
 # mal testenn
