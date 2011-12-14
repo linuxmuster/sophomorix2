@@ -37,6 +37,9 @@ Probleme:
 - Services neu starten ist anders
     /sbin/service smb restart 
     /sbin/service smb reload
+
+    -> Übersicht: /usr/sbin/service --status-all
+
 - bei smbd auch nmbd neu starten?
 - postgresql
     postgres shell als root
@@ -44,6 +47,33 @@ Probleme:
 
 postgresql update scripts können nicht mit postgres verbinden
 --> muss user postgres sein
+
+
+Problems:
+
+Folgender Fehler, vermutlich durch get_smb_sid
+[2011/12/14 19:40:45.817420,  0] lib/smbldap.c:731(smb_ldap_start_tls)
+  Failed to issue the StartTLS instruction: Protocol error
+
+--> trotzdem gibts eine sid in $sid
+
+bei sudo postgres: 
+could not change directory to "/root/sophomorix2"
+Das ist das Verzeichnis, aus dem das script gestartet wurde
+
+
+pg_hba.conf:
+
+# unix-socket 
+# als user ldap
+# für db ldap
+# identität feststellen mit der map ldap 
+# pg_ident.conf:  ldap  root ldap
+local   ldap    ldap     ident   map=ldap # kommt dazu
+local   all     all      peer             # existiert schon
+
+
+
 
 
 ###### ubuntu 11.10 installation 2.2.22
