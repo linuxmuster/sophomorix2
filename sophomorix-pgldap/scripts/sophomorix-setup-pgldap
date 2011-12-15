@@ -924,11 +924,17 @@ if ($full_config==1){
         &insert_line_before("local;ldap;postgres;ident;map=postgres",
                             "local;all;postgres;peer;",
                             "$pg_hba_conf");
+        &insert_line_before("local;template1;postgres;ident;map=postgres",
+                            "local;all;postgres;peer;",
+                            "$pg_hba_conf");
     } elsif ($lsb_release_codename eq "precise"){
         &insert_line_before("local;all;all;peer;",
                             "local;ldap;ldap;ident;map=ldap",
                             "$pg_hba_conf");
         &insert_line_before("local;ldap;postgres;ident;map=postgres",
+                            "local;all;postgres;peer;",
+                            "$pg_hba_conf");
+        &insert_line_before("local;template1;ldap;ident;map=ldap",
                             "local;all;postgres;peer;",
                             "$pg_hba_conf");
     }
@@ -1305,7 +1311,7 @@ if ($full_config==1){
         system("/usr/sbin/service smbd start");
     }
 
-    # ssh 
+    # ssh restart
     if ($lsb_release_codename eq "lenny"){
         system("/etc/init.d/ssh restart");
     } elsif ($lsb_release_codename eq "squeeze"){
@@ -1316,15 +1322,29 @@ if ($full_config==1){
         system("/usr/sbin/service ssh restart");
     }
 
-    # nscd restart (works up to oneiric)
-    if (-e "/etc/init.d/nscd"){
+    # nscd restart
+    if ($lsb_release_codename eq "lenny"){
        system("/etc/init.d/nscd stop");
        sleep 2;
        system("killall nscd");
        sleep 2;
        system("killall -9 nscd");
        system("/etc/init.d/nscd start");
-    } else {
+    } elsif ($lsb_release_codename eq "squeeze"){
+       system("/etc/init.d/nscd stop");
+       sleep 2;
+       system("killall nscd");
+       sleep 2;
+       system("killall -9 nscd");
+       system("/etc/init.d/nscd start");
+    } elsif ($lsb_release_codename eq "oneiric"){
+       system("/usr/sbin/service nscd stop");
+       sleep 2;
+       system("killall nscd");
+       sleep 2;
+       system("killall -9 nscd");
+       system("/usr/sbin/service nscd start");
+    } elsif ($lsb_release_codename eq "precise"){
        system("/usr/sbin/service nscd stop");
        sleep 2;
        system("killall nscd");
@@ -1332,6 +1352,7 @@ if ($full_config==1){
        system("killall -9 nscd");
        system("/usr/sbin/service nscd start");
     }
+
 
     if ($slapd_standalone==1){
         # domain groups
