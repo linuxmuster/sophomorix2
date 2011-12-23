@@ -138,18 +138,59 @@ configfiles on what template it is based (absolute path)
 
 Wieviele user haben unowned files (Anzahl der uid)
 
-homeverzeichnisse mit git?
+########################################
+Homeverzeichnisse und Tauschverzeichnisse mit git?
+ + offline Betrieb möglich (Android Tablets m AGit)
+ + history möglich
+ + Programmieren, ...
+
+Gir Repos für:
+- homes
+- klassentausch
+- projekte
+
+Platz schaffen (automatisiert):
+- 1. auschecken
+- 2. .git löschen, git init
+- 3. auf server Repositoory löschen, neu anlegen
+- 4. wieder einchecken
+(oder gibts Befehl: remove history)
+
+
+
+mit gitolite möglich:
+- für jeden user einen ssh-key erzeugen 
+  (spezialname damit er nicht so leicht überschrieben wurd)
+- ssh-add .ssh/keyname -->> dann ist zugriff möglich
+  (Button mit Namen Schulserver)
+- innerhalb modul ein dir mit 
+   read nur für lehrer (Notizen, ...)
+   write nur für den Lehrer (Anleitungen, Arbeitsblätter)
+
+gitolite.conf
+
+include für users.conf # homes
+include für adminclass.conf # Klassentausch
+include für projects.conf
+
+
+in projects.conf
+jeweils 10 user pro zeile um die gruppe zu definieren
+dann die jeweiligen Permissions
+
+
+
+
+
    tauschverzeichnisse wie aktualisieren
 
+
+########################################
 
 
 Todo:
 
 slapd.conf template updaten
-
-
-Todo:
-#299 ???
 
 
 
