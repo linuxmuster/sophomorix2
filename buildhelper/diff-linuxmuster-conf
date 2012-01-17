@@ -1,0 +1,42 @@
+#!/bin/sh
+
+
+
+case "$2" in
+    diff)
+    command="diff -r"
+    ;;
+
+    cp)
+    command="cp -r"
+    ;;
+
+    *)
+    echo " "
+    echo "Second Option must be cp or diff"
+    echo " "
+    exit 0
+    ;;
+esac
+
+case "$1" in
+    ldap)
+    dir=/var/lib/linuxmuster/config-dynamic/15_ldap
+    target=sophomorix-pgldap/config-ldap/oneiric/15_ldap
+    ;;
+
+    *)
+    echo " "
+    echo "First Option must be  ldap"
+    echo " "
+    exit 0
+    ;;
+esac
+
+
+
+# execute
+
+execute="$command $dir $target"
+echo $execute
+$execute
