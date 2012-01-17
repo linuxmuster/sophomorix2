@@ -255,6 +255,8 @@ install-pgldap:
 # Copy the ldap config-templates
 	@install -d -m755 -oroot -groot $(CTEMPDIR)/ldap/
 	@install -oroot -groot --mode=0644 sophomorix-pgldap/config-ldap/*.template $(CTEMPDIR)/ldap/
+	@install -d -m755 -oroot -groot $(CTEMPDIR)/ldap/oneiric/15_ldap
+	@install -oroot -groot --mode=0644 sophomorix-pgldap/config-ldap/oneiric/15_ldap/* $(CTEMPDIR)/ldap/oneiric/15_ldap
 # Copy the upgrade scripts
 	@install -d -m755 -oroot -groot $(CTEMPDIR)/scripts/
 	@install -d -m755 -oroot -groot $(CTEMPDIR)/scripts/upgrade/
