@@ -750,31 +750,41 @@ if ($full_config==1){
 
 
 
-    # do it, ldap.conf
-    print "Creating $ldap_conf\n";
-    system("sed $replace ${template}/ldap/ldap.conf.template > $ldap_conf");
 
-    # do it, slapd.conf
-    print "Creating $slapd_conf\n";
-    if ($slapd_standalone==1){
-       system("sed $replace ${template}/ldap/slapd-standalone.conf.template > $slapd_conf");
-    } else { 
-       system("sed $replace ${template}/ldap/slapd.conf.template > $slapd_conf");
-    } 
 
-    # do it, slapd
-    print "Creating $default_slapd\n";
-    system("sed $replace ${template}/ldap/slapd.template > $default_slapd");
-    print "Creating $smbldap_conf\n";
-    system("sed $replace ${template}/ldap/smbldap.conf.template > $smbldap_conf"); 
-    print "Creating $ldap_secret\n";
-    system("sed $replace ${template}/ldap/ldap.secret.template > $ldap_secret"); 
-    print "Creating $nsswitch_conf\n";
-    system("sed $replace ${template}/ldap/nsswitch.conf.template > $nsswitch_conf");
-    print "Creating $libnssldap_conf\n";
-    system("sed $replace ${template}/ldap/libnss-ldap.conf.template > $libnssldap_conf");
-    print "Creating $ldif_local\n";
-    system("sed $replace ${template}/ldap/standalone.ldif.template > $ldif_local"); 
+    if ($lsb_release_codename eq "oneiric"){
+        &install_conf("/usr/share/sophomorix/config-templates/ldap",
+                      "oneiric",
+                      "15_ldap");     
+    } else {
+        # do it, ldap.conf
+        print "Creating $ldap_conf\n";
+        system("sed $replace ${template}/ldap/ldap.conf.template > $ldap_conf");
+        # do it, slapd.conf
+        print "Creating $slapd_conf\n";
+        if ($slapd_standalone==1){
+           system("sed $replace ${template}/ldap/slapd-standalone.conf.template > $slapd_conf");
+        } else { 
+           system("sed $replace ${template}/ldap/slapd.conf.template > $slapd_conf");
+        } 
+
+        # do it, slapd
+        print "Creating $default_slapd\n";
+        system("sed $replace ${template}/ldap/slapd.template > $default_slapd");
+        print "Creating $smbldap_conf\n";
+        system("sed $replace ${template}/ldap/smbldap.conf.template > $smbldap_conf"); 
+        print "Creating $ldap_secret\n";
+        system("sed $replace ${template}/ldap/ldap.secret.template > $ldap_secret"); 
+        print "Creating $nsswitch_conf\n";
+        system("sed $replace ${template}/ldap/nsswitch.conf.template > $nsswitch_conf");
+        print "Creating $libnssldap_conf\n";
+        system("sed $replace ${template}/ldap/libnss-ldap.conf.template > $libnssldap_conf");
+        print "Creating $ldif_local\n";
+        system("sed $replace ${template}/ldap/standalone.ldif.template > $ldif_local"); 
+    }
+
+
+
 
     # make sure a dummy custom template is there, so that 
     # slapd starts
@@ -808,10 +818,10 @@ if ($full_config==1){
         system("chown .openldap /etc/ldap/slapd.conf.custom");
     } elsif ($lsb_release_codename eq "oneiric"){
         # ubuntu oneiric
-        system("rm -rf $slapd_d_bak");
-        system("mv $slapd_d $slapd_d_bak");
-        system("mkdir $slapd_d ");
-        system("slaptest -f $slapd_conf -F $slapd_d ");
+      #  system("rm -rf $slapd_d_bak");
+      #  system("mv $slapd_d $slapd_d_bak");
+      #  system("mkdir $slapd_d ");
+      #  system("slaptest -f $slapd_conf -F $slapd_d ");
         system("chown -R openldap:openldap $slapd_d ");
         system("chmod 0640 /etc/ldap/slapd.conf");
         system("chown .openldap /etc/ldap/slapd.conf");
@@ -1567,6 +1577,44 @@ if ($full_config==1){
 # sub
 ############################################################
 
+sub install_conf {
+    # use conf templates from linuxmuster-base
+    # pre: path to codename
+    # codename: codename
+    # path to insttation files in codename
+    my ($pre,$codename,$post) = @_;
+    my $dir=$pre."/".$codename."/".$post;
+    my @files=();
+    print "installing from $dir\n";
+
+    opendir DIR, $dir or die "Cannot open $dir: $!";
+    foreach my $file (readdir DIR) {
+        if ($file eq "." or $file eq ".."){
+	    next;
+        }
+        if ($file=~/target$/){
+	    next;
+        }
+        push @files, $file;
+    }
+    @files = sort @files;
+    foreach my $file (@files){
+        my $abs_file=$dir."/".$file;
+        print "Working on $abs_file:\n";
+        my $abs_target = $abs_file.".target";
+	if (-e $abs_target){
+            my $target = `cat $abs_target`;
+            chomp($target);
+            print "   * Patching $abs_file\n       to \n     $target\n";
+            my $sed_command = "sed $replace $abs_file > $target";
+            print "$sed_command\n";
+            system($sed_command);
+        } else {
+            print "   * No file $abs_target\n       for \n     $abs_file\n";
+        }
+    }
+    closedir DIR;
+}
 
 
 
