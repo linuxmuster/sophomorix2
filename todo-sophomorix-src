@@ -2351,17 +2351,20 @@ On BuildHost:
 3. On BuildHost:
    update versions in debian/control.(/lenny/ubuntu)
    (so that apt-get update sophomorix2 updates all sophomorix-* packages)
+4. cd sophomorix2
+   dch -i 
+     -> add a comment to the changelog
 
-4. Check in modified files (use the jeffbeck key):
+5. Check in modified files (use the jeffbeck key):
    git add .
    git status  # check whats added
    git commit -m "prepared sophomorix for new package"
    git push
 
-5. Tag the stuff with annotated, unsigned tag
+6. Tag the stuff with annotated, unsigned tag
    git tag -a V-2.4.1-1 -m 'Creating Package for oneiric'
 
-6. make ubuntu | debian
+7. make ubuntu | debian
 
 
 
