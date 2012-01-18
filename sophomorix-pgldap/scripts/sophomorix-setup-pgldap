@@ -723,7 +723,6 @@ print "   Samba Server String         :   $smbserverstring \n";
 ############################################################
 print "   Database name               :   $dbname \n";
 
-if ($full_config==1){
     # the great replacement string
     $replace= " -e 's/\@\@basedn\@\@/${basedn}/g'". 
               " -e 's/\@\@dc\@\@/${dc}/g'".
@@ -748,10 +747,11 @@ if ($full_config==1){
               " -e 's/\@\@message3\@\@/${message3}/g'"; 
 
 
+# Always create the local ldif file
+print "Creating $ldif_local\n";
+system("sed $replace ${template}/ldap/standalone.ldif.template > $ldif_local"); 
 
-
-
-
+if ($full_config==1){
     if ($lsb_release_codename eq "oneiric"){
         &install_conf("/usr/share/sophomorix/config-templates/ldap",
                       "oneiric",
@@ -779,12 +779,7 @@ if ($full_config==1){
         system("sed $replace ${template}/ldap/nsswitch.conf.template > $nsswitch_conf");
         print "Creating $libnssldap_conf\n";
         system("sed $replace ${template}/ldap/libnss-ldap.conf.template > $libnssldap_conf");
-        print "Creating $ldif_local\n";
-        system("sed $replace ${template}/ldap/standalone.ldif.template > $ldif_local"); 
     }
-
-
-
 
     # make sure a dummy custom template is there, so that 
     # slapd starts
@@ -818,10 +813,10 @@ if ($full_config==1){
         system("chown .openldap /etc/ldap/slapd.conf.custom");
     } elsif ($lsb_release_codename eq "oneiric"){
         # ubuntu oneiric
-      #  system("rm -rf $slapd_d_bak");
-      #  system("mv $slapd_d $slapd_d_bak");
-      #  system("mkdir $slapd_d ");
-      #  system("slaptest -f $slapd_conf -F $slapd_d ");
+        system("rm -rf $slapd_d_bak");
+        system("mv $slapd_d $slapd_d_bak");
+        system("mkdir $slapd_d ");
+        system("slaptest -f $slapd_conf -F $slapd_d ");
         system("chown -R openldap:openldap $slapd_d ");
         system("chmod 0640 /etc/ldap/slapd.conf");
         system("chown .openldap /etc/ldap/slapd.conf");
