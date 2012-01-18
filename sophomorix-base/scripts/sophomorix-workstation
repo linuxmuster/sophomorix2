@@ -10,18 +10,26 @@
 # pxe==alle anderen -> pxe, accounts nach field 10    (option ml)
 #
 
+# field 6, old netmask option, not used anymore
+# netztsegment: string: [a-z0-9-.]
+
+
 # field 7, first bpbatch option
 # linbo server ip:  ip server, falls ip, normale ip falls integer
 
 # field 8:
-# unused
+# unused, fuer paedml reserviert [0-9a-zA-Z_-.,]
 
 # field 9:
-# permanently unused. sysadmin can use it
+# permanently unused. sysadmin can use it [0-9a-zA-Z_-.,]
+# 
 
 # field 10, last bpbatch option: new: account_flag
-# 0         : device ohne account
-# all others: device mit account
+# 0         : device ohne account, mit firewall
+# 1         : device ohne account, ohne firewall
+# 2-6   
+# 
+# 
 
 
 
