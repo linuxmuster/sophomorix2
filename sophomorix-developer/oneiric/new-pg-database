@@ -1,0 +1,10 @@
+#!/bin/sh
+
+droplang -U postgres plpgsql ldap
+dropdb  -U postgres ldap
+dropuser  -U postgres ldap
+
+
+psql -U postgres template1 < /usr/share/sophomorix/config-templates/pg/sophomorix-admin.sql
+psql -U postgres ldap < /usr/share/sophomorix/config-templates/pg/sophomorix-lang.sql
+psql  -U ldap ldap < /usr/share/sophomorix/config-templates/pg/sophomorix.sql
