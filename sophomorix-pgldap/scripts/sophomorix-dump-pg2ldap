@@ -171,7 +171,7 @@ if ($load_dump==1){
         system ("cp $ldif_structure $ldif_structure_target");
 
         print "Populating ldap with $ldif_structure_target\n";
-        system("slapadd -c -l $ldif_structure_target");
+        system("slapadd -c -l $ldif_structure_target -f $DevelConf::slapd_conf");
     } else {
         # start and stop slapd to recreate files in /var/lib/ldap
         system("/etc/init.d/slapd start");
@@ -180,12 +180,15 @@ if ($load_dump==1){
 
     # slapd must be stopped again
     # populate ldap (no users)
-    print "Populating ldap with $ldif_local\n";
-    system("slapadd -c -l $ldif_local");
+    my $command="slapadd -c -l $ldif_local -f $DevelConf::slapd_conf";
+    print "Populating ldap with $ldif_local using the following command:\n";
+    print "$command\n";
+    system("slapadd -c -l $ldif_local -f $DevelConf::slapd_conf");
     system("chown openldap.openldap $ldap_dir/*"); 
 
-    print "loading dump ...\n";
-    system("slapadd -c -l $dump_dir/$ldif_file");
+    $command="slapadd -c -l $dump_dir/$ldif_file -f $DevelConf::slapd_conf";
+    print "Loading dump: $command\n";
+    system("slapadd -c -l $dump_dir/$ldif_file -f $DevelConf::slapd_conf");
     system("chown openldap.openldap $ldap_dir/*"); 
     system("/etc/init.d/slapd start");
 } else {
