@@ -285,6 +285,9 @@ install-pgldap:
 # install samba.schema
 	@install -d -m755 -oroot -groot $(SCHEMA)/
 	@install -oroot -groot --mode=0755 sophomorix-pgldap/config-ldap/samba.schema $(SCHEMA)/
+# install sophomorix.schema
+	@install -d -m755 -oroot -groot $(SCHEMA)/
+	@install -oroot -groot --mode=0755 sophomorix-pgldap/schema/sophomorix.schema $(SCHEMA)/
 # Copy the apache-templates
 	@install -oroot -groot --mode=0644 sophomorix-base/apache-templates/*-template $(CTEMPDIR)/apache/
 # the install script for the database installation
