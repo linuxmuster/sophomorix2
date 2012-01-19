@@ -573,21 +573,24 @@ Testen am lmz:
 
 
 
-Zusatzschema-Datei:
+Zusatzschema-Datei/oneiric:
 
 sophomorix.schema scheint OK
 Funktion in perl zum synchronisieren des accounts tut
-slapcat tut,
-aber nicht mit slapadd einlesbar
+
+Mit slapadd einlesbar wenn -f /etc/ldap/slapd angegeben.
 
 Umsetzung:
-1. sophomorix.schema
+1. sophomorix.schema (weitere Werte)
 2. in sub update_user_ldap in SophomorixPgLdap.pm:
    my @objectclass= ... sophomorixData dazu (Zeile einkommentieren)
+   --> weitere werte dazu
 3. Beim add(ungetestet),modify(getestet) für jedes Feld hinzu
         sophomorixstatus             => $sophomorixstatus,
         (vorher status holen)
-4. beim dump ldif auch die entsprechenden Einträge erzeugen (tut noch nicht) 
+4. beim dump zum sql auch die entsprechenden Einträge erzeugen (tut)
+5. Beim konvertieren zu ldif gucken, dass nichts behindert wird
+ 
 
 
 
@@ -2363,10 +2366,12 @@ On BuildHost:
    git commit -m "prepared sophomorix for new package"
    git push
 
-6. Tag the stuff with annotated, unsigned tag
+6. make ubuntu | debian
+
+7. If successful:
+   Tag the stuff with annotated, unsigned tag
    git tag -a V-2.4.1-1 -m 'Creating Package for oneiric'
 
-7. make ubuntu | debian
 
 
 
