@@ -581,13 +581,14 @@ slapcat tut,
 aber nicht mit slapadd einlesbar
 
 Umsetzung:
-1. sophomorix.schmema
+1. sophomorix.schema
 2. in sub update_user_ldap in SophomorixPgLdap.pm:
-   my @objectclass= ... Sophomorix dazu
+   my @objectclass= ... sophomorixData dazu (Zeile einkommentieren)
 3. Beim add(ungetestet),modify(getestet) für jedes Feld hinzu
-        sophomorixstatus             => $status,
+        sophomorixstatus             => $sophomorixstatus,
         (vorher status holen)
 4. beim dump ldif auch die entsprechenden Einträge erzeugen (tut noch nicht) 
+
 
 
 

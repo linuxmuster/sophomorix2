@@ -1356,6 +1356,7 @@ sub fetchdata_from_account {
         $userpassword,
         $loginshell,
         $gidnumber,
+        $sophomorixstatus,
        )= $dbh->selectrow_array( "SELECT homedirectory,gid,gecos,uidnumber,
                                          sambahomepath,firstpassword,sambaacctflags,
                                          exitadminclass,sambahomedrive,sambakickofftime,
@@ -1363,7 +1364,8 @@ sub fetchdata_from_account {
                                          sambantpassword,sambaprimarygroupsid,
                                          sambapwdcanchange,sambapwdlastset,
                                          sambapwdmustchange,sambasid,surname,firstname,
-                                         userpassword,loginshell,gidnumber
+                                         userpassword,loginshell,gidnumber,
+                                         sophomorixstatus
                                          FROM userdata 
                                          WHERE uid='$login'
                                         ");
@@ -1391,9 +1393,10 @@ sub fetchdata_from_account {
                 $sambakickofftime,$sambalmpassword,$sambalogofftime,$sambalogontime,
                 $sambantpassword,$sambaprimarygroupsid,$sambapwdcanchange,
                 $sambapwdlastset,$sambapwdmustchange,$sambasid,$surname,$firstname,
-                $userpassword,$loginshell,$gidnumber);
+                $userpassword,$loginshell,$gidnumber,
+                $sophomorixstatus);
     } else {
-        return ("","","","",-1,"","","","","","","","","","","","","","","","","","","");
+        return ("","","","",-1,"","","","","","","","","","","","","","","","","","","","");
     }
 }
 
@@ -5763,7 +5766,8 @@ sub update_user_ldap {
         $firstname,
         $userpassword,
         $loginshell,
-        $gidnumber) = &fetchdata_from_account($login);
+        $gidnumber,
+        $sophomorixstatus) = &fetchdata_from_account($login);
 
     # return on error 
     if ($home eq ""){
@@ -5776,8 +5780,11 @@ sub update_user_ldap {
     my $uid=$login;
     my $sn=$surname;
     my $givenname=$firstname;
+    # sophomorix.schema
+    #my @objectclass=("inetOrgPerson","posixAccount","shadowAccount",
+    #                 "top","sambaSamAccount");
     my @objectclass=("inetOrgPerson","posixAccount","shadowAccount",
-                     "top","sambaSamAccount");
+                     "top","sambaSamAccount","sophomorixData");
     my $homedirectory=$home;
     my $displayname=$gecos;
     my $description=$gecos;
@@ -5829,6 +5836,7 @@ sub update_user_ldap {
                  sambaPwdLastSet      => $sambapwdlastset, 
                  sambaPwdMustChange   => $sambapwdmustchange, 
                  sambaSID             => $sambasid, 
+                 sophomorixStatus     => $sophomorixstatus, 
                  sn                   => $sn, 
                  uid                  => $uid, 
                  uidNumber            => $uidnumber, 
@@ -5865,6 +5873,7 @@ sub update_user_ldap {
                  sambaPwdLastSet      => $sambapwdlastset, 
                  sambaPwdMustChange   => $sambapwdmustchange, 
                  sambaSID             => $sambasid, 
+                 sophomorixStatus     => $sophomorixstatus, 
                  sn                   => $sn, 
                  uid                  => $uid, 
                  uidNumber            => $uidnumber, 
@@ -5906,6 +5915,7 @@ sub update_user_ldap {
                  sambaPwdLastSet      => $sambapwdlastset, 
                  sambaPwdMustChange   => $sambapwdmustchange, 
                  sambaSID             => $sambasid, 
+                 sophomorixStatus     => $sophomorixstatus, 
                  sn                   => $sn, 
                  uid                  => $uid, 
                  uidNumber            => $uidnumber, 
@@ -5942,6 +5952,7 @@ sub update_user_ldap {
                  sambaPwdLastSet      => $sambapwdlastset, 
                  sambaPwdMustChange   => $sambapwdmustchange, 
                  sambaSID             => $sambasid, 
+                 sophomorixStatus     => $sophomorixstatus, 
                  sn                   => $sn, 
                  uid                  => $uid, 
                  uidNumber            => $uidnumber, 
