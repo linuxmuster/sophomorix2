@@ -1420,7 +1420,15 @@ if ($full_config==1){
 } # end full_setup
 
 # adding users
-&setup_verzeichnis("\$homedir_all_admins","$DevelConf::homedir_all_admins");
+
+# checking for admins 0: exists/ 1 nonexisting
+my $admins_nonexisting=system("id administrator > /dev/null 2>&1");
+if ($admins_nonexisting!=0){
+    print "WARNING: Skipping chown commands because of nonexisting administrator\n";
+}
+if ($admins_nonexisting==0){
+    &setup_verzeichnis("\$homedir_all_admins","$DevelConf::homedir_all_admins");
+} 
 
 if ($full_config==1){
     # grouplist for administrator
@@ -1472,8 +1480,9 @@ if ($full_config==1){
     }           
 } # end full_setup
 
-&setup_verzeichnis("\$share_share","$DevelConf::share_share");
-
+if ($admins_nonexisting==0){
+    &setup_verzeichnis("\$share_share","$DevelConf::share_share");
+}
 # todo /etc/rc2.d samba auf 21 erhöhen
 
 # Adding directories
@@ -1481,34 +1490,41 @@ if ($full_config==1){
 #    expand to the variable $homedir_teacher (i.e. dont forget the leading \)
 # Second Parameter: Expand to the contents of $homedir_teacher wich is defined in
 #    sophomorix-devel.conf 
-&setup_verzeichnis("\$homedir_teacher","$DevelConf::homedir_teacher");
-&setup_verzeichnis("\$homedir_pupil","$DevelConf::homedir_pupil");
-&setup_verzeichnis("\$homedir_ws","$DevelConf::homedir_ws");
-
+if ($admins_nonexisting==0){
+   &setup_verzeichnis("\$homedir_teacher","$DevelConf::homedir_teacher");
+   &setup_verzeichnis("\$homedir_pupil","$DevelConf::homedir_pupil");
+   &setup_verzeichnis("\$homedir_ws","$DevelConf::homedir_ws");
+}
 
 # share
-&setup_verzeichnis("\$share_exams","$DevelConf::share_exams");
-&setup_verzeichnis("\$share_classes","$DevelConf::share_classes");
-&setup_verzeichnis("\$share_subclasses","$DevelConf::share_subclasses");
-&setup_verzeichnis("\$share_projects","$DevelConf::share_projects");
-&setup_verzeichnis("\$share_school","$DevelConf::share_school");
 
+if ($admins_nonexisting==0){
+    &setup_verzeichnis("\$share_exams","$DevelConf::share_exams");
+    &setup_verzeichnis("\$share_classes","$DevelConf::share_classes");
+    &setup_verzeichnis("\$share_subclasses","$DevelConf::share_subclasses");
+    &setup_verzeichnis("\$share_projects","$DevelConf::share_projects");
+    &setup_verzeichnis("\$share_school","$DevelConf::share_school");
+}
 # tasks
-&setup_verzeichnis("\$tasks_tasks","$DevelConf::tasks_tasks");
-&setup_verzeichnis("\$tasks_classes","$DevelConf::tasks_classes");
-&setup_verzeichnis("\$tasks_rooms","$DevelConf::tasks_rooms");
-&setup_verzeichnis("\$tasks_subclasses","$DevelConf::tasks_subclasses");
-&setup_verzeichnis("\$tasks_projects","$DevelConf::tasks_projects");
-&setup_verzeichnis("\$tasks_teachers","$DevelConf::tasks_teachers");
 
+if ($admins_nonexisting==0){
+    &setup_verzeichnis("\$tasks_tasks","$DevelConf::tasks_tasks");
+    &setup_verzeichnis("\$tasks_classes","$DevelConf::tasks_classes");
+    &setup_verzeichnis("\$tasks_rooms","$DevelConf::tasks_rooms");
+    &setup_verzeichnis("\$tasks_subclasses","$DevelConf::tasks_subclasses");
+    &setup_verzeichnis("\$tasks_projects","$DevelConf::tasks_projects");
+    &setup_verzeichnis("\$tasks_teachers","$DevelConf::tasks_teachers");
+}
 # samba part 2
-&setup_verzeichnis("\$homedir_samba_netlogon",
-                   "$DevelConf::homedir_samba_netlogon");
-&setup_verzeichnis("\$homedir_samba_progs",
-                   "$DevelConf::homedir_samba_progs");
-&setup_verzeichnis("\$homedir_samba_cds",
-                   "$DevelConf::homedir_samba_cds");
-    
+if ($admins_nonexisting==0){
+    &setup_verzeichnis("\$homedir_samba_netlogon",
+                       "$DevelConf::homedir_samba_netlogon");
+    &setup_verzeichnis("\$homedir_samba_progs",
+                       "$DevelConf::homedir_samba_progs");
+    &setup_verzeichnis("\$homedir_samba_cds",
+                       "$DevelConf::homedir_samba_cds");
+}
+
 if ($full_config==1){
     #print "${template}/samba/netlogon/logon.bat.template > $smb_netlogon_bat \n";
     #print "${template}/samba/netlogon/login.bat.template > $smb_netlogin_bat \n";
@@ -1530,8 +1546,9 @@ if ($DevelConf::create_www==1){
 &setup_verzeichnis("\$log_files","$DevelConf::var_lib_pfad");
 
 # group teachers part 2
-&provide_class_files(${DevelConf::teacher});
-
+if ($admins_nonexisting==0){
+    &provide_class_files(${DevelConf::teacher});
+}
     
 if ($full_config==1){
     # make some files owned by root.root and 0600
