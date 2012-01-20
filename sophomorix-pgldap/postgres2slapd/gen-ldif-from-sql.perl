@@ -83,6 +83,7 @@ foreach my $line (@accountsfile) {
   print "objectClass: inetOrgPerson\n";
   print "objectClass: posixAccount\n";
   print "objectClass: shadowAccount\n";
+  print "objectClass: sophomorixData\n";
 # does not work
 #  print "objectClass: sophomorixData\n";
   print "objectClass: top\n";
