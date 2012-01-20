@@ -1,0 +1,51 @@
+
+
+
+
+
+Schreibender Zugriff für sophomorix2 einrichten:
+
+1. Entwickler git ssh public key an jeffbeck@web.de
+   ssh-keygen -t dsa
+
+
+2. gitolite-admin auschecken
+
+   - keys dazukopieren unter benannt nach Anmeldenamen
+   - gitolite.conf: Eintragen als RW Zugriff
+
+3. gitolite-admin wieder einchecken
+
+
+
+4. A) Entwickler kann clonen mit:
+   ssh-add priv.key (oder ssh-agent /bin/bash; ssh-add priv.key )
+   git clone gitolite@cvs.bszleo.de:sophomorix2
+   cd sophomorix2
+   git branch
+
+   --> das checked nur master branch aus
+
+   B) Anderen branch (z.B. oneiric-package) mittracken und wechseln:
+
+   git checkout --track -b oneriric-package origin/oneriric-package
+
+  
+5. Sonstiges:
+   Tags anzeigen:
+        git tag
+   Branches anzeigen:
+        git branch    (lokale und remote, getrackte)
+        git branch -a (alle, auch remote)
+   Branch wechseln:
+        git checkout oneriric-package
+        git checkout master
+
+
+
+
+
+
+
+
+ 
