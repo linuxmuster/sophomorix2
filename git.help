@@ -49,8 +49,6 @@ Schreibender Zugriff für sophomorix2 einrichten
 Bug in mehreren Branches fixen
 ############################################################
 
-!!! unverified !!!
-
 Annahme: 2 branches vorhanden
 * master
   precise
@@ -80,6 +78,7 @@ Annahme: 2 branches vorhanden
    branch fix-bug-100
 
 6. Nachdem der Bug gefixed ist
+   git status
    git add ...    (list the files that are changed)
    git commit -m "bug 100 fixed in master"
 
@@ -87,12 +86,21 @@ Annahme: 2 branches vorhanden
    git checkout master
    git merge fix-bug-100
 
-8. fix-bug-100 nach 2.4 mergen:
-   git checkout 2.4
+8. fix-bug-100 nach precise mergen:
+   git checkout precise
    git merge fix-bug-100
    -> hier muss man mit Konflikten rechnen
 
-9. Der gemergte branch fix-bug-100 kann gelöscht werden
+9. Änderungen remote pushen:
+   git checkout master
+   git commit -m "bug 100 fixed"
+   git status
+   git push
+   (push sollte master UND precice pushen, 
+    Wieso?     - wegen remote tracking?
+               - weil gemerged in beide branches)
+
+10. Der gemergte, lokale branch fix-bug-100 kann lokal gelöscht werden:
    git branch -d fix-bug-100
 
 
