@@ -2,8 +2,10 @@
 
 
 
+############################################################
+Schreibender Zugriff für sophomorix2 einrichten
+############################################################
 
-Schreibender Zugriff für sophomorix2 einrichten:
 
 1. Entwickler git ssh public key an jeffbeck@web.de
    ssh-keygen -t dsa
@@ -43,9 +45,55 @@ Schreibender Zugriff für sophomorix2 einrichten:
 
 
 
+############################################################
+Bug in mehreren Branches fixen
+############################################################
 
+!!! unverified !!!
 
+Annahme: 2 branches vorhanden
+* master
+  precise
 
+1. aktuelle branches holen:
+   git pull 
+   git branch -v
+   -> lokale branches werde gezeigt:
+       master 
+       precise 
+    (falls precise nicht gezeigt wird, siehe oben bei 'remote tracking')
+
+2. Branch auschecken, in dem der Bugfix entwickelt werden soll:
+   git checkout master
+   (prüfen mit git branch -v)
+
+3. Einen neuen lokalen branch erstellen, in dem dieser Bug gefixt wird.
+   Dieser basiert(=ist im Moment identisch) auf den vorher ausgecheckten
+   branch (Im Beispiel 'master')
+   git branch fix-bug-100
+
+4. Wechseln in den Bugfix-Branch:
+   git checkout fix-bug-100
+   (prüfen mit git branch -v)
+
+5. Nun den Bug fixen. Die Änderungen kommen dabei in den 
+   branch fix-bug-100
+
+6. Nachdem der Bug gefixed ist
+   git add ...    (list the files that are changed)
+   git commit -m "bug 100 fixed in master"
+
+7. fix-bug-100 nach 'master' mergen:
+   git checkout master
+   git merge fix-bug-100
+
+8. fix-bug-100 nach 2.4 mergen:
+   git checkout 2.4
+   git merge fix-bug-100
+   -> hier muss man mit Konflikten rechnen
+
+9. Der gemergte branch fix-bug-100 kann gelöscht werden
+   git branch -d fix-bug-100
 
 
  
