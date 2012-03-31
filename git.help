@@ -81,14 +81,22 @@ Annahme: 2 branches vorhanden
    git status
    git add ...    (list the files that are changed)
    git commit -m "bug 100 fixed in master"
+   git show --summary
+   (zeigt den hash dieses commits an, z.B.
+       commit ff2209369e182727405384579233629602518bef
+   )
+
 
 7. fix-bug-100 nach 'master' mergen:
    git checkout master
-   git merge fix-bug-100
+   #####git merge fix-bug-100
+   git cherry-pick ff2209369e182727405384579233629602518bef
+
 
 8. fix-bug-100 nach precise mergen:
    git checkout precise
-   git merge fix-bug-100
+   ####git merge fix-bug-100
+   git cherry-pick ff2209369e182727405384579233629602518bef
    -> hier muss man mit Konflikten rechnen
 
 9. Änderungen remote pushen:
