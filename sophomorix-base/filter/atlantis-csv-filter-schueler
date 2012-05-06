@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id$
+# $Id: atlantis-csv-filter-schueler,v 1.5 2009-02-19 15:03:41 jeffbeck Exp $
 # This script converts the cvs dump of Atlantis to the schueler.txt format
 #
 # This script might be updated after installing an sophomorix-base package.
@@ -44,8 +44,8 @@
 # key: number of selicolons
 # value: max allowed number
 my %semicolons_allowed = qw(
-    290     3600
-    291     2
+    291     3600
+    292     2
 );
 
 
@@ -66,33 +66,6 @@ my $count_ignored_by_class_name=0;
 my $tmp="/var/lib/sophomorix/tmp/schueler.txt.filter.tmp";
 my $source="/etc/sophomorix/user/schueler.txt";
 my $target="/var/lib/sophomorix/tmp/schueler.txt.tmp";
-
-
-# override for examplix
-if (defined $ARGV[0]){
-    if( $ARGV[0]=~/^\// ){
-        $source=$ARGV[0];
-    } else {
-        exit;
-    }
-}
-# override for examplix
-if (defined $ARGV[1]){
-    if( $ARGV[1]=~/^\// ){
-        $target=$ARGV[1];
-        $tmp=$target.".filter";
-    } else {
-        exit;
-    }
-}
-
-
-print "  * Source  $source\n";
-print "  * Tmp     $tmp\n";
-print "  * Target  $target\n";
-
-
-
 my %semicolons_seen=();
 
 ############################################################
@@ -148,6 +121,8 @@ while (<SOURCE>){
         }    
         $line_num++;
         next;
+    } elsif ($line_num==0) {
+        print "\nWARNING: Could not read Header ($line[6])\n";
     }
 
    if (not exists $header{'Geb.Datum'} or
@@ -242,6 +217,7 @@ while (<SOURCE>){
 }
 
 close(SOURCE);
+print "Filtered data written to $tmp\n";
 close(TMP);
 
 
