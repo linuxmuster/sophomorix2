@@ -6,6 +6,15 @@
 # jeffbeck@web.de  or  jeffbeck@gmx.de
 
 
+# next
+# remove symbolic links, when they are in the way of af a bind that must be created
+# tausch-Schule fehlt in den bind mounts
+# make option --repairlinks use the tools of a userlist, like repairbinds
+# option --log-funny-files /path/to/file : list all files that should not be there in the log file
+# time for bind repair: 3s for a user that is in 30 groups
+#                       1s for a user that is in 3 groups
+
+
 # Bibliotheken
 use strict;
 use Getopt::Long;
@@ -23,6 +32,10 @@ my @arguments = @ARGV;
 #my $gruppe="";
 
 my $repairhome=0;
+
+my $repairbinds=0;
+my $do_nothing="---";
+my $repairbinds_remove_only=$do_nothing;
 my $repairlinks="";
 
 my $help=0;
@@ -63,6 +76,8 @@ my $testopt=GetOptions(
            "htaccess" => \$htaccess,
            "command-number=n" => \$command_number,
            "repairhome" => \$repairhome,
+           "repairbinds" => \$repairbinds,
+           "repairbinds-remove-only=s" => \$repairbinds_remove_only,
            "repairlinks=s" => \$repairlinks,
            "skiplock" => \$skiplock,
            "file|f=s" => \$filename,
@@ -80,6 +95,7 @@ if ($dateirechte==0
     and $htaccess==0
     and $info==0
     and $repairhome==0
+    and $repairbinds==0
     and $repairlinks eq "") {
    # Es muss eine Option angegeben werden, sonst hilfe
    $help=1;
@@ -120,6 +136,15 @@ What to repair (one option must be given):
          -c class1,class2,... / --class class1.class2,... (teachers can be used)
          -p project1,project2,... / --project project1,project2,...
          --students
+
+  --repairbinds  (EXPERIMENTAL !!!)
+      (re)creates bind mounts for shares (instead of symbolic links)
+      Limit the repair to some users:
+         -u user1,user2,... / --user user1,user2,...
+         -c class1,class2,... / --class class1.class2,... (teachers can be used)
+         -p project1,project2,... / --project project1,project2,...
+         --students
+      with option --repairbinds-remove_only ".bind" it removes all bind mounts with the extension .bind    
 
 Please see the sophomorix-repair(8) man pages for full documentation
 ');
@@ -253,6 +278,32 @@ if ($repairhome==1){
         &repair_repairhome($user);
     }
 }
+
+
+
+# --repairbinds
+if ($repairbinds==1){
+
+    my @users=();
+    # create userlist
+    if ($login ne ""
+        or $classes ne ""
+        or $projects ne ""
+        or $student==1
+       ){
+       &titel("Checking login names ...");
+       @users=&create_userlist($login,$classes,1,$projects,1,$student,
+                               0,0,0,1);
+    } else {
+       # teachers and students
+       @users=(@lehrer,@schueler,@admins);
+    }
+    foreach my $user (@users){
+        print "Repairing bind mounts of $user\n";
+        &repair_binds($user);
+    }
+}
+
 
 # --repairlinks
 if ($repairlinks ne ""){
@@ -642,6 +693,234 @@ sub repair_directories {
 }
 
 
+
+###############################################################################
+# Reparieren eines bind mounts 
+###############################################################################
+
+sub bind_mount {
+    # do the mount!
+    my ($olddir,$newdir) = @_;
+    # ?????????????? if newdir is a link, remove it!
+    my $mkdir_command = "mkdir $newdir";
+    my $mount_command = "mount --bind $olddir $newdir";
+    print "      $mkdir_command\n";
+    system("$mkdir_command");
+    print "      $mount_command\n";
+    system("$mount_command");
+}
+
+
+
+sub bind_mount_remove {
+    # undo mounts of newdir, even if mounted multiple times
+    my ($olddir,$newdir) = @_;
+    my $umount_command = "umount $newdir &> /dev/null";
+    my $rmdir_command = "rmdir $newdir &> /dev/null";
+    my $return=0;
+    while ($return==0){
+        print "      $umount_command\n";
+        $return=system("$umount_command");
+    }
+    print "      $rmdir_command\n";
+    system("$rmdir_command");
+}
+
+
+
+sub create_bind_mount {
+    my ($login,$share_name,$share_long_name,$type,$bind_extension) = @_;
+    my $old_dir="";   # was $link_target 
+    my $old_dir_tasks=""; # was $link_target_tasks
+    my ($homedir,$pri_group)=
+        &Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
+
+    # replace teachers with language term
+    if ($share_name  eq ${DevelConf::teacher}){
+        $share_long_name=${Language::teacher};     
+    }
+
+    # use shortname as longname if not given
+    if (not defined $share_long_name){
+        $share_long_name=$share_name;
+    }
+
+    # project is standard
+    if (not defined $type or $type eq ""){
+	$type="project";
+    }
+
+    # Only act if uid is valid
+    if ($homedir ne ""){
+       # save immutable bit on share_dir and unset it
+       my $immutable_share_dir=$homedir."/${Language::share_dir}";
+       my $immutable_share_bit=&fetch_immutable_bit($immutable_share_dir);
+       &set_immutable_bit($immutable_share_dir,0);
+
+       # save immutable bit on task_dir and unset it
+       my $immutable_task_dir=$homedir."/${Language::task_dir}";
+       my $immutable_task_bit=&fetch_immutable_bit($immutable_task_dir);
+       &set_immutable_bit($immutable_task_dir,0);
+
+       # $new_dir was $link_name
+       my $new_dir=$homedir.
+          "/${Language::share_dir}/${Language::share_string}".
+          "${share_long_name}"."$bind_extension";   
+
+       my $new_dir_tasks=$homedir.
+          "/${Language::task_dir}/${Language::task_string}".
+          "${share_long_name}"."$bind_extension";
+
+       if ($type eq "project"){
+           # project
+           $old_dir="${DevelConf::share_projects}/${share_name}";
+           $old_dir_tasks="${DevelConf::tasks_projects}/${share_name}";
+       } elsif ($type eq "adminclass"){
+           # class
+           $old_dir="${DevelConf::share_classes}/${share_name}";
+           $old_dir_tasks="${DevelConf::tasks_classes}/${share_name}";
+       }elsif ($type eq "teacher"){
+           # teacher
+           $old_dir="${DevelConf::share_teacher}";
+           $old_dir_tasks="${DevelConf::tasks_teachers}";
+       }elsif ($type eq "subclass"){
+           # subclass
+           $old_dir="${DevelConf::share_subclasses}/${share_name}";
+           $old_dir_tasks="${DevelConf::tasks_subclasses}/${share_name}";
+       }elsif ($type eq "room"){
+           # room
+           $old_dir_tasks="${DevelConf::tasks_rooms}/${share_name}";
+       } else {
+           print "Unknown type $type\n\n";
+	   return 0;
+       }
+
+       # Link to share (all but workstations)
+       if ($type ne "room"){
+           if($Conf::log_level>=2){
+               print "   Newdir  (share): $new_dir\n";
+               print "   Olddir  (share): $old_dir\n";
+           }
+           if (-d $old_dir){
+               if($Conf::log_level>=2){
+                   print "   Creating bind mount for user $login ",
+                         "to $type ${old_dir}.\n";
+               }
+               # delete an recreate bind mounts    
+               &bind_mount_remove($old_dir,$new_dir);
+               if ($repairbinds_remove_only eq $do_nothing){
+                   &bind_mount($old_dir,$new_dir);
+               }
+           } else {
+               print "   NOT creating bind mount to ",
+                     "nonexisting/nondirectory $old_dir\n";
+           }
+       }
+
+       # Link to tasks (all users)
+       if($Conf::log_level>=2){
+           print "   Newdir  (tasks): $new_dir_tasks\n";
+           print "   Olddir  (tasks): $old_dir_tasks\n";
+       }
+       if ($type eq "room"){
+          # create the share_dir on the fly
+          &setup_verzeichnis("\$tasks_rooms/\$raeume",
+                             "$old_dir_tasks");
+       }
+
+       if (-d $old_dir_tasks){
+           if($Conf::log_level>=2){
+               print "   Creating bind mont for user $login ",
+                     "to $type ${old_dir_tasks}.\n";
+           }
+           # delete an recreate bind mounts    
+           &bind_mount_remove($old_dir_tasks,$new_dir_tasks);
+           if ($repairbinds_remove_only eq $do_nothing){
+               &bind_mount($old_dir_tasks,$new_dir_tasks);
+           }
+       } else {
+           print "   NOT creating bind mount to ",
+                 "nonexisting/nondirectory $old_dir_tasks\n";
+       }
+       # restore immutable bit
+       &set_immutable_bit($immutable_share_dir,$immutable_share_bit);
+       &set_immutable_bit($immutable_task_dir,$immutable_task_bit);
+    } else {
+        print "   NOT removing directories: ",
+              "Home of user $login not known.\n";
+    }
+}
+
+
+
+sub repair_binds {
+    my ($login)= @_;
+    print "  * Starting\n";
+    my ($home) = &fetchdata_from_account($login);
+    my $share_dir=$home."/".$Language::share_dir;
+    my $exists_string="Exists";
+    my %mandatory_binds=();
+    my $bind_extension=".bind";
+    if ($repairbinds_remove_only ne $do_nothing){
+        $bind_extension=$repairbinds_remove_only;
+    }
+
+    # repairing links
+    my @list=&Sophomorix::SophomorixPgLdap::pg_get_group_list($login);
+        print "Repairing Links in $share_dir\n";
+    my $count=1;
+    foreach my $group (@list){
+        my ($group_type)=&pg_get_group_type($group);
+    
+        print " $count)  $group ($group_type)\n";
+
+        #
+        # creates __tauschen/tausch-schule for everybody
+#        &Sophomorix::SophomorixBase::create_school_link($login);
+#        &create_share_link($login,$group,$group,$group_type);
+        &create_bind_mount($login,$group,$group,$group_type,$bind_extension);
+        $mandatory_binds{$group}="mandatory";
+        $count++;
+    }
+
+    print "-----------------------------------------------------------------------\n";
+    print "Checking binds of $login in $share_dir\n";
+    print "-----------------------------------------------------------------------\n";
+    if (not -e $share_dir){
+        &log_script_exit("Nonexisting dir $share_dir",1,1,0,@arguments);
+    }
+    opendir DIR, $share_dir or die "Cannot open $share_dir: $!";
+    my @files=();
+    foreach my $file (readdir DIR) {
+        push @files, $file;
+    }
+    @files = sort @files;
+
+    $count=1;
+    foreach my $file (@files) {
+        if ($file eq "." or $file eq ".."){
+	    next;
+        }
+
+        my $group = $file;
+        # remove string, so that the group is shown
+        $group =~ s/$Language::share_string//;
+
+        #
+        # check here if it is a dir and mounted correctly ??????????????
+        #
+        if (exists $mandatory_binds{$group}){
+            print "   $count) $file ($group)\n";
+        } else {
+            # ???????????? avoid ? when tausch-Lehrer and taush-Schule
+            print "?  $count) $file ($group)\n";
+        }
+
+        $count++;
+    }
+    closedir DIR;
+    return;
+}
 
 ###############################################################################
 # Reparieren eines Verzeichnisses 
