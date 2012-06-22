@@ -33,10 +33,29 @@ my @arguments = @ARGV;
 
 my $repairhome=0;
 
+# delete following option ???????????
 my $repairbinds=0;
-my $do_nothing="---";
-my $repairbinds_remove_only=$do_nothing;
+
+# binds
+my $bind_extension=".bind";  # default extension
+my $bind_extension_do_nothing="---";
+# options for binds:
+my $create_binds=$bind_extension_do_nothing;
+my $delete_binds=$bind_extension_do_nothing;
+my $repair_binds=$bind_extension_do_nothing;
+
+my $repairbinds_remove_only=$bind_extension_do_nothing;
+
+# delete followwing option ?????????????
 my $repairlinks="";
+
+# links
+my $link_extension=".link";  # default extension
+my $link_extension_do_nothing="---";
+# options for links:
+my $create_links=$bind_extension_do_nothing;
+my $delete_links=$bind_extension_do_nothing;
+my $repair_links=$bind_extension_do_nothing;
 
 my $help=0;
 my $info=0;
@@ -78,6 +97,12 @@ my $testopt=GetOptions(
            "repairhome" => \$repairhome,
            "repairbinds" => \$repairbinds,
            "repairbinds-remove-only=s" => \$repairbinds_remove_only,
+           "create-binds:s" => \$create_binds,
+           "delete-binds:s" => \$delete_binds,
+           "repair-binds:s" => \$repair_binds,
+           "create-links:s" => \$create_links,
+           "delete-links:s" => \$delete_links,
+           "repair-links:s" => \$repair_links,
            "repairlinks=s" => \$repairlinks,
            "skiplock" => \$skiplock,
            "file|f=s" => \$filename,
@@ -86,6 +111,35 @@ my $testopt=GetOptions(
            "project|projects|p=s" => \$projects,
            "student|students|s" => \$student,
           );
+
+# binds
+if($create_binds eq ""){
+    $create_binds=$bind_extension;
+}
+if($delete_binds eq ""){
+    $delete_binds=$bind_extension;
+}
+if($repair_binds eq ""){
+    $repair_binds=$bind_extension;
+}
+# links
+if($create_links eq ""){
+    $create_links=$bind_extension;
+}
+if($delete_links eq ""){
+    $delete_links=$bind_extension;
+}
+if($repair_links eq ""){
+    $repair_links=$bind_extension;
+}
+
+
+print "BN: >$create_binds    $bind_extension_do_nothing<\n";
+print "BN: >$delete_binds<\n";
+print "BN: >$repair_binds<\n";
+print "LN: >$create_links<\n";
+print "LN: >$delete_links<\n";
+print "LN: >$repair_links<\n";
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
@@ -96,6 +150,12 @@ if ($dateirechte==0
     and $info==0
     and $repairhome==0
     and $repairbinds==0
+    and $create_binds eq $bind_extension_do_nothing
+    and $delete_binds eq $bind_extension_do_nothing
+    and $repair_binds eq $bind_extension_do_nothing
+    and $create_links eq $link_extension_do_nothing
+    and $delete_links eq $link_extension_do_nothing
+    and $repair_links eq $link_extension_do_nothing
     and $repairlinks eq "") {
    # Es muss eine Option angegeben werden, sonst hilfe
    $help=1;
@@ -280,10 +340,22 @@ if ($repairhome==1){
 }
 
 
+# The following options call manage_pointers:
+# --create-links
+# --delete-links
+# --repair-links
+# --create-binds
+# --delete-binds
+# --repair-binds
+#if ($repairbinds==1){
 
-# --repairbinds
-if ($repairbinds==1){
-
+if ($create_binds ne $bind_extension_do_nothing or
+    $delete_binds ne $bind_extension_do_nothing or
+    $repair_binds ne $bind_extension_do_nothing or
+    $create_links ne $link_extension_do_nothing or
+    $delete_links ne $link_extension_do_nothing or
+    $repair_links ne $link_extension_do_nothing
+   ){
     my @users=();
     # create userlist
     if ($login ne ""
@@ -299,8 +371,8 @@ if ($repairbinds==1){
        @users=(@lehrer,@schueler,@admins);
     }
     foreach my $user (@users){
-        print "Repairing bind mounts of $user\n";
-        &repair_binds($user);
+        print "Managing pointers (bind, links, ...) of $user\n";
+        &manage_pointers($user);
     }
 }
 
@@ -808,7 +880,7 @@ sub create_bind_mount {
                }
                # delete an recreate bind mounts    
                &bind_mount_remove($old_dir,$new_dir);
-               if ($repairbinds_remove_only eq $do_nothing){
+               if ($repairbinds_remove_only eq $bind_extension_do_nothing){
                    &bind_mount($old_dir,$new_dir);
                }
            } else {
@@ -835,7 +907,7 @@ sub create_bind_mount {
            }
            # delete an recreate bind mounts    
            &bind_mount_remove($old_dir_tasks,$new_dir_tasks);
-           if ($repairbinds_remove_only eq $do_nothing){
+           if ($repairbinds_remove_only eq $bind_extension_do_nothing){
                &bind_mount($old_dir_tasks,$new_dir_tasks);
            }
        } else {
@@ -853,21 +925,20 @@ sub create_bind_mount {
 
 
 
-sub repair_binds {
+sub manage_pointers {
     my ($login)= @_;
-    print "  * Starting\n";
+    print "  * Starting manage_pointers\n";
     my ($home) = &fetchdata_from_account($login);
     my $share_dir=$home."/".$Language::share_dir;
     my $exists_string="Exists";
     my %mandatory_binds=();
-    my $bind_extension=".bind";
-    if ($repairbinds_remove_only ne $do_nothing){
+    if ($repairbinds_remove_only ne $bind_extension_do_nothing){
         $bind_extension=$repairbinds_remove_only;
     }
 
-    # repairing links
+    # repairing pointers
     my @list=&Sophomorix::SophomorixPgLdap::pg_get_group_list($login);
-        print "Repairing Links in $share_dir\n";
+        print "Repairing pointers in $share_dir\n";
     my $count=1;
     foreach my $group (@list){
         my ($group_type)=&pg_get_group_type($group);
@@ -878,7 +949,13 @@ sub repair_binds {
         # creates __tauschen/tausch-schule for everybody
 #        &Sophomorix::SophomorixBase::create_school_link($login);
 #        &create_share_link($login,$group,$group,$group_type);
-        &create_bind_mount($login,$group,$group,$group_type,$bind_extension);
+
+
+        # decice here what to do, according to option  ?????????????         
+
+
+# next line repairs bind mount
+#        &create_bind_mount($login,$group,$group,$group_type,$bind_extension);
         $mandatory_binds{$group}="mandatory";
         $count++;
     }
