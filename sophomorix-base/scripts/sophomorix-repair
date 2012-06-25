@@ -11,9 +11,16 @@
 # time for bind repair: 3s for a user that is in 30 groups
 #                       1s for a user that is in 3 groups
 
-# obsolete functions in SophomorixBase.pm:
-# &Sophomorix::SophomorixBase::create_school_link($login); --> update_pointer_school
-# &create_share_link($login,$group,$group,$group_type);    --> update_pointer
+# update man page:
+# add 4 options delete/repair-bind/links
+# remove option --repairlinks (never existed)
+
+# check printout in loglevel2
+
+# If binds are to be used: replace obsolte funktions
+   # obsolete functions in SophomorixBase.pm:
+   # &Sophomorix::SophomorixBase::create_school_link($login); --> update_pointer_school
+   # &create_share_link($login,$group,$group,$group_type);    --> update_pointer
 
 
 # Bibliotheken
@@ -45,9 +52,6 @@ my $repair_bind_extension_do_nothing="---";
 # options for binds:
 my $delete_binds=$delete_bind_extension_do_nothing;
 my $repair_binds=$repair_bind_extension_do_nothing;
-
-# delete followwing option ?????????????
-my $repairlinks="";
 
 # links
 my $delete_link_extension="";  # default extension
@@ -101,7 +105,6 @@ my $testopt=GetOptions(
            "repair-binds:s" => \$repair_binds,
            "delete-links:s" => \$delete_links,
            "repair-links:s" => \$repair_links,
-           "repairlinks=s" => \$repairlinks,
            "skiplock" => \$skiplock,
            "file|f=s" => \$filename,
            "user|u=s" => \$login,
@@ -130,7 +133,7 @@ if ($dateirechte==0
     and $repair_binds eq $repair_bind_extension_do_nothing
     and $delete_links eq $delete_link_extension_do_nothing
     and $repair_links eq $repair_link_extension_do_nothing
-    and $repairlinks eq "") {
+   ) {
    # Es muss eine Option angegeben werden, sonst hilfe
    $help=1;
 }
@@ -173,15 +176,17 @@ What to repair (one option must be given):
 
   Repairing pointers (links, bind mounts, ...)
 
-    Remove the link/bind (Default extension is .link/.bind)
-
+    Remove the link/bind (Default extension is the empty string)
       --delete-links / --delete-links ".link-extension" 
       --delete-binds / --delete-binds ".bind-extension" 
 
-    Repair the link/bind (Default extension is .link/.bind)
-
+    Repair (remove and recreate) the link/bind (Default extension is the empty string)
       --repair-links / --repair-links ".link-extension" 
       --repair-binds / --repair-binds ".bind-extension" 
+
+    Combining Options is possible (but option can be given only once):
+      --delete-links --create-binds          --> delete the links an create binds with the default extension
+      --delete-links ".link" --repair-links  --> result is sort of a rename of links 
 
     Limit the deletion/repair to some users:
          -u user1,user2,... / --user user1,user2,...
@@ -323,15 +328,11 @@ if ($repairhome==1){
 }
 
 
-# The following options call manage_pointers:
-# --create-links
-# --delete-links
-# --repair-links
-# --create-binds
-# --delete-binds
-# --repair-binds
-#if ($repairbinds==1){
-
+# Call manage_pointers when one of the following option has changed the $*do_nothing Variable:
+#   --delete-links
+#   --repair-links
+#   --delete-binds
+#   --repair-binds
 if (
     $delete_binds ne $delete_bind_extension_do_nothing or
     $repair_binds ne $repair_bind_extension_do_nothing or
@@ -357,102 +358,6 @@ if (
         &manage_pointers($user);
     }
 }
-
-
-# --repairlinks
-if ($repairlinks ne ""){
-    my $login = $repairlinks;
-    my ($home) = &fetchdata_from_account($login);
-    my $share_dir=$home."/".$Language::share_dir;
-    my %share_dirs=();
-    my $exists_string="Exists";
-
-    # repairing links
-    my @list=&Sophomorix::SophomorixPgLdap::pg_get_group_list($login);
-        print "Repairing Links in $share_dir\n";
-    foreach my $group (@list){
-        my ($group_type)=&pg_get_group_type($group);
-    
-
-        # creates __tauschen/tausch-schule for everybody
-        &Sophomorix::SophomorixBase::create_school_link($login);
-        &create_share_link($login,$group,$group,$group_type);
-    }
-
-    print "-----------------------------------------------------------------------\n";
-    print "Analyzing links of $login in $share_dir\n";
-    print "-----------------------------------------------------------------------\n";
-    if (not -e $share_dir){
-        &log_script_exit("Nonexisting dir $share_dir",1,1,0,@arguments);
-    }
-    opendir DIR, $share_dir or die "Cannot open $share_dir: $!";
-    foreach my $file (readdir DIR) {
-        if ($file eq "." or $file eq ".."){
-	    next;
-        }
-        print "   Share Links: $file";
-        # remove string, so that the class is shown
-        $file =~ s/$Language::share_string//;
-        $share_dirs{$file}=$exists_string;
-        print " ($file)\n";
-    }
-    closedir DIR;
-
-#     print "-----------------------------------------------------------------------\n";
-#     print "Class             |SHARE| \n";
-#     print "-----------------------------------------------------------------------\n";
-#     my @classes=&fetch_my_adminclasses($login);
-#     @classes = sort @classes;
-#     foreach my $class (@classes){
-#         my $share_link_ok="Missing";
-#         if (exists $share_dirs{$class}){
-#             $share_link_ok="OK";
-#             $share_dirs{$class}="Good";
-#         }
-#         printf "%-17s %-5s \n",$class,$share_link_ok;
-#     }
-
-#     # set all Standard Links to Good
-#     $share_dirs{$Language::school}="Good";
-#     $share_dirs{$Language::teacher}="Good";
-#     # check, if the remaining files are projects
-#     print "-----------------------------------------------------------------------\n";
-#     print "Project           |SHARE| \n";
-#     print "-----------------------------------------------------------------------\n";
-#     while( my ($k, $v) = each(%share_dirs) ) {
-#         my $correct="Missing";
-# 	if ($v eq $exists_string){
-#             # check if  user is in project correctly
-# 	    my @users=&fetchusers_from_project($k);
-#             foreach my $user (@users){
-#                 if ($login eq $user){
-#                    # That is OK
-# 		    $correct="OK";
-#                 }
-#             }
-#             printf "%-17s %-5s \n",$k,$correct;
-#         }
-#      }
-#     print "-----------------------------------------------------------------------\n";
-
-#     print "-----------------------------------------------------------------------\n";
-#     print "Gruppe            |SHARE| \n";
-#     print "-----------------------------------------------------------------------\n";
-#     my @group_list=&Sophomorix::SophomorixPgLdap::pg_get_group_list($login);
-#     foreach my $group (@group_list){
-#         printf "%-17s ",$group;
-#         if ($group eq $DevelConf::teacher){
-#             print "not checked\n";
-#         } elsif (exists $share_dirs{$group}){
-#             print "OK\n";
-#         } else {
-#             print "---\n";
-#         }
-#     }
-
-}
-
-
 
 
 
