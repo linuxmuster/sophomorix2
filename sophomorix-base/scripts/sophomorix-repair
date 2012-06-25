@@ -37,25 +37,25 @@ my $repairhome=0;
 my $repairbinds=0;
 
 # binds
-my $bind_extension=".bind";  # default extension
-my $bind_extension_do_nothing="---";
+my $delete_bind_extension=".bind";  # default extension
+my $repair_bind_extension=".bind";  # default extension
+my $delete_bind_extension_do_nothing="---";
+my $repair_bind_extension_do_nothing="---";
 # options for binds:
-my $create_binds=$bind_extension_do_nothing;
-my $delete_binds=$bind_extension_do_nothing;
-my $repair_binds=$bind_extension_do_nothing;
-
-my $repairbinds_remove_only=$bind_extension_do_nothing;
+my $delete_binds=$delete_bind_extension_do_nothing;
+my $repair_binds=$repair_bind_extension_do_nothing;
 
 # delete followwing option ?????????????
 my $repairlinks="";
 
 # links
-my $link_extension=".link";  # default extension
-my $link_extension_do_nothing="---";
+my $delete_link_extension=".link";  # default extension
+my $repair_link_extension=".link";  # default extension
+my $delete_link_extension_do_nothing="---";
+my $repair_link_extension_do_nothing="---";
 # options for links:
-my $create_links=$bind_extension_do_nothing;
-my $delete_links=$bind_extension_do_nothing;
-my $repair_links=$bind_extension_do_nothing;
+my $delete_links=$delete_link_extension_do_nothing;
+my $repair_links=$repair_link_extension_do_nothing;
 
 my $help=0;
 my $info=0;
@@ -96,11 +96,8 @@ my $testopt=GetOptions(
            "command-number=n" => \$command_number,
            "repairhome" => \$repairhome,
            "repairbinds" => \$repairbinds,
-           "repairbinds-remove-only=s" => \$repairbinds_remove_only,
-           "create-binds:s" => \$create_binds,
            "delete-binds:s" => \$delete_binds,
            "repair-binds:s" => \$repair_binds,
-           "create-links:s" => \$create_links,
            "delete-links:s" => \$delete_links,
            "repair-links:s" => \$repair_links,
            "repairlinks=s" => \$repairlinks,
@@ -113,31 +110,41 @@ my $testopt=GetOptions(
           );
 
 # binds
-if($create_binds eq ""){
-    $create_binds=$bind_extension;
+#if($delete_binds eq ""){
+#    $delete_binds=$delete_bind_extension;
+#}
+#if($repair_binds eq ""){
+#    $repair_binds=$repair_bind_extension;
+#}
+## links
+#if($delete_links eq ""){
+#    $delete_links=$delete_link_extension;
+#}
+#if($repair_links eq ""){
+#    $repair_links=$repair_link_extension;
+#}
+
+
+# calculate extension
+# $delete_binds is the option
+# $delete_bind_extension is the extension used from now on
+if ($delete_binds ne ""){
+    $delete_bind_extension=$delete_binds;
 }
-if($delete_binds eq ""){
-    $delete_binds=$bind_extension;
+if ($repair_binds ne ""){
+    $repair_bind_extension=$repair_binds;
 }
-if($repair_binds eq ""){
-    $repair_binds=$bind_extension;
+if ($delete_links ne ""){
+    $delete_link_extension=$delete_links;
 }
-# links
-if($create_links eq ""){
-    $create_links=$bind_extension;
-}
-if($delete_links eq ""){
-    $delete_links=$bind_extension;
-}
-if($repair_links eq ""){
-    $repair_links=$bind_extension;
+if ($repair_links ne ""){
+    $repair_link_extension=$repair_links;
 }
 
 
-print "BN: >$create_binds    $bind_extension_do_nothing<\n";
-print "BN: >$delete_binds<\n";
+
+print "BN: >$delete_binds<  ($delete_bind_extension)\n";
 print "BN: >$repair_binds<\n";
-print "LN: >$create_links<\n";
 print "LN: >$delete_links<\n";
 print "LN: >$repair_links<\n";
 
@@ -150,12 +157,10 @@ if ($dateirechte==0
     and $info==0
     and $repairhome==0
     and $repairbinds==0
-    and $create_binds eq $bind_extension_do_nothing
-    and $delete_binds eq $bind_extension_do_nothing
-    and $repair_binds eq $bind_extension_do_nothing
-    and $create_links eq $link_extension_do_nothing
-    and $delete_links eq $link_extension_do_nothing
-    and $repair_links eq $link_extension_do_nothing
+    and $delete_binds eq $delete_bind_extension_do_nothing
+    and $repair_binds eq $repair_bind_extension_do_nothing
+    and $delete_links eq $delete_link_extension_do_nothing
+    and $repair_links eq $repair_link_extension_do_nothing
     and $repairlinks eq "") {
    # Es muss eine Option angegeben werden, sonst hilfe
    $help=1;
@@ -197,14 +202,23 @@ What to repair (one option must be given):
          -p project1,project2,... / --project project1,project2,...
          --students
 
-  --repairbinds  (EXPERIMENTAL !!!)
-      (re)creates bind mounts for shares (instead of symbolic links)
-      Limit the repair to some users:
+  Repairing pointers (links, bind mounts, ...)
+
+    Remove the link/bind (Default extension is .link/.bind)
+
+      --delete-links / --delete-links ".link-extension" 
+      --delete-binds / --delete-binds ".bind-extension" 
+
+    Repair the link/bind (Default extension is .link/.bind)
+
+      --repair-links / --repair-links ".link-extension" 
+      --repair-binds / --repair-binds ".bind-extension" 
+
+    Limit the deletion/repair to some users:
          -u user1,user2,... / --user user1,user2,...
          -c class1,class2,... / --class class1.class2,... (teachers can be used)
          -p project1,project2,... / --project project1,project2,...
          --students
-      with option --repairbinds-remove-only ".bind" it removes all bind mounts with the extension .bind    
 
 Please see the sophomorix-repair(8) man pages for full documentation
 ');
@@ -349,12 +363,11 @@ if ($repairhome==1){
 # --repair-binds
 #if ($repairbinds==1){
 
-if ($create_binds ne $bind_extension_do_nothing or
-    $delete_binds ne $bind_extension_do_nothing or
-    $repair_binds ne $bind_extension_do_nothing or
-    $create_links ne $link_extension_do_nothing or
-    $delete_links ne $link_extension_do_nothing or
-    $repair_links ne $link_extension_do_nothing
+if (
+    $delete_binds ne $delete_bind_extension_do_nothing or
+    $repair_binds ne $repair_bind_extension_do_nothing or
+    $delete_links ne $delete_link_extension_do_nothing or
+    $repair_links ne $repair_link_extension_do_nothing
    ){
     my @users=();
     # create userlist
@@ -770,38 +783,86 @@ sub repair_directories {
 # Reparieren eines bind mounts 
 ###############################################################################
 
-sub bind_mount {
+sub create_link {
+    # create the link!
+    my ($link_target,$link_name) = @_;
+    print "Creating $link_name pointing to $link_target";
+    ###symlink $link_target, $link_name;
+}
+
+
+sub create_bind {
     # do the mount!
     my ($olddir,$newdir) = @_;
     # ?????????????? if newdir is a link, remove it!
     my $mkdir_command = "mkdir $newdir";
     my $mount_command = "mount --bind $olddir $newdir";
     print "      $mkdir_command\n";
-    system("$mkdir_command");
+    ###system("$mkdir_command");
     print "      $mount_command\n";
-    system("$mount_command");
+    ###system("$mount_command");
 }
 
 
 
-sub bind_mount_remove {
+sub delete_link {
+    # delete the link!
+    my ($link_target,$link_name) = @_;
+    my $rm_command = "rm $link_name &> /dev/null";
+    print "      $rm_command\n";
+    ###system("$rm_command");
+}
+
+
+sub delete_bind {
     # undo mounts of newdir, even if mounted multiple times
     my ($olddir,$newdir) = @_;
     my $umount_command = "umount $newdir &> /dev/null";
     my $rmdir_command = "rmdir $newdir &> /dev/null";
     my $return=0;
-    while ($return==0){
+    ###while ($return==0){
         print "      $umount_command\n";
-        $return=system("$umount_command");
-    }
+        ###$return=system("$umount_command");
+    ###}
     print "      $rmdir_command\n";
-    system("$rmdir_command");
+    ###system("$rmdir_command");
+}
+
+
+sub update_pointer_school {
+    my ($login) = @_;
+    my ($home)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
+    if ($home ne ""){
+       # remember and remove immutable bit on parent dir
+       my $parent_dir = $home."/${Language::share_dir}";
+       my $immutable_bit=&fetch_immutable_bit($parent_dir);
+       &set_immutable_bit($parent_dir,0);
+
+       my $link_name=$home.
+        "/${Language::share_dir}/${Language::share_string}".
+        "${Language::school}";
+
+       my $link_target=$DevelConf::share_school;
+
+       # Link to school
+       if($Conf::log_level>=2){
+           print "   Link name (school): $link_name\n";
+           print "   Target    (school): $link_target\n";
+       }
+
+#       symlink $link_target, $link_name;
+
+
+       &set_immutable_bit($parent_dir,$immutable_bit);
+
+    }
 }
 
 
 
-sub create_bind_mount {
-    my ($login,$share_name,$share_long_name,$type,$bind_extension) = @_;
+
+sub update_pointer {
+    my ($login,$share_name,$share_long_name,$type) = @_;
     my $old_dir="";   # was $link_target 
     my $old_dir_tasks=""; # was $link_target_tasks
     my ($homedir,$pri_group)=
@@ -834,15 +895,39 @@ sub create_bind_mount {
        my $immutable_task_bit=&fetch_immutable_bit($immutable_task_dir);
        &set_immutable_bit($immutable_task_dir,0);
 
-       # $new_dir was $link_name
-       my $new_dir=$homedir.
+
+       # basenames without extensions
+       my $basename_pointer=$homedir.
           "/${Language::share_dir}/${Language::share_string}".
-          "${share_long_name}"."$bind_extension";   
+          "${share_long_name}";
 
-       my $new_dir_tasks=$homedir.
+       my $basename_pointer_tasks=$homedir.
           "/${Language::task_dir}/${Language::task_string}".
-          "${share_long_name}"."$bind_extension";
+          "${share_long_name}";
 
+       my $new_dir_delete=$basename_pointer.$delete_bind_extension;
+       my $new_dir_repair=$basename_pointer.$repair_bind_extension;
+       my $new_dir_delete_tasks=$basename_pointer_tasks.$delete_bind_extension;
+       my $new_dir_repair_tasks=$basename_pointer_tasks.$repair_bind_extension;
+
+       my $link_name_delete=$basename_pointer.$delete_link_extension;
+       my $link_name_repair=$basename_pointer.$repair_link_extension;
+       my $link_name_delete_tasks=$basename_pointer_tasks.$delete_link_extension;
+       my $link_name_repair_tasks=$basename_pointer_tasks.$repair_link_extension;
+
+
+       # $new_dir for 
+#       my $new_dir=$homedir.
+#          "/${Language::share_dir}/${Language::share_string}".
+#          "${share_long_name}"."$bind_extension";   
+#
+#       my $new_dir_tasks=$homedir.
+#          "/${Language::task_dir}/${Language::task_string}".
+#          "${share_long_name}"."$bind_extension";
+
+
+
+       # decide path names according to user type
        if ($type eq "project"){
            # project
            $old_dir="${DevelConf::share_projects}/${share_name}";
@@ -851,15 +936,15 @@ sub create_bind_mount {
            # class
            $old_dir="${DevelConf::share_classes}/${share_name}";
            $old_dir_tasks="${DevelConf::tasks_classes}/${share_name}";
-       }elsif ($type eq "teacher"){
+       } elsif ($type eq "teacher"){
            # teacher
            $old_dir="${DevelConf::share_teacher}";
            $old_dir_tasks="${DevelConf::tasks_teachers}";
-       }elsif ($type eq "subclass"){
+       } elsif ($type eq "subclass"){
            # subclass
            $old_dir="${DevelConf::share_subclasses}/${share_name}";
            $old_dir_tasks="${DevelConf::tasks_subclasses}/${share_name}";
-       }elsif ($type eq "room"){
+       } elsif ($type eq "room"){
            # room
            $old_dir_tasks="${DevelConf::tasks_rooms}/${share_name}";
        } else {
@@ -867,10 +952,13 @@ sub create_bind_mount {
 	   return 0;
        }
 
+       ##################################################
        # Link to share (all but workstations)
+       ##################################################
        if ($type ne "room"){
            if($Conf::log_level>=2){
-               print "   Newdir  (share): $new_dir\n";
+               print "   Newdir  (share): $new_dir_delete\n";
+               print "   Newdir  (share): $new_dir_repair\n";
                print "   Olddir  (share): $old_dir\n";
            }
            if (-d $old_dir){
@@ -878,10 +966,32 @@ sub create_bind_mount {
                    print "   Creating bind mount for user $login ",
                          "to $type ${old_dir}.\n";
                }
-               # delete an recreate bind mounts    
-               &bind_mount_remove($old_dir,$new_dir);
-               if ($repairbinds_remove_only eq $bind_extension_do_nothing){
-                   &bind_mount($old_dir,$new_dir);
+
+               ##################################################
+               # delete and recreate bindmounts/links
+               ##################################################
+               # --delete-links
+               if ($delete_link_extension ne $delete_link_extension_do_nothing){
+                   &delete_link($old_dir,$link_name_delete);
+               }
+
+               # --delete-binds
+               if ($delete_bind_extension ne $delete_bind_extension_do_nothing){
+                   &delete_bind($old_dir,$new_dir_delete);
+               }
+
+               # --repair-links
+               if ($repair_link_extension ne $repair_link_extension_do_nothing){
+                   &delete_link($old_dir,$link_name_repair);
+                   &delete_bind($old_dir,$link_name_repair);
+                   &create_link($old_dir,$link_name_repair);
+               }
+
+               # --repair-binds
+               if ($repair_bind_extension ne $repair_bind_extension_do_nothing){
+                   &delete_link($old_dir,$new_dir_repair);
+                   &delete_bind($old_dir,$new_dir_repair);
+                   &create_bind($old_dir,$new_dir_repair);
                }
            } else {
                print "   NOT creating bind mount to ",
@@ -889,9 +999,12 @@ sub create_bind_mount {
            }
        }
 
+       ##################################################
        # Link to tasks (all users)
+       ##################################################
        if($Conf::log_level>=2){
-           print "   Newdir  (tasks): $new_dir_tasks\n";
+           print "   Newdir  (tasks): $new_dir_delete_tasks\n";
+           print "   Newdir  (tasks): $new_dir_repair_tasks\n";
            print "   Olddir  (tasks): $old_dir_tasks\n";
        }
        if ($type eq "room"){
@@ -905,11 +1018,37 @@ sub create_bind_mount {
                print "   Creating bind mont for user $login ",
                      "to $type ${old_dir_tasks}.\n";
            }
-           # delete an recreate bind mounts    
-           &bind_mount_remove($old_dir_tasks,$new_dir_tasks);
-           if ($repairbinds_remove_only eq $bind_extension_do_nothing){
-               &bind_mount($old_dir_tasks,$new_dir_tasks);
+
+           ##################################################
+           # delete and recreate bindmounts/links
+           ##################################################
+           # --delete-links
+           if ($delete_link_extension ne $delete_link_extension_do_nothing){
+               &delete_link($old_dir_tasks,$link_name_delete_tasks);
            }
+
+           # --delete-binds
+           if ($delete_bind_extension ne $delete_bind_extension_do_nothing){
+               &delete_bind($old_dir_tasks,$new_dir_delete_tasks);
+           }
+
+           # --repair-links
+           if ($repair_link_extension ne $repair_link_extension_do_nothing){
+               &delete_link($old_dir_tasks,$link_name_repair_tasks);
+               &delete_bind($old_dir_tasks,$link_name_repair_tasks);
+               &create_link($old_dir_tasks,$link_name_repair_tasks);
+           }
+
+           # --repair-binds
+           if ($repair_bind_extension ne $repair_bind_extension_do_nothing){
+               &delete_link($old_dir,$new_dir_repair_tasks);
+               &delete_bind($old_dir,$new_dir_repair_tasks);
+               &create_bind($old_dir,$new_dir_repair_tasks);
+           }
+
+           # delete an recreate bind mounts  ?????????????????
+           #&delete_bind($old_dir_tasks,$new_dir_tasks);
+           #&create_bind($old_dir_tasks,$new_dir_tasks);
        } else {
            print "   NOT creating bind mount to ",
                  "nonexisting/nondirectory $old_dir_tasks\n";
@@ -925,6 +1064,7 @@ sub create_bind_mount {
 
 
 
+
 sub manage_pointers {
     my ($login)= @_;
     print "  * Starting manage_pointers\n";
@@ -932,9 +1072,6 @@ sub manage_pointers {
     my $share_dir=$home."/".$Language::share_dir;
     my $exists_string="Exists";
     my %mandatory_binds=();
-    if ($repairbinds_remove_only ne $bind_extension_do_nothing){
-        $bind_extension=$repairbinds_remove_only;
-    }
 
     # repairing pointers
     my @list=&Sophomorix::SophomorixPgLdap::pg_get_group_list($login);
@@ -951,11 +1088,11 @@ sub manage_pointers {
 #        &create_share_link($login,$group,$group,$group_type);
 
 
-        # decice here what to do, according to option  ?????????????         
-
-
-# next line repairs bind mount
-#        &create_bind_mount($login,$group,$group,$group_type,$bind_extension);
+         # next line repairs bind mount
+         #&update_pointer($login,$group,$group,$group_type,$bind_extension,$link_extension);
+         &update_pointer($login,$group,$group,$group_type);
+         # school dir
+         &update_pointer_school($login);
         $mandatory_binds{$group}="mandatory";
         $count++;
     }
