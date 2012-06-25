@@ -7,12 +7,13 @@
 
 
 # next
-# remove symbolic links, when they are in the way of af a bind that must be created
-# tausch-Schule fehlt in den bind mounts
-# make option --repairlinks use the tools of a userlist, like repairbinds
 # option --log-funny-files /path/to/file : list all files that should not be there in the log file
 # time for bind repair: 3s for a user that is in 30 groups
 #                       1s for a user that is in 3 groups
+
+# obsolete functions in SophomorixBase.pm:
+# &Sophomorix::SophomorixBase::create_school_link($login); --> update_pointer_school
+# &create_share_link($login,$group,$group,$group_type);    --> update_pointer
 
 
 # Bibliotheken
@@ -37,8 +38,8 @@ my $repairhome=0;
 my $repairbinds=0;
 
 # binds
-my $delete_bind_extension=".bind";  # default extension
-my $repair_bind_extension=".bind";  # default extension
+my $delete_bind_extension="";  # default extension
+my $repair_bind_extension="";  # default extension
 my $delete_bind_extension_do_nothing="---";
 my $repair_bind_extension_do_nothing="---";
 # options for binds:
@@ -49,8 +50,8 @@ my $repair_binds=$repair_bind_extension_do_nothing;
 my $repairlinks="";
 
 # links
-my $delete_link_extension=".link";  # default extension
-my $repair_link_extension=".link";  # default extension
+my $delete_link_extension="";  # default extension
+my $repair_link_extension="";  # default extension
 my $delete_link_extension_do_nothing="---";
 my $repair_link_extension_do_nothing="---";
 # options for links:
@@ -109,47 +110,15 @@ my $testopt=GetOptions(
            "student|students|s" => \$student,
           );
 
-# binds
-#if($delete_binds eq ""){
-#    $delete_binds=$delete_bind_extension;
-#}
-#if($repair_binds eq ""){
-#    $repair_binds=$repair_bind_extension;
-#}
-## links
-#if($delete_links eq ""){
-#    $delete_links=$delete_link_extension;
-#}
-#if($repair_links eq ""){
-#    $repair_links=$repair_link_extension;
-#}
-
-
-# calculate extension
-# $delete_binds is the option
-# $delete_bind_extension is the extension used from now on
-if ($delete_binds ne ""){
-    $delete_bind_extension=$delete_binds;
-}
-if ($repair_binds ne ""){
-    $repair_bind_extension=$repair_binds;
-}
-if ($delete_links ne ""){
-    $delete_link_extension=$delete_links;
-}
-if ($repair_links ne ""){
-    $repair_link_extension=$repair_links;
-}
-
-
-
-print "BN: >$delete_binds<  ($delete_bind_extension)\n";
-print "BN: >$repair_binds<\n";
-print "LN: >$delete_links<\n";
-print "LN: >$repair_links<\n";
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
+
+# use options as extensions
+$delete_bind_extension=$delete_binds;
+$repair_bind_extension=$repair_binds;
+$delete_link_extension=$delete_links;
+$repair_link_extension=$repair_links;
 
 
 if ($dateirechte==0 
@@ -384,7 +353,7 @@ if (
        @users=(@lehrer,@schueler,@admins);
     }
     foreach my $user (@users){
-        print "Managing pointers (bind, links, ...) of $user\n";
+        print "Managing pointers (bind mounts, links, ...) of $user\n";
         &manage_pointers($user);
     }
 }
@@ -787,7 +756,7 @@ sub create_link {
     # create the link!
     my ($link_target,$link_name) = @_;
     print "Creating $link_name pointing to $link_target";
-    ###symlink $link_target, $link_name;
+    symlink $link_target, $link_name;
 }
 
 
@@ -798,11 +767,10 @@ sub create_bind {
     my $mkdir_command = "mkdir $newdir";
     my $mount_command = "mount --bind $olddir $newdir";
     print "      $mkdir_command\n";
-    ###system("$mkdir_command");
+    system("$mkdir_command");
     print "      $mount_command\n";
-    ###system("$mount_command");
+    system("$mount_command");
 }
-
 
 
 sub delete_link {
@@ -810,7 +778,7 @@ sub delete_link {
     my ($link_target,$link_name) = @_;
     my $rm_command = "rm $link_name &> /dev/null";
     print "      $rm_command\n";
-    ###system("$rm_command");
+    system("$rm_command");
 }
 
 
@@ -820,13 +788,16 @@ sub delete_bind {
     my $umount_command = "umount $newdir &> /dev/null";
     my $rmdir_command = "rmdir $newdir &> /dev/null";
     my $return=0;
-    ###while ($return==0){
+    my $count=0;
+    while ($return==0 and $count < 10){
         print "      $umount_command\n";
-        ###$return=system("$umount_command");
-    ###}
+        $return=system("$umount_command");
+        $count++;
+    }
     print "      $rmdir_command\n";
-    ###system("$rmdir_command");
+    system("$rmdir_command");
 }
+
 
 
 sub update_pointer_school {
@@ -838,23 +809,52 @@ sub update_pointer_school {
        my $immutable_bit=&fetch_immutable_bit($parent_dir);
        &set_immutable_bit($parent_dir,0);
 
-       my $link_name=$home.
+       my $basename_pointer=$home.
         "/${Language::share_dir}/${Language::share_string}".
         "${Language::school}";
+       my $new_dir_delete=$basename_pointer.$delete_bind_extension;
+       my $new_dir_repair=$basename_pointer.$repair_bind_extension;
+       my $link_name_delete=$basename_pointer.$delete_link_extension;
+       my $link_name_repair=$basename_pointer.$repair_link_extension;
 
-       my $link_target=$DevelConf::share_school;
+       my $old_dir=$DevelConf::share_school;
 
-       # Link to school
        if($Conf::log_level>=2){
-           print "   Link name (school): $link_name\n";
-           print "   Target    (school): $link_target\n";
+           print "   Link name (school): $new_dir_delete\n";
+           print "   Link name (school): $new_dir_repair\n";
+           print "   Newdir (school): $link_name_delete\n";
+           print "   Newdir (school): $link_name_repair\n";
+           print "   Target    (school): $old_dir\n";
        }
 
-#       symlink $link_target, $link_name;
+       ##################################################
+       # delete and recreate bindmounts/links to school
+       ##################################################
+       # --delete-links
+       if ($delete_link_extension ne $delete_link_extension_do_nothing){
+           &delete_link($old_dir,$link_name_delete);
+       }
 
+       # --delete-binds
+       if ($delete_bind_extension ne $delete_bind_extension_do_nothing){
+           &delete_bind($old_dir,$new_dir_delete);
+       }
 
+       # --repair-links
+       if ($repair_link_extension ne $repair_link_extension_do_nothing){
+           &delete_link($old_dir,$link_name_repair);
+           &delete_bind($old_dir,$link_name_repair);
+           &create_link($old_dir,$link_name_repair);
+       }
+
+       # --repair-binds
+       if ($repair_bind_extension ne $repair_bind_extension_do_nothing){
+           &delete_link($old_dir,$new_dir_repair);
+           &delete_bind($old_dir,$new_dir_repair);
+           &create_bind($old_dir,$new_dir_repair);
+       }
+#       symlink $old_dir, $link_name;
        &set_immutable_bit($parent_dir,$immutable_bit);
-
     }
 }
 
@@ -1067,7 +1067,16 @@ sub update_pointer {
 
 sub manage_pointers {
     my ($login)= @_;
-    print "  * Starting manage_pointers\n";
+    print "  * Starting manage_pointers:\n";
+    printf "      Delete bind extension: %7s  ($delete_bind_extension_do_nothing does nothing)\n",
+           $delete_bind_extension;
+    printf "      Repair bind extension: %7s  ($repair_bind_extension_do_nothing does nothing)\n",
+           $repair_bind_extension;
+    printf "      Delete link extension: %7s  ($delete_link_extension_do_nothing does nothing)\n",
+           $delete_link_extension;
+    printf "      Repair link extension: %7s  ($repair_link_extension_do_nothing does nothing)\n",
+           $repair_link_extension;
+
     my ($home) = &fetchdata_from_account($login);
     my $share_dir=$home."/".$Language::share_dir;
     my $exists_string="Exists";
@@ -1079,23 +1088,20 @@ sub manage_pointers {
     my $count=1;
     foreach my $group (@list){
         my ($group_type)=&pg_get_group_type($group);
-    
-        print " $count)  $group ($group_type)\n";
-
-        #
-        # creates __tauschen/tausch-schule for everybody
+        print " $count)  $group ($group_type):\n";
+# creates __tauschen/tausch-schule for everybody
 #        &Sophomorix::SophomorixBase::create_school_link($login);
 #        &create_share_link($login,$group,$group,$group_type);
 
-
-         # next line repairs bind mount
-         #&update_pointer($login,$group,$group,$group_type,$bind_extension,$link_extension);
+         # update links,binds, ...
          &update_pointer($login,$group,$group,$group_type);
-         # school dir
-         &update_pointer_school($login);
         $mandatory_binds{$group}="mandatory";
         $count++;
     }
+
+    # school dir
+    print " $count)  School-share:\n";
+    &update_pointer_school($login);
 
     print "-----------------------------------------------------------------------\n";
     print "Checking binds of $login in $share_dir\n";
