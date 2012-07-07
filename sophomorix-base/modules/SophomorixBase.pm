@@ -4218,7 +4218,7 @@ sub share_access {
     } else {
 	$on_off="on";
         # change repairhome.student, ... permissions also, if you change here
-        $permission="3757";
+        $permission="3755";
     }
     my @users = @_;
     foreach my $user (@users){
