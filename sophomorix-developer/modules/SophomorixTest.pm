@@ -643,7 +643,7 @@ sub check_provided_files {
        &check_file("$Language::share_dir",$login,$class,
                     "administrator",
                     ${DevelConf::teacher},
-                    "3757");
+                    "3755");
     }   
 
     # __vorlagen
