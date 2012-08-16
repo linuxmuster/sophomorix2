@@ -10,7 +10,7 @@ package Sophomorix::SophomorixConfig;
 require Exporter;
 use Time::Local;
 use Time::localtime;
-use Digest::SHA1;
+use Digest::SHA;
 use MIME::Base64;
 
 
