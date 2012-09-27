@@ -84,6 +84,7 @@ my $cron=0;
 my $lock=0;
 my $unlock=0;
 my $filter_only=0;
+my $no_auto_unids=0;
 my $no_auto_teach_in=0;
 my $encoding_students="";
 my $encoding_students_extra="";
@@ -103,6 +104,7 @@ my $testopt=GetOptions(
            "unlock" => \$unlock,
            "filter-only" => \$filter_only,
            "no-kclass" => \$no_kclass,
+           "no-auto-unids" => \$no_auto_unids,
            "no-auto-teach-in|no-sync" => \$no_auto_teach_in,
            "file=s" => \$file_to_check,
            "encoding-students=s" => \$encoding_students,
@@ -137,6 +139,7 @@ Options
   -v  / --verbose
   -vv / --verbose --verbose
   --no-auto-teach-in / --no-sync
+  --no-auto-unids
   --get-info-from-old-files directory
   --use-uid
   --use-gid
@@ -1129,7 +1132,11 @@ if ($Conf::splan_sternchenklassen_filtern eq "yes") {
 # ===========================================================================
 # Load UNIDS into the Database and System
 # ===========================================================================
-&update_unids();
+if ($no_auto_unids==1){
+  # no auto-teach-in
+} else {
+  &update_unids();
+}
 
 # ===========================================================================
 # Load DB_PUSHDATA (usertoken, ...) into the Database and System
