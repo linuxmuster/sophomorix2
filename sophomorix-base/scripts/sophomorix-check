@@ -2355,7 +2355,7 @@ if (not exists $schueler_ok_hash{$identifier}){
                                      "ORIGINALDATENSATZ ", 
                                      $zeile_orig;
             print REPORTSEKRETARIAT ("Der Datensatz kommt mehrfach vor!\n");
-        } else {
+        } elsif ($klasse ne $schueler_ok_hash{$identifier}) {
             # Klasse ist verschieden
             # Meldung: Identifier muss eindeutig bleiben
             print REPORTSEKRETARIAT "----------------------------------------",
