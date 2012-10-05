@@ -1894,7 +1894,7 @@ sub set_sophomorix_passwd {
 
 sub ssha_salted {
     my ($plaintext,$salt) = @_;
-    my $ctx = Digest::SHA1->new;
+    my $ctx = Digest::SHA->new;
     $ctx->add($plaintext);
     $ctx->add($salt);
     my $hashedPasswd = '{SSHA}' . MIME::Base64::encode_base64($ctx->digest . $salt ,'');

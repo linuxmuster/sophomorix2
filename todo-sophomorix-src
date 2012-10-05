@@ -7,6 +7,14 @@
 # evtl. schon vorhandene logdateien auswerten
 
 
+sophomorix-print:
+
+--one-per-page dokumentieren
+--caller-copy bz
+  - wie --caller 
+  - und: kopiert erzeugte Datei in §HOME/sophomorix
+         owner anpassen, 0600
+
 
 Fixen, linkk zulassen:
 
@@ -2350,8 +2358,8 @@ Packaging with git:
 On BuildHost:
 
 1. checkout branch you want
-   FOR ONEIRIC branch:
-   git checkout --track -b oneriric-package origin/oneriric-package
+   For precise branch:
+   git checkout --track -b oneriric-package origin/precise
    git pull
    Verify: git branch -a
 
@@ -2380,7 +2388,7 @@ On BuildHost:
 7. If successful:
    Tag the stuff with annotated, unsigned tag
    git tag -a V-2.4.1-1 -m 'Creating Package for oneiric'
-
+   git push --tags
 
 
 
