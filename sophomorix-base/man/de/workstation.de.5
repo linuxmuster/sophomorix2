@@ -19,15 +19,41 @@
 /etc/linuxmuster/workstations \- Konfigurationsdatei für den Workstationimport von linuxmuster.net
 .br
 .SH DESCRIPTION
-Um eine Rechnerbezogene Konfiguration der Dienste DNS, DHCP, ... vorzunehmen, werden die Rechner konfiguriert. Außerdem werden von sophomorix Klassenarbeitsaccounts und Computeraccounts (für samba) abgelegt. 
+Um eine Rechnerbezogene Konfiguration der Dienste DNS, DHCP, ... vorzunehmen, werden die Rechner durch diese Datei konfiguriert und danach  mit import_workstations importiert. 
+Außerdem werden Klassenarbeitsaccounts und Computeraccounts (für samba) angelegt. 
 
 .PP
 .SH FELDER
-.B Feld 1
+
+Die folgenden Felder bilden eine Zeile, die durch Strichpunkte getrennt sind:
 .TP
-Data goes here
+.B Feld 1: Raumname
+.TP
+.B Feld 2: Rechnername
+.TP
+.B Feld 3: Hardwareklasse
+.TP
+.B Feld 4: MAC-Adresse des Rechners
+.TP
+.B Feld 5: IP des Rechners (IPv4)
+.TP
+.B Feld 6: Netzwerkmaske des Rechners (IPv4)
+.TP
+.B Feld 7: Die IP des Linbo Servers (IPv4).
+Falls in diesem Feld ein Integer steht, wird die IP des Servers als Linbo IP  genommen.
+.TP
+.B Feld 8: Momentan unbenutzt. Für linuxmuster.net reserviert.
+Für zukünftige, jetzt noch nicht vorhersehbare Angaben zum Rechner.
+.br 
+Zulässige Zeichen: [0-9a-zA-Z_-.,]
+.TP
+.B Feld 9: Dauerhaft unbenutzt. 
+Kann vom Netzwerkbetreuer genutzt werden.
+.br
+Zulässige Zeichen: [0-9a-zA-Z_-.,]
 .TP
 .SH SEE ALSO
+.BR import_workstations (8)
 .BR sophomorix-workstation (8),
 
 .\".BR baz (1).
