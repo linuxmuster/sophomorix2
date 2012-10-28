@@ -712,7 +712,7 @@ sub update_pointer_school {
        if ($repair_link_extension ne $repair_link_extension_do_nothing){
            &delete_link($old_dir,$link_name_repair);
            &delete_bind($old_dir,$link_name_repair);
-           &SophomorixBase::create_symlink($old_dir,$link_name_repair);
+           &create_symlink($old_dir,$link_name_repair);
        }
 
        # --repair-binds
@@ -795,7 +795,7 @@ sub update_pointer {
 
 
 
-       print "\nHERE: type is $type\n\n";
+       #print "\nHERE: type is $type\n\n";
        # decide path names according to user type
        if ($type eq "project"){
            # project
@@ -853,7 +853,7 @@ sub update_pointer {
                if ($repair_link_extension ne $repair_link_extension_do_nothing){
                    &delete_link($old_dir,$link_name_repair);
                    &delete_bind($old_dir,$link_name_repair);
-                   &SophomorixBase::create_symlink($old_dir,$link_name_repair);
+                   &create_symlink($old_dir,$link_name_repair);
                }
 
                # --repair-binds
@@ -905,7 +905,7 @@ sub update_pointer {
            if ($repair_link_extension ne $repair_link_extension_do_nothing){
                &delete_link($old_dir_tasks,$link_name_repair_tasks);
                &delete_bind($old_dir_tasks,$link_name_repair_tasks);
-               &SophomorixBase::create_symlink($old_dir_tasks,$link_name_repair_tasks);
+               &create_symlink($old_dir_tasks,$link_name_repair_tasks);
            }
 
            # --repair-binds
@@ -916,7 +916,7 @@ sub update_pointer {
            }
 
            # delete an recreate bind mounts  ?????????????????
-           #&delete_bind($old_dir_tasks,$new_dir_tasks);
+           #&SophomorixBase::delete_bind($old_dir_tasks,$new_dir_tasks);
            #&create_bind($old_dir_tasks,$new_dir_tasks);
        } else {
            print "   NOT creating bind mount to ",

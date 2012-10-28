@@ -63,6 +63,7 @@ use Quota;
               reset_user
               create_symlink
               create_bind
+              delete_bind
               create_share_link
               create_share_directory
               remove_share_pointer
