@@ -657,26 +657,6 @@ sub repair_directories {
 # Reparieren eines bind mounts 
 ###############################################################################
 
-sub create_link {
-    # create the link!
-    my ($link_target,$link_name) = @_;
-    print "Creating      $link_name\n",
-          " pointing to  $link_target\n";
-    symlink $link_target, $link_name;
-}
-
-
-sub create_bind {
-    # do the mount!
-    my ($olddir,$newdir) = @_;
-    # ?????????????? if newdir is a link, remove it!
-    my $mkdir_command = "mkdir $newdir";
-    my $mount_command = "mount --bind $olddir $newdir";
-    print "      $mkdir_command\n";
-    system("$mkdir_command");
-    print "      $mount_command\n";
-    system("$mount_command");
-}
 
 
 sub delete_link {
@@ -750,7 +730,7 @@ sub update_pointer_school {
        if ($repair_link_extension ne $repair_link_extension_do_nothing){
            &delete_link($old_dir,$link_name_repair);
            &delete_bind($old_dir,$link_name_repair);
-           &create_link($old_dir,$link_name_repair);
+           &SophomorixBase::create_symlink($old_dir,$link_name_repair);
        }
 
        # --repair-binds
@@ -891,7 +871,7 @@ sub update_pointer {
                if ($repair_link_extension ne $repair_link_extension_do_nothing){
                    &delete_link($old_dir,$link_name_repair);
                    &delete_bind($old_dir,$link_name_repair);
-                   &create_link($old_dir,$link_name_repair);
+                   &SophomorixBase::create_symlink($old_dir,$link_name_repair);
                }
 
                # --repair-binds
@@ -943,7 +923,7 @@ sub update_pointer {
            if ($repair_link_extension ne $repair_link_extension_do_nothing){
                &delete_link($old_dir_tasks,$link_name_repair_tasks);
                &delete_bind($old_dir_tasks,$link_name_repair_tasks);
-               &create_link($old_dir_tasks,$link_name_repair_tasks);
+               &SophomorixBase::create_symlink($old_dir_tasks,$link_name_repair_tasks);
            }
 
            # --repair-binds

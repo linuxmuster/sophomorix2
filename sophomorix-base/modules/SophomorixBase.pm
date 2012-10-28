@@ -61,6 +61,8 @@ use Quota;
               get_random_password
               get_plain_password
               reset_user
+              create_symlink
+              create_bind
               create_share_link
               create_share_directory
               remove_share_link
@@ -2404,7 +2406,16 @@ sub create_school_link {
            print "   Link name (school): $link_name\n";
            print "   Target    (school): $link_target\n";
        }
-       symlink $link_target, $link_name;
+
+       #symlink $link_target, $link_name;
+       if ($DevelConf::share_pointer_type eq "bind"){
+           &create_bind($link_target,$link_name);
+       } elsif ($DevelConf::share_pointer_type eq "symlink"){
+           &create_symlink($link_target,$link_name);
+       } else {
+           print "\nWarning: share pointer Type not known\n\n";
+       }
+
        &set_immutable_bit($parent_dir,$immutable_bit);
 
     }
@@ -2467,6 +2478,35 @@ sub reset_user {
             }
     }
 }
+
+
+
+
+
+
+sub create_symlink {
+    # create the link!
+    my ($link_target,$link_name) = @_;
+    print "Creating link $link_name\n",
+          " pointing to  $link_target\n";
+    symlink $link_target, $link_name;
+}
+
+
+sub create_bind {
+    # do the mount!
+    my ($olddir,$newdir) = @_;
+    # ?????????????? if newdir is a link, remove it!
+    my $mkdir_command = "mkdir $newdir";
+    my $mount_command = "mount --bind $olddir $newdir";
+    print "      $mkdir_command\n";
+    system("$mkdir_command");
+    print "      $mount_command\n";
+    system("$mount_command");
+}
+
+
+
 
 
 
@@ -2561,7 +2601,15 @@ sub create_share_link {
                    print "   Creating link for $login ",
                          "to $type ${link_target}.\n";
                }
-               symlink $link_target, $link_name;
+
+               #symlink $link_target, $link_name;
+               if ($DevelConf::share_pointer_type eq "bind"){
+                   &create_bind($link_target,$link_name);
+               } elsif ($DevelConf::share_pointer_type eq "symlink"){
+                   &create_symlink($link_target,$link_name);
+               } else {
+                   print "\nWarning: share pointer Type not known\n\n";
+               }
            } else {
                print "   NOT creating Link to ",
                      "nonexisting/nondirectory $link_target\n";
@@ -2584,7 +2632,15 @@ sub create_share_link {
                print "   Creating link user $login ",
                      "to $type ${link_target_tasks}.\n";
            }    
-           symlink $link_target_tasks, $link_name_tasks;
+
+           #symlink $link_target_tasks, $link_name_tasks;
+           if ($DevelConf::share_pointer_type eq "bind"){
+               &create_bind($link_target_tasks,$link_name_tasks);
+           } elsif ($DevelConf::share_pointer_type eq "symlink"){
+               &create_symlink($link_target_tasks,$link_name_tasks);
+           } else {
+               print "\nWarning: share pointer Type not known\n\n";
+           }
        } else {
            print "   NOT creating Link to ",
                  "nonexisting/nondirectory $link_target_tasks\n";
