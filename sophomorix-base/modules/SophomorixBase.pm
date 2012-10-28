@@ -65,7 +65,7 @@ use Quota;
               create_bind
               create_share_link
               create_share_directory
-              remove_share_link
+              remove_share_pointer
               remove_share_directory
               zeit
               pg_timestamp
@@ -2506,6 +2506,23 @@ sub create_bind {
 }
 
 
+sub delete_bind {
+    # olddir is not needed
+    # undo mounts of newdir, even if mounted multiple times
+    my ($olddir,$newdir) = @_;
+    my $umount_command = "umount $newdir &> /dev/null";
+    my $rmdir_command = "rmdir $newdir &> /dev/null";
+    my $return=0;
+    my $count=0;
+    while ($return==0 and $count < 10){
+        print "      $umount_command\n";
+        $return=system("$umount_command");
+        $count++;
+    }
+    print "      $rmdir_command\n";
+    system("$rmdir_command");
+}
+
 
 
 
@@ -2775,13 +2792,13 @@ sub create_share_directory {
 
 =pod
 
-=item I<remove_share_link(login,project,project_long_name)>
+=item I<remove_share_pointer(login,project,project_long_name)>
 
-Löscht den Link an in das Tauschverzeichnis des Projekts.
+Löscht den Pointer (link oder bind) in das Tauschverzeichnis des Projekts.
 
 =cut
 # this should be true for all db and auth-systems
-sub remove_share_link {
+sub remove_share_pointer {
     my ($login,$share_name,$share_long_name,$type) = @_;
     if (not defined $type or $type eq ""){
 	$type="project";
@@ -2789,22 +2806,46 @@ sub remove_share_link {
     my ($homedir)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
     if ($homedir ne ""){
         my ($home)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
-        my $link_name=$home.
+        my $pointer_name=$home.
           "/${Language::share_dir}/${Language::share_string}".
           "${share_long_name}";   
-        my $link_name_tasks=$home.
+        my $pointer_name_tasks=$home.
           "/${Language::task_dir}/${Language::task_string}".
           "${share_long_name}";   
 
-        # remove the link
-        if($Conf::log_level>=2){
-            print "   Removing link ${link_name}\n";
-        }
-        unlink $link_name;
-        if($Conf::log_level>=2){
-            print "   Removing link ${link_name_tasks}\n";
-        }
-        unlink $link_name_tasks;
+        # remove the pointer
+       if ($DevelConf::share_pointer_type eq "bind"){
+           if($Conf::log_level>=2){
+               print "   Removing bind mount ${pointer_name}\n";
+           }
+           #unlink $pointer_name;
+           &delete_bind("olddir",$pointer_name);
+           if($Conf::log_level>=2){
+               print "   Removing bind mount ${pointer_name_tasks}\n";
+           }
+           #unlink $pointer_name_tasks;
+           &delete_bind("olddir",$pointer_name_tasks);
+       } elsif ($DevelConf::share_pointer_type eq "symlink"){
+           if($Conf::log_level>=2){
+               print "   Removing link ${pointer_name}\n";
+           }
+           unlink $pointer_name;
+           if($Conf::log_level>=2){
+               print "   Removing link ${pointer_name_tasks}\n";
+           }
+           unlink $pointer_name_tasks;
+       } else {
+           print "\nWarning: share pointer Type not known\n\n";
+       }
+# old
+#        if($Conf::log_level>=2){
+#            print "   Removing link ${pointer_name}\n";
+#        }
+#        unlink $pointer_name;
+#        if($Conf::log_level>=2){
+#            print "   Removing link ${pointer_name_tasks}\n";
+#        }
+#        unlink $pointer_name_tasks;
     } else {
         print "   NOT removing links: ",
               "Home of user $login not known.\n";

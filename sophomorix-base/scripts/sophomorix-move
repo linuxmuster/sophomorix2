@@ -301,7 +301,7 @@ while(<USERVERSETZEN>){
    }
 
    # alte links/dirs entfernen
-   &remove_share_link($login_versetzen, $alte_klasse,$alte_klasse,"adminclass");
+   &remove_share_pointer($login_versetzen, $alte_klasse,$alte_klasse,"adminclass");
    &remove_share_directory($login_versetzen, 
                            $alte_klasse,$alte_klasse,"adminclass");
 

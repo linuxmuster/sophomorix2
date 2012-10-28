@@ -199,7 +199,7 @@ foreach my $sub (@old_subclasses){
         # remove the teacher
         &deleteuser_from_project($user, $subclass,0,1);
         # remove links
-        &Sophomorix::SophomorixBase::remove_share_link($user,
+        &Sophomorix::SophomorixBase::remove_share_pointer($user,
                                   $subclass,$subclass,"subclass");
         # remove directories for admins
         &Sophomorix::SophomorixBase::remove_share_directory($user,
@@ -305,7 +305,7 @@ sub update_subclass_links_and_dirs {
     my $target=$admin_class."-".$new_sub;
     my $old_target=$admin_class."-".$old_sub;
 
-    &Sophomorix::SophomorixBase::remove_share_link($login,
+    &Sophomorix::SophomorixBase::remove_share_pointer($login,
                                     $old_target,$old_target);
 
     if ($new_sub ne ""){
@@ -437,7 +437,7 @@ sub interactive_change_subclass {
 #                  # name of the link
 #                  my $target=$class."-".$user_antwort;
 #                  my $old_target=$class."-".$old_subclass;
-#                  &Sophomorix::SophomorixBase::remove_share_link($login,
+#                  &Sophomorix::SophomorixBase::remove_share_pointer($login,
 #                                               $old_target,$old_target);
 #
 #                  if ($user_antwort ne ""){

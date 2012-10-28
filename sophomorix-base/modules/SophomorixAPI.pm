@@ -19,7 +19,7 @@ use Time::localtime;
 use Sophomorix::SophomorixPgLdap;
 use Sophomorix::SophomorixBase qw ( 
                                     create_share_link
-                                    remove_share_link
+                                    remove_share_pointer
                                   );
 
 
@@ -404,7 +404,7 @@ sub remove_my_adminclass {
 #    &auth_deleteuser_from_project($login,$class);
 
     # remove link
-    &Sophomorix::SophomorixBase::remove_share_link($login,
+    &Sophomorix::SophomorixBase::remove_share_pointer($login,
          $class,$class,"adminclass");
 
     # remove dirs in tasks and collect
@@ -416,7 +416,7 @@ sub remove_my_adminclass {
     foreach my $sub (@subs){
 	my $subclass=$class."-".$sub;
         # remove link
-        &Sophomorix::SophomorixBase::remove_share_link($login,
+        &Sophomorix::SophomorixBase::remove_share_pointer($login,
             $subclass,$subclass,"subclass");
 
        # not needed is done before

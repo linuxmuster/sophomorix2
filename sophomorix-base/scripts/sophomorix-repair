@@ -668,24 +668,6 @@ sub delete_link {
 }
 
 
-sub delete_bind {
-    # undo mounts of newdir, even if mounted multiple times
-    my ($olddir,$newdir) = @_;
-    my $umount_command = "umount $newdir &> /dev/null";
-    my $rmdir_command = "rmdir $newdir &> /dev/null";
-    my $return=0;
-    my $count=0;
-    while ($return==0 and $count < 10){
-        print "      $umount_command\n";
-        $return=system("$umount_command");
-        $count++;
-    }
-    print "      $rmdir_command\n";
-    system("$rmdir_command");
-}
-
-
-
 sub update_pointer_school {
     my ($login) = @_;
     my ($home)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);

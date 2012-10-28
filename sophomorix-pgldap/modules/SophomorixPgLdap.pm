@@ -4230,7 +4230,7 @@ sub create_project {
     # calculating which users to add
     foreach my $user (@old_users){
        if ($longname_changed==1){
-            &Sophomorix::SophomorixBase::remove_share_link($user,
+            &Sophomorix::SophomorixBase::remove_share_pointer($user,
                                        $project,$old_long_name);
             &Sophomorix::SophomorixBase::create_share_link($user,
                                        $project,$p_long_name);
@@ -4254,7 +4254,7 @@ sub create_project {
          }
          #system("gpasswd -d $user $project");
 	 &deleteuser_from_project($user,$project,1);
-         &Sophomorix::SophomorixBase::remove_share_link($user,
+         &Sophomorix::SophomorixBase::remove_share_pointer($user,
                                          $project,$p_long_name);
          # This removes the shares, if they exist
          # (They do not all exist as students but teachers)
@@ -4302,7 +4302,7 @@ sub create_project {
          }
          #system("gpasswd -d $user $project");
 	 &deleteadmin_from_project($user,$project);
-         &Sophomorix::SophomorixBase::remove_share_link($user,
+         &Sophomorix::SophomorixBase::remove_share_pointer($user,
                                           $project,$p_long_name);
          &Sophomorix::SophomorixBase::remove_share_directory($user,
                                           $project,$p_long_name);
@@ -4355,7 +4355,7 @@ sub create_project {
                  next;
              }
              &deleteuser_from_project($user,$project,1);
-             &Sophomorix::SophomorixBase::remove_share_link($user,
+             &Sophomorix::SophomorixBase::remove_share_pointer($user,
                                           $project,$p_long_name);
              &Sophomorix::SophomorixBase::remove_share_directory($user,
                                           $project,$p_long_name);
@@ -4416,7 +4416,7 @@ sub create_project {
              }
 
              &deleteuser_from_project($user,$project,1);
-             &Sophomorix::SophomorixBase::remove_share_link($user,
+             &Sophomorix::SophomorixBase::remove_share_pointer($user,
                                           $project,$p_long_name);
              &Sophomorix::SophomorixBase::remove_share_directory($user,
                                           $project,$p_long_name);
