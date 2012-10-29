@@ -894,7 +894,6 @@ sub check_groups {
               chomp($return);
               ok($return==1,"I see $return mount of 1 ($link_goal_tasks  ->  $must_source)"); 
 
-
           } elsif ($DevelConf::share_pointer_type eq "symlink"){
               ok(-l $link_goal_tasks, "checking if  $link_goal_tasks is a link");
               delete $is_links_tasks{$link_goal_rel_tasks};
