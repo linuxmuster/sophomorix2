@@ -767,7 +767,7 @@ sub check_groups {
     my %is_links_share = ( );
     my %is_links_tasks = ( );
 
-    # calculate where the dir  with the share links is
+    # calculate where the dir with the share links is
     if ($admin_class eq ${DevelConf::teacher}) {
        $share_dir="/home/${DevelConf::teacher}/$login/${Language::share_dir}";
     } else {
@@ -775,7 +775,7 @@ sub check_groups {
                   "/$admin_class/$login/${Language::share_dir}";
     }
 
-    # calculate where the dir  with the tasks links is
+    # calculate where the dir with the tasks links is
     if ($admin_class eq ${DevelConf::teacher}) {
        $tasks_dir="/home/${DevelConf::teacher}/$login/${Language::task_dir}";
     } else {
@@ -832,26 +832,39 @@ sub check_groups {
           }
 
           my $link_goal="${share_dir}/$link_goal_rel";
+          my $must_source="";
+          if ($must eq ${DevelConf::teacher}){    
+              $must_source="${DevelConf::share_teacher}";
+	  } else {
+              $must_source="${DevelConf::share_classes}/$must";
+          }
 
-          ok(-l $link_goal, "checking if  $link_goal is a link");
-          delete $is_links_share{$link_goal_rel};
+          # checking links or binds
+          if ($DevelConf::share_pointer_type eq "bind"){
+              ok(-d $link_goal, "checking if  $link_goal is a directory");
+              delete $is_links_share{$link_goal_rel};
+              # test the mount
+              # ????? $must_source kommt mehrmals vor
+              my $return=`mount | grep $link_goal | grep $must_source |  wc -l`;
+              chomp($return);
+              ok($return eq 1,"I see $return mount of 1 ($link_goal  ->  $must_source)"); 
+          } elsif ($DevelConf::share_pointer_type eq "symlink"){
+              ok(-l $link_goal, "checking if  $link_goal is a link");
+              delete $is_links_share{$link_goal_rel};
+              if (-l $link_goal){
+                 # its a link 
+                 my $is_source = readlink $link_goal;
 
-          if (-l $link_goal){ 
-             my $is_source = readlink $link_goal;
-             my $must_source="";
+                 # exists the source of the link
+                 ok(-e $is_source, "checking if source $is_source exists");
 
-             # exists the source of the link
-             ok(-e $is_source, "checking if source $is_source exists");
-
-             # is the source correct
-             if ($must eq ${DevelConf::teacher}){    
-                 $must_source="${DevelConf::share_teacher}";
-	     } else {
-                 $must_source="${DevelConf::share_classes}/$must";
-             }
-             is($is_source,
-                $must_source,
-                "Checking if link source is correct"); 
+                 # is the source correct
+                 is($is_source,
+                    $must_source,
+                    "Checking if link source is correct"); 
+              }
+          } else {
+                   print "\nWarning: share pointer Type not known\n\n";
           }
 
           # check link to tasks
@@ -865,28 +878,38 @@ sub check_groups {
           }
 
           my $link_goal_tasks="${tasks_dir}/$link_goal_rel_tasks";
-
-          ok(-l $link_goal_tasks, "checking if  $link_goal_tasks is a link");
-          delete $is_links_tasks{$link_goal_rel_tasks};
-
-          if (-l $link_goal_tasks){ 
-             my $is_source = readlink $link_goal_tasks;
-             my $must_source="";
-
-             # exists the source of the link
-             ok(-e $is_source, "checking if source $is_source exists");
-
-             # is the source correct
-             if ($must eq ${DevelConf::teacher}){    
-                 $must_source="${DevelConf::tasks_teachers}";
-	     } else {
-                 $must_source="${DevelConf::tasks_classes}/$must";
-             }
-             is($is_source,
-                $must_source,
-                "Checking if link source is correct"); 
+          $must_source="";
+          if ($must eq ${DevelConf::teacher}){    
+              $must_source="${DevelConf::tasks_teachers}";
+  	  } else {
+              $must_source="${DevelConf::tasks_classes}/$must";
           }
-          
+          # checking links or binds
+          if ($DevelConf::share_pointer_type eq "bind"){
+              ok(-d $link_goal_tasks, "checking if  $link_goal_tasks is a directory");
+              delete $is_links_tasks{$link_goal_rel_tasks};
+              # test the mount
+              # ?????
+              my $return=`mount | grep $link_goal_tasks | grep $must_source | wc -l`;
+              chomp($return);
+              ok($return==1,"I see $return mount of 1 ($link_goal_tasks  ->  $must_source)"); 
+
+
+          } elsif ($DevelConf::share_pointer_type eq "symlink"){
+              ok(-l $link_goal_tasks, "checking if  $link_goal_tasks is a link");
+              delete $is_links_tasks{$link_goal_rel_tasks};
+              my $is_source = readlink $link_goal_tasks;
+
+              # exists the source of the link
+              ok(-e $is_source, "checking if source $is_source exists");
+
+              # is the source correct
+              is($is_source,
+                 $must_source,
+                 "Checking if link source is correct"); 
+          } else {
+                   print "\nWarning: share pointer Type not known\n\n";
+          }
     }
 
     # are there groups the user is in but shouldn't 
@@ -898,11 +921,24 @@ sub check_groups {
     # are there links or other files in share but shouldn't
     while (my ($file,$v) = each %is_links_share){
 	if ($file eq $share_school){
-	   my $abs_file="${share_dir}"."/"."${file}";
-           ok(-l $abs_file, "checking if $abs_file is a link");
-           my $is_source = readlink $abs_file;
-           # exists the source of the link
-           ok(-e $is_source, "checking if source $is_source exists");
+	    my $abs_file="${share_dir}"."/"."${file}";
+
+            # checking links or binds
+            if ($DevelConf::share_pointer_type eq "bind"){
+                ok(-d $abs_file, "checking if $abs_file is a directory");
+                # test the mount
+                # ???? share_school kommt immer vor ????? 
+                my $return=`mount | grep $abs_file | grep $share_school | wc -l`;
+                chomp($return);
+                ok($return==1,"I see $return mount of 1 ($abs_file  ->  $share_school)"); 
+            } elsif ($DevelConf::share_pointer_type eq "symlink"){
+                ok(-l $abs_file, "checking if $abs_file is a link");
+                my $is_source = readlink $abs_file;
+                # exists the source of the link
+                ok(-e $is_source, "checking if source $is_source exists");
+            } else {
+                print "\nWarning: share pointer Type not known\n\n";
+            }
        } else {
            ok (1==2,"$file is in $share_dir but shouldnt be!");
        }
