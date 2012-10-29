@@ -64,6 +64,7 @@ use Quota;
               create_symlink
               create_bind
               delete_bind
+              delete_bind_to_all_subdirs
               create_share_link
               create_share_directory
               remove_share_pointer
@@ -2509,6 +2510,7 @@ sub create_bind {
 
 sub delete_bind {
     # olddir is not needed
+    # newdir must be an absolute path
     # undo mounts of newdir, even if mounted multiple times
     my ($olddir,$newdir) = @_;
     my $umount_command = "umount $newdir &> /dev/null";
@@ -2524,7 +2526,18 @@ sub delete_bind {
     system("$rmdir_command");
 }
 
-
+sub delete_bind_to_all_subdirs {
+    my ($dir) = @_;
+    opendir DIR, $dir;
+    foreach my $subdir (readdir DIR) {
+        my $abs_subdir=$dir."/".$subdir;
+        print "Checking $abs_subdir \n";
+        if (-d $abs_subdir and $subdir ne "." and $subdir ne "..") {
+            &delete_bind("olddir",$abs_subdir);
+        }
+    }
+    closedir DIR;
+}
 
 
 

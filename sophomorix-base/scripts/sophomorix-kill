@@ -313,6 +313,9 @@ sub kill_user {
          $loginshell,
          $gidnumber) = 
          &fetchdata_from_account($login_name_to_kill);
+     my $home_share_dir=$home_verzeichnis_to_kill."/".$Language::share_dir;
+     my $home_task_dir=$home_verzeichnis_to_kill."/".$Language::task_dir;
+
 
      if ($home_verzeichnis_to_kill eq ""){
          print "Cannot kill user $login_name_to_kill (nonexisting?)\n";
@@ -367,6 +370,8 @@ sub kill_user {
         print("Identifier:          $identifier_to_kill\n");
         print("Login-Name:          $login_name_to_kill\n");
         print("Home-Verzeichnis:    $home_verzeichnis_to_kill\n");
+        print("Share Verzeichnis:   $home_share_dir\n");
+        print("Task Verzeichnis:    $home_task_dir\n");
         print("Klasse:              $linux_gruppe_to_kill\n");
         print("public_html:         $public_html_to_kill\n");
       } 
@@ -376,6 +381,13 @@ sub kill_user {
 
       # memberships
       &deleteuser_from_all_projects($login_name_to_kill);
+
+      # removing bind mounts if necessary
+      if ($DevelConf::share_pointer_type eq "bind"){
+          &delete_bind_to_all_subdirs($home_share_dir);
+          &delete_bind_to_all_subdirs($home_task_dir);
+      }
+
       
       if ($home_verzeichnis_to_kill=~/^\/home\//){
           if ($DevelConf::testen==0) {
