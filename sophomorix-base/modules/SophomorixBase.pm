@@ -2526,6 +2526,23 @@ sub delete_bind {
     system("$rmdir_command");
 }
 
+
+
+sub repair_all_binds {
+    # using sophomorix-repair
+    my ($login) = @_;
+    if ($DevelConf::share_pointer_type eq "bind"){
+        my $repair_command="sophomorix-repair --repair-binds".
+                           " \"\" -u $login --skiplock";
+        print "Executing: $repair_command\n";
+        system("$repair_command");
+    } else {
+        print "No binds to repair: $DevelConf::share_pointer_type\n";
+    }
+}
+
+
+
 sub delete_bind_to_all_subdirs {
     my ($dir) = @_;
     opendir DIR, $dir;

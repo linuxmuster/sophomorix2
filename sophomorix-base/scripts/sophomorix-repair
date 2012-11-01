@@ -951,7 +951,8 @@ sub manage_pointers {
     my $exists_string="Exists";
     my %mandatory_binds=();
 
-    # repairing pointers
+    # repairing all pointers
+    
     my @list=&Sophomorix::SophomorixPgLdap::pg_get_group_list($login);
         print "Repairing pointers in $share_dir\n";
     my $count=1;
@@ -962,8 +963,8 @@ sub manage_pointers {
 #        &Sophomorix::SophomorixBase::create_school_link($login);
 #        &create_share_link($login,$group,$group,$group_type);
 
-         # update links,binds, ...
-         &update_pointer($login,$group,$group,$group_type);
+        # update links,binds, ...
+        &update_pointer($login,$group,$group,$group_type);
         $mandatory_binds{$group}="mandatory";
         $count++;
     }

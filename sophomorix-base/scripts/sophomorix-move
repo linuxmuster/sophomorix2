@@ -232,6 +232,9 @@ while(<USERVERSETZEN>){
    # altes home ermiteln
    my ($old_home)=
        &Sophomorix::SophomorixPgLdap::fetchdata_from_account($login_versetzen);
+   my $home_share_dir=$old_home."/".$Language::share_dir;
+   my $home_task_dir=$old_home."/".$Language::task_dir;
+
    if ($neue_klasse eq ${DevelConf::teacher}) {
       # in klasse lehrer versetzten
       $new_home="${DevelConf::homedir_teacher}/${login_versetzen}";
@@ -285,6 +288,8 @@ while(<USERVERSETZEN>){
       print("Neues Home:            $new_home\n");
       print("Neues Homedir:         $new_homedir_above\n");
       print("Alter Status:          $old_status\n");
+      print("Share Verzeichnis:   $home_share_dir\n");
+      print("Task Verzeichnis:    $home_task_dir\n");
    }
 
    # 0. rember login to set quota later
@@ -298,6 +303,12 @@ while(<USERVERSETZEN>){
      # first create sb entry, then create files (db_entry needed)
      &create_class_db_entry($neue_klasse);
      &provide_class_files($neue_klasse);
+   }
+
+   # removing bind mounts if necessary
+   if ($DevelConf::share_pointer_type eq "bind"){
+       &delete_bind_to_all_subdirs($home_share_dir);
+       &delete_bind_to_all_subdirs($home_task_dir);
    }
 
    # alte links/dirs entfernen
@@ -360,7 +371,9 @@ while(<USERVERSETZEN>){
 
    &deleteuser_from_all_projects($login_versetzen,0);
    &add_newuser_to_her_projects($login_versetzen,$neue_klasse);
-
+   
+   # repair all binds if necessary
+   &Sophomorix::SophomorixBase::repair_all_binds($login_versetzen);
 }
 
 
