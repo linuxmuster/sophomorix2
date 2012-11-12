@@ -4599,10 +4599,10 @@ sub search_user {
   $sth->execute();
 
   my $array_ref = $sth->fetchall_arrayref();
-
+  my $count=0;
   foreach my $row (@$array_ref){
        my $gcos_diff="";
-
+       $count++;
        my ($login,
            $firstname,
            $surname,
@@ -4845,6 +4845,13 @@ sub search_user {
        ($class,$gec_user,$login,$first_pass,$birth,$unid,
         $subclass,$status,$tol,$deact,$ex_admin,$acc_type,$quota)=(
         "","","","","","","","","","","","");
+  }
+  if ($count==0){
+      print "";
+      # history of username $login, database independent
+      print "No system users found!\n";
+      print "History of the login name $search_login follows:\n";
+      &Sophomorix::SophomorixBase::get_user_history($search_login);
   }
 }
 

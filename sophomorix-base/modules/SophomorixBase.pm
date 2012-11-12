@@ -2262,14 +2262,34 @@ sub get_user_history {
       if ($line[2] eq $login){
 	 $count++;
          my $info=$line[0]."(".$line[1]."): ";
-         printf "  %-27s %-49s \n",$info,$line[3];
-         printf "     Unid: %-18s %-49s \n",$line[6],$line[5];
+         print "   $_\n";
+         #printf "  %-27s %-49s \n",$info,$line[3];
+         #printf "     Unid: %-18s %-49s \n",$line[6],$line[5];
           
       }
    }
    close(HISTORY);
+   &check_datei_touch("${DevelConf::log_files}/user-modify-archive.log");
+   open(ARCHIVE, 
+       "<${DevelConf::log_files}/user-modify-archive.log") 
+        || die "Fehler: $!";
+
+   while (<ARCHIVE>){
+      chomp();
+      @line=split(/::/);
+      if (not defined $line[6]){$line[6]=""}
+      if ($line[2] eq $login){
+	 $count++;
+         my $info=$line[0]."(".$line[1]."): ";
+         print "   $_\n";
+         #printf "  %-27s %-49s \n",$info,$line[3];
+         #printf "     Unid: %-18s %-49s \n",$line[6],$line[5];
+          
+      }
+   }
+   close(ARCHIVE);
    if ($count==0){
-       print "  No History exists.\n";
+       print "  No History/Archive Record exists.\n";
    }
 }
 
