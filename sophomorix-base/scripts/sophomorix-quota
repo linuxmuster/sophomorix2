@@ -716,7 +716,7 @@ sub get_teacher_quota {
           chomp();
           s/\s//g; # Whitespace Entfernen
           if ($_ eq ""){next;} # Wenn Zeile Leer, dann aussteigen
-          if(/^\#/q){next;} # Bei Kommentarzeichen aussteigen
+          if(/^\#/){next;} # Bei Kommentarzeichen aussteigen
           ($a,$a,$a,$a,$login,$a,$a,$quotastring,$mailquota)=split(/;/);
           # Wenn Quotaangabe vorhanden, dann benutzen
           if($quotastring ne "quota"){
