@@ -4570,7 +4570,8 @@ sub search_user {
                             gecos, homedirectory, firstpassword, quota, 
                             mailquota, sambaacctflags, sambahomepath, 
                             sambahomedrive, sambalogonscript, 
-                            sambaprofilepath, usertoken, scheduled_toleration 
+                            sambaprofilepath, usertoken, scheduled_toleration,
+                            uidnumber 
                          FROM userdata
                          WHERE uid='$search_login'
                          ");
@@ -4584,7 +4585,8 @@ sub search_user {
                             gecos, homedirectory, firstpassword, quota, 
                             mailquota, sambaacctflags, sambahomepath, 
                             sambahomedrive, sambalogonscript, 
-                            sambaprofilepath, usertoken, scheduled_toleration 
+                            sambaprofilepath, usertoken, scheduled_toleration,
+                            uidnumber 
                          FROM userdata
                          WHERE uid LIKE $str
                             OR firstname LIKE $str
@@ -4626,6 +4628,7 @@ sub search_user {
            $sambaprofilepath, 
            $usertoken,
            $scheduled_toleration,
+           $uidnumber,
            ) = @$row;
 
        my $birthday=&date_pg2perl($birthday_pg);
@@ -4659,7 +4662,7 @@ sub search_user {
        }
 
        if (defined $login){
-	     print "($login exists in the system) \n";
+	     print "($login exists in the system with uidnumber $uidnumber) \n";
        } else {
 	     print "(ERROR: $login is not in the system) \n";
        }
@@ -4667,6 +4670,7 @@ sub search_user {
        print "=======================================\n";
 
        printf "  AdminClass         : %-45s %-11s\n",$admin_class_string,$login;
+       printf "  uidNumber          : %-45s %-11s\n",$uidnumber,$login;
        printf "  PrimaryGroup       : %-45s %-11s\n",$pri_group_string,$login;
 
        foreach my $gr (@group_list){
