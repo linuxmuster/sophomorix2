@@ -660,7 +660,8 @@ sub repair_directories {
 sub create_link {
     # create the link!
     my ($link_target,$link_name) = @_;
-    print "Creating $link_name pointing to $link_target";
+    print "Creating      $link_name\n",
+          " pointing to  $link_target\n";
     symlink $link_target, $link_name;
 }
 
@@ -832,12 +833,13 @@ sub update_pointer {
 
 
 
+       print "\nHERE: type is $type\n\n";
        # decide path names according to user type
        if ($type eq "project"){
            # project
            $old_dir="${DevelConf::share_projects}/${share_name}";
            $old_dir_tasks="${DevelConf::tasks_projects}/${share_name}";
-       } elsif ($type eq "adminclass"){
+       } elsif ($type eq "adminclass" or $type eq "hiddenclass"){
            # class
            $old_dir="${DevelConf::share_classes}/${share_name}";
            $old_dir_tasks="${DevelConf::tasks_classes}/${share_name}";

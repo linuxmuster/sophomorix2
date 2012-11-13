@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-CHECK 8 "July 10, 2010"
+.TH SOPHOMORIX-CHECK 8 "September 27, 2012"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -45,7 +45,10 @@ Sagt, was das Programm gerade macht (verbose)
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
 .B --no-auto-teach-in, --no-sync
-macht keine automatischen updates der Benutzerdatenbank (kein auto-teach-in).
+macht keine automatischen updates der Benutzerdatenbank (kein auto-teach-in) aufrund gleichen Namens.
+.Tp
+.B --no-auto-unids
+macht keine automatischen updates der Benutzerdatenbank aufgrund der gleichen unid
 .TP
 .B --encoding-students encoding, --encoding-students-extra encoding, --encoding-courses-extra encoding, --encoding-teachers encoding,
 verarbeitet die einzulesenden 4 Dateien in einer bestimmten
