@@ -6,6 +6,10 @@
 # jeffbeck@web.de  or  jeffbeck@gmx.de
 
 
+# ????? is homedir absolute 
+# ????? binds nicht automatisch anlegen (option in sophomorix-devel.conf)
+# ????? man page anlegen
+
 # Bibliotheken
 use strict;
 use Getopt::Long;
@@ -18,6 +22,10 @@ use DBI;
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                    );
 my @arguments = @ARGV;
+
+# Scriptname ermitteln
+my @list = split(/\//,$0);
+my $scriptname = pop @list;
 
 
 my $help=0;
@@ -51,21 +59,59 @@ my $testopt=GetOptions(
 &check_options($testopt);
 
 
-print "Login: $login\n";
-print "Logout: $logout\n";
-print "User: $user\n";
+
+# --help
+if ($help==1) {
+   # Befehlbeschreibung
+   print "\n$scriptname creates bind mounts to share directories",
+         "\non samba login or logout(Replaces links)\n";
+
+   print('
+Options
+  -h  / --help
+  -v  / --verbose
+  -vv / --verbose --verbose
+  --login | --logout
+  --user username
+  --homedir /homedir/of/user
+  --host host
+
+Please see the sophomorix-bind(8) man pages for full documentation
+');
+   print "\n";
+   exit;
+}
+
+
+
+print "User:    $user\n";
 print "Homedir: $homedir\n";
-print "Host: $host\n";
+print "Host:    $host\n";
 
 if ($login==1 and $logout==0){
     # login
-    print "LOGIN\n";
+    print "Type:    LOGIN\n";
+    # run login script
+    my $command="/usr/sbin/sophomorix-repair --user $user --repair-binds \"\"";
+    print "  * $command\n";
+    system($command);
 } elsif ($login==0 and $logout==1){
     # logout
-    print "LOGOUT\n";
+    print "Type:    LOGOUT\n";
+    if ($host eq "127.0.0.1"){
+        # horde, ...
+        print "  * Doing nothing on logout from $host\n";
+    } else {
+        # run logout script
+        my $command="/usr/sbin/sophomorix-repair --user $user --delete-binds \"\"";
+        print "  * $command\n";
+        system($command);
+    }
 } else {
     print "\nYou must use:\n";
     print "\n   --login OR --logout\n\n";
+    exit;
 }
+
 
 
