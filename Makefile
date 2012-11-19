@@ -159,6 +159,7 @@ clean: clean-doc clean-debian
 
 clean-debian:
 	rm -rf  debian/sophomorix
+	rm -rf  debian/sophomorix-virusscan
 
 # sophomorix-base
 install-base:

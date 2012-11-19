@@ -1,0 +1,71 @@
+#!/usr/bin/perl -w
+# $Id$
+# This script (sophomorix-bind) is maintained by Rüdiger Beck
+# It is Free Software (License GPLv3)
+# If you find errors, contact the author
+# jeffbeck@web.de  or  jeffbeck@gmx.de
+
+
+# Bibliotheken
+use strict;
+use Getopt::Long;
+use Sophomorix::SophomorixConfig;
+use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
+use Sophomorix::SophomorixPgLdap;
+Getopt::Long::Configure ("bundling");
+use DBI;
+use Sophomorix::SophomorixPgLdap qw(show_modulename
+                                   );
+my @arguments = @ARGV;
+
+
+my $help=0;
+my $info=0;
+my $user="";
+my $homedir="";
+my $host="";
+my $login=0; 
+my $logout=0;
+
+
+###############################################################################
+# Beginn
+###############################################################################
+
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "help|h" => \$help,
+           "info|i" => \$info,
+           "login" => \$login,
+           "logout" => \$logout,
+           "verbose|v+" => \$Conf::log_level,
+           "host:s" => \$host,
+           "user:s" => \$user,
+           "homedir:s" => \$homedir,
+          );
+
+
+# Prüfen, ob Optionen erkannt wurden
+&check_options($testopt);
+
+
+print "Login: $login\n";
+print "Logout: $logout\n";
+print "User: $user\n";
+print "Homedir: $homedir\n";
+print "Host: $host\n";
+
+if ($login==1 and $logout==0){
+    # login
+    print "LOGIN\n";
+} elsif ($login==0 and $logout==1){
+    # logout
+    print "LOGOUT\n";
+} else {
+    print "\nYou must use:\n";
+    print "\n   --login OR --logout\n\n";
+}
+
+
