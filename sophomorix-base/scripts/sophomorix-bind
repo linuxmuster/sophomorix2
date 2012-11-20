@@ -9,7 +9,7 @@
 # ????? is homedir absolute 
 # ????? binds nicht automatisch anlegen/nur dirs (option in sophomorix-devel.conf)
 # ????? man page anlegen
-# cronjob 
+# cronjob option --cron
 
 # Bibliotheken
 use strict;
@@ -30,6 +30,7 @@ my $scriptname = pop @list;
 
 my $help=0;
 my $info=0;
+my $cron=0;
 my $user="";
 my $homedir="";
 my $host="";
@@ -48,6 +49,7 @@ my $seconds_delay=60;
 my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
+           "cron" => \$cron,
            "login" => \$login,
            "logout" => \$logout,
            "verbose|v+" => \$Conf::log_level,
@@ -84,16 +86,21 @@ Please see the sophomorix-bind(8) man pages for full documentation
    exit;
 }
 
+
+if ($cron==1){
+    print "sophomorix-bind called with option --cron\n";
+    # umount all bind mounted stuff 
+    exit;
+}
+
+
 # in Unix-Zeit
 my $epoche=0;
 $epoche=time;
-
-
 print "User:    $user\n";
 print "Homedir: $homedir\n";
 print "Host:    $host\n";
 print "Time:    $epoche\n";
-
 if ($login==1 and $logout==0){
     ########## login ##########
     print "Type:    LOGIN\n";
