@@ -7,8 +7,9 @@
 
 
 # ????? is homedir absolute 
-# ????? binds nicht automatisch anlegen (option in sophomorix-devel.conf)
+# ????? binds nicht automatisch anlegen/nur dirs (option in sophomorix-devel.conf)
 # ????? man page anlegen
+# cronjob 
 
 # Bibliotheken
 use strict;
@@ -27,7 +28,6 @@ my @arguments = @ARGV;
 my @list = split(/\//,$0);
 my $scriptname = pop @list;
 
-
 my $help=0;
 my $info=0;
 my $user="";
@@ -36,6 +36,8 @@ my $host="";
 my $login=0; 
 my $logout=0;
 
+# config
+my $seconds_delay=60;
 
 ###############################################################################
 # Beginn
@@ -82,36 +84,107 @@ Please see the sophomorix-bind(8) man pages for full documentation
    exit;
 }
 
+# in Unix-Zeit
+my $epoche=0;
+$epoche=time;
 
 
 print "User:    $user\n";
 print "Homedir: $homedir\n";
 print "Host:    $host\n";
+print "Time:    $epoche\n";
 
 if ($login==1 and $logout==0){
-    # login
+    ########## login ##########
     print "Type:    LOGIN\n";
-    # run login script
-    my $command="/usr/sbin/sophomorix-repair --user $user --repair-binds \"\"";
-    print "  * $command\n";
-    system($command);
+    if ($host eq "127.0.0.1"){
+        # horde: redo everything after n number of seconds
+        my $last_time=&get_last_time($user);
+        my $renew_time = $last_time + $seconds_delay;
+        my $seconds_to_go = $renew_time - $epoche;
+        if ($seconds_to_go < 0){
+            print "  * Updating links on login from $host ($seconds_to_go to go)\n";
+            &login($user);
+            &set_last_time($user,$epoche);
+        } else {
+            print "  * Doing nothing on login from $host ($seconds_to_go to go )\n";
+        }
+    } else {
+        # run login script
+        &login($user);
+    }
 } elsif ($login==0 and $logout==1){
-    # logout
+    ########## logout ##########
     print "Type:    LOGOUT\n";
     if ($host eq "127.0.0.1"){
-        # horde, ...
+        ### horde, ... do NOT unbind
         print "  * Doing nothing on logout from $host\n";
     } else {
-        # run logout script
-        my $command="/usr/sbin/sophomorix-repair --user $user --delete-binds \"\"";
-        print "  * $command\n";
-        system($command);
+        ### run logout script
+        &logout($user);
     }
 } else {
+    # options not correctly used
     print "\nYou must use:\n";
     print "\n   --login OR --logout\n\n";
     exit;
 }
 
+
+
+
+
+############################################################
+# subs
+############################################################
+
+sub login {
+    my ($user) = @_;
+    my $command="/usr/sbin/sophomorix-repair --user $user --repair-binds \"\"";
+    print "  * $command\n";
+    system($command);
+}
+
+
+
+sub logout {
+    my ($user) = @_;
+    my $command="/usr/sbin/sophomorix-repair --user $user --delete-binds \"\"";
+    print "  * $command\n";
+    system($command);
+}
+
+
+
+sub get_last_time {
+    # 
+    my ($user) = @_;
+    my $log_time = 0;
+    if (not -f ${DevelConf::sophomotix_bind_log}){
+        system("touch ${DevelConf::sophomotix_bind_log}");
+    }
+    open(LOG, "${DevelConf::sophomotix_bind_log}") || die "Fehler: $!";
+    while(<LOG>){
+        chomp();
+        my ($user_log,$log)=split(/::/);
+        if ($user_log eq $user){
+            $log_time=$log;
+            #print "$user logged at $log\n";
+        }
+    }
+    close(LOG);
+    print "Last log was at $log_time\n";
+    return $log_time;
+}
+
+
+
+sub set_last_time {
+    # append line to logfile
+    my ($user,$date) = @_;
+    my $entry = $user."::".$date;
+    print "Updating db: $entry";
+    system("echo \"${entry}\" >> ${DevelConf::sophomotix_bind_log}");
+}
 
 
