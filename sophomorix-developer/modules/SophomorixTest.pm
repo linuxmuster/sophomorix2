@@ -840,15 +840,19 @@ sub check_groups {
           }
 
           # checking links or binds
-          if ($DevelConf::share_pointer_type eq "bind"){
+          if ($DevelConf::share_pointer_type eq "bind" or
+              $DevelConf::share_pointer_type eq "binddir"){
               ok(-d $link_goal, "checking if  $link_goal is a directory");
               delete $is_links_share{$link_goal_rel};
               # test the mount
-              # ????? $must_source kommt mehrmals vor
-              my $return=`mount | grep $link_goal | grep $must_source |  wc -l`;
-              chomp($return);
-              ok($return eq 1,"I see $return mount of 1 ($link_goal  ->  $must_source)"); 
-          } elsif ($DevelConf::share_pointer_type eq "symlink"){
+              if ($DevelConf::share_pointer_type eq "bind"){
+                  # ????? $must_source kommt mehrmals vor
+                  my $return=`mount | grep $link_goal | grep $must_source |  wc -l`;
+                  chomp($return);
+                  ok($return eq 1,
+                     "I see $return mount of 1 ($link_goal  ->  $must_source)");
+	      }
+           } elsif ($DevelConf::share_pointer_type eq "symlink"){
               ok(-l $link_goal, "checking if  $link_goal is a link");
               delete $is_links_share{$link_goal_rel};
               if (-l $link_goal){
@@ -885,15 +889,18 @@ sub check_groups {
               $must_source="${DevelConf::tasks_classes}/$must";
           }
           # checking links or binds
-          if ($DevelConf::share_pointer_type eq "bind"){
+          if ($DevelConf::share_pointer_type eq "bind" or
+              $DevelConf::share_pointer_type eq "binddir"){
               ok(-d $link_goal_tasks, "checking if  $link_goal_tasks is a directory");
               delete $is_links_tasks{$link_goal_rel_tasks};
               # test the mount
               # ?????
-              my $return=`mount | grep $link_goal_tasks | grep $must_source | wc -l`;
-              chomp($return);
-              ok($return==1,"I see $return mount of 1 ($link_goal_tasks  ->  $must_source)"); 
-
+              if ($DevelConf::share_pointer_type eq "bind"){
+                  my $return=`mount | grep $link_goal_tasks | grep $must_source | wc -l`;
+                  chomp($return);
+                  ok($return==1,
+                     "I see $return mount of 1 ($link_goal_tasks  ->  $must_source)"); 
+              }
           } elsif ($DevelConf::share_pointer_type eq "symlink"){
               ok(-l $link_goal_tasks, "checking if  $link_goal_tasks is a link");
               delete $is_links_tasks{$link_goal_rel_tasks};
@@ -923,13 +930,17 @@ sub check_groups {
 	    my $abs_file="${share_dir}"."/"."${file}";
 
             # checking links or binds
-            if ($DevelConf::share_pointer_type eq "bind"){
+            if ($DevelConf::share_pointer_type eq "bind" or 
+                $DevelConf::share_pointer_type eq "binddir"){
                 ok(-d $abs_file, "checking if $abs_file is a directory");
                 # test the mount
                 # ???? share_school kommt immer vor ????? 
-                my $return=`mount | grep $abs_file | grep $share_school | wc -l`;
-                chomp($return);
-                ok($return==1,"I see $return mount of 1 ($abs_file  ->  $share_school)"); 
+                if ($DevelConf::share_pointer_type eq "bind"){
+                    my $return=`mount | grep $abs_file | grep $share_school | wc -l`;
+                    chomp($return);
+                    ok($return==1,
+                       "I see $return mount of 1 ($abs_file  ->  $share_school)");
+                } 
             } elsif ($DevelConf::share_pointer_type eq "symlink"){
                 ok(-l $abs_file, "checking if $abs_file is a link");
                 my $is_source = readlink $abs_file;

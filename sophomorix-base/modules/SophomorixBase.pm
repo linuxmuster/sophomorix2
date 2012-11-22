@@ -2430,10 +2430,13 @@ sub create_school_link {
        }
 
        #symlink $link_target, $link_name;
-       if ($DevelConf::share_pointer_type eq "bind"){
+       if ($DevelConf::share_pointer_type eq "bind"
+           or $DevelConf::share_pointer_type eq "binddir"){
            &create_bind($link_target,$link_name);
        } elsif ($DevelConf::share_pointer_type eq "symlink"){
            &create_symlink($link_target,$link_name);
+       } elsif ($DevelConf::share_pointer_type eq "none"){
+           # nothing
        } else {
            print "\nWarning: share pointer Type not known\n\n";
        }
@@ -2523,8 +2526,12 @@ sub create_bind {
     my $mount_command = "mount --bind $olddir $newdir";
     print "      $mkdir_command\n";
     system("$mkdir_command");
-    print "      $mount_command\n";
-    system("$mount_command");
+    if ($DevelConf::share_pointer_type eq "bind"){
+        print "      $mount_command\n";
+        system("$mount_command");
+    } else {
+        # do not mount
+    }
 }
 
 
@@ -2551,7 +2558,8 @@ sub delete_bind {
 sub repair_all_binds {
     # using sophomorix-repair
     my ($login) = @_;
-    if ($DevelConf::share_pointer_type eq "bind"){
+    if ($DevelConf::share_pointer_type eq "bind" or
+        $DevelConf::share_pointer_type eq "binddir"){
         my $repair_command="sophomorix-repair --repair-binds".
                            " \"\" -u $login --skiplock";
         print "Executing: $repair_command\n";
@@ -2671,10 +2679,13 @@ sub create_share_link {
                }
 
                #symlink $link_target, $link_name;
-               if ($DevelConf::share_pointer_type eq "bind"){
+               if ($DevelConf::share_pointer_type eq "bind" or
+                   $DevelConf::share_pointer_type eq "binddir"){
                    &create_bind($link_target,$link_name);
                } elsif ($DevelConf::share_pointer_type eq "symlink"){
                    &create_symlink($link_target,$link_name);
+               } elsif ($DevelConf::share_pointer_type eq "none"){
+                   # nothing
                } else {
                    print "\nWarning: share pointer Type not known\n\n";
                }
@@ -2702,10 +2713,13 @@ sub create_share_link {
            }    
 
            #symlink $link_target_tasks, $link_name_tasks;
-           if ($DevelConf::share_pointer_type eq "bind"){
+           if ($DevelConf::share_pointer_type eq "bind" or
+               $DevelConf::share_pointer_type eq "binddir"){
                &create_bind($link_target_tasks,$link_name_tasks);
            } elsif ($DevelConf::share_pointer_type eq "symlink"){
                &create_symlink($link_target_tasks,$link_name_tasks);
+           } elsif ($DevelConf::share_pointer_type eq "none"){
+               # nothing
            } else {
                print "\nWarning: share pointer Type not known\n\n";
            }
@@ -2865,7 +2879,8 @@ sub remove_share_pointer {
           "${share_long_name}";   
 
         # remove the pointer
-       if ($DevelConf::share_pointer_type eq "bind"){
+       if ($DevelConf::share_pointer_type eq "bind" or
+           $DevelConf::share_pointer_type eq "binddir"){
            if($Conf::log_level>=2){
                print "   Removing bind mount ${pointer_name}\n";
            }
@@ -2885,6 +2900,8 @@ sub remove_share_pointer {
                print "   Removing link ${pointer_name_tasks}\n";
            }
            unlink $pointer_name_tasks;
+       } elsif ($DevelConf::share_pointer_type eq "none"){
+           # do nothing
        } else {
            print "\nWarning: share pointer Type not known\n\n";
        }
