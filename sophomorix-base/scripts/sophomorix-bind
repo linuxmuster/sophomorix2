@@ -22,6 +22,8 @@ Getopt::Long::Configure ("bundling");
 use DBI;
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                    );
+use Sys::Filesystem ();
+
 my @arguments = @ARGV;
 
 # Scriptname ermitteln
@@ -87,9 +89,31 @@ Please see the sophomorix-bind(8) man pages for full documentation
 }
 
 
-if ($cron==1){
-    print "sophomorix-bind called with option --cron\n";
+
+
+if ($cron==1 or $info==1){
+    if ($info==1){
+        print "The following filesystems would be umounted with option --cron:\n";
+    } elsif ($cron==1){
+        print "Executing the following commands to umount filesystems:\n";
+    }
     # umount all bind mounted stuff 
+    my @filesystems = Sys::Filesystem->filesystems();
+    foreach my $fs (@filesystems){
+        if ($fs=~/^\/home\// # start with /home/
+            and ($fs=~/\/${Language::share_dir}\// # contain /__tauschen/ 
+              or $fs=~/\/${Language::task_dir}\//) ) # contain /__vorlagen/
+        {
+            if ($info==1){
+                print "   $fs\n";
+            } 
+            if ($cron==1){
+	        my $command = "umount $fs";
+                print "  $command\n";
+                system($command);
+            }
+        }
+    }
     exit;
 }
 
