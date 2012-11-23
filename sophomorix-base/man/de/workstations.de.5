@@ -52,6 +52,17 @@ Kann vom Netzwerkbetreuer genutzt werden.
 .br
 Zulässige Zeichen: [0-9a-zA-Z_-.,]
 .TP
+.B Feld 10: Account flag (number)
+0:   Device ohne Account, mit Firewall
+.br
+1:   Device ohne Account, ohne Firewall
+.br
+2-6: ???
+.TP
+.B Feld 11: pxe Flag (number)
+0:    ???
+1 ... bootet über pxe, wird von LINBO verwaltet
+.TP
 .SH SEE ALSO
 .BR import_workstations (8)
 .BR sophomorix-workstation (8),

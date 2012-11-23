@@ -193,9 +193,7 @@ my @killing_examaccount=();
 my @adding_computer=();
 my @killing_computer=();
 
-my %pxe = qw( 0 ok
-             22 ok
-             ml ok
+my %pxe = qw(ml ok
             );
 
 
@@ -1105,11 +1103,13 @@ sub check_pxe {
     if($Conf::log_level>=3){
         print "   PXE:     $pxe\n";
     }
+    if ( $pxe=~/[0-9]/ ) {
+        # this is correct
+        return $pxe;
+    }
     if ( not exists $pxe{$pxe} ) {
         print "\nERROR: ->$pxe<- is invalid Option in pxe field\n\n";
         exit 1;
-    } else {
-
     }
     return $pxe;
 }
