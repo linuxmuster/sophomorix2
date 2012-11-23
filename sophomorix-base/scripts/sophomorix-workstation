@@ -577,7 +577,7 @@ if ($sync_accounts==1){
         system("/usr/sbin/sophomorix-useradd --computer $u_comp");
         system("/usr/sbin/sophomorix-passwd --force -u $u_comp --pass $pass");
     }
-    &log_script_exit("",1,1,0,@arguments);
+    &log_script_exit("",0,1,0,@arguments);
 } 
 
 
@@ -606,7 +606,7 @@ if ($set_computer_passwords==1){
         system("/usr/sbin/sophomorix-passwd --force -u $comp --pass $pw");
         $count++;
     }
-    &log_script_exit("",1,1,0,@arguments);
+    &log_script_exit("",0,1,0,@arguments);
 }
 
 
@@ -798,7 +798,7 @@ if ($italc_dir ne ""){
     } else {
         print "\nPlease add a key ${italc_key_dir_teacher}/key!\n\n";
     }
-    &log_script_exit("",1,1,0,@arguments);
+    &log_script_exit("",0,1,0,@arguments);
 }
 
 exit 0;
