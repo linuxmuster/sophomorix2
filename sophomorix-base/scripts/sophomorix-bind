@@ -90,12 +90,15 @@ Please see the sophomorix-bind(8) man pages for full documentation
 
 
 
-
+# --cron / --info
 if ($cron==1 or $info==1){
     if ($info==1){
         print "The following filesystems would be umounted with option --cron:\n";
     } elsif ($cron==1){
         print "Executing the following commands to umount filesystems:\n";
+        if (-e ${DevelConf::sophomotix_bind_log}){
+            system("rm $DevelConf::sophomotix_bind_log");
+        }
     }
     # umount all bind mounted stuff 
     my @filesystems = Sys::Filesystem->filesystems();
@@ -126,7 +129,7 @@ print "Homedir: $homedir\n";
 print "Host:    $host\n";
 print "Time:    $epoche\n";
 if ($login==1 and $logout==0){
-    ########## login ##########
+    ########## --login ##########
     print "Type:    LOGIN\n";
     if ($host eq "127.0.0.1"){
         # horde: redo everything after n number of seconds
@@ -145,7 +148,7 @@ if ($login==1 and $logout==0){
         &login($user);
     }
 } elsif ($login==0 and $logout==1){
-    ########## logout ##########
+    ########## --logout ##########
     print "Type:    LOGOUT\n";
     if ($host eq "127.0.0.1"){
         ### horde, ... do NOT unbind
