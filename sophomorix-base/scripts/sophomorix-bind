@@ -30,6 +30,7 @@ my @arguments = @ARGV;
 my @list = split(/\//,$0);
 my $scriptname = pop @list;
 
+$Conf::log_level=1;
 my $help=0;
 my $info=0;
 my $cron=0;
@@ -77,8 +78,8 @@ Options
   -h  / --help
   -v  / --verbose
   -vv / --verbose --verbose
-  --login | --logout
-  --user username
+  --login --user username
+  --logout --user username
   --homedir /homedir/of/user
   --host host
 
@@ -124,11 +125,13 @@ if ($cron==1 or $info==1){
 # in Unix-Zeit
 my $epoche=0;
 $epoche=time;
-print "User:    $user\n";
-print "Homedir: $homedir\n";
-print "Host:    $host\n";
-print "Time:    $epoche\n";
-if ($login==1 and $logout==0){
+if($Conf::log_level>=2){
+    print "User:    $user\n";
+    print "Homedir: $homedir\n";
+    print "Host:    $host\n";
+    print "Time:    $epoche\n";
+}
+if ($login==1 and $logout==0 and $user ne ""){
     ########## --login ##########
     print "Type:    LOGIN\n";
     if ($host eq "127.0.0.1"){
@@ -147,7 +150,7 @@ if ($login==1 and $logout==0){
         # run login script
         &login($user);
     }
-} elsif ($login==0 and $logout==1){
+} elsif ($login==0 and $logout==1 and $user ne ""){
     ########## --logout ##########
     print "Type:    LOGOUT\n";
     if ($host eq "127.0.0.1"){
@@ -159,8 +162,7 @@ if ($login==1 and $logout==0){
     }
 } else {
     # options not correctly used
-    print "\nYou must use:\n";
-    print "\n   --login OR --logout\n\n";
+    print "\nWrong Options used.\n\n  Please use option --help/-h\n\n";
     exit;
 }
 
