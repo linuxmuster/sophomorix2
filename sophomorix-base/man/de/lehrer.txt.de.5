@@ -1,0 +1,59 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH LEHRER.TXT 5 "October 26, 2012"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+/etc/sophomorix/user/lehrer.txt \- Konfigurationsdatei für die
+Lehreraccounts bei linuxmuster.net
+.br
+.SH DESCRIPTION
+Um den Sollzustand der User mit Lehrerrechten vorzugeben werden diese
+in der Datei lehrer.txt konfiguriert.
+
+.PP
+.SH FELDER
+
+Die folgenden Felder bilden eine Zeile, die durch Strichpunkte
+getrennt abgeschlosse werden:
+.TP
+.B Feld 1: lehrer
+.TP
+.B Feld 2: Nachname des Users
+.TP
+.B Feld 3: Vorname des Users
+.TP
+.B Feld 4: Geburtsdatum des user im Format dd.mm.yyyy
+.TP
+.B Feld 5: Loginnamen für das ERSTANLEGEN des Users
+.br
+Nach dem Anlegen wird dieser Wert nicht mehr benutzt
+.TP
+.B Feld 6: Wunsch-Passwort fürs anlegen des Users
+.br
+Nach dem Anlegen wird dieser Wert nicht mehr benutzt
+.TP
+.B Feld 7: usertoken. Z.B. Lehrerkürzel, falls nicht schon als loginname genutzt
+.TP
+.B Feld 8: Festplattenquota: quota
+.TP
+.B Feld 9: Mailquota: mailquota
+.TP
+.SH SEE ALSO
+.BR sophomorix-check (8)
+.BR sophomorix-quota (8)
+.
+.SH AUTHOR
+Written by <jeffbeck@web.de>.
