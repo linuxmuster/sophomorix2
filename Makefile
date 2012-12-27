@@ -62,8 +62,8 @@ SAMBADEBCONFDIR=$(DESTDIR)/etc/samba
 
 # SAMBA Debian 
 SAMBADIR=$(DESTDIR)/var/lib/samba
-SAMBAROOTPREEXEC=$(DESTDIR)/etc/linuxmuster/samba/root-preexec
-SAMBAROOTPOSTEXEC=$(DESTDIR)/etc/linuxmuster/samba/root-postexec
+SAMBAROOTPREEXEC=$(DESTDIR)/etc/linuxmuster/samba/root-preexec.d
+SAMBAROOTPOSTEXEC=$(DESTDIR)/etc/linuxmuster/samba/root-postexec.d
 
 # Config-templates
 CTEMPDIR=$(DESTDIR)/usr/share/sophomorix/config-templates
