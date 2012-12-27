@@ -62,6 +62,8 @@ SAMBADEBCONFDIR=$(DESTDIR)/etc/samba
 
 # SAMBA Debian 
 SAMBADIR=$(DESTDIR)/var/lib/samba
+SAMBAROOTPREEXEC=$(DESTDIR)/etc/linuxmuster/samba/root-preexec
+SAMBAROOTPOSTEXEC=$(DESTDIR)/etc/linuxmuster/samba/root-postexec
 
 # Config-templates
 CTEMPDIR=$(DESTDIR)/usr/share/sophomorix/config-templates
@@ -225,6 +227,10 @@ install-base:
 # for samba
 	@install -d -m700 -oroot -groot $(DESTDIR)/home/samba/netlogon
 	@install -oroot -groot --mode=0600 sophomorix-base/samba/netlogon/*.bat.template $(CTEMPDIR)/samba/netlogon
+	@install -d -m700 -oroot -groot $(SAMBAROOTPREEXEC)
+	@install -oroot -groot --mode=0600 sophomorix-base/samba/root-preexec/sophomorix-root-preexec $(SAMBAROOTPREEXEC)
+	@install -d -m700 -oroot -groot $(SAMBAROOTPOSTEXEC)
+	@install -oroot -groot --mode=0600 sophomorix-base/samba/root-postexec/sophomorix-root-postexec $(SAMBAROOTPOSTEXEC)
 
 install-files:
 	### install-files
