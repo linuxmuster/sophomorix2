@@ -209,7 +209,7 @@ if ($command_log==1){
 
 sub login {
     my ($user) = @_;
-    my $command="/usr/sbin/sophomorix-repair --user $user --repair-binds \"\"";
+    my $command="/usr/sbin/sophomorix-repair --always-bind --user $user --repair-binds \"\"";
     print "  * $command\n";
     system($command);
 }

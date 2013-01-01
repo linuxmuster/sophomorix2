@@ -2520,13 +2520,14 @@ sub create_symlink {
 
 sub create_bind {
     # do the mount!
-    my ($olddir,$newdir) = @_;
+    my ($olddir,$newdir,$option) = @_;
     # ?????????????? if newdir is a link, remove it!
     my $mkdir_command = "mkdir $newdir";
     my $mount_command = "mount --bind $olddir $newdir";
     print "      $mkdir_command\n";
     system("$mkdir_command");
-    if ($DevelConf::share_pointer_type eq "bind"){
+    if ($DevelConf::share_pointer_type eq "bind"
+        or $option eq "ALWAYSBIND"){
         print "      $mount_command\n";
         system("$mount_command");
     } else {

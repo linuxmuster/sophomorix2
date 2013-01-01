@@ -43,6 +43,7 @@ my $repairhome=0;
 
 # delete following option ???????????
 my $repairbinds=0;
+my $always_bind=0;
 
 # binds
 my $delete_bind_extension="";  # default extension
@@ -101,6 +102,7 @@ my $testopt=GetOptions(
            "command-number=n" => \$command_number,
            "repairhome" => \$repairhome,
            "repairbinds" => \$repairbinds,
+           "always-bind" => \$always_bind,
            "delete-binds:s" => \$delete_binds,
            "repair-binds:s" => \$repair_binds,
            "delete-links:s" => \$delete_links,
@@ -719,7 +721,12 @@ sub update_pointer_school {
        if ($repair_bind_extension ne $repair_bind_extension_do_nothing){
            &delete_link($old_dir,$new_dir_repair);
            &delete_bind($old_dir,$new_dir_repair);
-           &create_bind($old_dir,$new_dir_repair);
+           if ($always_bind==0){
+               &create_bind($old_dir,$new_dir_repair);
+           } else {
+               # do also the bind
+               &create_bind($old_dir,$new_dir_repair,"ALWAYSBIND");
+           }
        }
 #       symlink $old_dir, $link_name;
        &set_immutable_bit($parent_dir,$immutable_bit);
@@ -860,7 +867,13 @@ sub update_pointer {
                if ($repair_bind_extension ne $repair_bind_extension_do_nothing){
                    &delete_link($old_dir,$new_dir_repair);
                    &delete_bind($old_dir,$new_dir_repair);
-                   &create_bind($old_dir,$new_dir_repair);
+
+                   if ($always_bind==0){
+                       &create_bind($old_dir,$new_dir_repair);
+                   } else {
+                       # do also the bind
+                       &create_bind($old_dir,$new_dir_repair,"ALWAYSBIND");
+                   }
                }
            } else {
                print "   NOT creating bind mount to ",
@@ -912,7 +925,12 @@ sub update_pointer {
            if ($repair_bind_extension ne $repair_bind_extension_do_nothing){
                &delete_link($old_dir,$new_dir_repair_tasks);
                &delete_bind($old_dir,$new_dir_repair_tasks);
-               &create_bind($old_dir,$new_dir_repair_tasks);
+               if ($always_bind==0){
+                   &create_bind($old_dir,$new_dir_repair_tasks);
+               } else {
+                   # do also the bind
+                   &create_bind($old_dir,$new_dir_repair_tasks,"ALWAYSBIND");
+               }
            }
 
            # delete an recreate bind mounts  ?????????????????
