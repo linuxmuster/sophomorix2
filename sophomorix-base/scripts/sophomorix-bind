@@ -155,7 +155,7 @@ if($Conf::log_level>=2){
 }
 if ($login==1 and $logout==0 and $user ne ""){
     ########## --login ##########
-    print "Type:    LOGIN\n";
+    print "Type:    LOGIN of $user\n";
     if ($host eq "127.0.0.1"){
         # horde: redo everything after n number of seconds
         my $last_time=&get_last_time($user);
@@ -174,7 +174,7 @@ if ($login==1 and $logout==0 and $user ne ""){
     }
 } elsif ($login==0 and $logout==1 and $user ne ""){
     ########## --logout ##########
-    print "Type:    LOGOUT\n";
+    print "Type:    LOGOUT of $user\n";
     if ($host eq "127.0.0.1"){
         ### horde, ... do NOT unbind
         print "  * Doing nothing on logout from $host\n";
