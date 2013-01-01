@@ -228,9 +228,9 @@ install-base:
 	@install -d -m700 -oroot -groot $(DESTDIR)/home/samba/netlogon
 	@install -oroot -groot --mode=0600 sophomorix-base/samba/netlogon/*.bat.template $(CTEMPDIR)/samba/netlogon
 	@install -d -m700 -oroot -groot $(SAMBAROOTPREEXEC)
-	@install -oroot -groot --mode=0600 sophomorix-base/samba/root-preexec/sophomorix-root-preexec $(SAMBAROOTPREEXEC)
+	@install -oroot -groot --mode=0700 sophomorix-base/samba/root-preexec/sophomorix-root-preexec $(SAMBAROOTPREEXEC)
 	@install -d -m700 -oroot -groot $(SAMBAROOTPOSTEXEC)
-	@install -oroot -groot --mode=0600 sophomorix-base/samba/root-postexec/sophomorix-root-postexec $(SAMBAROOTPOSTEXEC)
+	@install -oroot -groot --mode=0700 sophomorix-base/samba/root-postexec/sophomorix-root-postexec $(SAMBAROOTPOSTEXEC)
 
 install-files:
 	### install-files

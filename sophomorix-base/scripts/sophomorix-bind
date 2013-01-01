@@ -39,6 +39,7 @@ my $homedir="";
 my $host="";
 my $login=0; 
 my $logout=0;
+my $command_log=0;
 
 # config
 my $seconds_delay=60;
@@ -53,6 +54,7 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "info|i" => \$info,
            "cron" => \$cron,
+           "command-log" => \$command_log,
            "login" => \$login,
            "logout" => \$logout,
            "verbose|v+" => \$Conf::log_level,
@@ -78,10 +80,20 @@ Options
   -h  / --help
   -v  / --verbose
   -vv / --verbose --verbose
+  -i / --info
+    show filesystems mounted by sophomorix-bind
+  --cron 
+    umount all filesystems mounted by sophomorix-bind
   --login --user username
+    mount all filesystems for the user username
   --logout --user username
+    umount all filesystems for the user username
   --homedir /homedir/of/user
   --host host
+  --command-log
+    enable logging to the sophomorix command logging file
+    (this is for debugging only)
+    
 
 Please see the sophomorix-bind(8) man pages for full documentation
 ');
@@ -121,6 +133,16 @@ if ($cron==1 or $info==1){
     exit;
 }
 
+
+
+
+############################################################
+# mountin/umounting on login/logout
+############################################################
+
+if ($command_log==1){
+    &log_script_start(@arguments);
+}
 
 # in Unix-Zeit
 my $epoche=0;
@@ -163,8 +185,19 @@ if ($login==1 and $logout==0 and $user ne ""){
 } else {
     # options not correctly used
     print "\nWrong Options used.\n\n  Please use option --help/-h\n\n";
-    exit;
+    if ($command_log==1){
+        &log_script_exit("Wrong Options used",1,1,0,@arguments);
+    } else {
+        exit;
+    }
 }
+
+
+
+if ($command_log==1){
+    &log_script_end(@arguments);
+}
+
 
 
 
