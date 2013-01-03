@@ -135,8 +135,6 @@ if ($dateirechte==0
     and $htaccess==0
     and $info==0
     and $repairhome==0
-    and $bind_only==0
-    and $unbind_only==0
     and $repairbinds==0
     and $delete_binds eq $delete_bind_extension_do_nothing
     and $repair_binds eq $repair_bind_extension_do_nothing
@@ -734,13 +732,18 @@ sub update_pointer_school {
 
        # --repair-binds
        if ($repair_bind_extension ne $repair_bind_extension_do_nothing){
-           &delete_link($old_dir,$new_dir_repair);
-           &delete_bind($old_dir,$new_dir_repair);
-           if ($always_bind==0){
-               &create_bind($old_dir,$new_dir_repair);
+           # --bind-only
+           if ($bind_only==1){
+               &create_bind($old_dir,$new_dir_repair,"BINDONLY","ALWAYSBIND");
            } else {
-               # do also the bind
-               &create_bind($old_dir,$new_dir_repair,"ALWAYSBIND");
+               &delete_link($old_dir,$new_dir_repair);
+               &delete_bind($old_dir,$new_dir_repair);
+               if ($always_bind==0){
+                   &create_bind($old_dir,$new_dir_repair,"","");
+               } else {
+                   # do also the bind
+                   &create_bind($old_dir,$new_dir_repair,"","ALWAYSBIND");
+               }
            }
        }
 #       symlink $old_dir, $link_name;
@@ -880,14 +883,18 @@ sub update_pointer {
 
                # --repair-binds
                if ($repair_bind_extension ne $repair_bind_extension_do_nothing){
-                   &delete_link($old_dir,$new_dir_repair);
-                   &delete_bind($old_dir,$new_dir_repair);
-
-                   if ($always_bind==0){
-                       &create_bind($old_dir,$new_dir_repair);
+                   # --bind-only
+                   if ($bind_only==1){
+                       &create_bind($old_dir,$new_dir_repair,"BINDONLY","ALWAYSBIND");
                    } else {
-                       # do also the bind
-                       &create_bind($old_dir,$new_dir_repair,"ALWAYSBIND");
+                       &delete_link($old_dir,$new_dir_repair);
+                       &delete_bind($old_dir,$new_dir_repair);
+                       if ($always_bind==0){
+                           &create_bind($old_dir,$new_dir_repair,"","");
+                       } else {
+                           # do also the bind
+                           &create_bind($old_dir,$new_dir_repair,"","ALWAYSBIND");
+                       }
                    }
                }
            } else {
@@ -938,19 +945,24 @@ sub update_pointer {
 
            # --repair-binds
            if ($repair_bind_extension ne $repair_bind_extension_do_nothing){
-               &delete_link($old_dir,$new_dir_repair_tasks);
-               &delete_bind($old_dir,$new_dir_repair_tasks);
-               if ($always_bind==0){
-                   &create_bind($old_dir,$new_dir_repair_tasks);
+               # --bind-only
+               if ($bind_only==1){
+                   &create_bind($old_dir,$new_dir_repair_tasks,"BINDONLY","ALWAYSBIND");
                } else {
-                   # do also the bind
-                   &create_bind($old_dir,$new_dir_repair_tasks,"ALWAYSBIND");
+                    &delete_link($old_dir,$new_dir_repair_tasks);
+                   &delete_bind($old_dir,$new_dir_repair_tasks);
+                   if ($always_bind==0){
+                       &create_bind($old_dir,$new_dir_repair_tasks,"","");
+                   } else {
+                       # do also the bind
+                       &create_bind($old_dir,$new_dir_repair_tasks,"","ALWAYSBIND");
+                   }
                }
            }
 
            # delete an recreate bind mounts  ?????????????????
            #&SophomorixBase::delete_bind($old_dir_tasks,$new_dir_tasks);
-           #&create_bind($old_dir_tasks,$new_dir_tasks);
+           #&create_bind($old_dir_tasks,$new_dir_tasks,"","");
        } else {
            print "   NOT creating bind mount to ",
                  "nonexisting/nondirectory $old_dir_tasks\n";
@@ -969,16 +981,21 @@ sub update_pointer {
 
 sub manage_pointers {
     my ($login)= @_;
-    print "  * Starting manage_pointers:\n";
-    printf "      Delete bind extension: %7s  ($delete_bind_extension_do_nothing does nothing)\n",
-           $delete_bind_extension;
-    printf "      Repair bind extension: %7s  ($repair_bind_extension_do_nothing does nothing)\n",
-           $repair_bind_extension;
-    printf "      Delete link extension: %7s  ($delete_link_extension_do_nothing does nothing)\n",
-           $delete_link_extension;
-    printf "      Repair link extension: %7s  ($repair_link_extension_do_nothing does nothing)\n",
-           $repair_link_extension;
-
+    if($Conf::log_level>=2){
+        print "  * Starting manage_pointers:\n";
+        printf "      Delete bind extension: %7s ".
+               " ($delete_bind_extension_do_nothing does nothing)\n",
+               $delete_bind_extension;
+        printf "      Repair bind extension: %7s ".
+               " ($repair_bind_extension_do_nothing does nothing)\n",
+               $repair_bind_extension;
+        printf "      Delete link extension: %7s ".
+               " ($delete_link_extension_do_nothing does nothing)\n",
+               $delete_link_extension;
+        printf "      Repair link extension: %7s ".
+               " ($repair_link_extension_do_nothing does nothing)\n",
+               $repair_link_extension;
+    }
     my ($home) = &fetchdata_from_account($login);
     my $share_dir=$home."/".$Language::share_dir;
     my $exists_string="Exists";
@@ -1006,42 +1023,45 @@ sub manage_pointers {
     print " $count)  School-share:\n";
     &update_pointer_school($login);
 
-    print "-----------------------------------------------------------------------\n";
-    print "Checking binds of $login in $share_dir\n";
-    print "-----------------------------------------------------------------------\n";
-    if (not -e $share_dir){
-        &log_script_exit("Nonexisting dir $share_dir",1,1,0,@arguments);
-    }
-    opendir DIR, $share_dir or die "Cannot open $share_dir: $!";
-    my @files=();
-    foreach my $file (readdir DIR) {
-        push @files, $file;
-    }
-    @files = sort @files;
 
-    $count=1;
-    foreach my $file (@files) {
-        if ($file eq "." or $file eq ".."){
-	    next;
+    if ($bind_only==0){
+        print "-------------------------------------------------------------------\n";
+        print "Checking binds of $login in $share_dir\n";
+        print "-------------------------------------------------------------------\n";
+        if (not -e $share_dir){
+            &log_script_exit("Nonexisting dir $share_dir",1,1,0,@arguments);
         }
-
-        my $group = $file;
-        # remove string, so that the group is shown
-        $group =~ s/$Language::share_string//;
-
-        #
-        # check here if it is a dir and mounted correctly ??????????????
-        #
-        if (exists $mandatory_binds{$group}){
-            print "   $count) $file ($group)\n";
-        } else {
-            # ???????????? avoid ? when tausch-Lehrer and taush-Schule
-            print "?  $count) $file ($group)\n";
+        opendir DIR, $share_dir or die "Cannot open $share_dir: $!";
+        my @files=();
+        foreach my $file (readdir DIR) {
+            push @files, $file;
         }
+        @files = sort @files;
 
-        $count++;
+        $count=1;
+        foreach my $file (@files) {
+            if ($file eq "." or $file eq ".."){
+	        next;
+            }
+
+            my $group = $file;
+            # remove string, so that the group is shown
+            $group =~ s/$Language::share_string//;
+
+            #
+            # check here if it is a dir and mounted correctly ??????????????
+            #
+            if (exists $mandatory_binds{$group}){
+                print "   $count) $file ($group)\n";
+            } else {
+                # ???????????? avoid ? when tausch-Lehrer and tausch-Schule
+                print "?  $count) $file ($group)\n";
+            }
+
+            $count++;
+        }
+        closedir DIR;
     }
-    closedir DIR;
     return;
 }
 

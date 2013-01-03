@@ -43,8 +43,10 @@ my $command_log=0;
 my $repair=1;
 
 # Default from sophomorix.conf
-if ($Conf::sophomorix_bind_repair eq "norepair"){
-    $repair=0;
+if (defined $Conf::sophomorix_bind_repair){
+    if ($Conf::sophomorix_bind_repair eq "norepair"){
+        $repair=0;
+    }
 }
 
 
@@ -225,12 +227,13 @@ if ($command_log==1){
 sub login {
     my ($user) = @_;
     if ($repair==1){
-        my $command="/usr/sbin/sophomorix-repair".
-                    " --always-bind --user $user --repair-binds \"\"";
+        my $command="/usr/sbin/sophomorix-repair --always-bind".
+                    " --user $user --repair-binds \"\"";
         print "  * $command\n";
         system($command);
     } else {
-        my $command="/usr/sbin/sophomorix-repair --bind-only --user $user";
+        my $command="/usr/sbin/sophomorix-repair --bind-only".
+                    " --user $user --repair-binds \"\"";
         print "  * $command\n";
         system($command);
     }

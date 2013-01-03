@@ -2432,7 +2432,7 @@ sub create_school_link {
        #symlink $link_target, $link_name;
        if ($DevelConf::share_pointer_type eq "bind"
            or $DevelConf::share_pointer_type eq "binddir"){
-           &create_bind($link_target,$link_name);
+           &create_bind($link_target,$link_name,"","");
        } elsif ($DevelConf::share_pointer_type eq "symlink"){
            &create_symlink($link_target,$link_name);
        } elsif ($DevelConf::share_pointer_type eq "none"){
@@ -2520,14 +2520,18 @@ sub create_symlink {
 
 sub create_bind {
     # do the mount!
-    my ($olddir,$newdir,$option) = @_;
+    #   BINDONLY   -> no mkdir
+    #   ALWAYSBIND -> bind also when share_pointer_type is binddir
+    my ($olddir,$newdir,$option1,$option2) = @_;
     # ?????????????? if newdir is a link, remove it!
-    my $mkdir_command = "mkdir $newdir";
+    if ($option1 ne "BINDONLY"){
+        my $mkdir_command = "mkdir $newdir";
+        print "      $mkdir_command\n";
+        system("$mkdir_command");
+    }
     my $mount_command = "mount --bind $olddir $newdir";
-    print "      $mkdir_command\n";
-    system("$mkdir_command");
     if ($DevelConf::share_pointer_type eq "bind"
-        or $option eq "ALWAYSBIND"){
+        or $option2 eq "ALWAYSBIND"){
         print "      $mount_command\n";
         system("$mount_command");
     } else {
@@ -2682,7 +2686,7 @@ sub create_share_link {
                #symlink $link_target, $link_name;
                if ($DevelConf::share_pointer_type eq "bind" or
                    $DevelConf::share_pointer_type eq "binddir"){
-                   &create_bind($link_target,$link_name);
+                   &create_bind($link_target,$link_name,"","");
                } elsif ($DevelConf::share_pointer_type eq "symlink"){
                    &create_symlink($link_target,$link_name);
                } elsif ($DevelConf::share_pointer_type eq "none"){
@@ -2716,7 +2720,7 @@ sub create_share_link {
            #symlink $link_target_tasks, $link_name_tasks;
            if ($DevelConf::share_pointer_type eq "bind" or
                $DevelConf::share_pointer_type eq "binddir"){
-               &create_bind($link_target_tasks,$link_name_tasks);
+               &create_bind($link_target_tasks,$link_name_tasks,"","");
            } elsif ($DevelConf::share_pointer_type eq "symlink"){
                &create_symlink($link_target_tasks,$link_name_tasks);
            } elsif ($DevelConf::share_pointer_type eq "none"){
