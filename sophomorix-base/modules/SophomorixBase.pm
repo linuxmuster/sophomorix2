@@ -18,6 +18,8 @@ use File::Basename;
 use Time::Local;
 use Time::localtime;
 use Quota;
+use Sys::Filesystem ();
+
 
 @ISA = qw(Exporter);
 
@@ -2532,8 +2534,15 @@ sub create_bind {
     my $mount_command = "mount --bind $olddir $newdir";
     if ($DevelConf::share_pointer_type eq "bind"
         or $option2 eq "ALWAYSBIND"){
-        print "      $mount_command\n";
-        system("$mount_command");
+        my $return=system("grep $newdir /proc/mounts > /dev/null");
+        #print "RET: $return $newdir\n\n";    
+        if ($return==0){
+            print "      $newdir already mounted\n";
+        } else {	    
+            print "      $mount_command\n";
+            system("$mount_command");
+        }
+
     } else {
         # do not mount
     }
