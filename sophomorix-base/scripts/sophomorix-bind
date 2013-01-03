@@ -6,10 +6,10 @@
 # jeffbeck@web.de  or  jeffbeck@gmx.de
 
 
-# ????? is homedir absolute 
 # ????? binds nicht automatisch anlegen/nur dirs (option in sophomorix-devel.conf)
 # ????? man page anlegen
-# cronjob option --cron
+# add more performant --norepair
+
 
 # Bibliotheken
 use strict;
@@ -40,6 +40,13 @@ my $host="";
 my $login=0; 
 my $logout=0;
 my $command_log=0;
+my $repair=1;
+
+# Default from sophomorix.conf
+if ($Conf::sophomorix_bind_repair eq "norepair"){
+    $repair=0;
+}
+
 
 # config
 my $seconds_delay=60;
@@ -57,6 +64,7 @@ my $testopt=GetOptions(
            "command-log" => \$command_log,
            "login" => \$login,
            "logout" => \$logout,
+           "repair!" => \$repair,
            "verbose|v+" => \$Conf::log_level,
            "host:s" => \$host,
            "user:s" => \$user,
@@ -66,7 +74,6 @@ my $testopt=GetOptions(
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
-
 
 
 # --help
@@ -81,18 +88,22 @@ Options
   -v  / --verbose
   -vv / --verbose --verbose
   -i / --info
-    show filesystems mounted by sophomorix-bind
+     Show filesystems mounted by sophomorix-bind
   --cron 
-    umount all filesystems mounted by sophomorix-bind
+     Umount all filesystems mounted by sophomorix-bind
   --login --user username
-    mount all filesystems for the user username
+     Mount all filesystems for the user username
   --logout --user username
-    umount all filesystems for the user username
+     Umount all filesystems for the user username
   --homedir /homedir/of/user
   --host host
   --command-log
-    enable logging to the sophomorix command logging file
-    (this is for debugging only)
+     Enable logging to the sophomorix command logging file
+     (this is for debugging only)
+  --repair/--norepair
+     Repair the bind mounts (This is the default)
+     Just bind mount (Do not check, that dirs exist, ...) to
+     achieve better performance.
     
 
 Please see the sophomorix-bind(8) man pages for full documentation
@@ -213,18 +224,31 @@ if ($command_log==1){
 
 sub login {
     my ($user) = @_;
-    my $command="/usr/sbin/sophomorix-repair --always-bind --user $user --repair-binds \"\"";
-    print "  * $command\n";
-    system($command);
+    if ($repair==1){
+        my $command="/usr/sbin/sophomorix-repair".
+                    " --always-bind --user $user --repair-binds \"\"";
+        print "  * $command\n";
+        system($command);
+    } else {
+        my $command="/usr/sbin/sophomorix-repair --bind-only --user $user";
+        print "  * $command\n";
+        system($command);
+    }
 }
 
 
 
 sub logout {
     my ($user) = @_;
-    my $command="/usr/sbin/sophomorix-repair --user $user --delete-binds \"\"";
-    print "  * $command\n";
-    system($command);
+    if ($repair==1){
+        my $command="/usr/sbin/sophomorix-repair --user $user --delete-binds \"\"";
+        print "  * $command\n";
+        system($command);
+    } else {
+        my $command="/usr/sbin/sophomorix-repair --unbind-only --user $user";
+        print "  * $command\n";
+        system($command);
+    }
 }
 
 
