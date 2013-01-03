@@ -28,9 +28,16 @@ Diese Datei beschreibt die ZUSÄTZLICHEN Parameter in sophomorix.conf
 .br
 .B $sophomorix_bind_repair="repair";     # default
 .TP
-Sollen beim Einloggen via samba die bindmounts nur erstellt, oder repariert werden (Verzecihnisse vorher anlegen , ...).
-
-Ohne reparieren läft sophomorix-bind wesentlich performanter.
+Sollen beim Einloggen via samba die bindmounts nur erstellt, oder repariert werden (Verzeichnisse vorher anlegen , ...).
 .TP
+Ohne reparieren läft sophomorix-bind wesentlich performanter.
+
+.TP
+.B $alt_mail_domainname="example.org";
+.TP
+Standardmäßig wird in OpenLDAP für die Mailadresse eines users der DNSDomainname als Maildomainname verwendet. Mit dieser Option kann ein alternativer Maildomainname angegeben werden.
+.TP
+
+
 .SH AUTHOR
 Written by <jeffbeck@web.de>.
