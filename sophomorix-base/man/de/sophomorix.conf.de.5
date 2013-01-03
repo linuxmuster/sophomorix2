@@ -1,0 +1,34 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH SOPHOMORIX.CONF 5 "January 03, 2013"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+/etc/sophomorix/user/sophomorix.conf \- Konfigurationsdatei für Sophomorix
+.br
+.SH DESCRIPTION
+Diese Datei beschreibt die ZUSÄTZLICHEN Parameter in sophomorix.conf
+
+.PP
+.SH OPTIONEN
+
+.B $sophomorix_bind_repair=0;
+.br
+.B $sophomorix_bind_repair=1; # default
+.br 
+Sollen beim Einloggen via samba die bindmounts nur erstellt, oder qrepariert werden (Verzecihnisse vorher anlegen , ...).
+.TP
+.SH AUTHOR
+Written by <jeffbeck@web.de>.
