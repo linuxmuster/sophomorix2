@@ -111,8 +111,8 @@ if ($cron==1 or $info==1){
         print "The following filesystems would be umounted with option --cron:\n";
     } elsif ($cron==1){
         print "Executing the following commands to umount filesystems:\n";
-        if (-e ${DevelConf::sophomotix_bind_log}){
-            system("rm $DevelConf::sophomotix_bind_log");
+        if (-e ${DevelConf::sophomorix_bind_log}){
+            system("rm $DevelConf::sophomorix_bind_log");
         }
     }
     # umount all bind mounted stuff 
@@ -154,10 +154,12 @@ if($Conf::log_level>=2){
     print "Homedir: $homedir\n";
     print "Host:    $host\n";
     print "Time:    $epoche\n";
+    print "Logfile: $DevelConf::sophomorix_bind_log\n";
+
 }
 if ($login==1 and $logout==0 and $user ne ""){
     ########## --login ##########
-    print "Type:    LOGIN of $user\n";
+    print "Type:    LOGIN of $user from $host\n";
     if ($host eq "127.0.0.1"){
         # horde: redo everything after n number of seconds
         my $last_time=&get_last_time($user);
@@ -228,13 +230,12 @@ sub logout {
 
 
 sub get_last_time {
-    # 
     my ($user) = @_;
     my $log_time = 0;
-    if (not -f ${DevelConf::sophomotix_bind_log}){
-        system("touch ${DevelConf::sophomotix_bind_log}");
+    if (not -f ${DevelConf::sophomorix_bind_log}){
+        system("touch ${DevelConf::sophomorix_bind_log}");
     }
-    open(LOG, "${DevelConf::sophomotix_bind_log}") || die "Fehler: $!";
+    open(LOG, "${DevelConf::sophomorix_bind_log}") || die "Fehler: $!";
     while(<LOG>){
         chomp();
         my ($user_log,$log)=split(/::/);
@@ -255,7 +256,7 @@ sub set_last_time {
     my ($user,$date) = @_;
     my $entry = $user."::".$date;
     print "Updating db: $entry";
-    system("echo \"${entry}\" >> ${DevelConf::sophomotix_bind_log}");
+    system("echo \"${entry}\" >> ${DevelConf::sophomorix_bind_log}");
 }
 
 
