@@ -215,8 +215,12 @@ Please see the sophomorix-repair(8) man pages for full documentation
    #&log_script_exit("",1,1,0,@arguments);
 }
 
-&log_script_start(@arguments);
 
+if ($bind_only==1){
+    # no logging
+} else {
+    &log_script_start(@arguments);
+}
 
 
 # --file
@@ -231,12 +235,15 @@ if ($filename ne "") {
 }
 
 
-# repair.directories einlesen
-&titel("Reading permision data ...");
-&get_alle_verzeichnis_rechte();
-
-# fetch permission for all homes
-&fetch_repairhome();
+if ($bind_only==1){
+    # no permissions needed
+} else {
+    # repair.directories einlesen
+    &titel("Reading permision data ...");
+    &get_alle_verzeichnis_rechte();
+    # fetch permission for all homes
+    &fetch_repairhome();
+}
 
 &check_verzeichnis_mkdir("${DevelConf::log_pfad_repair}");
 
@@ -245,25 +252,38 @@ if ($filename ne "") {
 ###############################################################################
 # Gruppenlisten/Userlisten erstellen
 ###############################################################################
+my @klassen=();
+my @klassen_sub=();
+my @projects=();
+my @raeume=();
+my @schueler=();
+my @lehrer=();
+my @admins=();
+my @workstations=();
+
+
+if ($bind_only==1){
+    # no userdata needed
+} else {
 
 # Klassen
 &titel("Creating list of every AdminClass ...");
-my @klassen=&fetchadminclasses_from_school("showhidden"); 
+@klassen=&fetchadminclasses_from_school("showhidden"); 
 &print_list("The list of every AdminClass:",@klassen);
 
 # Subclasses
 &titel("Creating list of every AdminClass with subclasses...");
-my @klassen_sub=&fetchsubclasses_from_school(); 
+@klassen_sub=&fetchsubclasses_from_school(); 
 &print_list("The list of every AdminClass with subclasses:",@klassen_sub);
 
 # Projects
 &titel("Creating list of every Project ...");
-my @projects=&fetchprojects_from_school(); 
+@projects=&fetchprojects_from_school(); 
 &print_list("The list of every Project:",@projects);
 
 # Räume
 &titel("Creating list of every room ...");
-my @raeume=&fetchrooms_from_school(); 
+@raeume=&fetchrooms_from_school(); 
 &print_list("The list of every room:",@raeume);
 
 
@@ -273,29 +293,29 @@ my @raeume=&fetchrooms_from_school();
 # schueler
 &titel("Creating list of every pupil ...");
 #my @schueler=&get_pupils_school();
-my @schueler=&fetchstudents_from_school();
+@schueler=&fetchstudents_from_school();
 &print_list("The list of every pupil:",@schueler);
 
 # lehrer
 &titel("Creating list of every teacher ...");
 #my @lehrer=&get_lehrer_in_schule();
-my @lehrer=&fetchstudents_from_adminclass(${DevelConf::teacher});
+@lehrer=&fetchstudents_from_adminclass(${DevelConf::teacher});
 &print_list("The list of every teacher:",@lehrer);
 
 # admins
 &titel("Creating list of every administrator ...");
 #my @lehrer=&get_lehrer_in_schule();
-my @admins=&fetchadministrators_from_school();
+@admins=&fetchadministrators_from_school();
 &print_list("The list of every administrator:",@admins);
 
 # workstations
 &titel("Creating list of every workstation ...");
 #my @workstations=&get_workstations_in_schule();
 #my @workstations=&get_workstations_school();
-my @workstations=&fetchworkstations_from_school();
+@workstations=&fetchworkstations_from_school();
 &print_list("The list of every workstation:",@workstations);
 
-
+}
 
 
 
@@ -361,7 +381,9 @@ if (
         or $projects ne ""
         or $student==1
        ){
-       &titel("Checking login names ...");
+       if($Conf::log_level>=3){
+           &titel("Checking login names ...");
+       }
        @users=&create_userlist($login,$classes,1,$projects,1,$student,
                                0,0,0,1);
     } else {
@@ -375,9 +397,11 @@ if (
 }
 
 
-
-&log_script_end(@arguments);
-
+if ($bind_only==1){
+    # no logging
+} else {
+    &log_script_end(@arguments);
+}
 
 
 
@@ -1004,7 +1028,6 @@ sub manage_pointers {
     # repairing all pointers
     
     my @list=&Sophomorix::SophomorixPgLdap::pg_get_group_list($login);
-        print "Repairing pointers in $share_dir\n";
     my $count=1;
     foreach my $group (@list){
         my ($group_type)=&pg_get_group_type($group);
