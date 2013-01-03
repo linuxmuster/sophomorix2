@@ -43,7 +43,10 @@ my $repairhome=0;
 
 # delete following option ???????????
 my $repairbinds=0;
+
 my $always_bind=0;
+my $bind_only=0;
+my $unbind_only=0;
 
 # binds
 my $delete_bind_extension="";  # default extension
@@ -103,6 +106,8 @@ my $testopt=GetOptions(
            "repairhome" => \$repairhome,
            "repairbinds" => \$repairbinds,
            "always-bind" => \$always_bind,
+           "bind-only" => \$bind_only,
+           "unbind-only" => \$unbind_only,
            "delete-binds:s" => \$delete_binds,
            "repair-binds:s" => \$repair_binds,
            "delete-links:s" => \$delete_links,
@@ -130,6 +135,8 @@ if ($dateirechte==0
     and $htaccess==0
     and $info==0
     and $repairhome==0
+    and $bind_only==0
+    and $unbind_only==0
     and $repairbinds==0
     and $delete_binds eq $delete_bind_extension_do_nothing
     and $repair_binds eq $repair_bind_extension_do_nothing
@@ -177,6 +184,14 @@ What to repair (one option must be given):
          --students
 
   Repairing pointers (links, bind mounts, ...)
+
+   Do also the bind mount:
+      --always-bind
+
+    Only bind/unbind the bind mounts (--always-bind is automatically set).
+      --bind-only --user username
+      --unbind-only --user username
+    These options are used by sophomorix-bind.
 
     Remove the link/bind (Default extension is the empty string)
       --delete-links / --delete-links ".link-extension" 
