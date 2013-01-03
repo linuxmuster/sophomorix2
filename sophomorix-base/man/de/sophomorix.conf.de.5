@@ -24,11 +24,13 @@ Diese Datei beschreibt die ZUSÄTZLICHEN Parameter in sophomorix.conf
 .PP
 .SH OPTIONEN
 
-.B $sophomorix_bind_repair=0;
+.B $sophomorix_bind_repair="norepair";
 .br
-.B $sophomorix_bind_repair=1; # default
-.br 
-Sollen beim Einloggen via samba die bindmounts nur erstellt, oder qrepariert werden (Verzecihnisse vorher anlegen , ...).
+.B $sophomorix_bind_repair="repair";     # default
+.TP
+Sollen beim Einloggen via samba die bindmounts nur erstellt, oder repariert werden (Verzecihnisse vorher anlegen , ...).
+
+Ohne reparieren läft sophomorix-bind wesentlich performanter.
 .TP
 .SH AUTHOR
 Written by <jeffbeck@web.de>.
