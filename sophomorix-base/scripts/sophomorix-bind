@@ -41,13 +41,6 @@ my $logout=0;
 my $command_log=0;
 my $quick=0;
 
-# Default from sophomorix.conf
-if (defined $Conf::sophomorix_bind_repair){
-    if ($Conf::sophomorix_bind_repair eq "norepair"){
-        $quick=1;
-    }
-}
-
 
 # config
 my $seconds_delay=60;
@@ -55,7 +48,6 @@ my $seconds_delay=60;
 ###############################################################################
 # Beginn
 ###############################################################################
-
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -75,6 +67,14 @@ my $testopt=GetOptions(
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
+if ($login==1 and $logout==1 ){
+    print "\n Use --login OR --logout\n\n";
+    exit;
+}
+if ($quick==1 and $login==0 and $logout==0 ){
+    print "\n Option --quick can only be used with --login or --logout\n\n";
+    exit;
+}
 
 
 # --help
@@ -230,12 +230,12 @@ if ($command_log==1){
 sub login {
     my ($user) = @_;
     if ($quick==0){
-        my $command="/usr/sbin/sophomorix-repair --always-bind".
+        my $command="/usr/sbin/sophomorix-repair --quick".
                     " --user $user --repair-binds \"\"";
         print "  * $command\n";
         system($command);
     } else {
-        my $command="/usr/sbin/sophomorix-repair --bind-only".
+        my $command="/usr/sbin/sophomorix-repair --quick".
                     " --user $user --repair-binds \"\"";
         print "  * $command\n";
         system($command);
@@ -247,11 +247,13 @@ sub login {
 sub logout {
     my ($user) = @_;
     if ($quick==0){
-        my $command="/usr/sbin/sophomorix-repair --user $user --delete-binds \"\"";
+        my $command="/usr/sbin/sophomorix-repair --user $user".
+                    " --delete-binds \"\"";
         print "  * $command\n";
         system($command);
     } else {
-        my $command="/usr/sbin/sophomorix-repair --unbind-only --user $user";
+        my $command="/usr/sbin/sophomorix-repair --quick --user".
+                    " $user --delete-binds \"\"";
         print "  * $command\n";
         system($command);
     }
@@ -285,7 +287,7 @@ sub set_last_time {
     # append line to logfile
     my ($user,$date) = @_;
     my $entry = $user."::".$date;
-    print "Updating db: $entry";
+    print "Updating db with entry:\n$entry\n";
     system("echo \"${entry}\" >> ${DevelConf::sophomorix_bind_log}");
 }
 

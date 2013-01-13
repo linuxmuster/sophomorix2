@@ -45,8 +45,7 @@ my $repairhome=0;
 my $repairbinds=0;
 
 my $always_bind=0;
-my $bind_only=0;
-my $unbind_only=0;
+my $quick=0;
 
 # binds
 my $delete_bind_extension="";  # default extension
@@ -106,8 +105,7 @@ my $testopt=GetOptions(
            "repairhome" => \$repairhome,
            "repairbinds" => \$repairbinds,
            "always-bind" => \$always_bind,
-           "bind-only" => \$bind_only,
-           "unbind-only" => \$unbind_only,
+           "quick" => \$quick,
            "delete-binds:s" => \$delete_binds,
            "repair-binds:s" => \$repair_binds,
            "delete-links:s" => \$delete_links,
@@ -123,6 +121,15 @@ my $testopt=GetOptions(
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
+if ($quick==1 and 
+    $repair_binds eq $repair_bind_extension_do_nothing and 
+    $delete_binds eq $delete_bind_extension_do_nothing ){
+    print "\n Option --quick can only be used with --repair-binds",
+          " or --delete-binds\n\n";
+    exit;
+}
+
+
 
 # use options as extensions
 $delete_bind_extension=$delete_binds;
@@ -183,13 +190,13 @@ What to repair (one option must be given):
 
   Repairing pointers (links, bind mounts, ...)
 
-   Do also the bind mount:
+    Do also the bind mount:
       --always-bind
 
-    Only bind/unbind the bind mounts (--always-bind is automatically set).
-      --bind-only --user username
-      --unbind-only --user username
+    Bind the bind mounts as quick as possible (--always-bind is automatically set).
     These options are used by sophomorix-bind.
+      --quick --user username --repair-binds ""
+      --quick --user username --delete-binds ""
 
     Remove the link/bind (Default extension is the empty string)
       --delete-links / --delete-links ".link-extension" 
@@ -216,7 +223,7 @@ Please see the sophomorix-repair(8) man pages for full documentation
 }
 
 
-if ($bind_only==1){
+if ($quick==1){
     # no logging
 } else {
     &log_script_start(@arguments);
@@ -235,7 +242,7 @@ if ($filename ne "") {
 }
 
 
-if ($bind_only==1){
+if ($quick==1){
     # no permissions needed
 } else {
     # repair.directories einlesen
@@ -262,7 +269,7 @@ my @admins=();
 my @workstations=();
 
 
-if ($bind_only==1){
+if ($quick==1){
     # no userdata needed
 } else {
 
@@ -397,7 +404,7 @@ if (
 }
 
 
-if ($bind_only==1){
+if ($quick==1){
     # no logging
 } else {
     &log_script_end(@arguments);
@@ -756,9 +763,12 @@ sub update_pointer_school {
 
        # --repair-binds
        if ($repair_bind_extension ne $repair_bind_extension_do_nothing){
-           # --bind-only
-           if ($bind_only==1){
-               &create_bind($old_dir,$new_dir_repair,"BINDONLY","ALWAYSBIND");
+           # --quick
+           if ($quick==1){
+               &delete_link($old_dir,$new_dir_repair);
+               &delete_bind($old_dir,$new_dir_repair);
+               #&create_bind($old_dir,$new_dir_repair,"BINDONLY","ALWAYSBIND");
+               &create_bind($old_dir,$new_dir_repair,"","ALWAYSBIND");
            } else {
                &delete_link($old_dir,$new_dir_repair);
                &delete_bind($old_dir,$new_dir_repair);
@@ -907,9 +917,12 @@ sub update_pointer {
 
                # --repair-binds
                if ($repair_bind_extension ne $repair_bind_extension_do_nothing){
-                   # --bind-only
-                   if ($bind_only==1){
-                       &create_bind($old_dir,$new_dir_repair,"BINDONLY","ALWAYSBIND");
+                   # --quick
+                   if ($quick==1){
+                       &delete_link($old_dir,$new_dir_repair);
+                       &delete_bind($old_dir,$new_dir_repair);
+                       #&create_bind($old_dir,$new_dir_repair,"BINDONLY","ALWAYSBIND");
+                       &create_bind($old_dir,$new_dir_repair,"","ALWAYSBIND");
                    } else {
                        &delete_link($old_dir,$new_dir_repair);
                        &delete_bind($old_dir,$new_dir_repair);
@@ -969,11 +982,14 @@ sub update_pointer {
 
            # --repair-binds
            if ($repair_bind_extension ne $repair_bind_extension_do_nothing){
-               # --bind-only
-               if ($bind_only==1){
-                   &create_bind($old_dir,$new_dir_repair_tasks,"BINDONLY","ALWAYSBIND");
+               # --quick
+               if ($quick==1){
+                   &delete_link($old_dir,$new_dir_repair_tasks);
+                   &delete_bind($old_dir,$new_dir_repair_tasks);
+                   #&create_bind($old_dir,$new_dir_repair_tasks,"BINDONLY","ALWAYSBIND");
+                   &create_bind($old_dir,$new_dir_repair_tasks,"","ALWAYSBIND");
                } else {
-                    &delete_link($old_dir,$new_dir_repair_tasks);
+                   &delete_link($old_dir,$new_dir_repair_tasks);
                    &delete_bind($old_dir,$new_dir_repair_tasks);
                    if ($always_bind==0){
                        &create_bind($old_dir,$new_dir_repair_tasks,"","");
@@ -1047,7 +1063,7 @@ sub manage_pointers {
     &update_pointer_school($login);
 
 
-    if ($bind_only==0){
+    if ($quick==0){
         print "-------------------------------------------------------------------\n";
         print "Checking binds of $login in $share_dir\n";
         print "-------------------------------------------------------------------\n";

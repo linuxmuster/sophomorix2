@@ -19,18 +19,10 @@
 /etc/sophomorix/user/sophomorix.conf \- Konfigurationsdatei für Sophomorix
 .br
 .SH DESCRIPTION
-Diese Datei beschreibt die ZUSÄTZLICHEN Parameter in sophomorix.conf
+Diese Datei beschreibt die ZUSÄTZLICHEN Parameter in sophomorix.conf, die nicht in der im Paket enthaltenen Beispiel-Datei beschrieben sind.
 
 .PP
 .SH OPTIONEN
-
-.B $sophomorix_bind_repair="norepair";
-.br
-.B $sophomorix_bind_repair="repair";     # default
-.TP
-Sollen beim Einloggen via samba die bindmounts nur erstellt, oder repariert werden (Verzeichnisse vorher anlegen , ...).
-.TP
-Ohne reparieren läft sophomorix-bind wesentlich performanter.
 
 .TP
 .B $alt_mail_domainname="example.org";
