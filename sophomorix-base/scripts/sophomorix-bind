@@ -8,7 +8,7 @@
 
 # ????? binds nicht automatisch anlegen/nur dirs (option in sophomorix-devel.conf)
 # ????? man page anlegen
-# add more performant --norepair
+# add more performant --quick
 
 
 # Bibliotheken
@@ -39,12 +39,12 @@ my $host="";
 my $login=0; 
 my $logout=0;
 my $command_log=0;
-my $repair=1;
+my $quick=0;
 
 # Default from sophomorix.conf
 if (defined $Conf::sophomorix_bind_repair){
     if ($Conf::sophomorix_bind_repair eq "norepair"){
-        $repair=0;
+        $quick=1;
     }
 }
 
@@ -65,7 +65,7 @@ my $testopt=GetOptions(
            "command-log" => \$command_log,
            "login" => \$login,
            "logout" => \$logout,
-           "repair!" => \$repair,
+           "quick" => \$quick,
            "verbose|v+" => \$Conf::log_level,
            "host:s" => \$host,
            "user:s" => \$user,
@@ -101,10 +101,8 @@ Options
   --command-log
      Enable logging to the sophomorix command logging file
      (this is for debugging only)
-  --repair/--norepair
-     Repair the bind mounts (This is the default)
-     Just bind mount (Do not check, that dirs exist, ...) to
-     achieve better performance.
+  --quick
+     Do only necessary stuff on login/logout to achieve better performance.
     
 
 Please see the sophomorix-bind(8) man pages for full documentation
@@ -231,7 +229,7 @@ if ($command_log==1){
 
 sub login {
     my ($user) = @_;
-    if ($repair==1){
+    if ($quick==0){
         my $command="/usr/sbin/sophomorix-repair --always-bind".
                     " --user $user --repair-binds \"\"";
         print "  * $command\n";
@@ -248,7 +246,7 @@ sub login {
 
 sub logout {
     my ($user) = @_;
-    if ($repair==1){
+    if ($quick==0){
         my $command="/usr/sbin/sophomorix-repair --user $user --delete-binds \"\"";
         print "  * $command\n";
         system($command);
