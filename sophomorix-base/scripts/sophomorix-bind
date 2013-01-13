@@ -118,7 +118,9 @@ Please see the sophomorix-bind(8) man pages for full documentation
 # --cron / --info
 if ($cron==1 or $info==1){
     # log to command.log
-    &log_script_start(@arguments);
+    if ($cron==1){
+        &log_script_start(@arguments);
+    }
     if ($info==1){
         print "The following filesystems would be umounted with option --cron:\n";
     } elsif ($cron==1){
@@ -144,7 +146,11 @@ if ($cron==1 or $info==1){
             }
         }
     }
-    &log_script_end(@arguments);
+    if ($cron==1){
+        &log_script_end(@arguments);
+    } else {
+        exit;
+    }
 }
 
 
