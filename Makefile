@@ -36,9 +36,6 @@ LOGDIR=$(DESTDIR)/var/log/sophomorix
 # Perl modules
 PERLMOD=$(DESTDIR)/usr/share/perl5/Sophomorix
 
-# Debian
-#WEBMINDEBDIR=$(DESTDIR)/usr/share/webmin
-
 # Dokumentation
 DOCDEBDIR=$(DESTDIR)/usr/share/doc
 
@@ -73,9 +70,6 @@ DEVELOPERDIR=$(DESTDIR)/usr/share/sophomorix-developer
 
 # sophomorix-virusscan
 VIRUSSCAN=$(DESTDIR)/usr/share/sophomorix-virusscan
-
-# WEBMINCONFDIR ML und Debian
-#WEBMINCONFDIR=$(DESTDIR)/etc/webmin
 
 # Tools
 TOOLS=$(DESTDIR)/root/sophomorix-developer
@@ -182,6 +176,11 @@ install-base:
 	@install -oroot -groot --mode=0744 sophomorix-base/scripts/sophomorix-*[a-z1-9] $(DESTDIR)/usr/sbin
 # teacher scripts
 	@install -d $(DESTDIR)/usr/bin
+
+
+
+
+
 # group owner is changed in postinst-script to lehrer
 	@install -oroot -groot --mode=4750 sophomorix-base/scripts-teacher/sophomorix-*[a-z1-9] $(DESTDIR)/usr/bin
 # installing configs for root
@@ -192,6 +191,13 @@ install-base:
 	@install -d -m755 -oroot -groot $(CONF)/project
 	@install -oroot -groot --mode=0644 sophomorix-base/config/projects.create $(CONF)/project
 	@install -oroot -groot --mode=0644 sophomorix-base/config/projects.update $(CONF)/project
+# italc
+	@install -d -m755 -oroot -groot $(CONF)/italc
+	@install -oroot -groot --mode=0644 sophomorix-base/config/italcrooms.conf $(CONF)/italc
+	@install -d -m755 -oroot -groot $(CONF)/italc/private
+	@install -d -m755 -oroot -groot $(CONF)/italc/private/admin
+	@install -d -m755 -oroot -groot $(CONF)/italc/private/supporter
+	@install -d -m755 -oroot -groot $(CONF)/italc/private/teacher
 # config-templates
 	@install -oroot -groot --mode=0600 sophomorix-base/config-templates/*.txt $(CTEMPDIR)
 	@install -oroot -groot --mode=0600 sophomorix-base/config-templates/*.map $(CTEMPDIR)
@@ -207,11 +213,6 @@ install-base:
 	@install -oroot -groot --mode=0600 sophomorix-base/config-devel/repairhome.examaccount $(DEVELCONF)/devel
 	@install -oroot -groot --mode=0600 sophomorix-base/config-devel/repairhome.attic $(DEVELCONF)/devel
 	@install -oroot -groot --mode=0600 sophomorix-base/config-devel/repairhome.domcomp $(DEVELCONF)/devel
-#	install -d -m755 -oroot -groot $(DEVELCONF)/webmin
-#	install -oroot -groot --mode=0600 sophomorix-base/config-devel/webmin-admin-modules.conf $(DEVELCONF)/webmin
-#	install -oroot -groot --mode=0600 sophomorix-base/config-devel/webmin-teacher-modules.conf $(DEVELCONF)/webmin
-#	install -oroot -groot --mode=0600 sophomorix-base/config-devel/webmin-student-modules.conf $(DEVELCONF)/webmin
-# languages
 	@install -d -m755 -oroot -groot $(LANGUAGE)
 	@install -oroot -groot --mode=0644 sophomorix-base/lang/sophomorix-lang.*[a-z] $(LANGUAGE)
 	@install -oroot -groot --mode=0644 sophomorix-base/lang/errors.*[a-z] $(LANGUAGE)
@@ -387,53 +388,6 @@ install-developer:
 	@install -d $(TOOLS)/scripts/laptop
 	@install -oroot -groot --mode=0755 sophomorix-developer/tools/scripts/laptop/*-cvs $(TOOLS)/scripts/laptop
 
-#install-webmin:
-#	install -d $(DESTDIR)/usr/sbin
-# moved to sophomorix-base
-#	install -oroot -groot --mode=0744 sophomorix-webmin/scripts/sophomorix-*[a-z1-9] $(DESTDIR)/usr/sbin
-#	##### configs for admin
-#	install -d -m700 -oroot -groot $(CONF)/user
-#	install -oroot -groot --mode=0600 sophomorix-webmin/config/*[!CVS] $(CONF)/user
-#	##### configs for developers
-#	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/devel/user
-#	install -oroot -groot --mode=0700 sophomorix-webmin/config-devel/*.txt $(DESTDIR)/etc/sophomorix/devel/user
-#	# webmin base-configuration
-#	# Webmin-Kategorien
-#	install -d -m755 -oroot -groot $(WEBMINCONFDIR)
-#	install -oroot -groot --mode=0644 sophomorix-webmin/config-webmin/*[a-z] $(WEBMINCONFDIR)
-#	install -oroot -groot --mode=0644 webmin/webmin.cats $(WEBMINCONFDIR)
-
-
-
-
-# sophomorix-webmin
-#install-webmin:
-#	# nothing to do
-#	# configs for admin
-#	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/webmin
-#	install -oroot -groot --mode=0600 sophomorix-base/config/* $(DESTDIR)/etc/sophomorix/webmin
-#	# configs for developers
-#	install -d -m700 -oroot -groot $(DESTDIR)/etc/sophomorix/devel/webmin
-#	install -oroot -groot --mode=0700 sophomorix-base/config-devel/* $(DESTDIR)/etc/sophomorix/devel/webmin
-
-
-
-# sophomorix-webmin
-#install-webmin-classmanager:
-#	# the module
-#	install -d -m755 -oroot -groot $(WEBMINDEBDIR)/classmanager
-#	install -oroot -groot --mode=0755 sophomorix-webmin-classmanager/classmanager/*.cgi $(WEBMINDEBDIR)/classmanager
-#	install -oroot -groot --mode=0755 sophomorix-webmin-classmanager/classmanager/module.info $(WEBMINDEBDIR)/classmanager
-#	install -d -m755 -oroot -groot $(WEBMINDEBDIR)/classmanager/help
-#	install -oroot -groot --mode=0644 sophomorix-webmin-classmanager/classmanager/help/*.html $(WEBMINDEBDIR)/classmanager/help
-#	install -d -m755 -oroot -groot $(WEBMINDEBDIR)/classmanager/images
-#	install -oroot -groot --mode=0644 sophomorix-webmin-classmanager/classmanager/images/*.gif $(WEBMINDEBDIR)/classmanager/images
-#	install -d -m755 -oroot -groot $(WEBMINDEBDIR)/classmanager/lang
-#	install -oroot -groot --mode=0644 sophomorix-webmin-classmanager/classmanager/lang/*[!CVS] $(WEBMINDEBDIR)/classmanager/lang
-
-
-
-
 
 
 clean-doc:
@@ -460,7 +414,3 @@ doc:
 	buildhelper/sopho-changelog
 
 
-# sophomorix-usermin
-install-usermin:
-	### install-usermin
-# nothing to do

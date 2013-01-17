@@ -136,7 +136,7 @@ my $italc_owner="root";
 my $italc_dir="";
 
 my $italc_conf_dir="/etc/sophomorix/italc";
-my $italc_conf=$italc_conf_dir."/italcrooms";
+my $italc_conf=$italc_conf_dir."/italcrooms.conf";
 my $italc_key_dir=$italc_conf_dir."/private";
 my $italc_key_dir_admin=$italc_key_dir."/admin";
 my $italc_key_dir_supporter=$italc_key_dir."/supporter";
@@ -278,7 +278,6 @@ my %examaccounts_system = %$ref_examaccounts;
 my %hosts_file=();
 
 &get_classrooms();
-&get_italcrooms();
 
 
 
@@ -534,6 +533,7 @@ if ($full_check==1 and $sync_accounts==0){
 # ===========================================================================
 
 &log_script_start(@arguments);
+&get_italcrooms();
 
 
 # ===========================================================================
@@ -796,10 +796,13 @@ if ($italc_dir ne ""){
     } else {
         print "\nPlease add a key ${italc_key_dir_teacher}/key!\n\n";
     }
-    &log_script_exit("",0,1,0,@arguments);
+    &log_script_end(@arguments);
 }
 
+
 exit 0;
+
+
 
 
 
@@ -1268,11 +1271,12 @@ sub get_classrooms {
 
 sub get_italcrooms {
     print "* Fetching italc rooms from $italc_conf:\n";
-    if (not -e $italc_conf_dir){
-        system("mkdir -p $italc_conf_dir");
-    }
+    #if (not -e $italc_conf_dir){
+    #    system("mkdir -p $italc_conf_dir");
+    #}
     if (not -e $italc_conf){
-        system("touch $italc_conf");
+        &log_script_exit("$italc_conf is missing",1,1,0,@arguments);
+        exit;
     } 
     if (not -e $italc_key_dir_admin){
         system("mkdir -p $italc_key_dir_admin");
@@ -1346,6 +1350,5 @@ sub get_italcrooms {
         }
     }
     close(ITALCROOM);
-
 }
 
