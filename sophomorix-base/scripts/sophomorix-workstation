@@ -61,8 +61,6 @@
 
 # show italcrooms/teacherhosts and classrooms at --print
 
-# italc todo:
-
 
 
 # ===========================================================================
@@ -141,21 +139,7 @@ my $italc_key_dir=$italc_conf_dir."/private";
 my $italc_key_dir_admin=$italc_key_dir."/admin";
 my $italc_key_dir_supporter=$italc_key_dir."/supporter";
 my $italc_key_dir_teacher=$italc_key_dir."/teacher";
-# syntax of italcrooms:
-# room:classroom_name:teacher_host1,teacher_host2,teacher_host3
-# room: as in /etc/linuxmuster/workstations
-# classroom_name: the name displayed by italc
-# teacher_host1: host that are allowed to use italc
-# 
-# use italc
-# 1) run sophomorix-workstation --full-check (creates /etc/sophomorix/italc/ dirs, checks workstation files)
-# 2) edit italcrooms
-# 3) copy the keys to /etc/sophomorix/italc/[admin|supporter|teacher]
-# 4) run sophomorix-workstation --italc-dir /home/share/teachers/.italc
-# 5) configure client the following:
-#     ln -s /home/share/teachers/.italc/private /etc/italc/keys
-#     on login as teacher: ln -s /home/share/teachers/.italc/$HOSTNAME/ $HOME/.italc
-#
+
 # italc
 my $w_coord=169;
 my $h_coord=126;

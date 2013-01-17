@@ -65,6 +65,20 @@ Ein  Kommentarzeichen: Wird als Überschrift genutzt.
 .TP
 Zwei Kommentarzeichen: Bleibt unbenutzt (Echter Kommentar).
 .TP
+.B --italc-dir /home/share/teachers/.italc
+.TP
+Erzeugt ein italc Konfigurationsbaum:
+.TP
+1) italcrooms.conf editieren (syntax siehe man 5 italcrooms.conf)
+.TP
+2) Die Keys nach/etc/sophomorix/italc/[admin|supporter|teacher]/key kopieren.
+.TP
+3) sophomorix-workstation --italc-dir /home/share/teachers/.italc
+.TP
+4) Clients konfigurieren: 
+  aptitude install linuxmuster-client-extras
+  setup-ital-rooms bei der Anmeldung ausführen.
+.TP
 .B -v, --verbose
 Sagt, was das Programm gerade macht (verbose)
 .TP
@@ -75,14 +89,8 @@ Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
 .TP
 .SH SEE ALSO
-.BR sophomorix (8),
-.BR sophomorix-teach-in (8),
-.BR sophomorix-add (8),
-.BR sophomorix-move (8),
-.BR sophomorix-print (8),
-.BR sophomorix-kill (8),
-.BR sophomorix-subclass (8),
-.BR sophomorix-project (8),
+.BR workstations (5),
+.BR italcrooms.conf (5),
 
 .\".BR baz (1).
 .\".br
