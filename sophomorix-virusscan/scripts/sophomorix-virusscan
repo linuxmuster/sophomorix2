@@ -9,8 +9,8 @@
 
 # todo:
 
-# when reading excludes.conf, make sure that --exclude or --exclude-dir is prepended
-# create excludes.conf, when missing, use template, add to debian package
+# when reading sophomorix-virusscan-excludes.conf, make sure that --exclude or --exclude-dir is prepended
+# create sophomorix-virusscan-excludes.conf, when missing, use template, add to debian package
 # log excluded options into logfiles
 
 # make sure sophomorix-check runs, when virusscan is runnung ???
@@ -147,7 +147,7 @@ my $last_auto_scanned=&get_last_auto_scanned();
 #my $config_dir="/etc/sophomorix/virusscan";
 my $config_file="sophomorix-virusscan.conf";
 my $config=$DevelConf::virusscan_conf."/".$config_file;
-my $exclude_file="excludes.conf";
+my $exclude_file="sophomorix-virusscan-excludes.conf";
 my $excludes=$DevelConf::virusscan_conf."/".$exclude_file;
 
 # list of all usable number entries in sophomorix-virusscan.conf

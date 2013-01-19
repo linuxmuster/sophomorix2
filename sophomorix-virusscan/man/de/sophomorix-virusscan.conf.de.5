@@ -1,0 +1,67 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH SOPHOMORIX-VIRUSSCAN.CONF 5 "January 19, 2013"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+/etc/sophomorix/virusscan/sophomorix-virusscan.conf \- Konfigurationsdatei für sophomorix-virusscan
+.br
+.SH DESCRIPTION
+In diese Konfigurationsdatei kann in jeder Zeile für ein Scan Objekt festgelegt werden, an welchen Tagen es gescannt werden soll.
+
+So können z.B. user, die sehr oft Viren haben, jeden zweiten Tag gescannt werden.
+
+Für die Erklärung von scan Objekten siehe:
+
+man sophomorix-virusscan
+
+.PP
+.SH FELDER
+
+Die folgenden Felder bilden eine Zeile, die durch Doppel-Doppelpunkte getrennt sind:
+.TP
+.B Feld 1: Scan Objekt
+Für welches Scan Objekt (User, Tauschverzeichnis, Absoluter Pfad) gelten die folgenden Angaben.
+.TP
+.B Feld 2: Liste von Tagen, kommasepariert
+Zulässig sind Zahlen von 1 bis 31 und die Wochentage monday, tuesday, ...
+.TP
+.SH BEISPIELE
+.TP
+.B Beispiel 1: Home-Verzeichnis des users jeff 4 mal im Monat scannen:
+.TP
+ jeff::1,9,16,24::
+.TP
+.TP
+.B Beispiel 2: Schulweites Tauschverzeichnis etwa jeden fünften Tag scannen:
+.TP
+ /home/share/school::1,5,10,15,20,25,30
+.TP
+.TP
+.B Beispiel 3: Home-Verzeichnis des users jeff jeden Montag scannen:
+.TP
+ jeff::monday::
+.TP
+.SH SEE ALSO
+.BR sophomorix-virusscan-exclude.conf (5)
+.BR sophomorix-virusscan (8),
+
+.\".BR baz (1).
+.\".br
+.\"You can see the full options of the Programs by calling for example 
+.\".IR "sophomrix-useradd -h" ,
+.
+.SH AUTHOR
+Written by <jeffbeck@web.de>.

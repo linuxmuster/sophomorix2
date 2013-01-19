@@ -1,0 +1,66 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH SOPHOMORIX-VIRUSSCAN-EXCLUDES.CONF 5 "January 19, 2013"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+/etc/sophomorix/virusscan/sophomorix-virusscan-excludes.conf \- Konfigurationsdatei für sophomorix-virusscan
+.br
+.SH DESCRIPTION
+In diese Konfigurationsdatei kann in jeder Zeile für einen nach Viren durchsuchten Pfad eine Ausnahme (= nicht nach Viren scannen) definiert werden.
+
+
+.PP
+.SH FELDER
+
+Die folgenden Felder bilden eine Zeile, die durch Doppel-Doppelpunkte getrennt sind:
+.TP
+.B Feld 1: Absoluter Pfad 
+.TP
+Für welches zu scannende Objekt (Absoluter Pfad) soll die Ausnahme gelten.
+.TP
+.B Feld 2: Exclude Option für clamscan
+.TP
+Die Exclude Option von clamscan, so wie sie auf der Kommandozeile angebeben wird. Es können auch Regular Expressions benutzt werden.
+.TP
+Siehe auch: man clamscan
+.TP
+.SH BEISPIELE
+.TP
+.B Beispiel 1: Ein user besitzt einen Virus. 
+.TP
+Der user jeff besitzt für Testzwecke das eicar Virus in in $HOME/my-viruses/eicar. Es soll ihm nicht bei jedem Scan weggenoimmen werden:
+.TP
+ /home/teachers/jeff::--exclude=/home/teachers/jeff/my-viruses/eicar
+.TP
+.TP
+.B Beispiel 2: Große Datenmengen nicht scannen. 
+.TP
+Der user jeff besitzt einen Orner $HOME/isos in denen 50GB Iso-Images lagern, die nicht gescannt werden brauchen, um Zeit zu sparen.
+.TP
+/home/teachers/jeff::--exclude-dir=/home/teachers/jeff/isos
+.TP
+.TP
+.SH SEE ALSO
+.BR sophomorix-virusscan.conf (5)
+.BR sophomorix-virusscan (8),
+
+.\".BR baz (1).
+.\".br
+.\"You can see the full options of the Programs by calling for example 
+.\".IR "sophomrix-useradd -h" ,
+.
+.SH AUTHOR
+Written by <jeffbeck@web.de>.

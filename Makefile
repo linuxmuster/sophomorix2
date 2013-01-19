@@ -69,7 +69,7 @@ CTEMPDIR=$(DESTDIR)/usr/share/sophomorix/config-templates
 DEVELOPERDIR=$(DESTDIR)/usr/share/sophomorix-developer
 
 # sophomorix-virusscan
-VIRUSSCAN=$(DESTDIR)/usr/share/sophomorix-virusscan
+#VIRUSSCAN=$(DESTDIR)/usr/share/sophomorix-virusscan
 
 # Tools
 TOOLS=$(DESTDIR)/root/sophomorix-developer
@@ -345,10 +345,9 @@ install-vampire:
 
 install-virusscan:
 	### install-virusscan
-	@install -d $(VIRUSSCAN)
-	@install -d $(VIRUSSCAN)/config
-	@install sophomorix-virusscan/config/sophomorix-virusscan.conf $(VIRUSSCAN)/config
-	@install sophomorix-virusscan/config/excludes.conf $(VIRUSSCAN)/config
+	@install -d -m755 -oroot -groot $(CONF)/virusscan
+	@install sophomorix-virusscan/config/sophomorix-virusscan.conf $(CONF)/virusscan
+	@install sophomorix-virusscan/config/sophomorix-virusscan-excludes.conf $(CONF)/virusscan
 	@install -d $(DESTDIR)/usr/sbin
 	@install -oroot -groot --mode=0744 sophomorix-virusscan/scripts/sophomorix-virusscan $(DESTDIR)/usr/sbin
 

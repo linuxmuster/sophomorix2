@@ -128,6 +128,8 @@ binary-indep: build install
 	dh_installman -psophomorix-vampire sophomorix-vampire/man/de/sophomorix-vampire.de.8
 # Install manpages for sophomorix-virusscan
 	dh_installman -psophomorix-virusscan sophomorix-virusscan/man/de/sophomorix-virusscan.de.8
+	dh_installman -psophomorix-virusscan sophomorix-virusscan/man/de/sophomorix-virusscan.conf.de.5
+	dh_installman -psophomorix-virusscan sophomorix-virusscan/man/de/sophomorix-virusscan-excludes.conf.de.5
 #	dh_installinfo
 #	dh_undocumented
 	dh_install --sourcedir=debian/sophomorix

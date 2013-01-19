@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-VIRUSSCAN 8 "July 03, 2010"
+.TH SOPHOMORIX-VIRUSSCAN 8 "January 19, 2013"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -26,8 +26,14 @@ Mit sophomorix-virusscan kann man Heimatverzeichnisse der User,
 Tauschverzeichnisse sowie beliebige andere Verzeichnisse mit Clamav
 nach Viren durchsuchen.
 
-sophomorix-virusscan ist (nur dann) sinnvoll eingesetzt, wenn man alle
-Daten nicht mehr in einem einzigen cronjob nach Viren durchsuchen kann.
+Nach einer bestimmten Zeit wird der Scan beendet. Beim erneuten
+starten des Scans wird er dort fortgesetzt, wo er beendet wurde.
+
+sophomorix-virusscan wird benötigt, wenn man alle Daten nicht mehr in
+einem einzigen nächtlichen cronjob nach Viren durchsuchen kann.  Auch
+wenn man den Zeitaufwand für das Scannen von Viren reduzieren mochte
+(Stromverbrauch) ist es sinnvoll eingesetzt.
+
 .SH ANLEITUNG
 Scan-Objekte können sein:
 .br 
@@ -119,17 +125,16 @@ gefundenen Viren gescannt werden sollen.
 alphabetischen scannen gescannt werden sollen.
 .B \--skip-scannen
 Überspringe das scannnen jeglicher Scan Objekte. 
-.TP
+.SH KONFIGURATION
+Siehe: 
+.br
+man sophomorix-virusscan.conf 
+.br
+man sophomorix-virusscan-excludes.conf
 .SH SEE ALSO
 .BR sophomorix (8),
-.BR sophomorix-teach-in (8),
-.BR sophomorix-search (8),
-.BR sophomorix-add (8),
-.BR sophomorix-move (8),
-.BR sophomorix-print (8),
-.BR sophomorix-kill (8),
-.BR sophomorix-subclass (8),
-.BR sophomorix-class (8),
+.BR sophomorix-virusscan.conf (5),
+.BR sophomorix-virusscan-excludes.conf (5),
 
 .\".BR baz (1).
 .\".br
