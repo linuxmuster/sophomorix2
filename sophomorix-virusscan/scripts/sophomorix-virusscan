@@ -9,12 +9,7 @@
 
 # todo:
 
-# when reading sophomorix-virusscan-excludes.conf, make sure that --exclude or --exclude-dir is prepended
-# create sophomorix-virusscan-excludes.conf, when missing, use template, add to debian package
-# log excluded options into logfiles
-
 # make sure sophomorix-check runs, when virusscan is runnung ???
-# logrotate fuer logfiles (Paket)
 # welche virus-Datei gehört wem, wie heisst sie, wohin gemoved?
 #    idee: statt --move=DIR  sollte --copy=DIR benutzt werden.
 #          danach mit script moven, und vorher owner bestimmen
@@ -194,30 +189,6 @@ my %convert_days_of_week = qw(
 );
 
 
-if (not -e "$config"){
-    my $template=$DevelConf::virusscan_config_templete_pfad."/".$config_file;
-    my $command_1="mkdir -p $DevelConf::virusscan_conf";
-    print "$command_1\n";
-    system("$command_1");
-
-    my $command_2="/bin/cp $template $config";
-    print "$command_2\n";
-    system("$command_2");
-}
-
-
-if (not -e "$excludes"){
-    my $template=$DevelConf::virusscan_config_templete_pfad."/".$exclude_file;
-    my $command_1="mkdir -p $DevelConf::virusscan_conf";
-    print "$command_1\n";
-    system("$command_1");
-
-    my $command_2="/bin/cp $template $excludes";
-    print "$command_2\n";
-    system("$command_2");
-}
-
-
 my %excludes=&get_excludes();
 
 
@@ -353,7 +324,7 @@ if ($info==1){
     print "\n";
 
     print "1) Scanning using data from $config_file\n";
-    open(CONF, "<$config");
+    open(CONF, "<$config") || die "\nERROR: $config does not exist!\n\n";
     while(<CONF>){
         if (/^#/ or /^\s*$/){
             next;
@@ -1012,7 +983,7 @@ sub write_penalty_db {
 sub get_excludes {
     my %excludes=();
     print "* Reading $excludes\n";
-    open(EXCLUDE, "<$excludes");
+    open(EXCLUDE, "<$excludes") || die "\nERROR: $excludes does not exist!\n\n";
     while(<EXCLUDE>){
         # skip comments
         if (/^#/){
