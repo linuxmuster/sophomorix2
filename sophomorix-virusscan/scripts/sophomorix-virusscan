@@ -986,7 +986,7 @@ sub get_excludes {
     open(EXCLUDE, "<$excludes") || die "\nERROR: $excludes does not exist!\n\n";
     while(<EXCLUDE>){
         # skip comments
-        if (/^#/){
+        if (/^#/ or /^\s*$/){
             next;
         }
         chomp();
