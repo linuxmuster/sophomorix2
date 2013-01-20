@@ -6,6 +6,8 @@
     - sophomorix-virusscan: 
       - error if *.conf or *.excludes.conf do not exist
       - allow empty lines in sophomorix-virusscan-excludes.conf
+      - Do not move viruses, copy them to quarantine and delete the virus
+        This allows recovery of ownership.
 
 2.4.15-1 (2013-01-19)
     - sophomorix-virusscan: separated config file from descriptional man page

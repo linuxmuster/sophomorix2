@@ -5,15 +5,10 @@
 # If you find errors, contact the author
 # jeffbeck@web.de  or  jeffbeck@gmx.de
 
-# auf majestix werden alle viren als root.root in quarantine kopiert
-
 # todo:
 
 # make sure sophomorix-check runs, when virusscan is runnung ???
-# welche virus-Datei gehört wem, wie heisst sie, wohin gemoved?
-#    idee: statt --move=DIR  sollte --copy=DIR benutzt werden.
-#          danach mit script moven, und vorher owner bestimmen
-# mail an user
+#
 # was ist mit schultausch?, lehrertausch
 #
 # optionen
@@ -61,7 +56,7 @@
 # ? abs_pfad mit ausgeben bei option --info
 
 
-# Hallo Herr xxx,
+# Hallo Herr/Frau xxx,
 
 # in ihrem Home-Verzeichnis am BSZ Leonberg wurde ein Virus gefunden 
 # und entfernt:
@@ -758,9 +753,10 @@ sub scan_object {
 
         print "   # Scanning ...\n";
         if ($copy==1){
-           $result=`/usr/bin/clamscan -r -i -l $log_clam $exclude_string --copy=$quarantine $scan_dir `;
+           $result=`/usr/bin/clamscan -r -i -l $log_clam $exclude_string --copy=$quarantine $scan_dir`;
         } else {
-           $result=`/usr/bin/clamscan  -r -i -l $log_clam $exclude_string --move=$quarantine $scan_dir`;
+           # copy also, is removed later
+           $result=`/usr/bin/clamscan -r -i -l $log_clam $exclude_string --copy=$quarantine $scan_dir`;
         }
         $scanned_objects_counter++;
         #my $command="clamscan -v -r -i -l $log_clam --move=$quarantine ".
@@ -812,9 +808,24 @@ sub scan_object {
     foreach my $virus (@viruses){
         my ($found,$quarantine,$owner,$group)=split(/::/,$virus);
         $root_mail=$root_mail."     $vir_count) Found at:  ".$found."\n";
-        $root_mail=$root_mail."        Moved to:  ".$quarantine."\n";
-        $root_mail=$root_mail."           Owner:  ".$owner."\n";
-        $root_mail=$root_mail."           Group:  ".$group."\n";
+        # get info from virus file
+        my $uid = (stat $found)[4];
+        my $gid = (stat $found)[5];
+        my $virus_owner = (getpwuid $uid)[0];
+        my $virus_group = (getgrgid $gid)[0];
+        #print "Virusowner is $virus_owner\n";
+        #print "Virusgroup is $virus_group\n";
+        my $chown_command="chown ${virus_owner}:${virus_group} $quarantine";
+        #print "$chown_command\n";
+        system($chown_command);
+        if ($copy==1){
+            $root_mail=$root_mail."        Copied to: ".$quarantine."\n";
+        } else {
+            system("rm $found");
+            $root_mail=$root_mail."        Moved to:  ".$quarantine."\n";
+        }
+        $root_mail=$root_mail."           Owner:  ".$virus_owner."\n";
+        $root_mail=$root_mail."           Group:  ".$virus_group."\n";
         $vir_count++;
     }
 
@@ -892,7 +903,15 @@ sub get_virus_list {
         
         # search for the second line 
         if ($line=~m/$virus_path/ and $found_first_line==1){
-            my ($virus_path_2,$target) = split(/moved to/, $line);
+	    my $target;
+            my $virus_path_2;
+            if ($copy==1){
+                ($virus_path_2,$target) = split(/copied to/, $line);
+            } else {
+                #($virus_path_2,$target) = split(/moved to/, $line);
+                # moving is done by copying and deleting
+                ($virus_path_2,$target) = split(/copied to/, $line);
+            }
             if ( $target =~m/^\s'(.*)'$/ ) {
                 # find quaratined file
                 $virus_quarantine_path=$1;
