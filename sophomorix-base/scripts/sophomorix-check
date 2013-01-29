@@ -91,7 +91,6 @@ my $encoding_students_extra="";
 my $encoding_courses_extra="";
 my $encoding_teachers="";
 
-
 # Parsen der Optionen
 my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
@@ -158,6 +157,39 @@ Please see the sophomorix-check(8) man pages for full documentation
 }
 
 
+# ===========================================================================
+# Heutiges Datum ermitteln
+# ===========================================================================
+
+# in Unix-Zeit
+my $epoche_jetzt=0;
+
+# Variablen für momentanes Datum und Uhrzeit
+my $sec=0;
+my $min=0;
+my $hours=0;
+my $tag=0;
+my $monat=0;
+my $jahr=0;
+my $heute="";
+
+## Epochenzeit in Sekunden seit 1.1.1970. 
+$epoche_jetzt=time;
+
+my $jetzt=localtime($epoche_jetzt);
+$sec=$jetzt->sec;
+$min=$jetzt->min;
+$hours=$jetzt->hour;
+$tag=$jetzt->mday;
+$monat=$jetzt->mon+1;
+$jahr=$jetzt->year+1900;
+
+$heute=`date +%d.%m.%Y`;
+chomp($heute);
+
+&titel("Date: $heute     Time: $hours Hours $min Minutes $sec Seconds");
+
+
 # --unlock
 if ($unlock==1) {
     &unlock_sophomorix();
@@ -174,8 +206,44 @@ if ($lock==1) {
 
 # --cron
 if ($cron==1){
-    # do nothing special
-    # run script as usual
+    # cleanup 
+    my $epoche_delete=$epoche_jetzt-86400*$DevelConf::log_pfad_delete_days;
+    print "Cleaning up $DevelConf::log_pfad\n";
+    print "   Epoc time now: $epoche_jetzt\n";
+    print "   Delete before: $epoche_delete\n";
+
+    opendir USERLOG, $DevelConf::log_pfad;
+    foreach my $datei (readdir USERLOG){
+        if ($datei eq "." or $datei eq ".."){
+            next;
+        }
+        print "Checking $datei:\n";
+        my ($date,$string)=split(/_/,$datei);
+        my ($jahr,$monat,$tag)=split(/-/,$date);
+        if (not defined $jahr or 
+            not defined $monat or 
+            not defined $tag) {
+            print "   * Skipping $datei\n";
+            next;
+        }
+        if (check_date($jahr,$monat,$tag)){
+            print "   * $date is a correct date\n"; 
+        } else {
+            print "$   * date is NOT a correct date\n"; 
+            next;
+        }
+
+        my $datum_epoche=timelocal(0, 0, 0, $tag , ($monat-1), $jahr);
+        print "   * $datum_epoche\n";
+        if ($datum_epoche < $epoche_delete){
+            print "   * DELETE $datei\n";
+            my $abs_path=$DevelConf::log_pfad."/".$datei;
+            system ("rm $abs_path");
+        } else {
+            print "   * KEEP $datei\n";
+        }
+    }
+    # continue with script
 }
 
 
@@ -226,18 +294,6 @@ if ($file_to_check ne "") {
 
 # Die Einzelnen Dateien werden unter folgenden Variable benutzt
 my $schuelerdatei="";
-
-# Variablen für momentanes Datum und Uhrzeit
-my $sec=0;
-my $min=0;
-my $hours=0;
-my $tag=0;
-my $monat=0;
-my $jahr=0;
-my $heute="";
-
-# in Unix-Zeit
-my $epoche_jetzt=0;
 
 # Tolerieren und Deaktivieren
 my $epoche_duldung_bis_schueler=0;
@@ -481,25 +537,6 @@ if (not -e ${DevelConf::pruef_pfad}){
 &check_verzeichnis_mkdir("${DevelConf::ergebnis_pfad}");
 &check_verzeichnis_mkdir("${DevelConf::druck_pfad}");
 
-# ===========================================================================
-# Heutiges Datum ermitteln
-# ===========================================================================
-
-## Epochenzeit in Sekunden seit 1.1.1970. 
-$epoche_jetzt=time;
-
-my $jetzt=localtime($epoche_jetzt);
-$sec=$jetzt->sec;
-$min=$jetzt->min;
-$hours=$jetzt->hour;
-$tag=$jetzt->mday;
-$monat=$jetzt->mon+1;
-$jahr=$jetzt->year+1900;
-
-$heute=`date +%d.%m.%Y`;
-chomp($heute);
-
-&titel("Date: $heute     Time: $hours Hours $min Minutes $sec Seconds");
 
 # ===========================================================================
 # TolerationDate und DeactivationDate ermitteln
@@ -542,13 +579,6 @@ if($Conf::log_level>=3){
 # create hash of valid years
 # ===========================================================================
 &year_ok();
-
-# Datums Hash ausgeben, zum debuggen
-#print "\n\nDas ist der Jahreszahlenhash\n";
-#while (($k,$v) = each %geburts_jahreszahl_erlaubt){
-#    print $k , " ", $v, "\n";
-#}
-
 
 
 # copy the schueler.txt to location where it is checked, or
