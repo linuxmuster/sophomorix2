@@ -243,6 +243,20 @@ if ($cron==1){
             print "   * KEEP $datei\n";
         }
     }
+    close(USERLOG);
+
+    # cleaning up print-data
+    print "Cleaning up $DevelConf::druck_pfad\n";
+    opendir PRINTDATA, $DevelConf::druck_pfad;
+    foreach my $datei (readdir PRINTDATA){
+        if ($datei eq "." or $datei eq ".."){
+            next;
+        }
+        my $abs_path=$DevelConf::druck_pfad."/".$datei;
+        print "* Removing $abs_path\n";
+        system("rm $abs_path");
+    }
+    close(PRINTDATA);
     # continue with script
 }
 
