@@ -138,6 +138,7 @@ my $show=0;
 my $alle=0;
 my $lehrer=0;
 my $caller="";
+my $caller_copy="";
 
 my $netexamplix="";
 
@@ -157,6 +158,7 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "teacher|t" => \$lehrer,
            "caller|postfix=s" => \$caller,
+           "caller-copy=s" => \$caller_copy,
            "netexamplix=s" => \$netexamplix,
            "command=s" => \$command,
            "one-per-page" => \$one_per_page,
@@ -193,6 +195,7 @@ Options:
   --one-per-page
   -s  / --show
   --caller / --postfix  name
+  --caller-copy loginname
   --command pdflatex  (standard is latex)
   -i / --info         (print to standard out)
   --skiplock
@@ -322,6 +325,9 @@ if ($alle==1){
 my $caller_filename_part="";
 if ($caller ne ""){
    $caller_filename_part="-"."$caller";
+}
+if ($caller_copy ne ""){
+   $caller_filename_part="-"."$caller_copy";
 }
 
 
@@ -1300,6 +1306,35 @@ if ($command eq "pdflatex"){
 }
 
 
+# Dateien ins home kopieren
+if ($caller_copy ne ""){
+    print "#### Copying $output_file_basename into home of user $caller_copy:\n";
+
+    # which files should be copied to $HOME of --caller-copy user
+    my @extensions=(".ps",".pdf");
+
+    foreach my $extension (@extensions){
+        my  $file=${DevelConf::druck_pfad}."/".$output_file_basename.$extension;
+        if (-f $file){
+            print "  ## $file\n";
+            # check if user is teacher
+            my ($homedir,$type,$gecos)=&fetchdata_from_account($caller_copy);
+            if ($type ne "teacher"){
+            &log_script_exit("ERROR: $caller_copy must be a teacher (--caller-copy)",
+                             1,1,0,@arguments);
+            }
+
+            # copy it
+            my $target_dir=$homedir."/sophomorix-print-data";
+            if (not -d $target_dir){
+                system("mkdir $target_dir");
+            }
+            system("cp $file $target_dir");
+                system("chown -R ${caller_copy}: $target_dir");
+                system("chmod -R 0600 $target_dir");
+        }
+    }
+}
 
 
 
@@ -1322,6 +1357,10 @@ if ($show==1) {
 sub pdflatexen {
     &titel("pdflatex is creating output ...");
    system("cd ${DevelConf::druck_pfad}; pdflatex $output_file_basename.tex $dev_null");
+
+   system("rm ${DevelConf::druck_pfad}/$output_file_basename.log $dev_null");
+   system("rm ${DevelConf::druck_pfad}/$output_file_basename.toc $dev_null");
+   system("rm ${DevelConf::druck_pfad}/$output_file_basename.aux $dev_null");
 
 }
 

@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-PRINT 8 "March 23, 2008"
+.TH SOPHOMORIX-PRINT 8 "February 12, 2013"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -31,8 +31,6 @@ Mit den Optionen können User auch klassenweise, ... ausgedruckt
 werden.
 .br
 Die erzeugten Daten finden sich in /var/lib/sophomorix/print-data.
-.br
-Im Moment funktioniert sophomorix-print nur ohne Optionen!!
 .PP
 .SH OPTIONS
 .B sophomorix-print
@@ -77,6 +75,9 @@ Verfügung steht).
 Der Dateiname und der Inhalt der Datei enthält den String name. Dies
 kann z.B beim Aufruf aus webmin verwendet werden, um den Aufrufenden
 Lehrer (caller) mit auszudrucken.
+.TP
+.B --caller-copy loginname
+Die erzeugte Datei wird dem User loginname ins $HOME/sophomorix-print-data kopiert.
 .TP
 .B --command pdflatex
 Benützt den Befehl pdflatex um aus *.tex *.pdf zu erzeugen. Standard ist die folgende Reihenfolge: *.tex -> *.dvi -> *.ps -> *.pdf 
