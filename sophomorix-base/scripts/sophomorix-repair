@@ -244,6 +244,8 @@ if ($filename ne "") {
 
 if ($quick==1){
     # no permissions needed
+    &titel("Reading permision data ...");
+    &get_alle_verzeichnis_rechte();
 } else {
     # repair.directories einlesen
     &titel("Reading permision data ...");
