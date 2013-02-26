@@ -1049,21 +1049,27 @@ sub manage_pointers {
     my $count=1;
     foreach my $group (@list){
         my ($group_type)=&pg_get_group_type($group);
-        print " $count)  $group ($group_type):\n";
-# creates __tauschen/tausch-schule for everybody
-#        &Sophomorix::SophomorixBase::create_school_link($login);
-#        &create_share_link($login,$group,$group,$group_type);
-
-        # update links,binds, ...
-        &update_pointer($login,$group,$group,$group_type);
-        $mandatory_binds{$group}="mandatory";
-        $count++;
+        if ($group_type eq "room"){
+            # no bind mounts for workstation accounts
+            print " No pointer to $group because it is a room\n";
+        } else {
+            # update links,binds, ...
+            print " $count)  $group ($group_type):\n";
+            &update_pointer($login,$group,$group,$group_type);
+            $mandatory_binds{$group}="mandatory";
+            $count++;
+        }
     }
 
-    # school dir
-    print " $count)  School-share:\n";
-    &update_pointer_school($login);
-
+    my ($group_type)=&pg_get_group_type($list[0]);
+    if ($group_type eq "room"){
+        # no bind mounts for workstation accounts
+        print " No pointer to School-share because $list[0] is a room\n";
+    } else {
+        # school dir
+        print " $count)  School-share:\n";
+        &update_pointer_school($login);
+    }
 
     if ($quick==0){
         print "-------------------------------------------------------------------\n";
