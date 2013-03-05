@@ -5185,7 +5185,7 @@ sub show_class_teacher_list {
                 $type_string="0";
             } elsif ($g_type eq "hiddenclass"){
                 $type_string="1";
-                print ""
+                print "";
             } else {
                 $type_string="";
             }
