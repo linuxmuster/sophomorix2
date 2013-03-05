@@ -942,6 +942,7 @@ sub update_pointer {
            }
        }
 
+
        ##################################################
        # Link to tasks (all users)
        ##################################################
@@ -988,13 +989,12 @@ sub update_pointer {
                if ($quick==1){
                    &delete_link($old_dir,$new_dir_repair_tasks);
                    &delete_bind($old_dir,$new_dir_repair_tasks);
-                   #&create_bind($old_dir,$new_dir_repair_tasks,"BINDONLY","ALWAYSBIND");
-                   &create_bind($old_dir,$new_dir_repair_tasks,"","ALWAYSBIND");
+                   &create_bind($old_dir_tasks,$new_dir_repair_tasks,"","ALWAYSBIND");
                } else {
                    &delete_link($old_dir,$new_dir_repair_tasks);
                    &delete_bind($old_dir,$new_dir_repair_tasks);
                    if ($always_bind==0){
-                       &create_bind($old_dir,$new_dir_repair_tasks,"","");
+                       &create_bind($old_dir_tasks,$new_dir_repair_tasks,"","");
                    } else {
                        # do also the bind
                        &create_bind($old_dir,$new_dir_repair_tasks,"","ALWAYSBIND");
