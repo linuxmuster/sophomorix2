@@ -63,6 +63,7 @@ my $info=0;
 my $show_classes=0;
 my $show_teachers=0;
 my $shares;
+my $remove_classes_from_teachers=0;
 
 my @users=();
 
@@ -73,7 +74,7 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "add=s" => \$add,
            "remove=s" => \$remove,
-           "teacher=s" => \$teacher,
+           "teacher|t=s" => \$teacher,
            "handout" => \$handout,
            "handoutcopy" => \$handoutcopy,
            "collect" => \$collect,
@@ -89,6 +90,7 @@ my $testopt=GetOptions(
            "info|i" => \$info,
            "showclasses" => \$show_classes,
            "showteachers" => \$show_teachers,
+           "remove-classes-from-teachers" => \$remove_classes_from_teachers,
            "shares!" => \$shares,
            "users=s" => \$users,
           );
@@ -145,6 +147,7 @@ Options
 Manage memberships:
   --add AdminClass
   --remove AdminClass
+  --remove-classes-from-teachers
 
 Show memberships
   --showclasses
@@ -209,6 +212,8 @@ if ($login eq "root"){
     # if caller is root
     if ($teacher ne ""){
        $login=$teacher;
+    } elsif ($remove_classes_from_teachers==1) {
+       # just move on
     } else {
        print "As root, you must specify a teacher with --teacher login \n";
        exit;
@@ -229,6 +234,7 @@ if ($add eq "" and
     $handoutcopy==0 and
     $collect==0 and
     $collectcopy==0 and
+    $remove_classes_from_teachers==0 and
     not defined $shares
    ){
     $info=1;
@@ -240,7 +246,6 @@ if (defined $shares and not @users){
     print "You must give users to switch shares on/off\n";
     exit;
 }
-
 
 ############################################################
 # Info
@@ -309,6 +314,27 @@ if ($info==1
 
 
 &log_script_start(@arguments);
+
+
+## --remove-classes-from-teachers
+if ($remove_classes_from_teachers==1){
+    my @teachers=&Sophomorix::SophomorixPgLdap::fetchusers_from_adminclass(${DevelConf::teacher});
+    foreach my $teacher (@teachers){
+        print "Working on $teacher:\n";
+        my @classes=&fetch_my_adminclasses($teacher);
+        if ($#classes){ # empty list
+            print "   * Nothing to do.\n";
+            next;
+        }
+        foreach my $class (@classes){
+            print "   * Removing $class\n";
+            &remove_my_adminclass($teacher,$class);
+        }
+    }
+    # Creating Mailing Aliases and Lists
+    system("/usr/sbin/sophomorix-mail");
+    &log_script_end(@arguments);
+}
 
 
 
