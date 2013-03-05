@@ -99,18 +99,18 @@ help:
 	@echo '   make'
 	@echo '      make an installation of files to the local debian system'
 	@echo ' '
-	@echo '   make deb'
+	@echo '   make olddeb'
 	@echo '      create a debian package'
 	@echo ' '
 	@echo '   make lenny'
 	@echo '      create a debian lenny package'
 	@echo ' '
-	@echo '   make ubuntu'
+	@echo '   make deb'
 	@echo '      create a debian package'
 	@echo ' '
 
 # build a package
-deb:
+olddeb:
 	### deb
 	### Prepare to build an debian etch package
 	cp sophomorix-pgldap/config-pg/sophomorix-admin.sql.etch sophomorix-pgldap/config-pg/sophomorix-admin.sql
@@ -124,7 +124,7 @@ deb:
 	@echo 'Do not forget to tag this version in cvs'
 	@echo ''
 
-ubuntu:
+deb:
 	### Prepare to build an ubuntu package
 	cp sophomorix-pgldap/config-pg/sophomorix-admin.sql.ubuntu sophomorix-pgldap/config-pg/sophomorix-admin.sql
 	cp debian/control.ubuntu debian/control
