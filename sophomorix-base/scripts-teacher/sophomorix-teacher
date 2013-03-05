@@ -322,7 +322,7 @@ if ($remove_classes_from_teachers==1){
     foreach my $teacher (@teachers){
         print "Working on $teacher:\n";
         my @classes=&fetch_my_adminclasses($teacher);
-        if ($#classes){ # empty list
+        if ($#classes==-1){ # empty list
             print "   * Nothing to do.\n";
             next;
         }
