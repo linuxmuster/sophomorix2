@@ -1049,16 +1049,11 @@ sub manage_pointers {
     my $count=1;
     foreach my $group (@list){
         my ($group_type)=&pg_get_group_type($group);
-        if ($group_type eq "room"){
-            # no bind mounts for workstation accounts
-            print " No pointer to $group because it is a room\n";
-        } else {
-            # update links,binds, ...
-            print " $count)  $group ($group_type):\n";
-            &update_pointer($login,$group,$group,$group_type);
-            $mandatory_binds{$group}="mandatory";
-            $count++;
-        }
+        # update links,binds, ... (user, workstations)
+        print " $count)  $group ($group_type):\n";
+        &update_pointer($login,$group,$group,$group_type);
+        $mandatory_binds{$group}="mandatory";
+        $count++;
     }
 
     my ($group_type)=&pg_get_group_type($list[0]);
