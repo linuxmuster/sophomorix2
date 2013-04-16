@@ -4670,6 +4670,7 @@ sub search_user {
        print "=======================================\n";
 
        printf "  AdminClass         : %-45s %-11s\n",$admin_class_string,$login;
+       printf "  ExitAdminClass     : %-45s %-11s\n",$exit_admin_class,$login;
        printf "  uidNumber          : %-45s %-11s\n",$uidnumber,$login;
        printf "  PrimaryGroup       : %-45s %-11s\n",$pri_group_string,$login;
 
