@@ -254,7 +254,7 @@ if ($cron==1){
         }
         my $abs_path=$DevelConf::druck_pfad."/".$datei;
         print "* Removing $abs_path\n";
-        system("rm $abs_path");
+        system("rm '$abs_path'");
     }
     close(PRINTDATA);
     # continue with script
