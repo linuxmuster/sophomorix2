@@ -12,9 +12,6 @@ logger $0 started
 # sophomorix-bind --cron
 /usr/sbin/sophomorix-bind --cron > /var/log/sophomorix/cron.daily.lastlog && logger 'sophomorix-bind --cron run successfully' || logger 'sophomorix-bind --cron run with ERROR' 
 
-# delete sophomorix-bind.db
-rm /tmp/sophomorix-bind.db
-
 # log end
 logger $0 ended
 
