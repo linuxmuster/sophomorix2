@@ -230,7 +230,7 @@ if ($command_log==1){
 sub login {
     my ($user) = @_;
     if ($quick==0){
-        my $command="/usr/sbin/sophomorix-repair --quick".
+        my $command="/usr/sbin/sophomorix-repair".
                     " --user $user --repair-binds \"\"";
         print "  * $command\n";
         system($command);
