@@ -89,6 +89,16 @@ Tauchen die Benutzerdaten in den Konfigurationsdateien
 die Daten nicht auf, wird der Account nach verstreichen des
 Tolerierungs-Zeitraumes deaktiviert (D) und schließlich löschbar (R).
 .TP
+.B --new-class class
+Einen user in eine andere Klasse versetzen. Dies erzeugt eine Zeile in
+sophomorix.move. Anschließend muss noch sophomorix-move aufgerugen
+werden um den user zu versetzen. 
+.br
+Sollte der user noch einen Eintrag in
+schueler.txt haben, wird bald wieder zurückversetzt werden. Also ist
+diese Option insbesonder zum Testen, oder zum Versetzen eines permanenten user
+notwendig.
+.TP
 .B --teacher teacher --scheduled-toleration yyyy-mm-dd
 Legt fest, dass der Lehrer teacher zum yyyy-mm-dd automatisch aus lehrer.txt \
 auskommentiert werden soll, und dann nur noch toleriert wird.

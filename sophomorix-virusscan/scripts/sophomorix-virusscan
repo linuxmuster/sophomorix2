@@ -815,17 +815,37 @@ sub scan_object {
         my $virus_group = (getgrgid $gid)[0];
         #print "Virusowner is $virus_owner\n";
         #print "Virusgroup is $virus_group\n";
+        my ($virus_mtime_epoch,$virus_ctime_epoch) = (stat($found))[9,10];
+
+        my $virus_mtime=localtime($virus_mtime_epoch);
+        $virus_mtime=~s/ /-/g;
+        #print "mtime is $virus_mtime\n";
+
+        my $virus_ctime=localtime($virus_ctime_epoch);
+        $virus_ctime=~s/ /-/g;
+        #print "ctime is $virus_ctime\n";
+        
+
         my $chown_command="chown ${virus_owner}:${virus_group} $quarantine";
-        #print "$chown_command\n";
         system($chown_command);
+
+        # set mtime,ctime
+
+        my $metadata_filename=$quarantine.
+                              "_ctime=".$virus_ctime.
+                              "_mtime=".$virus_mtime;
+        system("touch $metadata_filename");
+
         if ($copy==1){
             $root_mail=$root_mail."        Copied to: ".$quarantine."\n";
         } else {
             system("rm $found");
             $root_mail=$root_mail."        Moved to:  ".$quarantine."\n";
         }
-        $root_mail=$root_mail."           Owner:  ".$virus_owner."\n";
-        $root_mail=$root_mail."           Group:  ".$virus_group."\n";
+        $root_mail=$root_mail."           Owner:        ".$virus_owner."\n";
+        $root_mail=$root_mail."           Group:        ".$virus_group."\n";
+        $root_mail=$root_mail."           Creation:     ".$virus_ctime."\n";
+        $root_mail=$root_mail."           Modification: ".$virus_mtime."\n";
         $vir_count++;
     }
 

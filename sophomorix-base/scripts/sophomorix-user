@@ -68,6 +68,7 @@ my $search_login="";
 my $old_uid="";
 my $new_uid="";
 my $auth=0;
+my $new_class="";
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -89,6 +90,7 @@ my $testopt=GetOptions(
        "scheduled-toleration=s" => \$sc_toleration,
        "t|teacher=s" => \$teacher,
        "auth|ldap" => \$auth,
+       "new-class|newclass=s" => \$new_class,
           );
 
 
@@ -122,11 +124,18 @@ Changing status of a user:
   -K user   /   --killable user
   -A user   /   --activate user
 
+Changing class of a user (that is not in scheler.txt)
+  -u user --newclass newclass
+  (to move user, sophomorix-move must be called)
+
+
 Actions:
   --reset-user user1,user2,...
   --reset-user user1,user2,... --empty-password
   --teacher teacher --scheduled-toleration yyyy-mm--dd
   --kill-all-users
+  
+
 
 Please see the sophomorix-user(8) man pages for full documentation
 ');
@@ -349,6 +358,68 @@ if ($info==1){
 &log_script_start(@arguments);
 
 
+#--user user --new-class class
+if ($search_login ne "" and $new_class ne ""){
+    my ($home,
+        $type,
+        $gecos,
+        $group,
+        $uidnumber,
+        $sambahomepath,
+        $firstpassword,
+        $sambaacctflags,
+        $exitadminclass,
+        $sambahomedrive,
+        $sambakickofftime,
+        $sambalmpassword,
+        $sambalogofftime,
+        $sambalogontime,
+        $sambantpassword,
+        $sambaprimarygroupsid,
+        $sambapwdcanchange,
+        $sambapwdlastset,
+        $sambapwdmustchange,
+        $sambasid,
+        $surname,
+        $firstname,
+        $userpassword,
+        $loginshell,
+        $gidnumber,
+        $sophomorixstatus) = &fetchdata_from_account($search_login);
+
+    my $file=${DevelConf::ergebnis_pfad}."/sophomorix.move";
+    print "   Old class:  $group \n";
+    print "   New class:  $new_class \n";
+    print "   Old Status: $sophomorixstatus \n";
+    my $line=$search_login."::".$group."::".$new_class."::".$sophomorixstatus."\n";
+    print "   New Line:   $line";
+
+    my $seen=0;
+    my $line_seen="";
+    open (MOVE, "$file");
+    while(<MOVE>) {
+        #print $_;
+        my ($uid,$rest) = split(/::/,$_);
+        #print "<$uid>\n";
+        if ($search_login eq $uid){
+            $seen=1;
+            $line_seen=$_;
+        }
+    }
+    close (MOVE);
+    if ($seen==0){
+        print "Creating new entry in $file\n";
+        # append line
+        open (MOVE, ">>$file");
+        print MOVE $line;
+        close (MOVE);
+    } else {
+        print "\nWARNING: Cannot create entry in $file\n";
+        print "$search_login has scheduled action: $line_seen\n";
+    }
+
+    &log_script_exit("",0,1,0,@arguments);
+}
 
 # --user oldlogin --new-login newlogin
 if ($old_uid ne "" and $new_uid ne ""){

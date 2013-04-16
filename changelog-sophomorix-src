@@ -4,6 +4,12 @@
 ============SOPHOMORIX2 CHANGELOG ====================================
 
 2.4.26-1 (2013-04-xx)
+    -sophomorix-virusscan
+      added file in quaratine tht shows mtime and ctime (Feature #59) 
+      (atime is updated at scanning)
+    -sophomorix-user --user --new-class
+      Moves user in a new class even if it has no entry in schueler.txt
+      (i.e. a permanent user) (fixes #128)
     -sophomorix-bind 
       Bugfix: Do not use option --quick, when $quick=0 (found by Frank)
     -sophomorix-print
