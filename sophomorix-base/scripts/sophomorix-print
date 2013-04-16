@@ -216,7 +216,7 @@ if ($info==0){
     &titel("sophomorix-print is creating output ...");
 }
 
-
+system("mkdir -p ${DevelConf::druck_pfad}");
 
 # ===========================================================================
 # netexamplix
@@ -378,13 +378,17 @@ print LATEX ('\rhead{\bf \large Seite \thepage}');
 
 if ($gruppe ne "") {
    # Klassenangabe gemacht  
-  print MEDIAWIKI "===$gruppe===\n"; 
+  if ($classlist ne ""){
+      print MEDIAWIKI "===$gruppe===\n"; 
+  }
   print LATEX ('
       \chead{\LARGE \bf ',"$gruppe",'}
    ');
 } elsif ($classlist ne "") {
    # Klassenangabe gemacht
+
   print MEDIAWIKI "===$classlist===\n"; 
+
   print LATEX ('
       \chead{\LARGE \bf ',"$classlist",'}
    ');
