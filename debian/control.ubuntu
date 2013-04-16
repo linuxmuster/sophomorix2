@@ -10,7 +10,7 @@ Source: sophomorix
 Section: admin
 Priority: optional
 Maintainer: Ruediger Beck <jeffbeck@web.de>
-Build-Depends: debhelper (>> 3.0.0), perl-base , man2html , docbook-utils , fakeroot, docbook, devscripts
+Build-Depends: debhelper (>> 3.0.0), man2html , docbook-utils , fakeroot, docbook, devscripts
 Standards-Version: 3.5.2
 
 
@@ -28,7 +28,7 @@ Package: sophomorix-base
 Architecture: all
 Suggests: sophomorix-doc-html
 Pre-Depends:  samba 
-Depends:  libdate-calc-perl, libexpect-perl, libterm-readkey-perl, libterm-readline-perl-perl, quota, perl-base, libquota-perl, libstring-approx-perl, libsys-filesystem-perl, libmailtools-perl, libimap-admin-perl, texlive-base-bin, texlive-latex-base, texlive-latex-extra, texlive-pstricks, texlive-lang-german, texlive-latex-recommended, gs-common, rsync, zip, gzip, bzip2, lsb-release, libnet-mac-perl
+Depends:  libdate-calc-perl, libexpect-perl, libterm-readkey-perl, libterm-readline-perl-perl, quota, libquota-perl, libstring-approx-perl, libsys-filesystem-perl, libmailtools-perl, libimap-admin-perl, texlive-base-bin, texlive-latex-base, texlive-latex-extra, texlive-pstricks, texlive-lang-german, texlive-latex-recommended, gs-common, rsync, zip, bzip2, lsb-release, libnet-mac-perl
 Description: scripts for sophomorix
  sophomorix-base contains all database independent scripts to run sophomorix
  on the console. You additionally need a package to access the postgres 
