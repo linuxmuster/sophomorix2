@@ -1448,6 +1448,8 @@ sub fetchnetexamplix_from_account {
 
 # adds a user to the user database
 sub create_user_db_entry {
+    # get_sid
+    my $sid = &get_smb_sid();
     my $sql="";
     # prepare data
     my $today=`date +%d.%m.%Y`;
@@ -1673,8 +1675,6 @@ sub create_user_db_entry {
           }
        }
 
-       # get_sid
-       my $sid = &get_smb_sid();
        # smb user sid
        my $user_sid = &smb_user_sid($uidnumber,$sid);
        if($Conf::log_level>=3){
@@ -1916,6 +1916,8 @@ sub make_salt {
 
 # adds a class to the user database
 sub create_class_db_entry {
+    # get_sid
+    my $sid = &get_smb_sid();
     my $smallest_gidnumber=200;
     # standard: domain group
     my $samba_group_type="2";
@@ -2071,8 +2073,6 @@ sub create_class_db_entry {
     }
     $dbh->do($sql);
 
-    # get_sid
-    my $sid = &get_smb_sid();
 
     # smb group sid
     my $group_sid;
@@ -3281,6 +3281,7 @@ Parameter 2: List with Attribute=Value
 # this function changes the fields of the user login
 
 sub update_user_db_entry {
+    my $sid = &get_smb_sid();
     my $login=shift;
     my $admin_class="";
     my $gid_name="";
@@ -3461,7 +3462,6 @@ sub update_user_db_entry {
               $home_dir="${DevelConf::homedir_pupil}/${gid_name}/${login}";
            } 
            # groupsid
-           my $sid = &get_smb_sid();
            my $group_sid = &smb_group_sid($gid_number,$sid);
            # add to SQL
            push @posix, "gidnumber = '$gid_number'";
@@ -5629,10 +5629,18 @@ sub get_smb_sid {
         $sid_string=`net getlocalsid`;
         chomp($sid_string);
         ($rubbish,$sid) = split(/: /,$sid_string);
-        return $sid;
     } else {
-        return $sid_debconf;
+        $sid=$sid_debconf;
     }
+    # check the sid
+    if ($sid=~m/^S-1-/ and length($sid)>=35 ){
+        # samba sid looks good
+        # Begins with S-1- and is longer/equal tha 35
+    } else {
+       &Sophomorix::SophomorixBase::log_script_exit("Samba SID looks buggy!",
+         1,1,0,@arguments);
+    }
+    return $sid
 }
 
 

@@ -8,11 +8,13 @@
       Bugfix: Do not use option --quick, when $quick=0 (found by Frank)
     -sophomorix-print
       Avoid some errors when creating classlists for mediawiki
-    sophomorix-base cronjob (partly fixes #111)
+    -sophomorix-base cronjob (partly fixes #111)
       Avoid error with missing /tmp/sophomorix-bind.db
       Avoid evaluation of $HOME to /root when deleting data 
         in /var/lib/sophomorix/print-data
-    make password string(numbers) longer (unused when on linuxmuster.net)  
+    -make password string(numbers) longer (unused when on linuxmuster.net)  
+    - Check samba SID (S-1- and equal/longer than 35 chars)
+        before manipulating user/host database (Bugfix #94)
 
 2.4.25-1 (2013-04-15)
     -sophomorix-bind 
