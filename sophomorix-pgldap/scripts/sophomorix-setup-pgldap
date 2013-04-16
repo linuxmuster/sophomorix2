@@ -260,7 +260,7 @@ if ($ldappw ne ""){
     $ldap_explanation="reuse old password";
 } else {
     # generate random password
-    $ldappassword = int( rand(9999999999)) + 9999999999;
+    $ldappassword = int( rand(99999999999999999999)) + 99999999999999999999;
     $ldap_explanation="new random password";
 }
 
@@ -275,7 +275,7 @@ if ($dbpw ne ""){
     $db_explanation="reuse old password";
 } else {
     # generate random password
-    $dbpassword = int( rand(9999999999)) + 9999999999;
+    $dbpassword = int( rand(99999999999999999999)) + 99999999999999999999;
     $db_explanation="new random password";
 }
 
