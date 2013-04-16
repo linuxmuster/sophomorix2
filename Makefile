@@ -86,7 +86,7 @@ DBUPGRADE=$(DESTDIR)/usr/share/dbconfig-common/data/sophomorix-pgldap/upgrade
 
 
 
-all: install-base install-pgldap install-sys-pgldap install-vampire install-developer install-virusscan
+all: install-base install-pgldap install-sys-pgldap install-developer install-virusscan
 
 help:
 	@echo ' '
@@ -323,7 +323,7 @@ install-sys-pgldap:
 	@install -d -m755 -oroot -groot $(PERLMOD)
 	@install -oroot -groot --mode=0644 sophomorix-sys-pgldap/modules/Sophomorix*[a-z1-9] $(PERLMOD)
 
-install-vampire:
+install-vampire-old:
 	### install-vampire
 # installing vampire scripts 
 	@install -d $(DESTDIR)/usr/sbin

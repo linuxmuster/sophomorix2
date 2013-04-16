@@ -61,7 +61,6 @@ install: build
 	$(MAKE) install-pgldap DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-sys-pgldap DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-developer DESTDIR=$(CURDIR)/debian/sophomorix
-	$(MAKE) install-vampire DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) install-virusscan DESTDIR=$(CURDIR)/debian/sophomorix
 	$(MAKE) doc DESTDIR=$(CURDIR)/debian/sophomorix
 
@@ -124,8 +123,6 @@ binary-indep: build install
 	dh_installman -psophomorix-developer sophomorix-developer/man/de/sophomorix-test.de.8
 	dh_installman -psophomorix-developer sophomorix-developer/man/de/sophomorix-test-unid.de.8
 	dh_installman -psophomorix-developer sophomorix-developer/man/de/sophomorix-test-bunchofusers.de.8
-# Install manpages for sophomorix-vampire
-	dh_installman -psophomorix-vampire sophomorix-vampire/man/de/sophomorix-vampire.de.8
 # Install manpages for sophomorix-virusscan
 	dh_installman -psophomorix-virusscan sophomorix-virusscan/man/de/sophomorix-virusscan.de.8
 	dh_installman -psophomorix-virusscan sophomorix-virusscan/man/de/sophomorix-virusscan.conf.de.5

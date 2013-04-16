@@ -47,16 +47,6 @@ Description: postgresql database with ldap access for sophomorix
  the database available in openldap.
 
 
-#Package: sophomorix-vampire
-#Architecture: all
-#Depends: sophomorix2 (>=2.4.26), rsync , ssh , mailsync
-#Description: script to migrate data from an old server to a new server
-# This script is run on a new sophomorix server. It pushes a ssh-key to an 
-# old sophomorix-server, fetches its users and data. Perfect for big step 
-# updates or moving to new hardware. Perhaps also a way to mirror a server
-# for backup. 
- 
-
 Package: sophomorix-developer
 Architecture: all
 Suggests: perl-doc
@@ -65,11 +55,13 @@ Description: Test suite for sophomorix
  Scripts to test sophomorix on a runnig system. These scripts can screw up 
  your server!
 
+
 Package: sophomorix-doc-html
 Architecture: all
 Depends: 
 Description: Html documentation for sophomorix
  This Package contains the complete documentation for sophomorix
+
 
 Package: sophomorix-virusscan
 Architecture: all
