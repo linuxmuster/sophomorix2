@@ -1044,7 +1044,31 @@ sub manage_pointers {
     my %mandatory_binds=();
 
     # repairing all pointers
-    
+
+    # administrators    
+    if ($login eq "administrator" or $login eq "pgmadmin"){
+        print "Creating admin pointers\n";
+        my $target_1=$home."/_schueler";
+        my $source_1="/home/students";
+        &delete_link($source_1,$target_1);
+        &delete_bind($source_1,$target_1);
+        &create_bind($source_1,$target_1,"","ALWAYSBIND");
+
+        my $target_2=$home."/__tauschen";
+        my $source_2="/home/share";
+        &delete_link($source_2,$target_2);
+        &delete_bind($source_2,$target_2);
+        &create_bind($source_2,$target_2,"","ALWAYSBIND");
+        if ($login eq "administrator"){
+            my $target_3=$home."/registry-patches";
+            my $source_3="/usr/share/linuxmuster/registry-patches";
+            &delete_link($source_3,$target_3);
+            &delete_bind($source_3,$target_3);
+            &create_bind($source_3,$target_3,"","ALWAYSBIND");
+        }
+        return;
+    }
+
     my @list=&Sophomorix::SophomorixPgLdap::pg_get_group_list($login);
     my $count=1;
     foreach my $group (@list){
