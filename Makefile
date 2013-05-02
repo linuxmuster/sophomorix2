@@ -106,7 +106,7 @@ help:
 	@echo '      create a debian lenny package'
 	@echo ' '
 	@echo '   make deb'
-	@echo '      create a debian package'
+	@echo '      create a debian package for ubuntu precise'
 	@echo ' '
 
 # build a package
