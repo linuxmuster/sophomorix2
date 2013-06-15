@@ -247,6 +247,9 @@ if ($cron==1){
 
     # cleaning up print-data
     print "Cleaning up $DevelConf::druck_pfad\n";
+    # removing /var/lib/sophomorix/print-data/$HOME directory
+    my $path=$DevelConf::druck_pfad."/\\\$HOME";
+    system("rm -rf $path");
     opendir PRINTDATA, $DevelConf::druck_pfad;
     foreach my $datei (readdir PRINTDATA){
         if ($datei eq "." or $datei eq ".."){
