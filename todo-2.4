@@ -7,8 +7,19 @@
   - Tauschverzeichnisse
 
 # sophomorix-janitor
-   --olduserid --newuserid
-  Ändert
+   --olduserid --newuserid --ask (nachfragen)
+  Ändert die userid von Dateien 
+  im angebbaren absoluten Pfad (Default: home/share)
+# cronjob: a) Prüft, ob die in Projekten enthaltenen admins/user noch im 
+              system sind.(Monatlich)
+           b) Projekte ohne admin melden
+           ? wird beim löschen eines users, seine Projektmemberships entfernt
+             (sollte nur bei members so sein)
+          
+  Überantworten der Projektleitung mit --addadmin neu --removeadmin alt
+  sophomorix-user -u login
+     Auflisten von Projektleitungen (auch mit wem zusammen)
+     (Wenns den user nicht gibt, dann in History gucken)
 
 
 
