@@ -1335,7 +1335,7 @@ if ($caller_copy ne ""){
             }
             system("cp $file $target_dir");
                 system("chown -R ${caller_copy}: $target_dir");
-                system("chmod -R 0600 $target_dir");
+                system("chmod -R 0700 $target_dir");
         }
     }
 }
