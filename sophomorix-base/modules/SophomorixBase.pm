@@ -4264,15 +4264,18 @@ sub get_lehrer_quota {
 # Dazu ist das Quota-Modul erforderlich
 sub get_quota_fs_liste {
    my @quota_fs=();
+   my %devs_seen=();
 
    Quota::setmntent();
    while (($dev, $path, $type, $opts) = Quota::getmntent()) {
       #print"$dev $path $type $opts<p>";
       if ($opts=~/usrquota/){
-       #print"$dev $path $type $opts hinzugenommen<p>";
-       push(@quota_fs, $dev)
+          #print"$dev $path $type $opts hinzugenommen\n";
+          if (not exists $devs_seen{$dev}){
+              push(@quota_fs, $dev);
+              $devs_seen{$dev}="$path";
+          }
       }
-
    }
    Quota::endmntent();
 
