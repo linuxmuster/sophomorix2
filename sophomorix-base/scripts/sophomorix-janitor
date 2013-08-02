@@ -14,6 +14,7 @@ use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 use Sophomorix::SophomorixConfig;
 use Sophomorix::SophomorixBase;
+use Sophomorix::SophomorixAPI;
 use Sophomorix::SophomorixPgLdap;
 use Time::Local;
 use Time::localtime;
@@ -43,9 +44,26 @@ $Term::ANSIColor::AUTORESET = 1;
 # ==========================================================================
 $Conf::log_level=1;
 my $help=0;
-my $user="";
+my $info=0;
+my $login="";
 my $uid=0;
 my $listfiles=0;
+
+my $list_foreign_files=0;
+
+
+
+my @userlist=();
+my $classes="";
+my $projects="";
+my $student=0;
+my $teacher=0;
+my $administrator=0;
+my $rooms="";
+my $ws=0;
+my $check=1;
+
+
 
 # ???????
 my $list_files_path="/var/log/sophomorix/list_files";
@@ -54,9 +72,18 @@ system("mkdir -p $list_files_path");
 # Parsen der Optionen
 my $testopt=GetOptions(
            "verbose|v+" => \$Conf::log_level,
-           "user|u=s" => \$user,
+           "user|users|u=s" => \$login,
+           "class|classes|c=s" => \$classes,
+           "project|projects|p=s" => \$projects,
+           "student|students|s" => \$student,
+           "teacher|teachers|t" => \$teacher,
+           "administrator|administrators" => \$administrator,
+           "room|rooms|r=s" => \$rooms,
+           "workstations|workstation|w" => \$ws,
            "uid=i" => \$uid,
            "listfiles" => \$listfiles,
+           "list-foreign-files" => \$list_foreign_files,
+           "info|i" => \$info,
            "help|h" => \$help,
           );
 
@@ -76,6 +103,19 @@ Options
   --listfiles --user name
   --listfiles --uid uidnumber
 
+  --list-foreign-files (List files/dirs in home of user, that are not owned by user)
+
+
+Selecting users (Default is: no user)
+  -s / --students
+  --class teachers  (teachers)
+  -w / --workstations
+  -u user1,user2,...   /  --users user1,user2,...
+  -c class1,class2,... /  --class class1,class2,... 
+  -p project1,project2,... /  --project project1,project2,... 
+  -r room1,room2,...   /  --room room1,room2,...
+
+
 Please see the sophomorix-janitor(8) man pages for full documentation
 ');
    print "\n";
@@ -89,8 +129,33 @@ Please see the sophomorix-janitor(8) man pages for full documentation
 # ===========================================================================
 
 
-print "\n$scriptname is alpha, do not use it!\n\n";
+# userlist according to options
+@userlist=&create_userlist($login,$classes,0,$projects,0,$student,
+                               $rooms,$ws,$administrator,$check);
 
+# --info
+if ($info==1){
+    foreach my $login (@userlist){
+        print "$login\n";
+    }
+    exit;
+}
+
+
+
+
+# --list-foreign-files
+if ($list_foreign_files==1){
+    foreach my $login (@userlist){
+        my ($home) = &fetchdata_from_account($login);
+        print "Looking for foreign files of $login in $home ...\n";
+        my $prune= "-path $home/_auszuteilen -prune -o -path $home/__tauschen -prune -o".
+                  " -path $home/__austeilen -prune -o -path $home/__einsammeln -prune -o".
+                  " -path $home/__vorlagen -prune -o -path $home/_bereitstellen -prune -o";
+        system ("find $home $prune ! -user $login -printf \"%u\t%g\t%p\n\"");
+    }
+    exit;
+}
 
 
 
@@ -99,11 +164,11 @@ print "\n$scriptname is alpha, do not use it!\n\n";
 # ===========================================================================
 my @dirs=("/home/students/");
 
-if ($uid==0 and $user ne ""){
+if ($uid==0 and $login ne ""){
     # fetch uid of name
-    my ($name, $pass, $uid_of_user, $gid)= getpwnam($user);
+    my ($name, $pass, $uid_of_user, $gid)= getpwnam($login);
     if (not defined $uid_of_user){
-        print "ERROR: Could not determine uid of user $user\n";
+        print "ERROR: Could not determine uid of user $login\n";
         print "       Please specify a uid\n\n";
         exit;
     } else {
@@ -114,21 +179,21 @@ if ($uid==0 and $user ne ""){
 
 # --listfiles and --uid or existing user (--user user)
 if ($listfiles==1 and $uid!=0 ){
-    my $out_file=$list_files_path."/".$user."-dir-list.txt";
-    my $out_file_share=$list_files_path."/".$user."-dir-list-share.txt";
+    my $out_file=$list_files_path."/".$login."-dir-list.txt";
+    my $out_file_share=$list_files_path."/".$login."-dir-list-share.txt";
     my $out_file_summary=$list_files_path."/".
-                         $user."-dir-list-summary.txt";
+                         $login."-dir-list-summary.txt";
     my $out_file_tmp=$list_files_path."/".
-                         $user."-dir-list-tmp.txt";
+                         $login."-dir-list-tmp.txt";
     open(SUMMARY, ">$out_file_summary");
 
     ########## searching $HOME of a user ##########
     # fetching $HOME
-    my ($search_dir) = &fetchdata_from_account($user);
+    my ($search_dir) = &fetchdata_from_account($login);
     print SUMMARY "##### Ordner im persoenlichen Ordner: #####\n";
     my $search_command="find $search_dir -maxdepth 1 ".
-                       "-type d -user $user > $out_file";
-    print "Looking for files of user $user with uid $uid:\n",
+                       "-type d -user $login > $out_file";
+    print "Looking for files of user $login with uid $uid:\n",
           "   $search_command\n";
     system($search_command);
 
@@ -171,26 +236,26 @@ if ($listfiles==1 and $uid!=0 ){
     my $search_dir_share = "/home/share";
     print SUMMARY "##### Ordner in den Tausch-Ordnern: #####\n";
     #my $search_command_share="find $search_dir_share -maxdepth 2 ".
-    #                   "-type d -user $user > $out_file_share";
+    #                   "-type d -user $login > $out_file_share";
     #print "Executing:\n   $search_command_share\n";
     #system($search_command_share);
     print "Looking in $search_dir_share/teachers for dirs:\n";
-    system("find ${search_dir_share}/teachers -maxdepth 1 -type d -user $user > $out_file_share");
+    system("find ${search_dir_share}/teachers -maxdepth 1 -type d -user $login > $out_file_share");
 
     print "Looking in $search_dir_share/classes for dirs:\n";
-    system("find ${search_dir_share}/classes -maxdepth 2 -type d -user $user >> $out_file_share");
+    system("find ${search_dir_share}/classes -maxdepth 2 -type d -user $login >> $out_file_share");
 
     print "Looking in $search_dir_share/subclasses for dirs:\n";
-    system("find ${search_dir_share}/subclasses -maxdepth 2 -type d -user $user >> $out_file_share");
+    system("find ${search_dir_share}/subclasses -maxdepth 2 -type d -user $login >> $out_file_share");
 
     print "Looking in $search_dir_share/projects for dirs:\n";
-    system("find ${search_dir_share}/projects -maxdepth 2 -type d -user $user >> $out_file_share");
+    system("find ${search_dir_share}/projects -maxdepth 2 -type d -user $login >> $out_file_share");
 
     print "Looking in $search_dir_share/exams for dirs:\n";
-    system("find ${search_dir_share}/exams -maxdepth 2 -type d -user $user >> $out_file_share");
+    system("find ${search_dir_share}/exams -maxdepth 2 -type d -user $login >> $out_file_share");
 
     print "Looking in $search_dir_share/school for dirs:\n";
-    system("find ${search_dir_share}/school -maxdepth 1 -type d -user $user >> $out_file_share");
+    system("find ${search_dir_share}/school -maxdepth 1 -type d -user $login >> $out_file_share");
 
    # ????? -ignore_readdir_race einfuegen
 
@@ -220,9 +285,9 @@ if ($listfiles==1 and $uid!=0 ){
     print SUMMARY "##### Sonstige Dateien in den Tausch-Ordnern: #####\n";
 
     #my $search_command_share_files="find $search_dir_share $prune_string ".
-    #                   "-type f -user $user -o -print >> $out_file_summary";
+    #                   "-type f -user $login -o -print >> $out_file_summary";
     my $search_command_share_files="find $search_dir_share  $prune_string ".
-                       "-type f -user $user >> $out_file_tmp";
+                       "-type f -user $login >> $out_file_tmp";
     print "Looking in $search_dir_share for files:\n",
           "   $search_command_share_files\n";
     system($search_command_share_files);
@@ -257,7 +322,7 @@ if ($listfiles==1 and $uid!=0 ){
 # ===========================================================================
 
 sub files_of_user {
-    my ($user) = @_;
+    my ($login) = @_;
     # find /home -user bz > bz-files-in-home.log
 }
 
