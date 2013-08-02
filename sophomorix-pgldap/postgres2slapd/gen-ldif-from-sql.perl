@@ -197,11 +197,16 @@ foreach my $line (@groupsfile) {
    print "$groupsspalte0[$i]: $wert\n";
   
   # Benutzer - Gruppen zuordnung
-   
    foreach my $line (@groupsusersfile) {
     my @groupsusersspalte = split(/\|/, $line); #Zeile am | trennen
-    if ( ($groupsusersspalte[0]=~ /$wert/) && ($groupsspalte0[$i]=~ /cn/) ){
+     # whitespace vorne entfernen
+     $groupsusersspalte[0] =~ s/^\s+//;
+     # whitespace hinten entfernen
+     $groupsusersspalte[0] =~ s/\s+$//;
+    if ( ($groupsusersspalte[0] eq $wert) && ($groupsspalte0[$i]=~ /cn/) ){
+     # whitespace vorne entfernen
      $groupsusersspalte[1] =~ s/^\s+//;
+     # whitespace hinten entfernen
      $groupsusersspalte[1] =~ s/\s+$//;
      print "memberUid: $groupsusersspalte[1]\n"; 
      
