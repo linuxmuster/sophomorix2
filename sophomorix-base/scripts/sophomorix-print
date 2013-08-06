@@ -354,13 +354,15 @@ open(UNIXCSV,
 
 
 print LATEX ('%% This preamble was created from sophomorix-print
-\documentclass[11pt,fleqn,oneside]{article}
+\documentclass[11pt,fleqn,oneside,a4paper]{article}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{ngerman}
 \usepackage{fancyheadings}
 \usepackage{multicol}
 \usepackage{graphicx}
+\usepackage{url}
+\usepackage{hyperref}
 
 \pagestyle{fancy}
 %% Erst mal auf Einzelschüler stellen
@@ -938,35 +940,35 @@ if ($one_per_page==1){
         # schulkonsole
         print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
         print LATEX "Pädagogische Funktionen mit der Schulkonsole im Intranet:\n\n";
-        print LATEX " URL: \\texttt{https://${server}:242}\n\n";
+        print LATEX " URL: \\url{https://${server}:242}\n\n";
 
         # horde
         print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
         print LATEX "Webmail mit Horde: \n\n";
-        print LATEX " URL: \\texttt{https://${server_external}/horde3}\n\n";
+        print LATEX " URL: \\url{https://${server_external}/horde3}\n\n";
 
         # ogo
         #print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
         #print LATEX " Groupware mit OpenGroupware: \n\n";
-        #print LATEX " URL: \\texttt{https://${server_external}/OpenGroupware}\n\n";
+        #print LATEX " URL: \\url{https://${server_external}/OpenGroupware}\n\n";
 
         # moodle
         print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
         print LATEX " Lernplattform mit Moodle: \n\n";
         if (not defined $Conf::moodle_url){
-            print LATEX " URL: \\texttt{https://${server_external}/moodle}\n\n";
+            print LATEX " URL: \\url{https://${server_external}/moodle}\n\n";
         } else {
-            print LATEX " URL: \\texttt{${Conf::moodle_url}}\n\n";
+            print LATEX " URL: \\url{${Conf::moodle_url}}\n\n";
         }
         # phpmyadmin
         #print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
         #print LATEX " Datenbankzugriff mit phpmyadmin: \n\n";
-        #print LATEX " URL: \\texttt{https://${server}/phpmyadmin}\n\n";
+        #print LATEX " URL: \\url{https://${server}/phpmyadmin}\n\n";
 
         # websvn
         #print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
         #print LATEX " Versionskontrolle mit svn per Webfrontend: \n\n";
-        #print LATEX " URL: \\texttt{https://${server}/websvn}\n\n";
+        #print LATEX " URL: \\url{https://${server}/websvn}\n\n";
 
 
 
