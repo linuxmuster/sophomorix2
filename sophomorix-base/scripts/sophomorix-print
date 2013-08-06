@@ -1305,10 +1305,10 @@ if ($command eq "pdflatex"){
 
 
 
-# Datei öffnen und mit acrobat-reader anzeigen falls --show
+# Datei öffnen und mit PDF-reader, z.B. acrobat-reader/xpdf/evince anzeigen falls --show
 if ($show==1) {
-      print "\nacroread: Öffne ${DevelConf::druck_pfad}/$output_file_basename.pdf\n\n";
-      system("acroread ${DevelConf::druck_pfad}/$output_file_basename.pdf");
+      print "\nPDF-Reader: Öffne ${DevelConf::druck_pfad}/$output_file_basename.pdf\n\n";
+      system("xdg-open ${DevelConf::druck_pfad}/$output_file_basename.pdf");
 }
 
 
