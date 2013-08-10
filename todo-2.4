@@ -1,3 +1,5 @@
+
+
 sophomorix-print 
   - delete sophomorix-print-date on logout/after certain time, ...
 
@@ -10,6 +12,11 @@ sophomorix-print
   - Tauschverzeichnisse
 
 # sophomorix-janitor
+  -- Sonderquota checken:
+   user in quota.txt und mailquota.txt (evtl. Klassen/Projekte) haben 
+   noch (Sonder)quota, obwohl user,klassen,projekte nicht mehr existieren
+   (cronjob, monthly)
+
    --olduserid --newuserid --ask (nachfragen)
   Ändert die userid von Dateien 
   im angebbaren absoluten Pfad (Default: home/share)
