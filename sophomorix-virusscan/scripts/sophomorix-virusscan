@@ -826,7 +826,7 @@ sub scan_object {
         #print "ctime is $virus_ctime\n";
         
 
-        my $chown_command="chown ${virus_owner}:${virus_group} $quarantine";
+        my $chown_command="chown ${virus_owner}:${virus_group} \"$quarantine\"";
         system($chown_command);
 
         # set mtime,ctime
@@ -834,12 +834,12 @@ sub scan_object {
         my $metadata_filename=$quarantine.
                               "_ctime=".$virus_ctime.
                               "_mtime=".$virus_mtime;
-        system("touch $metadata_filename");
+        system("touch \"$metadata_filename\"");
 
         if ($copy==1){
             $root_mail=$root_mail."        Copied to: ".$quarantine."\n";
         } else {
-            system("rm $found");
+            system("rm \"$found\"");
             $root_mail=$root_mail."        Moved to:  ".$quarantine."\n";
         }
         $root_mail=$root_mail."           Owner:        ".$virus_owner."\n";
