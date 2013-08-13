@@ -148,10 +148,17 @@ if ($info==1){
 if ($list_foreign_files==1){
     foreach my $login (@userlist){
         my ($home) = &fetchdata_from_account($login);
-        print "Looking for foreign files of $login in $home ...\n";
-        my $prune= "-path $home/_auszuteilen -prune -o -path $home/__tauschen -prune -o".
-                  " -path $home/__austeilen -prune -o -path $home/__einsammeln -prune -o".
-                  " -path $home/__vorlagen -prune -o -path $home/_bereitstellen -prune -o";
+        #print "Looking for foreign files of $login in $home ...\n";
+        my $prune= "-path $home/${Language::to_handoutcopy_dir} -prune -o".
+                  " -path $home/${Language::share_dir} -prune -o".
+                  " -path $home/${Language::handoutcopy_dir} -prune -o".
+                  " -path $home/${Language::collect_dir} -prune -o".
+                  " -path $home/${Language::collected_dir} -prune -o".
+                  " -path $home/${Language::task_dir} -prune -o". 
+                  " -path $home/${Language::handout_dir} -prune -o".
+      	      #    " -path $home/${Language::user_attic}/mailsync -prune -o".
+      	          " -path $home/_schueler -prune -o".
+      	          " -path $home/.Trash-* -prune -o";
         system ("find $home $prune ! -user $login -printf \"%u\t%g\t%p\n\"");
     }
     exit;
