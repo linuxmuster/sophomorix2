@@ -3236,7 +3236,7 @@ sub get_print_data {
     my $sth= $dbh->prepare( "SELECT uid, firstname, 
                                     surname, birthday, 
                                     adminclass, firstpassword,
-                                    sophomorixstatus
+                                    sophomorixstatus, uidnumber
                              FROM userdata
                              WHERE (homedirectory LIKE '/home/students%'
                                 OR gid='$DevelConf::teacher') 
@@ -3252,7 +3252,8 @@ sub get_print_data {
             $birthday_pg,
             $admin_class,
             $firstpass,
-            $sophomorixstatus
+            $sophomorixstatus,
+            $id
            ) = @$row;
         if (not defined $sophomorixstatus){
             next;
@@ -3263,7 +3264,10 @@ sub get_print_data {
                    "$firstname $surname".";".
                    "$login".";".
                    "$firstpass".";".
-                   "$birthday".";"."\n";    
+                   "$birthday".";".
+                   "$firstname".";".
+                   "$surname".";".
+                   "$id"."\n";    
         push @lines, $string;
     }
     return @lines;
