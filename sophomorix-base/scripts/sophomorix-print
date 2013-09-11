@@ -74,6 +74,9 @@ my $nachname_protokoll="";
 my $loginname_protokoll="";
 my $passwort_protokoll="";
 my $geburtsdatum_protokoll="";
+my $first_protokoll="";
+my $sur_protokoll="";
+my $id_protokoll="";
 
 # der aus user_db geholte identifier
 my $identifier_protokoll="";
@@ -81,6 +84,9 @@ my $identifier_protokoll="";
 my $argument="";
 
 my %schueler_im_system_hash=();
+my %schueler_im_system_first=();
+my %schueler_im_system_sur=();
+my %schueler_im_system_id=();
 my $schueler_protokoll_zeile=0;
 
 # Latex-Datei erstellen
@@ -358,6 +364,13 @@ open(CSV,
 open(UNIXCSV,
         ">${DevelConf::druck_pfad}/${output_file_basename}-unix.csv") || die "Fehler: $!";
 
+# *_WebUntis.csv-Datei öffnen (windows)
+open(WEBCSV,
+        ">${DevelConf::druck_pfad}/${output_file_basename}_WebUntis.csv") || die "Fehler: $!";
+# *_WebUntis.csv-Datei öffnen (linux)
+open(WEBUNIXCSV,
+        ">${DevelConf::druck_pfad}/${output_file_basename}_WebUntis-unix.csv") || die "Fehler: $!";
+
 
 print LATEX ('%% This preamble was created from sophomorix-print
 \documentclass[11pt,fleqn,oneside,a4paper]{article}
@@ -504,6 +517,9 @@ foreach (@print_data){
     my $feld3;
     my $feld4;
     my $feld5;
+    my $first;
+    my $sur;
+    my $id;
     chomp($_); # Newline abschneiden
     # Hier ist alles noch ohne Ersetzungen
     # Protokolldateien bearbeiten
@@ -511,7 +527,10 @@ foreach (@print_data){
     $feld2,               # weg
     $feld3,               # weg
     $passwort_protokoll,  # weiterverwenden Case-Sensitives Original-Passwort
-    $feld5                # weg
+    $feld5,                # weg
+    $first,
+    $sur,
+    $id
    )=split(/;/);
 
 #    # Falls Umsteiger aus Vorversion
@@ -527,7 +546,10 @@ foreach (@print_data){
     $name_protokoll,
     $loginname_protokoll,
     $feld4,                    # nicht verwenden
-    $geburtsdatum_protokoll
+    $geburtsdatum_protokoll,
+    $first,
+    $sur,
+    $id
    )=split(/;/);
 
    $loginname_protokoll=&latexize_string($loginname_protokoll);
@@ -547,6 +569,9 @@ foreach (@print_data){
           "$geburtsdatum_protokoll";
    # key=identifier value=Zeile in user_db
    $schueler_im_system_hash{$identifier_protokoll}="$value";
+   $schueler_im_system_first{$identifier_protokoll}="$first";
+   $schueler_im_system_sur{$identifier_protokoll}="$sur";
+   $schueler_im_system_id{$identifier_protokoll}="$id";
   }
 
 if($Conf::log_level>=3){
@@ -1018,6 +1043,10 @@ if ($one_per_page==0 and $classlist eq ""){
     $passwort_protokoll,
     $geburtsdatum_protokoll
    )=split(/;/,$schueler_protokoll_zeile);
+   # Zusatzwerte
+   $first_protokoll=$schueler_im_system_first{$identifier};
+   $sur_protokoll=$schueler_im_system_sur{$identifier};
+   $id_protokoll=$schueler_im_system_id{$identifier};
    # Ausgabe
    if($Conf::log_level>=2){
       print "Erstelle Login-Karte für  $loginname_protokoll  ",
@@ -1183,10 +1212,14 @@ if ($one_per_page==0 and $classlist eq ""){
    # Zeile in add.csv schreiben (unix)georg: linliste
    print UNIXCSV ("$name_protokoll",";","$klasse_protokoll",";",
                   "$loginname_protokoll",";","$passwort_protokoll",";","\n");
+   print WEBUNIXCSV ("$klasse_protokoll",";","$sur_protokoll",";","$first_protokoll",";",
+                  "$loginname_protokoll",";","$id_protokoll",";","\n");
    # Zeile in add.csv schreiben (windows-versuch 1) georg: winliste
    print CSV ("$name_protokoll",";","$klasse_protokoll",";",
               "$loginname_protokoll",";","$passwort_protokoll",";","\l\r");
-   # Zeile auf konsole ausgeben
+   print WEBCSV ("$klasse_protokoll",";","$sur_protokoll",";","$first_protokoll",";",
+                  "$loginname_protokoll",";","$id_protokoll",";","\l\r");
+
    if ($info==1){
        printf "%-11s%-11s%-11s%-40s\n",
               $loginname_protokoll,
@@ -1289,6 +1322,8 @@ close(LATEX);
 # CSV-Dokument schließen
 close(CSV);
 close(UNIXCSV);
+close(WEBCSV);
+close(WEBUNIXCSV);
 
 # ===========================================================================
 # LATEXEN des Dokuments
@@ -1337,7 +1372,8 @@ if ($caller_copy ne ""){
             }
             system("cp $file $target_dir");
                 system("chown -R ${caller_copy}: $target_dir");
-                system("chmod -R 0700 $target_dir");
+                system("chmod 0700 $target_dir");
+                system("chmod 0600 $target_dir/*");
         }
     }
 }
