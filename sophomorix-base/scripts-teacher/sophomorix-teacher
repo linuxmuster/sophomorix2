@@ -36,6 +36,10 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                    );
 
 my @arguments = @ARGV;
+@arguments = ("--skiplock", @arguments);
+#foreach my $arg (@arguments){
+#    print "  <$arg>  \n";
+#}
 
 ############################################################
 # Start
