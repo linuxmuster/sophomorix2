@@ -299,6 +299,14 @@ if ($project eq "" and $info==1){
     exit;
 }
 
+
+# --info --project name
+if ($project ne "" and $info==1){
+    &show_project($project);
+    exit;
+}
+
+
 # --admininfo
 if ($project eq "" and $admininfo==1){
     &show_project_admin_list();
@@ -494,8 +502,6 @@ if ($removememberprojects ne "" and $project ne ""){
 }
 
 
-
-
 # --join
 if (not defined $join){
     $p_join="";
@@ -505,6 +511,7 @@ if (not defined $join){
     $p_join="TRUE";
 }
 
+
 # --mailalias
 if (not defined $mailalias){
     $p_mailalias=""; 
@@ -513,6 +520,7 @@ if (not defined $mailalias){
 } else {
     $p_mailalias="TRUE";
 }
+
 
 # --maillist
 if (not defined $maillist){
@@ -553,12 +561,6 @@ if (defined $project) {
 
 
 
-# --info --project name
-if ($project ne "" and $info==1){
-    &show_project($project);
-    &log_script_exit("Project $project showed!",
-                      1,1,0,@arguments);
-}
 
 # --user-info --project name
 if ($project ne "" and $user_info==1){
