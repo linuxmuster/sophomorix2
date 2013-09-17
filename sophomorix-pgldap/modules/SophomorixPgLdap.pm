@@ -5386,6 +5386,9 @@ sub show_project {
                           "CreationTime:",
                           "  $time"
         );
+    } else {
+	print "\n project $project does not exist\n\n";
+        exit;
     }
 
     my @admins=&fetchadmins_from_project($project);
@@ -5401,10 +5404,15 @@ sub show_project {
     my $groups=$#groups+1;
     @groups = sort @groups;
 
+# 
+    print "GR: <@groups>";
+
     my @pro=&fetchprojects_from_project($project);
     my $pro=$#pro+1;
     @pro = sort @pro;
-
+#
+#    @pro = ();
+    print "PR: <@pro>";
     # calculate length colums
     my $max=$#project_attribs;
     if ($#admins > $max){
