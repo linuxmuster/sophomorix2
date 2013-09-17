@@ -40,6 +40,8 @@ my $truth_file_path="/usr/share/sophomorix-developer/projectfiles/";
 # ==========================================================================
 my $help=0;
 my $add=0;
+my $login_users=0;
+my $logout_users=0;
 my $wsadd=0;
 my $remove=0;
 my $wsremove=0;
@@ -53,6 +55,8 @@ my $projects=0;
 my $testopt=GetOptions(
                 "help|h" => \$help,
                 "add" => \$add,
+                "login-users" => \$login_users,
+                "logout-users" => \$logout_users,
                 "wsadd" => \$wsadd,
                 "work" => \$work,
                 "handout" => \$handout,
@@ -94,6 +98,9 @@ Options
 Adding users/workstations:
   --add
   --wsadd
+
+Login users:
+  --login-users
 
 Removing users/workstations:
   --remove 
@@ -161,6 +168,16 @@ my @userlist=(
   "10C;Gerasimenko;Svetlana;28.10.1974;",
 );
 
+my @loginlist_students=("thuraudi", "altigru", "bartalgi", "coppifa", 
+                        "merckxed", "raasja", "devlamro","hinaulbe",
+                        "kueblefe","gillania","blackmri","gloverro",
+                        "lordjo","paiceia","plantro","pageji",
+                        "jonesjo","bonhamjo","tempelwi","haleal",
+                        "boppth","shoemaca","levyda","hyakutyu",
+                        "ikeyaka","sekits","tschurkl","gerasisv"  
+                        );
+
+
 # the lehrer
 my @teacherlist=(
   "lehrer;Galilei;Galileo;12.10.1982;galli;",
@@ -172,7 +189,7 @@ my @teacherlist=(
 );
 
 # the loginnames of the lehrer
-my @loginlist=("tycho", "hannes", "bruno", "galli", "niko" );
+my @loginlist_teachers=("tycho", "hannes", "bruno", "galli", "niko" );
 
 
 my $teacher="";
@@ -265,6 +282,55 @@ my $room2="717b";
 my @hostnames1=("pc0001","pc0002","pc0003","pc0004");
 my @hostnames2=("Rechner1","Rechner2","Rechner3","Rechner4",
                 "Rechner5","Rechner6","Rechner7","Rechner8");
+
+
+
+if ($login_users==1){
+    print '
+###########################################################################
+#                                                                         #
+#             EINLOGGEN EXISTIERENDER USER/WORKSTATIONS                   #
+#                                                                         #
+###########################################################################
+';
+    my @list=(@loginlist_students,@loginlist_teachers,@hostnames1,@hostnames2);
+    print "Loggin in all users:\n";
+    foreach my $login (@list){
+        my $ret=system("id $login > /dev/null");
+        if ($ret==0){
+            print "   * Logging in user $login (existing user)\n";
+            system("sophomorix-bind --quick --login --host myhost --user $login --homedir /home/dummy > /dev/null");
+        } else {
+            print "   # User $login nonexisting\n";
+        }
+    }
+}
+
+
+
+
+if ($logout_users==1){
+    print '
+###########################################################################
+#                                                                         #
+#              AUSLOGGEN EXISTIERENDER USER/WORKSTATION                   #
+#                                                                         #
+###########################################################################
+';
+    my @list=(@loginlist_students,@loginlist_teachers,@hostnames1,@hostnames2);
+    print "Loggin out all users:\n";
+    foreach my $logout (@list){
+        my $ret=system("id $logout > /dev/null");
+        if ($ret==0){
+            print "   * Logging out user $logout (existing user)\n";
+            system("sophomorix-bind --quick --logout --host myhost --user $logout --homedir /home/dummy > /dev/null");
+        } else {
+            print "   # User $logout nonexisting\n";
+        }
+    }
+}
+
+
 
 
 if ($wsadd==1){
@@ -893,7 +959,7 @@ if ($remove==1 and -e "/root/sophomorix-test/bunchofusers"){
     }
 
 
-    foreach my $teacher (@loginlist){
+    foreach my $teacher (@loginlist_teachers){
         &remove_line(
                 ";$teacher",
                 "${DevelConf::users_pfad}/lehrer.txt");
