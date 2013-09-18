@@ -582,10 +582,10 @@ sub deleteuser_from_project {
     } else {
         if (not defined $uidnumber_sys){
             print "   NOT removing user $user from project ",
-                  "$group: user doesn't exist\n";
+                  "$project: user doesn't exist\n";
         } elsif (not defined $gidnumber_sys){
             print "   NOT removing user $user from project ",
-                  "$group: group doesn't exist\n";
+                  "$project: group doesn't exist\n";
         }
     }
     &db_disconnect($dbh);
