@@ -2301,7 +2301,7 @@ sub remove_class_db_entry {
     my ($group) = @_;
     my $dbh=&db_connect();
 
-    my $id_sys=$dbh->selectrow_array( "SELECT id 
+    my ($id_sys,$gidnumber_sys)=$dbh->selectrow_array( "SELECT id,gidnumber
                                         FROM groups 
                                         WHERE gid='$group'");
     if (not defined $id_sys){
@@ -2328,6 +2328,13 @@ sub remove_class_db_entry {
     } else {
         print "\nERROR: Could not delete group $group \n\n";
     }
+
+    # remove class as members from projects
+    my $sql="DELETE FROM project_groups WHERE membergid=$gidnumber_sys";
+    print "  $sql\n";
+    $dbh->do($sql);
+
+
     &db_disconnect($dbh);
     # remove entry in auth system
     my $ldap=&auth_connect();
