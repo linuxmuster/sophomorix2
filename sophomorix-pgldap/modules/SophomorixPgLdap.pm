@@ -3933,9 +3933,13 @@ sub create_project {
                           FROM projectdata 
                           WHERE gid='$project'
                          ");
+
     # Merging information:
+    # ========================================
     # LongName
-    if (not defined $p_long_name or $p_long_name eq ""){
+    if (not defined $p_long_name 
+                 or $p_long_name eq ""
+                 or $p_long_name eq $old_long_name){
 	if (defined $old_long_name){
            $p_long_name=$old_long_name;          
         } else {
@@ -4020,6 +4024,7 @@ sub create_project {
         }
     }
 
+    #========================= 1 ================================
     print "1) Data for the Project:\n";
     print "   LongName:         $p_long_name\n";
     print "   AddQuota:         $p_add_quota MB\n";
@@ -4076,6 +4081,7 @@ sub create_project {
         }
     }
 
+    #========================= 2 ================================
     print "2) Exchange Directories:\n";
 
     my %users_to_add=();
@@ -4229,12 +4235,16 @@ sub create_project {
     }
 
     foreach my $memb (@new_members){
-	print "adding $memb as member_by_option\n";
+        if($Conf::log_level>=3){
+	   print "$memb will be a member_by_option\n";
+        }
 	$users_to_add{ $memb }="member_by_option";
     }
 
     foreach my $memb (@new_admins){
-	print "adding $memb as admin\n";
+        if($Conf::log_level>=3){
+   	    print "$memb will be an admin admin\n";
+        }
 	$users_to_add{ $memb }="projectadmin";
     }
 
@@ -4244,7 +4254,7 @@ sub create_project {
     }
 
     if($Conf::log_level>=2){
-       print "\nThis users will be members of project $project\n";
+       print "\nThis users will become members of project $project\n";
        printf "   %-20s %-20s \n","User:","Group:";
        print "------------------------------------------------------------\n";
        while (($k,$v) = each %users_to_add){
@@ -4267,6 +4277,7 @@ sub create_project {
     }
     &db_disconnect($dbh);
 
+    #========================= 3 ================================
     print "3) Managing memberships:\n";
     if($Conf::log_level>=2){
        print "What to compare:\n";
@@ -4281,12 +4292,14 @@ sub create_project {
 
     }
 
-    print "What to do:\n";
+    print "\nWhat to do:\n\n";
 
     # users
     # ========================================
     # calculating which users to add
+    print "Checking users:\n";
     foreach my $user (@old_users){
+       print "   * checking user $user\n";
        if ($longname_changed==1){
             &Sophomorix::SophomorixBase::remove_share_pointer($user,
                                        $project,$old_long_name);
@@ -4328,7 +4341,7 @@ sub create_project {
     }
     # sorting
     @users_to_add = sort @users_to_add;
-    print "  Users to add: @users_to_add\n";
+    print "  --> Users to add (Summary): @users_to_add\n";
     # adding the users
     foreach my $user (@users_to_add) {
        if ($user eq "root"){next;}
@@ -4340,12 +4353,15 @@ sub create_project {
        &Sophomorix::SophomorixBase::create_share_directory($user,
                                         $project,$p_long_name);
     }
+    print "\n";
 
 
     # admins
     # ========================================
     # calculating which users to add as admins
+    print "Checking admins:\n";
     foreach my $user (@old_admins){
+       print "   * checking admin user $user\n";
        if (exists $admins_to_add{$user}){
           # remove user from admins_to_add
           if($Conf::log_level>=3){
@@ -4373,7 +4389,7 @@ sub create_project {
     }
     # sorting
     @admins_to_add = sort @admins_to_add;
-    print "  Users to add as admins: @admins_to_add\n";
+    print "  --> Users to add as admins (Summary): @admins_to_add\n";
     # adding the users
     foreach my $user (@admins_to_add) {
        if ($user eq "root"){next;}
@@ -4385,11 +4401,12 @@ sub create_project {
        &Sophomorix::SophomorixBase::create_share_directory($user,
                                         $project,$p_long_name);
     }
-
+    print "\n";
 
     # groups
     # ========================================
     # calculating which groups to add to project
+    print "Checking groups:\n";
     foreach my $group (@old_groups){
        if (exists $groups_to_add{$group}){
           # remove group from groups_to_add
@@ -4428,7 +4445,7 @@ sub create_project {
     }
     # sorting
     @groups_to_add = sort @groups_to_add;
-    print "  Groups to add: @groups_to_add\n";
+    print "  --> Groups to add (Summary): @groups_to_add\n";
     # adding the groups
     foreach my $group (@groups_to_add) {
        	if ($group ne $project){
@@ -4443,6 +4460,7 @@ sub create_project {
     # projects
     # ========================================
     # calculating which m_projects to add 
+    print "Checking projects:\n";
     foreach my $m_project (@old_projects){
        if (exists $projects_to_add{$m_project}){
           # remove m_project from projectss_to_add
@@ -4489,7 +4507,7 @@ sub create_project {
     }
     # sorting
     @projects_to_add = sort @projects_to_add;
-    print "  Projects to add as members: @projects_to_add\n";
+    print "  --> Projects to add as members (Summary): @projects_to_add\n";
     # adding the projects
     foreach my $m_project (@projects_to_add) {
 	if ($m_project ne $project){
@@ -4523,13 +4541,13 @@ sub create_project {
                                          FROM posix_account 
                                          WHERE uid='$user'");
         if (defined $uidnumber){
-        print "$user($uidnumber) must be added to project($id) by option\n";
+        print "User $user($uidnumber) must be added to project($id) by option:\n";
         my $sql="INSERT INTO projects_members
                     (projectid,memberuidnumber)
 	             VALUES
 	            ('$id','$uidnumber')";	
         if($Conf::log_level>=3){
-            print "\nSQL: $sql\n";
+            print "   SQL: $sql\n\n";
         }
         $dbh->do($sql);
         } else {
