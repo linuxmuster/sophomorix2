@@ -308,9 +308,14 @@ if ($project ne "" and $info==1){
 
 
 # --admininfo
-if ($project eq "" and $admininfo==1){
-    &show_project_admin_list();
-    exit;
+if ($admininfo==1){
+    if ($project eq ""){
+        &show_project_admin_list();
+        exit;
+    } else {
+        print "\n   Option --admininfo cannot be used together with a project\n\n";
+        exit;
+    }
 }
 
 
