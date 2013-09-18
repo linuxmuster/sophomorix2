@@ -181,17 +181,31 @@ if ($list_db_junk==1 or $kill_db_junk==1){
     @gid_db = sort @gid_db;
     # test it
     foreach my $gidnumber_test (@gid_db){
-        print "   * Testing gid $gidnumber_test:\n";
+        print "* Testing gid $gidnumber_test:\n";
         # fetching gidname
         my ($gid)= $dbh->selectrow_array( "SELECT gid 
                                            FROM groups 
                                            WHERE gidnumber='$gidnumber_test'
                                           ");
         if (defined $gid){
-            print "      $gidnumber_test is group gid\n";
+            print "    $gidnumber_test is group $gid\n";
         } else {
-            print "      $gidnumber_test is nonexisting in db\n";
+            print "    $gidnumber_test is a nonexisting group\n";
             # DELETE
+            my $sql="DELETE FROM project_groups WHERE membergid=$gidnumber_test";
+            print "  Suggested action for $gidnumber_test:\n";
+            print "  $sql\n";
+            if ($kill_db_junk==1){
+                print "  Do you want to delete $gidnumber_test with the SQL command? y/n\n";
+                my $do_it=<>;
+                chomp($do_it);
+                if($do_it eq "y"){
+                   $dbh->do($sql);
+
+                } else {
+                    print "Skipping deletion of group $gidnumber_test\n";
+                }
+            }
         }
     }
 
