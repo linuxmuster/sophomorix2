@@ -2330,7 +2330,7 @@ sub remove_class_db_entry {
     }
 
     # remove class as members from projects
-    my $sql="DELETE FROM project_groups WHERE membergid=$gidnumber_sys";
+    $sql="DELETE FROM project_groups WHERE membergid=$gidnumber_sys";
     print "  $sql\n";
     $dbh->do($sql);
 
