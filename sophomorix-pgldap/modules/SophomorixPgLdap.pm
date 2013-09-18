@@ -461,7 +461,9 @@ sub fetchgroups_from_project {
        my ($gid_sys)= $dbh->selectrow_array( "SELECT gid 
                                          FROM groups 
                                          WHERE gidnumber=$member_gidnumber");
-       push @grouplist, $gid_sys;
+       if (defined $gid_sys){
+           push @grouplist, $gid_sys;
+       }
     }
     &db_disconnect($dbh);
     return @grouplist;
@@ -504,7 +506,9 @@ sub fetchprojects_from_project {
                                          FROM groups 
                                          WHERE id='$memberpro_id'");
 
-       push @project_list, $m_project;
+       if (defined $m_project){
+           push @project_list, $m_project;
+       }
     }
     &db_disconnect($dbh);
     return @project_list;
@@ -5404,15 +5408,9 @@ sub show_project {
     my $groups=$#groups+1;
     @groups = sort @groups;
 
-# 
-    print "GR: <@groups>";
-
     my @pro=&fetchprojects_from_project($project);
     my $pro=$#pro+1;
     @pro = sort @pro;
-#
-#    @pro = ();
-    print "PR: <@pro>";
     # calculate length colums
     my $max=$#project_attribs;
     if ($#admins > $max){
