@@ -65,6 +65,7 @@ require Exporter;
 	     update_user_db_entry
 	     remove_user_db_entry
              create_project
+             update_project
              remove_project
              get_sys_users
              forbidden_login_hash
@@ -3859,6 +3860,48 @@ sub user_reaktivieren {
 
 
 
+sub update_project {
+    my ($project,$pg_timestamp) = @_;
+    # get existing data
+    print "Time is: $pg_timestamp\n";
+    my $dbh=&db_connect();
+    # fetch old data
+    my ($old_id,$old_name,$old_long_name,$old_add_quota,$old_add_mail_quota,
+        $old_max_members,$old_status,$old_join,
+        $old_mailalias,$old_maillist)= $dbh->selectrow_array( 
+                         "SELECT id,gid,longname,addquota,
+                                 addmailquota,maxmembers,sophomorixstatus,
+                                 joinable,mailalias,maillist 
+                          FROM projectdata 
+                          WHERE gid='$project'
+                         ");
+    &db_disconnect($dbh);
+
+
+    if (defined $old_join){
+        if ($old_join==0){
+            $p_join="FALSE";   
+	} elsif ($old_join==1){
+            $p_join="TRUE";   
+	}
+    } else {
+        $p_join="TRUE";
+    }
+
+
+    # update with existing data
+    &create_project($project,0,$old_long_name,
+                    $old_add_quota,$old_add_mail_quota,
+                    $old_status,$p_join,$pg_timestamp,
+                    $old_max_members,
+                    undef,
+                    undef,
+                    undef,
+                    undef,
+                    $old_mailalias,$old_maillist);
+
+
+}
 
 sub create_project {
     # reads from projects_db and creates the project in the system
@@ -4511,6 +4554,34 @@ sub remove_project  {
        print "\nSQL: $sql\n";
     }
     $dbh->do($sql);
+
+
+    # project_memberprojects löschen
+    # projekte müssen upgedated werden ????
+    $sql="DELETE FROM projects_memberprojects 
+             WHERE memberprojectid=$id; 
+             ";	
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    $dbh->do($sql);
+    $sql="DELETE FROM projects_memberprojects 
+             WHERE projectid=$id; 
+             ";	
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    $dbh->do($sql);
+
+    # project_groups löschen
+    $sql="DELETE FROM project_groups 
+             WHERE projectid=$id; 
+             ";	
+    if($Conf::log_level>=3){
+       print "\nSQL: $sql\n";
+    }
+    $dbh->do($sql);
+
     &db_disconnect($dbh);
 
     # remove share,task,... files    
