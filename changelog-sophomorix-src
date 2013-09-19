@@ -4,6 +4,9 @@
 ============SOPHOMORIX2 CHANGELOG ====================================
 
 2.4.31-1 (2013-09-xx)
+    - sophomorix-bind:
+      - add bind mount _schueler to all teachers (#135 and #136) 
+      - --cron/--info: show also admin bind mounts
     - sophomorix-user --reset-user: 
       works on logged in users (bind mounts ar NOT umounted)
     - sophomorix-test-bunchofusers: added options to login/logout users to
@@ -15,10 +18,12 @@
       - --tree works without --info (as expected)
       - avoid buggy output when a project with nonexisting membergroup
         is shown
+      - closing #175 Part 2)
     - sophomorix-teacher: collect exam even if sophomorix-check, ...
       is running (closes #201)
     - sophomorix-janitor: added option --list-db-junk/--kill-db-junk
-      (closes #175 Part 3)
+      (closes #175 Part 3))
+    - sophomorix-groupdel: closes #175 Part 1)
 
 2.4.30-1 (2013-09-11)
     -fixed permissions when using sophomorix-print --caller-copy 
