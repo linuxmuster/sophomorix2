@@ -1484,6 +1484,8 @@ sub repair_repairhome {
         $path=~s/\$task_dir/$Language::task_dir/;     
         $path=~s/\$task_string/$Language::task_string/;     
 
+        $path=~s/\$inspection_dir/$Language::inspection_dir/;     
+
         $path=~s/\$handout_dir/$Language::handout_dir/;     
         $path=~s/\$handout_string/$Language::handout_string/;     
 

@@ -229,9 +229,9 @@ if ($list_foreign_files==1){
                   " -path $home/${Language::collect_dir} -prune -o".
                   " -path $home/${Language::collected_dir} -prune -o".
                   " -path $home/${Language::task_dir} -prune -o". 
+                  " -path $home/${Language::inspection_dir} -prune -o". 
                   " -path $home/${Language::handout_dir} -prune -o".
       	      #    " -path $home/${Language::user_attic}/mailsync -prune -o".
-      	          " -path $home/_schueler -prune -o".
       	          " -path $home/.Trash-* -prune -o";
         system ("find $home $prune ! -user $login -printf \"%u\t%g\t%p\n\"");
     }
