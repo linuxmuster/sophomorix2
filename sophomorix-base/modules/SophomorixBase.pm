@@ -574,7 +574,7 @@ sub setup_verzeichnis {
         print "Creating $pfad \n";
       }
       &do_falls_nicht_testen(
-        "mkdir $pfad"
+        "mkdir -p $pfad"
       );
    } elsif (-l $pfad) {
       print "ABBRUCH: $pfad ist ein Link auf ein Verzeichnis\n";
@@ -1483,6 +1483,8 @@ sub repair_repairhome {
 
         $path=~s/\$task_dir/$Language::task_dir/;     
         $path=~s/\$task_string/$Language::task_string/;     
+
+        $path=~s/\$inspection_dir/$Language::inspection_dir/;     
 
         $path=~s/\$handout_dir/$Language::handout_dir/;     
         $path=~s/\$handout_string/$Language::handout_string/;     
@@ -2479,13 +2481,14 @@ sub reset_user {
             print "   Creating directories in $homedir\n";
             my $pri_group=shift(@groups);
             &provide_user_files($user,$pri_group);
-            my ($pri_type,$pri_longname)=
-               &Sophomorix::SophomorixPgLdap::pg_get_group_type($pri_group);
-            &create_share_link($user,$pri_group,$pri_longname,$pri_type);
+            # following lines is double/obsolete
+            # my ($pri_type,$pri_longname)=
+            #  &Sophomorix::SophomorixPgLdap::pg_get_group_type($pri_group);
+            # &create_share_link($user,$pri_group,$pri_longname,$pri_type);
             # secondary memberships
             foreach my $group (@groups){
                 if($Conf::log_level>=2){
-                    print "   $user is in secondary $group\n";
+                    print "   $user is in secondary group $group\n";
                 }
                 my ($type,$longname)=
                    &Sophomorix::SophomorixPgLdap::pg_get_group_type($group);
@@ -2527,7 +2530,7 @@ sub create_bind {
     my ($olddir,$newdir,$option1,$option2) = @_;
     # ?????????????? if newdir is a link, remove it!
     if ($option1 ne "BINDONLY"){
-        my $mkdir_command = "mkdir $newdir";
+        my $mkdir_command = "mkdir -p $newdir";
         print "      $mkdir_command\n";
         system("$mkdir_command");
     }
@@ -5432,7 +5435,7 @@ sub unlink_immutable_tree {
         print "${DevelConf::chattr_path} not fount/not executable\n";
     }
     # remove contents of dir recursively
-    my $command="GLOBIGNORE=/; rm -rf $dir";
+    my $command="GLOBIGNORE=/; rm -rf $dir 2>/dev/null";
     print "$command\n";
     system("$command");
 

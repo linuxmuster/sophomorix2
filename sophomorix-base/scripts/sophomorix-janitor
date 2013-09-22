@@ -48,6 +48,8 @@ my $info=0;
 my $login="";
 my $uid=0;
 my $listfiles=0;
+my $list_db_junk=0;
+my $kill_db_junk=0;
 
 my $list_foreign_files=0;
 
@@ -81,7 +83,8 @@ my $testopt=GetOptions(
            "room|rooms|r=s" => \$rooms,
            "workstations|workstation|w" => \$ws,
            "uid=i" => \$uid,
-           "listfiles" => \$listfiles,
+           "list-db-junk" => \$list_db_junk,
+           "kill-db-junk" => \$kill_db_junk,
            "list-foreign-files" => \$list_foreign_files,
            "info|i" => \$info,
            "help|h" => \$help,
@@ -100,6 +103,14 @@ Options
   -h  / --help
   -v  / --verbose
   -vv / --verbose --verbose
+
+Housekeeping the postgres database ldap:
+
+  --list-db-junk
+  --kill-db-junk
+
+Working on users files:
+
   --listfiles --user name
   --listfiles --uid uidnumber
 
@@ -143,6 +154,69 @@ if ($info==1){
 
 
 
+# --list-db-junk / --kill-db-junk
+if ($list_db_junk==1 or $kill_db_junk==1){
+    print "Analyzing ldap database ...\n";
+#    &check_connections();
+    my $dbh=&db_connect();
+
+
+
+    # TEST 1
+    print "TEST 1: gids in project_groups must be existing\n";
+    my %gid_db=();
+    my @gid_db=();
+    my $sth= $dbh->prepare( "SELECT projectid,membergid from project_groups" );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+        # split the array, to give better names
+        my ($project_id,$gid)=@$row;
+        if (not exists $gid_db{$gid}){
+            $gid_db{$gid}="seen";
+            push @gid_db, $gid;
+        }
+        #print "   * $gid (project id: $project_id)\n";
+    }
+    @gid_db = sort @gid_db;
+    # test it
+    foreach my $gidnumber_test (@gid_db){
+        print "* Testing gid $gidnumber_test:\n";
+        # fetching gidname
+        my ($gid)= $dbh->selectrow_array( "SELECT gid 
+                                           FROM groups 
+                                           WHERE gidnumber='$gidnumber_test'
+                                          ");
+        if (defined $gid){
+            print "    $gidnumber_test is group $gid\n";
+        } else {
+            print "    $gidnumber_test is a nonexisting group\n";
+            # DELETE
+            my $sql="DELETE FROM project_groups WHERE membergid=$gidnumber_test";
+            print "  Suggested action for $gidnumber_test:\n";
+            print "  $sql\n";
+            if ($kill_db_junk==1){
+                print "  Do you want to delete $gidnumber_test with the SQL command? y/n\n";
+                my $do_it=<>;
+                chomp($do_it);
+                if($do_it eq "y"){
+                   $dbh->do($sql);
+
+                } else {
+                    print "Skipping deletion of group $gidnumber_test\n";
+                }
+            }
+        }
+    }
+
+
+    &db_disconnect($dbh);
+    exit;
+}
+
+
+
+
 
 # --list-foreign-files
 if ($list_foreign_files==1){
@@ -155,9 +229,9 @@ if ($list_foreign_files==1){
                   " -path $home/${Language::collect_dir} -prune -o".
                   " -path $home/${Language::collected_dir} -prune -o".
                   " -path $home/${Language::task_dir} -prune -o". 
+                  " -path $home/${Language::inspection_dir} -prune -o". 
                   " -path $home/${Language::handout_dir} -prune -o".
       	      #    " -path $home/${Language::user_attic}/mailsync -prune -o".
-      	          " -path $home/_schueler -prune -o".
       	          " -path $home/.Trash-* -prune -o";
         system ("find $home $prune ! -user $login -printf \"%u\t%g\t%p\n\"");
     }

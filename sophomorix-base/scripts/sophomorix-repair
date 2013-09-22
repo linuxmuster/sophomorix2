@@ -557,6 +557,7 @@ sub repair_directories {
 
        s/\$share_dir/$Language::share_dir/;     
        s/\$task_dir/$Language::task_dir/;     
+       s/\$inspection_dir/$Language::inspection_dir/;     
        s/\$to_handoutcopy_dir/$Language::to_handoutcopy_dir/;     
        s/\$to_handoutcopy_string/$Language::to_handoutcopy_string/;     
        s/\$handout_dir/$Language::handout_dir/;     
@@ -1038,17 +1039,16 @@ sub manage_pointers {
                " ($repair_link_extension_do_nothing does nothing)\n",
                $repair_link_extension;
     }
-    my ($home) = &fetchdata_from_account($login);
+    my ($home,$type) = &fetchdata_from_account($login);
     my $share_dir=$home."/".$Language::share_dir;
     my $exists_string="Exists";
     my %mandatory_binds=();
 
     # repairing all pointers
 
-    # administrators    
-    if ($login eq "administrator" or $login eq "pgmadmin"){
-        print "Creating admin pointers\n";
-        my $target_1=$home."/_schueler";
+   # group teachers
+    if ($login eq "administrator" or $login eq "pgmadmin" or $type eq "teacher"){
+        my $target_1=$home."/$Language::inspection_dir";
         my $source_1="/home/students";
 
         &delete_link($source_1,$target_1);
@@ -1056,7 +1056,12 @@ sub manage_pointers {
         if ($repair_bind_extension ne $repair_bind_extension_do_nothing){
             &create_bind($source_1,$target_1,"","ALWAYSBIND");
         }
-        my $target_2=$home."/__tauschen";
+    }
+
+    # administrators    
+    if ($login eq "administrator" or $login eq "pgmadmin"){
+        print "Creating admin pointers\n";
+        my $target_2=$home."/$Language::share_dir";
         my $source_2="/home/share";
         &delete_link($source_2,$target_2);
         &delete_bind($source_2,$target_2);
