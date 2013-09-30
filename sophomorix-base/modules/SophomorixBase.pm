@@ -2075,7 +2075,7 @@ sub nscd_start {
     if (-e $DevelConf::nscd_script){
         # fix: add /sbin to $PATH, because
         # sophomorix-teacher runs with different path
-        system("OLDPATH=\$PATH;PATH=\$PATH:/sbin; $DevelConf::nscd_start; PATH=\$OLDPATH");
+        system("OLDPATH=\$PATH;PATH=\$PATH:/sbin; $DevelConf::nscd_start > /dev/null; PATH=\$OLDPATH");
     }
     &samba_reload();
 }
@@ -2098,14 +2098,16 @@ sub nscd_stop {
     if (-e $DevelConf::nscd_script){
         # fix: add /sbin to $PATH, because
         # sophomorix-teacher runs with different path
-        system("OLDPATH=\$PATH;PATH=\$PATH:/sbin; $DevelConf::nscd_stop; PATH=\$OLDPATH");
+        system("OLDPATH=\$PATH;PATH=\$PATH:/sbin; $DevelConf::nscd_stop > /dev/null; PATH=\$OLDPATH");
     }
 }
 
 sub nscd_flush_cache {
     # flush_cache tut nur bei laufendem nscd
     if (-e "/usr/sbin/nscd"){
-        print "Flushing nscd cache\n";
+        if($Conf::log_level>=2){
+            print "Flushing nscd cache\n";
+        }
 	system("/usr/sbin/nscd -i passwd");
 	system("/usr/sbin/nscd -i group");
 	system("/usr/sbin/nscd -i hosts");

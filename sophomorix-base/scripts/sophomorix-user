@@ -29,6 +29,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     db_connect
                                     check_connections
                                     search_user
+                                    list_teachers_by_year
                                     fetchdata_from_account
                                     forbidden_login_hash
                                     update_user_db_entry
@@ -69,6 +70,7 @@ my $old_uid="";
 my $new_uid="";
 my $auth=0;
 my $new_class="";
+my $list_teachers_by_year=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -90,6 +92,7 @@ my $testopt=GetOptions(
        "scheduled-toleration=s" => \$sc_toleration,
        "t|teacher=s" => \$teacher,
        "auth|ldap" => \$auth,
+       "list-teachers-by-year" => \$list_teachers_by_year,
        "new-class|newclass=s" => \$new_class,
           );
 
@@ -113,9 +116,10 @@ Options
   -v   /  --verbose
   -vv  /  --verbose --verbose
 
-Search for a user:
+Search for a user/users:
   -s string /   --search string
   -u user   /   --user user
+  --list-teachers-by-year
 
 Changing status of a user:
   -F user   /   --freeze user
@@ -716,7 +720,7 @@ if ($reset_user ne""){
 # Standard: suchen nach string
 ######################################################################
 
-if ($search eq "" and $search_login eq ""){
+if ($search eq "" and $search_login eq "" and $list_teachers_by_year==0){
    print "I don't know what to search for! (searchstring is empty)\n";
    &log_script_exit("",0,1,0,@arguments);
 }
@@ -731,6 +735,8 @@ if ($search eq "" and $search_login eq ""){
 ############################################################
 if ($search_login ne ""){
     &search_user($search,$auth,$search_login);
+} elsif ($list_teachers_by_year==1){
+    &list_teachers_by_year();
 } else {
     &search_user($search,$auth);
 }

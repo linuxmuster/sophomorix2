@@ -72,6 +72,7 @@ require Exporter;
              get_teach_in_sys_users
              get_print_data
              search_user
+             list_teachers_by_year
              backup_user_database
              get_first_password
              check_sophomorix_user
@@ -4961,6 +4962,46 @@ sub search_user {
 }
 
 
+
+
+sub list_teachers_by_year {
+    my $dbh=&db_connect();
+    print "Listing all Teachers by year of creation:\n";
+    my $sth= $dbh->prepare( "SELECT uid, firstname, 
+                                    surname,
+                                    sophomorixstatus,
+                                    creationdate
+                             FROM userdata
+                             WHERE gid='${DevelConf::teacher}'
+                             ORDER BY creationdate
+                            " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    my $separator="+---------+-------------------------------+".
+                   "---------------------+---+\n";
+    my $last_year="";
+    foreach my $row (@$array_ref){
+        # split the array, to give better names
+        my ($login,
+            $firstname,
+            $surname,
+            $status,
+            $creationdate,
+           ) = @$row;
+	my $name="$surname, $firstname";
+        my ($year,@unused)=split(/-/,$creationdate);
+        #print ">$year<\n";
+        if ($year ne $last_year){
+            print $separator;
+        }
+ 
+        printf "| %-8s| %-30s| %-20s| %-2s|\n",$login ,$name,$creationdate, $status;
+        $last_year=$year;
+    }
+    print $separator;
+
+    &db_disconnect($dbh);
+}
 
 
 =pod
