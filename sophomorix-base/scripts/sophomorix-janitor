@@ -52,6 +52,7 @@ my $list_db_junk=0;
 my $kill_db_junk=0;
 
 my $list_foreign_files=0;
+my $check_horde=0;
 
 
 
@@ -86,6 +87,7 @@ my $testopt=GetOptions(
            "list-db-junk" => \$list_db_junk,
            "kill-db-junk" => \$kill_db_junk,
            "list-foreign-files" => \$list_foreign_files,
+           "check-horde" => \$check_horde,
            "info|i" => \$info,
            "help|h" => \$help,
           );
@@ -116,6 +118,7 @@ Working on users files:
 
   --list-foreign-files (List files/dirs in home of user, that are not owned by user)
 
+  --check-horde (checks horde database (Table horde_prefs) for obsolete entries)
 
 Selecting users (Default is: no user)
   -s / --students
@@ -235,6 +238,39 @@ if ($list_foreign_files==1){
       	          " -path $home/.Trash-* -prune -o";
         system ("find $home $prune ! -user $login -printf \"%u\t%g\t%p\n\"");
     }
+    exit;
+}
+
+# --check-horde
+if ($check_horde==1){
+    my %horde_users=();
+    my $database="horde";
+    my $hostname="localhost";
+    my $password=&get_horde_password();
+
+    my $dsn = "DBI:mysql:database=$database;host=$hostname";
+    my $dbh = DBI->connect($dsn, "horde",$password);
+    print "Checking horde database for obsolete stuff\n";
+    my $sth = $dbh->prepare( "SELECT pref_uid FROM horde_prefs");
+
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+	my ($uid)=@$row;
+        $horde_users{$uid}="seen";
+	#print "$uid\n";
+    }
+
+
+    while(my ($uid, $value) = each(%horde_users)) {
+	my $return=system("id $uid > /dev/null");
+        if ($return!=0){
+        print "id returned $return\n";
+        print "  User $uid ninexisting in system\n"; 
+       }
+    }
+
+    $dbh->disconnect();
     exit;
 }
 
@@ -417,3 +453,25 @@ sub files_of_uid {
     }
 }
 
+sub get_horde_password {
+    my $password="";
+    my $conf="/etc/horde/horde3/conf.php";
+    if (-e $conf){
+        open (HORDECONF,$conf);
+        while(<HORDECONF>){
+            if (m/password/){
+		my $line=$_;
+                chomp($line);
+                my ($trash,$string)=split(/=/,$line);
+                $string=~m/ '([A-Za-z0-9_]+)';/;
+                $password=$1;
+            }
+        }
+        close HORDECONF;
+    } else {
+        print "\nERROR: Retrieving horde password failed:\n";
+        print "    $conf nonexisting\n\n";
+        exit;
+    }
+    return $password;
+}
