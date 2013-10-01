@@ -5177,10 +5177,12 @@ sub show_project_list {
     &db_disconnect($dbh);
 }
 
+
 sub show_project_admin_list {
     my $dbh=&db_connect();
     my @userlist=();
     my %userlist=();
+    my $separator="+----------+--------------------------------------+\n";
     @projectlist=();
     # select all admins
     my $sth= $dbh->prepare( "SELECT uidnumber 
@@ -5208,8 +5210,13 @@ sub show_project_admin_list {
 
     # print the admins 
     foreach my $user (@userlist){
-        print "+-----------------------------+\n";
-        printf "|%-14s               |\n",$user;
+        my ($sur,$first,$stat)= $dbh->selectrow_array( "SELECT surname,firstname,sophomorixstatus 
+                                                        FROM userdata 
+                                                        WHERE uid='$user'
+                                                     ");
+        my $name=$sur.", ".$first." (".$stat.")";
+        print $separator;
+        printf "| %-9s| %-37s|\n",$user,$name;
         # print the projects
         my $sth= $dbh->prepare( "SELECT projectid 
                              FROM projects_admins
@@ -5229,11 +5236,11 @@ sub show_project_admin_list {
         }
         @projectlist = sort @projectlist;
         foreach my $pro (@projectlist){
-           printf "|    %-25s|\n",$pro;
+           printf "| %-9s| %-37s|\n",$user,$pro;
         }
     }
     # print final line
-    print "+-----------------------------+\n";
+    print $separator;
     &db_disconnect($dbh);
 }
 
