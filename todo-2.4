@@ -57,21 +57,6 @@ Datenschutz:
 - Logdateien: 4 Wochen aufheben
 - VLAN ist physikalische Trennung
 
-sophomorix-print:
-
---one-per-page dokumentieren
---caller-copy bz
-  - wie --caller 
-  - und: kopiert erzeugte Datei in §HOME/sophomorix
-         owner anpassen, 0600
-
-
-Fixen, linkk zulassen:
-
-Richte sophomorix-pgldap ein (2.2.20-1) 
-.....
-ABBRUCH: /home/share ist ein Link auf ein Verzeichnis
-
 
 
 user-modify.archive.log  <---> user-modify.log
@@ -99,7 +84,6 @@ zip
 libnet-mac-perl
 texlive-lang-german
 samba
-
 setuid-perl dummy package gebaut (file evtl. mit perl-suid ersetzen):
 
 1. aptitude install equivs
@@ -123,10 +107,8 @@ Probleme:
 - postgresql
     postgres shell als root
     sudo -u postgres psql
-
 postgresql update scripts können nicht mit postgres verbinden
 --> muss user postgres sein
-
 
 Problems:
 
