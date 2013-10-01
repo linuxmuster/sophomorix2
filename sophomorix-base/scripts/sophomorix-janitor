@@ -113,12 +113,12 @@ Housekeeping the postgres database ldap:
 
 Working on users files:
 
-  --listfiles --user name
-  --listfiles --uid uidnumber
+  --listfiles --user name (tut nicht!)
+  --listfiles --uid uidnumber (tut nicht) 
 
   --list-foreign-files (List files/dirs in home of user, that are not owned by user)
 
-  --check-horde (checks horde database (Table horde_prefs) for obsolete entries)
+  --check-horde (checks horde3 database (Table horde_prefs) for obsolete entries)
 
 Selecting users (Default is: no user)
   -s / --students
@@ -162,8 +162,6 @@ if ($list_db_junk==1 or $kill_db_junk==1){
     print "Analyzing ldap database ...\n";
 #    &check_connections();
     my $dbh=&db_connect();
-
-
 
     # TEST 1
     print "TEST 1: gids in project_groups must be existing\n";
@@ -211,6 +209,8 @@ if ($list_db_junk==1 or $kill_db_junk==1){
             }
         }
     }
+    # TEST 2
+    # follows here
 
 
     &db_disconnect($dbh);
