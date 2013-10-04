@@ -50,6 +50,7 @@ my $uid=0;
 my $listfiles=0;
 my $list_db_junk=0;
 my $kill_db_junk=0;
+my $check_project_members;
 
 my $list_foreign_files=0;
 my $check_horde=0;
@@ -88,6 +89,7 @@ my $testopt=GetOptions(
            "kill-db-junk" => \$kill_db_junk,
            "list-foreign-files" => \$list_foreign_files,
            "check-horde" => \$check_horde,
+           "check-project-members" => \$check_project_members,
            "info|i" => \$info,
            "help|h" => \$help,
           );
@@ -272,6 +274,140 @@ if ($check_horde==1){
 
     $dbh->disconnect();
     exit;
+}
+
+
+
+sub pro_name {
+    my ($id)=@_;
+    my $dbh=&db_connect();
+    my ($name)= $dbh->selectrow_array( "SELECT gid 
+                                         FROM projectdata 
+                                         WHERE id=$id
+                                        ");
+    &db_disconnect($dbh);
+    return $name;
+}
+
+# --check-project-members
+if ($check_project_members==1){
+    print "Checking ALL project memberships ...\n";
+    my %future_members=();
+
+    # key: projectID ---> value: ALL memberprojectIDs (subtree)
+    my %memberrelation=();
+
+    my $dbh=&db_connect();
+    my $sth= $dbh->prepare( "SELECT id,gid,gidnumber,longname,maxmembers 
+                             FROM projectdata 
+                             ORDER BY gid");
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+        my ($id,$gid,$gidnumber,$longname,$maxmembers)=@$row;
+        # nn
+        print "$id, $gid, $gidnumber,$longname, $maxmembers\n";       
+
+
+        # 1) adding admins
+        my $sth1= $dbh->prepare( "SELECT uidnumber
+                             FROM projects_admins 
+                             WHERE projectid=$id");
+        $sth1->execute();
+        my $array_ref1 = $sth1->fetchall_arrayref();
+        foreach my $row (@$array_ref1){
+            my ($uidnumber)=@$row;
+            # nn
+            print "   * $uidnumber (admin) \n";
+            $future_members{$gidnumber}{$uidnumber}="admin";
+        }
+
+
+        # 2) adding members_by_option
+        my $sth2= $dbh->prepare( "SELECT memberuidnumber
+                             FROM projects_members 
+                             WHERE projectid=$id");
+        $sth2->execute();
+        my $array_ref2 = $sth2->fetchall_arrayref();
+        foreach my $row (@$array_ref2){
+            my ($uidnumber)=@$row;
+            # nn
+            print "   * $uidnumber (byOption)\n";
+            $future_members{$gidnumber}{$uidnumber}="byOption";
+        }
+
+
+        # 3) adding members by group
+        my $sth3= $dbh->prepare( "SELECT membergid
+                             FROM project_groups 
+                             WHERE projectid=$id");
+        $sth3->execute();
+        my $array_ref3 = $sth3->fetchall_arrayref();
+        foreach my $row (@$array_ref3){
+            my ($membergid)=@$row;
+            # nn
+            print "  * $membergid (Group)\n";
+            my $sth3b= $dbh->prepare( "SELECT memberuidnumber
+                                 FROM groups_users 
+                                 WHERE gidnumber=$membergid");
+            $sth3b->execute();
+            my $array_ref3b = $sth3b->fetchall_arrayref();
+            foreach my $row (@$array_ref3b){
+                my ($uidnumber)=@$row;
+                # nn
+                print "   * $uidnumber (byGroup)\n";
+                $future_members{$gidnumber}{$uidnumber}="byGroup";
+            }
+        }
+
+
+        # 4) Step1 (projectmembers) Save Project -> Memberprojects 
+        my $sth4= $dbh->prepare( "SELECT memberprojectid
+                             FROM projects_memberprojects 
+                             WHERE projectid=$id");
+        $sth4->execute();
+        my $array_ref4 = $sth4->fetchall_arrayref();
+        foreach my $row (@$array_ref4){
+            my ($memberprojectid)=@$row;
+            # nn
+            print "  * $memberprojectid (ProjectID)\n";
+            $memberrelation{$id}{$memberprojectid}="seen";
+        }
+    }
+    print "Adding memberprojects from leaves to tree\n";
+#    while (my ($key,$value) = each $memberrelation{'130'}){
+#    while (my ($key,$value) = each %{ $memberrelation{'130'} } ){
+
+    my $i;
+    until (!%memberrelation or $i>=3) {
+        $i++; 
+        while (my ($topkey,$topvalue) = each %memberrelation){
+            while (my ($key,$value) = each $memberrelation{$topkey}){
+                        print $key , " ", $value, "($topkey)\n";
+                        if (not exists $memberrelation{$key}){
+                            my $name=&pro_name($key);
+                            my $topname=&pro_name($topkey);
+                            print "Alle Mitglieder von Projekt $key ($name)",
+                                  "in $topkey ($topname) einfügen   \n";
+                            # hier den Unterbaum des Projekts
+                            # in den baum von topkey einfügen 
+
+                            # key löschen
+                            my $deleted=delete($memberrelation{$topkey}{$key});
+                            # topkey auch?
+                            if (keys $memberrelation{$topkey} == 0){
+                                #print "Delatessshdjdj\n";
+                                #my $deleted2=delete($memberrelation{$topkey});
+                            }
+                        }
+
+            }
+        }
+
+    }
+    &db_disconnect($dbh);
+
+    print "... Done\n";
 }
 
 
