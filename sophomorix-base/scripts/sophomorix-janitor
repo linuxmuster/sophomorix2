@@ -378,11 +378,11 @@ if ($check_project_members==1){
 #    while (my ($key,$value) = each $memberrelation{'130'}){
 #    while (my ($key,$value) = each %{ $memberrelation{'130'} } ){
 
-    my $i;
-    until (!%memberrelation or $i>=3) {
+    my $i=0;
+    until (!%memberrelation or $i>=5) {
         $i++; 
         while (my ($topkey,$topvalue) = each %memberrelation){
-            while (my ($key,$value) = each $memberrelation{$topkey}){
+            while (my ($key,$value) = each %{ $memberrelation{$topkey} }){
                         print $key , " ", $value, "($topkey)\n";
                         if (not exists $memberrelation{$key}){
                             my $name=&pro_name($key);
@@ -396,8 +396,8 @@ if ($check_project_members==1){
                             my $deleted=delete($memberrelation{$topkey}{$key});
                             # topkey auch?
                             if (keys $memberrelation{$topkey} == 0){
-                                #print "Delatessshdjdj\n";
-                                #my $deleted2=delete($memberrelation{$topkey});
+                                print "Delatessshdjdj\n";
+                                my $deleted2=delete($memberrelation{$topkey});
                             }
                         }
 
