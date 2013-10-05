@@ -292,12 +292,40 @@ sub pro_name {
 # --check-project-members
 if ($check_project_members==1){
     print "Checking ALL project memberships ...\n";
+
+    # %future_members will be compared to the table groups_users
+    # key:    gidnumber
+    # value:  memberuidnumber
     my %future_members=();
 
-    # key: projectID ---> value: ALL memberprojectIDs (subtree)
+    # %current_members is the table groups_users
+    # key:    gidnumber
+    # value:  memberuidnumber
+    my %current_members=();
+
+    # %memberrelation contains the table projects_memberprojects
+    # key:   projectID 
+    # value: memberprojectIDs
     my %memberrelation=();
 
     my $dbh=&db_connect();
+
+    # read current members
+    my $sth0= $dbh->prepare( "SELECT groups_users.gidnumber,
+                                     groups_users.memberuidnumber
+                              FROM groups_users
+                              JOIN projectdata 
+                              ON projectdata.gidnumber = groups_users.gidnumber
+                              ORDER BY gidnumber
+                           ");
+    $sth0->execute();
+    my $array_ref0 = $sth0->fetchall_arrayref();
+    foreach my $row (@$array_ref0){
+        my ($gidnumber,$memberuidnumber)=@$row;
+        $current_members{$gidnumber}{$memberuidnumber}="seen";
+    }
+
+
     my $sth= $dbh->prepare( "SELECT id,gid,gidnumber,longname,maxmembers 
                              FROM projectdata 
                              ORDER BY gid");
@@ -382,6 +410,8 @@ if ($check_project_members==1){
     my $count=0;
 
     until (keys %memberrelation == 0){
+        # CAREFUL: do not modify the hash that you are 
+        # using as a loop!
         $count++;
         print "############### Run $count ###############\n";
 
