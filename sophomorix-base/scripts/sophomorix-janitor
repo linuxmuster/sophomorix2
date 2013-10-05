@@ -293,6 +293,9 @@ sub pro_name {
 if ($check_project_members==1){
     print "Checking ALL project memberships ...\n";
 
+    # save this in a hash to avoid multiple database queries
+    my %projectid_gidnumber=();
+
     # %future_members will be compared to the table groups_users
     # key:    gidnumber
     # value:  memberuidnumber
@@ -333,6 +336,7 @@ if ($check_project_members==1){
     my $array_ref = $sth->fetchall_arrayref();
     foreach my $row (@$array_ref){
         my ($id,$gid,$gidnumber,$longname,$maxmembers)=@$row;
+        $projectid_gidnumber{$id}=$gidnumber;
         # nn
         print "$id, $gid, $gidnumber,$longname, $maxmembers\n";       
 
@@ -421,9 +425,34 @@ if ($check_project_members==1){
             while (my ($key,$value) = each %{ $memberrelation{$topkey} }){
                 print "   $key --> $value\n";
                 if (not exists $memberrelation{$key}){
-                    print "    * $key is not on toplevel: Add members\n";
+                    print "    * $key is not on toplevel:\n";
+                    print "      Add members of project $key to $topkey\n";
+                    # update %future_members
+                    # get gidnumber of project
+                    my $gidnumber_fetch=$projectid_gidnumber{$key};
+                    my $gidnumber_push=$projectid_gidnumber{$topkey};
+
+                    # future members of project $key
+                    while (my ($memberuid,$reason) = 
+			   each %{ $future_members{$gidnumber_fetch} }){
+                        print "        * $memberuid is in $gidnumber_fetch ($reason)\n";
+                        if (exists $future_members{$gidnumber_push}{$memberuid}){
+                            print "          uid $memberuid exists.",
+                                  " Updating reason:\n";
+                            # fetching old_reason
+                            my $oldreason=$future_members{$gidnumber_push}{$memberuid};
+                            my $newreason="";
+                            $newreason=$oldreason.",byMemGroup";
+                            print "          $oldreason -> $newreason\n";
+                            $future_members{$gidnumber_push}{$memberuid}="$newreason";
+                        } else {
+                            print "          uid $memberuid missing.".
+                                  " Creating entry.\n";
+                            $future_members{$gidnumber_push}{$memberuid}="byMemGroup";
+                        }
+                    }
+ 
                     push @update_order, "${key}->${topkey}";
-                    # ????? update %future_members
                     push @delete, "$topkey,$key";
 	        }
             }
