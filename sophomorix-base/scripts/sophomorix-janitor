@@ -243,6 +243,7 @@ if ($list_foreign_files==1){
     exit;
 }
 
+
 # --check-horde
 if ($check_horde==1){
     my %horde_users=();
@@ -278,6 +279,7 @@ if ($check_horde==1){
 
 
 
+
 sub pro_name {
     my ($id)=@_;
     my $dbh=&db_connect();
@@ -287,6 +289,18 @@ sub pro_name {
                                         ");
     &db_disconnect($dbh);
     return $name;
+}
+
+sub user_name_from_id {
+    my ($uid) = @_;
+    my $username = getpwuid($uid);
+    return $username;
+}
+
+sub group_name_from_id {
+    my ($gid) = @_;
+    my ($groupname) = getgrgid($gid);
+    return $groupname;
 }
 
 # --check-project-members
@@ -500,20 +514,45 @@ if ($check_project_members==1){
     }
     print "\n... Done after $count runs\n";
 
-    print "\nLook what to do:\n";
-
-    for ( keys %current_members ) {
-        unless ( exists $future_members{$_} ) {
-            print "$_: not found in future_members\n";
-            next;
-        }
-
-        if ( $current_members{$_} eq $future_members{$_} ) {
-            print "$_: values are equal\n";
-        } else {
-        print "$_: values are not equal\n";
+    print "\nLook what memberships to add:\n";
+    # anzulegen: future hash durchgehen, welche fehlen
+    # $gid --> $uid --> whymember($value)
+    my $add=0;
+    foreach my $gid (keys %future_members) {
+         foreach my $uid (keys %{ $future_members{$gid} }) {
+             my $value = $future_members{$gid}->{$uid};
+              my $user=&user_name_from_id($uid);
+              my $group=&group_name_from_id($gid);
+             if (exists $current_members{$gid}{$uid}){
+                 print "   OK: $gid($group) --> $uid($user) --> $value\n";
+             } else {
+                 print "  ADD: $gid($group) --> $uid($user) --> $value\n";
+                 $add++;
+             }
+         }
     }
-}
+    print "$add users must be added as members\n\n";
+
+
+    print "\nLook what memberships to delete:\n";
+    # delete: current hash durchgehen, welche sind zuviel
+    # $gid --> $uid --> whymember($value)
+    my $delete=0;
+    foreach my $gid (keys %current_members) {
+         foreach my $uid (keys %{ $current_members{$gid} }) {
+              my $value = $current_members{$gid}->{$uid};
+              my $user=&user_name_from_id($uid);
+              my $group=&group_name_from_id($gid);
+ 
+              if (exists $future_members{$gid}{$uid}){
+                  print "   OK: $gid($group) --> $uid($user) --> $value\n";
+              } else {
+                  print "  DEL: $gid($group) --> $uid($user) --> $value\n";
+                  $delete++;
+              }
+         }
+    }
+    print "$delete users must be deleted as members\n\n";
 
 
     print "Done\n";
