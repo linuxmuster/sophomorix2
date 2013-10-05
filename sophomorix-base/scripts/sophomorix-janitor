@@ -499,6 +499,24 @@ if ($check_project_members==1){
 	print "$pro ";
     }
     print "\n... Done after $count runs\n";
+
+    print "\nLook what to do:\n";
+
+    for ( keys %current_members ) {
+        unless ( exists $future_members{$_} ) {
+            print "$_: not found in future_members\n";
+            next;
+        }
+
+        if ( $current_members{$_} eq $future_members{$_} ) {
+            print "$_: values are equal\n";
+        } else {
+        print "$_: values are not equal\n";
+    }
+}
+
+
+    print "Done\n";
 }
 
 
