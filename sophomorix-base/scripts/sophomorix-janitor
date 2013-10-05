@@ -374,40 +374,72 @@ if ($check_project_members==1){
             $memberrelation{$id}{$memberprojectid}="seen";
         }
     }
-    print "Adding memberprojects from leaves to tree\n";
-#    while (my ($key,$value) = each $memberrelation{'130'}){
-#    while (my ($key,$value) = each %{ $memberrelation{'130'} } ){
+
 
     my $i=0;
-    until (!%memberrelation or $i>=5) {
-        $i++; 
+    my @update_order=();
+    my @delete=();
+    my $count=0;
+
+    until (keys %memberrelation == 0){
+        $count++;
+        print "############### Run $count ###############\n";
+
+        # find, what can be deleted in this step
         while (my ($topkey,$topvalue) = each %memberrelation){
+            print "$topkey --> $topvalue\n";
             while (my ($key,$value) = each %{ $memberrelation{$topkey} }){
-                        print $key , " ", $value, "($topkey)\n";
-                        if (not exists $memberrelation{$key}){
-                            my $name=&pro_name($key);
-                            my $topname=&pro_name($topkey);
-                            print "Alle Mitglieder von Projekt $key ($name)",
-                                  "in $topkey ($topname) einfügen   \n";
-                            # hier den Unterbaum des Projekts
-                            # in den baum von topkey einfügen 
-
-                            # key löschen
-                            my $deleted=delete($memberrelation{$topkey}{$key});
-                            # topkey auch?
-                            if (keys $memberrelation{$topkey} == 0){
-                                print "Delatessshdjdj\n";
-                                my $deleted2=delete($memberrelation{$topkey});
-                            }
-                        }
-
+                print "   $key --> $value\n";
+                if (not exists $memberrelation{$key}){
+                    print "    * $key is not on toplevel: Add members\n";
+                    push @update_order, "${key}->${topkey}";
+                    # ????? update %future_members
+                    push @delete, "$topkey,$key";
+	        }
             }
         }
+        # END: find, what can be deleted in this step
 
-    }
+    
+        # delete findings of this step
+        print "### Deleting findings or run $count:\n";
+        print "  1) Deleting secondlevel keys:\n";
+        foreach my $item (@delete){
+            my ($topkey,$key)=split(/,/,$item);
+            print "     Delete: $topkey --> $key\n";
+            my $deleted = delete($memberrelation{$topkey}{$key});
+        }
+
+        print "  2) Deleting empty toplevel keys:\n";
+        while (my ($topkey,$topvalue) = each %memberrelation){
+            if (keys $memberrelation{$topkey} == 0){
+                print "     $topkey is empty\n";
+                my $deleted = delete($memberrelation{$topkey});
+            } else {
+                print "   $topkey has elements\n";
+            }
+        }
+        # END: delete findings of this step
+
+
+        # list whats left
+        print "\n### Thats left:\n";
+        while (my ($topkey,$topvalue) = each %memberrelation){
+            print "$topkey --> $topvalue\n";
+            while (my ($key,$value) = each %{ $memberrelation{$topkey} }){
+                print "   $key --> $value\n";
+            }
+        }
+        # END: list whats left
+    } # END: until
+
+
     &db_disconnect($dbh);
-
-    print "... Done\n";
+    print "### Update order:\n";
+    foreach my $pro (@update_order){
+	print "$pro ";
+    }
+    print "\n... Done after $count runs\n";
 }
 
 
