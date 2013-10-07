@@ -1047,7 +1047,10 @@ sub manage_pointers {
     # repairing all pointers
 
    # group teachers
-    if ($login eq "administrator" or $login eq "pgmadmin" or $type eq "teacher"){
+
+    if ($login eq "administrator" or $login eq "pgmadmin"){
+# chsnged because of Bug
+#    if ($login eq "administrator" or $login eq "pgmadmin" or $type eq "teacher"){
         my $target_1=$home."/$Language::inspection_dir";
         my $source_1="/home/students";
 
