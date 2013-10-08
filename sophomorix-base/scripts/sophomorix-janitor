@@ -352,7 +352,7 @@ if ($check_project_members==1){
         my ($id,$gid,$gidnumber,$longname,$maxmembers)=@$row;
         $projectid_gidnumber{$id}=$gidnumber;
         # nn
-        print "$id, $gid, $gidnumber,$longname, $maxmembers\n";       
+        print "$id, $gid, $longname, $gidnumber, $maxmembers\n";       
 
 
         # 1) adding admins
@@ -364,7 +364,8 @@ if ($check_project_members==1){
         foreach my $row (@$array_ref1){
             my ($uidnumber)=@$row;
             # nn
-            print "   * $uidnumber (admin) \n";
+            my $user=&user_name_from_id($uidnumber);
+            print "   * $uidnumber ($user) is admin in $gidnumber ($gid)\n";
             $future_members{$gidnumber}{$uidnumber}="admin";
         }
 
@@ -378,12 +379,13 @@ if ($check_project_members==1){
         foreach my $row (@$array_ref2){
             my ($uidnumber)=@$row;
             # nn
-            print "   * $uidnumber (byOption)\n";
-            $future_members{$gidnumber}{$uidnumber}="byOption";
+            my $user=&user_name_from_id($uidnumber);
+            print "   * $uidnumber ($user) is MemberByOption in $gidnumber ($gid)\n";
+            $future_members{$gidnumber}{$uidnumber}="MemberByOption";
         }
 
 
-        # 3) adding members by group
+        # 3) adding members by class(group)
         my $sth3= $dbh->prepare( "SELECT membergid
                              FROM project_groups 
                              WHERE projectid=$id");
@@ -392,17 +394,31 @@ if ($check_project_members==1){
         foreach my $row (@$array_ref3){
             my ($membergid)=@$row;
             # nn
-            print "  * $membergid (Group)\n";
-            my $sth3b= $dbh->prepare( "SELECT memberuidnumber
+            my $group=&group_name_from_id($membergid);
+            print " * $membergid ($group) is MemberByClass in $gid\n";
+            # A) Adding Teachers
+            my $sth3a= $dbh->prepare( "SELECT memberuidnumber
                                  FROM groups_users 
                                  WHERE gidnumber=$membergid");
+            $sth3a->execute();
+            my $array_ref3a = $sth3a->fetchall_arrayref();
+            foreach my $row (@$array_ref3a){
+                my ($uidnum)=@$row;
+                # nn
+                my $user=&user_name_from_id($uidnum);
+                print "   * $uidnum ($user) is MemberByClass in $membergid ($group)\n";
+                $future_members{$gidnumber}{$uidnum}="MemberByClass";
+            }
+            # B) Adding Students (primary group)
+            my $sth3b= $dbh->prepare( "SELECT uid,uidnumber
+                                FROM userdata
+                                WHERE gidnumber=$membergid");
             $sth3b->execute();
             my $array_ref3b = $sth3b->fetchall_arrayref();
             foreach my $row (@$array_ref3b){
-                my ($uidnumber)=@$row;
-                # nn
-                print "   * $uidnumber (byGroup)\n";
-                $future_members{$gidnumber}{$uidnumber}="byGroup";
+                my ($uid,$uidnum)=@$row;
+                print "   * $uidnum ($uid) is MemberByClass in $membergid ($group)\n";
+                $future_members{$gidnumber}{$uidnum}="MemberByClass";
             }
         }
 
@@ -456,13 +472,13 @@ if ($check_project_members==1){
                             # fetching old_reason
                             my $oldreason=$future_members{$gidnumber_push}{$memberuid};
                             my $newreason="";
-                            $newreason=$oldreason.",byMemGroup";
+                            $newreason=$oldreason.",byMemProject";
                             print "          $oldreason -> $newreason\n";
                             $future_members{$gidnumber_push}{$memberuid}="$newreason";
                         } else {
                             print "          uid $memberuid missing.".
                                   " Creating entry.\n";
-                            $future_members{$gidnumber_push}{$memberuid}="byMemGroup";
+                            $future_members{$gidnumber_push}{$memberuid}="byMemProject";
                         }
                     }
  
