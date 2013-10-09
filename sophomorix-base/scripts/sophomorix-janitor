@@ -50,11 +50,11 @@ my $uid=0;
 my $listfiles=0;
 my $list_db_junk=0;
 my $kill_db_junk=0;
-my $check_project_members;
+my $check_project_members=0;
 
 my $list_foreign_files=0;
 my $check_horde=0;
-
+my $dump_pg_ldap=0;
 
 
 my @userlist=();
@@ -95,6 +95,7 @@ my $testopt=GetOptions(
            "kill-db-junk" => \$kill_db_junk,
            "list-foreign-files" => \$list_foreign_files,
            "check-horde" => \$check_horde,
+           "dump-pg-ldap" => \$dump_pg_ldap,
            "check-project-members" => \$check_project_members,
            "info|i" => \$info,
            "help|h" => \$help,
@@ -127,6 +128,8 @@ Working on users files:
   --list-foreign-files (List files/dirs in home of user, that are not owned by user)
 
   --check-horde (checks horde3 database (Table horde_prefs) for obsolete entries)
+
+  --dump-pg-ldap (dumps the postgresql database ldap)
 
 Selecting users (Default is: no user)
   -s / --students
@@ -284,6 +287,13 @@ if ($check_horde==1){
 }
 
 
+# --dump-pg-ldap
+if ($dump_pg_ldap==1){
+    my $timestamp=&zeit_stempel;
+    print "Timestamp: $timestamp\n";
+    &backup_user_database($timestamp, "janitor.sql","JANITOR");
+    exit;
+}
 
 
 sub pro_name {
@@ -496,7 +506,6 @@ if ($check_project_members==1){
                 if (not exists $memberrelation{$key}){
                     print "    * $key is not on toplevel:\n";
                     print "      Add members of project $key to $topkey\n";
-                    # update %future_members
                     # get gidnumber of project
                     my $gidnumber_fetch=$projectid_gidnumber{$key};
                     my $gidnumber_push=$projectid_gidnumber{$topkey};

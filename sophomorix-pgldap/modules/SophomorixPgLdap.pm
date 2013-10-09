@@ -5015,8 +5015,14 @@ Makes a backup of the sophomorix user database
 # this function can be left empty so far
 
 sub backup_user_database {
-    my ($time, $string) = @_;
-    &titel("Dumping database ldap before I modify it");
+    my ($time, $string,$option) = @_;
+    if (not defined $option){
+        $option="";
+        &titel("Dumping database ldap before I modify it");
+    }
+    if ($option eq "JANITOR"){
+        &titel("Dumping db ldap to ${DevelConf::log_pfad}/${time}.ldap-${string}\n");
+    }
     &do_falls_nicht_testen(
       "pg_dump --format=p -U ldap --file=${DevelConf::log_pfad}/${time}.ldap-${string} ldap",
       "chmod 600 ${DevelConf::log_pfad}/${time}.ldap-${string}",

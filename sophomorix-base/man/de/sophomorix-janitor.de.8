@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SOPHOMORIX-JANITOR 8 "October 01, 2013"
+.TH SOPHOMORIX-JANITOR 8 "October 09, 2013"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -44,10 +44,14 @@ Sagt, was das Programm gerade macht (verbose)
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
 .B Optionen:
-.TP
+.TP 
 .B --check-horde
 Sucht in der Horde3-Datenbank in der Tabelle horde_prefs nach
 Einträgen von usern, die im System nicht mehr existieren.
+.TP
+.B --dump-pg-ldap
+Dumpt die pstgresql Datenbank ldap der Benutzerverwaltung mit
+Datumsstempel ins übliche Verzeichnis.
 .TP
 .B --list-db-junk / --kill-db-junk
 Sucht/Löscht in der Benutzerdatenbank nach folgendem Müll:
