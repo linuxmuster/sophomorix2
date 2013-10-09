@@ -128,6 +128,10 @@ Changing status of a user:
   -K user   /   --killable user
   -A user   /   --activate user
 
+Changing loginname of a user:
+  --old-uid oldlogin --new-uid newlogin
+  (WARNING: This is Beta! This will never work 100%!)
+
 Changing class of a user (that is not in scheler.txt)
   -u user --newclass newclass
   (to move user, sophomorix-move must be called)
@@ -425,13 +429,14 @@ if ($search_login ne "" and $new_class ne ""){
     &log_script_exit("",0,1,0,@arguments);
 }
 
-# --user oldlogin --new-login newlogin
+
+# --old-uid oldlogin --new-uid newlogin
 if ($old_uid ne "" and $new_uid ne ""){
 
     my %forbidden_login_hash=&forbidden_login_hash();
 
     if (exists($forbidden_login_hash{$new_uid})){
-        &log_script_exit("New login $new_uid exists in the system",
+        &log_script_exit("ERROR: New login $new_uid exists in the system",
                          1,1,0,@arguments);
     }
 
@@ -443,33 +448,56 @@ if ($old_uid ne "" and $new_uid ne ""){
         &log_script_exit("Could not find old-uid $old_uid",
                          1,1,0,@arguments);
     }
+    my $dbh=&db_connect();
+    my ($old_dn)= $dbh->selectrow_array( "SELECT dn
+                                         FROM ldap_entries 
+                                         WHERE dn LIKE 'uid=$old_uid%'
+                                        ");
 
-    print "\nOld uid: $old_uid \n";
-    print "   Old homedirectory: $old_home \n";
-    print "   Old sambahomepath: $old_sambahomepath \n\n";
+
+    print "\nOld uid: $old_uid\n";
+    print "   Old homedirectory: $old_home\n";
+    print "   Old sambahomepath: $old_sambahomepath\n";
+    print "   Old dn in ldap_entries: $old_dn\n\n";
 
     # changing stuff
-    my $new_home=$old_home;
-    $new_home=~s/\/${old_uid}$/\/${new_uid}/;
+    my $new_home_update=$old_home;
+    $new_home_update=~s/\/${old_uid}$/\/${new_uid}/;
+    my $new_dn_update=$old_dn;
+    $new_dn_update=~s/uid=${old_uid},/uid=${new_uid},/;
 
 
     print "1) Updating $old_uid to $new_uid in the sophomorix database\n";
     &update_user_db_entry($old_uid,"Uid=$new_uid");
+    my $sql="UPDATE ldap_entries SET dn='$new_dn_update'
+             WHERE dn='$old_dn'";
+    if($Conf::log_level>=3){
+              print "\nSQL: $sql\n";
+    }
+    $dbh->do($sql);
+
+
 
     # fetch new data
     my ($new_home_db,$new_type,$new_gecos,$new_group,$new_uidnumber,
-       $new_sambahomepath) = &fetchdata_from_account($new_uid);
+       $new_sambahomepath_db) = &fetchdata_from_account($new_uid);
+    my ($new_dn_db)= $dbh->selectrow_array( "SELECT dn
+                                         FROM ldap_entries 
+                                         WHERE dn LIKE 'uid=$new_uid%'
+                                        ");
 
-    print "\nChecking new uid: $new_uid \n";
-    print "   New homedirectory: $new_home_db \n";
-    print "   New sambahomepath: $new_sambahomepath \n\n";
+
+    print "\nChecking new uid: $new_uid\n";
+    print "   New homedirectory: $new_home_db\n";
+    print "   New sambahomepath: $new_sambahomepath_db\n";
+    print "   New dn in ldap_entries: $new_dn_db\n\n";
 
 
     print "2) Moving homedir from\n", 
           "         $old_home \n", 
           "   to  \n",
-          "         $new_home \n\n";
-    system("mv $old_home $new_home");
+          "         $new_home_update \n\n";
+    system("mv $old_home $new_home_update");
 
 
     print "3) Renaming mailbox\n";
