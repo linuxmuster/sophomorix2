@@ -90,6 +90,7 @@ require Exporter;
              get_smb_sid
              fetchquota_sum
              auth_passwd_old
+             update_uid_ldap
              update_user_ldap
              delete_user_ldap
              update_group_ldap
@@ -3402,9 +3403,8 @@ sub update_user_db_entry {
            push @posix, "homedirectory = '$new_home'";
            # sambahomepath
            my $new_sambahomepath=$old_sambahomepath;
-           $new_sambahomepath=~s/\\${login}$/\\\\${new_login}/;
-           $new_sambahomepath=~s/^\\\\/\\\\\\\\/;
-           # smabahomepath = '\\\\server\\user'  is required
+           $new_sambahomepath=~s/\\${login}$/\\${new_login}/;
+           # smabahomepath = '\\\\server\\user'+  is required
 	   push @samba, "sambahomepath = '$new_sambahomepath'";
        }
        elsif ($attr eq "FirstPass"){
@@ -5917,7 +5917,12 @@ sub auth_passwd_old {
 
 
 
-
+sub update_uid_ldap {
+    my ($old_uid,$new_uid) =@_;
+    &auth_userkill($old_uid);
+    my $ldap=&auth_connect();
+    &update_user_ldap($ldap,$new_uid);
+}
 
 sub update_user_ldap {
     my ($ldap,$login) = @_;

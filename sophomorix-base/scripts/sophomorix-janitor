@@ -243,7 +243,6 @@ if ($list_foreign_files==1){
                   " -path $home/${Language::collect_dir} -prune -o".
                   " -path $home/${Language::collected_dir} -prune -o".
                   " -path $home/${Language::task_dir} -prune -o". 
-                  " -path $home/${Language::inspection_dir} -prune -o". 
                   " -path $home/${Language::handout_dir} -prune -o".
       	      #    " -path $home/${Language::user_attic}/mailsync -prune -o".
       	          " -path $home/.Trash-* -prune -o";
@@ -340,9 +339,9 @@ sub group_name_from_id {
     return $groupname;
 }
 
+
+
 # --check-project-members
-
-
 if ($check_project_members==1){
     print "Checking ALL project memberships ...\n";
 

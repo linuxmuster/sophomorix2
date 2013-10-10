@@ -24,18 +24,4 @@ use Crypt::SmbHash;
 use Net::LDAP;
 use IMAP::Admin;
 
-my $dbh=&db_connect();
-
-
-my $project="p_astro";
-my @users=();
-#@users = &fetchusers_from_project($project);
-#@users = &fetchadmins_from_project($project);
-@users = &fetchmembers_by_option_from_project($project);
-foreach my $user (@users){
-    print "$user\n";
-}
-
-&db_disconnect($dbh);
-
-
+&Sophomorix::SophomorixPgLdap::update_uid_ldap("banzersh","banz");

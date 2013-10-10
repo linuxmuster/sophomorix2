@@ -30,6 +30,7 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     check_connections
                                     search_user
                                     list_teachers_by_year
+                                    update_uid_ldap
                                     fetchdata_from_account
                                     forbidden_login_hash
                                     update_user_db_entry
@@ -475,7 +476,7 @@ if ($old_uid ne "" and $new_uid ne ""){
               print "\nSQL: $sql\n";
     }
     $dbh->do($sql);
-
+    &update_uid_ldap($old_uid,$new_uid);
 
 
     # fetch new data
