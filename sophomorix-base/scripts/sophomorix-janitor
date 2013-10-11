@@ -54,6 +54,7 @@ my $check_project_members=0;
 
 my $list_foreign_files=0;
 my $check_horde=0;
+my $dump_horde=0;
 my $dump_pg_ldap=0;
 
 
@@ -95,6 +96,7 @@ my $testopt=GetOptions(
            "kill-db-junk" => \$kill_db_junk,
            "list-foreign-files" => \$list_foreign_files,
            "check-horde" => \$check_horde,
+           "dump-horde" => \$dump_horde,
            "dump-pg-ldap" => \$dump_pg_ldap,
            "check-project-members" => \$check_project_members,
            "info|i" => \$info,
@@ -128,6 +130,7 @@ Working on users files:
   --list-foreign-files (List files/dirs in home of user, that are not owned by user)
 
   --check-horde (checks horde3 database (Table horde_prefs) for obsolete entries)
+  --dump-horde (dumps horde3 database)
 
   --dump-pg-ldap (dumps the postgresql database ldap)
 
@@ -284,6 +287,21 @@ if ($check_horde==1){
     $dbh->disconnect();
     exit;
 }
+
+
+
+# --dump-horde
+if ($dump_horde==1){
+    my %horde_users=();
+    my $database="horde";
+    my $hostname="localhost";
+    my $password=&get_horde_password();
+    print "$password\n";
+    my $command="mysqldump -u horde -p $password $database";
+    print "$command\n"
+    #system("$command");
+}
+
 
 
 # --dump-pg-ldap

@@ -74,6 +74,7 @@ use Sys::Filesystem ();
               zeit
               pg_timestamp
               append_teach_in_log
+              append_login_rename_log
               log_script_start
               log_script_end
               log_script_exit
@@ -3096,6 +3097,21 @@ sub append_teach_in_log {
 
 }
 
+sub append_login_rename_log {
+   # appends a line to auto-teach-in.log
+   my ($type,$login,$new_uid,$old_uidnumber)=@_;
+   my $heute=`date +%d.%m.%Y`;
+   chomp($heute);
+   if (not defined $unid){$unid=""} 
+   open(LOG, 
+       ">>${DevelConf::log_files}/user-login-rename.log") 
+        || die "Fehler: $!";
+   print LOG  $type."::".$heute."::".$login."::->::".
+                 $new_uid."::".$old_uidnumber."\n";
+   close(LOG);
+
+}
+
 sub unlock_sophomorix{
     &titel("Removing lock in $DevelConf::lock_file");
     my $timestamp=&zeit_stempel();
@@ -3700,6 +3716,7 @@ sub imap_create_mailbox {
 }
 
 sub imap_rename_mailbox {
+    # This does not work as expected ???
     if (not -e ${DevelConf::imap_password_file}) {
         print "WARNING: No file ${DevelConf::imap_password_file}.",
               " Skipping IMAP stuff.\n";

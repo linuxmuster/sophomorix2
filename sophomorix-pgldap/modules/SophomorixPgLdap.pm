@@ -3601,32 +3601,6 @@ sub update_user_db_entry {
     &update_user_ldap($ldap,$login);
     &auth_disconnect($ldap);
 
-    # old
-
-    ## update authentication system
-    #if ($usermove==1){
-    #   &auth_usermove($login,$gid_name,$home_dir,$old_group);
-    #}
-    #if ($firstnameupdate==1){
-    #   &auth_firstnameupdate_old($login,$firstname);
-    #}
-    #if ($lastnameupdate==1){
-    #   &auth_lastnameupdate_old($login,$lastname);
-    #}
-    #if ($gecosupdate==1){
-    #   &auth_gecosupdate_old($login,$gecos,$firstname);
-    #}
-    #
-    #if ($shellupdate==1){
-    #   &auth_shellupdate_old($login,$login_shell);
-    #}
-    #if ($pwmustchangeupdate==1){
-    #   &auth_pwmustchangeupdate_old($login,$pw_change);
-    #}
-    #if ($enableupdate==1){
-    #   &auth_enableupdate_old($login,$enable);
-    #}
-
     # ??? besser was sinnvolles
     return 1;
 }
@@ -5957,7 +5931,8 @@ sub update_user_ldap {
     # return on error 
     if ($home eq ""){
         print "User $login does not exist in postgresql.\n";
-        print "   * Cannot create/replace ldap account.\n";
+        print "   * Cannot create/replace ldap account $login.\n";
+        print "   * This is OK when you are renaming loginnames\n";
         return 0;
     }
 

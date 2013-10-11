@@ -496,25 +496,33 @@ if ($old_uid ne "" and $new_uid ne ""){
 
     print "2) Moving homedir from\n", 
           "         $old_home \n", 
-          "   to  \n",
+          "     to:\n",
           "         $new_home_update \n\n";
     system("mv $old_home $new_home_update");
 
 
-    print "3) Renaming mailbox\n";
-    my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
-    &imap_rename_mailbox($imap,$old_uid,$new_uid);
-    &imap_disconnect($imap);
+    print "3) Renaming mailbox not supported\n";
+    print "  \n";
+    #my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
+    #&imap_rename_mailbox($imap,$old_uid,$new_uid);
+    #&imap_disconnect($imap);
 
 
-    print "4) Updating lehrer.txt if it is a teacher\n";
+    print "4) Updating lehrer.txt if $old_uid is a teacher\n";
     if ($old_type eq "teacher"){
         &lehrer_ordnen($old_uid,$new_uid);
     }
 
 
     print "5) Updating /etc/aliases.\n";
-#    system("${DevelConf::executable_pfad}/sophomorix-mail --skiplock");
+
+    system("${DevelConf::executable_pfad}/sophomorix-mail --skiplock");
+    # log
+    &append_login_rename_log("man-rename-login",
+                           $old_uid,
+                           $new_uid,
+                           $old_uidnumber,
+                         );
 #    &nscd_stop();
     &log_script_exit("",0,1,0,@arguments);
 }
