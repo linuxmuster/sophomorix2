@@ -272,7 +272,7 @@ if ($check_horde==1){
     foreach my $row (@$array_ref){
 	my ($uid)=@$row;
         $horde_users{$uid}="seen";
-	#print "$uid\n";
+	print "$uid\n";
     }
 
 
@@ -285,6 +285,7 @@ if ($check_horde==1){
     }
 
     $dbh->disconnect();
+    print "... Done\n";
     exit;
 }
 
@@ -292,14 +293,9 @@ if ($check_horde==1){
 
 # --dump-horde
 if ($dump_horde==1){
-    my %horde_users=();
-    my $database="horde";
-    my $hostname="localhost";
-    my $password=&get_horde_password();
-    print "$password\n";
-    my $command="mysqldump -u horde -p $password $database";
-    print "$command\n"
-    #system("$command");
+    my $command="mysqldump horde";
+    #print "$command\n";
+    system("$command");
 }
 
 
