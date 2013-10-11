@@ -508,13 +508,17 @@ if ($old_uid ne "" and $new_uid ne ""){
     #&imap_disconnect($imap);
 
 
-    print "4) Updating lehrer.txt if $old_uid is a teacher\n";
+    print "4) Updating Horde database not supported\n";
+    print "  \n";
+
+    print "5) Updating lehrer.txt if $old_uid is a teacher\n";
     if ($old_type eq "teacher"){
         &lehrer_ordnen($old_uid,$new_uid);
     }
+    print "\n";
 
 
-    print "5) Updating /etc/aliases.\n";
+    print "6) Updating /etc/aliases:\n";
 
     system("${DevelConf::executable_pfad}/sophomorix-mail --skiplock");
     # log
@@ -524,7 +528,9 @@ if ($old_uid ne "" and $new_uid ne ""){
                            $old_uidnumber,
                          );
 #    &nscd_stop();
+    print "... done!\n";
     &log_script_exit("",0,1,0,@arguments);
+  
 }
 
 

@@ -18,7 +18,7 @@ Standards-Version: 3.5.2
 Package: sophomorix2
 Architecture: all
 Suggests: sophomorix-doc-html
-Depends:  sophomorix-base (>=2.4.33), sophomorix-pgldap (>=2.4.33)
+Depends:  sophomorix-base (>=2.4.35), sophomorix-pgldap (>=2.4.35)
 Description: sophomorix user adminitration meta package
  This package contains all the components necessary to add to your
  Debian GNU/Linux box a powerful user administration
@@ -50,7 +50,7 @@ Description: postgresql database with ldap access for sophomorix
 Package: sophomorix-developer
 Architecture: all
 Suggests: perl-doc
-Depends:  sophomorix2 (>=2.4.33)
+Depends:  sophomorix2 (>=2.4.35)
 Description: Test suite for sophomorix
  Scripts to test sophomorix on a runnig system. These scripts can screw up 
  your server!
@@ -65,5 +65,5 @@ Description: Html documentation for sophomorix
 
 Package: sophomorix-virusscan
 Architecture: all
-Depends: sophomorix2 (>=2.4.33), clamav
+Depends: sophomorix2 (>=2.4.35), clamav
 Description: script to scan large amounts of data for viruses with clamscan
