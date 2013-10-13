@@ -1044,18 +1044,14 @@ sub manage_pointers {
     my $exists_string="Exists";
     my %mandatory_binds=();
 
-    # repairing all pointers
 
-   # group teachers
+    # repairing all pointers
     if ($login eq "administrator" or $login eq "pgmadmin" or $type eq "teacher"){
+        # removing _schueler if it exists
         my $target_1=$home."/$Language::inspection_dir";
         my $source_1="/home/students";
-
         &delete_link($source_1,$target_1);
         &delete_bind($source_1,$target_1);
-        if ($repair_bind_extension ne $repair_bind_extension_do_nothing){
-            &create_bind($source_1,$target_1,"","ALWAYSBIND");
-        }
     }
 
     # administrators    

@@ -43,7 +43,7 @@ my $quick=0;
 
 
 # config
-my $seconds_delay=60;
+my $seconds_delay=600;
 
 ###############################################################################
 # Beginn
@@ -130,7 +130,6 @@ if ($cron==1 or $info==1){
     # umount all bind mounted stuff 
     my @filesystems = Sys::Filesystem->filesystems();
     foreach my $fs (@filesystems){
-#	print "FS: $fs   >${Language::inspection_dir}<  \n";
         if ($fs=~/^\/home\// # start with /home/
             and (
               $fs=~/\/${Language::share_dir}/ # contain /__tauschen 
@@ -293,9 +292,11 @@ sub get_last_time {
 sub set_last_time {
     # append line to logfile
     my ($user,$date) = @_;
-    my $entry = $user."::".$date;
-    print "Updating db with entry:\n$entry\n";
-    system("echo \"${entry}\" >> ${DevelConf::sophomorix_bind_log}");
+    my $entry = $user."::".$date."\n";
+    print "Updating db (${DevelConf::sophomorix_bind_log}) with entry:\n$entry\n";
+    open(BINDLOG,">>${DevelConf::sophomorix_bind_log}");
+    print BINDLOG $entry;
+    close(BINDLOG);
 }
 
 

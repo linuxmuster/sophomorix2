@@ -72,6 +72,7 @@ require Exporter;
              get_teach_in_sys_users
              get_print_data
              search_user
+             list_teachers_by_year
              backup_user_database
              get_first_password
              check_sophomorix_user
@@ -89,6 +90,7 @@ require Exporter;
              get_smb_sid
              fetchquota_sum
              auth_passwd_old
+             update_uid_ldap
              update_user_ldap
              delete_user_ldap
              update_group_ldap
@@ -3401,9 +3403,8 @@ sub update_user_db_entry {
            push @posix, "homedirectory = '$new_home'";
            # sambahomepath
            my $new_sambahomepath=$old_sambahomepath;
-           $new_sambahomepath=~s/\\${login}$/\\\\${new_login}/;
-           $new_sambahomepath=~s/^\\\\/\\\\\\\\/;
-           # smabahomepath = '\\\\server\\user'  is required
+           $new_sambahomepath=~s/\\${login}$/\\${new_login}/;
+           # smabahomepath = '\\\\server\\user'+  is required
 	   push @samba, "sambahomepath = '$new_sambahomepath'";
        }
        elsif ($attr eq "FirstPass"){
@@ -3599,32 +3600,6 @@ sub update_user_db_entry {
     my $ldap=&auth_connect();
     &update_user_ldap($ldap,$login);
     &auth_disconnect($ldap);
-
-    # old
-
-    ## update authentication system
-    #if ($usermove==1){
-    #   &auth_usermove($login,$gid_name,$home_dir,$old_group);
-    #}
-    #if ($firstnameupdate==1){
-    #   &auth_firstnameupdate_old($login,$firstname);
-    #}
-    #if ($lastnameupdate==1){
-    #   &auth_lastnameupdate_old($login,$lastname);
-    #}
-    #if ($gecosupdate==1){
-    #   &auth_gecosupdate_old($login,$gecos,$firstname);
-    #}
-    #
-    #if ($shellupdate==1){
-    #   &auth_shellupdate_old($login,$login_shell);
-    #}
-    #if ($pwmustchangeupdate==1){
-    #   &auth_pwmustchangeupdate_old($login,$pw_change);
-    #}
-    #if ($enableupdate==1){
-    #   &auth_enableupdate_old($login,$enable);
-    #}
 
     # ??? besser was sinnvolles
     return 1;
@@ -4963,6 +4938,46 @@ sub search_user {
 
 
 
+sub list_teachers_by_year {
+    my $dbh=&db_connect();
+    print "Listing all Teachers by year of creation:\n";
+    my $sth= $dbh->prepare( "SELECT uid, firstname, 
+                                    surname,
+                                    sophomorixstatus,
+                                    creationdate
+                             FROM userdata
+                             WHERE gid='${DevelConf::teacher}'
+                             ORDER BY creationdate
+                            " );
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    my $separator="+---------+-------------------------------+".
+                   "---------------------+---+\n";
+    my $last_year="";
+    foreach my $row (@$array_ref){
+        # split the array, to give better names
+        my ($login,
+            $firstname,
+            $surname,
+            $status,
+            $creationdate,
+           ) = @$row;
+	my $name="$surname, $firstname";
+        my ($year,@unused)=split(/-/,$creationdate);
+        #print ">$year<\n";
+        if ($year ne $last_year){
+            print $separator;
+        }
+ 
+        printf "| %-8s| %-30s| %-20s| %-2s|\n",$login ,$name,$creationdate, $status;
+        $last_year=$year;
+    }
+    print $separator;
+
+    &db_disconnect($dbh);
+}
+
+
 =pod
 
 =item  I<backup_sys_database()>
@@ -4974,8 +4989,14 @@ Makes a backup of the sophomorix user database
 # this function can be left empty so far
 
 sub backup_user_database {
-    my ($time, $string) = @_;
-    &titel("Dumping database ldap before I modify it");
+    my ($time, $string,$option) = @_;
+    if (not defined $option){
+        $option="";
+        &titel("Dumping database ldap before I modify it");
+    }
+    if ($option eq "JANITOR"){
+        &titel("Dumping db ldap to ${DevelConf::log_pfad}/${time}.ldap-${string}\n");
+    }
     &do_falls_nicht_testen(
       "pg_dump --format=p -U ldap --file=${DevelConf::log_pfad}/${time}.ldap-${string} ldap",
       "chmod 600 ${DevelConf::log_pfad}/${time}.ldap-${string}",
@@ -5136,10 +5157,12 @@ sub show_project_list {
     &db_disconnect($dbh);
 }
 
+
 sub show_project_admin_list {
     my $dbh=&db_connect();
     my @userlist=();
     my %userlist=();
+    my $separator="+----------+--------------------------------------+\n";
     @projectlist=();
     # select all admins
     my $sth= $dbh->prepare( "SELECT uidnumber 
@@ -5167,8 +5190,13 @@ sub show_project_admin_list {
 
     # print the admins 
     foreach my $user (@userlist){
-        print "+-----------------------------+\n";
-        printf "|%-14s               |\n",$user;
+        my ($sur,$first,$stat)= $dbh->selectrow_array( "SELECT surname,firstname,sophomorixstatus 
+                                                        FROM userdata 
+                                                        WHERE uid='$user'
+                                                     ");
+        my $name=$sur.", ".$first." (".$stat.")";
+        print $separator;
+        printf "| %-9s| %-37s|\n",$user,$name;
         # print the projects
         my $sth= $dbh->prepare( "SELECT projectid 
                              FROM projects_admins
@@ -5188,11 +5216,11 @@ sub show_project_admin_list {
         }
         @projectlist = sort @projectlist;
         foreach my $pro (@projectlist){
-           printf "|    %-25s|\n",$pro;
+           printf "| %-9s| %-37s|\n",$user,$pro;
         }
     }
     # print final line
-    print "+-----------------------------+\n";
+    print $separator;
     &db_disconnect($dbh);
 }
 
@@ -5863,7 +5891,12 @@ sub auth_passwd_old {
 
 
 
-
+sub update_uid_ldap {
+    my ($old_uid,$new_uid) =@_;
+    &auth_userkill($old_uid);
+    my $ldap=&auth_connect();
+    &update_user_ldap($ldap,$new_uid);
+}
 
 sub update_user_ldap {
     my ($ldap,$login) = @_;
@@ -5898,7 +5931,8 @@ sub update_user_ldap {
     # return on error 
     if ($home eq ""){
         print "User $login does not exist in postgresql.\n";
-        print "   * Cannot create/replace ldap account.\n";
+        print "   * Cannot create/replace ldap account $login.\n";
+        print "   * This is OK when you are renaming loginnames\n";
         return 0;
     }
 

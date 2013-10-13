@@ -29,6 +29,8 @@ use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     db_connect
                                     check_connections
                                     search_user
+                                    list_teachers_by_year
+                                    update_uid_ldap
                                     fetchdata_from_account
                                     forbidden_login_hash
                                     update_user_db_entry
@@ -69,6 +71,7 @@ my $old_uid="";
 my $new_uid="";
 my $auth=0;
 my $new_class="";
+my $list_teachers_by_year=0;
 
 # Parsen der Optionen
 my $testopt=GetOptions(
@@ -90,6 +93,7 @@ my $testopt=GetOptions(
        "scheduled-toleration=s" => \$sc_toleration,
        "t|teacher=s" => \$teacher,
        "auth|ldap" => \$auth,
+       "list-teachers-by-year" => \$list_teachers_by_year,
        "new-class|newclass=s" => \$new_class,
           );
 
@@ -113,9 +117,10 @@ Options
   -v   /  --verbose
   -vv  /  --verbose --verbose
 
-Search for a user:
+Search for a user/users:
   -s string /   --search string
   -u user   /   --user user
+  --list-teachers-by-year
 
 Changing status of a user:
   -F user   /   --freeze user
@@ -123,6 +128,10 @@ Changing status of a user:
   -R user   /   --removable user
   -K user   /   --killable user
   -A user   /   --activate user
+
+Changing loginname of a user:
+  --old-uid oldlogin --new-uid newlogin
+  (WARNING: This is Alpha!!! This will never work 100%!)
 
 Changing class of a user (that is not in scheler.txt)
   -u user --newclass newclass
@@ -350,7 +359,7 @@ if ($info==1){
                                                $permanent_e,$permanent_w,$permanent_a;
     print "----------------+---+----------+----------+------+----------+--------+\n";
 
-    print "Total users: $total_total (students,teachers,exam, admins) + $permanent_w (computer)\n\n";
+    print "Total users: $total_total (students,teachers,exam,admins) + $permanent_w (computer)\n\n";
     exit;
 }
 
@@ -421,13 +430,14 @@ if ($search_login ne "" and $new_class ne ""){
     &log_script_exit("",0,1,0,@arguments);
 }
 
-# --user oldlogin --new-login newlogin
+
+# --old-uid oldlogin --new-uid newlogin
 if ($old_uid ne "" and $new_uid ne ""){
 
     my %forbidden_login_hash=&forbidden_login_hash();
 
     if (exists($forbidden_login_hash{$new_uid})){
-        &log_script_exit("New login $new_uid exists in the system",
+        &log_script_exit("ERROR: New login $new_uid exists in the system",
                          1,1,0,@arguments);
     }
 
@@ -439,51 +449,88 @@ if ($old_uid ne "" and $new_uid ne ""){
         &log_script_exit("Could not find old-uid $old_uid",
                          1,1,0,@arguments);
     }
+    my $dbh=&db_connect();
+    my ($old_dn)= $dbh->selectrow_array( "SELECT dn
+                                         FROM ldap_entries 
+                                         WHERE dn LIKE 'uid=$old_uid%'
+                                        ");
 
-    print "\nOld uid: $old_uid \n";
-    print "   Old homedirectory: $old_home \n";
-    print "   Old sambahomepath: $old_sambahomepath \n\n";
+
+    print "\nOld uid: $old_uid\n";
+    print "   Old homedirectory: $old_home\n";
+    print "   Old sambahomepath: $old_sambahomepath\n";
+    print "   Old dn in ldap_entries: $old_dn\n\n";
 
     # changing stuff
-    my $new_home=$old_home;
-    $new_home=~s/\/${old_uid}$/\/${new_uid}/;
+    my $new_home_update=$old_home;
+    $new_home_update=~s/\/${old_uid}$/\/${new_uid}/;
+    my $new_dn_update=$old_dn;
+    $new_dn_update=~s/uid=${old_uid},/uid=${new_uid},/;
 
 
     print "1) Updating $old_uid to $new_uid in the sophomorix database\n";
     &update_user_db_entry($old_uid,"Uid=$new_uid");
+    my $sql="UPDATE ldap_entries SET dn='$new_dn_update'
+             WHERE dn='$old_dn'";
+    if($Conf::log_level>=3){
+              print "\nSQL: $sql\n";
+    }
+    $dbh->do($sql);
+    &update_uid_ldap($old_uid,$new_uid);
+
 
     # fetch new data
     my ($new_home_db,$new_type,$new_gecos,$new_group,$new_uidnumber,
-       $new_sambahomepath) = &fetchdata_from_account($new_uid);
+       $new_sambahomepath_db) = &fetchdata_from_account($new_uid);
+    my ($new_dn_db)= $dbh->selectrow_array( "SELECT dn
+                                         FROM ldap_entries 
+                                         WHERE dn LIKE 'uid=$new_uid%'
+                                        ");
 
-    print "\nChecking new uid: $new_uid \n";
-    print "   New homedirectory: $new_home_db \n";
-    print "   New sambahomepath: $new_sambahomepath \n\n";
+
+    print "\nChecking new uid: $new_uid\n";
+    print "   New homedirectory: $new_home_db\n";
+    print "   New sambahomepath: $new_sambahomepath_db\n";
+    print "   New dn in ldap_entries: $new_dn_db\n\n";
 
 
     print "2) Moving homedir from\n", 
           "         $old_home \n", 
-          "   to  \n",
-          "         $new_home \n\n";
-    system("mv $old_home $new_home");
+          "     to:\n",
+          "         $new_home_update \n\n";
+    system("mv $old_home $new_home_update");
 
 
-    print "3) Renaming mailbox\n";
-    my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
-    &imap_rename_mailbox($imap,$old_uid,$new_uid);
-    &imap_disconnect($imap);
+    print "3) Renaming mailbox not supported\n";
+    print "  \n";
+    #my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
+    #&imap_rename_mailbox($imap,$old_uid,$new_uid);
+    #&imap_disconnect($imap);
 
 
-    print "4) Updating lehrer.txt if it is a teacher\n";
+    print "4) Updating Horde database not supported\n";
+    print "  \n";
+
+    print "5) Updating lehrer.txt if $old_uid is a teacher\n";
     if ($old_type eq "teacher"){
         &lehrer_ordnen($old_uid,$new_uid);
     }
+    print "\n";
 
 
-    print "5) Updating /etc/aliases.\n";
-#    system("${DevelConf::executable_pfad}/sophomorix-mail --skiplock");
+    print "6) Updating /etc/aliases:\n";
+
+    system("${DevelConf::executable_pfad}/sophomorix-mail --skiplock");
+    # log
+    &append_login_rename_log("man-rename-login",
+                           $old_uid,
+                           $new_uid,
+                           $old_uidnumber,
+                         );
 #    &nscd_stop();
+    print "... done!\n";
     &log_script_exit("",0,1,0,@arguments);
+  
 }
 
 
@@ -716,7 +763,7 @@ if ($reset_user ne""){
 # Standard: suchen nach string
 ######################################################################
 
-if ($search eq "" and $search_login eq ""){
+if ($search eq "" and $search_login eq "" and $list_teachers_by_year==0){
    print "I don't know what to search for! (searchstring is empty)\n";
    &log_script_exit("",0,1,0,@arguments);
 }
@@ -731,6 +778,8 @@ if ($search eq "" and $search_login eq ""){
 ############################################################
 if ($search_login ne ""){
     &search_user($search,$auth,$search_login);
+} elsif ($list_teachers_by_year==1){
+    &list_teachers_by_year();
 } else {
     &search_user($search,$auth);
 }

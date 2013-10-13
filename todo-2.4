@@ -1,4 +1,14 @@
+Updating postgres on slapd changes
 
+slapd overlay: slapo-sock soll script starten können
+               speziell mit passworte smbk5pwd 
+back-perl
+back-shell
+http://www.openldap.org/devel/gitweb.cgi?p=openldap.git;a=blob;f=servers/slapd/back-perl/SampleLDAP.pm;h=341f2b02e709f183ef42204773f11518dfdea547;hb=refs/heads/master
+
+Logged in ldif mit: auditlog overlay
+univention logged  mit (eigenem overlay translog)
+univention: translog im Paket slapd, (scheint von univention zu sein)
 
 sophomorix-print 
   - delete sophomorix-print-date on logout/after certain time, ...
@@ -57,21 +67,6 @@ Datenschutz:
 - Logdateien: 4 Wochen aufheben
 - VLAN ist physikalische Trennung
 
-sophomorix-print:
-
---one-per-page dokumentieren
---caller-copy bz
-  - wie --caller 
-  - und: kopiert erzeugte Datei in §HOME/sophomorix
-         owner anpassen, 0600
-
-
-Fixen, linkk zulassen:
-
-Richte sophomorix-pgldap ein (2.2.20-1) 
-.....
-ABBRUCH: /home/share ist ein Link auf ein Verzeichnis
-
 
 
 user-modify.archive.log  <---> user-modify.log
@@ -99,7 +94,6 @@ zip
 libnet-mac-perl
 texlive-lang-german
 samba
-
 setuid-perl dummy package gebaut (file evtl. mit perl-suid ersetzen):
 
 1. aptitude install equivs
@@ -123,10 +117,8 @@ Probleme:
 - postgresql
     postgres shell als root
     sudo -u postgres psql
-
 postgresql update scripts können nicht mit postgres verbinden
 --> muss user postgres sein
-
 
 Problems:
 
@@ -702,18 +694,7 @@ sophomorix-setup-pgldap:
 
 wenn /usr/sbin/linuxmuster-setup da und ausführbar
  - alle mit sed gepatchten dateien nicht anfassen
-<<<<<<< todo-sophomorix-src
    - wenn nicht da, selber patchen
-=======
-   - wenn nicht da, selber patchen
-
- - script schreiben, dass aus dem svn die config-Dateien difft
-   und anzeigt, welche sich verändert haben 
->>>>>>> 1.281
-   aus svn ins cvs holen, einvchecken svn: var/ dort sind thomas configs
-   script, dass diff macht
-
-
 
 
 paedml 5.0 updates, pakete selber hochladen --> account geben lassen
@@ -820,7 +801,8 @@ Logfile:       /var/log/clamav/sophomorix-virusscan.log
 Clamav:        /var/log/clamav/sophomorix-virusscan.clamav.log
 
 
-sophomorix.conf convertieren nach utf8. script das sophomorix.conf neu schreibt
+sophomorix.conf convertieren nach ASCI. Schlkonsolen Probleme vermeiden
+script das sophomorix.conf neu schreibt
 
 
 auf linbo2 gibts sophomorix-error wegen quota, wenn 
@@ -936,17 +918,7 @@ passwort test einbauen:
 
 
 
-
-{
-gosa ldap befüllen mit web gui
-
-connectiert mit den smbldap.conf einträgen in smb.conf
-}
-
-
-Umcodierung der Scripte in UTF8
-grep -i fen sopho*
-
+Umcodierung der Scripte in UTF8 so erledigt:
 
 1) 1. Zeile entfernen:
 file datei -> iso .......
@@ -972,14 +944,6 @@ sophomorix-base/scripts/sophomorix-print
 
 sophomorix-developer/scripts/sophomorix-test 
 --> OK, tut wieder
-
-Todo:
-###############
-sophomorix-base/scripts/sophomorix-check -> Weiter mit utf8
-
-SophomorixBase.pm
-   tut recode to asci noch?
-ü mit \... erstzen???
 
 
 Tests:
@@ -1030,13 +994,6 @@ added with smbldaptools: top,posixGroup,sambaGroupMapping
 after dump:              posixGroup,sambaGroupMapping
 
 What does top mean? What is correct?
-
-
-
-
-upgrade: fixe dns-Einträge in db.10 eintragen:
-   db.10
-   db.linuxmuster
 
 Wie fragt man encoding system der postgres ab
 
@@ -2111,7 +2068,8 @@ Perl Debugger:
    Variable ausgeben: p $var
    Hash ausgeben:  p x\%hash
    Liste ausgeben:  p x\@list
-
+   Next line: n    (arbeitet Zeile ab, auch wenn Funktion)
+   Single step: s  (geht in Funktion rein)
 
 sophomorix-mediawiki in ein eigenes paket packen
 

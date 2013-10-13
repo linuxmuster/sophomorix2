@@ -1725,7 +1725,7 @@ open(SOPHOMORIXOK, ">${DevelConf::ergebnis_pfad}/sophomorix.ok")
 # report.office   --> Infos für das Sekretariat über zu korrigierende Datensätze
 open(REPORTSEKRETARIAT, ">${DevelConf::ergebnis_pfad}/report.office")
                         || die "Fehler: $!";
-print REPORTSEKRETARIAT "Report für das Sekretariat \n";
+print REPORTSEKRETARIAT "Report fuer das Sekretariat \n";
 print REPORTSEKRETARIAT "Start-Zeitpunkt: ",
                          $tag,".",
                          $monat,".",
@@ -2414,7 +2414,7 @@ if (not exists $schueler_ok_hash{$identifier}){
             printf REPORTSEKRETARIAT "%38s:  %-30s\n" ,
                                      "ORIGINALDATENSATZ ", 
                                      $zeile_orig;
-            print REPORTSEKRETARIAT "Für diesen Schüler gibt es ebenfalls",
+            print REPORTSEKRETARIAT "Fuer diese SchuelerIn gibt es ebenfalls",
                                     " eine Zuordnung zur Klasse  ", 
                                     ,$schueler_ok_hash{$identifier},
 #                                    ,substr($schueler_ok_hash{$identifier},1,30),

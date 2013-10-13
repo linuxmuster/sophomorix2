@@ -74,6 +74,7 @@ use Sys::Filesystem ();
               zeit
               pg_timestamp
               append_teach_in_log
+              append_login_rename_log
               log_script_start
               log_script_end
               log_script_exit
@@ -2075,7 +2076,7 @@ sub nscd_start {
     if (-e $DevelConf::nscd_script){
         # fix: add /sbin to $PATH, because
         # sophomorix-teacher runs with different path
-        system("OLDPATH=\$PATH;PATH=\$PATH:/sbin; $DevelConf::nscd_start; PATH=\$OLDPATH");
+        system("OLDPATH=\$PATH;PATH=\$PATH:/sbin; $DevelConf::nscd_start > /dev/null; PATH=\$OLDPATH");
     }
     &samba_reload();
 }
@@ -2098,14 +2099,16 @@ sub nscd_stop {
     if (-e $DevelConf::nscd_script){
         # fix: add /sbin to $PATH, because
         # sophomorix-teacher runs with different path
-        system("OLDPATH=\$PATH;PATH=\$PATH:/sbin; $DevelConf::nscd_stop; PATH=\$OLDPATH");
+        system("OLDPATH=\$PATH;PATH=\$PATH:/sbin; $DevelConf::nscd_stop > /dev/null; PATH=\$OLDPATH");
     }
 }
 
 sub nscd_flush_cache {
     # flush_cache tut nur bei laufendem nscd
     if (-e "/usr/sbin/nscd"){
-        print "Flushing nscd cache\n";
+        if($Conf::log_level>=2){
+            print "Flushing nscd cache\n";
+        }
 	system("/usr/sbin/nscd -i passwd");
 	system("/usr/sbin/nscd -i group");
 	system("/usr/sbin/nscd -i hosts");
@@ -3094,6 +3097,21 @@ sub append_teach_in_log {
 
 }
 
+sub append_login_rename_log {
+   # appends a line to auto-teach-in.log
+   my ($type,$login,$new_uid,$old_uidnumber)=@_;
+   my $heute=`date +%d.%m.%Y`;
+   chomp($heute);
+   if (not defined $unid){$unid=""} 
+   open(LOG, 
+       ">>${DevelConf::log_files}/user-login-rename.log") 
+        || die "Fehler: $!";
+   print LOG  $type."::".$heute."::".$login."::->::".
+                 $new_uid."::".$old_uidnumber."\n";
+   close(LOG);
+
+}
+
 sub unlock_sophomorix{
     &titel("Removing lock in $DevelConf::lock_file");
     my $timestamp=&zeit_stempel();
@@ -3698,6 +3716,7 @@ sub imap_create_mailbox {
 }
 
 sub imap_rename_mailbox {
+    # This does not work as expected ???
     if (not -e ${DevelConf::imap_password_file}) {
         print "WARNING: No file ${DevelConf::imap_password_file}.",
               " Skipping IMAP stuff.\n";

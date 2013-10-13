@@ -2,8 +2,35 @@
 # 
 
 ============SOPHOMORIX2 CHANGELOG ====================================
+2.4.36-1 (2013-10-12)
+    - closed Bug #214 (löschen von home und tauschverzeichnis)
+    - sophomorix-move also umounts bind mounts before moving
 
-2.4.31-1 (2013-09-xx)
+2.4.35-1 (2013-10-11)
+    -sophomorix-user --old-uid --new-uid
+     Basic Alpha Version (without cyrus mailbox rename, Horde db update)
+    -remove _schueler on login (not used anymore)
+    -do not recreate _schueler with sophomorix-repair
+    -sophomorix-janitor --dump-pg-ldap dumps the user database
+    -sophomorix.conf 
+     - angepasst aus ASCII, um Erstinstallations Bug #153 zu verhindern
+     - neue Veriablen sind enthalten
+    -sophomorix-janitor --check-project
+     - considers all memberships now
+
+2.4.33-1 (2013-10-07)
+    -bind mount to _schueler leads to unmountable Homedir of students #208
+     Unmoved bind mount, but Bug #135 and #136 are still open
+    -manpage italcrooms.conf fixed (Doppelpunkte!)
+
+2.4.32-1 (2013-10-02)
+    -sophomorix-project:
+      - --admininfo: format output nicely
+    -sophomorix-bind: Zeitanpassung auf 600s (closes #43)
+     
+
+2.4.31-1 (2013-10-01)
+    -sophomorix-user: Option --list-teachers-by-year added 
     - sophomorix-bind:
       - add bind mount _schueler to all teachers (#135 and #136)
       - sophomorix-repair --repairhome:  include _schueler  
@@ -22,9 +49,12 @@
       - closing #175 Part 2)
     - sophomorix-teacher: collect exam even if sophomorix-check, ...
       is running (closes #201)
-    - sophomorix-janitor: added option --list-db-junk/--kill-db-junk
-      (closes #175 Part 3))
-    - sophomorix-groupdel: closes #175 Part 1)
+    - sophomorix-janitor: 
+      - added option --list-db-junk/--kill-db-junk
+        (closes #175 Part 3))
+      - added option --check-horde (checks Table horde_prefs) 
+      - added man page for sophomorix-janitor
+   - sophomorix-groupdel: closes #175 Part 1)
 
 2.4.30-1 (2013-09-11)
     -fixed permissions when using sophomorix-print --caller-copy 

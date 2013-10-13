@@ -50,9 +50,12 @@ my $uid=0;
 my $listfiles=0;
 my $list_db_junk=0;
 my $kill_db_junk=0;
+my $check_project_members=0;
 
 my $list_foreign_files=0;
-
+my $check_horde=0;
+my $dump_horde=0;
+my $dump_pg_ldap=0;
 
 
 my @userlist=();
@@ -64,6 +67,12 @@ my $administrator=0;
 my $rooms="";
 my $ws=0;
 my $check=1;
+
+
+# %future_members will be compared to the table groups_users
+# key:    gidnumber
+# value:  memberuidnumber
+my %future_members=();
 
 
 
@@ -86,6 +95,10 @@ my $testopt=GetOptions(
            "list-db-junk" => \$list_db_junk,
            "kill-db-junk" => \$kill_db_junk,
            "list-foreign-files" => \$list_foreign_files,
+           "check-horde" => \$check_horde,
+           "dump-horde" => \$dump_horde,
+           "dump-pg-ldap" => \$dump_pg_ldap,
+           "check-project-members" => \$check_project_members,
            "info|i" => \$info,
            "help|h" => \$help,
           );
@@ -111,11 +124,15 @@ Housekeeping the postgres database ldap:
 
 Working on users files:
 
-  --listfiles --user name
-  --listfiles --uid uidnumber
+  --listfiles --user name (tut nicht!)
+  --listfiles --uid uidnumber (tut nicht) 
 
   --list-foreign-files (List files/dirs in home of user, that are not owned by user)
 
+  --check-horde (checks horde3 database (Table horde_prefs) for obsolete entries)
+  --dump-horde (dumps horde3 database)
+
+  --dump-pg-ldap (dumps the postgresql database ldap)
 
 Selecting users (Default is: no user)
   -s / --students
@@ -159,8 +176,6 @@ if ($list_db_junk==1 or $kill_db_junk==1){
     print "Analyzing ldap database ...\n";
 #    &check_connections();
     my $dbh=&db_connect();
-
-
 
     # TEST 1
     print "TEST 1: gids in project_groups must be existing\n";
@@ -208,6 +223,8 @@ if ($list_db_junk==1 or $kill_db_junk==1){
             }
         }
     }
+    # TEST 2
+    # follows here
 
 
     &db_disconnect($dbh);
@@ -229,13 +246,381 @@ if ($list_foreign_files==1){
                   " -path $home/${Language::collect_dir} -prune -o".
                   " -path $home/${Language::collected_dir} -prune -o".
                   " -path $home/${Language::task_dir} -prune -o". 
-                  " -path $home/${Language::inspection_dir} -prune -o". 
                   " -path $home/${Language::handout_dir} -prune -o".
       	      #    " -path $home/${Language::user_attic}/mailsync -prune -o".
       	          " -path $home/.Trash-* -prune -o";
         system ("find $home $prune ! -user $login -printf \"%u\t%g\t%p\n\"");
     }
     exit;
+}
+
+
+# --check-horde
+if ($check_horde==1){
+    my %horde_users=();
+    my $database="horde";
+    my $hostname="localhost";
+    my $password=&get_horde_password();
+
+    my $dsn = "DBI:mysql:database=$database;host=$hostname";
+    my $dbh = DBI->connect($dsn, "horde",$password);
+    print "Checking horde database for obsolete stuff\n";
+    my $sth = $dbh->prepare( "SELECT pref_uid FROM horde_prefs");
+
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+	my ($uid)=@$row;
+        $horde_users{$uid}="seen";
+	print "$uid\n";
+    }
+
+
+    while(my ($uid, $value) = each(%horde_users)) {
+	my $return=system("id $uid > /dev/null");
+        if ($return!=0){
+        print "id returned $return\n";
+        print "  User $uid ninexisting in system\n"; 
+       }
+    }
+
+    $dbh->disconnect();
+    print "... Done\n";
+    exit;
+}
+
+
+
+# --dump-horde
+if ($dump_horde==1){
+    my $command="mysqldump horde";
+    #print "$command\n";
+    system("$command");
+}
+
+
+
+# --dump-pg-ldap
+if ($dump_pg_ldap==1){
+    my $timestamp=&zeit_stempel;
+    print "Timestamp: $timestamp\n";
+    &backup_user_database($timestamp, "janitor.sql","JANITOR");
+    exit;
+}
+
+
+sub pro_name {
+    my ($id)=@_;
+    my $dbh=&db_connect();
+    my ($name)= $dbh->selectrow_array( "SELECT gid 
+                                         FROM projectdata 
+                                         WHERE id=$id
+                                        ");
+    &db_disconnect($dbh);
+    return $name;
+}
+
+
+sub user_name_from_id {
+    my ($uid) = @_;
+    my $username = getpwuid($uid);
+    return $username;
+}
+
+
+sub update_future_members {
+    my ($gidnumber,$uidnumber,$reason) = @_;
+    if (exists $future_members{$gidnumber}{$uidnumber}){
+        print "          uid $uidnumber exists.",
+              " Updating reason:\n";
+        # fetching old_reason
+        my $oldreason=$future_members{$gidnumber}{$uidnumber};
+        my $newreason="";
+        $newreason=$oldreason.",".$reason;
+        print "          $oldreason -> $newreason\n";
+        $future_members{$gidnumber}{$uidnumber}="$newreason";
+    } else {
+        print "          uid $uidnumber missing.".
+              " Creating entry.\n";
+        $future_members{$gidnumber}{$uidnumber}="$reason";
+   }
+}
+
+
+sub group_name_from_id {
+    my ($gid) = @_;
+    my ($groupname) = getgrgid($gid);
+    return $groupname;
+}
+
+
+
+# --check-project-members
+if ($check_project_members==1){
+    print "Checking ALL project memberships ...\n";
+
+    # save this in a hash to avoid multiple database queries
+    my %projectid_gidnumber=();
+
+
+    # %current_members is the table groups_users
+    # key:    gidnumber
+    # value:  memberuidnumber
+    my %current_members=();
+
+    # %memberrelation contains the table projects_memberprojects
+    # key:   projectID 
+    # value: memberprojectIDs
+    my %memberrelation=();
+
+    my $dbh=&db_connect();
+
+    # read current members
+    my $sth0= $dbh->prepare( "SELECT groups_users.gidnumber,
+                                     groups_users.memberuidnumber
+                              FROM groups_users
+                              JOIN projectdata 
+                              ON projectdata.gidnumber = groups_users.gidnumber
+                              ORDER BY gidnumber
+                           ");
+    $sth0->execute();
+    my $array_ref0 = $sth0->fetchall_arrayref();
+    foreach my $row (@$array_ref0){
+        my ($gidnumber,$memberuidnumber)=@$row;
+        $current_members{$gidnumber}{$memberuidnumber}="seen";
+    }
+
+
+    my $sth= $dbh->prepare( "SELECT id,gid,gidnumber,longname,maxmembers 
+                             FROM projectdata 
+                             ORDER BY gid");
+    $sth->execute();
+    my $array_ref = $sth->fetchall_arrayref();
+    foreach my $row (@$array_ref){
+        my ($id,$gid,$gidnumber,$longname,$maxmembers)=@$row;
+        $projectid_gidnumber{$id}=$gidnumber;
+        # nn
+        print "$id, $gid, $longname, $gidnumber, $maxmembers\n";       
+
+
+        # 1) adding admins
+        my $sth1= $dbh->prepare( "SELECT uidnumber
+                             FROM projects_admins 
+                             WHERE projectid=$id");
+        $sth1->execute();
+        my $array_ref1 = $sth1->fetchall_arrayref();
+        foreach my $row (@$array_ref1){
+            my ($uidnumber)=@$row;
+            # nn
+            my $user=&user_name_from_id($uidnumber);
+            print "   * $uidnumber ($user) is admin in $gidnumber ($gid)\n";
+            #$future_members{$gidnumber}{$uidnumber}="admin";
+            &update_future_members($gidnumber,
+                                   $uidnumber,
+                                   "admin");
+        }
+
+
+        # 2) adding members_by_option
+        my $sth2= $dbh->prepare( "SELECT memberuidnumber
+                             FROM projects_members 
+                             WHERE projectid=$id");
+        $sth2->execute();
+        my $array_ref2 = $sth2->fetchall_arrayref();
+        foreach my $row (@$array_ref2){
+            my ($uidnumber)=@$row;
+            # nn
+            my $user=&user_name_from_id($uidnumber);
+            print "   * $uidnumber ($user) is MemberByOption in $gidnumber ($gid)\n";
+            #$future_members{$gidnumber}{$uidnumber}="MemberByOption";
+            &update_future_members($gidnumber,
+                                   $uidnumber,
+                                   "MemberByOption");
+        }
+
+
+        # 3) adding members by class(group)
+        my $sth3= $dbh->prepare( "SELECT membergid
+                             FROM project_groups 
+                             WHERE projectid=$id");
+        $sth3->execute();
+        my $array_ref3 = $sth3->fetchall_arrayref();
+        foreach my $row (@$array_ref3){
+            my ($membergid)=@$row;
+            # nn
+            my $group=&group_name_from_id($membergid);
+            print " * $membergid ($group) is MemberByClass in $gid\n";
+            # A) Adding Teachers
+            my $sth3a= $dbh->prepare( "SELECT memberuidnumber
+                                 FROM groups_users 
+                                 WHERE gidnumber=$membergid");
+            $sth3a->execute();
+            my $array_ref3a = $sth3a->fetchall_arrayref();
+            foreach my $row (@$array_ref3a){
+                my ($uidnum)=@$row;
+                # nn
+                my $user=&user_name_from_id($uidnum);
+                print "   * $uidnum ($user) is MemberByClass in $membergid ($group)\n";
+
+                #$future_members{$gidnumber}{$uidnum}="MemberByClass";
+                &update_future_members($gidnumber,
+                                       $uidnum,
+                                       "MemberByClass");
+            }
+            # B) Adding Students (primary group)
+            my $sth3b= $dbh->prepare( "SELECT uid,uidnumber
+                                FROM userdata
+                                WHERE gidnumber=$membergid");
+            $sth3b->execute();
+            my $array_ref3b = $sth3b->fetchall_arrayref();
+            foreach my $row (@$array_ref3b){
+                my ($uid,$uidnum)=@$row;
+                print "   * $uidnum ($uid) is MemberByClass in $membergid ($group)\n";
+                #$future_members{$gidnumber}{$uidnum}="MemberByClass";
+                &update_future_members($gidnumber,
+                                       $uidnum,
+                                       "MemberByClass");
+
+            }
+        }
+
+
+        # 4) Step1 (projectmembers) Save Project -> Memberprojects 
+        my $sth4= $dbh->prepare( "SELECT memberprojectid
+                             FROM projects_memberprojects 
+                             WHERE projectid=$id");
+        $sth4->execute();
+        my $array_ref4 = $sth4->fetchall_arrayref();
+        foreach my $row (@$array_ref4){
+            my ($memberprojectid)=@$row;
+            # nn
+            print "  * $memberprojectid (ProjectID)\n";
+            $memberrelation{$id}{$memberprojectid}="seen";
+        }
+    }
+
+
+    my $i=0;
+    my @update_order=();
+    my @delete=();
+    my $count=0;
+
+    until (keys %memberrelation == 0){
+        # CAREFUL: do not modify the hash that you are 
+        # using as a loop!
+        $count++;
+        print "############### Run $count ###############\n";
+
+        # find, what can be deleted in this step
+        while (my ($topkey,$topvalue) = each %memberrelation){
+            print "$topkey --> $topvalue\n";
+            while (my ($key,$value) = each %{ $memberrelation{$topkey} }){
+                print "   $key --> $value\n";
+                if (not exists $memberrelation{$key}){
+                    print "    * $key is not on toplevel:\n";
+                    print "      Add members of project $key to $topkey\n";
+                    # get gidnumber of project
+                    my $gidnumber_fetch=$projectid_gidnumber{$key};
+                    my $gidnumber_push=$projectid_gidnumber{$topkey};
+
+                    # future members of project $key
+                    while (my ($memberuid,$reason) = 
+			   each %{ $future_members{$gidnumber_fetch} }){
+                        print "        * $memberuid is in $gidnumber_fetch ($reason)\n";
+                        &update_future_members($gidnumber_push,
+                                               $memberuid,
+                                               "ByMemProject");
+                    }
+                    push @update_order, "${key}->${topkey}";
+                    push @delete, "$topkey,$key";
+	        }
+            }
+        }
+        # END: find, what can be deleted in this step
+
+    
+        # delete findings of this step
+        print "### Deleting findings or run $count:\n";
+        print "  1) Deleting secondlevel keys:\n";
+        foreach my $item (@delete){
+            my ($topkey,$key)=split(/,/,$item);
+            print "     Delete: $topkey --> $key\n";
+            my $deleted = delete($memberrelation{$topkey}{$key});
+        }
+
+        print "  2) Deleting empty toplevel keys:\n";
+        while (my ($topkey,$topvalue) = each %memberrelation){
+            if (keys $memberrelation{$topkey} == 0){
+                print "     $topkey is empty\n";
+                my $deleted = delete($memberrelation{$topkey});
+            } else {
+                print "   $topkey has elements\n";
+            }
+        }
+        # END: delete findings of this step
+
+
+        # list whats left
+        print "\n### Thats left:\n";
+        while (my ($topkey,$topvalue) = each %memberrelation){
+            print "$topkey --> $topvalue\n";
+            while (my ($key,$value) = each %{ $memberrelation{$topkey} }){
+                print "   $key --> $value\n";
+            }
+        }
+        # END: list whats left
+    } # END: until
+
+
+    &db_disconnect($dbh);
+    print "### Update order:\n";
+    foreach my $pro (@update_order){
+	print "$pro ";
+    }
+    print "\n... Done after $count runs\n";
+
+    print "\nLook what memberships to add:\n";
+    # anzulegen: future hash durchgehen, welche fehlen
+    # $gid --> $uid --> whymember($value)
+    my $add=0;
+    foreach my $gid (keys %future_members) {
+         foreach my $uid (keys %{ $future_members{$gid} }) {
+             my $value = $future_members{$gid}->{$uid};
+              my $user=&user_name_from_id($uid);
+              my $group=&group_name_from_id($gid);
+             if (exists $current_members{$gid}{$uid}){
+                 print "   OK: $gid($group) --> $uid($user) --> $value\n";
+             } else {
+                 print "  ADD: $gid($group) --> $uid($user) --> $value\n";
+                 $add++;
+             }
+         }
+    }
+    print "$add users must be added as members\n\n";
+
+
+    print "\nLook what memberships to delete:\n";
+    # delete: current hash durchgehen, welche sind zuviel
+    # $gid --> $uid --> whymember($value)
+    my $delete=0;
+    foreach my $gid (keys %current_members) {
+         foreach my $uid (keys %{ $current_members{$gid} }) {
+              my $value = $current_members{$gid}->{$uid};
+              my $user=&user_name_from_id($uid);
+              my $group=&group_name_from_id($gid);
+ 
+              if (exists $future_members{$gid}{$uid}){
+                  print "   OK: $gid($group) --> $uid($user) --> $value\n";
+              } else {
+                  print "  DEL: $gid($group) --> $uid($user) --> $value\n";
+                  $delete++;
+              }
+         }
+    }
+    print "$delete users must be deleted as members\n\n";
+
+
+    print "Done\n";
 }
 
 
@@ -417,3 +802,25 @@ sub files_of_uid {
     }
 }
 
+sub get_horde_password {
+    my $password="";
+    my $conf="/etc/horde/horde3/conf.php";
+    if (-e $conf){
+        open (HORDECONF,$conf);
+        while(<HORDECONF>){
+            if (m/password/){
+		my $line=$_;
+                chomp($line);
+                my ($trash,$string)=split(/=/,$line);
+                $string=~m/ '([A-Za-z0-9_]+)';/;
+                $password=$1;
+            }
+        }
+        close HORDECONF;
+    } else {
+        print "\nERROR: Retrieving horde password failed:\n";
+        print "    $conf nonexisting\n\n";
+        exit;
+    }
+    return $password;
+}

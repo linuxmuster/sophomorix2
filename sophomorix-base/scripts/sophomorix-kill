@@ -376,6 +376,15 @@ sub kill_user {
         print("public_html:         $public_html_to_kill\n");
       } 
 
+
+      # delete bind mounts ???temporary
+      my $unbind_command="sophomorix-bind --quick --logout ".
+                         "--host unknown --user  $login_name_to_kill".
+                         " --homedir $home_verzeichnis_to_kill";
+      print "$unbind_command\n";
+      system($unbind_command);
+      # end temporary ???
+
       # kill mailbox
       &imap_kill_mailbox($imap,$login_name_to_kill);
 

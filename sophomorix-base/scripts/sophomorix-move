@@ -295,6 +295,17 @@ while(<USERVERSETZEN>){
    # 0. rember login to set quota later
    push @users_for_quota, $login_versetzen;
 
+
+   # delete bind mounts ???temporary
+   my $unbind_command="sophomorix-bind --quick --logout ".
+                      "--host unknown --user  $login_versetzen".
+                      " --homedir $old_home";
+   print "$unbind_command\n";
+   system($unbind_command);
+   # end temporary ???
+
+
+
    # die Daten aus dem Tausch-Verzeichnis dem Schüler in sein home moven
    &save_tausch_klasse($login_versetzen, $alte_klasse);
 
