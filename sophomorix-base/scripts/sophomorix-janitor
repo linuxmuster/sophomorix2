@@ -293,7 +293,7 @@ if ($check_horde==1){
 
 # --dump-horde
 if ($dump_horde==1){
-    my $command="mysqldump horde";
+    my $command="mysqldump --extended-insert=0 horde";
     #print "$command\n";
     system("$command");
 }
