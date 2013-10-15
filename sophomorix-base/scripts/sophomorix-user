@@ -503,9 +503,9 @@ if ($old_uid ne "" and $new_uid ne ""){
 
     print "3) Renaming mailbox not supported\n";
     print "  \n";
-    #my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
-    #&imap_rename_mailbox($imap,$old_uid,$new_uid);
-    #&imap_disconnect($imap);
+    my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
+    &imap_rename_mailbox($imap,$old_uid,$new_uid);
+    &imap_disconnect($imap);
 
 
     print "4) Updating Horde database not supported\n";
