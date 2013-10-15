@@ -52,6 +52,11 @@ use Sys::Filesystem ();
               nscd_start
               nscd_stop
               nscd_flush_cache
+              mta_start
+              mta_stop
+              mda_start
+              mda_restart
+              mda_stop
               check_options
               check_datei_exit
               check_config_template
@@ -2117,6 +2122,32 @@ sub nscd_flush_cache {
     }
 }
 
+
+sub mta_start {
+    # postfix
+    system("service postfix start");
+}
+
+sub mta_stop {
+    # postfix
+    system("service postfix stop");
+
+}
+
+sub mda_start {
+    # cyrus
+    system("service cyrus-imapd start");
+}
+
+sub mda_restart {
+    # cyrus
+    system("service cyrus-imapd restart");
+}
+
+sub mda_stop {
+    # cyrus
+    system("service cyrus-imapd stop");
+}
 
 
 

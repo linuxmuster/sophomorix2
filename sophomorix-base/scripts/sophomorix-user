@@ -132,6 +132,10 @@ Changing status of a user:
 Changing loginname of a user:
   --old-uid oldlogin --new-uid newlogin
   (WARNING: This is Alpha!!! This will never work 100%!)
+  Problems: The user has to be logged out!
+            cyrus and imap will be restartet!
+  --> Do this at night!
+
 
 Changing class of a user (that is not in scheler.txt)
   -u user --newclass newclass
@@ -501,12 +505,21 @@ if ($old_uid ne "" and $new_uid ne ""){
     system("mv $old_home $new_home_update");
 
 
-    print "3) Renaming mailbox not supported\n";
+    print "3) Renaming mailbox:\n";
     print "  \n";
+
+    &mta_stop();
+
+    # stop: log out the users, start: needed for renaming
+    &mda_restart();
+    print "Waiting 4 Seconds for cyrus to accept connections ...\n";
+    sleep 4;
+
     my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
     &imap_rename_mailbox($imap,$old_uid,$new_uid);
     &imap_disconnect($imap);
 
+    &mta_start();
 
     print "4) Updating Horde database not supported\n";
     print "  \n";
@@ -786,3 +799,6 @@ if ($search_login ne ""){
 
 
 &log_script_end(@arguments);
+
+
+
