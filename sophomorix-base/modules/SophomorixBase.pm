@@ -4514,7 +4514,7 @@ sub handout {
 
   # what permissions/owner must i create
   my ($path,$dir_perm,$file_perm)=($to_dir,"0755","0644");
-
+  system("mkdir -p $to_dir");
   if ($rsync eq "delete") {
      system("rsync -tor --delete $from_dir $to_dir");
      &chmod_chown_dir($to_dir,$dir_perm,$file_perm,
