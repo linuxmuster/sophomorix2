@@ -233,11 +233,12 @@ sub fetchinfo_from_project {
     my ($longname,$addquota,$add_mail_quota,$status,$join,
         $time,$max_members,$mailalias,
         $maillist,$id,$type,$schooltype,$department,
-        $creationdate,$enddate,$tolerationdate,$deactivationdate
+        $creationdate,$enddate,$tolerationdate,$deactivationdate,
+        $gidnumber
         ) = $dbh->selectrow_array( "SELECT longname,addquota,
            addmailquota,sophomorixstatus,joinable,creationdate,maxmembers,
            mailalias,maillist,id,type,schooltype,department,
-           creationdate,enddate,tolerationdate,deactivationdate
+           creationdate,enddate,tolerationdate,deactivationdate,gidnumber
                           FROM projectdata 
                           WHERE gid='$project'");
     &db_disconnect($dbh);
@@ -263,7 +264,8 @@ sub fetchinfo_from_project {
     return ($longname,$addquota,$add_mail_quota,
             $status,$join,$time,$max_members,$mailalias,$maillist,
             $id,$type,$schooltype,$department,
-            $creationdate,$enddate,$tolerationdate,$deactivationdate);    
+            $creationdate,$enddate,$tolerationdate,$deactivationdate,
+            $gidnumber);    
 }
 
 
@@ -5495,14 +5497,19 @@ sub show_project {
     my ($project) = @_;
     my ($longname,$addquota,$add_mail_quota,
         $status,$join,$time,$max_members,
-        $mailalias,$maillist)=&fetchinfo_from_project($project);
+        $mailalias,$maillist,$id,$type,$schooltype,$department,
+        $creationdate,$enddate,$tolerationdate,$deactivationdate,
+        $gidnumber
+        )=&fetchinfo_from_project($project);
     my @project_attribs=();
     if (defined $longname){
         # create list
         if ($addquota eq "quota"){
             $addquota="0";
         }
-	@project_attribs=("LongName:",
+	print "$deactivationdate >$gidnumber>\n";
+	@project_attribs=("gidnumber: $gidnumber",
+                          "LongName:",
                           "  $longname",
                           "AddQuota: $addquota MB",
                           "AddMailQuota: $add_mail_quota MB",
