@@ -455,7 +455,7 @@ if ($old_uid ne "" and $new_uid ne ""){
                          1,1,0,@arguments);
     }
 
-    # fetch old data
+    # Fetch old data
     my ($old_home,$old_type,$old_gecos,$old_group,$old_uidnumber,
        $old_sambahomepath) = &fetchdata_from_account($old_uid);
 
@@ -468,18 +468,11 @@ if ($old_uid ne "" and $new_uid ne ""){
                                          FROM ldap_entries 
                                          WHERE dn LIKE 'uid=$old_uid%'
                                         ");
-
-#    print "\nOld uid: $old_uid\n";
-#    print "   Old homedirectory: $old_home\n";
-#    print "   Old sambahomepath: $old_sambahomepath\n";
-#    print "   Old dn in ldap_entries: $old_dn\n\n";
-
     # changing stuff
     my $new_home_update=$old_home;
     $new_home_update=~s/\/${old_uid}$/\/${new_uid}/;
     my $new_dn_update=$old_dn;
     $new_dn_update=~s/uid=${old_uid},/uid=${new_uid},/;
-
 
     print "1) Updating $old_uid to $new_uid in the sophomorix database\n";
     &update_user_db_entry($old_uid,"Uid=$new_uid");
@@ -491,27 +484,18 @@ if ($old_uid ne "" and $new_uid ne ""){
     $dbh->do($sql);
     &update_uid_ldap($old_uid,$new_uid);
 
-
-
-
-    print "2) Moving homedir:\n", 
-          "    OLD:  $old_home \n", 
-          "    NEW:  $new_home_update \n\n";
+    print "2) Moving homedir.\n";
     system("mv $old_home $new_home_update");
 
-
     print "3) Renaming mailbox: $old_uid --> $new_uid\n";
-    print "  \n";
     &move_mailbox($old_uid,$new_uid);
 
     print "4) Updating Horde database not supported\n";
-    print "  \n";
 
     print "5) Updating lehrer.txt if $old_uid is a teacher\n";
     if ($old_type eq "teacher"){
         &lehrer_ordnen($old_uid,$new_uid);
     }
-    print "\n";
 
     print "6) Updating /etc/aliases:\n";
 
@@ -524,31 +508,25 @@ if ($old_uid ne "" and $new_uid ne ""){
                          );
     print "... done!\n";
 
-    print "Checking success:\n";
-    # fetch new data
+
+    # Fetch new data
     my ($new_home_db,$new_type,$new_gecos,$new_group,$new_uidnumber,
        $new_sambahomepath_db) = &fetchdata_from_account($new_uid);
     my ($new_dn_db)= $dbh->selectrow_array( "SELECT dn
                                          FROM ldap_entries 
                                          WHERE dn LIKE 'uid=$new_uid%'
                                         ");
-
-#    print "\nChecking new uid: $new_uid\n";
-#    print "   New homedirectory: $new_home_db\n";
-#    print "   New sambahomepath: $new_sambahomepath_db\n";
-#    print "   New dn in ldap_entries: $new_dn_db\n\n";
-
     my $id_result_old="";
     if (system("id $old_uid > /dev/null 2>&1")){
-        $id_result_old="nonexisting $old_uid (OK)";
+        $id_result_old="$old_uid (nonexisting,OK)";
     } else {
-        $id_result_old="existing $old_uid (ERROR)";
+        $id_result_old="$old_uid (existing,ERROR)";
     };
     my $id_result_new="";
     if (system("id $new_uid > /dev/null 2>&1")){
-        $id_result_new="nonexisting $new_uid (ERROR)";
+        $id_result_new="$new_uid (nonexisting,ERROR)";
     } else {
-        $id_result_new="existing $new_uid (OK)";
+        $id_result_new="$new_uid (existing,OK)";
     };
 
     my $old_home_result="";
@@ -564,9 +542,25 @@ if ($old_uid ne "" and $new_uid ne ""){
 	$new_home_result=$new_home_db." (nonexisting,ERROR)";
     }
 
+    # ??? path to mailbox
+    my $old_mailbox_result="";
+    if (-d $old_home){
+	
+    } else {
+	
+    }
+    my $new_mailbox_result="";
+    if (-d $new_home_db){
+	
+    } else {
+	
+    }
+
+
 
 
     # print results
+    print "Checking success:\n";
     print " Unix Acount:\n";
     print "    OLD: $id_result_old\n";
     print "    NEW: $id_result_new\n";
@@ -580,16 +574,8 @@ if ($old_uid ne "" and $new_uid ne ""){
     print "    OLD: $old_sambahomepath\n";
     print "    NEW: $new_sambahomepath_db\n";
 
-#    printf "%30s ->  unix -> %-30s\n",$id_result_old,$id_result_new;
-#    printf "%30s -> ldapdn-> %-30s\n",$old_dn,$new_dn_db;
-#    printf "%30s ->  home -> %-30s\n",$old_home_result,$new_home_result;
-#    printf "%30s -> samba -> %-30s\n",$old_sambahomepath,$new_sambahomepath_db;
-
-
-
 
     &log_script_exit("",0,1,0,@arguments);
-  
 }
 
 
