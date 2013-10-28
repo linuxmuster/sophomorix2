@@ -2136,12 +2136,12 @@ sub mta_stop {
 
 sub mda_start {
     # cyrus
-    system("service cyrus-imapd start");
+    system("service cyrus-imapd start > /dev/null");
 }
 
 sub mda_restart {
     # cyrus
-    system("service cyrus-imapd restart");
+    system("service cyrus-imapd restart > /dev/null");
 }
 
 sub mda_stop {

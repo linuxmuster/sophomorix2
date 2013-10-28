@@ -69,6 +69,8 @@ my $search="";
 my $search_login="";
 my $old_uid="";
 my $new_uid="";
+my $old_mailbox="";
+my $new_mailbox="";
 my $auth=0;
 my $new_class="";
 my $list_teachers_by_year=0;
@@ -86,6 +88,8 @@ my $testopt=GetOptions(
        "K|killable=s" => \$killable,
        "old-uid=s" => \$old_uid,
        "new-uid=s" => \$new_uid,
+       "old-mailbox=s" => \$old_mailbox,
+       "new-mailbox=s" => \$new_mailbox,
        "kill-all-users" => \$kill_all_users,
        "A|activate=s" => \$activate,
        "reset-user=s" => \$reset_user,
@@ -135,7 +139,12 @@ Changing loginname of a user:
   Problems: The user has to be logged out!
             cyrus and imap will be restartet!
   --> Do this at night!
-
+  
+Moving the mailbox of a user:
+  (This is included in --old-uid oldlogin --new-uid newlogin.
+  It should never be necessary to move the mailbox by itself)
+  --old-mailbox oldlogin --new-mailbox newlogin
+  --> Do this only when you know what to do!
 
 Changing class of a user (that is not in scheler.txt)
   -u user --newclass newclass
@@ -435,6 +444,7 @@ if ($search_login ne "" and $new_class ne ""){
 }
 
 
+
 # --old-uid oldlogin --new-uid newlogin
 if ($old_uid ne "" and $new_uid ne ""){
 
@@ -459,11 +469,10 @@ if ($old_uid ne "" and $new_uid ne ""){
                                          WHERE dn LIKE 'uid=$old_uid%'
                                         ");
 
-
-    print "\nOld uid: $old_uid\n";
-    print "   Old homedirectory: $old_home\n";
-    print "   Old sambahomepath: $old_sambahomepath\n";
-    print "   Old dn in ldap_entries: $old_dn\n\n";
+#    print "\nOld uid: $old_uid\n";
+#    print "   Old homedirectory: $old_home\n";
+#    print "   Old sambahomepath: $old_sambahomepath\n";
+#    print "   Old dn in ldap_entries: $old_dn\n\n";
 
     # changing stuff
     my $new_home_update=$old_home;
@@ -483,43 +492,17 @@ if ($old_uid ne "" and $new_uid ne ""){
     &update_uid_ldap($old_uid,$new_uid);
 
 
-    # fetch new data
-    my ($new_home_db,$new_type,$new_gecos,$new_group,$new_uidnumber,
-       $new_sambahomepath_db) = &fetchdata_from_account($new_uid);
-    my ($new_dn_db)= $dbh->selectrow_array( "SELECT dn
-                                         FROM ldap_entries 
-                                         WHERE dn LIKE 'uid=$new_uid%'
-                                        ");
 
 
-    print "\nChecking new uid: $new_uid\n";
-    print "   New homedirectory: $new_home_db\n";
-    print "   New sambahomepath: $new_sambahomepath_db\n";
-    print "   New dn in ldap_entries: $new_dn_db\n\n";
-
-
-    print "2) Moving homedir from\n", 
-          "         $old_home \n", 
-          "     to:\n",
-          "         $new_home_update \n\n";
+    print "2) Moving homedir:\n", 
+          "    OLD:  $old_home \n", 
+          "    NEW:  $new_home_update \n\n";
     system("mv $old_home $new_home_update");
 
 
-    print "3) Renaming mailbox:\n";
+    print "3) Renaming mailbox: $old_uid --> $new_uid\n";
     print "  \n";
-
-    &mta_stop();
-
-    # stop: log out the users, start: needed for renaming
-    &mda_restart();
-    print "Waiting 4 Seconds for cyrus to accept connections ...\n";
-    sleep 4;
-
-    my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
-    &imap_rename_mailbox($imap,$old_uid,$new_uid);
-    &imap_disconnect($imap);
-
-    &mta_start();
+    &move_mailbox($old_uid,$new_uid);
 
     print "4) Updating Horde database not supported\n";
     print "  \n";
@@ -530,7 +513,6 @@ if ($old_uid ne "" and $new_uid ne ""){
     }
     print "\n";
 
-
     print "6) Updating /etc/aliases:\n";
 
     system("${DevelConf::executable_pfad}/sophomorix-mail --skiplock");
@@ -540,11 +522,84 @@ if ($old_uid ne "" and $new_uid ne ""){
                            $new_uid,
                            $old_uidnumber,
                          );
-#    &nscd_stop();
     print "... done!\n";
+
+    print "Checking success:\n";
+    # fetch new data
+    my ($new_home_db,$new_type,$new_gecos,$new_group,$new_uidnumber,
+       $new_sambahomepath_db) = &fetchdata_from_account($new_uid);
+    my ($new_dn_db)= $dbh->selectrow_array( "SELECT dn
+                                         FROM ldap_entries 
+                                         WHERE dn LIKE 'uid=$new_uid%'
+                                        ");
+
+#    print "\nChecking new uid: $new_uid\n";
+#    print "   New homedirectory: $new_home_db\n";
+#    print "   New sambahomepath: $new_sambahomepath_db\n";
+#    print "   New dn in ldap_entries: $new_dn_db\n\n";
+
+    my $id_result_old="";
+    if (system("id $old_uid > /dev/null 2>&1")){
+        $id_result_old="nonexisting $old_uid (OK)";
+    } else {
+        $id_result_old="existing $old_uid (ERROR)";
+    };
+    my $id_result_new="";
+    if (system("id $new_uid > /dev/null 2>&1")){
+        $id_result_new="nonexisting $new_uid (ERROR)";
+    } else {
+        $id_result_new="existing $new_uid (OK)";
+    };
+
+    my $old_home_result="";
+    if (-d $old_home){
+	$old_home_result=$old_home." (exists,ERROR)";
+    } else {
+	$old_home_result=$old_home." (nonexisting,OK)";
+    }
+    my $new_home_result="";
+    if (-d $new_home_db){
+	$new_home_result=$new_home_db." (exists,OK)";
+    } else {
+	$new_home_result=$new_home_db." (nonexisting,ERROR)";
+    }
+
+
+
+    # print results
+    print " Unix Acount:\n";
+    print "    OLD: $id_result_old\n";
+    print "    NEW: $id_result_new\n";
+    print " LDAP DN:\n";
+    print "    OLD: $old_dn\n";
+    print "    NEW: $new_dn_db\n";
+    print " UNIX home:\n";
+    print "    OLD: $old_home_result\n";
+    print "    NEW: $new_home_result\n";
+    print " SAMBA home:\n";
+    print "    OLD: $old_sambahomepath\n";
+    print "    NEW: $new_sambahomepath_db\n";
+
+#    printf "%30s ->  unix -> %-30s\n",$id_result_old,$id_result_new;
+#    printf "%30s -> ldapdn-> %-30s\n",$old_dn,$new_dn_db;
+#    printf "%30s ->  home -> %-30s\n",$old_home_result,$new_home_result;
+#    printf "%30s -> samba -> %-30s\n",$old_sambahomepath,$new_sambahomepath_db;
+
+
+
+
     &log_script_exit("",0,1,0,@arguments);
   
 }
+
+
+# --old-mailbox oldlogin --new-mailbox newlogin
+if ($old_mailbox ne "" and $new_mailbox ne ""){
+    print "Renaming mailbox: $old_mailbox --> $new_mailbox\n";
+    &move_mailbox($old_mailbox,$new_mailbox);
+}
+
+
 
 
 # --freeze
@@ -800,5 +855,28 @@ if ($search_login ne ""){
 
 &log_script_end(@arguments);
 
+
+
+############################################################
+# subs
+############################################################
+
+sub move_mailbox {
+    my ($old,$new) = @_;
+
+    &mta_stop();
+    # stop: log out the users, start: needed for renaming
+    &mda_restart();
+    print "Waiting 4 Seconds for cyrus to accept connections ...\n";
+    sleep 4;
+
+    my $imap=&imap_connect("localhost",${DevelConf::imap_admin});
+    &imap_rename_mailbox($imap,$old,$new);
+    &imap_disconnect($imap);
+    # mailboxes are in 
+
+
+    &mta_start();
+}
 
 
