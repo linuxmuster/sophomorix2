@@ -542,22 +542,26 @@ if ($old_uid ne "" and $new_uid ne ""){
 	$new_home_result=$new_home_db." (nonexisting,ERROR)";
     }
 
-    # ??? path to mailbox
-    my $old_mailbox_result="";
-    if (-d $old_home){
-	
+    # Path to mailbox
+    my $old_initial= substr $old_uid,0,1;
+    my $new_initial= substr $new_uid,0,1;
+    my $old_mailbox_dir="/var/spool/cyrus/mail/".$old_initial."/user/".$old_uid;
+    my $new_mailbox_dir="/var/spool/cyrus/mail/".$new_initial."/user/".$new_uid;
+    my $old_mailbox_dir_result="";
+    my $new_mailbox_dir_result="";
+
+    if (-d $old_mailbox_dir){
+	$old_mailbox_dir_result=$old_mailbox_dir." (exists, ERROR)";
     } else {
-	
+	$old_mailbox_dir_result=$old_mailbox_dir." (nonexisting, OK)";
     }
-    my $new_mailbox_result="";
-    if (-d $new_home_db){
-	
+    if (-d $new_mailbox_dir){
+	$new_mailbox_dir_result=$new_mailbox_dir." (exists, OK)";
     } else {
-	
+	$new_mailbox_dir_result=$new_mailbox_dir." (nonexisting, ERROR)";
     }
 
-
-
+    # ????? /var/lib/cyrus/lock/w/user/wei.lock bleibt erhalten
 
     # print results
     print "Checking success:\n";
@@ -573,6 +577,9 @@ if ($old_uid ne "" and $new_uid ne ""){
     print " SAMBA home:\n";
     print "    OLD: $old_sambahomepath\n";
     print "    NEW: $new_sambahomepath_db\n";
+    print " CYRUS mailbox dir:\n";
+    print "    OLD: $old_mailbox_dir_result\n";
+    print "    NEW: $new_mailbox_dir_result\n";
 
 
     &log_script_exit("",0,1,0,@arguments);
