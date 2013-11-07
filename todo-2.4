@@ -3,8 +3,78 @@ renaming users:
 - /var/lib/cyrus/lock/w/user/wenzlpa.lock des alten users existiert noch.
   (Was tun???)
 
-Ehemalige:
+Ehemalige (Pension, Schulwechsel, Krankheit, ...):
 Was soll mit den Daten der ehemalige Lehrer geschehen?
+  Voraussetzungen: Kürzel/Loginname bleibt erhalten
+  Name der Gruppe: ehemalige, ruhestaendler (ohne Umlaut)
+  Dauer der Bereithaltung nach entfernen: 1 Monat oder 1 Jahr 
+  Testen: kann Lehrer in neue Klasse versetzt werden
+
+Ablauf:
+1) Kollegin x,y,z erhält Info:
+    A) Alle Daten in Tauschverzeichnissen löschen
+    B) Daten in Tauschverzeichnissen zur Verfügung stellen
+2) Falls zur Verfügung stellen:
+   1) Daten werden in allen Tauschverzeichnissen herausgesucht (entfernt)
+   2) Sie werden 1 Woche fuer x,y,z im ehemaligentausch bereitgehalten 
+      (nur von x einsehbar,loeschbar) -> Aussortieren
+   3) Nach dieser Woche werden die Abteilungsleiter(kollegium) 
+      informiert (1 Mail):
+      - Daten von x,y,z liegen in __Tausch_ehemalige/_ehemelige/[x,y,z]
+      - Bitte holen Sie Daten, die noch gebraucht werden 
+        (wieder ins Tausch sortieren, privat, ...)
+        Achtung: Urheberrecht
+   4) Daten im Lehrertausch werden nach 1 Monat unwiederruflich geloescht    
+
+Was ist mit schon geloeschten usern?
+    -> Daten sind unter uid gespeichert 
+       (ehemaliger Eigentuemer kann nicht sicher zugeordnet werden)
+    Vorgehen wie oben:
+    1) Daten unter uidnumber heraussuchen
+    2) -- evtl. checken (Netzwerker) 
+    3) Info an Kollegium: Daten checken
+       Achtung: Urheberrecht, Urheber versuchen zu befragen
+    4) loeschen
+
+Befehle:
+
+sophomorix-user --retire user
+  -> moved user in die schuelergruppe ehemalige (konfigurierbar)
+  -> sucht Daten in Tausch und stellt sie ins Tausch der ehemaligen
+  -> cronjob schaltet sie nach x Tagen frei
+  -> cronjob loescht sie nach y Tagen
+
+sophomorix-janitor --retire-data 25537748  (unix uid)
+
+sophomorix-janitor --show-retired-data
+-------+---------+---------+
+       | public  | delete  |
+  uid  | review  |  Data   |
+       | 30 days |   in    |
+-------+---------+---------+
+12449  | 30 days | 36 days |
+13447  | 24 days | 24 days |
+14123  | ------- | Deleted | -> nicht mehr zeigen oder archivieren
+
+- evtl. noch mit Bemerkungen hintendran (vermutlich ..., )
+- evtl. mit admin review statt personal review
+
+sophomorix-user --show-retired
+  -> listed user der Gruppe ehemalige (konfigurierbar)
+-------+-----------+---------+---------+------------+
+       | personal  | public  | delete  | Retirement |  
+  user |  review   | review  |  Data   | Date       |
+       |  7 days   | 30 days |   in    |            |
+-------+-----------+---------+---------+------------+
+humpf  |  6 days   | 30 days | 36 days | 2013-08-02 |
+gampf  |  ------   | 24 days | 24 days | 2013-08-02 |
+gampf  |  ------   | ------- | Deleted | 2013-08-02 |
+ 
+Ordnung ist nach Datum
+Bei geloeschten usern 
+
+
+
 
 
 
