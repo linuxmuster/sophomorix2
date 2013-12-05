@@ -2493,6 +2493,15 @@ sub reset_user {
     # before reset_user
     my ($user) = @_;
     print "Cleaning up user $user\n";
+
+    # delete bind mounts ???temporary
+    my $unbind_command="sophomorix-bind --quick --logout ".
+                       "--host unknown --user $user".
+                       " --homedir none";
+    print "$unbind_command\n";
+    system($unbind_command);
+    # end temporary ???
+
     my ($homedir,$type)=
         &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
 
