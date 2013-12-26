@@ -149,6 +149,7 @@ my $caller_copy="";
 my $netexamplix="";
 
 my $command="latex";
+my $user="";
 my $gruppe="";
 my $classlist="";
 my $one_per_page=0;
@@ -160,6 +161,7 @@ my $testopt=GetOptions(
            "show|s" => \$show,
            "all|a" => \$alle,
            "class|c=s" => \$gruppe,
+           "user|u=s" => \$user,
            "classlist=s" => \$classlist,
            "help|h" => \$help,
            "teacher|t" => \$lehrer,
@@ -195,6 +197,7 @@ Options:
   -v  / --verbose
   -vv / --verbose --verbose
   -a  / --all
+  -u username / --user username
   -t / --teacher
   -c class / --class class
   --classlist class
@@ -323,6 +326,8 @@ if ($alle==1){
    $klasse_filename_part="$gruppe";
 }elsif ($classlist ne ""){
    $klasse_filename_part="$classlist-classlist";
+}elsif ($user ne ""){
+   $klasse_filename_part="user";
 } else {
    $klasse_filename_part="add";
 }
@@ -588,7 +593,7 @@ if($Conf::log_level>=3){
 # Schülerdaten aus sophomorix.add dem System in Hash einlesen
 # ===========================================================================
 
-if ($classlist eq "" and $gruppe eq "" && $alle==0 && $lehrer==0) {
+if ($user eq "" and $classlist eq "" and $gruppe eq "" && $alle==0 && $lehrer==0) {
   # ohne Argument -> sophomorix.add einlesen und nur die übernehmen
   if($Conf::log_level>=2){
       &titel("Reading sophomorix.add ...");
@@ -701,7 +706,21 @@ if ($classlist eq "" and $gruppe eq "" && $alle==0 && $lehrer==0) {
          $sortier_hash{$_}="$klasse";
       }
    }
- }
+} elsif ($user ne "") {
+   
+   if($Conf::log_level>=2){
+      print("\nArgument ist:  $argument\n");
+   }
+   foreach (keys %schueler_im_system_hash){
+     my ($class,$name,$login)=split(/;/,$schueler_im_system_hash{$_});
+      if ($login eq $user){
+         # Key = identifier
+         # Value = Klasse
+         $sortier_hash{$_}="$class";
+      }
+   }
+    
+}
 
 
 if($Conf::log_level>=3){
@@ -1060,7 +1079,10 @@ if ($one_per_page==0 and $classlist eq ""){
    $eintrag_typ_alt=$eintrag_typ;
 
    # Handelt es sich beim Eintrag um eine Klasse(2) oder Einzelschüler(1)
-   if ($klasse_schueleranzahl{$klasse_protokoll} < 5) {
+   if ($klasse_protokoll eq "") {
+     # Einzelschüler
+       $eintrag_typ=1;
+   } elsif ($klasse_schueleranzahl{$klasse_protokoll} < 5) {
      # Einzelschüler
        $eintrag_typ=1;
    } else {
@@ -1397,7 +1419,7 @@ if ($show==1) {
 
 
 sub pdflatexen {
-    &titel("pdflatex is creating output ...");
+    &titel("pdflatex is creating $output_file_basename.pdf");
    system("cd ${DevelConf::druck_pfad}; pdflatex $output_file_basename.tex $dev_null");
 
    system("rm ${DevelConf::druck_pfad}/$output_file_basename.log $dev_null");
@@ -1407,14 +1429,14 @@ sub pdflatexen {
 }
 
 sub latexen {
-   &titel("latex is creating output ...");
+   &titel("latex is creating $output_file_basename.dvi");
    # PS aus $output_file_basename.tex erzeugen
    system("cd ${DevelConf::druck_pfad}; latex $output_file_basename.tex $dev_null");
    # 2x, wegen Inhaltsverzeichnis
    system("cd ${DevelConf::druck_pfad}; latex $output_file_basename.tex $dev_null");
-   &titel("dvips is creating output ...");
+   &titel("dvips is creating $output_file_basename.ps");
    system("cd ${DevelConf::druck_pfad}; dvips $output_file_basename.dvi $dev_null");
-   &titel("ps2pdf is creating output ...");
+   &titel("ps2pdf is creating $output_file_basename.pdf");
    system("cd ${DevelConf::druck_pfad}; ps2pdf $output_file_basename.ps $dev_null");
 
    system("rm ${DevelConf::druck_pfad}/$output_file_basename.log $dev_null");
