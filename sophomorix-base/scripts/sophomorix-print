@@ -130,12 +130,9 @@ if($Conf::log_level>=3){
 # ===========================================================================
 
 
-
-
 # ===========================================================================
 # Programmbeginn
 # ===========================================================================
-
 
 $Conf::log_level=1;
 my $help=0;
@@ -308,9 +305,6 @@ if ($netexamplix ne ""){
 }
 
 
- 
-
-
 # ===========================================================================
 # Output-Dateinamen ermitteln
 # ===========================================================================
@@ -347,6 +341,239 @@ $output_file_basename="$klasse_filename_part"."$caller_filename_part";
 if($Conf::log_level>=3){
    print "Basisname der Druckdateien ist: $output_file_basename \n";
 }
+
+
+# ===========================================================================
+# user_db in Hash einlesen
+# KEY = identifier wie im ersten Teil von sophomorix.add
+# VALUE = Zeile in user_db
+# ===========================================================================
+
+# @print_data containes the lines of the database
+my @print_data = &get_print_data();
+
+foreach (@print_data){
+    my $feld1;
+    my $feld2;
+    my $feld3;
+    my $feld4;
+    my $feld5;
+    my $first;
+    my $sur;
+    my $id;
+    chomp($_); # Newline abschneiden
+    # Hier ist alles noch ohne Ersetzungen
+    # Protokolldateien bearbeiten
+   ($feld1,               # weg
+    $feld2,               # weg
+    $feld3,               # weg
+    $passwort_protokoll,  # weiterverwenden Case-Sensitives Original-Passwort
+    $feld5,                # weg
+    $first,
+    $sur,
+    $id
+   )=split(/;/);
+
+#    # Falls Umsteiger aus Vorversion
+#    # Alles in Kleinschreibung
+#    tr/A-ZÄÖÜ/a-zäöü/;
+#    # Umlaute ersetzen
+#    s/ä/ae/g;
+#    s/ö/oe/g;
+#    s/ü/ue/g;
+#    s/ß/ss/g;
+#    s/-//g;
+   ($klasse_protokoll, 
+    $name_protokoll,
+    $loginname_protokoll,
+    $feld4,                    # nicht verwenden
+    $geburtsdatum_protokoll,
+    $first,
+    $sur,
+    $id
+   )=split(/;/);
+
+   $loginname_protokoll=&latexize_string($loginname_protokoll);
+
+   # Name aufsplitten
+   ($vorname_protokoll,$nachname_protokoll)=split(/ /,$name_protokoll);
+   # Zusammenhängen zu identifier
+   $identifier_protokoll=join("",
+                             ($nachname_protokoll,
+                              ";",
+                              $vorname_protokoll,
+                              ";",
+                              $geburtsdatum_protokoll));
+   # In einem Hash ablegen
+   my $value="$klasse_protokoll".";"."$name_protokoll".";".
+          "$loginname_protokoll".";"."$passwort_protokoll".";".
+          "$geburtsdatum_protokoll";
+   # key=identifier value=Zeile in user_db
+   $schueler_im_system_hash{$identifier_protokoll}="$value";
+   $schueler_im_system_first{$identifier_protokoll}="$first";
+   $schueler_im_system_sur{$identifier_protokoll}="$sur";
+   $schueler_im_system_id{$identifier_protokoll}="$id";
+  }
+
+if($Conf::log_level>=3){
+   # Nur zum debuggen
+   print("\n\nUser im System:\n\n");
+   while (($k,$v) = each %schueler_im_system_hash){
+      printf "%-40s %3s\n","$k","$v";
+    }
+}
+
+
+
+# ===========================================================================
+# Schülerdaten aus sophomorix.add dem System in Hash einlesen
+# ===========================================================================
+
+if ($user eq "" and $classlist eq "" and $gruppe eq "" && $alle==0 && $lehrer==0) {
+  # ohne Argument -> sophomorix.add einlesen und nur die übernehmen
+  if($Conf::log_level>=2){
+      &titel("Reading sophomorix.add ...");
+  }
+  # exit, when sophomorix-add is empty
+  if ( -z "${DevelConf::ergebnis_pfad}/sophomorix.add" ) {
+    &log_script_exit("ERROR: sophomorix.add is empty. Nothing to print!",
+        1,1,0,@arguments);
+  }
+  open (SCHUELERPDF,
+       "<${DevelConf::ergebnis_pfad}/sophomorix.add") 
+       || die "Fehler: ${DevelConf::ergebnis_pfad}/sophomorix.add    $!";
+    while(<SCHUELERPDF>){
+      chomp();
+      # in sophomorix.add gibts Zusatzangaben nach ::
+      my ($klasse,$identifier)=split(/::/); 
+      # passende Zeile aus user_db holen
+      if (exists($schueler_im_system_hash{$identifier})){
+         print ("   Creating login card for $identifier \n"); 
+         $schueler_protokoll_zeile=$schueler_im_system_hash{$identifier};
+       } else {
+         # keine Protokoll-Zeile gefunden, Schüler ist noch nicht im System
+         print ("   NO login card ($identifier not in the system)\n"); 
+         next;
+       }
+
+       if($Conf::log_level>=3){
+          print("\nIdentifier:               --$identifier--\n");
+          print("\nZeile in user_db          --$schueler_protokoll_zeile--\n");
+        }
+
+     ($klasse_protokoll, 
+      $name_protokoll,
+      $loginname_protokoll,
+      $passwort_protokoll,
+      $geburtsdatum_protokoll
+     )=split(/;/,$schueler_protokoll_zeile);
+
+      # Hash erzeugen: alle auszudruckenden Schüler
+      # Key = identifier
+      # Value = Klasse
+      $sortier_hash{$_}="$klasse_protokoll";
+    }
+  close(SCHUELERPDF);
+
+} elsif ($alle==1) {
+   # Argument "alle" -> nichts ausfiltern
+   if($Conf::log_level>=2){
+      print("\nArgument ist:  all\n");
+    }
+   foreach (keys %schueler_im_system_hash){
+     my $klasse="";
+     ($klasse)=split(/;/,$schueler_im_system_hash{$_});
+      # Key = identifier
+      # Value = Klasse
+      $sortier_hash{$_}="$klasse";
+   }
+
+} elsif ($lehrer==1) {
+    $argument=${DevelConf::teacher};
+    my $klasse="";
+    if($Conf::log_level>=2){
+       print("\nArgument ist:  $argument\n");
+     }
+    foreach (keys %schueler_im_system_hash){
+     ($klasse)=split(/;/,$schueler_im_system_hash{$_});
+      if ($argument eq $klasse){
+         # Key = identifier
+         # Value = Klasse
+         $sortier_hash{$_}="$klasse";
+       }
+    }    
+
+} elsif ($gruppe ne "") {
+   # Argument muss "klasse" sein -> filtern
+   my $argument;
+   if ($gruppe eq ${DevelConf::teacher}){
+        print "Mit der Option --klasse können keine Lehrer angezeigt werden!\n\n";
+        exit;
+      } else {
+        $argument="$gruppe";
+      }
+
+   my $klasse="";
+   if($Conf::log_level>=2){
+      print("\nArgument ist:  $argument\n");
+   }
+   foreach (keys %schueler_im_system_hash){
+     ($klasse)=split(/;/,$schueler_im_system_hash{$_});
+      if ($argument eq $klasse){
+         # Key = identifier
+         # Value = Klasse
+         $sortier_hash{$_}="$klasse";
+      }
+   }
+} elsif ($classlist ne "") {
+   # Argument muss "klasse" sein -> filtern
+   my $argument;
+   if ($classlist eq ${DevelConf::teacher}){
+        print "Mit der Option --klasse können keine Lehrer angezeigt werden!\n\n";
+        exit;
+      } else {
+        $argument="$classlist";
+      }
+
+   my $klasse="";
+   if($Conf::log_level>=2){
+      print("\nArgument ist:  $argument\n");
+   }
+   foreach (keys %schueler_im_system_hash){
+     ($klasse)=split(/;/,$schueler_im_system_hash{$_});
+      if ($argument eq $klasse){
+         # Key = identifier
+         # Value = Klasse
+         $sortier_hash{$_}="$klasse";
+      }
+   }
+} elsif ($user ne "") {
+   if($Conf::log_level>=2){
+      print("\nArgument ist:  $argument\n");
+   }
+   foreach (keys %schueler_im_system_hash){
+     my ($class,$name,$login)=split(/;/,$schueler_im_system_hash{$_});
+      if ($login eq $user){
+         # Key = identifier
+         # Value = Klasse
+         $sortier_hash{$_}="$class";
+      }
+   }
+    
+}
+
+
+if($Conf::log_level>=3){
+   # Nur zum ausgeben 
+   print("Für diese Schüler werden Druckkärtchen erzeugt\n\n"); 
+   while (($key,$value) = each %sortier_hash){
+      printf "%-40s %3s\n","$key","-$value-";
+   }
+}
+
+# ===========================================================================
+# Im sortier-Hash stehen nun alle auszudruckenden Schüler
+# ===========================================================================
 
 
 # ===========================================================================
@@ -501,241 +728,6 @@ print LATEX ('
 # ===========================================================================
 # LATEX-Vorspann geschrieben
 # ===========================================================================
-
-
-
-
-
-
-# ===========================================================================
-# user_db in Hash einlesen
-# KEY = identifier wie im ersten Teil von sophomorix.add
-# VALUE = Zeile in user_db
-# ===========================================================================
-
-# @print_data containes the lines of the database
-my @print_data = &get_print_data();
-
-foreach (@print_data){
-    my $feld1;
-    my $feld2;
-    my $feld3;
-    my $feld4;
-    my $feld5;
-    my $first;
-    my $sur;
-    my $id;
-    chomp($_); # Newline abschneiden
-    # Hier ist alles noch ohne Ersetzungen
-    # Protokolldateien bearbeiten
-   ($feld1,               # weg
-    $feld2,               # weg
-    $feld3,               # weg
-    $passwort_protokoll,  # weiterverwenden Case-Sensitives Original-Passwort
-    $feld5,                # weg
-    $first,
-    $sur,
-    $id
-   )=split(/;/);
-
-#    # Falls Umsteiger aus Vorversion
-#    # Alles in Kleinschreibung
-#    tr/A-ZÄÖÜ/a-zäöü/;
-#    # Umlaute ersetzen
-#    s/ä/ae/g;
-#    s/ö/oe/g;
-#    s/ü/ue/g;
-#    s/ß/ss/g;
-#    s/-//g;
-   ($klasse_protokoll, 
-    $name_protokoll,
-    $loginname_protokoll,
-    $feld4,                    # nicht verwenden
-    $geburtsdatum_protokoll,
-    $first,
-    $sur,
-    $id
-   )=split(/;/);
-
-   $loginname_protokoll=&latexize_string($loginname_protokoll);
-
-   # Name aufsplitten
-   ($vorname_protokoll,$nachname_protokoll)=split(/ /,$name_protokoll);
-   # Zusammenhängen zu identifier
-   $identifier_protokoll=join("",
-                             ($nachname_protokoll,
-                              ";",
-                              $vorname_protokoll,
-                              ";",
-                              $geburtsdatum_protokoll));
-   # In einem Hash ablegen
-   my $value="$klasse_protokoll".";"."$name_protokoll".";".
-          "$loginname_protokoll".";"."$passwort_protokoll".";".
-          "$geburtsdatum_protokoll";
-   # key=identifier value=Zeile in user_db
-   $schueler_im_system_hash{$identifier_protokoll}="$value";
-   $schueler_im_system_first{$identifier_protokoll}="$first";
-   $schueler_im_system_sur{$identifier_protokoll}="$sur";
-   $schueler_im_system_id{$identifier_protokoll}="$id";
-  }
-
-if($Conf::log_level>=3){
-   # Nur zum debuggen
-   print("\n\nUser im System:\n\n");
-   while (($k,$v) = each %schueler_im_system_hash){
-      printf "%-40s %3s\n","$k","$v";
-    }
-}
-
-
-
-# ===========================================================================
-# Schülerdaten aus sophomorix.add dem System in Hash einlesen
-# ===========================================================================
-
-if ($user eq "" and $classlist eq "" and $gruppe eq "" && $alle==0 && $lehrer==0) {
-  # ohne Argument -> sophomorix.add einlesen und nur die übernehmen
-  if($Conf::log_level>=2){
-      &titel("Reading sophomorix.add ...");
-  }
-  open (SCHUELERPDF,
-       "<${DevelConf::ergebnis_pfad}/sophomorix.add") 
-       || die "Fehler: ${DevelConf::ergebnis_pfad}/sophomorix.add    $!";
-    while(<SCHUELERPDF>){
-      chomp();
-      # in sophomorix.add gibts Zusatzangaben nach ::
-      my ($klasse,$identifier)=split(/::/); 
-      # passende Zeile aus user_db holen
-      if (exists($schueler_im_system_hash{$identifier})){
-         print ("   Creating login card for $identifier \n"); 
-         $schueler_protokoll_zeile=$schueler_im_system_hash{$identifier};
-       } else {
-         # keine Protokoll-Zeile gefunden, Schüler ist noch nicht im System
-         print ("   NO login card ($identifier not in the system)\n"); 
-         next;
-       }
-
-       if($Conf::log_level>=3){
-          print("\nIdentifier:               --$identifier--\n");
-          print("\nZeile in user_db          --$schueler_protokoll_zeile--\n");
-        }
-
-     ($klasse_protokoll, 
-      $name_protokoll,
-      $loginname_protokoll,
-      $passwort_protokoll,
-      $geburtsdatum_protokoll
-     )=split(/;/,$schueler_protokoll_zeile);
-
-      # Hash erzeugen: alle auszudruckenden Schüler
-      # Key = identifier
-      # Value = Klasse
-      $sortier_hash{$_}="$klasse_protokoll";
-    }
-  close(SCHUELERPDF);
-
-} elsif ($alle==1) {
-   # Argument "alle" -> nichts ausfiltern
-   if($Conf::log_level>=2){
-      print("\nArgument ist:  all\n");
-    }
-   foreach (keys %schueler_im_system_hash){
-     my $klasse="";
-     ($klasse)=split(/;/,$schueler_im_system_hash{$_});
-      # Key = identifier
-      # Value = Klasse
-      $sortier_hash{$_}="$klasse";
-   }
-
-} elsif ($lehrer==1) {
-    $argument=${DevelConf::teacher};
-    my $klasse="";
-    if($Conf::log_level>=2){
-       print("\nArgument ist:  $argument\n");
-     }
-    foreach (keys %schueler_im_system_hash){
-     ($klasse)=split(/;/,$schueler_im_system_hash{$_});
-      if ($argument eq $klasse){
-         # Key = identifier
-         # Value = Klasse
-         $sortier_hash{$_}="$klasse";
-       }
-    }    
-
-} elsif ($gruppe ne "") {
-   # Argument muss "klasse" sein -> filtern
-   my $argument;
-   if ($gruppe eq ${DevelConf::teacher}){
-        print "Mit der Option --klasse können keine Lehrer angezeigt werden!\n\n";
-        exit;
-      } else {
-        $argument="$gruppe";
-      }
-
-   my $klasse="";
-   if($Conf::log_level>=2){
-      print("\nArgument ist:  $argument\n");
-   }
-   foreach (keys %schueler_im_system_hash){
-     ($klasse)=split(/;/,$schueler_im_system_hash{$_});
-      if ($argument eq $klasse){
-         # Key = identifier
-         # Value = Klasse
-         $sortier_hash{$_}="$klasse";
-      }
-   }
-} elsif ($classlist ne "") {
-   # Argument muss "klasse" sein -> filtern
-   my $argument;
-   if ($classlist eq ${DevelConf::teacher}){
-        print "Mit der Option --klasse können keine Lehrer angezeigt werden!\n\n";
-        exit;
-      } else {
-        $argument="$classlist";
-      }
-
-   my $klasse="";
-   if($Conf::log_level>=2){
-      print("\nArgument ist:  $argument\n");
-   }
-   foreach (keys %schueler_im_system_hash){
-     ($klasse)=split(/;/,$schueler_im_system_hash{$_});
-      if ($argument eq $klasse){
-         # Key = identifier
-         # Value = Klasse
-         $sortier_hash{$_}="$klasse";
-      }
-   }
-} elsif ($user ne "") {
-   
-   if($Conf::log_level>=2){
-      print("\nArgument ist:  $argument\n");
-   }
-   foreach (keys %schueler_im_system_hash){
-     my ($class,$name,$login)=split(/;/,$schueler_im_system_hash{$_});
-      if ($login eq $user){
-         # Key = identifier
-         # Value = Klasse
-         $sortier_hash{$_}="$class";
-      }
-   }
-    
-}
-
-
-if($Conf::log_level>=3){
-   # Nur zum ausgeben 
-   print("Für diese Schüler werden Druckkärtchen erzeugt\n\n"); 
-   while (($key,$value) = each %sortier_hash){
-      printf "%-40s %3s\n","$key","-$value-";
-   }
-}
-
-# ===========================================================================
-# Im sortier-Hash stehen nun alle auszudruckenden Schüler
-# ===========================================================================
-
-
 
 
 

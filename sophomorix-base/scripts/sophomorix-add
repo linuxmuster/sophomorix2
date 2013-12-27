@@ -447,7 +447,7 @@ close(NOCHANLEGEN);
 if ($user_nummer==0){ 
     &titel("NOT creating userlists (0 users added)");
 } else {
-    &print();
+    &sophomorix_print();
 }
 
 
@@ -522,7 +522,7 @@ if ($user_nummer>0) {
 # ===========================================================================
 # sophomorix-print aufrufen
 # ===========================================================================
-sub print {
+sub sophomorix_print {
    if ($DevelConf::testen==0) {
       # Mit 1mal sophomorix-print aufrufen sollte es tun, tut es aber nicht
       system("$DevelConf::executable_pfad/sophomorix-print --skiplock");
