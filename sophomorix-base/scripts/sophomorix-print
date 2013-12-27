@@ -1417,6 +1417,7 @@ sub pdflatexen {
    system("rm ${DevelConf::druck_pfad}/$output_file_basename.log $dev_null");
    system("rm ${DevelConf::druck_pfad}/$output_file_basename.toc $dev_null");
    system("rm ${DevelConf::druck_pfad}/$output_file_basename.aux $dev_null");
+   system("rm ${DevelConf::druck_pfad}/$output_file_basename.out $dev_null");
 
 }
 
@@ -1434,6 +1435,7 @@ sub latexen {
    system("rm ${DevelConf::druck_pfad}/$output_file_basename.log $dev_null");
    system("rm ${DevelConf::druck_pfad}/$output_file_basename.toc $dev_null");
    system("rm ${DevelConf::druck_pfad}/$output_file_basename.aux $dev_null");
+   system("rm ${DevelConf::druck_pfad}/$output_file_basename.out $dev_null");
 
    # Dateien für user unlesbar machen
    system("chmod 400 ${DevelConf::druck_pfad}/$output_file_basename.* $dev_null");
