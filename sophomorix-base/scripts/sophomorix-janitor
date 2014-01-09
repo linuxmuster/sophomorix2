@@ -203,13 +203,13 @@ if ($find_files ne "" and
     if ($owner=~/^[0-9]$/){
         # its uidnumber already
         $uid_number = $owner;
-     } else {
+    } else {
         $uid_number = getpwnam($owner);
         if (not defined $uid_number){
             print "\nUser $owner does not exist\n\n";
             exit;
         } 
-   }
+    }
     
     print "############################################################\n";
     print "Finding files in:\n";
@@ -232,8 +232,7 @@ if ($find_files ne "" and
 
     $count_found=$#find_files_list+1;
     print "$count_found files found\n";
-
-    exit;
+    # Filelist created
 } elsif ($find_files ne ""){
     print "\n--find-files needs more options\n\n";
     exit;
@@ -245,8 +244,15 @@ if ($find_files ne "" and
 
 # Do something with the filelist
 if ($count_found > 0){
-    # do somethin with the found files
-    
+    # do something with the found files
+    print "Working on files:\n";
+    foreach my $file (@find_files_list){
+        print "... $file\n";
+        # code goes here
+        # ????????????
+
+
+    }
 }
 
 
