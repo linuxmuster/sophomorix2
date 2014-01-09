@@ -47,6 +47,15 @@ my $help=0;
 my $info=0;
 my $login="";
 my $uid=0;
+
+
+my $find_files="";
+my @find_files_list=();
+my $count_found=0;
+my $owner="";
+my $new_owner="";
+my $newdir="";
+
 my $listfiles=0;
 my $list_db_junk=0;
 my $kill_db_junk=0;
@@ -94,6 +103,9 @@ my $testopt=GetOptions(
            "uid=i" => \$uid,
            "list-db-junk" => \$list_db_junk,
            "kill-db-junk" => \$kill_db_junk,
+           "find-files|findfiles=s" => \$find_files,
+           "owner=s" => \$owner,
+           "new-owner|newowner=s" => \$new_owner,
            "list-foreign-files" => \$list_foreign_files,
            "check-horde" => \$check_horde,
            "dump-horde" => \$dump_horde,
@@ -121,6 +133,12 @@ Housekeeping the postgres database ldap:
 
   --list-db-junk
   --kill-db-junk
+
+Reowning files:
+
+  --find-files /path/to/dir --owner uid/uidnumber (experimental) 
+  --find-files /path/to/dir --owner uid/uidnumber --copy-to /newdir (experimental)
+  --find-files /path/to/dir --owner uid/uidnumber --move-to /newdir (experimental) 
 
 Working on users files:
 
@@ -167,6 +185,68 @@ if ($info==1){
         print "$login\n";
     }
     exit;
+}
+
+
+# --find-files
+if ($find_files ne "" and 
+     ($owner ne "")
+    ){
+    # Creating a list of files ####################################
+ 
+    if (not -d $find_files){
+        print "\n$find_files is not a directory\n\n";
+    }
+
+    my $uid_number=0;
+    # transform owner in uidnumber
+    if ($owner=~/^[0-9]$/){
+        # its uidnumber already
+        $uid_number = $owner;
+     } else {
+        $uid_number = getpwnam($owner);
+        if (not defined $uid_number){
+            print "\nUser $owner does not exist\n\n";
+            exit;
+        } 
+   }
+    
+    print "############################################################\n";
+    print "Finding files in:\n";
+    print "   $find_files \n";
+    print "owned by $owner   ($uid_number)\n";
+    print "############################################################\n";
+
+    find(\&files_owned_by, $find_files);
+    sub files_owned_by {
+        # all files in dirs
+        my ($dev, $ino, $mode, $nlink, $uidnum, $gid) = lstat($_);
+        if (not defined $uidnum){
+            next;
+        }
+	if ($uidnum == $uid_number){
+            push @find_files_list, $File::Find::name;
+            print "$uidnum $File::Find::name\n";
+	}
+    }
+
+    $count_found=$#find_files_list+1;
+    print "$count_found files found\n";
+
+    exit;
+} elsif ($find_files ne ""){
+    print "\n--find-files needs more options\n\n";
+    exit;
+}else {
+    # just go on
+}
+
+
+
+# Do something with the filelist
+if ($count_found > 0){
+    # do somethin with the found files
+    
 }
 
 
