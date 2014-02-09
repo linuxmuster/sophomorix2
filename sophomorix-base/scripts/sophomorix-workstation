@@ -919,12 +919,7 @@ sub check_host {
     } else {
         $host=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
         # correct
-        if (exists $host_seen{$host}){
-            print "\nERROR: HOST $host is double!\n\n";
-            exit 1;
-        } else {
-            $host_seen{$host}="seen";
-        }
+        $host_seen{$host}="seen";
     }
     return $host;
 }
