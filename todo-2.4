@@ -2422,34 +2422,6 @@ MAKING a Package on build-host make lenny make ubuntu
 Packaging:
 -----------
 
-1. On Laptop:
-   update versions in debian/control.(/lenny/ubuntu)
-   (so that apt-get update sophomorix2 updates all sophomorix-* packages)
-
-2. update date of release in changelog-sophomorix-src and 
-
-3. Check the modified files into cvs
-
-4. Go to the build host (lenny64)
-
-5. remove files which were changed by the previous build
-   (i.e.: ldap.conf.template overwritten by ldap.conf.template.etch) 
-   cd cvs/sophomorix2
-   cvs -q update -dP
-
-6. cd cvs/sophomorix2
-   dch -i 
-   add a comment to the changelog
-   check it into cvs: 
-   cvs commit debian/changelog
-
-7. make deb  OR  make ubuntu  OR  make lenny  
-   (old: dpkg-buildpackage -rfakeroot)
-
-8. Tag all files in the cvs repository with the tag 'Version-x-y-z'
-
-
-
 in debian/rules kann man Ausnahmen definieren:
 dh_fixperm -Xdatei
 
