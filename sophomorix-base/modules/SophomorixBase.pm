@@ -4327,19 +4327,22 @@ sub get_lehrer_quota {
 sub get_quota_fs_liste {
    my @quota_fs=();
    my %devs_seen=();
-
-   Quota::setmntent();
-   while (($dev, $path, $type, $opts) = Quota::getmntent()) {
-      #print"$dev $path $type $opts<p>";
-      if ($opts=~/usrquota/){
-          #print"$dev $path $type $opts hinzugenommen\n";
-          if (not exists $devs_seen{$dev}){
-              push(@quota_fs, $dev);
-              $devs_seen{$dev}="$path";
-          }
-      }
+   if ($Conf::quota_filesystems[0] eq "auto") {
+       Quota::setmntent();
+       while (($dev, $path, $type, $opts) = Quota::getmntent()) {
+           #print"$dev $path $type $opts<p>";
+           if ($opts=~/usrquota/){
+               #print"$dev $path $type $opts hinzugenommen\n";
+               if (not exists $devs_seen{$dev}){
+                   push(@quota_fs, $dev);
+                   $devs_seen{$dev}="$path";
+               }
+           }
+       }
+       Quota::endmntent();
+   } else {
+       @quota_fs = @Conf::quota_filesystems;
    }
-   Quota::endmntent();
 
    #print "Quota-Filesysteme(Liste):  @quota_fs";
 

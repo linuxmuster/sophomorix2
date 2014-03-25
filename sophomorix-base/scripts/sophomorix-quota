@@ -170,15 +170,15 @@ if ($info==1 and $classes eq ""
    my @mb_liste=();
 
    # automatisch oder Liste in sophomorix.conf
-   if ($Conf::quota_filesystems[0] eq "auto" && 
-      not $Conf::quota_filesystems[2] ) {
+   if ($Conf::quota_filesystems[0] eq "auto") {
       # "auto" in sophomorix.conf
       print "The following usrquota filesystems were found by $scriptname\n";
       print "on this server:\n\n";
     } else {
       # Liste in sophomorix.conf angegeben
-      print "WARNING: You have manually configured the usrquota filesystems\n"; 
-      print "in sophomorix.conf. \n\nYou should know what you are doing!\n\n";
+      print "WARNING: You have manually configured the order of the \n"; 
+      print "usrquota filesystems in sophomorix.conf.\n\n";
+      print "You should know what you are doing!\n\n";
     }
 
    # Tatsächlich benutzte Liste ausgeben
