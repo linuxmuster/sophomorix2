@@ -580,8 +580,6 @@ if ($old_uid ne "" and $new_uid ne ""){
     print " CYRUS mailbox dir:\n";
     print "    OLD: $old_mailbox_dir_result\n";
     print "    NEW: $new_mailbox_dir_result\n";
-
-
     &log_script_exit("",0,1,0,@arguments);
 }
 
@@ -590,6 +588,7 @@ if ($old_uid ne "" and $new_uid ne ""){
 if ($old_mailbox ne "" and $new_mailbox ne ""){
     print "Renaming mailbox: $old_mailbox --> $new_mailbox\n";
     &move_mailbox($old_mailbox,$new_mailbox);
+    &log_script_exit("",0,1,0,@arguments);
 }
 
 
