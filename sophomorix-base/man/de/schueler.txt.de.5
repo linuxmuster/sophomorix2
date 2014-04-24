@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH SCHUELER.TXT 5 "October 18, 2012"
+.TH SCHUELER.TXT 5 "April 25, 2014"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -23,6 +23,11 @@ Schüleraccounts bei linuxmuster.net
 Um den Sollzustand einfacher User vorzugeben werden diese in der Datei
 schueler.txt konfiguriert.
 
+Leerzeichen in Namen und Klasse werden entfernt.
+
+Klassenbezeichnung wird in Kleinbuchstaben umgewandelt
+
+
 .PP
 .SH FELDER
 
@@ -41,7 +46,7 @@ getrennt abgeschlosse werden:
 .br 
 Zum Beispiel die Datenbank ID des Schulverwaltungsprogramms.
 .TP
-.B Feld 6: Abteilung (bisher nicht genutzt)
+.B Feld 6: Abteilung (Optional, bisher nicht genutzt)
 .TP
 .SH SEE ALSO
 .BR sophomorix-check (8)
