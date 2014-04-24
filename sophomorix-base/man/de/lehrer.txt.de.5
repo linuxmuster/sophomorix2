@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH LEHRER.TXT 5 "October 26, 2012"
+.TH LEHRER.TXT 5 "April 25, 2014"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -29,27 +29,34 @@ in der Datei lehrer.txt konfiguriert.
 Die folgenden Felder bilden eine Zeile, die durch Strichpunkte
 getrennt abgeschlosse werden:
 .TP
-.B Feld 1: lehrer
+.B Feld 1: lehrer 
+Nichts anderes ist möglich
 .TP
 .B Feld 2: Nachname des Users
 .TP
 .B Feld 3: Vorname des Users
 .TP
-.B Feld 4: Geburtsdatum des user im Format dd.mm.yyyy
+.B Feld 4: Geburtsdatum
+Format dd.mm.yyyy. Aus Datenschutzgründen kann z.B. 01.01.1970 verwendet weden
 .TP
 .B Feld 5: Loginnamen für das ERSTANLEGEN des Users
 .br
 Nach dem Anlegen wird dieser Wert nicht mehr benutzt
 .TP
-.B Feld 6: Wunsch-Passwort fürs anlegen des Users
+.B Feld 6: Wunsch-Passwort für das Aanlegen des Users
 .br
 Nach dem Anlegen wird dieser Wert nicht mehr benutzt
 .TP
-.B Feld 7: usertoken. Z.B. Lehrerkürzel, falls nicht schon als loginname genutzt
+.B Feld 7: usertoken
+Lehrerkürzel. 
+
+Nicht erforderlich, wenn das Lehrerkürzel schon als loginname genutzt wird.
 .TP
-.B Feld 8: Festplattenquota: quota
+.B Feld 8: Festplattenquota
+quota (keine Sonderquota) oder z.B. 40+500 (Sonderquota)
 .TP
-.B Feld 9: Mailquota: mailquota
+.B Feld 9: Mailquota 
+mailquota (keine Sonderquota) oder z.B. 40 (Sonderquota)
 .TP
 .SH SEE ALSO
 .BR sophomorix-check (8)
