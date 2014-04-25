@@ -1414,14 +1414,6 @@ so vorgehen:
      2. Einzel dump so abändern dass es zusammen passt
 
 
-make lenny / make ubuntu / make deb
-
-echte Datei aus cvs entfernen (z.B. control) und nur noch 
-    control.etch 
-und
-    control.ubuntu
-editieren
-
 
 Wenn ein user gelöscht wird, folgendes zusätzlich machen.
 
@@ -2421,50 +2413,6 @@ MAKING a Package on build-host make lenny make ubuntu
 
 Packaging:
 -----------
-
-in debian/rules kann man Ausnahmen definieren:
-dh_fixperm -Xdatei
-
-
-
-Packaging with git:
-
-On BuildHost:
-
-1. checkout branch you want
-   For precise branch:
-   git checkout --track -b oneriric-package origin/precise
-   git pull
-   Verify: git branch -a
-
-2. git status
-   # If there is rubbish: clean last build
-   git reset --hard HEAD
-   git clean -f -d 
-
-
-3. On BuildHost:
-   update versions in debian/control.(/lenny/ubuntu)
-   (so that apt-get update sophomorix2 updates all sophomorix-* packages)
-   # update control file:
-   cd sophomorix2
-   dch -i 
-     -> add a comment to the changelog
-
-5. Check in modified files (use the jeffbeck key):
-   git add .
-   git status  # check whats added
-   git commit -m "prepared sophomorix for new package"
-   git push
-
-6. make deb
-
-7. If successful:
-   Tag the stuff with annotated, unsigned tag
-   git tag -a V-2.4.1-1 -m 'Creating Package for precise'
-   git push --tags
-
-
 
 
 

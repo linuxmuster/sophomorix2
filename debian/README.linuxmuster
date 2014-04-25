@@ -1,6 +1,62 @@
-Create a package for linuxmuster 6.0:
+Create a personal test package for linuxmuster 6.x:
+=======================================================
+1. make deb
+2. dpkg -i /path/to/deb
 
-make deb
+
+Create an official package for linuxmuster 6.x:
+=======================================================
+
+1. # checkout the branch 'precise'
+   git checkout precice
 
 
+2. git status
+   # If there is rubbish: clean last build
+   git reset --hard HEAD
+   git clean -f -d 
 
+
+3. # update versions in debian/control.ubuntu
+   # i.e. replace 2.4.39 with 2.4.40
+   # (so that apt-get update sophomorix2 updates all sophomorix-* packages)
+
+
+4. # update changelog file:
+   cd sophomorix2
+   dch -i 
+     -> set version number (example: 2.4.40-1)
+     -> add a comment to the changelog
+     -> set a repo like precice OR precice-testing
+        (this determines, in which repo the package will be uploaded)
+
+
+5. # Check in modified files (use the jeffbeck key):
+   cd sophomorix2
+   git add debian/control.ubuntu debian/changelog
+   git commit -m "prepared sophomorix for new package 2.4.40-1"
+   git push
+
+
+6. # create the package
+   make deb
+
+
+7. # If a successful package was created:
+   # Tag the stuff with annotated, unsigned tag
+   git tag V-2.4.40-1
+   git push --tags
+
+
+8. # upload the packages to linuxmuster.net
+   dput -f -c ./dput.cf linuxmuster.net sophomorix_2.4.40-1.changes
+
+   # With dput.cf
+   [linuxmuster.net]
+   fqdn = linuxmuster.net
+   method = scp
+   ssh_config_options = IdentityFile ~/.ssh/>>keyfile<<
+   login = >>username<<
+   incoming = ~/incoming
+   post_upload_command = ssh -i ~/.ssh/>>keyfile<< >>username<<@linuxmuster.net mini-dinstall -b
+   allow_unsigned_uploads = true
