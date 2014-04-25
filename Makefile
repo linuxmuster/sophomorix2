@@ -408,8 +408,8 @@ doc:
 	cp ./sophomorix-doc/source/pictures/pics/project-status.png ./sophomorix-doc/html
 	cp ./sophomorix-doc/source/pictures/pics/databases.png ./sophomorix-doc/html
 # Creating html-manpages
-	buildhelper/sopho-man2html
+	./buildhelper/sopho-man2html
 # Creating changelog
-	buildhelper/sopho-changelog
+	./buildhelper/sopho-changelog
 
 
