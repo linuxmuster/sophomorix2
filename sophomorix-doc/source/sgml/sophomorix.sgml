@@ -9,6 +9,8 @@
 <!ENTITY so-check "<userinput>sophomorix-check</userinput>">
 <!-- Aus anderen Dateien eingefügt: -->
 <!ENTITY grundlagen SYSTEM "grundlagen.sgml">
+<!ENTITY newdoc SYSTEM "newdoc.sgml">
+<!ENTITY newdoc-en SYSTEM "newdoc-en.sgml">
 <!ENTITY prinzip SYSTEM "prinzip.sgml">
 <!ENTITY konfiguration SYSTEM "konfiguration.sgml">
 <!ENTITY tools SYSTEM "tools.sgml">
@@ -24,8 +26,7 @@
 ]>
 
 <book id="start" lang="de">
-  <title>Benutzerverwaltung mit der Linux-Musterlösung und &check; (Datum: $Date$
-    )</title>
+  <title>sophomorix-doc-html</title>
   <titleabbrev>Example</titleabbrev>
   <bookinfo>
     <legalnotice><para>Die Skripten, die mit &check; geliefert werden
@@ -42,10 +43,10 @@
 
     <author><firstname>Rüdiger</firstname><surname>Beck</surname></author>
   </bookinfo>
-  <preface><title>Einleitung</title> 
+  <preface><title>Neue Dokumentation</title> 
     <warning>
 <para>Diese Dokumentation dokumentiert
-<userinput>sophomorix</userinput> ab der Versionsnummer 1.1</para>
+<userinput>sophomorix</userinput> ab der Versionsnummer 2.4.40</para>
 <para>Die aktuellste Version dieser Dokumentation findet sich im
 CVS-Modul <userinput>sophomorix2</userinput> auf cvs.bszleo.de im Unterverzeichnis
 <userinput>sophomorix-doc</userinput> </para>
@@ -98,7 +99,8 @@ CVS-Modul <userinput>sophomorix2</userinput> auf cvs.bszleo.de im Unterverzeichn
       werden.</para>
   </preface>
 
-
+&newdoc;
+&newdoc-en;
 &grundlagen;
 &prinzip;
 &konfiguration;
