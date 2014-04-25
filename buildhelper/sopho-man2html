@@ -38,6 +38,9 @@ sub create_manpages {
             opendir(DIR, $dirname) or die "can't opendir $dirname: $!";
             print "##### Procesing manpages in $dirname ... \n";
             while (defined($file = readdir(DIR))) {
+                if ($file eq "." or $file eq ".."){
+                    next;
+                }
                 print "$file\n";
                 if ($lang eq "en"){
                     # no language string
@@ -52,6 +55,9 @@ sub create_manpages {
                     system("man2html -r $man_file > $out_path/$html_file");
                   }
                 } else {
+                  if ($file eq "." or $file eq ".."){
+                       next;
+                  }
                   if ($file=~/^sophomorix-[-a-z]*\.$lang\.[0-9]?$/){
                     my ($name,$language,$section) = split(/\./, $file);
                     $mandir="man"."$section";
