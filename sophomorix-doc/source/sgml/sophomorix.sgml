@@ -2,117 +2,24 @@
   PUBLIC "-//OASIS//DTD DocBook V4.2//EN"
   "/usr/share/sgml/docbook/dtd/4.2/docbook.dtd"
 [
-<!ENTITY limu "Linux-Musterlösung">
-<!ENTITY bsz "BSZ (Berufliches Schulzentrum Leonberg)">
-<!ENTITY check "sophomorix">
-<!ENTITY so "<userinput>sophomorix</userinput>">
-<!ENTITY so-check "<userinput>sophomorix-check</userinput>">
 <!-- Aus anderen Dateien eingefügt: -->
-<!ENTITY grundlagen SYSTEM "grundlagen.sgml">
 <!ENTITY newdoc SYSTEM "newdoc.sgml">
 <!ENTITY newdoc-en SYSTEM "newdoc-en.sgml">
-<!ENTITY prinzip SYSTEM "prinzip.sgml">
-<!ENTITY konfiguration SYSTEM "konfiguration.sgml">
-<!ENTITY tools SYSTEM "tools.sgml">
-<!ENTITY installation-anhang SYSTEM "installation-anhang.sgml">
-<!ENTITY lehreranlegen SYSTEM "lehreranlegen.sgml">
-<!-- <!ENTITY benutzerstamm SYSTEM "benutzerstamm.sgml"> -->
-<!ENTITY schulverwaltung SYSTEM "schulverwaltung.sgml">
-<!-- <!ENTITY gesamtzusammenhang SYSTEM "anhang-gesamtzusammenhang.sgml"> -->
-<!ENTITY systemzeit SYSTEM "anhang-systemzeit.sgml">
-<!ENTITY changelog2 SYSTEM "changelog2.sgml">
-<!ENTITY roadmap SYSTEM "roadmap.sgml">
-
 ]>
 
 <book id="start" lang="de">
   <title>sophomorix-doc-html</title>
   <titleabbrev>Example</titleabbrev>
   <bookinfo>
-    <legalnotice><para>Die Skripten, die mit &check; geliefert werden
-	unterliegen der GPL. Für Hinweise und Korrektur wenden Sie sich an
-	mich. (jeffbeck at web dot de oder jeffbeck at gmx dot de).</para>
-      <para> &so; nutzt das Perl-Modul String::Approx von Jarrko Hietaniemi
-	(jhi at iki dot fi) um Ähnlichkeitsübereinstimmungen zu finden.</para>
-      <para>Ebenso nutzt &so; das Perl-Modul Quota:: von Tom
-	Zoerner (tomzo at nefcom.net), um mit Quota umzugehen.</para>
-      <para>
-	An beide vielen Dank für ihre Arbeit!</para>
-      <para></para>
+    <legalnotice><para>sophomorix-doc-html is GPL. (Contact: jeffbeck at
+    web dot de oder jeffbeck at gmx dot de).</para>
     </legalnotice>
 
     <author><firstname>Rüdiger</firstname><surname>Beck</surname></author>
   </bookinfo>
-  <preface><title>Neue Dokumentation</title> 
-    <warning>
-<para>Diese Dokumentation dokumentiert
-<userinput>sophomorix</userinput> ab der Versionsnummer 2.4.40</para>
-<para>Die aktuellste Version dieser Dokumentation findet sich im
-CVS-Modul <userinput>sophomorix2</userinput> auf cvs.bszleo.de im Unterverzeichnis
-<userinput>sophomorix-doc</userinput> </para>
-    </warning>
-<para>Die &limu; (Version 1.1) war im Bereich der
-    Schüler-Benutzerverwaltung auf kleine Netze mit wenigen, sich
-    nicht so oft ändernden Usern(=Schüler) ausgelegt.  Dabei traten
-    folgende Probleme auf:</para> <para><itemizedlist>
-	<listitem>
-	  <para>Die Ausgabe der Schulverwaltungsprogramme ist nicht
-	    ordentlich.  Dies erforderte die Nachbearbeitung von Hand
-	    bzw. über den Umweg OpenCalc oder noch schlimmer den
-	    Einsatz des proprietären Programms Excel.</para>
-	</listitem>
-	<listitem>
-	  <para>Wenn Schüler manuell angelegt wurden (Volkshochschulkurse,
-	    Projekte, Lehrer mit zusätzlichem Schüleraccount, ...), mussten
-	    diese Änderungen jedesmal neu in die
-	    <userinput>schueler.txt</userinput> hineinkopiert werden.</para>
-	</listitem>
-	<listitem>
-	  <para>Machte man bei der manuellen Bearbeitung der
-	    <userinput>schueler.txt</userinput> Fehler, so bedeutete das oft,
-	    dass ein User gelöscht wurde und ein neuer, anderer dafür angelegt
-	    wurde. Der Administrator musste dann wieder alles
-	    zurechtbiegen.</para>
-	</listitem>
-	<listitem>
-	  <para>Korrigierte das Sekretariat einen Schülernamen oder
-	    Geburtsdatum, so wurde der Schüler (alte Schreibweise) ebenfalls
-	    entfernt und ein neuer wurde angelegt (neue Schreibweise).</para>
-	</listitem>
-	<listitem>
-	  <para>Wenn einzelne Schüler während dem Schuljahr angelegt wurden,
-	    war es mit viel Aufwand verbunden, diesen Schülern ihr
-	    Login-Name/Zufallspasswort auszudrucken.</para>
-	</listitem>
-      </itemizedlist>
-    <para>
-      Um die &limu; auch an großen Schulen mit komplexer
-      Benutzerverwaltung einsetzen zu können, wurde &so;
-      geschrieben. </para> <para>Ich selbst bin am Beruflichen
-      Schulzentrum Leonberg Netzwerkbetreuer, einer Schule mit
-      ca. 3000 Schülern. Wir haben im EDV-Bereich Volkshochschulkurse
-      an der Schule und sehr viele Blockklassen in der
-      Berufsschule. Die Schüler dieser Klassen werden irgendwann
-      zwischen Sommerferien und Weihnachten in das
-      Schulverwaltungsprogramm aufgenommen.  Deshalb muss in diesem
-      Zeitraum jede Woche eine Aktualisierung der User vorgenommen
-      werden.</para>
-  </preface>
 
 &newdoc;
 &newdoc-en;
-&grundlagen;
-&prinzip;
-&konfiguration;
-<!-- &tools; -->
-&installation-anhang;
-&lehreranlegen;
-<!--&benutzerstamm;	  Ganz anders bei sophomorix2 -->
-&schulverwaltung;
-<!--&gesamtzusammenhang;-->
-&systemzeit;
-&changelog2;
-&roadmap;
 </book>
 
 

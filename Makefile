@@ -1,3 +1,4 @@
+
 #!/usr/bin/make
 # This is the sophomorix Makefile
 # $Id$
@@ -400,13 +401,6 @@ doc:
 	### doc
 # Creating html-documentation
 	cd ./sophomorix-doc/source/sgml; docbook2html --nochunks --output ../../html  sophomorix.sgml
-	cd ./sophomorix-doc/source/sgml; docbook2html --nochunks --output ../../html  changelog.sgml
-# Copying the pictures
-	cp ./sophomorix-doc/source/pictures/pics/splan-*.jpg ./sophomorix-doc/html
-	cp ./sophomorix-doc/source/pictures/pics/workflow.png ./sophomorix-doc/html
-	cp ./sophomorix-doc/source/pictures/pics/user-status.png ./sophomorix-doc/html
-	cp ./sophomorix-doc/source/pictures/pics/project-status.png ./sophomorix-doc/html
-	cp ./sophomorix-doc/source/pictures/pics/databases.png ./sophomorix-doc/html
 # Creating html-manpages
 	./buildhelper/sopho-man2html
 # Creating changelog
