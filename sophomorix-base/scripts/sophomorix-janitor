@@ -49,11 +49,16 @@ my $info=0;
 my $login="";
 my $uid=0;
 
-
+# the following are dirs in which files/dirs are searched:
 my $find_files="";
+my $copy_to_review="";
+my $move_to_review="";
+# The following are lists where the search result is saved:
 my @find_files_list=();
 my @find_dirs_list=();
 my @find_strange_list=();
+
+
 my $count_found=0;
 my $owner="";
 my $new_owner="";
@@ -108,6 +113,8 @@ my $testopt=GetOptions(
            "list-db-junk" => \$list_db_junk,
            "kill-db-junk" => \$kill_db_junk,
            "find-files|findfiles=s" => \$find_files,
+           "copy-to-review|cprv=s" => \$copy_to_review,
+           "move-to-review|mvrv=s" => \$move_to_review,
            "owner=s" => \$owner,
            "new-owner|newowner=s" => \$new_owner,
            "copy-to=s" => \$copy_to,
@@ -145,6 +152,13 @@ Reowning files:
   --find-files /path/to/dir --owner uid/uidnumber (experimental) 
   --find-files /path/to/dir --owner uid/uidnumber --copy-to /newdir (experimental)
   --find-files /path/to/dir --owner uid/uidnumber --move-to /newdir (experimental) 
+
+Reviewing files (Files are copied/moved to alumni directory):
+
+  --copy-to-review /path/to/dir --owner uid/uidnumber --review-days num (experimental)
+  --move-to-review /path/to/dir --owner uid/uidnumber --review-days num (experimental)
+
+Option --review-days is optional and defaults to 365 days
 
 Working on users files:
 
@@ -195,27 +209,43 @@ if ($info==1){
 
 
 # --find-files
-if ($find_files ne "" and 
+# --copy-to-review 
+# --move-to-review
+if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and 
      ($owner ne "")
     ){
+    # --find-files
+    # --copy-to-review 
+    # --move-to-review
+    # ... search in $find_files
+    if ($find_files ne ""){
+        $find_files=$copy_to_review;
+    } elsif ($copy_to_review ne ""){
+        $find_files=$copy_to_review;
+    } elsif ($move_to_review ne ""){
+        $find_files=$move_to_review;
+    }
     # Creating a list of files ####################################
-    # find_file has NO trailing /
+    # make sure $find_files has no trailing /
     $find_files=~s/\/$//;
-
+    print "Finding files in $find_files\n";
  
     if (not -d $find_files){
         print "\n$find_files is not a directory\n\n";
+        exit;
     }
 
     my $uid_number=0;
     # transform owner in uidnumber
-    if ($owner=~/^[0-9]$/){
-        # its uidnumber already
+    if ($owner=~/^[0-9]+$/){
+        # its a number already
         $uid_number = $owner;
+	print "num\n";
     } else {
+	print "string\n";
         $uid_number = getpwnam($owner);
         if (not defined $uid_number){
-            print "\nUser $owner does not exist\n\n";
+            print "\nUser $owner does not exist!\n\n";
             exit;
         } 
     }
@@ -223,7 +253,7 @@ if ($find_files ne "" and
     print "############################################################\n";
     print "Finding files in:\n";
     print "   $find_files \n";
-    print "owned by $owner   ($uid_number)\n";
+    print "owned by $owner   (UidNumber: $uid_number)\n";
     print "############################################################\n";
 
     find(\&files_owned_by, $find_files);
