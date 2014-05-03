@@ -280,58 +280,85 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     $count_found_strange=$#find_strange_list+1;
     printf "%9s strange stuff found\n",$count_found_strange;
 
-    # Do something with the filelist
-    if ($count_found_files > 0){
-        # do something with the found files
-        print "Working on files:\n";
-        foreach my $source_abs_file (@find_files_list){
-            # shorten path for display
-            my $display_file=$source_abs_file;
-            $display_file=~s/$find_files//;
-            # remove leading / (if present)
-            $display_file=~s/^\///;
-            my $filename=basename($source_abs_file);
-            my $target_dir="";
+    # Do something with the lists
+    print "######## Working on files ########\n";
+    foreach my $source_abs_file (@find_files_list){
+        # shorten path for display
+        my $display_file=$source_abs_file;
+        $display_file=~s/$find_files//;
+        # remove leading / (if present)
+        $display_file=~s/^\///;
+        my $filename=basename($source_abs_file);
+        my $target_dir="";
 
-            if ($copy_to ne ""){
-                # remove trailing / (if present)
-                $copy_to=~s/\/$//;
-                $target_dir=$copy_to;
-            } elsif ($move_to ne ""){
-                # remove trailing / (if present)
-                $move_to=~s/\/$//;
-                $target_dir=$move_to;
-            }
-
-            my $target_abs_file=$source_abs_file;
-            $target_abs_file=~s/$find_files/$target_dir/;
-            my $dirname=dirname($target_abs_file);
-
-            print "$display_file\n";
-            print "  Source: $source_abs_file\n";
-            print "  Target: $target_abs_file\n";
-            print "  Dir:    $dirname\n";
-
-            # as mkdir -p
-            make_path($dirname);
-
-            if ($copy_to ne ""){
-                # copy
-                copy($source_abs_file,$target_abs_file);
-            } elsif ($move_to ){
-                # move
-                print "moving file\n";
-                #move($source_abs_file,$target_abs_file);
-            }
+        # decide where to copy/move the files
+        if ($copy_to ne ""){
+            # option --copy-to given
+            # remove trailing / (if present)
+            $copy_to=~s/\/$//;
+            $target_dir=$copy_to;
+        } elsif ($move_to ne ""){
+            # option --move-to given
+            # remove trailing / (if present)
+            $move_to=~s/\/$//;
+            $target_dir=$move_to;
+        } elsif ($copy_to_review ne ""){
+            # option --copy-to-review given
+            $target_dir=$copy_to_review;
+        } elsif ($move_to_review ne ""){
+            # option --move-to-review given
+            $target_dir=$move_to_review;
         }
-        print "DIR:\n";
-        foreach my $source_abs_dir (@find_dirs_list){
-            print "DIR: $source_abs_dir\n";
+
+        my $target_abs_file=$source_abs_file;
+        $target_abs_file=~s/$find_files/$target_dir/;
+        my $dirname=dirname($target_abs_file);
+
+        print "FILE: $display_file\n";
+        print "    Source: $source_abs_file\n";
+        print "    Target: $target_abs_file\n";
+        print "    Parent: $dirname\n";
+
+        # same as mkdir -p
+        make_path($dirname);
+
+
+        # decide where to copy/move the files
+        if ($copy_to ne ""){
+            # option --copy-to given
+            #copy($source_abs_file,$target_abs_file);
+        } elsif ($move_to ne ""){
+            # option --move-to given
+            #move($source_abs_file,$target_abs_file);
+        } elsif ($copy_to_review ne ""){
+            # option --copy-to-review given
+
+        } elsif ($move_to_review ne ""){
+            # option --move-to-review given
+
+        } else {
+            # --find-files without --copy-to/move-to --> do nothing
         }
-        foreach my $source_abs_strange (@find_strange_list){
-            print "STRANGE: $source_abs_strange\n";
-        }
-    }
+    } # end walking through @find_files_list
+
+
+    print "######## Working on directories ########\n";
+    foreach my $source_abs_dir (@find_dirs_list){
+        print "DIR: $source_abs_dir\n";
+    } # end walking through @find_dirs_list
+
+
+    print "######## Working on links ########\n";
+    foreach my $source_abs_dir (@find_links_list){
+        print "LINK: $source_abs_dir\n";
+    } # end walking through @find_links_list
+
+
+    print "######## Working on strange stuff ########\n";
+    foreach my $source_abs_strange (@find_strange_list){
+        print "STRANGE: $source_abs_strange\n";
+    } # end walking through @find_strange_list
+
 } elsif (($find_files ne "" or $copy_to_review ne "" or $move_to_review)
          and $owner eq ""){
     print "\n";
