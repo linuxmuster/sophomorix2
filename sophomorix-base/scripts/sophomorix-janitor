@@ -54,7 +54,12 @@ my $uid=0;
 my $find_files="";
 my $copy_to_review="";
 my $move_to_review="";
+my $copy_to_review_home="";
+my $move_to_review_home="";
+my $copy_to_review_share_teacher="";
+my $move_to_review_share_teacher="";
 my $review_days=366;
+my $review_end_date="---";
 # The following are lists where the search result is saved:
 my @find_links_list=();
 my @find_files_list=();
@@ -125,6 +130,10 @@ my $testopt=GetOptions(
            "find-files|ff|findfiles=s" => \$find_files,
            "copy-to-review|cprv=s" => \$copy_to_review,
            "move-to-review|mvrv=s" => \$move_to_review,
+           "move-to-review-home=s" => \$move_to_review_home,
+           "copy-to-review-home=s" => \$copy_to_review_home,
+           "move-to-review-share-teacher=s" => \$move_to_review_share_teacher,
+           "copy-to-review-share-teacher=s" => \$copy_to_review_share_teacher,
            "review-days=i" => \$review_days,
            "owner=s" => \$owner,
            "new-owner|newowner=s" => \$new_owner,
@@ -175,17 +184,26 @@ Housekeeping the postgres database ldap:
   --list-db-junk
   --kill-db-junk
 
-Reowning files:
+Reowning files, basic common commands:
 
-  --find-files /path/to/dir --owner uid/uidnumber (experimental) 
-  --find-files /path/to/dir --owner uid/uidnumber --copy-to /newdir (experimental)
-  --find-files /path/to/dir --owner uid/uidnumber --move-to /newdir (experimental) 
+  --find-files /path/to/dir --owner uid/uidnumber
+  --find-files /path/to/dir --owner uid/uidnumber --copy-to /newdir
+  --find-files /path/to/dir --owner uid/uidnumber --move-to /newdir
 
 Reviewing files (Files are copied/moved to alumni directory):
 
-  --copy-to-review /path/to/dir --owner uid/uidnumber --review-days num (experimental)
-  --move-to-review /path/to/dir --owner uid/uidnumber --review-days num (experimental)
-  Option --review-days is optional and defaults to 365 days
+  --copy-to-review /path/to/dir --owner uid/uidnumber --review-days num
+  --move-to-review /path/to/dir --owner uid/uidnumber --review-days num
+  Option --review-days is optional and defaults to 366 days
+
+Useful shortcuts (--review-days is optional):
+
+  Reviewing files in the homediectory of a user:
+    --move-to-review-home login --review-days num 
+    --copy-to-review-home login --review-days num 
+  Reviewing files in the teachers share:
+    --move-to-review-share-teachers login --review-days num 
+    --copy-to-review-share-teachers login --review-days num 
 
 Working on users files:
 
@@ -235,6 +253,30 @@ if ($info==1){
 }
 
 
+# calculating review end date
+if ($copy_to_review ne "" or 
+    $move_to_review ne "" or
+    $copy_to_review_home ne "" or
+    $move_to_review_home ne "" or
+    $copy_to_review_share_teacher ne "" or
+    $move_to_review_share_teacher ne ""){
+    #print "Calculating review end date\n";
+    my $epoch_now=time; # unix seconds
+    #print "Now: $epoch_now\n";
+    my $epoch_end_date=$epoch_now+86400*$review_days;
+    #print "End: $epoch_end_date\n";
+
+    my $end_date=localtime($epoch_end_date);
+    my $end_day=$end_date->mday;
+    if (length($end_day) == 1) {$end_day = "0$end_day";}
+    my $end_month=$end_date->mon+1;
+    if (length($end_month)  == 1) {$end_month = "0$end_month";}
+    my $end_year=$end_date->year+1900;
+
+    $review_end_date=$end_year."-".$end_month."-".$end_day;
+    print "Review end date is: $review_end_date\n";
+}
+
 # --find-files
 # --copy-to-review 
 # --move-to-review
@@ -253,25 +295,6 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
         $find_files = $move_to_review;
     }
 
-    my $review_end_date="---";
-    # calculating review end date
-    if ($copy_to_review ne "" or $move_to_review ne ""){
-        #print "Calculating review end date\n";
-        my $epoch_now=time; # unix seconds
-        #print "Now: $epoch_now\n";
-        my $epoch_end_date=$epoch_now+86400*$review_days;
-        #print "End: $epoch_end_date\n";
-
-        my $end_date=localtime($epoch_end_date);
-        my $end_day=$end_date->mday;
-        if (length($end_day) == 1) {$end_day = "0$end_day";}
-        my $end_month=$end_date->mon+1;
-        if (length($end_month)  == 1) {$end_month = "0$end_month";}
-        my $end_year=$end_date->year+1900;
-
-        $review_end_date=$end_year."-".$end_month."-".$end_day;
-        print "Review end date is: $review_end_date\n";
-    }
 
     # Creating a list of files ####################################
  
@@ -353,7 +376,8 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
             # option --copy-to-review given
             $target_dir=$copy_to_review."/".
                         ${Language::alumni}."/".
-                        $owner.${Language::alumni_review_string}.
+                        $owner.
+                        ${Language::alumni_review_string}.
                         $review_end_date;
             $target_abs_file=~s/$copy_to_review/$target_dir/;
             $parent_dir=dirname($target_abs_file);
@@ -368,7 +392,8 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
             # option --move-to-review given
             $target_dir=$move_to_review."/".
                         ${Language::alumni}."/".
-                        $owner.${Language::alumni_review_string}.
+                        $owner.
+                        ${Language::alumni_review_string}.
                         $review_end_date;
             print "FILE: $display_file\n";
             print "  Source: $source_abs_file\n";
@@ -409,10 +434,73 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     print "  --move-to-review/mvrv\n";
     print "    need additional option --owner\n\n";
     exit;
-} else {
-    print "No list of files created\n";
-    # just go on
+} 
+
+
+# --move-to-review-home user
+# --copy-to-review-home user
+if ($move_to_review_home ne "" or 
+    $copy_to_review_home ne ""){
+    my $login="";
+    if ($copy_to_review_home ne ""){
+        $login=$copy_to_review_home;
+    } elsif ($move_to_review_home ne ""){
+        $login=$move_to_review_home;
+    }
+    my ($home,$type,$gecos,$group,$uidnumber) 
+        = &fetchdata_from_account($login);
+    my $target=$home."/".$login.${Language::alumni_review_string}.$review_end_date;
+    print "Moving/Copying data in \$HOME of $gecos ($login):\n";
+    print "  $home\n";
+    print "for review into directory:\n";
+    print "  $target\n";
+    my $command="";
+    if ($copy_to_review_home ne ""){
+        $command="sophomorix-janitor --find-files $home --owner $login --copy-to $target";
+    } elsif ($move_to_review_home ne ""){
+        $command="sophomorix-janitor --find-files $home --owner $login --move-to $target";
+    }
+    print "$command\n";
+    system("$command");
 }
+
+
+
+# --move-to-review-share-teacher user
+# --copy-to-review-share-teacher user
+if ($move_to_review_share_teacher ne "" or 
+    $copy_to_review_share_teacher ne ""){
+    my $login="";
+    if ($copy_to_review_share_teacher ne ""){
+        $login=$copy_to_review_share_teacher;
+    } elsif ($move_to_review_share_teacher ne ""){
+        $login=$move_to_review_share_teacher;
+    }
+    my ($home,$type,$gecos,$group,$uidnumber) 
+        = &fetchdata_from_account($login);
+    my $source=${DevelConf::share_teacher};
+    my $target=${DevelConf::share_teacher}."/".
+               ${Language::alumni}."/".
+               $login.
+               ${Language::alumni_review_string}.
+               $review_end_date;
+
+    print "Moving/Copying data of $gecos ($login) in:\n";
+    print "  $source\n";
+    print "for review into directory:\n";
+    print "  $target\n";
+    my $command="";
+    if ($copy_to_review_share_teacher ne ""){
+        $command="sophomorix-janitor --find-files $source --owner $login".
+                 " --copy-to $target";
+    } elsif ($move_to_review_share_teacher ne ""){
+        $command="sophomorix-janitor --find-files $source --owner $login".
+                 " --move-to $target";
+    }
+    print "$command\n";
+    #system("$command");
+}
+
 
 
 
@@ -456,7 +544,8 @@ if ($list_db_junk==1 or $kill_db_junk==1){
             print "  Suggested action for $gidnumber_test:\n";
             print "  $sql\n";
             if ($kill_db_junk==1){
-                print "  Do you want to delete $gidnumber_test with the SQL command? y/n\n";
+                print "  Do you want to delete $gidnumber_test ",
+                      "with the SQL command? y/n\n";
                 my $do_it=<>;
                 chomp($do_it);
                 if($do_it eq "y"){
