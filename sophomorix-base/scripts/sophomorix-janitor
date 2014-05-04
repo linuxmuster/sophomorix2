@@ -54,6 +54,7 @@ my $uid=0;
 my $find_files="";
 my $copy_to_review="";
 my $move_to_review="";
+my $review_days=366;
 # The following are lists where the search result is saved:
 my @find_links_list=();
 my @find_files_list=();
@@ -124,6 +125,7 @@ my $testopt=GetOptions(
            "find-files|ff|findfiles=s" => \$find_files,
            "copy-to-review|cprv=s" => \$copy_to_review,
            "move-to-review|mvrv=s" => \$move_to_review,
+           "review-days=i" => \$review_days,
            "owner=s" => \$owner,
            "new-owner|newowner=s" => \$new_owner,
            "copy-to=s" => \$copy_to,
@@ -139,6 +141,23 @@ my $testopt=GetOptions(
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
+
+# / as causes trouble because it ends with / and is useless anyway
+if ($copy_to eq "/" or 
+    $move_to eq "/"or 
+    $copy_to_review eq "/"or 
+    $move_to_review eq "/"or 
+    $find_files eq "/"
+    ){
+    print "\nDirectory / not allowed\n\n";
+    exit;
+}
+# remove trailing / from options (if present)
+$copy_to=~s/\/$//;
+$move_to=~s/\/$//;
+$copy_to_review=~s/\/$//;
+$move_to_review=~s/\/$//;
+$find_files=~s/\/$//;
 
 # --help
 if ($help==1) {
@@ -233,13 +252,28 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     } elsif ($move_to_review ne ""){
         $find_files = $move_to_review;
     }
-    # Creating a list of files ####################################
-    # make sure $find_files has no trailing /
-    print "Finding files in $find_files\n";
-    if ($find_files ne "/"){
-        $find_files=~s/\/$//;
+
+    my $review_end_date="---";
+    # calculating review end date
+    if ($copy_to_review ne "" or $move_to_review ne ""){
+        #print "Calculating review end date\n";
+        my $epoch_now=time; # unix seconds
+        #print "Now: $epoch_now\n";
+        my $epoch_end_date=$epoch_now+86400*$review_days;
+        #print "End: $epoch_end_date\n";
+
+        my $end_date=localtime($epoch_end_date);
+        my $end_day=$end_date->mday;
+        if (length($end_day) == 1) {$end_day = "0$end_day";}
+        my $end_month=$end_date->mon+1;
+        if (length($end_month)  == 1) {$end_month = "0$end_month";}
+        my $end_year=$end_date->year+1900;
+
+        $review_end_date=$end_year."-".$end_month."-".$end_day;
+        print "Review end date is: $review_end_date\n";
     }
-    print "Finding files in $find_files\n";
+
+    # Creating a list of files ####################################
  
     # exit if directory is nonexisting
     if (not -d $find_files){
@@ -252,9 +286,7 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     if ($owner=~/^[0-9]+$/){
         # its a number already
         $uid_number = $owner;
-	print "num\n";
     } else {
-	print "string\n";
         $uid_number = getpwnam($owner);
         if (not defined $uid_number){
             print "\nUser $owner does not exist!\n\n";
@@ -290,54 +322,58 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
         $display_file=~s/^\///;
         my $filename=basename($source_abs_file);
         my $target_dir="";
-
-        # decide where to copy/move the files
-        if ($copy_to ne ""){
-            # option --copy-to given
-            # remove trailing / (if present)
-            $copy_to=~s/\/$//;
-            $target_dir=$copy_to;
-        } elsif ($move_to ne ""){
-            # option --move-to given
-            # remove trailing / (if present)
-            $move_to=~s/\/$//;
-            $target_dir=$move_to;
-        } elsif ($copy_to_review ne ""){
-            # option --copy-to-review given
-            $target_dir=$copy_to_review;
-        } elsif ($move_to_review ne ""){
-            # option --move-to-review given
-            $target_dir=$move_to_review;
-        }
-
         my $target_abs_file=$source_abs_file;
-        $target_abs_file=~s/$find_files/$target_dir/;
-        my $dirname=dirname($target_abs_file);
-
-        print "FILE: $display_file\n";
-        print "    Source: $source_abs_file\n";
-        print "    Target: $target_abs_file\n";
-        print "    Parent: $dirname\n";
-
-        # same as mkdir -p
-        make_path($dirname);
-
-
+        my $parent_dir="";
         # decide where to copy/move the files
         if ($copy_to ne ""){
             # option --copy-to given
+            $target_dir=$copy_to;
+            $target_abs_file=~s/$find_files/$target_dir/;
+            $parent_dir=dirname($target_abs_file);
+            print "FILE: $display_file\n";
+            print "    Source:  $source_abs_file\n";
+            print "    Copy to: $target_abs_file\n";
+            print "    Parent:  $parent_dir\n";
+            #make_path($parent_dir); # same as: mkdir -p
             #copy($source_abs_file,$target_abs_file);
         } elsif ($move_to ne ""){
             # option --move-to given
+            $target_dir=$move_to;
+            $target_abs_file=~s/$find_files/$target_dir/;
+            $parent_dir=dirname($target_abs_file);
+            print "FILE: $display_file\n";
+            print "    Source:  $source_abs_file\n";
+            print "    Move to: $target_abs_file\n";
+            print "    Parent:  $parent_dir\n";
+            #make_path($parent_dir); # same as: mkdir -p
             #move($source_abs_file,$target_abs_file);
         } elsif ($copy_to_review ne ""){
             # option --copy-to-review given
-
+            $target_dir=$copy_to_review."/".
+                        ${Language::alumni}."/".
+                        $owner.${Language::alumni_review_string}.
+                        $review_end_date;
+            $target_abs_file=~s/$copy_to_review/$target_dir/;
+            $parent_dir=dirname($target_abs_file);
+            print "FILE: $display_file\n";
+            print "  Source: $source_abs_file\n";
+            print "  Target: $target_abs_file\n";
+            print "  Parent: $parent_dir\n";
+            #make_path($parent_dir); # same as: mkdir -p
         } elsif ($move_to_review ne ""){
             # option --move-to-review given
-
+            $target_dir=$move_to_review."/".
+                        ${Language::alumni}."/".
+                        $owner.${Language::alumni_review_string}.
+                        $review_end_date;
+            print "FILE: $display_file\n";
+            print "  Source: $source_abs_file\n";
+            print "  Target: $target_abs_file\n";
+            print "  Parent: $parent_dir\n";
+            #make_path($parent_dir); # same as: mkdir -p
         } else {
             # --find-files without --copy-to/move-to --> do nothing
+            print "FILE: $display_file\n";
         }
     } # end walking through @find_files_list
 
