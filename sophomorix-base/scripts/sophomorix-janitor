@@ -334,8 +334,9 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
             print "    Source:  $source_abs_file\n";
             print "    Copy to: $target_abs_file\n";
             print "    Parent:  $parent_dir\n";
-            #make_path($parent_dir); # same as: mkdir -p
-            #copy($source_abs_file,$target_abs_file);
+            make_path($parent_dir); # same as: mkdir -p
+            copy($source_abs_file,$target_abs_file);
+            chmod 0644, $target_abs_file;
         } elsif ($move_to ne ""){
             # option --move-to given
             $target_dir=$move_to;
@@ -347,6 +348,7 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
             print "    Parent:  $parent_dir\n";
             #make_path($parent_dir); # same as: mkdir -p
             #move($source_abs_file,$target_abs_file);
+            #chmod 0644, $target_abs_file;
         } elsif ($copy_to_review ne ""){
             # option --copy-to-review given
             $target_dir=$copy_to_review."/".
@@ -359,7 +361,9 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
             print "  Source: $source_abs_file\n";
             print "  Target: $target_abs_file\n";
             print "  Parent: $parent_dir\n";
-            #make_path($parent_dir); # same as: mkdir -p
+            make_path($parent_dir); # same as: mkdir -p
+            copy($source_abs_file,$target_abs_file);
+            chmod 0644, $target_abs_file;
         } elsif ($move_to_review ne ""){
             # option --move-to-review given
             $target_dir=$move_to_review."/".
@@ -371,6 +375,8 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
             print "  Target: $target_abs_file\n";
             print "  Parent: $parent_dir\n";
             #make_path($parent_dir); # same as: mkdir -p
+            #move($source_abs_file,$target_abs_file);
+            #chmod 0644, $target_abs_file;
         } else {
             # --find-files without --copy-to/move-to --> do nothing
             print "FILE: $display_file\n";
