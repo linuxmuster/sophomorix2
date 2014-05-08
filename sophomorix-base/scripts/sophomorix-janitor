@@ -419,36 +419,23 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     ######################################################################
     print "######## Working on files ########\n";
     foreach my $source_abs_file (@find_files_list){
-#        my $target_dir="";
         my $target_abs_file=$source_abs_file;
         # decide where to copy/move the files
         # ??? avoid copy-to and move-to together ????????
         if ($copy_to ne ""){
             # option --copy-to given
-#            $target_dir=$copy_to;
             $target_abs_file=~s/$find_files/$target_dir/;
             &review_file("copy",$source_abs_file,$target_abs_file);
         } elsif ($move_to ne ""){
             # option --move-to given
-#            $target_dir=$move_to;
             $target_abs_file=~s/$find_files/$target_dir/;
             &review_file("move",$source_abs_file,$target_abs_file);
         } elsif ($copy_to_review ne ""){
             # option --copy-to-review given
-#            $target_dir=$copy_to_review."/".
-#                        ${Language::alumni}."/".
-#                        $owner.
-#                        ${Language::alumni_review_string}.
-#                        $review_end_date;
             $target_abs_file=~s/$copy_to_review/$target_dir/;
             &review_file("copy",$source_abs_file,$target_abs_file);
         } elsif ($move_to_review ne ""){
             # option --move-to-review given
-#            $target_dir=$move_to_review."/".
-#                        ${Language::alumni}."/".
-#                        $owner.
-#                        ${Language::alumni_review_string}.
-#                        $review_end_date;
             $target_abs_file=~s/$move_to_review/$target_dir/;
             &review_file("move",$source_abs_file,$target_abs_file);
         } else {
@@ -461,36 +448,23 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     ######################################################################
     print "######## Working on directories ########\n";
     foreach my $source_abs_dir (@find_dirs_list){
-#        my $target_dir="";
         my $target_abs_dir=$source_abs_dir;
         # decide where to copy/move the dirs
         # ??? avoid copy-to and move-to together ????????
         if ($copy_to ne ""){
             # option --copy-to given
-#            $target_dir=$copy_to;
             $target_abs_dir=~s/$find_files/$target_dir/;
             &review_dir("copy",$source_abs_dir,$target_abs_dir);
         } elsif ($move_to ne ""){
             # option --move-to given
-#            $target_dir=$move_to;
             $target_abs_dir=~s/$find_files/$target_dir/;
             &review_dir("move",$source_abs_dir,$target_abs_dir);
         } elsif ($copy_to_review ne ""){
             # option --copy-to-review given
-#            $target_dir=$copy_to_review."/".
-#                        ${Language::alumni}."/".
-#                        $owner.
-#                        ${Language::alumni_review_string}.
-#                        $review_end_date;
             $target_abs_dir=~s/$copy_to_review/$target_dir/;
             &review_dir("copy",$source_abs_dir,$target_abs_dir);
         } elsif ($move_to_review ne ""){
             # option --move-to-review given
-#            $target_dir=$move_to_review."/".
-#                        ${Language::alumni}."/".
-#                        $owner.
-#                        ${Language::alumni_review_string}.
-#                        $review_end_date;
             $target_abs_dir=~s/$move_to_review/$target_dir/;
             &review_dir("move",$source_abs_dir,$target_abs_dir);
         } else {
@@ -502,36 +476,23 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     ######################################################################
     print "######## Working on links ########\n";
     foreach my $source_abs_link (@find_links_list){
-#        my $target_link="";
         my $target_abs_link=$source_abs_link;
         # decide where to copy/move the links
         # ??? avoid copy-to and move-to together ????????
         if ($copy_to ne ""){
             # option --copy-to given
-#            $target_link=$copy_to;
             $target_abs_link=~s/$find_files/$target_dir/;
             &review_link("copy",$source_abs_link,$target_abs_link);
         } elsif ($move_to ne ""){
             # option --move-to given
-#            $target_link=$move_to;
             $target_abs_link=~s/$find_files/$target_dir/;
             &review_link("move",$source_abs_link,$target_abs_link);
         } elsif ($copy_to_review ne ""){
             # option --copy-to-review given
-#            $target_link=$copy_to_review."/".
-#                        ${Language::alumni}."/".
-#                        $owner.
-#                        ${Language::alumni_review_string}.
-#                        $review_end_date;
             $target_abs_link=~s/$copy_to_review/$target_dir/;
             &review_link("copy",$source_abs_link,$target_abs_link);
         } elsif ($move_to_review ne ""){
             # option --move-to-review given
-#            $target_link=$move_to_review."/".
-#                        ${Language::alumni}."/".
-#                        $owner.
-#                        ${Language::alumni_review_string}.
-#                        $review_end_date;
             $target_abs_link=~s/$move_to_review/$target_dir/;
             &review_link("move",$source_abs_link,$target_abs_link);
         } else {
@@ -543,36 +504,23 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     ######################################################################
     print "######## Working on strange stuff ########\n";
     foreach my $source_abs_strange (@find_strange_list){
-#        my $target_strange="";
         my $target_abs_strange=$source_abs_strange;
         # decide where to copy/move the links
         # ??? avoid copy-to and move-to together ????????
         if ($copy_to ne ""){
             # option --copy-to given
-#            $target_strange=$copy_to;
             $target_abs_strange=~s/$find_files/$target_dir/;
             &review_strange("copy",$source_abs_strange,$target_abs_strange);
         } elsif ($move_to ne ""){
             # option --move-to given
-#            $target_strange=$move_to;
             $target_abs_strange=~s/$find_files/$target_dir/;
             &review_strange("move",$source_abs_strange,$target_abs_strange);
         } elsif ($copy_to_review ne ""){
             # option --copy-to-review given
-#            $target_strange=$copy_to_review."/".
-#                        ${Language::alumni}."/".
-#                        $owner.
-#                        ${Language::alumni_review_string}.
-#                        $review_end_date;
             $target_abs_strange=~s/$copy_to_review/$target_dir/;
             &review_strange("copy",$source_abs_strange,$target_abs_strange);
         } elsif ($move_to_review ne ""){
             # option --move-to-review given
-#            $target_strange=$move_to_review."/".
-#                        ${Language::alumni}."/".
-#                        $owner.
-#                        ${Language::alumni_review_string}.
-#                        $review_end_date;
             $target_abs_strange=~s/$move_to_review/$target_dir/;
             &review_strange("move",$source_abs_strange,$target_abs_strange);
         } else {
