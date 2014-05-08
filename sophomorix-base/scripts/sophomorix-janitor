@@ -64,6 +64,8 @@ my $copy_to_review_share_class="";
 my $move_to_review_share_class="";
 my $review_days=366;
 my $review_end_date="---";
+# separator in logfiles
+my $sep="|::|";
 # The following are lists where the search result is saved:
 my @find_links_list=();
 my @find_files_list=();
@@ -345,34 +347,42 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     # find the files an save them in perl lists
     find(\&files_owned_by, $find_files);
     # print summary  
-    $count_found_links=$#find_links_list+1;
-    printf "%9s links found\n", $count_found_links;
     $count_found_files=$#find_files_list+1;
     printf "%9s files found\n", $count_found_files;
     $count_found_dirs=$#find_dirs_list+1;
     printf "%9s dirs found\n", $count_found_dirs;
+    $count_found_links=$#find_links_list+1;
+    printf "%9s links found\n", $count_found_links;
     $count_found_strange=$#find_strange_list+1;
     printf "%9s strange stuff found\n",$count_found_strange;
 
-    ######################################################################
-    # Do something with the lists
-    ######################################################################
-    print "######## Working on files ########\n";
-    foreach my $source_abs_file (@find_files_list){
-        my $target_dir="";
-        my $target_abs_file=$source_abs_file;
-        # decide where to copy/move the files
-        # ??? avoid copy-to and move-to together ????????
+    my $target_dir="";
+    my $target_dir_log="";
+    my $log_file="";
+    my $log_dir="";
+    my $log_link="";
+    my $log_strange="";
+
+    # exit if nothing was found or only a find was issued, else prepare logging
+    if (($count_found_files ==0 and 
+         $count_found_dirs==0 and 
+         $count_found_links==0 and 
+         $count_found_strange==0
+        ) or (
+         $copy_to eq "" and
+         $move_to eq "" and
+         $copy_to_review eq "" and
+         $move_to_review eq ""
+        )){
+        exit;        
+    } else {
+        # There was something found, and copy or move is wanted: prepare logging
         if ($copy_to ne ""){
             # option --copy-to given
             $target_dir=$copy_to;
-            $target_abs_file=~s/$find_files/$target_dir/;
-            &review_file("copy",$source_abs_file,$target_abs_file);
         } elsif ($move_to ne ""){
             # option --move-to given
             $target_dir=$move_to;
-            $target_abs_file=~s/$find_files/$target_dir/;
-            &review_file("move",$source_abs_file,$target_abs_file);
         } elsif ($copy_to_review ne ""){
             # option --copy-to-review given
             $target_dir=$copy_to_review."/".
@@ -380,8 +390,6 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
                         $owner.
                         ${Language::alumni_review_string}.
                         $review_end_date;
-            $target_abs_file=~s/$copy_to_review/$target_dir/;
-            &review_file("copy",$source_abs_file,$target_abs_file);
         } elsif ($move_to_review ne ""){
             # option --move-to-review given
             $target_dir=$move_to_review."/".
@@ -389,6 +397,59 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
                         $owner.
                         ${Language::alumni_review_string}.
                         $review_end_date;
+        }
+        
+        # create log dirs and log files
+        $target_dir_log = $target_dir."/.sophomorix-janitor.log";
+        $log_file=$target_dir_log."/file.log";
+        $log_dir=$target_dir_log."/dir.log";
+        $log_link=$target_dir_log."/link.log";
+        $log_strange=$target_dir_log."/strange.log";
+        make_path($target_dir); # same as: mkdir -p
+        make_path($target_dir_log); # same as: mkdir -p
+        open(FILELOG, ">>$log_file");
+        open(DIRLOG, ">>$log_dir");
+        open(LINKLOG, ">>$log_link");
+        open(STRANGELOG, ">>$log_strange");
+    }
+
+
+    ######################################################################
+    # Do something with the lists
+    ######################################################################
+    print "######## Working on files ########\n";
+    foreach my $source_abs_file (@find_files_list){
+#        my $target_dir="";
+        my $target_abs_file=$source_abs_file;
+        # decide where to copy/move the files
+        # ??? avoid copy-to and move-to together ????????
+        if ($copy_to ne ""){
+            # option --copy-to given
+#            $target_dir=$copy_to;
+            $target_abs_file=~s/$find_files/$target_dir/;
+            &review_file("copy",$source_abs_file,$target_abs_file);
+        } elsif ($move_to ne ""){
+            # option --move-to given
+#            $target_dir=$move_to;
+            $target_abs_file=~s/$find_files/$target_dir/;
+            &review_file("move",$source_abs_file,$target_abs_file);
+        } elsif ($copy_to_review ne ""){
+            # option --copy-to-review given
+#            $target_dir=$copy_to_review."/".
+#                        ${Language::alumni}."/".
+#                        $owner.
+#                        ${Language::alumni_review_string}.
+#                        $review_end_date;
+            $target_abs_file=~s/$copy_to_review/$target_dir/;
+            &review_file("copy",$source_abs_file,$target_abs_file);
+        } elsif ($move_to_review ne ""){
+            # option --move-to-review given
+#            $target_dir=$move_to_review."/".
+#                        ${Language::alumni}."/".
+#                        $owner.
+#                        ${Language::alumni_review_string}.
+#                        $review_end_date;
+            $target_abs_file=~s/$move_to_review/$target_dir/;
             &review_file("move",$source_abs_file,$target_abs_file);
         } else {
             # --find-files without --copy-to/move-to --> do nothing
@@ -400,36 +461,37 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     ######################################################################
     print "######## Working on directories ########\n";
     foreach my $source_abs_dir (@find_dirs_list){
-        my $target_dir="";
+#        my $target_dir="";
         my $target_abs_dir=$source_abs_dir;
         # decide where to copy/move the dirs
         # ??? avoid copy-to and move-to together ????????
         if ($copy_to ne ""){
             # option --copy-to given
-            $target_dir=$copy_to;
+#            $target_dir=$copy_to;
             $target_abs_dir=~s/$find_files/$target_dir/;
             &review_dir("copy",$source_abs_dir,$target_abs_dir);
         } elsif ($move_to ne ""){
             # option --move-to given
-            $target_dir=$move_to;
+#            $target_dir=$move_to;
             $target_abs_dir=~s/$find_files/$target_dir/;
             &review_dir("move",$source_abs_dir,$target_abs_dir);
         } elsif ($copy_to_review ne ""){
             # option --copy-to-review given
-            $target_dir=$copy_to_review."/".
-                        ${Language::alumni}."/".
-                        $owner.
-                        ${Language::alumni_review_string}.
-                        $review_end_date;
+#            $target_dir=$copy_to_review."/".
+#                        ${Language::alumni}."/".
+#                        $owner.
+#                        ${Language::alumni_review_string}.
+#                        $review_end_date;
             $target_abs_dir=~s/$copy_to_review/$target_dir/;
             &review_dir("copy",$source_abs_dir,$target_abs_dir);
         } elsif ($move_to_review ne ""){
             # option --move-to-review given
-            $target_dir=$move_to_review."/".
-                        ${Language::alumni}."/".
-                        $owner.
-                        ${Language::alumni_review_string}.
-                        $review_end_date;
+#            $target_dir=$move_to_review."/".
+#                        ${Language::alumni}."/".
+#                        $owner.
+#                        ${Language::alumni_review_string}.
+#                        $review_end_date;
+            $target_abs_dir=~s/$move_to_review/$target_dir/;
             &review_dir("move",$source_abs_dir,$target_abs_dir);
         } else {
             # --find-files without --copy-to/move-to --> do nothing
@@ -440,36 +502,37 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     ######################################################################
     print "######## Working on links ########\n";
     foreach my $source_abs_link (@find_links_list){
-        my $target_link="";
+#        my $target_link="";
         my $target_abs_link=$source_abs_link;
         # decide where to copy/move the links
         # ??? avoid copy-to and move-to together ????????
         if ($copy_to ne ""){
             # option --copy-to given
-            $target_link=$copy_to;
-            $target_abs_link=~s/$find_files/$target_link/;
+#            $target_link=$copy_to;
+            $target_abs_link=~s/$find_files/$target_dir/;
             &review_link("copy",$source_abs_link,$target_abs_link);
         } elsif ($move_to ne ""){
             # option --move-to given
-            $target_link=$move_to;
-            $target_abs_link=~s/$find_files/$target_link/;
+#            $target_link=$move_to;
+            $target_abs_link=~s/$find_files/$target_dir/;
             &review_link("move",$source_abs_link,$target_abs_link);
         } elsif ($copy_to_review ne ""){
             # option --copy-to-review given
-            $target_link=$copy_to_review."/".
-                        ${Language::alumni}."/".
-                        $owner.
-                        ${Language::alumni_review_string}.
-                        $review_end_date;
-            $target_abs_link=~s/$copy_to_review/$target_link/;
+#            $target_link=$copy_to_review."/".
+#                        ${Language::alumni}."/".
+#                        $owner.
+#                        ${Language::alumni_review_string}.
+#                        $review_end_date;
+            $target_abs_link=~s/$copy_to_review/$target_dir/;
             &review_link("copy",$source_abs_link,$target_abs_link);
         } elsif ($move_to_review ne ""){
             # option --move-to-review given
-            $target_link=$move_to_review."/".
-                        ${Language::alumni}."/".
-                        $owner.
-                        ${Language::alumni_review_string}.
-                        $review_end_date;
+#            $target_link=$move_to_review."/".
+#                        ${Language::alumni}."/".
+#                        $owner.
+#                        ${Language::alumni_review_string}.
+#                        $review_end_date;
+            $target_abs_link=~s/$move_to_review/$target_dir/;
             &review_link("move",$source_abs_link,$target_abs_link);
         } else {
             # --find-files without --copy-to/move-to --> do nothing
@@ -480,36 +543,37 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     ######################################################################
     print "######## Working on strange stuff ########\n";
     foreach my $source_abs_strange (@find_strange_list){
-        my $target_strange="";
+#        my $target_strange="";
         my $target_abs_strange=$source_abs_strange;
         # decide where to copy/move the links
         # ??? avoid copy-to and move-to together ????????
         if ($copy_to ne ""){
             # option --copy-to given
-            $target_strange=$copy_to;
-            $target_abs_strange=~s/$find_files/$target_strange/;
+#            $target_strange=$copy_to;
+            $target_abs_strange=~s/$find_files/$target_dir/;
             &review_strange("copy",$source_abs_strange,$target_abs_strange);
         } elsif ($move_to ne ""){
             # option --move-to given
-            $target_strange=$move_to;
-            $target_abs_strange=~s/$find_files/$target_strange/;
+#            $target_strange=$move_to;
+            $target_abs_strange=~s/$find_files/$target_dir/;
             &review_strange("move",$source_abs_strange,$target_abs_strange);
         } elsif ($copy_to_review ne ""){
             # option --copy-to-review given
-            $target_strange=$copy_to_review."/".
-                        ${Language::alumni}."/".
-                        $owner.
-                        ${Language::alumni_review_string}.
-                        $review_end_date;
-            $target_abs_strange=~s/$copy_to_review/$target_strange/;
+#            $target_strange=$copy_to_review."/".
+#                        ${Language::alumni}."/".
+#                        $owner.
+#                        ${Language::alumni_review_string}.
+#                        $review_end_date;
+            $target_abs_strange=~s/$copy_to_review/$target_dir/;
             &review_strange("copy",$source_abs_strange,$target_abs_strange);
         } elsif ($move_to_review ne ""){
             # option --move-to-review given
-            $target_strange=$move_to_review."/".
-                        ${Language::alumni}."/".
-                        $owner.
-                        ${Language::alumni_review_string}.
-                        $review_end_date;
+#            $target_strange=$move_to_review."/".
+#                        ${Language::alumni}."/".
+#                        $owner.
+#                        ${Language::alumni_review_string}.
+#                        $review_end_date;
+            $target_abs_strange=~s/$move_to_review/$target_dir/;
             &review_strange("move",$source_abs_strange,$target_abs_strange);
         } else {
             # --find-files without --copy-to/move-to --> do nothing
@@ -517,6 +581,12 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
         }
 
     } # end walking through @find_strange_list
+
+    # close logfiles
+    close(FILELOG);
+    close(DIRLOG);
+    close(LINKLOG);
+    close(STRANGELOG);
 
 } elsif (($find_files ne "" or $copy_to_review ne "" or $move_to_review)
          and $owner eq ""){
@@ -835,6 +905,8 @@ sub review_file {
         print "    Source:  $source\n";
         print "    Copy to: $target\n";
         print "    Parent:  $parent_dir\n";
+        my $logline=$source.$sep.$target."\n";
+        print FILELOG $logline;
         make_path($parent_dir); # same as: mkdir -p
         copy($source,$target);
         chmod 0644, $target;
@@ -858,12 +930,15 @@ sub review_dir {
     $display=~s/$find_files//;
     # remove leading / (if present)
     $display=~s/^\///;
+    my $logline=$source.$sep.$target."\n";
 
     if ($type eq "copy"){
         print "DIR: $display (copy: doing nothing)\n";
+        print DIRLOG $logline;
 
     } elsif ($type eq "move") {
         print "DIR: $display (move: ...)\n";
+        print DIRLOG $logline;
 
     } elsif ($type eq "show") {
         if($Conf::log_level>=2){
@@ -885,6 +960,8 @@ sub review_link {
     if($Conf::log_level>=2){
         print "LINK: $display\n";
     }
+    my $logline=$source.$sep.$target."\n";
+    print LINKLOG $logline;
 }
 
 
@@ -897,6 +974,8 @@ sub review_strange {
     $display=~s/^\///;
 
     print "STRANGE: $display\n";
+    my $logline=$source.$sep.$target."\n";
+    print STRANGELOG $logline;
 }
 
 
