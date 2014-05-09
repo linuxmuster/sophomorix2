@@ -25,7 +25,6 @@ use DBI;
 use Net::LDAP;
 
 use File::Find;
-use File::stat qw(stat); # do NOT load all functions. -> error in file find
 use File::Copy;
 use File::Basename;
 use File::Path qw(make_path);
@@ -840,6 +839,37 @@ if ($dump_pg_ldap==1){
 # subs
 ######################################################################
 
+sub get_fileinfo {
+    my ($source) = @_;
+    my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks)= stat($source);
+
+    # atime
+    my $time=localtime($atime);
+    my $day=$time->mday;
+    my $month=$time->mon+1;
+    my $year=$time->year+1900;
+    $atime=$year."-".$month."-".$day;
+
+    # mtime
+    $time=localtime($mtime);
+    $day=$time->mday;
+    $month=$time->mon+1;
+    $year=$time->year+1900;
+    $mtime=$year."-".$month."-".$day;
+
+    # ctime
+    $time=localtime($ctime);
+    $day=$time->mday;
+    $month=$time->mon+1;
+    $year=$time->year+1900;
+    $ctime=$year."-".$month."-".$day;
+
+    # convert octal type and permissions to string 
+    my $perm=sprintf "%04o",$mode & 07777;
+
+    return $perm,$uid,$gid,$atime,$mtime,$ctime;
+}
+
 sub review_file {
     my ($type,$source,$target) = @_;
     # shorten path for display
@@ -855,14 +885,15 @@ sub review_file {
         print "    Copy to: $target\n";
         print "    Parent:  $parent_dir\n";
         # fetch info from file
+        my ($perm,$uid,$gid,$atime,$mtime,$ctime) = &get_fileinfo($source);
         my $logline=$target.$sep.
                     $source.$sep.
-#                    $mode.$sep.
-              #      $uid.$sep.
-              #      $gid.$sep.
-              #      $atime.$sep.
-#                    $mtime.$sep.
-#              #      $ctime.$sep.
+                    $perm.$sep.
+                    $uid.$sep.
+                    $gid.$sep.
+                    $atime.$sep.
+                    $mtime.$sep.
+                    $ctime.$sep.
                     "\n";
         #my $logline="log";
         print FILELOG $logline;
