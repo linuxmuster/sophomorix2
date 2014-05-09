@@ -839,7 +839,7 @@ if ($dump_pg_ldap==1){
 # subs
 ######################################################################
 
-sub get_fileinfo {
+sub get_statinfo {
     my ($source) = @_;
     my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks)= stat($source);
 
@@ -885,7 +885,7 @@ sub review_file {
         print "    Copy to: $target\n";
         print "    Parent:  $parent_dir\n";
         # fetch info from file
-        my ($perm,$uid,$gid,$atime,$mtime,$ctime) = &get_fileinfo($source);
+        my ($perm,$uid,$gid,$atime,$mtime,$ctime) = &get_statinfo($source);
         my $logline=$target.$sep.
                     $source.$sep.
                     $perm.$sep.
@@ -920,7 +920,16 @@ sub review_dir {
     $display=~s/$find_files//;
     # remove leading / (if present)
     $display=~s/^\///;
-    my $logline=$source.$sep.$target."\n";
+    my ($perm,$uid,$gid,$atime,$mtime,$ctime) = &get_statinfo($source);
+    my $logline=$target.$sep.
+                $source.$sep.
+                $perm.$sep.
+                $uid.$sep.
+                $gid.$sep.
+                $atime.$sep.
+                $mtime.$sep.
+                $ctime.$sep.
+                "\n";
 
     if ($type eq "copy"){
         if($Conf::log_level>=2){
@@ -952,7 +961,8 @@ sub review_link {
     if($Conf::log_level>=2){
         print "LINK: $display\n";
     }
-    my $logline=$source.$sep.$target."\n";
+    my $readlink = readlink $source;
+    my $logline=$target.$sep.$source.$sep.$readlink.$sep."\n";
     print LINKLOG $logline;
 }
 
@@ -966,7 +976,16 @@ sub review_strange {
     $display=~s/^\///;
 
     print "STRANGE: $display\n";
-    my $logline=$source.$sep.$target."\n";
+    my ($perm,$uid,$gid,$atime,$mtime,$ctime) = &get_statinfo($source);
+    my $logline=$target.$sep.
+                $source.$sep.
+                $perm.$sep.
+                $uid.$sep.
+                $gid.$sep.
+                $atime.$sep.
+                $mtime.$sep.
+                $ctime.$sep.
+                "\n";
     print STRANGELOG $logline;
 }
 
