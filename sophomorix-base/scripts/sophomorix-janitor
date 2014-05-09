@@ -25,6 +25,7 @@ use DBI;
 use Net::LDAP;
 
 use File::Find;
+use File::stat qw(stat); # do NOT load all functions. -> error in file find
 use File::Copy;
 use File::Basename;
 use File::Path qw(make_path);
@@ -417,7 +418,7 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     ######################################################################
     # Do something with the lists
     ######################################################################
-    print "######## Working on files ########\n";
+    print "######## Working on $count_found_files files ########\n";
     foreach my $source_abs_file (@find_files_list){
         my $target_abs_file=$source_abs_file;
         # decide where to copy/move the files
@@ -446,7 +447,7 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
 
 
     ######################################################################
-    print "######## Working on directories ########\n";
+    print "######## Working on $count_found_dirs directories ########\n";
     foreach my $source_abs_dir (@find_dirs_list){
         my $target_abs_dir=$source_abs_dir;
         # decide where to copy/move the dirs
@@ -474,7 +475,7 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     } # end walking through @find_dirs_list
 
     ######################################################################
-    print "######## Working on links ########\n";
+    print "######## Working on $count_found_links links ########\n";
     foreach my $source_abs_link (@find_links_list){
         my $target_abs_link=$source_abs_link;
         # decide where to copy/move the links
@@ -502,7 +503,7 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     } # end walking through @find_links_list
 
     ######################################################################
-    print "######## Working on strange stuff ########\n";
+    print "######## Working on $count_found_strange strange stuff ########\n";
     foreach my $source_abs_strange (@find_strange_list){
         my $target_abs_strange=$source_abs_strange;
         # decide where to copy/move the links
@@ -853,7 +854,17 @@ sub review_file {
         print "    Source:  $source\n";
         print "    Copy to: $target\n";
         print "    Parent:  $parent_dir\n";
-        my $logline=$source.$sep.$target."\n";
+        # fetch info from file
+        my $logline=$target.$sep.
+                    $source.$sep.
+#                    $mode.$sep.
+              #      $uid.$sep.
+              #      $gid.$sep.
+              #      $atime.$sep.
+#                    $mtime.$sep.
+#              #      $ctime.$sep.
+                    "\n";
+        #my $logline="log";
         print FILELOG $logline;
         make_path($parent_dir); # same as: mkdir -p
         copy($source,$target);
@@ -881,7 +892,9 @@ sub review_dir {
     my $logline=$source.$sep.$target."\n";
 
     if ($type eq "copy"){
-        print "DIR: $display (copy: doing nothing)\n";
+        if($Conf::log_level>=2){
+            print "DIR: $display (copy: doing nothing)\n";
+        } 
         print DIRLOG $logline;
 
     } elsif ($type eq "move") {
