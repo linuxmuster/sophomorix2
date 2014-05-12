@@ -346,6 +346,23 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
 
     # find the files an save them in perl lists
     find(\&files_owned_by, $find_files);
+
+    # not sorted (debugging)
+    #print "Not sorted\n";
+    #foreach my $dir (@find_dirs_list){
+    #    print " $dir\n";
+    #}
+
+    # sort the lists
+    # dir list: longest first (so that empty dirs can be deleted)
+    @find_dirs_list = sort { length($b) <=> length($a) } @find_dirs_list;
+
+    # sorted (debugging)
+    #print "Sorted\n";
+    #foreach my $dir (@find_dirs_list){
+    #    print " $dir\n";
+    #}
+
     # print summary  
     $count_found_files=$#find_files_list+1;
     printf "%9s files found\n", $count_found_files;
@@ -870,6 +887,61 @@ sub get_statinfo {
     return $perm,$uid,$gid,$atime,$mtime,$ctime;
 }
 
+
+sub delete_dir_if_empty {
+    my ($dir) = @_;
+    my %owners=();
+    ${owners}{0}=0;
+    my $topowner=0; # owner which has the most content in dir
+    # check if its a dir
+    opendir EMPTYDIR, $dir;
+    my $count=0;
+    print "  * Checking if $dir is empty\n";
+    foreach my $content (readdir EMPTYDIR){
+        if ($content eq "." or $content eq ".."){
+            next;
+        }
+        my $abs_content=$dir."/".$content;
+        my ($perm,$uid,$gid,$atime,$mtime,$ctime) = &get_statinfo($abs_content);
+	print "$uid : $abs_content \n";
+        if (exists $owners{$uid}){
+            my $old_count=$owners{$uid};
+            my $new_count=$old_count+1;
+            $owners{$uid}=$new_count;
+        } else {
+            $owners{$uid}=1;
+        }
+        $count++;
+    }
+
+    # print owners
+    print "Owners:\n";
+    while (my ($owner,$num) = each %owners){
+        print $owner , " ", $num, "\n";
+        if ($owners{$owner} > $owners{$topowner}){
+            $topowner=$owner
+        }
+    }
+
+    print "Top-owner=$topowner ($dir)\n";
+
+    if ($count == 0){
+        # remove empty dir and return
+        print "    EMPTY: $dir\n";
+        rmdir $dir;
+        return "dir deleted/empty";
+    } else {
+        # dir not empty, but contains files from others
+        # chown to topowner
+        print "    $count: $dir\n";
+        print "          : new owner is uidnumber $topowner\n";
+        chown $topowner, 0, $dir;
+        my $message= "dir chowned to $topowner";
+        return $message;
+    }
+}
+
+
 sub review_file {
     my ($type,$source,$target) = @_;
     # shorten path for display
@@ -878,28 +950,28 @@ sub review_file {
     # remove leading / (if present)
     $display=~s/^\///;
     my $parent_dir=dirname($target);
+    my ($perm,$uid,$gid,$atime,$mtime,$ctime) = &get_statinfo($source);
+    my $logline=$target.$sep.
+                $source.$sep.
+                $perm.$sep.
+                $uid.$sep.
+                $gid.$sep.
+                $atime.$sep.
+                $mtime.$sep.
+                $ctime.$sep.
+                "";
 
     if ($type eq "copy" or $type eq "move"){
         print "FILE: $display\n";
-        print "    Source:  $source\n";
-        print "    Copy to: $target\n";
-        print "    Parent:  $parent_dir\n";
+        print "    Source:   $source\n";
+        print "    cp/mv to: $target\n";
+        print "    Parent:   $parent_dir\n";
         # fetch info from file
-        my ($perm,$uid,$gid,$atime,$mtime,$ctime) = &get_statinfo($source);
-        my $logline=$target.$sep.
-                    $source.$sep.
-                    $perm.$sep.
-                    $uid.$sep.
-                    $gid.$sep.
-                    $atime.$sep.
-                    $mtime.$sep.
-                    $ctime.$sep.
-                    "\n";
-        #my $logline="log";
-        print FILELOG $logline;
+
         make_path($parent_dir); # same as: mkdir -p
         copy($source,$target);
         chmod 0644, $target;
+        $logline=$logline."file moved".$sep;
     } elsif ($type eq "show") {
         if($Conf::log_level>=2){
             print "FILE: $display\n";
@@ -907,9 +979,14 @@ sub review_file {
     }
 
     if ($type eq "move"){
-        print "Deleting file not activated (alpha status)\n";
-        # ??????? rm file
+        if (-e $target){
+           print "    Deleting file: $source\n";
+           unlink $source;
+           $logline=$logline."file deleted".$sep;
+        }
     }
+    $logline=$logline."\n";
+    print FILELOG $logline;
 }
 
 
@@ -929,16 +1006,21 @@ sub review_dir {
                 $atime.$sep.
                 $mtime.$sep.
                 $ctime.$sep.
-                "\n";
+                "";
 
     if ($type eq "copy"){
         if($Conf::log_level>=2){
             print "DIR: $display (copy: doing nothing)\n";
         } 
+        $logline = $logline."\n";
         print DIRLOG $logline;
 
     } elsif ($type eq "move") {
         print "DIR: $display (move: ...)\n";
+        # delete emty dirs
+        my $result = &delete_dir_if_empty($source);
+        $logline=$logline.$result.$sep."\n";
+
         print DIRLOG $logline;
 
     } elsif ($type eq "show") {
