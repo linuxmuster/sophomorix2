@@ -966,8 +966,7 @@ sub review_file {
         print "    Source:   $source\n";
         print "    cp/mv to: $target\n";
         print "    Parent:   $parent_dir\n";
-        # fetch info from file
-
+        # copy the file
         make_path($parent_dir); # same as: mkdir -p
         copy($source,$target);
         chmod 0644, $target;
@@ -981,6 +980,7 @@ sub review_file {
     if ($type eq "move"){
         if (-e $target){
            print "    Deleting file: $source\n";
+           # delete the file
            unlink $source;
            $logline=$logline."file deleted".$sep;
         }
@@ -1011,13 +1011,17 @@ sub review_dir {
     if ($type eq "copy"){
         if($Conf::log_level>=2){
             print "DIR: $display (copy: doing nothing)\n";
-        } 
+        }
+        # make sure target is redable/browsable 
+        chmod 0775, $target;
         $logline = $logline."\n";
         print DIRLOG $logline;
 
     } elsif ($type eq "move") {
         print "DIR: $display (move: ...)\n";
-        # delete emty dirs
+        # make sure target is redable/browsable 
+        chmod 0775, $target;
+        # delete empty source dirs/reown them
         my $result = &delete_dir_if_empty($source);
         $logline=$logline.$result.$sep."\n";
 
