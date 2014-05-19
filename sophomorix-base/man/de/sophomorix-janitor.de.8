@@ -29,7 +29,7 @@ WARNUNG:Im Moment ist sophomorix-janitor noch experimentell. Es wird
 empfohlen, dass man Daten erst entfernt nachdem man sich überzeugt
 hat, dass sie nicht mehr benötigt werden.
 .PP
-.SH OPTIONS
+.SH ALLGEMEINE OPTIONEN
 .B sophomorix-janitor
 benützt die GNU command line syntax, mit langen Optionen, die mit zwei
 Bindestrichen (`-') beginnen:
@@ -42,24 +42,27 @@ Sagt, was das Programm gerade macht (verbose)
 .TP
 .B \-vv, \-\-verbose \-\-verbose
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
-.TP
-.B Dateien kopieren/verschieben zum Begutachten kopieren/verschieben:
-.TP
+.SH DATEIEN ZUM BEGUTACHTEN KOPIEREN/VERSCHIEBEN 
 Beim Begutachten wird mit den Daten EINES Users folgendes gemacht:
-. IP \(em
-Die Daten werden beim kopieren/verschieben dem user root überantwortet.
+. IP \(em 3
+Die Daten werden beim kopieren/verschieben dem User root
+überantwortet. Damit wird das Festplatten-Quota es Users entlastet.
 . IP \(em
 Beim Verschieben werden die Daten exakt gleich wie beim Kopieren
-zuerst ans Ziel kopiert. Danach werden die Quelldaten gelöscht.
+zuerst ans Ziel kopiert. Danach werden allerdings die Quelldaten
+gelöscht.
 . IP \(em
 Im Zielverzeichnis gibt es das
-Log-Verzeichnis .sophomorix-janitor. Dort finden sich zusätzliche
-Informationen, die beim kopieren/verschieben verloren gehen (owner,
-groupowner, atime, mtime, ctime der Quelledaten)
+Log-Verzeichnis .sophomorix-janitor. Dort finden sich die
+Informationen, die beim verschieben verloren gehen würden (owner,
+groupowner, atime, mtime, ctime der Quelledaten).
 . IP \(em
 In Zukunft wird es ein cronjob geben, der nach der abgelaufenen Zeit
 die zu begutachtenden Daten löscht.
-. IP \(em
+.TP
+Zeitlicher Ablauf:
+.TP
+. IP \(em 
 Schritt 1: Dateien werden mit demselben relativen Pfad
 kopiert/verschoben. Dazu benötigte übergeordnete Verzeichnisse werden
 angelegt.
@@ -73,33 +76,73 @@ Verzeichnises die meisten Daten besitzt.
 Schritt 3: Links werden nicht kopiert/verschoben.
 . IP \(em
 Schritt 4: Alle restlichen Daten werden nicht kopiert/verschoben.
-.TP 
-.B Grundlegende Optionen zum Begutachten:
+.br 
+.SH GRUNDLEGENDE OPTIONEN ZUM BEGUTACHTEN:
+Optionen mit Angabe des Zielverzeichnisses: 
 .TP
-Mit Angabe des Zielverzeichnisses: 
-.TP
-.B --find-files /quelle --owner uid/uidnumber
+.in 3
+.B --find-files /quelle --owner uid
 Auflisten der Daten eines Users im Verzeichnis /quelle
 .TP 
-.B --find-files /quelle --owner uid/uidnumber --copy-to /ziel
+.in 3 
+.B --find-files /quelle --owner uid --copy-to /ziel
 Kopieren der Daten eines Users vom Verzeichnis /quelle nach /ziel
 .TP 
-.B --find-files /quelle --owner uid/uidnumber --move-to /ziel
+.in 3
+.B --find-files /quelle --owner uid --move-to /ziel
 Verschieben der Daten eines Users vom Verzeichnis /quelle nach /ziel
 .TP 
-Mit automatischem Zielverzeichnisnamen: login_bleibt_erhalten_bis_Löschdatum
+Mit Zielverzeichnis /quelle/login_bleibt_erhalten_bis_DATUM:
+.TP 
+.in 3
+.B --copy-to-review /quelle --owner uid --review-days num
+Kopieren der Daten eines Users im Verzeichnis /quelle
+.TP 
+.in 2
+.B --move-to-review /quelle --owner uid --review-days num
+Verschieben der Daten eines Users im Verzeichnis /quelle
 .TP
- Option --review-days ist optional. Standardwert: 366 Tage.
-.TP 
-.B --copy-to-review /quelle --owner uid/uidnumber --review-days num
-Kopieren der Daten eines Users vom Verzeichnis /quelle
-.TP 
-.B --move-to-review /quelle --owner uid/uidnumber --review-days num
-Verschieben der Daten eines Users vom Verzeichnis /quelle
+Die Option --review-days ist optional. Standardwert: 366 Tage.
 .TP
-.B Shortcut-Optionen zum Begutachten:
+Die Option --uid kann sowohl uid-Name als auch uid-Number enthalten. 
+.br
+.SH SHORTCUT-OPTIONEN ZUM BEGUTACHTEN
+.TP
+Begutachten der Dateien in $HOME eines Users:
 .TP 
-.B Tools:
+.in 3
+.B --move-to-review-home login --review-days num
+.TP
+.in 3
+.B --copy-to-review-home login --review-days num
+.TP
+Begutachten der Dateien im Tauschverzeichnis der Lehrer:
+.TP 
+.in 3
+.B --move-to-review-teacher login --review-days num
+.TP
+.in 3
+.B --copy-to-review-teacher login --review-days num
+.TP
+Die Option --review-days ist optional. Standardwert: 366 Tage.
+.TP
+Begutachten der Dateien in allen Projekt-Tausch-Verzeichnissen:
+.TP 
+.in 3
+.B --move-to-review-share-project login --review-days num
+.TP
+.in 3
+.B --copy-to-review-share-project login --review-days num
+.TP
+Begutachten der Dateien in allen Klassen-Tausch-Verzeichnissen:
+.TP 
+.in 3
+.B --move-to-review-share-class login --review-days num
+.TP
+.in 3
+.B --copy-to-review-share-class login --review-days num
+.br
+.SH OPTIONEN FÜR DATENBANK TOOLS:
 .TP 
 .B --check-horde
 Sucht in der Horde3-Datenbank in der Tabelle horde_prefs nach
@@ -110,23 +153,21 @@ Dumpt die pstgresql Datenbank ldap der Benutzerverwaltung mit
 Datumsstempel ins übliche Verzeichnis.
 .TP
 .B --list-db-junk / --kill-db-junk
-Sucht/Löscht in der Benutzerdatenbank nach folgendem Müll:
-.IP \[bu] 
-Nichtexistente Gruppen als Mitglieder in Projekten
-.IP \[bu] 
-...
-.TP
-.B Optionen, die zusätzlich User-Angaben benötigen:
+Sucht/Löscht in der Benutzerdatenbank nach folgendem Müll
+(Nichtexistente Gruppen als Mitglieder in Projekten)
+.br
+.SH OPTION ZUR SUCHE NACH FREMD-DATEIEN
 .TP
 .B --list-foreign-files
 Listet Dateien im Heimatverzeichnis des Users auf, die nicht dem User
-gehören. Die Spezialverzeichnisse __austeilen, __tauschen, ... und deren
-Inhalt werden NICHT gelistet
+gehören. Die Spezialverzeichnisse __austeilen, __tauschen, ... und
+deren Inhalt werden NICHT gelistet
+.br
+.SH OPTIONEN ZUR ANGABE VON USERN:
 .TP
-.TP
-.B Optionen zur Angabe von Usern:
-.TP
-Die Auswahl erfolgt anhäufend. Das bedeutet, dass durch Angabe mehrerer Optionen eine Userliste erzeugt wird, in der kein User doppelt vorkommt, aber jeder enthalten ist.
+Die Auswahl erfolgt anhäufend. Das bedeutet, dass durch Angabe
+mehrerer Optionen eine Userliste erzeugt wird, in der kein User
+doppelt vorkommt, aber jeder enthalten ist.
 .TP
 .B -u user1,user2,... / --users user1,user2,... 
 .TP
