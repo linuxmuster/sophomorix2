@@ -43,7 +43,63 @@ Sagt, was das Programm gerade macht (verbose)
 .B \-vv, \-\-verbose \-\-verbose
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
-.B Optionen:
+.B Dateien kopieren/verschieben zum Begutachten kopieren/verschieben:
+.TP
+Beim Begutachten wird mit den Daten EINES Users folgendes gemacht:
+. IP \(em
+Die Daten werden beim kopieren/verschieben dem user root überantwortet.
+. IP \(em
+Beim Verschieben werden die Daten exakt gleich wie beim Kopieren
+zuerst ans Ziel kopiert. Danach werden die Quelldaten gelöscht.
+. IP \(em
+Im Zielverzeichnis gibt es das
+Log-Verzeichnis .sophomorix-janitor. Dort finden sich zusätzliche
+Informationen, die beim kopieren/verschieben verloren gehen (owner,
+groupowner, atime, mtime, ctime der Quelledaten)
+. IP \(em
+In Zukunft wird es ein cronjob geben, der nach der abgelaufenen Zeit
+die zu begutachtenden Daten löscht.
+. IP \(em
+Schritt 1: Dateien werden mit demselben relativen Pfad
+kopiert/verschoben. Dazu benötigte übergeordnete Verzeichnisse werden
+angelegt.
+. IP \(em
+Schritt 2: Verzeichnisse brauchen wegen Schritt 1 nicht mehr kopiert
+zu werden. Beim Verschieben werden leere Verzeichnisse der Quelle
+entfernt. Nichtleere Verzeichnisse der Quelle werden dem user
+überantwortet, der in der obersten Verzeichnisebene dieses
+Verzeichnises die meisten Daten besitzt.
+. IP \(em
+Schritt 3: Links werden nicht kopiert/verschoben.
+. IP \(em
+Schritt 4: Alle restlichen Daten werden nicht kopiert/verschoben.
+.TP 
+.B Grundlegende Optionen zum Begutachten:
+.TP
+Mit Angabe des Zielverzeichnisses: 
+.TP
+.B --find-files /quelle --owner uid/uidnumber
+Auflisten der Daten eines Users im Verzeichnis /quelle
+.TP 
+.B --find-files /quelle --owner uid/uidnumber --copy-to /ziel
+Kopieren der Daten eines Users vom Verzeichnis /quelle nach /ziel
+.TP 
+.B --find-files /quelle --owner uid/uidnumber --move-to /ziel
+Verschieben der Daten eines Users vom Verzeichnis /quelle nach /ziel
+.TP 
+Mit automatischem Zielverzeichnisnamen: login_bleibt_erhalten_bis_Löschdatum
+.TP
+ Option --review-days ist optional. Standardwert: 366 Tage.
+.TP 
+.B --copy-to-review /quelle --owner uid/uidnumber --review-days num
+Kopieren der Daten eines Users vom Verzeichnis /quelle
+.TP 
+.B --move-to-review /quelle --owner uid/uidnumber --review-days num
+Verschieben der Daten eines Users vom Verzeichnis /quelle
+.TP
+.B Shortcut-Optionen zum Begutachten:
+.TP 
+.B Tools:
 .TP 
 .B --check-horde
 Sucht in der Horde3-Datenbank in der Tabelle horde_prefs nach

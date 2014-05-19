@@ -196,14 +196,14 @@ Housekeeping the postgres database ldap:
 
 Reowning files to user root, basic commands:
 
-  --find-files /path/to/dir --owner uid/uidnumber
-  --find-files /path/to/dir --owner uid/uidnumber --copy-to /newdir
-  --find-files /path/to/dir --owner uid/uidnumber --move-to /newdir
+  --find-files /source --owner uid/uidnumber
+  --find-files /source --owner uid/uidnumber --copy-to /target
+  --find-files /source --owner uid/uidnumber --move-to /target
 
 Reviewing files (Files are copied/moved to alumni directory):
 
-  --copy-to-review /path/to/dir --owner uid/uidnumber --review-days num
-  --move-to-review /path/to/dir --owner uid/uidnumber --review-days num
+  --copy-to-review /source --owner uid/uidnumber --review-days num
+  --move-to-review /source --owner uid/uidnumber --review-days num
   Option --review-days is optional and defaults to 366 days
 
 Useful shortcuts (--review-days is optional):
@@ -226,9 +226,9 @@ Working on users files:
   --listfiles --user name (tut nicht!)
   --listfiles --uid uidnumber (tut nicht) 
 
-  --list-foreign-files (List files/dirs in home of user, that are not owned by user)
+  --list-foreign-files (List data in home of user, that are not owned by user)
 
-  --check-horde (checks horde3 database (Table horde_prefs) for obsolete entries)
+  --check-horde (checks horde3 database (Table horde_prefs) for obsolete data)
   --dump-horde (dumps horde3 database)
 
   --dump-pg-ldap (dumps the postgresql database ldap)
