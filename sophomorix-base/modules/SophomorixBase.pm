@@ -4456,28 +4456,23 @@ sub share_access {
     # first parameter: 0=off, 1=on
     # second parameter: list of users (also works for teachers)
     my ($share) = shift;
-    my $on_off="";
-    my $permission="";
+    my $acl_string="";
+    my $acl_option="";
     if ($share==0){
-	$on_off="off";
-        # change repairhome.student, ... permissions also, if you change here
-        $permission="3750";
+        $acl_string=":---";
+        $acl_option="-m";
     } else {
-	$on_off="on";
-        # change repairhome.student, ... permissions also, if you change here
-        $permission="3755";
+        $acl_string="";
+        $acl_option="-x";
     }
     my @users = @_;
+    my $acl_command="";
     foreach my $user (@users){
-        my ($home)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
-        if ($home ne ""){
-           my $share_path=$home."/".${Language::share_dir};
-           print "   Setting  permissions of $share_path to $on_off($permission)\n";
-           chmod oct($permission), $share_path;
-       } else {
-           print "$user is not a valid user\n";
-       }
+	 $acl_command="setfacl ".$acl_option.
+              " u:".$user.$acl_string." ".$DevelConf::share_share;
     }
+    #print "$acl_command\n";
+    system("$acl_command");
 }
 
 
