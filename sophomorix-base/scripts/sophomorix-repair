@@ -348,6 +348,7 @@ if ($htaccess==1){
 
 # --repairhome type
 if ($repairhome==1){
+    my @not_deleted=();
     # fetch fermission for all homes
     my $ref_repair=&fetch_repairhome();
 
@@ -368,6 +369,15 @@ if ($repairhome==1){
     foreach my $user (@users){
         print "Repairing \$HOME of $user\n";
         &repair_repairhome($user);
+        my (@undeleted) = &delete_oldstuff_home($user);
+        @not_deleted = (@not_deleted, @undeleted);
+    }
+
+    # Print summary of undeleted files for all users
+    my $not_deleted_count=$#not_deleted+1;
+    print "\nSummary: $not_deleted_count dirs could not be deleted:\n";
+    foreach my $item (@not_deleted){
+        print "    $item\n";
     }
 }
 

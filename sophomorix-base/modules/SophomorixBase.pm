@@ -120,6 +120,7 @@ use Sys::Filesystem ();
               provide_user_files
               make_dir_locked
               repair_repairhome
+              delete_oldstuff_home
               fetchhtaccess_from_user
               user_public_upload
               user_public_noupload
@@ -1459,7 +1460,7 @@ sub repair_repairhome {
     my @permissions=@{$all_repairhome{$type}};
 
     if($Conf::log_level>=2){
-        print "Repairing \$HOME of user $user (type: $type)\n";
+        print "Repairing ${user}'s $home (type: $type)\n";
     }
     foreach my $line (@permissions){
         my ($path,$owner,$gowner,$octal,$immutable)=split(/::/,$line);
@@ -1537,6 +1538,58 @@ sub repair_repairhome {
         }
     }
 } 
+
+
+# delete old stuff in homes
+sub delete_oldstuff_home {
+    my ($user) = @_;
+    my @undeleted=();
+    my ($home,$type)=
+       &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
+    print "Deleteing old stuff in home of $user\n";
+    my @dirs=($home."/".${Language::share_dir},$home."/".${Language::task_dir});
+
+    foreach my $dir (@dirs){ 
+        if (not -d $dir){
+            print "$dir nonexisting -> nothing to do.\n";
+            next;
+        } 
+        print "Deleting in existing dir $dir ...\n";
+        opendir DIR, $dir;
+        foreach my $file (readdir DIR) {
+            if ($file eq "." or $file eq "..") {
+                next;
+            }
+            my $file_abs=$dir."/".$file;
+            if (-l $file_abs){
+                # remove links
+                unlink $file_abs;
+            }
+            if (-d $file_abs){
+                # remove empty dirs
+                my $result=rmdir($file_abs);
+                #print "Result: $result\n";
+                if ($result==0){
+                    push @undeleted, $file_abs;
+                    print " * Could not delete $file_abs\n";
+                } else {
+                    print "   Deletied:  $file_abs\n";
+                }
+            }
+        }
+        closedir DIR;
+        # __tauschen entfernen /  __vorlagen entfernen  
+        my $result2=rmdir($dir);
+            if ($result2==0){
+                push @undeleted, $dir;
+                print " * Could not delete $dir\n";
+            } else {
+                print "   Deletied:  $dir\n";
+            }
+    }
+    return @undeleted;
+}
+
 
 
 # following sub is not exported, user only herein
