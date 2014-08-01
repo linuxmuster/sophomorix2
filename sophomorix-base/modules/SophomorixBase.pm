@@ -4521,11 +4521,10 @@ sub share_access {
     my @users = @_;
     my $acl_command="";
     foreach my $user (@users){
-	 $acl_command="setfacl ".$acl_option.
+	 my $acl_command="setfacl ".$acl_option.
               " u:".$user.$acl_string." ".$DevelConf::share_share;
+         system("$acl_command");
     }
-    #print "$acl_command\n";
-    system("$acl_command");
 }
 
 
