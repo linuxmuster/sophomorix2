@@ -82,6 +82,7 @@ my $uid_number=0;
 
 # new owner
 my $new_owner="";
+my $new_uid_number = -1;
 
 my $copy_to="";
 my $move_to="";
@@ -194,10 +195,14 @@ Housekeeping the postgres database ldap:
   --list-db-junk
   --kill-db-junk
 
-Listing files of user uid/uidnumber:
+Listing files/dirs/links/strange_stuff of user uid/uidnumber:
 
   --find-files /source --owner uid/uidnumber     (summary)
   --find-files /source --owner uid/uidnumber -v  (list every file)
+
+Reowning files/dirs/links/strange_stuff of user uid/uidnumber to newowner:
+
+  --find-files /source --owner uid/uidnumber --new-owner newowner
 
 Reowning files to user root, basic commands:
 
@@ -341,11 +346,19 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
             exit;
         } 
     }
+
+    if ($new_owner ne ""){
+        $new_uid_number = getpwnam($new_owner);
+    }
+    
     
     print "############################################################\n";
     print "Finding files in:\n";
     print "   $find_files \n";
-    print "owned by $owner   (UidNumber: $uid_number)\n";
+    print "owner: $owner (UidNumber: $uid_number)\n";
+    if ($new_owner ne ""){
+       print "new owner: $new_owner (UidNumber: $new_uid_number)\n";
+    }
     print "############################################################\n";
 
     # find the files an save them in perl lists
@@ -361,37 +374,29 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     # files  
     $count_found_files=$#find_files_list+1;
     printf "%6s files found\n", $count_found_files;
-    if($Conf::log_level>=2){
-        foreach my $file (@find_files_list){
-            print "       $file\n";
-        }
+    foreach my $file (@find_files_list){
+        &chown_print($file,$new_owner);
     }
 
     # dirs
     $count_found_dirs=$#find_dirs_list+1;
     printf "%6s dirs found\n", $count_found_dirs;
-    if($Conf::log_level>=2){
-        foreach my $dir (@find_dirs_list){
-            print "       $dir\n";
-        }
+    foreach my $dir (@find_dirs_list){
+        &chown_print($dir,$new_owner);
     }
 
     # links
     $count_found_links=$#find_links_list+1;
     printf "%6s links found\n", $count_found_links;
-    if($Conf::log_level>=2){
-        foreach my $link (@find_links_list){
-            print "       $link\n";
-        }
+    foreach my $link (@find_links_list){
+        &chown_print($link,$new_owner);
     }
 
     #strange stuff
     $count_found_strange=$#find_strange_list+1;
     printf "%6s strange stuff found\n",$count_found_strange;
-    if($Conf::log_level>=2){
-        foreach my $strange (@find_strange_list){
-            print "       $strange\n";
-        }
+    foreach my $strange (@find_strange_list){
+        &chown_print($strange,$new_owner);
     }
 
     my $target_dir="";
@@ -1610,6 +1615,20 @@ sub files_of_uid {
         print "$uid $f_uid $File::Find::name\n";
         # do something with $File::Find::name
 
+    }
+}
+
+sub chown_print {
+    my ($data,$new_owner) = @_;
+    if ($new_owner eq ""){
+        if($Conf::log_level>=2){
+            print "       $data\n";
+        }
+    } else {
+        # -h/--no-dereference
+        my $command="chown -h $new_owner".". ".$data;
+        print "$command\n";
+        system($command);
     }
 }
 

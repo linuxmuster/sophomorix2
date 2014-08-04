@@ -78,18 +78,29 @@ Schritt 3: Links werden nicht kopiert/verschoben.
 Schritt 4: Alle restlichen Daten werden nicht kopiert/verschoben.
 .br 
 .SH GRUNDLEGENDE OPTIONEN ZUM BEGUTACHTEN:
-Optionen mit Angabe des Zielverzeichnisses: 
+Optionen ohne Angabe des Zielverzeichnisses: 
 .TP
 .in 3
 .B --find-files /quelle --owner uid
-Auflisten der Daten eines Users im Verzeichnis /quelle
+Auflisten einer Übersicht der Daten eines Users im Verzeichnis /quelle 
+.TP
+.in 3
+.B --find-files /quelle --owner uid -v
+Ausführliches Auflisten der Daten eines Users im Verzeichnis /quelle 
+.TP 
+.in 3
+.B --find-files /quelle --owner uid --new-owner newowner
+Übereignen der Daten eines Users uid im Verzeichnis /quelle
+an den User newowner
+.TP
+Optionen mit Angabe des Zielverzeichnisses: 
 .TP 
 .in 3 
-.B --find-files /quelle --owner uid --copy-to /ziel
+.B --find-files /quelle --owner uid/uidnumber --copy-to /ziel
 Kopieren der Daten eines Users vom Verzeichnis /quelle nach /ziel
 .TP 
 .in 3
-.B --find-files /quelle --owner uid --move-to /ziel
+.B --find-files /quelle --owner uid/uidnumber --move-to /ziel
 Verschieben der Daten eines Users vom Verzeichnis /quelle nach /ziel
 .TP 
 Mit Zielverzeichnis /quelle/login_bleibt_erhalten_bis_DATUM:
