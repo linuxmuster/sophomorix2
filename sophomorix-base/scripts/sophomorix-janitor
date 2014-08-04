@@ -194,9 +194,13 @@ Housekeeping the postgres database ldap:
   --list-db-junk
   --kill-db-junk
 
+Listing files of user uid/uidnumber:
+
+  --find-files /source --owner uid/uidnumber     (summary)
+  --find-files /source --owner uid/uidnumber -v  (list every file)
+
 Reowning files to user root, basic commands:
 
-  --find-files /source --owner uid/uidnumber
   --find-files /source --owner uid/uidnumber --copy-to /target
   --find-files /source --owner uid/uidnumber --move-to /target
 
@@ -347,31 +351,48 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     # find the files an save them in perl lists
     find(\&files_owned_by, $find_files);
 
-    # not sorted (debugging)
-    #print "Not sorted\n";
-    #foreach my $dir (@find_dirs_list){
-    #    print " $dir\n";
-    #}
-
     # sort the lists
     # dir list: longest first (so that empty dirs can be deleted)
     @find_dirs_list = sort { length($b) <=> length($a) } @find_dirs_list;
 
-    # sorted (debugging)
-    #print "Sorted\n";
-    #foreach my $dir (@find_dirs_list){
-    #    print " $dir\n";
-    #}
 
-    # print summary  
+    # print summary
+
+    # files  
     $count_found_files=$#find_files_list+1;
-    printf "%9s files found\n", $count_found_files;
+    printf "%6s files found\n", $count_found_files;
+    if($Conf::log_level>=2){
+        foreach my $file (@find_files_list){
+            print "       $file\n";
+        }
+    }
+
+    # dirs
     $count_found_dirs=$#find_dirs_list+1;
-    printf "%9s dirs found\n", $count_found_dirs;
+    printf "%6s dirs found\n", $count_found_dirs;
+    if($Conf::log_level>=2){
+        foreach my $dir (@find_dirs_list){
+            print "       $dir\n";
+        }
+    }
+
+    # links
     $count_found_links=$#find_links_list+1;
-    printf "%9s links found\n", $count_found_links;
+    printf "%6s links found\n", $count_found_links;
+    if($Conf::log_level>=2){
+        foreach my $link (@find_links_list){
+            print "       $link\n";
+        }
+    }
+
+    #strange stuff
     $count_found_strange=$#find_strange_list+1;
-    printf "%9s strange stuff found\n",$count_found_strange;
+    printf "%6s strange stuff found\n",$count_found_strange;
+    if($Conf::log_level>=2){
+        foreach my $strange (@find_strange_list){
+            print "       $strange\n";
+        }
+    }
 
     my $target_dir="";
     my $target_dir_log="";
