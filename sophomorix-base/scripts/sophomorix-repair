@@ -369,8 +369,12 @@ if ($repairhome==1){
     foreach my $user (@users){
         print "Repairing \$HOME of $user\n";
         &repair_repairhome($user);
-        my (@undeleted) = &delete_oldstuff_home($user);
-        @not_deleted = (@not_deleted, @undeleted);
+        if ($user ne "administrator" and $user ne "pgmadmin"){
+          my (@undeleted) = &delete_oldstuff_home($user);
+          @not_deleted = (@not_deleted, @undeleted);
+        } else {
+	    print "* Not deleting old stuff of $user\n";
+        }
     }
 
     # Print summary of undeleted files for all users
