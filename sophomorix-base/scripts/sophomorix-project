@@ -98,6 +98,8 @@ my $join; # 0,1
 my $p_join="TRUE"; # FALSE,TRUE
 
 my $caller="";
+my $curr_member="";
+my $new_member="";
 
 
 my $dump_all_projects=""; 
@@ -147,11 +149,12 @@ my $testopt=GetOptions(
            "create-from-file=s" => \$create_from_file,
            "update-from-file=s" => \$update_from_file,
            "update" => \$update,
-          );
+           "curr-member|current-member=s" => \$curr_member,
+           "new-member|newmember=s" => \$new_member,
+         );
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
-
 
 if (($project eq "" 
      and $info==0
@@ -161,6 +164,7 @@ if (($project eq ""
      and $dump_all_projects eq ""
      and $create_from_file eq ""
      and $update_from_file eq ""
+     and $curr_member eq ""
     )
     or
     (not defined $p_admins
@@ -239,9 +243,18 @@ Changing a project:
   -p project --addmemberprojects project1,project2,project3, ...
   -p project --removememberprojects project1,project2,project3, ...
 
+
+Dumping data into a file:
   --dump file
   --create-from-file file
   --update-from-file file
+
+
+Listing or replacing a users memberships:
+  --current-member user  (List meberships (admin,member) of user)
+  --current-member user --new-member newuser   
+    (replace membeships of user with newuser interactively)
+
 
 Please see the sophomorix-project(8) man pages for full documentation
 ');
@@ -346,6 +359,35 @@ if ($user_info==1){
 
 
 &log_script_start(@arguments);
+
+# --current-member
+# --new-member
+if ($curr_member ne ""){
+    # fetch all projects
+    my @projects=&fetchprojects_from_school();
+        foreach my $pro (@projects){
+	    #print "checking $pro\n"; 
+            # check if curr_menber is admin
+            # list or replace replace
+            my @admins=&fetchadmins_from_project($pro);
+            foreach my $adm (@admins){
+		if ($adm eq $curr_member){
+                    print " *** $curr_member is admin in $pro\n";
+                    &replace_membership("admin",$pro,$curr_member,$new_member);
+                }
+            }
+            # check if curr_menber is member
+            # list or replace replace
+            my @users=&fetchmembers_by_option_from_project($pro);
+            foreach my $user (@users){
+		if ($user eq $curr_member){
+                    print "   * $curr_member is member in $pro\n";
+                    &replace_membership("member",$pro,$curr_member,$new_member);
+                }
+            }
+    }
+    exit;
+}
 
 
 # --caller and --nojoin
@@ -690,6 +732,32 @@ if (defined $p_admins
 ############################################################
 # sub
 ############################################################
+
+sub replace_membership {
+    # call sophomorix commands to replace a user in a project
+    my ($type,$pro,$curr_member,$new_member) = @_;
+    my $opt="";
+    if (not defined $new_member){
+        return;
+    }
+    if ($new_member eq ""){
+        return;
+    }
+    if ($type eq "admin"){
+        $opt="admins";
+    } elsif ($type eq "member"){
+        $opt="members";
+    }
+
+    # replace membership command
+    my $rm_command="sophomorix-project -p $pro --remove$opt $curr_member > /dev/null";
+    my $add_command="sophomorix-project -p $pro --add$opt $new_member > /dev/null";
+    print "     -> $rm_command\n";
+    print "     -> $add_command\n";
+    system("$rm_command");
+    system("$add_command");
+}
+
 
 sub remove_duplicates_from_first_list {
     my ($liste_1,$liste_2) = @_;
