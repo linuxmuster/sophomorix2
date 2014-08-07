@@ -5507,7 +5507,6 @@ sub show_project {
         if ($addquota eq "quota"){
             $addquota="0";
         }
-	print "$deactivationdate >$gidnumber>\n";
 	@project_attribs=("gidnumber: $gidnumber",
                           "LongName:",
                           "  $longname",
