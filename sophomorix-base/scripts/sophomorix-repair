@@ -244,11 +244,11 @@ if ($filename ne "") {
 
 if ($quick==1){
     # no permissions needed
-    &titel("Reading permision data ...");
+    &titel("Reading permission data ...");
     &get_alle_verzeichnis_rechte();
 } else {
     # repair.directories einlesen
-    &titel("Reading permision data ...");
+    &titel("Reading permission data ...");
     &get_alle_verzeichnis_rechte();
     # fetch permission for all homes
     &fetch_repairhome();

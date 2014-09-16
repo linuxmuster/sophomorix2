@@ -1488,8 +1488,8 @@ sub repair_repairhome {
         $path=~s/\$collected_dir/$Language::collected_dir/;     
         $path=~s/\$collected_string/$Language::collected_string/;     
 
-        $path=~s/\$task_dir/$Language::task_dir/;     
-        $path=~s/\$task_string/$Language::task_string/;     
+        #$path=~s/\$task_dir/$Language::task_dir/;     
+        #$path=~s/\$task_string/$Language::task_string/;     
 
         $path=~s/\$inspection_dir/$Language::inspection_dir/;     
 
@@ -1505,8 +1505,8 @@ sub repair_repairhome {
         $path=~s/\$to_handoutcopy_dir/$Language::to_handoutcopy_dir/;     
         $path=~s/\$to_handoutcopy_string/$Language::to_handoutcopy_string/;     
 
-        $path=~s/\$share_dir/$Language::share_dir/;     
-        $path=~s/\$share_string/$Language::share_string/;     
+        #$path=~s/\$share_dir/$Language::share_dir/;     
+        #$path=~s/\$share_string/$Language::share_string/;     
         $path=~s/\$school/$Language::school/;     
         $path=~s/\$user_attic/$Language::user_attic/;
      
@@ -2500,6 +2500,10 @@ sub get_plain_password {
 
 
 sub create_school_link {
+    print "create_school_link does nothing\n";
+}
+
+sub create_school_link_old {
     my ($login) = @_;
     my ($home)=&Sophomorix::SophomorixPgLdap::fetchdata_from_account($login);
     if ($home ne ""){
@@ -2594,7 +2598,7 @@ sub reset_user {
                 if($Conf::log_level>=2){
                     print "   Creating Links for secondary ",
                           "group $group ($longname)\n";
-                }    
+                }
                 &create_share_link($user,$group,$longname,$type);
                 if($Conf::log_level>=2){
                     print "   Creating Directories for ",
@@ -2713,7 +2717,11 @@ Der type kann sein: project, class oder subclass
 
 =cut
 # this should be true for all db and auth-systems
-sub create_share_link {
+sub create_share_link{
+    print "create_share_link does nothing\n";
+}
+
+sub create_share_link_old {
     my ($login,$share_name,$share_long_name,$type) = @_;
     my $link_target="";
     my $link_target_tasks="";
