@@ -755,6 +755,10 @@ sub check_file {
 
 
 sub check_groups {
+
+}
+
+sub check_groups_old {
     # param 1 : login
     # param 2 : pri group
     # param 3,4,5,... sec groups
