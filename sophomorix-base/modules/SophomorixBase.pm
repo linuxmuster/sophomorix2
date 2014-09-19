@@ -1546,7 +1546,7 @@ sub delete_oldstuff_home {
     my @undeleted=();
     my ($home,$type)=
        &Sophomorix::SophomorixPgLdap::fetchdata_from_account($user);
-    print "Deleteing old stuff in home of $user\n";
+    print "Deleting old stuff in home of $user\n";
     my @dirs=($home."/".${Language::share_dir},$home."/".${Language::task_dir});
 
     foreach my $dir (@dirs){ 
@@ -1573,7 +1573,7 @@ sub delete_oldstuff_home {
                     push @undeleted, $file_abs;
                     print " * Could not delete $file_abs\n";
                 } else {
-                    print "   Deletied:  $file_abs\n";
+                    print "   Deleted:  $file_abs\n";
                 }
             }
         }
