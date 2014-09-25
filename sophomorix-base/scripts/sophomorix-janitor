@@ -1379,10 +1379,12 @@ if ($check_project_members==1){
     foreach my $gid (keys %future_members) {
          foreach my $uid (keys %{ $future_members{$gid} }) {
              my $value = $future_members{$gid}->{$uid};
-              my $user=&user_name_from_id($uid);
-              my $group=&group_name_from_id($gid);
+             my $user=&user_name_from_id($uid);
+             my $group=&group_name_from_id($gid);
              if (exists $current_members{$gid}{$uid}){
+                 if($Conf::log_level>=2){
                  print "   OK: $gid($group) --> $uid($user) --> $value\n";
+                 }
              } else {
                  print "  ADD: $gid($group) --> $uid($user) --> $value\n";
                  $add++;
@@ -1398,16 +1400,17 @@ if ($check_project_members==1){
     my $delete=0;
     foreach my $gid (keys %current_members) {
          foreach my $uid (keys %{ $current_members{$gid} }) {
-              my $value = $current_members{$gid}->{$uid};
-              my $user=&user_name_from_id($uid);
-              my $group=&group_name_from_id($gid);
- 
-              if (exists $future_members{$gid}{$uid}){
-                  print "   OK: $gid($group) --> $uid($user) --> $value\n";
-              } else {
-                  print "  DEL: $gid($group) --> $uid($user) --> $value\n";
-                  $delete++;
-              }
+             my $value = $current_members{$gid}->{$uid};
+             my $user=&user_name_from_id($uid);
+             my $group=&group_name_from_id($gid);
+             if (exists $future_members{$gid}{$uid}){
+                 if($Conf::log_level>=2){
+                 print "   OK: $gid($group) --> $uid($user) --> $value\n";
+                 }
+             } else {
+                 print "  DEL: $gid($group) --> $uid($user) --> $value\n";
+                 $delete++;
+             }
          }
     }
     print "$delete users must be deleted as members\n\n";
