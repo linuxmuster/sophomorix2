@@ -1124,17 +1124,23 @@ sub user_name_from_id {
 sub update_future_members {
     my ($gidnumber,$uidnumber,$reason) = @_;
     if (exists $future_members{$gidnumber}{$uidnumber}){
-        print "          uid $uidnumber exists.",
-              " Updating reason:\n";
+        if($Conf::log_level>=2){
+            print "          uid $uidnumber exists.",
+                  " Updating reason:\n";
+        }
         # fetching old_reason
         my $oldreason=$future_members{$gidnumber}{$uidnumber};
         my $newreason="";
         $newreason=$oldreason.",".$reason;
-        print "          $oldreason -> $newreason\n";
+        if($Conf::log_level>=2){
+            print "          $oldreason -> $newreason\n";
+        }
         $future_members{$gidnumber}{$uidnumber}="$newreason";
     } else {
-        print "          uid $uidnumber missing.".
-              " Creating entry.\n";
+        if($Conf::log_level>=2){
+            print "          uid $uidnumber missing.".
+                  " Creating entry.\n";
+        }
         $future_members{$gidnumber}{$uidnumber}="$reason";
    }
 }
@@ -1193,8 +1199,9 @@ if ($check_project_members==1){
         my ($id,$gid,$gidnumber,$longname,$maxmembers)=@$row;
         $projectid_gidnumber{$id}=$gidnumber;
         # nn
-        print "$id, $gid, $longname, $gidnumber, $maxmembers\n";       
-
+        if($Conf::log_level>=2){
+            print "$id, $gid, $longname, $gidnumber, $maxmembers\n";       
+        }
 
         # 1) adding admins
         my $sth1= $dbh->prepare( "SELECT uidnumber
@@ -1206,7 +1213,9 @@ if ($check_project_members==1){
             my ($uidnumber)=@$row;
             # nn
             my $user=&user_name_from_id($uidnumber);
-            print "   * $uidnumber ($user) is admin in $gidnumber ($gid)\n";
+            if($Conf::log_level>=2){
+                print "   * $uidnumber ($user) is admin in $gidnumber ($gid)\n";
+            }
             #$future_members{$gidnumber}{$uidnumber}="admin";
             &update_future_members($gidnumber,
                                    $uidnumber,
@@ -1224,7 +1233,9 @@ if ($check_project_members==1){
             my ($uidnumber)=@$row;
             # nn
             my $user=&user_name_from_id($uidnumber);
-            print "   * $uidnumber ($user) is MemberByOption in $gidnumber ($gid)\n";
+            if($Conf::log_level>=2){
+                print "   * $uidnumber ($user) is MemberByOption in $gidnumber ($gid)\n";
+            }
             #$future_members{$gidnumber}{$uidnumber}="MemberByOption";
             &update_future_members($gidnumber,
                                    $uidnumber,
@@ -1242,7 +1253,9 @@ if ($check_project_members==1){
             my ($membergid)=@$row;
             # nn
             my $group=&group_name_from_id($membergid);
-            print " * $membergid ($group) is MemberByClass in $gid\n";
+            if($Conf::log_level>=2){
+                print " * $membergid ($group) is MemberByClass in $gid\n";
+            }
             # A) Adding Teachers
             my $sth3a= $dbh->prepare( "SELECT memberuidnumber
                                  FROM groups_users 
@@ -1253,8 +1266,9 @@ if ($check_project_members==1){
                 my ($uidnum)=@$row;
                 # nn
                 my $user=&user_name_from_id($uidnum);
-                print "   * $uidnum ($user) is MemberByClass in $membergid ($group)\n";
-
+                if($Conf::log_level>=2){
+                    print "   * $uidnum ($user) is MemberByClass in $membergid ($group)\n";
+                }
                 #$future_members{$gidnumber}{$uidnum}="MemberByClass";
                 &update_future_members($gidnumber,
                                        $uidnum,
@@ -1268,7 +1282,9 @@ if ($check_project_members==1){
             my $array_ref3b = $sth3b->fetchall_arrayref();
             foreach my $row (@$array_ref3b){
                 my ($uid,$uidnum)=@$row;
-                print "   * $uidnum ($uid) is MemberByClass in $membergid ($group)\n";
+                if($Conf::log_level>=2){
+                    print "   * $uidnum ($uid) is MemberByClass in $membergid ($group)\n";
+                }
                 #$future_members{$gidnumber}{$uidnum}="MemberByClass";
                 &update_future_members($gidnumber,
                                        $uidnum,
@@ -1287,7 +1303,9 @@ if ($check_project_members==1){
         foreach my $row (@$array_ref4){
             my ($memberprojectid)=@$row;
             # nn
-            print "  * $memberprojectid (ProjectID)\n";
+            if($Conf::log_level>=2){
+                print "  * $memberprojectid (ProjectID)\n";
+            }
             $memberrelation{$id}{$memberprojectid}="seen";
         }
     }
@@ -1302,16 +1320,23 @@ if ($check_project_members==1){
         # CAREFUL: do not modify the hash that you are 
         # using as a loop!
         $count++;
-        print "############### Run $count ###############\n";
-
+        if($Conf::log_level>=2){
+            print "############### Run $count ###############\n";
+        }
         # find, what can be deleted in this step
         while (my ($topkey,$topvalue) = each %memberrelation){
-            print "$topkey --> $topvalue\n";
+            if($Conf::log_level>=2){
+                print "$topkey --> $topvalue\n";
+            }
             while (my ($key,$value) = each %{ $memberrelation{$topkey} }){
-                print "   $key --> $value\n";
+                if($Conf::log_level>=2){
+                    print "   $key --> $value\n";
+                }
                 if (not exists $memberrelation{$key}){
-                    print "    * $key is not on toplevel:\n";
-                    print "      Add members of project $key to $topkey\n";
+                    if($Conf::log_level>=2){
+                        print "    * $key is not on toplevel:\n";
+                        print "      Add members of project $key to $topkey\n";
+                    }
                     # get gidnumber of project
                     my $gidnumber_fetch=$projectid_gidnumber{$key};
                     my $gidnumber_push=$projectid_gidnumber{$topkey};
@@ -1319,7 +1344,9 @@ if ($check_project_members==1){
                     # future members of project $key
                     while (my ($memberuid,$reason) = 
 			   each %{ $future_members{$gidnumber_fetch} }){
-                        print "        * $memberuid is in $gidnumber_fetch ($reason)\n";
+                        if($Conf::log_level>=2){
+                            print "        * $memberuid is in $gidnumber_fetch ($reason)\n";
+                        }
                         &update_future_members($gidnumber_push,
                                                $memberuid,
                                                "ByMemProject");
@@ -1333,32 +1360,47 @@ if ($check_project_members==1){
 
     
         # delete findings of this step
-        print "### Deleting findings or run $count:\n";
-        print "  1) Deleting secondlevel keys:\n";
+        if($Conf::log_level>=2){
+            print "### Deleting findings or run $count:\n";
+            print "  1) Deleting secondlevel keys:\n";
+        }
         foreach my $item (@delete){
             my ($topkey,$key)=split(/,/,$item);
-            print "     Delete: $topkey --> $key\n";
+            if($Conf::log_level>=2){
+                print "     Delete: $topkey --> $key\n";
+            }
             my $deleted = delete($memberrelation{$topkey}{$key});
         }
-
-        print "  2) Deleting empty toplevel keys:\n";
+        if($Conf::log_level>=2){
+            print "  2) Deleting empty toplevel keys:\n";
+        }
         while (my ($topkey,$topvalue) = each %memberrelation){
             if (keys $memberrelation{$topkey} == 0){
-                print "     $topkey is empty\n";
+                if($Conf::log_level>=2){
+                    print "     $topkey is empty\n";
+                }
                 my $deleted = delete($memberrelation{$topkey});
             } else {
-                print "   $topkey has elements\n";
+                if($Conf::log_level>=2){
+                    print "   $topkey has elements\n";
+                }
             }
         }
         # END: delete findings of this step
 
 
         # list whats left
-        print "\n### Thats left:\n";
+        if($Conf::log_level>=2){
+            print "\n### Thats left:\n";
+        }
         while (my ($topkey,$topvalue) = each %memberrelation){
-            print "$topkey --> $topvalue\n";
+            if($Conf::log_level>=2){
+                print "$topkey --> $topvalue\n";
+            }
             while (my ($key,$value) = each %{ $memberrelation{$topkey} }){
-                print "   $key --> $value\n";
+                if($Conf::log_level>=2){
+                    print "   $key --> $value\n";
+                }
             }
         }
         # END: list whats left
@@ -1366,13 +1408,18 @@ if ($check_project_members==1){
 
 
     &db_disconnect($dbh);
-    print "### Update order:\n";
-    foreach my $pro (@update_order){
-	print "$pro ";
+    if($Conf::log_level>=2){
+        print "### Update order:\n";
     }
-    print "\n... Done after $count runs\n";
-
-    print "\nLook what memberships to add:\n";
+    foreach my $pro (@update_order){
+        if($Conf::log_level>=2){
+	    print "$pro ";
+        }
+    }
+    if($Conf::log_level>=2){
+        print "\n... Done after $count runs\n";
+    }
+    print "Memberships to be added:\n";
     # anzulegen: future hash durchgehen, welche fehlen
     # $gid --> $uid --> whymember($value)
     my $add=0;
@@ -1394,7 +1441,7 @@ if ($check_project_members==1){
     print "$add users must be added as members\n\n";
 
 
-    print "\nLook what memberships to delete:\n";
+    print "Memberships to be deleted:\n";
     # delete: current hash durchgehen, welche sind zuviel
     # $gid --> $uid --> whymember($value)
     my $delete=0;
@@ -1414,9 +1461,6 @@ if ($check_project_members==1){
          }
     }
     print "$delete users must be deleted as members\n\n";
-
-
-    print "Done\n";
 }
 
 
