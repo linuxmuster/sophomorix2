@@ -4,14 +4,14 @@
 # Platzhalter:
 #
 # Gruppen:
-# $klassen         alle Klassen in denen Schüler sind (OHNE lehrer)
-# $raeume          alle Räume, in denen sich Workstations befinden
+# $klassen         alle Klassen in denen SchÃ¼ler sind (OHNE lehrer)
+# $raeume          alle RÃ¤ume, in denen sich Workstations befinden
 # $projects        alle Projekte der Schule
 # $subclasses      alle Subclassen der Schule
 #
 # User:
-# $schueler                         alle Schüler der Schule
-# $schueler rechts von $klassen     alle Schüler dieser Klasse
+# $schueler                         alle SchÃ¼ler der Schule
+# $schueler rechts von $klassen     alle SchÃ¼ler dieser Klasse
 # $lehrer                           alle Lehrer der Schule
 # $workstation                      alle Workstation der Schule
 # $workstation rechts von $raeume   alle Workstation dieses Raumes
@@ -24,7 +24,7 @@
 #  ! Es darf nur max. 1 Gruppenplatzhalter der obigen vorkommen (auch mehrmals)
 #  ! Es darf nur max. 1 Userplatzhalter der obigen vorkommen (auch mehrmals)
 #
-# Mehrere zulässige Verzeichnisrechte angeben:
+# Mehrere zulÃ¤ssige Verzeichnisrechte angeben:
 # Beispiel: 2750/2751   
 #    - korrigirt NICHT wenn Dateirechte 2750 ODER 2751 sind   
 #    - wenn Verzeichnis ANGELEGT wird, wird 2750 verwendet (der erste Wert)
@@ -63,17 +63,17 @@ $share_projects/$projects::administrator::$projects::3770
 
 ### TASKS
 
-$tasks_tasks::root::root::1771
+$tasks_tasks::root::root::0775
 
-$tasks_classes::administrator::teachers::1751
-$tasks_teachers::administrator::teachers::3770
-$tasks_subclasses::administrator::teachers::1751
-$tasks_projects::administrator::teachers::1751
-$tasks_rooms::administrator::teachers::1751
+$tasks_classes::root::root::0775
+$tasks_teachers::root::root::0775
+$tasks_subclasses::root::root::0775
+$tasks_projects::root::root::0775
+$tasks_rooms::root::root::0775
 
-$tasks_classes/$klassen::administrator::teachers::3775
-$tasks_subclasses/$subclasses::administrator::teachers::3775
-$tasks_projects/$projects::administrator::teachers::3775
+$tasks_classes/$klassen::administrator::$klassen::3770
+$tasks_subclasses/$subclasses::administrator::$subclasses::3770
+$tasks_projects/$projects::administrator::$projects::3770
 $tasks_rooms/$raeume::administrator::teachers::3775
 
 
