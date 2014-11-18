@@ -90,6 +90,7 @@ my %schueler_im_system_id=();
 my $schueler_protokoll_zeile=0;
 
 # Latex-Datei erstellen
+my $LATEX; # file handler no bareword
 my $rand_bemerkung_lehrer=1; # 1=schon gesetzt
 my $anzahl_karten_pro_seite=0;
 my $anzahl_karten_pro_zeile=0;
@@ -581,8 +582,8 @@ if($Conf::log_level>=3){
 # ===========================================================================
 
 # *.tex-Datei öffnen
-open(LATEX,
-     ">${DevelConf::druck_pfad}/${output_file_basename}.tex") || die "Fehler: $!";
+open($LATEX, ">",
+     "${DevelConf::druck_pfad}/${output_file_basename}.tex") || die "Fehler: $!";
 
 if ($classlist ne ""){
     # *.mediawiki-Datei öffnen
@@ -604,7 +605,7 @@ open(WEBUNIXCSV,
         ">${DevelConf::druck_pfad}/${output_file_basename}_WebUntis-unix.csv") || die "Fehler: $!";
 
 
-print LATEX ('%% This preamble was created from sophomorix-print
+print $LATEX ('%% This preamble was created from sophomorix-print
 \documentclass[11pt,fleqn,oneside,a4paper]{article}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -621,14 +622,14 @@ print LATEX ('%% This preamble was created from sophomorix-print
 ');
 
 
-print LATEX ('\rhead{\bf \large Seite \thepage}');
+print $LATEX ('\rhead{\bf \large Seite \thepage}');
 
 if ($gruppe ne "") {
    # Klassenangabe gemacht  
   if ($classlist ne ""){
       print MEDIAWIKI "===$gruppe===\n"; 
   }
-  print LATEX ('
+  print $LATEX ('
       \chead{\LARGE \bf ',"$gruppe",'}
    ');
 } elsif ($classlist ne "") {
@@ -636,21 +637,21 @@ if ($gruppe ne "") {
 
   print MEDIAWIKI "===$classlist===\n"; 
 
-  print LATEX ('
+  print $LATEX ('
       \chead{\LARGE \bf ',"$classlist",'}
    ');
 } else {
-  print LATEX ('
+  print $LATEX ('
       \chead{\LARGE \bf Einzelschüler}
    ');
 }
 
 my $latex_schoolname=&latexize_string("$Conf::schul_name");
 
-print LATEX ('\lfoot{',"$latex_schoolname",'}',"\n");
-print LATEX ('\rfoot{'," ${output_file_basename}",'.pdf','}',"\n");
+print $LATEX ('\lfoot{',"$latex_schoolname",'}',"\n");
+print $LATEX ('\rfoot{'," ${output_file_basename}",'.pdf','}',"\n");
 
-print LATEX ('
+print $LATEX ('
 \setlength{\voffset}{0mm}
 \setlength{\hoffset}{0mm}
 \setlength{\oddsidemargin}{0mm}
@@ -829,8 +830,8 @@ if ($classlist ne ""){
     print MEDIAWIKI "{|border=\"1\"\n";
     print MEDIAWIKI "|Nr.\n|Name\n|SP1\n|SP2\n|SP3\n|SP4\n|SP5\n|SP6\n|SP7\n|-\n";
 
-    print LATEX "\\begin{tabular}{|r|p{55mm}|p{116mm}|}\\hline \n";
-    print LATEX "\\rule[-2mm]{0mm}{7mm}\\textbf{Nr}& \\textbf{Name, Vorname} & \\\\ \\hline\\hline
+    print $LATEX "\\begin{tabular}{|r|p{55mm}|p{116mm}|}\\hline \n";
+    print $LATEX "\\rule[-2mm]{0mm}{7mm}\\textbf{Nr}& \\textbf{Name, Vorname} & \\\\ \\hline\\hline
 ";
 
     foreach $eintrag (@drucken_reihenfolge) {
@@ -852,12 +853,12 @@ if ($classlist ne ""){
                  "in   $klasse_protokoll \n";
         }
 
-        print LATEX "\\rule[-2mm]{0mm}{6.7mm} $count & $name &  \\\\  \\hline \n";
+        print $LATEX "\\rule[-2mm]{0mm}{6.7mm} $count & $name &  \\\\  \\hline \n";
         print MEDIAWIKI "|$count\n|$name\n|\n|\n|\n|\n|\n|\n|\n|-\n";
 
     }
 
-    print LATEX "\\end{tabular} \n";
+    print $LATEX "\\end{tabular} \n";
     print MEDIAWIKI "|}";
 
 
@@ -934,12 +935,12 @@ if ($one_per_page==1){
         my $latex_passwort_protokoll=&latexize_string($passwort_protokoll);
 
         # write header/contents of page
-        print LATEX '\chead{\LARGE \bf ',
+        print $LATEX '\chead{\LARGE \bf ',
                    "$name_protokoll ($klasse_protokoll)",'}';
-        print LATEX ('\addtocontents{toc}{',
+        print $LATEX ('\addtocontents{toc}{',
                        "$name_protokoll",
                        ' \dotfill \thepage  \par}',"\n");
-        print LATEX "\n";
+        print $LATEX "\n";
 
         # copy the template
         my $template_data=$template_content;
@@ -948,77 +949,77 @@ if ($one_per_page==1){
         $template_data=~s/\@\@user\@\@/${name_protokoll}/g;
         $template_data=~s/\@\@admins\@\@/${admins}/g;
 
-        print LATEX "$template_data \n\n";
+        print $LATEX "$template_data \n\n";
 
-        print LATEX ('\datenoneperpage');
+        print $LATEX ('\datenoneperpage');
         # 1 Name
-        print LATEX ('{',"$name_protokoll",'}');
+        print $LATEX ('{',"$name_protokoll",'}');
         # 2 Nicht genutzt
-        print LATEX ('{}');
+        print $LATEX ('{}');
         # 3 Klasse
-        print LATEX ('{',"Klasse: $klasse_protokoll",'}');
+        print $LATEX ('{',"Klasse: $klasse_protokoll",'}');
         # 4 Login
-        print LATEX ('{',"Login: \\texttt{$loginname_protokoll}",'}');
+        print $LATEX ('{',"Login: \\texttt{$loginname_protokoll}",'}');
 
 
         # 5 Passwort
-        print LATEX ('{',"Erst-Passwort: \\texttt{$latex_passwort_protokoll}",'}',"\n");
+        print $LATEX ('{',"Erst-Passwort: \\texttt{$latex_passwort_protokoll}",'}',"\n");
 
         # windows
-        print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
-        print LATEX "Anmeldung an einem Windowsrechner:\n\n";
-        print LATEX "\\begin{tabbing}\n";
-        print LATEX "\\qquad Benutzername:\\qquad \\= \\texttt{$loginname_protokoll} \\\\ \n";
-        print LATEX "\\qquad Kennwort:     \\> \\texttt{$latex_passwort_protokoll} \\\\ \n";
-        print LATEX "\\qquad Domäne:       \\> \\texttt{$smb_domain} \\\\ \n";
-        print LATEX "\\end{tabbing}\n\n";
-        print LATEX "\\vspace{-6mm}\n\n";
+        print $LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
+        print $LATEX "Anmeldung an einem Windowsrechner:\n\n";
+        print $LATEX "\\begin{tabbing}\n";
+        print $LATEX "\\qquad Benutzername:\\qquad \\= \\texttt{$loginname_protokoll} \\\\ \n";
+        print $LATEX "\\qquad Kennwort:     \\> \\texttt{$latex_passwort_protokoll} \\\\ \n";
+        print $LATEX "\\qquad Domäne:       \\> \\texttt{$smb_domain} \\\\ \n";
+        print $LATEX "\\end{tabbing}\n\n";
+        print $LATEX "\\vspace{-6mm}\n\n";
 
         # linux 
-        print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
-        print LATEX "Anmeldung an einem Linuxrechner:\n";
-        print LATEX "\\begin{tabbing}\n";
-        print LATEX "\\qquad Login:\\qquad\\qquad \\= \\texttt{$loginname_protokoll} \\\\ \n";
-        print LATEX "\\qquad Passwort: \\> \\texttt{$latex_passwort_protokoll} \\\\ \n";
-        print LATEX "\\end{tabbing}\n";
-        print LATEX "\\vspace{-6mm}\n\n";
+        print $LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
+        print $LATEX "Anmeldung an einem Linuxrechner:\n";
+        print $LATEX "\\begin{tabbing}\n";
+        print $LATEX "\\qquad Login:\\qquad\\qquad \\= \\texttt{$loginname_protokoll} \\\\ \n";
+        print $LATEX "\\qquad Passwort: \\> \\texttt{$latex_passwort_protokoll} \\\\ \n";
+        print $LATEX "\\end{tabbing}\n";
+        print $LATEX "\\vspace{-6mm}\n\n";
 
         # schulkonsole
-        print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
-        print LATEX "Pädagogische Funktionen mit der Schulkonsole im Intranet:\n\n";
-        print LATEX " URL: \\url{https://${server}:242}\n\n";
+        print $LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
+        print $LATEX "Pädagogische Funktionen mit der Schulkonsole im Intranet:\n\n";
+        print $LATEX " URL: \\url{https://${server}:242}\n\n";
 
         # horde
-        print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
-        print LATEX "Webmail mit Horde: \n\n";
-        print LATEX " URL: \\url{https://${server_external}/horde3}\n\n";
+        print $LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
+        print $LATEX "Webmail mit Horde: \n\n";
+        print $LATEX " URL: \\url{https://${server_external}/horde3}\n\n";
 
         # ogo
-        #print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
-        #print LATEX " Groupware mit OpenGroupware: \n\n";
-        #print LATEX " URL: \\url{https://${server_external}/OpenGroupware}\n\n";
+        #print $LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
+        #print $LATEX " Groupware mit OpenGroupware: \n\n";
+        #print $LATEX " URL: \\url{https://${server_external}/OpenGroupware}\n\n";
 
         # moodle
-        print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
-        print LATEX " Lernplattform mit Moodle: \n\n";
+        print $LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
+        print $LATEX " Lernplattform mit Moodle: \n\n";
         if (not defined $Conf::moodle_url){
-            print LATEX " URL: \\url{https://${server_external}/moodle}\n\n";
+            print $LATEX " URL: \\url{https://${server_external}/moodle}\n\n";
         } else {
-            print LATEX " URL: \\url{${Conf::moodle_url}}\n\n";
+            print $LATEX " URL: \\url{${Conf::moodle_url}}\n\n";
         }
         # phpmyadmin
-        #print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
-        #print LATEX " Datenbankzugriff mit phpmyadmin: \n\n";
-        #print LATEX " URL: \\url{https://${server}/phpmyadmin}\n\n";
+        #print $LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
+        #print $LATEX " Datenbankzugriff mit phpmyadmin: \n\n";
+        #print $LATEX " URL: \\url{https://${server}/phpmyadmin}\n\n";
 
         # websvn
-        #print LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
-        #print LATEX " Versionskontrolle mit svn per Webfrontend: \n\n";
-        #print LATEX " URL: \\url{https://${server}/websvn}\n\n";
+        #print $LATEX "\\rule{\\linewidth}{0.25mm}  \n\n";
+        #print $LATEX " Versionskontrolle mit svn per Webfrontend: \n\n";
+        #print $LATEX " URL: \\url{https://${server}/websvn}\n\n";
 
 
 
-        print LATEX "\\newpage \n\n";
+        print $LATEX "\\newpage \n\n";
    }
 } # End 1 PER PAGE
 
@@ -1091,12 +1092,12 @@ if ($one_per_page==0 and $classlist eq ""){
           # Nicht der allererste Eintrag
           # Auffüllen der Seite
           while ($anzahl_karten_pro_seite < $entries_per_page){
-             print LATEX ('\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}');
-             print LATEX ("\n");
+             print $LATEX ('\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}');
+             print $LATEX ("\n");
              $anzahl_karten_pro_seite++;
           }
           # Neue Seite beginnen
-          print LATEX ("\n",'\newpage',"\n\n");
+          print $LATEX ("\n",'\newpage',"\n\n");
           # Katenzähler/Seite auf 0
           $anzahl_karten_pro_seite=0;
        }
@@ -1107,8 +1108,8 @@ if ($one_per_page==0 and $classlist eq ""){
        # alles in Großbuchstaben
        $klasse_head=~tr/a-z/A-Z/;
        # Kopfzeileneintrag
-       print LATEX ('\chead{\LARGE \bf ',"$klasse_head",'}');
-       print LATEX "\n";
+       print $LATEX ('\chead{\LARGE \bf ',"$klasse_head",'}');
+       print $LATEX "\n";
        # Verantwortlicher Lehrer ermitteln
 
        # $edv_lehrer_foot 
@@ -1116,15 +1117,15 @@ if ($one_per_page==0 and $classlist eq ""){
           &Sophomorix::SophomorixPgLdap::fetchadmins_from_adminclass($klasse_protokoll);
        $edv_lehrer_foot = join(", ",@lehrerliste);
 
-       print LATEX ('\cfoot{\bf ',
+       print $LATEX ('\cfoot{\bf ',
                          "$edv_lehrer_foot",
                          '}');
-       print LATEX "\n";
+       print $LATEX "\n";
        # Eintrag in das Inhaltsverzeichnis
-       print LATEX ('\addtocontents{toc}{',
+       print $LATEX ('\addtocontents{toc}{',
                        "$klasse_head",
                        ' \dotfill \thepage  \par}',"\n");
-       print LATEX "\n";
+       print $LATEX "\n";
      #######################################################################
      } else {
         # Wenn Einzelschüler
@@ -1137,26 +1138,26 @@ if ($one_per_page==0 and $classlist eq ""){
            $rand_bemerkung_lehrer=0; # Randbemerkung wurde nicht gemacht
            # Auffüllen der Seite
            while ($anzahl_karten_pro_seite < $entries_per_page){
-              print LATEX ('\daten{\rule[1mm]{30mm}{0.5mm}}{}{}{}{}');
-              print LATEX ("\n");
+              print $LATEX ('\daten{\rule[1mm]{30mm}{0.5mm}}{}{}{}{}');
+              print $LATEX ("\n");
               $anzahl_karten_pro_seite++;
            }
            # Neue Seite beginnen
-           print LATEX ("\n",'\newpage',"\n\n");
+           print $LATEX ("\n",'\newpage',"\n\n");
            # Kartenzähler/Seite auf 0
            $anzahl_karten_pro_seite=0;
            # Kartenzähler/Zeile auf 0
            $anzahl_karten_pro_zeile=0;
            # Kopfzeileneintrag
-           print LATEX ('\chead{\LARGE \bf ',"Einzelschüler",'}');
-           print LATEX "\n";
-           print LATEX ('\cfoot{}');
-           print LATEX "\n";
+           print $LATEX ('\chead{\LARGE \bf ',"Einzelschüler",'}');
+           print $LATEX "\n";
+           print $LATEX ('\cfoot{}');
+           print $LATEX "\n";
            # Eintrag in das Inhaltsverzeichnis
-           print LATEX ('\addtocontents{toc}{\textbf{',
+           print $LATEX ('\addtocontents{toc}{\textbf{',
                             "Einzelschüler",
                             '} \dotfill \thepage  \par}');
-           print LATEX "\n";
+           print $LATEX "\n";
            # EDV-Lehrerangabe machen, Zähler auf 0 setzen
            $rand_bemerkung_lehrer=0; # Randbemerkung wurde nicht gemacht
 	} elsif ($eintrag_typ_alt==1) {
@@ -1166,14 +1167,14 @@ if ($one_per_page==0 and $classlist eq ""){
            # Auffüllen der Zeile
 	  if ($anzahl_karten_pro_zeile == 4) {$rand_bemerkung_lehrer=0};
            while ($anzahl_karten_pro_zeile !=4) {
-               print LATEX ('\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}');
-               print LATEX ("\n");
+               print $LATEX ('\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}');
+               print $LATEX ("\n");
                $anzahl_karten_pro_seite++;
                $anzahl_karten_pro_zeile++;
                $rand_bemerkung_lehrer=0; # Randbemerkung wurde nicht gemacht
            }
            if($anzahl_karten_pro_seite == $entries_per_page) {
-               print LATEX ("\n\n",'\newpage',"\n\n");
+               print $LATEX ("\n\n",'\newpage',"\n\n");
                $anzahl_karten_pro_seite=0;
 	   }
           $anzahl_karten_pro_zeile=0;
@@ -1198,7 +1199,7 @@ if ($one_per_page==0 and $classlist eq ""){
       $edv_lehrer_rand = join(",",@lehrerliste);
 
       # Verantwortlichen Lehrer einsetzten
-      print LATEX ("\n",
+      print $LATEX ("\n",
                         '\edvlehrer{',
                         "$edv_lehrer_rand",
                         '}',
@@ -1208,17 +1209,17 @@ if ($one_per_page==0 and $classlist eq ""){
 
 
    # Datensatz anhängen
-   print LATEX ('\daten');
+   print $LATEX ('\daten');
    # 1 Name
-   print LATEX ('{',"$name_protokoll",'}');
+   print $LATEX ('{',"$name_protokoll",'}');
    # 2 Nicht genutzt
-   print LATEX ('{}');
+   print $LATEX ('{}');
    # 3 Klasse
-   print LATEX ('{',"Klasse: $klasse_protokoll",'}');
+   print $LATEX ('{',"Klasse: $klasse_protokoll",'}');
    # 4 Login
-   print LATEX ('{',"Login: \\texttt{$loginname_protokoll}",'}');
+   print $LATEX ('{',"Login: \\texttt{$loginname_protokoll}",'}');
    # 5 Passwort
-   print LATEX ('{',"Erst-Passwort: \\texttt{$latex_passwort_protokoll}",'}',"\n");
+   print $LATEX ('{',"Erst-Passwort: \\texttt{$latex_passwort_protokoll}",'}',"\n");
    # Eintag ferig, Zähler erhöhen
    $anzahl_karten_pro_seite++;
    $anzahl_karten_pro_zeile++;
@@ -1242,15 +1243,15 @@ if ($one_per_page==0 and $classlist eq ""){
               $name_protokoll;
    }
 } # Ende foreach
-# Nun sind alle Schüler in der LATEX-Datei eingelesen
+# Nun sind alle Schüler in der $LATEX-Datei eingelesen
 
 
 
 
 # Allerletzte Seite (vor Inhaltsverzeichnis noch auffüllen)
 while ($anzahl_karten_pro_seite < $entries_per_page){
-   print LATEX ('\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}');
-   print LATEX ("\n");
+   print $LATEX ('\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}');
+   print $LATEX ("\n");
    $anzahl_karten_pro_seite++;
 }
 
@@ -1259,8 +1260,8 @@ while ($anzahl_karten_pro_seite < $entries_per_page){
 # ===========================================================================
 # Letze Seite mit leeren Einträgen füllen
 while ($anzahl_karten_pro_seite < $entries_per_page){
-        print LATEX ('\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}');
-        print LATEX ("\n");
+        print $LATEX ('\daten{\rule[2mm]{30mm}{0.5mm}}{}{}{}{}');
+        print $LATEX ("\n");
         $anzahl_karten_pro_seite++;
 }
 
@@ -1288,16 +1289,16 @@ while ($anzahl_karten_pro_seite < $entries_per_page){
 # Dokument beenden und Inhaltsverzeichnis schreiben
 if ($gruppe ne "") {
    # Klassenangabe gemacht  
-   print LATEX ('
+   print $LATEX ('
       \end{document}
    ');
 } elsif ($classlist ne "") {
    # Klassenangabe gemacht  
-   print LATEX ('
+   print $LATEX ('
       \end{document}
    ');
 } else {
-   print LATEX ('
+   print $LATEX ('
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Hier enden die erzeugten Einträge
@@ -1332,7 +1333,7 @@ if ($classlist ne ""){
     close(MEDIAWIKI);
 }
 # Latex-Dokument schließen
-close(LATEX);
+close($LATEX);
 # CSV-Dokument schließen
 close(CSV);
 close(UNIXCSV);
