@@ -28,9 +28,11 @@ use Net::LDAP;
 use Sys::Hostname;
 use Sophomorix::SophomorixPgLdap qw(check_connections
                                     get_print_data
+                                    fetchadmins_from_project
                                     fetchadmins_from_adminclass
                                     fetchdata_from_account
                                     fetchnetexamplix_from_account
+                                    fetchusers_from_project
                                     fetchstudents_from_adminclass
                                    );
 
@@ -47,7 +49,7 @@ my $info_abteilung="";
 my $info_klassen_typ="";
 my $info_mail="";
 
-# Auslsen von lehrer.txt
+# Auslesen von lehrer.txt
 my $info_lehrer_gruppe="";
 my $info_lehrer_nachname="";
 my $info_lehrer_vorname="";
@@ -148,6 +150,7 @@ my $netexamplix="";
 my $command="latex";
 my $user="";
 my $gruppe="";
+my $projekt="";
 my $classlist="";
 my $one_per_page=0;
 my $skiplock=0;
@@ -158,6 +161,7 @@ my $testopt=GetOptions(
            "show|s" => \$show,
            "all|a" => \$alle,
            "class|c=s" => \$gruppe,
+           "project|p=s" => \$projekt,
            "user|u=s" => \$user,
            "classlist=s" => \$classlist,
            "help|h" => \$help,
@@ -197,6 +201,7 @@ Options:
   -u username / --user username
   -t / --teacher
   -c class / --class class
+  -p project / --project project
   --classlist class
   --one-per-page
   -s  / --show
@@ -255,14 +260,13 @@ if ($netexamplix ne ""){
     print "  $file\n";
 
     my @classlist_to_fetch = split(/,/,$gruppe);
-
+    
     my @students=();
 
     foreach my $class_to_fetch (@classlist_to_fetch){
         print "     * Fetching users of class $class_to_fetch\n";
         my @users = &fetchstudents_from_adminclass($class_to_fetch);
         @students = (@students,@users);
-
     }
 
     if (not -e $netex_dir){
@@ -318,6 +322,8 @@ if ($alle==1){
    $klasse_filename_part=${DevelConf::teacher};
 }elsif ($gruppe ne ""){
    $klasse_filename_part="$gruppe";
+}elsif ($projekt ne ""){
+   $klasse_filename_part="$projekt";
 }elsif ($classlist ne ""){
    $klasse_filename_part="$classlist-classlist";
 }elsif ($user ne ""){
@@ -429,7 +435,7 @@ if($Conf::log_level>=3){
 # Schülerdaten aus sophomorix.add dem System in Hash einlesen
 # ===========================================================================
 
-if ($user eq "" and $classlist eq "" and $gruppe eq "" && $alle==0 && $lehrer==0) {
+if ($user eq "" and $classlist eq "" and $gruppe eq "" and $projekt eq "" && $alle==0 && $lehrer==0) {
   # ohne Argument -> sophomorix.add einlesen und nur die übernehmen
   if($Conf::log_level>=2){
       &titel("Reading sophomorix.add ...");
@@ -523,6 +529,30 @@ if ($user eq "" and $classlist eq "" and $gruppe eq "" && $alle==0 && $lehrer==0
          # Key = identifier
          # Value = Klasse
          $sortier_hash{$_}="$klasse";
+      }
+   }
+} elsif ($projekt ne "") {
+   # Argument muss "projekt" sein -> filtern
+   my $argument;
+   if ($projekt eq ${DevelConf::teacher}){
+        print "Mit der Option --project können keine Lehrer angezeigt werden!\n\n";
+        exit;
+      } else {
+        $argument="$projekt";
+      }
+
+   my @users = &fetchusers_from_project($projekt);
+   my %userhash = map { $_ => 1 } @users;
+   if($Conf::log_level>=2){
+      print("\nArgument ist:  $argument\n");
+   }
+
+   foreach (keys %schueler_im_system_hash){
+      my ($klasse,$name,$login)=split(/;/,$schueler_im_system_hash{$_});
+      if ($userhash{$login} and $klasse ne ${DevelConf::teacher}){
+         # Key = identifier
+         # Value = Projekt
+         $sortier_hash{$_}="$argument";
       }
    }
 } elsif ($classlist ne "") {
@@ -631,6 +661,14 @@ if ($gruppe ne "") {
   print LATEX ('
       \chead{\LARGE \bf ',"$gruppe",'}
    ');
+} elsif ($projekt ne "") {
+   # Projektangabe gemacht  
+  if ($classlist ne ""){
+      print MEDIAWIKI "===$projekt===\n"; 
+  }
+  print LATEX ('
+      \chead{\LARGE \bf ',&latexize_string($projekt),'}
+   ');
 } elsif ($classlist ne "") {
    # Klassenangabe gemacht
 
@@ -648,7 +686,7 @@ if ($gruppe ne "") {
 my $latex_schoolname=&latexize_string("$Conf::schul_name");
 
 print LATEX ('\lfoot{',"$latex_schoolname",'}',"\n");
-print LATEX ('\rfoot{'," ${output_file_basename}",'.pdf','}',"\n");
+print LATEX ('\rfoot{'," ",&latexize_string(${output_file_basename}),'.pdf','}',"\n");
 
 print LATEX ('
 \setlength{\voffset}{0mm}
@@ -718,9 +756,13 @@ print LATEX ('
 
 \begin{document}
 
-\addtocontents{toc}{\textbf{Klasse \dotfill Seite} \par}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+');
+if ($projekt ne "") {
+    print LATEX ('\addtocontents{toc}{\textbf{Projekt \dotfill Seite} \par}',"\n");
+} else {
+    print LATEX ('\addtocontents{toc}{\textbf{Klasse \dotfill Seite} \par}',"\n");
+}
+print LATEX ('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Hier beginnen die erzeugten Einträge
 
 ');
@@ -924,6 +966,9 @@ if ($one_per_page==1){
         $passwort_protokoll,
         $geburtsdatum_protokoll
         )=split(/;/,$schueler_protokoll_zeile);
+        # Klasse oder Projekt verwenden
+        $klasse_protokoll = $sortier_hash{$eintrag};
+        
         # Ausgabe
         if($Conf::log_level>=2){
            print "Erstelle Login-Karte für  $loginname_protokoll  ",
@@ -934,8 +979,13 @@ if ($one_per_page==1){
         my $latex_passwort_protokoll=&latexize_string($passwort_protokoll);
 
         # write header/contents of page
-        print LATEX '\chead{\LARGE \bf ',
+        if ($klasse_protokoll=~/^p_/) {
+            print LATEX '\chead{\LARGE \bf ',
+                   "$name_protokoll (",&latexize_string($klasse_protokoll),")",'}';
+        } else {
+            print LATEX '\chead{\LARGE \bf ',
                    "$name_protokoll ($klasse_protokoll)",'}';
+        }
         print LATEX ('\addtocontents{toc}{',
                        "$name_protokoll",
                        ' \dotfill \thepage  \par}',"\n");
@@ -955,8 +1005,12 @@ if ($one_per_page==1){
         print LATEX ('{',"$name_protokoll",'}');
         # 2 Nicht genutzt
         print LATEX ('{}');
-        # 3 Klasse
-        print LATEX ('{',"Klasse: $klasse_protokoll",'}');
+        # 3 Klasse/Projekt
+        if ($klasse_protokoll=~/^p_/) {
+            print LATEX ('{',"Projekt: ",&latexize_string($klasse_protokoll),'}');
+        } else {
+            print LATEX ('{',"Klasse: $klasse_protokoll",'}');
+        }
         # 4 Login
         print LATEX ('{',"Login: \\texttt{$loginname_protokoll}",'}');
 
@@ -1054,6 +1108,8 @@ if ($one_per_page==0 and $classlist eq ""){
     $passwort_protokoll,
     $geburtsdatum_protokoll
    )=split(/;/,$schueler_protokoll_zeile);
+   # Entweder Klasse oder Projekt verwenden
+   $klasse_protokoll = $sortier_hash{$identifier};
    # Zusatzwerte
    $first_protokoll=$schueler_im_system_first{$identifier};
    $sur_protokoll=$schueler_im_system_sur{$identifier};
@@ -1107,13 +1163,19 @@ if ($one_per_page==0 and $classlist eq ""){
        # alles in Großbuchstaben
        $klasse_head=~tr/a-z/A-Z/;
        # Kopfzeileneintrag
-       print LATEX ('\chead{\LARGE \bf ',"$klasse_head",'}');
+       print LATEX ('\chead{\LARGE \bf ',&latexize_string($klasse_head),'}');
        print LATEX "\n";
        # Verantwortlicher Lehrer ermitteln
 
-       # $edv_lehrer_foot 
-       my @lehrerliste = 
-          &Sophomorix::SophomorixPgLdap::fetchadmins_from_adminclass($klasse_protokoll);
+       # $edv_lehrer_foot
+       my @lehrerliste;
+       if ($klasse_protokoll =~ /^p_/ ) {
+          @lehrerliste =
+            &Sophomorix::SophomorixPgLdap::fetchadmins_from_project($klasse_protokoll);
+       } else {
+          @lehrerliste =
+            &Sophomorix::SophomorixPgLdap::fetchadmins_from_adminclass($klasse_protokoll);
+       }
        $edv_lehrer_foot = join(", ",@lehrerliste);
 
        print LATEX ('\cfoot{\bf ',
@@ -1122,7 +1184,7 @@ if ($one_per_page==0 and $classlist eq ""){
        print LATEX "\n";
        # Eintrag in das Inhaltsverzeichnis
        print LATEX ('\addtocontents{toc}{',
-                       "$klasse_head",
+                       &latexize_string($klasse_head),
                        ' \dotfill \thepage  \par}',"\n");
        print LATEX "\n";
      #######################################################################
@@ -1194,7 +1256,14 @@ if ($one_per_page==0 and $classlist eq ""){
 
 
       # $edv_lehrer_rand
-      my @lehrerliste = &Sophomorix::SophomorixPgLdap::fetchadmins_from_adminclass($klasse_protokoll);
+      my @lehrerliste;
+      if ($klasse_protokoll =~ /^p_/ ) {
+        @lehrerliste =
+        &Sophomorix::SophomorixPgLdap::fetchadmins_from_project($klasse_protokoll);
+      } else {
+        @lehrerliste =
+        &Sophomorix::SophomorixPgLdap::fetchadmins_from_adminclass($klasse_protokoll);
+      }
       $edv_lehrer_rand = join(",",@lehrerliste);
 
       # Verantwortlichen Lehrer einsetzten
@@ -1213,8 +1282,12 @@ if ($one_per_page==0 and $classlist eq ""){
    print LATEX ('{',"$name_protokoll",'}');
    # 2 Nicht genutzt
    print LATEX ('{}');
-   # 3 Klasse
-   print LATEX ('{',"Klasse: $klasse_protokoll",'}');
+   # 3 Klasse/Projekt
+   if ($klasse_protokoll =~ /^p_/) {
+    print LATEX ('{',"Projekt: ",&latexize_string($klasse_protokoll),'}');
+   } else {
+    print LATEX ('{',"Klasse: $klasse_protokoll",'}');
+   }
    # 4 Login
    print LATEX ('{',"Login: \\texttt{$loginname_protokoll}",'}');
    # 5 Passwort
@@ -1286,8 +1359,8 @@ while ($anzahl_karten_pro_seite < $entries_per_page){
 
 # ===========================================================================
 # Dokument beenden und Inhaltsverzeichnis schreiben
-if ($gruppe ne "") {
-   # Klassenangabe gemacht  
+if ($gruppe ne "" or $projekt ne "") {
+   # Klassen-/Projektangabe gemacht  
    print LATEX ('
       \end{document}
    ');
