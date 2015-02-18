@@ -534,12 +534,7 @@ if ($user eq "" and $classlist eq "" and $gruppe eq "" and $projekt eq "" && $al
 } elsif ($projekt ne "") {
    # Argument muss "projekt" sein -> filtern
    my $argument;
-   if ($projekt eq ${DevelConf::teacher}){
-        print "Mit der Option --project können keine Lehrer angezeigt werden!\n\n";
-        exit;
-      } else {
-        $argument="$projekt";
-      }
+   $argument="$projekt";
 
    my @users = &fetchusers_from_project($projekt);
    my %userhash = map { $_ => 1 } @users;
