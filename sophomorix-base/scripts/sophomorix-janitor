@@ -67,8 +67,8 @@ my $review_end_date="---";
 # separator in logfiles
 my $sep="|::|";
 # The following are lists where the search result is saved:
-my @find_links_list=();
 my @find_files_list=();
+my @find_links_list=();
 my @find_dirs_list=();
 my @find_strange_list=();
 my $count_found_links=0;
@@ -378,18 +378,18 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
         &chown_print($file,$new_owner);
     }
 
-    # dirs
-    $count_found_dirs=$#find_dirs_list+1;
-    printf "%6s dirs found\n", $count_found_dirs;
-    foreach my $dir (@find_dirs_list){
-        &chown_print($dir,$new_owner);
-    }
-
     # links
     $count_found_links=$#find_links_list+1;
     printf "%6s links found\n", $count_found_links;
     foreach my $link (@find_links_list){
         &chown_print($link,$new_owner);
+    }
+
+    # dirs
+    $count_found_dirs=$#find_dirs_list+1;
+    printf "%6s dirs found\n", $count_found_dirs;
+    foreach my $dir (@find_dirs_list){
+        &chown_print($dir,$new_owner);
     }
 
     #strange stuff
@@ -487,6 +487,33 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
         }
     } # end walking through @find_files_list
 
+    ######################################################################
+    print "######## Working on $count_found_links links ########\n";
+    foreach my $source_abs_link (@find_links_list){
+        my $target_abs_link=$source_abs_link;
+        # decide where to copy/move the links
+        # ??? avoid copy-to and move-to together ????????
+        if ($copy_to ne ""){
+            # option --copy-to given
+            $target_abs_link=~s/$find_files/$target_dir/;
+            &review_link("copy",$source_abs_link,$target_abs_link);
+        } elsif ($move_to ne ""){
+            # option --move-to given
+            $target_abs_link=~s/$find_files/$target_dir/;
+            &review_link("move",$source_abs_link,$target_abs_link);
+        } elsif ($copy_to_review ne ""){
+            # option --copy-to-review given
+            $target_abs_link=~s/$copy_to_review/$target_dir/;
+            &review_link("copy",$source_abs_link,$target_abs_link);
+        } elsif ($move_to_review ne ""){
+            # option --move-to-review given
+            $target_abs_link=~s/$move_to_review/$target_dir/;
+            &review_link("move",$source_abs_link,$target_abs_link);
+        } else {
+            # --find-files without --copy-to/move-to --> do nothing
+            &review_link("show",$source_abs_link,$target_abs_link);
+        }
+    } # end walking through @find_links_list
 
     ######################################################################
     print "######## Working on $count_found_dirs directories ########\n";
@@ -515,34 +542,6 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
             &review_dir("show",$source_abs_dir,$target_abs_dir);
         }
     } # end walking through @find_dirs_list
-
-    ######################################################################
-    print "######## Working on $count_found_links links ########\n";
-    foreach my $source_abs_link (@find_links_list){
-        my $target_abs_link=$source_abs_link;
-        # decide where to copy/move the links
-        # ??? avoid copy-to and move-to together ????????
-        if ($copy_to ne ""){
-            # option --copy-to given
-            $target_abs_link=~s/$find_files/$target_dir/;
-            &review_link("copy",$source_abs_link,$target_abs_link);
-        } elsif ($move_to ne ""){
-            # option --move-to given
-            $target_abs_link=~s/$find_files/$target_dir/;
-            &review_link("move",$source_abs_link,$target_abs_link);
-        } elsif ($copy_to_review ne ""){
-            # option --copy-to-review given
-            $target_abs_link=~s/$copy_to_review/$target_dir/;
-            &review_link("copy",$source_abs_link,$target_abs_link);
-        } elsif ($move_to_review ne ""){
-            # option --move-to-review given
-            $target_abs_link=~s/$move_to_review/$target_dir/;
-            &review_link("move",$source_abs_link,$target_abs_link);
-        } else {
-            # --find-files without --copy-to/move-to --> do nothing
-            &review_link("show",$source_abs_link,$target_abs_link);
-        }
-    } # end walking through @find_links_list
 
     ######################################################################
     print "######## Working on $count_found_strange strange stuff ########\n";
@@ -1078,7 +1077,15 @@ sub review_link {
         print "LINK: $display\n";
     }
     my $readlink = readlink $source;
+
     my $logline=$target.$sep.$source.$sep.$readlink.$sep."\n";
+    # in case of move, delete link, so that dirs can be deleted
+    if ($type eq "move"){
+        print "    Deleting link: $source\n";
+        # delete the file
+        unlink $source;
+        $logline=$logline."link deleted".$sep;
+    }
     print LINKLOG $logline;
 }
 
