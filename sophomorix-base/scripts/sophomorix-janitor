@@ -161,7 +161,6 @@ my $testopt=GetOptions(
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
-
 # / as causes trouble because it ends with / and is useless anyway
 if ($copy_to eq "/" or 
     $move_to eq "/"or 
@@ -616,12 +615,19 @@ if ($move_to_review_home ne "" or
         $command="sophomorix-janitor --find-files $home --owner $login".
                  " --move-to $target";
     }
+    if ($Conf::log_level==2){
+        $command=$command." -v";
+    } elsif ($Conf::log_level==3){
+        $command=$command." -vv";
+    }
     print "$command\n";
     system("$command");
     # make sure this account is usable
     my $repair_command="sophomorix-repair --repairhome -u $login";
-    print "$repair_command\n";
+    print "\n";
+    print "BEGIN OUTPUT of: $repair_command\n";
     system("$repair_command");
+    print "END OUTPUT of: $repair_command\n";
 }
 
 
@@ -991,10 +997,12 @@ sub review_file {
                 "";
 
     if ($type eq "copy" or $type eq "move"){
-        print "FILE: $display\n";
-        print "    Source:   $source\n";
-        print "    cp/mv to: $target\n";
-        print "    Parent:   $parent_dir\n";
+        print "  FILE: $display $Conf::log_level\n";
+        if($Conf::log_level>=2){
+            print "    Source:   $source\n";
+            print "    cp/mv to: $target\n";
+            print "    Parent:   $parent_dir\n";
+        }
         # copy the file
         make_path($parent_dir); # same as: mkdir -p
         copy($source,$target);
@@ -1002,7 +1010,7 @@ sub review_file {
         $logline=$logline."file moved".$sep;
     } elsif ($type eq "show") {
         if($Conf::log_level>=2){
-            print "FILE: $display\n";
+            print "  FILE: $display\n";
         }
     }
 
@@ -1016,6 +1024,32 @@ sub review_file {
     }
     $logline=$logline."\n";
     print FILELOG $logline;
+}
+
+
+sub review_link {
+    my ($type,$source,$target) = @_;
+    # shorten path for display
+    my $display=$source;
+    $display=~s/$find_files//;
+    # remove leading / (if present)
+    $display=~s/^\///;
+
+    print "  LINK: $display\n";
+    if($Conf::log_level>=2){
+            print "    Source:   $source\n";
+    }
+    my $readlink = readlink $source;
+
+    my $logline=$target.$sep.$source.$sep.$readlink.$sep."\n";
+    # in case of move, delete link, so that dirs can be deleted
+    if ($type eq "move"){
+        print "    Deleting link: $source\n";
+        # delete the file
+        unlink $source;
+        $logline=$logline."link deleted".$sep;
+    }
+    print LINKLOG $logline;
 }
 
 
@@ -1038,16 +1072,14 @@ sub review_dir {
                 "";
 
     if ($type eq "copy"){
-        if($Conf::log_level>=2){
-            print "DIR: $display (copy: doing nothing)\n";
-        }
+        print "  DIR: $display\n";
         # make sure target is redable/browsable 
         chmod 0775, $target;
         $logline = $logline."\n";
         print DIRLOG $logline;
 
     } elsif ($type eq "move") {
-        print "DIR: $display (move: ...)\n";
+        print "  DIR: $display (move: ...)\n";
         # make sure target is redable/browsable 
         chmod 0775, $target;
         # delete empty source dirs/reown them
@@ -1058,35 +1090,13 @@ sub review_dir {
 
     } elsif ($type eq "show") {
         if($Conf::log_level>=2){
-            print "DIR: $display (show: doing nothing)\n";
+            print "  DIR: $display\n";
         }
     }
-
-}
-
-
-sub review_link {
-    my ($type,$source,$target) = @_;
-    # shorten path for display
-    my $display=$source;
-    $display=~s/$find_files//;
-    # remove leading / (if present)
-    $display=~s/^\///;
-
     if($Conf::log_level>=2){
-        print "LINK: $display\n";
+        print "    Source:   $source\n";
+        print "    Target:   $target\n";
     }
-    my $readlink = readlink $source;
-
-    my $logline=$target.$sep.$source.$sep.$readlink.$sep."\n";
-    # in case of move, delete link, so that dirs can be deleted
-    if ($type eq "move"){
-        print "    Deleting link: $source\n";
-        # delete the file
-        unlink $source;
-        $logline=$logline."link deleted".$sep;
-    }
-    print LINKLOG $logline;
 }
 
 
