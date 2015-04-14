@@ -619,6 +619,10 @@ if ($move_to_review_home ne "" or
     }
     print "$command\n";
     system("$command");
+    # make sure this account is usable
+    my $repair_command="sophomorix-repair --repairhome -u $login";
+    print "$repair_command\n";
+    system("$repair_command");
 }
 
 
