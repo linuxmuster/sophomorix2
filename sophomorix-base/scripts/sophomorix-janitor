@@ -1037,7 +1037,7 @@ sub review_link {
 
     print "  LINK: $display\n";
     if($Conf::log_level>=2){
-            print "    Source:   $source\n";
+            print "    Omitted:   $source\n";
     }
     my $readlink = readlink $source;
 
@@ -1663,7 +1663,11 @@ sub files_owned_by {
         } elsif (-f $_){
             push @find_files_list, $File::Find::name;
         } elsif (-d $_){
-            push @find_dirs_list, $File::Find::name;
+            if ($File::Find::name eq $find_files){
+                # do not add the top dir itself
+            } else {
+                push @find_dirs_list, $File::Find::name;
+	    }
         } else {
             push @find_strange_list, $File::Find::name;
         }
