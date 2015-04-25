@@ -1,0 +1,28 @@
+sophomorix4 is the next generation sophomorix
+This file is relevant only IF THERE IS A REWRITE of sophomorix
+
+Consider this:
+------------------------------------------------------------
+- Usig ldap instead of postgres
+  (Avoid)
+- Use Python (or other) instead of perl
+  + no need to upgrade to perl 6
+  + python 3 is new and popular
+  - rewrite, 
+  - Python lerning
+
+What leads towards a rewrite (instead of fixing old code)
+------------------------------------------------------------
+- change from Perl to Python (or other)
+- no need to remove bind-mount code
+- no need to remove goups-of-groups-code
+
+
+
+What can/should be done in sophomorix4:
+------------------------------------------------------------
+- autodetect encoding with a Database of names
+- make the scripts much less noisy
+  - do not print out much, keep it in a complex datastructure)
+  - dump the datastructure when -v is given
+- differ between utf8-name (displayname) and ascii-name () 
