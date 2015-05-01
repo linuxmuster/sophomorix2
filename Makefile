@@ -1,4 +1,3 @@
-
 #!/usr/bin/make
 # This is the sophomorix Makefile
 # $Id$
