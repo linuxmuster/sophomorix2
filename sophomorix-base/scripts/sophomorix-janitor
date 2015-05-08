@@ -65,9 +65,9 @@ my $move_to_review_share_class="";
 my $review_days=366;
 my $review_end_date="---";
 
-# showing/deleting alumni_data
-my $show_alumni_data=0;
-my $delete_alumni_data=0;
+# showing/deleting review_data
+my $show_review_data=0;
+my $delete_review_data=0;
 my @review_dirs_overtime=(); # review until day overreached
 my @review_dirs=();   # still in review time interval
 my %review_dirs_days_to_go=();
@@ -156,8 +156,8 @@ my $testopt=GetOptions(
            "move-to-review-share-classes=s" => \$move_to_review_share_class,
            "copy-to-review-share-classes=s" => \$copy_to_review_share_class,
            "review-days=i" => \$review_days,
-           "show-alumni-data" => \$show_alumni_data,
-           "delete-alumni-data" => \$delete_alumni_data,
+           "show-review-data" => \$show_review_data,
+           "delete-review-data" => \$delete_review_data,
            "owner=s" => \$owner,
            "new-owner|newowner=s" => \$new_owner,
            "copy-to=s" => \$copy_to,
@@ -243,8 +243,8 @@ Useful shortcuts (--review-days is optional):
 
 Show/Delete revied data:
 
-    --show-alumni-data
-    --delete-alumni-data
+    --show-review-data
+    --delete-review-data
 
 Working on users files:
 
@@ -421,7 +421,6 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
         &chown_print($strange,$new_owner);
     }
 
-
     # found
     my $count_found=$count_found_files+
                     $count_found_links+
@@ -429,6 +428,7 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
                     $count_found_strange;
 
     if ($count_found>0){
+        # print everthing collected in $printout
         print $printout;
     } else {
         print "Nothing found (Files, Links, Dirs, Strange)\n";
@@ -777,19 +777,21 @@ if ($move_to_review_share_project ne "" or
                  " --copy-to $target";
         }
 
-        print "$command\n";
+        if ($Conf::log_level==2){
+            print "$command\n";
+        }
         system("$command");
     }
 }
 
 
 
-# --show-alumni-data
-# --delete-alumni-data
-if ($show_alumni_data==1 or 
-    $delete_alumni_data==1
+# --show-review-data
+# --delete-review-data
+if ($show_review_data==1 or 
+    $delete_review_data==1
    ){
-    print "* Looking for Directories containing ${Language::alumni_review_string}\n";
+    print "Looking for Directories containing ${Language::alumni_review_string}... \n";
     my @searchdirs=("/home/students","/home/share","/home/teachers");
     # find the files an save them in perl lists
     find(\&all_review_dirs, @searchdirs);
@@ -797,7 +799,7 @@ if ($show_alumni_data==1 or
     @review_dirs=sort @review_dirs;
     print "\n";
     print "+------+-------------------------------------------------------------------------\n";
-    print "| Days | Overtime Directory\n";
+    print "| Days | Overtime Directory (in asciibetic order)\n";
     print "+------+-------------------------------------------------------------------------\n";
     foreach my $dir (@review_dirs_overtime){
         printf "|%5s | %-70s\n",$review_dirs_days_to_go{$dir},$dir;
@@ -805,16 +807,16 @@ if ($show_alumni_data==1 or
     print "+------+-------------------------------------------------------------------------\n";
     print "\n";
 
-    if ($show_alumni_data==1){
+    if ($show_review_data==1){
         print "+------+-------------------------------------------------------------------------\n";
-        print "| Days | Review Directory\n";
+        print "| Days | Review Directory (in asciibetic order)\n";
         print "+------+-------------------------------------------------------------------------\n";
         foreach my $dir (@review_dirs){
             printf "|%5s | %-70s\n",$review_dirs_days_to_go{$dir},$dir;
         }
         print "+------+-------------------------------------------------------------------------\n";
     }
-    if ($delete_alumni_data==1){
+    if ($delete_review_data==1){
         print "\n";
         print "Please delete the Directories from the table 'Overtime Directory' by hand!\n";
         print "\n";
