@@ -72,8 +72,6 @@ my @review_dirs_overtime=(); # review until day overreached
 my @review_dirs=();   # still in review time interval
 my %review_dirs_days_to_go=();
 
-
-
 # separator in logfiles
 my $sep="|::|";
 # The following are lists where the search result is saved:
@@ -109,6 +107,8 @@ my $dump_pg_ldap=0;
 
 
 my @userlist=();
+my %userlist=();
+
 my $classes="";
 my $projects="";
 my $student=0;
@@ -284,6 +284,11 @@ Please see the sophomorix-janitor(8) man pages for full documentation
 # userlist according to options
 @userlist=&create_userlist($login,$classes,0,$projects,0,$student,
                                $rooms,$ws,$administrator,$check);
+# create hash for faster access
+foreach my $login (@userlist){
+    $userlist{$login}="seen";
+}
+
 
 # --info
 if ($info==1){
@@ -769,21 +774,33 @@ if ($move_to_review_share_project ne "" or
 if ($show_alumni_data==1 or 
     $delete_alumni_data==1
    ){
-    
-    print "The following Directories contain data for review:\n";
-print "Looking for Directories containing ${Language::alumni_review_string}\n";
+    print "* Looking for Directories containing ${Language::alumni_review_string}\n";
+    my @searchdirs=("/home/students","/home/share","/home/teachers");
     # find the files an save them in perl lists
-    find(\&all_review_dirs, "/home/students");
+    find(\&all_review_dirs, @searchdirs);
     @review_dirs_overtime=sort @review_dirs_overtime;
     @review_dirs=sort @review_dirs;
-    print "Overtime:";    foreach my $dir (@review_dirs_overtime){
-        print "  $dir\n";
+    print "\n";
+    print "+------+-------------------------------------------------------------------------\n";
+    print "| Days | Overtime Directory\n";
+    print "+------+-------------------------------------------------------------------------\n";
+    foreach my $dir (@review_dirs_overtime){
+        printf "|%5s | %-70s\n",$review_dirs_days_to_go{$dir},$dir;
     }
-    print "Still to review:";
+    print "+------+-------------------------------------------------------------------------\n";
+    print "\n";
+    print "+------+-------------------------------------------------------------------------\n";
+    print "| Days | Review Directory\n";
+    print "+------+-------------------------------------------------------------------------\n";
     foreach my $dir (@review_dirs){
-        print "  $dir\n";
+        printf "|%5s | %-70s\n",$review_dirs_days_to_go{$dir},$dir;
     }
-
+    print "+------+-------------------------------------------------------------------------\n";
+    if ($delete_alumni_data==1){
+        print "\n";
+        print "Please delete the Directories from the table 'Overtime Directory' by hand.\n";
+        print "\n";
+    }
     exit;
 }
 
@@ -1693,28 +1710,26 @@ if ($listfiles==1 and $uid!=0 ){
 sub all_review_dirs {
     my $epoch_now=time;
     if (-d $_ and m/${Language::alumni_review_string}/){
-#        print "$File::Find::name\n"; # abs_path
         my ($user,$date) =split("${Language::alumni_review_string}");
+        if ($login ne "" and not exists $userlist{$user}){
+            return;
+        }
         my ($year,$month,$day)=split("-",$date);
         my $delete_epoch=timelocal(0, 0, 0, $day , ($month-1), $year);
-
-#        print "$epoch_now   $year $month $day  $delete_epoch  $user  --> $date\n";
         my $time_to_go=$delete_epoch-$epoch_now;
-        my $time_to_go_days=1+int($time_to_go/86400);
-        if ($time_to_go_days<1){
-            $time_to_go_days=$time_to_go_days-1;
+        if ($time_to_go>1){
+            # integer 0 goes from -0,999 to +0,999 (double a big as usual)
+            # add 86400 seconds to avoid this problem
+            $time_to_go=$time_to_go+86400;
         }
-
-#        print "Seconds to go: $time_to_go\n";
-#        print "Days to go: $time_to_go_days\n";
-        if ($time_to_go_days<1){
+        my $time_to_go_days=int($time_to_go/86400);
+        if ($time_to_go_days<0){
 	    push @review_dirs_overtime, $File::Find::name;
         } else {
 	    push @review_dirs, $File::Find::name;
         }
         $review_dirs_days_to_go{$File::Find::name}=$time_to_go_days;
     }    
-
 }
 
 
