@@ -68,9 +68,9 @@ my $review_end_date="---";
 # showing/deleting alumni_data
 my $show_alumni_data=0;
 my $delete_alumni_data=0;
-    my @overtime=(); # review until day overreached
-    my @review=();   # still in review time interval
-    my %dir_days=();
+my @review_dirs_overtime=(); # review until day overreached
+my @review_dirs=();   # still in review time interval
+my %review_dirs_days_to_go=();
 
 
 
@@ -774,14 +774,13 @@ if ($show_alumni_data==1 or
 print "Looking for Directories containing ${Language::alumni_review_string}\n";
     # find the files an save them in perl lists
     find(\&all_review_dirs, "/home/students");
-    @overtime=sort @overtime;
-    @review=sort @review;
-    print "Overtime:";
-    foreach my $dir (@overtime){
+    @review_dirs_overtime=sort @review_dirs_overtime;
+    @review_dirs=sort @review_dirs;
+    print "Overtime:";    foreach my $dir (@review_dirs_overtime){
         print "  $dir\n";
     }
     print "Still to review:";
-    foreach my $dir (@review){
+    foreach my $dir (@review_dirs){
         print "  $dir\n";
     }
 
@@ -1709,11 +1708,11 @@ sub all_review_dirs {
 #        print "Seconds to go: $time_to_go\n";
 #        print "Days to go: $time_to_go_days\n";
         if ($time_to_go_days<1){
-	    push @overtime, $File::Find::name;
+	    push @review_dirs_overtime, $File::Find::name;
         } else {
-	    push @review, $File::Find::name;
+	    push @review_dirs, $File::Find::name;
         }
-        $dir_days{$File::Find::name}=$time_to_go_days;
+        $review_dirs_days_to_go{$File::Find::name}=$time_to_go_days;
     }    
 
 }
