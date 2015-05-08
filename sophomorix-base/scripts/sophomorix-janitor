@@ -151,10 +151,10 @@ my $testopt=GetOptions(
            "copy-to-review-home=s" => \$copy_to_review_home,
            "move-to-review-share-teacher=s" => \$move_to_review_share_teacher,
            "copy-to-review-share-teacher=s" => \$copy_to_review_share_teacher,
-           "move-to-review-share-project=s" => \$move_to_review_share_project,
-           "copy-to-review-share-project=s" => \$copy_to_review_share_project,
-           "move-to-review-share-class=s" => \$move_to_review_share_class,
-           "copy-to-review-share-class=s" => \$copy_to_review_share_class,
+           "move-to-review-share-projects=s" => \$move_to_review_share_project,
+           "copy-to-review-share-projects=s" => \$copy_to_review_share_project,
+           "move-to-review-share-classes=s" => \$move_to_review_share_class,
+           "copy-to-review-share-classes=s" => \$copy_to_review_share_class,
            "review-days=i" => \$review_days,
            "show-alumni-data" => \$show_alumni_data,
            "delete-alumni-data" => \$delete_alumni_data,
@@ -372,15 +372,19 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
         $new_uid_number = getpwnam($new_owner);
     }
     
-    
-    print "############################################################\n";
-    print "Finding files in:\n";
-    print "   $find_files \n";
-    print "owner: $owner (UidNumber: $uid_number)\n";
+    # save printout to show only if something ist found
+    my $printout="";    
+
+    $printout=$printout.
+        "############################################################\n".
+        "Finding files in:\n".
+        "   $find_files \n".
+        "owner: $owner (UidNumber: $uid_number)\n";
     if ($new_owner ne ""){
-       print "new owner: $new_owner (UidNumber: $new_uid_number)\n";
+        $printout=$printout."new owner: $new_owner (UidNumber: $new_uid_number)\n";
     }
-    print "############################################################\n";
+    $printout=$printout.
+        "############################################################\n".
 
     # find the files an save them in perl lists
     find(\&files_owned_by, $find_files);
@@ -389,35 +393,45 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     # dir list: longest first (so that empty dirs can be deleted)
     @find_dirs_list = sort { length($b) <=> length($a) } @find_dirs_list;
 
-
-    # print summary
-
     # files  
     $count_found_files=$#find_files_list+1;
-    printf "%6s files found\n", $count_found_files;
+    $printout=$printout.sprintf "%6s files found\n", $count_found_files;
     foreach my $file (@find_files_list){
         &chown_print($file,$new_owner);
     }
 
     # links
     $count_found_links=$#find_links_list+1;
-    printf "%6s links found\n", $count_found_links;
+    $printout=$printout.sprintf "%6s links found\n", $count_found_links;
     foreach my $link (@find_links_list){
         &chown_print($link,$new_owner);
     }
 
     # dirs
     $count_found_dirs=$#find_dirs_list+1;
-    printf "%6s dirs found\n", $count_found_dirs;
+    $printout=$printout.sprintf "%6s dirs found\n", $count_found_dirs;
     foreach my $dir (@find_dirs_list){
         &chown_print($dir,$new_owner);
     }
 
     #strange stuff
     $count_found_strange=$#find_strange_list+1;
-    printf "%6s strange stuff found\n",$count_found_strange;
+    $printout=$printout.sprintf "%6s stuff found\n",$count_found_strange;
     foreach my $strange (@find_strange_list){
         &chown_print($strange,$new_owner);
+    }
+
+
+    # found
+    my $count_found=$count_found_files+
+                    $count_found_links+
+                    $count_found_dirs+
+                    $count_found_strange;
+
+    if ($count_found>0){
+        print $printout;
+    } else {
+        print "Nothing found (Files, Links, Dirs, Strange)\n";
     }
 
     my $target_dir="";
@@ -741,11 +755,12 @@ if ($move_to_review_share_project ne "" or
                    $login.
                    ${Language::alumni_review_string}.
                    $review_end_date;
-        print "  Moving/Copying data of $gecos ($login) in:\n";
-        print "    $source\n";
-        print "  for review into directory:\n";
-        print "    $target\n";
-
+        if ($Conf::log_level==2){
+            print "  Moving/Copying data of $gecos ($login) in:\n";
+            print "    $source\n";
+            print "  for review into directory:\n";
+            print "    $target\n";
+        }
         # execute sophomorix-janitor
         my $command="";
         if ($move_to_review_share_project ne ""){
@@ -763,7 +778,7 @@ if ($move_to_review_share_project ne "" or
         }
 
         print "$command\n";
-        #system("$command");
+        system("$command");
     }
 }
 
