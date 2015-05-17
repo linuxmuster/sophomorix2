@@ -1,0 +1,42 @@
+sophomorix4 is the next generation sophomorix
+This file is relevant only IF THERE IS A REWRITE of sophomorix
+
+Consider this:
+------------------------------------------------------------
+- Usig ldap instead of postgres
+  (Avoid)
+- Use Python (or other) instead of perl
+  + no need to upgrade to perl 6
+  + python 3 is new and popular
+  - rewrite, 
+  - Python lerning
+
+What leads towards a rewrite (instead of fixing old code)
+------------------------------------------------------------
+- change from Perl to Python (or other)
+- no need to remove bind-mount code in sophomorix2
+- no need to remove goups-of-groups-code in sophomorix2
+  use function in the end that fixes everything
+- add multiple schools support (better to do this from scratch)
+  - create students group
+  - create group school1, group school2 
+- use english througout (variable names, comments, ...)
+- create a library to access/add/remove data from ldap
+  - to be used from schulkonsole, ...
+- integrate /etc/linuxmuster/workstation into ldap
+  - sync to ldap
+  - create accounts
+  - import workstations/linbo?/??? accesses workstation data in ldap
+- integrate leoclient2 into ldap ???
+- migrate sophomorix.conf to utf8
+
+
+
+What can/should be done in sophomorix4:
+------------------------------------------------------------
+- autodetect encoding with a Database of names
+- log schueler.txt, ... automatically (if they differ)
+- make the scripts much less noisy
+  - do not print out much, keep it in a complex datastructure)
+  - dump the datastructure when -v is given
+- differ between utf8-name (displayname) and ascii-name () 

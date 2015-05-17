@@ -1,0 +1,105 @@
+#!/usr/bin/perl -w
+# $Id$
+# This script converts the cvs dump of Atlantis Listenfilter 
+# to the schueler.txt format
+#
+# This script might be updated after installing an sophomorix-base package.
+# You must copy it by hand to its location and adjust the configuration.
+#
+#
+# Fetch data from Atlantis the following way:
+# as described in http://www.linuxmuster.net/wiki/dokumentation:sophomorix:svp_atlantis
+
+
+############################################################
+# Start configure 
+############################################################
+
+# keep this settings
+my $source="/etc/sophomorix/user/schueler.txt";
+my $tmp="/var/lib/sophomorix/tmp/schueler.txt.filter.tmp";
+my $target="/var/lib/sophomorix/tmp/schueler.txt.tmp";
+
+
+############################################################
+# Filter
+############################################################
+
+open(SOURCE, "<$source") || die "Fehler: $! $source not found!"; 
+open(TMP, ">$tmp") || die "Fehler: $! $tmp not found!"; 
+while (<SOURCE>){
+    chomp();
+    my ($number,
+        $class,
+        $surname,
+        $firstname,
+        $birthday,
+        $unid,
+       )=split(";");
+
+
+    $number=&remove_quote($number);
+    $class=&remove_quote($class);
+    $surname=&remove_quote($surname);
+    $firstname=&remove_quote($firstname);
+    $birthday=&remove_quote($birthday);
+    $unid=&remove_quote($unid);
+
+    if ($class eq "Klasse" and $number eq "Lfd Nr"){
+        print "Next Line\n";
+        next;
+    }
+
+    if ($class=~m/^_/){
+        next;
+    }
+
+    # modify ubid as in old export:
+    $unid=~s/[A-Z]//g;
+    $unid="-".$unid;
+#
+
+    print "User >$number<\n";
+    print "   Class :      >$class<\n";
+    print "   Surname :    >$surname<\n";
+    print "   Firstname :  >$firstname<\n";
+    print "   birthday :   >$birthday<\n";
+    print "   Unid :       >$unid<\n";
+
+
+
+    my $semicolons_per_line=tr/;//;
+    if (not $semicolons_per_line==6){
+        print "Number of Semicolons is $semicolons_per_line\n";
+        exit;
+    }
+
+
+
+
+    # create line
+    print TMP $class.";".$surname.";".$firstname.";".$birthday.";".$unid.";\n";
+}
+close(SOURCE);
+close(TMP);
+
+
+
+
+
+system("cp $tmp $target");
+
+
+
+############################################################
+# subs
+############################################################
+
+sub remove_quote {
+    my ($string)=@_;
+    $string=~s/^"//g;
+    $string=~s/"$//g;
+    $string=~s/^ //g;
+    $string=~s/ $//g;
+    return $string;
+}

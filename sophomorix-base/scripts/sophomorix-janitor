@@ -64,11 +64,19 @@ my $copy_to_review_share_class="";
 my $move_to_review_share_class="";
 my $review_days=366;
 my $review_end_date="---";
+
+# showing/deleting review_data
+my $show_review_data=0;
+my $delete_review_data=0;
+my @review_dirs_overtime=(); # review until day overreached
+my @review_dirs=();   # still in review time interval
+my %review_dirs_days_to_go=();
+
 # separator in logfiles
 my $sep="|::|";
 # The following are lists where the search result is saved:
-my @find_links_list=();
 my @find_files_list=();
+my @find_links_list=();
 my @find_dirs_list=();
 my @find_strange_list=();
 my $count_found_links=0;
@@ -99,6 +107,8 @@ my $dump_pg_ldap=0;
 
 
 my @userlist=();
+my %userlist=();
+
 my $classes="";
 my $projects="";
 my $student=0;
@@ -141,11 +151,13 @@ my $testopt=GetOptions(
            "copy-to-review-home=s" => \$copy_to_review_home,
            "move-to-review-share-teacher=s" => \$move_to_review_share_teacher,
            "copy-to-review-share-teacher=s" => \$copy_to_review_share_teacher,
-           "move-to-review-share-project=s" => \$move_to_review_share_project,
-           "copy-to-review-share-project=s" => \$copy_to_review_share_project,
-           "move-to-review-share-class=s" => \$move_to_review_share_class,
-           "copy-to-review-share-class=s" => \$copy_to_review_share_class,
+           "move-to-review-share-projects=s" => \$move_to_review_share_project,
+           "copy-to-review-share-projects=s" => \$copy_to_review_share_project,
+           "move-to-review-share-classes=s" => \$move_to_review_share_class,
+           "copy-to-review-share-classes=s" => \$copy_to_review_share_class,
            "review-days=i" => \$review_days,
+           "show-review-data" => \$show_review_data,
+           "delete-review-data" => \$delete_review_data,
            "owner=s" => \$owner,
            "new-owner|newowner=s" => \$new_owner,
            "copy-to=s" => \$copy_to,
@@ -161,7 +173,6 @@ my $testopt=GetOptions(
 
 # Prüfen, ob Optionen erkannt wurden
 &check_options($testopt);
-
 # / as causes trouble because it ends with / and is useless anyway
 if ($copy_to eq "/" or 
     $move_to eq "/"or 
@@ -230,6 +241,11 @@ Useful shortcuts (--review-days is optional):
     --move-to-review-share-class login --review-days num 
     --copy-to-review-share-class login --review-days num 
 
+Show/Delete revied data:
+
+    --show-review-data
+    --delete-review-data
+
 Working on users files:
 
   --listfiles --user name (tut nicht!)
@@ -268,6 +284,11 @@ Please see the sophomorix-janitor(8) man pages for full documentation
 # userlist according to options
 @userlist=&create_userlist($login,$classes,0,$projects,0,$student,
                                $rooms,$ws,$administrator,$check);
+# create hash for faster access
+foreach my $login (@userlist){
+    $userlist{$login}="seen";
+}
+
 
 # --info
 if ($info==1){
@@ -351,15 +372,19 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
         $new_uid_number = getpwnam($new_owner);
     }
     
-    
-    print "############################################################\n";
-    print "Finding files in:\n";
-    print "   $find_files \n";
-    print "owner: $owner (UidNumber: $uid_number)\n";
+    # save printout to show only if something ist found
+    my $printout="";    
+
+    $printout=$printout.
+        "############################################################\n".
+        "Finding files in:\n".
+        "   $find_files \n".
+        "owner: $owner (UidNumber: $uid_number)\n";
     if ($new_owner ne ""){
-       print "new owner: $new_owner (UidNumber: $new_uid_number)\n";
+        $printout=$printout."new owner: $new_owner (UidNumber: $new_uid_number)\n";
     }
-    print "############################################################\n";
+    $printout=$printout.
+        "############################################################\n".
 
     # find the files an save them in perl lists
     find(\&files_owned_by, $find_files);
@@ -368,35 +393,45 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     # dir list: longest first (so that empty dirs can be deleted)
     @find_dirs_list = sort { length($b) <=> length($a) } @find_dirs_list;
 
-
-    # print summary
-
     # files  
     $count_found_files=$#find_files_list+1;
-    printf "%6s files found\n", $count_found_files;
+    $printout=$printout.sprintf "%6s files found\n", $count_found_files;
     foreach my $file (@find_files_list){
         &chown_print($file,$new_owner);
     }
 
-    # dirs
-    $count_found_dirs=$#find_dirs_list+1;
-    printf "%6s dirs found\n", $count_found_dirs;
-    foreach my $dir (@find_dirs_list){
-        &chown_print($dir,$new_owner);
-    }
-
     # links
     $count_found_links=$#find_links_list+1;
-    printf "%6s links found\n", $count_found_links;
+    $printout=$printout.sprintf "%6s links found\n", $count_found_links;
     foreach my $link (@find_links_list){
         &chown_print($link,$new_owner);
     }
 
+    # dirs
+    $count_found_dirs=$#find_dirs_list+1;
+    $printout=$printout.sprintf "%6s dirs found\n", $count_found_dirs;
+    foreach my $dir (@find_dirs_list){
+        &chown_print($dir,$new_owner);
+    }
+
     #strange stuff
     $count_found_strange=$#find_strange_list+1;
-    printf "%6s strange stuff found\n",$count_found_strange;
+    $printout=$printout.sprintf "%6s stuff found\n",$count_found_strange;
     foreach my $strange (@find_strange_list){
         &chown_print($strange,$new_owner);
+    }
+
+    # found
+    my $count_found=$count_found_files+
+                    $count_found_links+
+                    $count_found_dirs+
+                    $count_found_strange;
+
+    if ($count_found>0){
+        # print everthing collected in $printout
+        print $printout;
+    } else {
+        print "Nothing found (Files, Links, Dirs, Strange)\n";
     }
 
     my $target_dir="";
@@ -487,6 +522,33 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
         }
     } # end walking through @find_files_list
 
+    ######################################################################
+    print "######## Working on $count_found_links links ########\n";
+    foreach my $source_abs_link (@find_links_list){
+        my $target_abs_link=$source_abs_link;
+        # decide where to copy/move the links
+        # ??? avoid copy-to and move-to together ????????
+        if ($copy_to ne ""){
+            # option --copy-to given
+            $target_abs_link=~s/$find_files/$target_dir/;
+            &review_link("copy",$source_abs_link,$target_abs_link);
+        } elsif ($move_to ne ""){
+            # option --move-to given
+            $target_abs_link=~s/$find_files/$target_dir/;
+            &review_link("move",$source_abs_link,$target_abs_link);
+        } elsif ($copy_to_review ne ""){
+            # option --copy-to-review given
+            $target_abs_link=~s/$copy_to_review/$target_dir/;
+            &review_link("copy",$source_abs_link,$target_abs_link);
+        } elsif ($move_to_review ne ""){
+            # option --move-to-review given
+            $target_abs_link=~s/$move_to_review/$target_dir/;
+            &review_link("move",$source_abs_link,$target_abs_link);
+        } else {
+            # --find-files without --copy-to/move-to --> do nothing
+            &review_link("show",$source_abs_link,$target_abs_link);
+        }
+    } # end walking through @find_links_list
 
     ######################################################################
     print "######## Working on $count_found_dirs directories ########\n";
@@ -515,34 +577,6 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
             &review_dir("show",$source_abs_dir,$target_abs_dir);
         }
     } # end walking through @find_dirs_list
-
-    ######################################################################
-    print "######## Working on $count_found_links links ########\n";
-    foreach my $source_abs_link (@find_links_list){
-        my $target_abs_link=$source_abs_link;
-        # decide where to copy/move the links
-        # ??? avoid copy-to and move-to together ????????
-        if ($copy_to ne ""){
-            # option --copy-to given
-            $target_abs_link=~s/$find_files/$target_dir/;
-            &review_link("copy",$source_abs_link,$target_abs_link);
-        } elsif ($move_to ne ""){
-            # option --move-to given
-            $target_abs_link=~s/$find_files/$target_dir/;
-            &review_link("move",$source_abs_link,$target_abs_link);
-        } elsif ($copy_to_review ne ""){
-            # option --copy-to-review given
-            $target_abs_link=~s/$copy_to_review/$target_dir/;
-            &review_link("copy",$source_abs_link,$target_abs_link);
-        } elsif ($move_to_review ne ""){
-            # option --move-to-review given
-            $target_abs_link=~s/$move_to_review/$target_dir/;
-            &review_link("move",$source_abs_link,$target_abs_link);
-        } else {
-            # --find-files without --copy-to/move-to --> do nothing
-            &review_link("show",$source_abs_link,$target_abs_link);
-        }
-    } # end walking through @find_links_list
 
     ######################################################################
     print "######## Working on $count_found_strange strange stuff ########\n";
@@ -617,8 +651,19 @@ if ($move_to_review_home ne "" or
         $command="sophomorix-janitor --find-files $home --owner $login".
                  " --move-to $target";
     }
+    if ($Conf::log_level==2){
+        $command=$command." -v";
+    } elsif ($Conf::log_level==3){
+        $command=$command." -vv";
+    }
     print "$command\n";
     system("$command");
+    # make sure this account is usable
+    my $repair_command="sophomorix-repair --repairhome -u $login";
+    print "\n";
+    print "BEGIN OUTPUT of: $repair_command\n";
+    system("$repair_command");
+    print "END OUTPUT of: $repair_command\n";
 }
 
 
@@ -710,11 +755,12 @@ if ($move_to_review_share_project ne "" or
                    $login.
                    ${Language::alumni_review_string}.
                    $review_end_date;
-        print "  Moving/Copying data of $gecos ($login) in:\n";
-        print "    $source\n";
-        print "  for review into directory:\n";
-        print "    $target\n";
-
+        if ($Conf::log_level==2){
+            print "  Moving/Copying data of $gecos ($login) in:\n";
+            print "    $source\n";
+            print "  for review into directory:\n";
+            print "    $target\n";
+        }
         # execute sophomorix-janitor
         my $command="";
         if ($move_to_review_share_project ne ""){
@@ -731,9 +777,51 @@ if ($move_to_review_share_project ne "" or
                  " --copy-to $target";
         }
 
-        print "$command\n";
-        #system("$command");
+        if ($Conf::log_level==2){
+            print "$command\n";
+        }
+        system("$command");
     }
+}
+
+
+
+# --show-review-data
+# --delete-review-data
+if ($show_review_data==1 or 
+    $delete_review_data==1
+   ){
+    print "Looking for Directories containing ${Language::alumni_review_string}... \n";
+    my @searchdirs=("/home/students","/home/share","/home/teachers");
+    # find the files an save them in perl lists
+    find(\&all_review_dirs, @searchdirs);
+    @review_dirs_overtime=sort @review_dirs_overtime;
+    @review_dirs=sort @review_dirs;
+    print "\n";
+    print "+------+-------------------------------------------------------------------------\n";
+    print "| Days | Overtime Directory (in asciibetic order)\n";
+    print "+------+-------------------------------------------------------------------------\n";
+    foreach my $dir (@review_dirs_overtime){
+        printf "|%5s | %-70s\n",$review_dirs_days_to_go{$dir},$dir;
+    }
+    print "+------+-------------------------------------------------------------------------\n";
+    print "\n";
+
+    if ($show_review_data==1){
+        print "+------+-------------------------------------------------------------------------\n";
+        print "| Days | Review Directory (in asciibetic order)\n";
+        print "+------+-------------------------------------------------------------------------\n";
+        foreach my $dir (@review_dirs){
+            printf "|%5s | %-70s\n",$review_dirs_days_to_go{$dir},$dir;
+        }
+        print "+------+-------------------------------------------------------------------------\n";
+    }
+    if ($delete_review_data==1){
+        print "\n";
+        print "Please delete the Directories from the table 'Overtime Directory' by hand!\n";
+        print "\n";
+    }
+    exit;
 }
 
 
@@ -988,10 +1076,12 @@ sub review_file {
                 "";
 
     if ($type eq "copy" or $type eq "move"){
-        print "FILE: $display\n";
-        print "    Source:   $source\n";
-        print "    cp/mv to: $target\n";
-        print "    Parent:   $parent_dir\n";
+        print "  FILE: $display $Conf::log_level\n";
+        if($Conf::log_level>=2){
+            print "    Source:   $source\n";
+            print "    cp/mv to: $target\n";
+            print "    Parent:   $parent_dir\n";
+        }
         # copy the file
         make_path($parent_dir); # same as: mkdir -p
         copy($source,$target);
@@ -999,7 +1089,7 @@ sub review_file {
         $logline=$logline."file moved".$sep;
     } elsif ($type eq "show") {
         if($Conf::log_level>=2){
-            print "FILE: $display\n";
+            print "  FILE: $display\n";
         }
     }
 
@@ -1013,6 +1103,32 @@ sub review_file {
     }
     $logline=$logline."\n";
     print FILELOG $logline;
+}
+
+
+sub review_link {
+    my ($type,$source,$target) = @_;
+    # shorten path for display
+    my $display=$source;
+    $display=~s/$find_files//;
+    # remove leading / (if present)
+    $display=~s/^\///;
+
+    print "  LINK: $display\n";
+    if($Conf::log_level>=2){
+            print "    Omitted:   $source\n";
+    }
+    my $readlink = readlink $source;
+
+    my $logline=$target.$sep.$source.$sep.$readlink.$sep."\n";
+    # in case of move, delete link, so that dirs can be deleted
+    if ($type eq "move"){
+        print "    Deleting link: $source\n";
+        # delete the file
+        unlink $source;
+        $logline=$logline."link deleted".$sep;
+    }
+    print LINKLOG $logline;
 }
 
 
@@ -1035,16 +1151,14 @@ sub review_dir {
                 "";
 
     if ($type eq "copy"){
-        if($Conf::log_level>=2){
-            print "DIR: $display (copy: doing nothing)\n";
-        }
+        print "  DIR: $display\n";
         # make sure target is redable/browsable 
         chmod 0775, $target;
         $logline = $logline."\n";
         print DIRLOG $logline;
 
     } elsif ($type eq "move") {
-        print "DIR: $display (move: ...)\n";
+        print "  DIR: $display (move: ...)\n";
         # make sure target is redable/browsable 
         chmod 0775, $target;
         # delete empty source dirs/reown them
@@ -1055,27 +1169,13 @@ sub review_dir {
 
     } elsif ($type eq "show") {
         if($Conf::log_level>=2){
-            print "DIR: $display (show: doing nothing)\n";
+            print "  DIR: $display\n";
         }
     }
-
-}
-
-
-sub review_link {
-    my ($type,$source,$target) = @_;
-    # shorten path for display
-    my $display=$source;
-    $display=~s/$find_files//;
-    # remove leading / (if present)
-    $display=~s/^\///;
-
     if($Conf::log_level>=2){
-        print "LINK: $display\n";
+        print "    Source:   $source\n";
+        print "    Target:   $target\n";
     }
-    my $readlink = readlink $source;
-    my $logline=$target.$sep.$source.$sep.$readlink.$sep."\n";
-    print LINKLOG $logline;
 }
 
 
@@ -1627,6 +1727,33 @@ if ($listfiles==1 and $uid!=0 ){
 # Subs
 # ===========================================================================
 
+sub all_review_dirs {
+    my $epoch_now=time;
+    if (-d $_ and m/${Language::alumni_review_string}/){
+        my ($user,$date) =split("${Language::alumni_review_string}");
+        if ($login ne "" and not exists $userlist{$user}){
+            return;
+        }
+        my ($year,$month,$day)=split("-",$date);
+        my $delete_epoch=timelocal(0, 0, 0, $day , ($month-1), $year);
+        my $time_to_go=$delete_epoch-$epoch_now;
+        if ($time_to_go>1){
+            # integer 0 goes from -0,999 to +0,999 (double a big as usual)
+            # add 86400 seconds to avoid this problem
+            $time_to_go=$time_to_go+86400;
+        }
+        my $time_to_go_days=int($time_to_go/86400);
+        if ($time_to_go_days<0){
+	    push @review_dirs_overtime, $File::Find::name;
+        } else {
+	    push @review_dirs, $File::Find::name;
+        }
+        $review_dirs_days_to_go{$File::Find::name}=$time_to_go_days;
+    }    
+}
+
+
+
 sub files_owned_by {
     # all files in dirs
     my ($dev, $ino, $mode, $nlink, $uidnum, $gid) = lstat($File::Find::name);
@@ -1642,7 +1769,11 @@ sub files_owned_by {
         } elsif (-f $_){
             push @find_files_list, $File::Find::name;
         } elsif (-d $_){
-            push @find_dirs_list, $File::Find::name;
+            if ($File::Find::name eq $find_files){
+                # do not add the top dir itself
+            } else {
+                push @find_dirs_list, $File::Find::name;
+	    }
         } else {
             push @find_strange_list, $File::Find::name;
         }
