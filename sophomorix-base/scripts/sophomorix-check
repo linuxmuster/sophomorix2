@@ -606,7 +606,7 @@ if ($Conf::filter_script eq ""){
     system("cp ${DevelConf::users_pfad}/schueler.txt ${DevelConf::schueler_datei}");
 } else {
     if (-x $Conf::filter_script){
-        &titel("Running filter script $Conf::filter_script.");
+        &titel("Running filter script $Conf::filter_script ");
         $filter_return = system("$Conf::filter_script");
         if (not $filter_return==0){
             print "\n\n$scriptname: Filter script\n",
