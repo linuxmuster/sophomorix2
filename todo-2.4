@@ -5,19 +5,15 @@ sophomorix- quota mit optionen
 -c class (ehemalige)
 -t teachers
 
-sophomorix-janitor --show-alumni-data
-Listet Daten, die zur reviev sind
-- unterteilt in zu löschen
--               zur review
-
 option --move-to-review 
  soll auch mit id tun (checken, ist glaub so)
 
 --unnown-users-with-data
 -> zeigt die ids der user an, die nur id haben, aber kein Name
 
---move-to-review-projects tut noch nicht
 
+Bug beim renamen eins users: im ldap fehlt der user bei den memberUid
+Nach sophomorix-dump-pg2ldap tuts wieder
 
 Ticket 369:
 Standartwerte für
