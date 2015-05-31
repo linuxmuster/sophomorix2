@@ -18,23 +18,23 @@ Create an official package for linuxmuster 6.x:
 
 
 3. # update versions in debian/control.ubuntu
-   # i.e. replace 2.4.39 with 2.4.40
+   # i.e. replace 2.4.47 with 2.4.48
    # (so that apt-get update sophomorix2 updates all sophomorix-* packages)
 
 
 4. # update changelog file:
    cd sophomorix2
    dch -i 
-     -> set version number (example: 2.4.40-1)
+     -> set version number (example: 2.4.48-1)
      -> add a comment to the changelog
-     -> set a repo like precice OR precice-testing
+     -> set a repo like precice OR precice-testing OR babo
         (this determines, in which repo the package will be uploaded)
 
 
 5. # Check in modified files (use the jeffbeck key):
    cd sophomorix2
    git add debian/control.ubuntu debian/changelog
-   git commit -m "prepared sophomorix for new package 2.4.40-1"
+   git commit -m "prepared sophomorix for new package 2.4.48-1"
    git push
 
 
@@ -44,12 +44,12 @@ Create an official package for linuxmuster 6.x:
 
 7. # If a successful package was created:
    # Tag the stuff with annotated, unsigned tag
-   git tag V-2.4.40-1
+   git tag V-2.4.48-1
    git push --tags
 
 
 8. # upload the packages to linuxmuster.net
-   dput -f -c ./dput.cf linuxmuster.net sophomorix_2.4.40-1.changes
+   dput -f -c ./dput.cf linuxmuster.net sophomorix_2.4.48-1.changes
 
    # With dput.cf
    [linuxmuster.net]
