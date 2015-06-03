@@ -1,0 +1,128 @@
+# $Id$
+# Diese Liste wird von sophomorix-repair ausgelesen
+#
+# Platzhalter:
+#
+# Gruppen:
+# $klassen         alle Klassen in denen Schüler sind (OHNE lehrer)
+# $raeume          alle Räume, in denen sich Workstations befinden
+# $projects        alle Projekte der Schule
+# $subclasses      alle Subclassen der Schule
+#
+# User:
+# $schueler                         alle Schüler der Schule
+# $schueler rechts von $klassen     alle Schüler dieser Klasse
+# $lehrer                           alle Lehrer der Schule
+# $workstation                      alle Workstation der Schule
+# $workstation rechts von $raeume   alle Workstation dieses Raumes
+#
+# $members rechts von $projects     alle Mitglieder dieses Projektes
+#
+# $apache_user                      Der Apache_user
+# $apache_group                     Die Apache_group
+#
+#  ! Es darf nur max. 1 Gruppenplatzhalter der obigen vorkommen (auch mehrmals)
+#  ! Es darf nur max. 1 Userplatzhalter der obigen vorkommen (auch mehrmals)
+#
+# Mehrere zulässige Verzeichnisrechte angeben:
+# Beispiel: 2750/2751   
+#    - korrigirt NICHT wenn Dateirechte 2750 ODER 2751 sind   
+#    - wenn Verzeichnis ANGELEGT wird, wird 2750 verwendet (der erste Wert)
+#
+#Pfad::owner::groupowner::hex-permission
+#/home/testen/$klassen/$schueler::$schueler::domadmins::0707
+#
+
+# /var/*
+$var_lib_pfad::root::root::0700
+$log_files::root::root::0700
+
+
+###   /home/*
+
+$homedir_all_admins::root::root::0771
+$homedir_teacher::administrator::teachers::0751
+$homedir_pupil::root::root::0775
+$homedir_ws::root::root::0775
+$attic::root::root::0775
+
+### SHARES
+$share_share::root::domadmins::0755
+$share_classes::root::root::0775
+$share_subclasses::root::root::0775
+$share_exams::root::root::0775
+$share_projects::root::root::0775
+$share_school::administrator::teachers::3777/0700
+#$share_tasks::administrator::domadmins::0775
+$share_teacher::administrator::teachers::3770
+
+$share_classes/$klassen::administrator::$klassen::3770
+$share_subclasses/$subclasses::administrator::$subclasses::3770
+$share_projects/$projects::administrator::$projects::3770
+
+
+### TASKS
+
+$tasks_tasks::root::root::1771
+
+$tasks_classes::administrator::teachers::1751
+$tasks_teachers::administrator::teachers::3770
+$tasks_subclasses::administrator::teachers::1751
+$tasks_projects::administrator::teachers::1751
+$tasks_rooms::administrator::teachers::1751
+
+$tasks_classes/$klassen::administrator::teachers::3775
+$tasks_subclasses/$subclasses::administrator::teachers::3775
+$tasks_projects/$projects::administrator::teachers::3775
+$tasks_rooms/$raeume::administrator::teachers::3775
+
+
+
+### STUDENTS
+### see repairhome.student
+
+$homedir_pupil/$klassen::administrator::teachers::1751 
+
+
+### TEACHER
+### see repairhome.teacher
+
+
+
+### WORKSTATION
+### see repairhome.workstation
+
+$homedir_ws/$raeume::root::teachers::1751
+
+
+
+### /var/www/...
+
+#/var/www::root::root::0755
+#$www_people::root::root::0700/0755
+
+#$www_classes::root::root::0755
+#$www_classes/$klassen::www-data::www-data::0755
+
+#$www_projects::root::root::0755
+#$www_projects/$projects::www-data::www-data::0755
+
+#$www_teachers::root::root::0755
+#$www_teachers/$lehrer::www-data::www-data::0755
+
+#$www_students::root::root::0755
+#$www_students/$schueler::www-data::www-data::0755
+
+
+
+
+### SAMBA
+
+$homedir_samba::root::root::0755
+$homedir_samba_cds::administrator::domadmins::0775
+$homedir_samba_netlogon::administrator::domadmins::0755
+$homedir_samba_progs::administrator::domadmins::0775
+
+
+### Security
+
