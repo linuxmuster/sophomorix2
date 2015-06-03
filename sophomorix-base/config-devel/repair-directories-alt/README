@@ -1,0 +1,24 @@
+This directorie contains alternativ repair.directories files.
+
+repair.directories-6.0 
+  - was the file for linuxmuster 6.0
+  - is saved for historical reasons
+repair.directories-6.1-stable 
+  - ist the file for linuxmuster 6.1 that should be used
+repair.directories-6.1 
+  - ist the file for linuxmuster 6.1
+  - is currently developed
+
+If you want to test the current development of this file on 6.1:
+
+1) cd /usr/share/sophomorix/devel/repair-directories-alt
+2) cp repair.directories-6.1 ../repair.directories
+3) sophomorix-repair --permissions
+
+To switch back to the stable version
+
+1) cd /usr/share/sophomorix/devel/repair-directories-alt
+2) cp repair.directories-6.1-stable ../repair.directories
+3) sophomorix-repair --permissions
+
+
