@@ -45,40 +45,41 @@ Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .SH DATEIEN ZUM BEGUTACHTEN KOPIEREN/VERSCHIEBEN 
 Beim Begutachten wird mit den Daten EINES Users folgendes gemacht:
 . IP \(em 3
-Die Daten werden beim kopieren/verschieben dem User root
+Die Daten werden beim Kopieren/Verschieben dem User root
 überantwortet. Damit wird das Festplatten-Quota des Users entlastet.
 . IP \(em
 Beim Verschieben werden die Daten exakt gleich wie beim Kopieren
-zuerst ans Ziel kopiert. Danach werden allerdings die Quelldaten
-gelöscht.
+zuerst aus der Quelle ans Ziel kopiert. DANACH werden allerdings die
+Quelldaten gelöscht (Verschieben dauert also länger als kopieren).
 . IP \(em
 Im Zielverzeichnis gibt es das
 Log-Verzeichnis .sophomorix-janitor. Dort finden sich die
-Informationen, die beim verschieben verloren gehen würden (owner,
+Informationen, die beim Verschieben verloren gehen würden (owner,
 groupowner, atime, mtime, ctime der Quelledaten).
 . IP \(em
 In Zukunft wird es ein cronjob geben, der nach der abgelaufenen Zeit
 die zu begutachtenden Daten löscht.
 .TP
-Zeitlicher Ablauf:
+Zeitlicher Ablauf beim Verschieben/Kopieren:
 .TP
 . IP \(em 
-Schritt 1: Dateien werden mit demselben relativen Pfad
+Schritt 1: Dateien des Users werden mit demselben relativen Pfad
 kopiert/verschoben. Dazu benötigte übergeordnete Verzeichnisse werden
 angelegt.
 . IP \(em
-Schritt 2: Verzeichnisse brauchen wegen Schritt 1 nicht mehr kopiert
-zu werden. Beim Verschieben werden leere Verzeichnisse der Quelle
-entfernt. Nichtleere Verzeichnisse der Quelle werden dem user
-überantwortet, der in der obersten Verzeichnisebene dieses
-Verzeichnises die meisten Daten besitzt.
+Schritt 2: Verzeichnisse brauchen wegen Schritt 1 nicht mehr
+kopiert/verschoben zu werden. Beim Verschieben werden leer gewordene
+Verzeichnisse der Quelle entfernt. Nicht leer gewordene Verzeichnisse
+der Quelle die dem User gehören, werden demjenigen User überantwortet,
+der die meisten Dateien in dem Verzeichnis besitzt.
 . IP \(em
 Schritt 3: Links werden nicht kopiert/verschoben.
 . IP \(em
 Schritt 4: Alle restlichen Daten werden nicht kopiert/verschoben.
 .br 
 .SH GRUNDLEGENDE OPTIONEN ZUM BEGUTACHTEN:
-Optionen ohne Angabe des Zielverzeichnisses: 
+Optionen ohne Angabe des Zielverzeichnisses (für
+Spezialfälle. Normalerweise reichen die SHORTCUT-Optionen weiter unten):
 .TP
 .in 3
 .B --find-files /quelle --owner uid
@@ -118,8 +119,11 @@ Die Option --review-days ist optional. Standardwert: 366 Tage.
 Die Option --uid kann sowohl uid-Name als auch uid-Number enthalten. 
 .br
 .SH SHORTCUT-OPTIONEN ZUM BEGUTACHTEN
+Dies sind die Optionen, die üblicherweise ausreichen, wenn ein User
+mit Daten in den Tauschverzeichnissen aus dem System entfernt wird.
 .TP
-Begutachten der Dateien in $HOME eines Users:
+Begutachten der Dateien in $HOME eines Users 
+(Ziel: $HOME/login_bleibt_erhalten_bis_DATUM):
 .TP 
 .in 3
 .B --move-to-review-home login --review-days num
@@ -127,7 +131,8 @@ Begutachten der Dateien in $HOME eines Users:
 .in 3
 .B --copy-to-review-home login --review-days num
 .TP
-Begutachten der Dateien im Tauschverzeichnis der Lehrer:
+Begutachten der Dateien im Tauschverzeichnis der Lehrer 
+(Ziel: LehrerTausch/login_bleibt_erhalten_bis_DATUM):
 .TP 
 .in 3
 .B --move-to-review-teacher login --review-days num
@@ -137,7 +142,8 @@ Begutachten der Dateien im Tauschverzeichnis der Lehrer:
 .TP
 Die Option --review-days ist optional. Standardwert: 366 Tage.
 .TP
-Begutachten der Dateien in allen Projekt-Tausch-Verzeichnissen:
+Begutachten der Dateien in allen Projekt-Tausch-Verzeichnissen 
+(Ziel: login_bleibt_erhalten_bis_DATUM im jeweiligen Projekt-Tausch-Verzeichnis):
 .TP 
 .in 3
 .B --move-to-review-share-project login --review-days num
@@ -145,7 +151,8 @@ Begutachten der Dateien in allen Projekt-Tausch-Verzeichnissen:
 .in 3
 .B --copy-to-review-share-project login --review-days num
 .TP
-Begutachten der Dateien in allen Klassen-Tausch-Verzeichnissen:
+Begutachten der Dateien in allen Klassen-Tausch-Verzeichnissen
+(Ziel: login_bleibt_erhalten_bis_DATUM im jeweiligen Klassen-Tausch-Verzeichnis)::
 .TP 
 .in 3
 .B --move-to-review-share-class login --review-days num
@@ -157,7 +164,7 @@ Begutachten der Dateien in allen Klassen-Tausch-Verzeichnissen:
 .TP 
 .B --check-horde
 Sucht in der Horde3-Datenbank in der Tabelle horde_prefs nach
-Einträgen von usern, die im System nicht mehr existieren.
+Einträgen von Usern, die im System nicht mehr existieren.
 .TP
 .B --dump-pg-ldap
 Dumpt die pstgresql Datenbank ldap der Benutzerverwaltung mit
@@ -180,7 +187,7 @@ Die Auswahl erfolgt anhäufend. Das bedeutet, dass durch Angabe
 mehrerer Optionen eine Userliste erzeugt wird, in der kein User
 doppelt vorkommt, aber jeder enthalten ist.
 .TP
-.B -u user1,user2,... / --users user1,user2,... 
+.B -u User1,User2,... / --users User1,User2,... 
 .TP
 .B -c class1,class2,... / --class class1,class2,...
 Als Klasse kann auch <teachers> angegeben werden.
