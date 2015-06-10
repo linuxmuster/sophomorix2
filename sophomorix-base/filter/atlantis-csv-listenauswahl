@@ -15,11 +15,16 @@
 # Start configure 
 ############################################################
 
+my $current_year_string="2014/15";
+
+
+
 # keep this settings
 my $source="/etc/sophomorix/user/schueler.txt";
 my $tmp="/var/lib/sophomorix/tmp/schueler.txt.filter.tmp";
 my $target="/var/lib/sophomorix/tmp/schueler.txt.tmp";
 
+my %unid_store=();
 
 ############################################################
 # Filter
@@ -35,6 +40,7 @@ while (<SOURCE>){
         $firstname,
         $birthday,
         $unid,
+        $schoolyear,
        )=split(";");
 
 
@@ -44,6 +50,7 @@ while (<SOURCE>){
     $firstname=&remove_quote($firstname);
     $birthday=&remove_quote($birthday);
     $unid=&remove_quote($unid);
+    $schoolyear=&remove_quote($schoolyear);
 
     if ($class eq "Klasse" and $number eq "Lfd Nr"){
         print "Next Line\n";
@@ -65,17 +72,28 @@ while (<SOURCE>){
     print "   Firstname :  >$firstname<\n";
     print "   birthday :   >$birthday<\n";
     print "   Unid :       >$unid<\n";
+    print "   SchoolYear : >$schoolyear<\n";
 
 
 
     my $semicolons_per_line=tr/;//;
-    if (not $semicolons_per_line==6){
+    if (not $semicolons_per_line==7){
         print "Number of Semicolons is $semicolons_per_line\n";
-        exit;
+        exit 1;
     }
 
+    # use students of current year only
+    if ($schoolyear ne $current_year_string){
+        print "Omitted ($schoolyear): ".$class.";".$surname.";".$firstname.";".$birthday.";".$unid."##############################\n";
+        next;
+    }
 
-
+    if (exists $unid_store{$unid}){
+        print "########## $unid is double ##########\n";
+        exit 1;
+    } else {
+        $unid_store{$unid}="seen";
+    }
 
     # create line
     print TMP $class.";".$surname.";".$firstname.";".$birthday.";".$unid.";\n";
