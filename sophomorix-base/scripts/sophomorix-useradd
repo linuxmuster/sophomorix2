@@ -146,9 +146,9 @@ if ($info==1){
 
 
 # some exits if options are missing
-if ($unix_group ne "" and ($examaccount eq "" or 
-                           $administrator eq "" or 
-                           $unixadmin eq "") or 
+if ($unix_group ne "" and ($examaccount ne "" or 
+                           $administrator ne "" or 
+                           $unixadmin ne "") or 
                    ($computer ne "") ){
    # thats OK 
 } else {
