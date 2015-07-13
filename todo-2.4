@@ -1,9 +1,12 @@
 sophomorix-print --caller-copy user 
 -> meldet, dass es keine letzten user gibt
   -> sollten immer die letzten user anzeigen 
-     (in /va/log/sophomorix-user.modify.log?) 
-     die im letzten Lauf hinzugekomen sind
-
+     1) log user additions to: /var/log/sophomorix/user-modify-add.log
+        timestamp::login::class 
+     2) read this log 
+        option --info shows the timestamps
+        option --timestamp <string> finds users with this timestamp
+        and print them
 
 sophomorix-janitor --check_project_memberships:
   wenn Klasse 7a da steht, dann NUR die SChüler dieser Klassen dazu
