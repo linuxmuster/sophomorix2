@@ -969,7 +969,9 @@ sub create_this_project {
     if ($all_projects{$project}{'mailalias'}==1){
         $command.="--mailalias ";
     }
-
+    if ($all_projects{$project}{'joinable'}==0){
+        $command.="--nojoin ";
+    }
     print "############################################################\n";
     print "#  $command \n";
     print "############################################################\n";
