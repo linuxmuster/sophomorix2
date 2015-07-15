@@ -150,7 +150,7 @@ my $netexamplix="";
 my $command="latex";
 my $user="";
 my $gruppe="";
-my $projekt="";
+my $project="";
 my $classlist="";
 my $one_per_page=0;
 my $skiplock=0;
@@ -161,7 +161,7 @@ my $testopt=GetOptions(
            "show|s" => \$show,
            "all|a" => \$alle,
            "class|c=s" => \$gruppe,
-           "project|p=s" => \$projekt,
+           "project|p=s" => \$project,
            "user|u=s" => \$user,
            "classlist=s" => \$classlist,
            "help|h" => \$help,
@@ -322,8 +322,8 @@ if ($alle==1){
    $klasse_filename_part=${DevelConf::teacher};
 }elsif ($gruppe ne ""){
    $klasse_filename_part="$gruppe";
-}elsif ($projekt ne ""){
-   $klasse_filename_part="$projekt";
+}elsif ($project ne ""){
+   $klasse_filename_part="$project";
 }elsif ($classlist ne ""){
    $klasse_filename_part="$classlist-classlist";
 }elsif ($user ne ""){
@@ -435,7 +435,7 @@ if($Conf::log_level>=3){
 # Schülerdaten aus sophomorix.add dem System in Hash einlesen
 # ===========================================================================
 
-if ($user eq "" and $classlist eq "" and $gruppe eq "" and $projekt eq "" && $alle==0 && $lehrer==0) {
+if ($user eq "" and $classlist eq "" and $gruppe eq "" and $project eq "" && $alle==0 && $lehrer==0) {
   # ohne Argument -> sophomorix.add einlesen und nur die übernehmen
   if($Conf::log_level>=2){
       &titel("Reading sophomorix.add ...");
@@ -531,12 +531,12 @@ if ($user eq "" and $classlist eq "" and $gruppe eq "" and $projekt eq "" && $al
          $sortier_hash{$_}="$klasse";
       }
    }
-} elsif ($projekt ne "") {
+} elsif ($project ne "") {
    # Argument muss "projekt" sein -> filtern
    my $argument;
-   $argument="$projekt";
+   $argument="$project";
 
-   my @users = &fetchusers_from_project($projekt);
+   my @users = &fetchusers_from_project($project);
    my %userhash = map { $_ => 1 } @users;
    if($Conf::log_level>=2){
       print("\nArgument ist:  $argument\n");
@@ -656,13 +656,13 @@ if ($gruppe ne "") {
   print LATEX ('
       \chead{\LARGE \bf ',"$gruppe",'}
    ');
-} elsif ($projekt ne "") {
+} elsif ($project ne "") {
    # Projektangabe gemacht  
   if ($classlist ne ""){
-      print MEDIAWIKI "===$projekt===\n"; 
+      print MEDIAWIKI "===$project===\n"; 
   }
   print LATEX ('
-      \chead{\LARGE \bf ',&latexize_string($projekt),'}
+      \chead{\LARGE \bf ',&latexize_string($project),'}
    ');
 } elsif ($classlist ne "") {
    # Klassenangabe gemacht
@@ -752,7 +752,7 @@ print LATEX ('
 \begin{document}
 
 ');
-if ($projekt ne "") {
+if ($project ne "") {
     print LATEX ('\addtocontents{toc}{\textbf{Projekt \dotfill Seite} \par}',"\n");
 } else {
     print LATEX ('\addtocontents{toc}{\textbf{Klasse \dotfill Seite} \par}',"\n");
@@ -1354,7 +1354,7 @@ while ($anzahl_karten_pro_seite < $entries_per_page){
 
 # ===========================================================================
 # Dokument beenden und Inhaltsverzeichnis schreiben
-if ($gruppe ne "" or $projekt ne "") {
+if ($gruppe ne "" or $project ne "") {
    # Klassen-/Projektangabe gemacht  
    print LATEX ('
       \end{document}
