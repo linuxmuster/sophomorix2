@@ -548,48 +548,6 @@ if ($user eq "" and
           # Value = Klasse
           $sortier_hash{$identifier}="$klasse_protokoll";
   }
-
-#  # exit, when sophomorix-add is empty
-#  if ( -z "${DevelConf::ergebnis_pfad}/sophomorix.add" ) {
-#    &log_script_exit("ERROR: sophomorix.add is empty. Nothing to print!",
-#        1,1,0,@arguments);
-#  }
-#  open (SCHUELERPDF,
-#       "<${DevelConf::ergebnis_pfad}/sophomorix.add") 
-#       || die "Fehler: ${DevelConf::ergebnis_pfad}/sophomorix.add    $!";
-#    while(<SCHUELERPDF>){
-#      chomp();
-#      # in sophomorix.add gibts Zusatzangaben nach ::
-#      my ($klasse,$identifier)=split(/::/); 
-#      # passende Zeile aus user_db holen
-#      if (exists($schueler_im_system_hash{$identifier})){
-#         print ("   Creating login card for $identifier \n"); 
-#         $schueler_protokoll_zeile=$schueler_im_system_hash{$identifier};
-#       } else {
-#         # keine Protokoll-Zeile gefunden, Schüler ist noch nicht im System
-#         print ("   NO login card ($identifier not in the system)\n"); 
-#         next;
-#       }
-#
-#       if($Conf::log_level>=3){
-#          print("\nIdentifier:               --$identifier--\n");
-#          print("\nZeile in user_db          --$schueler_protokoll_zeile--\n");
-#        }
-#
-#     ($klasse_protokoll, 
-#      $name_protokoll,
-#      $loginname_protokoll,
-#      $passwort_protokoll,
-#      $geburtsdatum_protokoll
-#     )=split(/;/,$schueler_protokoll_zeile);
-#
-#      # Hash erzeugen: alle auszudruckenden Schüler
-#      # Key = identifier
-#      # Value = Klasse
-#      $sortier_hash{$_}="$klasse_protokoll";
-#    }
-#  close(SCHUELERPDF);
-
 } elsif ($alle==1) {
    # Argument "alle" -> nichts ausfiltern
    if($Conf::log_level>=2){
