@@ -1824,7 +1824,11 @@ sub create_user_db_entry {
 #                $nachname,$vorname);
   &db_disconnect($dbh);
   } # end 
-
+  # log user addition
+  &Sophomorix::SophomorixBase::check_datei_touch("${DevelConf::log_files}/user-modify-add.log");
+  open(ADDLOG,">>${DevelConf::log_files}/user-modify-add.log");
+  print ADDLOG $pg_timestamp."::".$login."::".$admin_class."::\n";
+  close(ADDLOG);
 }
 
 
