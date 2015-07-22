@@ -1366,6 +1366,7 @@ sub fetchdata_from_account {
         $loginshell,
         $gidnumber,
         $sophomorixstatus,
+        $birthday
        )= $dbh->selectrow_array( "SELECT homedirectory,gid,gecos,uidnumber,
                                          sambahomepath,firstpassword,sambaacctflags,
                                          exitadminclass,sambahomedrive,sambakickofftime,
@@ -1374,7 +1375,7 @@ sub fetchdata_from_account {
                                          sambapwdcanchange,sambapwdlastset,
                                          sambapwdmustchange,sambasid,surname,firstname,
                                          userpassword,loginshell,gidnumber,
-                                         sophomorixstatus
+                                         sophomorixstatus,birthday
                                          FROM userdata 
                                          WHERE uid='$login'
                                         ");
@@ -1403,7 +1404,7 @@ sub fetchdata_from_account {
                 $sambantpassword,$sambaprimarygroupsid,$sambapwdcanchange,
                 $sambapwdlastset,$sambapwdmustchange,$sambasid,$surname,$firstname,
                 $userpassword,$loginshell,$gidnumber,
-                $sophomorixstatus);
+                $sophomorixstatus,$birthday);
     } else {
         return ("","","","",-1,"","","","","","","","","","","","","","","","","","","","");
     }

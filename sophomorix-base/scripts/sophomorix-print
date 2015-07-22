@@ -450,7 +450,50 @@ if ($user eq "" and
        "<${DevelConf::log_files}/user-modify-add.log") 
        || die "Fehler: ${DevelConf::log_files}/user-modify-add.log    $!";
     while(<ADDLOG>){
-        print "   $_";
+        my ($creationdate,$login,$class)=split(/::/); 
+        print " Login  $login\n";
+        my ($home,
+            $type,
+            $gecos,
+            $group,
+            $uidnumber,
+            $sambahomepath,
+            $firstpassword,
+            $sambaacctflags,
+            $exitadminclass,
+            $sambahomedrive,
+            $sambakickofftime,
+            $sambalmpassword,
+            $sambalogofftime,
+            $sambalogontime,
+            $sambantpassword,
+            $sambaprimarygroupsid,
+            $sambapwdcanchange,
+            $sambapwdlastset,
+            $sambapwdmustchange,
+            $sambasid,
+            $surname,
+            $firstname,
+            $userpassword,
+            $loginshell,
+            $gidnumber,
+            $sophomorixstatus,
+            $birthday) = &fetchdata_from_account($login);
+
+            my $birthday_pl = &Sophomorix::SophomorixPgLdap::date_pg2perl($birthday);
+
+        my $identifier=$surname.";".$firstname.";".$birthday_pl;
+        if (exists($schueler_im_system_hash{$identifier})){
+            $schueler_protokoll_zeile=$schueler_im_system_hash{$identifier};
+        } else {
+            print "WARNING: $identifier not Found!";
+        }
+       if($Conf::log_level>=3){
+          print("\nIdentifier:               --$identifier--\n");
+          print("\nZeile in user_db          --$schueler_protokoll_zeile--\n");
+        }
+
+
     }
 
   close(ADDLOG);
