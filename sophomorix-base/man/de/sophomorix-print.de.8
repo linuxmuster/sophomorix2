@@ -24,11 +24,10 @@ sophomorix-print \- Drucken von Benutzeraccount-Daten
 .SH DESCRIPTION
 .B sophomorix-print
 .br
-Sofern User angelegt wurden werden diejenigen User ausgedruckt, die im
-letzten Schritt angelegt wurden. 
+Ohne Option werden diejenigen User ausgedruckt, die zuletzt angelegt wurden. 
 .br
-Mit den Optionen können User auch klassenweise, ... ausgedruckt
-werden.
+Mit den Optionen können auch User von vorherigen Durchgängen bzw. User
+klassenweise, ... ausgedruckt werden.
 .br
 Die erzeugten Daten finden sich in /var/lib/sophomorix/print-data.
 .PP
@@ -43,11 +42,19 @@ Kurzübersicht über Optionen
 .B -v, --verbose
 Sagt, was das Programm gerade macht (verbose)
 .TP
-.B -i, --info
-Gibt die Daten auf Standard Out aus. Zur Weiterverarbeitung mit grep, ...
-.TP
 .B -vv, --verbose --verbose
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
+.TP
+.B -i, --info
+Gibt aus, welche user gedruck werden würden
+.TP
+.B --back-in-time <number>
+Mit <num>=0 (default) werden Karten für die zuletzt angelegten User gedruckt. 
+.br
+Mit <num>=1 werden Karten für die davor angelegten User gedruckt. usw. 
+.TP
+.B --back-in-time <number> --info
+listet die User für die Login-Karten gedruckt werden.
 .TP
 .B -a / --all
 Erzeugt ein Datei, in der ALLE angelegten User enthalten sind.
