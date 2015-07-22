@@ -35,6 +35,7 @@ use Sophomorix::SophomorixPgLdap qw(check_connections
                                     fetchusers_from_project
                                     fetchstudents_from_adminclass
                                    );
+use Data::Dumper;
 
 my @arguments = @ARGV;
 
@@ -145,6 +146,8 @@ my $lehrer=0;
 my $caller="";
 my $caller_copy="";
 
+my $back_in_time=0;
+
 my $netexamplix="";
 
 my $command="latex";
@@ -170,6 +173,7 @@ my $testopt=GetOptions(
            "caller-copy|callercopy=s" => \$caller_copy,
            "netexamplix=s" => \$netexamplix,
            "command=s" => \$command,
+           "back-in-time|backintime=i" => \$back_in_time,
            "one-per-page" => \$one_per_page,
            "skiplock" => \$skiplock,
            "info|i" => \$info
@@ -442,16 +446,57 @@ if ($user eq "" and
     $alle==0 && 
     $lehrer==0) {
 
+  my %date_users=(); # key: date/ value: list of users
+  my @date_list=(); # list of dates that will be ordered
+
   # ohne Argument -> Reading user-modify-add.log 
   if($Conf::log_level>=2){
       &titel("Reading user-modify-add.log ...");
   }
+
   open (ADDLOG,
        "<${DevelConf::log_files}/user-modify-add.log") 
        || die "Fehler: ${DevelConf::log_files}/user-modify-add.log    $!";
   while(<ADDLOG>){
       my ($creationdate,$login,$class)=split(/::/); 
-      print " Login  $login\n";
+      if (not exists $date_users{$creationdate}){
+          # fill list of dates
+          push @date_list, $creationdate;
+      }
+      push @{ $date_users{$creationdate} }, $login;
+  }
+  close(ADDLOG);
+  # sort the dates in reverse order
+  @date_list=sort{$b cmp $a} @date_list; # for strings
+
+  if ($back_in_time>$#date_list){
+      print "\nERROR: Not able to go back so far. ",
+            "Maximum: --back-in-time $#date_list\n\n";
+      exit;
+  }
+
+  # check which date to use
+  my $using_date=$date_list[$back_in_time];
+ 
+  print "Printing cards from $using_date\n";
+
+  if ($info==1){
+      my $date_list_count=0;
+      #print Dumper(\%date_users);
+      foreach my $date (@date_list) {
+          print "  --back-in-time $date_list_count -->  $date\n";
+          $date_list_count++;
+      }
+      print "Printing users:\n";
+      foreach my $login ( @{ $date_users{$using_date} } ){
+          print "   $login\n";
+      }
+      exit;
+  }
+ 
+  # create the cards
+  foreach my $login ( @{ $date_users{$using_date} } ){
+      print "   * Creating card for  $login\n";
       my ($home,
           $type,
           $gecos,
@@ -480,7 +525,7 @@ if ($user eq "" and
           $sophomorixstatus,
           $birthday) = &fetchdata_from_account($login);
           my $birthday_pl = &Sophomorix::SophomorixPgLdap::date_pg2perl($birthday);
-
+ 
           my $identifier=$surname.";".$firstname.";".$birthday_pl;
           if (exists($schueler_im_system_hash{$identifier})){
               $schueler_protokoll_zeile=$schueler_im_system_hash{$identifier};
@@ -502,8 +547,7 @@ if ($user eq "" and
           # Key = identifier
           # Value = Klasse
           $sortier_hash{$identifier}="$klasse_protokoll";
-      }
-      close(ADDLOG);
+  }
 
 #  # exit, when sophomorix-add is empty
 #  if ( -z "${DevelConf::ergebnis_pfad}/sophomorix.add" ) {
@@ -1369,13 +1413,6 @@ if ($one_per_page==0 and $classlist eq ""){
    print WEBCSV ("$klasse_protokoll",";","$sur_protokoll",";","$first_protokoll",";",
                   "$loginname_protokoll",";","$id_protokoll",";","\l\r");
 
-   if ($info==1){
-       printf "%-11s%-11s%-11s%-40s\n",
-              $loginname_protokoll,
-              $passwort_protokoll,
-              $klasse_protokoll,
-              $name_protokoll;
-   }
 } # Ende foreach
 # Nun sind alle Schüler in der LATEX-Datei eingelesen
 
