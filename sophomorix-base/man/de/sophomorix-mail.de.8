@@ -41,9 +41,9 @@ Dazu wird das entsprechende Merkmal (mailalias oder maillist) mit
 .TP
 aktiviert oder deaktiviert.
 .TP
-Danach wird sophomorix-mail aufgerufen, um diese Einstellungen ins
-System zu übertragen. Kommen später user dazu, oder werden user
-entfernt, so werden die maillists automatisch upgedated.
+Zusätzliche, externe Mailadressen können zu einer maillist hinzugenommen werden, indem eine Datei /etc/sophomorix/mail/<p_projectname> oder /etc/sophomorix/mail/<adminclass> angelegt wird. In diesen Dateien wird je 1 Mailadresse je Zeile aufgelistet (#-Kommentare sind erlaubt). 
+.TP
+Nach der Konfiguration wird sophomorix-mail aufgerufen, um diese Einstellungen ins System zu übertragen. Kommen später user dazu, oder werden user entfernt, so werden die maillists automatisch (durch Aufruf von sophomorix-mail) upgedated.
 .TP
 Wie ein Mailalias zusammengesetzt ist, wird in sophomorix.conf konfiguriert.
 .PP

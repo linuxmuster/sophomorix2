@@ -142,6 +142,7 @@ if ($info==1) {
 
 &log_script_start(@arguments);
 
+system("mkdir -p ${DevelConf::mailconf_pfad}");
 
 
 # --showredirect/showforward
@@ -369,7 +370,7 @@ print ALIASESTMP "### Entries after here are managed by sophomorix-mail ###\n";
 foreach my $gruppe (@mail_klassen) {
    if (${Conf::mail_aliases} eq "vorname.nachname"
        or ${Conf::mail_aliases} eq "vorname_nachname") {
-      print "   Generating mailaliases for adminclass $gruppe\n";
+      print "Generating mailaliases for adminclass $gruppe\n";
       &generate_mail_alias_classes("$gruppe"); 
   } else {
       print "Warning: ${Conf::mail_aliases} is not a valid",
@@ -382,7 +383,7 @@ foreach my $gruppe (@mail_klassen) {
 foreach my $gruppe (@mail_projects) {
    if (${Conf::mail_aliases} eq "vorname.nachname"
        or ${Conf::mail_aliases} eq "vorname_nachname") {
-      print "   Generating mailaliases for project $gruppe\n";
+      print "Generating mailaliases for project $gruppe\n";
       &generate_mail_alias_projects("$gruppe"); 
   } else {
       print "Warning: ${Conf::mail_aliases} is not a valid",
@@ -394,14 +395,14 @@ foreach my $gruppe (@mail_projects) {
 
 # mailinglist of adminclass
 foreach my $gruppe (@mail_liste_klassen) {
-      print "   Generating mailinglist for adminclass $gruppe\n";
+      print "Generating mailinglist for adminclass $gruppe\n";
       &generate_maillist_classes("$gruppe"); 
 }
 
 
 # mailinglist of projects
 foreach my $gruppe (@mail_list_projects) {
-      print "   Generating mailinglist for project $gruppe\n";
+      print "Generating mailinglist for project $gruppe\n";
       &generate_maillist_projects("$gruppe"); 
 }
 
@@ -595,7 +596,9 @@ sub generate_maillist_classes {
    my $letzter_user="";
    my $ende="";
 
-   my @user = &fetchusers_from_adminclass($group);
+   my @user_local_mail_domain=&fetchusers_from_adminclass($group);
+   my @user_external_from_file=&fetchusers_external($group);
+   my @user = (@user_local_mail_domain,@user_external_from_file);
 
    print ALIASESTMP "\n### Mailinglist for adminclass $group \n";
 
@@ -646,7 +649,10 @@ sub generate_maillist_projects {
    my $letzter_user="";
    my $ende="";
 
-   my @user=&fetchusers_from_project($group);
+   my @user_local_mail_domain=&fetchusers_from_project($group);
+   my @user_external_from_file=&fetchusers_external($group);
+   my @user = (@user_local_mail_domain,@user_external_from_file);
+
    my ($longname)=&fetchinfo_from_project($group);
 
    print ALIASESTMP "\n### Mailinglist for project ",
@@ -680,5 +686,37 @@ sub generate_maillist_projects {
 }
 
 
+sub fetchusers_external {
+   my ($group)=@_;
+   my @external_users;
+   my $file=${DevelConf::mailconf_pfad}."/".${group};
+   if($Conf::log_level>=3){
+       print "     * Looking for $file\n";
+   }
+   if (-e $file){
+       print "  $file EXISTS:\n";
+       open(FILE, "${file}"); 
+       while(<FILE>){
+           s/ //g; # Leerzeichen ersetzen
+           if(/^\#/){ # # am Anfang bedeutet Kommentarzeile
+               next;
+           }
+           chomp();
+           if ($_ eq ""){# leere Zeilen nicht nutzen
+               next;
+           }
+           # Aufnehmen in die Liste
+           print "    >$_<\n";
+           push @external_users, $_;
+       }
+       close(FILE);
+   } else {
+       if($Conf::log_level>=3){
+           print "        -> $file nonexisting\n";
+       }
+   }
 
+   @external_users = sort @external_users;
+   return @external_users;
+}
 
