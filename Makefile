@@ -121,7 +121,7 @@ olddeb:
 	@sleep 8
 	dpkg-buildpackage -tc -uc -us -sa -rfakeroot
 	@echo ''
-	@echo 'Do not forget to tag this version in cvs'
+	@echo 'Do not forget to tag this version with: git tag V-x.y.z'
 	@echo ''
 
 deb:
@@ -134,7 +134,7 @@ deb:
 	@sleep 8
 	dpkg-buildpackage -tc -uc -us -sa -rfakeroot
 	@echo ''
-	@echo 'Do not forget to tag this version in cvs'
+	@echo 'Do not forget to tag this version with: git tag V-x.y.z'
 	@echo ''
 
 lenny:
@@ -147,7 +147,7 @@ lenny:
 	@sleep 8
 	dpkg-buildpackage -tc -uc -us -sa -rfakeroot
 	@echo ''
-	@echo 'Do not forget to tag this version in cvs'
+	@echo 'Do not forget to tag this version with: git tag V-x.y.z'
 	@echo ''
 
 
