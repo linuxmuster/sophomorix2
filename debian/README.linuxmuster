@@ -27,11 +27,11 @@ Create an official package for linuxmuster 6.x:
    dch -i 
      -> set version number (example: 2.4.48-1)
      -> add a comment to the changelog
-     -> set a repo like precice OR precice-testing OR babo
+     -> set a repo like precice OR precice-testing OR babo OR babo-testing
         (this determines, in which repo the package will be uploaded)
 
 
-5. # Check in modified files (use the jeffbeck key):
+5. # Check in modified files (use the jeffbeck ssh-key):
    cd sophomorix2
    git add debian/control.ubuntu debian/changelog
    git commit -m "prepared sophomorix for new package 2.4.48-1"
@@ -45,6 +45,7 @@ Create an official package for linuxmuster 6.x:
 7. # If a successful package was created:
    # Tag the stuff with annotated, unsigned tag
    git tag V-2.4.48-1
+   # push the tag to the github server
    git push --tags
 
 
