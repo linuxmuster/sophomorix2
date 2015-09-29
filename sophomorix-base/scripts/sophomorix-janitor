@@ -28,6 +28,7 @@ use File::Find;
 use File::Copy;
 use File::Basename;
 use File::Path qw(make_path);
+use Lchown;
 
 my @arguments = @ARGV;
 
@@ -1803,10 +1804,9 @@ sub chown_print {
             print "       $data\n";
         }
     } else {
-        # -h/--no-dereference
-        my $command="chown -h $new_owner".". ".$data;
-        print "$command\n";
-        system($command);
+        # lchown does not dereference links 
+        # (changes owner of link, instead of source)
+        lchown $new_uid_number, -1, $data;
     }
 }
 
