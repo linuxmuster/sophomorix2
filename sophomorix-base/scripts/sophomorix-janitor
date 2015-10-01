@@ -292,13 +292,11 @@ Please see the sophomorix-janitor(8) man pages for full documentation
 # ===========================================================================
 
 # acl stuff
-# 
 #  -- aclhomeshare-remove-uidnum
 #  -- aclhomeshare-remove-all-useracls
-
 if ($aclhomeshare_remove_uidnum==1){
     print "Removing acls with uidnumber from ${DevelConf::share_share}\n";
-
+    &get_homeshare_acls();
     exit;
 
 }
@@ -306,7 +304,7 @@ if ($aclhomeshare_remove_uidnum==1){
 
 if ($aclhomeshare_remove_all_user_acls==1){
     print "Removing all user acl from ${DevelConf::share_share}\n";
-
+    &get_homeshare_acls();
     exit;
 }
 
@@ -999,6 +997,18 @@ if ($dump_pg_ldap==1){
 ######################################################################
 # subs
 ######################################################################
+
+sub get_homeshare_acls {
+    my $acls=`getfacl ${DevelConf::share_share}`;
+    #print "$acls";
+    my @acl_lines=(split "\n", $acls);
+	foreach my $line (@acl_lines){
+	    print "LINE: $line\n";
+            # ?????? do something
+    }
+}
+
+
 
 sub get_statinfo {
     my ($source) = @_;
