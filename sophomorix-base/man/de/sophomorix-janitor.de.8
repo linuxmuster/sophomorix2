@@ -42,6 +42,17 @@ Sagt, was das Programm gerade macht (verbose)
 .TP
 .B \-vv, \-\-verbose \-\-verbose
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
+.SH FILESYSTEM-ACLS entfernen
+.TP
+.B --aclhomeshare-remove-uidnum
+Entfernt alle ACLs des Verzeichnisses /home/share , die zu Usern oder
+Gruppen gehören, die nicht mehr existieren (und deshalb zu einer
+uidnumber gehören)
+.TP
+.B --aclhomeshare-remove-uidnum
+Entfernt alle ACLs des Verzeichnisses /home/share, die Usern
+gehören. Diese ACLs werden angelegt, wenn für einen user das tauschen
+global verboten wird.
 .SH DATEIEN ZUM BEGUTACHTEN KOPIEREN/VERSCHIEBEN 
 Beim Begutachten wird mit den Daten EINES Users folgendes gemacht:
 . IP \(em 3
