@@ -98,8 +98,9 @@ my $move_to="";
 
 my $aclhomeshare_remove_uidnum=0;
 my $aclhomeshare_remove_all_user_acls=0;
-my %acl_homeshare_numeric=();
-my %acl_homeshare_user=();
+my @acl_homeshare_numeric=();
+my @acl_homeshare_user=();
+my @acl_homeshare_group=();
 
 
 my $listfiles=0;
@@ -300,6 +301,9 @@ Please see the sophomorix-janitor(8) man pages for full documentation
 if ($aclhomeshare_remove_uidnum==1){
     print "Removing acls with uidnumber from ${DevelConf::share_share}\n";
     &get_homeshare_acls();
+    foreach my $uidnumber (@acl_homeshare_numeric){
+        print ">$uidnumber<\n";
+    }
     exit;
 
 }
@@ -308,6 +312,9 @@ if ($aclhomeshare_remove_uidnum==1){
 if ($aclhomeshare_remove_all_user_acls==1){
     print "Removing all user acl from ${DevelConf::share_share}\n";
     &get_homeshare_acls();
+    foreach my $user (@acl_homeshare_user){
+        print ">$user<\n";
+    }
     exit;
 }
 
@@ -1005,23 +1012,33 @@ sub get_homeshare_acls {
     my $acls=`getfacl ${DevelConf::share_share}`;
     #print "$acls";
     my @acl_lines=(split "\n", $acls);
-	foreach my $line (@acl_lines){
-	    if($line=~/^\#/){ # # am Anfang bedeutet Kommentarzeile
-                next;
-            }
-            my ($type,$who,$acl)=split(":", $line);
-            if ($Conf::log_level>=2){
-    	        print "LINE: $line\n";
-                print "  Type: $type\n";
-                print "   Who: $who\n";
-                print "   ACL: $acl\n";
-            }
-            if ($who=~/[^a-z]/){
-    	        print "NUMERIC: $line\n";
-            }
-
-            # ?????? do something
+    foreach my $line (@acl_lines){
+        if($line=~/^\#/){ # # am Anfang bedeutet Kommentarzeile
+            next;
+        }
+        my ($type,$who,$acl)=split(":", $line);
+        if ($Conf::log_level>=2){
+    	    print "LINE: $line\n";
+            print "  Type: $type\n";
+            print "   Who: $who\n";
+            print "   ACL: $acl\n";
+        }
+        if ($who eq ""){
+            next;
+        }
+        if ($who=~/^\d+$/){ # match only digits
+            push @acl_homeshare_numeric, $who;
+        }
+        if ($type eq "user"){
+            push @acl_homeshare_user, $who;
+        }
+        if ($type eq "group"){
+            push @acl_homeshare_group, $who;
+        }
     }
+    @acl_homeshare_numeric =sort @acl_homeshare_numeric;
+    @acl_homeshare_user = sort @acl_homeshare_user;
+    @acl_homeshare_group =sort @acl_homeshare_group;
 }
 
 
