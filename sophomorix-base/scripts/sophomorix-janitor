@@ -98,6 +98,9 @@ my $move_to="";
 
 my $aclhomeshare_remove_uidnum=0;
 my $aclhomeshare_remove_all_user_acls=0;
+my %acl_homeshare_numeric=();
+my %acl_homeshare_user=();
+
 
 my $listfiles=0;
 my $list_db_junk=0;
@@ -1003,7 +1006,20 @@ sub get_homeshare_acls {
     #print "$acls";
     my @acl_lines=(split "\n", $acls);
 	foreach my $line (@acl_lines){
-	    print "LINE: $line\n";
+	    if($line=~/^\#/){ # # am Anfang bedeutet Kommentarzeile
+                next;
+            }
+            my ($type,$who,$acl)=split(":", $line);
+            if ($Conf::log_level>=2){
+    	        print "LINE: $line\n";
+                print "  Type: $type\n";
+                print "   Who: $who\n";
+                print "   ACL: $acl\n";
+            }
+            if ($who=~/[^a-z]/){
+    	        print "NUMERIC: $line\n";
+            }
+
             # ?????? do something
     }
 }
