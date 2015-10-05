@@ -481,6 +481,7 @@ if ($user eq "" and
  
   print "Printing cards from $using_date\n";
 
+  # --info
   if ($info==1){
       my $date_list_count=0;
       #print Dumper(\%date_users);
@@ -489,8 +490,11 @@ if ($user eq "" and
           $date_list_count++;
       }
       print "Printing users:\n";
+      my $usercount=0;
       foreach my $login ( @{ $date_users{$using_date} } ){
-          print "   $login\n";
+          $usercount++;
+          printf "%6s)  %-45s\n",$usercount,$login;
+          #print "   $login\n";
       }
       exit;
   }
