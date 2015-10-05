@@ -1367,6 +1367,7 @@ if ($check_project_members==1){
     }
 
 
+    # read what should be created
     my $sth= $dbh->prepare( "SELECT id,gid,gidnumber,longname,maxmembers 
                              FROM projectdata 
                              ORDER BY gid");
@@ -1433,24 +1434,25 @@ if ($check_project_members==1){
             if($Conf::log_level>=2){
                 print " * $membergid ($group) is MemberByClass in $gid\n";
             }
-            # A) Adding Teachers
-            my $sth3a= $dbh->prepare( "SELECT memberuidnumber
-                                 FROM groups_users 
-                                 WHERE gidnumber=$membergid");
-            $sth3a->execute();
-            my $array_ref3a = $sth3a->fetchall_arrayref();
-            foreach my $row (@$array_ref3a){
-                my ($uidnum)=@$row;
-                # nn
-                my $user=&user_name_from_id($uidnum);
-                if($Conf::log_level>=2){
-                    print "   * $uidnum ($user) is MemberByClass in $membergid ($group)\n";
-                }
-                #$future_members{$gidnumber}{$uidnum}="MemberByClass";
-                &update_future_members($gidnumber,
-                                       $uidnum,
-                                       "MemberByClass");
-            }
+            # A) Adding Teachers (NT ANYMORE NEEDED)
+            #my $sth3a= $dbh->prepare( "SELECT memberuidnumber
+            #                     FROM groups_users 
+            #                     WHERE gidnumber=$membergid");
+            #$sth3a->execute();
+            #my $array_ref3a = $sth3a->fetchall_arrayref();
+            #foreach my $row (@$array_ref3a){
+            #    my ($uidnum)=@$row;
+            #    # nn
+            #    my $user=&user_name_from_id($uidnum);
+            #    if($Conf::log_level>=2){
+            #        print "   * $uidnum ($user) is MemberByClass ",
+            #              "in $membergid ($group)\n";
+            #    }
+            #    #$future_members{$gidnumber}{$uidnum}="MemberByClass";
+            #    &update_future_members($gidnumber,
+            #                           $uidnum,
+            #                           "MemberByClass");
+            #}
             # B) Adding Students (primary group)
             my $sth3b= $dbh->prepare( "SELECT uid,uidnumber
                                 FROM userdata
@@ -1460,13 +1462,13 @@ if ($check_project_members==1){
             foreach my $row (@$array_ref3b){
                 my ($uid,$uidnum)=@$row;
                 if($Conf::log_level>=2){
-                    print "   * $uidnum ($uid) is MemberByClass in $membergid ($group)\n";
+                    print "   * $uidnum ($uid) is MemberByClass ",
+                          "in $membergid ($group)\n";
                 }
                 #$future_members{$gidnumber}{$uidnum}="MemberByClass";
                 &update_future_members($gidnumber,
                                        $uidnum,
                                        "MemberByClass");
-
             }
         }
 
@@ -1522,7 +1524,8 @@ if ($check_project_members==1){
                     while (my ($memberuid,$reason) = 
 			   each %{ $future_members{$gidnumber_fetch} }){
                         if($Conf::log_level>=2){
-                            print "        * $memberuid is in $gidnumber_fetch ($reason)\n";
+                            print "        * $memberuid is in ",
+                                  "$gidnumber_fetch ($reason)\n";
                         }
                         &update_future_members($gidnumber_push,
                                                $memberuid,
