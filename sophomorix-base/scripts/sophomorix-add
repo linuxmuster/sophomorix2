@@ -292,8 +292,16 @@ while(<SOPHOMORIXADD>){
     $vorname_login=~s/-//g;
     $vorname_login=&recode_to_ascii($vorname_login);
 
-    $login_teil_1=substr($nachname_login,0,$Conf::schueler_login_nachname_zeichen);
-    $login_teil_2=substr($vorname_login,0,$Conf::schueler_login_vorname_zeichen);
+    # vorneme+nachname oder nachname+vorname
+    if (defined $Conf::reverse_loginname_creation
+        and $Conf::reverse_loginname_creation eq "yes"){
+        $login_teil_2=substr($nachname_login,0,$Conf::schueler_login_nachname_zeichen);
+        $login_teil_1=substr($vorname_login,0,$Conf::schueler_login_vorname_zeichen);
+    } else {
+        $login_teil_1=substr($nachname_login,0,$Conf::schueler_login_nachname_zeichen);
+        $login_teil_2=substr($vorname_login,0,$Conf::schueler_login_vorname_zeichen);
+    }
+
     # Zu prüfender Loginname
     $login_name_to_check="$login_teil_1"."$login_teil_2";
     $login_name_to_check=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
