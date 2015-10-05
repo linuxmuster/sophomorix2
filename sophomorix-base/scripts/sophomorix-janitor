@@ -153,7 +153,7 @@ my $testopt=GetOptions(
            "list-db-junk" => \$list_db_junk,
            "kill-db-junk" => \$kill_db_junk,
            "aclhomeshare-remove-uidnum" => \$aclhomeshare_remove_uidnum,
-           "aclhomeshare-remove-all-user-acls" => \$aclhomeshare_remove_all_user_acls,
+           "aclhomeshare-remove-all-users" => \$aclhomeshare_remove_all_user_acls,
            "find-files|ff|findfiles=s" => \$find_files,
            "copy-to-review|cprv=s" => \$copy_to_review,
            "move-to-review|mvrv=s" => \$move_to_review,
@@ -219,7 +219,7 @@ Housekeeping the postgres database ldap:
 Cleaning unused ACLs on /home/share:
 
   -- aclhomeshare-remove-uidnum  (removing acl entrys where users are deleted)
-  -- aclhomeshare-remove-all-useracls  (removing all user acls)
+  -- aclhomeshare-remove-all-users  (removing all user acls)
 
 Listing files/dirs/links/strange_stuff of user uid/uidnumber:
 
@@ -295,8 +295,9 @@ Please see the sophomorix-janitor(8) man pages for full documentation
 # script starts here
 # ===========================================================================
 
+
 # acl stuff
-#  -- aclhomeshare-remove-uidnum
+#  --aclhomeshare-remove-uidnum
 if ($aclhomeshare_remove_uidnum==1){
     print "Removing acls with uidnumber from ${DevelConf::share_share}\n";
     &get_homeshare_acls();
@@ -308,7 +309,7 @@ if ($aclhomeshare_remove_uidnum==1){
     exit;
 }
 
-#  -- aclhomeshare-remove-all-useracls
+#  --aclhomeshare-remove-all-users
 if ($aclhomeshare_remove_all_user_acls==1){
     print "Removing all user acl from ${DevelConf::share_share}\n";
     &get_homeshare_acls();
