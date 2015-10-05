@@ -66,6 +66,12 @@ my $move_to_review_share_class="";
 my $review_days=366;
 my $review_end_date="---";
 
+# unowned files
+my $find_unowned_files=0;
+# uidnumber -> counter
+my %unowned_files=();
+my @unowned_files=();
+
 # showing/deleting review_data
 my $show_review_data=0;
 my $delete_review_data=0;
@@ -166,6 +172,7 @@ my $testopt=GetOptions(
            "move-to-review-share-classes=s" => \$move_to_review_share_class,
            "copy-to-review-share-classes=s" => \$copy_to_review_share_class,
            "review-days=i" => \$review_days,
+           "find-unowned-files" => \$find_unowned_files,
            "show-review-data" => \$show_review_data,
            "delete-review-data" => \$delete_review_data,
            "owner=s" => \$owner,
@@ -317,6 +324,35 @@ if ($aclhomeshare_remove_all_user_acls==1){
         my $command="setfacl -x u:$user ${DevelConf::share_share}";
         print "$command\n";
         system($command);
+    }
+    exit;
+}
+
+
+# --find-unowned-files
+if ($find_unowned_files==1){
+    #print "finding unowned files\n";
+    my $return=`find /home/share -nouser -printf "%u %g %p\n"`;
+    #print "$return";
+    my @lines=split("\n",$return);
+    foreach my $line (@lines){
+        my ($uid,$gid,$rest)=split(" ", $line);
+        #print "LINE: $line\n";
+        #print "   UID: <$uid>\n";
+        #print "   GID: <$gid>\n";
+        if (not exists $unowned_files{$uid}){
+            $unowned_files{$uid}=1;
+            push @unowned_files, $uid;
+        } else {
+            my $oldcount=$unowned_files{$uid};
+            my $newcount=$oldcount+1;
+            $unowned_files{$uid}=$newcount;
+        }
+
+    }
+    foreach my $uid (@unowned_files){
+        print "$uid  --> $unowned_files{$uid}\n";
+
     }
     exit;
 }

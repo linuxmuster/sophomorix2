@@ -1,15 +1,12 @@
-sophomorix-print --caller-copy user 
--> meldet, dass es keine letzten user gibt
-  -> sollten immer die letzten user anzeigen 
-     1) log user additions to: /var/log/sophomorix/user-modify-add.log
-        timestamp::login::class 
-     2) read this log 
-        option --info shows the timestamps
-        option --timestamp <string> finds users with this timestamp
-        and print them
 
-sophomorix-janitor --check_project_memberships:
-  wenn Klasse 7a da steht, dann NUR die SChüler dieser Klassen dazu
+(sophomorix-class -i -c klasse
+--> listet member der Klasse) nicht so wichtig
+dazu: wie listet man user in einer Klasse auf
+sophomorix-class -i -c m2kk3t
+... sollte lehrer und schüler zeigen
+
+
+
 
 LDAP:
 
@@ -22,14 +19,12 @@ Wenn jeder Schüler eine Mailadresse hat, dann daraus eine Mailingliste
 machen (Mailman?) 
 
 
-
-
 mailman vs /etc/aliases
 (soll getrennter linuxmuster.net und mailserver erlauben)
 mailman muss da laufen, wo postfix ist.
 (Zusätzliche Empfangsadresse für 7a,7b, ...)
 
-Listengenerierung auf Mailserver mit DAten vom Linuxmuster-server
+Listengenerierung auf Mailserver mit Daten vom Linuxmuster-server
 
 
 
@@ -46,9 +41,12 @@ sophomorix- quota mit optionen
 -c class (ehemalige)
 -t teachers
 
-option --move-to-review 
- soll auch mit id tun (checken, ist glaub so)
 
+
+option --move-to-review 
+ soll auch mit id tun (ist NICHT so)
+
+###############################
 --unnown-users-with-data
 -> zeigt die ids der user an, die nur id haben, aber kein Name
 
@@ -71,10 +69,11 @@ sophomorix-janitor --check-project-members testen obs richtig anzeigt
       --sync-project-members
 - nach jeder Gruppenzugehörigkeitsänderung aufnehmen 
   (nur 1x, nicht nach jedem user).
+sophomorix-janitor --check-project-members:
+  wenn Klasse 7a da steht, dann NUR die SChüler dieser Klassen dazu
 
-dazu: wie listet man user in einer Klasse auf
-sophomorix-class -i -c m2kk3t
-... sollte lehrer und schüler zeigen
+
+
 
 OK- Einträge nur bei -v/-vv anzeigen
 
@@ -658,11 +657,6 @@ Replacing ldap group dn: cn=1bk1w1,ou=groups,dc=abyyyyx,dc=de
 GLOBIGNORE=/; rm -rf /home/students/2bfw21/diaxxxxxxn/__austeilen/austeilen-2bfw21
 group 1bk1w1 exists already (10059)
 Replacing ldap group dn: cn=1bk1w1,ou=groups,dc=abyyyyx,dc=de
-
-
-Verbesserung: Wenn kein owner gefunden wird, dann 
-nach /home/.../unowned files verschieben
-(wo soll das sein)
 
 
 
