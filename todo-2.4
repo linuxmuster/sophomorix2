@@ -1,3 +1,12 @@
+Unowned files: 
+Sollte auch mit uidnumber gehen:
+--find-files /source --owner uid/uidnumber --new-owner newowner
+--find-files /source --owner uid/uidnumber --copy-to /target
+usw.
+
+und im wiki dokumentieren
+
+
 
 (sophomorix-class -i -c klasse
 --> listet member der Klasse) nicht so wichtig
@@ -45,11 +54,6 @@ sophomorix- quota mit optionen
 
 option --move-to-review 
  soll auch mit id tun (ist NICHT so)
-
-###############################
---unnown-users-with-data
--> zeigt die ids der user an, die nur id haben, aber kein Name
-
 
 Bug beim renamen eins users: im ldap fehlt der user bei den memberUid
 Nach sophomorix-dump-pg2ldap tuts wieder
