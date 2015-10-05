@@ -297,26 +297,29 @@ Please see the sophomorix-janitor(8) man pages for full documentation
 
 # acl stuff
 #  -- aclhomeshare-remove-uidnum
-#  -- aclhomeshare-remove-all-useracls
 if ($aclhomeshare_remove_uidnum==1){
     print "Removing acls with uidnumber from ${DevelConf::share_share}\n";
     &get_homeshare_acls();
     foreach my $uidnumber (@acl_homeshare_numeric){
-        print ">$uidnumber<\n";
+        my $command="setfacl -x u:$uidnumber ${DevelConf::share_share}";
+        print "$command\n";
+        system($command);
     }
     exit;
-
 }
 
-
+#  -- aclhomeshare-remove-all-useracls
 if ($aclhomeshare_remove_all_user_acls==1){
     print "Removing all user acl from ${DevelConf::share_share}\n";
     &get_homeshare_acls();
     foreach my $user (@acl_homeshare_user){
-        print ">$user<\n";
+        my $command="setfacl -x u:$user ${DevelConf::share_share}";
+        print "$command\n";
+        system($command);
     }
     exit;
 }
+
 
 
 # userlist according to options
