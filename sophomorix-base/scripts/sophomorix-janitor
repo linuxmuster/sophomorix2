@@ -332,7 +332,7 @@ if ($aclhomeshare_remove_all_user_acls==1){
 # --find-unowned-files
 if ($find_unowned_files==1){
     #print "finding unowned files\n";
-    my $return=`find /home/share -nouser -printf "%u %g %p\n"`;
+    my $return=`find ${DevelConf::share_share} -nouser -printf "%u %g %p\n"`;
     #print "$return";
     my @lines=split("\n",$return);
     foreach my $line (@lines){
