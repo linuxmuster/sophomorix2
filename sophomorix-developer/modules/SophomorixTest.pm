@@ -293,9 +293,9 @@ sub check_account {
        my $pri_grp = getgrgid($gid);
 #       &check_dir($dir,$login,${DevelConf::teacher},"2701");
        &check_dir($dir,$login,${DevelConf::teacher},"1710");
-       &check_dir("${dir}/${Language::share_dir}","root","root","1755");
-       my $link_dir="${dir}/${Language::share_dir}";
-       &check_links("${link_dir}",$login);
+#       &check_dir("${dir}/${Language::share_dir}","root","root","1755");
+#       my $link_dir="${dir}/${Language::share_dir}";
+#       &check_links("${link_dir}",$login);
 
     }
 
@@ -634,30 +634,30 @@ sub check_provided_files {
     }   
 
     # __tauschen
-    if ($class eq ${DevelConf::teacher}){
-       &check_file("$Language::share_dir",$login,$class,
-                    "administrator",
-                    "root",
-                    "1775");
-    } else {
-       &check_file("$Language::share_dir",$login,$class,
-                    "administrator",
-                    ${DevelConf::teacher},
-                    "3755");
-    }   
+    #if ($class eq ${DevelConf::teacher}){
+    #   &check_file("$Language::share_dir",$login,$class,
+    #                "administrator",
+    #                "root",
+    #                "1775");
+    #} else {
+    #   &check_file("$Language::share_dir",$login,$class,
+    #                "administrator",
+    #                ${DevelConf::teacher},
+    #                "3755");
+    #}   
 
     # __vorlagen
-    if ($class eq ${DevelConf::teacher}){
-       &check_file("$Language::task_dir",$login,$class,
-                    "administrator",
-                    ${DevelConf::teacher},
-                    "1750");
-    } else {
-       &check_file("$Language::task_dir",$login,$class,
-                    "administrator",
-                    ${DevelConf::teacher},
-                    "3755");
-    }
+    #if ($class eq ${DevelConf::teacher}){
+    #   &check_file("$Language::task_dir",$login,$class,
+    #                "administrator",
+    #                ${DevelConf::teacher},
+    #                "1750");
+    #} else {
+    #   &check_file("$Language::task_dir",$login,$class,
+    #                "administrator",
+    #                ${DevelConf::teacher},
+    #                "3755");
+    #}
 
 
     #
@@ -766,7 +766,7 @@ sub check_groups_old {
     my @must_groups = @_;
     my $admin_class=$must_groups[0];
     my $share_dir;
-    my $tasks_dir;
+    #my $tasks_dir;
     my %is_groups = ( );
     my %is_links_share = ( );
     my %is_links_tasks = ( );
@@ -779,13 +779,13 @@ sub check_groups_old {
                   "/$admin_class/$login/${Language::share_dir}";
     }
 
-    # calculate where the dir with the tasks links is
-    if ($admin_class eq ${DevelConf::teacher}) {
-       $tasks_dir="/home/${DevelConf::teacher}/$login/${Language::task_dir}";
-    } else {
-       $tasks_dir="/home/${DevelConf::student}".
-                  "/$admin_class/$login/${Language::task_dir}";
-    }
+    ## calculate where the dir with the tasks links is
+    #if ($admin_class eq ${DevelConf::teacher}) {
+    #   $tasks_dir="/home/${DevelConf::teacher}/$login/${Language::task_dir}";
+    #} else {
+    #   $tasks_dir="/home/${DevelConf::student}".
+    #              "/$admin_class/$login/${Language::task_dir}";
+    #}
 
     # the actual groups
     my $is_groups=`id -nG $login`;
@@ -806,13 +806,13 @@ sub check_groups_old {
     closedir SHARE;
 
     # build hash of actual task links
-    opendir TASK, $tasks_dir or die "Cannot open $tasks_dir: $!";
-    foreach my $file (readdir TASK) {
-       if ($file eq ".."){next;}
-       if ($file eq "."){next;}
-       $is_links_tasks{$file} = 1;
-    }
-    closedir TASK;
+    #opendir TASK, $tasks_dir or die "Cannot open $tasks_dir: $!";
+    #foreach my $file (readdir TASK) {
+    #   if ($file eq ".."){next;}
+    #   if ($file eq "."){next;}
+    #   $is_links_tasks{$file} = 1;
+    #}
+    #closedir TASK;
 
     # add link to share school if necessary
     my $share_school="${Language::share_string}"."${Language::school}";
@@ -876,50 +876,50 @@ sub check_groups_old {
           }
 
           # check link to tasks
-          my $link_goal_rel_tasks="";
-
-          if ($must eq ${DevelConf::teacher}){
-             $link_goal_rel_tasks="${Language::task_string}".
-                                  "${Language::teacher}";
-	  } else {
-             $link_goal_rel_tasks="${Language::task_string}"."$must";
-          }
-
-          my $link_goal_tasks="${tasks_dir}/$link_goal_rel_tasks";
-          $must_source="";
-          if ($must eq ${DevelConf::teacher}){    
-              $must_source="${DevelConf::tasks_teachers}";
-  	  } else {
-              $must_source="${DevelConf::tasks_classes}/$must";
-          }
-          # checking links or binds
-          if ($DevelConf::share_pointer_type eq "bind" or
-              $DevelConf::share_pointer_type eq "binddir"){
-              ok(-d $link_goal_tasks, "checking if  $link_goal_tasks is a directory");
-              delete $is_links_tasks{$link_goal_rel_tasks};
-              # test the mount
-              # ?????
-              if ($DevelConf::share_pointer_type eq "bind"){
-                  my $return=`mount | grep $link_goal_tasks | grep $must_source | wc -l`;
-                  chomp($return);
-                  ok($return==1,
-                     "I see $return mount of 1 ($link_goal_tasks  ->  $must_source)"); 
-              }
-          } elsif ($DevelConf::share_pointer_type eq "symlink"){
-              ok(-l $link_goal_tasks, "checking if  $link_goal_tasks is a link");
-              delete $is_links_tasks{$link_goal_rel_tasks};
-              my $is_source = readlink $link_goal_tasks;
-
-              # exists the source of the link
-              ok(-e $is_source, "checking if source $is_source exists");
-
-              # is the source correct
-              is($is_source,
-                 $must_source,
-                 "Checking if link source is correct"); 
-          } else {
-                   print "\nWarning: share pointer Type not known\n\n";
-          }
+          #my $link_goal_rel_tasks="";
+          #
+          #if ($must eq ${DevelConf::teacher}){
+          #   $link_goal_rel_tasks="${Language::task_string}".
+          #                        "${Language::teacher}";
+	  #} else {
+          #   $link_goal_rel_tasks="${Language::task_string}"."$must";
+          #}
+          #
+          #my $link_goal_tasks="${tasks_dir}/$link_goal_rel_tasks";
+          #$must_source="";
+          #if ($must eq ${DevelConf::teacher}){    
+          #    $must_source="${DevelConf::tasks_teachers}";
+  	  #} else {
+          #    $must_source="${DevelConf::tasks_classes}/$must";
+          #}
+          ## checking links or binds
+          #if ($DevelConf::share_pointer_type eq "bind" or
+          #    $DevelConf::share_pointer_type eq "binddir"){
+          #    ok(-d $link_goal_tasks, "checking if  $link_goal_tasks is a directory");
+          #    delete $is_links_tasks{$link_goal_rel_tasks};
+          #    # test the mount
+          #    # ?????
+          #    if ($DevelConf::share_pointer_type eq "bind"){
+          #        my $return=`mount | grep $link_goal_tasks | grep $must_source | wc -l`;
+          #        chomp($return);
+          #        ok($return==1,
+          #           "I see $return mount of 1 ($link_goal_tasks  ->  $must_source)"); 
+          #    }
+          #} elsif ($DevelConf::share_pointer_type eq "symlink"){
+          #    ok(-l $link_goal_tasks, "checking if  $link_goal_tasks is a link");
+          #    delete $is_links_tasks{$link_goal_rel_tasks};
+          #    my $is_source = readlink $link_goal_tasks;
+          #
+          #    # exists the source of the link
+          #    ok(-e $is_source, "checking if source $is_source exists");
+          #
+          #    # is the source correct
+          #    is($is_source,
+          #       $must_source,
+          #       "Checking if link source is correct"); 
+          #} else {
+          #         print "\nWarning: share pointer Type not known\n\n";
+          #}
     }
 
     # are there groups the user is in but shouldn't 
