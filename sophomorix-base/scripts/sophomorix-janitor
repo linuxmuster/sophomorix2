@@ -354,7 +354,7 @@ if ($find_unowned_files ne ""){
 
     }
     foreach my $uid (@unowned_files){
-        print "$uid  --> $unowned_files{$uid}\n";
+        print "$uid  --> $unowned_files{$uid} files\n";
 
     }
     exit;
@@ -412,13 +412,7 @@ if ($copy_to_review ne "" or
 # --find-files
 # --copy-to-review 
 # --move-to-review
-if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and 
-     ($owner ne "")
-    ){
-    # --find-files
-    # --copy-to-review 
-    # --move-to-review
-    # ... search in $find_files
+if ($find_files ne "" or $copy_to_review ne "" or $move_to_review ne ""){
     if ($find_files ne ""){
         # use that as a search dir
     } elsif ($copy_to_review ne ""){
@@ -426,15 +420,16 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     } elsif ($move_to_review ne ""){
         $find_files = $move_to_review;
     }
-
-
-    # Creating a list of files ####################################
- 
     # exit if directory is nonexisting
-    if (not -d $find_files){
-        print "\n$find_files is not a directory\n\n";
+    if (not -d  $find_files){
+        print "\n$find_files is not an existing  directory\n\n";
         exit;
     }
+}
+
+# ... search in $find_files
+if ($find_files ne "" and $owner ne ""){
+    # Creating a list of files ####################################
 
     # if uidname, fetch uidnumber/if uidnumber, user doesn't need to exist
     # transform owner in uidnumber
@@ -698,8 +693,7 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     close(LINKLOG);
     close(STRANGELOG);
 
-} elsif (($find_files ne "" or $copy_to_review ne "" or $move_to_review)
-         and $owner eq ""){
+} elsif ($find_files ne "" and $owner eq ""){
     print "\n";
     print "  --find-files/--ff\n";
     print "  --copy-to-review/cprv\n";
