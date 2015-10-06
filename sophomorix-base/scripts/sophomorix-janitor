@@ -48,7 +48,7 @@ $Conf::log_level=1;
 my $help=0;
 my $info=0;
 my $login="";
-my $uid=0;
+#my $uid=0;
 
 # the following are dirs given by options 
 # in these dirs files/dirs are searched:
@@ -155,7 +155,7 @@ my $testopt=GetOptions(
            "administrator|administrators" => \$administrator,
            "room|rooms|r=s" => \$rooms,
            "workstations|workstation|w" => \$ws,
-           "uid=i" => \$uid,
+#           "uid=i" => \$uid,
            "list-db-junk" => \$list_db_junk,
            "kill-db-junk" => \$kill_db_junk,
            "aclhomeshare-remove-uidnum" => \$aclhomeshare_remove_uidnum,
@@ -179,6 +179,7 @@ my $testopt=GetOptions(
            "new-owner|newowner=s" => \$new_owner,
            "copy-to=s" => \$copy_to,
            "move-to=s" => \$move_to,
+           "listfiles" => \$listfiles,
            "list-foreign-files" => \$list_foreign_files,
            "check-horde" => \$check_horde,
            "dump-horde" => \$dump_horde,
@@ -274,8 +275,7 @@ Show/Delete revied data:
 
 Working on users files:
 
-  --listfiles --user name (tut nicht!)
-  --listfiles --uid uidnumber (tut nicht) 
+  --listfiles --user name
 
   --list-foreign-files (List data in home of user, that are not owned by user)
 
@@ -1708,21 +1708,21 @@ if ($check_project_members==1){
 # ===========================================================================
 my @dirs=("/home/students/");
 
-if ($uid==0 and $login ne ""){
-    # fetch uid of name
-    my ($name, $pass, $uid_of_user, $gid)= getpwnam($login);
-    if (not defined $uid_of_user){
-        print "ERROR: Could not determine uid of user $login\n";
-        print "       Please specify a uid\n\n";
-        exit;
-    } else {
-        $uid=$uid_of_user;
-    }
-}
+# if ($uid==0 and $login ne ""){
+#     # fetch uid of name
+#     my ($name, $pass, $uid_of_user, $gid)= getpwnam($login);
+#     if (not defined $uid_of_user){
+#         print "ERROR: Could not determine uid of user $login\n";
+#         print "       Please specify a uid\n\n";
+#         exit;
+#     } else {
+#         $uid=$uid_of_user;
+#     }
+# }
 
 
-# --listfiles and --uid or existing user (--user user)
-if ($listfiles==1 and $uid!=0 ){
+# --listfiles --user user)
+if ($listfiles==1 and $login ne ""){
     my $out_file=$list_files_path."/".$login."-dir-list.txt";
     my $out_file_share=$list_files_path."/".$login."-dir-list-share.txt";
     my $out_file_summary=$list_files_path."/".
@@ -1733,11 +1733,12 @@ if ($listfiles==1 and $uid!=0 ){
 
     ########## searching $HOME of a user ##########
     # fetching $HOME
-    my ($search_dir) = &fetchdata_from_account($login);
+    my ($search_dir,$type,$gecos,$group,$uidnumber) 
+          = &fetchdata_from_account($login);
     print SUMMARY "##### Ordner im persoenlichen Ordner: #####\n";
     my $search_command="find $search_dir -maxdepth 1 ".
                        "-type d -user $login > $out_file";
-    print "Looking for files of user $login with uid $uid:\n",
+    print "Looking for files of user $login with uid $uidnumber:\n",
           "   $search_command\n";
     system($search_command);
 
@@ -1925,14 +1926,14 @@ sub files_of_user {
 }
 
 # langsam
-sub files_of_uid {
-    my ($f_dev, $f_ino, $f_mode, $f_nlink, $f_uid, $f_gid) = lstat($_);
-    if ($uid==$f_uid){
-        print "$uid $f_uid $File::Find::name\n";
-        # do something with $File::Find::name
+# sub files_of_uid {
+#     my ($f_dev, $f_ino, $f_mode, $f_nlink, $f_uid, $f_gid) = lstat($_);
+#     if ($uid==$f_uid){
+#         print "$uid $f_uid $File::Find::name\n";
+#         # do something with $File::Find::name
 
-    }
-}
+#     }
+# }
 
 sub chown_print {
     my ($data,$new_owner) = @_;
