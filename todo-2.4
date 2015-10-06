@@ -12,9 +12,14 @@ sophomorix-class -i -c m2kk3t
 ... sollte lehrer und schüler zeigen
 
 
-
-
 LDAP:
+
+acess in /etc/ldap/slapd.conf
+-> am besten: eigene Access-Datei im  sophomorix-Paket nutzen
+       sonst: alle attribute im sophomorix-schmema nur für admin
+       das geht so:
+       access to attrs=sambaLMPassword,...,@sophomorixData
+
 
 Möglichkeiten Gruppen im openldap anzulegen (keine projekte)
 getrennt von Projekten auflistbar

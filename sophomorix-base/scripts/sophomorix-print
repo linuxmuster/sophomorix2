@@ -535,7 +535,8 @@ if ($user eq "" and
           if (exists($schueler_im_system_hash{$identifier})){
               $schueler_protokoll_zeile=$schueler_im_system_hash{$identifier};
           } else {
-              print "WARNING: $identifier not Found!";
+              print "       WARNING: User not Found! Skipping User $login\n";
+              next;
           }
           if($Conf::log_level>=3){
               print("\nIdentifier:               --$identifier--\n");
