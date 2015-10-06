@@ -100,36 +100,36 @@ Optionen ohne Angabe des Zielverzeichnisses (für
 Spezialfälle. Normalerweise reichen die SHORTCUT-Optionen weiter unten):
 .TP
 .in 3
-.B --find-files /quelle --owner uid
+.B --find-files /quelle --owner login/uidnumber
 Auflisten einer Übersicht der Daten eines Users im Verzeichnis /quelle 
 .TP
 .in 3
-.B --find-files /quelle --owner uid -v
+.B --find-files /quelle --owner login/uidnumber -v
 Ausführliches Auflisten der Daten eines Users im Verzeichnis /quelle 
 .TP 
 .in 3
-.B --find-files /quelle --owner uid/uidnumber --new-owner newuid/newuidnumber
+.B --find-files /quelle --owner login/uidnumber --new-owner newlogin/newuidnumber
 Übereignen der Daten eines Users uid im Verzeichnis /quelle
-an den User newuid/newuidnumber
+an den User newlogin/newuidnumber
 .TP
 Optionen mit Angabe des Zielverzeichnisses: 
 .TP 
 .in 3 
-.B --find-files /quelle --owner uid/uidnumber --copy-to /ziel
-Kopieren der Daten eines Users vom Verzeichnis /quelle nach /ziel
+.B --find-files /quelle --owner login/uidnumber --copy-to /ziel
+Kopieren der Daten eines Users vom Verzeichnis /quelle nach /ziel.
 .TP 
 .in 3
-.B --find-files /quelle --owner uid/uidnumber --move-to /ziel
+.B --find-files /quelle --owner login/uidnumber --move-to /ziel
 Verschieben der Daten eines Users vom Verzeichnis /quelle nach /ziel
 .TP 
 Mit Zielverzeichnis /quelle/login_bleibt_erhalten_bis_DATUM:
 .TP 
 .in 3
-.B --copy-to-review /quelle --owner uid --review-days num
+.B --copy-to-review /quelle --owner login/uidnumber --review-days num
 Kopieren der Daten eines Users im Verzeichnis /quelle
 .TP 
 .in 2
-.B --move-to-review /quelle --owner uid --review-days num
+.B --move-to-review /quelle --owner login/uidnumber --review-days num
 Verschieben der Daten eines Users im Verzeichnis /quelle
 .TP
 Die Option --review-days ist optional. Standardwert: 366 Tage.
@@ -153,10 +153,10 @@ Begutachten der Dateien im Tauschverzeichnis der Lehrer
 (Ziel: LehrerTausch/login_bleibt_erhalten_bis_DATUM):
 .TP 
 .in 3
-.B --move-to-review-teacher login --review-days num
+.B --move-to-review-teacher login/uidnumber --review-days num
 .TP
 .in 3
-.B --copy-to-review-teacher login --review-days num
+.B --copy-to-review-teacher login/uidnumber --review-days num
 .TP
 Die Option --review-days ist optional. Standardwert: 366 Tage.
 .TP
@@ -164,19 +164,19 @@ Begutachten der Dateien in allen Projekt-Tausch-Verzeichnissen
 (Ziel: login_bleibt_erhalten_bis_DATUM im jeweiligen Projekt-Tausch-Verzeichnis):
 .TP 
 .in 3
-.B --move-to-review-share-project login --review-days num
+.B --move-to-review-share-project login/uidnumber --review-days num
 .TP
 .in 3
-.B --copy-to-review-share-project login --review-days num
+.B --copy-to-review-share-project login/uidnumber --review-days num
 .TP
 Begutachten der Dateien in allen Klassen-Tausch-Verzeichnissen
 (Ziel: login_bleibt_erhalten_bis_DATUM im jeweiligen Klassen-Tausch-Verzeichnis)::
 .TP 
 .in 3
-.B --move-to-review-share-class login --review-days num
+.B --move-to-review-share-class/uidnumber login --review-days num
 .TP
 .in 3
-.B --copy-to-review-share-class login --review-days num
+.B --copy-to-review-share-class/uidnumber login --review-days num
 .br
 .SH OPTIONEN FÜR DATENBANK TOOLS:
 .TP 

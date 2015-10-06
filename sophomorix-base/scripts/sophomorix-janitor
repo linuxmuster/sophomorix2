@@ -167,8 +167,8 @@ my $testopt=GetOptions(
            "copy-to-review-home=s" => \$copy_to_review_home,
            "move-to-review-share-teacher=s" => \$move_to_review_share_teacher,
            "copy-to-review-share-teacher=s" => \$copy_to_review_share_teacher,
-           "move-to-review-share-projects=s" => \$move_to_review_share_project,
-           "copy-to-review-share-projects=s" => \$copy_to_review_share_project,
+           "move-to-review-share-project=s" => \$move_to_review_share_project,
+           "copy-to-review-share-project=s" => \$copy_to_review_share_project,
            "move-to-review-share-classes=s" => \$move_to_review_share_class,
            "copy-to-review-share-classes=s" => \$copy_to_review_share_class,
            "review-days=i" => \$review_days,
@@ -234,22 +234,22 @@ Cleaning unused ACLs on /home/share:
 
 Listing files/dirs/links/strange_stuff of user uid/uidnumber:
 
-  --find-files /source --owner uid/uidnumber     (summary)
-  --find-files /source --owner uid/uidnumber -v  (list every file)
+  --find-files /source --owner login/uidnumber     (summary)
+  --find-files /source --owner login/uidnumber -v  (list every file)
 
-Reowning files/dirs/links/strange_stuff of uid/uidnumber to newuid/newuidnumber:
+Reowning files/dirs/links/strange_stuff of login/uidnumber to newlogin/newuidnumber:
 
-  --find-files /source --owner uid/uidnumber --new-owner newuid/newuidnumber
+  --find-files /source --owner login/uidnumber --new-owner newlogin/newuidnumber
 
 Reowning files to user root, basic commands:
 
-  --find-files /source --owner uid/uidnumber --copy-to /target
-  --find-files /source --owner uid/uidnumber --move-to /target
+  --find-files /source --owner login/uidnumber --copy-to /target
+  --find-files /source --owner login/uidnumber --move-to /target
 
 Reviewing files (Files are copied/moved to alumni directory):
 
-  --copy-to-review /source --owner uid/uidnumber --review-days num
-  --move-to-review /source --owner uid/uidnumber --review-days num
+  --copy-to-review /source --owner login/uidnumber --review-days num
+  --move-to-review /source --owner login/uidnumber --review-days num
   Option --review-days is optional and defaults to 366 days
 
 Useful shortcuts (--review-days is optional):
@@ -258,14 +258,14 @@ Useful shortcuts (--review-days is optional):
     --move-to-review-home login --review-days num 
     --copy-to-review-home login --review-days num 
   Reviewing files in the teachers share:
-    --move-to-review-share-teacher login --review-days num 
-    --copy-to-review-share-teacher login --review-days num 
+    --move-to-review-share-teacher login/uidnumber --review-days num 
+    --copy-to-review-share-teacher login/uidnumber --review-days num 
   Reviewing files in all project shares:
-    --move-to-review-share-project login --review-days num 
-    --copy-to-review-share-project login --review-days num 
+    --move-to-review-share-project login/uidnumber --review-days num 
+    --copy-to-review-share-project login/uidnumber --review-days num 
   Reviewing files in all class shares:
-    --move-to-review-share-class login --review-days num 
-    --copy-to-review-share-class login --review-days num 
+    --move-to-review-share-class login/uidnumber --review-days num 
+    --copy-to-review-share-class login/uidnumber --review-days num 
 
 Show/Delete revied data:
 
@@ -725,6 +725,12 @@ if ($move_to_review_home ne "" or
         = &fetchdata_from_account($login);
     my $target=$home."/".$login.${Language::alumni_review_string}.
                $review_end_date;
+    if ($home eq ""){
+        print "\n";
+        print "ERROR: Could not determine \$HOME of $login\n";
+        print "       I do not know from where to move/copy the data!\n\n";
+        exit;
+    }
     print "Moving/Copying data in \$HOME of $gecos ($login):\n";
     print "  $home\n";
     print "for review into directory:\n";
@@ -766,6 +772,10 @@ if ($move_to_review_share_teacher ne "" or
     }
     my ($home,$type,$gecos,$group,$uidnumber) 
         = &fetchdata_from_account($login);
+    if ($gecos eq ""){
+        $gecos="unknown user";
+    }
+
     my $source=${DevelConf::share_teacher};
     my $target=${DevelConf::share_teacher}."/".
                ${Language::alumni}."/".
@@ -821,12 +831,23 @@ if ($move_to_review_share_project ne "" or
     }
     my ($home,$type,$gecos,$group,$uidnumber) 
         = &fetchdata_from_account($login);
-
+    if ($gecos eq ""){
+        $gecos="unknown user";
+    }
     print "######## Working on $review_dir ########\n";
     # go through subdirectories
     opendir REVDIR, $review_dir;
     my $count=0;
+    my @dirs_to_walk_through;
     foreach my $dir (readdir REVDIR){
+        if ($dir eq "." or $dir eq ".."){
+            # ignore attic? domcomputers? ignore ehemalige!!!
+            next;
+        }
+        push @dirs_to_walk_through, $dir;    
+    }
+    @dirs_to_walk_through  = sort @dirs_to_walk_through;
+    foreach my $dir (@dirs_to_walk_through){
         if ($dir eq "." or $dir eq ".."){
             # ignore attic? domcomputers? ignore ehemalige!!!
             next;
@@ -841,7 +862,7 @@ if ($move_to_review_share_project ne "" or
                    $login.
                    ${Language::alumni_review_string}.
                    $review_end_date;
-        if ($Conf::log_level==2){
+        if ($Conf::log_level>=2){
             print "  Moving/Copying data of $gecos ($login) in:\n";
             print "    $source\n";
             print "  for review into directory:\n";
