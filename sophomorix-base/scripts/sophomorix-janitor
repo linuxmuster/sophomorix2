@@ -48,7 +48,6 @@ $Conf::log_level=1;
 my $help=0;
 my $info=0;
 my $login="";
-#my $uid=0;
 
 # the following are dirs given by options 
 # in these dirs files/dirs are searched:
@@ -155,7 +154,6 @@ my $testopt=GetOptions(
            "administrator|administrators" => \$administrator,
            "room|rooms|r=s" => \$rooms,
            "workstations|workstation|w" => \$ws,
-#           "uid=i" => \$uid,
            "list-db-junk" => \$list_db_junk,
            "kill-db-junk" => \$kill_db_junk,
            "aclhomeshare-remove-uidnum" => \$aclhomeshare_remove_uidnum,
@@ -340,9 +338,6 @@ if ($find_unowned_files ne ""){
     my @lines=split("\n",$return);
     foreach my $line (@lines){
         my ($uid,$gid,$rest)=split(" ", $line);
-        #print "LINE: $line\n";
-        #print "   UID: <$uid>\n";
-        #print "   GID: <$gid>\n";
         if (not exists $unowned_files{$uid}){
             $unowned_files{$uid}=1;
             push @unowned_files, $uid;
@@ -351,11 +346,9 @@ if ($find_unowned_files ne ""){
             my $newcount=$oldcount+1;
             $unowned_files{$uid}=$newcount;
         }
-
     }
     foreach my $uid (@unowned_files){
         print "$uid  --> $unowned_files{$uid} files\n";
-
     }
     exit;
 }
@@ -1032,7 +1025,6 @@ if ($check_horde==1){
 	print "$uid\n";
     }
 
-
     while(my ($uid, $value) = each(%horde_users)) {
 	my $return=system("id $uid > /dev/null");
         if ($return!=0){
@@ -1063,328 +1055,6 @@ if ($dump_pg_ldap==1){
     print "Timestamp: $timestamp\n";
     &backup_user_database($timestamp, "janitor.sql","JANITOR");
     exit;
-}
-
-
-######################################################################
-# subs
-######################################################################
-
-sub get_homeshare_acls {
-    my $acls=`getfacl ${DevelConf::share_share}`;
-    #print "$acls";
-    my @acl_lines=(split "\n", $acls);
-    foreach my $line (@acl_lines){
-        if($line=~/^\#/){ # # am Anfang bedeutet Kommentarzeile
-            next;
-        }
-        my ($type,$who,$acl)=split(":", $line);
-        if ($Conf::log_level>=2){
-    	    print "LINE: $line\n";
-            print "  Type: $type\n";
-            print "   Who: $who\n";
-            print "   ACL: $acl\n";
-        }
-        if ($who eq ""){
-            next;
-        }
-        if ($who=~/^\d+$/){ # match only digits
-            push @acl_homeshare_numeric, $who;
-        }
-        if ($type eq "user"){
-            push @acl_homeshare_user, $who;
-        }
-        if ($type eq "group"){
-            push @acl_homeshare_group, $who;
-        }
-    }
-    @acl_homeshare_numeric =sort @acl_homeshare_numeric;
-    @acl_homeshare_user = sort @acl_homeshare_user;
-    @acl_homeshare_group =sort @acl_homeshare_group;
-}
-
-
-
-sub get_statinfo {
-    my ($source) = @_;
-    my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks)= stat($source);
-
-    # atime
-    my $time=localtime($atime);
-    my $day=$time->mday;
-    my $month=$time->mon+1;
-    my $year=$time->year+1900;
-    $atime=$year."-".$month."-".$day;
-
-    # mtime
-    $time=localtime($mtime);
-    $day=$time->mday;
-    $month=$time->mon+1;
-    $year=$time->year+1900;
-    $mtime=$year."-".$month."-".$day;
-
-    # ctime
-    $time=localtime($ctime);
-    $day=$time->mday;
-    $month=$time->mon+1;
-    $year=$time->year+1900;
-    $ctime=$year."-".$month."-".$day;
-
-    # convert octal type and permissions to string 
-    my $perm=sprintf "%04o",$mode & 07777;
-
-    return $perm,$uid,$gid,$atime,$mtime,$ctime;
-}
-
-
-sub delete_dir_if_empty {
-    my ($dir) = @_;
-    my %owners=();
-    ${owners}{0}=0;
-    my $topowner=0; # owner which has the most content in dir
-    # check if its a dir
-    opendir EMPTYDIR, $dir;
-    my $count=0;
-    print "  * Checking if $dir is empty\n";
-    foreach my $content (readdir EMPTYDIR){
-        if ($content eq "." or $content eq ".."){
-            next;
-        }
-        my $abs_content=$dir."/".$content;
-        my ($perm,$uid,$gid,$atime,$mtime,$ctime) = &get_statinfo($abs_content);
-	print "$uid : $abs_content \n";
-        if (exists $owners{$uid}){
-            my $old_count=$owners{$uid};
-            my $new_count=$old_count+1;
-            $owners{$uid}=$new_count;
-        } else {
-            $owners{$uid}=1;
-        }
-        $count++;
-    }
-
-    # print owners
-    print "Owners:\n";
-    while (my ($owner,$num) = each %owners){
-        print $owner , " ", $num, "\n";
-        if ($owners{$owner} > $owners{$topowner}){
-            $topowner=$owner
-        }
-    }
-
-    print "Top-owner=$topowner ($dir)\n";
-
-    if ($count == 0){
-        # remove empty dir and return
-        print "    EMPTY: $dir\n";
-        rmdir $dir;
-        return "dir deleted/empty";
-    } else {
-        # dir not empty, but contains files from others
-        # chown to topowner
-        print "    $count: $dir\n";
-        print "          : new owner is uidnumber $topowner\n";
-        chown $topowner, 0, $dir;
-        my $message= "dir chowned to $topowner";
-        return $message;
-    }
-}
-
-
-sub review_file {
-    my ($type,$source,$target) = @_;
-    # shorten path for display
-    my $display=$source;
-    $display=~s/$find_files//;
-    # remove leading / (if present)
-    $display=~s/^\///;
-    my $parent_dir=dirname($target);
-    my ($perm,$uid,$gid,$atime,$mtime,$ctime) = &get_statinfo($source);
-    my $logline=$target.$sep.
-                $source.$sep.
-                $perm.$sep.
-                $uid.$sep.
-                $gid.$sep.
-                $atime.$sep.
-                $mtime.$sep.
-                $ctime.$sep.
-                "";
-
-    if ($type eq "copy" or $type eq "move"){
-        print "  FILE: $display $Conf::log_level\n";
-        if($Conf::log_level>=2){
-            print "    Source:   $source\n";
-            print "    cp/mv to: $target\n";
-            print "    Parent:   $parent_dir\n";
-        }
-        # copy the file
-        make_path($parent_dir); # same as: mkdir -p
-        copy($source,$target);
-        chmod 0644, $target;
-        $logline=$logline."file moved".$sep;
-    } elsif ($type eq "show") {
-        if($Conf::log_level>=2){
-            print "  FILE: $display\n";
-        }
-    }
-
-    if ($type eq "move"){
-        if (-e $target){
-           print "    Deleting file: $source\n";
-           # delete the file
-           unlink $source;
-           $logline=$logline."file deleted".$sep;
-        }
-    }
-    $logline=$logline."\n";
-    print FILELOG $logline;
-}
-
-
-sub review_link {
-    my ($type,$source,$target) = @_;
-    # shorten path for display
-    my $display=$source;
-    $display=~s/$find_files//;
-    # remove leading / (if present)
-    $display=~s/^\///;
-
-    print "  LINK: $display\n";
-    if($Conf::log_level>=2){
-            print "    Omitted:   $source\n";
-    }
-    my $readlink = readlink $source;
-
-    my $logline=$target.$sep.$source.$sep.$readlink.$sep."\n";
-    # in case of move, delete link, so that dirs can be deleted
-    if ($type eq "move"){
-        print "    Deleting link: $source\n";
-        # delete the file
-        unlink $source;
-        $logline=$logline."link deleted".$sep;
-    }
-    print LINKLOG $logline;
-}
-
-
-sub review_dir {
-    my ($type,$source,$target) = @_;
-    # shorten path for display
-    my $display=$source;
-    $display=~s/$find_files//;
-    # remove leading / (if present)
-    $display=~s/^\///;
-    my ($perm,$uid,$gid,$atime,$mtime,$ctime) = &get_statinfo($source);
-    my $logline=$target.$sep.
-                $source.$sep.
-                $perm.$sep.
-                $uid.$sep.
-                $gid.$sep.
-                $atime.$sep.
-                $mtime.$sep.
-                $ctime.$sep.
-                "";
-
-    if ($type eq "copy"){
-        print "  DIR: $display\n";
-        # make sure target is redable/browsable 
-        chmod 0775, $target;
-        $logline = $logline."\n";
-        print DIRLOG $logline;
-
-    } elsif ($type eq "move") {
-        print "  DIR: $display (move: ...)\n";
-        # make sure target is redable/browsable 
-        chmod 0775, $target;
-        # delete empty source dirs/reown them
-        my $result = &delete_dir_if_empty($source);
-        $logline=$logline.$result.$sep."\n";
-
-        print DIRLOG $logline;
-
-    } elsif ($type eq "show") {
-        if($Conf::log_level>=2){
-            print "  DIR: $display\n";
-        }
-    }
-    if($Conf::log_level>=2){
-        print "    Source:   $source\n";
-        print "    Target:   $target\n";
-    }
-}
-
-
-sub review_strange {
-    my ($type,$source,$target) = @_;
-    # shorten path for display
-    my $display=$source;
-    $display=~s/$find_files//;
-    # remove leading / (if present)
-    $display=~s/^\///;
-
-    print "STRANGE: $display\n";
-    my ($perm,$uid,$gid,$atime,$mtime,$ctime) = &get_statinfo($source);
-    my $logline=$target.$sep.
-                $source.$sep.
-                $perm.$sep.
-                $uid.$sep.
-                $gid.$sep.
-                $atime.$sep.
-                $mtime.$sep.
-                $ctime.$sep.
-                "\n";
-    print STRANGELOG $logline;
-}
-
-
-sub pro_name {
-    my ($id)=@_;
-    my $dbh=&db_connect();
-    my ($name)= $dbh->selectrow_array( "SELECT gid 
-                                         FROM projectdata 
-                                         WHERE id=$id
-                                        ");
-    &db_disconnect($dbh);
-    return $name;
-}
-
-
-sub user_name_from_id {
-    my ($uid) = @_;
-    my $username = getpwuid($uid);
-    return $username;
-}
-
-
-sub update_future_members {
-    my ($gidnumber,$uidnumber,$reason) = @_;
-    if (exists $future_members{$gidnumber}{$uidnumber}){
-        if($Conf::log_level>=2){
-            print "          uid $uidnumber exists.",
-                  " Updating reason:\n";
-        }
-        # fetching old_reason
-        my $oldreason=$future_members{$gidnumber}{$uidnumber};
-        my $newreason="";
-        $newreason=$oldreason.",".$reason;
-        if($Conf::log_level>=2){
-            print "          $oldreason -> $newreason\n";
-        }
-        $future_members{$gidnumber}{$uidnumber}="$newreason";
-    } else {
-        if($Conf::log_level>=2){
-            print "          uid $uidnumber missing.".
-                  " Creating entry.\n";
-        }
-        $future_members{$gidnumber}{$uidnumber}="$reason";
-   }
-}
-
-
-sub group_name_from_id {
-    my ($gid) = @_;
-    my ($groupname) = getgrgid($gid);
-    return $groupname;
 }
 
 
@@ -1529,7 +1199,6 @@ if ($check_project_members==1){
                                        "MemberByClass");
             }
         }
-
 
         # 4) Step1 (projectmembers) Save Project -> Memberprojects 
         my $sth4= $dbh->prepare( "SELECT memberprojectid
@@ -1708,19 +1377,6 @@ if ($check_project_members==1){
 # ===========================================================================
 my @dirs=("/home/students/");
 
-# if ($uid==0 and $login ne ""){
-#     # fetch uid of name
-#     my ($name, $pass, $uid_of_user, $gid)= getpwnam($login);
-#     if (not defined $uid_of_user){
-#         print "ERROR: Could not determine uid of user $login\n";
-#         print "       Please specify a uid\n\n";
-#         exit;
-#     } else {
-#         $uid=$uid_of_user;
-#     }
-# }
-
-
 # --listfiles --user user)
 if ($listfiles==1 and $login ne ""){
     my $out_file=$list_files_path."/".$login."-dir-list.txt";
@@ -1862,9 +1518,339 @@ if ($listfiles==1 and $login ne ""){
 
 
 
-# ===========================================================================
-# Subs
-# ===========================================================================
+######################################################################
+# subs
+######################################################################
+
+sub review_file {
+    my ($type,$source,$target) = @_;
+    # shorten path for display
+    my $display=$source;
+    $display=~s/$find_files//;
+    # remove leading / (if present)
+    $display=~s/^\///;
+    my $parent_dir=dirname($target);
+    my ($perm,$uid,$gid,$atime,$mtime,$ctime) = &get_statinfo($source);
+    my $logline=$target.$sep.
+                $source.$sep.
+                $perm.$sep.
+                $uid.$sep.
+                $gid.$sep.
+                $atime.$sep.
+                $mtime.$sep.
+                $ctime.$sep.
+                "";
+
+    if ($type eq "copy" or $type eq "move"){
+        print "  FILE: $display $Conf::log_level\n";
+        if($Conf::log_level>=2){
+            print "    Source:   $source\n";
+            print "    cp/mv to: $target\n";
+            print "    Parent:   $parent_dir\n";
+        }
+        # copy the file
+        make_path($parent_dir); # same as: mkdir -p
+        copy($source,$target);
+        chmod 0644, $target;
+        $logline=$logline."file moved".$sep;
+    } elsif ($type eq "show") {
+        if($Conf::log_level>=2){
+            print "  FILE: $display\n";
+        }
+    }
+
+    if ($type eq "move"){
+        if (-e $target){
+           print "    Deleting file: $source\n";
+           # delete the file
+           unlink $source;
+           $logline=$logline."file deleted".$sep;
+        }
+    }
+    $logline=$logline."\n";
+    print FILELOG $logline;
+}
+
+
+
+sub review_link {
+    my ($type,$source,$target) = @_;
+    # shorten path for display
+    my $display=$source;
+    $display=~s/$find_files//;
+    # remove leading / (if present)
+    $display=~s/^\///;
+
+    print "  LINK: $display\n";
+    if($Conf::log_level>=2){
+            print "    Omitted:   $source\n";
+    }
+    my $readlink = readlink $source;
+
+    my $logline=$target.$sep.$source.$sep.$readlink.$sep."\n";
+    # in case of move, delete link, so that dirs can be deleted
+    if ($type eq "move"){
+        print "    Deleting link: $source\n";
+        # delete the file
+        unlink $source;
+        $logline=$logline."link deleted".$sep;
+    }
+    print LINKLOG $logline;
+}
+
+
+
+sub review_dir {
+    my ($type,$source,$target) = @_;
+    # shorten path for display
+    my $display=$source;
+    $display=~s/$find_files//;
+    # remove leading / (if present)
+    $display=~s/^\///;
+    my ($perm,$uid,$gid,$atime,$mtime,$ctime) = &get_statinfo($source);
+    my $logline=$target.$sep.
+                $source.$sep.
+                $perm.$sep.
+                $uid.$sep.
+                $gid.$sep.
+                $atime.$sep.
+                $mtime.$sep.
+                $ctime.$sep.
+                "";
+
+    if ($type eq "copy"){
+        print "  DIR: $display\n";
+        # make sure target is redable/browsable 
+        chmod 0775, $target;
+        $logline = $logline."\n";
+        print DIRLOG $logline;
+
+    } elsif ($type eq "move") {
+        print "  DIR: $display (move: ...)\n";
+        # make sure target is redable/browsable 
+        chmod 0775, $target;
+        # delete empty source dirs/reown them
+        my $result = &delete_dir_if_empty($source);
+        $logline=$logline.$result.$sep."\n";
+
+        print DIRLOG $logline;
+
+    } elsif ($type eq "show") {
+        if($Conf::log_level>=2){
+            print "  DIR: $display\n";
+        }
+    }
+    if($Conf::log_level>=2){
+        print "    Source:   $source\n";
+        print "    Target:   $target\n";
+    }
+}
+
+
+
+sub review_strange {
+    my ($type,$source,$target) = @_;
+    # shorten path for display
+    my $display=$source;
+    $display=~s/$find_files//;
+    # remove leading / (if present)
+    $display=~s/^\///;
+
+    print "STRANGE: $display\n";
+    my ($perm,$uid,$gid,$atime,$mtime,$ctime) = &get_statinfo($source);
+    my $logline=$target.$sep.
+                $source.$sep.
+                $perm.$sep.
+                $uid.$sep.
+                $gid.$sep.
+                $atime.$sep.
+                $mtime.$sep.
+                $ctime.$sep.
+                "\n";
+    print STRANGELOG $logline;
+}
+
+
+
+sub pro_name {
+    my ($id)=@_;
+    my $dbh=&db_connect();
+    my ($name)= $dbh->selectrow_array( "SELECT gid 
+                                         FROM projectdata 
+                                         WHERE id=$id
+                                        ");
+    &db_disconnect($dbh);
+    return $name;
+}
+
+
+
+sub user_name_from_id {
+    my ($uid) = @_;
+    my $username = getpwuid($uid);
+    return $username;
+}
+
+
+
+sub update_future_members {
+    my ($gidnumber,$uidnumber,$reason) = @_;
+    if (exists $future_members{$gidnumber}{$uidnumber}){
+        if($Conf::log_level>=2){
+            print "          uid $uidnumber exists.",
+                  " Updating reason:\n";
+        }
+        # fetching old_reason
+        my $oldreason=$future_members{$gidnumber}{$uidnumber};
+        my $newreason="";
+        $newreason=$oldreason.",".$reason;
+        if($Conf::log_level>=2){
+            print "          $oldreason -> $newreason\n";
+        }
+        $future_members{$gidnumber}{$uidnumber}="$newreason";
+    } else {
+        if($Conf::log_level>=2){
+            print "          uid $uidnumber missing.".
+                  " Creating entry.\n";
+        }
+        $future_members{$gidnumber}{$uidnumber}="$reason";
+   }
+}
+
+
+
+sub group_name_from_id {
+    my ($gid) = @_;
+    my ($groupname) = getgrgid($gid);
+    return $groupname;
+}
+
+
+
+sub get_homeshare_acls {
+    my $acls=`getfacl ${DevelConf::share_share}`;
+    #print "$acls";
+    my @acl_lines=(split "\n", $acls);
+    foreach my $line (@acl_lines){
+        if($line=~/^\#/){ # # am Anfang bedeutet Kommentarzeile
+            next;
+        }
+        my ($type,$who,$acl)=split(":", $line);
+        if ($Conf::log_level>=2){
+    	    print "LINE: $line\n";
+            print "  Type: $type\n";
+            print "   Who: $who\n";
+            print "   ACL: $acl\n";
+        }
+        if ($who eq ""){
+            next;
+        }
+        if ($who=~/^\d+$/){ # match only digits
+            push @acl_homeshare_numeric, $who;
+        }
+        if ($type eq "user"){
+            push @acl_homeshare_user, $who;
+        }
+        if ($type eq "group"){
+            push @acl_homeshare_group, $who;
+        }
+    }
+    @acl_homeshare_numeric =sort @acl_homeshare_numeric;
+    @acl_homeshare_user = sort @acl_homeshare_user;
+    @acl_homeshare_group =sort @acl_homeshare_group;
+}
+
+
+
+sub get_statinfo {
+    my ($source) = @_;
+    my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,
+        $mtime,$ctime,$blksize,$blocks)= stat($source);
+
+    # atime
+    my $time=localtime($atime);
+    my $day=$time->mday;
+    my $month=$time->mon+1;
+    my $year=$time->year+1900;
+    $atime=$year."-".$month."-".$day;
+
+    # mtime
+    $time=localtime($mtime);
+    $day=$time->mday;
+    $month=$time->mon+1;
+    $year=$time->year+1900;
+    $mtime=$year."-".$month."-".$day;
+
+    # ctime
+    $time=localtime($ctime);
+    $day=$time->mday;
+    $month=$time->mon+1;
+    $year=$time->year+1900;
+    $ctime=$year."-".$month."-".$day;
+
+    # convert octal type and permissions to string 
+    my $perm=sprintf "%04o",$mode & 07777;
+
+    return $perm,$uid,$gid,$atime,$mtime,$ctime;
+}
+
+
+
+sub delete_dir_if_empty {
+    my ($dir) = @_;
+    my %owners=();
+    ${owners}{0}=0;
+    my $topowner=0; # owner which has the most content in dir
+    # check if its a dir
+    opendir EMPTYDIR, $dir;
+    my $count=0;
+    print "  * Checking if $dir is empty\n";
+    foreach my $content (readdir EMPTYDIR){
+        if ($content eq "." or $content eq ".."){
+            next;
+        }
+        my $abs_content=$dir."/".$content;
+        my ($perm,$uid,$gid,$atime,$mtime,$ctime) 
+             = &get_statinfo($abs_content);
+	print "$uid : $abs_content \n";
+        if (exists $owners{$uid}){
+            my $old_count=$owners{$uid};
+            my $new_count=$old_count+1;
+            $owners{$uid}=$new_count;
+        } else {
+            $owners{$uid}=1;
+        }
+        $count++;
+    }
+
+    # print owners
+    print "Owners:\n";
+    while (my ($owner,$num) = each %owners){
+        print $owner , " ", $num, "\n";
+        if ($owners{$owner} > $owners{$topowner}){
+            $topowner=$owner
+        }
+    }
+
+    print "Top-owner=$topowner ($dir)\n";
+
+    if ($count == 0){
+        # remove empty dir and return
+        print "    EMPTY: $dir\n";
+        rmdir $dir;
+        return "dir deleted/empty";
+    } else {
+        # dir not empty, but contains files from others
+        # chown to topowner
+        print "    $count: $dir\n";
+        print "          : new owner is uidnumber $topowner\n";
+        chown $topowner, 0, $dir;
+        my $message= "dir chowned to $topowner";
+        return $message;
+    }
+}
+
+
 
 sub all_review_dirs {
     my $epoch_now=time;
@@ -1920,20 +1906,13 @@ sub files_owned_by {
 }
 
 
+
 sub files_of_user {
     my ($login) = @_;
     # find /home -user bz > bz-files-in-home.log
 }
 
-# langsam
-# sub files_of_uid {
-#     my ($f_dev, $f_ino, $f_mode, $f_nlink, $f_uid, $f_gid) = lstat($_);
-#     if ($uid==$f_uid){
-#         print "$uid $f_uid $File::Find::name\n";
-#         # do something with $File::Find::name
 
-#     }
-# }
 
 sub chown_print {
     my ($data,$new_owner) = @_;
@@ -1947,6 +1926,8 @@ sub chown_print {
         lchown $new_uid_number, -1, $data;
     }
 }
+
+
 
 sub get_horde_password {
     my $password="";
