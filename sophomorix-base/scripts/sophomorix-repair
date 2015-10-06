@@ -379,7 +379,8 @@ if ($repairhome==1){
 
     # Print summary of undeleted files for all users
     my $not_deleted_count=$#not_deleted+1;
-    print "\nSummary: $not_deleted_count dirs could not be deleted:\n";
+    print "\nSummary: $not_deleted_count dirs could not be deleted",
+          " (dir not empty):\n";
     foreach my $item (@not_deleted){
         print "    $item\n";
     }
