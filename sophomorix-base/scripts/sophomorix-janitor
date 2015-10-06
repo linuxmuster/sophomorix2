@@ -237,9 +237,9 @@ Listing files/dirs/links/strange_stuff of user uid/uidnumber:
   --find-files /source --owner uid/uidnumber     (summary)
   --find-files /source --owner uid/uidnumber -v  (list every file)
 
-Reowning files/dirs/links/strange_stuff of user uid/uidnumber to newowner:
+Reowning files/dirs/links/strange_stuff of uid/uidnumber to newuid/newuidnumber:
 
-  --find-files /source --owner uid/uidnumber --new-owner newowner
+  --find-files /source --owner uid/uidnumber --new-owner newuid/newuidnumber
 
 Reowning files to user root, basic commands:
 
@@ -451,7 +451,11 @@ if (($find_files ne "" or $copy_to_review ne "" or $move_to_review) and
     }
 
     if ($new_owner ne ""){
-        $new_uid_number = getpwnam($new_owner);
+        if ($new_owner=~/^[0-9]+$/){
+            $new_uid_number = $new_owner;
+        } else {
+            $new_uid_number = getpwnam($new_owner);
+        }
     }
     
     # save printout to show only if something ist found
