@@ -40,6 +40,8 @@ Sagt, was das Programm gerade macht (verbose)
 .B -vv, --verbose --verbose
 Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 .TP
+.SH Disabling/Enabling a user in samba
+.TP
 .B -I / --disable
 Verhindert die Authentifizierung via samba. 
 .br
@@ -49,6 +51,16 @@ vgl.: smbldap-usermod -I user
 Erlaubt die Authentifizierung via samba.
 .br
 vgl.: smbldap-usermod -J user
+.TP
+.SH Adding/Deleting a user to/from a group
+.TP
+.B --adduser <login> --group <groupname>
+Nimmt den User <login> in die sekundäre Gruppe <groupname> auf.
+.br
+.TP
+.B --deleteuser <login> --group <groupname>
+Entfernt den User <login> aus der sekundären Gruppe <groupname>.
+.br
 .TP
 .SH SEE ALSO
 .BR sophomorix (8),

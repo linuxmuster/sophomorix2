@@ -36,6 +36,10 @@ my $skiplock=0;
 my $enable="";
 my $disable="";
 
+my $adduser="";
+my $deleteuser="";
+my $group="";
+
 $Conf::log_level=1;
 
 
@@ -49,6 +53,9 @@ my $testopt=GetOptions(
            "help|h" => \$help,
            "enable|J=s" => \$enable,
            "disable|I=s" => \$disable,
+           "adduser=s" => \$adduser,
+           "deleteuser=s" => \$deleteuser,
+           "group=s" => \$group,
            "skiplock" => \$skiplock,
           );
 
@@ -73,6 +80,12 @@ Options
 For samba users:
   -I user  (disable a user in samba)
   -J user  (enable a user in samba)
+
+Adding a user to a group:
+  --adduser <login> --group <group> 
+
+Deleting a user from a group:
+  --deleteuser <login> --group <group> 
 
 Please see the sophomorix-usermod(8) man pages for full documentation
 ');
@@ -99,6 +112,17 @@ if ($disable ne ""){
      &update_user_db_entry($disable,"Disable=Yes");
 }
 
+
+# --adduser --group
+if ($adduser ne "" and $group ne ""){
+    print "Adding user $adduser to secondary group $group\n";
+}
+
+
+# --deleteuser --group
+if ($deleteuser ne "" and $group ne ""){
+    print "Deleting user $deleteuser from secondary group $group\n";
+}
 
 
 
