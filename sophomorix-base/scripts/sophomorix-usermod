@@ -19,6 +19,8 @@ use Net::LDAP;
 use Sophomorix::SophomorixPgLdap qw(show_modulename
                                     check_connections
                                     update_user_db_entry
+                                    adduser_to_project
+                                    deleteuser_from_project
                                    );
 
 
@@ -113,15 +115,24 @@ if ($disable ne ""){
 }
 
 
-# --adduser --group
+
+
+## --adduser --group
 if ($adduser ne "" and $group ne ""){
     print "Adding user $adduser to secondary group $group\n";
+    # 3rd argument: 0 -> no project member option
+    # 4th argument: 0 -> no subclasses in ldap
+    &adduser_to_project($adduser,$group,0,0);
 }
+
+
 
 
 # --deleteuser --group
 if ($deleteuser ne "" and $group ne ""){
     print "Deleting user $deleteuser from secondary group $group\n";
+    # 4th argument 1: do not add p_ prefix (like in an adminclass)
+    &deleteuser_from_project($deleteuser,$group,0,1); 
 }
 
 

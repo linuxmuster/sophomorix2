@@ -888,7 +888,7 @@ sub adduser_to_project {
     # 3rd option: $by_option: 
     #    add to by option table as well (1) 
     #    or not add to option table (0) standard
-    my ($user,$project,$by_option)=@_;
+    my ($user,$project,$by_option,$subclass)=@_;
     my $sql;
     if (not defined $by_option){
         $by_option=0;
@@ -933,7 +933,7 @@ sub adduser_to_project {
         }
 
         # adding user to secondary group
-        &auth_adduser_to_project($user,$project);
+        &auth_adduser_to_project($user,$project,$subclass);
 
         # keep track of members by option
         if ($by_option==1){
@@ -6582,7 +6582,11 @@ sub auth_adduser_to_her_projects {
 
 
 sub auth_adduser_to_project {
-    my ($login,$project)=@_;
+    my ($login,$project,$subclass)=@_;
+    if (not defined $subclass){
+        # default is to add also to subclasses
+        $subclass=1;
+    }
 
     # check if adding in pgldap was sucessful ?????
 
@@ -6599,7 +6603,7 @@ sub auth_adduser_to_project {
     # is it an adminclass
     my ($g_type)=&pg_get_group_type($project);
 
-    if ($g_type eq "adminclass"){
+    if ($g_type eq "adminclass" and $subclass==1){
         my @appends=("-A","-B","-C","-D");
         if($Conf::log_level>=3){
             print "Group Typeof $project: $g_type\n";
