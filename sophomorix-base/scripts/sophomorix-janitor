@@ -333,6 +333,25 @@ if ($aclhomeshare_remove_all_user_acls==1){
 
 # --find-unowned-files
 if ($find_unowned_files ne ""){
+    my %uid_uidname=();
+
+    # reading archived userids
+    open (ARCHIVELOG,
+         "<${DevelConf::log_files}/user-modify-archive.log") 
+         || die "Fehler: ${DevelConf::log_files}/user-modify-archive.log    $!";
+    while(<ARCHIVELOG>){
+      chomp();
+      my ($type,$date,$login,$uid,$surname,$firstname)=split(/::/);
+      if ($type eq "user archived"){
+          $uid_uidname{$uid}=$login." (".$surname.", ".$firstname.")";
+      }
+    }
+    close(ARCHIVELOG);
+
+    #while(my ($uid, $value) = each(%uid_uidname)) {
+    #    print "$uid -> $value\n";
+    #}
+
     my $return=`find $find_unowned_files -nouser -printf "%u %g %p\n"`;
     #print "$return";
     my @lines=split("\n",$return);
@@ -348,7 +367,12 @@ if ($find_unowned_files ne ""){
         }
     }
     foreach my $uid (@unowned_files){
-        print "$uid  --> $unowned_files{$uid} files\n";
+        my $user="?";
+        if (exists $uid_uidname{$uid}){
+            $user=$uid_uidname{$uid};
+        } 
+#        print "$uid  --> $unowned_files{$uid} files of $user\n";
+        printf "%7s%7s  files of  %-50s\n", $uid,$unowned_files{$uid},$user;
     }
     exit;
 }
