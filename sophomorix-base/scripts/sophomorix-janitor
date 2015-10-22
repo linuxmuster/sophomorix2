@@ -348,10 +348,6 @@ if ($find_unowned_files ne ""){
     }
     close(ARCHIVELOG);
 
-    #while(my ($uid, $value) = each(%uid_uidname)) {
-    #    print "$uid -> $value\n";
-    #}
-
     my $return=`find $find_unowned_files -nouser -printf "%u %g %p\n"`;
     #print "$return";
     my @lines=split("\n",$return);
@@ -371,7 +367,6 @@ if ($find_unowned_files ne ""){
         if (exists $uid_uidname{$uid}){
             $user=$uid_uidname{$uid};
         } 
-#        print "$uid  --> $unowned_files{$uid} files of $user\n";
         printf "%7s%7s  files of  %-50s\n", $uid,$unowned_files{$uid},$user;
     }
     exit;
