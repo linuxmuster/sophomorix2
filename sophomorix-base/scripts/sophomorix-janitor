@@ -259,12 +259,21 @@ Useful shortcuts (--review-days is optional):
   Reviewing files in the teachers share:
     --move-to-review-share-teacher login/uidnumber --review-days num 
     --copy-to-review-share-teacher login/uidnumber --review-days num 
+    With all orphaned files:
+    --find-unowned-files /home/share/teachers --move-to-review-share-teacher all-orphaned-users 
+    --find-unowned-files /home/share/teachers --copy-to-review-share-teacher all-orphaned-users
   Reviewing files in all project shares:
     --move-to-review-share-project login/uidnumber --review-days num 
     --copy-to-review-share-project login/uidnumber --review-days num 
+    With all orphaned files:
+    --find-unowned-files /home/share/projects --move-to-review-share-project all-orphaned-users 
+    --find-unowned-files /home/share/projects --copy-to-review-share-project all-orphaned-users
   Reviewing files in all class shares:
     --move-to-review-share-class login/uidnumber --review-days num 
     --copy-to-review-share-class login/uidnumber --review-days num 
+    With all orphaned files:
+    --find-unowned-files /home/share/classes --move-to-review-share-class all-orphaned-users 
+    --find-unowned-files /home/share/classes --copy-to-review-share-class all-orphaned-users
 
 Show/Delete revied data:
 
@@ -332,7 +341,7 @@ if ($aclhomeshare_remove_all_user_acls==1){
 
 
 # --find-unowned-files
-if ($find_unowned_files ne ""){
+if ($find_unowned_files ne "" ){
     my %uid_uidname=();
 
     # reading archived userids
@@ -362,6 +371,7 @@ if ($find_unowned_files ne ""){
             $unowned_files{$uid}=$newcount;
         }
     }
+    @unowned_files = sort @unowned_files;
     foreach my $uid (@unowned_files){
         my $user="?";
         if (exists $uid_uidname{$uid}){
@@ -369,9 +379,19 @@ if ($find_unowned_files ne ""){
         } 
         printf "%7s%7s  files of  %-50s\n", $uid,$unowned_files{$uid},$user;
     }
-    exit;
+    if (
+        $move_to_review_share_teacher eq "all-orphaned-users" or
+        $copy_to_review_share_teacher eq "all-orphaned-users" or
+        $move_to_review_share_project eq "all-orphaned-users" or
+        $copy_to_review_share_project eq "all-orphaned-users" or
+        $move_to_review_share_class eq "all-orphaned-users" or
+        $copy_to_review_share_class eq "all-orphaned-users"
+       ){
+        # continue
+    } else {
+        exit;
+    }
 }
-
 
 
 # userlist according to options
@@ -769,39 +789,47 @@ if ($move_to_review_home ne "" or
 # --copy-to-review-share-teacher user
 if ($move_to_review_share_teacher ne "" or 
     $copy_to_review_share_teacher ne ""){
-    my $login="";
-    if ($copy_to_review_share_teacher ne ""){
-        $login=$copy_to_review_share_teacher;
+    my @logins=();
+
+    if ($copy_to_review_share_teacher eq "all-orphaned-users"){
+        @logins = @unowned_files;
+    } elsif ($move_to_review_share_teacher ne "all-orphaned-users"){
+        @logins = @unowned_files;
+    } elsif ($copy_to_review_share_teacher ne ""){
+        push @logins, $copy_to_review_share_teacher;
     } elsif ($move_to_review_share_teacher ne ""){
-        $login=$move_to_review_share_teacher;
-    }
-    my ($home,$type,$gecos,$group,$uidnumber) 
-        = &fetchdata_from_account($login);
-    if ($gecos eq ""){
-        $gecos="unknown user";
+        push @logins, $move_to_review_share_teacher;
     }
 
-    my $source=${DevelConf::share_teacher};
-    my $target=${DevelConf::share_teacher}."/".
-               ${Language::alumni}."/".
-               $login.
-               ${Language::alumni_review_string}.
-               $review_end_date;
+    foreach my $login (@logins){
+        my ($home,$type,$gecos,$group,$uidnumber) 
+            = &fetchdata_from_account($login);
+        if ($gecos eq ""){
+            $gecos="unknown user";
+        }
 
-    print "Moving/Copying data of $gecos ($login) in:\n";
-    print "  $source\n";
-    print "for review into directory:\n";
-    print "  $target\n";
-    my $command="";
-    if ($copy_to_review_share_teacher ne ""){
-        $command="sophomorix-janitor --find-files $source --owner $login".
-                 " --copy-to $target";
-    } elsif ($move_to_review_share_teacher ne ""){
-        $command="sophomorix-janitor --find-files $source --owner $login".
-                 " --move-to $target";
+        my $source=${DevelConf::share_teacher};
+        my $target=${DevelConf::share_teacher}."/".
+                   ${Language::alumni}."/".
+                   $login.
+                   ${Language::alumni_review_string}.
+                   $review_end_date;
+
+        print "Moving/Copying data of $gecos ($login) in:\n";
+        print "  $source\n";
+        print "for review into directory:\n";
+        print "  $target\n";
+        my $command="";
+        if ($copy_to_review_share_teacher ne ""){
+            $command="sophomorix-janitor --find-files $source --owner $login".
+                     " --copy-to $target";
+        } elsif ($move_to_review_share_teacher ne ""){
+            $command="sophomorix-janitor --find-files $source --owner $login".
+                     " --move-to $target";
+        }
+        print "$command\n";
+        #system("$command");
     }
-    print "$command\n";
-    system("$command");
 }
 
 
@@ -814,85 +842,92 @@ if ($move_to_review_share_project ne "" or
     $move_to_review_share_class ne "" or 
     $copy_to_review_share_class ne ""
    ){
-    my $login="";
+
+    my @logins=();
     my $review_dir="";
     # /home/share/projects
     # home/share/classes
+    print "UID: @unowned_files\n";
+
     if ($move_to_review_share_project ne ""){
-        $login=$move_to_review_share_project;
+        push @logins, $move_to_review_share_project;
         $review_dir=${DevelConf::share_projects};
     } elsif ($copy_to_review_share_project ne ""){
-        $login=$copy_to_review_share_project;
+        push @logins, $copy_to_review_share_project;
         $review_dir=${DevelConf::share_projects};
     } elsif ($move_to_review_share_class ne ""){
-        $login=$move_to_review_share_class;
+        push @logins, $move_to_review_share_class;
         $review_dir=${DevelConf::share_classes};
     } elsif ($copy_to_review_share_class ne ""){
-        $login=$copy_to_review_share_class;
+        push @logins, $copy_to_review_share_class;
         $review_dir=${DevelConf::share_classes};
     } else {
         print "\nERROR: Cannot determine directory to work on\n\n";
 	exit;
     }
-    my ($home,$type,$gecos,$group,$uidnumber) 
-        = &fetchdata_from_account($login);
-    if ($gecos eq ""){
-        $gecos="unknown user";
-    }
-    print "######## Working on $review_dir ########\n";
-    # go through subdirectories
-    opendir REVDIR, $review_dir;
-    my $count=0;
-    my @dirs_to_walk_through;
-    foreach my $dir (readdir REVDIR){
-        if ($dir eq "." or $dir eq ".."){
-            # ignore attic? domcomputers? ignore ehemalige!!!
-            next;
-        }
-        push @dirs_to_walk_through, $dir;    
-    }
-    @dirs_to_walk_through  = sort @dirs_to_walk_through;
-    foreach my $dir (@dirs_to_walk_through){
-        if ($dir eq "." or $dir eq ".."){
-            # ignore attic? domcomputers? ignore ehemalige!!!
-            next;
-        }
-	$count++;
 
-        print"\n";
-	print "######## $count) $dir ########\n";
-        my $source=$review_dir."/".$dir;
-        my $target=$review_dir."/".$dir."/".
-                   ${Language::alumni}."/".
-                   $login.
-                   ${Language::alumni_review_string}.
-                   $review_end_date;
-        if ($Conf::log_level>=2){
-            print "  Moving/Copying data of $gecos ($login) in:\n";
-            print "    $source\n";
-            print "  for review into directory:\n";
-            print "    $target\n";
+    foreach my $login (@logins){
+        my ($home,$type,$gecos,$group,$uidnumber) 
+            = &fetchdata_from_account($login);
+        if ($gecos eq ""){
+            $gecos="unknown user";
         }
-        # execute sophomorix-janitor
-        my $command="";
-        if ($move_to_review_share_project ne ""){
-            $command="sophomorix-janitor --find-files $source --owner $login".
-                 " --move-to $target";
-        } elsif ($copy_to_review_share_project ne ""){
-            $command="sophomorix-janitor --find-files $source --owner $login".
-                 " --copy-to $target";
-        } elsif ($move_to_review_share_class ne ""){
-            $command="sophomorix-janitor --find-files $source --owner $login".
-                 " --move-to $target";
-        } elsif ($copy_to_review_share_class ne ""){
-            $command="sophomorix-janitor --find-files $source --owner $login".
-                 " --copy-to $target";
+        print "######## Working on $review_dir ########\n";
+        # go through subdirectories
+        opendir REVDIR, $review_dir;
+        my $count=0;
+        my @dirs_to_walk_through;
+        foreach my $dir (readdir REVDIR){
+            if ($dir eq "." or $dir eq ".."){
+                # ignore attic? domcomputers? ignore ehemalige!!!
+                next;
+            }
+            push @dirs_to_walk_through, $dir;    
         }
+        @dirs_to_walk_through  = sort @dirs_to_walk_through;
+        foreach my $dir (@dirs_to_walk_through){
+            if ($dir eq "." or $dir eq ".."){
+                # ignore attic? domcomputers? ignore ehemalige!!!
+                next;
+            }
+	    $count++;
 
-        if ($Conf::log_level==2){
-            print "$command\n";
+            print"\n";
+	    print "######## $count) $dir ########\n";
+            my $source=$review_dir."/".$dir;
+            my $target=$review_dir."/".$dir."/".
+                       ${Language::alumni}."/".
+                       $login.
+                       ${Language::alumni_review_string}.
+                       $review_end_date;
+            if ($Conf::log_level>=2){
+                print "  Moving/Copying data of $gecos ($login) in:\n";
+                print "    $source\n";
+                print "  for review into directory:\n";
+                print "    $target\n";
+            }
+            # execute sophomorix-janitor
+            my $command="";
+            if ($move_to_review_share_project ne ""){
+                $command="sophomorix-janitor --find-files $source --owner $login".
+                         " --move-to $target";
+            } elsif ($copy_to_review_share_project ne ""){
+                $command="sophomorix-janitor --find-files $source --owner $login".
+                    " --copy-to $target";
+            } elsif ($move_to_review_share_class ne ""){
+                $command="sophomorix-janitor --find-files $source --owner $login".
+                     " --move-to $target";
+            } elsif ($copy_to_review_share_class ne ""){
+                $command="sophomorix-janitor --find-files $source --owner $login".
+                     " --copy-to $target";
+            }
+
+            #if ($Conf::log_level==2){
+                print "$command\n";
+            #}
+            #system("$command");
+         
         }
-        system("$command");
     }
 }
 
