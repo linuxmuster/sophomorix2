@@ -36,12 +36,13 @@ hinterlegende Mail-Adresse
 
 
 LDAP/Postgres:
-
+------------------------------------------------------------
 samba 4 mit openldap: 
 - Kann samba 4 auch mit Openldap betrieben werden (also wie bisher).
-(Ohne Active Directory)
+(Ohne Active Directory) -> keine Änderungen zu bisher?
+
 - Kann ein slave samba 4 (read only) daran angeflanscht werden 
-  für die Nutzung von AD
+  für die Nutzung von AD allein (ohne Benutzerverwaltung), 
 
 samba 4 mit eigenem samba-ldap
 Kann der samba 4 ldap mit konventiellen Tools gemanaged werden?
@@ -57,6 +58,9 @@ acess in /etc/ldap/slapd.conf
        das geht so:
        access to attrs=sambaLMPassword,...,@sophomorixData
 
+- Windows-Programme, die Einstellungen in AD ablegen
+  -> Welche?
+  -> schreibender Zugriff erforderlich?
 
 Möglichkeiten Gruppen im openldap anzulegen (keine projekte)
 getrennt von Projekten auflistbar
@@ -67,13 +71,15 @@ Wenn jeder Schüler eine Mailadresse hat, dann daraus eine Mailingliste
 machen (Mailman?) 
 
 
+
+
 mailman vs /etc/aliases
 (soll getrennter linuxmuster.net und mailserver erlauben)
 mailman muss da laufen, wo postfix ist.
 (Zusätzliche Empfangsadresse für 7a,7b, ...)
 
 Listengenerierung auf Mailserver mit Daten vom Linuxmuster-server
-
+------------------------------------------------------------
 
 
 
