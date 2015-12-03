@@ -756,10 +756,10 @@ if ($move_to_review_home ne "" or
         print "       I do not know from where to move/copy the data!\n\n";
         exit;
     }
-    print "Moving/Copying data in \$HOME of $gecos ($login):\n";
-    print "  $home\n";
-    print "for review into directory:\n";
-    print "  $target\n";
+    print "########## Moving/Copying data in \$HOME of $gecos ($login): ##########\n";
+    print "    $home\n";
+    print "  for review into directory:\n";
+    print "    $target\n";
     my $command="";
     if ($copy_to_review_home ne ""){
         $command="sophomorix-janitor --find-files $home --owner $login".
@@ -773,7 +773,7 @@ if ($move_to_review_home ne "" or
     } elsif ($Conf::log_level==3){
         $command=$command." -vv";
     }
-    print "$command\n";
+    print "  $command\n";
     system("$command");
     # make sure this account is usable
     my $repair_command="sophomorix-repair --repairhome -u $login";
@@ -815,10 +815,10 @@ if ($move_to_review_share_teacher ne "" or
                    ${Language::alumni_review_string}.
                    $review_end_date;
 
-        print "Moving/Copying data of $gecos ($login) in:\n";
-        print "  $source\n";
-        print "for review into directory:\n";
-        print "  $target\n";
+        print "########## Moving/Copying data of $gecos ($login) in: ##########\n";
+        print "    $source\n";
+        print "  for review into directory:\n";
+        print "    $target\n";
         my $command="";
         if ($copy_to_review_share_teacher ne ""){
             $command="sophomorix-janitor --find-files $source --owner $login".
@@ -827,8 +827,8 @@ if ($move_to_review_share_teacher ne "" or
             $command="sophomorix-janitor --find-files $source --owner $login".
                      " --move-to $target";
         }
-        print "$command\n";
-        #system("$command");
+        print "  $command\n";
+        system("$command");
     }
 }
 
@@ -879,15 +879,24 @@ if ($move_to_review_share_project ne "" or
         my @dirs_to_walk_through;
         foreach my $dir (readdir REVDIR){
             if ($dir eq "." or $dir eq ".."){
-                # ignore attic? domcomputers? ignore ehemalige!!!
                 next;
             }
             push @dirs_to_walk_through, $dir;    
         }
         @dirs_to_walk_through  = sort @dirs_to_walk_through;
+
+        my @logins=();
+        if ($login eq "all-orphaned-users"){
+            # all orphaned users
+	    @logins = @unowned_files;
+        } else {
+            # only the user given by option
+            @logins=("$login");
+        }
+
+        foreach my $login (@logins){
         foreach my $dir (@dirs_to_walk_through){
             if ($dir eq "." or $dir eq ".."){
-                # ignore attic? domcomputers? ignore ehemalige!!!
                 next;
             }
 	    $count++;
@@ -901,10 +910,10 @@ if ($move_to_review_share_project ne "" or
                        ${Language::alumni_review_string}.
                        $review_end_date;
             if ($Conf::log_level>=2){
-                print "  Moving/Copying data of $gecos ($login) in:\n";
-                print "    $source\n";
-                print "  for review into directory:\n";
-                print "    $target\n";
+                print "  ########## Moving/Copying data of $gecos ($login) in: ##########\n";
+                print "      $source\n";
+                print "    for review into directory:\n";
+                print "      $target\n";
             }
             # execute sophomorix-janitor
             my $command="";
@@ -921,12 +930,9 @@ if ($move_to_review_share_project ne "" or
                 $command="sophomorix-janitor --find-files $source --owner $login".
                      " --copy-to $target";
             }
-
-            #if ($Conf::log_level==2){
-                print "$command\n";
-            #}
-            #system("$command");
-         
+            print "  $command\n";
+            system("$command");
+        }
         }
     }
 }
