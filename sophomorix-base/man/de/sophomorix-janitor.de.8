@@ -49,6 +49,8 @@ Sagt ungeheuer genau, was das Programm gerade macht (very verbose)
 Findet verwaiste Dateien/Ordner in /path und listet deren uidnumber
 und Datei/Ordneranzahl.
 .TP
+Zum moven/Kopieren siehe SHORTCUT-Optionen weiter unten.
+.TP
 .SH FILESYSTEM-ACLS entfernen
 .TP
 .B --aclhomeshare-remove-uidnum
@@ -99,36 +101,36 @@ Schritt 4: Alle restlichen Daten werden nicht kopiert/verschoben.
 Optionen ohne Angabe des Zielverzeichnisses (für
 Spezialfälle. Normalerweise reichen die SHORTCUT-Optionen weiter unten):
 .TP
-.in 3
+.in 4
 .B --find-files /quelle --owner login/uidnumber
 Auflisten einer Übersicht der Daten eines Users im Verzeichnis /quelle 
 .TP
-.in 3
+.in 4
 .B --find-files /quelle --owner login/uidnumber -v
 Ausführliches Auflisten der Daten eines Users im Verzeichnis /quelle 
 .TP 
-.in 3
+.in 4
 .B --find-files /quelle --owner login/uidnumber --new-owner newlogin/newuidnumber
 Übereignen der Daten eines Users uid im Verzeichnis /quelle
 an den User newlogin/newuidnumber
 .TP
 Optionen mit Angabe des Zielverzeichnisses: 
 .TP 
-.in 3 
+.in 4 
 .B --find-files /quelle --owner login/uidnumber --copy-to /ziel
 Kopieren der Daten eines Users vom Verzeichnis /quelle nach /ziel.
 .TP 
-.in 3
+.in 4
 .B --find-files /quelle --owner login/uidnumber --move-to /ziel
 Verschieben der Daten eines Users vom Verzeichnis /quelle nach /ziel
 .TP 
 Mit Zielverzeichnis /quelle/login_bleibt_erhalten_bis_DATUM:
 .TP 
-.in 3
+.in 4
 .B --copy-to-review /quelle --owner login/uidnumber --review-days num
 Kopieren der Daten eines Users im Verzeichnis /quelle
 .TP 
-.in 2
+.in 4
 .B --move-to-review /quelle --owner login/uidnumber --review-days num
 Verschieben der Daten eines Users im Verzeichnis /quelle
 .TP
@@ -143,19 +145,19 @@ mit Daten in den Tauschverzeichnissen aus dem System entfernt wird.
 Begutachten der Dateien in $HOME eines Users 
 (Ziel: $HOME/login_bleibt_erhalten_bis_DATUM):
 .TP 
-.in 3
+.in 4
 .B --move-to-review-home login --review-days num
 .TP
-.in 3
+.in 4
 .B --copy-to-review-home login --review-days num
 .TP
 Begutachten der Dateien im Tauschverzeichnis der Lehrer 
 (Ziel: LehrerTausch/login_bleibt_erhalten_bis_DATUM):
 .TP 
-.in 3
+.in 4
 .B --move-to-review-teacher login/uidnumber --review-days num
 .TP
-.in 3
+.in 4
 .B --copy-to-review-teacher login/uidnumber --review-days num
 .TP
 Die Option --review-days ist optional. Standardwert: 366 Tage.
@@ -163,20 +165,38 @@ Die Option --review-days ist optional. Standardwert: 366 Tage.
 Begutachten der Dateien in allen Projekt-Tausch-Verzeichnissen 
 (Ziel: login_bleibt_erhalten_bis_DATUM im jeweiligen Projekt-Tausch-Verzeichnis):
 .TP 
-.in 3
-.B --move-to-review-share-project login/uidnumber --review-days num
+.in 4
+.B --move-to-review-share-class login/uidnumber --review-days num
 .TP
-.in 3
-.B --copy-to-review-share-project login/uidnumber --review-days num
+.in 4
+.B --copy-to-review-share-class login/uidnumber --review-days num
+.TP
+Begutachten aller verwaister Dateien in allen Projekt-Tausch-Verzeichnissen
+(Ziel: uid_bleibt_erhalten_bis_DATUM im jeweiligen Projekt-Tausch-Verzeichnis):
+.TP 
+.in 4
+.B --find-unowned-files /home/share/projects --move-to-review-share-project all-orphaned-users
+.TP
+.in 4
+.B --find-unowned-files /home/share/projects --copy-to-review-share-project all-orphaned-users
 .TP
 Begutachten der Dateien in allen Klassen-Tausch-Verzeichnissen
 (Ziel: login_bleibt_erhalten_bis_DATUM im jeweiligen Klassen-Tausch-Verzeichnis)::
 .TP 
-.in 3
+.in 4
 .B --move-to-review-share-class/uidnumber login --review-days num
 .TP
-.in 3
+.in 4
 .B --copy-to-review-share-class/uidnumber login --review-days num
+.TP
+Begutachten aller verwaister der Dateien in allen Klassen-Tausch-Verzeichnissen
+(Ziel: uid_bleibt_erhalten_bis_DATUM im jeweiligen Klassen-Tausch-Verzeichnis)::
+.TP 
+.in 4
+.B --find-unowned-files /home/share/classes --move-to-review-share-class all-orphaned-users
+.TP
+.in 4
+.B --find-unowned-files /home/share/classes --copy-to-review-share-class all-orphaned-users
 .br
 .SH OPTIONEN FÜR DATENBANK TOOLS:
 .TP 
