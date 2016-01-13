@@ -1366,7 +1366,8 @@ sub fetchdata_from_account {
         $loginshell,
         $gidnumber,
         $sophomorixstatus,
-        $birthday
+        $birthday,
+        $mymail
        )= $dbh->selectrow_array( "SELECT homedirectory,gid,gecos,uidnumber,
                                          sambahomepath,firstpassword,sambaacctflags,
                                          exitadminclass,sambahomedrive,sambakickofftime,
@@ -1375,7 +1376,7 @@ sub fetchdata_from_account {
                                          sambapwdcanchange,sambapwdlastset,
                                          sambapwdmustchange,sambasid,surname,firstname,
                                          userpassword,loginshell,gidnumber,
-                                         sophomorixstatus,birthday
+                                         sophomorixstatus,birthday, mymail
                                          FROM userdata 
                                          WHERE uid='$login'
                                         ");
@@ -1404,9 +1405,9 @@ sub fetchdata_from_account {
                 $sambantpassword,$sambaprimarygroupsid,$sambapwdcanchange,
                 $sambapwdlastset,$sambapwdmustchange,$sambasid,$surname,$firstname,
                 $userpassword,$loginshell,$gidnumber,
-                $sophomorixstatus,$birthday);
+                $sophomorixstatus,$birthday,$mymail);
     } else {
-        return ("","","","",-1,"","","","","","","","","","","","","","","","","","","","");
+        return ("","","","",-1,"","","","","","","","","","","","","","","","","","","","","");
     }
 }
 
@@ -5937,7 +5938,9 @@ sub update_user_ldap {
         $userpassword,
         $loginshell,
         $gidnumber,
-        $sophomorixstatus) = &fetchdata_from_account($login);
+        $sophomorixstatus,
+        $birthday,
+        $mymail) = &fetchdata_from_account($login);
 
     # return on error 
     if ($home eq ""){
@@ -5971,7 +5974,7 @@ sub update_user_ldap {
     my ($ldappw,$ldap_rootdn,$dbpw,$suffix,$mail_dom)=&fetch_ldap_pg_passwords();
     my $dn="uid=".$uid.",ou=".$ou.",".$suffix;
     my @dn=split(",",$dn);
-    my $mail=$uid."@".$mail_dom;
+    my $mail=(defined $mymail and $mymail ne ""? $mymail : $uid."@".$mail_dom);
     # search existing account
     my $mesg_1 = $ldap->search( base => "$dn", attrs => '*', filter => 'cn=*');
 

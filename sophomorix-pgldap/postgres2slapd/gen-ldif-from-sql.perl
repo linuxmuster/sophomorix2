@@ -137,6 +137,7 @@ foreach my $line (@accountsfile) {
    if ($accountsspalte0[$i]=~ /uidnumber/) { $accountsspalte0[$i]='uidNumber'; };
    if ($accountsspalte0[$i]=~ /uid$/) { $accountsspalte0[$i]='uid'; };
    if ($accountsspalte0[$i]=~ /login/) { $accountsspalte0[$i]='loginShell'; };
+   if ($accountsspalte0[$i]=~ /mymail/) { $accountsspalte0[$i]='mail'; };
 
   # wenn wert nicht leer ist - ausgeben
   if ( ($wert !~ /^\s*$/) && ($zeileaccounts > 1 ) && ($accountsspalte0[$i] !~ /^id/) ){
@@ -153,8 +154,10 @@ foreach my $line (@accountsfile) {
                    and $accountsspalte1[30] ne "Exam"
         ){ 
     # append mail
-    my $mail=$accountsspalte1[28]."@".$mail_dom;
-    print "mail: $mail\n";
+    if (not defined $accountsspalte1[38] or $accountsspalte1[38] eq "") {
+	my $mail=$accountsspalte1[28]."@".$mail_dom;
+	print "mail: $mail\n";
+    }
  }
 
 $zeileaccounts++;
