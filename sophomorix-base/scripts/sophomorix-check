@@ -4317,17 +4317,24 @@ sub analyze_encoding {
          die "Fehler: $! $DevelConf::schueler_datei nicht gefunden!"; 
     while (<DATAFILE>){
         my ($class,$surname,$firstname,$date) = split(/;/);
-        print "$firstname\n";
-        if (exists $firstnames_data{'utf8'}{$firstname}){
-            print "   bingo: $firstname\n";
-            $utf8_count++;
-        }
-        if (exists $firstnames_data{'iso8859_1'}{$firstname}){
-            print "   bingo: $firstname\n";
-            $$iso8859_1_count++;
+        my @firstnames=split(/ /, $firstname);
+        foreach my $first (@firstnames){
+            if ($first=~/[^a-zA-Z\-]/) { #
+                print ">$first<\n";
+                if (exists $firstnames_data{'utf8'}{$first}){
+                    print "   bingo: $first\n";
+                    $utf8_count++;
+                }
+                if (exists $firstnames_data{'iso8859_1'}{$first}){
+                    print "   bingo: $first\n";
+                    $iso8859_1_count++;
+                }
+            }
         }
     }
-    printf  "%-10s %-60s","UTF8:","$utf8_count\n";
+    print "\nResult:\n";
+    printf  "%-15s %-30s\n","8859_1:",$iso8859_1_count;
+    printf  "%-15s %-30s\n","UTF8:",$utf8_count;
     close(DATAFILE);
 }
 
