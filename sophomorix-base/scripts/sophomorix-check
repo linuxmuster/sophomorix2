@@ -55,6 +55,8 @@ my  @schueler_to_check_dateien=(
    );
 
 
+my %firstnames_data=();
+
 
 # ?????????????????? hash nicht richtig definiert
 my %filename_map = ("$DevelConf::schueler_datei", "schueler.txt",
@@ -84,6 +86,7 @@ my $cron=0;
 my $lock=0;
 my $unlock=0;
 my $filter_only=0;
+my $analyze_encoding=0;
 my $no_auto_unids=0;
 my $no_auto_teach_in=0;
 my $encoding_students="";
@@ -102,6 +105,7 @@ my $testopt=GetOptions(
            "lock" => \$lock,
            "unlock" => \$unlock,
            "filter-only" => \$filter_only,
+           "analyze-encoding" => \$analyze_encoding,
            "no-kclass" => \$no_kclass,
            "no-auto-unids" => \$no_auto_unids,
            "no-auto-teach-in|no-sync" => \$no_auto_teach_in,
@@ -144,6 +148,7 @@ Options
   --use-gid
   --file filename
   --filter-only
+  --analyze-encoding
   --encoding-students ascii|8859-1|8859-15|win1252|utf8
   --encoding-students-extra ascii|8859-1|8859-15|win1252|utf8
   --encoding-courses-extra ascii|8859-1|8859-15|win1252|utf8
@@ -622,6 +627,16 @@ if ($Conf::filter_script eq ""){
 
 if ($filter_only==1){
     print "\n$scriptname ended by option --filter-only\n\n";
+    if ($analyze_encoding==0){
+        # continue if you want to analyze encoding 
+        &log_script_exit("",1,1,0,@arguments);
+    }
+}
+
+
+if ($analyze_encoding==1){
+    &reading_firstnames();
+    &analyze_encoding($DevelConf::schueler_datei);
     &log_script_exit("",1,1,0,@arguments);
 }
 
@@ -4264,6 +4279,57 @@ sub filter_school_admin_software {
      return $line;
 }
 
+
+sub reading_firstnames {
+    my @datafiles=("../data/firstnames_male.utf8.txt", 
+                   "../data/firstnames_female.utf8.txt",
+                   "../data/firstnames_male.iso8859_1.txt", 
+                   "../data/firstnames_female.iso8859_1.txt",
+                  );
+    foreach my $file_abs (@datafiles){
+        my @list = split(/\//,$file_abs);
+        my $filename = pop @list;
+        my ($string1,$enc,$string2)=split(/\./,$filename); 
+        open(DATAFILE, "$file_abs") || 
+             die "Fehler: $! $file_abs nicht gefunden!"; 
+        while (<DATAFILE>){
+            chomp();
+            my ($first,$first_new) = split(/:/);
+            #print "$first\n";
+            $firstnames_data{$enc}{$first}=0;
+        }
+        print "$file_abs ENC: $enc\n";
+        close(DATAFILE);
+    }
+#    foreach my $key (%firstnames_data){
+#        print "K: $key\n";
+#    }
+}
+
+
+sub analyze_encoding {
+    my ($file) = @_;
+    my $utf8_count=0;
+    my $iso8859_1_count=0;
+
+    print "Analyzing $file ...\n";
+    open(DATAFILE, "$DevelConf::schueler_datei") || 
+         die "Fehler: $! $DevelConf::schueler_datei nicht gefunden!"; 
+    while (<DATAFILE>){
+        my ($class,$surname,$firstname,$date) = split(/;/);
+        print "$firstname\n";
+        if (exists $firstnames_data{'utf8'}{$firstname}){
+            print "   bingo: $firstname\n";
+            $utf8_count++;
+        }
+        if (exists $firstnames_data{'iso8859_1'}{$firstname}){
+            print "   bingo: $firstname\n";
+            $$iso8859_1_count++;
+        }
+    }
+    printf  "%-10s %-60s","UTF8:","$utf8_count\n";
+    close(DATAFILE);
+}
 
 
 sub filter_school_admin_software_old {
