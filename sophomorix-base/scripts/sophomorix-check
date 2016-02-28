@@ -4281,10 +4281,8 @@ sub filter_school_admin_software {
 
 
 sub reading_firstnames {
-    my @datafiles=("../data/firstnames_male.utf8.txt", 
-                   "../data/firstnames_female.utf8.txt",
-                   "../data/firstnames_male.iso8859_1.txt", 
-                   "../data/firstnames_female.iso8859_1.txt",
+    my @datafiles=("../data/firstnames.utf8.txt", 
+                   "../data/firstnames.iso8859_1.txt", 
                   );
     foreach my $file_abs (@datafiles){
         my @list = split(/\//,$file_abs);
@@ -4320,14 +4318,16 @@ sub analyze_encoding {
         my @firstnames=split(/ /, $firstname);
         foreach my $first (@firstnames){
             if ($first=~/[^a-zA-Z\-]/) { #
-                print ">$first<\n";
+                #print ">$first<\n";
                 if (exists $firstnames_data{'utf8'}{$first}){
-                    print "   bingo: $first\n";
+                    #print "   bingo: $first\n";
                     $utf8_count++;
-                }
-                if (exists $firstnames_data{'iso8859_1'}{$first}){
-                    print "   bingo: $first\n";
+                } elsif (exists $firstnames_data{'iso8859_1'}{$first}){
+                    #print "   bingo: $first\n";
                     $iso8859_1_count++;
+                } else {
+                    print "\n$_";
+                    print "--->$first<\n";
                 }
             }
         }
