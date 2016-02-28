@@ -56,6 +56,7 @@ my  @schueler_to_check_dateien=(
 
 
 my %firstnames_data=();
+my %firstnames_data_errors=();
 
 
 # ?????????????????? hash nicht richtig definiert
@@ -4296,15 +4297,32 @@ sub reading_firstnames {
         while (<DATAFILE>){
             chomp();
             my ($first,$first_new) = split(/:/);
-            #print "$first\n";
             $firstnames_data{$enc}{$first}=0;
         }
-        print "$file_abs ENC: $enc\n";
+        print "$file_abs Read for encoding: $enc\n";
         close(DATAFILE);
     }
-#    foreach my $key (%firstnames_data){
-#        print "K: $key\n";
-#    }
+}
+
+
+sub reading_firstname_errors {
+    my @datafiles=("../data/firstname_errors.utf8.txt", 
+                   "../data/firstname_errors.iso8859_1.txt", 
+                  );
+    foreach my $file_abs (@datafiles){
+        my @list = split(/\//,$file_abs);
+        my $filename = pop @list;
+        my ($string1,$enc,$string2)=split(/\./,$filename); 
+        open(DATAFILE, "$file_abs") || 
+             die "Fehler: $! $file_abs nicht gefunden!"; 
+        while (<DATAFILE>){
+            chomp();
+            my ($error,$message) = split(/:/);
+            $firstnames_data_errors{$enc}{$error}=$message;
+        }
+        print "$file_abs Read for errors: $enc\n";
+        close(DATAFILE);
+    }
 }
 
 
