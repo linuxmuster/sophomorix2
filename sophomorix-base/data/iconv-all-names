@@ -1,2 +1,40 @@
-#!/bin/sh
-iconv --verbose -f  utf-8  -t 8859_1 firstnames.utf8.txt  -o firstnames.iso8859_1.txt
+#!/usr/bin/perl -w
+# This script is maintained by Rüdiger Beck
+# It is Free Software (License GPLv3)
+# If you find errors, contact the author
+# jeffbeck@web.de  or  jeffbeck@gmx.de
+
+use strict;
+use Text::Iconv;
+
+
+print "Converting\n";
+my $file_in="./firstnames.utf8.txt";
+
+# infile
+# outfile
+# target_encoding
+&convert($file_in,"./firstnames.iso8859_1.txt","ISO_8859-1");
+
+
+
+sub convert {
+    my ($in,$out,$enc) = @_;
+    open(IN, "$in") || die "Fehler: $! $in nicht gefunden!"; 
+    open(OUT, ">$out") || die "Fehler: $! $in nicht gefunden!"; 
+    while (<IN>){
+        chomp();
+        my $inline=$_;
+        print "$inline\n";
+        my $conv = Text::Iconv->new("utf8",$enc);
+        my $outline = $conv->convert($inline);
+        if (defined $outline){
+            print "$inline --> $outline\n";
+            print OUT "$outline\n";
+        } else {
+            print "$inline --> NOT CONVERTABLE\n";
+        }
+    }
+    close(IN);
+    close(OUT);
+}
