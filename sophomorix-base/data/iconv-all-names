@@ -7,17 +7,39 @@
 use strict;
 use Text::Iconv;
 
+############################################################
+# Config
+############################################################
 
-print "Converting\n";
+
+# the utf8 master file
 my $file_in="./firstnames.utf8.txt";
 
+# target encodings
+my @target_encodings=(
+                     "ISO_8859-1",
+                     );
+
+
+
+############################################################
+# Program
+############################################################
+foreach my $encoding (@target_encodings){
+    # converting the utf8 file to targets
+    &convert($file_in,"./firstnames.iso8859_1.txt",$encoding);
+}
+
+
+
+############################################################
+# subs
+############################################################
+
+# Option
 # infile
 # outfile
 # target_encoding
-&convert($file_in,"./firstnames.iso8859_1.txt","ISO_8859-1");
-
-
-
 sub convert {
     my ($in,$out,$enc) = @_;
     open(IN, "$in") || die "Fehler: $! $in nicht gefunden!"; 
