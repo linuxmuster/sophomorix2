@@ -66,13 +66,15 @@ my @target_encodings=(
 # correct names
 foreach my $encoding (@target_encodings){
     # converting the utf8 file to targets
-    &convert($file_in,"./firstnames.iso8859_1.txt",$encoding);
+    my $target_name="./firstnames.".$encoding.".txt";
+    &convert($file_in,$target_name,$encoding);
 }
 
 # error names
 foreach my $encoding (@target_encodings){
-    # converting the utf8 file to targets
-    &convert($file_in,"./firstnames.iso8859_1.txt",$encoding);
+    # converting the utf8 error file to targets
+    my $target_name="./firstname_errors.".$encoding.".txt";
+    &convert($file_error_in,$target_name,$encoding);
 }
 
 
