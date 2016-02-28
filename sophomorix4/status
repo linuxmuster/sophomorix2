@@ -39,6 +39,15 @@ What can/should be done in sophomorix4:
    multiple lehrer.txt
    multiple schueler.txt
    -> encoding must be automagically be detected 
+   -> pre-filters:
+      multiple filters should be configured in
+      /etc/sophomorix/users/filter/filters.conf
+      # comment1
+      school1.schueler.txt::/usr/bin/filter1
+      # comment2
+      school2.schueler.txt::/usr/bin/filter2
+   is the order of the files relevant?
+
 
 auto encoding detection
 -> 4.0 auto-encoding 
