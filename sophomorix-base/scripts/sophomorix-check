@@ -627,6 +627,7 @@ if ($Conf::filter_script eq ""){
 }
 
 
+
 if ($analyze_encoding ne ""){
     &reading_firstnames();
     &analyze_encoding($analyze_encoding);
@@ -634,12 +635,10 @@ if ($analyze_encoding ne ""){
 }
 
 
+
 if ($filter_only==1){
     print "\n$scriptname ended by option --filter-only\n\n";
-#    if ($analyze_encoding eq ""){
-#        # continue if you want to analyze encoding 
-        &log_script_exit("",1,1,0,@arguments);
-#    }
+    &log_script_exit("",1,1,0,@arguments);
 }
 
 
@@ -4286,7 +4285,7 @@ sub filter_school_admin_software {
 
 sub reading_firstnames {
     my @datafiles=("../data/firstnames.utf8.txt", 
-                   "../data/firstnames.iso8859_1.txt", 
+                   "../data/firstnames.ISO_8859-1.txt", 
                   );
     foreach my $file_abs (@datafiles){
         my @list = split(/\//,$file_abs);
@@ -4307,7 +4306,7 @@ sub reading_firstnames {
 
 sub reading_firstname_errors {
     my @datafiles=("../data/firstname_errors.utf8.txt", 
-                   "../data/firstname_errors.iso8859_1.txt", 
+                   "../data/firstname_errors.ISO_8859-1.txt", 
                   );
     foreach my $file_abs (@datafiles){
         my @list = split(/\//,$file_abs);
@@ -4343,7 +4342,7 @@ sub analyze_encoding {
                 if (exists $firstnames_data{'utf8'}{$first}){
                     #print "   bingo: $first\n";
                     $utf8_count++;
-                } elsif (exists $firstnames_data{'iso8859_1'}{$first}){
+                } elsif (exists $firstnames_data{'ISO_8859-1'}{$first}){
                     #print "   bingo: $first\n";
                     $iso8859_1_count++;
                 } else {
