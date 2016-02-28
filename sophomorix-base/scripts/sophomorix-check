@@ -86,7 +86,7 @@ my $cron=0;
 my $lock=0;
 my $unlock=0;
 my $filter_only=0;
-my $analyze_encoding=0;
+my $analyze_encoding="";
 my $no_auto_unids=0;
 my $no_auto_teach_in=0;
 my $encoding_students="";
@@ -105,7 +105,7 @@ my $testopt=GetOptions(
            "lock" => \$lock,
            "unlock" => \$unlock,
            "filter-only" => \$filter_only,
-           "analyze-encoding" => \$analyze_encoding,
+           "analyze-encoding=s" => \$analyze_encoding,
            "no-kclass" => \$no_kclass,
            "no-auto-unids" => \$no_auto_unids,
            "no-auto-teach-in|no-sync" => \$no_auto_teach_in,
@@ -148,7 +148,7 @@ Options
   --use-gid
   --file filename
   --filter-only
-  --analyze-encoding
+  --analyze-encoding /path/to/schueler.txt
   --encoding-students ascii|8859-1|8859-15|win1252|utf8
   --encoding-students-extra ascii|8859-1|8859-15|win1252|utf8
   --encoding-courses-extra ascii|8859-1|8859-15|win1252|utf8
@@ -625,20 +625,23 @@ if ($Conf::filter_script eq ""){
     }
 }
 
-if ($filter_only==1){
-    print "\n$scriptname ended by option --filter-only\n\n";
-    if ($analyze_encoding==0){
-        # continue if you want to analyze encoding 
-        &log_script_exit("",1,1,0,@arguments);
-    }
-}
 
-
-if ($analyze_encoding==1){
+if ($analyze_encoding ne ""){
     &reading_firstnames();
-    &analyze_encoding($DevelConf::schueler_datei);
+    &analyze_encoding($analyze_encoding);
     &log_script_exit("",1,1,0,@arguments);
 }
+
+
+if ($filter_only==1){
+    print "\n$scriptname ended by option --filter-only\n\n";
+#    if ($analyze_encoding eq ""){
+#        # continue if you want to analyze encoding 
+        &log_script_exit("",1,1,0,@arguments);
+#    }
+}
+
+
 
 
 
@@ -4311,8 +4314,8 @@ sub analyze_encoding {
     my $iso8859_1_count=0;
 
     print "Analyzing $file ...\n";
-    open(DATAFILE, "$DevelConf::schueler_datei") || 
-         die "Fehler: $! $DevelConf::schueler_datei nicht gefunden!"; 
+    open(DATAFILE, "$file") || 
+         die "Fehler: $! $file nicht gefunden!"; 
     while (<DATAFILE>){
         my ($class,$surname,$firstname,$date) = split(/;/);
         my @firstnames=split(/ /, $firstname);
