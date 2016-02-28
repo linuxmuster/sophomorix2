@@ -29,13 +29,27 @@ What leads towards a rewrite (instead of fixing old code)
   - import workstations/linbo?/??? accesses workstation data in ldap
 - integrate leoclient2 into ldap ???
 - migrate sophomorix.conf to utf8
+  - remove config vars
 
 
 
 What can/should be done in sophomorix4:
 ------------------------------------------------------------
-- autodetect encoding with a Database of first names
-  first names: https://de.wiktionary.org/wiki/Verzeichnis:Deutsch/Liste_der_h%C3%A4ufigsten_m%C3%A4nnlichen_Vornamen_Deutschlands
+-> multi school solution
+   multiple lehrer.txt
+   multiple schueler.txt
+   -> encoding must be automagically be detected 
+
+auto encoding detection
+-> 4.0 auto-encoding 
+    -> bildet Liste mit Dateinamen (abs_path), die verarbeitet werden 
+    -> und hash:          Dateiname -> encoding dieser Datei
+    -> weiterer hash: mit Dateiname -> typ der Datei (schueler.txt mit 5 Feldern, lehrer.txt mit mehr, ...)
+-> dann werden die Dateien in der Listenreihenfolge durchgegangen
+   -> ascii-namen erzeugt für neue Felder: firstname_ascii, surname_ascii
+   -> utf8 Namen erzeugt für die echten Felder firstname, ... displayname
+
+
 
 - log schueler.txt, ... automatically (if they differ)
 - make the scripts much less noisy
