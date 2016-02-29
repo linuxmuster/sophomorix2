@@ -4347,18 +4347,25 @@ sub reading_firstname_errors {
 
 sub analyze_encoding {
     my ($file) = @_;
+    # set all result counters to 0
     foreach my $enc (@encodings_to_check){
         $encoding_check_results{$file}{'firstnames'}{'hits'}{$enc}=0;
         $encoding_check_results{$file}{'firstnames'}{'errors'}{$enc}=0;
     }
+    $encoding_check_results{$file}{'firstnames'}{'hits'}{'none'}=0;
+    $encoding_check_results{$file}{'firstnames'}{'errors'}{'none'}=0;
+  
+    # start to analyze file
     print "Analyzing $file ...\n";
     open(DATAFILE, "$file") || 
          die "Fehler: $! $file nicht gefunden!"; 
     while (<DATAFILE>){
         my ($class,$surname,$firstname,$date) = split(/;/);
-        my @firstnames=split(/ /, $firstname);
+        # split firstname-field into single firstnames
+        # split at 'space' and '-'
+        my @firstnames=split(/[ ,-]/, $firstname);
         foreach my $first (@firstnames){
-            if ($first=~/[^a-zA-Z\-]/) { #
+            if ($first=~/[^a-zA-Z\-]/) { # not all are standard chars
                 my $hit_count=0;   
                 my $error_count=0; 
                 # check for hits
@@ -4381,7 +4388,10 @@ sub analyze_encoding {
                 }
                 # non-hits and non-errors 
                 if ($hit_count==0 and $error_count==0){
-                    print "$first not found anywhere\n";
+                    print "$first not found anywhere (octal): ";
+                    $Data::Dumper::Useqq = 1;
+		    $Data::Dumper::Terse = 1; 
+                    print Dumper($first);
                     my $old=$encoding_check_results{$file}{'firstnames'}{'hits'}{'none'};
                     my $new=$old+1;
                     $encoding_check_results{$file}{'firstnames'}{'hits'}{'none'}=$new;
