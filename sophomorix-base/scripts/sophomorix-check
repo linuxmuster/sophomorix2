@@ -23,6 +23,8 @@ use Date::Calc qw(check_date);
 
 use DBI;
 use Net::LDAP;
+use Data::Dumper;
+
 
 my @arguments = @ARGV;
 
@@ -56,8 +58,9 @@ my  @schueler_to_check_dateien=(
 
 
 my %firstnames_data=();
-my %firstnames_data_errors=();
-
+my %firstnames_errors=();
+my @encodings_to_check=("utf8","ISO_8859-1");
+my %encoding_check_results=();
 
 # ?????????????????? hash nicht richtig definiert
 my %filename_map = ("$DevelConf::schueler_datei", "schueler.txt",
@@ -547,20 +550,6 @@ system("rm -r ${DevelConf::ergebnis_pfad}");
 mkdir("${DevelConf::ergebnis_pfad}",0700) 
        || die "Kann Verzeichnis ${DevelConf::ergebnis_pfad} nicht anlegen: $!"; 
 
-# remove tmp
-system("rm -r ${DevelConf::pruef_pfad}");
-#system("rm ${DevelConf::schueler_datei}");
-#system("rm ${DevelConf::lehrer_datei}");
-if (not -e ${DevelConf::pruef_pfad}){
-    mkdir("${DevelConf::pruef_pfad}",0700) 
-           || die "Kann Verzeichnis ${DevelConf::pruef_pfad} nicht anlegen: $!"; 
-}
-&check_verzeichnis_mkdir("${DevelConf::var_lib_pfad}");
-&check_verzeichnis_mkdir("${DevelConf::pruef_pfad}");
-&check_verzeichnis_mkdir("${DevelConf::ergebnis_pfad}");
-&check_verzeichnis_mkdir("${DevelConf::druck_pfad}");
-
-
 # ===========================================================================
 # TolerationDate und DeactivationDate ermitteln
 # ===========================================================================
@@ -579,29 +568,51 @@ $epoche_deaktivierung_bis_lehrer=
 if($Conf::log_level>=3){
    print "Epochenzeit:                                 ",
          "$epoche_jetzt (right now)\n";
-
    print "Toleration(T) for Pupils(Schueler) ends:     ",
          "$epoche_duldung_bis_schueler ",
-      &zeit($epoche_duldung_bis_schueler) ,
-            " (in $Conf::schueler_duldung_tage Days)\n";
+   &zeit($epoche_duldung_bis_schueler),
+         " (in $Conf::schueler_duldung_tage Days)\n";
    print "Toleration(T) for Teachers(Lehrer) ends:     ",
          "$epoche_duldung_bis_lehrer ",
-      &zeit($epoche_duldung_bis_lehrer),
-            " (in $Conf::lehrer_duldung_tage Days)\n";
+   &zeit($epoche_duldung_bis_lehrer),
+         " (in $Conf::lehrer_duldung_tage Days)\n";
    print "Deactivation(D) for Pupils(Schueler) ends:   ",
          "$epoche_deaktivierung_bis_schueler ",
-      &zeit($epoche_deaktivierung_bis_schueler),
-            " (in $Conf::schueler_deaktivierung_tage Days)\n";
+   &zeit($epoche_deaktivierung_bis_schueler),
+         " (in $Conf::schueler_deaktivierung_tage Days)\n";
    print "Deactivation(D) for Teachers(Lehrer) ends:   ",
          "$epoche_deaktivierung_bis_lehrer ",
-      &zeit($epoche_deaktivierung_bis_lehrer),
-            " (in $Conf::lehrer_deaktivierung_tage Days)\n";
+   &zeit($epoche_deaktivierung_bis_lehrer),
+         " (in $Conf::lehrer_deaktivierung_tage Days)\n";
 }
 
 # ===========================================================================
 # create hash of valid years
 # ===========================================================================
 &year_ok();
+
+
+# --analyze-encoding
+if ($analyze_encoding ne ""){
+    print "\n";
+    print "Analyzing encoding\n";
+    &reading_firstnames();
+    &reading_firstname_errors();
+    &analyze_encoding($analyze_encoding);
+    &log_script_exit("",1,1,0,@arguments);
+}
+
+
+# remove tmp
+system("rm -r ${DevelConf::pruef_pfad}");
+if (not -e ${DevelConf::pruef_pfad}){
+    mkdir("${DevelConf::pruef_pfad}",0700) 
+           || die "Kann Verzeichnis ${DevelConf::pruef_pfad} nicht anlegen: $!"; 
+}
+&check_verzeichnis_mkdir("${DevelConf::var_lib_pfad}");
+&check_verzeichnis_mkdir("${DevelConf::pruef_pfad}");
+&check_verzeichnis_mkdir("${DevelConf::ergebnis_pfad}");
+&check_verzeichnis_mkdir("${DevelConf::druck_pfad}");
 
 
 # copy the schueler.txt to location where it is checked, or
@@ -628,14 +639,7 @@ if ($Conf::filter_script eq ""){
 
 
 
-if ($analyze_encoding ne ""){
-    &reading_firstnames();
-    &analyze_encoding($analyze_encoding);
-    &log_script_exit("",1,1,0,@arguments);
-}
-
-
-
+# --filter-only
 if ($filter_only==1){
     print "\n$scriptname ended by option --filter-only\n\n";
     &log_script_exit("",1,1,0,@arguments);
@@ -1845,7 +1849,7 @@ sub get_schueler_classes {
        if(/^\#/){ # # am Anfang bedeutet Kommentarzeile
            next;
        }
-       if($_ eq ""){ # # am Anfang bedeutet Kommentarzeile
+       if($_ eq ""){
 	   next;
        }
        my ($class,$a2,$a3,$a4,$unid)=split(/;/);
@@ -4295,10 +4299,17 @@ sub reading_firstnames {
              die "Fehler: $! $file_abs nicht gefunden!"; 
         while (<DATAFILE>){
             chomp();
+            s/^ //g; # Leerzeichen am Zeilenangfang entfernen
+            if(/^\#/){ # # am Anfang bedeutet Kommentarzeile
+               next;
+	    }
+            if($_ eq ""){
+                next;
+            }
             my ($first,$first_new) = split(/:/);
             $firstnames_data{$enc}{$first}=0;
         }
-        print "$file_abs Read for encoding: $enc\n";
+        print "   Reading $file_abs for encoding: $enc\n";
         close(DATAFILE);
     }
 }
@@ -4316,20 +4327,30 @@ sub reading_firstname_errors {
              die "Fehler: $! $file_abs nicht gefunden!"; 
         while (<DATAFILE>){
             chomp();
+            s/^ //g; # Leerzeichen am Zeilenangfang entfernen
+            if(/^\#/){ # # am Anfang bedeutet Kommentarzeile
+               next;
+	    }
+            if($_ eq ""){
+                next;
+            }
             my ($error,$message) = split(/:/);
-            $firstnames_data_errors{$enc}{$error}=$message;
+            $message=~s/^ //g;
+            $firstnames_errors{$enc}{$error}=$message;
         }
-        print "$file_abs Read for errors: $enc\n";
+        print "   Reading $file_abs for errors: $enc\n";
         close(DATAFILE);
     }
 }
 
 
+
 sub analyze_encoding {
     my ($file) = @_;
-    my $utf8_count=0;
-    my $iso8859_1_count=0;
-
+    foreach my $enc (@encodings_to_check){
+        $encoding_check_results{$file}{'firstnames'}{'hits'}{$enc}=0;
+        $encoding_check_results{$file}{'firstnames'}{'errors'}{$enc}=0;
+    }
     print "Analyzing $file ...\n";
     open(DATAFILE, "$file") || 
          die "Fehler: $! $file nicht gefunden!"; 
@@ -4338,25 +4359,70 @@ sub analyze_encoding {
         my @firstnames=split(/ /, $firstname);
         foreach my $first (@firstnames){
             if ($first=~/[^a-zA-Z\-]/) { #
-                #print ">$first<\n";
-                if (exists $firstnames_data{'utf8'}{$first}){
-                    #print "   bingo: $first\n";
-                    $utf8_count++;
-                } elsif (exists $firstnames_data{'ISO_8859-1'}{$first}){
-                    #print "   bingo: $first\n";
-                    $iso8859_1_count++;
-                } else {
-                    print "\n$_";
-                    print "--->$first<\n";
+                my $hit_count=0;   
+                my $error_count=0; 
+                # check for hits
+                foreach my $enc (@encodings_to_check){
+                    if (exists $firstnames_data{$enc}{$first}){
+                        my $old=$encoding_check_results{$file}{'firstnames'}{'hits'}{$enc};
+                        my $new=$old+1;
+                        $encoding_check_results{$file}{'firstnames'}{'hits'}{$enc}=$new;
+                        $hit_count++;
+                    }
+                }
+                # check for errors
+                foreach my $enc (@encodings_to_check){
+                    if (exists $firstnames_errors{$enc}{$first}){
+                        my $old=$encoding_check_results{$file}{'firstnames'}{'errors'}{$enc};
+                        my $new=$old+1;
+                        $encoding_check_results{$file}{'firstnames'}{'errors'}{$enc}=$new;
+                        $hit_count++;
+                    }
+                }
+                # non-hits and non-errors 
+                if ($hit_count==0 and $error_count==0){
+                    print "$first not found anywhere\n";
+                    my $old=$encoding_check_results{$file}{'firstnames'}{'hits'}{'none'};
+                    my $new=$old+1;
+                    $encoding_check_results{$file}{'firstnames'}{'hits'}{'none'}=$new;
                 }
             }
         }
     }
-    print "\nResult:\n";
-    printf  "%-15s %-30s\n","8859_1:",$iso8859_1_count;
-    printf  "%-15s %-30s\n","UTF8:",$utf8_count;
+    print "\nEncoding check result:\n";
+
+    if($Conf::log_level>=3){
+        # debug dump
+        print "Dump of \%encoding_check_results:\n";
+        print Dumper(\%encoding_check_results);
+    }
+
+    # Print Result
+    printf  "%-20s|%7s |%7s |%7s |\n",
+            "Tested Encoding:",
+            "Hits",
+            "Errors",
+            "Sum";
+    print "--------------------+--------+--------+--------+\n";
+    foreach my $enc (@encodings_to_check){
+        my $sum=$encoding_check_results{$file}{'firstnames'}{'hits'}{$enc}+
+	        $encoding_check_results{$file}{'firstnames'}{'errors'}{$enc};
+        printf  "%-20s|%7s |%7s |%7s |\n",
+                $enc,
+                $encoding_check_results{$file}{'firstnames'}{'hits'}{$enc},
+                $encoding_check_results{$file}{'firstnames'}{'errors'}{$enc},
+                $sum;
+    }
+    print "--------------------+--------+--------+--------+\n";
+    printf  "%-20s|%7s |%7s |%7s |\n",
+            "none",
+            $encoding_check_results{$file}{'firstnames'}{'hits'}{'none'},
+            "",
+            "";
+    print "--------------------+--------+--------+--------+\n";
     close(DATAFILE);
 }
+
 
 
 sub filter_school_admin_software_old {
@@ -4458,5 +4524,3 @@ sub filter_school_admin_software_old {
 
 
 # Ende Sub
-
-
