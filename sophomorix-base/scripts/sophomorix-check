@@ -24,6 +24,7 @@ use Date::Calc qw(check_date);
 use DBI;
 use Net::LDAP;
 use Data::Dumper;
+use Text::Iconv;
 
 
 my @arguments = @ARGV;
@@ -61,6 +62,10 @@ my %firstnames_data=();
 my %firstnames_errors=();
 my @encodings_to_check=("utf8","ISO_8859-1");
 my %encoding_check_results=();
+my @firstnames_not_found=();
+my @firstnames_found=();
+my @firstnames_found_errors=();
+
 
 # ?????????????????? hash nicht richtig definiert
 my %filename_map = ("$DevelConf::schueler_datei", "schueler.txt",
@@ -4371,6 +4376,13 @@ sub analyze_encoding {
                 # check for hits
                 foreach my $enc (@encodings_to_check){
                     if (exists $firstnames_data{$enc}{$first}){
+                        #my $conv = Text::Iconv->new($enc,"utf8");
+                        #my $first_utf8 = $conv->convert($first);
+                        #my $report=$first."(".$first_utf8.") FROM LINE: ".$_;
+                        #chomp($report);
+                        push @firstnames_found, $first;
+                        $encoding_check_results{$file}{'firstnames'}{'data'}{$first}=$_;
+
                         my $old=$encoding_check_results{$file}{'firstnames'}{'hits'}{$enc};
                         my $new=$old+1;
                         $encoding_check_results{$file}{'firstnames'}{'hits'}{$enc}=$new;
@@ -4380,6 +4392,8 @@ sub analyze_encoding {
                 # check for errors
                 foreach my $enc (@encodings_to_check){
                     if (exists $firstnames_errors{$enc}{$first}){
+                        push @firstnames_found_errors, $first;
+                        $encoding_check_results{$file}{'firstnames'}{'data'}{$first}=$_;
                         my $old=$encoding_check_results{$file}{'firstnames'}{'errors'}{$enc};
                         my $new=$old+1;
                         $encoding_check_results{$file}{'firstnames'}{'errors'}{$enc}=$new;
@@ -4388,6 +4402,8 @@ sub analyze_encoding {
                 }
                 # non-hits and non-errors 
                 if ($hit_count==0 and $error_count==0){
+                    $encoding_check_results{$file}{'firstnames'}{'data'}{$first}=$_;
+                    push @firstnames_not_found, $first;
                     print "$first not found anywhere (octal): ";
                     $Data::Dumper::Useqq = 1;
 		    $Data::Dumper::Terse = 1; 
@@ -4401,6 +4417,29 @@ sub analyze_encoding {
     }
     print "\nEncoding check result:\n";
 
+    # calculate sum
+    foreach my $enc (@encodings_to_check){
+        my $sum=$encoding_check_results{$file}{'firstnames'}{'hits'}{$enc}+
+	        $encoding_check_results{$file}{'firstnames'}{'errors'}{$enc};
+        $encoding_check_results{$file}{'firstnames'}{'sum'}{$enc}=$sum;
+    }
+
+    print "\nValid firstnames:\n";
+    foreach my $item (@firstnames_found){
+        print "   $item\n";
+    }
+
+    print "Unknown firstnames (please report to info\@linuxmuster.net):\n";
+    foreach my $item (@firstnames_not_found){
+        print "   $item\n";
+    }
+
+    print "\nFirstnames that should be an error (please report the the School Office):\n";
+    foreach my $item (@firstnames_found_errors){
+        print "   $item\n";
+    }
+
+
     if($Conf::log_level>=3){
         # debug dump
         print "Dump of \%encoding_check_results:\n";
@@ -4409,19 +4448,17 @@ sub analyze_encoding {
 
     # Print Result
     printf  "%-20s|%7s |%7s |%7s |\n",
-            "Tested Encoding:",
+            "Tested Encodings:",
             "Hits",
             "Errors",
             "Sum";
     print "--------------------+--------+--------+--------+\n";
     foreach my $enc (@encodings_to_check){
-        my $sum=$encoding_check_results{$file}{'firstnames'}{'hits'}{$enc}+
-	        $encoding_check_results{$file}{'firstnames'}{'errors'}{$enc};
         printf  "%-20s|%7s |%7s |%7s |\n",
                 $enc,
                 $encoding_check_results{$file}{'firstnames'}{'hits'}{$enc},
                 $encoding_check_results{$file}{'firstnames'}{'errors'}{$enc},
-                $sum;
+   	        $encoding_check_results{$file}{'firstnames'}{'sum'}{$enc};
     }
     print "--------------------+--------+--------+--------+\n";
     printf  "%-20s|%7s |%7s |%7s |\n",
