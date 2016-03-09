@@ -4299,10 +4299,14 @@ sub filter_school_admin_software {
 
 
 sub reading_firstnames {
-    my @datafiles=("../data/firstnames.utf8.txt", 
-                   "../data/firstnames.ISO_8859-1.txt", 
+#    my @datafiles=("../data/firstnames.utf8.txt", 
+#                   "../data/firstnames.ISO_8859-1.txt", 
+#                  );
+    my @datafiles=("firstnames.utf8.txt", 
+                   "firstnames.ISO_8859-1.txt", 
                   );
-    foreach my $file_abs (@datafiles){
+    foreach my $file_rel (@datafiles){
+        my $file_abs=${DevelConf::encoding_data_pfad}."/".$file_rel;
         my @list = split(/\//,$file_abs);
         my $filename = pop @list;
         my ($string1,$enc,$string2)=split(/\./,$filename); 
@@ -4329,10 +4333,11 @@ sub reading_firstnames {
 
 
 sub reading_firstname_errors {
-    my @datafiles=("../data/firstname_errors.utf8.txt", 
-                   "../data/firstname_errors.ISO_8859-1.txt", 
+    my @datafiles=("firstname_errors.utf8.txt", 
+                   "firstname_errors.ISO_8859-1.txt", 
                   );
-    foreach my $file_abs (@datafiles){
+    foreach my $file_rel (@datafiles){
+        my $file_abs=${DevelConf::encoding_data_pfad}."/".$file_rel;
         my @list = split(/\//,$file_abs);
         my $filename = pop @list;
         my ($string1,$enc,$string2)=split(/\./,$filename); 
@@ -4375,8 +4380,11 @@ sub analyze_encoding {
     open(DATAFILE, "$file") || 
          die "Fehler: $! $file nicht gefunden!"; 
     while (<DATAFILE>){
-        my ($class,$surname,$firstname,$date) = split(/;/);
         chomp();
+        if ($_ eq ""){
+            next;
+        }
+        my ($class,$surname,$firstname,$date) = split(/;/);
         # split firstname-field into single firstnames
         # split at 'space' and '-'
         my @firstnames=split(/[ ,-]/, $firstname);

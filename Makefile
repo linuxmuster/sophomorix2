@@ -48,6 +48,9 @@ SCHEMA=$(DESTDIR)/etc/ldap/schema
 # Developer
 DEVELCONF=$(DESTDIR)/usr/share/sophomorix
 
+# Encoding-data
+ENCODING=$(DESTDIR)/usr/share/sophomorix/encoding-data
+
 # Language
 LANGUAGE=$(DESTDIR)/usr/share/sophomorix/lang
 
@@ -223,6 +226,9 @@ install-base:
 	@install -oroot -groot --mode=0644 sophomorix-base/lang/errors.*[a-z] $(LANGUAGE)
 	@install -d -m755 -oroot -groot $(LANGUAGE)/latex-templates
 	@install -oroot -groot --mode=0644 sophomorix-base/latex-templates/*.tex $(LANGUAGE)/latex-templates
+# Encoding-data
+	@install -d -m755 -oroot -groot $(ENCODING)
+	@install -oroot -groot --mode=0644 sophomorix-base/encoding-data/*.txt $(ENCODING)
 # filter scripts
 	@install -d -m755 -oroot -groot $(FILTER)
 	@install -oroot -groot --mode=0755 sophomorix-base/filter/*-filter $(FILTER)
