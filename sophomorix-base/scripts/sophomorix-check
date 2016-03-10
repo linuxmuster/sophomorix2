@@ -70,7 +70,6 @@ my @firstnames_not_found=();
 my @firstnames_found=();
 my @firstnames_found_errors=();
 
-
 # ?????????????????? hash nicht richtig definiert
 my %filename_map = ("$DevelConf::schueler_datei", "schueler.txt",
         "${DevelConf::config_pfad}/extraschueler.txt","extraschueler.txt",
@@ -4374,7 +4373,9 @@ sub analyze_encoding {
     }
     $encoding_check_results{$file}{'firstnames'}{'count_hits'}{'none'}=0;
     $encoding_check_results{$file}{'firstnames'}{'count_errors'}{'none'}=0;
+    $encoding_check_results{$file}{'firstnames'}{'result'}="unknown";
   
+
     # start to analyze file
     print "Analyzing $file ...\n";
     open(DATAFILE, "$file") || 
