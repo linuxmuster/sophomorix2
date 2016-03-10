@@ -1,0 +1,43 @@
+#!/usr/bin/perl -w
+# This script is maintained by Rüdiger Beck
+# It is Free Software (License GPLv3)
+# If you find errors, contact the author
+# jeffbeck@web.de  or  jeffbeck@gmx.de
+
+use strict;
+
+############################################################
+# Program
+############################################################
+
+my $infile="./firstnames.utf8.txt";
+my $outfile="firstnames.utf8.txt.no-ascii-lines";
+
+
+open(IN, "$infile") || 
+     die "Fehler: $! $infile nicht gefunden!"; 
+open(OUT, ">$outfile"); 
+
+
+while (<IN>){
+    #print $_;
+    my $line=$_;
+    chomp($line);
+    #$line=~s/ //g;
+    $line=~s/^\s*//; 
+    $line=~s/\s*$//;
+
+    if ($line=~/[^a-zA-Z\-]/) { 
+        # continue with non-standard(~non-ascii) chars
+        print OUT "$line\n";
+    }
+}
+
+
+
+
+
+close(IN);
+close(OUT);
+
+
