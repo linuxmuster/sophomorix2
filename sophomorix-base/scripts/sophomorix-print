@@ -586,7 +586,7 @@ if ($user eq "" and
    # Argument muss "klasse" sein -> filtern
    my $argument;
    if ($gruppe eq ${DevelConf::teacher}){
-        print "Mit der Option --klasse können keine Lehrer angezeigt werden!\n\n";
+        print "Mit der Option --class können keine Lehrer angezeigt werden!\n\n";
         exit;
       } else {
         $argument="$gruppe";
@@ -626,12 +626,12 @@ if ($user eq "" and
 } elsif ($classlist ne "") {
    # Argument muss "klasse" sein -> filtern
    my $argument;
-   if ($classlist eq ${DevelConf::teacher}){
-        print "Mit der Option --klasse können keine Lehrer angezeigt werden!\n\n";
-        exit;
-      } else {
+#   if ($classlist eq ${DevelConf::teacher}){
+#        print "Mit der Option --class können keine Lehrer angezeigt werden!\n\n";
+#        exit;
+#      } else {
         $argument="$classlist";
-      }
+#      }
 
    my $klasse="";
    if($Conf::log_level>=2){
