@@ -1,0 +1,68 @@
+#!/usr/bin/perl -w
+
+my $lehrer_file="/etc/sophomorix/user/lehrer.txt";
+my $aliases_file="/etc/aliases";
+
+
+my $type="MultiMailbox";
+my $password="Muster!";
+my $mailquota_default=200;
+my %aliases=();
+
+
+
+# aliases
+open(ALIASES,"$aliases_file") || 
+          die "Fehler: $lehrer_file not found!";
+while(<ALIASES>){
+    $dot_anzahl=tr/\.//;
+    $ddot_anzahl=tr/://;
+    if ($dot_anzahl==1 and $ddot_anzahl==1){
+        #print "$dot_anzahl $ddot_anzahl $_";
+        my ($alias,$uid)=split(/:/);
+        $uid=&remove_whitespace($uid); 
+        $alias=&remove_whitespace($alias);
+        #print "<$uid> -> <$alias>\n";
+        $aliases{$uid}=$alias; 
+    }
+}
+close(ALIASES);
+
+
+
+
+# lehrer
+print "Name\tRealname\tType\tPassword\tStorage\tAliases\n";
+open(LEHRER,"$lehrer_file") || 
+          die "Fehler: $lehrer_file not found!";
+while(<LEHRER>){
+    #print $_;
+    chomp();
+    my ($group,$last,$sur,$birth,$uid,$pw,$token,$quota,$mailquota)=split(/;/);
+    my $alias="xxxxxx";
+
+    $uid=&remove_whitespace($uid); 
+    $last=&remove_whitespace($last); 
+    $sur=&remove_whitespace($sur); 
+    $mailquota=&remove_whitespace($mailquota);
+    if ($mailquota eq "mailquota"){
+        $mailquota=$mailquota_default;
+    } 
+    if (exists $aliases{$uid}){
+        $alias=$aliases{$uid};
+    }
+    print "$uid\t$last, $sur\t$type\t$password\t${mailquota}M\t$alias\n";
+
+}
+close(LEHRER);
+
+
+
+
+
+sub remove_whitespace {
+    my ($string)=@_;
+    $string=~s/^\s+//g;# remove leading whitespace
+    $string=~s/\s+$//g;# remove trailing whitespace
+    return $string;    
+}
