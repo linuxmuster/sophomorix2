@@ -1,14 +1,40 @@
 #!/usr/bin/perl -w
 
+# Manual
+#
+# 1) create List af existing mail accounts at belwue
+#  # sophomorix4/sophomorix-belwue/scripts/sophomorix-belwue > /root/belwue-mail.txt
+#
+# 2) run this script
+# on standardout you see the accounts that must be added at belwue
+
+
+
+
+my $belwue_exists="/root/belwue-mail.txt";
 my $lehrer_file="/etc/sophomorix/user/lehrer.txt";
+my $extra_file="/etc/sophomorix/user/extraschueler.txt";
 my $aliases_file="/etc/aliases";
 
+my $valid_groups=();
+$valid_groups{'sekretariat'}="ok";
+$valid_groups{'haustechnik'}="ok";
 
 my $type="MultiMailbox";
 my $password="Muster!";
 my $mailquota_default=200;
 my %aliases=();
+my %belwue=();
 
+# existing accounts
+open(BELWUE,"$belwue_exists") || 
+          die "Fehler: $belwue_exists not found!";
+while(<BELWUE>){
+    my $uid=$_;
+    chomp($uid);
+    $belwue{$uid}="seen";
+}
+close(BELWUE);
 
 
 # aliases
@@ -31,8 +57,9 @@ close(ALIASES);
 
 
 
-# lehrer
 print "Name\tRealname\tType\tPassword\tStorage\tAliases\n";
+
+# lehrer
 open(LEHRER,"$lehrer_file") || 
           die "Fehler: $lehrer_file not found!";
 while(<LEHRER>){
@@ -51,10 +78,36 @@ while(<LEHRER>){
     if (exists $aliases{$uid}){
         $alias=$aliases{$uid};
     }
-    print "$uid\t$last, $sur\t$type\t$password\t${mailquota}M\t$alias\n";
-
+    if (not exists $belwue{$uid}){
+        print "$uid\t$last, $sur\t$type\t$password\t${mailquota}M\t$alias\n";
+    }
 }
 close(LEHRER);
+
+# extraschueler
+open(EXTRAS,"$extra_file") || 
+          die "Fehler: $extra_file not found!";
+while(<EXTRAS>){
+    #print $_;
+
+    if(/^\#/){ # # am Anfang bedeutet Kommentarzeile
+        next;
+    }
+    chomp();
+    my ($group,$last,$sur,$birth,$uid)=split(/;/);
+    my $alias="xxxxxx";
+
+    $uid=&remove_whitespace($uid); 
+    $last=&remove_whitespace($last); 
+    $sur=&remove_whitespace($sur); 
+    if (exists $aliases{$uid}){
+        $alias=$aliases{$uid};
+    }
+    if (not exists $belwue{$uid} and exists $valid_groups{$group}){
+        print "$uid\t$last, $sur\t$type\t$password\t${mailquota_default}M\t$alias\n";
+    }
+}
+close(EXTRAS);
 
 
 
