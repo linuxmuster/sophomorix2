@@ -3,15 +3,19 @@
 # Manual
 #
 # 1) create List af existing mail accounts at belwue
-#  # sophomorix4/sophomorix-belwue/scripts/sophomorix-belwue > /root/belwue-mail.txt
+#  # sophomorix4/sophomorix-belwue/scripts/sophomorix-belwue
+#  # This creates:
+#    /var/lib/sophomorix/belwue/belwue.multimailboxes
+#    /var/lib/sophomorix/belwue/belwue.maillist
+#    /var/lib/sophomorix/belwue/belwue.aliases
 #
 # 2) run this script
-# on standardout you see the accounts that must be added at belwue
+# on standardout you see what must be added at belwue
 
 
 
 
-my $belwue_exists="/root/belwue-mail.txt";
+my $belwue_mailboxes="/var/lib/sophomorix/belwue/belwue.multimailboxes";
 my $lehrer_file="/etc/sophomorix/user/lehrer.txt";
 my $extra_file="/etc/sophomorix/user/extraschueler.txt";
 my $aliases_file="/etc/aliases";
@@ -21,14 +25,15 @@ $valid_groups{'sekretariat'}="ok";
 $valid_groups{'haustechnik'}="ok";
 
 my $type="MultiMailbox";
-my $password="Muster!";
 my $mailquota_default=200;
 my %aliases=();
 my %belwue=();
 
+my @passwort_zeichen=&get_passwd_charlist();
+
 # existing accounts
-open(BELWUE,"$belwue_exists") || 
-          die "Fehler: $belwue_exists not found!";
+open(BELWUE,"$belwue_mailboxes") || 
+          die "Fehler: $belwue_mailboxes not found!";
 while(<BELWUE>){
     my $uid=$_;
     chomp($uid);
@@ -78,8 +83,10 @@ while(<LEHRER>){
     if (exists $aliases{$uid}){
         $alias=$aliases{$uid};
     }
+
+    $plain_password=&get_plain_password(@passwort_zeichen);
     if (not exists $belwue{$uid}){
-        print "$uid\t$last, $sur\t$type\t$password\t${mailquota}M\t$alias\n";
+        print "$uid\t$last, $sur\t$type\t$plain_password\t${mailquota}M\t$alias\n";
     }
 }
 close(LEHRER);
@@ -103,8 +110,10 @@ while(<EXTRAS>){
     if (exists $aliases{$uid}){
         $alias=$aliases{$uid};
     }
+
+    $plain_password=&get_plain_password(@passwort_zeichen);
     if (not exists $belwue{$uid} and exists $valid_groups{$group}){
-        print "$uid\t$last, $sur\t$type\t$password\t${mailquota_default}M\t$alias\n";
+        print "$uid\t$last, $sur\t$type\t$plain_password\t${mailquota_default}M\t$alias\n";
     }
 }
 close(EXTRAS);
@@ -113,9 +122,61 @@ close(EXTRAS);
 
 
 
+
+############################################################
+# subs
+############################################################
+sub get_passwd_charlist {
+   # characters for passwords
+   # avoid: 1,i,l,I,L,j
+   # avoid: 0,o,O
+   # avoid: Capital letters, that can be confused with 
+   #        small letters: C,I,J,K,L,O,P,S,U,V,W,X,Y,Z 
+   my @zeichen=('a','b','c','d','e','f','g','h','i','j','k',
+                'm','n','o','p','q','r','s','t','u','v',
+                'w','x','y','z',
+                'A','B','D','E','F','G','H','L','M','N','Q','R','T',
+                '2','3','4','5','6','7','8','9',
+                '!','$','&','(',')','=','?'
+       );
+   return @zeichen;
+}
+
+
 sub remove_whitespace {
     my ($string)=@_;
     $string=~s/^\s+//g;# remove leading whitespace
     $string=~s/\s+$//g;# remove trailing whitespace
     return $string;    
+}
+
+
+
+sub get_plain_password {
+    my @password_chars=@_;
+    my $password="";
+    my $i;
+    # Teacher
+    $password=&create_plain_password(10,@password_chars);
+    return $password;
+}
+
+
+sub create_plain_password {
+    my ($num)=shift;
+    my @password_chars=@_;
+    my $password="";
+    until ($password=~m/[!,\$,&,\(,\),=,?]/ and 
+           $password=~m/[a-z]/ and 
+           $password=~m/[A-Z]/ and
+           $password=~m/[0-9]/
+	){
+        $password="";
+        for ($i=1;$i<=$num;$i++){
+            $password=$password.$password_chars[int (rand $#password_chars)];
+        }
+	#print "Password to test: $password\n";
+    }
+    #print "Password OK: $password\n";
+    return $password;
 }
