@@ -23,9 +23,10 @@ my $aliases_file="/etc/aliases";
 my $valid_groups=();
 $valid_groups{'sekretariat'}="ok";
 $valid_groups{'haustechnik'}="ok";
+$valid_groups{'sozial'}="ok";
 
 my $type="MultiMailbox";
-my $mailquota_default=200;
+my $mailquota_default=512;
 my %aliases=();
 my %belwue=();
 
@@ -77,9 +78,9 @@ while(<LEHRER>){
     $last=&remove_whitespace($last); 
     $sur=&remove_whitespace($sur); 
     $mailquota=&remove_whitespace($mailquota);
-    if ($mailquota eq "mailquota"){
+    #if ($mailquota eq "mailquota"){
         $mailquota=$mailquota_default;
-    } 
+    #} 
     if (exists $aliases{$uid}){
         $alias=$aliases{$uid};
     }
