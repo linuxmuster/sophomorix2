@@ -1,5 +1,13 @@
 #!/usr/bin/perl -w
 
+use Getopt::Long;
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
+$Data::Dumper::Sortkeys = 1;
+$Data::Dumper::Useqq = 1;
+$Data::Dumper::Terse = 1; 
+
+
 # Manual
 #
 # 1) create List af existing mail accounts at belwue
@@ -12,26 +20,60 @@
 # 2) run this script
 # on standardout you see what must be added at belwue
 
+my $help=0;
+my $verbose=0;
+
+# Parsen der Optionen
+my $testopt=GetOptions(
+           "help|h" => \$help,
+           "verbose|v+" => \$verbose,
+          );
+
+# Prüfen, ob Optionen erkannt wurden, sonst Abbruch
+&check_options($testopt);
+
 
 
 
 my $belwue_mailboxes="/var/lib/sophomorix/belwue/belwue.multimailboxes";
+my $belwue_maillists="/var/lib/sophomorix/belwue/belwue.maillists";
+
 my $lehrer_file="/etc/sophomorix/user/lehrer.txt";
 my $extra_file="/etc/sophomorix/user/extraschueler.txt";
 my $aliases_file="/etc/aliases";
 
+# result
+my $result_dir="/root/belwue-create-addlist-result";
+my $result_add="/root/belwue-create-addlist-result/belwue-mailaccounts.txt";
+my $result_add_utf8="/root/belwue-create-addlist-result/belwue-mailaccounts-utf8.txt";
+
+
+############################################################
+# configuration
 my $valid_groups=();
 $valid_groups{'sekretariat'}="ok";
 $valid_groups{'haustechnik'}="ok";
 $valid_groups{'sozial'}="ok";
 $valid_groups{'ehemalige'}="ok";
 
+my @maillists=("kollegium","haustechnik","sozial","ehemalige");
+
 my $type="MultiMailbox";
 my $mailquota_default=512;
+# end configuration
+############################################################
+
 my %aliases=();
 my %belwue=();
 
 my @passwort_zeichen=&get_passwd_charlist();
+
+# result files
+system("mkdir -p $result_dir");
+open(ADD,">$result_add") || 
+          die "Fehler: $result_add could not be created!";
+
+
 
 # existing accounts
 open(BELWUE,"$belwue_mailboxes") || 
@@ -39,9 +81,21 @@ open(BELWUE,"$belwue_mailboxes") ||
 while(<BELWUE>){
     my $uid=$_;
     chomp($uid);
-    $belwue{$uid}="seen";
+    $belwue{'uid'}{$uid}="seen";
 }
 close(BELWUE);
+
+# existing maillists
+open(BELWUE,"$belwue_maillists") || 
+          die "Fehler: $belwue_maillists not found!";
+while(<BELWUE>){
+    my $line=$_;
+    chomp($line);
+    my ($listname,$users)=split(/:/,$line);
+    $belwue{'maillist'}{$listname}="seen";
+}
+close(BELWUE);
+
 
 
 # aliases
@@ -63,8 +117,8 @@ close(ALIASES);
 
 
 
-
-print "Name\tRealname\tType\tPassword\tStorage\tAliases\n";
+print "##### Do the following on belwue Server: #####\n";
+print "ADDING USERS:\n";
 
 # lehrer
 open(LEHRER,"$lehrer_file") || 
@@ -87,8 +141,8 @@ while(<LEHRER>){
     }
 
     $plain_password=&get_plain_password(@passwort_zeichen);
-    if (not exists $belwue{$uid}){
-        print "$uid\t$last, $sur\t$type\t$plain_password\t${mailquota}M\t$alias\n";
+    if (not exists $belwue{'uid'}{$uid}){
+        print ADD "$uid\t$last, $sur\t$type\t$plain_password\t${mailquota}M\t$alias\n";
     }
 }
 close(LEHRER);
@@ -114,8 +168,9 @@ while(<EXTRAS>){
     }
 
     $plain_password=&get_plain_password(@passwort_zeichen);
-    if (not exists $belwue{$uid} and exists $valid_groups{$group}){
-        print "$uid\t$last, $sur\t$type\t$plain_password\t${mailquota_default}M\t$alias\n";
+    if (not exists $belwue{'uid'}{$uid} and exists $valid_groups{$group}){
+        print ADD "$uid\t$last, $sur\t$type\t$plain_password\t${mailquota_default}M\t$alias\n";
+        print "   * ADD USER: $uid\t$last, $sur\t$type\t$plain_password\t${mailquota_default}M\t$alias\n";
     }
 }
 close(EXTRAS);
@@ -124,10 +179,61 @@ close(EXTRAS);
 
 
 
+print "REMOVING USERS:\n";
+print " ... Todo ...\n";
+
+
+
+print "NONEXISTING Maillists:\n";
+foreach my $list (@maillists){
+    if (exists $belwue{'maillist'}{$list}){
+        #print "$list exists\n";
+    } else {
+        print "   * $list nonexisting\n";
+    }
+}
+
+print "MANAGING Maillists:\n";
+print " ... Todo ...\n";
+
+
+
+
+
+close(ADD);
+system("/usr/bin/iconv --verbose -f 8859_1 -t utf-8 $result_add -o $result_add_utf8");
+
+
+
+
+
+print "Result files created in $result_dir\n";
+
+
+#print Dumper(%belwue);
+
 
 ############################################################
 # subs
 ############################################################
+sub  check_options{
+   my ($parse_ergebnis) = @_;
+   if (not $parse_ergebnis==1){
+      my @list = split(/\//,$0);
+      my $scriptname = pop @list;
+      print "\nYou have made a mistake, when specifying options.\n"; 
+      print "See error message above. \n\n";
+      print "... $scriptname is terminating.\n\n";
+      exit;
+   } else {
+      if($verbose>=3){
+         print "All options  were recognized.\n";
+      }
+   }
+}
+
+
+
 sub get_passwd_charlist {
    # characters for passwords
    # avoid: 1,i,l,I,L,j
