@@ -50,12 +50,13 @@ my $result_add_utf8="/root/belwue-create-addlist-result/belwue-mailaccounts-utf8
 
 ############################################################
 # configuration
-my $valid_groups=();
+my $valid_groups=(); # for users
 $valid_groups{'sekretariat'}="ok";
 $valid_groups{'haustechnik'}="ok";
 $valid_groups{'sozial'}="ok";
 $valid_groups{'ehemalige'}="ok";
 
+# maillists that are managed
 my @maillists=("kollegium","haustechnik","sozial","ehemalige");
 
 my $maildomain="bszleo.de";
@@ -117,7 +118,6 @@ while(<ALIASES>){
     chomp();
     $dot_anzahl=tr/\.//;
     $ddot_anzahl=tr/://;
-    $komma_anzahl=tr/\,//;
     my $line=$_;
 
     # skip empty lines
@@ -147,7 +147,7 @@ while(<ALIASES>){
         $nothing=&remove_whitespace($nothing);
         $curr_maillist=$maillist;
         if ($nothing eq "" and exists $belwue{'maillist-checked'}{$maillist}){
-        print "$_\n";
+        #print "$_\n";
         }
     }
 
@@ -158,16 +158,12 @@ while(<ALIASES>){
         } 
         my $user=$_;
         $user=&remove_whitespace($user); 
-        $user=&remove_whitespace($user);
-
-        
-
-        $user=~s/,//g;# remove leading whitespace
+        $user=~s/,//g;
         if ($user eq "sozialsekretariathaustechnik"){
             next;
         }
         my $member_line=$user."@".$maildomain;
-        print "   <$member_line>    <$user>ist in $curr_maillist\n";
+        #print "   <$member_line>    <$user>ist in $curr_maillist\n";
         push @{ $belwue{'maillist'}{$curr_maillist}{'memberlist'} }, $member_line;
         push @{ $belwue{'maillist'}{$curr_maillist}{'memberuser'} }, $user;
 
@@ -253,24 +249,31 @@ foreach my $list (@maillists){
     }
 }
 
-print "MANAGING Maillists:\n";
-print " ... Todo ...\n";
-
-
 
 
 
 close(ADD);
 system("/usr/bin/iconv --verbose -f 8859_1 -t utf-8 $result_add -o $result_add_utf8");
 
-
-
+# creating the maillists
+print "MANAGING Maillists:\n";
+foreach my $maillist ( keys %{ $belwue{'maillist'} } ){
+    my $file=$result_dir."/maillist-".$maillist.".txt";
+    print "   * creating maillist file $file\n";
+    open(LISTFILE,">$file") || 
+          die "Fehler: $file could not be created!";
+    foreach my $member ( @{ $belwue{'maillist'}{$maillist}{'memberlist'} } ){   
+        print LISTFILE "$member\n";
+    }
+    close(LISTFILE);
+}
+print " ... Todo ...\n";
 
 
 print "Result files created in $result_dir\n";
 
 
-print Dumper(%belwue);
+#print Dumper(%belwue);
 
 
 ############################################################
