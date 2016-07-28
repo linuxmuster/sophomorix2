@@ -58,13 +58,20 @@ $valid_groups{'ehemalige'}="ok";
 
 my @maillists=("kollegium","haustechnik","sozial","ehemalige");
 
+my $maildomain="bszleo.de";
+
 my $type="MultiMailbox";
 my $mailquota_default=512;
 # end configuration
 ############################################################
 
+
 my %aliases=();
 my %belwue=();
+foreach my $listname (@maillists){
+    #print "--> $listname\n";
+    $belwue{'maillist-checked'}{$listname}="checked";
+}
 
 my @passwort_zeichen=&get_passwd_charlist();
 
@@ -81,7 +88,7 @@ open(BELWUE,"$belwue_mailboxes") ||
 while(<BELWUE>){
     my $uid=$_;
     chomp($uid);
-    $belwue{'uid'}{$uid}="seen";
+    $belwue{'uid-seen'}{$uid}="seen";
 }
 close(BELWUE);
 
@@ -92,7 +99,11 @@ while(<BELWUE>){
     my $line=$_;
     chomp($line);
     my ($listname,$users)=split(/:/,$line);
-    $belwue{'maillist'}{$listname}="seen";
+    $belwue{'maillist-seen'}{$listname}="seen";
+    my @users=split(/,/,$users);
+    foreach my $user (@users){
+        $belwue{'maillist-seen'}{$listname}{'members'}{$user}="seen";
+    }
 }
 close(BELWUE);
 
@@ -101,9 +112,27 @@ close(BELWUE);
 # aliases
 open(ALIASES,"$aliases_file") || 
           die "Fehler: $lehrer_file not found!";
+my $curr_maillist="";
 while(<ALIASES>){
+    chomp();
     $dot_anzahl=tr/\.//;
     $ddot_anzahl=tr/://;
+    $komma_anzahl=tr/\,//;
+    my $line=$_;
+
+    # skip empty lines
+    $line=~s/\s//g;
+    if ($line eq ""){
+        #print ">$line<\n";
+        next;
+    }
+    # skip commented lines
+    if (m/^#/){
+        #print ">$line<\n";
+        next;
+    }
+
+
     if ($dot_anzahl==1 and $ddot_anzahl==1){
         #print "$dot_anzahl $ddot_anzahl $_";
         my ($alias,$uid)=split(/:/);
@@ -111,6 +140,37 @@ while(<ALIASES>){
         $alias=&remove_whitespace($alias);
         #print "<$uid> -> <$alias>\n";
         $aliases{$uid}=$alias; 
+    }
+    if ($ddot_anzahl==1){
+        my ($maillist,$nothing)=split(/:/);
+        $maillist=&remove_whitespace($maillist); 
+        $nothing=&remove_whitespace($nothing);
+        $curr_maillist=$maillist;
+        if ($nothing eq "" and exists $belwue{'maillist-checked'}{$maillist}){
+        print "$_\n";
+        }
+    }
+
+    # creating maillist membership files
+    if (exists $belwue{'maillist-checked'}{$curr_maillist}){
+        if ($ddot_anzahl==1){
+            next;
+        } 
+        my $user=$_;
+        $user=&remove_whitespace($user); 
+        $user=&remove_whitespace($user);
+
+        
+
+        $user=~s/,//g;# remove leading whitespace
+        if ($user eq "sozialsekretariathaustechnik"){
+            next;
+        }
+        my $member_line=$user."@".$maildomain;
+        print "   <$member_line>    <$user>ist in $curr_maillist\n";
+        push @{ $belwue{'maillist'}{$curr_maillist}{'memberlist'} }, $member_line;
+        push @{ $belwue{'maillist'}{$curr_maillist}{'memberuser'} }, $user;
+
     }
 }
 close(ALIASES);
@@ -141,7 +201,7 @@ while(<LEHRER>){
     }
 
     $plain_password=&get_plain_password(@passwort_zeichen);
-    if (not exists $belwue{'uid'}{$uid}){
+    if (not exists $belwue{'uid-seen'}{$uid}){
         print ADD "$uid\t$last, $sur\t$type\t$plain_password\t${mailquota}M\t$alias\n";
     }
 }
@@ -168,7 +228,7 @@ while(<EXTRAS>){
     }
 
     $plain_password=&get_plain_password(@passwort_zeichen);
-    if (not exists $belwue{'uid'}{$uid} and exists $valid_groups{$group}){
+    if (not exists $belwue{'uid-seen'}{$uid} and exists $valid_groups{$group}){
         print ADD "$uid\t$last, $sur\t$type\t$plain_password\t${mailquota_default}M\t$alias\n";
         print "   * ADD USER: $uid\t$last, $sur\t$type\t$plain_password\t${mailquota_default}M\t$alias\n";
     }
@@ -186,7 +246,7 @@ print " ... Todo ...\n";
 
 print "NONEXISTING Maillists:\n";
 foreach my $list (@maillists){
-    if (exists $belwue{'maillist'}{$list}){
+    if (exists $belwue{'maillist-seen'}{$list}){
         #print "$list exists\n";
     } else {
         print "   * $list nonexisting\n";
@@ -210,7 +270,7 @@ system("/usr/bin/iconv --verbose -f 8859_1 -t utf-8 $result_add -o $result_add_u
 print "Result files created in $result_dir\n";
 
 
-#print Dumper(%belwue);
+print Dumper(%belwue);
 
 
 ############################################################
