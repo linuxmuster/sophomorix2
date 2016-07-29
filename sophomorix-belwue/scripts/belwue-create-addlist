@@ -49,7 +49,7 @@ my $result_add_utf8="/root/belwue-create-addlist-result/belwue-mailaccounts-utf8
 
 
 ############################################################
-# configuration
+# configuration, part 1
 my $valid_groups=(); # for users
 $valid_groups{'sekretariat'}="ok";
 $valid_groups{'haustechnik'}="ok";
@@ -57,13 +57,13 @@ $valid_groups{'sozial'}="ok";
 $valid_groups{'ehemalige'}="ok";
 
 # maillists that are managed
-my @maillists=("kollegium","haustechnik","sozial","ehemalige");
+my @maillists=("kollegium","haustechnik","sozial","sekretariat","ehemalige");
 
 my $maildomain="bszleo.de";
 
 my $type="MultiMailbox";
 my $mailquota_default=512;
-# end configuration
+# end configuration part 1
 ############################################################
 
 
@@ -100,10 +100,10 @@ while(<BELWUE>){
     my $line=$_;
     chomp($line);
     my ($listname,$users)=split(/:/,$line);
-    $belwue{'maillist-seen'}{$listname}="seen";
+    $belwue{'maillist-seen'}{$listname}{'status'}="seen";
     my @users=split(/,/,$users);
     foreach my $user (@users){
-        $belwue{'maillist-seen'}{$listname}{'members'}{$user}="seen";
+        $belwue{'maillist-seen'}{$listname}{'memberlist'}{$user}="seen";
     }
 }
 close(BELWUE);
@@ -132,7 +132,7 @@ while(<ALIASES>){
         next;
     }
 
-
+    # read alias lines
     if ($dot_anzahl==1 and $ddot_anzahl==1){
         #print "$dot_anzahl $ddot_anzahl $_";
         my ($alias,$uid)=split(/:/);
@@ -141,6 +141,9 @@ while(<ALIASES>){
         #print "<$uid> -> <$alias>\n";
         $aliases{$uid}=$alias; 
     }
+
+    # set current maillist, to know to which maillist 
+    # refer the following lines
     if ($ddot_anzahl==1){
         my ($maillist,$nothing)=split(/:/);
         $maillist=&remove_whitespace($maillist); 
@@ -151,7 +154,7 @@ while(<ALIASES>){
         }
     }
 
-    # creating maillist membership files
+    # save maillist memberships in %belwue
     if (exists $belwue{'maillist-checked'}{$curr_maillist}){
         if ($ddot_anzahl==1){
             next;
@@ -170,6 +173,23 @@ while(<ALIASES>){
     }
 }
 close(ALIASES);
+
+
+############################################################
+# configuration, part 2
+
+# adding maiilists to maillists manually
+# i.e. sozialsekretariathaustechnik skipped above
+&add_maillist_to_maillist("sozial","kollegium");
+&add_maillist_to_maillist("sekretariat","kollegium");
+
+# adding user haustechnik to kollegium
+push @{ $belwue{'maillist'}{'kollegium'}{'memberlist'} }, "haustechnik"."@".$maildomain;
+push @{ $belwue{'maillist'}{'kollegium'}{'memberuser'} }, "haustechnik";
+
+# end configuration part 2
+############################################################
+
 
 
 
@@ -202,6 +222,7 @@ while(<LEHRER>){
     }
 }
 close(LEHRER);
+
 
 # extraschueler
 open(EXTRAS,"$extra_file") || 
@@ -255,9 +276,14 @@ foreach my $list (@maillists){
 close(ADD);
 system("/usr/bin/iconv --verbose -f 8859_1 -t utf-8 $result_add -o $result_add_utf8");
 
-# creating the maillists
+# creating the maillist files
+my @to_add=();
+my $to_remove=();
 print "MANAGING Maillists:\n";
 foreach my $maillist ( keys %{ $belwue{'maillist'} } ){
+    my @to_add=();     # entries to add
+    my $to_remove=();  # 
+
     my $file=$result_dir."/maillist-".$maillist.".txt";
     print "   * creating maillist file $file\n";
     open(LISTFILE,">$file") || 
@@ -273,12 +299,25 @@ print " ... Todo ...\n";
 print "Result files created in $result_dir\n";
 
 
-#print Dumper(%belwue);
+print Dumper(%belwue);
 
 
 ############################################################
 # subs
 ############################################################
+sub add_maillist_to_maillist {
+    my ($list,$maillist) = @_;
+    print "   * Adding members of $list to $maillist\n";
+    foreach my $member ( @{ $belwue{'maillist'}{$list}{'memberlist'} } ){   
+        print "      * adding $member to $maillist\n";
+        push @{ $belwue{'maillist'}{$maillist}{'memberlist'} }, $member."@".$maildomain;
+        push @{ $belwue{'maillist'}{$maillist}{'memberuser'} }, $member;
+    }
+
+
+}
+
+
 sub  check_options{
    my ($parse_ergebnis) = @_;
    if (not $parse_ergebnis==1){
