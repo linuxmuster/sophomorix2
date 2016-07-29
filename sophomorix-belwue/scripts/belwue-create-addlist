@@ -281,9 +281,6 @@ my @to_add=();
 my $to_remove=();
 print "MANAGING Maillists:\n";
 foreach my $maillist ( keys %{ $belwue{'maillist'} } ){
-    my @to_add=();     # entries to add
-    my $to_remove=();  # 
-
     my $file=$result_dir."/maillist-".$maillist.".txt";
     print "   * creating maillist file $file\n";
     open(LISTFILE,">$file") || 
@@ -293,13 +290,53 @@ foreach my $maillist ( keys %{ $belwue{'maillist'} } ){
     }
     close(LISTFILE);
 }
+
+foreach my $maillist (@maillists){
+    my @to_add=();     # members to add
+    my $to_remove=();  # members to remove
+    if (not exists $belwue{'maillist-seen'}{$maillist} ){
+        print "Maillist $maillist must be created/has no members at belwue\n";
+        next;
+    } else {
+        print "Maillist $maillist exists, actions follow:\n";
+    }
+    my %belwue_members = %{ $belwue{'maillist-seen'}{$maillist}{'memberlist'} };   
+    # creating hash of bsz maillist members
+    foreach my $member ( @{ $belwue{'maillist'}{$maillist}{'memberlist'} } ){   
+        if (exists $belwue_members{$member}){
+            delete $belwue_members{$member};
+        } else {
+            push @to_add, $member;
+        }
+    }
+    foreach my $member ( keys %belwue_members){
+        push @to_remove, $member;
+    }
+
+    # printout
+    print "Members to add to maillist $maillist:\n";
+    foreach my $entry (@to_add){
+        print "   * $entry\n";
+    }
+    print "\n";
+    print "Members to delete from maillist $maillist:\n";
+    foreach my $entry (@to_remove){
+        print "   * $entry\n";
+    }
+    print "\n";
+}
+
+
+
+
+
 print " ... Todo ...\n";
 
 
 print "Result files created in $result_dir\n";
 
 
-print Dumper(%belwue);
+#print Dumper(%belwue);
 
 
 ############################################################
@@ -310,8 +347,9 @@ sub add_maillist_to_maillist {
     print "   * Adding members of $list to $maillist\n";
     foreach my $member ( @{ $belwue{'maillist'}{$list}{'memberlist'} } ){   
         print "      * adding $member to $maillist\n";
-        push @{ $belwue{'maillist'}{$maillist}{'memberlist'} }, $member."@".$maildomain;
-        push @{ $belwue{'maillist'}{$maillist}{'memberuser'} }, $member;
+        my ($user,$string)=split(/@/,$member);
+        push @{ $belwue{'maillist'}{$maillist}{'memberlist'} }, $member;
+        push @{ $belwue{'maillist'}{$maillist}{'memberuser'} }, $user;
     }
 
 
