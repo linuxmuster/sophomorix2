@@ -7,19 +7,6 @@ $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Useqq = 1;
 $Data::Dumper::Terse = 1; 
 
-
-# Manual
-#
-# 1) create List af existing mailaccounts/maillists at belwue
-#  # sophomorix4/sophomorix-belwue/scripts/sophomorix-belwue
-#  # This creates:
-#    /var/lib/sophomorix/belwue/belwue.multimailboxes
-#    /var/lib/sophomorix/belwue/belwue.maillist
-#    /var/lib/sophomorix/belwue/belwue.aliases
-#
-# 2) run this script
-# output files are created in 
-
 my $help=0;
 my $verbose=0;
 
@@ -32,10 +19,6 @@ my $testopt=GetOptions(
 # Prüfen, ob Optionen erkannt wurden, sonst Abbruch
 &check_options($testopt);
 
-
-
-
-
 my $belwue_mailboxes="/var/lib/sophomorix/belwue/belwue.multimailboxes";
 my $belwue_maillists="/var/lib/sophomorix/belwue/belwue.maillists";
 
@@ -43,10 +26,6 @@ my $lehrer_file="/etc/sophomorix/user/lehrer.txt";
 my $extra_file="/etc/sophomorix/user/extraschueler.txt";
 my $aliases_file="/etc/aliases";
 
-# result
-my $result_dir="/root/belwue-create-addlist-result";
-my $result_add=$result_dir."/belwue-mailaccounts.txt";
-my $result_add_utf8=$result_dir."/belwue-mailaccounts-utf8.txt";
 
 
 ############################################################
@@ -55,44 +34,44 @@ my $target_dir="/home/teachers/bz/sophomorix-belwue";
 my $target_owner="bz.teachers";
 
 
-my $valid_groups=(); # for users
+# add mailboxes for the users of thiese groups:
+my $valid_groups=();
 $valid_groups{'sekretariat'}="ok";
 $valid_groups{'haustechnik'}="ok";
 $valid_groups{'sozial'}="ok";
 $valid_groups{'ehemalige'}="ok";
 
-# maillists that are managed
-my @maillists=("kollegium","haustechnik","sozial","sekretariat","ehemalige");
+# maillists that are managed by netzwerker
+my @maillists=("kollegium","sozial","sekretariat","ehemalige","netzwerker");
 
-my $maildomain="bszleo.de";
+my $maildomain="bszleo.de"; # for maillist members
 
 my $type="MultiMailbox";
 my $mailquota_default=512;
 # end configuration part 1
 ############################################################
-# result
 
+
+
+# result
 my $result_dir=$target_dir;
 my $result_add=$result_dir."/belwue-mailaccounts.txt";
 my $result_add_utf8=$result_dir."/belwue-mailaccounts-utf8.txt";
-
-
-
-
 my %aliases=();
 my %belwue=();
+# result files
+system("mkdir -p $result_dir");
+open(ADD,">$result_add") || 
+          die "Fehler: $result_add could not be created!";
+
+
+
 foreach my $listname (@maillists){
     #print "--> $listname\n";
     $belwue{'maillist-checked'}{$listname}="checked";
 }
 
 my @passwort_zeichen=&get_passwd_charlist();
-
-# result files
-system("mkdir -p $result_dir");
-open(ADD,">$result_add") || 
-          die "Fehler: $result_add could not be created!";
-
 
 
 # existing accounts
@@ -104,6 +83,12 @@ while(<BELWUE>){
     $belwue{'uid-seen'}{$uid}="seen";
 }
 close(BELWUE);
+
+# copy the uid list to delete uids seen at bsz, 
+# rest must be deleted at belwue 
+my %belwue_uid = %{ $belwue{'uid-seen'} };   
+
+
 
 # existing maillists
 open(BELWUE,"$belwue_maillists") || 
@@ -187,6 +172,8 @@ while(<ALIASES>){
 close(ALIASES);
 
 
+
+
 ############################################################
 # configuration, part 2
 
@@ -207,7 +194,9 @@ push @{ $belwue{'maillist'}{'kollegium'}{'memberuser'} }, "haustechnik";
 
 
 print "##### Do the following on belwue Server: #####\n";
-print "ADDING USERS:\n";
+print "########## ADD THE FOLLOWING MAILBOXES/USERS::\n";
+
+
 
 # lehrer
 open(LEHRER,"$lehrer_file") || 
@@ -232,9 +221,14 @@ while(<LEHRER>){
     $plain_password=&get_plain_password(@passwort_zeichen);
     if (not exists $belwue{'uid-seen'}{$uid}){
         print ADD "$uid\t$last, $sur\t$type\t$plain_password\t${mailquota}M\t$alias\n";
+    } 
+
+    if (exists $belwue_uid{$uid}){
+        delete $belwue_uid{$uid}
     }
 }
 close(LEHRER);
+
 
 
 # extraschueler
@@ -262,19 +256,26 @@ while(<EXTRAS>){
         print ADD "$uid\t$last, $sur\t$type\t$plain_password\t${mailquota_default}M\t$alias\n";
         print "   * ADD USER: $uid\t$last, $sur\t$type\t$plain_password\t${mailquota_default}M\t$alias\n";
     }
+    if (exists $belwue_uid{$uid} and exists $valid_groups{$group}){
+        delete $belwue_uid{$uid}
+    }
+
 }
 close(EXTRAS);
 
 
 
+print "########## REMOVE THE FOLLOWING MAILBOXES/USERS:\n";
+foreach my $uid ( keys %belwue_uid ){
+    if ($uid eq "admin"){
+        # skip the admin account
+        next;
+    }
+    print "   * $uid\n";
+}
 
 
-print "REMOVING USERS:\n";
-print " ... Todo ...\n";
-
-
-
-print "NONEXISTING Maillists:\n";
+print "########## NONEXISTING Maillists:\n";
 foreach my $list (@maillists){
     if (exists $belwue{'maillist-seen'}{$list}){
         #print "$list exists\n";
@@ -283,16 +284,16 @@ foreach my $list (@maillists){
     }
 }
 
-
-
-
 close(ADD);
+print "########## Running iconv:\n";
 system("/usr/bin/iconv --verbose -f 8859_1 -t utf-8 $result_add -o $result_add_utf8");
+
+
 
 # creating the maillist files
 my @to_add=();
 my $to_remove=();
-print "MANAGING Maillists:\n";
+print "########## MANAGING Maillists:\n";
 foreach my $maillist ( keys %{ $belwue{'maillist'} } ){
     my $file=$result_dir."/maillist-".$maillist.".txt";
     print "   * creating maillist file $file\n";
@@ -308,10 +309,10 @@ foreach my $maillist (@maillists){
     my @to_add=();     # members to add
     my @to_remove=();  # members to remove
     if (not exists $belwue{'maillist-seen'}{$maillist} ){
-        print "Maillist $maillist must be created/has no members at belwue\n";
+        print "########## Maillist $maillist must be created/has no members at belwue\n";
         next;
     } else {
-        print "Maillist $maillist exists, actions follow:\n";
+        print "########## Maillist $maillist exists, actions follow:\n";
     }
     my %belwue_members = %{ $belwue{'maillist-seen'}{$maillist}{'memberlist'} };   
     # creating hash of bsz maillist members
@@ -327,23 +328,17 @@ foreach my $maillist (@maillists){
     }
 
     # printout
-    print "Members to add to maillist $maillist:\n";
+    print "   * Members to add to maillist $maillist:\n";
     foreach my $entry (@to_add){
-        print "   * $entry\n";
+        print "      * $entry\n";
     }
     print "\n";
-    print "Members to delete from maillist $maillist:\n";
+    print "   * Members to delete from maillist $maillist:\n";
     foreach my $entry (@to_remove){
-        print "   * $entry\n";
+        print "      * $entry\n";
     }
     print "\n";
 }
-
-
-
-
-
-print " ... Todo ...\n";
 
 system("chown -R $target_owner $target_dir");
 print "Result files created in $result_dir\n";
@@ -357,9 +352,9 @@ print "Result files created in $result_dir\n";
 ############################################################
 sub add_maillist_to_maillist {
     my ($list,$maillist) = @_;
-    print "   * Adding members of $list to $maillist\n";
+    #print "   * Adding members of $list to $maillist\n";
     foreach my $member ( @{ $belwue{'maillist'}{$list}{'memberlist'} } ){   
-        print "      * adding $member to $maillist\n";
+        #print "      * adding $member to $maillist\n";
         my ($user,$string)=split(/@/,$member);
         push @{ $belwue{'maillist'}{$maillist}{'memberlist'} }, $member;
         push @{ $belwue{'maillist'}{$maillist}{'memberuser'} }, $user;
@@ -441,3 +436,4 @@ sub create_plain_password {
     #print "Password OK: $password\n";
     return $password;
 }
+
