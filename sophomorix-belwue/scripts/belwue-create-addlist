@@ -65,7 +65,6 @@ open(ADD,">$result_add") ||
           die "Fehler: $result_add could not be created!";
 
 
-
 foreach my $listname (@maillists){
     #print "--> $listname\n";
     $belwue{'maillist-checked'}{$listname}="checked";
@@ -196,6 +195,7 @@ push @{ $belwue{'maillist'}{'kollegium'}{'memberuser'} }, "haustechnik";
 print "##### Do the following on belwue Server: #####\n";
 print "########## ADD THE FOLLOWING MAILBOXES/USERS::\n";
 
+print ADD "Name\tRealname\tType\tPassword\tStorage\tAliases\n";
 
 
 # lehrer
@@ -221,6 +221,7 @@ while(<LEHRER>){
     $plain_password=&get_plain_password(@passwort_zeichen);
     if (not exists $belwue{'uid-seen'}{$uid}){
         print ADD "$uid\t$last, $sur\t$type\t$plain_password\t${mailquota}M\t$alias\n";
+        print "   * ADD USER: $uid\t$last, $sur\t$type\t$plain_password\t${mailquota_default}M\t$alias\n";
     } 
 
     if (exists $belwue_uid{$uid}){
