@@ -1,0 +1,91 @@
+#!/usr/bin/perl -w
+
+
+
+# dump from atlantis
+# "Lfd Nr";"Schuljahr: Lehrerkürzel";"Lehrer: Name 1";"Lehrer: Name 2";"Lehrer: Aktiv (J/N)";
+my $lehrer_file="/root/lehrer.txt";
+
+my %ignore=();
+$ignore{"vbu"}="ignore"; # buhse
+$ignore{"vle"}="ignore"; # leitmann
+$ignore{"wa"}="ignore"; # wachtler-mueller
+$ignore{"vwm"}="ignore"; # winkler
+$ignore{"luz"}="ignore"; # lutz
+$ignore{"vkae"}="ignore"; # kaessmann
+$ignore{"vjue"}="ignore"; # juergens
+$ignore{"vmst"}="ignore"; # muest
+$ignore{"vsck"}="ignore"; # schmengler
+$ignore{"vbau"}="ignore";
+$ignore{"vbau"}="ignore";
+$ignore{"vbau"}="ignore";
+$ignore{"vbau"}="ignore";
+
+# lehrer
+open(LEHRER,"$lehrer_file") || 
+          die "Fehler: $lehrer_file not found!";
+
+my $count=0;
+while(<LEHRER>){
+    #print $_;
+    chomp();
+    my ($number,
+        $token,
+        $surname,
+        $firstname,
+        $active,
+       )=split(";");
+
+    $number=&remove_quote($number);
+    $token=&remove_quote($token);
+    $firstname=&remove_quote($firstname);
+    $surname=&remove_quote($surname);
+    $active=&remove_quote($active);
+
+    $token=~tr/A-Z/a-z/; # in Kleinbuchstaben umwandeln
+    # (1) entfernen
+    $token=~s/ \(1\)//g;
+
+
+    if ($active eq "J" and not exists $ignore{$token}){
+        my $result=system("id $token > /dev/null 2>&1 ");
+        if ($result==0){
+            # user exists
+        } else {
+            $count++;
+            print "$count) <Line $number>: <$token> <$firstname> <$surname>  <$active> \n";
+        }
+
+    } else {
+
+    }
+
+
+}
+close(LEHRER);
+
+
+
+
+############################################################
+# subs
+############################################################
+
+sub remove_quote {
+    my ($string)=@_;
+    $string=~s/^"//g;
+    $string=~s/"$//g;
+    $string=~s/^ //g;
+    $string=~s/ $//g;
+    return $string;
+}
+
+
+sub remove_whitespace {
+    my ($string)=@_;
+    $string=~s/^\s+//g;# remove leading whitespace
+    $string=~s/\s+$//g;# remove trailing whitespace
+    return $string;    
+}
+
+
