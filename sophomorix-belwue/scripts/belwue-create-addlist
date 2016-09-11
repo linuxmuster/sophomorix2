@@ -34,7 +34,7 @@ my $target_dir="/home/teachers/bz/sophomorix-belwue";
 my $target_owner="bz.teachers";
 
 
-# add mailboxes for the users of thiese groups:
+# add mailboxes for the users of these groups:
 my $valid_groups=();
 $valid_groups{'sekretariat'}="ok";
 $valid_groups{'haustechnik'}="ok";
@@ -42,7 +42,8 @@ $valid_groups{'sozial'}="ok";
 $valid_groups{'ehemalige'}="ok";
 
 # maillists that are managed by netzwerker
-my @maillists=("kollegium","sozial","sekretariat","ehemalige","netzwerker");
+my @maillists=("kollegium","sozial","sekretariat","ehemalige","netzwerker",
+               "solarstrom","bsz-solarstrom","schulleitung","fal");
 
 my $maildomain="bszleo.de"; # for maillist members
 
@@ -220,8 +221,8 @@ while(<LEHRER>){
 
     $plain_password=&get_plain_password(@passwort_zeichen);
     if (not exists $belwue{'uid-seen'}{$uid}){
-        print ADD "$uid\t$last, $sur\t$type\t$plain_password\t${mailquota}M\t$alias\n";
-        print "   * ADD USER: $uid\t$last, $sur\t$type\t$plain_password\t${mailquota_default}M\t$alias\n";
+        print ADD "$uid\t$sur $last\t$type\t$plain_password\t${mailquota}M\t$alias\n";
+        print "   * ADD USER: $uid\t$sur $last\t$type\t$plain_password\t${mailquota_default}M\t$alias\n";
     } 
 
     if (exists $belwue_uid{$uid}){
@@ -254,8 +255,8 @@ while(<EXTRAS>){
 
     $plain_password=&get_plain_password(@passwort_zeichen);
     if (not exists $belwue{'uid-seen'}{$uid} and exists $valid_groups{$group}){
-        print ADD "$uid\t$last, $sur\t$type\t$plain_password\t${mailquota_default}M\t$alias\n";
-        print "   * ADD USER: $uid\t$last, $sur\t$type\t$plain_password\t${mailquota_default}M\t$alias\n";
+        print ADD "$uid\t$sur $last\t$type\t$plain_password\t${mailquota_default}M\t$alias\n";
+        print "   * ADD USER: $uid\t$sur $last\t$type\t$plain_password\t${mailquota_default}M\t$alias\n";
     }
     if (exists $belwue_uid{$uid} and exists $valid_groups{$group}){
         delete $belwue_uid{$uid}
@@ -329,16 +330,14 @@ foreach my $maillist (@maillists){
     }
 
     # printout
-    print "   * Members to add to maillist $maillist:\n";
+    print "* Members to add to maillist $maillist:\n";
     foreach my $entry (@to_add){
-        print "      * $entry\n";
+        print "   * $entry\n";
     }
-    print "\n";
-    print "   * Members to delete from maillist $maillist:\n";
+    print "* Members to delete from maillist $maillist:\n";
     foreach my $entry (@to_remove){
-        print "      * $entry\n";
+        print "   * $entry\n";
     }
-    print "\n";
 }
 
 system("chown -R $target_owner $target_dir");
