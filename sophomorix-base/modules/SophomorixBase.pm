@@ -4686,9 +4686,13 @@ sub handoutcopy {
                   # use smb_owner
                   $owner=$smb_owner;
               }
+#              &chmod_chown_dir("$to_dir/*",
+#                               $dir_perm,
+#                               $file_perm,
+#                               $owner,$gowner);
               &chmod_chown_dir("$to_dir/*",
                                $dir_perm,
-                               $file_perm,
+                               "0644",
                                $owner,$gowner);
               #system ("chown -R ${user}:${DevelConf::teacher} $to_dir/*");
               #system ("chmod -R 0755 $to_dir/*");
