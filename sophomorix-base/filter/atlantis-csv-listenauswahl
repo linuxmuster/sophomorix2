@@ -15,7 +15,7 @@
 # Start configure 
 ############################################################
 
-my $current_year_string="2017/18";
+my $current_year_string="2018/19";
 
 
 
@@ -41,18 +41,18 @@ while (<SOURCE>){
         $birthday,
         $unid,
         $schoolyear,
-       )=split(/,/);
+       )=split(/;/);
 
 
-#    $number=&remove_quote($number);
-#    $class=&remove_quote($class);
-#    $surname=&remove_quote($surname);
-#    $firstname=&remove_quote($firstname);
-#    $birthday=&remove_quote($birthday);
-#    $unid=&remove_quote($unid);
-#    $schoolyear=&remove_quote($schoolyear);
+    $number=&remove_quote($number);
+    $class=&remove_quote($class);
+    $surname=&remove_quote($surname);
+    $firstname=&remove_quote($firstname);
+    $birthday=&remove_quote($birthday);
+    $unid=&remove_quote($unid);
+    $schoolyear=&remove_quote($schoolyear);
 
-    if ($class eq "klasse" and $number eq "lfd_nr"){
+    if ($class eq "Klasse" and $number eq "Lfd Nr"){
         print "Next Line\n";
         next;
     }
@@ -77,9 +77,9 @@ $schoolyear=~s/\r//g;
 
 
 
-    my $commas_per_line=tr/,//;
-    if (not $commas_per_line==6){
-        print "Number of commas is $commas_per_line\n";
+    my $commas_per_line=tr/;//;
+    if (not $commas_per_line==7){
+        print "Number of semikolon is $commas_per_line\n";
         exit 1;
     }
 
