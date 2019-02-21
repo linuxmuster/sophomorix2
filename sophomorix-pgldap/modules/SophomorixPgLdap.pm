@@ -5974,7 +5974,20 @@ sub update_user_ldap {
     my ($ldappw,$ldap_rootdn,$dbpw,$suffix,$mail_dom)=&fetch_ldap_pg_passwords();
     my $dn="uid=".$uid.",ou=".$ou.",".$suffix;
     my @dn=split(",",$dn);
-    my $mail=(defined $mymail and $mymail ne ""? $mymail : $uid."@".$mail_dom);
+
+    # create from ????????????????????????????????
+    my $mail;
+    if (not defined $mymail){
+        $mail=$uid."@".$mail_dom;
+    } elsif (defined $mymail and $mymail eq ""){
+        $mail=$uid."@".$mail_dom;
+    } else {
+	$mail=$mymail;
+    }
+
+    #my $mail=(defined $mymail and $mymail ne ""? $mymail : $uid."@".$mail_dom);
+
+
     # search existing account
     my $mesg_1 = $ldap->search( base => "$dn", attrs => '*', filter => 'cn=*');
 
